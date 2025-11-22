@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: game_server_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    ports:
+      - "4000:4000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/game_server_dev
+      SECRET_KEY_BASE: your_secret_key_here  # Replace with a secure key
+      MIX_ENV: dev
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+      - /app/_build
+      - /app/deps
+    command: mix phx.server
+
+volumes:
+  postgres_data:

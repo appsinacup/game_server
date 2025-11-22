@@ -51,6 +51,9 @@ defmodule GameServerWeb.Layouts do
             <a href="https://github.com/phoenixframework/phoenix" class="btn btn-ghost">GitHub</a>
           </li>
           <li>
+            <a href="/api/docs" class="btn btn-ghost">API Docs</a>
+          </li>
+          <li>
             <.theme_toggle />
           </li>
           <li>

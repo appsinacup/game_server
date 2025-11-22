@@ -40,6 +40,7 @@ defmodule GameServer.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:bcrypt_elixir, "~> 3.0"},
       {:phoenix, "~> 1.8.1"},
       {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.13"},
@@ -65,7 +66,11 @@ defmodule GameServer.MixProject do
       {:gettext, "~> 0.26"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.2.0"},
-      {:bandit, "~> 1.5"}
+      {:ueberauth_discord, "~> 0.6"},
+      {:bandit, "~> 1.5"},
+      {:ueberauth, "~> 0.10"},
+      {:open_api_spex, "~> 3.21"},
+      {:dotenvy, "~> 0.8.0"}
     ]
   end
 

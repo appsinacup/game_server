@@ -10,6 +10,9 @@ defmodule GameServerWeb.Endpoint do
     signing_salt: "G8u1px36",
     same_site: "Lax"
   ]
+  socket "/socket", GameServerWeb.UserSocket,
+    websocket: true,
+    longpoll: false
 
   socket "/live", Phoenix.LiveView.Socket,
     websocket: [connect_info: [session: @session_options]],
