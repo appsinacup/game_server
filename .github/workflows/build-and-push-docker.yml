@@ -47,14 +47,7 @@ jobs:
           context: .
           file: Dockerfile
           platforms: ${{ matrix.platform }}
-          push: ${{ github.ref == 'refs/heads/master' && github.event_name == 'push' }}
+          push: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
           tags: |
             ${{ env.IMAGE }}:latest
             ${{ env.IMAGE }}:${{ github.sha }}
-
-      - name: Show resulting image info
-        if: always()
-        run: |
-          echo "IMAGE=${{ env.IMAGE }}"
-          echo "PUSHED=${{ github.ref == 'refs/heads/master' && github.event_name == 'push' }}"
-          echo "TAGS=latest,${{ github.sha }}"
