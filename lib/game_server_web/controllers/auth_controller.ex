@@ -1,9 +1,30 @@
 defmodule GameServerWeb.AuthController do
   use GameServerWeb, :controller
+  use OpenApiSpex.ControllerSpecs
   plug Ueberauth
 
   alias GameServer.Accounts
   alias GameServerWeb.UserAuth
+
+  tags(["Authentication"])
+
+  operation(:request,
+    summary: "Initiate Discord OAuth",
+    description: "Redirects to Discord for OAuth authentication",
+    parameters: [
+      provider: [
+        in: :path,
+        name: "provider",
+        schema: %OpenApiSpex.Schema{type: :string, enum: ["discord"]},
+        description: "OAuth provider",
+        required: true,
+        example: "discord"
+      ]
+    ],
+    responses: [
+      found: {"Redirect to Discord", "text/html", nil}
+    ]
+  )
 
   def request(conn, _params) do
     # This is handled by Ueberauth

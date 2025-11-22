@@ -51,11 +51,11 @@ defmodule GameServerWeb.Layouts do
             <li>
               <.link href={~p"/users/settings"} class="btn btn-primary">Settings</.link>
             </li>
-            <li>
-              <a href={~p"/admin"} class="btn btn-primary">
-                Admin
-              </a>
-            </li>
+            <%= if @current_scope && @current_scope.user.is_admin do %>
+              <li>
+                <.link href={~p"/admin"} class="btn btn-primary">Admin</.link>
+              </li>
+            <% end %>
             <li>
               <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline">
                 Log out

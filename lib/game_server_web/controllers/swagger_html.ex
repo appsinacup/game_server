@@ -13,6 +13,10 @@ defmodule GameServerWeb.SwaggerHTML do
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.10.5/swagger-ui.css"
         />
+        <style>
+          body { background-color: white !important; color: black !important; }
+          .swagger-ui { background-color: white !important; }
+        </style>
       </head>
       <body>
         <div id="swagger-ui"></div>
@@ -29,7 +33,8 @@ defmodule GameServerWeb.SwaggerHTML do
                 SwaggerUIBundle.presets.apis,
                 SwaggerUIStandalonePreset
               ],
-              layout: "StandaloneLayout"
+              layout: "StandaloneLayout",
+              theme: "default"
             });
           };
         </script>

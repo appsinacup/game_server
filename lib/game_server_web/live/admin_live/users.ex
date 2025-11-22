@@ -32,6 +32,8 @@ defmodule GameServerWeb.AdminLive.Users do
                     <th>Discord ID</th>
                     <th>Discord Username</th>
                     <th>Discord Avatar</th>
+                    <th>Admin</th>
+                    <th>Metadata</th>
                     <th>Confirmed</th>
                     <th>Created</th>
                     <th>Updated</th>
@@ -65,6 +67,20 @@ defmodule GameServerWeb.AdminLive.Users do
                         />
                       <% else %>
                         <span class="badge badge-ghost badge-sm">Not set</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <%= if user.is_admin do %>
+                        <span class="badge badge-success badge-sm">Yes</span>
+                      <% else %>
+                        <span class="badge badge-neutral badge-sm">No</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <%= if user.metadata && user.metadata != %{} do %>
+                        <span class="badge badge-info badge-sm">Set</span>
+                      <% else %>
+                        <span class="badge badge-ghost badge-sm">Empty</span>
                       <% end %>
                     </td>
                     <td>
@@ -113,6 +129,27 @@ defmodule GameServerWeb.AdminLive.Users do
               <.input field={@form[:email]} type="email" label="Email" />
               <div class="form-control">
                 <label class="label cursor-pointer">
+                  <span class="label-text">Admin</span>
+                  <input
+                    type="checkbox"
+                    name="user[is_admin]"
+                    class="checkbox"
+                    checked={@selected_user.is_admin}
+                  />
+                </label>
+              </div>
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">Metadata (JSON)</span>
+                  <textarea
+                    name="user[metadata]"
+                    class="textarea textarea-bordered"
+                    rows="4"
+                  ><%= Jason.encode!(@selected_user.metadata || %{}) %></textarea>
+                </label>
+              </div>
+              <div class="form-control">
+                <label class="label cursor-pointer">
                   <span class="label-text">Confirmed</span>
                   <input
                     type="checkbox"
@@ -150,7 +187,7 @@ defmodule GameServerWeb.AdminLive.Users do
   @impl true
   def handle_event("edit_user", %{"id" => id}, socket) do
     user = Repo.get!(User, id)
-    changeset = GameServer.Accounts.change_user_email(user, %{}, validate_unique: false)
+    changeset = User.admin_changeset(user, %{})
     form = to_form(changeset, as: "user")
 
     {:noreply,
@@ -170,13 +207,20 @@ defmodule GameServerWeb.AdminLive.Users do
     user = socket.assigns.selected_user
 
     attrs =
-      Map.put(
-        user_params,
+      user_params
+      |> Map.put(
         "confirmed_at",
         if(user_params["confirmed"] == "on", do: DateTime.utc_now(:second), else: nil)
       )
+      |> Map.put("is_admin", user_params["is_admin"] == "on")
+      |> Map.update("metadata", %{}, fn metadata_str ->
+        case Jason.decode(metadata_str) do
+          {:ok, map} when is_map(map) -> map
+          _ -> %{}
+        end
+      end)
 
-    case update_user(user, attrs) do
+    case User.admin_changeset(user, attrs) |> Repo.update() do
       {:ok, _user} ->
         recent_users = Repo.all(from u in User, order_by: [desc: u.inserted_at], limit: 10)
 
@@ -209,16 +253,5 @@ defmodule GameServerWeb.AdminLive.Users do
       {:error, _changeset} ->
         {:noreply, put_flash(socket, :error, "Failed to delete user")}
     end
-  end
-
-  defp update_user(user, attrs) do
-    user
-    |> Ecto.Changeset.cast(attrs, [:email, :confirmed_at])
-    |> Ecto.Changeset.validate_required([:email])
-    |> Ecto.Changeset.validate_format(:email, ~r/^[^\s]+@[^\s]+$/,
-      message: "must be a valid email"
-    )
-    |> Ecto.Changeset.unique_constraint(:email)
-    |> Repo.update()
   end
 end

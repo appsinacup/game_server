@@ -11,6 +11,8 @@ defmodule GameServer.Accounts.User do
     field :discord_id, :string
     field :discord_username, :string
     field :discord_avatar, :string
+    field :is_admin, :boolean, default: false
+    field :metadata, :map, default: %{}
 
     timestamps(type: :utc_datetime)
   end
@@ -135,6 +137,15 @@ defmodule GameServer.Accounts.User do
     |> unique_constraint(:email)
     |> unique_constraint(:discord_id)
     |> put_change(:confirmed_at, DateTime.utc_now(:second))
+  end
+
+  @doc """
+  A user changeset for admin updates.
+  """
+  def admin_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:is_admin, :metadata])
+    |> validate_required([:is_admin])
   end
 
   @doc """
