@@ -1,0 +1,25 @@
+# Don't copy mix.lock - let Docker generate it in the correct environment
+mix.lock
+
+# Don't copy build artifacts
+_build/
+deps/
+*.ez
+
+# Don't copy development artifacts
+.elixir_ls/
+.vscode/
+
+# Don't copy git
+.git/
+.gitignore
+
+# Don't copy OS files
+.DS_Store
+
+# Don't copy node modules and build artifacts
+node_modules/
+assets/node_modules/
+
+# Don't copy test artifacts
+cover/

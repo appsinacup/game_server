@@ -12,11 +12,13 @@ RUN mix local.hex --force && \
 # Set working directory
 WORKDIR /app
 
+# Set environment to production
+ENV MIX_ENV=prod
+
 # Copy mix.exs
 COPY mix.exs ./
 
-# Set environment and install dependencies
-ENV MIX_ENV=prod
+# Install dependencies (generates mix.lock in prod environment)
 RUN mix deps.get
 
 # Copy the rest of the application
