@@ -71,7 +71,8 @@ defmodule GameServerWeb.Router do
 
       # Admin routes
       live "/admin", AdminLive.Index, :index
-      live "/admin/users", AdminLive.Users.Index, :index
+      live "/admin/config", AdminLive.Config, :index
+      live "/admin/users", AdminLive.Users, :index
     end
 
     post "/users/update-password", UserSessionController, :update_password

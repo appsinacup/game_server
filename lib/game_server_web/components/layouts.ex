@@ -44,13 +44,28 @@ defmodule GameServerWeb.Layouts do
       </div>
       <div class="flex-none">
         <ul class="flex flex-column px-1 space-x-4 items-center">
+          <%= if @current_scope do %>
+            <li>
+              {@current_scope.user.email}
+            </li>
+            <li>
+              <.link href={~p"/users/settings"}>Settings</.link>
+            </li>
+            <li>
+              <.link href={~p"/users/log-out"} method="delete">Log out</.link>
+            </li>
+            <li>
+              <a href={~p"/admin"} class="btn btn-primary">
+                Admin
+              </a>
+            </li>
+          <% else %>
+          <% end %>
           <li>
-            <.theme_toggle />
+            <.link href={~p"/api/docs"} target="_blank">API Docs</.link>
           </li>
           <li>
-            <a href="https://hexdocs.pm/phoenix/overview.html" class="btn btn-primary">
-              Get Started <span aria-hidden="true">&rarr;</span>
-            </a>
+            <.theme_toggle />
           </li>
         </ul>
       </div>
