@@ -7,7 +7,6 @@ defmodule GameServer.Application do
 
   @impl true
   def start(_type, _args) do
-    # Start os_mon to avoid OS_MON warnings
     Application.start(:os_mon)
 
     children = [

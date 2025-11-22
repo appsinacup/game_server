@@ -44,6 +44,14 @@ defmodule GameServerWeb.Router do
     delete "/logout", SessionController, :delete
   end
 
+  # API OAuth routes
+  scope "/api/v1/auth", GameServerWeb do
+    pipe_through :api
+
+    get "/:provider", AuthController, :api_request
+    get "/:provider/callback", AuthController, :api_callback
+  end
+
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:game_server, :dev_routes) do
     # If you want to use the LiveDashboard in production, you should put

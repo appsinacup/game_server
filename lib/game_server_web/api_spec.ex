@@ -20,14 +20,14 @@ defmodule GameServerWeb.ApiSpec do
         API for Game Server application
 
         ## Authentication
-        - Email/Password login at `/api/v1/auth/login`
-        - Discord OAuth at `/auth/discord`
+        - Email/Password login at `/api/v1/login`
+        - Discord OAuth at `/api/v1/auth/discord`
 
         ## Endpoints
         All API endpoints are under `/api/v1`
         """
       },
-      paths: Paths.from_router(Router),
+      paths: filter_api_paths(Paths.from_router(Router)),
       components: %Components{
         securitySchemes: %{
           "authorization" => %SecurityScheme{
@@ -39,5 +39,13 @@ defmodule GameServerWeb.ApiSpec do
       }
     }
     |> OpenApiSpex.resolve_schema_modules()
+  end
+
+  # Filter out non-API routes (browser routes) from the OpenAPI spec
+  defp filter_api_paths(paths) do
+    Map.filter(paths, fn {path, _path_item} ->
+      # Only include paths that start with /api/
+      String.starts_with?(path, "/api/")
+    end)
   end
 end
