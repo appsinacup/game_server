@@ -12,17 +12,17 @@ RUN mix local.hex --force && \
 # Set working directory
 WORKDIR /app
 
-# Copy mix.exs and mix.lock
-COPY mix.exs mix.lock ./
+# Copy mix.exs
+COPY mix.exs ./
 
-# Install dependencies
+# Set environment and install dependencies
+ENV MIX_ENV=prod
 RUN mix deps.get
 
 # Copy the rest of the application
 COPY . .
 
 # Compile the application
-ENV MIX_ENV=prod
 RUN mix compile
 
 # Expose port
