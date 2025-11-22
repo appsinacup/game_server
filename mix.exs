@@ -93,6 +93,9 @@ defmodule GameServer.MixProject do
         "esbuild game_server --minify",
         "phx.digest"
       ],
+      lint: [
+        "format --check-formatted"
+      ],
       precommit: ["compile --warning-as-errors", "deps.unlock --unused", "format", "test"]
     ]
   end
