@@ -1,5 +1,10 @@
 FROM elixir:1.15-slim
 
+# Install git and other build dependencies
+RUN apt-get update && \
+    apt-get install -y git build-essential && \
+    rm -rf /var/lib/apt/lists/*
+
 # Install hex and rebar
 RUN mix local.hex --force && \
     mix local.rebar --force

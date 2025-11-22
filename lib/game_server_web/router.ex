@@ -72,6 +72,7 @@ defmodule GameServerWeb.Router do
       live "/admin", AdminLive.Index, :index
       live "/admin/config", AdminLive.Config, :index
       live "/admin/users", AdminLive.Users, :index
+      live "/admin/sessions", AdminLive.Sessions, :index
     end
   end
 
