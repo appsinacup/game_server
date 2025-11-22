@@ -23,9 +23,14 @@ defmodule GameServerWeb.AdminLive.Index do
           <.link navigate={~p"/admin/users"} class="btn btn-primary">
             Users ({@users_count})
           </.link>
-          <.link navigate={~p"/dev/dashboard"} class="btn btn-secondary">
-            Developer Dashboard
-          </.link>
+          <%= if @dev_routes? do %>
+            <.link navigate={~p"/dev/dashboard"} class="btn btn-secondary">
+              Developer Dashboard
+            </.link>
+            <.link href="/dev/mailbox" class="btn btn-secondary">
+              Mailbox
+            </.link>
+          <% end %>
         </div>
 
         <div class="card bg-base-200">

@@ -7,7 +7,7 @@ defmodule GameServerWeb.UserLive.Login do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="mx-auto max-w-sm space-y-4">
+      <div class="mx-auto max-w-sm lg:max-w-4xl space-y-4">
         <div class="text-center">
           <.header>
             <p>Log in</p>
@@ -35,58 +35,60 @@ defmodule GameServerWeb.UserLive.Login do
           </div>
         </div>
 
-        <.form
-          :let={f}
-          for={@form}
-          id="login_form_magic"
-          action={~p"/users/log-in"}
-          phx-submit="submit_magic"
-        >
-          <.input
-            readonly={!!@current_scope}
-            field={f[:email]}
-            type="email"
-            label="Email"
-            autocomplete="username"
-            required
-            phx-mounted={JS.focus()}
-          />
-          <.button class="btn btn-primary w-full">
-            Log in with email <span aria-hidden="true">→</span>
-          </.button>
-        </.form>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <.form
+            :let={f}
+            for={@form}
+            id="login_form_magic"
+            action={~p"/users/log-in"}
+            phx-submit="submit_magic"
+          >
+            <.input
+              readonly={!!@current_scope}
+              field={f[:email]}
+              type="email"
+              label="Email"
+              autocomplete="username"
+              required
+              phx-mounted={JS.focus()}
+            />
+            <.button class="btn btn-primary w-full">
+              Log in with email <span aria-hidden="true">→</span>
+            </.button>
+          </.form>
 
-        <div class="divider">or</div>
+          <div class="divider lg:hidden">or</div>
 
-        <.form
-          :let={f}
-          for={@form}
-          id="login_form_password"
-          action={~p"/users/log-in"}
-          phx-submit="submit_password"
-          phx-trigger-action={@trigger_submit}
-        >
-          <.input
-            readonly={!!@current_scope}
-            field={f[:email]}
-            type="email"
-            label="Email"
-            autocomplete="username"
-            required
-          />
-          <.input
-            field={@form[:password]}
-            type="password"
-            label="Password"
-            autocomplete="current-password"
-          />
-          <.button class="btn btn-primary w-full" name={@form[:remember_me].name} value="true">
-            Log in and stay logged in <span aria-hidden="true">→</span>
-          </.button>
-          <.button class="btn btn-primary btn-soft w-full mt-2">
-            Log in only this time
-          </.button>
-        </.form>
+          <.form
+            :let={f}
+            for={@form}
+            id="login_form_password"
+            action={~p"/users/log-in"}
+            phx-submit="submit_password"
+            phx-trigger-action={@trigger_submit}
+          >
+            <.input
+              readonly={!!@current_scope}
+              field={f[:email]}
+              type="email"
+              label="Email"
+              autocomplete="username"
+              required
+            />
+            <.input
+              field={@form[:password]}
+              type="password"
+              label="Password"
+              autocomplete="current-password"
+            />
+            <.button class="btn btn-primary w-full" name={@form[:remember_me].name} value="true">
+              Log in and stay logged in <span aria-hidden="true">→</span>
+            </.button>
+            <.button class="btn btn-primary btn-soft w-full mt-2">
+              Log in only this time
+            </.button>
+          </.form>
+        </div>
 
         <div class="divider">or continue with</div>
 
