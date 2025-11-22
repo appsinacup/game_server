@@ -49,15 +49,17 @@ defmodule GameServerWeb.Layouts do
               {@current_scope.user.email}
             </li>
             <li>
-              <.link href={~p"/users/settings"}>Settings</.link>
-            </li>
-            <li>
-              <.link href={~p"/users/log-out"} method="delete">Log out</.link>
+              <.link href={~p"/users/settings"} class="btn btn-primary">Settings</.link>
             </li>
             <li>
               <a href={~p"/admin"} class="btn btn-primary">
                 Admin
               </a>
+            </li>
+            <li>
+              <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline">
+                Log out
+              </.link>
             </li>
           <% else %>
           <% end %>
