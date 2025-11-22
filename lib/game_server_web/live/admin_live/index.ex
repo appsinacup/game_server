@@ -28,7 +28,7 @@ defmodule GameServerWeb.AdminLive.Index do
             Tokens ({@sessions_count})
           </.link>
           <%= if @dev_routes? do %>
-            <.link navigate={~p"/dev/dashboard"} class="btn btn-secondary">
+            <.link navigate="/dev/dashboard" class="btn btn-secondary">
               Developer Dashboard
             </.link>
             <.link href="/dev/mailbox" class="btn btn-secondary">
