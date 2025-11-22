@@ -1,14 +1,28 @@
 import Config
 
 # Configure your database
-config :game_server, GameServer.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "game_server_dev",
-  stacktrace: true,
-  show_sensitive_data_on_connection_error: true,
-  pool_size: 10
+# Use PostgreSQL if environment variables are set, otherwise use SQLite
+if System.get_env("DATABASE_URL") ||
+     (System.get_env("POSTGRES_HOST") && System.get_env("POSTGRES_USER")) do
+  # Use PostgreSQL when configured
+  database_url =
+    System.get_env("DATABASE_URL") ||
+      "ecto://#{System.get_env("POSTGRES_USER")}:#{System.get_env("POSTGRES_PASSWORD")}@#{System.get_env("POSTGRES_HOST")}:#{System.get_env("POSTGRES_PORT", "5432")}/#{System.get_env("POSTGRES_DB", "game_server_dev")}"
+
+  config :game_server, GameServer.Repo,
+    url: database_url,
+    stacktrace: true,
+    show_sensitive_data_on_connection_error: true,
+    pool_size: 10
+else
+  # Fallback to SQLite when no PostgreSQL config
+  config :game_server, GameServer.Repo,
+    database: "db/game_server_dev.db",
+    adapter: Ecto.Adapters.SQLite3,
+    stacktrace: true,
+    show_sensitive_data_on_connection_error: true,
+    pool_size: 10
+end
 
 # For development, we disable any cache and enable
 # debugging and code reloading.

@@ -4,17 +4,26 @@ import Config
 config :bcrypt_elixir, :log_rounds, 1
 
 # Configure your database
-#
-# The MIX_TEST_PARTITION environment variable can be used
-# to provide built-in test partitioning in CI environment.
-# Run `mix help test` for more information.
-config :game_server, GameServer.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "game_server_test#{System.get_env("MIX_TEST_PARTITION")}",
-  pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: System.schedulers_online() * 2
+# Use PostgreSQL if environment variables are set, otherwise use SQLite
+if System.get_env("DATABASE_URL") ||
+     (System.get_env("POSTGRES_HOST") && System.get_env("POSTGRES_USER")) do
+  # Use PostgreSQL when configured
+  database_url =
+    System.get_env("DATABASE_URL") ||
+      "ecto://#{System.get_env("POSTGRES_USER")}:#{System.get_env("POSTGRES_PASSWORD")}@#{System.get_env("POSTGRES_HOST")}:#{System.get_env("POSTGRES_PORT", "5432")}/#{System.get_env("POSTGRES_DB", "game_server_test")}"
+
+  config :game_server, GameServer.Repo,
+    url: database_url,
+    pool: Ecto.Adapters.SQL.Sandbox,
+    pool_size: System.schedulers_online() * 2
+else
+  # Fallback to SQLite when no PostgreSQL config
+  config :game_server, GameServer.Repo,
+    database: "db/game_server_test#{System.get_env("MIX_TEST_PARTITION")}.db",
+    adapter: Ecto.Adapters.SQLite3,
+    pool: Ecto.Adapters.SQL.Sandbox,
+    pool_size: System.schedulers_online() * 2
+end
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.

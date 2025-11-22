@@ -72,7 +72,10 @@ defmodule GameServerWeb.AuthController do
         %OpenApiSpex.Schema{
           type: :object,
           properties: %{
-            authorization_url: %OpenApiSpex.Schema{type: :string, description: "URL to redirect user to for OAuth"}
+            authorization_url: %OpenApiSpex.Schema{
+              type: :string,
+              description: "URL to redirect user to for OAuth"
+            }
           },
           example: %{authorization_url: "https://discord.com/oauth2/authorize?..."}
         }
@@ -86,7 +89,8 @@ defmodule GameServerWeb.AuthController do
     redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/api/v1/auth/discord/callback"
     scope = "identify email"
 
-    url = "https://discord.com/oauth2/authorize?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}"
+    url =
+      "https://discord.com/oauth2/authorize?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}"
 
     json(conn, %{authorization_url: url})
   end
@@ -180,7 +184,10 @@ defmodule GameServerWeb.AuthController do
           {:error, changeset} ->
             conn
             |> put_status(:bad_request)
-            |> json(%{error: "Failed to create or update user account", details: changeset.errors})
+            |> json(%{
+              error: "Failed to create or update user account",
+              details: changeset.errors
+            })
         end
 
       {:error, reason} ->

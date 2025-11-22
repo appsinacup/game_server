@@ -26,22 +26,30 @@ if System.get_env("PHX_SERVER") do
 end
 
 if config_env() == :prod do
-  database_url =
+  # Check if PostgreSQL environment variables are set
+  has_postgres_config =
     System.get_env("DATABASE_URL") ||
-      raise """
-      environment variable DATABASE_URL is missing.
-      For example: ecto://USER:PASS@HOST/DATABASE
-      """
+      (System.get_env("POSTGRES_HOST") && System.get_env("POSTGRES_USER"))
 
-  maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
+  if has_postgres_config do
+    # Use PostgreSQL when configured
+    database_url =
+      System.get_env("DATABASE_URL") ||
+        "ecto://#{System.get_env("POSTGRES_USER")}:#{System.get_env("POSTGRES_PASSWORD")}@#{System.get_env("POSTGRES_HOST")}:#{System.get_env("POSTGRES_PORT", "5432")}/#{System.get_env("POSTGRES_DB", "game_server_prod")}"
 
-  config :game_server, GameServer.Repo,
-    # ssl: true,
-    url: database_url,
-    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
-    # For machines with several cores, consider starting multiple pools of `pool_size`
-    # pool_count: 4,
-    socket_options: maybe_ipv6
+    maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
+
+    config :game_server, GameServer.Repo,
+      url: database_url,
+      pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+      socket_options: maybe_ipv6
+  else
+    # Fallback to in-memory SQLite when no PostgreSQL config
+    config :game_server, GameServer.Repo,
+      database: ":memory:",
+      adapter: Ecto.Adapters.SQLite3,
+      pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
+  end
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you

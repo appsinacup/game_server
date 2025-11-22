@@ -1,0 +1,50 @@
+name: Test
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  test:
+    name: Elixir test
+    runs-on: ubuntu-latest
+
+    container:
+      image: elixir:1.16.3-otp-26
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          apt update
+          apt install -y build-essential erlang-dev curl
+
+      - name: Set up Elixir helpers
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+
+      - name: Cache deps
+        uses: actions/cache@v4
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-deps-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-deps-
+
+      - name: Cache build
+        uses: actions/cache@v4
+        with:
+          path: _build
+          key: ${{ runner.os }}-mix-build-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-build-
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Compile
+        run: mix compile --warnings-as-errors
+
+      - name: Run tests
+        run: mix test

@@ -53,7 +53,10 @@ defmodule GameServerWeb.AdminLive.Sessions do
                     </td>
                     <td class="text-sm">
                       <%= if session.context == "session" do %>
-                        {Calendar.strftime(DateTime.add(session.inserted_at, 14, :day), "%Y-%m-%d %H:%M")}
+                        {Calendar.strftime(
+                          DateTime.add(session.inserted_at, 14, :day),
+                          "%Y-%m-%d %H:%M"
+                        )}
                       <% else %>
                         <span class="text-gray-500">-</span>
                       <% end %>
@@ -104,7 +107,8 @@ defmodule GameServerWeb.AdminLive.Sessions do
 
     case Repo.delete(session) do
       {:ok, _session} ->
-        sessions_count = Repo.aggregate(from(t in UserToken, where: t.context == "session"), :count)
+        sessions_count =
+          Repo.aggregate(from(t in UserToken, where: t.context == "session"), :count)
 
         recent_sessions =
           Repo.all(
