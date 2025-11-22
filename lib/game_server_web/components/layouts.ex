@@ -45,15 +45,6 @@ defmodule GameServerWeb.Layouts do
       <div class="flex-none">
         <ul class="flex flex-column px-1 space-x-4 items-center">
           <li>
-            <a href="https://phoenixframework.org/" class="btn btn-ghost">Website</a>
-          </li>
-          <li>
-            <a href="https://github.com/phoenixframework/phoenix" class="btn btn-ghost">GitHub</a>
-          </li>
-          <li>
-            <a href="/api/docs" class="btn btn-ghost">API Docs</a>
-          </li>
-          <li>
             <.theme_toggle />
           </li>
           <li>

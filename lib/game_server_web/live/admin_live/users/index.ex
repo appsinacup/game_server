@@ -38,10 +38,10 @@ defmodule GameServerWeb.AdminLive.Users.Index do
                 </thead>
                 <tbody>
                   <tr :for={user <- @users} id={"user-#{user.id}"}>
-                    <td><%= user.id %></td>
-                    <td class="font-mono text-sm"><%= user.email %></td>
-                    <td class="text-sm"><%= user.discord_username || "-" %></td>
-                    <td class="font-mono text-xs"><%= user.discord_id || "-" %></td>
+                    <td>{user.id}</td>
+                    <td class="font-mono text-sm">{user.email}</td>
+                    <td class="text-sm">{user.discord_username || "-"}</td>
+                    <td class="font-mono text-xs">{user.discord_id || "-"}</td>
                     <td>
                       <%= if user.confirmed_at do %>
                         <span class="badge badge-success badge-sm">Yes</span>
@@ -50,7 +50,7 @@ defmodule GameServerWeb.AdminLive.Users.Index do
                       <% end %>
                     </td>
                     <td class="text-sm">
-                      <%= Calendar.strftime(user.inserted_at, "%Y-%m-%d %H:%M") %>
+                      {Calendar.strftime(user.inserted_at, "%Y-%m-%d %H:%M")}
                     </td>
                     <td>
                       <div class="flex gap-2">
@@ -81,7 +81,7 @@ defmodule GameServerWeb.AdminLive.Users.Index do
         <%!-- Edit User Modal --%>
         <div :if={@selected_user} class="modal modal-open">
           <div class="modal-box">
-            <h3 class="font-bold text-lg mb-4">Edit User #<%= @selected_user.id %></h3>
+            <h3 class="font-bold text-lg mb-4">Edit User #{@selected_user.id}</h3>
             <.form
               for={@form}
               id="user-form"
@@ -157,7 +157,11 @@ defmodule GameServerWeb.AdminLive.Users.Index do
     user = socket.assigns.selected_user
 
     attrs =
-      Map.put(user_params, "confirmed_at", if(user_params["confirmed"] == "on", do: DateTime.utc_now(:second), else: nil))
+      Map.put(
+        user_params,
+        "confirmed_at",
+        if(user_params["confirmed"] == "on", do: DateTime.utc_now(:second), else: nil)
+      )
 
     case update_user(user, attrs) do
       {:ok, _user} ->
@@ -196,7 +200,9 @@ defmodule GameServerWeb.AdminLive.Users.Index do
     user
     |> Ecto.Changeset.cast(attrs, [:email, :confirmed_at])
     |> Ecto.Changeset.validate_required([:email])
-    |> Ecto.Changeset.validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must be a valid email")
+    |> Ecto.Changeset.validate_format(:email, ~r/^[^\s]+@[^\s]+$/,
+      message: "must be a valid email"
+    )
     |> Ecto.Changeset.unique_constraint(:email)
     |> Repo.update()
   end

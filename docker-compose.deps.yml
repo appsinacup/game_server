@@ -1,0 +1,18 @@
+services:
+  database:
+    extends:
+      file: docker-compose.yml
+      service: database
+
+  redis:
+    extends:
+      file: docker-compose.yml
+      service: redis
+
+networks:
+  uro:
+    name: "uro"
+
+volumes:
+  postgres_data:
+  redis_data:

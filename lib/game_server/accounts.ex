@@ -91,18 +91,34 @@ defmodule GameServer.Accounts do
   """
   def find_or_create_from_discord(attrs) do
     discord_id = Map.get(attrs, :discord_id)
+    email = Map.get(attrs, :email)
 
-    case Repo.get_by(User, discord_id: discord_id) do
-      nil ->
-        %User{}
-        |> User.oauth_changeset(attrs)
-        |> Repo.insert()
-
-      user ->
-        # Update user info in case it changed on Discord
+    cond do
+      # User exists with this Discord ID - update their info
+      user = Repo.get_by(User, discord_id: discord_id) ->
         user
         |> User.oauth_changeset(attrs)
         |> Repo.update()
+
+      # User exists with this email but no Discord ID - link Discord account
+      email != nil ->
+        case Repo.get_by(User, email: email) do
+          nil ->
+            %User{}
+            |> User.oauth_changeset(attrs)
+            |> Repo.insert()
+
+          user ->
+            user
+            |> User.oauth_changeset(attrs)
+            |> Repo.update()
+        end
+
+      # New user - create from Discord data
+      true ->
+        %User{}
+        |> User.oauth_changeset(attrs)
+        |> Repo.insert()
     end
   end
 

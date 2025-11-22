@@ -24,13 +24,18 @@ defmodule GameServerWeb.AuthController do
       discord_avatar: auth.info.image
     }
 
+    require Logger
+    Logger.info("Discord OAuth user params: #{inspect(user_params)}")
+
     case Accounts.find_or_create_from_discord(user_params) do
       {:ok, user} ->
         conn
         |> put_flash(:info, "Successfully authenticated with Discord.")
         |> UserAuth.log_in_user(user)
 
-      {:error, _changeset} ->
+      {:error, changeset} ->
+        Logger.error("Failed to create user from Discord: #{inspect(changeset.errors)}")
+
         conn
         |> put_flash(:error, "Failed to create or update user account.")
         |> redirect(to: ~p"/users/log-in")

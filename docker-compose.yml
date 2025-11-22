@@ -1,7 +1,5 @@
-version: '3.8'
-
 services:
-  db:
+  database:
     image: postgres:15
     environment:
       POSTGRES_USER: postgres
@@ -16,17 +14,31 @@ services:
     build: .
     ports:
       - "4000:4000"
+    env_file:
+      - .env
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/game_server_dev
       SECRET_KEY_BASE: your_secret_key_here  # Replace with a secure key
       MIX_ENV: dev
     depends_on:
-      - db
+      - database
     volumes:
       - .:/app
       - /app/_build
       - /app/deps
     command: mix phx.server
 
+  redis:
+    image: redis:7.4-alpine
+    restart: always
+    shm_size: 128mb
+    volumes:
+      - "./redis:/data"
+    healthcheck:
+      test: redis-cli ping
+      interval: 5s
+      timeout: 5s
+
 volumes:
   postgres_data:
+  redis_data:

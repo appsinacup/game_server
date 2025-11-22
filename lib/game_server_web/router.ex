@@ -22,7 +22,6 @@ defmodule GameServerWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
-    resources "/products", ProductController
   end
 
   scope "/api" do

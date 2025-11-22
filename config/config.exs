@@ -79,7 +79,7 @@ import_config "#{config_env()}.exs"
 
 config :ueberauth, Ueberauth,
   providers: [
-    discord: {Ueberauth.Strategy.Discord, []}
+    discord: {Ueberauth.Strategy.Discord, [default_scope: "identify email"]}
   ]
 
 config :ueberauth, Ueberauth.Strategy.Discord.OAuth,
