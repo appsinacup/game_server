@@ -2,10 +2,17 @@ defmodule GameServer.Repo.Migrations.CreateUsersAuthTables do
   use Ecto.Migration
 
   def change do
-    execute "CREATE EXTENSION IF NOT EXISTS citext", ""
+    # Only create citext extension for PostgreSQL
+    if repo().__adapter__() == Ecto.Adapters.Postgres do
+      execute "CREATE EXTENSION IF NOT EXISTS citext", ""
+    end
 
     create table(:users) do
-      add :email, :citext, null: false
+      # Use citext for PostgreSQL, string for others
+      # Make email nullable for SQLite since we can't alter columns later
+      add :email, if(repo().__adapter__() == Ecto.Adapters.Postgres, do: :citext, else: :string),
+        null: if(repo().__adapter__() == Ecto.Adapters.Postgres, do: false, else: true)
+
       add :hashed_password, :string
       add :confirmed_at, :utc_datetime
 
