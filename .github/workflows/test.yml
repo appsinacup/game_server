@@ -5,8 +5,8 @@ on:
   push:
 
 jobs:
-  test:
-    name: Elixir test
+  test-sqlite:
+    name: Test with SQLite
     runs-on: ubuntu-latest
 
     container:
@@ -41,10 +41,73 @@ jobs:
           restore-keys: ${{ runner.os }}-mix-build-
 
       - name: Install dependencies
-        run: mix deps.get
+        run: MIX_ENV=test mix deps.get
 
       - name: Compile
-        run: mix compile --warnings-as-errors
+        run: MIX_ENV=test mix compile --warnings-as-errors
 
       - name: Run tests
-        run: mix test
+        run: MIX_ENV=test mix test
+
+  test-postgres:
+    name: Test with PostgreSQL
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: game_server_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    container:
+      image: elixir:1.16.3-otp-26
+
+    env:
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: game_server_test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          apt update
+          apt install -y build-essential erlang-dev curl
+
+      - name: Set up Elixir helpers
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+
+      - name: Cache deps
+        uses: actions/cache@v4
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-deps-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-deps-
+
+      - name: Cache build
+        uses: actions/cache@v4
+        with:
+          path: _build
+          key: ${{ runner.os }}-mix-build-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-build-
+
+      - name: Install dependencies
+        run: MIX_ENV=test mix deps.get
+
+      - name: Compile
+        run: MIX_ENV=test mix compile --warnings-as-errors
+
+      - name: Run tests
+        run: MIX_ENV=test mix test

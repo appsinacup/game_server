@@ -22,6 +22,7 @@ RUN mix deps.get
 COPY . .
 
 # Compile the application
+ENV MIX_ENV=prod
 RUN mix compile
 
 # Expose port

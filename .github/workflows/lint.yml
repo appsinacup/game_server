@@ -34,7 +34,7 @@ jobs:
           restore-keys: ${{ runner.os }}-mix-deps-
 
       - name: Install dependencies
-        run: mix deps.get
+        run: MIX_ENV=dev mix deps.get
 
       - name: Check code formatting
-        run: mix format --check-formatted
+        run: MIX_ENV=dev mix format --check-formatted
