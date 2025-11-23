@@ -136,6 +136,40 @@ defmodule GameServer.Accounts do
     )
   end
 
+  @doc """
+  Finds a user by Google ID or creates a new user from OAuth data.
+
+  ## Examples
+
+      iex> find_or_create_from_google(%{google_id: "123", email: "user@example.com"})
+      {:ok, %User{}}
+
+  """
+  def find_or_create_from_google(attrs) do
+    find_or_create_from_oauth(
+      attrs,
+      :google_id,
+      &User.google_oauth_changeset/2
+    )
+  end
+
+  @doc """
+  Finds a user by Facebook ID or creates a new user from OAuth data.
+
+  ## Examples
+
+      iex> find_or_create_from_facebook(%{facebook_id: "123", email: "user@example.com"})
+      {:ok, %User{}}
+
+  """
+  def find_or_create_from_facebook(attrs) do
+    find_or_create_from_oauth(
+      attrs,
+      :facebook_id,
+      &User.facebook_oauth_changeset/2
+    )
+  end
+
   # Generic OAuth find or create helper
   defp find_or_create_from_oauth(attrs, provider_id_field, changeset_fn) do
     provider_id = Map.get(attrs, provider_id_field)

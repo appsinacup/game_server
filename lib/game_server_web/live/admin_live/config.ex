@@ -87,6 +87,42 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                   </tr>
                   <tr>
+                    <td class="font-semibold">Google OAuth</td>
+                    <td>
+                      <%= if @config.google_client_id && @config.google_client_secret do %>
+                        <span class="badge badge-success">Configured</span>
+                      <% else %>
+                        <span class="badge badge-error">Not Configured</span>
+                      <% end %>
+                    </td>
+                    <td class="font-mono text-sm">
+                      <%= if @config.google_client_id do %>
+                        Client ID: {@config.google_client_id}<br />
+                        Client Secret: {@config.google_client_secret || "Not set"}
+                      <% else %>
+                        <span class="text-error">Client ID missing</span>
+                      <% end %>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="font-semibold">Facebook OAuth</td>
+                    <td>
+                      <%= if @config.facebook_client_id && @config.facebook_client_secret do %>
+                        <span class="badge badge-success">Configured</span>
+                      <% else %>
+                        <span class="badge badge-error">Not Configured</span>
+                      <% end %>
+                    </td>
+                    <td class="font-mono text-sm">
+                      <%= if @config.facebook_client_id do %>
+                        Client ID: {@config.facebook_client_id}<br />
+                        Client Secret: {@config.facebook_client_secret || "Not set"}
+                      <% else %>
+                        <span class="text-error">Client ID missing</span>
+                      <% end %>
+                    </td>
+                  </tr>
+                  <tr>
                     <td class="font-semibold">Email Service</td>
                     <td>
                       <%= if @config.email_configured do %>
@@ -721,6 +757,484 @@ defmodule GameServerWeb.AdminLive.Config do
           </div>
         </div>
         
+    <!-- Google OAuth Setup Guide -->
+        <div class="card bg-base-100 shadow-xl collapsed" data-card-key="google_oauth">
+          <div class="card-body">
+            <h2 class="card-title text-2xl mb-4 flex items-center gap-3">
+              <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  fill="#4285F4"
+                />
+                <path
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  fill="#34A853"
+                />
+                <path
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                  fill="#FBBC05"
+                />
+                <path
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                  fill="#EA4335"
+                />
+              </svg>
+              Google OAuth Setup Guide
+              <button
+                type="button"
+                data-action="toggle-card"
+                data-card-key="google_oauth"
+                aria-expanded="false"
+                class="btn btn-ghost btn-sm ml-auto"
+                title="Collapse/Expand"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 8l4 4 4-4"
+                  />
+                </svg>
+              </button>
+            </h2>
+
+            <div class="alert alert-info mb-6">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                class="stroke-current shrink-0 w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                >
+                </path>
+              </svg>
+              <div>
+                <p>
+                  <strong>Why Google OAuth?</strong>
+                  Most widely used OAuth provider. Allows users to sign in with their Google account.
+                </p>
+              </div>
+            </div>
+
+            <div class="space-y-6">
+              <!-- Step 1: Create Google Cloud Project -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">1</span> Create Google Cloud Project
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>
+                    Go to the
+                    <a
+                      href="https://console.cloud.google.com/"
+                      target="_blank"
+                      class="link link-primary"
+                    >
+                      Google Cloud Console
+                    </a>
+                  </p>
+                  <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>Click "Select a project" at the top</li>
+                    <li>Click "New Project"</li>
+                    <li>Enter a project name (e.g., "Game Server")</li>
+                    <li>Click "Create"</li>
+                  </ol>
+                </div>
+              </div>
+              
+    <!-- Step 2: Enable Google+ API -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">2</span> Enable Google+ API
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>In your Google Cloud project:</p>
+                  <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>Go to "APIs & Services" → "Library"</li>
+                    <li>Search for "Google+ API"</li>
+                    <li>Click on it and click "Enable"</li>
+                  </ol>
+                </div>
+              </div>
+              
+    <!-- Step 3: Configure OAuth Consent Screen -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">3</span> Configure OAuth Consent Screen
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>Go to "APIs & Services" → "OAuth consent screen":</p>
+                  <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>Select "External" user type</li>
+                    <li>Click "Create"</li>
+                    <li>Fill in app name (e.g., "Game Server")</li>
+                    <li>Add your email as user support email</li>
+                    <li>Add authorized domains (e.g., {@config.hostname})</li>
+                    <li>Add developer contact email</li>
+                    <li>Click "Save and Continue"</li>
+                    <li>Add scopes: email, profile</li>
+                    <li>Click "Save and Continue"</li>
+                    <li>Add test users if needed (optional for development)</li>
+                  </ol>
+                </div>
+              </div>
+              
+    <!-- Step 4: Create OAuth Credentials -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">4</span> Create OAuth Credentials
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>Go to "APIs & Services" → "Credentials":</p>
+                  <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>Click "Create Credentials" → "OAuth client ID"</li>
+                    <li>Select "Web application"</li>
+                    <li>Enter a name (e.g., "Game Server Web")</li>
+                    <li>
+                      Add authorized redirect URIs:<br />
+                      <div class="bg-base-200 p-2 rounded mt-2 font-mono text-xs">
+                        <div>Development: http://localhost:4000/auth/google/callback</div>
+                        <div>Production: https://{@config.hostname}/auth/google/callback</div>
+                      </div>
+                    </li>
+                    <li>Click "Create"</li>
+                    <li>Copy the Client ID and Client Secret</li>
+                  </ol>
+                </div>
+              </div>
+              
+    <!-- Step 5: Configure Environment Variables -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">5</span> Configure Environment Variables
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>Set these environment variables:</p>
+                  <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
+                    <div class="space-y-2">
+                      <div>GOOGLE_CLIENT_ID="your_client_id.apps.googleusercontent.com"</div>
+                      <div>GOOGLE_CLIENT_SECRET="your_client_secret"</div>
+                    </div>
+                  </div>
+                  <div class="alert alert-warning mt-3">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="stroke-current shrink-0 h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                      />
+                    </svg>
+                    <div>
+                      <p>
+                        <strong>Security:</strong>
+                        Never commit secrets to version control. Use your deployment platform's secret management.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+    <!-- Step 6: Test -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">6</span> Test Google Login
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>After deploying with the secrets:</p>
+                  <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>Go to your app's login page</li>
+                    <li>Click "Sign in with Google"</li>
+                    <li>Choose your Google account</li>
+                    <li>You should be redirected back and logged in</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-actions justify-end mt-6">
+              <a
+                href="https://console.cloud.google.com/"
+                target="_blank"
+                class="btn btn-primary"
+              >
+                Open Google Cloud Console
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+    <!-- Facebook OAuth Setup Guide -->
+        <div class="card bg-base-100 shadow-xl collapsed" data-card-key="facebook_oauth">
+          <div class="card-body">
+            <h2 class="card-title text-2xl mb-4 flex items-center gap-3">
+              <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+              </svg>
+              Facebook OAuth Setup Guide
+              <button
+                type="button"
+                data-action="toggle-card"
+                data-card-key="facebook_oauth"
+                aria-expanded="false"
+                class="btn btn-ghost btn-sm ml-auto"
+                title="Collapse/Expand"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 8l4 4 4-4"
+                  />
+                </svg>
+              </button>
+            </h2>
+
+            <div class="alert alert-info mb-6">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                class="stroke-current shrink-0 w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                >
+                </path>
+              </svg>
+              <div>
+                <p>
+                  <strong>Why Facebook OAuth?</strong>
+                  Popular social login option with billions of users worldwide. Easy one-click authentication.
+                </p>
+              </div>
+            </div>
+
+            <div class="space-y-6">
+              <!-- Step 1: Create Facebook App -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">1</span> Create Facebook App
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>
+                    Go to the
+                    <a
+                      href="https://developers.facebook.com/"
+                      target="_blank"
+                      class="link link-primary"
+                    >
+                      Facebook Developers Portal
+                    </a>
+                  </p>
+                  <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>Click "My Apps" in the top right</li>
+                    <li>Click "Create App"</li>
+                    <li>Select "Consumer" as the app type</li>
+                    <li>Click "Next"</li>
+                    <li>Enter app name (e.g., "Game Server")</li>
+                    <li>Enter contact email</li>
+                    <li>Click "Create App"</li>
+                  </ol>
+                </div>
+              </div>
+              
+    <!-- Step 2: Add Facebook Login Product -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">2</span> Add Facebook Login Product
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>In your Facebook App dashboard:</p>
+                  <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>Find "Facebook Login" in the product list</li>
+                    <li>Click "Set Up"</li>
+                    <li>Select "Web" as the platform</li>
+                    <li>Enter your site URL (e.g., https://{@config.hostname})</li>
+                    <li>Click "Save" and continue</li>
+                  </ol>
+                </div>
+              </div>
+              
+    <!-- Step 3: Configure OAuth Redirect URIs -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">3</span> Configure OAuth Redirect URIs
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>Go to "Facebook Login" → "Settings":</p>
+                  <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>
+                      Add these Valid OAuth Redirect URIs:<br />
+                      <div class="bg-base-200 p-2 rounded mt-2 font-mono text-xs">
+                        <div>Development: http://localhost:4000/auth/facebook/callback</div>
+                        <div>Production: https://{@config.hostname}/auth/facebook/callback</div>
+                      </div>
+                    </li>
+                    <li>Click "Save Changes"</li>
+                  </ol>
+                </div>
+              </div>
+              
+    <!-- Step 4: Get App Credentials -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">4</span> Get App Credentials
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>Go to "Settings" → "Basic":</p>
+                  <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>Copy the "App ID" (this is your Client ID)</li>
+                    <li>
+                      Click "Show" next to "App Secret" and copy it (this is your Client Secret)
+                    </li>
+                  </ol>
+                  <div class="bg-base-200 p-4 rounded-lg mt-4">
+                    <div class="font-semibold mb-2">Your Credentials</div>
+                    <div class="font-mono text-xs bg-base-300 p-2 rounded space-y-1">
+                      <div>App ID: 1234567890123456</div>
+                      <div>App Secret: abcdef1234567890abcdef1234567890</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+    <!-- Step 5: Make App Public -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">5</span> Make App Public (Production)
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>For production use, switch to live mode:</p>
+                  <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>Complete all required fields in "Settings" → "Basic"</li>
+                    <li>Add a Privacy Policy URL</li>
+                    <li>Add a Terms of Service URL (optional)</li>
+                    <li>Select a category for your app</li>
+                    <li>Toggle the switch at the top from "Development" to "Live"</li>
+                  </ol>
+                  <div class="alert alert-info mt-3">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      class="stroke-current shrink-0 w-6 h-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      >
+                      </path>
+                    </svg>
+                    <div>
+                      <p>
+                        <strong>Note:</strong>
+                        In Development mode, only test users can log in. Switch to Live mode for public access.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+    <!-- Step 6: Configure Environment Variables -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">6</span> Configure Environment Variables
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>Set these environment variables:</p>
+                  <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
+                    <div class="space-y-2">
+                      <div>FACEBOOK_CLIENT_ID="your_app_id"</div>
+                      <div>FACEBOOK_CLIENT_SECRET="your_app_secret"</div>
+                    </div>
+                  </div>
+                  <div class="alert alert-warning mt-3">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="stroke-current shrink-0 h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                      />
+                    </svg>
+                    <div>
+                      <p>
+                        <strong>Security:</strong>
+                        Never commit the App Secret to version control. Use your deployment platform's secret management.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+    <!-- Step 7: Test -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">7</span> Test Facebook Login
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>After deploying with the secrets:</p>
+                  <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>Go to your app's login page</li>
+                    <li>Click "Sign in with Facebook"</li>
+                    <li>Authorize the application with your Facebook account</li>
+                    <li>You should be redirected back and logged in</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-actions justify-end mt-6">
+              <a
+                href="https://developers.facebook.com/"
+                target="_blank"
+                class="btn btn-primary"
+              >
+                Open Facebook Developers Portal
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+        
     <!-- Email Configuration -->
         <div class="card bg-base-100 shadow-xl collapsed" data-card-key="email_config">
           <div class="card-body">
@@ -1264,6 +1778,14 @@ defmodule GameServerWeb.AdminLive.Config do
       apple_team_id: System.get_env("APPLE_TEAM_ID"),
       apple_key_id: System.get_env("APPLE_KEY_ID"),
       apple_private_key: System.get_env("APPLE_PRIVATE_KEY"),
+      google_client_id:
+        Application.get_env(:ueberauth, Ueberauth.Strategy.Google.OAuth)[:client_id],
+      google_client_secret:
+        Application.get_env(:ueberauth, Ueberauth.Strategy.Google.OAuth)[:client_secret],
+      facebook_client_id:
+        Application.get_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth)[:client_id],
+      facebook_client_secret:
+        Application.get_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth)[:client_secret],
       email_configured: System.get_env("SMTP_PASSWORD") != nil,
       smtp_username: System.get_env("SMTP_USERNAME"),
       smtp_password: System.get_env("SMTP_PASSWORD"),

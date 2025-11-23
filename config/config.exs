@@ -85,7 +85,9 @@ import_config "#{config_env()}.exs"
 config :ueberauth, Ueberauth,
   providers: [
     discord: {Ueberauth.Strategy.Discord, [default_scope: "identify email"]},
-    apple: {Ueberauth.Strategy.Apple, []}
+    apple: {Ueberauth.Strategy.Apple, []},
+    google: {Ueberauth.Strategy.Google, []},
+    facebook: {Ueberauth.Strategy.Facebook, []}
   ]
 
 config :ueberauth, Ueberauth.Strategy.Discord.OAuth,
@@ -98,3 +100,11 @@ config :ueberauth, Ueberauth.Strategy.Apple,
   team_id: System.get_env("APPLE_TEAM_ID"),
   key_id: System.get_env("APPLE_KEY_ID"),
   private_key: System.get_env("APPLE_PRIVATE_KEY")
+
+config :ueberauth, Ueberauth.Strategy.Google.OAuth,
+  client_id: System.get_env("GOOGLE_CLIENT_ID"),
+  client_secret: System.get_env("GOOGLE_CLIENT_SECRET")
+
+config :ueberauth, Ueberauth.Strategy.Facebook.OAuth,
+  client_id: System.get_env("FACEBOOK_CLIENT_ID"),
+  client_secret: System.get_env("FACEBOOK_CLIENT_SECRET")

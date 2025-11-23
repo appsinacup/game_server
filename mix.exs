@@ -73,6 +73,8 @@ defmodule GameServer.MixProject do
       {:dns_cluster, "~> 0.2.0"},
       {:ueberauth_discord, "~> 0.7"},
       {:ueberauth_apple, "~> 0.2"},
+      {:ueberauth_google, "~> 0.12"},
+      {:ueberauth_facebook, "~> 0.10"},
       {:bandit, "~> 1.8"},
       {:ueberauth, "~> 0.10"},
       {:open_api_spex, "~> 3.22"},

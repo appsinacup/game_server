@@ -69,6 +69,30 @@ defmodule GameServerWeb.AuthController do
     end
   end
 
+  def callback(%{assigns: %{ueberauth_auth: auth}} = conn, %{"provider" => "google"}) do
+    user_params = %{
+      email: auth.info.email,
+      google_id: auth.uid
+    }
+
+    require Logger
+    Logger.info("Google OAuth user params: #{inspect(user_params)}")
+
+    case Accounts.find_or_create_from_google(user_params) do
+      {:ok, user} ->
+        conn
+        |> put_flash(:info, "Successfully authenticated with Google.")
+        |> UserAuth.log_in_user(user)
+
+      {:error, changeset} ->
+        Logger.error("Failed to create user from Google: #{inspect(changeset.errors)}")
+
+        conn
+        |> put_flash(:error, "Failed to create or update user account.")
+        |> redirect(to: ~p"/users/log-in")
+    end
+  end
+
   def delete(conn, _params) do
     conn
     |> put_flash(:info, "You have been logged out!")
@@ -84,7 +108,10 @@ defmodule GameServerWeb.AuthController do
       provider: [
         in: :path,
         name: "provider",
-        schema: %OpenApiSpex.Schema{type: :string, enum: ["discord", "apple"]},
+        schema: %OpenApiSpex.Schema{
+          type: :string,
+          enum: ["discord", "apple", "google", "facebook"]
+        },
         description: "OAuth provider",
         required: true,
         example: "discord"
@@ -132,6 +159,30 @@ defmodule GameServerWeb.AuthController do
     json(conn, %{authorization_url: url})
   end
 
+  def api_request(conn, %{"provider" => "google"}) do
+    # Generate the Google OAuth URL
+    client_id = System.get_env("GOOGLE_CLIENT_ID")
+    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/api/v1/auth/google/callback"
+    scope = "email profile"
+
+    url =
+      "https://accounts.google.com/o/oauth2/v2/auth?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}&access_type=offline"
+
+    json(conn, %{authorization_url: url})
+  end
+
+  def api_request(conn, %{"provider" => "facebook"}) do
+    # Generate the Facebook OAuth URL
+    client_id = System.get_env("FACEBOOK_CLIENT_ID")
+    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/api/v1/auth/facebook/callback"
+    scope = "email"
+
+    url =
+      "https://www.facebook.com/v18.0/dialog/oauth?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}"
+
+    json(conn, %{authorization_url: url})
+  end
+
   operation(:api_callback,
     summary: "API OAuth callback",
     description: "Handles OAuth callback and returns user token",
@@ -140,7 +191,10 @@ defmodule GameServerWeb.AuthController do
       provider: [
         in: :path,
         name: "provider",
-        schema: %OpenApiSpex.Schema{type: :string, enum: ["discord", "apple"]},
+        schema: %OpenApiSpex.Schema{
+          type: :string,
+          enum: ["discord", "apple", "google", "facebook"]
+        },
         description: "OAuth provider",
         required: true,
         example: "discord"
@@ -274,6 +328,106 @@ defmodule GameServerWeb.AuthController do
     })
   end
 
+  def api_callback(conn, %{"provider" => "google", "code" => code}) do
+    # Exchange code for access token
+    client_id = System.get_env("GOOGLE_CLIENT_ID")
+    client_secret = System.get_env("GOOGLE_CLIENT_SECRET")
+    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/api/v1/auth/google/callback"
+
+    case exchange_google_code(code, client_id, client_secret, redirect_uri) do
+      {:ok, user_info} ->
+        user_params = %{
+          email: user_info["email"],
+          google_id: user_info["id"]
+        }
+
+        case Accounts.find_or_create_from_google(user_params) do
+          {:ok, user} ->
+            {:ok, access_token, _access_claims} =
+              Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+            {:ok, refresh_token, _refresh_claims} =
+              Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+            json(conn, %{
+              data: %{
+                access_token: access_token,
+                refresh_token: refresh_token,
+                token_type: "Bearer",
+                expires_in: 900,
+                user: %{
+                  id: user.id,
+                  email: user.email
+                }
+              }
+            })
+
+          {:error, changeset} ->
+            conn
+            |> put_status(:bad_request)
+            |> json(%{
+              error: "Failed to create or update user account",
+              details: changeset.errors
+            })
+        end
+
+      {:error, reason} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "OAuth failed", details: reason})
+    end
+  end
+
+  def api_callback(conn, %{"provider" => "facebook", "code" => code}) do
+    # Exchange code for access token
+    client_id = System.get_env("FACEBOOK_CLIENT_ID")
+    client_secret = System.get_env("FACEBOOK_CLIENT_SECRET")
+    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/api/v1/auth/facebook/callback"
+
+    case exchange_facebook_code(code, client_id, client_secret, redirect_uri) do
+      {:ok, user_info} ->
+        user_params = %{
+          email: user_info["email"],
+          facebook_id: user_info["id"]
+        }
+
+        case Accounts.find_or_create_from_facebook(user_params) do
+          {:ok, user} ->
+            {:ok, access_token, _access_claims} =
+              Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+            {:ok, refresh_token, _refresh_claims} =
+              Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+            json(conn, %{
+              data: %{
+                access_token: access_token,
+                refresh_token: refresh_token,
+                token_type: "Bearer",
+                expires_in: 900,
+                user: %{
+                  id: user.id,
+                  email: user.email
+                }
+              }
+            })
+
+          {:error, changeset} ->
+            conn
+            |> put_status(:bad_request)
+            |> json(%{
+              error: "Failed to create or update user account",
+              details: changeset.errors
+            })
+        end
+
+      {:error, reason} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "OAuth failed", details: reason})
+    end
+  end
+
   defp exchange_discord_code(code, client_id, client_secret, redirect_uri) do
     url = "https://discord.com/api/oauth2/token"
 
@@ -294,6 +448,71 @@ defmodule GameServerWeb.AuthController do
         auth_headers = [{"Authorization", "Bearer #{access_token}"}]
 
         case Req.get(user_url, headers: auth_headers) do
+          {:ok, %{status: 200, body: user_info}} ->
+            {:ok, user_info}
+
+          _ ->
+            {:error, "Failed to get user info"}
+        end
+
+      _ ->
+        {:error, "Failed to exchange code"}
+    end
+  end
+
+  defp exchange_google_code(code, client_id, client_secret, redirect_uri) do
+    url = "https://oauth2.googleapis.com/token"
+
+    body = %{
+      client_id: client_id,
+      client_secret: client_secret,
+      grant_type: "authorization_code",
+      code: code,
+      redirect_uri: redirect_uri
+    }
+
+    headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
+
+    case Req.post(url, form: body, headers: headers) do
+      {:ok, %{status: 200, body: %{"access_token" => access_token}}} ->
+        # Get user info with access token
+        user_url = "https://www.googleapis.com/oauth2/v2/userinfo"
+        auth_headers = [{"Authorization", "Bearer #{access_token}"}]
+
+        case Req.get(user_url, headers: auth_headers) do
+          {:ok, %{status: 200, body: user_info}} ->
+            {:ok, user_info}
+
+          _ ->
+            {:error, "Failed to get user info"}
+        end
+
+      _ ->
+        {:error, "Failed to exchange code"}
+    end
+  end
+
+  defp exchange_facebook_code(code, client_id, client_secret, redirect_uri) do
+    url = "https://graph.facebook.com/v18.0/oauth/access_token"
+
+    params = %{
+      client_id: client_id,
+      client_secret: client_secret,
+      code: code,
+      redirect_uri: redirect_uri
+    }
+
+    case Req.get(url, params: params) do
+      {:ok, %{status: 200, body: %{"access_token" => access_token}}} ->
+        # Get user info with access token
+        user_url = "https://graph.facebook.com/v18.0/me"
+
+        user_params = %{
+          fields: "id,email",
+          access_token: access_token
+        }
+
+        case Req.get(user_url, params: user_params) do
           {:ok, %{status: 200, body: user_info}} ->
             {:ok, user_info}
 

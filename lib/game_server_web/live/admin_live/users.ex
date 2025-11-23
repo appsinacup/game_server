@@ -33,6 +33,8 @@ defmodule GameServerWeb.AdminLive.Users do
                     <th>Discord Username</th>
                     <th>Discord Avatar</th>
                     <th>Apple ID</th>
+                    <th>Google ID</th>
+                    <th>Facebook ID</th>
                     <th>Admin</th>
                     <th>Metadata</th>
                     <th>Confirmed</th>
@@ -81,6 +83,20 @@ defmodule GameServerWeb.AdminLive.Users do
                     <td class="font-mono text-sm">
                       <%= if user.apple_id do %>
                         {user.apple_id}
+                      <% else %>
+                        <span class="text-gray-500">-</span>
+                      <% end %>
+                    </td>
+                    <td class="font-mono text-sm">
+                      <%= if user.google_id do %>
+                        {user.google_id}
+                      <% else %>
+                        <span class="text-gray-500">-</span>
+                      <% end %>
+                    </td>
+                    <td class="font-mono text-sm">
+                      <%= if user.facebook_id do %>
+                        {user.facebook_id}
                       <% else %>
                         <span class="text-gray-500">-</span>
                       <% end %>

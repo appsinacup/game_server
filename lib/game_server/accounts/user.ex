@@ -12,6 +12,8 @@ defmodule GameServer.Accounts.User do
     field :discord_username, :string
     field :discord_avatar, :string
     field :apple_id, :string
+    field :google_id, :string
+    field :facebook_id, :string
     field :is_admin, :boolean, default: false
     field :metadata, :map, default: %{}
 
@@ -160,6 +162,48 @@ defmodule GameServer.Accounts.User do
     |> unsafe_validate_unique(:apple_id, GameServer.Repo)
     |> unique_constraint(:email)
     |> unique_constraint(:apple_id)
+    |> put_change(:confirmed_at, DateTime.utc_now(:second))
+  end
+
+  @doc """
+  A user changeset for Google OAuth registration.
+
+  It accepts email and Google ID.
+  """
+  def google_oauth_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:email, :google_id, :is_admin])
+    |> update_change(:email, &String.downcase/1)
+    |> validate_required([:google_id])
+    |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+$/,
+      message: "must have the @ sign and no spaces"
+    )
+    |> validate_length(:email, max: 160)
+    |> unsafe_validate_unique(:email, GameServer.Repo)
+    |> unsafe_validate_unique(:google_id, GameServer.Repo)
+    |> unique_constraint(:email)
+    |> unique_constraint(:google_id)
+    |> put_change(:confirmed_at, DateTime.utc_now(:second))
+  end
+
+  @doc """
+  A user changeset for Facebook OAuth registration.
+
+  It accepts email and Facebook ID.
+  """
+  def facebook_oauth_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:email, :facebook_id, :is_admin])
+    |> update_change(:email, &String.downcase/1)
+    |> validate_required([:facebook_id])
+    |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+$/,
+      message: "must have the @ sign and no spaces"
+    )
+    |> validate_length(:email, max: 160)
+    |> unsafe_validate_unique(:email, GameServer.Repo)
+    |> unsafe_validate_unique(:facebook_id, GameServer.Repo)
+    |> unique_constraint(:email)
+    |> unique_constraint(:facebook_id)
     |> put_change(:confirmed_at, DateTime.utc_now(:second))
   end
 
