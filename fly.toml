@@ -1,0 +1,11 @@
+app = "game-server"
+primary_region = "lax"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[http_service]
+  internal_port = 4000
+
+[[vm]]
+  size = "shared-cpu-1x"
