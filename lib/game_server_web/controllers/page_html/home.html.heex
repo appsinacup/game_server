@@ -9,18 +9,6 @@
       </p>
       <div class="mt-6 flex gap-4">
         <%= if @current_scope do %>
-          <.link
-            href={~p"/admin"}
-            class="btn btn-primary"
-          >
-            Enter App
-          </.link>
-          <.link
-            href={~p"/users/settings"}
-            class="btn btn-outline"
-          >
-            Settings
-          </.link>
         <% else %>
           <.link
             href={~p"/users/log-in"}
