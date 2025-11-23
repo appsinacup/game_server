@@ -1,10 +1,92 @@
-name: Test
+name: Build and publish Docker image (GHCR)
 
 on:
-  pull_request:
   push:
+  pull_request:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/appsinacup/game_server
 
 jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            os: ubuntu-latest
+          - platform: linux/arm64
+            os: ubuntu-24.04-arm
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and (conditionally) push image
+        id: build
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: Dockerfile
+          platforms: ${{ matrix.platform }}
+          push: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ github.sha }}
+
+  lint:
+    name: Elixir lint
+    runs-on: ubuntu-latest
+
+    container:
+      image: elixir:1.19.3-otp-28
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          apt update
+          apt install -y build-essential erlang-dev curl
+
+      - name: Set up Elixir helpers
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+
+      - name: Cache deps
+        uses: actions/cache@v4
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-deps-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-deps-
+
+      - name: Install dependencies
+        run: MIX_ENV=dev mix deps.get
+
+      - name: Check code formatting
+        run: MIX_ENV=dev mix format --check-formatted
+
+
   check-outdated:
     name: Check for outdated dependencies
     runs-on: ubuntu-latest
