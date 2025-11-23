@@ -109,16 +109,20 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                   </tr>
                   <tr>
-                    <td class="font-semibold">Live Reload</td>
+                    <td class="font-semibold">Sentry Error Monitoring</td>
                     <td>
-                      <%= if @config.live_reload do %>
-                        <span class="badge badge-success">Enabled</span>
+                      <%= if @config.sentry_dsn do %>
+                        <span class="badge badge-success">Configured</span>
                       <% else %>
-                        <span class="badge badge-info">Disabled</span>
+                        <span class="badge badge-error">Not Configured</span>
                       <% end %>
                     </td>
-                    <td class="font-mono text-sm">
-                      {if @config.live_reload, do: "true", else: "false"}
+                    <td class="text-sm">
+                      <%= if @config.sentry_dsn do %>
+                        Error monitoring enabled - production errors will be tracked
+                      <% else %>
+                        <span class="text-error">SENTRY_DSN not set - errors won't be monitored</span>
+                      <% end %>
                     </td>
                   </tr>
                 </tbody>
@@ -198,8 +202,7 @@ defmodule GameServerWeb.AdminLive.Config do
                         <strong>Development:</strong> http://localhost:4000/auth/discord/callback
                       </div>
                       <div>
-                        <strong>Production:</strong>
-                        https://{@config.hostname}/auth/discord/callback
+                        <strong>Production:</strong> https://{@config.hostname}/auth/discord/callback
                       </div>
                     </div>
                   </div>
@@ -413,6 +416,181 @@ defmodule GameServerWeb.AdminLive.Config do
           </div>
         </div>
         
+    <!-- Sentry Error Monitoring Setup -->
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <h2 class="card-title text-2xl mb-4 flex items-center gap-3">
+              <svg class="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M13.632 2.286c.176.08.293.245.293.438v1.34c1.725.447 3.013 1.816 3.013 3.482 0 1.946-1.58 3.527-3.526 3.527-.948 0-1.814-.386-2.446-1.01-.632.624-1.498 1.01-2.446 1.01C6.58 11.073 5 9.492 5 7.546c0-1.666 1.288-3.035 3.013-3.482V2.724c0-.193.117-.358.293-.438L9.6 1.2c.176-.08.39-.08.566 0l1.466.666z" />
+                <path d="M12 14.5c-1.38 0-2.5 1.12-2.5 2.5v7c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5v-7c0-1.38-1.12-2.5-2.5-2.5z" />
+              </svg>
+              Sentry Error Monitoring Setup
+            </h2>
+
+            <div class="alert alert-info mb-6">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                class="stroke-current shrink-0 w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                >
+                </path>
+              </svg>
+              <div>
+                <p>
+                  <strong>Why Sentry?</strong>
+                  Automatically captures and reports errors, exceptions, and performance issues in production. Get notified about crashes and monitor application health.
+                </p>
+              </div>
+            </div>
+
+            <div class="space-y-6">
+              <!-- Step 1: Create Sentry Project -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">1</span> Create Sentry Project
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>
+                    Go to the
+                    <a
+                      href="https://sentry.io"
+                      target="_blank"
+                      class="link link-primary"
+                    >
+                      Sentry Dashboard
+                    </a>
+                  </p>
+                  <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>Sign up or log in to Sentry</li>
+                    <li>Create a new project</li>
+                    <li>Select "Phoenix" or "Elixir" as the platform</li>
+                    <li>Name your project (e.g., "Game Server")</li>
+                  </ol>
+                </div>
+              </div>
+              
+    <!-- Step 2: Get DSN -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">2</span> Get Your DSN
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>After creating the project, copy the DSN from the settings:</p>
+                  <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>Go to Project Settings → Client Keys (DSN)</li>
+                    <li>Copy the DSN value</li>
+                  </ol>
+                  <div class="bg-base-200 p-4 rounded-lg">
+                    <div class="font-semibold mb-2">DSN Format</div>
+                    <div class="font-mono text-xs bg-base-300 p-2 rounded">
+                      https://your-dsn@sentry.io/project-id
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+    <!-- Step 3: Configure Environment Variable -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">3</span> Set Environment Variable
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>Set the SENTRY_DSN environment variable:</p>
+                  <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
+                    <div class="space-y-2">
+                      <div>SENTRY_DSN="https://your-dsn@sentry.io/project-id"</div>
+                    </div>
+                  </div>
+                  <div class="alert alert-warning">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="stroke-current shrink-0 h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                      />
+                    </svg>
+                    <div>
+                      <p>
+                        <strong>Security Note:</strong>
+                        Never commit the DSN to version control. Use your deployment platform's secret management (Fly.io secrets, etc.).
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+    <!-- Step 4: Deploy and Test -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">4</span> Deploy and Test
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>After deploying with the DSN:</p>
+                  <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>Deploy your application</li>
+                    <li>Check the admin config page - Sentry should show as "Configured"</li>
+                    <li>Test error reporting by running: <code>mix sentry.send_test_event</code></li>
+                    <li>Check your Sentry dashboard for the test event</li>
+                  </ol>
+                  <div class="alert alert-info">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      class="stroke-current shrink-0 w-6 h-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      >
+                      </path>
+                    </svg>
+                    <div>
+                      <p>
+                        <strong>Note:</strong>
+                        Sentry only reports errors in production. Development and test environments are disabled by default.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-actions justify-end mt-6">
+              <a
+                href="https://sentry.io"
+                target="_blank"
+                class="btn btn-primary"
+              >
+                Open Sentry Dashboard
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+        
     <!-- PostgreSQL Configuration -->
         <div class="card bg-base-100 shadow-xl">
           <div class="card-body">
@@ -606,6 +784,7 @@ defmodule GameServerWeb.AdminLive.Config do
       smtp_username: System.get_env("SMTP_USERNAME"),
       smtp_password: System.get_env("SMTP_PASSWORD"),
       smtp_relay: System.get_env("SMTP_RELAY"),
+      sentry_dsn: System.get_env("SENTRY_DSN"),
       env: to_string(Application.get_env(:game_server, :environment, Mix.env())),
       database: Application.get_env(:game_server, GameServer.Repo)[:database] || "N/A",
       hostname:

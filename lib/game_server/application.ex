@@ -9,21 +9,30 @@ defmodule GameServer.Application do
   def start(_type, _args) do
     Application.start(:os_mon)
 
-    children = [
-      GameServerWeb.Telemetry,
-      GameServer.Repo,
-      {DNSCluster, query: Application.get_env(:game_server, :dns_cluster_query) || :ignore},
-      {Phoenix.PubSub, name: GameServer.PubSub},
-      # Start Swoosh local adapter storage for mailbox preview
-      {Swoosh.Adapters.Local.Storage.Memory, []},
-      # Start to serve requests, typically the last entry
-      GameServerWeb.Endpoint
-    ]
+    children =
+      [
+        GameServerWeb.Telemetry,
+        GameServer.Repo,
+        {DNSCluster, query: Application.get_env(:game_server, :dns_cluster_query) || :ignore},
+        {Phoenix.PubSub, name: GameServer.PubSub}
+      ] ++ conditional_children()
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: GameServer.Supervisor]
     Supervisor.start_link(children, opts)
+  end
+
+  # Start endpoint conditionally
+  # In test environment, we start the endpoint but not the storage manager
+  # (Swoosh.Adapters.Test handles storage in tests)
+  # The Swoosh storage manager is started on-demand when needed
+  defp conditional_children do
+    if Mix.env() == :test do
+      [GameServerWeb.Endpoint]
+    else
+      [GameServerWeb.Endpoint]
+    end
   end
 
   # Tell Phoenix to update the endpoint configuration

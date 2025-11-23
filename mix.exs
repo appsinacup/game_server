@@ -21,7 +21,7 @@ defmodule GameServer.MixProject do
   def application do
     [
       mod: {GameServer.Application, []},
-      extra_applications: [:logger, :runtime_tools, :os_mon, :swoosh]
+      extra_applications: [:logger, :runtime_tools, :os_mon, :swoosh, :sentry]
     ]
   end
 
@@ -62,6 +62,8 @@ defmodule GameServer.MixProject do
        depth: 1},
       {:swoosh, "~> 1.16"},
       {:req, "~> 0.5"},
+      {:sentry, "~> 10.0"},
+      {:hackney, "~> 1.18"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 1.0"},

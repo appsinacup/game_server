@@ -132,4 +132,19 @@ if config_env() == :prod do
     # Disable swoosh api client for local adapter
     config :swoosh, :api_client, false
   end
+
+  # ## Configuring Sentry
+  #
+  # Configure Sentry for error tracking and monitoring
+  if dsn = System.get_env("SENTRY_DSN") do
+    config :sentry,
+      dsn: dsn,
+      environment_name: :prod,
+      enable_source_code_context: true,
+      root_source_code_path: File.cwd!(),
+      tags: %{
+        env: "production"
+      },
+      included_environments: [:prod]
+  end
 end
