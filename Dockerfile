@@ -29,5 +29,5 @@ RUN mix compile
 # Expose port
 EXPOSE 4000
 
-# Default command
-CMD ["mix", "phx.server"]
+# Default command - run migrations and start server
+CMD ["sh", "-c", "mix ecto.migrate && mix phx.server"]

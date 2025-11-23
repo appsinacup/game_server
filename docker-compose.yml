@@ -37,7 +37,6 @@ services:
       - .:/app
       - /app/_build
       - /app/deps
-    command: mix phx.server
 
   redis:
     image: redis:7.4-alpine
