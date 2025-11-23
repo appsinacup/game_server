@@ -74,19 +74,36 @@ defmodule GameServerWeb.UserLive.Registration do
   def handle_event("save", %{"user" => user_params}, socket) do
     case Accounts.register_user(user_params) do
       {:ok, user} ->
-        {:ok, _} =
-          Accounts.deliver_login_instructions(
-            user,
-            &url(~p"/users/log-in/#{&1}")
-          )
+        # Check if email is configured by looking for SMTP_PASSWORD
+        email_configured? = System.get_env("SMTP_PASSWORD") != nil
 
-        {:noreply,
-         socket
-         |> put_flash(
-           :info,
-           "An email was sent to #{user.email}, please access it to confirm your account."
-         )
-         |> push_navigate(to: ~p"/users/log-in")}
+        if email_configured? do
+          # Send confirmation email
+          {:ok, _} =
+            Accounts.deliver_login_instructions(
+              user,
+              &url(~p"/users/log-in/#{&1}")
+            )
+
+          {:noreply,
+           socket
+           |> put_flash(
+             :info,
+             "An email was sent to #{user.email}, please access it to confirm your account."
+           )
+           |> push_navigate(to: ~p"/users/log-in")}
+        else
+          # Auto-confirm user when email is not configured
+          {:ok, _} = Accounts.confirm_user(user)
+
+          {:noreply,
+           socket
+           |> put_flash(
+             :info,
+             "Account created successfully! You can now log in."
+           )
+           |> push_navigate(to: ~p"/users/log-in")}
+        end
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign_form(socket, changeset)}

@@ -112,19 +112,19 @@ if config_env() == :prod do
 
   # ## Configuring the mailer
   #
-  # In production you need to configure the mailer to use a different adapter.
-  # Here is an example configuration for Mailgun:
-  #
-  #     config :game_server, GameServer.Mailer,
-  #       adapter: Swoosh.Adapters.Mailgun,
-  #       api_key: System.get_env("MAILGUN_API_KEY"),
-  #       domain: System.get_env("MAILGUN_DOMAIN")
-  #
-  # Most non-SMTP adapters require an API client. Swoosh supports Req, Hackney,
-  # and Finch out-of-the-box. This configuration is typically done at
-  # compile-time in your config/prod.exs:
-  #
-  #     config :swoosh, :api_client, Swoosh.ApiClient.Req
-  #
-  # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
+  # Only configure the mailer if SMTP_PASSWORD is set
+  # This allows the app to run without email configuration
+  if System.get_env("SMTP_PASSWORD") do
+    config :game_server, GameServer.Mailer,
+      adapter: Swoosh.Adapters.SMTP,
+      relay: System.get_env("SMTP_RELAY", "smtp.resend.com"),
+      username: System.get_env("SMTP_USERNAME", "resend"),
+      password: System.get_env("SMTP_PASSWORD"),
+      tls: :always,
+      auth: :always,
+      port: 587
+
+    # Configure Swoosh to use Req for HTTP requests
+    config :swoosh, :api_client, Swoosh.ApiClient.Req
+  end
 end

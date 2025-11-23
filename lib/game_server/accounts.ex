@@ -81,6 +81,21 @@ defmodule GameServer.Accounts do
   end
 
   @doc """
+  Confirms a user's email by setting confirmed_at timestamp.
+
+  ## Examples
+
+      iex> confirm_user(user)
+      {:ok, %User{}}
+
+  """
+  def confirm_user(user) do
+    user
+    |> User.confirm_changeset()
+    |> Repo.update()
+  end
+
+  @doc """
   Finds a user by Discord ID or creates a new user from OAuth data.
 
   ## Examples
