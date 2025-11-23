@@ -40,8 +40,11 @@ if config_env() == :prod do
       socket_options: maybe_ipv6
   else
     # Fallback to persistent SQLite when no PostgreSQL config
+    # Use SQLITE_DATABASE_PATH if set (e.g. a mounted Fly volume), otherwise default to db/game_server_prod.db
+    db_path = System.get_env("SQLITE_DATABASE_PATH") || "db/game_server_prod.db"
+
     config :game_server, GameServer.Repo,
-      database: "db/game_server_prod.db",
+      database: db_path,
       adapter: Ecto.Adapters.SQLite3,
       pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
   end
