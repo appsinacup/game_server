@@ -26,7 +26,6 @@ defmodule GameServerWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
-    live "/docs/setup", PublicDocs, :index
   end
 
   scope "/api" do
@@ -125,6 +124,7 @@ defmodule GameServerWeb.Router do
       live "/users/register", UserLive.Registration, :new
       live "/users/log-in", UserLive.Login, :new
       live "/users/log-in/:token", UserLive.Confirmation, :new
+      live "/docs/setup", PublicDocs, :index
     end
 
     post "/users/log-in", UserSessionController, :create

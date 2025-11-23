@@ -212,8 +212,7 @@ defmodule GameServerWeb.AdminLive.Config do
           </div>
         </div>
         
-
-      <!-- Admin Tools -->
+    <!-- Admin Tools -->
         <div class="card bg-base-100 shadow-xl collapsed" data-card-key="admin_tools">
           <div class="card-body">
             <h2 class="card-title text-xl mb-4 flex items-center gap-3">

@@ -38,7 +38,7 @@ defmodule GameServer.Hooks do
 end
 
 defmodule GameServer.Hooks.Default do
-  @moduledoc "Default no-op implementation for GameServer.Hooks" 
+  @moduledoc "Default no-op implementation for GameServer.Hooks"
   @behaviour GameServer.Hooks
 
   @impl true
@@ -94,7 +94,8 @@ defmodule GameServer.Hooks.LuaInvoker do
             _ -> {:error, :invalid_lua_response}
           end
 
-        {out, _} -> {:error, {:lua_failed, out}}
+        {out, _} ->
+          {:error, {:lua_failed, out}}
       end
     else
       {:ok, payload}
@@ -114,7 +115,13 @@ defmodule GameServer.Hooks.LuaInvoker do
   def after_user_login(_user), do: :ok
 
   @impl true
-  def before_account_link(user, provider, attrs), do: run_lua(:before_account_link, %{user: Map.from_struct(user), provider: provider, attrs: attrs})
+  def before_account_link(user, provider, attrs),
+    do:
+      run_lua(:before_account_link, %{
+        user: Map.from_struct(user),
+        provider: provider,
+        attrs: attrs
+      })
 
   @impl true
   def after_account_link(_user), do: :ok

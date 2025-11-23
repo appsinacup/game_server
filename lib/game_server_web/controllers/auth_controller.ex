@@ -438,10 +438,6 @@ defmodule GameServerWeb.AuthController do
     end
   end
 
-  
-
-  
-
   def api_callback(conn, %{"provider" => "apple", "code" => _code}) do
     # For Apple Sign In, we use Ueberauth strategy which handles the JWT verification
     # Apple returns user info differently - they only send it on first authorization
@@ -517,8 +513,6 @@ defmodule GameServerWeb.AuthController do
     end
   end
 
-  
-
   def api_callback(conn, %{"provider" => "facebook", "code" => code}) do
     # Exchange code for access token
     client_id = System.get_env("FACEBOOK_CLIENT_ID")
@@ -575,16 +569,27 @@ defmodule GameServerWeb.AuthController do
     end
   end
 
-  
-
   operation(:api_conflict_delete,
     summary: "Delete conflicting provider account",
     description:
       "Deletes a conflicting account that owns a provider ID when allowed (must be authenticated). Only allowed when the conflicting account either has no password (provider-only) or has the same email as the current user.",
     tags: ["Authentication"],
     parameters: [
-      provider: [in: :path, name: "provider", schema: %OpenApiSpex.Schema{type: :string, enum: ["discord", "apple", "google", "facebook"]}, required: true],
-      conflict_user_id: [in: :query, name: "conflict_user_id", schema: %OpenApiSpex.Schema{type: :integer}, required: true]
+      provider: [
+        in: :path,
+        name: "provider",
+        schema: %OpenApiSpex.Schema{
+          type: :string,
+          enum: ["discord", "apple", "google", "facebook"]
+        },
+        required: true
+      ],
+      conflict_user_id: [
+        in: :query,
+        name: "conflict_user_id",
+        schema: %OpenApiSpex.Schema{type: :integer},
+        required: true
+      ]
     ],
     responses: [
       ok: {"Deleted", "application/json", %OpenApiSpex.Schema{type: :object}},
@@ -611,18 +616,26 @@ defmodule GameServerWeb.AuthController do
                 (current.email || "") |> String.downcase() and
                   (other_user.email || "") != "" ->
                 case Accounts.delete_user(other_user) do
-                  {:ok, _} -> json(conn, %{message: "deleted"})
-                  {:error, _} -> conn |> put_status(:bad_request) |> json(%{error: "Failed to delete account"})
+                  {:ok, _} ->
+                    json(conn, %{message: "deleted"})
+
+                  {:error, _} ->
+                    conn |> put_status(:bad_request) |> json(%{error: "Failed to delete account"})
                 end
 
               other_user.hashed_password == nil ->
                 case Accounts.delete_user(other_user) do
-                  {:ok, _} -> json(conn, %{message: "deleted"})
-                  {:error, _} -> conn |> put_status(:bad_request) |> json(%{error: "Failed to delete account"})
+                  {:ok, _} ->
+                    json(conn, %{message: "deleted"})
+
+                  {:error, _} ->
+                    conn |> put_status(:bad_request) |> json(%{error: "Failed to delete account"})
                 end
 
               true ->
-                conn |> put_status(:bad_request) |> json(%{error: "Cannot delete an account you do not own"})
+                conn
+                |> put_status(:bad_request)
+                |> json(%{error: "Cannot delete an account you do not own"})
             end
 
           _ ->

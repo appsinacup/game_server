@@ -78,6 +78,18 @@ defmodule GameServerWeb.Layouts do
               </.link>
             </li>
           <% else %>
+            <.link
+              href={~p"/users/log-in"}
+              class="btn btn-primary"
+            >
+              Log in
+            </.link>
+            <.link
+              href={~p"/users/register"}
+              class="btn btn-outline"
+            >
+              Register
+            </.link>
           <% end %>
           <li>
             <.link href={~p"/docs/setup"}>Guides</.link>

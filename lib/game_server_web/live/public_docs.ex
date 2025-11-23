@@ -4,13 +4,15 @@ defmodule GameServerWeb.PublicDocs do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash}>
+    <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="py-8 px-6 max-w-5xl mx-auto space-y-6">
         <.header>
           Setup & Guides
-          <:subtitle>Platform setup, OAuth providers, email, error monitoring, and server hooks</:subtitle>
+          <:subtitle>
+            Platform setup, OAuth providers, email, error monitoring, and server hooks
+          </:subtitle>
         </.header>
-    <!-- Apple Sign In Setup Guide -->
+        <!-- Apple Sign In Setup Guide -->
         <div class="card bg-base-100 shadow-xl collapsed" data-card-key="apple_signin">
           <div class="card-body">
             <h2 class="card-title text-2xl mb-4 flex items-center gap-3">

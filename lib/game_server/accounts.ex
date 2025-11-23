@@ -354,26 +354,26 @@ defmodule GameServer.Accounts do
             {:ok, user}
 
           {:error, changeset} ->
-        # If the update failed due to the provider ID being already taken,
-        # return a conflict with the existing account so the UI can guide
-        # the user (e.g., delete the other account or sign into it).
-        provider_value = Map.get(attrs, provider_id_field)
+            # If the update failed due to the provider ID being already taken,
+            # return a conflict with the existing account so the UI can guide
+            # the user (e.g., delete the other account or sign into it).
+            provider_value = Map.get(attrs, provider_id_field)
 
-        if provider_value do
-          case Repo.get_by(User, [{provider_id_field, provider_value}]) do
-            %User{} = other_user when other_user.id != user.id ->
-              {:error, {:conflict, other_user}}
+            if provider_value do
+              case Repo.get_by(User, [{provider_id_field, provider_value}]) do
+                %User{} = other_user when other_user.id != user.id ->
+                  {:error, {:conflict, other_user}}
 
-            _ ->
+                _ ->
+                  {:error, changeset}
+              end
+            else
               {:error, changeset}
-          end
-        else
-          {:error, changeset}
-        end
+            end
 
-      {:error, reason} ->
-        {:error, {:hook_rejected, reason}}
-    end
+          {:error, reason} ->
+            {:error, {:hook_rejected, reason}}
+        end
     end
   end
 

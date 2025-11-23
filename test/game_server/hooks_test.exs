@@ -20,7 +20,10 @@ defmodule GameServer.HooksTest do
     def after_user_register(_), do: :ok
     def before_user_login(u), do: {:ok, u}
     def after_user_login(_), do: :ok
-    def before_account_link(user, _p, attrs), do: {:ok, {user, Map.put(attrs, :profile_url, "hooked")}}
+
+    def before_account_link(user, _p, attrs),
+      do: {:ok, {user, Map.put(attrs, :profile_url, "hooked")}}
+
     def after_account_link(_), do: :ok
     def before_user_delete(user), do: {:ok, user}
     def after_user_delete(_), do: :ok
@@ -39,7 +42,13 @@ defmodule GameServer.HooksTest do
 
     user = unconfirmed_user_fixture()
 
-    {:ok, user} = Accounts.link_account(user, %{discord_id: "d123"}, :discord_id, &GameServer.Accounts.User.discord_oauth_changeset/2)
+    {:ok, user} =
+      Accounts.link_account(
+        user,
+        %{discord_id: "d123"},
+        :discord_id,
+        &GameServer.Accounts.User.discord_oauth_changeset/2
+      )
 
     assert user.discord_id == "d123"
     assert user.profile_url == "hooked"
