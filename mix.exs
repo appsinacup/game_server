@@ -74,7 +74,8 @@ defmodule GameServer.MixProject do
       {:ueberauth_discord, "~> 0.7"},
       {:bandit, "~> 1.8"},
       {:ueberauth, "~> 0.10"},
-      {:open_api_spex, "~> 3.22"}
+      {:open_api_spex, "~> 3.22"},
+      {:guardian, "~> 2.3"}
     ]
   end
 

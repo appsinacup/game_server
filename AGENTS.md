@@ -47,6 +47,10 @@ custom classes must fully style the input
 <!-- phoenix-gen-auth-start -->
 ## Authentication
 
+This application uses both session-based authentication (for browser flows) and JWT authentication (for API flows).
+
+### Browser Authentication
+
 - **Always** handle authentication flow at the router level with proper redirects
 - **Always** be mindful of where to place routes. `phx.gen.auth` creates multiple router plugs and `live_session` scopes:
   - A plug `:fetch_current_scope_for_user` that is included in the default browser pipeline
@@ -102,6 +106,30 @@ LiveViews that can work with or without authentication, **always use the __exist
     end
 
 Controllers automatically have the `current_scope` available if they use the `:browser` pipeline.
+
+### API Authentication (JWT)
+
+API routes use JWT tokens via Guardian for stateless authentication:
+
+- API login endpoint (`POST /api/v1/login`) returns a JWT token
+- OAuth API endpoints also return JWT tokens
+- Protected API routes use the `:api_auth` pipeline which:
+  - Verifies JWT tokens from `Authorization: Bearer <token>` header
+  - Loads the user and assigns `current_scope` to the connection
+  - Returns 401 errors for invalid/missing tokens
+- JWT tokens are valid for 7 days by default (configurable in config files)
+- Tokens are stateless - no database lookup on verification (only signature check)
+- **Always** use the `:api_auth` pipeline for API routes that require authentication:
+
+      scope "/api/v1", GameServerWeb.Api.V1, as: :api_v1 do
+        pipe_through [:api, :api_auth]
+
+        get "/me", MeController, :show
+      end
+
+- In API controllers, access the authenticated user via `conn.assigns.current_scope.user` (Guardian pipeline sets this)
+- Guardian implementation is in `lib/game_server_web/auth/guardian.ex`
+- Guardian pipeline is in `lib/game_server_web/auth/pipeline.ex`
 
 <!-- phoenix-gen-auth-end -->
 

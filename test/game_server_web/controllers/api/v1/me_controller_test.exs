@@ -1,7 +1,7 @@
 defmodule GameServerWeb.Api.V1.MeControllerTest do
   use GameServerWeb.ConnCase
 
-  alias GameServer.Accounts
+  alias GameServerWeb.Auth.Guardian
 
   describe "GET /api/v1/me" do
     test "returns 401 when not authenticated", %{conn: conn} do
@@ -12,10 +12,9 @@ defmodule GameServerWeb.Api.V1.MeControllerTest do
     test "returns user info when authenticated", %{conn: conn} do
       user = GameServer.AccountsFixtures.user_fixture()
 
-      token = Accounts.generate_user_session_token(user)
-      encoded = Base.url_encode64(token, padding: false)
+      {:ok, token, _claims} = Guardian.encode_and_sign(user)
 
-      conn = conn |> put_req_header("authorization", "Bearer " <> encoded) |> get("/api/v1/me")
+      conn = conn |> put_req_header("authorization", "Bearer " <> token) |> get("/api/v1/me")
 
       assert %{"data" => data} = json_response(conn, 200)
       assert data["id"] == user.id

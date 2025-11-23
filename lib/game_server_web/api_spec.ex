@@ -20,8 +20,25 @@ defmodule GameServerWeb.ApiSpec do
         API for Game Server application
 
         ## Authentication
-        - Email/Password login at `/api/v1/login`
-        - Discord OAuth at `/api/v1/auth/discord`
+
+        This API uses JWT (JSON Web Tokens) with access and refresh tokens:
+
+        ### Getting Tokens
+        - **Email/Password**: POST to `/api/v1/login` with email and password
+        - **Discord OAuth**: Use `/api/v1/auth/discord` flow
+
+        Both methods return:
+        - `access_token` - Short-lived (15 min), use for API requests
+        - `refresh_token` - Long-lived (30 days), use to get new access tokens
+
+        ### Using Tokens
+        Include the access token in the Authorization header:
+        ```
+        Authorization: Bearer <access_token>
+        ```
+
+        ### Refreshing Tokens
+        When your access token expires, use POST `/api/v1/refresh` with your refresh token to get a new access token.
 
         ## Endpoints
         All API endpoints are under `/api/v1`
@@ -33,7 +50,9 @@ defmodule GameServerWeb.ApiSpec do
           "authorization" => %SecurityScheme{
             type: "http",
             scheme: "bearer",
-            description: "Session-based authentication"
+            bearerFormat: "JWT",
+            description:
+              "JWT access token - obtain from /api/v1/login or /api/v1/auth/discord/callback"
           }
         }
       }

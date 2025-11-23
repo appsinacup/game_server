@@ -1,7 +1,7 @@
 defmodule GameServerWeb.Api.V1.MetadataControllerTest do
   use GameServerWeb.ConnCase
 
-  alias GameServer.Accounts
+  alias GameServerWeb.Auth.Guardian
 
   describe "GET /api/v1/me/metadata" do
     test "returns 401 when not authenticated", %{conn: conn} do
@@ -19,12 +19,11 @@ defmodule GameServerWeb.Api.V1.MetadataControllerTest do
         })
         |> GameServer.Repo.update()
 
-      token = Accounts.generate_user_session_token(user)
-      encoded = Base.url_encode64(token, padding: false)
+      {:ok, token, _claims} = Guardian.encode_and_sign(user)
 
       conn =
         conn
-        |> put_req_header("authorization", "Bearer " <> encoded)
+        |> put_req_header("authorization", "Bearer " <> token)
         |> get("/api/v1/me/metadata")
 
       assert %{"data" => data} = json_response(conn, 200)

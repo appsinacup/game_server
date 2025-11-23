@@ -51,3 +51,9 @@ config :phoenix, :plug_init_mode, :runtime
 # Enable helpful, but potentially expensive runtime checks
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
+
+# Configure Guardian for testing
+config :game_server, GameServerWeb.Auth.Guardian,
+  issuer: "game_server",
+  secret_key: "dJoNJZBOt08JlBREyPV5xvuOdwgHPORxK9WHp/k3Cs+g0R9ctyheJ8/CMeg/AdI1",
+  ttl: {15, :minutes}

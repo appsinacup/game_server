@@ -18,6 +18,10 @@ defmodule GameServerWeb.Router do
     plug OpenApiSpex.Plug.PutApiSpec, module: GameServerWeb.ApiSpec
   end
 
+  pipeline :api_auth do
+    plug GameServerWeb.Auth.Pipeline
+  end
+
   scope "/", GameServerWeb do
     pipe_through :browser
 
@@ -40,10 +44,17 @@ defmodule GameServerWeb.Router do
     pipe_through :api
 
     get "/health", HealthController, :index
+    post "/login", SessionController, :create
+    post "/refresh", SessionController, :refresh
+    delete "/logout", SessionController, :delete
+  end
+
+  # Protected API routes - require JWT authentication
+  scope "/api/v1", GameServerWeb.Api.V1, as: :api_v1 do
+    pipe_through [:api, :api_auth]
+
     get "/me", MeController, :show
     get "/me/metadata", MetadataController, :show
-    post "/login", SessionController, :create
-    delete "/logout", SessionController, :delete
   end
 
   # API OAuth routes

@@ -100,3 +100,9 @@ config :phoenix_live_view,
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
+
+# Configure Guardian for development
+config :game_server, GameServerWeb.Auth.Guardian,
+  issuer: "game_server",
+  secret_key: "l/tTJZ4KUNjIfiUsNQDQLWOTgFlyiOz8RQ2EgSRa7mopMzPLJuu7/8s5pA7iiSgO",
+  ttl: {15, :minutes}

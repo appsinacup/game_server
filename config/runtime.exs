@@ -61,6 +61,15 @@ if config_env() == :prod do
       You can generate one by calling: mix phx.gen.secret
       """
 
+  # Guardian JWT secret - can be the same as secret_key_base or separate
+  guardian_secret_key =
+    System.get_env("GUARDIAN_SECRET_KEY") || secret_key_base
+
+  config :game_server, GameServerWeb.Auth.Guardian,
+    issuer: "game_server",
+    secret_key: guardian_secret_key,
+    ttl: {15, :minutes}
+
   host = System.get_env("PHX_HOST") || "localhost"
   port = String.to_integer(System.get_env("PORT") || "4000")
 

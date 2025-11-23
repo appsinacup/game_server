@@ -5,6 +5,7 @@ defmodule GameServerWeb.AuthController do
 
   alias GameServer.Accounts
   alias GameServerWeb.UserAuth
+  alias GameServerWeb.Auth.Guardian
 
   # Browser OAuth operations (not included in API spec)
   def request(conn, _params) do
@@ -126,7 +127,19 @@ defmodule GameServerWeb.AuthController do
             data: %OpenApiSpex.Schema{
               type: :object,
               properties: %{
-                token: %OpenApiSpex.Schema{type: :string, description: "Session token"},
+                access_token: %OpenApiSpex.Schema{
+                  type: :string,
+                  description: "JWT access token (15 min)"
+                },
+                refresh_token: %OpenApiSpex.Schema{
+                  type: :string,
+                  description: "JWT refresh token (30 days)"
+                },
+                token_type: %OpenApiSpex.Schema{type: :string, description: "Token type"},
+                expires_in: %OpenApiSpex.Schema{
+                  type: :integer,
+                  description: "Seconds until access token expires"
+                },
                 user: %OpenApiSpex.Schema{
                   type: :object,
                   properties: %{
@@ -140,7 +153,10 @@ defmodule GameServerWeb.AuthController do
           },
           example: %{
             data: %{
-              token: "SFMyNTY.g2gDYQFuBgBboby...",
+              access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+              refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+              token_type: "Bearer",
+              expires_in: 900,
               user: %{id: 1, email: "user@example.com", discord_username: "username"}
             }
           }
@@ -167,12 +183,18 @@ defmodule GameServerWeb.AuthController do
 
         case Accounts.find_or_create_from_discord(user_params) do
           {:ok, user} ->
-            token = Accounts.generate_user_session_token(user)
-            encoded_token = Base.url_encode64(token, padding: false)
+            {:ok, access_token, _access_claims} =
+              Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+            {:ok, refresh_token, _refresh_claims} =
+              Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
 
             json(conn, %{
               data: %{
-                token: encoded_token,
+                access_token: access_token,
+                refresh_token: refresh_token,
+                token_type: "Bearer",
+                expires_in: 900,
                 user: %{
                   id: user.id,
                   email: user.email,

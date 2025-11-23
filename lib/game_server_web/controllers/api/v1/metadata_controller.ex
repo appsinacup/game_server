@@ -2,7 +2,6 @@ defmodule GameServerWeb.Api.V1.MetadataController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
-  alias GameServer.Accounts
   alias OpenApiSpex.Schema
 
   tags(["Users"])
@@ -27,11 +26,11 @@ defmodule GameServerWeb.Api.V1.MetadataController do
   )
 
   def show(conn, _params) do
-    with ["Bearer " <> token] <- get_req_header(conn, "authorization"),
-         {:ok, decoded} <- Base.url_decode64(token, padding: false),
-         {user, _} <- Accounts.get_user_by_session_token(decoded) do
-      json(conn, %{data: user.metadata || %{}})
-    else
+    # Guardian pipeline has already authenticated and loaded the user
+    case conn.assigns.current_scope do
+      %{user: user} when not is_nil(user) ->
+        json(conn, %{data: user.metadata || %{}})
+
       _ ->
         conn
         |> put_status(:unauthorized)
