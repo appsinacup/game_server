@@ -40,7 +40,7 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                     <td class="font-mono text-sm">
                       <%= if @config.discord_client_id do %>
-                        Client ID: {@config.discord_client_id}<br>
+                        Client ID: {@config.discord_client_id}<br />
                         Client Secret: {@config.discord_client_secret || "Not set"}
                       <% else %>
                         <span class="text-error">Client ID missing</span>
@@ -57,13 +57,13 @@ defmodule GameServerWeb.AdminLive.Config do
                       <% end %>
                     </td>
                     <td class="text-sm">
-                        <div class="font-mono text-xs mt-1">
-                          Username: {@config.smtp_username || "Not set"}<br>
-                          Password: {@config.smtp_password || "Not set"}<br>
-                          Relay: {@config.smtp_relay || "Not set"}
-                        </div>
+                      <div class="font-mono text-xs mt-1">
+                        Username: {@config.smtp_username || "Not set"}<br />
+                        Password: {@config.smtp_password || "Not set"}<br />
+                        Relay: {@config.smtp_relay || "Not set"}
+                      </div>
                       <%= if @config.email_configured do %>
-                        SMTP configured - emails are sent<br>
+                        SMTP configured - emails are sent<br />
                       <% else %>
                         Using local mailbox - emails stored locally
                       <% end %>
@@ -117,7 +117,9 @@ defmodule GameServerWeb.AdminLive.Config do
                         <span class="badge badge-info">Disabled</span>
                       <% end %>
                     </td>
-                    <td class="font-mono text-sm">{if @config.live_reload, do: "true", else: "false"}</td>
+                    <td class="font-mono text-sm">
+                      {if @config.live_reload, do: "true", else: "false"}
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -463,7 +465,9 @@ defmodule GameServerWeb.AdminLive.Config do
                     <div class="space-y-2">
                       <div>DATABASE_URL="postgresql://username:password@host:port/database"</div>
                       <div># Example:</div>
-                      <div>DATABASE_URL="postgresql://myuser:mypass@localhost:5432/game_server_prod"</div>
+                      <div>
+                        DATABASE_URL="postgresql://myuser:mypass@localhost:5432/game_server_prod"
+                      </div>
                     </div>
                   </div>
                   <p class="text-sm text-base-content/70">
@@ -473,7 +477,9 @@ defmodule GameServerWeb.AdminLive.Config do
               </div>
 
               <div class="step">
-                <h3 class="text-lg font-semibold mb-3">Individual Environment Variables (Alternative)</h3>
+                <h3 class="text-lg font-semibold mb-3">
+                  Individual Environment Variables (Alternative)
+                </h3>
                 <div class="ml-8 space-y-3">
                   <p>You can also set individual database connection variables:</p>
                   <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
@@ -521,7 +527,11 @@ defmodule GameServerWeb.AdminLive.Config do
                     <div class="bg-base-200 p-4 rounded-lg text-center">
                       <div class="font-semibold">Supabase</div>
                       <div class="text-sm text-base-content/70">Free tier available</div>
-                      <a href="https://supabase.com" target="_blank" class="btn btn-sm btn-primary mt-2">
+                      <a
+                        href="https://supabase.com"
+                        target="_blank"
+                        class="btn btn-sm btn-primary mt-2"
+                      >
                         Get Started
                       </a>
                     </div>
@@ -535,7 +545,11 @@ defmodule GameServerWeb.AdminLive.Config do
                     <div class="bg-base-200 p-4 rounded-lg text-center">
                       <div class="font-semibold">Fly.io Postgres</div>
                       <div class="text-sm text-base-content/70">Managed PostgreSQL</div>
-                      <a href="https://fly.io/docs/postgres/" target="_blank" class="btn btn-sm btn-primary mt-2">
+                      <a
+                        href="https://fly.io/docs/postgres/"
+                        target="_blank"
+                        class="btn btn-sm btn-primary mt-2"
+                      >
                         Learn More
                       </a>
                     </div>
@@ -571,7 +585,7 @@ defmodule GameServerWeb.AdminLive.Config do
                     d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                   />
                 </svg>
-                  Mailbox
+                Mailbox
               </a>
             </div>
           </div>
@@ -596,7 +610,9 @@ defmodule GameServerWeb.AdminLive.Config do
       database: Application.get_env(:game_server, GameServer.Repo)[:database] || "N/A",
       hostname: System.get_env("HOSTNAME") || System.get_env("PHX_HOST"),
       port: System.get_env("PORT") || "4000",
-      secret_key_base: System.get_env("SECRET_KEY_BASE") || Application.get_env(:game_server, GameServerWeb.Endpoint)[:secret_key_base],
+      secret_key_base:
+        System.get_env("SECRET_KEY_BASE") ||
+          Application.get_env(:game_server, GameServerWeb.Endpoint)[:secret_key_base],
       live_reload: Application.get_env(:game_server, GameServerWeb.Endpoint)[:live_reload] != nil
     }
 
