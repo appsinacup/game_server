@@ -5,15 +5,11 @@
         <%= if @current_scope do %>
           Welcome back, {@current_scope.user.email}!
         <% else %>
-          Login or Register
+          URO: Game Server
         <% end %>
       </p>
       <p class="mt-4 leading-7 text-base-content/70 text-left">
-        <%= if @current_scope do %>
-          You're already logged in. Ready to explore the app?
-        <% else %>
-          Build rich, interactive web applications quickly, with less code and fewer moving parts. Join our growing community of developers using Phoenix to craft APIs, HTML5 apps and more, for fun or at scale.
-        <% end %>
+        Open source game server with authentication, user management, and admin portal.
       </p>
       <div class="mt-6 flex gap-4">
         <%= if @current_scope do %>
@@ -48,23 +44,14 @@
         <div class="w-full sm:w-auto">
           <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
             <a
-              href="https://hexdocs.pm/phoenix/overview.html"
+              href="https://discord.gg/7BQDHesck8"
               class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6"
             >
               <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
               </span>
-              <span class="relative flex items-center gap-4 sm:flex-col">
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" class="h-6 w-6">
-                  <path d="m12 4 10-2v18l-10 2V4Z" fill="currentColor" fill-opacity=".15" />
-                  <path
-                    d="M12 4 2 2v18l10 2m0-18v18m0-18 10-2v18l-10 2"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-                Guides &amp; Docs
+              <span class="relative z-10 flex items-center gap-4 sm:flex-col">
+                <.icon name="hero-chat-bubble-left-ellipsis" class="size-6 text-base-content/80" />
+                Discord
               </span>
             </a>
             <a
@@ -86,7 +73,7 @@
               </span>
             </a>
             <a
-              href={"https://github.com/appsinacup/game_server/CHANGELOG.md"}
+              href="https://github.com/appsinacup/game_server/CHANGELOG.md"
               class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6"
             >
               <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
@@ -119,78 +106,85 @@
           
 <!-- Features overview -->
           <div class="mt-12 col-span-full">
-            <h2 class="text-lg font-semibold mb-4">Features included</h2>
+            <h2 class="text-lg font-semibold mb-4">Features</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div class="p-4 rounded-lg bg-base-200">
-                <div class="font-semibold mb-2 flex items-center gap-2">
-                  <.icon name="hero-lock-closed" class="size-5 text-base-content/80" />
+              <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
+                <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
+                </span>
+                <span class="relative z-10 flex items-center gap-4 sm:flex-col">
+                  <.icon name="hero-lock-closed" class="size-6 text-base-content/80" />
                   Authentication
-                </div>
-                <ul class="list-disc pl-5 text-base-content/70">
-                  <li>Email registration & login</li>
-                  <li>Password management (change/reset)</li>
-                  <li>Magic-link login</li>
-                  <li>Discord OAuth login</li>
+                </span>
+                <ul class="relative list-disc pl-5 text-base-content/70 mt-3 z-10">
+                  <li>Email</li>
+                  <li>Magic-link</li>
+                  <li>OAuth</li>
                 </ul>
               </div>
 
-              <div class="p-4 rounded-lg bg-base-200">
-                <div class="font-semibold mb-2 flex items-center gap-2">
-                  <.icon name="hero-users" class="size-5 text-base-content/80" />
-                  User Management
-                </div>
-                <ul class="list-disc pl-5 text-base-content/70">
-                  <li>Per-user settings & password changes</li>
-                  <li>Account confirmation & email flows</li>
-                  <li>Metadata attached to users (admin editable)</li>
+              <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
+                <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
+                </span>
+                <span class="relative z-10 flex items-center gap-4 sm:flex-col">
+                  <.icon name="hero-users" class="size-6 text-base-content/80" /> User Management
+                </span>
+                <ul class="relative list-disc pl-5 text-base-content/70 mt-3">
+                  <li>Per-user settings</li>
+                  <li>Account confirmation</li>
+                  <li>Metadata</li>
                 </ul>
               </div>
 
-              <div class="p-4 rounded-lg bg-base-200">
-                <div class="font-semibold mb-2 flex items-center gap-2">
-                  <.icon name="hero-shield-check" class="size-5 text-base-content/80" />
+              <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
+                <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
+                </span>
+                <span class="relative z-10 flex items-center gap-4 sm:flex-col">
+                  <.icon name="hero-shield-check" class="size-6 text-base-content/80" />
                   Admin & Monitoring
-                </div>
-                <ul class="list-disc pl-5 text-base-content/70">
-                  <li>Admin dashboard & user management</li>
-                  <li>Configuration guides & secrets inspector</li>
-                  <li>Sentry error monitoring + feedback</li>
+                </span>
+                <ul class="relative list-disc pl-5 text-base-content/70 mt-3">
+                  <li>User management</li>
+                  <li>Configuration info</li>
+                  <li>Secrets inspector</li>
                 </ul>
               </div>
 
-              <div class="p-4 rounded-lg bg-base-200">
-                <div class="font-semibold mb-2 flex items-center gap-2">
-                  <.icon name="hero-sparkles" class="size-5 text-base-content/80" />
-                  UI & Theming
-                </div>
-                <ul class="list-disc pl-5 text-base-content/70">
+              <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
+                <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
+                </span>
+                <span class="relative z-10 flex items-center gap-4 sm:flex-col">
+                  <.icon name="hero-sparkles" class="size-6 text-base-content/80" /> UI & Theming
+                </span>
+                <ul class="relative list-disc pl-5 text-base-content/70 mt-3">
                   <li>LiveView powered UI</li>
-                  <li>Dark / Light theme toggle & system preference</li>
-                  <li>Responsive Tailwind + daisyUI components</li>
+                  <li>Dark / Light theme</li>
+                  <li>Responsive design</li>
                 </ul>
               </div>
 
-              <div class="p-4 rounded-lg bg-base-200">
-                <div class="font-semibold mb-2 flex items-center gap-2">
-                  <.icon name="hero-server-stack" class="size-5 text-base-content/80" />
+              <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
+                <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
+                </span>
+                <span class="relative z-10 flex items-center gap-4 sm:flex-col">
+                  <.icon name="hero-server-stack" class="size-6 text-base-content/80" />
                   Persistence & Deployment
-                </div>
-                <ul class="list-disc pl-5 text-base-content/70">
-                  <li>SQLite default with persistent Fly.io volume support</li>
-                  <li>Optional PostgreSQL support for production</li>
-                  <li>Fly.io deployment with volumes + CI workflow</li>
+                </span>
+                <ul class="relative list-disc pl-5 text-base-content/70 mt-3">
+                  <li>SQLite</li>
+                  <li>PostgreSQL</li>
                 </ul>
               </div>
 
-              <div class="p-4 rounded-lg bg-base-200">
-                <div class="font-semibold mb-2 flex items-center gap-2">
-                  <.icon name="hero-puzzle-piece" class="size-5 text-base-content/80" />
+              <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
+                <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
+                </span>
+                <span class="relative flex items-center gap-4 sm:flex-col">
+                  <.icon name="hero-puzzle-piece" class="size-6 text-base-content/80" />
                   Integrations
-                </div>
-                <ul class="list-disc pl-5 text-base-content/70">
-                  <li>Discord OAuth (sign-in + profile linking)</li>
-                  <li>Sentry error reporting and user feedback</li>
-                  <li>Req-based HTTP client for external APIs</li>
+                </span>
+                <ul class="relative list-disc pl-5 text-base-content/70 mt-3">
+                  <li>Discord OAuth</li>
+                  <li>Sentry integration</li>
                 </ul>
               </div>
             </div>

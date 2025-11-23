@@ -5,8 +5,8 @@ defmodule GameServerWeb.PageControllerTest do
     conn = get(conn, "/")
     body = html_response(conn, 200)
 
-    assert body =~ "Features included"
-    assert body =~ "Discord OAuth"
+    assert body =~ "Features"
+    assert body =~ "Discord"
     assert body =~ "Sentry"
     assert body =~ "SQLite"
   end
