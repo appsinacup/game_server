@@ -55,6 +55,7 @@ defmodule GameServerWeb.Router do
 
     get "/me", MeController, :show
     get "/me/metadata", MetadataController, :show
+    delete "/me/providers/:provider", ProviderController, :unlink
   end
 
   # API OAuth routes
@@ -63,6 +64,15 @@ defmodule GameServerWeb.Router do
 
     get "/:provider", AuthController, :api_request
     get "/:provider/callback", AuthController, :api_callback
+    # Authenticated helper endpoints
+    # These require a Bearer token and are intended for API clients that hold a user token.
+    # non-authenticated paths are above; authenticated helpers are in a separate scope below
+  end
+
+  scope "/api/v1/auth", GameServerWeb do
+    pipe_through [:api, :api_auth]
+
+    post "/:provider/conflict-delete", AuthController, :api_conflict_delete
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview for admins (dev only)

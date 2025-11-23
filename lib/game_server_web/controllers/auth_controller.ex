@@ -349,7 +349,8 @@ defmodule GameServerWeb.AuthController do
 
   operation(:api_callback,
     summary: "API OAuth callback",
-    description: "Handles OAuth callback and returns user token",
+    description:
+      "Handles OAuth callback and returns user token. If the request is authenticated (Authorization: Bearer <token>) this endpoint will attempt to link the provider to the current API user instead of creating a new account.",
     tags: ["Authentication"],
     parameters: [
       provider: [
@@ -420,7 +421,16 @@ defmodule GameServerWeb.AuthController do
           }
         }
       },
-      bad_request: {"OAuth error", "application/json", nil}
+      bad_request: {"OAuth error", "application/json", nil},
+      conflict:
+        {"Provider already linked", "application/json",
+         %OpenApiSpex.Schema{
+           type: :object,
+           properties: %{
+             error: %OpenApiSpex.Schema{type: :string},
+             conflict_user_id: %OpenApiSpex.Schema{type: :integer}
+           }
+         }}
     ]
   )
 
@@ -430,7 +440,9 @@ defmodule GameServerWeb.AuthController do
     client_secret = System.get_env("DISCORD_CLIENT_SECRET")
     redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/api/v1/auth/discord/callback"
 
-    case exchange_discord_code(code, client_id, client_secret, redirect_uri) do
+    exchanger = Application.get_env(:game_server, :oauth_exchanger, GameServer.OAuth.Exchanger)
+
+    case exchanger.exchange_discord_code(code, client_id, client_secret, redirect_uri) do
       {:ok, user_info} ->
         user_params = %{
           email: user_info["email"],
@@ -441,41 +453,155 @@ defmodule GameServerWeb.AuthController do
               nil
         }
 
-        case Accounts.find_or_create_from_discord(user_params) do
-          {:ok, user} ->
-            {:ok, access_token, _access_claims} =
-              Guardian.encode_and_sign(user, %{}, token_type: "access")
+        # If the request includes a bearer token, attempt to link the provider
+        # to the currently authenticated API user (if any). Otherwise, create
+        # or find a user and return tokens as before.
+        case get_req_header(conn, "authorization") do
+          ["Bearer " <> token] ->
+            case Guardian.resource_from_token(token) do
+              {:ok, current_user, _claims} ->
+                case Accounts.link_account(
+                       current_user,
+                       user_params,
+                       :discord_id,
+                       &GameServer.Accounts.User.discord_oauth_changeset/2
+                     ) do
+                  {:ok, user} ->
+                    # return the updated user
+                    json(conn, %{
+                      data: %{
+                        user: %{id: user.id, email: user.email, profile_url: user.profile_url},
+                        message: "Linked"
+                      }
+                    })
 
-            {:ok, refresh_token, _refresh_claims} =
-              Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+                  {:error, {:conflict, other_user}} ->
+                    conn
+                    |> put_status(:conflict)
+                    |> json(%{error: "conflict", conflict_user_id: other_user.id})
 
-            json(conn, %{
-              data: %{
-                access_token: access_token,
-                refresh_token: refresh_token,
-                token_type: "Bearer",
-                expires_in: 900,
-                user: %{
-                  id: user.id,
-                  email: user.email,
-                  profile_url: user.profile_url
-                }
-              }
-            })
+                  {:error, changeset} ->
+                    conn
+                    |> put_status(:bad_request)
+                    |> json(%{error: "Failed to link provider", details: changeset.errors})
+                end
 
-          {:error, changeset} ->
-            conn
-            |> put_status(:bad_request)
-            |> json(%{
-              error: "Failed to create or update user account",
-              details: changeset.errors
-            })
+              _ ->
+                # No valid token -> fallback to create/find
+                do_find_or_create_discord(conn, user_params)
+            end
+
+          _ ->
+            do_find_or_create_discord(conn, user_params)
+        end
+    end
+  end
+
+  operation(:api_conflict_delete,
+    summary: "Delete conflicting provider account",
+    description:
+      "Deletes a conflicting account that owns a provider ID when allowed (must be authenticated). Only allowed when the conflicting account either has no password (provider-only) or has the same email as the current user.",
+    tags: ["Authentication"],
+    parameters: [
+      provider: [
+        in: :path,
+        name: "provider",
+        schema: %OpenApiSpex.Schema{
+          type: :string,
+          enum: ["discord", "apple", "google", "facebook"]
+        },
+        required: true
+      ],
+      conflict_user_id: [
+        in: :query,
+        name: "conflict_user_id",
+        schema: %OpenApiSpex.Schema{type: :integer},
+        required: true
+      ]
+    ],
+    responses: [
+      ok: {"Deleted", "application/json", %OpenApiSpex.Schema{type: :object}},
+      bad_request: {"Bad Request", "application/json", %OpenApiSpex.Schema{type: :object}},
+      unauthorized: {"Unauthorized", "application/json", %OpenApiSpex.Schema{type: :object}}
+    ]
+  )
+
+  def api_conflict_delete(conn, %{"provider" => _provider, "conflict_user_id" => conflict_user_id}) do
+    # Delete conflicting account via API (authenticated)
+    current = conn.assigns.current_scope.user
+
+    case Integer.parse(conflict_user_id) do
+      {id, ""} ->
+        case Accounts.get_user!(id) do
+          %Accounts.User{} = other_user ->
+            cond do
+              other_user.id == current.id ->
+                conn
+                |> put_status(:bad_request)
+                |> json(%{error: "Cannot delete your own logged-in account"})
+
+              (other_user.email || "") |> String.downcase() ==
+                (current.email || "") |> String.downcase() and
+                  (other_user.email || "") != "" ->
+                case Accounts.delete_user(other_user) do
+                  {:ok, _} ->
+                    json(conn, %{message: "deleted"})
+
+                  {:error, _} ->
+                    conn |> put_status(:bad_request) |> json(%{error: "Failed to delete account"})
+                end
+
+              other_user.hashed_password == nil ->
+                case Accounts.delete_user(other_user) do
+                  {:ok, _} ->
+                    json(conn, %{message: "deleted"})
+
+                  {:error, _} ->
+                    conn |> put_status(:bad_request) |> json(%{error: "Failed to delete account"})
+                end
+
+              true ->
+                conn
+                |> put_status(:bad_request)
+                |> json(%{error: "Cannot delete an account you do not own"})
+            end
+
+          _ ->
+            conn |> put_status(:bad_request) |> json(%{error: "Account not found"})
         end
 
-      {:error, reason} ->
+      :error ->
+        conn |> put_status(:bad_request) |> json(%{error: "invalid id"})
+    end
+  end
+
+  defp do_find_or_create_discord(conn, user_params) do
+    case Accounts.find_or_create_from_discord(user_params) do
+      {:ok, user} ->
+        {:ok, access_token, _access_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+        {:ok, refresh_token, _refresh_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+        json(conn, %{
+          data: %{
+            access_token: access_token,
+            refresh_token: refresh_token,
+            token_type: "Bearer",
+            expires_in: 900,
+            user: %{
+              id: user.id,
+              email: user.email,
+              profile_url: user.profile_url
+            }
+          }
+        })
+
+      {:error, changeset} ->
         conn
         |> put_status(:bad_request)
-        |> json(%{error: "OAuth failed", details: reason})
+        |> json(%{error: "Failed to create or update user account", details: changeset.errors})
     end
   end
 
@@ -504,47 +630,82 @@ defmodule GameServerWeb.AuthController do
     client_secret = System.get_env("GOOGLE_CLIENT_SECRET")
     redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/api/v1/auth/google/callback"
 
-    case exchange_google_code(code, client_id, client_secret, redirect_uri) do
+    exchanger = Application.get_env(:game_server, :oauth_exchanger, GameServer.OAuth.Exchanger)
+
+    case exchanger.exchange_google_code(code, client_id, client_secret, redirect_uri) do
       {:ok, user_info} ->
         user_params = %{
           email: user_info["email"],
           google_id: user_info["id"]
         }
 
-        case Accounts.find_or_create_from_google(user_params) do
-          {:ok, user} ->
-            {:ok, access_token, _access_claims} =
-              Guardian.encode_and_sign(user, %{}, token_type: "access")
+        case get_req_header(conn, "authorization") do
+          ["Bearer " <> token] ->
+            case Guardian.resource_from_token(token) do
+              {:ok, current_user, _claims} ->
+                case Accounts.link_account(
+                       current_user,
+                       user_params,
+                       :google_id,
+                       &GameServer.Accounts.User.google_oauth_changeset/2
+                     ) do
+                  {:ok, user} ->
+                    json(conn, %{
+                      data: %{user: %{id: user.id, email: user.email}, message: "Linked"}
+                    })
 
-            {:ok, refresh_token, _refresh_claims} =
-              Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+                  {:error, {:conflict, other_user}} ->
+                    conn
+                    |> put_status(:conflict)
+                    |> json(%{error: "conflict", conflict_user_id: other_user.id})
 
-            json(conn, %{
-              data: %{
-                access_token: access_token,
-                refresh_token: refresh_token,
-                token_type: "Bearer",
-                expires_in: 900,
-                user: %{
-                  id: user.id,
-                  email: user.email
-                }
-              }
-            })
+                  {:error, changeset} ->
+                    conn
+                    |> put_status(:bad_request)
+                    |> json(%{error: "Failed to link provider", details: changeset.errors})
+                end
 
-          {:error, changeset} ->
-            conn
-            |> put_status(:bad_request)
-            |> json(%{
-              error: "Failed to create or update user account",
-              details: changeset.errors
-            })
+              _ ->
+                do_find_or_create_google(conn, user_params)
+            end
+
+          _ ->
+            do_find_or_create_google(conn, user_params)
         end
 
       {:error, reason} ->
         conn
         |> put_status(:bad_request)
         |> json(%{error: "OAuth failed", details: reason})
+    end
+  end
+
+  defp do_find_or_create_google(conn, user_params) do
+    case Accounts.find_or_create_from_google(user_params) do
+      {:ok, user} ->
+        {:ok, access_token, _access_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+        {:ok, refresh_token, _refresh_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+        json(conn, %{
+          data: %{
+            access_token: access_token,
+            refresh_token: refresh_token,
+            token_type: "Bearer",
+            expires_in: 900,
+            user: %{
+              id: user.id,
+              email: user.email
+            }
+          }
+        })
+
+      {:error, changeset} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "Failed to create or update user account", details: changeset.errors})
     end
   end
 
@@ -554,41 +715,47 @@ defmodule GameServerWeb.AuthController do
     client_secret = System.get_env("FACEBOOK_CLIENT_SECRET")
     redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/api/v1/auth/facebook/callback"
 
-    case exchange_facebook_code(code, client_id, client_secret, redirect_uri) do
+    exchanger = Application.get_env(:game_server, :oauth_exchanger, GameServer.OAuth.Exchanger)
+
+    case exchanger.exchange_facebook_code(code, client_id, client_secret, redirect_uri) do
       {:ok, user_info} ->
         user_params = %{
           email: user_info["email"],
           facebook_id: user_info["id"]
         }
 
-        case Accounts.find_or_create_from_facebook(user_params) do
-          {:ok, user} ->
-            {:ok, access_token, _access_claims} =
-              Guardian.encode_and_sign(user, %{}, token_type: "access")
+        case get_req_header(conn, "authorization") do
+          ["Bearer " <> token] ->
+            case Guardian.resource_from_token(token) do
+              {:ok, current_user, _claims} ->
+                case Accounts.link_account(
+                       current_user,
+                       user_params,
+                       :facebook_id,
+                       &GameServer.Accounts.User.facebook_oauth_changeset/2
+                     ) do
+                  {:ok, user} ->
+                    json(conn, %{
+                      data: %{user: %{id: user.id, email: user.email}, message: "Linked"}
+                    })
 
-            {:ok, refresh_token, _refresh_claims} =
-              Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+                  {:error, {:conflict, other_user}} ->
+                    conn
+                    |> put_status(:conflict)
+                    |> json(%{error: "conflict", conflict_user_id: other_user.id})
 
-            json(conn, %{
-              data: %{
-                access_token: access_token,
-                refresh_token: refresh_token,
-                token_type: "Bearer",
-                expires_in: 900,
-                user: %{
-                  id: user.id,
-                  email: user.email
-                }
-              }
-            })
+                  {:error, changeset} ->
+                    conn
+                    |> put_status(:bad_request)
+                    |> json(%{error: "Failed to link provider", details: changeset.errors})
+                end
 
-          {:error, changeset} ->
-            conn
-            |> put_status(:bad_request)
-            |> json(%{
-              error: "Failed to create or update user account",
-              details: changeset.errors
-            })
+              _ ->
+                do_find_or_create_facebook(conn, user_params)
+            end
+
+          _ ->
+            do_find_or_create_facebook(conn, user_params)
         end
 
       {:error, reason} ->
@@ -598,100 +765,34 @@ defmodule GameServerWeb.AuthController do
     end
   end
 
-  defp exchange_discord_code(code, client_id, client_secret, redirect_uri) do
-    url = "https://discord.com/api/oauth2/token"
+  defp do_find_or_create_facebook(conn, user_params) do
+    case Accounts.find_or_create_from_facebook(user_params) do
+      {:ok, user} ->
+        {:ok, access_token, _access_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "access")
 
-    body = %{
-      client_id: client_id,
-      client_secret: client_secret,
-      grant_type: "authorization_code",
-      code: code,
-      redirect_uri: redirect_uri
-    }
+        {:ok, refresh_token, _refresh_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
 
-    headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
+        json(conn, %{
+          data: %{
+            access_token: access_token,
+            refresh_token: refresh_token,
+            token_type: "Bearer",
+            expires_in: 900,
+            user: %{
+              id: user.id,
+              email: user.email
+            }
+          }
+        })
 
-    case Req.post(url, form: body, headers: headers) do
-      {:ok, %{status: 200, body: %{"access_token" => access_token}}} ->
-        # Get user info with access token
-        user_url = "https://discord.com/api/users/@me"
-        auth_headers = [{"Authorization", "Bearer #{access_token}"}]
-
-        case Req.get(user_url, headers: auth_headers) do
-          {:ok, %{status: 200, body: user_info}} ->
-            {:ok, user_info}
-
-          _ ->
-            {:error, "Failed to get user info"}
-        end
-
-      _ ->
-        {:error, "Failed to exchange code"}
+      {:error, changeset} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "Failed to create or update user account", details: changeset.errors})
     end
   end
 
-  defp exchange_google_code(code, client_id, client_secret, redirect_uri) do
-    url = "https://oauth2.googleapis.com/token"
-
-    body = %{
-      client_id: client_id,
-      client_secret: client_secret,
-      grant_type: "authorization_code",
-      code: code,
-      redirect_uri: redirect_uri
-    }
-
-    headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
-
-    case Req.post(url, form: body, headers: headers) do
-      {:ok, %{status: 200, body: %{"access_token" => access_token}}} ->
-        # Get user info with access token
-        user_url = "https://www.googleapis.com/oauth2/v2/userinfo"
-        auth_headers = [{"Authorization", "Bearer #{access_token}"}]
-
-        case Req.get(user_url, headers: auth_headers) do
-          {:ok, %{status: 200, body: user_info}} ->
-            {:ok, user_info}
-
-          _ ->
-            {:error, "Failed to get user info"}
-        end
-
-      _ ->
-        {:error, "Failed to exchange code"}
-    end
-  end
-
-  defp exchange_facebook_code(code, client_id, client_secret, redirect_uri) do
-    url = "https://graph.facebook.com/v18.0/oauth/access_token"
-
-    params = %{
-      client_id: client_id,
-      client_secret: client_secret,
-      code: code,
-      redirect_uri: redirect_uri
-    }
-
-    case Req.get(url, params: params) do
-      {:ok, %{status: 200, body: %{"access_token" => access_token}}} ->
-        # Get user info with access token
-        user_url = "https://graph.facebook.com/v18.0/me"
-
-        user_params = %{
-          fields: "id,email",
-          access_token: access_token
-        }
-
-        case Req.get(user_url, params: user_params) do
-          {:ok, %{status: 200, body: user_info}} ->
-            {:ok, user_info}
-
-          _ ->
-            {:error, "Failed to get user info"}
-        end
-
-      _ ->
-        {:error, "Failed to exchange code"}
-    end
-  end
+  # OAuth HTTP exchange is handled by GameServer.OAuth.Exchanger
 end
