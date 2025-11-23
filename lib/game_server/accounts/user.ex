@@ -127,7 +127,7 @@ defmodule GameServer.Accounts.User do
   """
   def oauth_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :discord_id, :discord_username, :discord_avatar])
+    |> cast(attrs, [:email, :discord_id, :discord_username, :discord_avatar, :is_admin])
     |> update_change(:email, &String.downcase/1)
     |> validate_required([:discord_id])
     |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+$/,

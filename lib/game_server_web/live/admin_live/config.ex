@@ -199,7 +199,7 @@ defmodule GameServerWeb.AdminLive.Config do
                       </div>
                       <div>
                         <strong>Production:</strong>
-                        https://game-server-uro.fly.dev/auth/discord/callback
+                        https://<%= @config.hostname %><%= if @config.port && @config.port != "443", do: ":#{@config.port}" %>/auth/discord/callback
                       </div>
                     </div>
                   </div>
@@ -608,7 +608,7 @@ defmodule GameServerWeb.AdminLive.Config do
       smtp_relay: System.get_env("SMTP_RELAY"),
       env: to_string(Application.get_env(:game_server, :environment, Mix.env())),
       database: Application.get_env(:game_server, GameServer.Repo)[:database] || "N/A",
-      hostname: System.get_env("HOSTNAME") || System.get_env("PHX_HOST"),
+      hostname: Application.get_env(:game_server, GameServerWeb.Endpoint)[:url][:host] || System.get_env("HOSTNAME") || System.get_env("PHX_HOST") || "localhost",
       port: System.get_env("PORT") || "4000",
       secret_key_base:
         System.get_env("SECRET_KEY_BASE") ||

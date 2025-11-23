@@ -128,7 +128,7 @@ defmodule GameServer.Accounts do
           nil ->
             # Check if this is the first user and make them admin
             is_first_user = Repo.aggregate(User, :count, :id) == 0
-            attrs = if is_first_user, do: Map.put(attrs, "is_admin", true), else: attrs
+            attrs = if is_first_user, do: Map.put(attrs, :is_admin, true), else: attrs
 
             %User{}
             |> User.oauth_changeset(attrs)
@@ -144,7 +144,7 @@ defmodule GameServer.Accounts do
       true ->
         # Check if this is the first user and make them admin
         is_first_user = Repo.aggregate(User, :count, :id) == 0
-        attrs = if is_first_user, do: Map.put(attrs, "is_admin", true), else: attrs
+        attrs = if is_first_user, do: Map.put(attrs, :is_admin, true), else: attrs
 
         %User{}
         |> User.oauth_changeset(attrs)
