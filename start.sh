@@ -2,7 +2,13 @@
 # Load environment variables from .env file and start the server
 
 if [ -f .env ]; then
-  export $(cat .env | xargs)
+  # Source .env and export all variables. Using `export $(cat .env | xargs)` breaks
+  # multiline values (eg. APPLE_PRIVATE_KEY). `set -a; . .env; set +a` safely
+  # exports variables while preserving multi-line values and quoting.
+  set -a
+  # shellcheck disable=SC1091
+  . .env
+  set +a
 fi
 
 mix phx.server

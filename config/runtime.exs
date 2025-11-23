@@ -87,27 +87,40 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
-  # Configure OAuth providers from runtime environment variables so deploy-time
-  # secrets (eg. Fly secrets) are applied. These override any compile-time
-  # values and ensure Application.get_env/3 reflects the runtime values.
+  # Configure OAuth providers from runtime environment variables only when
+  # provided; otherwise fall back to compile-time values in config/config.exs.
+  # Avoid defaulting redirect URIs to 'localhost' here (that causes provider
+  # redirect mismatches in production). If you need a specific redirect URI
+  # in production, set DISCORD_REDIRECT_URI explicitly in the environment.
   config :ueberauth, Ueberauth.Strategy.Discord.OAuth,
-    client_id: System.get_env("DISCORD_CLIENT_ID"),
-    client_secret: System.get_env("DISCORD_CLIENT_SECRET"),
-    redirect_uri: System.get_env("DISCORD_REDIRECT_URI") || "https://#{host}/auth/discord/callback"
+    client_id:
+      System.get_env("DISCORD_CLIENT_ID") || Application.get_env(:ueberauth, Ueberauth.Strategy.Discord.OAuth)[:client_id],
+    client_secret:
+      System.get_env("DISCORD_CLIENT_SECRET") || Application.get_env(:ueberauth, Ueberauth.Strategy.Discord.OAuth)[:client_secret],
+    redirect_uri:
+      System.get_env("DISCORD_REDIRECT_URI") || Application.get_env(:ueberauth, Ueberauth.Strategy.Discord.OAuth)[:redirect_uri]
 
   config :ueberauth, Ueberauth.Strategy.Google.OAuth,
-    client_id: System.get_env("GOOGLE_CLIENT_ID"),
-    client_secret: System.get_env("GOOGLE_CLIENT_SECRET")
+    client_id:
+      System.get_env("GOOGLE_CLIENT_ID") || Application.get_env(:ueberauth, Ueberauth.Strategy.Google.OAuth)[:client_id],
+    client_secret:
+      System.get_env("GOOGLE_CLIENT_SECRET") || Application.get_env(:ueberauth, Ueberauth.Strategy.Google.OAuth)[:client_secret]
 
   config :ueberauth, Ueberauth.Strategy.Facebook.OAuth,
-    client_id: System.get_env("FACEBOOK_CLIENT_ID"),
-    client_secret: System.get_env("FACEBOOK_CLIENT_SECRET")
+    client_id:
+      System.get_env("FACEBOOK_CLIENT_ID") || Application.get_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth)[:client_id],
+    client_secret:
+      System.get_env("FACEBOOK_CLIENT_SECRET") || Application.get_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth)[:client_secret]
 
   config :ueberauth, Ueberauth.Strategy.Apple,
-    client_id: System.get_env("APPLE_CLIENT_ID"),
-    team_id: System.get_env("APPLE_TEAM_ID"),
-    key_id: System.get_env("APPLE_KEY_ID"),
-    private_key: System.get_env("APPLE_PRIVATE_KEY")
+    client_id:
+      System.get_env("APPLE_CLIENT_ID") || Application.get_env(:ueberauth, Ueberauth.Strategy.Apple)[:client_id],
+    team_id:
+      System.get_env("APPLE_TEAM_ID") || Application.get_env(:ueberauth, Ueberauth.Strategy.Apple)[:team_id],
+    key_id:
+      System.get_env("APPLE_KEY_ID") || Application.get_env(:ueberauth, Ueberauth.Strategy.Apple)[:key_id],
+    private_key:
+      System.get_env("APPLE_PRIVATE_KEY") || Application.get_env(:ueberauth, Ueberauth.Strategy.Apple)[:private_key]
 
   # ## SSL Support
   #
