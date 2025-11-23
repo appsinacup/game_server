@@ -2,7 +2,8 @@ defmodule GameServerWeb.UserLive.Registration do
   use GameServerWeb, :live_view
 
   alias GameServer.Accounts
-  alias GameServer.Accounts.User
+  alias GameServer.Accounts.{User, UserToken}
+  alias GameServer.Repo
 
   @impl true
   def render(assigns) do
@@ -94,15 +95,20 @@ defmodule GameServerWeb.UserLive.Registration do
            |> push_navigate(to: ~p"/users/log-in")}
         else
           # Auto-confirm user when email is not configured
-          {:ok, _} = Accounts.confirm_user(user)
+          {:ok, user} = Accounts.confirm_user(user)
 
+          # Generate a magic link token for auto-login
+          {token, user_token} = UserToken.build_email_token(user, "login")
+          Repo.insert!(user_token)
+
+          # Redirect to login with the token (will auto-login the confirmed user)
           {:noreply,
            socket
            |> put_flash(
              :info,
-             "Account created successfully! You can now log in."
+             "Account created successfully! Logging you in..."
            )
-           |> push_navigate(to: ~p"/users/log-in")}
+           |> push_navigate(to: ~p"/users/log-in/#{token}")}
         end
 
       {:error, %Ecto.Changeset{} = changeset} ->
