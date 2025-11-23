@@ -112,8 +112,7 @@ if config_env() == :prod do
 
   # ## Configuring the mailer
   #
-  # Only configure the mailer if SMTP_PASSWORD is set
-  # This allows the app to run without email configuration
+  # Configure the mailer - if SMTP_PASSWORD is set, use SMTP, otherwise use local mailbox
   if System.get_env("SMTP_PASSWORD") do
     config :game_server, GameServer.Mailer,
       adapter: Swoosh.Adapters.SMTP,
@@ -126,5 +125,11 @@ if config_env() == :prod do
 
     # Configure Swoosh to use Req for HTTP requests
     config :swoosh, :api_client, Swoosh.ApiClient.Req
+  else
+    # Use local adapter when SMTP is not configured - emails go to mailbox
+    config :game_server, GameServer.Mailer, adapter: Swoosh.Adapters.Local
+
+    # Disable swoosh api client for local adapter
+    config :swoosh, :api_client, false
   end
 end

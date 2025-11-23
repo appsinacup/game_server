@@ -52,21 +52,14 @@ defmodule GameServerWeb.Router do
     get "/:provider/callback", AuthController, :api_callback
   end
 
-  # Enable LiveDashboard and Swoosh mailbox preview in development
-  if Application.compile_env(:game_server, :dev_routes) do
-    # If you want to use the LiveDashboard in production, you should put
-    # it behind authentication and allow only admins to access it.
-    # If your application does not have an admins-only section yet,
-    # you can use Plug.BasicAuth to set up some basic authentication
-    # as long as you are also using SSL (which you should anyway).
-    import Phoenix.LiveDashboard.Router
+  # Enable LiveDashboard and Swoosh mailbox preview for admins
+  import Phoenix.LiveDashboard.Router
 
-    scope "/dev" do
-      pipe_through :browser
+  scope "/" do
+    pipe_through [:browser, :require_admin_user]
 
-      live_dashboard "/dashboard", metrics: GameServerWeb.Telemetry
-      forward "/mailbox", Plug.Swoosh.MailboxPreview
-    end
+    live_dashboard "/admin/dashboard", metrics: GameServerWeb.Telemetry
+    forward "/admin/mailbox", Plug.Swoosh.MailboxPreview
   end
 
   ## Authentication routes

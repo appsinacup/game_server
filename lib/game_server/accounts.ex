@@ -75,6 +75,10 @@ defmodule GameServer.Accounts do
 
   """
   def register_user(attrs) do
+    # Check if this is the first user and make them admin
+    is_first_user = Repo.aggregate(User, :count, :id) == 0
+    attrs = if is_first_user, do: Map.put(attrs, :is_admin, true), else: attrs
+
     %User{}
     |> User.email_changeset(attrs)
     |> Repo.insert()
@@ -119,6 +123,10 @@ defmodule GameServer.Accounts do
       email != nil ->
         case Repo.get_by(User, email: email) do
           nil ->
+            # Check if this is the first user and make them admin
+            is_first_user = Repo.aggregate(User, :count, :id) == 0
+            attrs = if is_first_user, do: Map.put(attrs, :is_admin, true), else: attrs
+
             %User{}
             |> User.oauth_changeset(attrs)
             |> Repo.insert()
@@ -131,6 +139,10 @@ defmodule GameServer.Accounts do
 
       # New user - create from Discord data
       true ->
+        # Check if this is the first user and make them admin
+        is_first_user = Repo.aggregate(User, :count, :id) == 0
+        attrs = if is_first_user, do: Map.put(attrs, :is_admin, true), else: attrs
+
         %User{}
         |> User.oauth_changeset(attrs)
         |> Repo.insert()

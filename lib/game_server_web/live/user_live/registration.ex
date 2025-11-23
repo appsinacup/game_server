@@ -75,26 +75,11 @@ defmodule GameServerWeb.UserLive.Registration do
   def handle_event("save", %{"user" => user_params}, socket) do
     case Accounts.register_user(user_params) do
       {:ok, user} ->
-        # Check if email is configured by looking for SMTP_PASSWORD
-        email_configured? = System.get_env("SMTP_PASSWORD") != nil
+        # Check if this is the first user (admin users are auto-created as first user)
+        is_first_user = user.is_admin
 
-        if email_configured? do
-          # Send confirmation email
-          {:ok, _} =
-            Accounts.deliver_login_instructions(
-              user,
-              &url(~p"/users/log-in/#{&1}")
-            )
-
-          {:noreply,
-           socket
-           |> put_flash(
-             :info,
-             "An email was sent to #{user.email}, please access it to confirm your account."
-           )
-           |> push_navigate(to: ~p"/users/log-in")}
-        else
-          # Auto-confirm user when email is not configured
+        if is_first_user do
+          # First user: auto-confirm and auto-login
           {:ok, user} = Accounts.confirm_user(user)
 
           # Generate a magic link token for auto-login
@@ -109,6 +94,21 @@ defmodule GameServerWeb.UserLive.Registration do
              "Account created successfully! Logging you in..."
            )
            |> push_navigate(to: ~p"/users/log-in/#{token}")}
+        else
+          # All other users: always send confirmation email (goes to mailbox if SMTP not configured)
+          {:ok, _} =
+            Accounts.deliver_login_instructions(
+              user,
+              &url(~p"/users/log-in/#{&1}")
+            )
+
+          {:noreply,
+           socket
+           |> put_flash(
+             :info,
+             "An email was sent to #{user.email}, please access it to confirm your account."
+           )
+           |> push_navigate(to: ~p"/users/log-in")}
         end
 
       {:error, %Ecto.Changeset{} = changeset} ->
