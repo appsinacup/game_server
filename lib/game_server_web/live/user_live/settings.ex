@@ -16,6 +16,25 @@ defmodule GameServerWeb.UserLive.Settings do
         </.header>
       </div>
 
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="card bg-base-200 p-4 rounded-lg">
+          <div class="font-semibold">Account details</div>
+          <div class="text-sm mt-2 space-y-1 text-base-content/80">
+            <div><strong>ID:</strong> {@user.id}</div>
+            <div><strong>Email:</strong> {@current_email}</div>
+            <div><strong>Admin:</strong> {@user.is_admin}</div>
+            <div><strong>Discord:</strong> {@user.discord_username || "—"}</div>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 p-4 rounded-lg">
+          <div class="font-semibold">Metadata</div>
+          <div class="text-sm mt-2 font-mono text-xs bg-base-300 p-3 rounded-lg overflow-auto text-base-content/80">
+            <pre phx-no-curly-interpolation><%= Jason.encode!(@user.metadata || %{}, pretty: true) %></pre>
+          </div>
+        </div>
+      </div>
+
       <.form for={@email_form} id="email_form" phx-submit="update_email" phx-change="validate_email">
         <.input
           field={@email_form[:email]}
@@ -88,6 +107,7 @@ defmodule GameServerWeb.UserLive.Settings do
     socket =
       socket
       |> assign(:current_email, user.email)
+      |> assign(:user, user)
       |> assign(:email_form, to_form(email_changeset))
       |> assign(:password_form, to_form(password_changeset))
       |> assign(:trigger_submit, false)

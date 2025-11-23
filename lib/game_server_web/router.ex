@@ -40,6 +40,8 @@ defmodule GameServerWeb.Router do
     pipe_through :api
 
     get "/health", HealthController, :index
+    get "/me", MeController, :show
+    get "/me/metadata", MetadataController, :show
     post "/login", SessionController, :create
     delete "/logout", SessionController, :delete
   end

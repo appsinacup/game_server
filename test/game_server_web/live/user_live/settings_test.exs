@@ -7,13 +7,22 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
   describe "Settings page" do
     test "renders settings page", %{conn: conn} do
+      user = user_fixture()
+
+      {:ok, user} =
+        user
+        |> GameServer.Accounts.User.admin_changeset(%{"metadata" => %{"display_name" => "Tester"}, "is_admin" => true})
+        |> GameServer.Repo.update()
+
       {:ok, _lv, html} =
         conn
-        |> log_in_user(user_fixture())
+        |> log_in_user(user)
         |> live(~p"/users/settings")
 
       assert html =~ "Change Email"
       assert html =~ "Save Password"
+      assert html =~ "Tester"
+      assert html =~ "<strong>Admin:</strong>"
     end
 
     test "redirects if user is not logged in", %{conn: conn} do
