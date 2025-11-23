@@ -1053,9 +1053,13 @@ defmodule GameServerWeb.AdminLive.Config do
                   <ol class="list-decimal list-inside space-y-2 text-sm">
                     <li>Click "My Apps" in the top right</li>
                     <li>Click "Create App"</li>
-                    <li>Select the use case that fits your needs (often "Other" or "Authenticate and request data from users with Facebook Login")</li>
+                    <li>
+                      Select the use case that fits your needs (often "Other" or "Authenticate and request data from users with Facebook Login")
+                    </li>
                     <li>Click "Next"</li>
-                    <li>Select app type (usually "Business" for most web apps, or "None" if available)</li>
+                    <li>
+                      Select app type (usually "Business" for most web apps, or "None" if available)
+                    </li>
                     <li>Click "Next"</li>
                     <li>Enter app name (e.g., "Game Server")</li>
                     <li>Enter contact email</li>
@@ -1795,21 +1799,27 @@ defmodule GameServerWeb.AdminLive.Config do
   def mount(_params, _session, socket) do
     config = %{
       discord_client_id:
-        Application.get_env(:ueberauth, Ueberauth.Strategy.Discord.OAuth)[:client_id] || System.get_env("DISCORD_CLIENT_ID"),
+        Application.get_env(:ueberauth, Ueberauth.Strategy.Discord.OAuth)[:client_id] ||
+          System.get_env("DISCORD_CLIENT_ID"),
       discord_client_secret:
-        Application.get_env(:ueberauth, Ueberauth.Strategy.Discord.OAuth)[:client_secret] || System.get_env("DISCORD_CLIENT_SECRET"),
+        Application.get_env(:ueberauth, Ueberauth.Strategy.Discord.OAuth)[:client_secret] ||
+          System.get_env("DISCORD_CLIENT_SECRET"),
       apple_client_id: System.get_env("APPLE_CLIENT_ID"),
       apple_team_id: System.get_env("APPLE_TEAM_ID"),
       apple_key_id: System.get_env("APPLE_KEY_ID"),
       apple_private_key: System.get_env("APPLE_PRIVATE_KEY"),
       google_client_id:
-        Application.get_env(:ueberauth, Ueberauth.Strategy.Google.OAuth)[:client_id] || System.get_env("GOOGLE_CLIENT_ID"),
+        Application.get_env(:ueberauth, Ueberauth.Strategy.Google.OAuth)[:client_id] ||
+          System.get_env("GOOGLE_CLIENT_ID"),
       google_client_secret:
-        Application.get_env(:ueberauth, Ueberauth.Strategy.Google.OAuth)[:client_secret] || System.get_env("GOOGLE_CLIENT_SECRET"),
+        Application.get_env(:ueberauth, Ueberauth.Strategy.Google.OAuth)[:client_secret] ||
+          System.get_env("GOOGLE_CLIENT_SECRET"),
       facebook_client_id:
-        Application.get_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth)[:client_id] || System.get_env("FACEBOOK_CLIENT_ID"),
+        Application.get_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth)[:client_id] ||
+          System.get_env("FACEBOOK_CLIENT_ID"),
       facebook_client_secret:
-        Application.get_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth)[:client_secret] || System.get_env("FACEBOOK_CLIENT_SECRET"),
+        Application.get_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth)[:client_secret] ||
+          System.get_env("FACEBOOK_CLIENT_SECRET"),
       email_configured: System.get_env("SMTP_PASSWORD") != nil,
       smtp_username: System.get_env("SMTP_USERNAME"),
       smtp_password: System.get_env("SMTP_PASSWORD"),

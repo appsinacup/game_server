@@ -31,8 +31,7 @@ defmodule GameServerWeb.Api.V1.MeController do
               properties: %{
                 id: %Schema{type: :integer},
                 email: %Schema{type: :string},
-                discord_username: %Schema{type: :string},
-                discord_avatar: %Schema{type: :string},
+                profile_url: %Schema{type: :string},
                 is_admin: %Schema{type: :boolean},
                 metadata: %Schema{type: :object}
               }
@@ -53,8 +52,7 @@ defmodule GameServerWeb.Api.V1.MeController do
           data: %{
             id: user.id,
             email: user.email,
-            discord_username: user.discord_username,
-            discord_avatar: user.discord_avatar,
+            profile_url: user.profile_url,
             is_admin: user.is_admin,
             metadata: user.metadata || %{}
           }

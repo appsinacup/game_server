@@ -172,6 +172,94 @@ defmodule GameServerWeb.UserLive.SettingsTest do
     end
   end
 
+  describe "linking/unlinking providers" do
+    setup %{conn: conn} do
+      user = user_fixture(%{email: unique_user_email()})
+      %{conn: log_in_user(conn, user), user: user}
+    end
+
+    test "can unlink a provider when another provider remains", %{conn: conn, user: user} do
+      _user =
+        GameServer.Repo.update!(
+          Ecto.Changeset.change(user, %{
+            discord_id: "d1",
+            google_id: "g1",
+            profile_url: "https://cdn.discordapp.com/avatars/d1/a_abc.gif"
+          })
+        )
+
+      {:ok, lv, html} = live(conn, ~p"/users/settings")
+
+      assert html =~ "Unlink"
+
+      # Click unlink on discord
+      lv |> element("button[phx-value-provider=\"discord\"]") |> render_click()
+
+      # page should show link button for discord (now unlinked)
+      assert render(lv) =~ "Link"
+      # google is now the last linked provider and unlink is disabled
+      refute has_element?(lv, "button[phx-value-provider=\"google\"]")
+      assert render(lv) =~ "btn-disabled"
+    end
+
+    test "cannot unlink last remaining social provider", %{conn: conn, user: user} do
+      _user = GameServer.Repo.update!(Ecto.Changeset.change(user, %{discord_id: "d1"}))
+
+      {:ok, lv, _html} = live(conn, ~p"/users/settings")
+
+      # Unlink is disabled for the last provider
+      refute has_element?(lv, "button[phx-value-provider=\"discord\"]")
+      assert render(lv) =~ "btn-disabled"
+    end
+
+    test "can delete conflicting account when other account has no password (provider-only)", %{
+      conn: conn,
+      user: user
+    } do
+      # other account is provider-only (no password) and already has the discord_id
+      other_user = user_fixture(%{discord_id: "d_conflict"})
+
+      {:ok, lv, html} =
+        live(
+          conn,
+          ~p"/users/settings?conflict_provider=discord&conflict_user_id=#{other_user.id}"
+        )
+
+      assert html =~ "Conflict detected"
+      assert has_element?(lv, "button[phx-value-id=\"#{other_user.id}\"]")
+
+      # click delete
+      lv |> element("button[phx-value-id=\"#{other_user.id}\"]") |> render_click()
+
+      # other account should be removed
+      refute GameServer.Repo.get(GameServer.Accounts.User, other_user.id)
+      assert render(lv) =~ "Conflicting account deleted"
+    end
+
+    test "cannot delete conflicting account when other account has a password", %{
+      conn: conn,
+      user: user
+    } do
+      other_user = user_fixture(%{discord_id: "d_conflict"})
+      # set a password for the other_user so it's a real claimed account
+      other_user = set_password(other_user)
+
+      {:ok, lv, html} =
+        live(
+          conn,
+          ~p"/users/settings?conflict_provider=discord&conflict_user_id=#{other_user.id}"
+        )
+
+      assert html =~ "Conflict detected"
+
+      lv |> element("button[phx-value-id=\"#{other_user.id}\"]") |> render_click()
+
+      # other account should remain
+      assert GameServer.Repo.get(GameServer.Accounts.User, other_user.id)
+      assert render(lv) =~ "Cannot delete an account you do not own"
+    end
+  end
+
   describe "confirm email" do
     setup %{conn: conn} do
       user = user_fixture()

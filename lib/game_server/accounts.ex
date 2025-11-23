@@ -178,6 +178,8 @@ defmodule GameServer.Accounts do
     cond do
       # User exists with this provider ID - update their info
       user = Repo.get_by(User, [{provider_id_field, provider_id}]) ->
+        attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
+
         user
         |> changeset_fn.(attrs)
         |> Repo.update()
@@ -190,11 +192,17 @@ defmodule GameServer.Accounts do
             is_first_user = Repo.aggregate(User, :count, :id) == 0
             attrs = if is_first_user, do: Map.put(attrs, :is_admin, true), else: attrs
 
+            # Drop nil/empty email so the changeset's update_change won't crash
+            attrs =
+              if Map.get(attrs, :email) in [nil, ""], do: Map.delete(attrs, :email), else: attrs
+
             %User{}
             |> changeset_fn.(attrs)
             |> Repo.insert()
 
           user ->
+            attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
+
             user
             |> changeset_fn.(attrs)
             |> Repo.update()
@@ -206,11 +214,129 @@ defmodule GameServer.Accounts do
         is_first_user = Repo.aggregate(User, :count, :id) == 0
         attrs = if is_first_user, do: Map.put(attrs, :is_admin, true), else: attrs
 
+        # For new user creation when provider didn't return an email, avoid
+        # passing a nil email into the changeset (update_change will crash).
+        attrs = if Map.get(attrs, :email) in [nil, ""], do: Map.delete(attrs, :email), else: attrs
+
         %User{}
         |> changeset_fn.(attrs)
         |> Repo.insert()
     end
   end
+
+  # When updating an existing user from provider data we should avoid
+  # destructive changes:
+  # - Do not overwrite an existing, non-empty email (email is used for
+  #   password-login accounts and should be preserved when present).
+  # - Only set provider avatar if the user's avatar field for that provider
+  #   is empty — prefer not to clobber user-set values.
+  defp scrub_attrs_for_update(user, attrs, _provider_id_field) do
+    attrs = Map.new(attrs)
+
+    # Remove email if user already has one
+    attrs =
+      if user.email && user.email != "" do
+        Map.delete(attrs, :email)
+      else
+        attrs
+      end
+
+    # Only set provider avatar if user doesn't already have one
+    # Store provider profile images/URLs in the generic `profile_url` field.
+    provider_avatar_key = :profile_url
+
+    if Map.get(user, provider_avatar_key) && Map.get(user, provider_avatar_key) != "" do
+      Map.delete(attrs, provider_avatar_key)
+    else
+      attrs
+    end
+  end
+
+  @doc """
+  Link an OAuth provider to an existing user account. Updates the user
+  via the provider's oauth changeset while being careful not to overwrite
+  existing email or avatars.
+
+  Example: link_account(user, %{discord_id: "123", profile_url: "https://..."}, :discord_id, &User.discord_oauth_changeset/2)
+  """
+  def link_account(%User{} = user, attrs, provider_id_field, changeset_fn) do
+    attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
+
+    changeset = changeset_fn.(user, attrs)
+
+    case Repo.update(changeset) do
+      {:ok, user} ->
+        {:ok, user}
+
+      {:error, changeset} ->
+        # If the update failed due to the provider ID being already taken,
+        # return a conflict with the existing account so the UI can guide
+        # the user (e.g., delete the other account or sign into it).
+        provider_value = Map.get(attrs, provider_id_field)
+
+        if provider_value do
+          case Repo.get_by(User, [{provider_id_field, provider_value}]) do
+            %User{} = other_user when other_user.id != user.id ->
+              {:error, {:conflict, other_user}}
+
+            _ ->
+              {:error, changeset}
+          end
+        else
+          {:error, changeset}
+        end
+    end
+  end
+
+  @doc """
+  Unlink an OAuth provider from a user's account.
+
+  provider should be one of :discord, :apple, :google, :facebook.
+  This will return {:ok, user} when successful or {:error, reason}.
+
+  Guard: we only allow unlinking when the user will still have at least
+  one other social provider remaining. This prevents users losing all
+  social logins unexpectedly.
+  """
+  def unlink_provider(%User{} = user, provider)
+      when provider in [:discord, :apple, :google, :facebook] do
+    provider_field = provider_field(provider)
+
+    # Count remaining linked providers (only non-empty, non-nil strings)
+    providers = [:discord_id, :apple_id, :google_id, :facebook_id]
+
+    present =
+      Enum.count(providers, fn f ->
+        case Map.get(user, f) do
+          v when is_binary(v) -> String.trim(v) != ""
+          _ -> false
+        end
+      end)
+
+    if present <= 1 do
+      {:error, :last_provider}
+    else
+      changes = %{provider_field => nil}
+
+      # If unlinking discord and profile_url is a discord CDN URL, clear it
+      changes =
+        if provider == :discord && user.profile_url &&
+             String.contains?(user.profile_url, "cdn.discordapp.com/avatars") do
+          Map.put(changes, :profile_url, nil)
+        else
+          changes
+        end
+
+      user
+      |> Ecto.Changeset.change(changes)
+      |> Repo.update()
+    end
+  end
+
+  defp provider_field(:discord), do: :discord_id
+  defp provider_field(:apple), do: :apple_id
+  defp provider_field(:google), do: :google_id
+  defp provider_field(:facebook), do: :facebook_id
 
   ## Settings
 
@@ -411,6 +537,15 @@ defmodule GameServer.Accounts do
   def delete_user_session_token(token) do
     Repo.delete_all(from(UserToken, where: [token: ^token, context: "session"]))
     :ok
+  end
+
+  @doc """
+  Deletes a user and associated resources.
+
+  Returns `{:ok, user}` on success or `{:error, changeset}` on failure.
+  """
+  def delete_user(%User{} = user) do
+    Repo.delete(user)
   end
 
   ## Token helper

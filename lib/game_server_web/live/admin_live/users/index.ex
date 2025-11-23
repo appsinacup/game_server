@@ -29,7 +29,7 @@ defmodule GameServerWeb.AdminLive.Users.Index do
                   <tr>
                     <th>ID</th>
                     <th>Email</th>
-                    <th>Discord Username</th>
+                    <th>Profile</th>
                     <th>Discord ID</th>
                     <th>Confirmed</th>
                     <th>Created</th>
@@ -40,7 +40,13 @@ defmodule GameServerWeb.AdminLive.Users.Index do
                   <tr :for={user <- @users} id={"user-#{user.id}"}>
                     <td>{user.id}</td>
                     <td class="font-mono text-sm">{user.email}</td>
-                    <td class="text-sm">{user.discord_username || "-"}</td>
+                    <td class="text-sm">
+                      <%= if user.profile_url do %>
+                        <a href={user.profile_url} target="_blank" class="link text-sm">Profile</a>
+                      <% else %>
+                        -
+                      <% end %>
+                    </td>
                     <td class="font-mono text-xs">{user.discord_id || "-"}</td>
                     <td>
                       <%= if user.confirmed_at do %>

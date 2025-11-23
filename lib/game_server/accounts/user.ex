@@ -9,8 +9,7 @@ defmodule GameServer.Accounts.User do
     field :confirmed_at, :utc_datetime
     field :authenticated_at, :utc_datetime, virtual: true
     field :discord_id, :string
-    field :discord_username, :string
-    field :discord_avatar, :string
+    field :profile_url, :string
     field :apple_id, :string
     field :google_id, :string
     field :facebook_id, :string
@@ -133,8 +132,11 @@ defmodule GameServer.Accounts.User do
   """
   def discord_oauth_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :discord_id, :discord_username, :discord_avatar, :is_admin])
-    |> update_change(:email, &String.downcase/1)
+    |> cast(attrs, [:email, :discord_id, :profile_url, :is_admin])
+    |> update_change(:email, fn
+      nil -> nil
+      email -> String.downcase(email)
+    end)
     |> validate_required([:discord_id])
     |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+$/,
       message: "must have the @ sign and no spaces"
@@ -155,7 +157,10 @@ defmodule GameServer.Accounts.User do
   def apple_oauth_changeset(user, attrs) do
     user
     |> cast(attrs, [:email, :apple_id, :is_admin])
-    |> update_change(:email, &String.downcase/1)
+    |> update_change(:email, fn
+      nil -> nil
+      email -> String.downcase(email)
+    end)
     |> validate_required([:apple_id])
     |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+$/,
       message: "must have the @ sign and no spaces"
@@ -176,7 +181,10 @@ defmodule GameServer.Accounts.User do
   def google_oauth_changeset(user, attrs) do
     user
     |> cast(attrs, [:email, :google_id, :is_admin])
-    |> update_change(:email, &String.downcase/1)
+    |> update_change(:email, fn
+      nil -> nil
+      email -> String.downcase(email)
+    end)
     |> validate_required([:google_id])
     |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+$/,
       message: "must have the @ sign and no spaces"
@@ -197,7 +205,10 @@ defmodule GameServer.Accounts.User do
   def facebook_oauth_changeset(user, attrs) do
     user
     |> cast(attrs, [:email, :facebook_id, :is_admin])
-    |> update_change(:email, &String.downcase/1)
+    |> update_change(:email, fn
+      nil -> nil
+      email -> String.downcase(email)
+    end)
     |> validate_required([:facebook_id])
     |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+$/,
       message: "must have the @ sign and no spaces"

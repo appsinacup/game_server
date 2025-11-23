@@ -30,8 +30,7 @@ defmodule GameServerWeb.AdminLive.Users do
                     <th>ID</th>
                     <th>Email</th>
                     <th>Discord ID</th>
-                    <th>Discord Username</th>
-                    <th>Discord Avatar</th>
+                    <th>Profile</th>
                     <th>Apple ID</th>
                     <th>Google ID</th>
                     <th>Facebook ID</th>
@@ -55,29 +54,13 @@ defmodule GameServerWeb.AdminLive.Users do
                       <% end %>
                     </td>
                     <td>
-                      <%= if user.discord_username do %>
-                        {user.discord_username}
+                      <%= if user.profile_url do %>
+                        <div class="flex items-center gap-2">
+                          <img src={user.profile_url} alt="avatar" class="w-8 h-8 rounded-full" />
+                          <a href={user.profile_url} target="_blank" class="text-sm link">Profile</a>
+                        </div>
                       <% else %>
                         <span class="text-gray-500">-</span>
-                      <% end %>
-                    </td>
-                    <td>
-                      <%= if user.discord_avatar do %>
-                        <% avatar_src =
-                          if String.starts_with?(user.discord_avatar, "http") do
-                            user.discord_avatar
-                          else
-                            ext =
-                              if String.starts_with?(user.discord_avatar, "a_"),
-                                do: ".gif",
-                                else: ".png"
-
-                            "https://cdn.discordapp.com/avatars/#{user.discord_id}/#{user.discord_avatar}#{ext}"
-                          end %>
-
-                        <img src={avatar_src} alt="Discord Avatar" class="w-8 h-8 rounded-full" />
-                      <% else %>
-                        <span class="badge badge-ghost badge-sm">Not set</span>
                       <% end %>
                     </td>
                     <td class="font-mono text-sm">

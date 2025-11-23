@@ -23,25 +23,60 @@ defmodule GameServerWeb.AuthController do
     user_params = %{
       email: auth.info.email,
       discord_id: auth.uid,
-      discord_username: auth.info.nickname || auth.info.name,
-      discord_avatar: auth.info.image
+      profile_url: auth.info.image
     }
 
     require Logger
     Logger.info("Discord OAuth user params: #{inspect(user_params)}")
 
-    case Accounts.find_or_create_from_discord(user_params) do
-      {:ok, user} ->
-        conn
-        |> put_flash(:info, "Successfully authenticated with Discord.")
-        |> UserAuth.log_in_user(user)
+    # If a user is already logged in, link Discord to their account instead
+    case conn.assigns[:current_scope] do
+      %{:user => current_user} ->
+        case Accounts.link_account(
+               current_user,
+               user_params,
+               :discord_id,
+               &GameServer.Accounts.User.discord_oauth_changeset/2
+             ) do
+          {:ok, _user} ->
+            conn
+            |> put_flash(:info, "Linked Discord to your account.")
+            |> redirect(to: ~p"/users/settings")
 
-      {:error, changeset} ->
-        Logger.error("Failed to create user from Discord: #{inspect(changeset.errors)}")
+          {:error, {:conflict, other_user}} ->
+            Logger.warning("Discord already linked to another user id=#{other_user.id}")
 
-        conn
-        |> put_flash(:error, "Failed to create or update user account.")
-        |> redirect(to: ~p"/users/log-in")
+            conn
+            |> put_flash(
+              :error,
+              "Discord is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+            )
+            |> redirect(
+              to: ~p"/users/settings?conflict_provider=discord&conflict_user_id=#{other_user.id}"
+            )
+
+          {:error, changeset} ->
+            Logger.error("Failed to link Discord: #{inspect(changeset.errors)}")
+
+            conn
+            |> put_flash(:error, "Failed to link Discord account.")
+            |> redirect(to: ~p"/users/settings")
+        end
+
+      _ ->
+        case Accounts.find_or_create_from_discord(user_params) do
+          {:ok, user} ->
+            conn
+            |> put_flash(:info, "Successfully authenticated with Discord.")
+            |> UserAuth.log_in_user(user)
+
+          {:error, changeset} ->
+            Logger.error("Failed to create user from Discord: #{inspect(changeset.errors)}")
+
+            conn
+            |> put_flash(:error, "Failed to create or update user account.")
+            |> redirect(to: ~p"/users/log-in")
+        end
     end
   end
 
@@ -54,18 +89,53 @@ defmodule GameServerWeb.AuthController do
     require Logger
     Logger.info("Apple OAuth user params: #{inspect(user_params)}")
 
-    case Accounts.find_or_create_from_apple(user_params) do
-      {:ok, user} ->
-        conn
-        |> put_flash(:info, "Successfully authenticated with Apple.")
-        |> UserAuth.log_in_user(user)
+    case conn.assigns[:current_scope] do
+      %{:user => current_user} ->
+        case Accounts.link_account(
+               current_user,
+               user_params,
+               :apple_id,
+               &GameServer.Accounts.User.apple_oauth_changeset/2
+             ) do
+          {:ok, _user} ->
+            conn
+            |> put_flash(:info, "Linked Apple to your account.")
+            |> redirect(to: ~p"/users/settings")
 
-      {:error, changeset} ->
-        Logger.error("Failed to create user from Apple: #{inspect(changeset.errors)}")
+          {:error, {:conflict, other_user}} ->
+            Logger.warning("Apple already linked to another user id=#{other_user.id}")
 
-        conn
-        |> put_flash(:error, "Failed to create or update user account.")
-        |> redirect(to: ~p"/users/log-in")
+            conn
+            |> put_flash(
+              :error,
+              "Apple is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+            )
+            |> redirect(
+              to: ~p"/users/settings?conflict_provider=apple&conflict_user_id=#{other_user.id}"
+            )
+
+          {:error, changeset} ->
+            Logger.error("Failed to link Apple: #{inspect(changeset.errors)}")
+
+            conn
+            |> put_flash(:error, "Failed to link Apple account.")
+            |> redirect(to: ~p"/users/settings")
+        end
+
+      _ ->
+        case Accounts.find_or_create_from_apple(user_params) do
+          {:ok, user} ->
+            conn
+            |> put_flash(:info, "Successfully authenticated with Apple.")
+            |> UserAuth.log_in_user(user)
+
+          {:error, changeset} ->
+            Logger.error("Failed to create user from Apple: #{inspect(changeset.errors)}")
+
+            conn
+            |> put_flash(:error, "Failed to create or update user account.")
+            |> redirect(to: ~p"/users/log-in")
+        end
     end
   end
 
@@ -78,18 +148,53 @@ defmodule GameServerWeb.AuthController do
     require Logger
     Logger.info("Google OAuth user params: #{inspect(user_params)}")
 
-    case Accounts.find_or_create_from_google(user_params) do
-      {:ok, user} ->
-        conn
-        |> put_flash(:info, "Successfully authenticated with Google.")
-        |> UserAuth.log_in_user(user)
+    case conn.assigns[:current_scope] do
+      %{:user => current_user} ->
+        case Accounts.link_account(
+               current_user,
+               user_params,
+               :google_id,
+               &GameServer.Accounts.User.google_oauth_changeset/2
+             ) do
+          {:ok, _user} ->
+            conn
+            |> put_flash(:info, "Linked Google to your account.")
+            |> redirect(to: ~p"/users/settings")
 
-      {:error, changeset} ->
-        Logger.error("Failed to create user from Google: #{inspect(changeset.errors)}")
+          {:error, {:conflict, other_user}} ->
+            Logger.warning("Google already linked to another user id=#{other_user.id}")
 
-        conn
-        |> put_flash(:error, "Failed to create or update user account.")
-        |> redirect(to: ~p"/users/log-in")
+            conn
+            |> put_flash(
+              :error,
+              "Google is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+            )
+            |> redirect(
+              to: ~p"/users/settings?conflict_provider=google&conflict_user_id=#{other_user.id}"
+            )
+
+          {:error, changeset} ->
+            Logger.error("Failed to link Google: #{inspect(changeset.errors)}")
+
+            conn
+            |> put_flash(:error, "Failed to link Google account.")
+            |> redirect(to: ~p"/users/settings")
+        end
+
+      _ ->
+        case Accounts.find_or_create_from_google(user_params) do
+          {:ok, user} ->
+            conn
+            |> put_flash(:info, "Successfully authenticated with Google.")
+            |> UserAuth.log_in_user(user)
+
+          {:error, changeset} ->
+            Logger.error("Failed to create user from Google: #{inspect(changeset.errors)}")
+
+            conn
+            |> put_flash(:error, "Failed to create or update user account.")
+            |> redirect(to: ~p"/users/log-in")
+        end
     end
   end
 
@@ -102,18 +207,53 @@ defmodule GameServerWeb.AuthController do
     require Logger
     Logger.info("Facebook OAuth user params: #{inspect(user_params)}")
 
-    case Accounts.find_or_create_from_facebook(user_params) do
-      {:ok, user} ->
-        conn
-        |> put_flash(:info, "Successfully authenticated with Facebook.")
-        |> UserAuth.log_in_user(user)
+    case conn.assigns[:current_scope] do
+      %{:user => current_user} ->
+        case Accounts.link_account(
+               current_user,
+               user_params,
+               :facebook_id,
+               &GameServer.Accounts.User.facebook_oauth_changeset/2
+             ) do
+          {:ok, _user} ->
+            conn
+            |> put_flash(:info, "Linked Facebook to your account.")
+            |> redirect(to: ~p"/users/settings")
 
-      {:error, changeset} ->
-        Logger.error("Failed to create user from Facebook: #{inspect(changeset.errors)}")
+          {:error, {:conflict, other_user}} ->
+            Logger.warning("Facebook already linked to another user id=#{other_user.id}")
 
-        conn
-        |> put_flash(:error, "Failed to create or update user account.")
-        |> redirect(to: ~p"/users/log-in")
+            conn
+            |> put_flash(
+              :error,
+              "Facebook is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+            )
+            |> redirect(
+              to: ~p"/users/settings?conflict_provider=facebook&conflict_user_id=#{other_user.id}"
+            )
+
+          {:error, changeset} ->
+            Logger.error("Failed to link Facebook: #{inspect(changeset.errors)}")
+
+            conn
+            |> put_flash(:error, "Failed to link Facebook account.")
+            |> redirect(to: ~p"/users/settings")
+        end
+
+      _ ->
+        case Accounts.find_or_create_from_facebook(user_params) do
+          {:ok, user} ->
+            conn
+            |> put_flash(:info, "Successfully authenticated with Facebook.")
+            |> UserAuth.log_in_user(user)
+
+          {:error, changeset} ->
+            Logger.error("Failed to create user from Facebook: #{inspect(changeset.errors)}")
+
+            conn
+            |> put_flash(:error, "Failed to create or update user account.")
+            |> redirect(to: ~p"/users/log-in")
+        end
     end
   end
 
@@ -259,7 +399,7 @@ defmodule GameServerWeb.AuthController do
                   properties: %{
                     id: %OpenApiSpex.Schema{type: :integer},
                     email: %OpenApiSpex.Schema{type: :string},
-                    discord_username: %OpenApiSpex.Schema{type: :string}
+                    profile_url: %OpenApiSpex.Schema{type: :string}
                   }
                 }
               }
@@ -271,7 +411,11 @@ defmodule GameServerWeb.AuthController do
               refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
               token_type: "Bearer",
               expires_in: 900,
-              user: %{id: 1, email: "user@example.com", discord_username: "username"}
+              user: %{
+                id: 1,
+                email: "user@example.com",
+                profile_url: "https://cdn.discordapp.com/avatars/123/abc.png"
+              }
             }
           }
         }
@@ -291,8 +435,10 @@ defmodule GameServerWeb.AuthController do
         user_params = %{
           email: user_info["email"],
           discord_id: user_info["id"],
-          discord_username: user_info["username"],
-          discord_avatar: user_info["avatar"]
+          profile_url:
+            (user_info["avatar"] &&
+               "https://cdn.discordapp.com/avatars/#{user_info["id"]}/#{user_info["avatar"]}.png") ||
+              nil
         }
 
         case Accounts.find_or_create_from_discord(user_params) do
@@ -312,7 +458,7 @@ defmodule GameServerWeb.AuthController do
                 user: %{
                   id: user.id,
                   email: user.email,
-                  discord_username: user.discord_username
+                  profile_url: user.profile_url
                 }
               }
             })

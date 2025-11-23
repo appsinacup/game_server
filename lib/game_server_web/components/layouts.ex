@@ -49,18 +49,12 @@ defmodule GameServerWeb.Layouts do
               <!-- profile icon that links to settings (shows discord avatar or initials) -->
               <.link href={~p"/users/settings"} class="inline-flex items-center">
                 <div class="w-8 h-8 rounded-full bg-base-300 flex items-center justify-center text-sm font-semibold mr-2 overflow-hidden">
-                  <%= if @current_scope.user.discord_avatar && @current_scope.user.discord_avatar != "" do %>
-                    <% avatar = @current_scope.user.discord_avatar %>
-                    <% avatar_src =
-                      if String.starts_with?(avatar, "http") do
-                        avatar
-                      else
-                        ext = if String.starts_with?(avatar, "a_"), do: ".gif", else: ".png"
-
-                        "https://cdn.discordapp.com/avatars/#{@current_scope.user.discord_id}/#{avatar}#{ext}"
-                      end %>
-
-                    <img src={avatar_src} alt="avatar" class="w-8 h-8 rounded-full" />
+                  <%= if @current_scope.user.profile_url && @current_scope.user.profile_url != "" do %>
+                    <img
+                      src={@current_scope.user.profile_url}
+                      alt="avatar"
+                      class="w-8 h-8 rounded-full"
+                    />
                   <% else %>
                     {profile_initials(@current_scope.user)}
                   <% end %>

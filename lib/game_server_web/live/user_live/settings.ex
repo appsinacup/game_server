@@ -14,6 +14,32 @@ defmodule GameServerWeb.UserLive.Settings do
           Account Settings
           <:subtitle>Manage your account email address and password settings</:subtitle>
         </.header>
+
+        <%= if @conflict_user do %>
+          <div class="divider" />
+
+          <div class="card bg-warning/10 border-warning p-4 rounded-lg">
+            <div class="flex items-start justify-between">
+              <div>
+                <strong>Conflict detected</strong>
+                <div class="text-sm text-base-content/70">
+                  The {@conflict_provider} account (ID: {@conflict_user.id}) is already linked to another account.
+                  If this is another account you own (matching email), you may delete it below to free the provider so you can link it to this account.
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <button
+                  phx-click="delete_conflicting_account"
+                  phx-value-id={@conflict_user.id}
+                  class="btn btn-error btn-sm"
+                  onclick="return confirm('Delete the conflicting account? This is irreversible.')"
+                >
+                  Delete account
+                </button>
+              </div>
+            </div>
+          </div>
+        <% end %>
       </div>
 
       <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -30,6 +56,121 @@ defmodule GameServerWeb.UserLive.Settings do
           <div class="font-semibold">Metadata</div>
           <div class="text-sm mt-2 font-mono text-xs bg-base-300 p-3 rounded-lg overflow-auto text-base-content/80">
             <pre phx-no-curly-interpolation><%= Jason.encode!(@user.metadata || %{}, pretty: true) %></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider" />
+
+      <div class="card bg-base-200 p-4 rounded-lg">
+        <div class="font-semibold">Linked Accounts</div>
+        <div class="mt-2 space-y-2">
+          <% provider_count =
+            Enum.count([@user.discord_id, @user.apple_id, @user.google_id, @user.facebook_id], fn v ->
+              v && v != ""
+            end) %>
+          <div class="flex items-center justify-between">
+            <div>
+              <strong>Discord</strong>
+              <div class="text-sm text-base-content/70">
+                Sign in with Discord and link to your account
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <%= if @user.discord_id do %>
+                <%= if provider_count > 1 do %>
+                  <button
+                    phx-click="unlink_provider"
+                    phx-value-provider="discord"
+                    class="btn btn-outline btn-sm"
+                  >
+                    Unlink
+                  </button>
+                <% else %>
+                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>Unlink</button>
+                <% end %>
+              <% else %>
+                <.link href={~p"/auth/discord"} class="btn btn-primary btn-sm">Link</.link>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div>
+              <strong>Google</strong>
+              <div class="text-sm text-base-content/70">
+                Sign in with Google and link to your account
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <%= if @user.google_id do %>
+                <%= if provider_count > 1 do %>
+                  <button
+                    phx-click="unlink_provider"
+                    phx-value-provider="google"
+                    class="btn btn-outline btn-sm"
+                  >
+                    Unlink
+                  </button>
+                <% else %>
+                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>Unlink</button>
+                <% end %>
+              <% else %>
+                <.link href={~p"/auth/google"} class="btn btn-primary btn-sm">Link</.link>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div>
+              <strong>Facebook</strong>
+              <div class="text-sm text-base-content/70">
+                Sign in with Facebook and link to your account
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <%= if @user.facebook_id do %>
+                <%= if provider_count > 1 do %>
+                  <button
+                    phx-click="unlink_provider"
+                    phx-value-provider="facebook"
+                    class="btn btn-outline btn-sm"
+                  >
+                    Unlink
+                  </button>
+                <% else %>
+                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>Unlink</button>
+                <% end %>
+              <% else %>
+                <.link href={~p"/auth/facebook"} class="btn btn-primary btn-sm">Link</.link>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div>
+              <strong>Apple</strong>
+              <div class="text-sm text-base-content/70">
+                Sign in with Apple and link to your account
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <%= if @user.apple_id do %>
+                <%= if provider_count > 1 do %>
+                  <button
+                    phx-click="unlink_provider"
+                    phx-value-provider="apple"
+                    class="btn btn-outline btn-sm"
+                  >
+                    Unlink
+                  </button>
+                <% else %>
+                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>Unlink</button>
+                <% end %>
+              <% else %>
+                <.link href={~p"/auth/apple"} class="btn btn-primary btn-sm">Link</.link>
+              <% end %>
+            </div>
           </div>
         </div>
       </div>
@@ -110,6 +251,8 @@ defmodule GameServerWeb.UserLive.Settings do
       |> assign(:email_form, to_form(email_changeset))
       |> assign(:password_form, to_form(password_changeset))
       |> assign(:trigger_submit, false)
+      |> assign(:conflict_user, nil)
+      |> assign(:conflict_provider, nil)
 
     {:ok, socket}
   end
@@ -171,6 +314,111 @@ defmodule GameServerWeb.UserLive.Settings do
 
       changeset ->
         {:noreply, assign(socket, password_form: to_form(changeset, action: :insert))}
+    end
+  end
+
+  @impl true
+  def handle_event("unlink_provider", %{"provider" => provider}, socket) do
+    user = socket.assigns.current_scope.user
+
+    provider_atom = String.to_existing_atom(provider)
+
+    case Accounts.unlink_provider(user, provider_atom) do
+      {:ok, user} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Successfully unlinked #{String.capitalize(provider)}.")
+         |> assign(:user, user)}
+
+      {:error, :last_provider} ->
+        {:noreply,
+         socket
+         |> put_flash(
+           :error,
+           "Cannot unlink the last linked social provider (you must have at least one social login connected)."
+         )}
+
+      {:error, _} ->
+        {:noreply, socket |> put_flash(:error, "Failed to unlink provider.")}
+    end
+  end
+
+  @impl true
+  def handle_params(params, _url, socket) do
+    conflict_user =
+      case params do
+        %{"conflict_user_id" => id} when is_binary(id) ->
+          case GameServer.Repo.get(GameServer.Accounts.User, id) do
+            %GameServer.Accounts.User{} = u -> u
+            _ -> nil
+          end
+
+        _ ->
+          nil
+      end
+
+    conflict_provider = Map.get(params, "conflict_provider")
+
+    {:noreply, assign(socket, conflict_user: conflict_user, conflict_provider: conflict_provider)}
+  end
+
+  @impl true
+  def handle_event("delete_conflicting_account", %{"id" => id}, socket) do
+    current = socket.assigns.current_scope.user
+
+    case GameServer.Repo.get(GameServer.Accounts.User, id) do
+      nil ->
+        {:noreply, put_flash(socket, :error, "Account not found.")}
+
+      %GameServer.Accounts.User{} = other_user ->
+        # Only allow deleting if the email matches the current user's email
+        current_email = (current.email || "") |> String.downcase()
+        other_email = (other_user.email || "") |> String.downcase()
+
+        cond do
+          other_user.id == current.id ->
+            {:noreply,
+             put_flash(socket, :error, "You cannot delete your currently logged-in account here.")}
+
+          # Allow deletion if the other account has no password (i.e. likely a provider-only account)
+          other_email == current_email and other_email != "" ->
+            case Accounts.delete_user(other_user) do
+              {:ok, _} ->
+                {:noreply,
+                 socket
+                 |> put_flash(
+                   :info,
+                   "Conflicting account deleted. You can now try linking the provider again."
+                 )
+                 |> assign(:conflict_user, nil)}
+
+              {:error, _} ->
+                {:noreply, put_flash(socket, :error, "Failed to delete the conflicting account.")}
+            end
+
+          other_user.hashed_password == nil ->
+            case Accounts.delete_user(other_user) do
+              {:ok, _} ->
+                {:noreply,
+                 socket
+                 |> put_flash(
+                   :info,
+                   "Conflicting account deleted. You can now try linking the provider again."
+                 )
+                 |> assign(:conflict_user, nil)}
+
+              {:error, _} ->
+                {:noreply, put_flash(socket, :error, "Failed to delete the conflicting account.")}
+            end
+
+          true ->
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               "Cannot delete an account you do not own. Log in to the other account directly if you control it."
+             )}
+        end
     end
   end
 end
