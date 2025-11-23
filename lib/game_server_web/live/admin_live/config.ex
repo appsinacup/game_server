@@ -40,7 +40,8 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                     <td class="font-mono text-sm">
                       <%= if @config.discord_client_id do %>
-                        Client ID: {mask_secret(@config.discord_client_id)}
+                        Client ID: {@config.discord_client_id}<br>
+                        Client Secret: {@config.discord_client_secret || "Not set"}
                       <% else %>
                         <span class="text-error">Client ID missing</span>
                       <% end %>
@@ -50,14 +51,19 @@ defmodule GameServerWeb.AdminLive.Config do
                     <td class="font-semibold">Email Service</td>
                     <td>
                       <%= if @config.email_configured do %>
-                        <span class="badge badge-success">SMTP Configured</span>
+                        <span class="badge badge-success">SMTP</span>
                       <% else %>
-                        <span class="badge badge-info">Local Mailbox</span>
+                        <span class="badge badge-info">Local</span>
                       <% end %>
                     </td>
                     <td class="text-sm">
+                        <div class="font-mono text-xs mt-1">
+                          Username: {@config.smtp_username || "Not set"}<br>
+                          Password: {@config.smtp_password || "Not set"}<br>
+                          Relay: {@config.smtp_relay || "Not set"}
+                        </div>
                       <%= if @config.email_configured do %>
-                        SMTP configured - emails are sent
+                        SMTP configured - emails are sent<br>
                       <% else %>
                         Using local mailbox - emails stored locally
                       <% end %>
@@ -74,6 +80,44 @@ defmodule GameServerWeb.AdminLive.Config do
                     <td class="font-semibold">Database</td>
                     <td><span class="badge badge-info">SQLite</span></td>
                     <td class="font-mono text-sm">{@config.database}</td>
+                  </tr>
+                  <tr>
+                    <td class="font-semibold">Hostname</td>
+                    <td><span class="badge badge-info">System</span></td>
+                    <td class="font-mono text-sm">{@config.hostname || "Not set"}</td>
+                  </tr>
+                  <tr>
+                    <td class="font-semibold">Port</td>
+                    <td><span class="badge badge-info">Server</span></td>
+                    <td class="font-mono text-sm">{@config.port || "4000"}</td>
+                  </tr>
+                  <tr>
+                    <td class="font-semibold">Secret Key Base</td>
+                    <td>
+                      <%= if @config.secret_key_base do %>
+                        <span class="badge badge-success">Set</span>
+                      <% else %>
+                        <span class="badge badge-error">Not Set</span>
+                      <% end %>
+                    </td>
+                    <td class="font-mono text-sm">
+                      <%= if @config.secret_key_base do %>
+                        {String.slice(@config.secret_key_base, 0..15)}...
+                      <% else %>
+                        Not configured
+                      <% end %>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="font-semibold">Live Reload</td>
+                    <td>
+                      <%= if @config.live_reload do %>
+                        <span class="badge badge-success">Enabled</span>
+                      <% else %>
+                        <span class="badge badge-info">Disabled</span>
+                      <% end %>
+                    </td>
+                    <td class="font-mono text-sm">{if @config.live_reload, do: "true", else: "false"}</td>
                   </tr>
                 </tbody>
               </table>
@@ -367,6 +411,141 @@ defmodule GameServerWeb.AdminLive.Config do
           </div>
         </div>
         
+    <!-- PostgreSQL Configuration -->
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <h2 class="card-title text-2xl mb-4 flex items-center gap-3">
+              <svg
+                class="w-8 h-8 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"
+                />
+              </svg>
+              PostgreSQL Configuration (Alternative to SQLite)
+            </h2>
+
+            <div class="alert alert-info mb-6">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                class="stroke-current shrink-0 w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                >
+                </path>
+              </svg>
+              <div>
+                <p>
+                  <strong>Why PostgreSQL?</strong>
+                  Better for production deployments, concurrent access, and advanced features. SQLite is used by default for simplicity.
+                </p>
+              </div>
+            </div>
+
+            <div class="space-y-6">
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3">Database URL Configuration</h3>
+                <div class="ml-8 space-y-3">
+                  <p>Set the DATABASE_URL environment variable:</p>
+                  <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
+                    <div class="space-y-2">
+                      <div>DATABASE_URL="postgresql://username:password@host:port/database"</div>
+                      <div># Example:</div>
+                      <div>DATABASE_URL="postgresql://myuser:mypass@localhost:5432/game_server_prod"</div>
+                    </div>
+                  </div>
+                  <p class="text-sm text-base-content/70">
+                    The app will automatically detect PostgreSQL when DATABASE_URL is set and contains "postgresql://".
+                  </p>
+                </div>
+              </div>
+
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3">Individual Environment Variables (Alternative)</h3>
+                <div class="ml-8 space-y-3">
+                  <p>You can also set individual database connection variables:</p>
+                  <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
+                    <div class="space-y-2">
+                      <div>DB_HOST="your-postgres-host"</div>
+                      <div>DB_PORT="5432"</div>
+                      <div>DB_NAME="your-database-name"</div>
+                      <div>DB_USER="your-username"</div>
+                      <div>DB_PASS="your-password"</div>
+                      <div>DB_SSL="true"  # or "false"</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3">Deployment Considerations</h3>
+                <div class="ml-8 space-y-3">
+                  <div class="alert alert-warning">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="stroke-current shrink-0 h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                      />
+                    </svg>
+                    <div>
+                      <p>
+                        <strong>Important:</strong>
+                        When switching from SQLite to PostgreSQL, you'll need to migrate your data or start fresh.
+                        The database schema is compatible between both adapters.
+                      </p>
+                    </div>
+                  </div>
+                  <p class="text-sm">
+                    Popular PostgreSQL hosting options:
+                  </p>
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                    <div class="bg-base-200 p-4 rounded-lg text-center">
+                      <div class="font-semibold">Supabase</div>
+                      <div class="text-sm text-base-content/70">Free tier available</div>
+                      <a href="https://supabase.com" target="_blank" class="btn btn-sm btn-primary mt-2">
+                        Get Started
+                      </a>
+                    </div>
+                    <div class="bg-base-200 p-4 rounded-lg text-center">
+                      <div class="font-semibold">Neon</div>
+                      <div class="text-sm text-base-content/70">Serverless PostgreSQL</div>
+                      <a href="https://neon.tech" target="_blank" class="btn btn-sm btn-primary mt-2">
+                        Get Started
+                      </a>
+                    </div>
+                    <div class="bg-base-200 p-4 rounded-lg text-center">
+                      <div class="font-semibold">Fly.io Postgres</div>
+                      <div class="text-sm text-base-content/70">Managed PostgreSQL</div>
+                      <a href="https://fly.io/docs/postgres/" target="_blank" class="btn btn-sm btn-primary mt-2">
+                        Learn More
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
     <!-- Admin Tools -->
         <div class="card bg-base-100 shadow-xl">
           <div class="card-body">
@@ -392,6 +571,7 @@ defmodule GameServerWeb.AdminLive.Config do
                     d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                   />
                 </svg>
+                  Mailbox
               </a>
             </div>
           </div>
@@ -409,18 +589,17 @@ defmodule GameServerWeb.AdminLive.Config do
       discord_client_secret:
         Application.get_env(:ueberauth, Ueberauth.Strategy.Discord.OAuth)[:client_secret],
       email_configured: System.get_env("SMTP_PASSWORD") != nil,
+      smtp_username: System.get_env("SMTP_USERNAME"),
+      smtp_password: System.get_env("SMTP_PASSWORD"),
+      smtp_relay: System.get_env("SMTP_RELAY"),
       env: to_string(Application.get_env(:game_server, :environment, Mix.env())),
-      database: Application.get_env(:game_server, GameServer.Repo)[:database] || "N/A"
+      database: Application.get_env(:game_server, GameServer.Repo)[:database] || "N/A",
+      hostname: System.get_env("HOSTNAME") || System.get_env("PHX_HOST"),
+      port: System.get_env("PORT") || "4000",
+      secret_key_base: System.get_env("SECRET_KEY_BASE") || Application.get_env(:game_server, GameServerWeb.Endpoint)[:secret_key_base],
+      live_reload: Application.get_env(:game_server, GameServerWeb.Endpoint)[:live_reload] != nil
     }
 
     {:ok, assign(socket, :config, config)}
-  end
-
-  defp mask_secret(nil), do: "Not set"
-  defp mask_secret(""), do: "Not set"
-
-  defp mask_secret(secret) when is_binary(secret) do
-    visible = String.slice(secret, 0..7)
-    visible <> "..." <> String.slice(secret, -4..-1//1)
   end
 end
