@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+
 /* See the Tailwind configuration guide for advanced usage
    https://tailwindcss.com/docs/configuration */
 
@@ -103,6 +105,14 @@
 [data-phx-session], [data-phx-teleported-src] { display: contents }
 
 /* This file is for your main application CSS */
+
+/* Use the Tailwind `font-sans` utility so that `font-sans` maps to Inter
+   (Inter is imported above). This makes Tailwind utility classes like
+   `font-sans` and `text-base` consistently use Inter across components. */
+html, body, input, textarea, select, button {
+  @apply font-sans; /* Inter will be the first font via tailwind.config.cjs */
+  /* keep browser defaults for form controls while ensuring Inter is used */
+}
 
 /* Collapsible cards (admin config) */
 .card.collapsed .card-body > :not(.card-title):not(.card-actions) {
