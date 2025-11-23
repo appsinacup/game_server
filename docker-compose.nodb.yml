@@ -7,7 +7,7 @@ services:
       - .env
     environment:
       SECRET_KEY_BASE: your_secret
-      MIX_ENV: prod
+      MIX_ENV: dev
       PHX_SERVER: true
     volumes:
       - .:/app
