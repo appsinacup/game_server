@@ -52,14 +52,18 @@ defmodule GameServerWeb.Router do
     get "/:provider/callback", AuthController, :api_callback
   end
 
-  # Enable LiveDashboard and Swoosh mailbox preview for admins
+  # Enable LiveDashboard and Swoosh mailbox preview for admins (dev only)
   import Phoenix.LiveDashboard.Router
 
   scope "/" do
     pipe_through [:browser, :require_admin_user]
 
     live_dashboard "/admin/dashboard", metrics: GameServerWeb.Telemetry
-    forward "/admin/mailbox", Plug.Swoosh.MailboxPreview
+
+    # Mailbox preview only in development
+    if Mix.env() == :dev do
+      forward "/admin/mailbox", Swoosh.MailboxPreview
+    end
   end
 
   ## Authentication routes

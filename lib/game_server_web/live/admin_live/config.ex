@@ -63,12 +63,18 @@ defmodule GameServerWeb.AdminLive.Config do
                         Relay: {@config.smtp_relay || "Not set"}
                       </div>
                       <%= if @config.email_configured do %>
-                        SMTP configured - emails are sent<br />
+                        SMTP configured - emails are sent via {@config.smtp_relay ||
+                          "configured relay"}
                       <% else %>
-                        Using local mailbox - emails stored locally
+                        <%= if @config.env == "dev" do %>
+                          Using local delivery - emails are not sent (<a
+                            href="/admin/mailbox"
+                            class="link link-primary"
+                          >view mailbox</a>)
+                        <% else %>
+                          Using local delivery - emails are not sent
+                        <% end %>
                       <% end %>
-                      <br />
-                      <a href="/admin/mailbox" class="link link-primary">view mailbox</a>
                     </td>
                   </tr>
                   <tr>
@@ -351,7 +357,7 @@ defmodule GameServerWeb.AdminLive.Config do
               <div>
                 <p>
                   <strong>Email is always required for registration.</strong>
-                  Admins can view all emails (sent or stored locally) at <code>/admin/mailbox</code>.
+                  Configure SMTP settings to enable email delivery.
                 </p>
               </div>
             </div>
@@ -754,17 +760,19 @@ defmodule GameServerWeb.AdminLive.Config do
                 </svg>
                 Live Dashboard
               </a>
-              <a href="/admin/mailbox" class="btn btn-outline btn-secondary">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
-                </svg>
-                Mailbox
-              </a>
+              <%= if @config.env == "dev" do %>
+                <a href="/admin/mailbox" class="btn btn-outline btn-secondary">
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    />
+                  </svg>
+                  Mailbox Preview
+                </a>
+              <% end %>
             </div>
           </div>
         </div>

@@ -14,25 +14,14 @@ defmodule GameServer.Application do
         GameServerWeb.Telemetry,
         GameServer.Repo,
         {DNSCluster, query: Application.get_env(:game_server, :dns_cluster_query) || :ignore},
-        {Phoenix.PubSub, name: GameServer.PubSub}
-      ] ++ conditional_children()
+        {Phoenix.PubSub, name: GameServer.PubSub},
+        GameServerWeb.Endpoint
+      ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: GameServer.Supervisor]
     Supervisor.start_link(children, opts)
-  end
-
-  # Start endpoint conditionally
-  # In test environment, we start the endpoint but not the storage manager
-  # (Swoosh.Adapters.Test handles storage in tests)
-  # The Swoosh storage manager is started on-demand when needed
-  defp conditional_children do
-    if Mix.env() == :test do
-      [GameServerWeb.Endpoint]
-    else
-      [GameServerWeb.Endpoint]
-    end
   end
 
   # Tell Phoenix to update the endpoint configuration
