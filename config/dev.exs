@@ -31,9 +31,9 @@ end
 # watchers to your application. For example, we can use it
 # to bundle .js and .css sources.
 config :game_server, GameServerWeb.Endpoint,
-  # Binding to loopback ipv4 address prevents access from other machines.
-  # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
-  http: [ip: {127, 0, 0, 1}, port: String.to_integer(System.get_env("PORT") || "4000")],
+  # Binding to all interfaces to allow access from Docker host and other machines.
+  # In Docker containers, bind to 0.0.0.0 to accept external connections.
+  http: [ip: {0, 0, 0, 0}, port: String.to_integer(System.get_env("PORT") || "4000")],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
