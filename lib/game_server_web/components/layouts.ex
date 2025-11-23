@@ -46,6 +46,28 @@ defmodule GameServerWeb.Layouts do
         <ul class="flex flex-column px-1 space-x-4 items-center">
           <%= if @current_scope do %>
             <li>
+              <!-- profile icon that links to settings (shows discord avatar or initials) -->
+              <.link href={~p"/users/settings"} class="inline-flex items-center">
+                <div class="w-8 h-8 rounded-full bg-base-300 flex items-center justify-center text-sm font-semibold mr-2 overflow-hidden">
+                  <%= if @current_scope.user.discord_avatar && @current_scope.user.discord_avatar != "" do %>
+                    <% avatar = @current_scope.user.discord_avatar %>
+                    <% avatar_src =
+                      if String.starts_with?(avatar, "http") do
+                        avatar
+                      else
+                        ext = if String.starts_with?(avatar, "a_"), do: ".gif", else: ".png"
+
+                        "https://cdn.discordapp.com/avatars/#{@current_scope.user.discord_id}/#{avatar}#{ext}"
+                      end %>
+
+                    <img src={avatar_src} alt="avatar" class="w-8 h-8 rounded-full" />
+                  <% else %>
+                    {profile_initials(@current_scope.user)}
+                  <% end %>
+                </div>
+              </.link>
+            </li>
+            <li>
               {@current_scope.user.email}
             </li>
             <li>
@@ -81,6 +103,23 @@ defmodule GameServerWeb.Layouts do
 
     <.flash_group flash={@flash} />
     """
+  end
+
+  defp profile_initials(nil), do: "?"
+
+  defp profile_initials(%{metadata: metadata, email: email}) do
+    name =
+      case metadata do
+        %{"display_name" => dn} when is_binary(dn) and byte_size(dn) > 0 -> dn
+        _ -> String.split(email || "", "@") |> hd() || "?"
+      end
+
+    name
+    |> String.split(~r/\s+/)
+    |> Enum.map(&String.first/1)
+    |> Enum.join()
+    |> String.slice(0, 2)
+    |> String.upcase()
   end
 
   @doc """

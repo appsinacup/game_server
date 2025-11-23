@@ -60,11 +60,19 @@ defmodule GameServerWeb.AdminLive.Users do
                     </td>
                     <td>
                       <%= if user.discord_avatar do %>
-                        <img
-                          src={"https://cdn.discordapp.com/avatars/#{user.discord_id}/#{user.discord_avatar}.png"}
-                          alt="Discord Avatar"
-                          class="w-8 h-8 rounded-full"
-                        />
+                        <% avatar_src =
+                          if String.starts_with?(user.discord_avatar, "http") do
+                            user.discord_avatar
+                          else
+                            ext =
+                              if String.starts_with?(user.discord_avatar, "a_"),
+                                do: ".gif",
+                                else: ".png"
+
+                            "https://cdn.discordapp.com/avatars/#{user.discord_id}/#{user.discord_avatar}#{ext}"
+                          end %>
+
+                        <img src={avatar_src} alt="Discord Avatar" class="w-8 h-8 rounded-full" />
                       <% else %>
                         <span class="badge badge-ghost badge-sm">Not set</span>
                       <% end %>

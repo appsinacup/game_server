@@ -11,7 +11,10 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       {:ok, user} =
         user
-        |> GameServer.Accounts.User.admin_changeset(%{"metadata" => %{"display_name" => "Tester"}, "is_admin" => true})
+        |> GameServer.Accounts.User.admin_changeset(%{
+          "metadata" => %{"display_name" => "Tester"},
+          "is_admin" => true
+        })
         |> GameServer.Repo.update()
 
       {:ok, _lv, html} =
