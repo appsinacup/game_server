@@ -31,6 +31,7 @@ defmodule GameServer.Accounts.User do
   def email_changeset(user, attrs, opts \\ []) do
     user
     |> cast(attrs, [:email])
+    |> update_change(:email, &String.downcase/1)
     |> validate_email(opts)
   end
 
@@ -127,6 +128,7 @@ defmodule GameServer.Accounts.User do
   def oauth_changeset(user, attrs) do
     user
     |> cast(attrs, [:email, :discord_id, :discord_username, :discord_avatar])
+    |> update_change(:email, &String.downcase/1)
     |> validate_required([:discord_id])
     |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+$/,
       message: "must have the @ sign and no spaces"

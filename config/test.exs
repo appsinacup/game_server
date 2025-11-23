@@ -22,7 +22,7 @@ else
     database: "db/game_server_test#{System.get_env("MIX_TEST_PARTITION")}.db",
     adapter: Ecto.Adapters.SQLite3,
     pool: Ecto.Adapters.SQL.Sandbox,
-    pool_size: System.schedulers_online() * 2
+    pool_size: 1
 end
 
 # We don't run a server during test. If one is required,

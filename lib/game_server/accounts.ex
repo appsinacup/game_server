@@ -23,7 +23,7 @@ defmodule GameServer.Accounts do
 
   """
   def get_user_by_email(email) when is_binary(email) do
-    Repo.get_by(User, email: email)
+    Repo.get_by(User, email: String.downcase(email))
   end
 
   @doc """
@@ -40,7 +40,7 @@ defmodule GameServer.Accounts do
   """
   def get_user_by_email_and_password(email, password)
       when is_binary(email) and is_binary(password) do
-    user = Repo.get_by(User, email: email)
+    user = Repo.get_by(User, email: String.downcase(email))
     if User.valid_password?(user, password), do: user
   end
 
@@ -75,9 +75,12 @@ defmodule GameServer.Accounts do
 
   """
   def register_user(attrs) do
+    # Normalize keys to strings to match form submissions
+    attrs = Map.new(attrs, fn {k, v} -> {to_string(k), v} end)
+
     # Check if this is the first user and make them admin
     is_first_user = Repo.aggregate(User, :count, :id) == 0
-    attrs = if is_first_user, do: Map.put(attrs, :is_admin, true), else: attrs
+    attrs = if is_first_user, do: Map.put(attrs, "is_admin", true), else: attrs
 
     %User{}
     |> User.email_changeset(attrs)
@@ -125,7 +128,7 @@ defmodule GameServer.Accounts do
           nil ->
             # Check if this is the first user and make them admin
             is_first_user = Repo.aggregate(User, :count, :id) == 0
-            attrs = if is_first_user, do: Map.put(attrs, :is_admin, true), else: attrs
+            attrs = if is_first_user, do: Map.put(attrs, "is_admin", true), else: attrs
 
             %User{}
             |> User.oauth_changeset(attrs)
@@ -141,7 +144,7 @@ defmodule GameServer.Accounts do
       true ->
         # Check if this is the first user and make them admin
         is_first_user = Repo.aggregate(User, :count, :id) == 0
-        attrs = if is_first_user, do: Map.put(attrs, :is_admin, true), else: attrs
+        attrs = if is_first_user, do: Map.put(attrs, "is_admin", true), else: attrs
 
         %User{}
         |> User.oauth_changeset(attrs)

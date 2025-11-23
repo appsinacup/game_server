@@ -13,9 +13,17 @@ defmodule GameServer.AccountsFixtures do
   def valid_user_password, do: "hello world!"
 
   def valid_user_attributes(attrs \\ %{}) do
-    Enum.into(attrs, %{
-      email: unique_user_email()
-    })
+    # Convert attrs to map if it's a keyword list
+    attrs = Map.new(attrs)
+    # Only set default email if no email is provided
+    defaults =
+      if Map.has_key?(attrs, "email") or Map.has_key?(attrs, :email) do
+        %{}
+      else
+        %{"email" => unique_user_email()}
+      end
+
+    Map.merge(defaults, attrs)
   end
 
   def unconfirmed_user_fixture(attrs \\ %{}) do

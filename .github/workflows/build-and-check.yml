@@ -167,9 +167,8 @@ jobs:
       - name: Compile
         run: MIX_ENV=test mix compile --warnings-as-errors
 
-      # Tests fail with db busy
-      #- name: Run tests
-      #  run: MIX_ENV=test mix test
+      - name: Run tests
+        run: MIX_ENV=test mix test
 
   test-postgres:
     name: Test with PostgreSQL
