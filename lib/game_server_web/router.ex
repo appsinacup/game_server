@@ -26,6 +26,7 @@ defmodule GameServerWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    live "/docs/setup", PublicDocs, :index
   end
 
   scope "/api" do

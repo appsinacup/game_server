@@ -80,6 +80,9 @@ defmodule GameServerWeb.Layouts do
           <% else %>
           <% end %>
           <li>
+            <.link href={~p"/docs/setup"}>Guides</.link>
+          </li>
+          <li>
             <.link href={~p"/api/docs"} target="_blank">API Docs</.link>
           </li>
           <li>

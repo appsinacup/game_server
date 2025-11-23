@@ -19,7 +19,8 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     assert html =~ "Configuration"
     assert html =~ "data-action=\"toggle-card\""
     assert html =~ "data-card-key=\"config_status\""
-    assert html =~ "data-card-key=\"discord_oauth\""
+    # provider setup content is now moved to the public docs page
+    assert html =~ "data-card-key=\"public_docs\""
     # default collapsed state
     assert html =~ "collapsed"
     assert html =~ "aria-expanded=\"false\""

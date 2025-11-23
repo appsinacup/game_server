@@ -107,3 +107,22 @@ export GUARDIAN_SECRET_KEY=$(mix phx.gen.secret)
 
 See the API documentation at `/api/docs` for all available endpoints.
 
+## Hooks / Callbacks
+
+You can extend core lifecycle events (user registration, login, provider linking, deletion)
+by implementing the `GameServer.Hooks` behaviour and configuring it in your app config.
+
+Example (Elixir module):
+
+  # config/runtime.exs or config.exs
+  config :game_server, :hooks_module, MyApp.HooksImpl
+
+The behaviour includes callbacks like `before_user_register/1`, `after_user_register/1`,
+`before_user_login/1`, `after_user_login/1`, `before_account_link/3`, `after_account_link/1`,
+`before_user_delete/1` and `after_user_delete/1`.
+
+There's also a tiny Lua invoker (`GameServer.Hooks.LuaInvoker`) in case you want to delegate
+hook logic to an external Lua script. Configure the script path with `:hooks_lua_script`; a
+small example script is provided at `priv/hooks/example.lua`.
+
+
