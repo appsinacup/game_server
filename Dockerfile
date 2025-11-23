@@ -18,11 +18,15 @@ ENV MIX_ENV=prod
 
 COPY mix.exs mix.lock ./
 
-# Install dependencies
-RUN mix deps.get
+# Install dependencies for production and compile them (so NIFs/deps are built)
+RUN mix deps.get --only prod
+RUN mix deps.compile
 
 # Copy the rest of the application
 COPY . .
+
+# Build and digest static assets for production (creates priv/static/cache_manifest.json)
+RUN mix assets.deploy
 
 # Compile the application
 RUN mix compile
