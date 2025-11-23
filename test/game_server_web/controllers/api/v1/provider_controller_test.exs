@@ -27,7 +27,7 @@ defmodule GameServerWeb.Api.V1.ProviderControllerTest do
     end
 
     test "cannot unlink last provider", %{conn: conn, user: user} do
-      user = GameServer.Repo.update!(Ecto.Changeset.change(user, %{discord_id: "donly"}))
+      GameServer.Repo.update!(Ecto.Changeset.change(user, %{discord_id: "donly"}))
 
       resp = delete(conn, ~p"/api/v1/me/providers/discord")
 

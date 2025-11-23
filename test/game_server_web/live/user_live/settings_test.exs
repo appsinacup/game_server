@@ -212,10 +212,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       assert render(lv) =~ "btn-disabled"
     end
 
-    test "can delete conflicting account when other account has no password (provider-only)", %{
-      conn: conn,
-      user: user
-    } do
+    test "can delete conflicting account when other account has no password (provider-only)", %{conn: conn} do
       # other account is provider-only (no password) and already has the discord_id
       other_user = user_fixture(%{discord_id: "d_conflict"})
 
@@ -236,10 +233,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       assert render(lv) =~ "Conflicting account deleted"
     end
 
-    test "cannot delete conflicting account when other account has a password", %{
-      conn: conn,
-      user: user
-    } do
+    test "cannot delete conflicting account when other account has a password", %{conn: conn} do
       other_user = user_fixture(%{discord_id: "d_conflict"})
       # set a password for the other_user so it's a real claimed account
       other_user = set_password(other_user)

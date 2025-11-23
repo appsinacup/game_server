@@ -80,65 +80,6 @@ defmodule GameServerWeb.AuthController do
     end
   end
 
-  def callback(%{assigns: %{ueberauth_auth: auth}} = conn, %{"provider" => "apple"}) do
-    user_params = %{
-      email: auth.info.email,
-      apple_id: auth.uid
-    }
-
-    require Logger
-    Logger.info("Apple OAuth user params: #{inspect(user_params)}")
-
-    case conn.assigns[:current_scope] do
-      %{:user => current_user} ->
-        case Accounts.link_account(
-               current_user,
-               user_params,
-               :apple_id,
-               &GameServer.Accounts.User.apple_oauth_changeset/2
-             ) do
-          {:ok, _user} ->
-            conn
-            |> put_flash(:info, "Linked Apple to your account.")
-            |> redirect(to: ~p"/users/settings")
-
-          {:error, {:conflict, other_user}} ->
-            Logger.warning("Apple already linked to another user id=#{other_user.id}")
-
-            conn
-            |> put_flash(
-              :error,
-              "Apple is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
-            )
-            |> redirect(
-              to: ~p"/users/settings?conflict_provider=apple&conflict_user_id=#{other_user.id}"
-            )
-
-          {:error, changeset} ->
-            Logger.error("Failed to link Apple: #{inspect(changeset.errors)}")
-
-            conn
-            |> put_flash(:error, "Failed to link Apple account.")
-            |> redirect(to: ~p"/users/settings")
-        end
-
-      _ ->
-        case Accounts.find_or_create_from_apple(user_params) do
-          {:ok, user} ->
-            conn
-            |> put_flash(:info, "Successfully authenticated with Apple.")
-            |> UserAuth.log_in_user(user)
-
-          {:error, changeset} ->
-            Logger.error("Failed to create user from Apple: #{inspect(changeset.errors)}")
-
-            conn
-            |> put_flash(:error, "Failed to create or update user account.")
-            |> redirect(to: ~p"/users/log-in")
-        end
-    end
-  end
-
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, %{"provider" => "google"}) do
     user_params = %{
       email: auth.info.email,
@@ -497,113 +438,9 @@ defmodule GameServerWeb.AuthController do
     end
   end
 
-  operation(:api_conflict_delete,
-    summary: "Delete conflicting provider account",
-    description:
-      "Deletes a conflicting account that owns a provider ID when allowed (must be authenticated). Only allowed when the conflicting account either has no password (provider-only) or has the same email as the current user.",
-    tags: ["Authentication"],
-    parameters: [
-      provider: [
-        in: :path,
-        name: "provider",
-        schema: %OpenApiSpex.Schema{
-          type: :string,
-          enum: ["discord", "apple", "google", "facebook"]
-        },
-        required: true
-      ],
-      conflict_user_id: [
-        in: :query,
-        name: "conflict_user_id",
-        schema: %OpenApiSpex.Schema{type: :integer},
-        required: true
-      ]
-    ],
-    responses: [
-      ok: {"Deleted", "application/json", %OpenApiSpex.Schema{type: :object}},
-      bad_request: {"Bad Request", "application/json", %OpenApiSpex.Schema{type: :object}},
-      unauthorized: {"Unauthorized", "application/json", %OpenApiSpex.Schema{type: :object}}
-    ]
-  )
+  
 
-  def api_conflict_delete(conn, %{"provider" => _provider, "conflict_user_id" => conflict_user_id}) do
-    # Delete conflicting account via API (authenticated)
-    current = conn.assigns.current_scope.user
-
-    case Integer.parse(conflict_user_id) do
-      {id, ""} ->
-        case Accounts.get_user!(id) do
-          %Accounts.User{} = other_user ->
-            cond do
-              other_user.id == current.id ->
-                conn
-                |> put_status(:bad_request)
-                |> json(%{error: "Cannot delete your own logged-in account"})
-
-              (other_user.email || "") |> String.downcase() ==
-                (current.email || "") |> String.downcase() and
-                  (other_user.email || "") != "" ->
-                case Accounts.delete_user(other_user) do
-                  {:ok, _} ->
-                    json(conn, %{message: "deleted"})
-
-                  {:error, _} ->
-                    conn |> put_status(:bad_request) |> json(%{error: "Failed to delete account"})
-                end
-
-              other_user.hashed_password == nil ->
-                case Accounts.delete_user(other_user) do
-                  {:ok, _} ->
-                    json(conn, %{message: "deleted"})
-
-                  {:error, _} ->
-                    conn |> put_status(:bad_request) |> json(%{error: "Failed to delete account"})
-                end
-
-              true ->
-                conn
-                |> put_status(:bad_request)
-                |> json(%{error: "Cannot delete an account you do not own"})
-            end
-
-          _ ->
-            conn |> put_status(:bad_request) |> json(%{error: "Account not found"})
-        end
-
-      :error ->
-        conn |> put_status(:bad_request) |> json(%{error: "invalid id"})
-    end
-  end
-
-  defp do_find_or_create_discord(conn, user_params) do
-    case Accounts.find_or_create_from_discord(user_params) do
-      {:ok, user} ->
-        {:ok, access_token, _access_claims} =
-          Guardian.encode_and_sign(user, %{}, token_type: "access")
-
-        {:ok, refresh_token, _refresh_claims} =
-          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
-
-        json(conn, %{
-          data: %{
-            access_token: access_token,
-            refresh_token: refresh_token,
-            token_type: "Bearer",
-            expires_in: 900,
-            user: %{
-              id: user.id,
-              email: user.email,
-              profile_url: user.profile_url
-            }
-          }
-        })
-
-      {:error, changeset} ->
-        conn
-        |> put_status(:bad_request)
-        |> json(%{error: "Failed to create or update user account", details: changeset.errors})
-    end
-  end
+  
 
   def api_callback(conn, %{"provider" => "apple", "code" => _code}) do
     # For Apple Sign In, we use Ueberauth strategy which handles the JWT verification
@@ -680,34 +517,7 @@ defmodule GameServerWeb.AuthController do
     end
   end
 
-  defp do_find_or_create_google(conn, user_params) do
-    case Accounts.find_or_create_from_google(user_params) do
-      {:ok, user} ->
-        {:ok, access_token, _access_claims} =
-          Guardian.encode_and_sign(user, %{}, token_type: "access")
-
-        {:ok, refresh_token, _refresh_claims} =
-          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
-
-        json(conn, %{
-          data: %{
-            access_token: access_token,
-            refresh_token: refresh_token,
-            token_type: "Bearer",
-            expires_in: 900,
-            user: %{
-              id: user.id,
-              email: user.email
-            }
-          }
-        })
-
-      {:error, changeset} ->
-        conn
-        |> put_status(:bad_request)
-        |> json(%{error: "Failed to create or update user account", details: changeset.errors})
-    end
-  end
+  
 
   def api_callback(conn, %{"provider" => "facebook", "code" => code}) do
     # Exchange code for access token
@@ -762,6 +572,124 @@ defmodule GameServerWeb.AuthController do
         conn
         |> put_status(:bad_request)
         |> json(%{error: "OAuth failed", details: reason})
+    end
+  end
+
+  
+
+  operation(:api_conflict_delete,
+    summary: "Delete conflicting provider account",
+    description:
+      "Deletes a conflicting account that owns a provider ID when allowed (must be authenticated). Only allowed when the conflicting account either has no password (provider-only) or has the same email as the current user.",
+    tags: ["Authentication"],
+    parameters: [
+      provider: [in: :path, name: "provider", schema: %OpenApiSpex.Schema{type: :string, enum: ["discord", "apple", "google", "facebook"]}, required: true],
+      conflict_user_id: [in: :query, name: "conflict_user_id", schema: %OpenApiSpex.Schema{type: :integer}, required: true]
+    ],
+    responses: [
+      ok: {"Deleted", "application/json", %OpenApiSpex.Schema{type: :object}},
+      bad_request: {"Bad Request", "application/json", %OpenApiSpex.Schema{type: :object}},
+      unauthorized: {"Unauthorized", "application/json", %OpenApiSpex.Schema{type: :object}}
+    ]
+  )
+
+  def api_conflict_delete(conn, %{"provider" => _provider, "conflict_user_id" => conflict_user_id}) do
+    # Delete conflicting account via API (authenticated)
+    current = conn.assigns.current_scope.user
+
+    case Integer.parse(conflict_user_id) do
+      {id, ""} ->
+        case Accounts.get_user!(id) do
+          %Accounts.User{} = other_user ->
+            cond do
+              other_user.id == current.id ->
+                conn
+                |> put_status(:bad_request)
+                |> json(%{error: "Cannot delete your own logged-in account"})
+
+              (other_user.email || "") |> String.downcase() ==
+                (current.email || "") |> String.downcase() and
+                  (other_user.email || "") != "" ->
+                case Accounts.delete_user(other_user) do
+                  {:ok, _} -> json(conn, %{message: "deleted"})
+                  {:error, _} -> conn |> put_status(:bad_request) |> json(%{error: "Failed to delete account"})
+                end
+
+              other_user.hashed_password == nil ->
+                case Accounts.delete_user(other_user) do
+                  {:ok, _} -> json(conn, %{message: "deleted"})
+                  {:error, _} -> conn |> put_status(:bad_request) |> json(%{error: "Failed to delete account"})
+                end
+
+              true ->
+                conn |> put_status(:bad_request) |> json(%{error: "Cannot delete an account you do not own"})
+            end
+
+          _ ->
+            conn |> put_status(:bad_request) |> json(%{error: "Account not found"})
+        end
+
+      :error ->
+        conn |> put_status(:bad_request) |> json(%{error: "invalid id"})
+    end
+  end
+
+  defp do_find_or_create_discord(conn, user_params) do
+    case Accounts.find_or_create_from_discord(user_params) do
+      {:ok, user} ->
+        {:ok, access_token, _access_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+        {:ok, refresh_token, _refresh_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+        json(conn, %{
+          data: %{
+            access_token: access_token,
+            refresh_token: refresh_token,
+            token_type: "Bearer",
+            expires_in: 900,
+            user: %{
+              id: user.id,
+              email: user.email,
+              profile_url: user.profile_url
+            }
+          }
+        })
+
+      {:error, changeset} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "Failed to create or update user account", details: changeset.errors})
+    end
+  end
+
+  defp do_find_or_create_google(conn, user_params) do
+    case Accounts.find_or_create_from_google(user_params) do
+      {:ok, user} ->
+        {:ok, access_token, _access_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+        {:ok, refresh_token, _refresh_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+        json(conn, %{
+          data: %{
+            access_token: access_token,
+            refresh_token: refresh_token,
+            token_type: "Bearer",
+            expires_in: 900,
+            user: %{
+              id: user.id,
+              email: user.email
+            }
+          }
+        })
+
+      {:error, changeset} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "Failed to create or update user account", details: changeset.errors})
     end
   end
 

@@ -343,24 +343,8 @@ defmodule GameServerWeb.UserLive.Settings do
     end
   end
 
-  @impl true
-  def handle_params(params, _url, socket) do
-    conflict_user =
-      case params do
-        %{"conflict_user_id" => id} when is_binary(id) ->
-          case GameServer.Repo.get(GameServer.Accounts.User, id) do
-            %GameServer.Accounts.User{} = u -> u
-            _ -> nil
-          end
-
-        _ ->
-          nil
-      end
-
-    conflict_provider = Map.get(params, "conflict_provider")
-
-    {:noreply, assign(socket, conflict_user: conflict_user, conflict_provider: conflict_provider)}
-  end
+  ## handle_params is implemented after event handlers to keep handle_event/3
+  ## clauses grouped together (avoid compile warnings about grouping clauses).
 
   @impl true
   def handle_event("delete_conflicting_account", %{"id" => id}, socket) do
@@ -420,5 +404,24 @@ defmodule GameServerWeb.UserLive.Settings do
              )}
         end
     end
+  end
+
+  @impl true
+  def handle_params(params, _url, socket) do
+    conflict_user =
+      case params do
+        %{"conflict_user_id" => id} when is_binary(id) ->
+          case GameServer.Repo.get(GameServer.Accounts.User, id) do
+            %GameServer.Accounts.User{} = u -> u
+            _ -> nil
+          end
+
+        _ ->
+          nil
+      end
+
+    conflict_provider = Map.get(params, "conflict_provider")
+
+    {:noreply, assign(socket, conflict_user: conflict_user, conflict_provider: conflict_provider)}
   end
 end
