@@ -12,19 +12,33 @@
     </script>
     <script>
       (() => {
+        const getSystemTheme = () => window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        
         const setTheme = (theme) => {
-          if (theme === "system") {
-            localStorage.removeItem("phx:theme");
-            document.documentElement.removeAttribute("data-theme");
-          } else {
+          const actualTheme = theme === "system" ? getSystemTheme() : theme;
+          if (theme !== "system") {
             localStorage.setItem("phx:theme", theme);
-            document.documentElement.setAttribute("data-theme", theme);
           }
+          document.documentElement.setAttribute("data-theme", actualTheme);
         };
-        if (!document.documentElement.hasAttribute("data-theme")) {
-          setTheme(localStorage.getItem("phx:theme") || "system");
-        }
-        window.addEventListener("storage", (e) => e.key === "phx:theme" && setTheme(e.newValue || "system"));
+        
+        // Set initial theme - default to system preference if no stored preference
+        const storedTheme = localStorage.getItem("phx:theme");
+        setTheme(storedTheme || "system");
+        
+        // Listen for theme changes
+        window.addEventListener("storage", (e) => {
+          if (e.key === "phx:theme") {
+            setTheme(e.newValue || "system");
+          }
+        });
+        
+        // Listen for system theme changes (only if no explicit preference is set)
+        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+          if (!localStorage.getItem("phx:theme")) {
+            setTheme("system");
+          }
+        });
         
         window.addEventListener("phx:set-theme", (e) => setTheme(e.target.dataset.phxTheme));
       })();
