@@ -1,0 +1,19 @@
+services:
+  app:
+    build: .
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env
+    environment:
+      SECRET_KEY_BASE: your_secret
+      MIX_ENV: prod
+      PHX_SERVER: true
+    volumes:
+      - .:/app
+      - /app/_build
+      - /app/deps
+
+volumes:
+  postgres_data:
+  redis_data:
