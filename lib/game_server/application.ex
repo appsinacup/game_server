@@ -14,8 +14,8 @@ defmodule GameServer.Application do
       GameServer.Repo,
       {DNSCluster, query: Application.get_env(:game_server, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: GameServer.PubSub},
-      # Start a worker by calling: GameServer.Worker.start_link(arg)
-      # {GameServer.Worker, arg},
+      # Start Swoosh local adapter storage for mailbox preview
+      {Swoosh.Adapters.Local.Storage.Memory, []},
       # Start to serve requests, typically the last entry
       GameServerWeb.Endpoint
     ]
