@@ -7,6 +7,7 @@ primary_region = "lax"
 [env]
   PHX_HOST = "game-server-uro.fly.dev"
   PORT = "4000"
+  SQLITE_DATABASE_PATH = "/data/game_server_prod.db"
 
 [http_service]
   internal_port = 4000
@@ -19,3 +20,7 @@ primary_region = "lax"
 
 [[vm]]
   size = "shared-cpu-1x"
+
+[[mounts]]
+  source = "game_server_data"
+  destination = "/data"

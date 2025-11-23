@@ -40,7 +40,7 @@ config :swoosh, :api_client, false
 
 # Disable Sentry during testing
 config :sentry,
-  included_environments: []
+  dsn: nil
 
 # Print only warnings and errors during test
 config :logger, level: :warning
