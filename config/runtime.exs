@@ -39,9 +39,9 @@ if config_env() == :prod do
       pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
       socket_options: maybe_ipv6
   else
-    # Fallback to in-memory SQLite when no PostgreSQL config
+    # Fallback to persistent SQLite when no PostgreSQL config
     config :game_server, GameServer.Repo,
-      database: ":memory:",
+      database: "db/game_server_prod.db",
       adapter: Ecto.Adapters.SQLite3,
       pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
   end

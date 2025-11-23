@@ -13,7 +13,7 @@ services:
       - .:/app
       - /app/_build
       - /app/deps
+      - sqlite_data:/app/db
 
 volumes:
-  postgres_data:
-  redis_data:
+  sqlite_data:
