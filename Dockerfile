@@ -25,11 +25,12 @@ RUN mix deps.compile
 # Copy the rest of the application
 COPY . .
 
-# Build and digest static assets for production (creates priv/static/cache_manifest.json)
-RUN mix assets.deploy
-
-# Compile the application
+# Compile the application FIRST (generates phoenix-colocated hooks)
 RUN mix compile
+
+# Build and digest static assets for production (creates priv/static/cache_manifest.json)
+# This now runs AFTER compile, so phoenix-colocated hooks exist
+RUN mix assets.deploy
 
 # Expose port
 EXPOSE 4000
