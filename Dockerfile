@@ -18,14 +18,9 @@ ENV MIX_ENV=prod
 
 COPY mix.exs mix.lock ./
 
-# Install dependencies for production and compile them (so NIFs/deps are built)
-RUN mix deps.get --only prod
+# Install dependencies
+RUN mix deps.get
 
-# Force clean rebuild of Exqlite NIF to match runtime glibc
-RUN mix deps.clean exqlite --build
-RUN mix deps.compile exqlite
-
-RUN mix deps.compile
 
 # Copy the rest of the application
 COPY . .
