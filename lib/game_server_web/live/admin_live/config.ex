@@ -199,8 +199,7 @@ defmodule GameServerWeb.AdminLive.Config do
                       </div>
                       <div>
                         <strong>Production:</strong>
-                        https://{@config.hostname}{if @config.port && @config.port != "443",
-                          do: ":#{@config.port}"}/auth/discord/callback
+                        https://{@config.hostname}/auth/discord/callback
                       </div>
                     </div>
                   </div>
