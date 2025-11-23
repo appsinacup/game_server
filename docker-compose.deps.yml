@@ -9,10 +9,6 @@ services:
       file: docker-compose.yml
       service: redis
 
-networks:
-  uro:
-    name: "uro"
-
 volumes:
   postgres_data:
   redis_data:

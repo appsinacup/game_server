@@ -5,7 +5,7 @@ defmodule GameServer.MixProject do
     [
       app: :game_server,
       version: "0.1.0",
-      elixir: "~> 1.15",
+      elixir: "~> 1.19",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
@@ -64,14 +64,13 @@ defmodule GameServer.MixProject do
       {:req, "~> 0.5"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
-      {:gettext, "~> 0.26"},
+      {:gettext, "~> 1.0"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.2.0"},
-      {:ueberauth_discord, "~> 0.6"},
-      {:bandit, "~> 1.5"},
+      {:ueberauth_discord, "~> 0.7"},
+      {:bandit, "~> 1.8"},
       {:ueberauth, "~> 0.10"},
-      {:open_api_spex, "~> 3.21"},
-      {:dotenvy, "~> 0.8.0"}
+      {:open_api_spex, "~> 3.22"}
     ]
   end
 

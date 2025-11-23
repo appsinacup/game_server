@@ -1,6 +1,3 @@
-# Don't copy mix.lock - let Docker generate it in the correct environment
-mix.lock
-
 # Don't copy build artifacts
 _build/
 deps/
@@ -23,3 +20,4 @@ assets/node_modules/
 
 # Don't copy test artifacts
 cover/
+redis/

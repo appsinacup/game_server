@@ -1,4 +1,4 @@
-FROM elixir:1.15-slim
+FROM elixir:1.19-slim
 
 # Install git and other build dependencies
 RUN apt-get update && \
@@ -15,10 +15,9 @@ WORKDIR /app
 # Set environment to production
 ENV MIX_ENV=prod
 
-# Copy mix.exs
-COPY mix.exs ./
+COPY mix.exs mix.lock ./
 
-# Install dependencies (generates mix.lock in prod environment)
+# Install dependencies
 RUN mix deps.get
 
 # Copy the rest of the application

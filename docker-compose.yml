@@ -9,6 +9,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d game_server_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   app:
     build: .
@@ -17,11 +22,17 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/game_server_dev
-      SECRET_KEY_BASE: your_secret_key_here  # Replace with a secure key
       MIX_ENV: dev
+      POSTGRES_HOST: database
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: game_server_dev
+      SECRET_KEY_BASE: your_secret_key_here  # Replace with a secure key
+      PHX_SERVER: true
     depends_on:
-      - database
+      database:
+        condition: service_healthy
     volumes:
       - .:/app
       - /app/_build
