@@ -87,6 +87,28 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  # Configure OAuth providers from runtime environment variables so deploy-time
+  # secrets (eg. Fly secrets) are applied. These override any compile-time
+  # values and ensure Application.get_env/3 reflects the runtime values.
+  config :ueberauth, Ueberauth.Strategy.Discord.OAuth,
+    client_id: System.get_env("DISCORD_CLIENT_ID"),
+    client_secret: System.get_env("DISCORD_CLIENT_SECRET"),
+    redirect_uri: System.get_env("DISCORD_REDIRECT_URI") || "https://#{host}/auth/discord/callback"
+
+  config :ueberauth, Ueberauth.Strategy.Google.OAuth,
+    client_id: System.get_env("GOOGLE_CLIENT_ID"),
+    client_secret: System.get_env("GOOGLE_CLIENT_SECRET")
+
+  config :ueberauth, Ueberauth.Strategy.Facebook.OAuth,
+    client_id: System.get_env("FACEBOOK_CLIENT_ID"),
+    client_secret: System.get_env("FACEBOOK_CLIENT_SECRET")
+
+  config :ueberauth, Ueberauth.Strategy.Apple,
+    client_id: System.get_env("APPLE_CLIENT_ID"),
+    team_id: System.get_env("APPLE_TEAM_ID"),
+    key_id: System.get_env("APPLE_KEY_ID"),
+    private_key: System.get_env("APPLE_PRIVATE_KEY")
+
   # ## SSL Support
   #
   # To get SSL working, you will need to add the `https` key

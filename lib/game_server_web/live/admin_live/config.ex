@@ -512,7 +512,7 @@ defmodule GameServerWeb.AdminLive.Config do
                     <li>Authorize the application with your Apple ID</li>
                     <li>You should be redirected back and logged in</li>
                   </ol>
-                  <div class="alert alert-info mt-3">
+                  <div class="alert alert-warning mt-3">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -523,14 +523,14 @@ defmodule GameServerWeb.AdminLive.Config do
                         stroke-linecap="round"
                         stroke-linejoin="round"
                         stroke-width="2"
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                       >
                       </path>
                     </svg>
                     <div>
                       <p>
-                        <strong>Note:</strong>
-                        Apple Sign In for web only works on HTTPS in production. For local testing, use ngrok or similar to get HTTPS.
+                        <strong>Important:</strong>
+                        Apple Sign In does NOT work with localhost. You must use a registered domain with HTTPS. For local testing, use a tunneling service like ngrok to get a temporary HTTPS URL.
                       </p>
                     </div>
                   </div>
@@ -1795,21 +1795,21 @@ defmodule GameServerWeb.AdminLive.Config do
   def mount(_params, _session, socket) do
     config = %{
       discord_client_id:
-        Application.get_env(:ueberauth, Ueberauth.Strategy.Discord.OAuth)[:client_id],
+        Application.get_env(:ueberauth, Ueberauth.Strategy.Discord.OAuth)[:client_id] || System.get_env("DISCORD_CLIENT_ID"),
       discord_client_secret:
-        Application.get_env(:ueberauth, Ueberauth.Strategy.Discord.OAuth)[:client_secret],
+        Application.get_env(:ueberauth, Ueberauth.Strategy.Discord.OAuth)[:client_secret] || System.get_env("DISCORD_CLIENT_SECRET"),
       apple_client_id: System.get_env("APPLE_CLIENT_ID"),
       apple_team_id: System.get_env("APPLE_TEAM_ID"),
       apple_key_id: System.get_env("APPLE_KEY_ID"),
       apple_private_key: System.get_env("APPLE_PRIVATE_KEY"),
       google_client_id:
-        Application.get_env(:ueberauth, Ueberauth.Strategy.Google.OAuth)[:client_id],
+        Application.get_env(:ueberauth, Ueberauth.Strategy.Google.OAuth)[:client_id] || System.get_env("GOOGLE_CLIENT_ID"),
       google_client_secret:
-        Application.get_env(:ueberauth, Ueberauth.Strategy.Google.OAuth)[:client_secret],
+        Application.get_env(:ueberauth, Ueberauth.Strategy.Google.OAuth)[:client_secret] || System.get_env("GOOGLE_CLIENT_SECRET"),
       facebook_client_id:
-        Application.get_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth)[:client_id],
+        Application.get_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth)[:client_id] || System.get_env("FACEBOOK_CLIENT_ID"),
       facebook_client_secret:
-        Application.get_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth)[:client_secret],
+        Application.get_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth)[:client_secret] || System.get_env("FACEBOOK_CLIENT_SECRET"),
       email_configured: System.get_env("SMTP_PASSWORD") != nil,
       smtp_username: System.get_env("SMTP_USERNAME"),
       smtp_password: System.get_env("SMTP_PASSWORD"),
