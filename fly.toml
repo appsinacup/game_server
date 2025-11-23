@@ -11,8 +11,8 @@ primary_region = "lax"
 [http_service]
   internal_port = 4000
   force_https = true
-  auto_stop_machines = start
-  auto_start_machines = start
+  auto_stop_machines = true
+  auto_start_machines = true
   min_machines_running = 1
   max_machines_running = 1
   processes = ["app"]
