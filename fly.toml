@@ -6,7 +6,7 @@ primary_region = "lax"
 
 [env]
   PHX_HOST = "game-server-uro.fly.dev"
-  PORT = "8080"
+  PORT = "4000"
 
 [http_service]
   internal_port = 4000
