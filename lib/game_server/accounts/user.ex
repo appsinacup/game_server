@@ -34,7 +34,10 @@ defmodule GameServer.Accounts.User do
   def email_changeset(user, attrs, opts \\ []) do
     user
     |> cast(attrs, [:email])
-    |> update_change(:email, &String.downcase/1)
+    |> update_change(:email, fn
+      nil -> nil
+      email -> String.downcase(email)
+    end)
     |> validate_email(opts)
   end
 

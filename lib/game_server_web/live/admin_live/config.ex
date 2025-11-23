@@ -1053,12 +1053,36 @@ defmodule GameServerWeb.AdminLive.Config do
                   <ol class="list-decimal list-inside space-y-2 text-sm">
                     <li>Click "My Apps" in the top right</li>
                     <li>Click "Create App"</li>
-                    <li>Select "Consumer" as the app type</li>
+                    <li>Select the use case that fits your needs (often "Other" or "Authenticate and request data from users with Facebook Login")</li>
+                    <li>Click "Next"</li>
+                    <li>Select app type (usually "Business" for most web apps, or "None" if available)</li>
                     <li>Click "Next"</li>
                     <li>Enter app name (e.g., "Game Server")</li>
                     <li>Enter contact email</li>
                     <li>Click "Create App"</li>
                   </ol>
+                  <div class="alert alert-info mt-3">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      class="stroke-current shrink-0 w-6 h-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      >
+                      </path>
+                    </svg>
+                    <div>
+                      <p>
+                        <strong>Note:</strong>
+                        Facebook's app creation flow changes frequently. If the options don't match exactly, look for the option related to "Facebook Login" or "Authenticate users".
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
               
