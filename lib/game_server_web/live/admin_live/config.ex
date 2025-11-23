@@ -67,6 +67,26 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                   </tr>
                   <tr>
+                    <td class="font-semibold">Apple Sign In</td>
+                    <td>
+                      <%= if @config.apple_client_id && @config.apple_team_id && @config.apple_key_id && @config.apple_private_key do %>
+                        <span class="badge badge-success">Configured</span>
+                      <% else %>
+                        <span class="badge badge-error">Not Configured</span>
+                      <% end %>
+                    </td>
+                    <td class="font-mono text-sm">
+                      <%= if @config.apple_client_id do %>
+                        Client ID: {@config.apple_client_id}<br />
+                        Team ID: {@config.apple_team_id || "Not set"}<br />
+                        Key ID: {@config.apple_key_id || "Not set"}<br />
+                        Private Key: {(@config.apple_private_key && "Set") || "Not set"}
+                      <% else %>
+                        <span class="text-error">Not configured</span>
+                      <% end %>
+                    </td>
+                  </tr>
+                  <tr>
                     <td class="font-semibold">Email Service</td>
                     <td>
                       <%= if @config.email_configured do %>
@@ -152,6 +172,352 @@ defmodule GameServerWeb.AdminLive.Config do
                   </tr>
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+        
+    <!-- Apple Sign In Setup Guide -->
+        <div class="card bg-base-100 shadow-xl collapsed" data-card-key="apple_signin">
+          <div class="card-body">
+            <h2 class="card-title text-2xl mb-4 flex items-center gap-3">
+              <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+              </svg>
+              Apple Sign In Setup Guide
+              <button
+                type="button"
+                data-action="toggle-card"
+                data-card-key="apple_signin"
+                aria-expanded="false"
+                class="btn btn-ghost btn-sm ml-auto"
+                title="Collapse/Expand"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 8l4 4 4-4"
+                  />
+                </svg>
+              </button>
+            </h2>
+
+            <div class="alert alert-info mb-6">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                class="stroke-current shrink-0 w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                >
+                </path>
+              </svg>
+              <div>
+                <p>
+                  <strong>Why Apple Sign In?</strong>
+                  Required for iOS apps and provides a privacy-focused authentication method. Users can sign in with their Apple ID.
+                </p>
+              </div>
+            </div>
+
+            <div class="space-y-6">
+              <!-- Step 1: Apple Developer Account -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">1</span> Apple Developer Account
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>
+                    You need an
+                    <a
+                      href="https://developer.apple.com/programs/"
+                      target="_blank"
+                      class="link link-primary"
+                    >
+                      Apple Developer Account
+                    </a>
+                    ($99/year)
+                  </p>
+                  <div class="alert alert-warning">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="stroke-current shrink-0 h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                      />
+                    </svg>
+                    <div>
+                      <p>
+                        <strong>Note:</strong>
+                        Apple Sign In requires a paid Apple Developer account. Free accounts cannot create Service IDs or Keys.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+    <!-- Step 2: Create App ID -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">2</span> Create App ID
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>
+                    Go to
+                    <a
+                      href="https://developer.apple.com/account/resources/identifiers/list"
+                      target="_blank"
+                      class="link link-primary"
+                    >
+                      Certificates, Identifiers & Profiles
+                    </a>
+                  </p>
+                  <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>Click the "+" button to create a new identifier</li>
+                    <li>Select "App IDs" and click Continue</li>
+                    <li>Select "App" type and click Continue</li>
+                    <li>Enter a description (e.g., "Game Server")</li>
+                    <li>Enter a Bundle ID (e.g., com.yourcompany.gameserver)</li>
+                    <li>Scroll down and check "Sign in with Apple"</li>
+                    <li>Click Continue and Register</li>
+                  </ol>
+                </div>
+              </div>
+              
+    <!-- Step 3: Create Service ID -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">3</span> Create Service ID (Client ID)
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>Back in Certificates, Identifiers & Profiles:</p>
+                  <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>Click "+" to create new identifier</li>
+                    <li>Select "Services IDs" and click Continue</li>
+                    <li>Enter description (e.g., "Game Server Web")</li>
+                    <li>
+                      Enter identifier (e.g., com.yourcompany.gameserver.web) - This is your CLIENT_ID
+                    </li>
+                    <li>Check "Sign in with Apple"</li>
+                    <li>Click "Configure" next to Sign in with Apple</li>
+                    <li>Select your App ID as the Primary App ID</li>
+                    <li>
+                      Add these domains and redirect URLs:<br />
+                      <div class="bg-base-200 p-2 rounded mt-2 font-mono text-xs">
+                        <div>Domain: {@config.hostname}</div>
+                        <div>Return URL: https://{@config.hostname}/auth/apple/callback</div>
+                      </div>
+                    </li>
+                    <li>Click Save, then Continue, then Register</li>
+                  </ol>
+                  <div class="bg-base-200 p-4 rounded-lg mt-4">
+                    <div class="font-semibold mb-2">Your Client ID (Service ID Identifier)</div>
+                    <div class="font-mono text-xs bg-base-300 p-2 rounded">
+                      com.yourcompany.gameserver.web
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+    <!-- Step 4: Create Private Key -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">4</span> Create Private Key
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>In Certificates, Identifiers & Profiles, go to Keys:</p>
+                  <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>Click "+" to create a new key</li>
+                    <li>Enter a name (e.g., "Game Server Sign in with Apple Key")</li>
+                    <li>Check "Sign in with Apple"</li>
+                    <li>Click "Configure" next to Sign in with Apple</li>
+                    <li>Select your App ID as the Primary App ID</li>
+                    <li>Click Save, then Continue</li>
+                    <li>Click Register</li>
+                    <li>
+                      <strong>Download the .p8 file</strong> - you can only download this once!
+                    </li>
+                    <li>
+                      Note the Key ID (e.g., ABC123XYZ) shown on the confirmation page
+                    </li>
+                  </ol>
+                  <div class="alert alert-error mt-3">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="stroke-current shrink-0 h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                      />
+                    </svg>
+                    <div>
+                      <p>
+                        <strong>Critical:</strong>
+                        You can only download the .p8 file once! Store it securely. If lost, you'll need to create a new key.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+    <!-- Step 5: Get Team ID -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">5</span> Get Your Team ID
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>Find your Team ID:</p>
+                  <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>
+                      Go to
+                      <a
+                        href="https://developer.apple.com/account/#/membership/"
+                        target="_blank"
+                        class="link link-primary"
+                      >
+                        Membership Details
+                      </a>
+                    </li>
+                    <li>Your Team ID is listed there (10 characters, e.g., A1B2C3D4E5)</li>
+                  </ol>
+                </div>
+              </div>
+              
+    <!-- Step 6: Configure Environment Variables -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">6</span> Configure Environment Variables
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>Set these environment variables:</p>
+                  <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
+                    <div class="space-y-2">
+                      <div>APPLE_CLIENT_ID="com.yourcompany.gameserver.web"</div>
+                      <div>APPLE_TEAM_ID="A1B2C3D4E5"</div>
+                      <div>APPLE_KEY_ID="ABC123XYZ"</div>
+                      <div>APPLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----</div>
+                      <div>MIGTAgEAMBMGByq...your key content...</div>
+                      <div>-----END PRIVATE KEY-----"</div>
+                    </div>
+                  </div>
+                  <div class="alert alert-info mt-3">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      class="stroke-current shrink-0 w-6 h-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      >
+                      </path>
+                    </svg>
+                    <div>
+                      <p>
+                        <strong>Tip:</strong>
+                        For APPLE_PRIVATE_KEY, open the .p8 file in a text editor and copy the entire contents including the BEGIN/END lines.
+                      </p>
+                    </div>
+                  </div>
+                  <div class="alert alert-warning mt-3">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="stroke-current shrink-0 h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                      />
+                    </svg>
+                    <div>
+                      <p>
+                        <strong>Security:</strong>
+                        Never commit the private key to version control. Use your deployment platform's secret management.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+    <!-- Step 7: Test -->
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">7</span> Test Apple Sign In
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>After deploying with the secrets:</p>
+                  <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>Go to your app's login page</li>
+                    <li>Click "Sign in with Apple"</li>
+                    <li>Authorize the application with your Apple ID</li>
+                    <li>You should be redirected back and logged in</li>
+                  </ol>
+                  <div class="alert alert-info mt-3">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      class="stroke-current shrink-0 w-6 h-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      >
+                      </path>
+                    </svg>
+                    <div>
+                      <p>
+                        <strong>Note:</strong>
+                        Apple Sign In for web only works on HTTPS in production. For local testing, use ngrok or similar to get HTTPS.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-actions justify-end mt-6">
+              <a
+                href="https://developer.apple.com/account/resources/identifiers/list"
+                target="_blank"
+                class="btn btn-primary"
+              >
+                Open Apple Developer Portal
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+              </a>
             </div>
           </div>
         </div>
@@ -894,6 +1260,10 @@ defmodule GameServerWeb.AdminLive.Config do
         Application.get_env(:ueberauth, Ueberauth.Strategy.Discord.OAuth)[:client_id],
       discord_client_secret:
         Application.get_env(:ueberauth, Ueberauth.Strategy.Discord.OAuth)[:client_secret],
+      apple_client_id: System.get_env("APPLE_CLIENT_ID"),
+      apple_team_id: System.get_env("APPLE_TEAM_ID"),
+      apple_key_id: System.get_env("APPLE_KEY_ID"),
+      apple_private_key: System.get_env("APPLE_PRIVATE_KEY"),
       email_configured: System.get_env("SMTP_PASSWORD") != nil,
       smtp_username: System.get_env("SMTP_USERNAME"),
       smtp_password: System.get_env("SMTP_PASSWORD"),

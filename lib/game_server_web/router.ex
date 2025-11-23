@@ -75,7 +75,7 @@ defmodule GameServerWeb.Router do
 
     # Mailbox preview only in development
     if Mix.env() == :dev do
-      forward "/admin/mailbox", Swoosh.MailboxPreview
+      forward "/admin/mailbox", Plug.Swoosh.MailboxPreview
     end
   end
 

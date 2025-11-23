@@ -32,6 +32,7 @@ defmodule GameServerWeb.AdminLive.Users do
                     <th>Discord ID</th>
                     <th>Discord Username</th>
                     <th>Discord Avatar</th>
+                    <th>Apple ID</th>
                     <th>Admin</th>
                     <th>Metadata</th>
                     <th>Confirmed</th>
@@ -75,6 +76,13 @@ defmodule GameServerWeb.AdminLive.Users do
                         <img src={avatar_src} alt="Discord Avatar" class="w-8 h-8 rounded-full" />
                       <% else %>
                         <span class="badge badge-ghost badge-sm">Not set</span>
+                      <% end %>
+                    </td>
+                    <td class="font-mono text-sm">
+                      <%= if user.apple_id do %>
+                        {user.apple_id}
+                      <% else %>
+                        <span class="text-gray-500">-</span>
                       <% end %>
                     </td>
                     <td>

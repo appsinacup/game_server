@@ -15,11 +15,11 @@ defmodule GameServerWeb.AuthController do
 
   def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
     conn
-    |> put_flash(:error, "Failed to authenticate with Discord.")
+    |> put_flash(:error, "Failed to authenticate.")
     |> redirect(to: ~p"/users/log-in")
   end
 
-  def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
+  def callback(%{assigns: %{ueberauth_auth: auth}} = conn, %{"provider" => "discord"}) do
     user_params = %{
       email: auth.info.email,
       discord_id: auth.uid,
@@ -45,6 +45,30 @@ defmodule GameServerWeb.AuthController do
     end
   end
 
+  def callback(%{assigns: %{ueberauth_auth: auth}} = conn, %{"provider" => "apple"}) do
+    user_params = %{
+      email: auth.info.email,
+      apple_id: auth.uid
+    }
+
+    require Logger
+    Logger.info("Apple OAuth user params: #{inspect(user_params)}")
+
+    case Accounts.find_or_create_from_apple(user_params) do
+      {:ok, user} ->
+        conn
+        |> put_flash(:info, "Successfully authenticated with Apple.")
+        |> UserAuth.log_in_user(user)
+
+      {:error, changeset} ->
+        Logger.error("Failed to create user from Apple: #{inspect(changeset.errors)}")
+
+        conn
+        |> put_flash(:error, "Failed to create or update user account.")
+        |> redirect(to: ~p"/users/log-in")
+    end
+  end
+
   def delete(conn, _params) do
     conn
     |> put_flash(:info, "You have been logged out!")
@@ -60,7 +84,7 @@ defmodule GameServerWeb.AuthController do
       provider: [
         in: :path,
         name: "provider",
-        schema: %OpenApiSpex.Schema{type: :string, enum: ["discord"]},
+        schema: %OpenApiSpex.Schema{type: :string, enum: ["discord", "apple"]},
         description: "OAuth provider",
         required: true,
         example: "discord"
@@ -96,6 +120,18 @@ defmodule GameServerWeb.AuthController do
     json(conn, %{authorization_url: url})
   end
 
+  def api_request(conn, %{"provider" => "apple"}) do
+    # Generate the Apple OAuth URL
+    client_id = System.get_env("APPLE_CLIENT_ID")
+    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/api/v1/auth/apple/callback"
+    scope = "name email"
+
+    url =
+      "https://appleid.apple.com/auth/authorize?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&response_mode=form_post&scope=#{URI.encode_www_form(scope)}"
+
+    json(conn, %{authorization_url: url})
+  end
+
   operation(:api_callback,
     summary: "API OAuth callback",
     description: "Handles OAuth callback and returns user token",
@@ -104,7 +140,7 @@ defmodule GameServerWeb.AuthController do
       provider: [
         in: :path,
         name: "provider",
-        schema: %OpenApiSpex.Schema{type: :string, enum: ["discord"]},
+        schema: %OpenApiSpex.Schema{type: :string, enum: ["discord", "apple"]},
         description: "OAuth provider",
         required: true,
         example: "discord"
@@ -217,6 +253,25 @@ defmodule GameServerWeb.AuthController do
         |> put_status(:bad_request)
         |> json(%{error: "OAuth failed", details: reason})
     end
+  end
+
+  def api_callback(conn, %{"provider" => "apple", "code" => _code}) do
+    # For Apple Sign In, we use Ueberauth strategy which handles the JWT verification
+    # Apple returns user info differently - they only send it on first authorization
+    # After that, we only get the user identifier (sub claim in ID token)
+
+    # Note: Full Apple Sign In implementation with ueberauth_apple handles the
+    # ID token verification, so we can extract user info from the Ueberauth callback
+    # For API flow, clients should use the browser flow or implement their own
+    # client-side Apple Sign In and send us the validated identity token
+
+    conn
+    |> put_status(:not_implemented)
+    |> json(%{
+      error: "Apple Sign In API flow not fully implemented",
+      message:
+        "Please use the browser OAuth flow at /auth/apple or implement client-side Apple Sign In"
+    })
   end
 
   defp exchange_discord_code(code, client_id, client_secret, redirect_uri) do

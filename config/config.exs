@@ -84,10 +84,17 @@ import_config "#{config_env()}.exs"
 
 config :ueberauth, Ueberauth,
   providers: [
-    discord: {Ueberauth.Strategy.Discord, [default_scope: "identify email"]}
+    discord: {Ueberauth.Strategy.Discord, [default_scope: "identify email"]},
+    apple: {Ueberauth.Strategy.Apple, []}
   ]
 
 config :ueberauth, Ueberauth.Strategy.Discord.OAuth,
   client_id: System.get_env("DISCORD_CLIENT_ID"),
   client_secret: System.get_env("DISCORD_CLIENT_SECRET"),
   redirect_uri: "http://localhost:4000/auth/discord/callback"
+
+config :ueberauth, Ueberauth.Strategy.Apple,
+  client_id: System.get_env("APPLE_CLIENT_ID"),
+  team_id: System.get_env("APPLE_TEAM_ID"),
+  key_id: System.get_env("APPLE_KEY_ID"),
+  private_key: System.get_env("APPLE_PRIVATE_KEY")

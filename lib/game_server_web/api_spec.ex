@@ -26,6 +26,7 @@ defmodule GameServerWeb.ApiSpec do
         ### Getting Tokens
         - **Email/Password**: POST to `/api/v1/login` with email and password
         - **Discord OAuth**: Use `/api/v1/auth/discord` flow
+        - **Apple Sign In**: Use `/auth/apple` browser flow (API flow not yet implemented)
 
         Both methods return:
         - `access_token` - Short-lived (15 min), use for API requests
@@ -52,7 +53,7 @@ defmodule GameServerWeb.ApiSpec do
             scheme: "bearer",
             bearerFormat: "JWT",
             description:
-              "JWT access token - obtain from /api/v1/login or /api/v1/auth/discord/callback"
+              "JWT access token - obtain from /api/v1/login, /api/v1/auth/discord/callback, or /auth/apple"
           }
         }
       }

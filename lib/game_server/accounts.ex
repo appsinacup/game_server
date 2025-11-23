@@ -112,17 +112,43 @@ defmodule GameServer.Accounts do
 
   """
   def find_or_create_from_discord(attrs) do
-    discord_id = Map.get(attrs, :discord_id)
+    find_or_create_from_oauth(
+      attrs,
+      :discord_id,
+      &User.discord_oauth_changeset/2
+    )
+  end
+
+  @doc """
+  Finds a user by Apple ID or creates a new user from OAuth data.
+
+  ## Examples
+
+      iex> find_or_create_from_apple(%{apple_id: "123", email: "user@example.com"})
+      {:ok, %User{}}
+
+  """
+  def find_or_create_from_apple(attrs) do
+    find_or_create_from_oauth(
+      attrs,
+      :apple_id,
+      &User.apple_oauth_changeset/2
+    )
+  end
+
+  # Generic OAuth find or create helper
+  defp find_or_create_from_oauth(attrs, provider_id_field, changeset_fn) do
+    provider_id = Map.get(attrs, provider_id_field)
     email = Map.get(attrs, :email)
 
     cond do
-      # User exists with this Discord ID - update their info
-      user = Repo.get_by(User, discord_id: discord_id) ->
+      # User exists with this provider ID - update their info
+      user = Repo.get_by(User, [{provider_id_field, provider_id}]) ->
         user
-        |> User.oauth_changeset(attrs)
+        |> changeset_fn.(attrs)
         |> Repo.update()
 
-      # User exists with this email but no Discord ID - link Discord account
+      # User exists with this email but no provider ID - link provider account
       email != nil ->
         case Repo.get_by(User, email: email) do
           nil ->
@@ -131,23 +157,23 @@ defmodule GameServer.Accounts do
             attrs = if is_first_user, do: Map.put(attrs, :is_admin, true), else: attrs
 
             %User{}
-            |> User.oauth_changeset(attrs)
+            |> changeset_fn.(attrs)
             |> Repo.insert()
 
           user ->
             user
-            |> User.oauth_changeset(attrs)
+            |> changeset_fn.(attrs)
             |> Repo.update()
         end
 
-      # New user - create from Discord data
+      # New user - create from provider data
       true ->
         # Check if this is the first user and make them admin
         is_first_user = Repo.aggregate(User, :count, :id) == 0
         attrs = if is_first_user, do: Map.put(attrs, :is_admin, true), else: attrs
 
         %User{}
-        |> User.oauth_changeset(attrs)
+        |> changeset_fn.(attrs)
         |> Repo.insert()
     end
   end

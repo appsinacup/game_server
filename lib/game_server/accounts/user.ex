@@ -11,6 +11,7 @@ defmodule GameServer.Accounts.User do
     field :discord_id, :string
     field :discord_username, :string
     field :discord_avatar, :string
+    field :apple_id, :string
     field :is_admin, :boolean, default: false
     field :metadata, :map, default: %{}
 
@@ -121,11 +122,11 @@ defmodule GameServer.Accounts.User do
   end
 
   @doc """
-  A user changeset for OAuth registration.
+  A user changeset for Discord OAuth registration.
 
   It accepts email and Discord fields.
   """
-  def oauth_changeset(user, attrs) do
+  def discord_oauth_changeset(user, attrs) do
     user
     |> cast(attrs, [:email, :discord_id, :discord_username, :discord_avatar, :is_admin])
     |> update_change(:email, &String.downcase/1)
@@ -138,6 +139,27 @@ defmodule GameServer.Accounts.User do
     |> unsafe_validate_unique(:discord_id, GameServer.Repo)
     |> unique_constraint(:email)
     |> unique_constraint(:discord_id)
+    |> put_change(:confirmed_at, DateTime.utc_now(:second))
+  end
+
+  @doc """
+  A user changeset for Apple OAuth registration.
+
+  It accepts email and Apple ID.
+  """
+  def apple_oauth_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:email, :apple_id, :is_admin])
+    |> update_change(:email, &String.downcase/1)
+    |> validate_required([:apple_id])
+    |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+$/,
+      message: "must have the @ sign and no spaces"
+    )
+    |> validate_length(:email, max: 160)
+    |> unsafe_validate_unique(:email, GameServer.Repo)
+    |> unsafe_validate_unique(:apple_id, GameServer.Repo)
+    |> unique_constraint(:email)
+    |> unique_constraint(:apple_id)
     |> put_change(:confirmed_at, DateTime.utc_now(:second))
   end
 

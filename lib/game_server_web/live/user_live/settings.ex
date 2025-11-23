@@ -23,7 +23,6 @@ defmodule GameServerWeb.UserLive.Settings do
             <div><strong>ID:</strong> {@user.id}</div>
             <div><strong>Email:</strong> {@current_email}</div>
             <div><strong>Admin:</strong> {@user.is_admin}</div>
-            <div><strong>Discord:</strong> {@user.discord_username || "—"}</div>
           </div>
         </div>
 
