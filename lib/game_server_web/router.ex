@@ -164,6 +164,6 @@ defmodule GameServerWeb.Router do
   scope "/auth", GameServerWeb do
     pipe_through :oauth_callback
 
-    post "/apple/callback", AuthController, :callback
+    post "/:provider/callback", AuthController, :callback
   end
 end
