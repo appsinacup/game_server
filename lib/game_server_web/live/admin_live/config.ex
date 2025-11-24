@@ -80,7 +80,7 @@ defmodule GameServerWeb.AdminLive.Config do
                         Client ID: {@config.apple_client_id}<br />
                         Team ID: {@config.apple_team_id || "Not set"}<br />
                         Key ID: {@config.apple_key_id || "Not set"}<br />
-                        Private Key: {(@config.apple_private_key && "Set") || "Not set"}
+                        Private Key: {@config.apple_private_key || "Not set"}
                       <% else %>
                         <span class="text-error">Not configured</span>
                       <% end %>

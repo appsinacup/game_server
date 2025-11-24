@@ -14,6 +14,11 @@ defmodule GameServerWeb.AuthController do
   end
 
   def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
+    # Log the full failure details so we can debug provider-specific issues in prod
+    require Logger
+    failure = conn.assigns[:ueberauth_failure]
+    Logger.error("Ueberauth failure: #{inspect(failure)}")
+
     conn
     |> put_flash(:error, "Failed to authenticate.")
     |> redirect(to: ~p"/users/log-in")
@@ -131,6 +136,71 @@ defmodule GameServerWeb.AuthController do
 
           {:error, changeset} ->
             Logger.error("Failed to create user from Google: #{inspect(changeset.errors)}")
+
+            conn
+            |> put_flash(:error, "Failed to create or update user account.")
+            |> redirect(to: ~p"/users/log-in")
+        end
+    end
+  end
+
+  # Apple browser OAuth flow
+  # Apple behaves differently (often returns name/email only on first auth), so
+  # we explicitly handle it here and log details to make prod debugging easier.
+  def callback(%{assigns: %{ueberauth_auth: auth}} = conn, %{"provider" => "apple"}) do
+    user_params = %{
+      email: auth.info.email,
+      apple_id: auth.uid
+    }
+
+    require Logger
+
+    Logger.info(
+      "Apple OAuth user params: #{inspect(user_params)} auth_extra=#{inspect(auth.extra)}"
+    )
+
+    case conn.assigns[:current_scope] do
+      %{:user => current_user} ->
+        case Accounts.link_account(
+               current_user,
+               user_params,
+               :apple_id,
+               &GameServer.Accounts.User.apple_oauth_changeset/2
+             ) do
+          {:ok, _user} ->
+            conn
+            |> put_flash(:info, "Linked Apple to your account.")
+            |> redirect(to: ~p"/users/settings")
+
+          {:error, {:conflict, other_user}} ->
+            Logger.warning("Apple already linked to another user id=#{other_user.id}")
+
+            conn
+            |> put_flash(
+              :error,
+              "Apple is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+            )
+            |> redirect(
+              to: ~p"/users/settings?conflict_provider=apple&conflict_user_id=#{other_user.id}"
+            )
+
+          {:error, changeset} ->
+            Logger.error("Failed to link Apple: #{inspect(changeset.errors)}")
+
+            conn
+            |> put_flash(:error, "Failed to link Apple account.")
+            |> redirect(to: ~p"/users/settings")
+        end
+
+      _ ->
+        case Accounts.find_or_create_from_apple(user_params) do
+          {:ok, user} ->
+            conn
+            |> put_flash(:info, "Successfully authenticated with Apple.")
+            |> UserAuth.log_in_user(user)
+
+          {:error, changeset} ->
+            Logger.error("Failed to create user from Apple: #{inspect(changeset.errors)}")
 
             conn
             |> put_flash(:error, "Failed to create or update user account.")

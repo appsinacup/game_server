@@ -9,7 +9,7 @@ defmodule GameServerWeb.UserLive.Registration do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="mx-auto max-w-sm">
+      <div class="mx-auto max-w-sm lg:max-w-4xl space-y-4">
         <div class="text-center">
           <.header>
             Register for an account
