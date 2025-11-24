@@ -227,7 +227,8 @@ defmodule GameServerWeb.AdminLive.Config do
                       <%= if @config.sentry_dsn do %>
                         Error monitoring enabled - production errors will be tracked<br />
                         <span class="font-mono text-xs">
-                          Log level: <span class={[
+                          Log level:
+                          <span class={[
                             "font-semibold",
                             case @config.sentry_log_level do
                               "info" -> "text-info"

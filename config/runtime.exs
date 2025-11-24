@@ -154,12 +154,13 @@ if config_env() == :prod do
   if dsn = System.get_env("SENTRY_DSN") do
     # Determine which log levels to send to Sentry (default: :error only)
     # Set SENTRY_LOG_LEVEL to capture more: info, warning, error
-    sentry_log_level = 
+    sentry_log_level =
       case System.get_env("SENTRY_LOG_LEVEL") do
         "info" -> :info
         "warning" -> :warning
         "error" -> :error
-        _ -> :error  # default to error only
+        # default to error only
+        _ -> :error
       end
 
     config :sentry,
@@ -179,6 +180,9 @@ if config_env() == :prod do
 
   unless System.get_env("SENTRY_DSN") do
     require Logger
-    Logger.warn("SENTRY_DSN not set — Sentry will be disabled. Set SENTRY_DSN in production to enable error monitoring and log forwarding.")
+
+    Logger.warn(
+      "SENTRY_DSN not set — Sentry will be disabled. Set SENTRY_DSN in production to enable error monitoring and log forwarding."
+    )
   end
 end
