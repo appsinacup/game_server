@@ -17,4 +17,4 @@ if [ -z "$SECRET_KEY_BASE" ]; then
   echo "Generated SECRET_KEY_BASE: $SECRET_KEY_BASE"
 fi
 
-mix phx.server
+MIX_ENV=prod mix phx.server
