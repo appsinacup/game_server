@@ -368,10 +368,7 @@ defmodule GameServerWeb.PublicDocs do
                       Add these domains and redirect URLs:<br />
                       <div class="bg-base-200 p-2 rounded mt-2 font-mono text-xs">
                         <div>Domain: example.com</div>
-                        <div>Return URL (browser): https://example.com/auth/apple/callback</div>
-                        <div>
-                          Return URL (API / SDK): https://example.com/auth/apple/session_callback
-                        </div>
+                        <div>Return URL: https://example.com/auth/apple/callback</div>
                       </div>
                     </li>
                     <li>Click Save, then Continue, then Register</li>
@@ -661,20 +658,12 @@ defmodule GameServerWeb.PublicDocs do
                   <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
                     <div class="space-y-1">
                       <div>
-                        <strong>Development (browser):</strong>
+                        <strong>Development:</strong>
                         http://localhost:4000/auth/discord/callback
                       </div>
                       <div>
-                        <strong>Development (API / SDK):</strong>
-                        http://localhost:4000/auth/discord/session_callback
-                      </div>
-                      <div>
-                        <strong>Production (browser):</strong>
+                        <strong>Production:</strong>
                         https://example.com/auth/discord/callback
-                      </div>
-                      <div>
-                        <strong>Production (API / SDK):</strong>
-                        https://example.com/auth/discord/session_callback
                       </div>
                     </div>
                   </div>
@@ -927,14 +916,8 @@ defmodule GameServerWeb.PublicDocs do
                     <li>
                       Add authorized redirect URIs:<br />
                       <div class="bg-base-200 p-2 rounded mt-2 font-mono text-xs">
-                        <div>Development (browser): http://localhost:4000/auth/google/callback</div>
-                        <div>
-                          Development (API / SDK): http://localhost:4000/auth/google/session_callback
-                        </div>
-                        <div>Production (browser): https://example.com/auth/google/callback</div>
-                        <div>
-                          Production (API / SDK): https://example.com/auth/google/session_callback
-                        </div>
+                        <div>Development: http://localhost:4000/auth/google/callback</div>
+                        <div>Production: https://example.com/auth/google/callback</div>
                       </div>
                     </li>
                     <li>Click "Create"</li>
@@ -1152,14 +1135,8 @@ defmodule GameServerWeb.PublicDocs do
                     <li>
                       Add these Valid OAuth Redirect URIs:<br />
                       <div class="bg-base-200 p-2 rounded mt-2 font-mono text-xs">
-                        <div>Development (browser): http://localhost:4000/auth/facebook/callback</div>
-                        <div>
-                          Development (API / SDK): http://localhost:4000/auth/facebook/session_callback
-                        </div>
-                        <div>Production (browser): https://example.com/auth/facebook/callback</div>
-                        <div>
-                          Production (API / SDK): https://example.com/auth/facebook/session_callback
-                        </div>
+                        <div>Development: http://localhost:4000/auth/facebook/callback</div>
+                        <div>Production: https://example.com/auth/facebook/callback</div>
                       </div>
                     </li>
                     <li>Click "Save Changes"</li>
