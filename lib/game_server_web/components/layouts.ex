@@ -43,7 +43,8 @@ defmodule GameServerWeb.Layouts do
         </a>
       </div>
       <div class="flex-none">
-        <ul class="flex flex-column px-1 space-x-4 items-center">
+        <!-- Desktop Navigation -->
+        <ul class="hidden md:flex flex-row px-1 space-x-4 items-center">
           <%= if @current_scope do %>
             <li>
               <!-- profile icon that links to settings (shows discord avatar or initials) -->
@@ -78,18 +79,12 @@ defmodule GameServerWeb.Layouts do
               </.link>
             </li>
           <% else %>
-            <.link
-              href={~p"/users/log-in"}
-              class="btn btn-primary"
-            >
-              Log in
-            </.link>
-            <.link
-              href={~p"/users/register"}
-              class="btn btn-outline"
-            >
-              Register
-            </.link>
+            <li>
+              <.link href={~p"/users/log-in"} class="btn btn-outline">Log in</.link>
+            </li>
+            <li>
+              <.link href={~p"/users/register"} class="btn btn-primary">Register</.link>
+            </li>
           <% end %>
           <li>
             <.link href={~p"/docs/setup"}>Guides</.link>
@@ -101,11 +96,44 @@ defmodule GameServerWeb.Layouts do
             <.theme_toggle />
           </li>
         </ul>
+
+        <!-- Mobile Navigation -->
+        <div class="md:hidden">
+          <div class="dropdown dropdown-end">
+            <button tabindex="0" class="btn btn-ghost btn-circle">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </button>
+            <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-80 text-lg">
+              <%= if @current_scope do %>
+                <li class="menu-title">
+                  <span>{profile_initials(@current_scope.user)} {@current_scope.user.email}</span>
+                </li>
+                <li><a href={~p"/users/settings"}>Settings</a></li>
+                <%= if @current_scope && @current_scope.user.is_admin do %>
+                  <li><a href={~p"/admin"}>Admin</a></li>
+                <% end %>
+                <li><a href={~p"/users/log-out"} method="delete">Log out</a></li>
+              <% else %>
+                <li><a href={~p"/users/log-in"}>Log in</a></li>
+                <li><a href={~p"/users/register"}>Register</a></li>
+              <% end %>
+              <li><a href={~p"/docs/setup"}>Guides</a></li>
+              <li><a href={~p"/api/docs"} target="_blank">API Docs</a></li>
+              <li class="mt-2">
+                <div class="flex justify-center">
+                  <.theme_toggle />
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
     </header>
 
     <main class="px-4 py-20 sm:px-6 lg:px-8">
-      <div class="mx-auto max-w-2xl space-y-4">
+      <div class="mx-auto max-w-2xl lg:max-w-4xl xl:max-w-6xl space-y-4">
         {render_slot(@inner_block)}
       </div>
     </main>
