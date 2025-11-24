@@ -210,7 +210,7 @@ defmodule GameServerWeb.PublicDocs do
 
             <div class="card-actions justify-end mt-6">
               <a
-                href="https://www.npmjs.com/package/game_server"
+                href="https://www.npmjs.com/package/@ughuuu/game_server"
                 target="_blank"
                 class="btn btn-primary"
               >
