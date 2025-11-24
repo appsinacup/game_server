@@ -17,17 +17,62 @@ defmodule GameServer.Apple do
   @spec client_secret(keyword) :: String.t()
   def client_secret(_config \\ []) do
     with {:error, :not_found} <- get_client_secret_from_cache() do
+      # Get the private key and convert escaped newlines to actual newlines
+      private_key_raw = System.get_env("APPLE_PRIVATE_KEY")
+      
+      if is_nil(private_key_raw) do
+        raise "APPLE_PRIVATE_KEY environment variable is not set"
+      end
+      
+      # Handle different formats:
+      # 1. Replace escaped newlines with actual newlines (\n -> newline)
+      # 2. If key is in single-line format with spaces, reconstruct with newlines
+      private_key =
+        private_key_raw
+        |> String.replace("\\n", "\n")
+        |> format_pem_key()
+
       secret =
         UeberauthApple.generate_client_secret(%{
           client_id: System.get_env("APPLE_CLIENT_ID"),
           expires_in: @expiration_sec,
           key_id: System.get_env("APPLE_KEY_ID"),
           team_id: System.get_env("APPLE_TEAM_ID"),
-          private_key: System.get_env("APPLE_PRIVATE_KEY")
+          private_key: private_key
         })
 
       put_client_secret_in_cache(secret, @expiration_sec)
       secret
+    end
+  end
+
+  # Format PEM key properly with newlines
+  defp format_pem_key(key) do
+    # If the key already has newlines, return as-is
+    if String.contains?(key, "\n") do
+      key
+    else
+      # Single-line format: split into proper PEM format
+      # PEM keys should have the header, 64-char lines, and footer
+      key
+      |> String.replace("-----BEGIN PRIVATE KEY----- ", "-----BEGIN PRIVATE KEY-----\n")
+      |> String.replace(" -----END PRIVATE KEY-----", "\n-----END PRIVATE KEY-----")
+      |> then(fn formatted ->
+        # Split the middle content into 64-character lines
+        [header | rest] = String.split(formatted, "\n")
+        [footer | body_reversed] = Enum.reverse(rest)
+        body = Enum.reverse(body_reversed) |> Enum.join()
+        
+        # Split body into 64-char chunks
+        body_lines =
+          body
+          |> String.graphemes()
+          |> Enum.chunk_every(64)
+          |> Enum.map(&Enum.join/1)
+        
+        ([header] ++ body_lines ++ [footer])
+        |> Enum.join("\n")
+      end)
     end
   end
 
