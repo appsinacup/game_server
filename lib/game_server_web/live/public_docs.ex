@@ -12,6 +12,221 @@ defmodule GameServerWeb.PublicDocs do
             Platform setup, OAuth providers, email, error monitoring, and server hooks
           </:subtitle>
         </.header>
+         
+    <!-- JavaScript Client SDK -->
+        <div class="card bg-base-100 shadow-xl collapsed" data-card-key="js_client">
+          <div class="card-body">
+            <h2 class="card-title text-2xl mb-4 flex items-center gap-3">
+              <svg class="w-8 h-8 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+              </svg>
+              JavaScript Client SDK
+              <button
+                type="button"
+                data-action="toggle-card"
+                data-card-key="js_client"
+                aria-expanded="false"
+                class="btn btn-ghost btn-sm ml-auto"
+                title="Collapse/Expand"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 8l4 4 4-4"
+                  />
+                </svg>
+              </button>
+            </h2>
+
+            <div class="space-y-6">
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">1</span> Install the SDK
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>Install the package via npm:</p>
+                  <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
+                    <div class="space-y-2">
+                      <div>npm install game_server_api</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">2</span> Initialize the Client
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>Import and configure the API client:</p>
+                  <div class="bg-base-200 p-4 rounded-lg">
+                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const { ApiClient, HealthApi, AuthenticationApi, UsersApi } = require('game_server_api');
+
+    // Initialize the API client
+    const apiClient = new ApiClient();
+    apiClient.basePath = 'http://localhost:4000';</code></pre>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">3</span> Health Check
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>Test your connection with a health check:</p>
+                  <div class="bg-base-200 p-4 rounded-lg">
+                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const healthApi = new HealthApi(apiClient);
+
+    const healthResponse = await healthApi.gameServerWebApiV1HealthControllerIndex();
+    console.log('Server is healthy:', healthResponse);
+    </code></pre>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">4</span> Authentication
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>The API uses JWT tokens. Here's how to authenticate:</p>
+
+                  <h4 class="font-semibold">Email/Password Login:</h4>
+                  <div class="bg-base-200 p-4 rounded-lg">
+                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const authApi = new AuthenticationApi(apiClient);
+
+    const loginResponse = await authApi.gameServerWebApiV1SessionControllerCreate({
+    gameServerWebApiV1SessionControllerCreateRequest: {
+    email: 'user@example.com',
+    password: 'password123'
+    }
+    });
+
+    const { access_token, refresh_token } = loginResponse.data;</code></pre>
+                  </div>
+
+                  <h4 class="font-semibold mt-4">OAuth Flow (Discord, Google, Facebook):</h4>
+                  <div class="bg-base-200 p-4 rounded-lg">
+                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>// Step 1: Get authorization URL
+    const authResponse = await authApi.gameServerWebAuthControllerApiRequest('discord');
+    const authUrl = authResponse.authorization_url;
+    const sessionId = authResponse.session_id;
+
+    // Step 2: Open URL in browser for user to authenticate
+    window.open(authUrl, '_blank');
+
+    // Step 3: Poll for completion
+    let sessionData;
+    do {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    sessionData = await authApi.gameServerWebAuthControllerApiSessionStatus(sessionId);
+    } while (sessionData.status === 'pending');
+
+    if (sessionData.status === 'completed') {
+    const { access_token, refresh_token } = sessionData.data;
+    console.log('OAuth successful!');
+    }</code></pre>
+                  </div>
+
+                  <h4 class="font-semibold mt-4">Using Access Tokens:</h4>
+                  <div class="bg-base-200 p-4 rounded-lg">
+                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>// Set authorization header for authenticated requests
+    apiClient.defaultHeaders = {
+    'Authorization': `Bearer ${access_token}`
+    };</code></pre>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">5</span> API Usage Examples
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <h4 class="font-semibold">Get User Profile:</h4>
+                  <div class="bg-base-200 p-4 rounded-lg">
+                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const usersApi = new UsersApi(apiClient);
+
+    const userProfile = await usersApi.gameServerWebApiV1MeControllerShow();
+    console.log('User:', userProfile.data);</code></pre>
+                  </div>
+
+                  <h4 class="font-semibold mt-4">Get User Metadata:</h4>
+                  <div class="bg-base-200 p-4 rounded-lg">
+                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const metadata = await usersApi.gameServerWebApiV1MetadataControllerShow();
+    console.log('Metadata:', metadata.data);</code></pre>
+                  </div>
+
+                  <h4 class="font-semibold mt-4">Refresh Token:</h4>
+                  <div class="bg-base-200 p-4 rounded-lg">
+                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const refreshResponse = await authApi.gameServerWebApiV1SessionControllerRefresh({
+    gameServerWebApiV1SessionControllerRefreshRequest: {
+    refresh_token: refresh_token
+    }
+    });
+
+    const newAccessToken = refreshResponse.data.access_token;</code></pre>
+                  </div>
+
+                  <h4 class="font-semibold mt-4">Logout:</h4>
+                  <div class="bg-base-200 p-4 rounded-lg">
+                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>await authApi.gameServerWebApiV1SessionControllerDelete();
+    console.log('Logged out successfully');</code></pre>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">6</span> Error Handling
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>Handle common errors appropriately:</p>
+                  <div class="bg-base-200 p-4 rounded-lg">
+                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>try {
+    const result = await someApiCall();
+    } catch (error) {
+    if (error.status === 401) {
+    // Token expired, refresh or re-authenticate
+    console.log('Token expired');
+    } else if (error.status === 403) {
+    // Forbidden - insufficient permissions
+    console.log('Access denied');
+    } else if (error.status === 404) {
+    // Resource not found
+    console.log('Not found');
+    } else {
+    // Other errors
+    console.error('API Error:', error);
+    }
+    }</code></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-actions justify-end mt-6">
+              <a
+                href="https://www.npmjs.com/package/game_server_api"
+                target="_blank"
+                class="btn btn-primary"
+              >
+                View on NPM
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
         <!-- Apple Sign In Setup Guide -->
         <div class="card bg-base-100 shadow-xl collapsed" data-card-key="apple_signin">
           <div class="card-body">

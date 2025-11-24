@@ -1,12 +1,13 @@
 defmodule GameServerWeb.Api.V1.MetadataController do
   use GameServerWeb, :controller
-  use OpenApiSpex.ControllerSpecs
+  use GameServerWeb.ApiController
 
   alias OpenApiSpex.Schema
 
   tags(["Users"])
 
   operation(:show,
+    operation_id: "get_user_metadata",
     summary: "Return current user's metadata",
     description: "Returns only the metadata map for the authenticated user.",
     security: [%{"authorization" => []}],

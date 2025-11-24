@@ -1,12 +1,13 @@
 defmodule GameServerWeb.Api.V1.MeController do
   use GameServerWeb, :controller
-  use OpenApiSpex.ControllerSpecs
+  use GameServerWeb.ApiController
 
   alias OpenApiSpex.Schema
 
   tags(["Users"])
 
   operation(:show,
+    operation_id: "get_current_user",
     summary: "Return current user info",
     description: "Returns the current authenticated user's basic information.",
     security: [%{"authorization" => []}],

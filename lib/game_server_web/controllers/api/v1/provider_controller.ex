@@ -1,10 +1,11 @@
 defmodule GameServerWeb.Api.V1.ProviderController do
   use GameServerWeb, :controller
-  use OpenApiSpex.ControllerSpecs
+  use GameServerWeb.ApiController
 
   alias GameServer.Accounts
 
   operation(:unlink,
+    operation_id: "unlink_provider",
     summary: "Unlink OAuth provider",
     description: "Unlinks a provider from the current authenticated user.",
     tags: ["Authentication"],

@@ -1,6 +1,6 @@
 defmodule GameServerWeb.Api.V1.SessionController do
   use GameServerWeb, :controller
-  use OpenApiSpex.ControllerSpecs
+  use GameServerWeb.ApiController
 
   alias GameServer.Accounts
   alias GameServerWeb.Auth.Guardian
@@ -9,6 +9,7 @@ defmodule GameServerWeb.Api.V1.SessionController do
   tags(["Authentication"])
 
   operation(:create,
+    operation_id: "login",
     summary: "Login",
     description: "Authenticate user with email and password",
     request_body: {
@@ -95,6 +96,7 @@ defmodule GameServerWeb.Api.V1.SessionController do
   end
 
   operation(:delete,
+    operation_id: "logout",
     summary: "Logout",
     description: "Invalidate user session token",
     security: [%{"authorization" => []}],
@@ -131,6 +133,7 @@ defmodule GameServerWeb.Api.V1.SessionController do
   end
 
   operation(:refresh,
+    operation_id: "refresh_token",
     summary: "Refresh access token",
     description: "Exchange a valid refresh token for a new access token",
     request_body: {

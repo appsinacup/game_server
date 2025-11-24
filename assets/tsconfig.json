@@ -21,6 +21,7 @@
 // Feel free to adjust this configuration however you need.
 {
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
       "*": ["../deps/*"]
