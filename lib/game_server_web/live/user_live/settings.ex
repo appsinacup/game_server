@@ -227,8 +227,10 @@ defmodule GameServerWeb.UserLive.Settings do
         <div class="text-sm mt-2 text-base-content/80">
           <p>Once you delete your account, there is no going back. Please be certain.</p>
           <p class="mt-2">
-            For information about what data is deleted and how to request deletion, see our
-            <.link href={~p"/data-deletion"} class="link link-primary">Data Deletion Policy</.link>.
+            For information about what data is deleted and how to request deletion, see our <.link
+              href={~p"/data-deletion"}
+              class="link link-primary"
+            >Data Deletion Policy</.link>.
           </p>
         </div>
         <div class="mt-4">
