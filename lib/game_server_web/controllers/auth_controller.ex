@@ -196,10 +196,65 @@ defmodule GameServerWeb.AuthController do
     end
   end
 
+  def callback(conn, %{"provider" => "apple", "code" => code} = params) do
+    require Logger
+    Logger.info("Apple OAuth callback received. Params: #{inspect(Map.keys(params))}")
+
+    exchanger = Application.get_env(:game_server, :oauth_exchanger, GameServer.OAuth.Exchanger)
+    client_id = System.get_env("APPLE_CLIENT_ID")
+    client_secret = GameServer.Apple.client_secret()
+    base = GameServerWeb.Endpoint.url()
+    redirect_uri = "#{base}/auth/apple/callback"
+
+    Logger.info(
+      "Apple OAuth: Exchanging code. Client ID: #{client_id}, Redirect URI: #{redirect_uri}"
+    )
+
+    case exchanger.exchange_apple_code(code, client_id, client_secret, redirect_uri) do
+      {:ok, %{"sub" => apple_id} = user_info} ->
+        Logger.info("Apple OAuth: Successfully exchanged code. User info: #{inspect(user_info)}")
+        email = user_info["email"]
+        user_params = %{email: email, apple_id: apple_id}
+
+        case params["state"] do
+          nil ->
+            Logger.info("Apple OAuth: Browser flow")
+            # Browser flow
+            handle_browser_apple_callback(conn, user_params)
+
+          session_id ->
+            Logger.info("Apple OAuth: API flow with session_id: #{session_id}")
+            # API flow
+            do_find_or_create_apple_for_session(conn, user_params, session_id)
+        end
+
+      {:error, error} ->
+        Logger.error("Apple OAuth exchange failed: #{inspect(error)}")
+
+        case params["state"] do
+          nil ->
+            conn
+            |> put_flash(:error, "Failed to authenticate with Apple.")
+            |> redirect(to: ~p"/users/log-in")
+
+          session_id ->
+            GameServer.OAuthSessions.create_session(session_id, %{
+              status: "error",
+              data: %{details: inspect(error)}
+            })
+
+            redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+        end
+    end
+  end
+
   # Catch-all for missing code or unsupported providers
   def callback(conn, params) do
     require Logger
-    Logger.error("OAuth callback with invalid params: #{inspect(params)}")
+
+    Logger.error(
+      "OAuth callback with invalid params. Provider: #{params["provider"]}, Params: #{inspect(params)}"
+    )
 
     conn
     |> put_flash(:error, "Failed to authenticate.")
@@ -573,6 +628,60 @@ defmodule GameServerWeb.AuthController do
     end
   end
 
+  defp handle_browser_apple_callback(conn, user_params) do
+    case conn.assigns[:current_scope] do
+      %{:user => current_user} ->
+        case Accounts.link_account(
+               current_user,
+               user_params,
+               :apple_id,
+               &GameServer.Accounts.User.apple_oauth_changeset/2
+             ) do
+          {:ok, _user} ->
+            conn
+            |> put_flash(:info, "Linked Apple to your account.")
+            |> redirect(to: ~p"/users/settings")
+
+          {:error, {:conflict, other_user}} ->
+            require Logger
+            Logger.warning("Apple already linked to another user id=#{other_user.id}")
+
+            conn
+            |> put_flash(
+              :error,
+              "Apple is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+            )
+            |> redirect(
+              to: ~p"/users/settings?conflict_provider=apple&conflict_user_id=#{other_user.id}"
+            )
+
+          {:error, changeset} ->
+            require Logger
+            Logger.error("Failed to link Apple: #{inspect(changeset.errors)}")
+
+            conn
+            |> put_flash(:error, "Failed to link Apple account.")
+            |> redirect(to: ~p"/users/settings")
+        end
+
+      _ ->
+        case Accounts.find_or_create_from_apple(user_params) do
+          {:ok, user} ->
+            conn
+            |> put_flash(:info, "Successfully authenticated with Apple.")
+            |> UserAuth.log_in_user(user)
+
+          {:error, changeset} ->
+            require Logger
+            Logger.error("Failed to create user from Apple: #{inspect(changeset.errors)}")
+
+            conn
+            |> put_flash(:error, "Failed to create or update user account.")
+            |> redirect(to: ~p"/users/log-in")
+        end
+    end
+  end
+
   defp handle_browser_discord_callback(conn, user_params) do
     case conn.assigns[:current_scope] do
       %{:user => current_user} ->
@@ -697,6 +806,40 @@ defmodule GameServerWeb.AuthController do
 
   defp do_find_or_create_facebook_for_session(conn, user_params, session_id) do
     case Accounts.find_or_create_from_facebook(user_params) do
+      {:ok, user} ->
+        {:ok, access_token, _access_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+        {:ok, refresh_token, _refresh_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+        # Store tokens in session
+        GameServer.OAuthSessions.create_session(session_id, %{
+          status: "completed",
+          data: %{
+            access_token: access_token,
+            refresh_token: refresh_token,
+            token_type: "Bearer",
+            expires_in: 900,
+            user: %{id: user.id, email: user.email}
+          }
+        })
+
+        # Redirect to success page
+        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+
+      {:error, changeset} ->
+        GameServer.OAuthSessions.create_session(session_id, %{
+          status: "error",
+          data: %{details: changeset.errors}
+        })
+
+        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+    end
+  end
+
+  defp do_find_or_create_apple_for_session(conn, user_params, session_id) do
+    case Accounts.find_or_create_from_apple(user_params) do
       {:ok, user} ->
         {:ok, access_token, _access_claims} =
           Guardian.encode_and_sign(user, %{}, token_type: "access")

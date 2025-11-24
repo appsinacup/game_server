@@ -115,4 +115,69 @@ defmodule GameServer.OAuth.Exchanger do
         {:error, "Failed to exchange code"}
     end
   end
+
+  @spec exchange_apple_code(String.t(), String.t(), String.t(), String.t()) ::
+          {:ok, map()} | {:error, term()}
+  def exchange_apple_code(code, client_id, client_secret, _redirect_uri) do
+    require Logger
+    url = "https://appleid.apple.com/auth/token"
+
+    body = %{
+      client_id: client_id,
+      client_secret: client_secret,
+      grant_type: "authorization_code",
+      code: code
+    }
+
+    headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
+
+    Logger.info("Apple OAuth: Exchanging code with Apple. URL: #{url}")
+
+    case Req.post(url, form: body, headers: headers) do
+      {:ok, %{status: 200, body: %{"id_token" => id_token}}} ->
+        Logger.info("Apple OAuth: Successfully received id_token")
+        # Parse the JWT id_token to get user info
+        case parse_apple_id_token(id_token) do
+          {:ok, user_info} ->
+            Logger.info("Apple OAuth: Successfully parsed user info: #{inspect(user_info)}")
+            {:ok, user_info}
+
+          {:error, reason} ->
+            Logger.error("Apple OAuth: Failed to parse id_token: #{inspect(reason)}")
+            {:error, "Failed to parse id_token"}
+        end
+
+      {:ok, %{status: status, body: body}} ->
+        Logger.error(
+          "Apple OAuth: Token exchange failed with status #{status}. Body: #{inspect(body)}"
+        )
+
+        {:error, "Failed to exchange code: #{status}"}
+
+      {:error, error} ->
+        Logger.error("Apple OAuth: Request failed: #{inspect(error)}")
+        {:error, "Failed to exchange code"}
+    end
+  end
+
+  # Parse Apple's JWT id_token to extract user information
+  defp parse_apple_id_token(id_token) do
+    try do
+      # JWT tokens have 3 parts separated by dots: header.payload.signature
+      [_header, payload, _signature] = String.split(id_token, ".")
+
+      # Decode the base64-encoded payload
+      # Add padding if needed
+      padded_payload =
+        case rem(String.length(payload), 4) do
+          0 -> payload
+          n -> payload <> String.duplicate("=", 4 - n)
+        end
+
+      decoded = Base.url_decode64!(padded_payload)
+      Jason.decode(decoded)
+    rescue
+      _ -> {:error, "Invalid JWT token"}
+    end
+  end
 end
