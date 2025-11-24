@@ -232,3 +232,77 @@ jobs:
 
       - name: Run tests
         run: MIX_ENV=test mix test
+
+  publish-js-sdk:
+    name: Publish JS SDK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: '1.19'
+          otp-version: '25'
+
+      - name: Install Java (for openapi generator)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Elixir deps (for generating spec)
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+          mix deps.get
+
+      - name: Regenerate OpenAPI JSON
+        run: |
+          mix openapi.spec.json --spec GameServerWeb.ApiSpec --filename clients/javascript/openapi.json --pretty=true
+
+      - name: Generate JS client artifacts
+        run: |
+          cd clients
+          npm ci
+          npm run generate
+
+      - name: Configure npm auth
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "${NPM_TOKEN}" ]; then echo "No NPM_TOKEN provided in secrets"; exit 1; fi
+          cd clients/javascript
+          npm config set //registry.npmjs.org/:_authToken "${NPM_TOKEN}"
+
+      - name: Compute version from release tag
+        id: version
+        run: |
+          # Prefer using the release tag as the version. The release tag should be a semver tag like v1.2.3 or 1.2.3
+          RELEASE_TAG="${{ github.event.release.tag_name }}"
+          if [ -z "${RELEASE_TAG}" ]; then
+            echo "No release tag found — exiting to avoid accidental publishes"
+            exit 1
+          fi
+          # strip leading v if present
+          VERSION="${RELEASE_TAG#v}"
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Apply version and publish
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          cd clients/javascript
+          echo "Publishing package with version=${{ steps.version.outputs.version }}"
+          # Make sure package.json version is set to the computed version
+          npm version ${{ steps.version.outputs.version }} --no-git-tag-version
+          # Ensure we have the token configured (already done above), then publish
+          npm publish --access public

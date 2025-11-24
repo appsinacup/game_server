@@ -3,14 +3,14 @@ defmodule GameServerWeb.Api.V1.HealthController do
   Health check endpoint for the API.
   """
   use GameServerWeb, :controller
-  use GameServerWeb.ApiController
+  use OpenApiSpex.ControllerSpecs
 
   alias GameServerWeb.Schemas.HealthResponse
 
   tags(["Health"])
 
   operation(:index,
-    operation_id: "health",
+    operation_id: "index",
     summary: "Health check",
     description: "Returns the health status of the API",
     responses: [

@@ -1,6 +1,6 @@
 defmodule GameServerWeb.Api.V1.SessionController do
   use GameServerWeb, :controller
-  use GameServerWeb.ApiController
+  use OpenApiSpex.ControllerSpecs
 
   alias GameServer.Accounts
   alias GameServerWeb.Auth.Guardian

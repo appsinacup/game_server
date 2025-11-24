@@ -1,6 +1,6 @@
 defmodule GameServerWeb.Api.V1.MeController do
   use GameServerWeb, :controller
-  use GameServerWeb.ApiController
+  use OpenApiSpex.ControllerSpecs
 
   alias OpenApiSpex.Schema
 

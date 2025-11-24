@@ -49,7 +49,7 @@ defmodule GameServerWeb.PublicDocs do
                   <p>Install the package via npm:</p>
                   <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
                     <div class="space-y-2">
-                      <div>npm install game_server_api</div>
+                      <div>npm install game_server</div>
                     </div>
                   </div>
                 </div>
@@ -62,7 +62,7 @@ defmodule GameServerWeb.PublicDocs do
                 <div class="ml-8 space-y-3">
                   <p>Import and configure the API client:</p>
                   <div class="bg-base-200 p-4 rounded-lg">
-                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const { ApiClient, HealthApi, AuthenticationApi, UsersApi } = require('game_server_api');
+                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const { ApiClient, HealthApi, AuthenticationApi, UsersApi } = require('game_server');
 
     // Initialize the API client
     const apiClient = new ApiClient();
@@ -80,7 +80,7 @@ defmodule GameServerWeb.PublicDocs do
                   <div class="bg-base-200 p-4 rounded-lg">
                     <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const healthApi = new HealthApi(apiClient);
 
-    const healthResponse = await healthApi.gameServerWebApiV1HealthControllerIndex();
+    const healthResponse = await healthApi.index();
     console.log('Server is healthy:', healthResponse);
     </code></pre>
                   </div>
@@ -98,11 +98,11 @@ defmodule GameServerWeb.PublicDocs do
                   <div class="bg-base-200 p-4 rounded-lg">
                     <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const authApi = new AuthenticationApi(apiClient);
 
-    const loginResponse = await authApi.gameServerWebApiV1SessionControllerCreate({
-    gameServerWebApiV1SessionControllerCreateRequest: {
-    email: 'user@example.com',
-    password: 'password123'
-    }
+    const loginResponse = await authApi.login({
+      loginRequest: {
+        email: 'user@example.com',
+        password: 'password123'
+      }
     });
 
     const { access_token, refresh_token } = loginResponse.data;</code></pre>
@@ -111,7 +111,7 @@ defmodule GameServerWeb.PublicDocs do
                   <h4 class="font-semibold mt-4">OAuth Flow (Discord, Google, Facebook):</h4>
                   <div class="bg-base-200 p-4 rounded-lg">
                     <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>// Step 1: Get authorization URL
-    const authResponse = await authApi.gameServerWebAuthControllerApiRequest('discord');
+    const authResponse = await authApi.oauthRequest('discord');
     const authUrl = authResponse.authorization_url;
     const sessionId = authResponse.session_id;
 
@@ -121,13 +121,13 @@ defmodule GameServerWeb.PublicDocs do
     // Step 3: Poll for completion
     let sessionData;
     do {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    sessionData = await authApi.gameServerWebAuthControllerApiSessionStatus(sessionId);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      sessionData = await authApi.oauthSessionStatus(sessionId);
     } while (sessionData.status === 'pending');
 
     if (sessionData.status === 'completed') {
-    const { access_token, refresh_token } = sessionData.data;
-    console.log('OAuth successful!');
+      const { access_token, refresh_token } = sessionData.data;
+      console.log('OAuth successful!');
     }</code></pre>
                   </div>
 
@@ -135,7 +135,7 @@ defmodule GameServerWeb.PublicDocs do
                   <div class="bg-base-200 p-4 rounded-lg">
                     <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>// Set authorization header for authenticated requests
     apiClient.defaultHeaders = {
-    'Authorization': `Bearer ${access_token}`
+      'Authorization': `Bearer ${access_token}`
     };</code></pre>
                   </div>
                 </div>
@@ -150,22 +150,22 @@ defmodule GameServerWeb.PublicDocs do
                   <div class="bg-base-200 p-4 rounded-lg">
                     <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const usersApi = new UsersApi(apiClient);
 
-    const userProfile = await usersApi.gameServerWebApiV1MeControllerShow();
+    const userProfile = await usersApi.getCurrentUser(`Bearer ${access_token}`);
     console.log('User:', userProfile.data);</code></pre>
                   </div>
 
                   <h4 class="font-semibold mt-4">Get User Metadata:</h4>
                   <div class="bg-base-200 p-4 rounded-lg">
-                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const metadata = await usersApi.gameServerWebApiV1MetadataControllerShow();
+                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const metadata = await usersApi.getUserMetadata(`Bearer ${access_token}`);
     console.log('Metadata:', metadata.data);</code></pre>
                   </div>
 
                   <h4 class="font-semibold mt-4">Refresh Token:</h4>
                   <div class="bg-base-200 p-4 rounded-lg">
-                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const refreshResponse = await authApi.gameServerWebApiV1SessionControllerRefresh({
-    gameServerWebApiV1SessionControllerRefreshRequest: {
-    refresh_token: refresh_token
-    }
+                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const refreshResponse = await authApi.refreshToken({
+        refreshTokenRequest: {
+        refresh_token: refresh_token
+      }
     });
 
     const newAccessToken = refreshResponse.data.access_token;</code></pre>
@@ -173,7 +173,7 @@ defmodule GameServerWeb.PublicDocs do
 
                   <h4 class="font-semibold mt-4">Logout:</h4>
                   <div class="bg-base-200 p-4 rounded-lg">
-                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>await authApi.gameServerWebApiV1SessionControllerDelete();
+                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>await authApi.logout(`Bearer ${access_token}`);
     console.log('Logged out successfully');</code></pre>
                   </div>
                 </div>
@@ -187,21 +187,21 @@ defmodule GameServerWeb.PublicDocs do
                   <p>Handle common errors appropriately:</p>
                   <div class="bg-base-200 p-4 rounded-lg">
                     <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>try {
-    const result = await someApiCall();
+      const result = await someApiCall();
     } catch (error) {
-    if (error.status === 401) {
-    // Token expired, refresh or re-authenticate
-    console.log('Token expired');
-    } else if (error.status === 403) {
-    // Forbidden - insufficient permissions
-    console.log('Access denied');
-    } else if (error.status === 404) {
-    // Resource not found
-    console.log('Not found');
-    } else {
-    // Other errors
-    console.error('API Error:', error);
-    }
+      if (error.status === 401) {
+        // Token expired, refresh or re-authenticate
+        console.log('Token expired');
+      } else if (error.status === 403) {
+        // Forbidden - insufficient permissions
+        console.log('Access denied');
+      } else if (error.status === 404) {
+        // Resource not found
+        console.log('Not found');
+      } else {
+        // Other errors
+        console.error('API Error:', error);
+      }
     }</code></pre>
                   </div>
                 </div>
@@ -210,7 +210,7 @@ defmodule GameServerWeb.PublicDocs do
 
             <div class="card-actions justify-end mt-6">
               <a
-                href="https://www.npmjs.com/package/game_server_api"
+                href="https://www.npmjs.com/package/game_server"
                 target="_blank"
                 class="btn btn-primary"
               >

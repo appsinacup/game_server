@@ -13,7 +13,7 @@ async function testSDK() {
     const healthApi = new HealthApi(apiClient);
 
     // Test the health endpoint
-    const healthResponse = await healthApi.gameServerWebApiV1HealthControllerIndex();
+    const healthResponse = await healthApi.index();
     console.log('✅ Health check response:', healthResponse);
 
   } catch (error) {
@@ -34,7 +34,7 @@ async function runOAuthFlow(provider) {
 
     // Step 1: Get the authorization URL with session_id
     console.log(`Step 1: Requesting ${provider} authorization URL...`);
-    const authResponse = await authApi.gameServerWebAuthControllerApiRequest(provider);
+    const authResponse = await authApi.oauthRequest(provider);
     const authUrl = authResponse.authorization_url;
     const sessionId = authResponse.session_id;
 
@@ -59,7 +59,7 @@ async function runOAuthFlow(provider) {
     while (attempts < maxAttempts) {
       try {
         // Poll the session status
-        const statusResponse = await authApi.gameServerWebAuthControllerApiSessionStatus(sessionId);
+        const statusResponse = await authApi.oauthSessionStatus(sessionId);
         sessionData = statusResponse;
 
         console.log(`Polling session status... (${attempts + 1}/${maxAttempts}) - Status: ${sessionData.status}`);
@@ -140,18 +140,18 @@ async function testAuthenticatedAPI(accessToken, refreshToken, provider) {
 
     // Test getting user profile
     console.log('Getting user profile...');
-    const userProfile = await usersApi.gameServerWebApiV1MeControllerShow(`Bearer ${accessToken}`);
+    const userProfile = await usersApi.getCurrentUser(`Bearer ${accessToken}`);
     console.log('✅ User profile:', userProfile);
 
     // Test getting user metadata
     console.log('Getting user metadata...');
-    const metadata = await usersApi.gameServerWebApiV1MetadataControllerShow(`Bearer ${accessToken}`);
+    const metadata = await usersApi.getUserMetadata(`Bearer ${accessToken}`);
     console.log('✅ User metadata:', metadata);
 
     // Test unlinking the provider (this will likely fail if it's the only auth method, but test anyway)
     console.log(`Testing unlink ${provider}...`);
     try {
-      const unlinkResult = await authApi.gameServerWebApiV1ProviderControllerUnlink(provider);
+      const unlinkResult = await authApi.unlinkProvider(provider);
       console.log(`✅ Unlinked ${provider}:`, unlinkResult);
     } catch (error) {
       console.log(`⚠️  Unlink ${provider} failed (expected if it's the only auth method):`, error.message);
@@ -160,12 +160,12 @@ async function testAuthenticatedAPI(accessToken, refreshToken, provider) {
     // Test refreshing the token
     console.log('Testing token refresh...');
     const refreshRequest = { refresh_token: refreshToken };
-    const refreshResponse = await authApi.gameServerWebApiV1SessionControllerRefresh({ gameServerWebApiV1SessionControllerRefreshRequest: refreshRequest });
+    const refreshResponse = await authApi.refreshToken({ refreshTokenRequest: refreshRequest });
     console.log('✅ Token refresh response:', refreshResponse);
 
     // Test logout
     console.log('Testing logout...');
-    const logoutResponse = await authApi.gameServerWebApiV1SessionControllerDelete(`Bearer ${accessToken}`);
+    const logoutResponse = await authApi.logout(`Bearer ${accessToken}`);
     console.log('✅ Logout response:', logoutResponse);
 
     console.log('✅ All authenticated API calls completed!');

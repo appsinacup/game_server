@@ -3,7 +3,7 @@
     "open": "^11.0.0"
   },
   "scripts": {
-    "generate": "mkdir -p javascript && cd javascript && npx @openapitools/openapi-generator-cli generate -i openapi.json -g javascript -o . --additional-properties usePromises=true && npm run build",
-    "build": "node test_js"
+    "generate": "mkdir -p javascript && cd javascript && npx @openapitools/openapi-generator-cli generate -i openapi.json -g javascript -o . --additional-properties usePromises=true,projectName=@ughuuu/game_server,projectVersion=1.0.0 && npm run build",
+    "start": "node test_js"
   }
 }
