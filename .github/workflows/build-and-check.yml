@@ -238,7 +238,7 @@ jobs:
   publish-js-sdk:
     name: Publish JS SDK
     runs-on: ubuntu-latest
-    if: secrets.NPM_TOKEN != ''
+    if: ${{ secrets.NPM_TOKEN != '' }}
 
     steps:
       - name: Checkout repository (full history for commit count)
