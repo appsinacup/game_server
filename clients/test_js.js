@@ -1,13 +1,14 @@
 const { ApiClient, HealthApi, AuthenticationApi, UsersApi } = require('./javascript/dist/index.js');
 const { default: open } = require('open');
-
+//const basePath = 'http://localhost:4000';
+const basePath = 'https://gamend.appsinacup.com';
 async function testSDK() {
   try {
     console.log('Testing SDK health check...');
 
     // Initialize the API client
     const apiClient = new ApiClient();
-    apiClient.basePath = 'http://localhost:4000';
+    apiClient.basePath = basePath;
 
     // Create an instance of the Health API
     const healthApi = new HealthApi(apiClient);
@@ -27,7 +28,7 @@ async function runOAuthFlow(provider) {
 
     // Initialize the API client
     const apiClient = new ApiClient();
-    apiClient.basePath = 'http://localhost:4000';
+    apiClient.basePath = basePath;
 
     // Create an instance of the Authentication API
     const authApi = new AuthenticationApi(apiClient);
@@ -129,7 +130,7 @@ async function testAuthenticatedAPI(accessToken, refreshToken, provider) {
 
     // Initialize the API client with authentication
     const apiClient = new ApiClient();
-    apiClient.basePath = 'http://localhost:4000';
+    apiClient.basePath = basePath;
     apiClient.defaultHeaders = {
       'Authorization': `Bearer ${accessToken}`
     };
@@ -182,7 +183,7 @@ async function runAllTests() {
   await testSDK();
   console.log('');
 
-  const providers = ['discord', 'google', 'facebook'];
+  const providers = ['discord', 'google', 'facebook', 'apple'];
   for (const provider of providers) {
     console.log(`\n--- Testing ${provider.toUpperCase()} ---\n`);
     const result = await runOAuthFlow(provider);

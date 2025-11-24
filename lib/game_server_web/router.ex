@@ -23,6 +23,12 @@ defmodule GameServerWeb.Router do
 
   pipeline :oauth_callback do
     plug :accepts, ["html", "json"]
+    plug :fetch_session
+    plug :fetch_live_flash
+    plug :put_root_layout, html: {GameServerWeb.Layouts, :root}
+    plug :put_secure_browser_headers
+    plug :fetch_current_scope_for_user
+    plug GameServerWeb.Plugs.SentryContext
   end
 
   pipeline :api_auth do
@@ -151,6 +157,13 @@ defmodule GameServerWeb.Router do
 
     get "/:provider", AuthController, :request
     get "/:provider/callback", AuthController, :callback
-    post "/:provider/callback", AuthController, :callback
+  end
+
+  # Apple OAuth uses POST callback (response_mode=form_post)
+  # This must be exempt from CSRF protection since it's a cross-site POST from Apple's domain
+  scope "/auth", GameServerWeb do
+    pipe_through :oauth_callback
+
+    post "/apple/callback", AuthController, :callback
   end
 end
