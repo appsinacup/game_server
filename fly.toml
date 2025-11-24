@@ -5,7 +5,7 @@ primary_region = "lax"
   dockerfile = "Dockerfile"
 
 [env]
-  PHX_HOST = "game-server-uro.fly.dev"
+  PHX_HOST = "gamend.appsinacup.com"
   PORT = "4000"
   SQLITE_DATABASE_PATH = "/data/game_server_prod.db"
 
