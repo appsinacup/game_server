@@ -245,7 +245,7 @@ jobs:
         uses: erlef/setup-beam@v1
         with:
           elixir-version: '1.19'
-          otp-version: '25'
+          otp-version: '28'
 
       - name: Install Java (for openapi generator)
         uses: actions/setup-java@v4
