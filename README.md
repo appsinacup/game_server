@@ -37,3 +37,11 @@ Modern JWT authentication using access + refresh tokens (industry standard):
 **Token Types:**
 - **Access tokens**: Short-lived (15 minutes), used for API requests
 - **Refresh tokens**: Long-lived (30 days), used to obtain new access tokens
+
+## How to deploy
+
+1. Fork this repo.
+2. Go to fly.io and deploy.
+3. Set secrets all values in `.env.example`.
+4. Configure all things from [Guides](https://gamend.appsinacup.com/docs/setup) page.
+5. Monthly cost (without Postgres) will be about 5$.
