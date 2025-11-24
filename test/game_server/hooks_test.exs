@@ -1,5 +1,9 @@
 defmodule GameServer.HooksTest do
-  use GameServer.DataCase, async: true
+  # This test touches global Application environment (hooks module) and
+  # must not run concurrently with other tests that depend on application
+  # configuration values. Run serially to avoid races where a temporary
+  # test hook leaks into other tests.
+  use GameServer.DataCase, async: false
 
   alias GameServer.Accounts
   import GameServer.AccountsFixtures
