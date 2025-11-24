@@ -19,11 +19,11 @@ defmodule GameServer.Apple do
     with {:error, :not_found} <- get_client_secret_from_cache() do
       # Get the private key and convert escaped newlines to actual newlines
       private_key_raw = System.get_env("APPLE_PRIVATE_KEY")
-      
+
       if is_nil(private_key_raw) do
         raise "APPLE_PRIVATE_KEY environment variable is not set"
       end
-      
+
       # Handle different formats:
       # 1. Replace escaped newlines with actual newlines (\n -> newline)
       # 2. If key is in single-line format with spaces, reconstruct with newlines
@@ -62,14 +62,14 @@ defmodule GameServer.Apple do
         [header | rest] = String.split(formatted, "\n")
         [footer | body_reversed] = Enum.reverse(rest)
         body = Enum.reverse(body_reversed) |> Enum.join()
-        
+
         # Split body into 64-char chunks
         body_lines =
           body
           |> String.graphemes()
           |> Enum.chunk_every(64)
           |> Enum.map(&Enum.join/1)
-        
+
         ([header] ++ body_lines ++ [footer])
         |> Enum.join("\n")
       end)
