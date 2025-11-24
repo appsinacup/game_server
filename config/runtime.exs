@@ -170,12 +170,9 @@ if config_env() == :prod do
       root_source_code_path: File.cwd!(),
       tags: %{
         env: "production"
-      }
-
-    # Also register Sentry as a Logger backend so logger events are
-    # automatically forwarded to Sentry. The level determines the minimum
-    # severity that gets sent to Sentry (e.g., :info captures info, warning, and error).
-    config :logger, backends: [:console, {Sentry.Logger, level: sentry_log_level}]
+      },
+      # Set the minimum log level for Sentry to capture
+      log_level: sentry_log_level
   end
 
   unless System.get_env("SENTRY_DSN") do
