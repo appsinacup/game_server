@@ -148,6 +148,13 @@ defmodule GameServerWeb.Layouts do
     </main>
 
     <.flash_group flash={@flash} />
+    <footer class="px-4 py-6 sm:px-6 lg:px-8 text-center text-sm text-base-content/70">
+      <div class="mx-auto max-w-2xl lg:max-w-4xl xl:max-w-6xl">
+        <a href={~p"/privacy"} class="hover:underline mr-4">Privacy Policy</a>
+        <a href={~p"/terms"} class="hover:underline mr-4">Terms and Conditions</a>
+        <a href={~p"/docs/setup"} class="hover:underline">Guides</a>
+      </div>
+    </footer>
     """
   end
 

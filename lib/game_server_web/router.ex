@@ -34,6 +34,9 @@ defmodule GameServerWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/privacy", PageController, :privacy
+    get "/data-deletion", PageController, :data_deletion
+    get "/terms", PageController, :terms
   end
 
   scope "/api" do

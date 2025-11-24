@@ -219,6 +219,28 @@ defmodule GameServerWeb.UserLive.Settings do
           Save Password
         </.button>
       </.form>
+
+      <div class="divider" />
+
+      <div class="card bg-error/10 border-error p-4 rounded-lg">
+        <div class="font-semibold text-error">Danger Zone</div>
+        <div class="text-sm mt-2 text-base-content/80">
+          <p>Once you delete your account, there is no going back. Please be certain.</p>
+          <p class="mt-2">
+            For information about what data is deleted and how to request deletion, see our
+            <.link href={~p"/data-deletion"} class="link link-primary">Data Deletion Policy</.link>.
+          </p>
+        </div>
+        <div class="mt-4">
+          <button
+            phx-click="delete_user"
+            class="btn btn-error"
+            onclick="return confirm('Are you sure you want to delete your account? This action cannot be undone.')"
+          >
+            Delete Account
+          </button>
+        </div>
+      </div>
     </Layouts.app>
     """
   end
@@ -336,6 +358,22 @@ defmodule GameServerWeb.UserLive.Settings do
 
       {:error, _} ->
         {:noreply, socket |> put_flash(:error, "Failed to unlink provider.")}
+    end
+  end
+
+  @impl true
+  def handle_event("delete_user", _params, socket) do
+    user = socket.assigns.current_scope.user
+
+    case Accounts.delete_user(user) do
+      {:ok, _deleted_user} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Your account has been deleted successfully.")
+         |> redirect(to: ~p"/")}
+
+      {:error, _changeset} ->
+        {:noreply, put_flash(socket, :error, "Failed to delete account. Please try again.")}
     end
   end
 
