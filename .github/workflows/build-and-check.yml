@@ -258,6 +258,10 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+          # repository uses JS packages under the `clients` subfolder. When caching
+          # npm dependencies we need to point setup-node at the lockfile location
+          # so the cache key is computed correctly.
+          cache-dependency-path: clients/package-lock.json
 
       - name: Install Elixir deps (for generating spec)
         run: |
