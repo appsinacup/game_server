@@ -7,7 +7,7 @@
     />
   </div>
   <p class="mt-4 leading-7 text-base-content/70 text-center">
-    Open source game server with authentication, user management, and admin portal.
+    Open source game server with authentication, users, lobbies, and admin portal.
   </p>
   <div class="flex justify-center">
     <div class="w-full">
@@ -76,13 +76,53 @@
             <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
             </span>
             <span class="relative z-10 flex items-center gap-4 sm:flex-col">
-              <.icon name="hero-users" class="size-6 text-base-content/80" /> User Management
+              <.icon name="hero-users" class="size-6 text-base-content/80" /> Users
             </span>
             <ul class="relative list-disc pl-5 text-base-content/70 mt-3">
-              <li>Per-user settings</li>
-              <li>Account confirmation</li>
+              <li>Basic info</li>
+              <li>Confirmations</li>
               <li>Linking/Unlinking</li>
               <li>Metadata</li>
+            </ul>
+          </div>
+
+          <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
+            <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
+            </span>
+            <span class="relative z-10 flex items-center gap-4 sm:flex-col">
+              <.icon name="hero-home" class="size-6 text-base-content/80" /> Lobbies (WIP)
+            </span>
+            <ul class="relative list-disc pl-5 text-base-content/70 mt-3">
+              <li>Host(WIP)</li>
+              <li>Kick(WIP)</li>
+              <li>Private(WIP)</li>
+              <li>Locked(WIP)</li>
+              <li>Search(WIP)</li>
+            </ul>
+          </div>
+
+          <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
+            <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
+            </span>
+            <span class="relative z-10 flex items-center gap-4 sm:flex-col">
+              <.icon name="hero-paper-clip" class="size-6 text-base-content/80" /> User Data (WIP)
+            </span>
+            <ul class="relative list-disc pl-5 text-base-content/70 mt-3">
+              <li>JSON(WIP)</li>
+              <li>Access Rights(WIP)</li>
+            </ul>
+          </div>
+
+          <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
+            <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
+            </span>
+            <span class="relative z-10 flex items-center gap-4 sm:flex-col">
+              <.icon name="hero-computer-desktop" class="size-6 text-base-content/80" />
+              Server Scripting (WIP)
+            </span>
+            <ul class="relative list-disc pl-5 text-base-content/70 mt-3">
+              <li>Lua(WIP)</li>
+              <li>Erlang(WIP)</li>
             </ul>
           </div>
 
@@ -94,9 +134,10 @@
               Admin & Monitoring
             </span>
             <ul class="relative list-disc pl-5 text-base-content/70 mt-3">
-              <li>User management</li>
-              <li>Configuration info</li>
-              <li>Secrets inspector</li>
+              <li>Users</li>
+              <li>User data(WIP)</li>
+              <li>Lobbies(WIP)</li>
+              <li>Secrets</li>
             </ul>
           </div>
 
@@ -107,7 +148,7 @@
               <.icon name="hero-sparkles" class="size-6 text-base-content/80" /> UI & Theming
             </span>
             <ul class="relative list-disc pl-5 text-base-content/70 mt-3">
-              <li>LiveView powered UI</li>
+              <li>Customizable theme(WIP)</li>
               <li>Dark / Light theme</li>
               <li>Responsive design</li>
             </ul>
@@ -118,7 +159,7 @@
             </span>
             <span class="relative z-10 flex items-center gap-4 sm:flex-col">
               <.icon name="hero-server-stack" class="size-6 text-base-content/80" />
-              Persistence & Deployment
+              Persistence & Updates
             </span>
             <ul class="relative list-disc pl-5 text-base-content/70 mt-3">
               <li>SQLite</li>
