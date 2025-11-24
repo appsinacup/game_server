@@ -181,7 +181,7 @@ if config_env() == :prod do
   unless System.get_env("SENTRY_DSN") do
     require Logger
 
-    Logger.warn(
+    Logger.warning(
       "SENTRY_DSN not set — Sentry will be disabled. Set SENTRY_DSN in production to enable error monitoring and log forwarding."
     )
   end
