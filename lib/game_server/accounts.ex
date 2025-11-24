@@ -370,9 +370,6 @@ defmodule GameServer.Accounts do
             else
               {:error, changeset}
             end
-
-          {:error, reason} ->
-            {:error, {:hook_rejected, reason}}
         end
     end
   end
