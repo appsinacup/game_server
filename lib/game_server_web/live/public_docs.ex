@@ -658,12 +658,10 @@ defmodule GameServerWeb.PublicDocs do
                   <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
                     <div class="space-y-1">
                       <div>
-                        <strong>Development:</strong>
-                        http://localhost:4000/auth/discord/callback
+                        <strong>Development:</strong> http://localhost:4000/auth/discord/callback
                       </div>
                       <div>
-                        <strong>Production:</strong>
-                        https://example.com/auth/discord/callback
+                        <strong>Production:</strong> https://example.com/auth/discord/callback
                       </div>
                     </div>
                   </div>

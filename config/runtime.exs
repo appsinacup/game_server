@@ -81,6 +81,12 @@ if config_env() == :prod do
 
   config :game_server, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
+  # Configure Apple OAuth with proper redirect URI for production
+  config :ueberauth, Ueberauth.Strategy.Apple.OAuth,
+    client_id: System.get_env("APPLE_CLIENT_ID"),
+    client_secret: {GameServer.Apple, :client_secret},
+    redirect_uri: "https://#{host}/auth/apple/callback"
+
   config :game_server, GameServerWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],
     http: [
