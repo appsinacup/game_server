@@ -96,16 +96,25 @@ defmodule GameServerWeb.Layouts do
             <.theme_toggle />
           </li>
         </ul>
-
-        <!-- Mobile Navigation -->
+        
+    <!-- Mobile Navigation -->
         <div class="md:hidden">
           <div class="dropdown dropdown-end">
             <button tabindex="0" class="btn btn-ghost btn-circle">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                >
+                </path>
               </svg>
             </button>
-            <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-80 text-lg">
+            <ul
+              tabindex="0"
+              class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-80 text-lg"
+            >
               <%= if @current_scope do %>
                 <li class="menu-title">
                   <span>{profile_initials(@current_scope.user)} {@current_scope.user.email}</span>

@@ -1,8 +1,6 @@
 defmodule GameServerWeb.UserLive.Settings do
   use GameServerWeb, :live_view
 
-  on_mount {GameServerWeb.UserAuth, :require_sudo_mode}
-
   alias GameServer.Accounts
 
   @impl true
@@ -273,7 +271,6 @@ defmodule GameServerWeb.UserLive.Settings do
   def handle_event("update_email", params, socket) do
     %{"user" => user_params} = params
     user = socket.assigns.current_scope.user
-    true = Accounts.sudo_mode?(user)
 
     case Accounts.change_user_email(user, user_params) do
       %{valid?: true} = changeset ->
@@ -306,7 +303,6 @@ defmodule GameServerWeb.UserLive.Settings do
   def handle_event("update_password", params, socket) do
     %{"user" => user_params} = params
     user = socket.assigns.current_scope.user
-    true = Accounts.sudo_mode?(user)
 
     case Accounts.change_user_password(user, user_params) do
       %{valid?: true} = changeset ->
