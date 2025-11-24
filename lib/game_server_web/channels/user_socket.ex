@@ -1,5 +1,6 @@
 defmodule GameServerWeb.UserSocket do
   use Phoenix.Socket
+  require Logger
 
   # A Socket handler
   #
@@ -7,6 +8,9 @@ defmodule GameServerWeb.UserSocket do
   # assign values that can be accessed by your channel topics.
 
   ## Channels
+  # Register the user_updates channel for per-user realtime events
+  channel "user_updates:*", GameServerWeb.UserUpdatesChannel
+
   # Uncomment the following line to define a "room:*" topic
   # pointing to the `GameServerWeb.RoomChannel`:
   #
@@ -34,9 +38,42 @@ defmodule GameServerWeb.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   @impl true
-  def connect(_params, socket, _connect_info) do
-    {:ok, socket}
+  # Generic connect that attempts to extract a token from a variety of
+  # param shapes (plain map, nested under "params" or :params, etc.).
+  # If a token is present we verify it and load the user resource. If no
+  # token is present we allow an anonymous socket (some channels may still
+  # reject joins that require authentication).
+  def connect(params, socket, _connect_info) do
+    case extract_token(params) do
+      token when is_binary(token) ->
+        case GameServerWeb.Auth.Guardian.decode_and_verify(token) do
+          {:ok, claims} ->
+            case GameServerWeb.Auth.Guardian.resource_from_claims(claims) do
+              {:ok, user} ->
+                socket = assign(socket, :current_scope, GameServer.Accounts.Scope.for_user(user))
+                {:ok, socket}
+
+              _ ->
+                :error
+            end
+
+          _ ->
+            :error
+        end
+
+      _ ->
+        {:ok, socket}
+    end
   end
+
+  # Extract token from various parameter shapes:
+  # - ChannelTest passes %{params: %{"token" => ...}, ...}
+  # - Real WebSocket might pass %{"token" => ...} directly
+  defp extract_token(%{params: %{"token" => token}}), do: token
+  defp extract_token(%{"params" => %{"token" => token}}), do: token
+  defp extract_token(%{"token" => token}), do: token
+  defp extract_token(%{token: token}), do: token
+  defp extract_token(_), do: nil
 
   # Socket IDs are topics that allow you to identify all sockets for a given user:
   #

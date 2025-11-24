@@ -695,4 +695,39 @@ defmodule GameServer.Accounts do
       end
     end)
   end
+
+  @doc """
+  Broadcast that the given user has been updated.
+
+  This helper is intentionally small and only broadcasts a compact payload
+  intended for client consumption through the `user_updates:<id>` topic.
+  """
+  def broadcast_user_update(%User{} = user) do
+    payload = %{
+      id: user.id,
+      metadata: user.metadata || %{}
+    }
+
+    GameServerWeb.Endpoint.broadcast("user_updates:#{user.id}", "metadata_updated", payload)
+    :ok
+  end
+
+  @doc """
+  Admin-level user update wrapper.
+
+  This function applies the `User.admin_changeset/2` then updates the user and
+  broadcasts the update on success. It returns the same tuple shape as
+  `Repo.update/1` so callers can pattern-match as before.
+  """
+  def update_user_admin(%User{} = user, attrs) when is_map(attrs) do
+    case User.admin_changeset(user, attrs) |> Repo.update() do
+      {:ok, updated} = ok ->
+        # Broadcast updates so realtime clients can react
+        broadcast_user_update(updated)
+        ok
+
+      other ->
+        other
+    end
+  end
 end

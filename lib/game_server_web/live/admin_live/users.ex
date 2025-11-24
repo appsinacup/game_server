@@ -2,6 +2,7 @@ defmodule GameServerWeb.AdminLive.Users do
   use GameServerWeb, :live_view
 
   alias GameServer.Repo
+  alias GameServer.Accounts
   alias GameServer.Accounts.User
 
   import Ecto.Query
@@ -235,7 +236,7 @@ defmodule GameServerWeb.AdminLive.Users do
         end
       end)
 
-    case User.admin_changeset(user, attrs) |> Repo.update() do
+    case Accounts.update_user_admin(user, attrs) do
       {:ok, _user} ->
         recent_users = Repo.all(from u in User, order_by: [desc: u.inserted_at], limit: 10)
 

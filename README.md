@@ -41,7 +41,7 @@ Modern JWT authentication using access + refresh tokens (industry standard):
 ## How to deploy
 
 1. Fork this repo.
-2. Go to fly.io and deploy.
+2. Go to fly.io and deploy (select the forked repo).
 3. Set secrets all values in `.env.example`. Run locally `fly secrets sync` and `fly secrets deploy` (in case secrets don't deploy/update).
 4. Configure all things from [Guides](https://gamend.appsinacup.com/docs/setup) page.
 5. Monthly cost (without Postgres) will be about 5$.
