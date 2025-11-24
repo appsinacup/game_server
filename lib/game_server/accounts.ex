@@ -199,56 +199,58 @@ defmodule GameServer.Accounts do
     email = Map.get(attrs, :email)
 
     cond do
-      # User exists with this provider ID - update their info
-      user = Repo.get_by(User, [{provider_id_field, provider_id}]) ->
-        attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
+      # If provider id is present then prefer to look up by provider id first.
+      provider_id != nil ->
+        case Repo.get_by(User, [{provider_id_field, provider_id}]) do
+          %User{} = user ->
+            attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
 
-        user
-        |> changeset_fn.(attrs)
-        |> Repo.update()
+            user
+            |> changeset_fn.(attrs)
+            |> Repo.update()
 
-      # User exists with this email but no provider ID - link provider account
+          nil ->
+            # If there is an email, attempt to find that user and link/update
+            # it; otherwise fall through and create a new user below.
+            if email do
+              case Repo.get_by(User, email: email) do
+                nil ->
+                  create_user_from_provider(attrs, changeset_fn)
+
+                %User{} = user ->
+                  attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
+
+                  hooks = GameServer.Hooks.module()
+
+                  case hooks.before_account_link(user, provider_id_field, attrs) do
+                    {:ok, {user, attrs}} ->
+                      case user |> changeset_fn.(attrs) |> Repo.update() do
+                        {:ok, user} = ok ->
+                          Task.start(fn -> hooks.after_account_link(user) end)
+                          ok
+
+                        err ->
+                          err
+                      end
+
+                    {:error, reason} ->
+                      {:error, {:hook_rejected, reason}}
+                  end
+              end
+            else
+              create_user_from_provider(attrs, changeset_fn)
+            end
+        end
+
+      # No provider id — prefer email match
       email != nil ->
         case Repo.get_by(User, email: email) do
           nil ->
-            # Check if this is the first user and make them admin
-            is_first_user = Repo.aggregate(User, :count, :id) == 0
-            attrs = if is_first_user, do: Map.put(attrs, :is_admin, true), else: attrs
+            create_user_from_provider(attrs, changeset_fn)
 
-            # Drop nil/empty email so the changeset's update_change won't crash
-            attrs =
-              if Map.get(attrs, :email) in [nil, ""], do: Map.delete(attrs, :email), else: attrs
-
-            # New user creation - allow hooks to process/validate
-            hooks = GameServer.Hooks.module()
-
-            case hooks.before_user_register(attrs) do
-              {:ok, attrs} ->
-                %User{}
-                |> changeset_fn.(attrs)
-                |> Repo.insert()
-                |> case do
-                  {:ok, user} = ok ->
-                    Task.start(fn -> hooks.after_user_register(user) end)
-                    ok
-
-                  err ->
-                    err
-                end
-
-              {:error, reason} ->
-                changeset =
-                  %User{}
-                  |> Ecto.Changeset.change()
-                  |> Ecto.Changeset.add_error(:base, "hook rejected: #{inspect(reason)}")
-
-                {:error, changeset}
-            end
-
-          user ->
+          %User{} = user ->
             attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
 
-            # Existing user updated by provider (linking via oauth flow)
             hooks = GameServer.Hooks.module()
 
             case hooks.before_account_link(user, provider_id_field, attrs) do
@@ -267,40 +269,44 @@ defmodule GameServer.Accounts do
             end
         end
 
-      # New user - create from provider data
+      # Neither provider id nor email — create a new user
       true ->
-        # Check if this is the first user and make them admin
-        is_first_user = Repo.aggregate(User, :count, :id) == 0
-        attrs = if is_first_user, do: Map.put(attrs, :is_admin, true), else: attrs
+        create_user_from_provider(attrs, changeset_fn)
+    end
+  end
 
-        # For new user creation when provider didn't return an email, avoid
-        # passing a nil email into the changeset (update_change will crash).
-        attrs = if Map.get(attrs, :email) in [nil, ""], do: Map.delete(attrs, :email), else: attrs
+  defp create_user_from_provider(attrs, changeset_fn) do
+    # Check if this is the first user and make them admin
+    is_first_user = Repo.aggregate(User, :count, :id) == 0
+    attrs = if is_first_user, do: Map.put(attrs, :is_admin, true), else: attrs
 
-        hooks = GameServer.Hooks.module()
+    # For new user creation when provider didn't return an email, avoid
+    # passing a nil email into the changeset (update_change will crash).
+    attrs = if Map.get(attrs, :email) in [nil, ""], do: Map.delete(attrs, :email), else: attrs
 
-        case hooks.before_user_register(attrs) do
-          {:ok, attrs} ->
-            %User{}
-            |> changeset_fn.(attrs)
-            |> Repo.insert()
-            |> case do
-              {:ok, user} = ok ->
-                Task.start(fn -> hooks.after_user_register(user) end)
-                ok
+    hooks = GameServer.Hooks.module()
 
-              err ->
-                err
-            end
+    case hooks.before_user_register(attrs) do
+      {:ok, attrs} ->
+        %User{}
+        |> changeset_fn.(attrs)
+        |> Repo.insert()
+        |> case do
+          {:ok, user} = ok ->
+            Task.start(fn -> hooks.after_user_register(user) end)
+            ok
 
-          {:error, reason} ->
-            changeset =
-              %User{}
-              |> Ecto.Changeset.change()
-              |> Ecto.Changeset.add_error(:base, "hook rejected: #{inspect(reason)}")
-
-            {:error, changeset}
+          err ->
+            err
         end
+
+      {:error, reason} ->
+        changeset =
+          %User{}
+          |> Ecto.Changeset.change()
+          |> Ecto.Changeset.add_error(:base, "hook rejected: #{inspect(reason)}")
+
+        {:error, changeset}
     end
   end
 

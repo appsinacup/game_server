@@ -43,3 +43,5 @@ npm-debug.log
 
 redis/
 db/
+clients/javascript/
+clients/node_modules/

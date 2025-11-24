@@ -97,8 +97,15 @@ defmodule GameServer.OAuth.Exchanger do
         }
 
         case Req.get(user_url, params: user_params) do
-          {:ok, %{status: 200, body: user_info}} ->
+          {:ok, %{status: 200, body: user_info}} when is_map(user_info) ->
             {:ok, user_info}
+
+          {:ok, %{status: 200, body: user_info}} when is_binary(user_info) ->
+            # Parse JSON string if needed
+            case Jason.decode(user_info) do
+              {:ok, parsed} -> {:ok, parsed}
+              _ -> {:error, "Failed to parse user info"}
+            end
 
           _ ->
             {:error, "Failed to get user info"}

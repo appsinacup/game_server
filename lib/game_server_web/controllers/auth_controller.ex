@@ -1,271 +1,202 @@
 defmodule GameServerWeb.AuthController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
-  plug Ueberauth
 
   alias GameServer.Accounts
   alias GameServerWeb.UserAuth
   alias GameServerWeb.Auth.Guardian
 
-  # Browser OAuth operations (not included in API spec)
-  def request(conn, _params) do
-    # This is handled by Ueberauth
-    conn
+  # Browser OAuth request - redirects to provider
+  def request(conn, %{"provider" => "discord"}) do
+    client_id = System.get_env("DISCORD_CLIENT_ID")
+    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/auth/discord/callback"
+    scope = "identify email"
+
+    url =
+      "https://discord.com/oauth2/authorize?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}"
+
+    redirect(conn, external: url)
   end
 
-  def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
-    # Log the full failure details so we can debug provider-specific issues in prod
+  def request(conn, %{"provider" => "google"}) do
+    client_id = System.get_env("GOOGLE_CLIENT_ID")
+    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/auth/google/callback"
+    scope = "email profile"
+
+    url =
+      "https://accounts.google.com/o/oauth2/v2/auth?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}&access_type=offline"
+
+    redirect(conn, external: url)
+  end
+
+  def request(conn, %{"provider" => "facebook"}) do
+    client_id = System.get_env("FACEBOOK_CLIENT_ID")
+    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/auth/facebook/callback"
+    scope = "email"
+
+    url =
+      "https://www.facebook.com/v18.0/dialog/oauth?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}"
+
+    redirect(conn, external: url)
+  end
+
+  def request(conn, %{"provider" => "apple"}) do
+    client_id = System.get_env("APPLE_CLIENT_ID")
+    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/auth/apple/callback"
+    scope = "name email"
+
+    url =
+      "https://appleid.apple.com/auth/authorize?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&response_mode=form_post&scope=#{URI.encode_www_form(scope)}"
+
+    redirect(conn, external: url)
+  end
+
+  # Unified OAuth callback - handles both browser and API flows
+  # API flows include a 'state' parameter with session_id
+  # Browser flows don't have state
+  def callback(conn, %{"provider" => "discord", "code" => code} = params) do
     require Logger
-    failure = conn.assigns[:ueberauth_failure]
-    Logger.error("Ueberauth failure: #{inspect(failure)}")
+    exchanger = Application.get_env(:game_server, :oauth_exchanger, GameServer.OAuth.Exchanger)
+    client_id = System.get_env("DISCORD_CLIENT_ID")
+    secret = System.get_env("DISCORD_CLIENT_SECRET")
+    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/auth/discord/callback"
+
+    case exchanger.exchange_discord_code(code, client_id, secret, redirect_uri) do
+      {:ok, %{"id" => discord_id, "email" => email} = response} ->
+        avatar = response["avatar"]
+
+        user_params = %{
+          email: email,
+          discord_id: discord_id,
+          profile_url:
+            if(avatar,
+              do: "https://cdn.discordapp.com/avatars/#{discord_id}/#{avatar}.png",
+              else: nil
+            )
+        }
+
+        case params["state"] do
+          nil ->
+            # Browser flow - no state parameter
+            handle_browser_discord_callback(conn, user_params)
+
+          session_id ->
+            # API flow - has state parameter with session_id
+            do_find_or_create_discord_for_session(conn, user_params, session_id)
+        end
+
+      {:error, error} ->
+        Logger.error("Discord OAuth exchange failed: #{inspect(error)}")
+
+        case params["state"] do
+          nil ->
+            conn
+            |> put_flash(:error, "Failed to authenticate with Discord.")
+            |> redirect(to: ~p"/users/log-in")
+
+          session_id ->
+            GameServer.OAuthSessions.create_session(session_id, %{
+              status: "error",
+              data: %{details: inspect(error)}
+            })
+
+            redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+        end
+    end
+  end
+
+  def callback(conn, %{"provider" => "google", "code" => code} = params) do
+    require Logger
+    exchanger = Application.get_env(:game_server, :oauth_exchanger, GameServer.OAuth.Exchanger)
+    client_id = System.get_env("GOOGLE_CLIENT_ID")
+    secret = System.get_env("GOOGLE_CLIENT_SECRET")
+    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/auth/google/callback"
+
+    case exchanger.exchange_google_code(code, client_id, secret, redirect_uri) do
+      {:ok, %{"id" => google_id, "email" => email}} ->
+        user_params = %{email: email, google_id: google_id}
+
+        case params["state"] do
+          nil ->
+            # Browser flow
+            handle_browser_google_callback(conn, user_params)
+
+          session_id ->
+            # API flow
+            do_find_or_create_google_for_session(conn, user_params, session_id)
+        end
+
+      {:error, error} ->
+        Logger.error("Google OAuth exchange failed: #{inspect(error)}")
+
+        case params["state"] do
+          nil ->
+            conn
+            |> put_flash(:error, "Failed to authenticate with Google.")
+            |> redirect(to: ~p"/users/log-in")
+
+          session_id ->
+            GameServer.OAuthSessions.create_session(session_id, %{
+              status: "error",
+              data: %{details: inspect(error)}\
+            })
+
+            redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+        end
+    end
+  end
+
+  def callback(conn, %{"provider" => "facebook", "code" => code} = params) do
+    require Logger
+    exchanger = Application.get_env(:game_server, :oauth_exchanger, GameServer.OAuth.Exchanger)
+    client_id = System.get_env("FACEBOOK_CLIENT_ID")
+    secret = System.get_env("FACEBOOK_CLIENT_SECRET")
+    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/auth/facebook/callback"
+
+    case exchanger.exchange_facebook_code(code, client_id, secret, redirect_uri) do
+      {:ok, %{"id" => facebook_id} = user_info} ->
+        # Facebook may not return email if user hasn't granted permission
+        email = user_info["email"]
+        user_params = %{email: email, facebook_id: facebook_id}
+
+        case params["state"] do
+          nil ->
+            # Browser flow
+            handle_browser_facebook_callback(conn, user_params)
+
+          session_id ->
+            # API flow
+            do_find_or_create_facebook_for_session(conn, user_params, session_id)
+        end
+
+      {:error, error} ->
+        Logger.error("Facebook OAuth exchange failed: #{inspect(error)}")
+
+        case params["state"] do
+          nil ->
+            conn
+            |> put_flash(:error, "Failed to authenticate with Facebook.")
+            |> redirect(to: ~p"/users/log-in")
+
+          session_id ->
+            GameServer.OAuthSessions.create_session(session_id, %{
+              status: "error",
+              data: %{details: inspect(error)}
+            })
+
+            redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+        end
+    end
+  end
+
+  # Catch-all for missing code or unsupported providers
+  def callback(conn, params) do
+    require Logger
+    Logger.error("OAuth callback with invalid params: #{inspect(params)}")
 
     conn
     |> put_flash(:error, "Failed to authenticate.")
     |> redirect(to: ~p"/users/log-in")
-  end
-
-  def callback(%{assigns: %{ueberauth_auth: auth}} = conn, %{"provider" => "discord"}) do
-    user_params = %{
-      email: auth.info.email,
-      discord_id: auth.uid,
-      profile_url: auth.info.image
-    }
-
-    require Logger
-    Logger.info("Discord OAuth user params: #{inspect(user_params)}")
-
-    # If a user is already logged in, link Discord to their account instead
-    case conn.assigns[:current_scope] do
-      %{:user => current_user} ->
-        case Accounts.link_account(
-               current_user,
-               user_params,
-               :discord_id,
-               &GameServer.Accounts.User.discord_oauth_changeset/2
-             ) do
-          {:ok, _user} ->
-            conn
-            |> put_flash(:info, "Linked Discord to your account.")
-            |> redirect(to: ~p"/users/settings")
-
-          {:error, {:conflict, other_user}} ->
-            Logger.warning("Discord already linked to another user id=#{other_user.id}")
-
-            conn
-            |> put_flash(
-              :error,
-              "Discord is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
-            )
-            |> redirect(
-              to: ~p"/users/settings?conflict_provider=discord&conflict_user_id=#{other_user.id}"
-            )
-
-          {:error, changeset} ->
-            Logger.error("Failed to link Discord: #{inspect(changeset.errors)}")
-
-            conn
-            |> put_flash(:error, "Failed to link Discord account.")
-            |> redirect(to: ~p"/users/settings")
-        end
-
-      _ ->
-        case Accounts.find_or_create_from_discord(user_params) do
-          {:ok, user} ->
-            conn
-            |> put_flash(:info, "Successfully authenticated with Discord.")
-            |> UserAuth.log_in_user(user)
-
-          {:error, changeset} ->
-            Logger.error("Failed to create user from Discord: #{inspect(changeset.errors)}")
-
-            conn
-            |> put_flash(:error, "Failed to create or update user account.")
-            |> redirect(to: ~p"/users/log-in")
-        end
-    end
-  end
-
-  def callback(%{assigns: %{ueberauth_auth: auth}} = conn, %{"provider" => "google"}) do
-    user_params = %{
-      email: auth.info.email,
-      google_id: auth.uid
-    }
-
-    require Logger
-    Logger.info("Google OAuth user params: #{inspect(user_params)}")
-
-    case conn.assigns[:current_scope] do
-      %{:user => current_user} ->
-        case Accounts.link_account(
-               current_user,
-               user_params,
-               :google_id,
-               &GameServer.Accounts.User.google_oauth_changeset/2
-             ) do
-          {:ok, _user} ->
-            conn
-            |> put_flash(:info, "Linked Google to your account.")
-            |> redirect(to: ~p"/users/settings")
-
-          {:error, {:conflict, other_user}} ->
-            Logger.warning("Google already linked to another user id=#{other_user.id}")
-
-            conn
-            |> put_flash(
-              :error,
-              "Google is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
-            )
-            |> redirect(
-              to: ~p"/users/settings?conflict_provider=google&conflict_user_id=#{other_user.id}"
-            )
-
-          {:error, changeset} ->
-            Logger.error("Failed to link Google: #{inspect(changeset.errors)}")
-
-            conn
-            |> put_flash(:error, "Failed to link Google account.")
-            |> redirect(to: ~p"/users/settings")
-        end
-
-      _ ->
-        case Accounts.find_or_create_from_google(user_params) do
-          {:ok, user} ->
-            conn
-            |> put_flash(:info, "Successfully authenticated with Google.")
-            |> UserAuth.log_in_user(user)
-
-          {:error, changeset} ->
-            Logger.error("Failed to create user from Google: #{inspect(changeset.errors)}")
-
-            conn
-            |> put_flash(:error, "Failed to create or update user account.")
-            |> redirect(to: ~p"/users/log-in")
-        end
-    end
-  end
-
-  # Apple browser OAuth flow
-  # Apple behaves differently (often returns name/email only on first auth), so
-  # we explicitly handle it here and log details to make prod debugging easier.
-  def callback(%{assigns: %{ueberauth_auth: auth}} = conn, %{"provider" => "apple"}) do
-    user_params = %{
-      email: auth.info.email,
-      apple_id: auth.uid
-    }
-
-    require Logger
-
-    Logger.info(
-      "Apple OAuth user params: #{inspect(user_params)} auth_extra=#{inspect(auth.extra)}"
-    )
-
-    case conn.assigns[:current_scope] do
-      %{:user => current_user} ->
-        case Accounts.link_account(
-               current_user,
-               user_params,
-               :apple_id,
-               &GameServer.Accounts.User.apple_oauth_changeset/2
-             ) do
-          {:ok, _user} ->
-            conn
-            |> put_flash(:info, "Linked Apple to your account.")
-            |> redirect(to: ~p"/users/settings")
-
-          {:error, {:conflict, other_user}} ->
-            Logger.warning("Apple already linked to another user id=#{other_user.id}")
-
-            conn
-            |> put_flash(
-              :error,
-              "Apple is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
-            )
-            |> redirect(
-              to: ~p"/users/settings?conflict_provider=apple&conflict_user_id=#{other_user.id}"
-            )
-
-          {:error, changeset} ->
-            Logger.error("Failed to link Apple: #{inspect(changeset.errors)}")
-
-            conn
-            |> put_flash(:error, "Failed to link Apple account.")
-            |> redirect(to: ~p"/users/settings")
-        end
-
-      _ ->
-        case Accounts.find_or_create_from_apple(user_params) do
-          {:ok, user} ->
-            conn
-            |> put_flash(:info, "Successfully authenticated with Apple.")
-            |> UserAuth.log_in_user(user)
-
-          {:error, changeset} ->
-            Logger.error("Failed to create user from Apple: #{inspect(changeset.errors)}")
-
-            conn
-            |> put_flash(:error, "Failed to create or update user account.")
-            |> redirect(to: ~p"/users/log-in")
-        end
-    end
-  end
-
-  def callback(%{assigns: %{ueberauth_auth: auth}} = conn, %{"provider" => "facebook"}) do
-    user_params = %{
-      email: auth.info.email,
-      facebook_id: auth.uid
-    }
-
-    require Logger
-    Logger.info("Facebook OAuth user params: #{inspect(user_params)}")
-
-    case conn.assigns[:current_scope] do
-      %{:user => current_user} ->
-        case Accounts.link_account(
-               current_user,
-               user_params,
-               :facebook_id,
-               &GameServer.Accounts.User.facebook_oauth_changeset/2
-             ) do
-          {:ok, _user} ->
-            conn
-            |> put_flash(:info, "Linked Facebook to your account.")
-            |> redirect(to: ~p"/users/settings")
-
-          {:error, {:conflict, other_user}} ->
-            Logger.warning("Facebook already linked to another user id=#{other_user.id}")
-
-            conn
-            |> put_flash(
-              :error,
-              "Facebook is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
-            )
-            |> redirect(
-              to: ~p"/users/settings?conflict_provider=facebook&conflict_user_id=#{other_user.id}"
-            )
-
-          {:error, changeset} ->
-            Logger.error("Failed to link Facebook: #{inspect(changeset.errors)}")
-
-            conn
-            |> put_flash(:error, "Failed to link Facebook account.")
-            |> redirect(to: ~p"/users/settings")
-        end
-
-      _ ->
-        case Accounts.find_or_create_from_facebook(user_params) do
-          {:ok, user} ->
-            conn
-            |> put_flash(:info, "Successfully authenticated with Facebook.")
-            |> UserAuth.log_in_user(user)
-
-          {:error, changeset} ->
-            Logger.error("Failed to create user from Facebook: #{inspect(changeset.errors)}")
-
-            conn
-            |> put_flash(:error, "Failed to create or update user account.")
-            |> redirect(to: ~p"/users/log-in")
-        end
-    end
   end
 
   def delete(conn, _params) do
@@ -302,341 +233,95 @@ defmodule GameServerWeb.AuthController do
             authorization_url: %OpenApiSpex.Schema{
               type: :string,
               description: "URL to redirect user to for OAuth"
+            },
+            session_id: %OpenApiSpex.Schema{
+              type: :string,
+              description: "Unique session ID to track this OAuth request"
             }
           },
-          example: %{authorization_url: "https://discord.com/oauth2/authorize?..."}
+          example: %{
+            authorization_url: "https://discord.com/oauth2/authorize?...",
+            session_id: "abc123..."
+          }
         }
       }
     ]
   )
 
   def api_request(conn, %{"provider" => "discord"}) do
-    # Generate the Discord OAuth URL
+    # Generate a unique session ID for this OAuth request
+    session_id = :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
+
+    # Persist session in DB for polling by API clients
+    GameServer.OAuthSessions.create_session(session_id, %{provider: "discord", status: "pending"})
+
+    # Generate the Discord OAuth URL with state parameter
     client_id = System.get_env("DISCORD_CLIENT_ID")
-    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/api/v1/auth/discord/callback"
+    # Use the unified callback endpoint
+    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/auth/discord/callback"
     scope = "identify email"
+    state = session_id
 
     url =
-      "https://discord.com/oauth2/authorize?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}"
+      "https://discord.com/oauth2/authorize?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}&state=#{URI.encode_www_form(state)}"
 
-    json(conn, %{authorization_url: url})
+    json(conn, %{authorization_url: url, session_id: session_id})
   end
 
   def api_request(conn, %{"provider" => "apple"}) do
+    # Generate a unique session ID for this OAuth request
+    session_id = :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
+
+    GameServer.OAuthSessions.create_session(session_id, %{provider: "apple", status: "pending"})
+
     # Generate the Apple OAuth URL
     client_id = System.get_env("APPLE_CLIENT_ID")
-    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/api/v1/auth/apple/callback"
+    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/auth/apple/callback"
     scope = "name email"
 
     url =
-      "https://appleid.apple.com/auth/authorize?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&response_mode=form_post&scope=#{URI.encode_www_form(scope)}"
+      "https://appleid.apple.com/auth/authorize?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&response_mode=form_post&scope=#{URI.encode_www_form(scope)}&state=#{URI.encode_www_form(session_id)}"
 
-    json(conn, %{authorization_url: url})
+    json(conn, %{authorization_url: url, session_id: session_id})
   end
 
   def api_request(conn, %{"provider" => "google"}) do
+    # Generate a unique session ID for this OAuth request
+    session_id = :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
+
+    GameServer.OAuthSessions.create_session(session_id, %{provider: "google", status: "pending"})
+
     # Generate the Google OAuth URL
     client_id = System.get_env("GOOGLE_CLIENT_ID")
-    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/api/v1/auth/google/callback"
+    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/auth/google/callback"
     scope = "email profile"
 
     url =
-      "https://accounts.google.com/o/oauth2/v2/auth?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}&access_type=offline"
+      "https://accounts.google.com/o/oauth2/v2/auth?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}&access_type=offline&state=#{URI.encode_www_form(session_id)}"
 
-    json(conn, %{authorization_url: url})
+    json(conn, %{authorization_url: url, session_id: session_id})
   end
 
   def api_request(conn, %{"provider" => "facebook"}) do
+    # Generate a unique session ID for this OAuth request
+    session_id = :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
+
+    GameServer.OAuthSessions.create_session(session_id, %{provider: "facebook", status: "pending"})
+
     # Generate the Facebook OAuth URL
     client_id = System.get_env("FACEBOOK_CLIENT_ID")
-    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/api/v1/auth/facebook/callback"
+    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/auth/facebook/callback"
     scope = "email"
 
     url =
-      "https://www.facebook.com/v18.0/dialog/oauth?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}"
+      "https://www.facebook.com/v18.0/dialog/oauth?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}&state=#{URI.encode_www_form(session_id)}"
 
-    json(conn, %{authorization_url: url})
+    json(conn, %{authorization_url: url, session_id: session_id})
   end
 
-  operation(:api_callback,
-    summary: "API OAuth callback",
-    description:
-      "Handles OAuth callback and returns user token. If the request is authenticated (Authorization: Bearer <token>) this endpoint will attempt to link the provider to the current API user instead of creating a new account.",
-    tags: ["Authentication"],
-    parameters: [
-      provider: [
-        in: :path,
-        name: "provider",
-        schema: %OpenApiSpex.Schema{
-          type: :string,
-          enum: ["discord", "apple", "google", "facebook"]
-        },
-        description: "OAuth provider",
-        required: true,
-        example: "discord"
-      ],
-      code: [
-        in: :query,
-        name: "code",
-        schema: %OpenApiSpex.Schema{type: :string},
-        description: "Authorization code from OAuth provider",
-        required: true
-      ]
-    ],
-    responses: [
-      ok: {
-        "Authentication successful",
-        "application/json",
-        %OpenApiSpex.Schema{
-          type: :object,
-          properties: %{
-            data: %OpenApiSpex.Schema{
-              type: :object,
-              properties: %{
-                access_token: %OpenApiSpex.Schema{
-                  type: :string,
-                  description: "JWT access token (15 min)"
-                },
-                refresh_token: %OpenApiSpex.Schema{
-                  type: :string,
-                  description: "JWT refresh token (30 days)"
-                },
-                token_type: %OpenApiSpex.Schema{type: :string, description: "Token type"},
-                expires_in: %OpenApiSpex.Schema{
-                  type: :integer,
-                  description: "Seconds until access token expires"
-                },
-                user: %OpenApiSpex.Schema{
-                  type: :object,
-                  properties: %{
-                    id: %OpenApiSpex.Schema{type: :integer},
-                    email: %OpenApiSpex.Schema{type: :string},
-                    profile_url: %OpenApiSpex.Schema{type: :string}
-                  }
-                }
-              }
-            }
-          },
-          example: %{
-            data: %{
-              access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-              refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-              token_type: "Bearer",
-              expires_in: 900,
-              user: %{
-                id: 1,
-                email: "user@example.com",
-                profile_url: "https://cdn.discordapp.com/avatars/123/abc.png"
-              }
-            }
-          }
-        }
-      },
-      bad_request: {"OAuth error", "application/json", nil},
-      conflict:
-        {"Provider already linked", "application/json",
-         %OpenApiSpex.Schema{
-           type: :object,
-           properties: %{
-             error: %OpenApiSpex.Schema{type: :string},
-             conflict_user_id: %OpenApiSpex.Schema{type: :integer}
-           }
-         }}
-    ]
-  )
-
-  def api_callback(conn, %{"provider" => "discord", "code" => code}) do
-    # Exchange code for access token
-    client_id = System.get_env("DISCORD_CLIENT_ID")
-    client_secret = System.get_env("DISCORD_CLIENT_SECRET")
-    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/api/v1/auth/discord/callback"
-
-    exchanger = Application.get_env(:game_server, :oauth_exchanger, GameServer.OAuth.Exchanger)
-
-    case exchanger.exchange_discord_code(code, client_id, client_secret, redirect_uri) do
-      {:ok, user_info} ->
-        user_params = %{
-          email: user_info["email"],
-          discord_id: user_info["id"],
-          profile_url:
-            (user_info["avatar"] &&
-               "https://cdn.discordapp.com/avatars/#{user_info["id"]}/#{user_info["avatar"]}.png") ||
-              nil
-        }
-
-        # If the request includes a bearer token, attempt to link the provider
-        # to the currently authenticated API user (if any). Otherwise, create
-        # or find a user and return tokens as before.
-        case get_req_header(conn, "authorization") do
-          ["Bearer " <> token] ->
-            case Guardian.resource_from_token(token) do
-              {:ok, current_user, _claims} ->
-                case Accounts.link_account(
-                       current_user,
-                       user_params,
-                       :discord_id,
-                       &GameServer.Accounts.User.discord_oauth_changeset/2
-                     ) do
-                  {:ok, user} ->
-                    # return the updated user
-                    json(conn, %{
-                      data: %{
-                        user: %{id: user.id, email: user.email, profile_url: user.profile_url},
-                        message: "Linked"
-                      }
-                    })
-
-                  {:error, {:conflict, other_user}} ->
-                    conn
-                    |> put_status(:conflict)
-                    |> json(%{error: "conflict", conflict_user_id: other_user.id})
-
-                  {:error, changeset} ->
-                    conn
-                    |> put_status(:bad_request)
-                    |> json(%{error: "Failed to link provider", details: changeset.errors})
-                end
-
-              _ ->
-                # No valid token -> fallback to create/find
-                do_find_or_create_discord(conn, user_params)
-            end
-
-          _ ->
-            do_find_or_create_discord(conn, user_params)
-        end
-    end
-  end
-
-  def api_callback(conn, %{"provider" => "apple", "code" => _code}) do
-    # For Apple Sign In, we use Ueberauth strategy which handles the JWT verification
-    # Apple returns user info differently - they only send it on first authorization
-    # After that, we only get the user identifier (sub claim in ID token)
-
-    # Note: Full Apple Sign In implementation with ueberauth_apple handles the
-    # ID token verification, so we can extract user info from the Ueberauth callback
-    # For API flow, clients should use the browser flow or implement their own
-    # client-side Apple Sign In and send us the validated identity token
-
-    conn
-    |> put_status(:not_implemented)
-    |> json(%{
-      error: "Apple Sign In API flow not fully implemented",
-      message:
-        "Please use the browser OAuth flow at /auth/apple or implement client-side Apple Sign In"
-    })
-  end
-
-  def api_callback(conn, %{"provider" => "google", "code" => code}) do
-    # Exchange code for access token
-    client_id = System.get_env("GOOGLE_CLIENT_ID")
-    client_secret = System.get_env("GOOGLE_CLIENT_SECRET")
-    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/api/v1/auth/google/callback"
-
-    exchanger = Application.get_env(:game_server, :oauth_exchanger, GameServer.OAuth.Exchanger)
-
-    case exchanger.exchange_google_code(code, client_id, client_secret, redirect_uri) do
-      {:ok, user_info} ->
-        user_params = %{
-          email: user_info["email"],
-          google_id: user_info["id"]
-        }
-
-        case get_req_header(conn, "authorization") do
-          ["Bearer " <> token] ->
-            case Guardian.resource_from_token(token) do
-              {:ok, current_user, _claims} ->
-                case Accounts.link_account(
-                       current_user,
-                       user_params,
-                       :google_id,
-                       &GameServer.Accounts.User.google_oauth_changeset/2
-                     ) do
-                  {:ok, user} ->
-                    json(conn, %{
-                      data: %{user: %{id: user.id, email: user.email}, message: "Linked"}
-                    })
-
-                  {:error, {:conflict, other_user}} ->
-                    conn
-                    |> put_status(:conflict)
-                    |> json(%{error: "conflict", conflict_user_id: other_user.id})
-
-                  {:error, changeset} ->
-                    conn
-                    |> put_status(:bad_request)
-                    |> json(%{error: "Failed to link provider", details: changeset.errors})
-                end
-
-              _ ->
-                do_find_or_create_google(conn, user_params)
-            end
-
-          _ ->
-            do_find_or_create_google(conn, user_params)
-        end
-
-      {:error, reason} ->
-        conn
-        |> put_status(:bad_request)
-        |> json(%{error: "OAuth failed", details: reason})
-    end
-  end
-
-  def api_callback(conn, %{"provider" => "facebook", "code" => code}) do
-    # Exchange code for access token
-    client_id = System.get_env("FACEBOOK_CLIENT_ID")
-    client_secret = System.get_env("FACEBOOK_CLIENT_SECRET")
-    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/api/v1/auth/facebook/callback"
-
-    exchanger = Application.get_env(:game_server, :oauth_exchanger, GameServer.OAuth.Exchanger)
-
-    case exchanger.exchange_facebook_code(code, client_id, client_secret, redirect_uri) do
-      {:ok, user_info} ->
-        user_params = %{
-          email: user_info["email"],
-          facebook_id: user_info["id"]
-        }
-
-        case get_req_header(conn, "authorization") do
-          ["Bearer " <> token] ->
-            case Guardian.resource_from_token(token) do
-              {:ok, current_user, _claims} ->
-                case Accounts.link_account(
-                       current_user,
-                       user_params,
-                       :facebook_id,
-                       &GameServer.Accounts.User.facebook_oauth_changeset/2
-                     ) do
-                  {:ok, user} ->
-                    json(conn, %{
-                      data: %{user: %{id: user.id, email: user.email}, message: "Linked"}
-                    })
-
-                  {:error, {:conflict, other_user}} ->
-                    conn
-                    |> put_status(:conflict)
-                    |> json(%{error: "conflict", conflict_user_id: other_user.id})
-
-                  {:error, changeset} ->
-                    conn
-                    |> put_status(:bad_request)
-                    |> json(%{error: "Failed to link provider", details: changeset.errors})
-                end
-
-              _ ->
-                do_find_or_create_facebook(conn, user_params)
-            end
-
-          _ ->
-            do_find_or_create_facebook(conn, user_params)
-        end
-
-      {:error, reason} ->
-        conn
-        |> put_status(:bad_request)
-        |> json(%{error: "OAuth failed", details: reason})
-    end
+  def api_callback(conn, params) do
+    # Delegate to the unified callback function which handles both browser and API requests
+    callback(conn, params)
   end
 
   operation(:api_conflict_delete,
@@ -717,33 +402,57 @@ defmodule GameServerWeb.AuthController do
     end
   end
 
-  defp do_find_or_create_discord(conn, user_params) do
-    case Accounts.find_or_create_from_discord(user_params) do
-      {:ok, user} ->
-        {:ok, access_token, _access_claims} =
-          Guardian.encode_and_sign(user, %{}, token_type: "access")
-
-        {:ok, refresh_token, _refresh_claims} =
-          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
-
-        json(conn, %{
-          data: %{
-            access_token: access_token,
-            refresh_token: refresh_token,
-            token_type: "Bearer",
-            expires_in: 900,
-            user: %{
-              id: user.id,
-              email: user.email,
-              profile_url: user.profile_url
+  operation(:api_session_status,
+    summary: "Get OAuth session status",
+    description: "Check the status of an OAuth session for API clients",
+    tags: ["Authentication"],
+    parameters: [
+      session_id: [
+        in: :path,
+        name: "session_id",
+        schema: %OpenApiSpex.Schema{type: :string},
+        description: "Session ID from OAuth request",
+        required: true
+      ]
+    ],
+    responses: [
+      ok: {
+        "Session status",
+        "application/json",
+        %OpenApiSpex.Schema{
+          type: :object,
+          properties: %{
+            status: %OpenApiSpex.Schema{
+              type: :string,
+              enum: ["pending", "completed", "error", "conflict"],
+              description: "Current session status"
+            },
+            data: %OpenApiSpex.Schema{
+              type: :object,
+              description: "Session data when completed"
+            },
+            message: %OpenApiSpex.Schema{
+              type: :string,
+              description: "Optional status message"
             }
           }
-        })
+        }
+      },
+      not_found: {"Session not found", "application/json", nil}
+    ]
+  )
 
-      {:error, changeset} ->
+  def api_session_status(conn, %{"session_id" => session_id}) do
+    case GameServer.OAuthSessions.get_session(session_id) do
+      %GameServer.OAuthSession{status: status, data: data} ->
+        # Return a shape that matches the OpenAPI spec and the generated
+        # JavaScript SDK: { status: string, data: { ... } }
+        json(conn, %{status: status, data: data || %{}})
+
+      [] ->
         conn
-        |> put_status(:bad_request)
-        |> json(%{error: "Failed to create or update user account", details: changeset.errors})
+        |> put_status(:not_found)
+        |> json(%{error: "Session not found"})
     end
   end
 
@@ -805,5 +514,684 @@ defmodule GameServerWeb.AuthController do
     end
   end
 
-  # OAuth HTTP exchange is handled by GameServer.OAuth.Exchanger
+  defp handle_api_google_callback(conn, user_params) do
+    # If the request includes a bearer token, attempt to link the provider
+    # to the currently authenticated API user (if any). Otherwise, create
+    # or find a user and return tokens as before.
+    case get_req_header(conn, "authorization") do
+      ["Bearer " <> token] ->
+        case Guardian.resource_from_token(token) do
+          {:ok, current_user, _claims} ->
+            case Accounts.link_account(
+                   current_user,
+                   user_params,
+                   :google_id,
+                   &GameServer.Accounts.User.google_oauth_changeset/2
+                 ) do
+              {:ok, user} ->
+                # return the updated user
+                json(conn, %{
+                  data: %{
+                    user: %{id: user.id, email: user.email},
+                    message: "Linked"
+                  }
+                })
+
+              {:error, {:conflict, other_user}} ->
+                conn
+                |> put_status(:conflict)
+                |> json(%{error: "conflict", conflict_user_id: other_user.id})
+
+              {:error, changeset} ->
+                conn
+                |> put_status(:bad_request)
+                |> json(%{error: "Failed to link provider", details: changeset.errors})
+            end
+
+          _ ->
+            # No valid token -> fallback to create/find
+            do_find_or_create_google(conn, user_params)
+        end
+
+      _ ->
+        do_find_or_create_google(conn, user_params)
+    end
+  end
+
+  defp handle_api_apple_callback(conn, user_params) do
+    # If the request includes a bearer token, attempt to link the provider
+    # to the currently authenticated API user (if any). Otherwise, create
+    # or find a user and return tokens as before.
+    case get_req_header(conn, "authorization") do
+      ["Bearer " <> token] ->
+        case Guardian.resource_from_token(token) do
+          {:ok, current_user, _claims} ->
+            case Accounts.link_account(
+                   current_user,
+                   user_params,
+                   :apple_id,
+                   &GameServer.Accounts.User.apple_oauth_changeset/2
+                 ) do
+              {:ok, user} ->
+                # return the updated user
+                json(conn, %{
+                  data: %{
+                    user: %{id: user.id, email: user.email},
+                    message: "Linked"
+                  }
+                })
+
+              {:error, {:conflict, other_user}} ->
+                conn
+                |> put_status(:conflict)
+                |> json(%{error: "conflict", conflict_user_id: other_user.id})
+
+              {:error, changeset} ->
+                conn
+                |> put_status(:bad_request)
+                |> json(%{error: "Failed to link provider", details: changeset.errors})
+            end
+
+          _ ->
+            # No valid token -> fallback to create/find
+            do_find_or_create_apple(conn, user_params)
+        end
+
+      _ ->
+        do_find_or_create_apple(conn, user_params)
+    end
+  end
+
+  defp handle_api_facebook_callback(conn, user_params) do
+    # If the request includes a bearer token, attempt to link the provider
+    # to the currently authenticated API user (if any). Otherwise, create
+    # or find a user and return tokens as before.
+    case get_req_header(conn, "authorization") do
+      ["Bearer " <> token] ->
+        case Guardian.resource_from_token(token) do
+          {:ok, current_user, _claims} ->
+            case Accounts.link_account(
+                   current_user,
+                   user_params,
+                   :facebook_id,
+                   &GameServer.Accounts.User.facebook_oauth_changeset/2
+                 ) do
+              {:ok, user} ->
+                # return the updated user
+                json(conn, %{
+                  data: %{
+                    user: %{id: user.id, email: user.email},
+                    message: "Linked"
+                  }
+                })
+
+              {:error, {:conflict, other_user}} ->
+                conn
+                |> put_status(:conflict)
+                |> json(%{error: "conflict", conflict_user_id: other_user.id})
+
+              {:error, changeset} ->
+                conn
+                |> put_status(:bad_request)
+                |> json(%{error: "Failed to link provider", details: changeset.errors})
+            end
+
+          _ ->
+            # No valid token -> fallback to create/find
+            do_find_or_create_facebook(conn, user_params)
+        end
+
+      _ ->
+        do_find_or_create_facebook(conn, user_params)
+    end
+  end
+
+  defp handle_browser_google_callback(conn, user_params) do
+    case conn.assigns[:current_scope] do
+      %{:user => current_user} ->
+        case Accounts.link_account(
+               current_user,
+               user_params,
+               :google_id,
+               &GameServer.Accounts.User.google_oauth_changeset/2
+             ) do
+          {:ok, _user} ->
+            conn
+            |> put_flash(:info, "Linked Google to your account.")
+            |> redirect(to: ~p"/users/settings")
+
+          {:error, {:conflict, other_user}} ->
+            require Logger
+            Logger.warning("Google already linked to another user id=#{other_user.id}")
+
+            conn
+            |> put_flash(
+              :error,
+              "Google is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+            )
+            |> redirect(
+              to: ~p"/users/settings?conflict_provider=google&conflict_user_id=#{other_user.id}"
+            )
+
+          {:error, changeset} ->
+            require Logger
+            Logger.error("Failed to link Google: #{inspect(changeset.errors)}")
+
+            conn
+            |> put_flash(:error, "Failed to link Google account.")
+            |> redirect(to: ~p"/users/settings")
+        end
+
+      _ ->
+        case Accounts.find_or_create_from_google(user_params) do
+          {:ok, user} ->
+            conn
+            |> put_flash(:info, "Successfully authenticated with Google.")
+            |> UserAuth.log_in_user(user)
+
+          {:error, changeset} ->
+            require Logger
+            Logger.error("Failed to create user from Google: #{inspect(changeset.errors)}")
+
+            conn
+            |> put_flash(:error, "Failed to create or update user account.")
+            |> redirect(to: ~p"/users/log-in")
+        end
+    end
+  end
+
+  defp handle_browser_apple_callback(conn, user_params) do
+    case conn.assigns[:current_scope] do
+      %{:user => current_user} ->
+        case Accounts.link_account(
+               current_user,
+               user_params,
+               :apple_id,
+               &GameServer.Accounts.User.apple_oauth_changeset/2
+             ) do
+          {:ok, _user} ->
+            conn
+            |> put_flash(:info, "Linked Apple to your account.")
+            |> redirect(to: ~p"/users/settings")
+
+          {:error, {:conflict, other_user}} ->
+            require Logger
+            Logger.warning("Apple already linked to another user id=#{other_user.id}")
+
+            conn
+            |> put_flash(
+              :error,
+              "Apple is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+            )
+            |> redirect(
+              to: ~p"/users/settings?conflict_provider=apple&conflict_user_id=#{other_user.id}"
+            )
+
+          {:error, changeset} ->
+            require Logger
+            Logger.error("Failed to link Apple: #{inspect(changeset.errors)}")
+
+            conn
+            |> put_flash(:error, "Failed to link Apple account.")
+            |> redirect(to: ~p"/users/settings")
+        end
+
+      _ ->
+        case Accounts.find_or_create_from_apple(user_params) do
+          {:ok, user} ->
+            conn
+            |> put_flash(:info, "Successfully authenticated with Apple.")
+            |> UserAuth.log_in_user(user)
+
+          {:error, changeset} ->
+            require Logger
+            Logger.error("Failed to create user from Apple: #{inspect(changeset.errors)}")
+
+            conn
+            |> put_flash(:error, "Failed to create or update user account.")
+            |> redirect(to: ~p"/users/log-in")
+        end
+    end
+  end
+
+  defp handle_browser_facebook_callback(conn, user_params) do
+    case conn.assigns[:current_scope] do
+      %{:user => current_user} ->
+        case Accounts.link_account(
+               current_user,
+               user_params,
+               :facebook_id,
+               &GameServer.Accounts.User.facebook_oauth_changeset/2
+             ) do
+          {:ok, _user} ->
+            conn
+            |> put_flash(:info, "Linked Facebook to your account.")
+            |> redirect(to: ~p"/users/settings")
+
+          {:error, {:conflict, other_user}} ->
+            require Logger
+            Logger.warning("Facebook already linked to another user id=#{other_user.id}")
+
+            conn
+            |> put_flash(
+              :error,
+              "Facebook is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+            )
+            |> redirect(
+              to: ~p"/users/settings?conflict_provider=facebook&conflict_user_id=#{other_user.id}"
+            )
+
+          {:error, changeset} ->
+            require Logger
+            Logger.error("Failed to link Facebook: #{inspect(changeset.errors)}")
+
+            conn
+            |> put_flash(:error, "Failed to link Facebook account.")
+            |> redirect(to: ~p"/users/settings")
+        end
+
+      _ ->
+        case Accounts.find_or_create_from_facebook(user_params) do
+          {:ok, user} ->
+            conn
+            |> put_flash(:info, "Successfully authenticated with Facebook.")
+            |> UserAuth.log_in_user(user)
+
+          {:error, changeset} ->
+            require Logger
+            Logger.error("Failed to create user from Facebook: #{inspect(changeset.errors)}")
+
+            conn
+            |> put_flash(:error, "Failed to create or update user account.")
+            |> redirect(to: ~p"/users/log-in")
+        end
+    end
+  end
+
+  defp do_find_or_create_apple(conn, user_params) do
+    case Accounts.find_or_create_from_apple(user_params) do
+      {:ok, user} ->
+        {:ok, access_token, _access_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+        {:ok, refresh_token, _refresh_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+        json(conn, %{
+          data: %{
+            access_token: access_token,
+            refresh_token: refresh_token,
+            token_type: "Bearer",
+            expires_in: 900,
+            user: %{
+              id: user.id,
+              email: user.email
+            }
+          }
+        })
+
+      {:error, changeset} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "Failed to create or update user account", details: changeset.errors})
+    end
+  end
+
+  defp handle_api_discord_callback(conn, auth, session_id) do
+    user_params = %{
+      email: auth.info.email,
+      discord_id: auth.uid,
+      profile_url: auth.info.image
+    }
+
+    require Logger
+    Logger.info("Discord OAuth user params: #{inspect(user_params)}")
+
+    # If the request includes a bearer token, attempt to link the provider
+    # to the currently authenticated API user (if any). Otherwise, create
+    # or find a user and return tokens as before.
+    case get_req_header(conn, "authorization") do
+      ["Bearer " <> token] ->
+        case Guardian.resource_from_token(token) do
+          {:ok, current_user, _claims} ->
+            case Accounts.link_account(
+                   current_user,
+                   user_params,
+                   :discord_id,
+                   &GameServer.Accounts.User.discord_oauth_changeset/2
+                 ) do
+              {:ok, user} ->
+                # Store success in session (minimal user info)
+                GameServer.OAuthSessions.create_session(session_id, %{
+                  status: "completed",
+                  data: %{user: %{id: user.id, email: user.email}, message: "Linked"}
+                })
+
+                # Redirect to success page
+                redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+
+              {:error, {:conflict, other_user}} ->
+                GameServer.OAuthSessions.create_session(session_id, %{
+                  status: "conflict",
+                  data: %{conflict_user_id: other_user.id}
+                })
+
+                redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+
+              {:error, changeset} ->
+                GameServer.OAuthSessions.create_session(session_id, %{
+                  status: "error",
+                  data: %{details: changeset.errors}
+                })
+
+                redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+            end
+
+          _ ->
+            # No valid token -> fallback to create/find
+            do_find_or_create_discord_for_session(conn, user_params, session_id)
+        end
+
+      _ ->
+        do_find_or_create_discord_for_session(conn, user_params, session_id)
+    end
+  end
+
+  defp handle_browser_discord_callback(conn, user_params) do
+    case conn.assigns[:current_scope] do
+      %{:user => current_user} ->
+        case Accounts.link_account(
+               current_user,
+               user_params,
+               :discord_id,
+               &GameServer.Accounts.User.discord_oauth_changeset/2
+             ) do
+          {:ok, _user} ->
+            conn
+            |> put_flash(:info, "Linked Discord to your account.")
+            |> redirect(to: ~p"/users/settings")
+
+          {:error, {:conflict, other_user}} ->
+            require Logger
+            Logger.warning("Discord already linked to another user id=#{other_user.id}")
+
+            conn
+            |> put_flash(
+              :error,
+              "Discord is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+            )
+            |> redirect(
+              to: ~p"/users/settings?conflict_provider=discord&conflict_user_id=#{other_user.id}"
+            )
+
+          {:error, changeset} ->
+            require Logger
+            Logger.error("Failed to link Discord: #{inspect(changeset.errors)}")
+
+            conn
+            |> put_flash(:error, "Failed to link Discord account.")
+            |> redirect(to: ~p"/users/settings")
+        end
+
+      _ ->
+        case Accounts.find_or_create_from_discord(user_params) do
+          {:ok, user} ->
+            conn
+            |> put_flash(:info, "Successfully authenticated with Discord.")
+            |> UserAuth.log_in_user(user)
+
+          {:error, changeset} ->
+            require Logger
+            Logger.error("Failed to create user from Discord: #{inspect(changeset.errors)}")
+
+            conn
+            |> put_flash(:error, "Failed to create or update user account.")
+            |> redirect(to: ~p"/users/log-in")
+        end
+    end
+  end
+
+  defp do_find_or_create_discord_for_session(conn, user_params, session_id) do
+    case Accounts.find_or_create_from_discord(user_params) do
+      {:ok, user} ->
+        {:ok, access_token, _access_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+        {:ok, refresh_token, _refresh_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+        # Store tokens in session
+        GameServer.OAuthSessions.create_session(session_id, %{
+          status: "completed",
+          data: %{
+            access_token: access_token,
+            refresh_token: refresh_token,
+            token_type: "Bearer",
+            expires_in: 900,
+            user: %{id: user.id, email: user.email, profile_url: user.profile_url}
+          }
+        })
+
+        # Redirect to success page
+        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+
+      {:error, changeset} ->
+        GameServer.OAuthSessions.create_session(session_id, %{
+          status: "error",
+          data: %{details: changeset.errors}
+        })
+
+        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+    end
+  end
+
+  defp do_find_or_create_google_for_session(conn, user_params, session_id) do
+    case Accounts.find_or_create_from_google(user_params) do
+      {:ok, user} ->
+        {:ok, access_token, _access_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+        {:ok, refresh_token, _refresh_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+        # Store tokens in session
+        GameServer.OAuthSessions.create_session(session_id, %{
+          status: "completed",
+          data: %{
+            access_token: access_token,
+            refresh_token: refresh_token,
+            token_type: "Bearer",
+            expires_in: 900,
+            user: %{id: user.id, email: user.email}
+          }
+        })
+
+        # Redirect to success page
+        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+
+      {:error, changeset} ->
+        GameServer.OAuthSessions.create_session(session_id, %{
+          status: "error",
+          data: %{details: changeset.errors}
+        })
+
+        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+    end
+  end
+
+  defp do_find_or_create_facebook_for_session(conn, user_params, session_id) do
+    case Accounts.find_or_create_from_facebook(user_params) do
+      {:ok, user} ->
+        {:ok, access_token, _access_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+        {:ok, refresh_token, _refresh_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+        # Store tokens in session
+        GameServer.OAuthSessions.create_session(session_id, %{
+          status: "completed",
+          data: %{
+            access_token: access_token,
+            refresh_token: refresh_token,
+            token_type: "Bearer",
+            expires_in: 900,
+            user: %{id: user.id, email: user.email}
+          }
+        })
+
+        # Redirect to success page
+        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+
+      {:error, changeset} ->
+        GameServer.OAuthSessions.create_session(session_id, %{
+          status: "error",
+          data: %{details: changeset.errors}
+        })
+
+        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+    end
+  end
+
+  defp do_find_or_create_discord(conn, user_params) do
+    case Accounts.find_or_create_from_discord(user_params) do
+      {:ok, user} ->
+        {:ok, access_token, _access_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+        {:ok, refresh_token, _refresh_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+        json(conn, %{
+          data: %{
+            access_token: access_token,
+            refresh_token: refresh_token,
+            token_type: "Bearer",
+            expires_in: 900,
+            user: %{
+              id: user.id,
+              email: user.email,
+              profile_url: user.profile_url
+            }
+          }
+        })
+
+      {:error, changeset} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "Failed to create or update user account", details: changeset.errors})
+    end
+  end
+
+  # Direct API callback handlers for backward compatibility with tests
+  defp handle_direct_api_discord_callback(conn, code) do
+    # Use the configured exchanger (mock in tests)
+    exchanger = Application.get_env(:game_server, :oauth_exchanger, GameServer.OAuth.Exchanger)
+    client_id = System.get_env("DISCORD_CLIENT_ID")
+    secret = System.get_env("DISCORD_CLIENT_SECRET")
+    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/auth/discord/callback"
+
+    case exchanger.exchange_discord_code(code, client_id, secret, redirect_uri) do
+      {:ok, %{"id" => discord_id, "email" => email} = response} ->
+        avatar = response["avatar"]
+
+        user_params = %{
+          email: email,
+          discord_id: discord_id,
+          profile_url:
+            if(avatar, do: "https://cdn.discordapp.com/avatars/#{discord_id}/#{avatar}.png")
+        }
+
+        handle_api_discord_callback_direct(conn, user_params)
+
+      {:error, error} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "OAuth exchange failed", details: error})
+    end
+  end
+
+  defp handle_direct_api_google_callback(conn, code) do
+    exchanger = Application.get_env(:game_server, :oauth_exchanger, GameServer.OAuth.Exchanger)
+    client_id = System.get_env("GOOGLE_CLIENT_ID")
+    secret = System.get_env("GOOGLE_CLIENT_SECRET")
+    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/auth/google/callback"
+
+    case exchanger.exchange_google_code(code, client_id, secret, redirect_uri) do
+      {:ok, %{"id" => google_id, "email" => email}} ->
+        user_params = %{email: email, google_id: google_id}
+        handle_api_google_callback(conn, user_params)
+
+      {:error, error} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "OAuth exchange failed", details: error})
+    end
+  end
+
+  defp handle_direct_api_facebook_callback(conn, code) do
+    exchanger = Application.get_env(:game_server, :oauth_exchanger, GameServer.OAuth.Exchanger)
+    client_id = System.get_env("FACEBOOK_CLIENT_ID")
+    secret = System.get_env("FACEBOOK_CLIENT_SECRET")
+    redirect_uri = "#{conn.scheme}://#{conn.host}:#{conn.port}/auth/facebook/callback"
+
+    case exchanger.exchange_facebook_code(code, client_id, secret, redirect_uri) do
+      {:ok, %{"id" => facebook_id, "email" => email}} ->
+        user_params = %{email: email, facebook_id: facebook_id}
+        handle_api_facebook_callback(conn, user_params)
+
+      {:error, error} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "OAuth exchange failed", details: error})
+    end
+  end
+
+  # Handle API Discord callback with direct user params (for backward compatibility)
+  defp handle_api_discord_callback_direct(conn, user_params) do
+    require Logger
+    Logger.info("Discord OAuth user params: #{inspect(user_params)}")
+
+    # If the request includes a bearer token, attempt to link the provider
+    # to the currently authenticated API user (if any). Otherwise, create
+    # or find a user and return tokens as before.
+    case get_req_header(conn, "authorization") do
+      ["Bearer " <> token] ->
+        case Guardian.resource_from_token(token) do
+          {:ok, current_user, _claims} ->
+            case Accounts.link_account(
+                   current_user,
+                   user_params,
+                   :discord_id,
+                   &GameServer.Accounts.User.discord_oauth_changeset/2
+                 ) do
+              {:ok, user} ->
+                # return the updated user
+                json(conn, %{
+                  data: %{
+                    user: %{id: user.id, email: user.email},
+                    message: "Linked"
+                  }
+                })
+
+              {:error, {:conflict, other_user}} ->
+                conn
+                |> put_status(:conflict)
+                |> json(%{error: "conflict", conflict_user_id: other_user.id})
+
+              {:error, changeset} ->
+                conn
+                |> put_status(:bad_request)
+                |> json(%{error: "Failed to link provider", details: changeset.errors})
+            end
+
+          _ ->
+            # No valid token -> fallback to create/find
+            do_find_or_create_discord(conn, user_params)
+        end
+
+      _ ->
+        do_find_or_create_discord(conn, user_params)
+    end
+  end
 end

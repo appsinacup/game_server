@@ -21,6 +21,10 @@ defmodule GameServerWeb.Router do
     plug OpenApiSpex.Plug.PutApiSpec, module: GameServerWeb.ApiSpec
   end
 
+  pipeline :oauth_callback do
+    plug :accepts, ["html", "json"]
+  end
+
   pipeline :api_auth do
     plug GameServerWeb.Auth.Pipeline
     plug GameServerWeb.Plugs.SentryContext
@@ -67,11 +71,12 @@ defmodule GameServerWeb.Router do
     pipe_through :api
 
     get "/:provider", AuthController, :api_request
-    get "/:provider/callback", AuthController, :api_callback
-    # Authenticated helper endpoints
-    # These require a Bearer token and are intended for API clients that hold a user token.
-    # non-authenticated paths are above; authenticated helpers are in a separate scope below
+    get "/session/:session_id", AuthController, :api_session_status
   end
+
+  # Note: API-level routes for OAuth do not provide the provider callback
+  # routes. Browser callback routes remain under the /auth scope to avoid
+  # leaking browser-only callback paths into the API/OpenAPI spec.
 
   scope "/api/v1/auth", GameServerWeb do
     pipe_through [:api, :api_auth]
@@ -129,13 +134,14 @@ defmodule GameServerWeb.Router do
       live "/users/log-in", UserLive.Login, :new
       live "/users/log-in/:token", UserLive.Confirmation, :new
       live "/docs/setup", PublicDocs, :index
+      live "/auth/success", AuthSuccessLive, :index
     end
 
     post "/users/log-in", UserSessionController, :create
     delete "/users/log-out", UserSessionController, :delete
   end
 
-  ## OAuth routes
+  ## OAuth routes - unified for both browser and API flows
 
   scope "/auth", GameServerWeb do
     pipe_through :browser
