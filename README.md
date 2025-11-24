@@ -1,4 +1,4 @@
-![uro banner](./priv/static/images/uro_banner.png)
+![gamend banner](./priv/static/images/banner.png)
 
 -----
 

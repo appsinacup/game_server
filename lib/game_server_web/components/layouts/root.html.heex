@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
     <!-- Open Graph / Twitter meta defaults -->
-    <% title = assigns[:page_title] || "URO: Game Server" %>
+    <% title = assigns[:page_title] || "URGAMENDO: Game Server" %>
     <% description =
       assigns[:meta_description] ||
-        "URO Game Server — connect and play multiplayer games, tournaments and leaderboards." %>
+        "GAMEND Game Server — connect and play multiplayer games, tournaments and leaderboards." %>
     <% base_url = GameServerWeb.Endpoint.url() %>
-    <% image_path = base_url <> to_string(~p"/images/uro_banner.png") %>
+    <% image_path = base_url <> to_string(~p"/images/banner.png") %>
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
