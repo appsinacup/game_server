@@ -49,7 +49,7 @@ defmodule GameServerWeb.PublicDocs do
                   <p>Install the package via npm:</p>
                   <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
                     <div class="space-y-2">
-                      <div>npm install game_server</div>
+                      <div>npm install @ughuuu/game_server</div>
                     </div>
                   </div>
                 </div>
@@ -62,7 +62,7 @@ defmodule GameServerWeb.PublicDocs do
                 <div class="ml-8 space-y-3">
                   <p>Import and configure the API client:</p>
                   <div class="bg-base-200 p-4 rounded-lg">
-                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const { ApiClient, HealthApi, AuthenticationApi, UsersApi } = require('game_server');
+                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const { ApiClient, HealthApi, AuthenticationApi, UsersApi } = require('@ughuuu/game_server');
 
     // Initialize the API client
     const apiClient = new ApiClient();
