@@ -158,6 +158,31 @@ defmodule GameServerWeb.AdminLive.Config do
                     <td class="font-mono text-sm">{@config.env}</td>
                   </tr>
                   <tr>
+                    <td class="font-semibold">Log Level</td>
+                    <td>
+                      <span class={[
+                        "badge",
+                        case @config.log_level do
+                          :debug -> "badge-info"
+                          :info -> "badge-success"
+                          :warning -> "badge-warning"
+                          :error -> "badge-error"
+                          _ -> "badge-neutral"
+                        end
+                      ]}>
+                        {String.upcase(to_string(@config.log_level))}
+                      </span>
+                    </td>
+                    <td class="text-sm">
+                      Current logging level: <span class="font-mono">{@config.log_level}</span>
+                      <%= if @config.log_level_env do %>
+                        <span class="text-success">(set via LOG_LEVEL env var)</span>
+                      <% else %>
+                        <span class="text-info">(using default)</span>
+                      <% end %>
+                    </td>
+                  </tr>
+                  <tr>
                     <td class="font-semibold">Database</td>
                     <td><span class="badge badge-info">SQLite</span></td>
                     <td class="font-mono text-sm">{@config.database}</td>
@@ -200,7 +225,24 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                     <td class="text-sm">
                       <%= if @config.sentry_dsn do %>
-                        Error monitoring enabled - production errors will be tracked
+                        Error monitoring enabled - production errors will be tracked<br />
+                        <span class="font-mono text-xs">
+                          Log level: <span class={[
+                            "font-semibold",
+                            case @config.sentry_log_level do
+                              "info" -> "text-info"
+                              "warning" -> "text-warning"
+                              _ -> "text-error"
+                            end
+                          ]}>
+                            {@config.sentry_log_level || "error"}
+                          </span>
+                          <%= if @config.sentry_log_level do %>
+                            (via SENTRY_LOG_LEVEL)
+                          <% else %>
+                            (default)
+                          <% end %>
+                        </span>
                       <% else %>
                         <span class="text-error">SENTRY_DSN not set - errors won't be monitored</span>
                       <% end %>
@@ -298,6 +340,7 @@ defmodule GameServerWeb.AdminLive.Config do
       smtp_password: System.get_env("SMTP_PASSWORD"),
       smtp_relay: System.get_env("SMTP_RELAY"),
       sentry_dsn: System.get_env("SENTRY_DSN"),
+      sentry_log_level: System.get_env("SENTRY_LOG_LEVEL"),
       env: to_string(Application.get_env(:game_server, :environment, Mix.env())),
       database: Application.get_env(:game_server, GameServer.Repo)[:database] || "N/A",
       hostname:
@@ -307,7 +350,9 @@ defmodule GameServerWeb.AdminLive.Config do
       secret_key_base:
         System.get_env("SECRET_KEY_BASE") ||
           Application.get_env(:game_server, GameServerWeb.Endpoint)[:secret_key_base],
-      live_reload: Application.get_env(:game_server, GameServerWeb.Endpoint)[:live_reload] != nil
+      live_reload: Application.get_env(:game_server, GameServerWeb.Endpoint)[:live_reload] != nil,
+      log_level: Logger.level(),
+      log_level_env: System.get_env("LOG_LEVEL")
     }
 
     {:ok, assign(socket, :config, config)}

@@ -191,7 +191,11 @@ defmodule GameServerWeb.UserLive.Login do
      |> push_navigate(to: ~p"/users/log-in")}
   end
 
+  # Only show the local-mailbox helper in development builds.
+  # In production we may use Swoosh.Local when no SMTP is configured, but we
+  # don't want the UI to advertise that to end users.
   defp local_mail_adapter? do
-    Application.get_env(:game_server, GameServer.Mailer)[:adapter] == Swoosh.Adapters.Local
+    Mix.env() == :dev and
+      Application.get_env(:game_server, GameServer.Mailer)[:adapter] == Swoosh.Adapters.Local
   end
 end

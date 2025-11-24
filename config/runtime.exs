@@ -20,6 +20,12 @@ if System.get_env("PHX_SERVER") do
   config :game_server, GameServerWeb.Endpoint, server: true
 end
 
+# Configure log level from environment variable (defaults to :info in prod, :debug in dev)
+if log_level = System.get_env("LOG_LEVEL") do
+  level = String.to_existing_atom(log_level)
+  config :logger, level: level
+end
+
 if config_env() == :prod do
   # Check if PostgreSQL environment variables are set
   has_postgres_config =
@@ -146,6 +152,16 @@ if config_env() == :prod do
   #
   # Configure Sentry for error tracking and monitoring
   if dsn = System.get_env("SENTRY_DSN") do
+    # Determine which log levels to send to Sentry (default: :error only)
+    # Set SENTRY_LOG_LEVEL to capture more: info, warning, error
+    sentry_log_level = 
+      case System.get_env("SENTRY_LOG_LEVEL") do
+        "info" -> :info
+        "warning" -> :warning
+        "error" -> :error
+        _ -> :error  # default to error only
+      end
+
     config :sentry,
       dsn: dsn,
       environment_name: :prod,
@@ -154,5 +170,15 @@ if config_env() == :prod do
       tags: %{
         env: "production"
       }
+
+    # Also register Sentry as a Logger backend so logger events are
+    # automatically forwarded to Sentry. The level determines the minimum
+    # severity that gets sent to Sentry (e.g., :info captures info, warning, and error).
+    config :logger, backends: [:console, {Sentry.Logger, level: sentry_log_level}]
+  end
+
+  unless System.get_env("SENTRY_DSN") do
+    require Logger
+    Logger.warn("SENTRY_DSN not set — Sentry will be disabled. Set SENTRY_DSN in production to enable error monitoring and log forwarding.")
   end
 end
