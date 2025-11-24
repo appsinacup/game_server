@@ -12,7 +12,7 @@ defmodule GameServerWeb.PublicDocs do
             Platform setup, OAuth providers, email, error monitoring, and server hooks
           </:subtitle>
         </.header>
-         
+        
     <!-- JavaScript Client SDK -->
         <div class="card bg-base-100 shadow-xl collapsed" data-card-key="js_client">
           <div class="card-body">
