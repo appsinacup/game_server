@@ -1,7 +1,7 @@
 const { ApiClient, HealthApi, AuthenticationApi, UsersApi } = require('./javascript/dist/index.js');
 const { default: open } = require('open');
-const basePath = 'http://localhost:4000';
-//const basePath = 'https://gamend.appsinacup.com';
+//const basePath = 'http://localhost:4000';
+const basePath = 'https://gamend.appsinacup.com';
 async function testSDK() {
   try {
     console.log('Testing SDK health check...');
@@ -111,9 +111,7 @@ async function runOAuthFlow(provider) {
     console.log(`🎉 ${provider} OAuth flow completed successfully!`);
     console.log('Access Token:', tokenData.accessToken);
     console.log('Refresh Token:', tokenData.refreshToken);
-    console.log('Token Type:', tokenData.tokenType);
     console.log('Expires In:', tokenData.expiresIn, 'seconds');
-    console.log('User:', tokenData.user);
     console.log('');
 
     return {provider, tokenData};
