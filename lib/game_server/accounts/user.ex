@@ -237,7 +237,8 @@ defmodule GameServer.Accounts.User do
   def display_name_changeset(user, attrs) do
     user
     |> cast(attrs, [:display_name])
-    |> validate_length(:display_name, max: 80)
+    |> validate_required([:display_name])
+    |> validate_length(:display_name, min: 1, max: 80)
   end
 
   @doc """

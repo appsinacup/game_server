@@ -40,6 +40,21 @@ defmodule GameServerWeb.Api.V1.MeControllerTest do
       reloaded = GameServer.Repo.get(GameServer.Accounts.User, user.id)
       assert reloaded.display_name == "API Name"
     end
+
+    test "empty display_name returns bad request", %{conn: conn} do
+      user = GameServer.AccountsFixtures.user_fixture()
+      {:ok, token, _} = Guardian.encode_and_sign(user)
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer " <> token)
+        |> patch("/api/v1/me/display_name", %{display_name: ""})
+
+      assert conn.status == 400
+      body = json_response(conn, 400)
+      assert Map.has_key?(body, "errors")
+      assert Map.has_key?(body["errors"], "display_name")
+    end
   end
 
   describe "PATCH /api/v1/me/password" do
@@ -62,6 +77,21 @@ defmodule GameServerWeb.Api.V1.MeControllerTest do
       # reloaded and verify password works
       reloaded = GameServer.Repo.get(GameServer.Accounts.User, user.id)
       assert GameServer.Accounts.get_user_by_email_and_password(reloaded.email, new_password)
+    end
+
+    test "empty password returns bad request", %{conn: conn} do
+      user = GameServer.AccountsFixtures.user_fixture()
+      {:ok, token, _} = Guardian.encode_and_sign(user)
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer " <> token)
+        |> patch("/api/v1/me/password", %{password: "", password_confirmation: ""})
+
+      assert conn.status == 400
+      body = json_response(conn, 400)
+      assert Map.has_key?(body, "errors")
+      assert Map.has_key?(body["errors"], "password")
     end
   end
 

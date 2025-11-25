@@ -414,6 +414,13 @@ defmodule GameServerWeb.AuthController do
     json(conn, %{authorization_url: url, session_id: session_id})
   end
 
+  # Unknown provider
+  def api_request(conn, %{"provider" => _provider}) do
+    conn
+    |> put_status(:bad_request)
+    |> json(%{error: "invalid_provider", message: "Unsupported OAuth provider"})
+  end
+
   operation(:api_conflict_delete,
     operation_id: "oauth_conflict_delete",
     summary: "Delete conflicting provider account",
@@ -521,10 +528,10 @@ defmodule GameServerWeb.AuthController do
         # JavaScript SDK: { status: string, data: { ... } }
         json(conn, %{status: status, data: data || %{}})
 
-      [] ->
+      nil ->
         conn
         |> put_status(:not_found)
-        |> json(%{error: "Session not found"})
+        |> json(%{error: "session_not_found", message: "OAuth session not found"})
     end
   end
 

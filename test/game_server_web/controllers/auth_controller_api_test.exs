@@ -75,4 +75,27 @@ defmodule GameServerWeb.AuthControllerApiTest do
       assert json_response(resp, 400)["error"] == "invalid id"
     end
   end
+
+  describe "GET /api/v1/auth/session/:session_id" do
+    test "returns 404 for missing session id", %{conn: conn} do
+      conn = get(conn, ~p"/api/v1/auth/session/nonexistent-id")
+
+      assert conn.status == 404
+      assert json_response(conn, 404)["error"] == "session_not_found"
+    end
+
+    test "empty session path returns 404 (router)", %{conn: conn} do
+      # Hitting the endpoint without a session id should not match the route
+      resp = get(conn, "/api/v1/auth/session/")
+      assert resp.status == 404
+    end
+  end
+
+  describe "GET /api/v1/auth/:provider API request" do
+    test "unknown provider returns 400", %{conn: conn} do
+      conn = get(conn, ~p"/api/v1/auth/invalid-provider")
+
+      assert conn.status == 400
+      assert json_response(conn, 400)["error"] == "invalid_provider"
+    end
 end
