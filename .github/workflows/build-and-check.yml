@@ -349,3 +349,18 @@ jobs:
         with:
           name: godot_addons
           path: godot_addons
+
+      - name: Archive
+        shell: sh
+        run: |
+          zip -r "godot_addons.zip" godot_addons
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Gamend Godot SDK Nightly
+          files: |
+            godot_addons.zip.zip
+          generate_release_notes: true
+          make_latest: true
+          fail_on_unmatched_files: true
