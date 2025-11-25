@@ -360,7 +360,7 @@ jobs:
           tag_name: latest
           name: Gamend Godot SDK Nightly
           files: |
-            godot_addons.zip.zip
+            godot_addons.zip
           generate_release_notes: true
           make_latest: true
           fail_on_unmatched_files: true
