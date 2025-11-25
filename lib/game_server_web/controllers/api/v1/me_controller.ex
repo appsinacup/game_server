@@ -11,15 +11,6 @@ defmodule GameServerWeb.Api.V1.MeController do
     summary: "Return current user info",
     description: "Returns the current authenticated user's basic information.",
     security: [%{"authorization" => []}],
-    parameters: [
-      authorization: [
-        in: :header,
-        name: "Authorization",
-        schema: %Schema{type: :string},
-        description: "Bearer token",
-        required: true
-      ]
-    ],
     responses: [
       ok: {
         "User info",

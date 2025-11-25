@@ -13,7 +13,11 @@ defmodule GameServerWeb.SessionControllerApiTest do
       conn = post(conn, "/api/v1/refresh", %{refresh_token: "invalid-token"})
 
       assert conn.status == 401
-      assert json_response(conn, 401)["error"] in ["Invalid or expired refresh token", "Invalid refresh token"]
+
+      assert json_response(conn, 401)["error"] in [
+               "Invalid or expired refresh token",
+               "Invalid refresh token"
+             ]
     end
   end
 end
