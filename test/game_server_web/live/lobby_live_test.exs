@@ -159,4 +159,51 @@ defmodule GameServerWeb.LobbyLiveTest do
     refreshed = GameServer.Accounts.get_user!(user.id)
     assert refreshed.lobby_id == nil
   end
+
+  test "non-host cannot see kick buttons in view mode", %{conn: conn} do
+    host = GameServer.AccountsFixtures.user_fixture()
+    member = GameServer.AccountsFixtures.user_fixture(%{email: "member2@example.com"})
+
+    {:ok, lobby} = Lobbies.create_lobby(%{name: "view-only-room", host_id: host.id})
+
+    # member joins
+    {:ok, _} = Lobbies.join_lobby(member, lobby.id)
+
+    logged_member_conn = conn |> log_in_user(member)
+    {:ok, view, _html} = live(logged_member_conn, "/lobbies")
+
+    # member clicks View to open the detail panel
+    view_button = element(view, "#lobby-#{lobby.id} button", "View")
+    render_click(view_button)
+
+    html = render(view)
+
+    # member should see Leave button for themselves
+    assert html =~ "Leave"
+    # member should NOT see Kick buttons (only host can kick)
+    refute html =~ "Kick"
+  end
+
+  test "non-host cannot kick via direct event", %{conn: conn} do
+    host = GameServer.AccountsFixtures.user_fixture()
+    member = GameServer.AccountsFixtures.user_fixture(%{email: "member3@example.com"})
+    target = GameServer.AccountsFixtures.user_fixture(%{email: "target@example.com"})
+
+    {:ok, lobby} = Lobbies.create_lobby(%{name: "kick-attempt-room", host_id: host.id})
+    {:ok, _} = Lobbies.join_lobby(member, lobby.id)
+    {:ok, _} = Lobbies.join_lobby(target, lobby.id)
+
+    logged_member_conn = conn |> log_in_user(member)
+    {:ok, view, _html} = live(logged_member_conn, "/lobbies")
+
+    # member tries to kick target by sending the event directly
+    render_click(view, "kick", %{"lobby_id" => lobby.id, "target_id" => target.id})
+
+    # target should still be in the lobby (kick should fail because member is not host)
+    refreshed_target = GameServer.Accounts.get_user!(target.id)
+    assert refreshed_target.lobby_id == lobby.id
+
+    # should show error flash
+    assert render(view) =~ "not_host"
+  end
 end

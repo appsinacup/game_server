@@ -134,4 +134,66 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     reloaded = GameServer.Repo.get(GameServer.Accounts.User, other.id)
     assert is_nil(reloaded.lobby_id)
   end
+
+  test "POST /api/v1/lobbies/:id/kick forbidden for non-host", %{conn: conn} do
+    host = AccountsFixtures.user_fixture()
+    member1 = AccountsFixtures.user_fixture()
+    member2 = AccountsFixtures.user_fixture()
+    {:ok, lobby} = Lobbies.create_lobby(%{name: "kick-forbidden-room", host_id: host.id})
+    assert {:ok, _} = Lobbies.join_lobby(member1, lobby)
+    assert {:ok, _} = Lobbies.join_lobby(member2, lobby)
+
+    # member1 tries to kick member2 - should be forbidden
+    {:ok, token_member1, _} = Guardian.encode_and_sign(member1)
+
+    conn =
+      conn
+      |> put_req_header("authorization", "Bearer " <> token_member1)
+      |> post("/api/v1/lobbies/#{lobby.id}/kick", %{target_user_id: member2.id})
+
+    assert conn.status == 403
+    assert json_response(conn, 403)["error"] == "not_host"
+
+    # member2 should still be in the lobby
+    reloaded = GameServer.Repo.get(GameServer.Accounts.User, member2.id)
+    assert reloaded.lobby_id == lobby.id
+  end
+
+  test "POST /api/v1/lobbies/:id/kick host cannot kick self", %{conn: conn} do
+    host = AccountsFixtures.user_fixture()
+    {:ok, lobby} = Lobbies.create_lobby(%{name: "self-kick-room", host_id: host.id})
+
+    {:ok, token_host, _} = Guardian.encode_and_sign(host)
+
+    conn =
+      conn
+      |> put_req_header("authorization", "Bearer " <> token_host)
+      |> post("/api/v1/lobbies/#{lobby.id}/kick", %{target_user_id: host.id})
+
+    assert conn.status == 403
+    assert json_response(conn, 403)["error"] == "cannot_kick_self"
+
+    # host should still be in the lobby
+    reloaded = GameServer.Repo.get(GameServer.Accounts.User, host.id)
+    assert reloaded.lobby_id == lobby.id
+  end
+
+  test "POST /api/v1/lobbies/:id/leave removes user from lobby", %{conn: conn} do
+    host = AccountsFixtures.user_fixture()
+    member = AccountsFixtures.user_fixture()
+    {:ok, lobby} = Lobbies.create_lobby(%{name: "leave-room", host_id: host.id})
+    assert {:ok, _} = Lobbies.join_lobby(member, lobby)
+
+    {:ok, token_member, _} = Guardian.encode_and_sign(member)
+
+    conn =
+      conn
+      |> put_req_header("authorization", "Bearer " <> token_member)
+      |> post("/api/v1/lobbies/#{lobby.id}/leave")
+
+    assert json_response(conn, 200)["message"] == "left"
+
+    reloaded = GameServer.Repo.get(GameServer.Accounts.User, member.id)
+    assert is_nil(reloaded.lobby_id)
+  end
 end
