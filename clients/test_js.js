@@ -1,7 +1,7 @@
 const { ApiClient, HealthApi, AuthenticationApi, UsersApi } = require('./javascript/dist/index.js');
 const { default: open } = require('open');
-//const basePath = 'http://localhost:4000';
-const basePath = 'https://gamend.appsinacup.com';
+const basePath = 'http://localhost:4000';
+//const basePath = 'https://gamend.appsinacup.com';
 async function testSDK() {
   try {
     console.log('Testing SDK health check...');

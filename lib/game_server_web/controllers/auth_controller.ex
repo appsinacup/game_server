@@ -119,8 +119,13 @@ defmodule GameServerWeb.AuthController do
     redirect_uri = "#{base}/auth/google/callback"
 
     case exchanger.exchange_google_code(code, client_id, secret, redirect_uri) do
-      {:ok, %{"id" => google_id, "email" => email}} ->
-        user_params = %{email: email, google_id: google_id}
+      {:ok, %{"id" => google_id, "email" => email} = user_info} ->
+        # Google userinfo often contains a `picture` field with a profile image URL
+        picture = Map.get(user_info, "picture")
+
+        user_params =
+          %{email: email, google_id: google_id}
+          |> Map.merge(if(picture, do: %{profile_url: picture}, else: %{}))
 
         case params["state"] do
           nil ->
@@ -164,7 +169,18 @@ defmodule GameServerWeb.AuthController do
       {:ok, %{"id" => facebook_id} = user_info} ->
         # Facebook may not return email if user hasn't granted permission
         email = user_info["email"]
+
+        # Facebook returns picture in nested structure: %{"picture" => %{"data" => %{"url" => url}}}
+        profile_url =
+          user_info
+          |> Map.get("picture", %{})
+          |> Map.get("data", %{})
+          |> Map.get("url")
+
         user_params = %{email: email, facebook_id: facebook_id}
+
+        user_params =
+          if(profile_url, do: Map.put(user_params, :profile_url, profile_url), else: user_params)
 
         case params["state"] do
           nil ->

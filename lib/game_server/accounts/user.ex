@@ -180,7 +180,7 @@ defmodule GameServer.Accounts.User do
   """
   def google_oauth_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :google_id, :is_admin])
+    |> cast(attrs, [:email, :google_id, :profile_url, :is_admin])
     |> update_change(:email, fn
       nil -> nil
       email -> String.downcase(email)
@@ -204,7 +204,7 @@ defmodule GameServer.Accounts.User do
   """
   def facebook_oauth_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :facebook_id, :is_admin])
+    |> cast(attrs, [:email, :facebook_id, :profile_url, :is_admin])
     |> update_change(:email, fn
       nil -> nil
       email -> String.downcase(email)
