@@ -215,6 +215,71 @@ defmodule GameServerWeb.PublicDocs do
                   </div>
                 </div>
               </div>
+
+              <div class="step">
+                <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <span class="badge badge-primary">7</span> Lobby Management
+                </h3>
+                <div class="ml-8 space-y-3">
+                  <p>Work with lobbies for multiplayer matchmaking:</p>
+
+                  <h4 class="font-semibold">List Available Lobbies:</h4>
+                  <div class="bg-base-200 p-4 rounded-lg">
+                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>const { LobbiesApi } = require('@ughuuu/game_server');
+    const lobbiesApi = new LobbiesApi(apiClient);
+
+    // List all public lobbies
+    const lobbies = await lobbiesApi.listLobbies();
+    console.log('Available lobbies:', lobbies.data);
+
+    // Search lobbies by name/title
+    const searchResults = await lobbiesApi.listLobbies({ q: 'game' });</code></pre>
+                  </div>
+
+                  <h4 class="font-semibold mt-4">Create a Lobby:</h4>
+                  <div class="bg-base-200 p-4 rounded-lg">
+                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>// Create a new lobby (requires authentication)
+    const newLobby = await lobbiesApi.createLobby({
+    title: 'My Game Room',
+    max_users: 4,
+    is_hidden: false,
+    metadata: { game_mode: 'deathmatch' }
+    });
+    console.log('Created lobby:', newLobby.data);</code></pre>
+                  </div>
+
+                  <h4 class="font-semibold mt-4">Join a Lobby:</h4>
+                  <div class="bg-base-200 p-4 rounded-lg">
+                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>// Join a lobby by ID
+    await lobbiesApi.joinLobby(lobbyId);
+
+    // Join a password-protected lobby
+    await lobbiesApi.joinLobby(lobbyId, { password: 'secret123' });</code></pre>
+                  </div>
+
+                  <h4 class="font-semibold mt-4">Leave a Lobby:</h4>
+                  <div class="bg-base-200 p-4 rounded-lg">
+                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>await lobbiesApi.leaveLobby(lobbyId);
+    console.log('Left the lobby');</code></pre>
+                  </div>
+
+                  <h4 class="font-semibold mt-4">Update Lobby (Host Only):</h4>
+                  <div class="bg-base-200 p-4 rounded-lg">
+                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>// Update lobby settings
+    await lobbiesApi.updateLobby(lobbyId, {
+    title: 'Updated Room Name',
+    max_users: 8,
+    is_locked: true
+    });</code></pre>
+                  </div>
+
+                  <h4 class="font-semibold mt-4">Kick a User (Host Only):</h4>
+                  <div class="bg-base-200 p-4 rounded-lg">
+                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>await lobbiesApi.kickUser(lobbyId, { target_user_id: 123 });
+    console.log('User kicked from lobby');</code></pre>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

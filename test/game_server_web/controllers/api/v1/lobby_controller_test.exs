@@ -15,9 +15,9 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     {:ok, _hidden} = Lobbies.create_lobby(%{name: "hidden-room", hostless: true, is_hidden: true})
 
     conn = get(conn, "/api/v1/lobbies")
-    body = json_response(conn, 200)
-    assert Enum.any?(body["data"], fn l -> l["name"] == lobby1.name end)
-    refute Enum.any?(body["data"], fn l -> l["name"] == "hidden-room" end)
+    lobbies = json_response(conn, 200)
+    assert Enum.any?(lobbies, fn l -> l["name"] == lobby1.name end)
+    refute Enum.any?(lobbies, fn l -> l["name"] == "hidden-room" end)
   end
 
   test "POST /api/v1/lobbies (hosted) requires auth and creates a lobby", %{conn: conn} do
@@ -30,9 +30,9 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
       |> post("/api/v1/lobbies", %{name: "api-room"})
 
     assert conn.status == 201
-    data = json_response(conn, 201)["data"]
-    assert data["host_id"] == user.id
-    assert data["name"] == "api-room"
+    lobby = json_response(conn, 201)
+    assert lobby["host_id"] == user.id
+    assert lobby["name"] == "api-room"
   end
 
   test "POST /api/v1/lobbies hostless creation removed from public API returns unauthorized", %{
@@ -54,7 +54,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
       |> put_req_header("authorization", "Bearer " <> token)
       |> post("/api/v1/lobbies/#{lobby.id}/join", %{})
 
-    assert json_response(conn, 200)["data"] == "joined"
+    assert json_response(conn, 200)["message"] == "joined"
 
     reloaded = GameServer.Repo.get(GameServer.Accounts.User, other.id)
     assert reloaded.lobby_id == lobby.id
@@ -113,7 +113,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
       |> put_req_header("authorization", "Bearer " <> token_host)
       |> patch("/api/v1/lobbies/#{lobby.id}", %{title: "New Title"})
 
-    assert json_response(conn2, 200)["data"]["title"] == "New Title"
+    assert json_response(conn2, 200)["title"] == "New Title"
   end
 
   test "POST /api/v1/lobbies/:id/kick allowed for host", %{conn: conn} do
@@ -129,7 +129,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
       |> put_req_header("authorization", "Bearer " <> token_host)
       |> post("/api/v1/lobbies/#{lobby.id}/kick", %{target_user_id: other.id})
 
-    assert json_response(conn, 200)["data"] == "kicked"
+    assert json_response(conn, 200)["message"] == "kicked"
 
     reloaded = GameServer.Repo.get(GameServer.Accounts.User, other.id)
     assert is_nil(reloaded.lobby_id)

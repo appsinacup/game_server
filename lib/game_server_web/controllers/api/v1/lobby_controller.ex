@@ -7,11 +7,38 @@ defmodule GameServerWeb.Api.V1.LobbyController do
 
   tags(["Lobbies"])
 
+  # Shared schema for lobby response
+  @lobby_schema %Schema{
+    type: :object,
+    properties: %{
+      id: %Schema{type: :integer, description: "Lobby ID"},
+      name: %Schema{type: :string, description: "Unique slug identifier"},
+      title: %Schema{type: :string, description: "Display title"},
+      host_id: %Schema{type: :integer, description: "User ID of the host", nullable: true},
+      hostless: %Schema{type: :boolean, description: "Whether this is a server-managed lobby"},
+      max_users: %Schema{type: :integer, description: "Maximum number of users allowed"},
+      is_hidden: %Schema{type: :boolean, description: "Hidden from public listings"},
+      is_locked: %Schema{type: :boolean, description: "Locked - no new joins allowed"},
+      metadata: %Schema{type: :object, description: "Arbitrary metadata"}
+    },
+    example: %{
+      id: 1,
+      name: "my-lobby-abc123",
+      title: "My Game Lobby",
+      host_id: 42,
+      hostless: false,
+      max_users: 8,
+      is_hidden: false,
+      is_locked: false,
+      metadata: %{}
+    }
+  }
+
   operation(:index,
     operation_id: "list_lobbies",
     summary: "List lobbies",
     description:
-      "Return all non-hidden lobbies, supports optional text search via 'q' and metadata filters.",
+      "Return all non-hidden lobbies. Supports optional text search via 'q' and metadata filters.",
     parameters: [
       q: [
         in: :query,
@@ -21,80 +48,210 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       metadata_key: [
         in: :query,
         schema: %Schema{type: :string},
-        description: "optional metadata key to filter"
+        description: "Optional metadata key to filter by"
       ],
       metadata_value: [
         in: :query,
         schema: %Schema{type: :string},
-        description: "optional metadata value to filter"
+        description: "Optional metadata value to match (used with metadata_key)"
       ]
     ],
-    responses: [ok: {"List of lobbies", "application/json", %Schema{type: :object}}]
+    responses: [
+      ok: {"List of lobbies", "application/json", %Schema{type: :array, items: @lobby_schema}}
+    ]
   )
 
   operation(:create,
     operation_id: "create_lobby",
     summary: "Create a lobby",
-    description: "Create a lobby. Authenticated user becomes the host.",
+    description:
+      "Create a new lobby. The authenticated user becomes the host and is automatically joined.",
     security: [%{"authorization" => []}],
-    request_body: {"Lobby params", "application/json", %Schema{type: :object}},
-    responses: [created: {"Lobby created", "application/json", %Schema{type: :object}}]
-  )
-
-  operation(:join,
-    operation_id: "join_lobby",
-    summary: "Join a lobby",
-    description: "Authenticated user joins a lobby; send password when required.",
-    security: [%{"authorization" => []}],
-    parameters: [
-      authorization: [
-        in: :header,
-        name: "Authorization",
-        schema: %Schema{type: :string},
-        required: true
-      ]
-    ],
-    request_body: {"Join params", "application/json", %Schema{type: :object}},
-    responses: [ok: {"Joined", "application/json", %Schema{type: :object}}]
-  )
-
-  operation(:leave,
-    operation_id: "leave_lobby",
-    summary: "Leave the lobby",
-    description: "Authenticated user leaves their current lobby.",
-    security: [%{"authorization" => []}],
-    parameters: [
-      authorization: [
-        in: :header,
-        name: "Authorization",
-        schema: %Schema{type: :string},
-        required: true
-      ]
-    ],
-    responses: [ok: {"Left", "application/json", %Schema{type: :object}}]
+    request_body: {
+      "Lobby creation parameters",
+      "application/json",
+      %Schema{
+        type: :object,
+        properties: %{
+          title: %Schema{type: :string, description: "Display title for the lobby"},
+          max_users: %Schema{
+            type: :integer,
+            description: "Maximum users allowed (default: 8)",
+            default: 8
+          },
+          is_hidden: %Schema{
+            type: :boolean,
+            description: "Hide from public listings",
+            default: false
+          },
+          is_locked: %Schema{type: :boolean, description: "Lock the lobby", default: false},
+          password: %Schema{
+            type: :string,
+            description: "Optional password to protect the lobby"
+          },
+          metadata: %Schema{type: :object, description: "Arbitrary metadata"}
+        },
+        example: %{
+          title: "My Game Lobby",
+          max_users: 4,
+          is_hidden: false
+        }
+      }
+    },
+    responses: [
+      created: {"Lobby created", "application/json", @lobby_schema},
+      conflict:
+        {"User already in a lobby", "application/json",
+         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
+      unauthorized:
+        {"Not authenticated", "application/json",
+         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}}
+    ]
   )
 
   operation(:update,
     operation_id: "update_lobby",
     summary: "Update lobby (host only)",
+    description: "Update lobby settings. Only the host can update the lobby.",
     security: [%{"authorization" => []}],
-    request_body: {"Update params", "application/json", %Schema{type: :object}},
-    responses: [ok: {"Updated", "application/json", %Schema{type: :object}}]
+    parameters: [
+      id: [in: :path, schema: %Schema{type: :integer}, description: "Lobby ID", required: true]
+    ],
+    request_body: {
+      "Lobby update parameters",
+      "application/json",
+      %Schema{
+        type: :object,
+        properties: %{
+          title: %Schema{type: :string, description: "New display title"},
+          max_users: %Schema{type: :integer, description: "New maximum users"},
+          is_hidden: %Schema{type: :boolean, description: "Hide from public listings"},
+          is_locked: %Schema{type: :boolean, description: "Lock the lobby"},
+          password: %Schema{type: :string, description: "New password (empty string to clear)"},
+          metadata: %Schema{type: :object, description: "New metadata"}
+        },
+        example: %{
+          title: "Updated Lobby Name",
+          max_users: 6,
+          is_locked: true
+        }
+      }
+    },
+    responses: [
+      ok: {"Lobby updated", "application/json", @lobby_schema},
+      forbidden:
+        {"Not the host", "application/json",
+         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
+      unauthorized:
+        {"Not authenticated", "application/json",
+         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}}
+    ]
+  )
+
+  operation(:join,
+    operation_id: "join_lobby",
+    summary: "Join a lobby",
+    description:
+      "Join an existing lobby. If the lobby requires a password, include it in the request body.",
+    security: [%{"authorization" => []}],
+    parameters: [
+      id: [in: :path, schema: %Schema{type: :integer}, description: "Lobby ID", required: true]
+    ],
+    request_body: {
+      "Join parameters (optional)",
+      "application/json",
+      %Schema{
+        type: :object,
+        properties: %{
+          password: %Schema{type: :string, description: "Lobby password if required"}
+        },
+        example: %{password: "secret123"}
+      }
+    },
+    responses: [
+      ok:
+        {"Successfully joined", "application/json",
+         %Schema{
+           type: :object,
+           properties: %{message: %Schema{type: :string}},
+           example: %{message: "joined"}
+         }},
+      forbidden:
+        {"Cannot join (locked, full, wrong password, etc)", "application/json",
+         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
+      unauthorized:
+        {"Not authenticated", "application/json",
+         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}}
+    ]
+  )
+
+  operation(:leave,
+    operation_id: "leave_lobby",
+    summary: "Leave the current lobby",
+    description: "Leave the lobby you are currently in.",
+    security: [%{"authorization" => []}],
+    parameters: [
+      id: [in: :path, schema: %Schema{type: :integer}, description: "Lobby ID", required: true]
+    ],
+    responses: [
+      ok:
+        {"Successfully left", "application/json",
+         %Schema{
+           type: :object,
+           properties: %{message: %Schema{type: :string}},
+           example: %{message: "left"}
+         }},
+      bad_request:
+        {"Not in a lobby", "application/json",
+         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
+      unauthorized:
+        {"Not authenticated", "application/json",
+         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}}
+    ]
   )
 
   operation(:kick,
     operation_id: "kick_user",
-    summary: "Kick a user from the lobby (host only)",
+    summary: "Kick a user from the lobby",
+    description: "Remove a user from the lobby. Only the host can kick users.",
     security: [%{"authorization" => []}],
-    request_body: {"Kick params", "application/json", %Schema{type: :object}},
-    responses: [ok: {"Kicked", "application/json", %Schema{type: :object}}]
+    parameters: [
+      id: [in: :path, schema: %Schema{type: :integer}, description: "Lobby ID", required: true]
+    ],
+    request_body: {
+      "Kick parameters",
+      "application/json",
+      %Schema{
+        type: :object,
+        properties: %{
+          target_user_id: %Schema{type: :integer, description: "ID of the user to kick"}
+        },
+        required: [:target_user_id],
+        example: %{target_user_id: 123}
+      }
+    },
+    responses: [
+      ok:
+        {"User kicked", "application/json",
+         %Schema{
+           type: :object,
+           properties: %{message: %Schema{type: :string}},
+           example: %{message: "kicked"}
+         }},
+      forbidden:
+        {"Not the host or cannot kick this user", "application/json",
+         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
+      unauthorized:
+        {"Not authenticated", "application/json",
+         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}}
+    ]
   )
 
   def index(conn, params) do
     filters = Map.take(params || %{}, ["q", "metadata_key", "metadata_value"]) |> Enum.into(%{})
     lobbies = Lobbies.list_lobbies(filters)
 
-    json(conn, %{data: Enum.map(lobbies, &serialize_lobby/1)})
+    json(conn, Enum.map(lobbies, &serialize_lobby/1))
   end
 
   def create(conn, params) do
@@ -105,7 +262,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
 
         case Lobbies.create_lobby(params) do
           {:ok, lobby} ->
-            conn |> put_status(:created) |> json(%{data: serialize_lobby(lobby)})
+            conn |> put_status(:created) |> json(serialize_lobby(lobby))
 
           {:error, :already_in_lobby} ->
             conn |> put_status(:conflict) |> json(%{error: "User already in a lobby"})
@@ -125,7 +282,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
         opts = if Map.has_key?(params, "password"), do: %{password: params["password"]}, else: %{}
 
         case Lobbies.join_lobby(user, id, opts) do
-          {:ok, _membership} -> json(conn, %{data: "joined"})
+          {:ok, _membership} -> json(conn, %{message: "joined"})
           {:error, reason} -> conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
         end
 
@@ -139,7 +296,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       %{user: user} when not is_nil(user) ->
         case Lobbies.leave_lobby(user) do
           {:ok, _} ->
-            json(conn, %{data: "left"})
+            json(conn, %{message: "left"})
 
           {:error, reason} ->
             conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
@@ -156,7 +313,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
         lobby = Lobbies.get_lobby!(id)
 
         case Lobbies.update_lobby_by_host(user, lobby, params) do
-          {:ok, lobby} -> json(conn, %{data: serialize_lobby(lobby)})
+          {:ok, lobby} -> json(conn, serialize_lobby(lobby))
           {:error, reason} -> conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
         end
 
@@ -174,7 +331,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
         target_user = GameServer.Accounts.get_user!(target_id)
 
         case Lobbies.kick_user(user, lobby, target_user) do
-          {:ok, _} -> json(conn, %{data: "kicked"})
+          {:ok, _} -> json(conn, %{message: "kicked"})
           {:error, reason} -> conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
         end
 
