@@ -347,5 +347,5 @@ jobs:
       - name: Upload addons zip
         uses: actions/upload-artifact@v4
         with:
-          name: godot-addons
-          path: addons
+          name: godot_addons
+          path: godot_addons

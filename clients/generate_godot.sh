@@ -83,17 +83,12 @@ done
 SRC_TMPL="$OUT_DIR/../gamend_template"
 DST_GAMEND="$DEST_API_DIR"
 
-if [ -d "$SRC_TMPL" ]; then
-  echo "Copying gamend_template -> gamend"
-  cp -R "$SRC_TMPL" "$DST_GAMEND"
-else
-  echo "No gamend_template folder to copy (skip)"
-fi
+cp -R "$SRC_TMPL/." "$DST_GAMEND"
 
-ROOT_ADDONS="$ROOT_DIR/addons"
+ROOT_ADDONS="$ROOT_DIR/godot_addons"
 
-mkdir -p "$ROOT_ADDONS"
+mkdir -p "$ROOT_ADDONS/addons"
 
-mv "$DST_GAMEND" "$ROOT_ADDONS" 2>/dev/null || true
+mv "$DST_GAMEND" "$ROOT_ADDONS/addons" 2>/dev/null || true
 
 echo "gamend_template -> gamend copy complete."
