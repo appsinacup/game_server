@@ -16,11 +16,11 @@ defmodule GameServerWeb.Api.V1.MeControllerTest do
 
       conn = conn |> put_req_header("authorization", "Bearer " <> token) |> get("/api/v1/me")
 
-      assert %{"data" => data} = json_response(conn, 200)
-      assert data["id"] == user.id
-      assert data["email"] == user.email
-      assert Map.has_key?(data, "is_admin")
-      assert Map.has_key?(data, "metadata")
+      body = json_response(conn, 200)
+      assert body["id"] == user.id
+      assert body["email"] == user.email
+      refute Map.has_key?(body, "is_admin")
+      assert Map.has_key?(body, "metadata")
     end
   end
 end

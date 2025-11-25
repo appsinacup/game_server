@@ -22,7 +22,7 @@ defmodule GameServerWeb.Api.V1.ProviderController do
       ]
     ],
     responses: [
-      ok: {"Unlinked", "application/json", %OpenApiSpex.Schema{type: :object}},
+      no_content: {"No Content", "application/json", %OpenApiSpex.Schema{type: :object}},
       bad_request: {"Bad Request", "application/json", %OpenApiSpex.Schema{type: :object}},
       unauthorized: {"Unauthorized", "application/json", %OpenApiSpex.Schema{type: :object}}
     ]
@@ -35,7 +35,7 @@ defmodule GameServerWeb.Api.V1.ProviderController do
 
     case Accounts.unlink_provider(user, provider_atom) do
       {:ok, _user} ->
-        json(conn, %{message: "unlinked"})
+        send_resp(conn, :no_content, "")
 
       {:error, :last_provider} ->
         conn

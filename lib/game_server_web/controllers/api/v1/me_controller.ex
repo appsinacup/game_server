@@ -27,16 +27,10 @@ defmodule GameServerWeb.Api.V1.MeController do
         %Schema{
           type: :object,
           properties: %{
-            data: %Schema{
-              type: :object,
-              properties: %{
-                id: %Schema{type: :integer},
-                email: %Schema{type: :string},
-                profile_url: %Schema{type: :string},
-                is_admin: %Schema{type: :boolean},
-                metadata: %Schema{type: :object}
-              }
-            }
+            id: %Schema{type: :integer},
+            email: %Schema{type: :string},
+            profile_url: %Schema{type: :string},
+            metadata: %Schema{type: :object}
           }
         }
       },
@@ -50,13 +44,10 @@ defmodule GameServerWeb.Api.V1.MeController do
     case conn.assigns.current_scope do
       %{user: user} when not is_nil(user) ->
         json(conn, %{
-          data: %{
-            id: user.id,
-            email: user.email,
-            profile_url: user.profile_url,
-            is_admin: user.is_admin,
-            metadata: user.metadata || %{}
-          }
+          id: user.id,
+          email: user.email,
+          profile_url: user.profile_url,
+          metadata: user.metadata || %{}
         })
 
       _ ->

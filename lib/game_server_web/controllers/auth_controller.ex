@@ -411,7 +411,7 @@ defmodule GameServerWeb.AuthController do
       ]
     ],
     responses: [
-      ok: {"Deleted", "application/json", %OpenApiSpex.Schema{type: :object}},
+      no_content: {"No Content", "application/json", %OpenApiSpex.Schema{type: :object}},
       bad_request: {"Bad Request", "application/json", %OpenApiSpex.Schema{type: :object}},
       unauthorized: {"Unauthorized", "application/json", %OpenApiSpex.Schema{type: :object}}
     ]
@@ -436,7 +436,7 @@ defmodule GameServerWeb.AuthController do
                   (other_user.email || "") != "" ->
                 case Accounts.delete_user(other_user) do
                   {:ok, _} ->
-                    json(conn, %{message: "deleted"})
+                    send_resp(conn, :no_content, "")
 
                   {:error, _} ->
                     conn |> put_status(:bad_request) |> json(%{error: "Failed to delete account"})
@@ -445,7 +445,7 @@ defmodule GameServerWeb.AuthController do
               other_user.hashed_password == nil ->
                 case Accounts.delete_user(other_user) do
                   {:ok, _} ->
-                    json(conn, %{message: "deleted"})
+                    send_resp(conn, :no_content, "")
 
                   {:error, _} ->
                     conn |> put_status(:bad_request) |> json(%{error: "Failed to delete account"})

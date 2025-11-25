@@ -27,7 +27,7 @@ defmodule GameServerWeb.AuthControllerApiTest do
         |> put_req_header("authorization", "Bearer #{token}")
         |> post(~p"/api/v1/auth/discord/conflict-delete?conflict_user_id=#{other.id}")
 
-      assert json_response(resp, 200)["message"] == "deleted"
+      assert response(resp, 204)
       assert_raise Ecto.NoResultsError, fn -> Accounts.get_user!(other.id) end
     end
 

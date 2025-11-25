@@ -53,9 +53,9 @@ defmodule GameServerWeb.Auth.PipelineTest do
         |> put_req_header("authorization", "Bearer " <> token)
         |> get("/api/v1/me")
 
-      assert %{"data" => data} = json_response(conn, 200)
-      assert data["id"] == user.id
-      assert data["email"] == user.email
+      body = json_response(conn, 200)
+      assert body["id"] == user.id
+      assert body["email"] == user.email
     end
   end
 end

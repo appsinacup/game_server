@@ -20,7 +20,7 @@ defmodule GameServerWeb.Api.V1.ProviderControllerTest do
 
       resp = delete(conn, ~p"/api/v1/me/providers/discord")
 
-      assert json_response(resp, 200)["message"] == "unlinked"
+      assert response(resp, 204)
       user = Accounts.get_user!(user.id)
       assert user.discord_id == nil
       assert user.google_id == "g1"
