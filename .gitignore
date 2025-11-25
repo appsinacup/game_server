@@ -45,5 +45,5 @@ redis/
 db/
 clients/javascript/
 clients/node_modules/
-clients/godot/openapi.json
-clients/addons/gamend/api/GamendAPI.gd
+clients/godot/
+clients/addons/

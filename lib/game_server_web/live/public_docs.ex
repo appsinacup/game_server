@@ -156,8 +156,6 @@ defmodule GameServerWeb.PublicDocs do
 
                   <h4 class="font-semibold mt-4">Get User Metadata:</h4>
                   <div class="bg-base-200 p-4 rounded-lg">
-                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const metadata = await usersApi.getUserMetadata(`Bearer ${access_token}`);
-    console.log('Metadata:', metadata.data);</code></pre>
                   </div>
 
                   <h4 class="font-semibold mt-4">Refresh Token:</h4>

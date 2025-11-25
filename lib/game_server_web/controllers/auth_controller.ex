@@ -392,6 +392,7 @@ defmodule GameServerWeb.AuthController do
     description:
       "Deletes a conflicting account that owns a provider ID when allowed (must be authenticated). Only allowed when the conflicting account either has no password (provider-only) or has the same email as the current user.",
     tags: ["Authentication"],
+    security: [%{"authorization" => []}],
     parameters: [
       provider: [
         in: :path,
@@ -480,28 +481,7 @@ defmodule GameServerWeb.AuthController do
       ]
     ],
     responses: [
-      ok: {
-        "Session status",
-        "application/json",
-        %OpenApiSpex.Schema{
-          type: :object,
-          properties: %{
-            status: %OpenApiSpex.Schema{
-              type: :string,
-              enum: ["pending", "completed", "error", "conflict"],
-              description: "Current session status"
-            },
-            data: %OpenApiSpex.Schema{
-              type: :object,
-              description: "Session data when completed"
-            },
-            message: %OpenApiSpex.Schema{
-              type: :string,
-              description: "Optional status message"
-            }
-          }
-        }
-      },
+      ok: {"Session status", "application/json", GameServerWeb.Schemas.OAuthSessionStatus},
       not_found: {"Session not found", "application/json", nil}
     ]
   )
@@ -751,9 +731,7 @@ defmodule GameServerWeb.AuthController do
           data: %{
             access_token: access_token,
             refresh_token: refresh_token,
-            token_type: "Bearer",
-            expires_in: 900,
-            user: %{id: user.id, email: user.email, profile_url: user.profile_url}
+            expires_in: 900
           }
         })
 
@@ -785,9 +763,7 @@ defmodule GameServerWeb.AuthController do
           data: %{
             access_token: access_token,
             refresh_token: refresh_token,
-            token_type: "Bearer",
-            expires_in: 900,
-            user: %{id: user.id, email: user.email}
+            expires_in: 900
           }
         })
 
@@ -819,9 +795,7 @@ defmodule GameServerWeb.AuthController do
           data: %{
             access_token: access_token,
             refresh_token: refresh_token,
-            token_type: "Bearer",
-            expires_in: 900,
-            user: %{id: user.id, email: user.email}
+            expires_in: 900
           }
         })
 
@@ -853,9 +827,7 @@ defmodule GameServerWeb.AuthController do
           data: %{
             access_token: access_token,
             refresh_token: refresh_token,
-            token_type: "Bearer",
-            expires_in: 900,
-            user: %{id: user.id, email: user.email}
+            expires_in: 900
           }
         })
 

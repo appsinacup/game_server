@@ -40,7 +40,6 @@ defmodule GameServerWeb.Api.V1.SessionController do
               properties: %{
                 access_token: %Schema{type: :string, description: "JWT access token (15 min)"},
                 refresh_token: %Schema{type: :string, description: "JWT refresh token (30 days)"},
-                token_type: %Schema{type: :string, description: "Token type"},
                 expires_in: %Schema{
                   type: :integer,
                   description: "Seconds until access token expires"
@@ -59,9 +58,7 @@ defmodule GameServerWeb.Api.V1.SessionController do
             data: %{
               access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
               refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-              token_type: "Bearer",
-              expires_in: 900,
-              user: %{id: 1, email: "user@example.com"}
+              expires_in: 900
             }
           }
         }
@@ -79,13 +76,13 @@ defmodule GameServerWeb.Api.V1.SessionController do
       {:ok, refresh_token, _refresh_claims} =
         Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
 
+      # Refresh tokens are stateless JWTs; do not persist on server side.
+
       json(conn, %{
         data: %{
           access_token: access_token,
           refresh_token: refresh_token,
-          token_type: "Bearer",
-          expires_in: 900,
-          user: %{id: user.id, email: user.email}
+          expires_in: 900
         }
       })
     else
@@ -100,41 +97,20 @@ defmodule GameServerWeb.Api.V1.SessionController do
     summary: "Logout",
     description: "Invalidate user session token",
     security: [%{"authorization" => []}],
-    parameters: [
-      authorization: [
-        in: :header,
-        name: "Authorization",
-        schema: %Schema{type: :string},
-        description: "Bearer token",
-        required: true,
-        example: "Bearer SFMyNTY.g2gDYQFuBgBboby..."
-      ]
-    ],
+    parameters: [],
     responses: [
-      ok: {
-        "Logout successful",
-        "application/json",
-        %Schema{
-          type: :object,
-          properties: %{
-            message: %Schema{type: :string}
-          },
-          example: %{message: "Logged out successfully"}
-        }
-      }
+      no_content: {"Logout successful", "application/json", nil}
     ]
   )
 
   def delete(conn, _params) do
-    # With refresh tokens, logout should ideally revoke the refresh token
-    # For now, client should discard both tokens locally
-    # TODO: Implement refresh token revocation in database
-    json(conn, %{message: "Logged out successfully"})
+    send_resp(conn, :no_content, "")
   end
 
   operation(:refresh,
     operation_id: "refresh_token",
     summary: "Refresh access token",
+    security: [%{"authorization" => []}],
     description: "Exchange a valid refresh token for a new access token",
     request_body: {
       "Refresh token",
@@ -157,29 +133,12 @@ defmodule GameServerWeb.Api.V1.SessionController do
         %Schema{
           type: :object,
           properties: %{
-            data: %Schema{
-              type: :object,
-              properties: %{
-                access_token: %Schema{type: :string, description: "New access token"},
-                token_type: %Schema{type: :string, description: "Token type"},
-                expires_in: %Schema{type: :integer, description: "Seconds until expiry"},
-                user: %Schema{
-                  type: :object,
-                  properties: %{
-                    id: %Schema{type: :integer},
-                    email: %Schema{type: :string}
-                  }
-                }
-              }
-            }
+            access_token: %Schema{type: :string, description: "New access token"},
+            expires_in: %Schema{type: :integer, description: "Seconds until expiry"}
           },
           example: %{
-            data: %{
-              access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-              token_type: "Bearer",
-              expires_in: 900,
-              user: %{id: 1, email: "user@example.com"}
-            }
+            access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            expires_in: 900
           }
         }
       },
@@ -197,14 +156,7 @@ defmodule GameServerWeb.Api.V1.SessionController do
             {:ok, new_access_token, _claims} =
               Guardian.encode_and_sign(user, %{}, token_type: "access")
 
-            json(conn, %{
-              data: %{
-                access_token: new_access_token,
-                token_type: "Bearer",
-                expires_in: 900,
-                user: %{id: user.id, email: user.email}
-              }
-            })
+            json(conn, %{access_token: new_access_token, expires_in: 900})
 
           {:error, _reason} ->
             conn

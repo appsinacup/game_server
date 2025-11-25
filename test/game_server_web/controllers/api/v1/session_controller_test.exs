@@ -23,7 +23,7 @@ defmodule GameServerWeb.Api.V1.SessionControllerTest do
   end
 
   describe "POST /api/v1/login" do
-    test "returns access and refresh tokens on successful login", %{conn: conn, user: user} do
+    test "returns access and refresh tokens on successful login", %{conn: conn} do
       conn =
         post(conn, "/api/v1/login", %{
           email: @valid_email,
@@ -34,17 +34,13 @@ defmodule GameServerWeb.Api.V1.SessionControllerTest do
                "data" => %{
                  "access_token" => access_token,
                  "refresh_token" => refresh_token,
-                 "token_type" => "Bearer",
-                 "expires_in" => 900,
-                 "user" => %{"id" => user_id, "email" => email}
+                 "expires_in" => 900
                }
              } = json_response(conn, 200)
 
       assert is_binary(access_token)
       assert is_binary(refresh_token)
       assert access_token != refresh_token
-      assert user_id == user.id
-      assert email == @valid_email
     end
 
     test "returns 401 with invalid credentials", %{conn: conn} do
@@ -67,24 +63,18 @@ defmodule GameServerWeb.Api.V1.SessionControllerTest do
           password: @valid_password
         })
 
-      %{"data" => %{"refresh_token" => refresh_token, "user" => %{"id" => user_id}}} =
-        json_response(conn, 200)
+      %{"data" => %{"refresh_token" => refresh_token}} = json_response(conn, 200)
 
       # Use refresh token to get new access token
       conn = build_conn()
       conn = post(conn, "/api/v1/refresh", %{refresh_token: refresh_token})
 
       assert %{
-               "data" => %{
-                 "access_token" => new_access_token,
-                 "token_type" => "Bearer",
-                 "expires_in" => 900,
-                 "user" => %{"id" => new_user_id}
-               }
+               "access_token" => new_access_token,
+               "expires_in" => 900
              } = json_response(conn, 200)
 
       assert is_binary(new_access_token)
-      assert new_user_id == user_id
     end
 
     test "returns 401 with invalid refresh token", %{conn: conn} do
@@ -118,10 +108,10 @@ defmodule GameServerWeb.Api.V1.SessionControllerTest do
   end
 
   describe "DELETE /api/v1/logout" do
-    test "returns success message", %{conn: conn} do
+    test "returns 204 No Content", %{conn: conn} do
       conn = delete(conn, "/api/v1/logout")
 
-      assert %{"message" => "Logged out successfully"} = json_response(conn, 200)
+      assert response(conn, 204) == ""
     end
   end
 end

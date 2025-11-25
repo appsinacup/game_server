@@ -3,7 +3,7 @@ defmodule GameServerWeb.ApiSpec do
   OpenAPI specification for the Game Server API.
   """
 
-  alias OpenApiSpex.{Info, OpenApi, Paths, Server, Components, SecurityScheme, Schema}
+  alias OpenApiSpex.{Info, OpenApi, Paths, Server, Components, SecurityScheme}
   alias GameServerWeb.{Endpoint, Router}
   @behaviour OpenApi
 
@@ -49,20 +49,6 @@ defmodule GameServerWeb.ApiSpec do
       },
       paths: filter_api_paths(Paths.from_router(Router)),
       components: %Components{
-        schemas: %{
-          "GamendSession" => %Schema{
-            title: "GamendSession",
-            description: "Auth session object with access and refresh tokens",
-            type: :object,
-            properties: %{
-              access_token: %Schema{type: :string, description: "Short-lived access token"},
-              refresh_token: %Schema{type: :string, description: "Long-lived refresh token"},
-              expires_at: %Schema{type: :integer, format: :int64, description: "Epoch seconds when access token expires"},
-              user_id: %Schema{type: :string, description: "ID of the authenticated user"}
-            },
-            required: [:access_token, :refresh_token]
-          },
-        },
         securitySchemes: %{
           "authorization" => %SecurityScheme{
             type: "http",

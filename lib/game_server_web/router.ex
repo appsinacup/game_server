@@ -71,7 +71,6 @@ defmodule GameServerWeb.Router do
     pipe_through [:api, :api_auth]
 
     get "/me", MeController, :show
-    get "/me/metadata", MetadataController, :show
     delete "/me/providers/:provider", ProviderController, :unlink
   end
 
@@ -82,10 +81,6 @@ defmodule GameServerWeb.Router do
     get "/:provider", AuthController, :api_request
     get "/session/:session_id", AuthController, :api_session_status
   end
-
-  # Note: API-level routes for OAuth do not provide the provider callback
-  # routes. Browser callback routes remain under the /auth scope to avoid
-  # leaking browser-only callback paths into the API/OpenAPI spec.
 
   scope "/api/v1/auth", GameServerWeb do
     pipe_through [:api, :api_auth]

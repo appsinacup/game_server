@@ -9,6 +9,7 @@ defmodule GameServerWeb.Api.V1.ProviderController do
     summary: "Unlink OAuth provider",
     description: "Unlinks a provider from the current authenticated user.",
     tags: ["Authentication"],
+    security: [%{"authorization" => []}],
     parameters: [
       provider: [
         in: :path,

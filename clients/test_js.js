@@ -144,10 +144,6 @@ async function testAuthenticatedAPI(accessToken, refreshToken, provider) {
     const userProfile = await usersApi.getCurrentUser(`Bearer ${accessToken}`);
     console.log('✅ User profile:', userProfile);
 
-    // Test getting user metadata
-    console.log('Getting user metadata...');
-    const metadata = await usersApi.getUserMetadata(`Bearer ${accessToken}`);
-    console.log('✅ User metadata:', metadata);
 
     // Test unlinking the provider (this will likely fail if it's the only auth method, but test anyway)
     console.log(`Testing unlink ${provider}...`);
