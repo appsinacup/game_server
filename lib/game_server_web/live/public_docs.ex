@@ -155,8 +155,7 @@ defmodule GameServerWeb.PublicDocs do
                   </div>
 
                   <h4 class="font-semibold mt-4">Get User Metadata:</h4>
-                  <div class="bg-base-200 p-4 rounded-lg">
-                  </div>
+                  <div class="bg-base-200 p-4 rounded-lg"></div>
 
                   <h4 class="font-semibold mt-4">Refresh Token:</h4>
                   <div class="bg-base-200 p-4 rounded-lg">
