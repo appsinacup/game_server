@@ -36,3 +36,64 @@ docker run --rm -v "$ROOT_DIR:/local" $GEN_IMAGE generate \
   --additional-properties="$ADDITIONAL_PROPERTIES"
 
 echo "Generation finished. See $OUT_DIR for generated files."
+
+echo "Post-processing generated files: replacing 'Underscore' -> '_'"
+
+# Fix generator errors. Replace Underscore with _
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/Underscore/_/g" -i
+
+# Replace #self._bzz_client.close() with self._bzz_client.close()
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/#self\._bzz_client\.close\(\)/self._bzz_client.close()/g" -i
+
+# Replace : Object with : Dictionary
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/: Object/: Dictionary/g" -i
+
+# Other fixes
+# Replace login_200_response_data with Login200ResponseData
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/login_200_response_data/Login200ResponseData/g" -i
+# Replace login_200_response_data_user with Login200ResponseDataUser
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/login_200_response_data_user/Login200ResponseDataUser/g" -i
+# Replace OAuthSessionData_details with OAuthSessionDataDetails
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/OAuthSessionData_details/OAuthSessionDataDetails/g" -i
+
+
+
+echo "Post-processing complete."
+
+# Copy the main client pieces (apis, core, model) to a separate godot_api folder
+# This keeps the API surface separated for distribution or packaging.
+DEST_API_DIR="$ROOT_DIR/clients/gamend"
+mkdir -p "$DEST_API_DIR"
+
+for sub in apis core models; do
+  SRC="$OUT_DIR/$sub"
+  DST="$DEST_API_DIR/$sub"
+
+  if [ -d "$SRC" ]; then
+    echo "Copying $sub to $DST"
+    rm -rf "$DST"
+    mkdir -p "$(dirname "$DST")"
+    cp -R "$SRC" "$DST"
+  else
+    echo "Skip copying $sub - not present in $OUT_DIR"
+  fi
+done
+
+# Copy gamend_template to gamend if present (rename template folder to final folder)
+SRC_TMPL="$OUT_DIR/../gamend_template"
+DST_GAMEND="$DEST_API_DIR"
+
+if [ -d "$SRC_TMPL" ]; then
+  echo "Copying gamend_template -> gamend"
+  cp -R "$SRC_TMPL" "$DST_GAMEND"
+else
+  echo "No gamend_template folder to copy (skip)"
+fi
+
+ROOT_ADDONS="$ROOT_DIR/addons"
+
+mkdir -p "$ROOT_ADDONS"
+
+mv "$DST_GAMEND" "$ROOT_ADDONS" 2>/dev/null || true
+
+echo "gamend_template -> gamend copy complete."

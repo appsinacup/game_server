@@ -318,3 +318,34 @@ jobs:
           npm version ${{ steps.version.outputs.version }} --no-git-tag-version
           # Ensure we have the token configured (already done above), then publish
           npm publish --access public
+
+  build-godot-sdk:
+    runs-on: ubuntu-latest
+    name: Generate Godot client and upload addons
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Elixir (for mix openapi task)
+        uses: erlef/setup-elixir@v1
+        with:
+          elixir-version: '1.15'
+          otp-version: '25.3'
+
+      - name: Install dependencies (mix deps.get)
+        working-directory: .
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+          mix deps.get
+
+      - name: Run Godot generation script
+        run: |
+          ./clients/generate_godot.sh
+
+      - name: Upload addons zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: godot-addons
+          path: addons
