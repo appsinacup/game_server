@@ -12,7 +12,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       {:ok, user} =
         user
         |> GameServer.Accounts.User.admin_changeset(%{
-          "metadata" => %{"display_name" => "Tester"},
+          "display_name" => "Tester",
           "is_admin" => true
         })
         |> GameServer.Repo.update()
@@ -86,6 +86,46 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       assert result =~ "Change Email"
       assert result =~ "did not change"
+    end
+  end
+
+  describe "update display name form" do
+    setup %{conn: conn} do
+      user = user_fixture()
+      %{conn: log_in_user(conn, user), user: user}
+    end
+
+    test "updates the user display name", %{conn: conn, user: user} do
+      {:ok, lv, _html} = live(conn, ~p"/users/settings")
+
+      new_display = "NewName"
+
+      form =
+        form(lv, "#display_form", %{
+          "user" => %{"display_name" => new_display}
+        })
+
+      render_submit(form)
+
+      assert render(lv) =~ "Display name updated"
+
+      # reload from DB
+      reloaded = GameServer.Repo.get(GameServer.Accounts.User, user.id)
+      assert reloaded.display_name == new_display
+    end
+
+    test "renders errors with invalid data (too long) (phx-change)", %{conn: conn} do
+      {:ok, lv, _html} = live(conn, ~p"/users/settings")
+
+      long_name = String.duplicate("a", 200)
+
+      result =
+        lv
+        |> element("#display_form")
+        |> render_change(%{"user" => %{"display_name" => long_name}})
+
+      assert result =~ "Save Display Name"
+      assert result =~ "should be at most"
     end
   end
 

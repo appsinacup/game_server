@@ -19,8 +19,60 @@ defmodule GameServerWeb.Api.V1.MeControllerTest do
       body = json_response(conn, 200)
       assert body["id"] == user.id
       assert body["email"] == user.email
+      assert Map.has_key?(body, "display_name")
       refute Map.has_key?(body, "is_admin")
       assert Map.has_key?(body, "metadata")
+    end
+  end
+
+  describe "PATCH /api/v1/me/display_name" do
+    test "updates the authenticated user's display_name", %{conn: conn} do
+      user = GameServer.AccountsFixtures.user_fixture()
+      {:ok, token, _} = Guardian.encode_and_sign(user)
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer " <> token)
+        |> patch("/api/v1/me/display_name", %{display_name: "API Name"})
+
+      assert json_response(conn, 200)["display_name"] == "API Name"
+
+      reloaded = GameServer.Repo.get(GameServer.Accounts.User, user.id)
+      assert reloaded.display_name == "API Name"
+    end
+  end
+
+  describe "PATCH /api/v1/me/password" do
+    test "updates password for authenticated user", %{conn: conn} do
+      user = GameServer.AccountsFixtures.user_fixture()
+      {:ok, token, _} = Guardian.encode_and_sign(user)
+
+      new_password = GameServer.AccountsFixtures.valid_user_password()
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer " <> token)
+        |> patch("/api/v1/me/password", %{
+          password: new_password,
+          password_confirmation: new_password
+        })
+
+      assert json_response(conn, 200)
+
+      # reloaded and verify password works
+      reloaded = GameServer.Repo.get(GameServer.Accounts.User, user.id)
+      assert GameServer.Accounts.get_user_by_email_and_password(reloaded.email, new_password)
+    end
+  end
+
+  describe "password auth should not work for oauth-only account without password" do
+    test "get_user_by_email_and_password returns nil for empty password", %{conn: _conn} do
+      user = GameServer.AccountsFixtures.user_fixture(%{discord_id: "d123"})
+
+      # user has no password, attempt to login with empty string should fail
+      refute GameServer.Accounts.get_user_by_email_and_password(user.email, "")
+      # and with any random string should also fail
+      refute GameServer.Accounts.get_user_by_email_and_password(user.email, "pw")
     end
   end
 end

@@ -30,6 +30,7 @@ defmodule GameServerWeb.AdminLive.Users do
                   <tr>
                     <th>ID</th>
                     <th>Email</th>
+                    <th>Display Name</th>
                     <th>Discord ID</th>
                     <th>Profile</th>
                     <th>Apple ID</th>
@@ -47,6 +48,13 @@ defmodule GameServerWeb.AdminLive.Users do
                   <tr :for={user <- @recent_users} id={"user-#{user.id}"}>
                     <td>{user.id}</td>
                     <td class="font-mono text-sm">{user.email}</td>
+                    <td class="text-sm">
+                      <%= if user.display_name && user.display_name != "" do %>
+                        {user.display_name}
+                      <% else %>
+                        <span class="text-gray-500">-</span>
+                      <% end %>
+                    </td>
                     <td class="font-mono text-sm">
                       <%= if user.discord_id do %>
                         {user.discord_id}
@@ -143,6 +151,7 @@ defmodule GameServerWeb.AdminLive.Users do
             <h3 class="font-bold text-lg">Edit User</h3>
             <.form for={@form} id="user-form" phx-submit="save_user">
               <.input field={@form[:email]} type="email" label="Email" />
+              <.input field={@form[:display_name]} type="text" label="Display name" />
               <div class="form-control">
                 <label class="label cursor-pointer">
                   <span class="label-text">Admin</span>

@@ -10,6 +10,7 @@ defmodule GameServer.Accounts.User do
     field :authenticated_at, :utc_datetime, virtual: true
     field :discord_id, :string
     field :profile_url, :string
+    field :display_name, :string
     field :apple_id, :string
     field :google_id, :string
     field :facebook_id, :string
@@ -132,7 +133,7 @@ defmodule GameServer.Accounts.User do
   """
   def discord_oauth_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :discord_id, :profile_url, :is_admin])
+    |> cast(attrs, [:email, :discord_id, :profile_url, :is_admin, :display_name])
     |> update_change(:email, fn
       nil -> nil
       email -> String.downcase(email)
@@ -156,7 +157,7 @@ defmodule GameServer.Accounts.User do
   """
   def apple_oauth_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :apple_id, :is_admin])
+    |> cast(attrs, [:email, :apple_id, :is_admin, :display_name])
     |> update_change(:email, fn
       nil -> nil
       email -> String.downcase(email)
@@ -180,7 +181,7 @@ defmodule GameServer.Accounts.User do
   """
   def google_oauth_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :google_id, :profile_url, :is_admin])
+    |> cast(attrs, [:email, :google_id, :profile_url, :is_admin, :display_name])
     |> update_change(:email, fn
       nil -> nil
       email -> String.downcase(email)
@@ -204,7 +205,7 @@ defmodule GameServer.Accounts.User do
   """
   def facebook_oauth_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :facebook_id, :profile_url, :is_admin])
+    |> cast(attrs, [:email, :facebook_id, :profile_url, :is_admin, :display_name])
     |> update_change(:email, fn
       nil -> nil
       email -> String.downcase(email)
@@ -226,8 +227,17 @@ defmodule GameServer.Accounts.User do
   """
   def admin_changeset(user, attrs) do
     user
-    |> cast(attrs, [:is_admin, :metadata])
+    |> cast(attrs, [:is_admin, :metadata, :display_name])
     |> validate_required([:is_admin])
+  end
+
+  @doc """
+  A simple changeset for updating a user's display name.
+  """
+  def display_name_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:display_name])
+    |> validate_length(:display_name, max: 80)
   end
 
   @doc """

@@ -60,6 +60,21 @@ defmodule GameServerWeb.UserLive.Settings do
 
       <div class="divider" />
 
+      <.form
+        for={@display_form}
+        id="display_form"
+        phx-change="validate_display_name"
+        phx-submit="update_display_name"
+      >
+        <.input
+          field={@display_form[:display_name]}
+          type="text"
+          label="Display name"
+          required
+        />
+        <.button variant="primary" phx-disable-with="Saving...">Save Display Name</.button>
+      </.form>
+
       <div class="card bg-base-200 p-4 rounded-lg">
         <div class="font-semibold">Linked Accounts</div>
         <div class="mt-2 space-y-2">
@@ -271,6 +286,7 @@ defmodule GameServerWeb.UserLive.Settings do
       |> assign(:current_email, user.email)
       |> assign(:user, user)
       |> assign(:email_form, to_form(email_changeset))
+      |> assign(:display_form, to_form(Accounts.change_user_display_name(user)))
       |> assign(:password_form, to_form(password_changeset))
       |> assign(:trigger_submit, false)
       |> assign(:conflict_user, nil)
@@ -292,6 +308,18 @@ defmodule GameServerWeb.UserLive.Settings do
     {:noreply, assign(socket, email_form: email_form)}
   end
 
+  def handle_event("validate_display_name", params, socket) do
+    %{"user" => user_params} = params
+
+    display_form =
+      socket.assigns.current_scope.user
+      |> Accounts.change_user_display_name(user_params)
+      |> Map.put(:action, :validate)
+      |> to_form()
+
+    {:noreply, assign(socket, display_form: display_form)}
+  end
+
   def handle_event("update_email", params, socket) do
     %{"user" => user_params} = params
     user = socket.assigns.current_scope.user
@@ -309,6 +337,19 @@ defmodule GameServerWeb.UserLive.Settings do
 
       changeset ->
         {:noreply, assign(socket, :email_form, to_form(changeset, action: :insert))}
+    end
+  end
+
+  def handle_event("update_display_name", params, socket) do
+    %{"user" => user_params} = params
+    user = socket.assigns.current_scope.user
+
+    case Accounts.update_user_display_name(user, user_params) do
+      {:ok, user} ->
+        {:noreply, socket |> put_flash(:info, "Display name updated.") |> assign(:user, user)}
+
+      {:error, changeset} ->
+        {:noreply, assign(socket, display_form: to_form(changeset, action: :insert))}
     end
   end
 

@@ -71,6 +71,8 @@ defmodule GameServerWeb.Router do
     pipe_through [:api, :api_auth]
 
     get "/me", MeController, :show
+    patch "/me/password", MeController, :update_password
+    patch "/me/display_name", MeController, :update_display_name
     delete "/me/providers/:provider", ProviderController, :unlink
   end
 

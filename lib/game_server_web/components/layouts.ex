@@ -63,14 +63,14 @@ defmodule GameServerWeb.Layouts do
               </.link>
             </li>
             <li>
-              {@current_scope.user.email}
+              {profile_display_name(@current_scope.user)}
             </li>
             <li>
               <.link href={~p"/users/settings"} class="btn btn-primary">Settings</.link>
             </li>
             <%= if @current_scope && @current_scope.user.is_admin do %>
               <li>
-                <.link href={~p"/admin"} class="btn btn-primary">Admin</.link>
+                <.link href={~p"/admin"} class="btn btn-outline">Admin</.link>
               </li>
             <% end %>
             <li>
@@ -80,10 +80,10 @@ defmodule GameServerWeb.Layouts do
             </li>
           <% else %>
             <li>
-              <.link href={~p"/users/log-in"} class="btn btn-outline">Log in</.link>
+              <.link href={~p"/users/log-in"} class="btn btn-primary">Log in</.link>
             </li>
             <li>
-              <.link href={~p"/users/register"} class="btn btn-primary">Register</.link>
+              <.link href={~p"/users/register"} class="btn btn-outline">Register</.link>
             </li>
           <% end %>
           <li>
@@ -117,7 +117,9 @@ defmodule GameServerWeb.Layouts do
             >
               <%= if @current_scope do %>
                 <li class="menu-title">
-                  <span>{profile_initials(@current_scope.user)} {@current_scope.user.email}</span>
+                  <span>
+                    {profile_initials(@current_scope.user)} {profile_display_name(@current_scope.user)}
+                  </span>
                 </li>
                 <li><a href={~p"/users/settings"}>Settings</a></li>
                 <%= if @current_scope && @current_scope.user.is_admin do %>
@@ -160,11 +162,18 @@ defmodule GameServerWeb.Layouts do
 
   defp profile_initials(nil), do: "?"
 
-  defp profile_initials(%{metadata: metadata, email: email}) do
+  defp profile_initials(%{display_name: display_name, metadata: metadata, email: email}) do
     name =
-      case metadata do
-        %{"display_name" => dn} when is_binary(dn) and byte_size(dn) > 0 -> dn
-        _ -> String.split(email || "", "@") |> hd() || "?"
+      cond do
+        is_binary(display_name) && byte_size(display_name) > 0 ->
+          display_name
+
+        is_map(metadata) and is_binary(Map.get(metadata, "display_name")) and
+            byte_size(Map.get(metadata, "display_name")) > 0 ->
+          Map.get(metadata, "display_name")
+
+        true ->
+          String.split(email || "", "@") |> hd() || "?"
       end
 
     name
@@ -173,6 +182,22 @@ defmodule GameServerWeb.Layouts do
     |> Enum.join()
     |> String.slice(0, 2)
     |> String.upcase()
+  end
+
+  defp profile_display_name(nil), do: "?"
+
+  defp profile_display_name(%{display_name: display_name, metadata: metadata, email: email}) do
+    cond do
+      is_binary(display_name) && byte_size(display_name) > 0 ->
+        display_name
+
+      is_map(metadata) && is_binary(Map.get(metadata, "display_name")) &&
+          byte_size(Map.get(metadata, "display_name")) > 0 ->
+        Map.get(metadata, "display_name")
+
+      true ->
+        email || ""
+    end
   end
 
   @doc """

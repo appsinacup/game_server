@@ -70,9 +70,12 @@ defmodule GameServerWeb.AuthController do
       {:ok, %{"id" => discord_id, "email" => email} = response} ->
         avatar = response["avatar"]
 
+        display_name = Map.get(response, "global_name") || Map.get(response, "username")
+
         user_params = %{
           email: email,
           discord_id: discord_id,
+          display_name: display_name,
           profile_url:
             if(avatar,
               do: "https://cdn.discordapp.com/avatars/#{discord_id}/#{avatar}.png",
@@ -123,8 +126,11 @@ defmodule GameServerWeb.AuthController do
         # Google userinfo often contains a `picture` field with a profile image URL
         picture = Map.get(user_info, "picture")
 
+        # Google userinfo commonly includes the full name under `name`.
+        name = Map.get(user_info, "name") || Map.get(user_info, "given_name")
+
         user_params =
-          %{email: email, google_id: google_id}
+          %{email: email, google_id: google_id, display_name: name}
           |> Map.merge(if(picture, do: %{profile_url: picture}, else: %{}))
 
         case params["state"] do
@@ -177,7 +183,10 @@ defmodule GameServerWeb.AuthController do
           |> Map.get("data", %{})
           |> Map.get("url")
 
-        user_params = %{email: email, facebook_id: facebook_id}
+        # Facebook exposes a `name` field for the user's full name
+        name = Map.get(user_info, "name")
+
+        user_params = %{email: email, facebook_id: facebook_id, display_name: name}
 
         user_params =
           if(profile_url, do: Map.put(user_params, :profile_url, profile_url), else: user_params)
@@ -230,7 +239,10 @@ defmodule GameServerWeb.AuthController do
       {:ok, %{"sub" => apple_id} = user_info} ->
         Logger.info("Apple OAuth: Successfully exchanged code. User info: #{inspect(user_info)}")
         email = user_info["email"]
-        user_params = %{email: email, apple_id: apple_id}
+        # Apple may include name payload in the id_token on first authentication
+        name = Map.get(user_info, "name")
+
+        user_params = %{email: email, apple_id: apple_id, display_name: name}
 
         case params["state"] do
           nil ->

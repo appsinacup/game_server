@@ -331,8 +331,16 @@ defmodule GameServer.Accounts do
     # Store provider profile images/URLs in the generic `profile_url` field.
     provider_avatar_key = :profile_url
 
-    if Map.get(user, provider_avatar_key) && Map.get(user, provider_avatar_key) != "" do
-      Map.delete(attrs, provider_avatar_key)
+    attrs =
+      if Map.get(user, provider_avatar_key) && Map.get(user, provider_avatar_key) != "" do
+        Map.delete(attrs, provider_avatar_key)
+      else
+        attrs
+      end
+
+    # Also avoid overwriting an existing explicit display_name set by the user.
+    if Map.get(user, :display_name) && Map.get(user, :display_name) != "" do
+      Map.delete(attrs, :display_name)
     else
       attrs
     end
@@ -705,11 +713,33 @@ defmodule GameServer.Accounts do
   def broadcast_user_update(%User{} = user) do
     payload = %{
       id: user.id,
-      metadata: user.metadata || %{}
+      metadata: user.metadata || %{},
+      display_name: user.display_name
     }
 
     GameServerWeb.Endpoint.broadcast("user_updates:#{user.id}", "metadata_updated", payload)
     :ok
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for changing the user display_name.
+  """
+  def change_user_display_name(user, attrs \\ %{}) do
+    User.display_name_changeset(user, attrs)
+  end
+
+  @doc """
+  Updates the user's display name and broadcasts the change.
+  """
+  def update_user_display_name(%User{} = user, attrs) do
+    case User.display_name_changeset(user, attrs) |> Repo.update() do
+      {:ok, updated} = ok ->
+        broadcast_user_update(updated)
+        ok
+
+      err ->
+        err
+    end
   end
 
   @doc """

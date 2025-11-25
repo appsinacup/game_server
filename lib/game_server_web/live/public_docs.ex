@@ -21,12 +21,27 @@ defmodule GameServerWeb.PublicDocs do
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
               </svg>
               JavaScript Client SDK
+              <a
+                href="https://www.npmjs.com/package/@ughuuu/game_server"
+                target="_blank"
+                class="btn btn-outline ml-auto"
+              >
+                View on NPM
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+              </a>
               <button
                 type="button"
                 data-action="toggle-card"
                 data-card-key="js_client"
                 aria-expanded="false"
-                class="btn btn-ghost btn-sm ml-auto"
+                class="btn btn-ghost btn-sm"
                 title="Collapse/Expand"
               >
                 <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
@@ -62,7 +77,7 @@ defmodule GameServerWeb.PublicDocs do
                 <div class="ml-8 space-y-3">
                   <p>Import and configure the API client:</p>
                   <div class="bg-base-200 p-4 rounded-lg">
-                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const { ApiClient, HealthApi, AuthenticationApi, UsersApi } = require('@ughuuu/game_server');
+                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>const { ApiClient, HealthApi, AuthenticationApi, UsersApi } = require('@ughuuu/game_server');
 
     // Initialize the API client
     const apiClient = new ApiClient();
@@ -78,7 +93,7 @@ defmodule GameServerWeb.PublicDocs do
                 <div class="ml-8 space-y-3">
                   <p>Test your connection with a health check:</p>
                   <div class="bg-base-200 p-4 rounded-lg">
-                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const healthApi = new HealthApi(apiClient);
+                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>const healthApi = new HealthApi(apiClient);
 
     const healthResponse = await healthApi.index();
     console.log('Server is healthy:', healthResponse);
@@ -96,7 +111,7 @@ defmodule GameServerWeb.PublicDocs do
 
                   <h4 class="font-semibold">Email/Password Login:</h4>
                   <div class="bg-base-200 p-4 rounded-lg">
-                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const authApi = new AuthenticationApi(apiClient);
+                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>const authApi = new AuthenticationApi(apiClient);
 
     const loginResponse = await authApi.login({
       loginRequest: {
@@ -110,7 +125,7 @@ defmodule GameServerWeb.PublicDocs do
 
                   <h4 class="font-semibold mt-4">OAuth Flow (Discord, Google, Facebook):</h4>
                   <div class="bg-base-200 p-4 rounded-lg">
-                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>// Step 1: Get authorization URL
+                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>// Step 1: Get authorization URL
     const authResponse = await authApi.oauthRequest('discord');
     const authUrl = authResponse.authorization_url;
     const sessionId = authResponse.session_id;
@@ -133,7 +148,7 @@ defmodule GameServerWeb.PublicDocs do
 
                   <h4 class="font-semibold mt-4">Using Access Tokens:</h4>
                   <div class="bg-base-200 p-4 rounded-lg">
-                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>// Set authorization header for authenticated requests
+                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>// Set authorization header for authenticated requests
     apiClient.defaultHeaders = {
       'Authorization': `Bearer ${access_token}`
     };</code></pre>
@@ -148,18 +163,15 @@ defmodule GameServerWeb.PublicDocs do
                 <div class="ml-8 space-y-3">
                   <h4 class="font-semibold">Get User Profile:</h4>
                   <div class="bg-base-200 p-4 rounded-lg">
-                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const usersApi = new UsersApi(apiClient);
+                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>const usersApi = new UsersApi(apiClient);
 
     const userProfile = await usersApi.getCurrentUser(`Bearer ${access_token}`);
     console.log('User:', userProfile.data);</code></pre>
                   </div>
 
-                  <h4 class="font-semibold mt-4">Get User Metadata:</h4>
-                  <div class="bg-base-200 p-4 rounded-lg"></div>
-
                   <h4 class="font-semibold mt-4">Refresh Token:</h4>
                   <div class="bg-base-200 p-4 rounded-lg">
-                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>const refreshResponse = await authApi.refreshToken({
+                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>const refreshResponse = await authApi.refreshToken({
         refreshTokenRequest: {
         refresh_token: refresh_token
       }
@@ -170,7 +182,7 @@ defmodule GameServerWeb.PublicDocs do
 
                   <h4 class="font-semibold mt-4">Logout:</h4>
                   <div class="bg-base-200 p-4 rounded-lg">
-                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>await authApi.logout(`Bearer ${access_token}`);
+                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>await authApi.logout(`Bearer ${access_token}`);
     console.log('Logged out successfully');</code></pre>
                   </div>
                 </div>
@@ -183,7 +195,7 @@ defmodule GameServerWeb.PublicDocs do
                 <div class="ml-8 space-y-3">
                   <p>Handle common errors appropriately:</p>
                   <div class="bg-base-200 p-4 rounded-lg">
-                    <pre class="text-sm"><code class="language-javascript" phx-no-curly-interpolation>try {
+                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>try {
       const result = await someApiCall();
     } catch (error) {
       if (error.status === 401) {
@@ -204,14 +216,22 @@ defmodule GameServerWeb.PublicDocs do
                 </div>
               </div>
             </div>
-
-            <div class="card-actions justify-end mt-6">
+          </div>
+        </div>
+        <!-- Data Schema -->
+        <div class="card bg-base-100 shadow-xl collapsed" data-card-key="data_schema">
+          <div class="card-body">
+            <h2 class="card-title text-2xl mb-4 flex items-center gap-3">
+              <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 3h18v4H3V3zm0 7h18v11H3V10z" />
+              </svg>
+              Data Schema
               <a
-                href="https://www.npmjs.com/package/@ughuuu/game_server"
+                href={~p"/api/docs"}
                 target="_blank"
-                class="btn btn-primary"
+                class="btn btn-outline ml-auto"
               >
-                View on NPM
+                Full API Docs
                 <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     stroke-linecap="round"
@@ -221,23 +241,12 @@ defmodule GameServerWeb.PublicDocs do
                   />
                 </svg>
               </a>
-            </div>
-          </div>
-        </div>
-        <!-- Apple Sign In Setup Guide -->
-        <div class="card bg-base-100 shadow-xl collapsed" data-card-key="apple_signin">
-          <div class="card-body">
-            <h2 class="card-title text-2xl mb-4 flex items-center gap-3">
-              <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-              </svg>
-              Apple Sign In Setup
               <button
                 type="button"
                 data-action="toggle-card"
-                data-card-key="apple_signin"
+                data-card-key="data_schema"
                 aria-expanded="false"
-                class="btn btn-ghost btn-sm ml-auto"
+                class="btn btn-ghost btn-sm"
                 title="Collapse/Expand"
               >
                 <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
@@ -251,28 +260,163 @@ defmodule GameServerWeb.PublicDocs do
               </button>
             </h2>
 
-            <div class="alert alert-info mb-6">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                class="stroke-current shrink-0 w-6 h-6"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                >
-                </path>
-              </svg>
-              <div>
+            <div class="space-y-4">
+              <p class="text-sm text-base-content/80">
+                This section describes the main database table shapes used by the platform — starting with the
+                <code class="font-mono">users</code>
+                table and the important fields you may rely on.
+              </p>
+
+              <h3 class="font-semibold">Users table</h3>
+              <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+                <pre>
+    users (
+      id             : integer (primary key)
+      email          : string (unique, nullable for provider-only accounts)
+      hashed_password: string (bcrypt hash, nullable for OAuth-only accounts)
+      confirmed_at   : utc_datetime
+      authenticated_at: utc_datetime (last sudo login)
+      discord_id     : string (nullable)
+      google_id      : string (nullable)
+      facebook_id    : string (nullable)
+      apple_id       : string (nullable)
+      profile_url    : string (avatar/profile image URL)
+      display_name   : string (human-friendly display name)
+      is_admin       : boolean
+      metadata       : map (JSON/Map for arbitrary user metadata)
+      inserted_at    : utc_datetime
+      updated_at     : utc_datetime
+    )
+                </pre>
+              </div>
+
+              <h3 class="font-semibold mt-2">Notes / behavior</h3>
+              <ul class="list-disc pl-6 text-sm space-y-1 text-base-content/80">
+                <li>
+                  <strong>Password auth:</strong>
+                  Accounts created only via OAuth commonly have no <code class="font-mono">hashed_password</code>. In that case password-based login does not work
+                  (we treat oauth-only accounts as passwordless unless a password is explicitly set by the user).
+                </li>
+                <li>
+                  <strong>Display name:</strong>
+                  The <code class="font-mono">display_name</code>
+                  is a human-friendly name
+                  and may be populated from OAuth providers (when available). The app avoids overwriting a user-provided
+                  display name when linking providers.
+                </li>
+                <li>
+                  <strong>Profile image:</strong>
+                  The <code class="font-mono">profile_url</code>
+                  is used for avatars and may
+                  be populated from provider responses (Google picture, Facebook picture.data.url, Discord CDN).
+                </li>
+                <li>
+                  <strong>Metadata:</strong>
+                  The JSON <code class="font-mono">metadata</code>
+                  field is for arbitrary
+                  application data (e.g. display preferences). It's returned by the public API at <code class="font-mono">GET /api/v1/me</code>.
+                </li>
+              </ul>
+
+              <h3 class="font-semibold mt-3">Persisted data and tables</h3>
+              <div class="space-y-3 text-sm text-base-content/80">
                 <p>
-                  <strong>Why Apple Sign In?</strong>
-                  Required for iOS apps and provides a privacy-focused authentication method. Users can sign in with their Apple ID.
+                  The platform stores several tables worth of data that client integrations may need to be aware of.
+                </p>
+
+                <h4 class="font-semibold">Users</h4>
+                <p class="pl-4">
+                  The <code class="font-mono">users</code>
+                  table is the primary identity store and contains
+                  fields like <code class="font-mono">email</code>, <code class="font-mono">hashed_password</code>,
+                  provider ids (<code class="font-mono">discord_id</code>, <code class="font-mono">google_id</code>, etc.), <code class="font-mono">profile_url</code>, <code class="font-mono">display_name</code>,
+                  <code class="font-mono">metadata</code>
+                  and admin flags and timestamps.
+                </p>
+
+                <h4 class="font-semibold">User tokens (users_tokens)</h4>
+                <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+                  <pre>
+    users_tokens (
+      id              : integer (primary key)
+      token           : binary (hashed for email tokens; raw for session tokens)
+      context         : string ("session", "login", "change:..." etc.)
+      sent_to         : string (email address for email/magic link tokens)
+      authenticated_at: utc_datetime (when this session was created/used)
+      user_id         : integer (foreign key to users)
+      inserted_at     : utc_datetime
+    )</pre>
+                </div>
+                <p class="pl-4 mt-1">
+                  The app persists session tokens to let users view/expiration/and revoke individual sessions. Email/magic-link tokens are hashed when stored for safety.
+                </p>
+
+                <h4 class="font-semibold">OAuth sessions (oauth_sessions)</h4>
+                <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+                  <pre>
+    oauth_sessions (
+      id        : integer (primary key)
+      session_id: string (unique id used by SDKs to poll/signal status)
+      provider  : string ("discord" | "google" | "facebook" | "apple")
+      status    : string ("pending" | "completed" | "failed")
+      data      : jsonb/map (provider response, debug info, or result payload)
+      inserted_at: utc_datetime
+      updated_at: utc_datetime
+    )</pre>
+                </div>
+                <p class="pl-4 mt-1">
+                  OAuth sessions are tracked in the DB to support reliable polling flows from client SDKs and to provide safe, multi-step authorization from popups and mobile apps.
+                </p>
+
+                <h4 class="font-semibold">JWT tokens (access + refresh)</h4>
+                <p class="pl-4">
+                  The API issues JSON Web Tokens (JWTs) for API authentication. Access tokens are short-lived and refresh tokens are longer-lived (configurable). The server uses Guardian for signing and verification. Refresh tokens are stateless JWTs (no DB lookup) while session tokens and email tokens are persisted where needed.
                 </p>
               </div>
             </div>
+          </div>
+        </div>
+        <!-- Apple Sign In Setup Guide -->
+        <div class="card bg-base-100 shadow-xl collapsed" data-card-key="apple_signin">
+          <div class="card-body">
+            <h2 class="card-title text-2xl mb-4 flex items-center gap-3">
+              <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+              </svg>
+              Apple Sign In Setup
+              <a
+                href="https://developer.apple.com/account/resources/identifiers/list"
+                target="_blank"
+                class="btn btn-outline ml-auto"
+              >
+                Apple Developer Portal
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+              </a>
+              <button
+                type="button"
+                data-action="toggle-card"
+                data-card-key="apple_signin"
+                aria-expanded="false"
+                class="btn btn-ghost btn-sm"
+                title="Collapse/Expand"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 8l4 4 4-4"
+                  />
+                </svg>
+              </button>
+            </h2>
 
             <div class="space-y-6">
               <!-- Step 1: Apple Developer Account -->
@@ -292,27 +436,6 @@ defmodule GameServerWeb.PublicDocs do
                     </a>
                     ($99/year)
                   </p>
-                  <div class="alert alert-warning">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="stroke-current shrink-0 h-6 w-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                      />
-                    </svg>
-                    <div>
-                      <p>
-                        <strong>Note:</strong>
-                        Apple Sign In requires a paid Apple Developer account. Free accounts cannot create Service IDs or Keys.
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </div>
               
@@ -363,7 +486,7 @@ defmodule GameServerWeb.PublicDocs do
                     <li>Select your App ID as the Primary App ID</li>
                     <li>
                       Add these domains and redirect URLs:<br />
-                      <div class="bg-base-200 p-2 rounded mt-2 font-mono text-xs">
+                      <div class="bg-base-200 p-3 rounded mt-2 font-mono text-sm">
                         <div>Domain: example.com</div>
                         <div>Return URL: https://example.com/auth/apple/callback</div>
                       </div>
@@ -371,10 +494,7 @@ defmodule GameServerWeb.PublicDocs do
                     <li>Click Save, then Continue, then Register</li>
                   </ol>
                   <div class="bg-base-200 p-4 rounded-lg mt-4">
-                    <div class="font-semibold mb-2">Your Client ID (Service ID Identifier)</div>
-                    <div class="font-mono text-xs bg-base-300 p-2 rounded">
-                      com.yourcompany.gameserver.web
-                    </div>
+                    com.yourcompany.gameserver.web
                   </div>
                 </div>
               </div>
@@ -401,27 +521,6 @@ defmodule GameServerWeb.PublicDocs do
                       Note the Key ID (e.g., ABC123XYZ) shown on the confirmation page
                     </li>
                   </ol>
-                  <div class="alert alert-error mt-3">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="stroke-current shrink-0 h-6 w-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                      />
-                    </svg>
-                    <div>
-                      <p>
-                        <strong>Critical:</strong>
-                        You can only download the .p8 file once! Store it securely. If lost, you'll need to create a new key.
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </div>
               
@@ -465,49 +564,6 @@ defmodule GameServerWeb.PublicDocs do
                       <div>-----END PRIVATE KEY-----"</div>
                     </div>
                   </div>
-                  <div class="alert alert-info mt-3">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      class="stroke-current shrink-0 w-6 h-6"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      >
-                      </path>
-                    </svg>
-                    <div>
-                      <p>
-                        <strong>Tip:</strong>
-                        For APPLE_PRIVATE_KEY, open the .p8 file in a text editor and copy the entire contents including the BEGIN/END lines.
-                      </p>
-                    </div>
-                  </div>
-                  <div class="alert alert-warning mt-3">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="stroke-current shrink-0 h-6 w-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                      />
-                    </svg>
-                    <div>
-                      <p>
-                        <strong>Security:</strong>
-                        Never commit the private key to version control. Use your deployment platform's secret management.
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </div>
               
@@ -524,48 +580,8 @@ defmodule GameServerWeb.PublicDocs do
                     <li>Authorize the application with your Apple ID</li>
                     <li>You should be redirected back and logged in</li>
                   </ol>
-                  <div class="alert alert-warning mt-3">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      class="stroke-current shrink-0 w-6 h-6"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                      >
-                      </path>
-                    </svg>
-                    <div>
-                      <p>
-                        <strong>Important:</strong>
-                        Apple Sign In does NOT work with localhost. You must use a registered domain with HTTPS. For local testing, use a tunneling service like ngrok to get a temporary HTTPS URL.
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </div>
-            </div>
-
-            <div class="card-actions justify-end mt-6">
-              <a
-                href="https://developer.apple.com/account/resources/identifiers/list"
-                target="_blank"
-                class="btn btn-primary"
-              >
-                Open Apple Developer Portal
-                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                  />
-                </svg>
-              </a>
             </div>
           </div>
         </div>
@@ -578,12 +594,27 @@ defmodule GameServerWeb.PublicDocs do
                 <path d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.23A.077.077 0 0 0 8.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 0 0-.032.027C.533 9.093-.32 13.555.099 17.961a.08.08 0 0 0 .031.055 20.03 20.03 0 0 0 5.993 2.98.078.078 0 0 0 .084-.026 13.83 13.83 0 0 0 1.226-1.963.074.074 0 0 0-.041-.104 13.201 13.201 0 0 1-1.872-.878.075.075 0 0 1-.008-.125c.126-.093.252-.19.372-.287a.075.075 0 0 1 .078-.01c3.927 1.764 8.18 1.764 12.061 0a.075.075 0 0 1 .079.009c.12.098.245.195.372.288a.075.075 0 0 1-.006.125c-.598.344-1.22.635-1.873.877a.075.075 0 0 0-.041.105c.36.687.772 1.341 1.225 1.962a.077.077 0 0 0 .084.028 19.963 19.963 0 0 0 6.002-2.981.076.076 0 0 0 .032-.054c.5-5.094-.838-9.52-3.549-13.442a.06.06 0 0 0-.031-.028zM8.02 15.278c-1.182 0-2.157-1.069-2.157-2.38 0-1.312.956-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.956 2.38-2.157 2.38zm7.975 0c-1.183 0-2.157-1.069-2.157-2.38 0-1.312.955-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.946 2.38-2.157 2.38z" />
               </svg>
               Discord OAuth Setup
+              <a
+                href="https://discord.com/developers/applications"
+                target="_blank"
+                class="btn btn-outline ml-auto"
+              >
+                Discord Developer Portal
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+              </a>
               <button
                 type="button"
                 data-action="toggle-card"
                 data-card-key="discord_oauth"
                 aria-expanded="false"
-                class="btn btn-ghost btn-sm ml-auto"
+                class="btn btn-ghost btn-sm"
                 title="Collapse/Expand"
               >
                 <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
@@ -596,29 +627,6 @@ defmodule GameServerWeb.PublicDocs do
                 </svg>
               </button>
             </h2>
-
-            <div class="alert alert-info mb-6">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                class="stroke-current shrink-0 w-6 h-6"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                >
-                </path>
-              </svg>
-              <div>
-                <p>
-                  <strong>Why Discord OAuth?</strong>
-                  Allows users to sign up and log in using their Discord accounts instead of creating separate credentials.
-                </p>
-              </div>
-            </div>
 
             <div class="space-y-6">
               <!-- Step 1: Create Discord Application -->
@@ -709,27 +717,6 @@ defmodule GameServerWeb.PublicDocs do
                       <div>DISCORD_CLIENT_SECRET="your_client_secret_here"</div>
                     </div>
                   </div>
-                  <div class="alert alert-warning">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="stroke-current shrink-0 h-6 w-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                      />
-                    </svg>
-                    <div>
-                      <p>
-                        <strong>Security Note:</strong>
-                        Never commit secrets to version control. Use your deployment platform's secret management (Fly.io secrets, Heroku config vars, etc.).
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </div>
               <!-- Step 5: Test -->
@@ -747,24 +734,6 @@ defmodule GameServerWeb.PublicDocs do
                   </ol>
                 </div>
               </div>
-            </div>
-
-            <div class="card-actions justify-end mt-6">
-              <a
-                href="https://discord.com/developers/applications"
-                target="_blank"
-                class="btn btn-primary"
-              >
-                Open Discord Developer Portal
-                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                  />
-                </svg>
-              </a>
             </div>
           </div>
         </div>
@@ -792,12 +761,27 @@ defmodule GameServerWeb.PublicDocs do
                 />
               </svg>
               Google OAuth Setup
+              <a
+                href="https://console.cloud.google.com/"
+                target="_blank"
+                class="btn btn-outline ml-auto"
+              >
+                Google Cloud Console
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+              </a>
               <button
                 type="button"
                 data-action="toggle-card"
                 data-card-key="google_oauth"
                 aria-expanded="false"
-                class="btn btn-ghost btn-sm ml-auto"
+                class="btn btn-ghost btn-sm"
                 title="Collapse/Expand"
               >
                 <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
@@ -810,29 +794,6 @@ defmodule GameServerWeb.PublicDocs do
                 </svg>
               </button>
             </h2>
-
-            <div class="alert alert-info mb-6">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                class="stroke-current shrink-0 w-6 h-6"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                >
-                </path>
-              </svg>
-              <div>
-                <p>
-                  <strong>Why Google OAuth?</strong>
-                  Most widely used OAuth provider. Allows users to sign in with their Google account.
-                </p>
-              </div>
-            </div>
 
             <div class="space-y-6">
               <!-- Step 1: Create Google Cloud Project -->
@@ -934,27 +895,6 @@ defmodule GameServerWeb.PublicDocs do
                       <div>GOOGLE_CLIENT_SECRET="your_client_secret"</div>
                     </div>
                   </div>
-                  <div class="alert alert-warning mt-3">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="stroke-current shrink-0 h-6 w-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                      />
-                    </svg>
-                    <div>
-                      <p>
-                        <strong>Security:</strong>
-                        Never commit secrets to version control. Use your deployment platform's secret management.
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </div>
               
@@ -974,24 +914,6 @@ defmodule GameServerWeb.PublicDocs do
                 </div>
               </div>
             </div>
-
-            <div class="card-actions justify-end mt-6">
-              <a
-                href="https://console.cloud.google.com/"
-                target="_blank"
-                class="btn btn-primary"
-              >
-                Open Google Cloud Console
-                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                  />
-                </svg>
-              </a>
-            </div>
           </div>
         </div>
         
@@ -1003,12 +925,27 @@ defmodule GameServerWeb.PublicDocs do
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
               </svg>
               Facebook OAuth Setup
+              <a
+                href="https://developers.facebook.com/"
+                target="_blank"
+                class="btn btn-outline ml-auto"
+              >
+                Facebook Developers Portal
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+              </a>
               <button
                 type="button"
                 data-action="toggle-card"
                 data-card-key="facebook_oauth"
                 aria-expanded="false"
-                class="btn btn-ghost btn-sm ml-auto"
+                class="btn btn-ghost btn-sm"
                 title="Collapse/Expand"
               >
                 <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
@@ -1021,29 +958,6 @@ defmodule GameServerWeb.PublicDocs do
                 </svg>
               </button>
             </h2>
-
-            <div class="alert alert-info mb-6">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                class="stroke-current shrink-0 w-6 h-6"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                >
-                </path>
-              </svg>
-              <div>
-                <p>
-                  <strong>Why Facebook OAuth?</strong>
-                  Popular social login option with billions of users worldwide. Easy one-click authentication.
-                </p>
-              </div>
-            </div>
 
             <div class="space-y-6">
               <!-- Step 1: Create Facebook App -->
@@ -1077,28 +991,6 @@ defmodule GameServerWeb.PublicDocs do
                     <li>Enter contact email</li>
                     <li>Click "Create App"</li>
                   </ol>
-                  <div class="alert alert-info mt-3">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      class="stroke-current shrink-0 w-6 h-6"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      >
-                      </path>
-                    </svg>
-                    <div>
-                      <p>
-                        <strong>Note:</strong>
-                        Facebook's app creation flow changes frequently. If the options don't match exactly, look for the option related to "Facebook Login" or "Authenticate users".
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </div>
               
@@ -1154,10 +1046,8 @@ defmodule GameServerWeb.PublicDocs do
                   </ol>
                   <div class="bg-base-200 p-4 rounded-lg mt-4">
                     <div class="font-semibold mb-2">Your Credentials</div>
-                    <div class="font-mono text-xs bg-base-300 p-2 rounded space-y-1">
-                      <div>App ID: 1234567890123456</div>
-                      <div>App Secret: abcdef1234567890abcdef1234567890</div>
-                    </div>
+                    <div>App ID: 1234567890123456</div>
+                    <div>App Secret: abcdef1234567890abcdef1234567890</div>
                   </div>
                 </div>
               </div>
@@ -1176,28 +1066,6 @@ defmodule GameServerWeb.PublicDocs do
                     <li>Select a category for your app</li>
                     <li>Toggle the switch at the top from "Development" to "Live"</li>
                   </ol>
-                  <div class="alert alert-info mt-3">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      class="stroke-current shrink-0 w-6 h-6"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      >
-                      </path>
-                    </svg>
-                    <div>
-                      <p>
-                        <strong>Note:</strong>
-                        In Development mode, only test users can log in. Switch to Live mode for public access.
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </div>
               
@@ -1212,27 +1080,6 @@ defmodule GameServerWeb.PublicDocs do
                     <div class="space-y-2">
                       <div>FACEBOOK_CLIENT_ID="your_app_id"</div>
                       <div>FACEBOOK_CLIENT_SECRET="your_app_secret"</div>
-                    </div>
-                  </div>
-                  <div class="alert alert-warning mt-3">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="stroke-current shrink-0 h-6 w-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                      />
-                    </svg>
-                    <div>
-                      <p>
-                        <strong>Security:</strong>
-                        Never commit the App Secret to version control. Use your deployment platform's secret management.
-                      </p>
                     </div>
                   </div>
                 </div>
@@ -1253,24 +1100,6 @@ defmodule GameServerWeb.PublicDocs do
                   </ol>
                 </div>
               </div>
-            </div>
-
-            <div class="card-actions justify-end mt-6">
-              <a
-                href="https://developers.facebook.com/"
-                target="_blank"
-                class="btn btn-primary"
-              >
-                Open Facebook Developers Portal
-                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                  />
-                </svg>
-              </a>
             </div>
           </div>
         </div>
@@ -1293,12 +1122,27 @@ defmodule GameServerWeb.PublicDocs do
                 />
               </svg>
               Email Setup
+              <a
+                href="https://hexdocs.pm/phoenix/1.3.0-rc.0/sending_email_with_smtp.html"
+                target="_blank"
+                class="btn btn-outline ml-auto"
+              >
+                Email Implementation Docs
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+              </a>
               <button
                 type="button"
                 data-action="toggle-card"
                 data-card-key="email_config"
                 aria-expanded="false"
-                class="btn btn-ghost btn-sm ml-auto"
+                class="btn btn-ghost btn-sm"
                 title="Collapse/Expand"
               >
                 <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
@@ -1312,29 +1156,6 @@ defmodule GameServerWeb.PublicDocs do
               </button>
             </h2>
 
-            <div class="alert alert-info mb-6">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                class="stroke-current shrink-0 w-6 h-6"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                >
-                </path>
-              </svg>
-              <div>
-                <p>
-                  <strong>Email is always required for registration.</strong>
-                  Configure SMTP settings to enable email delivery.
-                </p>
-              </div>
-            </div>
-
             <div class="space-y-6">
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3">Choose an Email Provider</h3>
@@ -1344,7 +1165,7 @@ defmodule GameServerWeb.PublicDocs do
                     <div class="bg-base-200 p-4 rounded-lg text-center">
                       <div class="font-semibold">Resend</div>
                       <div class="text-sm text-base-content/70">3,000 free emails/month</div>
-                      <a href="https://resend.com" target="_blank" class="btn btn-sm btn-primary mt-2">
+                      <a href="https://resend.com" target="_blank" class="btn btn-sm btn-outline mt-2">
                         Get Started
                       </a>
                     </div>
@@ -1354,7 +1175,7 @@ defmodule GameServerWeb.PublicDocs do
                       <a
                         href="https://sendgrid.com"
                         target="_blank"
-                        class="btn btn-sm btn-primary mt-2"
+                        class="btn btn-sm btn-outline mt-2"
                       >
                         Get Started
                       </a>
@@ -1365,7 +1186,7 @@ defmodule GameServerWeb.PublicDocs do
                       <a
                         href="https://mailgun.com"
                         target="_blank"
-                        class="btn btn-sm btn-primary mt-2"
+                        class="btn btn-sm btn-outline mt-2"
                       >
                         Get Started
                       </a>
@@ -1404,12 +1225,27 @@ defmodule GameServerWeb.PublicDocs do
                 <path d="M12 14.5c-1.38 0-2.5 1.12-2.5 2.5v7c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5v-7c0-1.38-1.12-2.5-2.5-2.5z" />
               </svg>
               Sentry Setup
+              <a
+                href="https://sentry.io"
+                target="_blank"
+                class="btn btn-outline ml-auto"
+              >
+                Sentry Dashboard
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+              </a>
               <button
                 type="button"
                 data-action="toggle-card"
                 data-card-key="sentry_setup"
                 aria-expanded="false"
-                class="btn btn-ghost btn-sm ml-auto"
+                class="btn btn-ghost btn-sm"
                 title="Collapse/Expand"
               >
                 <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
@@ -1422,29 +1258,6 @@ defmodule GameServerWeb.PublicDocs do
                 </svg>
               </button>
             </h2>
-
-            <div class="alert alert-info mb-6">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                class="stroke-current shrink-0 w-6 h-6"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                >
-                </path>
-              </svg>
-              <div>
-                <p>
-                  <strong>Why Sentry?</strong>
-                  Automatically captures and reports errors, exceptions, and performance issues in production. Get notified about crashes and monitor application health.
-                </p>
-              </div>
-            </div>
 
             <div class="space-y-6">
               <!-- Step 1: Create Sentry Project -->
@@ -1504,27 +1317,6 @@ defmodule GameServerWeb.PublicDocs do
                       <div>SENTRY_DSN="https://your-dsn@sentry.io/project-id"</div>
                     </div>
                   </div>
-                  <div class="alert alert-warning">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="stroke-current shrink-0 h-6 w-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                      />
-                    </svg>
-                    <div>
-                      <p>
-                        <strong>Security Note:</strong>
-                        Never commit the DSN to version control. Use your deployment platform's secret management (Fly.io secrets, etc.).
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </div>
               
@@ -1541,48 +1333,8 @@ defmodule GameServerWeb.PublicDocs do
                     <li>Test error reporting by running: <code>mix sentry.send_test_event</code></li>
                     <li>Check your Sentry dashboard for the test event</li>
                   </ol>
-                  <div class="alert alert-info">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      class="stroke-current shrink-0 w-6 h-6"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      >
-                      </path>
-                    </svg>
-                    <div>
-                      <p>
-                        <strong>Note:</strong>
-                        Sentry only reports errors in production. Development and test environments are disabled by default.
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </div>
-            </div>
-
-            <div class="card-actions justify-end mt-6">
-              <a
-                href="https://sentry.io"
-                target="_blank"
-                class="btn btn-primary"
-              >
-                Open Sentry Dashboard
-                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                  />
-                </svg>
-              </a>
             </div>
           </div>
         </div>
@@ -1605,12 +1357,27 @@ defmodule GameServerWeb.PublicDocs do
                 />
               </svg>
               PostgreSQL Setup
+              <a
+                href="https://www.postgresql.org"
+                target="_blank"
+                class="btn btn-outline ml-auto"
+              >
+                Download PostgreSQL
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+              </a>
               <button
                 type="button"
                 data-action="toggle-card"
                 data-card-key="postgres_config"
                 aria-expanded="false"
-                class="btn btn-ghost btn-sm ml-auto"
+                class="btn btn-ghost btn-sm"
                 title="Collapse/Expand"
               >
                 <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
@@ -1623,29 +1390,6 @@ defmodule GameServerWeb.PublicDocs do
                 </svg>
               </button>
             </h2>
-
-            <div class="alert alert-info mb-6">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                class="stroke-current shrink-0 w-6 h-6"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                >
-                </path>
-              </svg>
-              <div>
-                <p>
-                  <strong>Why PostgreSQL?</strong>
-                  Better for production deployments, concurrent access, and advanced features. SQLite is used by default for simplicity.
-                </p>
-              </div>
-            </div>
 
             <div class="space-y-6">
               <div class="step">
@@ -1675,12 +1419,11 @@ defmodule GameServerWeb.PublicDocs do
                   <p>You can also set individual database connection variables:</p>
                   <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
                     <div class="space-y-2">
-                      <div>DB_HOST="your-postgres-host"</div>
-                      <div>DB_PORT="5432"</div>
-                      <div>DB_NAME="your-database-name"</div>
-                      <div>DB_USER="your-username"</div>
-                      <div>DB_PASS="your-password"</div>
-                      <div>DB_SSL="true"  # or "false"</div>
+                      <div>POSTGRES_HOST="your-postgres-host"</div>
+                      <div>POSTGRES_PORT="5432"</div>
+                      <div>POSTGRES_USER="your-database-name"</div>
+                      <div>POSTGRES_PASSWORD="your-username"</div>
+                      <div>POSTGRES_DB="your-password"</div>
                     </div>
                   </div>
                 </div>
@@ -1689,28 +1432,6 @@ defmodule GameServerWeb.PublicDocs do
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3">Deployment Considerations</h3>
                 <div class="ml-8 space-y-3">
-                  <div class="alert alert-warning">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="stroke-current shrink-0 h-6 w-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                      />
-                    </svg>
-                    <div>
-                      <p>
-                        <strong>Important:</strong>
-                        When switching from SQLite to PostgreSQL, you'll need to migrate your data or start fresh.
-                        The database schema is compatible between both adapters.
-                      </p>
-                    </div>
-                  </div>
                   <p class="text-sm">
                     Popular PostgreSQL hosting options:
                   </p>
@@ -1721,7 +1442,7 @@ defmodule GameServerWeb.PublicDocs do
                       <a
                         href="https://supabase.com"
                         target="_blank"
-                        class="btn btn-sm btn-primary mt-2"
+                        class="btn btn-sm btn-outline mt-2"
                       >
                         Get Started
                       </a>
@@ -1729,7 +1450,7 @@ defmodule GameServerWeb.PublicDocs do
                     <div class="bg-base-200 p-4 rounded-lg text-center">
                       <div class="font-semibold">Neon</div>
                       <div class="text-sm text-base-content/70">Serverless PostgreSQL</div>
-                      <a href="https://neon.tech" target="_blank" class="btn btn-sm btn-primary mt-2">
+                      <a href="https://neon.tech" target="_blank" class="btn btn-sm btn-outline mt-2">
                         Get Started
                       </a>
                     </div>
@@ -1739,7 +1460,7 @@ defmodule GameServerWeb.PublicDocs do
                       <a
                         href="https://fly.io/docs/postgres/"
                         target="_blank"
-                        class="btn btn-sm btn-primary mt-2"
+                        class="btn btn-sm btn-outline mt-2"
                       >
                         Learn More
                       </a>
