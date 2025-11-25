@@ -330,8 +330,8 @@ jobs:
       - name: Set up Elixir (for mix openapi task)
         uses: erlef/setup-elixir@v1
         with:
-          elixir-version: '1.15'
-          otp-version: '25.3'
+          elixir-version: '1.19'
+          otp-version: '28'
 
       - name: Install dependencies (mix deps.get)
         working-directory: .
