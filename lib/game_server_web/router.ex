@@ -64,6 +64,8 @@ defmodule GameServerWeb.Router do
     post "/login", SessionController, :create
     post "/refresh", SessionController, :refresh
     delete "/logout", SessionController, :delete
+    get "/lobbies", LobbyController, :index
+    # hostless creation removed (server-managed only). Public create endpoint removed.
   end
 
   # Protected API routes - require JWT authentication
@@ -71,6 +73,11 @@ defmodule GameServerWeb.Router do
     pipe_through [:api, :api_auth]
 
     get "/me", MeController, :show
+    post "/lobbies", LobbyController, :create
+    patch "/lobbies/:id", LobbyController, :update
+    post "/lobbies/:id/join", LobbyController, :join
+    post "/lobbies/:id/leave", LobbyController, :leave
+    post "/lobbies/:id/kick", LobbyController, :kick
     patch "/me/password", MeController, :update_password
     patch "/me/display_name", MeController, :update_display_name
     delete "/me/providers/:provider", ProviderController, :unlink
@@ -114,6 +121,7 @@ defmodule GameServerWeb.Router do
       # Admin routes
       live "/admin", AdminLive.Index, :index
       live "/admin/config", AdminLive.Config, :index
+      live "/admin/lobbies", AdminLive.Lobbies, :index
       live "/admin/users", AdminLive.Users, :index
       live "/admin/sessions", AdminLive.Sessions, :index
     end
@@ -137,6 +145,7 @@ defmodule GameServerWeb.Router do
     live_session :current_user,
       on_mount: [{GameServerWeb.UserAuth, :mount_current_scope}] do
       live "/users/register", UserLive.Registration, :new
+      live "/lobbies", LobbyLive.Index, :index
       live "/users/log-in", UserLive.Login, :new
       live "/users/log-in/:token", UserLive.Confirmation, :new
       live "/docs/setup", PublicDocs, :index

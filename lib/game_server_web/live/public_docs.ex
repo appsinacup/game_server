@@ -290,6 +290,25 @@ defmodule GameServerWeb.PublicDocs do
                 </pre>
               </div>
 
+              <h4 class="font-semibold mt-3">Lobbies</h4>
+              <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+                <pre>
+    lobbies (
+      id           : integer (primary key)
+      name         : string (unique slug)
+      title        : string (display title)
+      host_id      : integer (user id of host, nullable for hostless)
+      hostless     : boolean (server-managed hostless lobbies)
+      max_users    : integer (maximum number of members)
+      is_hidden    : boolean (not returned by public lists)
+      is_locked    : boolean (fully locked — prevents joins)
+      password_hash: string (bcrypt hash, optional: requires password to join)
+      metadata     : jsonb/map (searchable metadata)
+      inserted_at  : utc_datetime
+      updated_at   : utc_datetime
+    )</pre>
+              </div>
+
               <h3 class="font-semibold mt-2">Notes / behavior</h3>
               <ul class="list-disc pl-6 text-sm space-y-1 text-base-content/80">
                 <li>

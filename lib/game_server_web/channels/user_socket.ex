@@ -11,6 +11,9 @@ defmodule GameServerWeb.UserSocket do
   # Register the user_updates channel for per-user realtime events
   channel "user_updates:*", GameServerWeb.UserUpdatesChannel
 
+  # Lobby channels - join workspace level lobby topics (members only)
+  channel "lobby:*", GameServerWeb.LobbyChannel
+
   # Uncomment the following line to define a "room:*" topic
   # pointing to the `GameServerWeb.RoomChannel`:
   #

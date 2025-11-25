@@ -4,6 +4,7 @@ defmodule GameServerWeb.AdminLive.Index do
   alias GameServer.Repo
   alias GameServer.Accounts.User
   alias GameServer.Accounts.UserToken
+  alias GameServer.Lobbies.Lobby
 
   @dev_routes? Application.compile_env(:game_server, :dev_routes, false)
 
@@ -23,6 +24,9 @@ defmodule GameServerWeb.AdminLive.Index do
           </.link>
           <.link navigate={~p"/admin/users"} class="btn btn-primary">
             Users ({@users_count})
+          </.link>
+          <.link navigate={~p"/admin/lobbies"} class="btn btn-primary">
+            Lobbies ({@lobbies_count})
           </.link>
           <.link navigate={~p"/admin/sessions"} class="btn btn-primary">
             Tokens ({@sessions_count})
@@ -47,10 +51,13 @@ defmodule GameServerWeb.AdminLive.Index do
     users_count = Repo.aggregate(User, :count)
     sessions_count = Repo.aggregate(UserToken, :count)
 
+    lobbies_count = Repo.aggregate(Lobby, :count)
+
     {:ok,
      assign(socket,
        users_count: users_count,
        sessions_count: sessions_count,
+       lobbies_count: lobbies_count,
        dev_routes?: @dev_routes?
      )}
   end

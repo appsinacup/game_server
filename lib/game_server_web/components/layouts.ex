@@ -87,6 +87,9 @@ defmodule GameServerWeb.Layouts do
             </li>
           <% end %>
           <li>
+            <.link href={~p"/lobbies"} class="btn btn-outline">Lobbies</.link>
+          </li>
+          <li>
             <.link href={~p"/docs/setup"}>Guides</.link>
           </li>
           <li>
@@ -121,15 +124,18 @@ defmodule GameServerWeb.Layouts do
                     {profile_initials(@current_scope.user)} {profile_display_name(@current_scope.user)}
                   </span>
                 </li>
-                <li><a href={~p"/users/settings"}>Settings</a></li>
+                <li><a href={~p"/users/settings"} class="btn btn-outline">Settings</a></li>
                 <%= if @current_scope && @current_scope.user.is_admin do %>
-                  <li><a href={~p"/admin"}>Admin</a></li>
+                  <li><a href={~p"/admin"} class="btn btn-outline">Admin</a></li>
                 <% end %>
-                <li><a href={~p"/users/log-out"} method="delete">Log out</a></li>
+                <li>
+                  <a href={~p"/users/log-out"} method="delete" class="btn btn-outline">Log out</a>
+                </li>
               <% else %>
-                <li><a href={~p"/users/log-in"}>Log in</a></li>
-                <li><a href={~p"/users/register"}>Register</a></li>
+                <li><a href={~p"/users/log-in"} class="btn btn-outline">Log in</a></li>
+                <li><a href={~p"/users/register"} class="btn btn-outline">Register</a></li>
               <% end %>
+              <li><a href={~p"/lobbies"} class="btn btn-outline">Lobbies</a></li>
               <li><a href={~p"/docs/setup"}>Guides</a></li>
               <li><a href={~p"/api/docs"} target="_blank">API Docs</a></li>
               <li class="mt-2">
@@ -154,7 +160,8 @@ defmodule GameServerWeb.Layouts do
       <div class="mx-auto max-w-2xl lg:max-w-4xl xl:max-w-6xl">
         <a href={~p"/privacy"} class="hover:underline mr-4">Privacy Policy</a>
         <a href={~p"/terms"} class="hover:underline mr-4">Terms and Conditions</a>
-        <a href={~p"/docs/setup"} class="hover:underline">Guides</a>
+        <a href={~p"/docs/setup"} class="hover:underline mr-4">Guides</a>
+        <a href={~p"/lobbies"} class="hover:underline">Lobbies</a>
       </div>
     </footer>
     """

@@ -17,6 +17,9 @@ defmodule GameServer.Accounts.User do
     field :is_admin, :boolean, default: false
     field :metadata, :map, default: %{}
 
+    # membership via users.lobby_id (each user can be in one lobby)
+    belongs_to :lobby, GameServer.Lobbies.Lobby
+
     timestamps(type: :utc_datetime)
   end
 
