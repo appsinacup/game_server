@@ -400,6 +400,53 @@ In the template, the form form assign can be passed to the `<.form>` function co
 
 Always give the form an explicit, unique DOM ID, like `id="todo-form"`.
 
+
+## Clients (JavaScript & Godot)
+
+This repo ships two API client flows derived from the OpenAPI spec:
+
+- JavaScript client (canonical, generated from mix/openapi spec) — kept under `clients/javascript`.
+- Godot / GDScript client(s) — there are two supported ways to produce these:
+  1) Official OpenAPI Generator (Docker): generates a gdscript client using openapitools/openapi-generator-cli (the repo includes `clients/generate_godot.sh` which:
+     - runs `mix openapi.spec.json` to export the app OpenAPI spec to `clients/godot/openapi.json`
+     - invokes the Docker image to generate the GDScript client into `clients/godot` or a target folder
+     Example (run from repo root):
+
+     ```bash
+     # generates clients/godot/openapi.json then runs openapi-generator to make gdscript client
+     ./clients/generate_godot.sh
+     ```
+
+  2) Local custom generator (Go): `clients/nakama-codegen` — a bespoke template-based generator used to produce compact Godot bindings tailored to the project. Key points:
+     - Input: OpenAPI JSON (eg. `clients/godot/openapi.json`) — produced by `mix openapi.spec.json`.
+     - Usage: `go run clients/nakama-codegen/main.go <openapi.json> <ClassName> > clients/addons/<addon>/api/<ClassName>API.gd`
+     - Example used in repo (generates Gamend client):
+
+       ```bash
+       cd clients/nakama-codegen
+       go run main.go "/absolute/path/to/clients/godot/openapi.json" "Gamend" > ../addons/gamend/api/GamendAPI.gd
+       ```
+
+     - The generator now understands OpenAPI v3 `components.schemas` and will create typed models (for example `GamendSession`) when that schema exists in the spec. If no named schema exists the generator falls back to `Dictionary` earlier, but we've added an explicit `GamendSession` schema in the server spec so generated clients now produce a typed `GamendSession` model.
+
+Where to find generated files
+- OpenAPI JSON files: `clients/javascript/openapi.json` and `clients/godot/openapi.json` (source for generators).
+- JavaScript client (already present): `clients/javascript`
+- Godot client (generated): `clients/addons/<addon>/api/*` (e.g. `clients/addons/gamend/api/GamendAPI.gd`).
+
+Tips / notes
+- Prefer running the mix task from the project root so paths and modules resolve correctly:
+
+  ```bash
+  cd /path/to/game_server
+  mix openapi.spec.json --spec GameServerWeb.ApiSpec --filename clients/godot/openapi.json --pretty true
+  ```
+
+- You can use the Docker-based `clients/generate_godot.sh` if you want to rely on the official OpenAPI Generator (it will emit a more standard gdscript client and supports more options).
+- The local generator `clients/nakama-codegen` is a smaller, project-tailored generator which now handles `components.schemas` and produces inline typed model classes in the generated API file.
+- If you prefer models in separate files (or different layout), I can modify the generator/template to split models out.
+
+
 #### Avoiding form errors
 
 **Always** use a form assigned via `to_form/2` in the LiveView, and the `<.input>` component in the template. In the template **always access forms this**:
