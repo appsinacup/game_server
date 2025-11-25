@@ -96,7 +96,6 @@ defmodule GameServerWeb.Api.V1.SessionController do
     operation_id: "logout",
     summary: "Logout",
     description: "Invalidate user session token",
-    security: [%{"authorization" => []}],
     parameters: [],
     responses: [
       no_content: {"Logout successful", "application/json", nil}

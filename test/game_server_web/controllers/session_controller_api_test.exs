@@ -19,5 +19,28 @@ defmodule GameServerWeb.SessionControllerApiTest do
                "Invalid refresh token"
              ]
     end
+
+    test "refresh works without Authorization header (happy path)", %{conn: conn} do
+      # create a user and set password
+      user =
+        GameServer.AccountsFixtures.user_fixture() |> GameServer.AccountsFixtures.set_password()
+
+      # login to get a refresh token
+      login_resp =
+        post(conn, "/api/v1/login", %{
+          email: user.email,
+          password: GameServer.AccountsFixtures.valid_user_password()
+        })
+
+      assert login_resp.status == 200
+      refresh_token = json_response(login_resp, 200)["data"]["refresh_token"]
+
+      # call refresh without Authorization header
+      resp = post(conn, "/api/v1/refresh", %{refresh_token: refresh_token})
+      assert resp.status == 200
+      body = json_response(resp, 200)
+      assert is_binary(body["access_token"]) and byte_size(body["access_token"]) > 0
+      assert body["expires_in"] == 900
+    end
   end
 end

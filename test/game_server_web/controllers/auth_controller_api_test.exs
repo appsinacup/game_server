@@ -84,10 +84,10 @@ defmodule GameServerWeb.AuthControllerApiTest do
       assert json_response(conn, 404)["error"] == "session_not_found"
     end
 
-    test "empty session path returns 404 (router)", %{conn: conn} do
-      # Hitting the endpoint without a session id should not match the route
+    test "empty session path returns 400 (router)", %{conn: conn} do
       resp = get(conn, "/api/v1/auth/session/")
-      assert resp.status == 404
+
+      assert resp.status == 400
     end
   end
 
@@ -98,4 +98,5 @@ defmodule GameServerWeb.AuthControllerApiTest do
       assert conn.status == 400
       assert json_response(conn, 400)["error"] == "invalid_provider"
     end
+  end
 end
