@@ -246,10 +246,18 @@ defmodule GameServer.Lobbies do
           {:error, :locked}
 
         true ->
-          password =
-            if is_list(opts), do: Keyword.get(opts, :password), else: Map.get(opts, :password)
+          hooks = GameServer.Hooks.module()
 
-          validate_and_join(lobby, user_id, password)
+          case hooks.before_lobby_join(user, lobby, opts) do
+            {:ok, _} ->
+              password =
+                if is_list(opts), do: Keyword.get(opts, :password), else: Map.get(opts, :password)
+
+              validate_and_join(lobby, user_id, password)
+
+            {:error, reason} ->
+              {:error, {:hook_rejected, reason}}
+          end
       end
     end
   end
@@ -316,12 +324,21 @@ defmodule GameServer.Lobbies do
           Map.put(attrs, "name", unique_name)
         end
 
-      Multi.new()
-      |> Multi.insert(:lobby, Lobby.changeset(%Lobby{}, attrs))
-      |> maybe_add_host_membership(attrs)
-      |> Repo.transaction()
+      hooks = GameServer.Hooks.module()
+
+      case hooks.before_lobby_create(attrs) do
+        {:ok, attrs} ->
+          Multi.new()
+          |> Multi.insert(:lobby, Lobby.changeset(%Lobby{}, attrs))
+          |> maybe_add_host_membership(attrs)
+          |> Repo.transaction()
+
+        {:error, reason} ->
+          {:error, {:hook_rejected, reason}}
+      end
       |> case do
         {:ok, %{lobby: lobby}} ->
+          Task.start(fn -> hooks.after_lobby_create(lobby) end)
           broadcast_lobbies({:lobby_created, lobby})
           {:ok, lobby}
 
@@ -365,31 +382,49 @@ defmodule GameServer.Lobbies do
   defp slugify(_), do: "lobby"
 
   def update_lobby(%Lobby{} = lobby, attrs) do
-    result =
-      lobby
-      |> Lobby.changeset(attrs)
-      |> Repo.update()
+    hooks = GameServer.Hooks.module()
 
-    case result do
-      {:ok, updated} ->
-        # broadcast updates so any UI/channel subscribers get the change
-        broadcast_lobby(updated.id, {:lobby_updated, updated})
-        broadcast_lobbies({:lobby_updated, updated})
-        {:ok, updated}
+    case hooks.before_lobby_update(lobby, attrs) do
+      {:ok, attrs} ->
+        result =
+          lobby
+          |> Lobby.changeset(attrs)
+          |> Repo.update()
 
-      other ->
-        other
+        case result do
+          {:ok, updated} ->
+            Task.start(fn -> hooks.after_lobby_update(updated) end)
+            # broadcast updates so any UI/channel subscribers get the change
+            broadcast_lobby(updated.id, {:lobby_updated, updated})
+            broadcast_lobbies({:lobby_updated, updated})
+            {:ok, updated}
+
+          other ->
+            other
+        end
+
+      {:error, reason} ->
+        {:error, {:hook_rejected, reason}}
     end
   end
 
   def delete_lobby(%Lobby{} = lobby) do
-    case Repo.delete(lobby) do
-      {:ok, deleted} ->
-        broadcast_lobbies({:lobby_deleted, deleted.id})
-        {:ok, deleted}
+    hooks = GameServer.Hooks.module()
 
-      other ->
-        other
+    case hooks.before_lobby_delete(lobby) do
+      {:ok, _} ->
+        case Repo.delete(lobby) do
+          {:ok, deleted} ->
+            Task.start(fn -> hooks.after_lobby_delete(deleted) end)
+            broadcast_lobbies({:lobby_deleted, deleted.id})
+            {:ok, deleted}
+
+          other ->
+            other
+        end
+
+      {:error, reason} ->
+        {:error, {:hook_rejected, reason}}
     end
   end
 
@@ -411,10 +446,17 @@ defmodule GameServer.Lobbies do
           |> Repo.update()
 
         case result do
-          {:ok, _user} ->
+          {:ok, updated_user} ->
             broadcast_lobby(lobby_id, {:user_joined, lobby_id, user_id})
             broadcast_lobbies({:lobby_membership_changed, lobby_id})
-            result
+
+            Task.start(fn ->
+              hooks = GameServer.Hooks.module()
+              lobby = Repo.get!(Lobby, lobby_id)
+              hooks.after_lobby_join(updated_user, lobby)
+            end)
+
+            {:ok, updated_user}
 
           _ ->
             result
@@ -438,15 +480,31 @@ defmodule GameServer.Lobbies do
 
       %GameServer.Accounts.User{} = membership ->
         lobby = Repo.get!(Lobby, membership.lobby_id)
+        hooks = GameServer.Hooks.module()
+
+        case hooks.before_lobby_leave(membership, lobby) do
+          {:ok, _} ->
+            :ok
+
+          {:error, reason} ->
+            {:error, {:hook_rejected, reason}}
+        end
+
         lobby_id = lobby.id
 
-        result =
-          Repo.transaction(fn ->
-            Repo.update!(Ecto.Changeset.change(membership, %{lobby_id: nil}))
-            handle_host_transfer(lobby, user_id, membership.id)
-          end)
+        case hooks.before_lobby_leave(membership, lobby) do
+          {:ok, _} ->
+            result =
+              Repo.transaction(fn ->
+                Repo.update!(Ecto.Changeset.change(membership, %{lobby_id: nil}))
+                handle_host_transfer(lobby, user_id, membership.id)
+              end)
 
-        broadcast_leave_result(result, lobby_id, user_id)
+            broadcast_leave_result(result, lobby_id, user_id)
+
+          {:error, reason} ->
+            {:error, {:hook_rejected, reason}}
+        end
     end
   end
 
@@ -518,16 +576,36 @@ defmodule GameServer.Lobbies do
             {:error, :not_found}
 
           %GameServer.Accounts.User{lobby_id: ^lobby_id} = membership ->
-            result = Repo.update(Ecto.Changeset.change(membership, %{lobby_id: nil}))
+            hooks = GameServer.Hooks.module()
 
-            case result do
+            case hooks.before_user_kicked(
+                   %GameServer.Accounts.User{id: host_id},
+                   membership,
+                   lobby
+                 ) do
               {:ok, _} ->
-                broadcast_lobby(lobby_id, {:user_kicked, lobby_id, target_id})
-                broadcast_lobbies({:lobby_membership_changed, lobby_id})
-                result
+                result = Repo.update(Ecto.Changeset.change(membership, %{lobby_id: nil}))
 
-              _ ->
-                result
+                case result do
+                  {:ok, _} ->
+                    Task.start(fn ->
+                      hooks.after_user_kicked(
+                        %GameServer.Accounts.User{id: host_id},
+                        membership,
+                        lobby
+                      )
+                    end)
+
+                    broadcast_lobby(lobby_id, {:user_kicked, lobby_id, target_id})
+                    broadcast_lobbies({:lobby_membership_changed, lobby_id})
+                    result
+
+                  _ ->
+                    result
+                end
+
+              {:error, reason} ->
+                {:error, {:hook_rejected, reason}}
             end
 
           _ ->

@@ -157,30 +157,17 @@ defmodule GameServer.Accounts do
 
     hooks = GameServer.Hooks.module()
 
-    case hooks.before_user_register(attrs) do
-      {:ok, attrs} ->
-        %User{}
-        |> User.email_changeset(attrs)
-        |> maybe_attach_device(attrs)
-        |> Repo.insert()
-        |> case do
-          {:ok, user} = ok ->
-            # Fire-and-forget after hook
-            Task.start(fn -> hooks.after_user_register(user) end)
-            ok
+    case %User{}
+         |> User.email_changeset(attrs)
+         |> maybe_attach_device(attrs)
+         |> Repo.insert() do
+      {:ok, user} = ok ->
+        # Fire-and-forget after hook
+        Task.start(fn -> hooks.after_user_register(user) end)
+        ok
 
-          err ->
-            err
-        end
-
-      {:error, reason} ->
-        # Convert hook failure into an Ecto.Changeset so callers get consistent errors
-        changeset =
-          %User{}
-          |> Ecto.Changeset.change()
-          |> Ecto.Changeset.add_error(:base, "hook rejected: #{inspect(reason)}")
-
-        {:error, changeset}
+      err ->
+        err
     end
   end
 
@@ -290,22 +277,17 @@ defmodule GameServer.Accounts do
         # specify optional display_name/metadata via attrs.
         attrs = Map.put_new(attrs, :display_name, nil)
 
-        hooks = GameServer.Hooks.module()
+        case %User{}
+             |> User.device_changeset(attrs)
+             |> User.attach_device_changeset(%{device_id: device_id})
+             |> Repo.insert() do
+          {:ok, user} = ok ->
+            hooks = GameServer.Hooks.module()
+            Task.start(fn -> hooks.after_user_register(user) end)
+            ok
 
-        case hooks.before_user_register(attrs) do
-          {:ok, attrs} ->
-            %User{}
-            |> User.device_changeset(attrs)
-            |> User.attach_device_changeset(%{device_id: device_id})
-            |> Repo.insert()
-
-          {:error, reason} ->
-            changeset =
-              %User{}
-              |> Ecto.Changeset.change()
-              |> Ecto.Changeset.add_error(:base, "hook rejected: #{inspect(reason)}")
-
-            {:error, changeset}
+          err ->
+            err
         end
     end
   end
@@ -347,29 +329,15 @@ defmodule GameServer.Accounts do
                 %User{} = user ->
                   attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
 
-                  hooks = GameServer.Hooks.module()
-
-                  case hooks.before_account_link(user, provider_id_field, attrs) do
-                    {:ok, {user, attrs}} ->
-                      case user |> changeset_fn.(attrs) |> update_and_clear_device() do
-                        {:ok, user} = ok ->
-                          Task.start(fn -> hooks.after_account_link(user) end)
-                          ok
-
-                        err ->
-                          err
-                      end
-
-                    {:error, reason} ->
-                      {:error, {:hook_rejected, reason}}
-                  end
+                  user
+                  |> changeset_fn.(attrs)
+                  |> update_and_clear_device()
               end
             else
               create_user_from_provider(attrs, changeset_fn)
             end
         end
 
-      # No provider id - prefer email match
       email != nil ->
         case Repo.get_by(User, email: email) do
           nil ->
@@ -378,22 +346,7 @@ defmodule GameServer.Accounts do
           %User{} = user ->
             attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
 
-            hooks = GameServer.Hooks.module()
-
-            case hooks.before_account_link(user, provider_id_field, attrs) do
-              {:ok, {user, attrs}} ->
-                case user |> changeset_fn.(attrs) |> update_and_clear_device() do
-                  {:ok, user} = ok ->
-                    Task.start(fn -> hooks.after_account_link(user) end)
-                    ok
-
-                  err ->
-                    err
-                end
-
-              {:error, reason} ->
-                {:error, {:hook_rejected, reason}}
-            end
+            user |> changeset_fn.(attrs) |> update_and_clear_device()
         end
 
       # Neither provider id nor email - create a new user
@@ -411,29 +364,14 @@ defmodule GameServer.Accounts do
     # passing a nil email into the changeset (update_change will crash).
     attrs = if Map.get(attrs, :email) in [nil, ""], do: Map.delete(attrs, :email), else: attrs
 
-    hooks = GameServer.Hooks.module()
+    case %User{} |> changeset_fn.(attrs) |> Repo.insert() do
+      {:ok, user} = ok ->
+        hooks = GameServer.Hooks.module()
+        Task.start(fn -> hooks.after_user_register(user) end)
+        ok
 
-    case hooks.before_user_register(attrs) do
-      {:ok, attrs} ->
-        %User{}
-        |> changeset_fn.(attrs)
-        |> Repo.insert()
-        |> case do
-          {:ok, user} = ok ->
-            Task.start(fn -> hooks.after_user_register(user) end)
-            ok
-
-          err ->
-            err
-        end
-
-      {:error, reason} ->
-        changeset =
-          %User{}
-          |> Ecto.Changeset.change()
-          |> Ecto.Changeset.add_error(:base, "hook rejected: #{inspect(reason)}")
-
-        {:error, changeset}
+      err ->
+        err
     end
   end
 
@@ -498,31 +436,22 @@ defmodule GameServer.Accounts do
   def link_account(%User{} = user, attrs, provider_id_field, changeset_fn) do
     attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
 
-    hooks = GameServer.Hooks.module()
+    changeset = changeset_fn.(user, attrs)
 
-    case hooks.before_account_link(user, provider_id_field, attrs) do
-      {:ok, {user, attrs}} ->
-        changeset = changeset_fn.(user, attrs)
+    case Repo.update(changeset) do
+      {:ok, user} ->
+        # When a provider is linked to an account, clear any device_id
+        # previously attached to this user so the account is secured.
+        user =
+          case detach_device_from_user(user) do
+            {:ok, u} -> u
+            _ -> user
+          end
 
-        case Repo.update(changeset) do
-          {:ok, user} ->
-            # When a provider is linked to an account, clear any device_id
-            # previously attached to this user so the account is secured.
-            user =
-              case detach_device_from_user(user) do
-                {:ok, u} -> u
-                _ -> user
-              end
+        {:ok, user}
 
-            Task.start(fn -> hooks.after_account_link(user) end)
-            {:ok, user}
-
-          {:error, changeset} ->
-            handle_link_error(user, attrs, provider_id_field, changeset)
-        end
-
-      {:error, reason} ->
-        {:error, {:hook_rejected, reason}}
+      {:error, changeset} ->
+        handle_link_error(user, attrs, provider_id_field, changeset)
     end
   end
 
@@ -765,17 +694,10 @@ defmodule GameServer.Accounts do
         handle_unconfirmed_login(user)
 
       {user, token} ->
+        Repo.delete!(token)
         hooks = GameServer.Hooks.module()
-
-        case hooks.before_user_login(user) do
-          {:ok, user} ->
-            Repo.delete!(token)
-            Task.start(fn -> hooks.after_user_login(user) end)
-            {:ok, {user, []}}
-
-          {:error, reason} ->
-            {:error, {:hook_rejected, reason}}
-        end
+        Task.start(fn -> hooks.after_user_login(user) end)
+        {:ok, {user, []}}
 
       nil ->
         {:error, :not_found}
@@ -783,26 +705,19 @@ defmodule GameServer.Accounts do
   end
 
   defp handle_unconfirmed_login(user) do
-    hooks = GameServer.Hooks.module()
+    result =
+      user
+      |> User.confirm_changeset()
+      |> update_user_and_delete_all_tokens()
 
-    case hooks.before_user_login(user) do
-      {:ok, user} ->
-        result =
-          user
-          |> User.confirm_changeset()
-          |> update_user_and_delete_all_tokens()
+    case result do
+      {:ok, {user, _tokens}} = ok ->
+        hooks = GameServer.Hooks.module()
+        Task.start(fn -> hooks.after_user_login(user) end)
+        ok
 
-        case result do
-          {:ok, {user, _tokens}} = ok ->
-            Task.start(fn -> hooks.after_user_login(user) end)
-            ok
-
-          other ->
-            other
-        end
-
-      {:error, reason} ->
-        {:error, {:hook_rejected, reason}}
+      other ->
+        other
     end
   end
 
@@ -849,34 +764,23 @@ defmodule GameServer.Accounts do
   alias GameServer.Lobbies
 
   def delete_user(%User{} = user) do
-    hooks = GameServer.Hooks.module()
-
-    case hooks.before_user_delete(user) do
-      {:ok, user} ->
-        # If the user is currently in a lobby, run the lobby leave flow so
-        # host transfers or lobby deletion occur according to the lobby rules
-        # (this keeps behavior consistent with when users delete their own accounts)
-        # Best-effort: always attempt to remove the user from any lobby they
-        # may belong to. We don't depend on the passed-in struct having the
-        # latest lobby_id, so call leave_lobby and ignore errors if it fails.
-        try do
-          _ = Lobbies.leave_lobby(user)
-        rescue
-          _ -> :ok
-        end
-
-        case Repo.delete(user) do
-          {:ok, user} = ok ->
-            Task.start(fn -> hooks.after_user_delete(user) end)
-            ok
-
-          err ->
-            err
-        end
-
-      {:error, reason} ->
-        {:error, {:hook_rejected, reason}}
+    # Best-effort: try to remove the user from any lobby they may belong to,
+    # then delete the user regardless of hook checks (hooks for deletion were removed).
+    try do
+      _ = Lobbies.leave_lobby(user)
+    rescue
+      _ -> :ok
     end
+
+    case Repo.delete(user) do
+      {:ok, _user} = ok ->
+        ok
+
+      err ->
+        err
+    end
+
+    # end delete_user
   end
 
   ## Token helper

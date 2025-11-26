@@ -16,17 +16,33 @@ defmodule GameServer.Hooks do
 
   @type hook_result(attrs_or_user) :: {:ok, attrs_or_user} | {:error, term()}
 
-  @callback before_user_register(map()) :: hook_result(map())
   @callback after_user_register(User.t()) :: any()
 
-  @callback before_user_login(User.t()) :: hook_result(User.t())
   @callback after_user_login(User.t()) :: any()
 
-  @callback before_account_link(User.t(), atom(), map()) :: hook_result({User.t(), map()})
-  @callback after_account_link(User.t()) :: any()
+  # Lobby lifecycle hooks
+  @callback before_lobby_create(map()) :: hook_result(map())
+  @callback after_lobby_create(term()) :: any()
 
-  @callback before_user_delete(User.t()) :: hook_result(User.t())
-  @callback after_user_delete(User.t()) :: any()
+  @callback before_lobby_join(User.t(), term(), term()) :: hook_result({User.t(), term(), term()})
+  @callback after_lobby_join(User.t(), term()) :: any()
+
+  @callback before_lobby_leave(User.t(), term()) :: hook_result({User.t(), term()})
+  @callback after_lobby_leave(User.t(), term()) :: any()
+
+  @callback before_lobby_update(term(), map()) :: hook_result(map())
+  @callback after_lobby_update(term()) :: any()
+
+  @callback before_lobby_delete(term()) :: hook_result(term())
+  @callback after_lobby_delete(term()) :: any()
+
+  @callback before_user_kicked(User.t(), User.t(), term()) ::
+              hook_result({User.t(), User.t(), term()})
+  @callback after_user_kicked(User.t(), User.t(), term()) :: any()
+
+  @callback after_lobby_host_change(term(), term()) :: any()
+
+  # (friends hooks removed — see config / code changes)
 
   @doc "Return the configured module that implements the hooks behaviour."
   def module do
@@ -42,28 +58,49 @@ defmodule GameServer.Hooks.Default do
   @behaviour GameServer.Hooks
 
   @impl true
-  def before_user_register(attrs), do: {:ok, attrs}
-
-  @impl true
   def after_user_register(_user), do: :ok
-
-  @impl true
-  def before_user_login(user), do: {:ok, user}
 
   @impl true
   def after_user_login(_user), do: :ok
 
   @impl true
-  def before_account_link(user, _provider, attrs), do: {:ok, {user, attrs}}
+  def before_lobby_create(attrs), do: {:ok, attrs}
 
   @impl true
-  def after_account_link(_user), do: :ok
+  def after_lobby_create(_lobby), do: :ok
 
   @impl true
-  def before_user_delete(user), do: {:ok, user}
+  def before_lobby_join(user, lobby, opts), do: {:ok, {user, lobby, opts}}
 
   @impl true
-  def after_user_delete(_user), do: :ok
+  def after_lobby_join(_user, _lobby), do: :ok
+
+  @impl true
+  def before_lobby_leave(user, lobby), do: {:ok, {user, lobby}}
+
+  @impl true
+  def after_lobby_leave(_user, _lobby), do: :ok
+
+  @impl true
+  def before_lobby_update(_lobby, attrs), do: {:ok, attrs}
+
+  @impl true
+  def after_lobby_update(_lobby), do: :ok
+
+  @impl true
+  def before_lobby_delete(lobby), do: {:ok, lobby}
+
+  @impl true
+  def after_lobby_delete(_lobby), do: :ok
+
+  @impl true
+  def before_user_kicked(host, target, lobby), do: {:ok, {host, target, lobby}}
+
+  @impl true
+  def after_user_kicked(_host, _target, _lobby), do: :ok
+
+  @impl true
+  def after_lobby_host_change(_lobby, _new_host_id), do: :ok
 end
 
 defmodule GameServer.Hooks.LuaInvoker do
@@ -103,32 +140,59 @@ defmodule GameServer.Hooks.LuaInvoker do
   end
 
   @impl true
-  def before_user_register(attrs), do: run_lua(:before_user_register, attrs)
+  def after_user_register(user), do: run_lua(:after_user_register, Map.from_struct(user))
 
   @impl true
-  def after_user_register(_user), do: :ok
+  def after_user_login(user), do: run_lua(:after_user_login, Map.from_struct(user))
+
+  # Lobbies
+  @impl true
+  def before_lobby_create(attrs), do: run_lua(:before_lobby_create, attrs)
 
   @impl true
-  def before_user_login(user), do: run_lua(:before_user_login, Map.from_struct(user))
+  def after_lobby_create(_lobby), do: :ok
 
   @impl true
-  def after_user_login(_user), do: :ok
+  def before_lobby_join(user, lobby, opts),
+    do: run_lua(:before_lobby_join, %{user: Map.from_struct(user), lobby: lobby, opts: opts})
 
   @impl true
-  def before_account_link(user, provider, attrs),
+  def after_lobby_join(_user, _lobby), do: :ok
+
+  @impl true
+  def before_lobby_leave(user, lobby),
+    do: run_lua(:before_lobby_leave, %{user: Map.from_struct(user), lobby: lobby})
+
+  @impl true
+  def after_lobby_leave(_user, _lobby), do: :ok
+
+  @impl true
+  def before_lobby_update(lobby, attrs),
+    do: run_lua(:before_lobby_update, %{lobby: lobby, attrs: attrs})
+
+  @impl true
+  def after_lobby_update(_lobby), do: :ok
+
+  @impl true
+  def before_lobby_delete(lobby), do: run_lua(:before_lobby_delete, lobby)
+
+  @impl true
+  def after_lobby_delete(_lobby), do: :ok
+
+  @impl true
+  def before_user_kicked(host, target, lobby),
     do:
-      run_lua(:before_account_link, %{
-        user: Map.from_struct(user),
-        provider: provider,
-        attrs: attrs
+      run_lua(:before_user_kicked, %{
+        host: Map.from_struct(host),
+        target: Map.from_struct(target),
+        lobby: lobby
       })
 
   @impl true
-  def after_account_link(_user), do: :ok
+  def after_user_kicked(_host, _target, _lobby), do: :ok
 
   @impl true
-  def before_user_delete(user), do: run_lua(:before_user_delete, Map.from_struct(user))
+  def after_lobby_host_change(_lobby, _new_host_id), do: :ok
 
-  @impl true
-  def after_user_delete(_user), do: :ok
+  # friends hooks removed
 end

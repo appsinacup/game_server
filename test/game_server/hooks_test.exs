@@ -17,45 +17,30 @@ defmodule GameServer.HooksTest do
   defmodule TestHooksRegister do
     @behaviour GameServer.Hooks
 
-    def before_user_register(%{"email" => e} = attrs) do
-      {:ok, Map.put(attrs, "email", e <> ".hook")}
+    # After-register hook — mutate the user record in DB so tests can observe it
+    # Use metadata to avoid interfering with email-based token logic.
+    def after_user_register(user) do
+      meta = Map.put(user.metadata || %{}, "registered_hook", true)
+      GameServer.Repo.update!(Ecto.Changeset.change(user, metadata: meta))
     end
 
-    def after_user_register(_), do: :ok
-    def before_user_login(u), do: {:ok, u}
-    def after_user_login(_), do: :ok
-
-    def before_account_link(user, _p, attrs),
-      do: {:ok, {user, Map.put(attrs, :profile_url, "hooked")}}
-
-    def after_account_link(_), do: :ok
-    def before_user_delete(user), do: {:ok, user}
-    def after_user_delete(_), do: :ok
+    def after_user_login(user) do
+      # mark metadata to signal the hook ran
+      meta = Map.put(user.metadata || %{}, "hooked", true)
+      GameServer.Repo.update!(Ecto.Changeset.change(user, metadata: meta))
+    end
   end
 
-  test "before_user_register can mutate attrs" do
+  test "after_user_register hook runs and can modify the created user" do
     Application.put_env(:game_server, :hooks_module, TestHooksRegister)
 
     {:ok, user} = Accounts.register_user(%{email: "a@example.com"})
 
-    assert user.email == "a@example.com.hook"
-  end
+    # after_user_register runs asynchronously; wait shortly for it to finish
+    Process.sleep(50)
 
-  test "before_account_link can modify attrs and after hook runs" do
-    Application.put_env(:game_server, :hooks_module, TestHooksRegister)
-
-    user = unconfirmed_user_fixture()
-
-    {:ok, user} =
-      Accounts.link_account(
-        user,
-        %{discord_id: "d123"},
-        :discord_id,
-        &GameServer.Accounts.User.discord_oauth_changeset/2
-      )
-
-    assert user.discord_id == "d123"
-    assert user.profile_url == "hooked"
+    reloaded = Accounts.get_user!(user.id)
+    assert Map.get(reloaded.metadata || %{}, "registered_hook") == true
   end
 
   test "linking a provider removes device_id from user" do
@@ -75,26 +60,19 @@ defmodule GameServer.HooksTest do
     assert is_nil(user.device_id)
   end
 
-  test "before_user_login may block login via magic link" do
-    # install hook that vetoes login
-    defmodule BlockLoginHook do
-      @behaviour GameServer.Hooks
-      def before_user_register(attrs), do: {:ok, attrs}
-      def after_user_register(_), do: :ok
-      def before_user_login(_), do: {:error, :banned}
-      def after_user_login(_), do: :ok
-      def before_account_link(u, _p, attrs), do: {:ok, {u, attrs}}
-      def after_account_link(_), do: :ok
-      def before_user_delete(u), do: {:ok, u}
-      def after_user_delete(_), do: :ok
-    end
-
-    Application.put_env(:game_server, :hooks_module, BlockLoginHook)
+  test "after_user_login hook runs on successful magic-link login" do
+    Application.put_env(:game_server, :hooks_module, TestHooksRegister)
 
     user = unconfirmed_user_fixture()
     {encoded_token, user_token} = Accounts.UserToken.build_email_token(user, "login")
     GameServer.Repo.insert!(user_token)
 
-    assert {:error, {:hook_rejected, :banned}} = Accounts.login_user_by_magic_link(encoded_token)
+    assert {:ok, {_, _}} = Accounts.login_user_by_magic_link(encoded_token)
+
+    # after_user_login runs asynchronously; wait for update
+    Process.sleep(50)
+
+    reloaded = Accounts.get_user!(user.id)
+    assert Map.get(reloaded.metadata || %{}, "hooked") == true
   end
 end

@@ -218,7 +218,6 @@ defmodule GameServer.Friends do
     else
       nil -> {:error, :not_found}
       false -> {:error, :not_authorized}
-      err -> err
     end
   end
 
