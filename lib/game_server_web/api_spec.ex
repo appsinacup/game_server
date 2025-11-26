@@ -4,7 +4,7 @@ defmodule GameServerWeb.ApiSpec do
   """
 
   alias GameServerWeb.{Endpoint, Router}
-  alias OpenApiSpex.{Info, OpenApi, Paths, Server, Components, SecurityScheme}
+  alias OpenApiSpex.{Components, Info, OpenApi, Paths, SecurityScheme, Server}
   @behaviour OpenApi
 
   @impl OpenApi

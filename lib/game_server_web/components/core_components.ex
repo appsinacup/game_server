@@ -29,10 +29,10 @@ defmodule GameServerWeb.CoreComponents do
   use Phoenix.Component
   use Gettext, backend: GameServerWeb.Gettext
 
-  alias Phoenix.LiveView.JS
-  alias Phoenix.Flash
   alias Phoenix.Component
+  alias Phoenix.Flash
   alias Phoenix.HTML.Form
+  alias Phoenix.LiveView.JS
 
   @doc """
   Renders flash notices.

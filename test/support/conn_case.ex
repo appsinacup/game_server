@@ -17,6 +17,9 @@ defmodule GameServerWeb.ConnCase do
 
   use ExUnit.CaseTemplate
 
+  alias GameServer.DataCase
+  alias Phoenix.ConnTest
+
   using do
     quote do
       # The default endpoint for testing
@@ -32,8 +35,8 @@ defmodule GameServerWeb.ConnCase do
   end
 
   setup tags do
-    GameServer.DataCase.setup_sandbox(tags)
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+    DataCase.setup_sandbox(tags)
+    {:ok, conn: ConnTest.build_conn()}
   end
 
   @doc """

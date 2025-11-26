@@ -2,8 +2,8 @@ defmodule GameServerWeb.UserUpdatesChannelTest do
   use ExUnit.Case
   import Phoenix.ChannelTest
 
-  alias GameServerWeb.Auth.Guardian
   alias GameServer.AccountsFixtures
+  alias GameServerWeb.Auth.Guardian
 
   setup tags do
     GameServer.DataCase.setup_sandbox(tags)

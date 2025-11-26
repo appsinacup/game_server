@@ -1,10 +1,10 @@
 defmodule GameServerWeb.UserAuthTest do
   use GameServerWeb.ConnCase, async: true
 
-  alias Phoenix.LiveView
   alias GameServer.Accounts
   alias GameServer.Accounts.Scope
   alias GameServerWeb.UserAuth
+  alias Phoenix.LiveView
 
   import GameServer.AccountsFixtures
 

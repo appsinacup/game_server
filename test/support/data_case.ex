@@ -16,8 +16,11 @@ defmodule GameServer.DataCase do
 
   use ExUnit.CaseTemplate
 
+  alias Ecto.Adapters.SQL
+
   using do
     quote do
+      alias Ecto.Adapters.SQL
       alias GameServer.Repo
 
       import Ecto
@@ -36,8 +39,8 @@ defmodule GameServer.DataCase do
   Sets up the sandbox based on the test tags.
   """
   def setup_sandbox(tags) do
-    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(GameServer.Repo, shared: not tags[:async])
-    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
+    pid = SQL.Sandbox.start_owner!(GameServer.Repo, shared: not tags[:async])
+    on_exit(fn -> SQL.Sandbox.stop_owner(pid) end)
   end
 
   @doc """

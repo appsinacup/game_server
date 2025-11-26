@@ -1,8 +1,8 @@
 defmodule GameServerWeb.Auth.GuardianTest do
   use GameServerWeb.ConnCase
 
-  alias GameServerWeb.Auth.Guardian
   alias GameServer.AccountsFixtures
+  alias GameServerWeb.Auth.Guardian
 
   describe "encode_and_sign/1" do
     test "creates a valid JWT token for a user" do
