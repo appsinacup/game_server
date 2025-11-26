@@ -2,6 +2,9 @@ defmodule GameServerWeb.UserLive.SettingsTest do
   use GameServerWeb.ConnCase, async: true
 
   alias GameServer.Accounts
+  alias GameServer.Friends
+  alias GameServer.Repo
+  import Ecto.Query
   import Phoenix.LiveViewTest
   import GameServer.AccountsFixtures
 
@@ -26,6 +29,76 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       assert html =~ "Save Password"
       assert html =~ "Tester"
       assert html =~ "<strong>Admin:</strong>"
+    end
+
+    test "friends panel shows and can accept incoming requests", %{conn: conn} do
+      # a will accept b's request
+      a = user_fixture()
+      b = user_fixture(%{email: unique_user_email(), display_name: "B-User"})
+
+      {:ok, _} = Friends.create_request(b.id, a.id)
+
+      logged_conn = conn |> log_in_user(a)
+
+      {:ok, view, html} = live(logged_conn, ~p"/users/settings")
+      assert html =~ "Friends"
+
+      # incoming should be present
+      assert render(view) =~ "Incoming Requests"
+
+      f = Repo.one(from fr in GameServer.Friends.Friendship, where: fr.requester_id == ^b.id and fr.target_id == ^a.id)
+
+      accept_btn = element(view, "#request-#{f.id} button", "Accept")
+      assert render_click(accept_btn)
+
+      f2 = Repo.get!(GameServer.Friends.Friendship, f.id)
+      assert f2.status == "accepted"
+    end
+
+    test "incoming request can be blocked from settings", %{conn: conn} do
+      a = user_fixture()
+      b = user_fixture(%{email: unique_user_email(), display_name: "B-User"})
+
+      {:ok, _} = Friends.create_request(b.id, a.id)
+
+      logged_conn = conn |> log_in_user(a)
+
+      {:ok, view, _html} = live(logged_conn, ~p"/users/settings")
+
+      f = Repo.one(from fr in GameServer.Friends.Friendship, where: fr.requester_id == ^b.id and fr.target_id == ^a.id)
+
+      block_btn = element(view, "#request-#{f.id} button", "Block")
+      assert render_click(block_btn)
+
+      f2 = Repo.get!(GameServer.Friends.Friendship, f.id)
+      assert f2.status == "blocked"
+    end
+
+    test "blocked users appear in list and can be unblocked", %{conn: conn} do
+      a = user_fixture()
+      b = user_fixture(%{email: unique_user_email(), display_name: "B-User"})
+
+      {:ok, _} = Friends.create_request(b.id, a.id)
+
+      logged_conn = conn |> log_in_user(a)
+      {:ok, view, _html} = live(logged_conn, ~p"/users/settings")
+
+      f = Repo.one(from fr in GameServer.Friends.Friendship, where: fr.requester_id == ^b.id and fr.target_id == ^a.id)
+
+      # block
+      block_btn = element(view, "#request-#{f.id} button", "Block")
+      assert render_click(block_btn)
+
+      # blocked list should show entry
+      assert render(view) =~ "Blocked users"
+      assert has_element?(view, "#blocked-#{f.id}")
+
+      # unblock using UI
+      unblock_btn = element(view, "#blocked-#{f.id} button", "Unblock")
+      assert render_click(unblock_btn)
+
+      # friendship should be removed
+      assert Repo.get(GameServer.Friends.Friendship, f.id) == nil
     end
 
     test "redirects if user is not logged in", %{conn: conn} do
@@ -126,6 +199,63 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       assert result =~ "Save Display Name"
       assert result =~ "should be at most"
+    end
+  end
+
+  describe "friends search and send" do
+    setup %{conn: conn} do
+      a = user_fixture()
+      %{conn: log_in_user(conn, a), user: a}
+    end
+
+    test "searches users by email or display_name and send request", %{conn: conn, user: a} do
+      b = user_fixture(%{email: "friend-search@example.com", display_name: "FriendSearch"})
+
+      {:ok, lv, _html} = live(conn, ~p"/users/settings")
+
+      # find search form and trigger change
+      search_el = element(lv, "form[phx-change=\"search_users\"]")
+      render_change(search_el, %{"q" => "friend-search"})
+
+      # search results should include our user
+      assert render(lv) =~ b.email
+
+      # send request using button for the search result
+      send_btn = element(lv, "#search-#{b.id} button", "Send")
+      assert render_click(send_btn)
+
+      # outgoing should now include the request
+      f = Repo.one(from fr in GameServer.Friends.Friendship, where: fr.requester_id == ^a.id and fr.target_id == ^b.id)
+      assert f.status == "pending"
+    end
+
+    test "friends pagination displays totals and disables Next on last page", %{conn: conn, user: a} do
+      # create 30 users who friend 'a' and have their requests accepted so a has 30 friends
+      other = for _ <- 1..30, do: user_fixture()
+
+      Enum.each(other, fn u ->
+        {:ok, _} = Friends.create_request(u.id, a.id)
+        f = Repo.one(from fr in GameServer.Friends.Friendship, where: fr.requester_id == ^u.id and fr.target_id == ^a.id)
+        {:ok, _} = Friends.accept_friend_request(f.id, %GameServer.Accounts.User{id: a.id})
+      end)
+
+      {:ok, lv, _html} = live(conn |> log_in_user(a), ~p"/users/settings")
+
+      rendered = render(lv)
+      # total_count 30 should be displayed and total_pages should be 2 for default page_size 25
+      assert rendered =~ "(30 total)"
+      assert rendered =~ "/ 2"
+
+      # On first page, Next should be enabled (no disabled attr on friends_next)
+      assert rendered =~ ~s(phx-click="friends_next")
+      refute rendered =~ ~r/<button[^>]*phx-click="friends_next"[^>]*disabled/
+
+      # click next to go to page 2
+      lv |> element("button[phx-click=\"friends_next\"]") |> render_click()
+
+      rendered2 = render(lv)
+      # on page 2, Next should be disabled
+      assert rendered2 =~ ~r/<button[^>]*phx-click="friends_next"[^>]*disabled/
     end
   end
 

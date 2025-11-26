@@ -44,6 +44,8 @@ defmodule GameServerWeb.Api.V1.LobbyController do
         schema: %Schema{type: :string},
         description: "Search term for name or title"
       ],
+      page: [in: :query, schema: %Schema{type: :integer}, description: "Page number (1-based)", required: false],
+      page_size: [in: :query, schema: %Schema{type: :integer}, description: "Page size (max results per page)", required: false],
       metadata_key: [
         in: :query,
         schema: %Schema{type: :string},
@@ -56,7 +58,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       ]
     ],
     responses: [
-      ok: {"List of lobbies", "application/json", %Schema{type: :array, items: @lobby_schema}}
+      ok: {"List of lobbies (paginated)", "application/json", %Schema{type: :object, properties: %{data: %Schema{type: :array, items: @lobby_schema}, meta: %Schema{type: :object, properties: %{page: %Schema{type: :integer}, page_size: %Schema{type: :integer}, count: %Schema{type: :integer}, total_count: %Schema{type: :integer}, total_pages: %Schema{type: :integer}, has_more: %Schema{type: :boolean}}}}}}
     ]
   )
 
@@ -169,13 +171,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       }
     },
     responses: [
-      ok:
-        {"Successfully joined", "application/json",
-         %Schema{
-           type: :object,
-           properties: %{message: %Schema{type: :string}},
-           example: %{message: "joined"}
-         }},
+      no_content: {"Successfully joined", "application/json", nil},
       forbidden:
         {"Cannot join (locked, full, wrong password, etc)", "application/json",
          %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
@@ -194,13 +190,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       id: [in: :path, schema: %Schema{type: :integer}, description: "Lobby ID", required: true]
     ],
     responses: [
-      ok:
-        {"Successfully left", "application/json",
-         %Schema{
-           type: :object,
-           properties: %{message: %Schema{type: :string}},
-           example: %{message: "left"}
-         }},
+      no_content: {"No content", "application/json", nil},
       bad_request:
         {"Not in a lobby", "application/json",
          %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
@@ -232,13 +222,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       }
     },
     responses: [
-      ok:
-        {"User kicked", "application/json",
-         %Schema{
-           type: :object,
-           properties: %{message: %Schema{type: :string}},
-           example: %{message: "kicked"}
-         }},
+      no_content: {"User kicked", "application/json", nil},
       forbidden:
         {"Not the host or cannot kick this user", "application/json",
          %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
@@ -250,9 +234,25 @@ defmodule GameServerWeb.Api.V1.LobbyController do
 
   def index(conn, params) do
     filters = Map.take(params || %{}, ["q", "metadata_key", "metadata_value"]) |> Enum.into(%{})
-    lobbies = Lobbies.list_lobbies(filters)
+    page = case params["page"] || params[:page] do
+      p when is_binary(p) -> String.to_integer(p)
+      p when is_integer(p) -> p
+      _ -> 1
+    end
 
-    json(conn, Enum.map(lobbies, &serialize_lobby/1))
+    page_size = case params["page_size"] || params[:page_size] do
+      p when is_binary(p) -> String.to_integer(p)
+      p when is_integer(p) -> p
+      _ -> 25
+    end
+
+    lobbies = Lobbies.list_lobbies(filters, page: page, page_size: page_size)
+    serialized = Enum.map(lobbies, &serialize_lobby/1)
+    count = length(serialized)
+
+    total_count = Lobbies.count_list_lobbies(filters)
+
+    json(conn, %{data: serialized, meta: GameServerWeb.Pagination.meta(page, page_size, count, total_count)})
   end
 
   def create(conn, params) do
@@ -283,7 +283,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
         opts = if Map.has_key?(params, "password"), do: %{password: params["password"]}, else: %{}
 
         case Lobbies.join_lobby(user, id, opts) do
-          {:ok, _membership} -> json(conn, %{message: "joined"})
+          {:ok, _membership} -> send_resp(conn, :no_content, "")
           {:error, reason} -> conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
         end
 
@@ -297,7 +297,8 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       %{user: user} when not is_nil(user) ->
         case Lobbies.leave_lobby(user) do
           {:ok, _} ->
-            json(conn, %{message: "left"})
+            # leave is a mutating action that doesn't need to return a payload
+            send_resp(conn, :no_content, "")
 
           {:error, reason} ->
             conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
@@ -341,7 +342,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
         target_user = GameServer.Accounts.get_user!(target_id)
 
         case Lobbies.kick_user(user, lobby, target_user) do
-          {:ok, _} -> json(conn, %{message: "kicked"})
+          {:ok, _} -> send_resp(conn, :no_content, "")
           {:error, reason} -> conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
         end
 

@@ -15,9 +15,13 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     {:ok, _hidden} = Lobbies.create_lobby(%{name: "hidden-room", hostless: true, is_hidden: true})
 
     conn = get(conn, "/api/v1/lobbies")
-    lobbies = json_response(conn, 200)
+    resp = json_response(conn, 200)
+    lobbies = resp["data"]
     assert Enum.any?(lobbies, fn l -> l["id"] == lobby1.id end)
     refute Enum.any?(lobbies, fn l -> l["id"] == _hidden.id end)
+    # meta should include totals
+    assert resp["meta"]["total_count"] == 1
+    assert resp["meta"]["total_pages"] == 1
   end
 
   test "POST /api/v1/lobbies (hosted) requires auth and creates a lobby", %{conn: conn} do
@@ -57,7 +61,8 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
       |> put_req_header("authorization", "Bearer " <> token)
       |> post("/api/v1/lobbies/#{lobby.id}/join", %{})
 
-    assert json_response(conn, 200)["message"] == "joined"
+    # join returns 204 No Content now
+    assert conn.status == 204
 
     reloaded = GameServer.Repo.get(GameServer.Accounts.User, other.id)
     assert reloaded.lobby_id == lobby.id
@@ -93,7 +98,8 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
       |> put_req_header("authorization", "Bearer " <> token)
       |> post("/api/v1/lobbies/#{lobby.id}/join", %{password: pw})
 
-    assert conn3.status == 200
+    # join should return 204 No Content now (no payload)
+    assert conn3.status == 204
   end
 
   test "PATCH /api/v1/lobbies/:id update allowed for host only", %{conn: conn} do
@@ -162,7 +168,8 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
       |> put_req_header("authorization", "Bearer " <> token_host)
       |> post("/api/v1/lobbies/#{lobby.id}/kick", %{target_user_id: other.id})
 
-    assert json_response(conn, 200)["message"] == "kicked"
+    # kick returns 204 No Content now
+    assert conn.status == 204
 
     reloaded = GameServer.Repo.get(GameServer.Accounts.User, other.id)
     assert is_nil(reloaded.lobby_id)
@@ -224,7 +231,8 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
       |> put_req_header("authorization", "Bearer " <> token_member)
       |> post("/api/v1/lobbies/#{lobby.id}/leave")
 
-    assert json_response(conn, 200)["message"] == "left"
+    # leave now returns 204 No Content
+    assert conn.status == 204
 
     reloaded = GameServer.Repo.get(GameServer.Accounts.User, member.id)
     assert is_nil(reloaded.lobby_id)

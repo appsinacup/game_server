@@ -22,7 +22,13 @@ defmodule GameServerWeb.LobbyLive.Index do
       end
     end
 
-    lobbies = Lobbies.list_lobbies_for_user(user)
+    # default pagination values for the lobbies listing
+    lobbies_page = 1
+    lobbies_page_size = 12
+
+    lobbies = Lobbies.list_lobbies_for_user(user, %{}, page: lobbies_page, page_size: lobbies_page_size)
+    total_count = Lobbies.count_list_lobbies(%{})
+    total_pages = if lobbies_page_size > 0, do: div(total_count + lobbies_page_size - 1, lobbies_page_size), else: 0
 
     memberships_map =
       Enum.into(lobbies, %{}, fn l -> {l.id, Lobbies.list_memberships_for_lobby(l.id)} end)
@@ -31,6 +37,10 @@ defmodule GameServerWeb.LobbyLive.Index do
      assign(socket,
        lobbies: lobbies,
        memberships_map: memberships_map,
+      lobbies_page: lobbies_page,
+      lobbies_page_size: lobbies_page_size,
+      lobbies_total: total_count,
+      lobbies_total_pages: total_pages,
        title: "",
        joining_lobby_id: nil,
        join_password: "",
@@ -60,7 +70,7 @@ defmodule GameServerWeb.LobbyLive.Index do
               {:ok, _lobby} ->
                 # refresh user to update lobby_id first
                 refreshed_user = GameServer.Accounts.get_user!(id)
-                lobbies = Lobbies.list_lobbies_for_user(refreshed_user)
+                lobbies = Lobbies.list_lobbies_for_user(refreshed_user, %{}, page: socket.assigns[:lobbies_page] || 1, page_size: socket.assigns[:lobbies_page_size] || 12)
 
                 memberships_map =
                   Enum.into(lobbies, %{}, fn l ->
@@ -98,7 +108,7 @@ defmodule GameServerWeb.LobbyLive.Index do
           {:ok, _} ->
             # refresh user to update lobby_id first
             refreshed_user = GameServer.Accounts.get_user!(user.id)
-            lobbies = Lobbies.list_lobbies_for_user(refreshed_user)
+            lobbies = Lobbies.list_lobbies_for_user(refreshed_user, %{}, page: socket.assigns[:lobbies_page] || 1, page_size: socket.assigns[:lobbies_page_size] || 12)
 
             memberships_map =
               Enum.into(lobbies, %{}, fn l -> {l.id, Lobbies.list_memberships_for_lobby(l.id)} end)
@@ -143,7 +153,7 @@ defmodule GameServerWeb.LobbyLive.Index do
                 {:ok, _member} ->
                   # refresh user to update lobby_id first
                   refreshed_user = GameServer.Accounts.get_user!(user.id)
-                  lobbies = Lobbies.list_lobbies_for_user(refreshed_user)
+                  lobbies = Lobbies.list_lobbies_for_user(refreshed_user, %{}, page: socket.assigns[:lobbies_page] || 1, page_size: socket.assigns[:lobbies_page_size] || 12)
 
                   memberships_map =
                     Enum.into(lobbies, %{}, fn lp ->
@@ -186,7 +196,7 @@ defmodule GameServerWeb.LobbyLive.Index do
             {:ok, _} ->
               # refresh user to update lobby_id first
               refreshed_user = GameServer.Accounts.get_user!(user.id)
-              lobbies = Lobbies.list_lobbies_for_user(refreshed_user)
+              lobbies = Lobbies.list_lobbies_for_user(refreshed_user, %{}, page: socket.assigns[:lobbies_page] || 1, page_size: socket.assigns[:lobbies_page_size] || 12)
 
               memberships_map =
                 Enum.into(lobbies, %{}, fn lp ->
@@ -281,7 +291,7 @@ defmodule GameServerWeb.LobbyLive.Index do
 
         case Lobbies.update_lobby_by_host(user, lobby, attrs) do
           {:ok, updated_lobby} ->
-            lobbies = Lobbies.list_lobbies_for_user(user)
+            lobbies = Lobbies.list_lobbies_for_user(user, %{}, page: socket.assigns[:lobbies_page] || 1, page_size: socket.assigns[:lobbies_page_size] || 12)
 
             memberships_map =
               Enum.into(lobbies, %{}, fn lp ->
@@ -323,7 +333,7 @@ defmodule GameServerWeb.LobbyLive.Index do
 
         case Lobbies.kick_user(user, lobby, target) do
           {:ok, _} ->
-            lobbies = Lobbies.list_lobbies_for_user(user)
+            lobbies = Lobbies.list_lobbies_for_user(user, %{}, page: socket.assigns[:lobbies_page] || 1, page_size: socket.assigns[:lobbies_page_size] || 12)
 
             memberships_map =
               Enum.into(lobbies, %{}, fn lp ->
@@ -339,6 +349,16 @@ defmodule GameServerWeb.LobbyLive.Index do
       _ ->
         {:noreply, push_navigate(socket, to: "/users/log-in")}
     end
+  end
+
+  def handle_event("lobbies_prev", _params, socket) do
+    page = max(1, (socket.assigns[:lobbies_page] || 1) - 1)
+    {:noreply, refresh_lobbies(assign(socket, lobbies_page: page))}
+  end
+
+  def handle_event("lobbies_next", _params, socket) do
+    page = (socket.assigns[:lobbies_page] || 1) + 1
+    {:noreply, refresh_lobbies(assign(socket, lobbies_page: page))}
   end
 
   # PubSub handlers for real-time updates
@@ -416,7 +436,7 @@ defmodule GameServerWeb.LobbyLive.Index do
           nil
       end
 
-    lobbies = Lobbies.list_lobbies_for_user(user)
+    lobbies = Lobbies.list_lobbies_for_user(user, %{}, page: socket.assigns[:lobbies_page] || 1, page_size: socket.assigns[:lobbies_page_size] || 12)
 
     memberships_map =
       Enum.into(lobbies, %{}, fn l -> {l.id, Lobbies.list_memberships_for_lobby(l.id)} end)
@@ -433,7 +453,10 @@ defmodule GameServerWeb.LobbyLive.Index do
         socket
       end
 
-    assign(socket, lobbies: lobbies, memberships_map: memberships_map)
+    total_count = Lobbies.count_list_lobbies(%{})
+    total_pages = if (socket.assigns[:lobbies_page_size] || 12) > 0, do: div(total_count + (socket.assigns[:lobbies_page_size] || 12) - 1, (socket.assigns[:lobbies_page_size] || 12)), else: 0
+
+    assign(socket, lobbies: lobbies, memberships_map: memberships_map, lobbies_total: total_count, lobbies_total_pages: total_pages)
   end
 
   # Helper to refresh just one lobby's memberships
@@ -448,7 +471,7 @@ defmodule GameServerWeb.LobbyLive.Index do
         _ -> nil
       end
 
-    lobbies = Lobbies.list_lobbies_for_user(user)
+    lobbies = Lobbies.list_lobbies_for_user(user, %{}, page: socket.assigns[:lobbies_page] || 1, page_size: socket.assigns[:lobbies_page_size] || 12)
 
     assign(socket, lobbies: lobbies, memberships_map: memberships_map)
   end
@@ -498,6 +521,11 @@ defmodule GameServerWeb.LobbyLive.Index do
             <div class="font-semibold">Create a Lobby</div>
             <div class="text-sm text-base-content/80 mt-2">
               Create a lobby to host a match. You will automatically join the lobby you create.
+            </div>
+            <div class="mt-2 flex gap-2 items-center">
+              <button phx-click="lobbies_prev" class="btn btn-xs" disabled={@lobbies_page <= 1}>Prev</button>
+              <div class="text-xs text-base-content/70">page {@lobbies_page} / {@lobbies_total_pages} ({@lobbies_total} total)</div>
+              <button phx-click="lobbies_next" class="btn btn-xs" disabled={@lobbies_page >= @lobbies_total_pages || @lobbies_total_pages == 0}>Next</button>
             </div>
 
             <form phx-submit="create" class="mt-4 space-y-3">

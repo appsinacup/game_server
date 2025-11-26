@@ -206,4 +206,27 @@ defmodule GameServerWeb.LobbyLiveTest do
     # should show error flash
     assert render(view) =~ "not_host"
   end
+
+  test "lobbies pagination displays totals and enables/disables Next", %{conn: conn} do
+    # create more than default page_size=12 so we have multiple pages
+    for i <- 1..15 do
+      GameServer.Lobbies.create_lobby(%{name: "pagi-#{i}", title: "Pagi #{i}", hostless: true})
+    end
+
+    {:ok, view, html} = live(conn, "/lobbies")
+
+    assert html =~ "(15 total)"
+    assert html =~ "/ 2"
+
+    # first page Next should be enabled (no disabled attr on lobbies_next)
+    assert html =~ ~s(phx-click="lobbies_next")
+    refute html =~ ~r/<button[^>]*phx-click="lobbies_next"[^>]*disabled/
+
+    # go to next page
+    render_click(view, "lobbies_next", %{})
+    html2 = render(view)
+
+    # on last page Next should be disabled
+    assert html2 =~ ~r/<button[^>]*phx-click="lobbies_next"[^>]*disabled/
+  end
 end

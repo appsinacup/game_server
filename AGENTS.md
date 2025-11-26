@@ -138,6 +138,38 @@ API routes use JWT tokens via Guardian for stateless authentication:
 - Hidden lobbies are never returned from public list APIs. Hostless lobbies are allowed as a server-managed concept but **public API creation of hostless lobbies has been removed**.
 - API endpoints live under `/api/v1/lobbies` and require authentication for creating (host becomes owner), joining, leaving, updating, and kicking users. Listing lobbies is public but excludes hidden lobbies.
 
+### Pagination (repository convention)
+
+- Pattern: Use opt-in page & page_size query params for list endpoints. This is a simple limit/offset style pagination.
+- Defaults: If not provided, default page = 1 and page_size = 25 unless an endpoint documents a different default.
+- Response shape: list endpoints must return a JSON object containing `data` (array) and `meta` (object). `meta` SHOULD include:
+  - page: current page (integer)
+  - page_size: the page size used (integer)
+  - count: number of items on the returned page
+  - total_count: total number of matching items (use domain-level count helpers)
+  - total_pages: number of pages (computed: ceil(total_count / page_size))
+  - has_more: boolean (true when count == page_size)
+
+- Domain responsibilities: Add a lightweight count helper for list endpoints (eg. Accounts.count_search_users/1, Friends.count_friends_for_user/1, Lobbies.count_list_lobbies/1). Controllers should use these helpers to populate `total_count` without pulling all rows.
+
+- UI & LiveViews: When rendering paginated lists in LiveViews or admin UIs, show "page X / Y (N total)" using the `meta` fields and disable/enable the Prev/Next buttons based on page/total_pages.
+
+Example response:
+
+```
+{
+  "data": [...],
+  "meta": {
+    "page": 1,
+    "page_size": 25,
+    "count": 25,
+    "total_count": 946,
+    "total_pages": 38,
+    "has_more": true
+  }
+}
+```
+
 <!-- phoenix-gen-auth-end -->
 
 <!-- usage-rules-start -->

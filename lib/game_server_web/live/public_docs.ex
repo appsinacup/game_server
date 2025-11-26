@@ -276,6 +276,26 @@ defmodule GameServerWeb.PublicDocs do
     await lobbiesApi.kickUser(lobbyId, { target_user_id: 123 });
     console.log('User kicked from lobby');</code></pre>
                   </div>
+                  <h4 class="font-semibold mt-4">Friends</h4>
+                  <div class="bg-base-200 p-4 rounded-lg">
+                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>    // Send a friend request
+    const { FriendsApi } = require('@ughuuu/game_server');
+    const friendsApi = new FriendsApi(apiClient);
+
+    await friendsApi.create({ target_user_id: someOtherUserId });
+
+    // List my friends
+    const friends = await friendsApi.listFriends();
+    console.log('Friends:', friends);
+
+    // Subscribe to real-time friend events via phoenix channels on socket
+    const socket = new Socket('/socket', { params: { token: accessToken } });
+    socket.connect();
+    const userChannel = socket.channel('friends:user:' + userId, {});
+    await userChannel.join();
+    userChannel.on('friend_blocked', payload => console.log('Blocked:', payload));
+    userChannel.on('friend_unblocked', payload => console.log('Unblocked:', payload));</code></pre>
+                  </div>
 
                   <h4 class="font-semibold mt-4">Realtime / subscribing to events</h4>
                   <div class="bg-base-200 p-4 rounded-lg">
@@ -381,6 +401,20 @@ defmodule GameServerWeb.PublicDocs do
       metadata       : map (JSON/Map for arbitrary user metadata)
       inserted_at    : utc_datetime
       updated_at     : utc_datetime
+    )
+                </pre>
+              </div>
+
+              <h3 class="font-semibold mt-3">Friends</h3>
+              <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+                <pre>
+    friendships (
+      id          : integer (primary key)
+      requester_id: integer (user id of who made the request)
+      target_id   : integer (user id of the target)
+      status      : string ("pending" | "accepted" | "rejected" | "blocked")
+      inserted_at : utc_datetime
+      updated_at  : utc_datetime
     )
                 </pre>
               </div>

@@ -60,6 +60,36 @@ defmodule GameServerWeb.AdminLive.LobbiesTest do
     refute html2 =~ "admin-lobby-2"
   end
 
+  test "admin lobbies pagination displays totals and disables Next on last page", %{conn: conn} do
+    user = GameServer.AccountsFixtures.user_fixture()
+
+    {:ok, admin} =
+      user
+      |> GameServer.Accounts.User.admin_changeset(%{"is_admin" => true})
+      |> GameServer.Repo.update()
+
+    # create 30 lobbies so admin listing has two pages with default page_size 25
+    for i <- 1..30 do
+      GameServer.Lobbies.create_lobby(%{name: "admin-pagi-#{i}", title: "Admin Pagi #{i}", hostless: true})
+    end
+
+    {:ok, view, html} = conn |> log_in_user(admin) |> live(~p"/admin/lobbies")
+
+    assert html =~ "(30)"
+    assert html =~ "/ 2"
+
+    # Next enabled on first page (no disabled attr on admin_lobbies_next)
+    assert html =~ ~s(phx-click="admin_lobbies_next")
+    refute html =~ ~r/<button[^>]*phx-click="admin_lobbies_next"[^>]*disabled/
+
+    # go to next page
+    view |> element("button[phx-click=\"admin_lobbies_next\"]") |> render_click()
+    html2 = render(view)
+
+    # on last page Next should be disabled
+    assert html2 =~ ~r/<button[^>]*phx-click="admin_lobbies_next"[^>]*disabled/
+  end
+
   test "admin update is propagated to public lobbies view", %{conn: conn} do
     user = GameServer.AccountsFixtures.user_fixture()
 

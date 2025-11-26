@@ -27,6 +27,77 @@ defmodule GameServer.Accounts do
   end
 
   @doc """
+  Search users by email or display name (case-insensitive, partial match).
+
+  Returns a list of User structs (up to 50 results).
+  """
+  def search_users(query, opts \\ []) when is_binary(query) do
+    q = String.trim(query)
+    page = Keyword.get(opts, :page, 1)
+    page_size = Keyword.get(opts, :page_size, 25)
+
+    if q == "" do
+      []
+    else
+      # If query looks like an id, attempt a direct lookup first
+      if Regex.match?(~r/^\d+$/, q) do
+        case Repo.get(User, String.to_integer(q)) do
+          nil -> search_users_by_text(q, page: page, page_size: page_size)
+          user -> [user]
+        end
+      else
+        search_users_by_text(q, page: page, page_size: page_size)
+      end
+    end
+  end
+
+  defp search_users_by_text(q, opts) do
+    pattern = "%#{q}%"
+    page = Keyword.get(opts, :page, 1)
+    page_size = Keyword.get(opts, :page_size, 25)
+    offset = (page - 1) * page_size
+
+    Repo.all(
+      from u in User,
+        where: fragment("LOWER(?) LIKE LOWER(?)", u.email, ^pattern) or
+               fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^pattern),
+        limit: ^page_size,
+        offset: ^offset
+    )
+
+  end
+
+  @doc """
+  Count users matching a text query (email or display_name). Returns integer.
+  """
+  def count_search_users(query) when is_binary(query) do
+    q = String.trim(query)
+    if q == "" do
+      0
+    else
+      if Regex.match?(~r/^\d+$/, q) do
+        case Repo.get(User, String.to_integer(q)) do
+          nil -> count_search_users_by_text(q)
+          _ -> 1
+        end
+      else
+        count_search_users_by_text(q)
+      end
+    end
+  end
+
+  defp count_search_users_by_text(q) do
+    pattern = "%#{q}%"
+
+    Repo.one(
+      from u in User,
+        where: fragment("LOWER(?) LIKE LOWER(?)", u.email, ^pattern) or
+               fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^pattern),
+        select: count(u.id)
+    ) || 0
+  end
+
+  @doc """
   Gets a user by email and password.
 
   ## Examples

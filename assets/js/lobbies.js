@@ -41,9 +41,11 @@ export async function apiRequest(method, path, body) {
 }
 
 // API helpers
-export function listLobbies(q = null) {
+export function listLobbies(q = null, page = 1, page_size = 25) {
   const params = new URLSearchParams()
   if (q) params.set('q', q)
+  if (page) params.set('page', String(page))
+  if (page_size) params.set('page_size', String(page_size))
   return apiRequest('GET', `/api/v1/lobbies?${params.toString()}`)
 }
 

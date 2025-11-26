@@ -141,6 +141,11 @@ defmodule GameServerWeb.AdminLive.Users do
                 </tbody>
               </table>
             </div>
+            <div class="mt-4 flex gap-2 items-center">
+              <button phx-click="admin_users_prev" class="btn btn-xs" disabled={@users_page <= 1}>Prev</button>
+              <div class="text-xs text-base-content/70">page {@users_page} / {@users_total_pages} ({@users_count} total)</div>
+              <button phx-click="admin_users_next" class="btn btn-xs" disabled={@users_page >= @users_total_pages || @users_total_pages == 0}>Next</button>
+            </div>
           </div>
         </div>
       </div>
@@ -198,13 +203,23 @@ defmodule GameServerWeb.AdminLive.Users do
 
   @impl true
   def mount(_params, _session, socket) do
-    users_count = Repo.aggregate(User, :count)
-    recent_users = Repo.all(from u in User, order_by: [desc: u.inserted_at], limit: 10)
+    # paginated admin users view (admins can see all users)
+    page = 1
+    page_size = 25
+
+    users =
+      Repo.all(from u in User, order_by: [desc: u.inserted_at], offset: ^((page - 1) * page_size), limit: ^page_size)
+
+    total_count = Repo.aggregate(User, :count)
+    total_pages = if page_size > 0, do: div(total_count + page_size - 1, page_size), else: 0
 
     {:ok,
      socket
-     |> assign(:users_count, users_count)
-     |> assign(:recent_users, recent_users)
+     |> assign(:users_count, total_count)
+     |> assign(:recent_users, users)
+     |> assign(:users_page, page)
+     |> assign(:users_page_size, page_size)
+     |> assign(:users_total_pages, total_pages)
      |> assign(:selected_user, nil)
      |> assign(:form, nil)}
   end
@@ -247,18 +262,29 @@ defmodule GameServerWeb.AdminLive.Users do
 
     case Accounts.update_user_admin(user, attrs) do
       {:ok, _user} ->
-        recent_users = Repo.all(from u in User, order_by: [desc: u.inserted_at], limit: 10)
+        # re-fetch current page of users
+        page = socket.assigns[:users_page] || 1
+        page_size = socket.assigns[:users_page_size] || 25
+
+        users =
+          Repo.all(from u in User, order_by: [desc: u.inserted_at], offset: ^((page - 1) * page_size), limit: ^page_size)
+
+        total_count = Repo.aggregate(User, :count)
+        total_pages = if page_size > 0, do: div(total_count + page_size - 1, page_size), else: 0
 
         {:noreply,
          socket
          |> put_flash(:info, "User updated successfully")
-         |> assign(:recent_users, recent_users)
+         |> assign(:recent_users, users)
+         |> assign(:users_count, total_count)
+         |> assign(:users_total_pages, total_pages)
          |> assign(:selected_user, nil)
          |> assign(:form, nil)}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :form, to_form(changeset, as: "user"))}
     end
+
   end
 
   def handle_event("delete_user", %{"id" => id}, socket) do
@@ -266,17 +292,65 @@ defmodule GameServerWeb.AdminLive.Users do
 
     case Accounts.delete_user(user) do
       {:ok, _user} ->
-        users_count = Repo.aggregate(User, :count)
-        recent_users = Repo.all(from u in User, order_by: [desc: u.inserted_at], limit: 10)
+        page = socket.assigns[:users_page] || 1
+        page_size = socket.assigns[:users_page_size] || 25
+
+        total_count = Repo.aggregate(User, :count)
+        total_pages = if page_size > 0, do: div(total_count + page_size - 1, page_size), else: 0
+
+        # ensure current page is within range (if we deleted the last item on last page)
+        page = max(1, min(page, total_pages || 1))
+
+        users =
+          Repo.all(from u in User, order_by: [desc: u.inserted_at], offset: ^((page - 1) * page_size), limit: ^page_size)
 
         {:noreply,
          socket
          |> put_flash(:info, "User deleted successfully")
-         |> assign(:users_count, users_count)
-         |> assign(:recent_users, recent_users)}
+         |> assign(:users_count, total_count)
+         |> assign(:recent_users, users)
+         |> assign(:users_page, page)
+         |> assign(:users_total_pages, total_pages)}
 
       {:error, _} ->
         {:noreply, put_flash(socket, :error, "Failed to delete user")}
     end
   end
-end
+  @impl true
+  def handle_event("admin_users_prev", _params, socket) do
+    page = max(1, (socket.assigns[:users_page] || 1) - 1)
+    page_size = socket.assigns[:users_page_size] || 25
+
+    users =
+      Repo.all(from u in User, order_by: [desc: u.inserted_at], offset: ^((page - 1) * page_size), limit: ^page_size)
+
+    total_count = Repo.aggregate(User, :count)
+    total_pages = if page_size > 0, do: div(total_count + page_size - 1, page_size), else: 0
+
+    {:noreply,
+     socket
+     |> assign(:users_page, page)
+     |> assign(:recent_users, users)
+     |> assign(:users_count, total_count)
+     |> assign(:users_total_pages, total_pages)}
+  end
+
+  def handle_event("admin_users_next", _params, socket) do
+    page = (socket.assigns[:users_page] || 1) + 1
+    page_size = socket.assigns[:users_page_size] || 25
+
+    users =
+      Repo.all(from u in User, order_by: [desc: u.inserted_at], offset: ^((page - 1) * page_size), limit: ^page_size)
+
+    total_count = Repo.aggregate(User, :count)
+    total_pages = if page_size > 0, do: div(total_count + page_size - 1, page_size), else: 0
+
+    {:noreply,
+     socket
+     |> assign(:users_page, page)
+     |> assign(:recent_users, users)
+     |> assign(:users_count, total_count)
+     |> assign(:users_total_pages, total_pages)}
+  end
+
+  end

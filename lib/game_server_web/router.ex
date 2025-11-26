@@ -61,6 +61,8 @@ defmodule GameServerWeb.Router do
     pipe_through :api
 
     get "/health", HealthController, :index
+    get "/users", UserController, :index
+    get "/users/:id", UserController, :show
     post "/login", SessionController, :create
     post "/refresh", SessionController, :refresh
     delete "/logout", SessionController, :delete
@@ -81,6 +83,16 @@ defmodule GameServerWeb.Router do
     patch "/me/password", MeController, :update_password
     patch "/me/display_name", MeController, :update_display_name
     delete "/me/providers/:provider", ProviderController, :unlink
+    # Friends API
+    post "/friends", FriendController, :create
+    get "/me/friends", FriendController, :index
+    get "/me/friend-requests", FriendController, :requests
+    get "/me/blocked", FriendController, :blocked
+    post "/friends/:id/accept", FriendController, :accept
+    post "/friends/:id/reject", FriendController, :reject
+    post "/friends/:id/block", FriendController, :block
+    post "/friends/:id/unblock", FriendController, :unblock
+    delete "/friends/:id", FriendController, :delete
   end
 
   # API OAuth routes

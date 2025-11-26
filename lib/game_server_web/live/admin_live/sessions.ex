@@ -75,6 +75,12 @@ defmodule GameServerWeb.AdminLive.Sessions do
                 </tbody>
               </table>
             </div>
+
+            <div class="mt-4 flex gap-2 items-center">
+              <button phx-click="admin_sessions_prev" class="btn btn-xs" disabled={@sessions_page <= 1}>Prev</button>
+              <div class="text-xs text-base-content/70">page {@sessions_page} / {@sessions_total_pages} ({@sessions_count} total)</div>
+              <button phx-click="admin_sessions_next" class="btn btn-xs" disabled={@sessions_page >= @sessions_total_pages || @sessions_total_pages == 0}>Next</button>
+            </div>
           </div>
         </div>
       </div>
@@ -84,21 +90,31 @@ defmodule GameServerWeb.AdminLive.Sessions do
 
   @impl true
   def mount(_params, _session, socket) do
+    page = 1
+    page_size = 50
+
     sessions_count = Repo.aggregate(from(t in UserToken, where: t.context == "session"), :count)
 
     recent_sessions =
       Repo.all(
         from t in UserToken,
           join: u in assoc(t, :user),
+          where: t.context == "session",
           order_by: [desc: t.inserted_at],
-          limit: 50,
+          offset: ^((page - 1) * page_size),
+          limit: ^page_size,
           preload: [:user]
       )
+
+    total_pages = if page_size > 0, do: div(sessions_count + page_size - 1, page_size), else: 0
 
     {:ok,
      socket
      |> assign(:sessions_count, sessions_count)
-     |> assign(:recent_sessions, recent_sessions)}
+     |> assign(:recent_sessions, recent_sessions)
+     |> assign(:sessions_page, page)
+     |> assign(:sessions_page_size, page_size)
+     |> assign(:sessions_total_pages, total_pages)}
   end
 
   @impl true
@@ -107,15 +123,22 @@ defmodule GameServerWeb.AdminLive.Sessions do
 
     case Repo.delete(session) do
       {:ok, _session} ->
-        sessions_count =
-          Repo.aggregate(from(t in UserToken, where: t.context == "session"), :count)
+        page = socket.assigns[:sessions_page] || 1
+        page_size = socket.assigns[:sessions_page_size] || 50
+
+        sessions_count = Repo.aggregate(from(t in UserToken, where: t.context == "session"), :count)
+        total_pages = if page_size > 0, do: div(sessions_count + page_size - 1, page_size), else: 0
+
+        page = max(1, min(page, total_pages || 1))
 
         recent_sessions =
           Repo.all(
             from t in UserToken,
               join: u in assoc(t, :user),
+              where: t.context == "session",
               order_by: [desc: t.inserted_at],
-              limit: 50,
+              offset: ^((page - 1) * page_size),
+              limit: ^page_size,
               preload: [:user]
           )
 
@@ -123,10 +146,65 @@ defmodule GameServerWeb.AdminLive.Sessions do
          socket
          |> put_flash(:info, "Token deleted successfully")
          |> assign(:sessions_count, sessions_count)
-         |> assign(:recent_sessions, recent_sessions)}
+         |> assign(:recent_sessions, recent_sessions)
+         |> assign(:sessions_page, page)
+         |> assign(:sessions_total_pages, total_pages)}
 
       {:error, _changeset} ->
         {:noreply, put_flash(socket, :error, "Failed to delete token")}
     end
+  end
+
+  @impl true
+  def handle_event("admin_sessions_prev", _params, socket) do
+    page = max(1, (socket.assigns[:sessions_page] || 1) - 1)
+    page_size = socket.assigns[:sessions_page_size] || 50
+
+    recent_sessions =
+      Repo.all(
+        from t in UserToken,
+          join: u in assoc(t, :user),
+          where: t.context == "session",
+          order_by: [desc: t.inserted_at],
+          offset: ^((page - 1) * page_size),
+          limit: ^page_size,
+          preload: [:user]
+      )
+
+    sessions_count = Repo.aggregate(from(t in UserToken, where: t.context == "session"), :count)
+    total_pages = if page_size > 0, do: div(sessions_count + page_size - 1, page_size), else: 0
+
+    {:noreply,
+     socket
+     |> assign(:sessions_page, page)
+     |> assign(:recent_sessions, recent_sessions)
+     |> assign(:sessions_count, sessions_count)
+     |> assign(:sessions_total_pages, total_pages)}
+  end
+
+  def handle_event("admin_sessions_next", _params, socket) do
+    page = (socket.assigns[:sessions_page] || 1) + 1
+    page_size = socket.assigns[:sessions_page_size] || 50
+
+    recent_sessions =
+      Repo.all(
+        from t in UserToken,
+          join: u in assoc(t, :user),
+          where: t.context == "session",
+          order_by: [desc: t.inserted_at],
+          offset: ^((page - 1) * page_size),
+          limit: ^page_size,
+          preload: [:user]
+      )
+
+    sessions_count = Repo.aggregate(from(t in UserToken, where: t.context == "session"), :count)
+    total_pages = if page_size > 0, do: div(sessions_count + page_size - 1, page_size), else: 0
+
+    {:noreply,
+     socket
+     |> assign(:sessions_page, page)
+     |> assign(:recent_sessions, recent_sessions)
+     |> assign(:sessions_count, sessions_count)
+     |> assign(:sessions_total_pages, total_pages)}
   end
 end
