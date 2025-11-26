@@ -469,22 +469,10 @@ defmodule GameServerWeb.AuthController do
               (other_user.email || "") |> String.downcase() ==
                 (current.email || "") |> String.downcase() and
                   (other_user.email || "") != "" ->
-                case Accounts.delete_user(other_user) do
-                  {:ok, _} ->
-                    send_resp(conn, :no_content, "")
-
-                  {:error, _} ->
-                    conn |> put_status(:bad_request) |> json(%{error: "Failed to delete account"})
-                end
+                attempt_delete_user(conn, other_user)
 
               other_user.hashed_password == nil ->
-                case Accounts.delete_user(other_user) do
-                  {:ok, _} ->
-                    send_resp(conn, :no_content, "")
-
-                  {:error, _} ->
-                    conn |> put_status(:bad_request) |> json(%{error: "Failed to delete account"})
-                end
+                attempt_delete_user(conn, other_user)
 
               true ->
                 conn
@@ -498,6 +486,16 @@ defmodule GameServerWeb.AuthController do
 
       :error ->
         conn |> put_status(:bad_request) |> json(%{error: "invalid id"})
+    end
+  end
+
+  defp attempt_delete_user(conn, user) do
+    case Accounts.delete_user(user) do
+      {:ok, _} ->
+        send_resp(conn, :no_content, "")
+
+      {:error, _} ->
+        conn |> put_status(:bad_request) |> json(%{error: "Failed to delete account"})
     end
   end
 

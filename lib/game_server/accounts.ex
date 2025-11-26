@@ -441,23 +441,30 @@ defmodule GameServer.Accounts do
             {:ok, user}
 
           {:error, changeset} ->
-            # If the update failed due to the provider ID being already taken,
-            # return a conflict with the existing account so the UI can guide
-            # the user (e.g., delete the other account or sign into it).
-            provider_value = Map.get(attrs, provider_id_field)
-
-            if provider_value do
-              case Repo.get_by(User, [{provider_id_field, provider_value}]) do
-                %User{} = other_user when other_user.id != user.id ->
-                  {:error, {:conflict, other_user}}
-
-                _ ->
-                  {:error, changeset}
-              end
-            else
-              {:error, changeset}
-            end
+            handle_link_error(user, attrs, provider_id_field, changeset)
         end
+
+      {:error, reason} ->
+        {:error, {:hook_rejected, reason}}
+    end
+  end
+
+  defp handle_link_error(user, attrs, provider_id_field, changeset) do
+    # If the update failed due to the provider ID being already taken,
+    # return a conflict with the existing account so the UI can guide
+    # the user (e.g., delete the other account or sign into it).
+    provider_value = Map.get(attrs, provider_id_field)
+
+    if provider_value do
+      case Repo.get_by(User, [{provider_id_field, provider_value}]) do
+        %User{} = other_user when other_user.id != user.id ->
+          {:error, {:conflict, other_user}}
+
+        _ ->
+          {:error, changeset}
+      end
+    else
+      {:error, changeset}
     end
   end
 
@@ -664,27 +671,7 @@ defmodule GameServer.Accounts do
         """
 
       {%User{confirmed_at: nil} = user, _token} ->
-        hooks = GameServer.Hooks.module()
-
-        case hooks.before_user_login(user) do
-          {:ok, user} ->
-            result =
-              user
-              |> User.confirm_changeset()
-              |> update_user_and_delete_all_tokens()
-
-            case result do
-              {:ok, {user, _tokens}} = ok ->
-                Task.start(fn -> hooks.after_user_login(user) end)
-                ok
-
-              other ->
-                other
-            end
-
-          {:error, reason} ->
-            {:error, {:hook_rejected, reason}}
-        end
+        handle_unconfirmed_login(user)
 
       {user, token} ->
         hooks = GameServer.Hooks.module()
@@ -701,6 +688,30 @@ defmodule GameServer.Accounts do
 
       nil ->
         {:error, :not_found}
+    end
+  end
+
+  defp handle_unconfirmed_login(user) do
+    hooks = GameServer.Hooks.module()
+
+    case hooks.before_user_login(user) do
+      {:ok, user} ->
+        result =
+          user
+          |> User.confirm_changeset()
+          |> update_user_and_delete_all_tokens()
+
+        case result do
+          {:ok, {user, _tokens}} = ok ->
+            Task.start(fn -> hooks.after_user_login(user) end)
+            ok
+
+          other ->
+            other
+        end
+
+      {:error, reason} ->
+        {:error, {:hook_rejected, reason}}
     end
   end
 
