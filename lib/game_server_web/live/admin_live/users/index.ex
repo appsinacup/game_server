@@ -1,4 +1,10 @@
 defmodule GameServerWeb.AdminLive.Users.Index do
+  @moduledoc """
+  Admin LiveView for listing and managing users.
+
+  Shows a paginated list of users with quick actions to edit or delete.
+  """
+
   use GameServerWeb, :live_view
 
   alias GameServer.Repo

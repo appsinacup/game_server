@@ -2,6 +2,9 @@ defmodule GameServerWeb.UserSocket do
   use Phoenix.Socket
   require Logger
 
+  alias GameServerWeb.Auth.Guardian
+  alias GameServer.Accounts.Scope
+
   # A Socket handler
   #
   # It's possible to control the websocket connection and
@@ -49,11 +52,11 @@ defmodule GameServerWeb.UserSocket do
   def connect(params, socket, _connect_info) do
     case extract_token(params) do
       token when is_binary(token) ->
-        case GameServerWeb.Auth.Guardian.decode_and_verify(token) do
+        case Guardian.decode_and_verify(token) do
           {:ok, claims} ->
-            case GameServerWeb.Auth.Guardian.resource_from_claims(claims) do
+            case Guardian.resource_from_claims(claims) do
               {:ok, user} ->
-                socket = assign(socket, :current_scope, GameServer.Accounts.Scope.for_user(user))
+                socket = assign(socket, :current_scope, Scope.for_user(user))
                 {:ok, socket}
 
               _ ->

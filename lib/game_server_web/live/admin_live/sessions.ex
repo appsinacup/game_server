@@ -1,8 +1,8 @@
 defmodule GameServerWeb.AdminLive.Sessions do
   use GameServerWeb, :live_view
 
-  alias GameServer.Repo
   alias GameServer.Accounts.UserToken
+  alias GameServer.Repo
 
   import Ecto.Query
 

@@ -1,4 +1,9 @@
 defmodule GameServerWeb.PublicDocs do
+  @moduledoc """
+  Static LiveView that renders setup guides, API usage examples, and public
+  documentation pages for SDKs and provider setup instructions.
+  """
+
   use GameServerWeb, :live_view
 
   @impl true

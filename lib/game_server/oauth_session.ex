@@ -1,4 +1,11 @@
 defmodule GameServer.OAuthSession do
+  @moduledoc """
+  Simple Ecto schema for OAuth session polling used by client SDKs.
+
+  OAuth sessions allow multi-step auth flows (popup or mobile) where the SDK
+  polls for completion status (pending/completed/failed). The schema stores
+  provider-specific data in the `data` field for debugging and eventing.
+  """
   use Ecto.Schema
   import Ecto.Changeset
 
