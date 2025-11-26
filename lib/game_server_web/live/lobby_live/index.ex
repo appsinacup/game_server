@@ -72,39 +72,7 @@ defmodule GameServerWeb.LobbyLive.Index do
              put_flash(socket, :error, "You are already in a lobby and cannot create another")}
 
           _ ->
-            case Lobbies.create_lobby(attrs) do
-              {:ok, _lobby} ->
-                # refresh user to update lobby_id first
-                refreshed_user = GameServer.Accounts.get_user!(id)
-
-                lobbies =
-                  Lobbies.list_lobbies_for_user(refreshed_user, %{},
-                    page: socket.assigns[:lobbies_page] || 1,
-                    page_size: socket.assigns[:lobbies_page_size] || 12
-                  )
-
-                memberships_map =
-                  Enum.into(lobbies, %{}, fn l ->
-                    {l.id, Lobbies.list_memberships_for_lobby(l.id)}
-                  end)
-
-                updated_scope = %{socket.assigns.current_scope | user: refreshed_user}
-
-                {:noreply,
-                 assign(socket,
-                   lobbies: lobbies,
-                   memberships_map: memberships_map,
-                   title: "",
-                   current_scope: updated_scope
-                 )}
-
-              {:error, :already_in_lobby} ->
-                {:noreply,
-                 put_flash(socket, :error, "You are already in a lobby and cannot create another")}
-
-              {:error, _} ->
-                {:noreply, socket}
-            end
+            create_lobby_for_user(socket, attrs, id)
         end
 
       _ ->
@@ -210,39 +178,7 @@ defmodule GameServerWeb.LobbyLive.Index do
         if user.lobby_id == id do
           {:noreply, put_flash(socket, :info, "You are already in this lobby")}
         else
-          # use atom-keyed map so the Lobbies.do_join Map.get(:password) recognizes it
-          result = Lobbies.join_lobby(user, id, %{password: password})
-
-          case result do
-            {:ok, _} ->
-              # refresh user to update lobby_id first
-              refreshed_user = GameServer.Accounts.get_user!(user.id)
-
-              lobbies =
-                Lobbies.list_lobbies_for_user(refreshed_user, %{},
-                  page: socket.assigns[:lobbies_page] || 1,
-                  page_size: socket.assigns[:lobbies_page_size] || 12
-                )
-
-              memberships_map =
-                Enum.into(lobbies, %{}, fn lp ->
-                  {lp.id, Lobbies.list_memberships_for_lobby(lp.id)}
-                end)
-
-              updated_scope = %{socket.assigns.current_scope | user: refreshed_user}
-
-              {:noreply,
-               assign(socket,
-                 lobbies: lobbies,
-                 memberships_map: memberships_map,
-                 joining_lobby_id: nil,
-                 join_password: "",
-                 current_scope: updated_scope
-               )}
-
-            {:error, reason} ->
-              {:noreply, put_flash(socket, :error, "Could not join: #{inspect(reason)}")}
-          end
+          confirm_lobby_join(socket, user, id, password)
         end
 
       _ ->
@@ -393,6 +329,78 @@ defmodule GameServerWeb.LobbyLive.Index do
   def handle_event("lobbies_next", _params, socket) do
     page = (socket.assigns[:lobbies_page] || 1) + 1
     {:noreply, refresh_lobbies(assign(socket, lobbies_page: page))}
+  end
+
+  defp create_lobby_for_user(socket, attrs, user_id) do
+    case Lobbies.create_lobby(attrs) do
+      {:ok, _lobby} ->
+        # refresh user to update lobby_id first
+        refreshed_user = GameServer.Accounts.get_user!(user_id)
+
+        lobbies =
+          Lobbies.list_lobbies_for_user(refreshed_user, %{},
+            page: socket.assigns[:lobbies_page] || 1,
+            page_size: socket.assigns[:lobbies_page_size] || 12
+          )
+
+        memberships_map =
+          Enum.into(lobbies, %{}, fn l ->
+            {l.id, Lobbies.list_memberships_for_lobby(l.id)}
+          end)
+
+        updated_scope = %{socket.assigns.current_scope | user: refreshed_user}
+
+        {:noreply,
+         assign(socket,
+           lobbies: lobbies,
+           memberships_map: memberships_map,
+           title: "",
+           current_scope: updated_scope
+         )}
+
+      {:error, :already_in_lobby} ->
+        {:noreply,
+         put_flash(socket, :error, "You are already in a lobby and cannot create another")}
+
+      {:error, _} ->
+        {:noreply, socket}
+    end
+  end
+
+  defp confirm_lobby_join(socket, user, lobby_id, password) do
+    # use atom-keyed map so the Lobbies.do_join Map.get(:password) recognizes it
+    result = Lobbies.join_lobby(user, lobby_id, %{password: password})
+
+    case result do
+      {:ok, _} ->
+        # refresh user to update lobby_id first
+        refreshed_user = GameServer.Accounts.get_user!(user.id)
+
+        lobbies =
+          Lobbies.list_lobbies_for_user(refreshed_user, %{},
+            page: socket.assigns[:lobbies_page] || 1,
+            page_size: socket.assigns[:lobbies_page_size] || 12
+          )
+
+        memberships_map =
+          Enum.into(lobbies, %{}, fn lp ->
+            {lp.id, Lobbies.list_memberships_for_lobby(lp.id)}
+          end)
+
+        updated_scope = %{socket.assigns.current_scope | user: refreshed_user}
+
+        {:noreply,
+         assign(socket,
+           lobbies: lobbies,
+           memberships_map: memberships_map,
+           joining_lobby_id: nil,
+           join_password: "",
+           current_scope: updated_scope
+         )}
+
+      {:error, reason} ->
+        {:noreply, put_flash(socket, :error, "Could not join: #{inspect(reason)}")}
+    end
   end
 
   # PubSub handlers for real-time updates

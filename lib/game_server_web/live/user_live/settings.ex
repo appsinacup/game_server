@@ -791,58 +791,7 @@ defmodule GameServerWeb.UserLive.Settings do
             {:noreply, put_flash(socket, :error, "Account not found.")}
 
           %GameServer.Accounts.User{} = other_user ->
-            current_email = (current.email || "") |> String.downcase()
-            other_email = (other_user.email || "") |> String.downcase()
-
-            cond do
-              other_user.id == current.id ->
-                {:noreply,
-                 put_flash(
-                   socket,
-                   :error,
-                   "You cannot delete your currently logged-in account here."
-                 )}
-
-              other_email == current_email and other_email != "" ->
-                case Accounts.delete_user(other_user) do
-                  {:ok, _} ->
-                    {:noreply,
-                     socket
-                     |> put_flash(
-                       :info,
-                       "Conflicting account deleted. You can now try linking the provider again."
-                     )
-                     |> assign(:conflict_user, nil)}
-
-                  {:error, _} ->
-                    {:noreply,
-                     put_flash(socket, :error, "Failed to delete the conflicting account.")}
-                end
-
-              other_user.hashed_password == nil ->
-                case Accounts.delete_user(other_user) do
-                  {:ok, _} ->
-                    {:noreply,
-                     socket
-                     |> put_flash(
-                       :info,
-                       "Conflicting account deleted. You can now try linking the provider again."
-                     )
-                     |> assign(:conflict_user, nil)}
-
-                  {:error, _} ->
-                    {:noreply,
-                     put_flash(socket, :error, "Failed to delete the conflicting account.")}
-                end
-
-              true ->
-                {:noreply,
-                 put_flash(
-                   socket,
-                   :error,
-                   "Cannot delete an account you do not own. Log in to the other account directly if you control it."
-                 )}
-            end
+            handle_delete_conflicting_account(socket, current, other_user)
         end
 
       {"incoming_prev", _} ->
@@ -1033,5 +982,50 @@ defmodule GameServerWeb.UserLive.Settings do
     conflict_provider = Map.get(params, "conflict_provider")
 
     {:noreply, assign(socket, conflict_user: conflict_user, conflict_provider: conflict_provider)}
+  end
+
+  defp handle_delete_conflicting_account(socket, current, other_user) do
+    current_email = (current.email || "") |> String.downcase()
+    other_email = (other_user.email || "") |> String.downcase()
+
+    cond do
+      other_user.id == current.id ->
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           "You cannot delete your currently logged-in account here."
+         )}
+
+      other_email == current_email and other_email != "" ->
+        perform_conflicting_account_deletion(socket, other_user)
+
+      other_user.hashed_password == nil ->
+        perform_conflicting_account_deletion(socket, other_user)
+
+      true ->
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           "Cannot delete an account you do not own. Log in to the other account directly if you control it."
+         )}
+    end
+  end
+
+  defp perform_conflicting_account_deletion(socket, user) do
+    case Accounts.delete_user(user) do
+      {:ok, _} ->
+        {:noreply,
+         socket
+         |> put_flash(
+           :info,
+           "Conflicting account deleted. You can now try linking the provider again."
+         )
+         |> assign(:conflict_user, nil)}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, "Failed to delete the conflicting account.")}
+    end
   end
 end

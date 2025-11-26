@@ -182,21 +182,18 @@ defmodule GameServer.Lobbies do
   def list_lobbies_for_user(%User{lobby_id: user_lobby_id}, filters, opts) do
     public_lobbies = list_lobbies(filters, opts)
 
-    cond do
-      # If user is not in a lobby, return public lobbies
-      is_nil(user_lobby_id) ->
-        public_lobbies
-
+    if is_nil(user_lobby_id) do
+      public_lobbies
+    else
       # Check if user's lobby is hidden and needs to be included
-      true ->
-        user_lobby = Repo.get(Lobby, user_lobby_id)
+      user_lobby = Repo.get(Lobby, user_lobby_id)
 
-        if user_lobby && user_lobby.is_hidden &&
-             !Enum.any?(public_lobbies, &(&1.id == user_lobby_id)) do
-          [user_lobby | public_lobbies]
-        else
-          public_lobbies
-        end
+      if user_lobby && user_lobby.is_hidden &&
+           !Enum.any?(public_lobbies, &(&1.id == user_lobby_id)) do
+        [user_lobby | public_lobbies]
+      else
+        public_lobbies
+      end
     end
   end
 
@@ -230,32 +227,30 @@ defmodule GameServer.Lobbies do
   defp do_join(user_id, lobby, opts) do
     user = Repo.get(GameServer.Accounts.User, user_id)
 
-    cond do
-      user && user.lobby_id ->
-        {:error, :already_in_lobby}
+    if user && user.lobby_id do
+      {:error, :already_in_lobby}
+    else
+      count =
+        Repo.one(
+          from(u in GameServer.Accounts.User,
+            where: u.lobby_id == ^lobby.id,
+            select: count(u.id)
+          )
+        ) || 0
 
-      true ->
-        count =
-          Repo.one(
-            from(u in GameServer.Accounts.User,
-              where: u.lobby_id == ^lobby.id,
-              select: count(u.id)
-            )
-          ) || 0
+      cond do
+        count >= lobby.max_users ->
+          {:error, :full}
 
-        cond do
-          count >= lobby.max_users ->
-            {:error, :full}
+        lobby.is_locked ->
+          {:error, :locked}
 
-          lobby.is_locked ->
-            {:error, :locked}
+        true ->
+          password =
+            if is_list(opts), do: Keyword.get(opts, :password), else: Map.get(opts, :password)
 
-          true ->
-            password =
-              if is_list(opts), do: Keyword.get(opts, :password), else: Map.get(opts, :password)
-
-            validate_and_join(lobby, user_id, password)
-        end
+          validate_and_join(lobby, user_id, password)
+      end
     end
   end
 

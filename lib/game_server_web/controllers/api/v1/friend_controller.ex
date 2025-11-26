@@ -564,29 +564,33 @@ defmodule GameServerWeb.Api.V1.FriendController do
             conn |> put_status(:not_found) |> json(%{error: "not_found"})
 
           f ->
-            cond do
-              f.status == "pending" and f.requester_id == user.id ->
-                case Friends.cancel_request(f.id, user) do
-                  {:ok, :cancelled} -> send_resp(conn, :no_content, "")
-                  err -> conn |> put_status(:bad_request) |> json(%{error: to_string(err)})
-                end
-
-              f.status == "accepted" and (f.requester_id == user.id or f.target_id == user.id) ->
-                case Friends.remove_friend(
-                       user.id,
-                       if(f.requester_id == user.id, do: f.target_id, else: f.requester_id)
-                     ) do
-                  {:ok, _} -> send_resp(conn, :no_content, "")
-                  err -> conn |> put_status(:bad_request) |> json(%{error: to_string(err)})
-                end
-
-              true ->
-                conn |> put_status(:forbidden) |> json(%{error: "not_authorized"})
-            end
+            handle_delete_friendship(conn, user, f)
         end
 
       _ ->
         conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
+    end
+  end
+
+  defp handle_delete_friendship(conn, user, f) do
+    cond do
+      f.status == "pending" and f.requester_id == user.id ->
+        case Friends.cancel_request(f.id, user) do
+          {:ok, :cancelled} -> send_resp(conn, :no_content, "")
+          err -> conn |> put_status(:bad_request) |> json(%{error: to_string(err)})
+        end
+
+      f.status == "accepted" and (f.requester_id == user.id or f.target_id == user.id) ->
+        case Friends.remove_friend(
+               user.id,
+               if(f.requester_id == user.id, do: f.target_id, else: f.requester_id)
+             ) do
+          {:ok, _} -> send_resp(conn, :no_content, "")
+          err -> conn |> put_status(:bad_request) |> json(%{error: to_string(err)})
+        end
+
+      true ->
+        conn |> put_status(:forbidden) |> json(%{error: "not_authorized"})
     end
   end
 
