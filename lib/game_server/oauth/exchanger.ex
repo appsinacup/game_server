@@ -163,22 +163,24 @@ defmodule GameServer.OAuth.Exchanger do
 
   # Parse Apple's JWT id_token to extract user information
   defp parse_apple_id_token(id_token) do
-    try do
-      # JWT tokens have 3 parts separated by dots: header.payload.signature
-      [_header, payload, _signature] = String.split(id_token, ".")
+    # Use safe, non-raising operations and return {:ok, map} or {:error, reason}
+    case String.split(id_token, ".") do
+      [_header, payload, _signature] ->
+        padded_payload =
+          case rem(String.length(payload), 4) do
+            0 -> payload
+            n -> payload <> String.duplicate("=", 4 - n)
+          end
 
-      # Decode the base64-encoded payload
-      # Add padding if needed
-      padded_payload =
-        case rem(String.length(payload), 4) do
-          0 -> payload
-          n -> payload <> String.duplicate("=", 4 - n)
+        with {:ok, decoded} <- Base.url_decode64(padded_payload),
+             {:ok, parsed} <- Jason.decode(decoded) do
+          {:ok, parsed}
+        else
+          _ -> {:error, "Invalid JWT token"}
         end
 
-      decoded = Base.url_decode64!(padded_payload)
-      Jason.decode(decoded)
-    rescue
-      _ -> {:error, "Invalid JWT token"}
+      _ ->
+        {:error, "Invalid JWT token"}
     end
   end
 end

@@ -1,9 +1,9 @@
 defmodule GameServerWeb.Api.V1.LobbyControllerTest do
   use GameServerWeb.ConnCase
 
-  alias GameServerWeb.Auth.Guardian
   alias GameServer.AccountsFixtures
   alias GameServer.Lobbies
+  alias GameServerWeb.Auth.Guardian
 
   setup do
     {:ok, %{}}

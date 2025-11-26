@@ -1,10 +1,10 @@
 defmodule GameServerWeb.Api.V1.FriendControllerTest do
   use GameServerWeb.ConnCase
 
-  alias GameServerWeb.Auth.Guardian
   alias GameServer.AccountsFixtures
   alias GameServer.Friends
   alias GameServer.Repo
+  alias GameServerWeb.Auth.Guardian
   import Ecto.Query
 
   test "POST /api/v1/friends requires auth and creates a request", %{conn: conn} do

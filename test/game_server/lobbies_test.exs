@@ -1,8 +1,8 @@
 defmodule GameServer.LobbiesTest do
   use GameServer.DataCase
 
-  alias GameServer.Lobbies
   alias GameServer.AccountsFixtures
+  alias GameServer.Lobbies
 
   describe "lobbies and memberships" do
     setup do

@@ -1,8 +1,8 @@
 defmodule GameServer.FriendsTest do
   use GameServer.DataCase
 
-  alias GameServer.Friends
   alias GameServer.AccountsFixtures
+  alias GameServer.Friends
 
   describe "friendship flows" do
     setup do

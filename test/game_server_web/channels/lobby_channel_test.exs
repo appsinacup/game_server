@@ -2,9 +2,9 @@ defmodule GameServerWeb.LobbyChannelTest do
   use ExUnit.Case
   import Phoenix.ChannelTest
 
-  alias GameServerWeb.Auth.Guardian
   alias GameServer.AccountsFixtures
   alias GameServer.Lobbies
+  alias GameServerWeb.Auth.Guardian
 
   setup tags do
     GameServer.DataCase.setup_sandbox(tags)
