@@ -448,51 +448,58 @@ defmodule GameServer.Lobbies do
         result =
           Repo.transaction(fn ->
             Repo.update!(Ecto.Changeset.change(membership, %{lobby_id: nil}))
-
-            # if user was host, transfer host or delete lobby if empty
-            if lobby.host_id == user_id and not lobby.hostless do
-              remaining =
-                Repo.all(
-                  from u in GameServer.Accounts.User,
-                    where: u.lobby_id == ^lobby.id and u.id != ^membership.id,
-                    order_by: u.inserted_at,
-                    limit: 1
-                )
-
-              case remaining do
-                [%GameServer.Accounts.User{id: new_host_id} | _] ->
-                  Repo.update!(Ecto.Changeset.change(lobby, %{host_id: new_host_id}))
-                  {:host_changed, new_host_id}
-
-                [] ->
-                  # no members left - delete lobby
-                  Repo.delete!(lobby)
-                  :lobby_deleted
-              end
-            else
-              :ok
-            end
+            handle_host_transfer(lobby, user_id, membership.id)
           end)
 
-        case result do
-          {:ok, :lobby_deleted} ->
-            broadcast_lobbies({:lobby_deleted, lobby_id})
-            result
+        broadcast_leave_result(result, lobby_id, user_id)
+    end
+  end
 
-          {:ok, {:host_changed, new_host_id}} ->
-            broadcast_lobby(lobby_id, {:user_left, lobby_id, user_id})
-            broadcast_lobby(lobby_id, {:host_changed, lobby_id, new_host_id})
-            broadcast_lobbies({:lobby_membership_changed, lobby_id})
-            result
+  defp handle_host_transfer(lobby, user_id, membership_id) do
+    # if user was host, transfer host or delete lobby if empty
+    if lobby.host_id == user_id and not lobby.hostless do
+      remaining =
+        Repo.all(
+          from u in GameServer.Accounts.User,
+            where: u.lobby_id == ^lobby.id and u.id != ^membership_id,
+            order_by: u.inserted_at,
+            limit: 1
+        )
 
-          {:ok, _} ->
-            broadcast_lobby(lobby_id, {:user_left, lobby_id, user_id})
-            broadcast_lobbies({:lobby_membership_changed, lobby_id})
-            result
+      case remaining do
+        [%GameServer.Accounts.User{id: new_host_id} | _] ->
+          Repo.update!(Ecto.Changeset.change(lobby, %{host_id: new_host_id}))
+          {:host_changed, new_host_id}
 
-          _ ->
-            result
-        end
+        [] ->
+          # no members left - delete lobby
+          Repo.delete!(lobby)
+          :lobby_deleted
+      end
+    else
+      :ok
+    end
+  end
+
+  defp broadcast_leave_result(result, lobby_id, user_id) do
+    case result do
+      {:ok, :lobby_deleted} ->
+        broadcast_lobbies({:lobby_deleted, lobby_id})
+        result
+
+      {:ok, {:host_changed, new_host_id}} ->
+        broadcast_lobby(lobby_id, {:user_left, lobby_id, user_id})
+        broadcast_lobby(lobby_id, {:host_changed, lobby_id, new_host_id})
+        broadcast_lobbies({:lobby_membership_changed, lobby_id})
+        result
+
+      {:ok, _} ->
+        broadcast_lobby(lobby_id, {:user_left, lobby_id, user_id})
+        broadcast_lobbies({:lobby_membership_changed, lobby_id})
+        result
+
+      _ ->
+        result
     end
   end
 
@@ -557,51 +564,46 @@ defmodule GameServer.Lobbies do
   def update_lobby_by_host(%User{id: host_id}, %Lobby{} = lobby, attrs) do
     if lobby.host_id == host_id or lobby.hostless do
       attrs = maybe_hash_password(attrs)
-      # If max_users is present, ensure it's not smaller than the current membership count
       new_max = Map.get(attrs, "max_users") || Map.get(attrs, :max_users)
 
       if is_nil(new_max) do
-        result = update_lobby(lobby, attrs)
-
-        case result do
-          {:ok, updated_lobby} ->
-            broadcast_lobby(lobby.id, {:lobby_updated, updated_lobby})
-            broadcast_lobbies({:lobby_updated, updated_lobby})
-            result
-
-          _ ->
-            result
-        end
+        broadcast_update_result(update_lobby(lobby, attrs), lobby.id)
       else
-        # ensure new_max is an integer
-        new_max = if is_binary(new_max), do: String.to_integer(new_max), else: new_max
-
-        current_count =
-          Repo.one(
-            from(u in GameServer.Accounts.User,
-              where: u.lobby_id == ^lobby.id,
-              select: count(u.id)
-            )
-          ) || 0
-
-        if new_max < current_count do
-          {:error, :too_small}
-        else
-          result = update_lobby(lobby, attrs)
-
-          case result do
-            {:ok, updated_lobby} ->
-              broadcast_lobby(lobby.id, {:lobby_updated, updated_lobby})
-              broadcast_lobbies({:lobby_updated, updated_lobby})
-              result
-
-            _ ->
-              result
-          end
-        end
+        validate_and_update_max_users(lobby, attrs, new_max)
       end
     else
       {:error, :not_host}
+    end
+  end
+
+  defp validate_and_update_max_users(lobby, attrs, new_max) do
+    # ensure new_max is an integer
+    new_max = if is_binary(new_max), do: String.to_integer(new_max), else: new_max
+
+    current_count =
+      Repo.one(
+        from(u in GameServer.Accounts.User,
+          where: u.lobby_id == ^lobby.id,
+          select: count(u.id)
+        )
+      ) || 0
+
+    if new_max < current_count do
+      {:error, :too_small}
+    else
+      broadcast_update_result(update_lobby(lobby, attrs), lobby.id)
+    end
+  end
+
+  defp broadcast_update_result(result, lobby_id) do
+    case result do
+      {:ok, updated_lobby} ->
+        broadcast_lobby(lobby_id, {:lobby_updated, updated_lobby})
+        broadcast_lobbies({:lobby_updated, updated_lobby})
+        result
+
+      _ ->
+        result
     end
   end
 
