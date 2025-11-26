@@ -1,4 +1,10 @@
 defmodule GameServer.Lobbies.Lobby do
+  @moduledoc """
+  Ecto schema for the `lobbies` table and changeset helpers.
+
+  A lobby represents a game room with basic settings (title, host, capacity,
+  visibility, lock/password and arbitrary metadata).
+  """
   use Ecto.Schema
   import Ecto.Changeset
 

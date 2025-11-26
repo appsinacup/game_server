@@ -1,4 +1,11 @@
 defmodule GameServer.Friends.Friendship do
+  @moduledoc """
+  Ecto schema representing a friendship/request between two users.
+
+  The friendship object stores the requester and the target user together with
+  a status field which can be "pending", "accepted", "rejected" or
+  "blocked".
+  """
   use Ecto.Schema
   import Ecto.Changeset
 

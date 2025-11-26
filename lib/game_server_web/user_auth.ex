@@ -1,4 +1,11 @@
 defmodule GameServerWeb.UserAuth do
+  @moduledoc """
+  Helpers for session / cookie based authentication and LiveView mounts.
+
+  This module provides routines used by controllers and LiveViews to manage
+  user sessions, remember-me cookies, and `on_mount` helpers for mounting the
+  authenticated `current_scope` for LiveViews.
+  """
   use GameServerWeb, :verified_routes
 
   import Plug.Conn

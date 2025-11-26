@@ -1,4 +1,11 @@
 defmodule GameServer.Accounts.User do
+  @moduledoc """
+  The User schema and associated changeset functions used across the
+  application (registration, OAuth, and admin changes).
+
+  This module keeps Ecto changesets for common user interactions and
+  validations so other domains can reuse them safely.
+  """
   use Ecto.Schema
   import Ecto.Changeset
 

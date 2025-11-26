@@ -23,13 +23,12 @@ defmodule GameServer.Lobbies do
   """
 
   import Ecto.Query, warn: false
-  alias GameServer.Repo
 
-  alias GameServer.Lobbies.Lobby
-  # membership stored on users.lobby_id
-  alias GameServer.Accounts.User
-  alias Ecto.Multi
-  alias Bcrypt
+    alias Bcrypt
+    alias Ecto.Multi
+    alias GameServer.Accounts.User
+    alias GameServer.Lobbies.Lobby
+    alias GameServer.Repo
 
   # PubSub topic names
   @lobbies_topic "lobbies"

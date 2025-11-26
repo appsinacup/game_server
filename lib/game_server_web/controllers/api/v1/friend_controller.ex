@@ -330,7 +330,8 @@ defmodule GameServerWeb.Api.V1.FriendController do
     ]
   )
 
-  # Clarify: the :id path parameter in accept/reject/block/delete/unblock refers to the friendship record ID (friendship_id), not a user_id.
+  # Clarify: the :id path parameter in accept/reject/block/delete/unblock
+  # refers to the friendship record ID (friendship_id), not a user_id.
 
   def create(conn, %{"target_user_id" => _} = params) do
     case conn.assigns.current_scope do

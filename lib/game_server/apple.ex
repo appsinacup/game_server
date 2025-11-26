@@ -7,7 +7,8 @@ defmodule GameServer.Apple do
   """
 
   # 6 months
-  @expiration_sec 86400 * 180
+  # 86_400 (seconds in a day) * 180 (approx. 6 months)
+  @expiration_sec 86_400 * 180
 
   @doc """
   Generates or retrieves a cached Apple client secret.

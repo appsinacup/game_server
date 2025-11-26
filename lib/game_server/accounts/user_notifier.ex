@@ -1,4 +1,10 @@
 defmodule GameServer.Accounts.UserNotifier do
+  @moduledoc """
+  Small helpers used to deliver transactional emails for the Accounts flow
+  (confirmation, magic link, and email change instructions).
+
+  These functions are thin wrappers over the configured application Mailer.
+  """
   import Swoosh.Email
 
   alias GameServer.Mailer
