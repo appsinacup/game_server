@@ -193,7 +193,7 @@ defmodule GameServerWeb.AdminLive.Config do
                       <% end %>
                     </td>
                     <td class="font-mono text-sm">
-                      Adapter: {@config.database_adapter} - {@config.database}
+                      Adapter: {@config.database_adapter}
                       <div class="mt-1 text-xs">
                         Source: <span class="font-mono">{to_string(@config.db_source)}</span>
                       </div>
