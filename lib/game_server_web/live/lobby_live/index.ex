@@ -12,6 +12,16 @@ defmodule GameServerWeb.LobbyLive.Index do
         _ -> nil
       end
 
+    # Subscribe to global lobby events
+    if connected?(socket) do
+      Lobbies.subscribe_lobbies()
+
+      # If user is in a lobby, subscribe to that lobby's events
+      if user && user.lobby_id do
+        Lobbies.subscribe_lobby(user.lobby_id)
+      end
+    end
+
     lobbies = Lobbies.list_lobbies_for_user(user)
 
     memberships_map =
@@ -26,7 +36,8 @@ defmodule GameServerWeb.LobbyLive.Index do
        join_password: "",
        editing_lobby_id: nil,
        edit_attrs: %{},
-       editing_can_edit: false
+       editing_can_edit: false,
+       subscribed_lobby_id: user && user.lobby_id
      )}
   end
 
@@ -327,6 +338,148 @@ defmodule GameServerWeb.LobbyLive.Index do
 
       _ ->
         {:noreply, push_navigate(socket, to: "/users/log-in")}
+    end
+  end
+
+  # PubSub handlers for real-time updates
+
+  @impl true
+  def handle_info({:lobby_created, _lobby}, socket) do
+    {:noreply, refresh_lobbies(socket)}
+  end
+
+  @impl true
+  def handle_info({:lobby_updated, _lobby}, socket) do
+    {:noreply, refresh_lobbies(socket)}
+  end
+
+  @impl true
+  def handle_info({:lobby_deleted, _lobby_id}, socket) do
+    {:noreply, refresh_lobbies(socket)}
+  end
+
+  @impl true
+  def handle_info({:lobby_membership_changed, _lobby_id}, socket) do
+    {:noreply, refresh_lobbies(socket)}
+  end
+
+  @impl true
+  def handle_info({:user_joined, lobby_id, _user_id}, socket) do
+    # Update memberships for the specific lobby
+    {:noreply, refresh_lobby_memberships(socket, lobby_id)}
+  end
+
+  @impl true
+  def handle_info({:user_left, lobby_id, _user_id}, socket) do
+    {:noreply, refresh_lobby_memberships(socket, lobby_id)}
+  end
+
+  @impl true
+  def handle_info({:user_kicked, lobby_id, user_id}, socket) do
+    socket = refresh_lobby_memberships(socket, lobby_id)
+
+    # If I was kicked, update my user state and show a message
+    case socket.assigns.current_scope do
+      %{user: %{id: ^user_id}} ->
+        refreshed_user = GameServer.Accounts.get_user!(user_id)
+        updated_scope = %{socket.assigns.current_scope | user: refreshed_user}
+
+        # Unsubscribe from the old lobby
+        if socket.assigns[:subscribed_lobby_id] do
+          Lobbies.unsubscribe_lobby(socket.assigns.subscribed_lobby_id)
+        end
+
+        {:noreply,
+         socket
+         |> assign(current_scope: updated_scope, subscribed_lobby_id: nil, editing_lobby_id: nil)
+         |> put_flash(:error, "You have been kicked from the lobby")}
+
+      _ ->
+        {:noreply, socket}
+    end
+  end
+
+  @impl true
+  def handle_info({:host_changed, lobby_id, _new_host_id}, socket) do
+    {:noreply, refresh_lobby_memberships(socket, lobby_id)}
+  end
+
+  # Helper to refresh all lobbies and memberships
+  defp refresh_lobbies(socket) do
+    user =
+      case socket.assigns do
+        %{current_scope: %{user: u}} when not is_nil(u) ->
+          # Refresh user to get latest lobby_id
+          GameServer.Accounts.get_user!(u.id)
+
+        _ ->
+          nil
+      end
+
+    lobbies = Lobbies.list_lobbies_for_user(user)
+
+    memberships_map =
+      Enum.into(lobbies, %{}, fn l -> {l.id, Lobbies.list_memberships_for_lobby(l.id)} end)
+
+    # Update subscription if user's lobby changed
+    socket = maybe_update_lobby_subscription(socket, user)
+
+    # Update current_scope with refreshed user
+    socket =
+      if user do
+        updated_scope = %{socket.assigns.current_scope | user: user}
+        assign(socket, current_scope: updated_scope)
+      else
+        socket
+      end
+
+    assign(socket, lobbies: lobbies, memberships_map: memberships_map)
+  end
+
+  # Helper to refresh just one lobby's memberships
+  defp refresh_lobby_memberships(socket, lobby_id) do
+    memberships = Lobbies.list_memberships_for_lobby(lobby_id)
+    memberships_map = Map.put(socket.assigns.memberships_map, lobby_id, memberships)
+
+    # Also refresh the lobby itself in case it was updated
+    user =
+      case socket.assigns do
+        %{current_scope: %{user: u}} when not is_nil(u) -> u
+        _ -> nil
+      end
+
+    lobbies = Lobbies.list_lobbies_for_user(user)
+
+    assign(socket, lobbies: lobbies, memberships_map: memberships_map)
+  end
+
+  # Helper to manage lobby subscriptions
+  defp maybe_update_lobby_subscription(socket, user) do
+    current_subscription = socket.assigns[:subscribed_lobby_id]
+    new_lobby_id = user && user.lobby_id
+
+    cond do
+      current_subscription == new_lobby_id ->
+        # No change needed
+        socket
+
+      current_subscription != nil and new_lobby_id != current_subscription ->
+        # Unsubscribe from old, subscribe to new
+        Lobbies.unsubscribe_lobby(current_subscription)
+
+        if new_lobby_id do
+          Lobbies.subscribe_lobby(new_lobby_id)
+        end
+
+        assign(socket, subscribed_lobby_id: new_lobby_id)
+
+      new_lobby_id != nil ->
+        # Subscribe to new lobby
+        Lobbies.subscribe_lobby(new_lobby_id)
+        assign(socket, subscribed_lobby_id: new_lobby_id)
+
+      true ->
+        socket
     end
   end
 

@@ -4,6 +4,22 @@ defmodule GameServer.Lobbies do
 
   This module contains the core domain operations; more advanced membership and
   permission logic will be added in follow-up tasks.
+
+  ## PubSub Events
+
+  This module broadcasts the following events:
+
+  - `"lobbies"` topic (global lobby list changes):
+    - `{:lobby_created, lobby}` - a new lobby was created
+    - `{:lobby_updated, lobby}` - a lobby was updated
+    - `{:lobby_deleted, lobby_id}` - a lobby was deleted
+
+  - `"lobby:<lobby_id>"` topic (per-lobby membership changes):
+    - `{:user_joined, lobby_id, user_id}` - a user joined the lobby
+    - `{:user_left, lobby_id, user_id}` - a user left the lobby
+    - `{:user_kicked, lobby_id, user_id}` - a user was kicked from the lobby
+    - `{:lobby_updated, lobby}` - the lobby settings were updated
+    - `{:host_changed, lobby_id, new_host_id}` - the host changed (e.g., after host leaves)
   """
 
   import Ecto.Query, warn: false
@@ -14,6 +30,38 @@ defmodule GameServer.Lobbies do
   alias GameServer.Accounts.User
   alias Ecto.Multi
   alias Bcrypt
+
+  # PubSub topic names
+  @lobbies_topic "lobbies"
+
+  @doc """
+  Subscribe to global lobby events (lobby created, updated, deleted).
+  """
+  def subscribe_lobbies do
+    Phoenix.PubSub.subscribe(GameServer.PubSub, @lobbies_topic)
+  end
+
+  @doc """
+  Subscribe to a specific lobby's events (membership changes, updates).
+  """
+  def subscribe_lobby(lobby_id) do
+    Phoenix.PubSub.subscribe(GameServer.PubSub, "lobby:#{lobby_id}")
+  end
+
+  @doc """
+  Unsubscribe from a specific lobby's events.
+  """
+  def unsubscribe_lobby(lobby_id) do
+    Phoenix.PubSub.unsubscribe(GameServer.PubSub, "lobby:#{lobby_id}")
+  end
+
+  defp broadcast_lobbies(event) do
+    Phoenix.PubSub.broadcast(GameServer.PubSub, @lobbies_topic, event)
+  end
+
+  defp broadcast_lobby(lobby_id, event) do
+    Phoenix.PubSub.broadcast(GameServer.PubSub, "lobby:#{lobby_id}", event)
+  end
 
   @doc "List lobbies. Accepts optional search filters: %{q: string}"
   def list_lobbies(filters \\ %{}) do
@@ -209,9 +257,15 @@ defmodule GameServer.Lobbies do
       |> maybe_add_host_membership(attrs)
       |> Repo.transaction()
       |> case do
-        {:ok, %{lobby: lobby}} -> {:ok, lobby}
-        {:error, _op, changeset, _} -> {:error, changeset}
-        other -> other
+        {:ok, %{lobby: lobby}} ->
+          broadcast_lobbies({:lobby_created, lobby})
+          {:ok, lobby}
+
+        {:error, _op, changeset, _} ->
+          {:error, changeset}
+
+        other ->
+          other
       end
     end
   end
@@ -268,9 +322,20 @@ defmodule GameServer.Lobbies do
         {:error, :not_found}
 
       user ->
-        user
-        |> Ecto.Changeset.change(%{lobby_id: lobby_id})
-        |> Repo.update()
+        result =
+          user
+          |> Ecto.Changeset.change(%{lobby_id: lobby_id})
+          |> Repo.update()
+
+        case result do
+          {:ok, _user} ->
+            broadcast_lobby(lobby_id, {:user_joined, lobby_id, user_id})
+            broadcast_lobbies({:lobby_membership_changed, lobby_id})
+            result
+
+          _ ->
+            result
+        end
     end
   end
 
@@ -290,32 +355,56 @@ defmodule GameServer.Lobbies do
 
       %GameServer.Accounts.User{} = membership ->
         lobby = Repo.get!(Lobby, membership.lobby_id)
+        lobby_id = lobby.id
 
-        Repo.transaction(fn ->
-          Repo.update!(Ecto.Changeset.change(membership, %{lobby_id: nil}))
+        result =
+          Repo.transaction(fn ->
+            Repo.update!(Ecto.Changeset.change(membership, %{lobby_id: nil}))
 
-          # if user was host, transfer host or delete lobby if empty
-          if lobby.host_id == user_id and not lobby.hostless do
-            remaining =
-              Repo.all(
-                from u in GameServer.Accounts.User,
-                  where: u.lobby_id == ^lobby.id and u.id != ^membership.id,
-                  order_by: u.inserted_at,
-                  limit: 1
-              )
+            # if user was host, transfer host or delete lobby if empty
+            if lobby.host_id == user_id and not lobby.hostless do
+              remaining =
+                Repo.all(
+                  from u in GameServer.Accounts.User,
+                    where: u.lobby_id == ^lobby.id and u.id != ^membership.id,
+                    order_by: u.inserted_at,
+                    limit: 1
+                )
 
-            case remaining do
-              [%GameServer.Accounts.User{id: new_host_id} | _] ->
-                Repo.update!(Ecto.Changeset.change(lobby, %{host_id: new_host_id}))
+              case remaining do
+                [%GameServer.Accounts.User{id: new_host_id} | _] ->
+                  Repo.update!(Ecto.Changeset.change(lobby, %{host_id: new_host_id}))
+                  {:host_changed, new_host_id}
 
-              [] ->
-                # no members left - delete lobby
-                Repo.delete!(lobby)
+                [] ->
+                  # no members left - delete lobby
+                  Repo.delete!(lobby)
+                  :lobby_deleted
+              end
+            else
+              :ok
             end
-          else
-            :ok
-          end
-        end)
+          end)
+
+        case result do
+          {:ok, :lobby_deleted} ->
+            broadcast_lobbies({:lobby_deleted, lobby_id})
+            result
+
+          {:ok, {:host_changed, new_host_id}} ->
+            broadcast_lobby(lobby_id, {:user_left, lobby_id, user_id})
+            broadcast_lobby(lobby_id, {:host_changed, lobby_id, new_host_id})
+            broadcast_lobbies({:lobby_membership_changed, lobby_id})
+            result
+
+          {:ok, _} ->
+            broadcast_lobby(lobby_id, {:user_left, lobby_id, user_id})
+            broadcast_lobbies({:lobby_membership_changed, lobby_id})
+            result
+
+          _ ->
+            result
+        end
     end
   end
 
@@ -339,7 +428,17 @@ defmodule GameServer.Lobbies do
             {:error, :not_found}
 
           %GameServer.Accounts.User{lobby_id: ^lobby_id} = membership ->
-            Repo.update(Ecto.Changeset.change(membership, %{lobby_id: nil}))
+            result = Repo.update(Ecto.Changeset.change(membership, %{lobby_id: nil}))
+
+            case result do
+              {:ok, _} ->
+                broadcast_lobby(lobby_id, {:user_kicked, lobby_id, target_id})
+                broadcast_lobbies({:lobby_membership_changed, lobby_id})
+                result
+
+              _ ->
+                result
+            end
 
           _ ->
             {:error, :not_in_lobby}
@@ -370,7 +469,17 @@ defmodule GameServer.Lobbies do
   def update_lobby_by_host(%User{id: host_id}, %Lobby{} = lobby, attrs) do
     if lobby.host_id == host_id or lobby.hostless do
       attrs = maybe_hash_password(attrs)
-      update_lobby(lobby, attrs)
+      result = update_lobby(lobby, attrs)
+
+      case result do
+        {:ok, updated_lobby} ->
+          broadcast_lobby(lobby.id, {:lobby_updated, updated_lobby})
+          broadcast_lobbies({:lobby_updated, updated_lobby})
+          result
+
+        _ ->
+          result
+      end
     else
       {:error, :not_host}
     end

@@ -49,4 +49,37 @@ defmodule GameServerWeb.LobbyChannelTest do
 
     assert {:error, _} = subscribe_and_join(socket_stranger, "lobby:#{lobby.id}", %{})
   end
+
+  test "channel receives user_kicked event when member is kicked" do
+    host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+    member = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+
+    {:ok, lobby} = Lobbies.create_lobby(%{name: "kick-channel-room", host_id: host.id})
+    assert {:ok, _} = Lobbies.join_lobby(member, lobby)
+
+    {:ok, token_host, _} = Guardian.encode_and_sign(host)
+    {:ok, socket_host} = connect(GameServerWeb.UserSocket, %{"token" => token_host})
+    {:ok, _, _socket} = subscribe_and_join(socket_host, "lobby:#{lobby.id}", %{})
+
+    # Kick the member - this should broadcast user_kicked event
+    {:ok, _} = Lobbies.kick_user(host, lobby, member)
+
+    assert_push "user_kicked", %{user_id: kicked_id}
+    assert kicked_id == member.id
+  end
+
+  test "channel receives lobby_updated event when lobby is updated" do
+    host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+
+    {:ok, lobby} = Lobbies.create_lobby(%{name: "update-channel-room", host_id: host.id})
+
+    {:ok, token_host, _} = Guardian.encode_and_sign(host)
+    {:ok, socket_host} = connect(GameServerWeb.UserSocket, %{"token" => token_host})
+    {:ok, _, _socket} = subscribe_and_join(socket_host, "lobby:#{lobby.id}", %{})
+
+    # Update the lobby
+    {:ok, _} = Lobbies.update_lobby_by_host(host, lobby, %{"title" => "New Title"})
+
+    assert_push "lobby_updated", %{title: "New Title"}
+  end
 end
