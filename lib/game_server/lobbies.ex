@@ -24,11 +24,11 @@ defmodule GameServer.Lobbies do
 
   import Ecto.Query, warn: false
 
-    alias Bcrypt
-    alias Ecto.Multi
-    alias GameServer.Accounts.User
-    alias GameServer.Lobbies.Lobby
-    alias GameServer.Repo
+  alias Bcrypt
+  alias Ecto.Multi
+  alias GameServer.Accounts.User
+  alias GameServer.Lobbies.Lobby
+  alias GameServer.Repo
 
   # PubSub topic names
   @lobbies_topic "lobbies"
@@ -146,15 +146,13 @@ defmodule GameServer.Lobbies do
         value = Map.get(filters, :metadata_value) || Map.get(filters, "metadata_value")
         results = Repo.all(q)
 
-        Enum.count(
-          Enum.filter(results, fn l ->
-            case Map.get(l.metadata || %{}, key) do
-              nil -> false
-              _ when is_nil(value) -> true
-              v -> String.contains?(to_string(v), to_string(value))
-            end
-          end)
-        )
+        Enum.count(results, fn l ->
+          case Map.get(l.metadata || %{}, key) do
+            nil -> false
+            _ when is_nil(value) -> true
+            v -> String.contains?(to_string(v), to_string(value))
+          end
+        end)
     end
   end
 
@@ -184,22 +182,21 @@ defmodule GameServer.Lobbies do
   def list_lobbies_for_user(%User{lobby_id: user_lobby_id}, filters, opts) do
     public_lobbies = list_lobbies(filters, opts)
 
-    # If user is in a lobby, make sure it's included even if hidden
-    if user_lobby_id do
-      user_lobby = Repo.get(Lobby, user_lobby_id)
-
-      if user_lobby && user_lobby.is_hidden do
-        # Add user's hidden lobby to the list if not already present
-        if Enum.any?(public_lobbies, fn l -> l.id == user_lobby_id end) do
-          public_lobbies
-        else
-          [user_lobby | public_lobbies]
-        end
-      else
+    cond do
+      # If user is not in a lobby, return public lobbies
+      is_nil(user_lobby_id) ->
         public_lobbies
-      end
-    else
-      public_lobbies
+
+      # Check if user's lobby is hidden and needs to be included
+      true ->
+        user_lobby = Repo.get(Lobby, user_lobby_id)
+
+        if user_lobby && user_lobby.is_hidden &&
+             !Enum.any?(public_lobbies, &(&1.id == user_lobby_id)) do
+          [user_lobby | public_lobbies]
+        else
+          public_lobbies
+        end
     end
   end
 
@@ -233,39 +230,49 @@ defmodule GameServer.Lobbies do
   defp do_join(user_id, lobby, opts) do
     user = Repo.get(GameServer.Accounts.User, user_id)
 
-    if user && user.lobby_id do
-      {:error, :already_in_lobby}
-    else
-      count =
-        Repo.one(
-          from(u in GameServer.Accounts.User, where: u.lobby_id == ^lobby.id, select: count(u.id))
-        ) || 0
+    cond do
+      user && user.lobby_id ->
+        {:error, :already_in_lobby}
 
-      cond do
-        count >= lobby.max_users ->
-          {:error, :full}
+      true ->
+        count =
+          Repo.one(
+            from(u in GameServer.Accounts.User,
+              where: u.lobby_id == ^lobby.id,
+              select: count(u.id)
+            )
+          ) || 0
 
-        lobby.is_locked ->
-          {:error, :locked}
+        cond do
+          count >= lobby.max_users ->
+            {:error, :full}
 
-        true ->
-          pw = if is_list(opts), do: Keyword.get(opts, :password), else: Map.get(opts, :password)
+          lobby.is_locked ->
+            {:error, :locked}
 
-          case {lobby.password_hash, pw} do
-            {nil, _} ->
-              create_membership(%{lobby_id: lobby.id, user_id: user_id})
+          true ->
+            password =
+              if is_list(opts), do: Keyword.get(opts, :password), else: Map.get(opts, :password)
 
-            {phash, nil} when not is_nil(phash) ->
-              {:error, :password_required}
+            validate_and_join(lobby, user_id, password)
+        end
+    end
+  end
 
-            {phash, password} ->
-              if Bcrypt.verify_pass(password, phash) do
-                create_membership(%{lobby_id: lobby.id, user_id: user_id})
-              else
-                {:error, :invalid_password}
-              end
-          end
-      end
+  defp validate_and_join(lobby, user_id, password) do
+    case {lobby.password_hash, password} do
+      {nil, _} ->
+        create_membership(%{lobby_id: lobby.id, user_id: user_id})
+
+      {phash, nil} when not is_nil(phash) ->
+        {:error, :password_required}
+
+      {phash, password} ->
+        if Bcrypt.verify_pass(password, phash) do
+          create_membership(%{lobby_id: lobby.id, user_id: user_id})
+        else
+          {:error, :invalid_password}
+        end
     end
   end
 
@@ -297,7 +304,9 @@ defmodule GameServer.Lobbies do
       has_name = Map.has_key?(attrs, "name") || Map.has_key?(attrs, :name)
 
       attrs =
-        if not has_name do
+        if has_name do
+          attrs
+        else
           title = Map.get(attrs, "title") || Map.get(attrs, :title) || "lobby"
           base = slugify(title)
 
@@ -310,8 +319,6 @@ defmodule GameServer.Lobbies do
             |> Enum.find(fn candidate -> Repo.get_by(Lobby, name: candidate) == nil end)
 
           Map.put(attrs, "name", unique_name)
-        else
-          attrs
         end
 
       Multi.new()
@@ -553,7 +560,19 @@ defmodule GameServer.Lobbies do
       # If max_users is present, ensure it's not smaller than the current membership count
       new_max = Map.get(attrs, "max_users") || Map.get(attrs, :max_users)
 
-      if not is_nil(new_max) do
+      if is_nil(new_max) do
+        result = update_lobby(lobby, attrs)
+
+        case result do
+          {:ok, updated_lobby} ->
+            broadcast_lobby(lobby.id, {:lobby_updated, updated_lobby})
+            broadcast_lobbies({:lobby_updated, updated_lobby})
+            result
+
+          _ ->
+            result
+        end
+      else
         # ensure new_max is an integer
         new_max = if is_binary(new_max), do: String.to_integer(new_max), else: new_max
 
@@ -579,18 +598,6 @@ defmodule GameServer.Lobbies do
             _ ->
               result
           end
-        end
-      else
-        result = update_lobby(lobby, attrs)
-
-        case result do
-          {:ok, updated_lobby} ->
-            broadcast_lobby(lobby.id, {:lobby_updated, updated_lobby})
-            broadcast_lobbies({:lobby_updated, updated_lobby})
-            result
-
-          _ ->
-            result
         end
       end
     else

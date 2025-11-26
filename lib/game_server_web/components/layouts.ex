@@ -188,8 +188,7 @@ defmodule GameServerWeb.Layouts do
 
     name
     |> String.split(~r/\s+/)
-    |> Enum.map(&String.first/1)
-    |> Enum.join()
+    |> Enum.map_join(&String.first/1)
     |> String.slice(0, 2)
     |> String.upcase()
   end

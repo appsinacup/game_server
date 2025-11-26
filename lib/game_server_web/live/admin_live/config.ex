@@ -461,18 +461,16 @@ defmodule GameServerWeb.AdminLive.Config do
   defp mask_secret(s) when is_binary(s) do
     len = byte_size(s)
 
-    cond do
-      len <= 4 ->
-        String.duplicate("*", len)
-
-      true ->
-        # Reveal a roughly half-window by showing the first and last ceil(len/4)
-        # characters. This is a balance between usefulness and not leaking
-        # full secrets in the admin UI.
-        visible = max(1, div(len + 3, 4))
-        first = String.slice(s, 0, visible)
-        last = String.slice(s, -visible, visible)
-        "#{first}...#{last}"
+    if len <= 4 do
+      String.duplicate("*", len)
+    else
+      # Reveal a roughly half-window by showing the first and last ceil(len/4)
+      # characters. This is a balance between usefulness and not leaking
+      # full secrets in the admin UI.
+      visible = max(1, div(len + 3, 4))
+      first = String.slice(s, 0, visible)
+      last = String.slice(s, -visible, visible)
+      "#{first}...#{last}"
     end
   end
 end
