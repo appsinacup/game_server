@@ -1,10 +1,13 @@
 defmodule GameServer.Repo do
-  @adapter if System.get_env("DATABASE_URL") ||
-                System.get_env("POSTGRES_HOST") ||
-                System.get_env("POSTGRES_USER") ||
-                System.get_env("POSTGRES_DB"),
-              do: Ecto.Adapters.Postgres,
-              else: Ecto.Adapters.SQLite3
+  # The adapter must be present at compile time for Ecto.Repo's supervisor
+  # initialization. Read the adapter from the application configuration
+  # (config/config.exs and environment-specific files). This keeps the
+  # logic out of the module and avoids reading System.env directly here.
+
+  # Use compile-time access so the adapter selection is fixed at compile time
+  # and picked up from the config files.
+  repo_conf = Application.compile_env(:game_server, __MODULE__, []) || []
+  @adapter Keyword.get(repo_conf, :adapter, Ecto.Adapters.SQLite3)
 
   use Ecto.Repo,
     otp_app: :game_server,

@@ -14,6 +14,7 @@ if System.get_env("DATABASE_URL") ||
 
   config :game_server, GameServer.Repo,
     url: database_url,
+    adapter: Ecto.Adapters.Postgres,
     pool: Ecto.Adapters.SQL.Sandbox,
     pool_size: System.schedulers_online() * 2
 else

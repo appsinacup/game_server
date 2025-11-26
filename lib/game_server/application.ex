@@ -9,7 +9,7 @@ defmodule GameServer.Application do
   def start(_type, _args) do
     Application.start(:os_mon)
 
-    # OAuth session data is now DB backed (oauth_sessions table) — no
+    # OAuth session data is now DB backed (oauth_sessions table) - no
     # ETS table created here.
 
     children =

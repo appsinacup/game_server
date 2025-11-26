@@ -10,7 +10,7 @@ defmodule GameServer.Lobbies.Lobby do
     field :title, :string
     field :hostless, :boolean, default: false
     field :max_users, :integer, default: 8
-    # private flag removed — use hidden + locked
+    # private flag removed - use hidden + locked
     field :is_hidden, :boolean, default: false
     field :is_locked, :boolean, default: false
     field :password_hash, :string

@@ -11,4 +11,11 @@ if [ -f .env ]; then
   set +a
 fi
 
+# Ensure the project is compiled (so adapter configuration loaded from .env/config files)
+mix compile --force
+
+# Create and migrate the database (start.sh boots the app with the DB ready)
+mix ecto.create
+mix ecto.migrate
+
 mix phx.server

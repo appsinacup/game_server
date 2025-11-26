@@ -121,7 +121,7 @@ defmodule GameServerWeb.AdminLive.LobbiesTest do
     delete_btn = element(view_admin, "#admin-lobby-#{lobby.id} button", "Delete")
     render_click(delete_btn)
 
-    # public view should be updated — eventually the lobby should disappear
+    # public view should be updated - eventually the lobby should disappear
     {:ok, _updated_view_public, updated_html} = conn |> log_in_user(normal) |> live(~p"/lobbies")
     refute updated_html =~ "cross-delete"
   end

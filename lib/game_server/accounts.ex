@@ -242,7 +242,7 @@ defmodule GameServer.Accounts do
             end
         end
 
-      # No provider id — prefer email match
+      # No provider id - prefer email match
       email != nil ->
         case Repo.get_by(User, email: email) do
           nil ->
@@ -269,7 +269,7 @@ defmodule GameServer.Accounts do
             end
         end
 
-      # Neither provider id nor email — create a new user
+      # Neither provider id nor email - create a new user
       true ->
         create_user_from_provider(attrs, changeset_fn)
     end
@@ -315,7 +315,7 @@ defmodule GameServer.Accounts do
   # - Do not overwrite an existing, non-empty email (email is used for
   #   password-login accounts and should be preserved when present).
   # - Only set provider avatar if the user's avatar field for that provider
-  #   is empty — prefer not to clobber user-set values.
+  #   is empty - prefer not to clobber user-set values.
   defp scrub_attrs_for_update(user, attrs, _provider_id_field) do
     attrs = Map.new(attrs)
 

@@ -22,7 +22,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
     },
     example: %{
       id: 1,
-      # 'name' (slug) intentionally omitted from API responses — use 'id' and 'title'
+      # 'name' (slug) intentionally omitted from API responses - use 'id' and 'title'
       title: "My Game Lobby",
       host_id: 42,
       hostless: false,
@@ -112,7 +112,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
     operation_id: "update_lobby",
     summary: "Update lobby (host only)",
     description:
-      "Update lobby settings. Only the host can update the lobby via the API (returns 403 if not host). Admins can still modify lobbies from the admin console — those changes are broadcast to viewers.",
+      "Update lobby settings. Only the host can update the lobby via the API (returns 403 if not host). Admins can still modify lobbies from the admin console - those changes are broadcast to viewers.",
     security: [%{"authorization" => []}],
     parameters: [
       id: [in: :path, schema: %Schema{type: :integer}, description: "Lobby ID", required: true]

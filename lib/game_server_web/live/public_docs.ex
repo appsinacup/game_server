@@ -228,7 +228,7 @@ defmodule GameServerWeb.PublicDocs do
                     <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>const { LobbiesApi } = require('@ughuuu/game_server');
     const lobbiesApi = new LobbiesApi(apiClient);
 
-    // List all public lobbies — note: the SDK returns the array directly
+    // List all public lobbies - note: the SDK returns the array directly
     const lobbies = await lobbiesApi.listLobbies();
     console.log('Available lobbies:', lobbies);
 
@@ -357,7 +357,7 @@ defmodule GameServerWeb.PublicDocs do
 
             <div class="space-y-4">
               <p class="text-sm text-base-content/80">
-                This section describes the main database table shapes used by the platform — starting with the
+                This section describes the main database table shapes used by the platform - starting with the
                 <code class="font-mono">users</code>
                 table and the important fields you may rely on.
               </p>
@@ -396,7 +396,7 @@ defmodule GameServerWeb.PublicDocs do
       hostless     : boolean (server-managed hostless lobbies)
       max_users    : integer (maximum number of members)
       is_hidden    : boolean (not returned by public lists)
-      is_locked    : boolean (fully locked — prevents joins)
+      is_locked    : boolean (fully locked - prevents joins)
       password_hash: string (bcrypt hash, optional: requires password to join)
       metadata     : jsonb/map (searchable metadata)
       inserted_at  : utc_datetime

@@ -32,7 +32,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     assert conn.status == 201
     lobby = json_response(conn, 201)
     assert lobby["host_id"] == user.id
-    # 'name' (slug) is omitted from API responses — the unique id is used instead
+    # 'name' (slug) is omitted from API responses - the unique id is used instead
     refute Map.has_key?(lobby, "name")
 
     # 'name' intentionally omitted

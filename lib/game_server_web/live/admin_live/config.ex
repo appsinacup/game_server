@@ -193,7 +193,14 @@ defmodule GameServerWeb.AdminLive.Config do
                       <% end %>
                     </td>
                     <td class="font-mono text-sm">
-                      Adapter: {@config.database_adapter} — {@config.database}
+                      Adapter: {@config.database_adapter} - {@config.database}
+                      <div class="mt-1 text-xs">
+                        Source: <span class="font-mono">{to_string(@config.db_source)}</span>
+                      </div>
+                      <div class="mt-1 text-xs">
+                        Effective:
+                        <span class="font-mono">{mask_secret(@config.db_effective_value)}</span>
+                      </div>
                       <div class="mt-2 text-xs">
                         <div>
                           DATABASE_URL:
@@ -385,6 +392,9 @@ defmodule GameServerWeb.AdminLive.Config do
       pg_user: System.get_env("POSTGRES_USER"),
       pg_db: System.get_env("POSTGRES_DB"),
       pg_password: System.get_env("POSTGRES_PASSWORD"),
+      # DB source detection and masked effective value for admin UI
+      db_source: detect_db_source(),
+      db_effective_value: detect_effective_db_value(),
       hostname:
         Application.get_env(:game_server, GameServerWeb.Endpoint)[:url][:host] ||
           System.get_env("HOSTNAME") || System.get_env("PHX_HOST") || "localhost",
@@ -408,6 +418,37 @@ defmodule GameServerWeb.AdminLive.Config do
       System.get_env("POSTGRES_HOST") && System.get_env("POSTGRES_USER") -> :postgres
       repo_conf[:adapter] in [Ecto.Adapters.Postgres, Ecto.Adapters.Postgres] -> :postgres
       true -> :sqlite
+    end
+  end
+
+  defp detect_db_source do
+    repo_conf = Application.get_env(:game_server, GameServer.Repo) || %{}
+
+    cond do
+      System.get_env("DATABASE_URL") -> :database_url
+      System.get_env("POSTGRES_HOST") && System.get_env("POSTGRES_USER") -> :env_vars
+      repo_conf[:adapter] in [Ecto.Adapters.Postgres] -> :repo_config
+      true -> :sqlite
+    end
+  end
+
+  defp detect_effective_db_value do
+    case System.get_env("DATABASE_URL") do
+      v when is_binary(v) and v != "" ->
+        v
+
+      _ ->
+        host = System.get_env("POSTGRES_HOST")
+        user = System.get_env("POSTGRES_USER")
+        db = System.get_env("POSTGRES_DB")
+        pw = System.get_env("POSTGRES_PASSWORD")
+
+        if host || user || db do
+          "postgres://#{user || "<unset>"}@#{host || "<unset>"}/#{db || "<unset>"}#{if pw, do: ":(pwd)", else: ""}"
+        else
+          repo_conf = Application.get_env(:game_server, GameServer.Repo) || %{}
+          to_string(repo_conf[:database] || "N/A")
+        end
     end
   end
 

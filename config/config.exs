@@ -24,6 +24,10 @@ config :game_server,
   ecto_repos: [GameServer.Repo],
   generators: [timestamp_type: :utc_datetime]
 
+# Default repository adapter. Environment-specific configs (dev/test/prod)
+# can override this to use Postgres when the POSTGRES_* env vars are set.
+config :game_server, GameServer.Repo, adapter: Ecto.Adapters.SQLite3
+
 # Configures the endpoint
 config :game_server, GameServerWeb.Endpoint,
   url: [host: "localhost"],

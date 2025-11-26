@@ -13,7 +13,7 @@ defmodule GameServerWeb.AuthSuccessLive do
         session_id && GameServer.OAuthSessions.get_session(session_id)
       rescue
         e ->
-          # Protect against unexpected DB errors during mount — render not_found and surface details
+          # Protect against unexpected DB errors during mount - render not_found and surface details
           Logger.error("Failed reading oauth session #{inspect(session_id)}: #{inspect(e)}")
           nil
       end
@@ -26,7 +26,7 @@ defmodule GameServerWeb.AuthSuccessLive do
         {:ok, assign(socket, session_id: session_id, session_data: session_data)}
 
       nil ->
-        # session_id present but DB lookup missing — for SDK/API flows we still want
+        # session_id present but DB lookup missing - for SDK/API flows we still want
         # to show a friendly success UI so the browser tab can be closed. Treat
         # as completed if session_id was provided; only show 'not_found' when no
         # session_id at all.
@@ -36,7 +36,7 @@ defmodule GameServerWeb.AuthSuccessLive do
              session_id: session_id,
              session_data: %{
                status: "completed",
-               message: "Authentication completed — you can close this window."
+               message: "Authentication completed - you can close this window."
              }
            )}
         else

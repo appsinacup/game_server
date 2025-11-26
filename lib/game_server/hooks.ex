@@ -74,7 +74,7 @@ defmodule GameServer.Hooks.LuaInvoker do
   set via `:game_server, :hooks_lua_script` config. The script will be called
   with the hook name and JSON payload on STDIN and should emit JSON on STDOUT.
 
-  This is intentionally minimal — you can replace it with a more robust
+  This is intentionally minimal - you can replace it with a more robust
   bridge (erlport, escript, NIF, etc.) in production.
   """
 

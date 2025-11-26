@@ -297,7 +297,7 @@ jobs:
       - name: Compute version (release tag, or fallback to commit count)
         id: version
         run: |
-          echo "No release tag found — generating version from commit count"
+          echo "No release tag found - generating version from commit count"
           # Ensure we have full history in case the checkout was shallow
           git fetch --prune --unshallow || true
           COMMIT_COUNT=$(git rev-list --count HEAD)

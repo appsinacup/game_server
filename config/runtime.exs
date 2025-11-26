@@ -42,6 +42,7 @@ if config_env() == :prod do
 
     config :game_server, GameServer.Repo,
       url: database_url,
+      adapter: Ecto.Adapters.Postgres,
       pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
       socket_options: maybe_ipv6
   else
@@ -185,7 +186,7 @@ if config_env() == :prod do
     require Logger
 
     Logger.warning(
-      "SENTRY_DSN not set — Sentry will be disabled. Set SENTRY_DSN in production to enable error monitoring and log forwarding."
+      "SENTRY_DSN not set - Sentry will be disabled. Set SENTRY_DSN in production to enable error monitoring and log forwarding."
     )
   end
 end

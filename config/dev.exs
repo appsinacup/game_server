@@ -11,6 +11,7 @@ if System.get_env("DATABASE_URL") ||
 
   config :game_server, GameServer.Repo,
     url: database_url,
+    adapter: Ecto.Adapters.Postgres,
     stacktrace: true,
     show_sensitive_data_on_connection_error: true,
     pool_size: 10
