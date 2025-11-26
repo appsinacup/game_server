@@ -30,7 +30,6 @@ defmodule GameServerWeb.CoreComponents do
   use Gettext, backend: GameServerWeb.Gettext
 
   alias Phoenix.LiveView.JS
-  alias Phoenix.HTML.Form
 
   @doc """
   Renders flash notices.
