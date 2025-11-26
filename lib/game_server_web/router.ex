@@ -64,6 +64,7 @@ defmodule GameServerWeb.Router do
     get "/users", UserController, :index
     get "/users/:id", UserController, :show
     post "/login", SessionController, :create
+    post "/login/device", SessionController, :create_device
     post "/refresh", SessionController, :refresh
     delete "/logout", SessionController, :delete
     get "/lobbies", LobbyController, :index

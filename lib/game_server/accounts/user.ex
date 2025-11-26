@@ -18,6 +18,7 @@ defmodule GameServer.Accounts.User do
     field :discord_id, :string
     field :profile_url, :string
     field :display_name, :string
+    field :device_id, :string
     field :apple_id, :string
     field :google_id, :string
     field :facebook_id, :string
@@ -230,6 +231,31 @@ defmodule GameServer.Accounts.User do
     |> unique_constraint(:email)
     |> unique_constraint(:facebook_id)
     |> put_change(:confirmed_at, DateTime.utc_now(:second))
+  end
+
+  @doc """
+  A user changeset used for device-based logins where there is no email.
+
+  Device users are created with optional display_name and metadata and are
+  immediately confirmed so the SDK can receive tokens without email confirmation.
+  """
+  def device_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:display_name, :metadata])
+    |> validate_length(:display_name, min: 1, max: 80)
+    |> put_change(:confirmed_at, DateTime.utc_now(:second))
+  end
+
+  @doc """
+  Changeset used when a device_id is present (linking device_id to user).
+  Ensures device_id is stored on user record and enforces uniqueness by DB
+  constraint.
+  """
+  def attach_device_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:device_id])
+    |> validate_required([:device_id])
+    |> unique_constraint(:device_id)
   end
 
   @doc """

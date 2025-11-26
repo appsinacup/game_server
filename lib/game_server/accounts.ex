@@ -161,6 +161,7 @@ defmodule GameServer.Accounts do
       {:ok, attrs} ->
         %User{}
         |> User.email_changeset(attrs)
+        |> maybe_attach_device(attrs)
         |> Repo.insert()
         |> case do
           {:ok, user} = ok ->
@@ -182,6 +183,13 @@ defmodule GameServer.Accounts do
         {:error, changeset}
     end
   end
+
+  defp maybe_attach_device(changeset, %{"device_id" => device_id}) when is_binary(device_id) do
+    changeset
+    |> Ecto.Changeset.put_change(:device_id, device_id)
+  end
+
+  defp maybe_attach_device(changeset, _), do: changeset
 
   @doc """
   Confirms a user's email by setting confirmed_at timestamp.
@@ -266,6 +274,52 @@ defmodule GameServer.Accounts do
     )
   end
 
+  @doc """
+  Finds or creates a user associated with the given device_id.
+
+  If a user already exists with the device_id we return it. Otherwise we
+  create an anonymous confirmed user and attach the device_id.
+  """
+  def find_or_create_from_device(device_id, attrs \\ %{}) when is_binary(device_id) do
+    case Repo.get_by(User, device_id: device_id) do
+      %User{} = user ->
+        {:ok, user}
+
+      nil ->
+        # Create a new anonymous user for the device. Allow callers to
+        # specify optional display_name/metadata via attrs.
+        attrs = Map.put_new(attrs, :display_name, nil)
+
+        hooks = GameServer.Hooks.module()
+
+        case hooks.before_user_register(attrs) do
+          {:ok, attrs} ->
+            %User{}
+            |> User.device_changeset(attrs)
+            |> User.attach_device_changeset(%{device_id: device_id})
+            |> Repo.insert()
+
+          {:error, reason} ->
+            changeset =
+              %User{}
+              |> Ecto.Changeset.change()
+              |> Ecto.Changeset.add_error(:base, "hook rejected: #{inspect(reason)}")
+
+            {:error, changeset}
+        end
+    end
+  end
+
+  @doc """
+  Attach a device_id to an existing user record. Returns {:ok, user} or
+  {:error, changeset} if the device_id is already used.
+  """
+  def attach_device_to_user(%User{} = user, device_id) when is_binary(device_id) do
+    user
+    |> User.attach_device_changeset(%{device_id: device_id})
+    |> Repo.update()
+  end
+
   # Generic OAuth find or create helper
   defp find_or_create_from_oauth(attrs, provider_id_field, changeset_fn) do
     provider_id = Map.get(attrs, provider_id_field)
@@ -280,7 +334,7 @@ defmodule GameServer.Accounts do
 
             user
             |> changeset_fn.(attrs)
-            |> Repo.update()
+            |> update_and_clear_device()
 
           nil ->
             # If there is an email, attempt to find that user and link/update
@@ -297,7 +351,7 @@ defmodule GameServer.Accounts do
 
                   case hooks.before_account_link(user, provider_id_field, attrs) do
                     {:ok, {user, attrs}} ->
-                      case user |> changeset_fn.(attrs) |> Repo.update() do
+                      case user |> changeset_fn.(attrs) |> update_and_clear_device() do
                         {:ok, user} = ok ->
                           Task.start(fn -> hooks.after_account_link(user) end)
                           ok
@@ -328,7 +382,7 @@ defmodule GameServer.Accounts do
 
             case hooks.before_account_link(user, provider_id_field, attrs) do
               {:ok, {user, attrs}} ->
-                case user |> changeset_fn.(attrs) |> Repo.update() do
+                case user |> changeset_fn.(attrs) |> update_and_clear_device() do
                   {:ok, user} = ok ->
                     Task.start(fn -> hooks.after_account_link(user) end)
                     ok
@@ -380,6 +434,21 @@ defmodule GameServer.Accounts do
           |> Ecto.Changeset.add_error(:base, "hook rejected: #{inspect(reason)}")
 
         {:error, changeset}
+    end
+  end
+
+  defp update_and_clear_device(changeset) do
+    case Repo.update(changeset) do
+      {:ok, user} = ok ->
+        # best-effort clear device_id when we link providers and return
+        # the updated user if detach succeeds.
+        case detach_device_from_user(user) do
+          {:ok, updated_user} -> {:ok, updated_user}
+          _ -> ok
+        end
+
+      err ->
+        err
     end
   end
 
@@ -437,6 +506,14 @@ defmodule GameServer.Accounts do
 
         case Repo.update(changeset) do
           {:ok, user} ->
+            # When a provider is linked to an account, clear any device_id
+            # previously attached to this user so the account is secured.
+            user =
+              case detach_device_from_user(user) do
+                {:ok, u} -> u
+                _ -> user
+              end
+
             Task.start(fn -> hooks.after_account_link(user) end)
             {:ok, user}
 
@@ -465,6 +542,20 @@ defmodule GameServer.Accounts do
       end
     else
       {:error, changeset}
+    end
+  end
+
+  @doc """
+  Clears a device_id from the user if present. Returns {:ok, user} or
+  {:error, changeset} if update fails.
+  """
+  def detach_device_from_user(%User{} = user) do
+    if is_binary(user.device_id) and user.device_id != "" do
+      user
+      |> Ecto.Changeset.change(%{device_id: nil})
+      |> Repo.update()
+    else
+      {:ok, user}
     end
   end
 

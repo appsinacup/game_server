@@ -58,6 +58,23 @@ defmodule GameServer.HooksTest do
     assert user.profile_url == "hooked"
   end
 
+  test "linking a provider removes device_id from user" do
+    user = unconfirmed_user_fixture(%{"device_id" => "dev-#{System.unique_integer([:positive])}"})
+
+    assert is_binary(user.device_id)
+
+    {:ok, user} =
+      Accounts.link_account(
+        user,
+        %{discord_id: "d999"},
+        :discord_id,
+        &GameServer.Accounts.User.discord_oauth_changeset/2
+      )
+
+    assert user.discord_id == "d999"
+    assert is_nil(user.device_id)
+  end
+
   test "before_user_login may block login via magic link" do
     # install hook that vetoes login
     defmodule BlockLoginHook do

@@ -85,6 +85,17 @@ defmodule GameServer.AccountsTest do
       assert is_nil(user.confirmed_at)
       assert is_nil(user.password)
     end
+
+    test "registers user with device_id set" do
+      device_id = "test-device-#{System.unique_integer([:positive])}"
+
+      attrs =
+        valid_user_attributes(%{"password" => valid_user_password(), "device_id" => device_id})
+
+      {:ok, user} = Accounts.register_user(attrs)
+
+      assert user.device_id == device_id
+    end
   end
 
   describe "sudo_mode?/2" do

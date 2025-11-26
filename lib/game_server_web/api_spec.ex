@@ -25,6 +25,7 @@ defmodule GameServerWeb.ApiSpec do
 
         ### Getting Tokens
         - **Email/Password**: POST to `/api/v1/login` with email and password
+        - **Device (SDK)**: POST to `/api/v1/login` with a `device_id` string (creates/returns a device user)
         - **Discord OAuth**: Use `/api/v1/auth/discord` flow
         - **Google OAuth**: Use `/api/v1/auth/google` flow
         - **Facebook OAuth**: Use `/api/v1/auth/facebook` flow

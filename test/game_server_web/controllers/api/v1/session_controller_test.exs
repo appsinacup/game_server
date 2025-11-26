@@ -52,6 +52,46 @@ defmodule GameServerWeb.Api.V1.SessionControllerTest do
 
       assert %{"error" => _} = json_response(conn, 401)
     end
+
+    test "device login creates and returns tokens", %{conn: conn} do
+      device_id = "device:#{System.unique_integer([:positive])}"
+
+      conn = post(conn, "/api/v1/login/device", %{device_id: device_id})
+
+      assert %{
+               "data" => %{
+                 "access_token" => access_token,
+                 "refresh_token" => refresh_token,
+                 "expires_in" => 900
+               }
+             } = json_response(conn, 200)
+
+      assert is_binary(access_token)
+      assert is_binary(refresh_token)
+
+      # ensure user record was created and has device_id set
+      assert %GameServer.Accounts.User{device_id: ^device_id} =
+               GameServer.Repo.get_by(GameServer.Accounts.User, device_id: device_id)
+    end
+
+    test "device login returns existing user tokens", %{conn: conn} do
+      # Create a user pre-attached to device_id
+      device_id = "device_pre_#{System.unique_integer([:positive])}"
+
+      {:ok, user} =
+        GameServer.Accounts.register_user(%{
+          email: "devuser#{System.unique_integer([:positive])}@example.com",
+          password: "longenoughpass",
+          device_id: device_id
+        })
+
+      assert user.device_id == device_id
+
+      conn = post(conn, "/api/v1/login/device", %{device_id: device_id})
+
+      assert %{"data" => %{"access_token" => access_token}} = json_response(conn, 200)
+      assert is_binary(access_token)
+    end
   end
 
   describe "POST /api/v1/refresh" do

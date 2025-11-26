@@ -69,6 +69,16 @@ defmodule GameServerWeb.Api.V1.SessionController do
 
   def create(conn, %{"email" => email, "password" => password}) do
     if user = Accounts.get_user_by_email_and_password(email, password) do
+      # If device_id provided and not already attached, attempt to attach it
+      case conn.body_params do
+        %{"device_id" => device_id} when is_binary(device_id) and is_nil(user.device_id) ->
+          # best-effort attach (ignore attach errors so standard login still succeeds)
+          _ = Accounts.attach_device_to_user(user, device_id)
+
+        _ ->
+          :ok
+      end
+
       # Generate both access and refresh tokens
       {:ok, access_token, _access_claims} =
         Guardian.encode_and_sign(user, %{}, token_type: "access")
@@ -89,6 +99,54 @@ defmodule GameServerWeb.Api.V1.SessionController do
       conn
       |> put_status(:unauthorized)
       |> json(%{error: "Invalid email or password"})
+    end
+  end
+
+  operation(:create_device,
+    operation_id: "device_login",
+    summary: "Device login (SDK)",
+    description: "Authenticate or create a device-backed user using a device_id (no password).",
+    request_body: {
+      "Device login",
+      "application/json",
+      %Schema{
+        type: :object,
+        properties: %{
+          device_id: %Schema{type: :string, description: "Device identifier string"}
+        },
+        required: [:device_id],
+        example: %{device_id: "device:uuid-or-some-string"}
+      }
+    },
+    responses: [
+      ok: {"Login successful", "application/json", %Schema{type: :object}},
+      bad_request: {"Unable to create device user", "application/json", nil}
+    ]
+  )
+
+  # Device-based login: create or find a user for a given device_id and
+  # return JWTs. This enables SDKs to authenticate with a simple device_id.
+  # Device-specific login endpoint. This route accepts only a device_id
+  # and returns JWT tokens for the device's user.
+  def create_device(conn, %{"device_id" => device_id}) when is_binary(device_id) do
+    case Accounts.find_or_create_from_device(device_id) do
+      {:ok, user} ->
+        {:ok, access_token, _} = Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+        {:ok, refresh_token, _} =
+          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+        json(conn, %{
+          data: %{access_token: access_token, refresh_token: refresh_token, expires_in: 900}
+        })
+
+      {:error, changeset} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{
+          error: "unable to create device user",
+          details: Ecto.Changeset.traverse_errors(changeset, fn {msg, _} -> msg end)
+        })
     end
   end
 
