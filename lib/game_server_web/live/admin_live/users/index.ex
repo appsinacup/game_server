@@ -188,7 +188,7 @@ defmodule GameServerWeb.AdminLive.Users.Index do
   def handle_event("delete_user", %{"id" => id}, socket) do
     user = Repo.get!(User, id)
 
-    case Repo.delete(user) do
+    case Accounts.delete_user(user) do
       {:ok, _user} ->
         users = Repo.all(from u in User, order_by: [desc: u.inserted_at])
 
@@ -197,7 +197,7 @@ defmodule GameServerWeb.AdminLive.Users.Index do
          |> put_flash(:info, "User deleted successfully")
          |> assign(:users, users)}
 
-      {:error, _changeset} ->
+      {:error, _} ->
         {:noreply, put_flash(socket, :error, "Failed to delete user")}
     end
   end

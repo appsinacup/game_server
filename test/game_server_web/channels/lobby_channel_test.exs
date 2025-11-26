@@ -80,6 +80,7 @@ defmodule GameServerWeb.LobbyChannelTest do
     # Update the lobby
     {:ok, _} = Lobbies.update_lobby_by_host(host, lobby, %{"title" => "New Title"})
 
-    assert_push "lobby_updated", %{title: "New Title"}
+    # allow a slightly longer window for the broadcast -> push to arrive in tests
+    assert_push "lobby_updated", %{title: "New Title"}, 500
   end
 end

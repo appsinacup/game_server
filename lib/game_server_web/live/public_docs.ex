@@ -223,60 +223,90 @@ defmodule GameServerWeb.PublicDocs do
                 <div class="ml-8 space-y-3">
                   <p>Work with lobbies for multiplayer matchmaking:</p>
 
-                  <h4 class="font-semibold">List Available Lobbies:</h4>
+                  <h4 class="font-semibold">List Available Lobbies</h4>
                   <div class="bg-base-200 p-4 rounded-lg">
                     <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>const { LobbiesApi } = require('@ughuuu/game_server');
     const lobbiesApi = new LobbiesApi(apiClient);
 
-    // List all public lobbies
+    // List all public lobbies — note: the SDK returns the array directly
     const lobbies = await lobbiesApi.listLobbies();
-    console.log('Available lobbies:', lobbies.data);
+    console.log('Available lobbies:', lobbies);
 
     // Search lobbies by name/title
-    const searchResults = await lobbiesApi.listLobbies({ q: 'game' });</code></pre>
+    const searchResults = await lobbiesApi.listLobbies({ q: 'deathmatch' });
+    console.log('Search results:', searchResults);</code></pre>
                   </div>
 
-                  <h4 class="font-semibold mt-4">Create a Lobby:</h4>
+                  <h4 class="font-semibold mt-4">Create a Lobby</h4>
                   <div class="bg-base-200 p-4 rounded-lg">
-                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>// Create a new lobby (requires authentication)
+                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>// Create a new lobby (requires authentication via Authorization: Bearer &lt;token&gt;)
     const newLobby = await lobbiesApi.createLobby({
     title: 'My Game Room',
     max_users: 4,
     is_hidden: false,
     metadata: { game_mode: 'deathmatch' }
     });
-    console.log('Created lobby:', newLobby.data);</code></pre>
+    // SDK returns the created lobby object directly
+    console.log('Created lobby:', newLobby);</code></pre>
                   </div>
 
-                  <h4 class="font-semibold mt-4">Join a Lobby:</h4>
+                  <h4 class="font-semibold mt-4">Join / Leave</h4>
                   <div class="bg-base-200 p-4 rounded-lg">
-                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>// Join a lobby by ID
+                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>// Join a lobby by ID (authenticated)
     await lobbiesApi.joinLobby(lobbyId);
 
     // Join a password-protected lobby
-    await lobbiesApi.joinLobby(lobbyId, { password: 'secret123' });</code></pre>
-                  </div>
+    await lobbiesApi.joinLobby(lobbyId, { password: 'secret123' });
 
-                  <h4 class="font-semibold mt-4">Leave a Lobby:</h4>
-                  <div class="bg-base-200 p-4 rounded-lg">
-                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>await lobbiesApi.leaveLobby(lobbyId);
+    // Leave the current lobby (authenticated)
+    await lobbiesApi.leaveLobby(lobbyId);
     console.log('Left the lobby');</code></pre>
                   </div>
 
-                  <h4 class="font-semibold mt-4">Update Lobby (Host Only):</h4>
+                  <h4 class="font-semibold mt-4">Update & Kick (host only)</h4>
                   <div class="bg-base-200 p-4 rounded-lg">
-                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>// Update lobby settings
+                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>// Update lobby settings (host only)
     await lobbiesApi.updateLobby(lobbyId, {
     title: 'Updated Room Name',
     max_users: 8,
     is_locked: true
-    });</code></pre>
+    });
+
+    // Kick a user (host only)
+    await lobbiesApi.kickUser(lobbyId, { target_user_id: 123 });
+    console.log('User kicked from lobby');</code></pre>
                   </div>
 
-                  <h4 class="font-semibold mt-4">Kick a User (Host Only):</h4>
+                  <h4 class="font-semibold mt-4">Realtime / subscribing to events</h4>
                   <div class="bg-base-200 p-4 rounded-lg">
-                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>await lobbiesApi.kickUser(lobbyId, { target_user_id: 123 });
-    console.log('User kicked from lobby');</code></pre>
+                    <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>// The server exposes real-time events via Phoenix channels on the same socket
+    // (you must pass a valid JWT token when connecting).
+
+    // Using the phoenix JS client (https://www.npmjs.com/package/phoenix)
+    import { Socket } from 'phoenix';
+
+    const socket = new Socket('/socket', { params: { token: accessToken } });
+    socket.connect();
+
+    // === per-user updates ===
+    // join the "user_updates:&lt;userId&gt;" topic to receive events about that user
+    const userChannel = socket.channel('user_updates:' + userId, {});
+    await userChannel.join();
+    userChannel.on('metadata_updated', (payload) => {
+    console.log('My metadata changed', payload);
+    });
+
+    // === per-lobby updates ===
+    // join "lobby:&lt;lobby_id&gt;" to receive membership and lobby events
+    const lobbyChannel = socket.channel('lobby:' + lobbyId, {});
+    await lobbyChannel.join();
+
+    // events forwarded from the server: user_joined, user_left, user_kicked, lobby_updated, host_changed
+    lobbyChannel.on('user_joined', ({ user_id }) => console.log('User joined', user_id));
+    lobbyChannel.on('user_left', ({ user_id }) => console.log('User left', user_id));
+    lobbyChannel.on('user_kicked', ({ user_id }) => console.warn('You were kicked', user_id));
+    lobbyChannel.on('lobby_updated', (lobby) => console.log('Lobby updated', lobby));
+    lobbyChannel.on('host_changed', ({ new_host_id }) => console.log('Host changed', new_host_id));</code></pre>
                   </div>
                 </div>
               </div>

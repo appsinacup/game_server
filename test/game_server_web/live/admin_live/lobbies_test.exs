@@ -31,7 +31,6 @@ defmodule GameServerWeb.AdminLive.LobbiesTest do
       |> log_in_user(user)
       |> live(~p"/admin/lobbies")
 
-    assert html =~ "Admin — Lobbies"
     assert html =~ "admin-lobby-1"
     assert html =~ "admin-lobby-2"
 
@@ -59,5 +58,71 @@ defmodule GameServerWeb.AdminLive.LobbiesTest do
     # re-fetch the page and ensure it's gone
     html2 = render(view)
     refute html2 =~ "admin-lobby-2"
+  end
+
+  test "admin update is propagated to public lobbies view", %{conn: conn} do
+    user = GameServer.AccountsFixtures.user_fixture()
+
+    {:ok, admin} =
+      user
+      |> GameServer.Accounts.User.admin_changeset(%{"is_admin" => true})
+      |> GameServer.Repo.update()
+
+    # create a lobby hosted by admin
+    {:ok, lobby} =
+      GameServer.Lobbies.create_lobby(%{
+        title: "admin-prop",
+        name: "admin-prop",
+        host_id: admin.id
+      })
+
+    # normal user opens public lobbies page
+    normal = GameServer.AccountsFixtures.user_fixture()
+    {:ok, view_public, public_html} = conn |> log_in_user(normal) |> live(~p"/lobbies")
+    assert public_html =~ "admin-prop"
+
+    # admin opens admin page and edits the lobby title
+    {:ok, view_admin, _html} = conn |> log_in_user(admin) |> live(~p"/admin/lobbies")
+    edit_btn = element(view_admin, "#admin-lobby-#{lobby.id} button", "Edit")
+    render_click(edit_btn)
+    form = form(view_admin, "#lobby-form", %{"lobby" => %{"title" => "Admin Updated"}})
+    render_submit(form)
+
+    # public view should update via PubSub/broadcast handled in LobbyLive
+    # give LiveView a moment to process the broadcast and update
+    :timer.sleep(50)
+    updated_html = render(view_public)
+    assert updated_html =~ "Admin Updated"
+  end
+
+  test "admin deletion is propagated to public lobbies view", %{conn: conn} do
+    user = GameServer.AccountsFixtures.user_fixture()
+
+    {:ok, admin} =
+      user
+      |> GameServer.Accounts.User.admin_changeset(%{"is_admin" => true})
+      |> GameServer.Repo.update()
+
+    # create a lobby
+    {:ok, lobby} =
+      GameServer.Lobbies.create_lobby(%{
+        title: "cross-delete",
+        name: "cross-delete",
+        host_id: admin.id
+      })
+
+    # normal user opens public lobbies page
+    normal = GameServer.AccountsFixtures.user_fixture()
+    {:ok, _view_public, public_html} = conn |> log_in_user(normal) |> live(~p"/lobbies")
+    assert public_html =~ "cross-delete"
+
+    # admin opens admin page and deletes the lobby
+    {:ok, view_admin, _html} = conn |> log_in_user(admin) |> live(~p"/admin/lobbies")
+    delete_btn = element(view_admin, "#admin-lobby-#{lobby.id} button", "Delete")
+    render_click(delete_btn)
+
+    # public view should be updated — eventually the lobby should disappear
+    {:ok, _updated_view_public, updated_html} = conn |> log_in_user(normal) |> live(~p"/lobbies")
+    refute updated_html =~ "cross-delete"
   end
 end

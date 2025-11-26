@@ -131,8 +131,8 @@ defmodule GameServerWeb.AdminLive.Users do
                       <button
                         phx-click="delete_user"
                         phx-value-id={user.id}
+                        data-confirm="Are you sure?"
                         class="btn btn-xs btn-outline btn-error"
-                        onclick="return confirm('Are you sure?')"
                       >
                         Delete
                       </button>
@@ -264,7 +264,7 @@ defmodule GameServerWeb.AdminLive.Users do
   def handle_event("delete_user", %{"id" => id}, socket) do
     user = Repo.get!(User, id)
 
-    case Repo.delete(user) do
+    case Accounts.delete_user(user) do
       {:ok, _user} ->
         users_count = Repo.aggregate(User, :count)
         recent_users = Repo.all(from u in User, order_by: [desc: u.inserted_at], limit: 10)
@@ -275,7 +275,7 @@ defmodule GameServerWeb.AdminLive.Users do
          |> assign(:users_count, users_count)
          |> assign(:recent_users, recent_users)}
 
-      {:error, _changeset} ->
+      {:error, _} ->
         {:noreply, put_flash(socket, :error, "Failed to delete user")}
     end
   end

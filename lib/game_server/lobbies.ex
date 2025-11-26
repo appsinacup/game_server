@@ -301,13 +301,32 @@ defmodule GameServer.Lobbies do
   defp slugify(_), do: "lobby"
 
   def update_lobby(%Lobby{} = lobby, attrs) do
-    lobby
-    |> Lobby.changeset(attrs)
-    |> Repo.update()
+    result =
+      lobby
+      |> Lobby.changeset(attrs)
+      |> Repo.update()
+
+    case result do
+      {:ok, updated} ->
+        # broadcast updates so any UI/channel subscribers get the change
+        broadcast_lobby(updated.id, {:lobby_updated, updated})
+        broadcast_lobbies({:lobby_updated, updated})
+        {:ok, updated}
+
+      other ->
+        other
+    end
   end
 
   def delete_lobby(%Lobby{} = lobby) do
-    Repo.delete(lobby)
+    case Repo.delete(lobby) do
+      {:ok, deleted} ->
+        broadcast_lobbies({:lobby_deleted, deleted.id})
+        {:ok, deleted}
+
+      other ->
+        other
+    end
   end
 
   def change_lobby(%Lobby{} = lobby, attrs \\ %{}) do
@@ -469,16 +488,48 @@ defmodule GameServer.Lobbies do
   def update_lobby_by_host(%User{id: host_id}, %Lobby{} = lobby, attrs) do
     if lobby.host_id == host_id or lobby.hostless do
       attrs = maybe_hash_password(attrs)
-      result = update_lobby(lobby, attrs)
+      # If max_users is present, ensure it's not smaller than the current membership count
+      new_max = Map.get(attrs, "max_users") || Map.get(attrs, :max_users)
 
-      case result do
-        {:ok, updated_lobby} ->
-          broadcast_lobby(lobby.id, {:lobby_updated, updated_lobby})
-          broadcast_lobbies({:lobby_updated, updated_lobby})
-          result
+      if not is_nil(new_max) do
+        # ensure new_max is an integer
+        new_max = if is_binary(new_max), do: String.to_integer(new_max), else: new_max
 
-        _ ->
-          result
+        current_count =
+          Repo.one(
+            from(u in GameServer.Accounts.User,
+              where: u.lobby_id == ^lobby.id,
+              select: count(u.id)
+            )
+          ) || 0
+
+        if new_max < current_count do
+          {:error, :too_small}
+        else
+          result = update_lobby(lobby, attrs)
+
+          case result do
+            {:ok, updated_lobby} ->
+              broadcast_lobby(lobby.id, {:lobby_updated, updated_lobby})
+              broadcast_lobbies({:lobby_updated, updated_lobby})
+              result
+
+            _ ->
+              result
+          end
+        end
+      else
+        result = update_lobby(lobby, attrs)
+
+        case result do
+          {:ok, updated_lobby} ->
+            broadcast_lobby(lobby.id, {:lobby_updated, updated_lobby})
+            broadcast_lobbies({:lobby_updated, updated_lobby})
+            result
+
+          _ ->
+            result
+        end
       end
     else
       {:error, :not_host}

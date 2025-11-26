@@ -65,8 +65,8 @@ defmodule GameServerWeb.AdminLive.Sessions do
                       <button
                         phx-click="delete_session"
                         phx-value-id={session.id}
+                        data-confirm="Are you sure you want to delete this session?"
                         class="btn btn-xs btn-outline btn-error"
-                        onclick="return confirm('Are you sure you want to delete this session?')"
                       >
                         Delete
                       </button>

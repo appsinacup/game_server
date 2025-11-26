@@ -671,11 +671,25 @@ defmodule GameServer.Accounts do
 
   Returns `{:ok, user}` on success or `{:error, changeset}` on failure.
   """
+  alias GameServer.Lobbies
+
   def delete_user(%User{} = user) do
     hooks = GameServer.Hooks.module()
 
     case hooks.before_user_delete(user) do
       {:ok, user} ->
+        # If the user is currently in a lobby, run the lobby leave flow so
+        # host transfers or lobby deletion occur according to the lobby rules
+        # (this keeps behavior consistent with when users delete their own accounts)
+        # Best-effort: always attempt to remove the user from any lobby they
+        # may belong to. We don't depend on the passed-in struct having the
+        # latest lobby_id, so call leave_lobby and ignore errors if it fails.
+        try do
+          _ = Lobbies.leave_lobby(user)
+        rescue
+          _ -> :ok
+        end
+
         case Repo.delete(user) do
           {:ok, user} = ok ->
             Task.start(fn -> hooks.after_user_delete(user) end)

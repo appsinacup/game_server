@@ -370,6 +370,55 @@ defmodule GameServer.AccountsTest do
     end
   end
 
+  describe "delete_user/1 and lobby/token cleanup" do
+    test "deleting a host with other members transfers host and deletes tokens" do
+      # create host and member
+      host = user_fixture() |> set_password()
+      member = user_fixture()
+
+      {:ok, lobby} =
+        GameServer.Lobbies.create_lobby(%{title: "hosted", name: "hosted", host_id: host.id})
+
+      # add member to lobby
+      {:ok, _} = GameServer.Lobbies.create_membership(%{lobby_id: lobby.id, user_id: member.id})
+
+      # ensure session token exists for host
+      _token = Accounts.generate_user_session_token(host)
+
+      # delete host
+      assert {:ok, _} = Accounts.delete_user(host)
+
+      # host removed
+      refute Repo.get(Accounts.User, host.id)
+
+      # tokens removed for host
+      refute Repo.get_by(Accounts.UserToken, user_id: host.id)
+
+      # lobby should still exist and transfer host to member
+      updated = Repo.get!(GameServer.Lobbies.Lobby, lobby.id)
+      assert updated.host_id == member.id
+    end
+
+    test "deleting last member host deletes lobby and tokens" do
+      host = user_fixture() |> set_password()
+
+      {:ok, lobby} =
+        GameServer.Lobbies.create_lobby(%{title: "single", name: "single", host_id: host.id})
+
+      # create a token for the host
+      _t = Accounts.generate_user_session_token(host)
+
+      assert {:ok, _} = Accounts.delete_user(host)
+
+      # host and lobby gone
+      refute Repo.get(Accounts.User, host.id)
+      refute Repo.get(GameServer.Lobbies.Lobby, lobby.id)
+
+      # tokens removed
+      refute Repo.get_by(Accounts.UserToken, user_id: host.id)
+    end
+  end
+
   describe "deliver_login_instructions/2" do
     setup do
       %{user: unconfirmed_user_fixture()}

@@ -16,8 +16,8 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
 
     conn = get(conn, "/api/v1/lobbies")
     lobbies = json_response(conn, 200)
-    assert Enum.any?(lobbies, fn l -> l["name"] == lobby1.name end)
-    refute Enum.any?(lobbies, fn l -> l["name"] == "hidden-room" end)
+    assert Enum.any?(lobbies, fn l -> l["id"] == lobby1.id end)
+    refute Enum.any?(lobbies, fn l -> l["id"] == _hidden.id end)
   end
 
   test "POST /api/v1/lobbies (hosted) requires auth and creates a lobby", %{conn: conn} do
@@ -32,7 +32,10 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     assert conn.status == 201
     lobby = json_response(conn, 201)
     assert lobby["host_id"] == user.id
-    assert lobby["name"] == "api-room"
+    # 'name' (slug) is omitted from API responses — the unique id is used instead
+    refute Map.has_key?(lobby, "name")
+
+    # 'name' intentionally omitted
   end
 
   test "POST /api/v1/lobbies hostless creation removed from public API returns unauthorized", %{
@@ -114,6 +117,36 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
       |> patch("/api/v1/lobbies/#{lobby.id}", %{title: "New Title"})
 
     assert json_response(conn2, 200)["title"] == "New Title"
+  end
+
+  test "PATCH /api/v1/lobbies/:id cannot shrink max_users below current membership", %{conn: conn} do
+    host = AccountsFixtures.user_fixture()
+    member1 = AccountsFixtures.user_fixture()
+    member2 = AccountsFixtures.user_fixture()
+    {:ok, lobby} = Lobbies.create_lobby(%{name: "resize-room", host_id: host.id, max_users: 3})
+
+    # two members join making total 3 (host + 2)
+    assert {:ok, _} = Lobbies.join_lobby(member1, lobby)
+    assert {:ok, _} = Lobbies.join_lobby(member2, lobby)
+
+    {:ok, token_host, _} = Guardian.encode_and_sign(host)
+
+    # attempt to shrink to 2 should fail
+    conn_fail =
+      conn
+      |> put_req_header("authorization", "Bearer " <> token_host)
+      |> patch("/api/v1/lobbies/#{lobby.id}", %{max_users: 2})
+
+    assert conn_fail.status == 422
+    assert json_response(conn_fail, 422)["error"] == "too_small"
+
+    # increasing works
+    conn_ok =
+      conn
+      |> put_req_header("authorization", "Bearer " <> token_host)
+      |> patch("/api/v1/lobbies/#{lobby.id}", %{max_users: 6})
+
+    assert json_response(conn_ok, 200)["max_users"] == 6
   end
 
   test "POST /api/v1/lobbies/:id/kick allowed for host", %{conn: conn} do

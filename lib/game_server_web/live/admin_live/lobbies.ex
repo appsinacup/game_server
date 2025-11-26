@@ -21,59 +21,77 @@ defmodule GameServerWeb.AdminLive.Lobbies do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="p-6">
-        <h1 class="text-2xl font-bold">Admin — Lobbies</h1>
-
+      <div class="space-y-6">
         <.link navigate={~p"/admin"} class="btn btn-outline mb-4">← Back to Admin</.link>
 
-        <div class="mt-4">
-          <h2 class="card-title">Lobbies ({@count})</h2>
+        <.header>
+          Lobbies
+          <:subtitle>Manage game lobbies</:subtitle>
+        </.header>
 
-          <div class="overflow-x-auto mt-4">
-            <table class="table table-zebra w-full">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Title</th>
-                  <th>Host ID</th>
-                  <th>Users</th>
-                  <th>Hidden</th>
-                  <th>Locked</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr :for={l <- @lobbies} id={"admin-lobby-" <> to_string(l.id)}>
-                  <td>{l.id}</td>
-                  <td>{l.title || "-"}</td>
-                  <td class="font-mono">{l.host_id}</td>
-                  <td>{length(l.users || [])}</td>
-                  <td>{to_string(l.is_hidden)}</td>
-                  <td>{to_string(l.is_locked)}</td>
-                  <td class="text-sm">
-                    <button
-                      phx-click="edit_lobby"
-                      phx-value-id={l.id}
-                      class="btn btn-xs btn-outline btn-info mr-2"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      phx-click="delete_lobby"
-                      phx-value-id={l.id}
-                      class="btn btn-xs btn-outline btn-error"
-                      onclick="return confirm('Are you sure?')"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+        <div class="card bg-base-200">
+          <div class="card-body">
+            <h2 class="card-title">Lobbies ({@count})</h2>
+
+            <div class="overflow-x-auto mt-4">
+              <table class="table table-zebra w-full">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Host ID</th>
+                    <th>Users</th>
+                    <th>Hidden</th>
+                    <th>Locked</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr :for={l <- @lobbies} id={"admin-lobby-" <> to_string(l.id)}>
+                    <td class="font-mono text-sm">{l.id}</td>
+                    <td class="text-sm">{l.title || "-"}</td>
+                    <td class="font-mono text-sm">{l.host_id}</td>
+                    <td class="text-sm">{length(l.users || [])}</td>
+                    <td class="text-sm">
+                      <%= if l.is_hidden do %>
+                        <span class="badge badge-info badge-sm">Hidden</span>
+                      <% else %>
+                        <span class="badge badge-ghost badge-sm">Public</span>
+                      <% end %>
+                    </td>
+                    <td class="text-sm">
+                      <%= if l.is_locked do %>
+                        <span class="badge badge-warning badge-sm">Locked</span>
+                      <% else %>
+                        <span class="badge badge-ghost badge-sm">Open</span>
+                      <% end %>
+                    </td>
+                    <td class="text-sm">
+                      <button
+                        phx-click="edit_lobby"
+                        phx-value-id={l.id}
+                        class="btn btn-xs btn-outline btn-info mr-2"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        phx-click="delete_lobby"
+                        phx-value-id={l.id}
+                        data-confirm="Are you sure?"
+                        class="btn btn-xs btn-outline btn-error"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
     </Layouts.app>
+
     <%= if @selected_lobby do %>
       <div class="modal modal-open">
         <div class="modal-box">

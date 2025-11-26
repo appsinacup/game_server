@@ -89,5 +89,22 @@ defmodule GameServer.LobbiesTest do
       # ensure other no longer in the lobby
       assert {:error, :not_in_lobby} == Lobbies.leave_lobby(other)
     end
+
+    test "cannot shrink lobby max_users below current member count", %{host: host, other: other} do
+      # create with max_users 3, host auto-joined
+      {:ok, lobby} = Lobbies.create_lobby(%{name: "shrink-room", host_id: host.id, max_users: 3})
+
+      # two other users join -> total 3
+      assert {:ok, _} = Lobbies.join_lobby(other, lobby)
+      user3 = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+      assert {:ok, _} = Lobbies.join_lobby(user3, lobby)
+
+      # host tries to shrink to 2, should be rejected
+      assert {:error, :too_small} = Lobbies.update_lobby_by_host(host, lobby, %{max_users: 2})
+
+      # increasing is allowed
+      assert {:ok, updated} = Lobbies.update_lobby_by_host(host, lobby, %{max_users: 6})
+      assert updated.max_users == 6
+    end
   end
 end

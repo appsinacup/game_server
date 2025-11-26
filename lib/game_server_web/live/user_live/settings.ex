@@ -30,7 +30,7 @@ defmodule GameServerWeb.UserLive.Settings do
                   phx-click="delete_conflicting_account"
                   phx-value-id={@conflict_user.id}
                   class="btn btn-error btn-sm"
-                  onclick="return confirm('Delete the conflicting account? This is irreversible.')"
+                  data-confirm="Delete the conflicting account? This is irreversible."
                 >
                   Delete account
                 </button>
@@ -252,7 +252,7 @@ defmodule GameServerWeb.UserLive.Settings do
           <button
             phx-click="delete_user"
             class="btn btn-error"
-            onclick="return confirm('Are you sure you want to delete your account? This action cannot be undone.')"
+            data-confirm="Are you sure you want to delete your account? This action cannot be undone."
           >
             Delete Account
           </button>

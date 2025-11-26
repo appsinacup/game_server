@@ -66,13 +66,16 @@ defmodule GameServerWeb.Layouts do
               {profile_display_name(@current_scope.user)}
             </li>
             <li>
-              <.link href={~p"/users/settings"} class="btn btn-primary">Settings</.link>
+              <.link href={~p"/users/settings"} class="btn btn-outline">Settings</.link>
             </li>
             <%= if @current_scope && @current_scope.user.is_admin do %>
               <li>
                 <.link href={~p"/admin"} class="btn btn-outline">Admin</.link>
               </li>
             <% end %>
+            <li>
+              <.link href={~p"/lobbies"} class="btn btn-outline">Lobbies</.link>
+            </li>
             <li>
               <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline">
                 Log out
@@ -83,12 +86,12 @@ defmodule GameServerWeb.Layouts do
               <.link href={~p"/users/log-in"} class="btn btn-primary">Log in</.link>
             </li>
             <li>
+              <.link href={~p"/lobbies"} class="btn btn-outline">Lobbies</.link>
+            </li>
+            <li>
               <.link href={~p"/users/register"} class="btn btn-outline">Register</.link>
             </li>
           <% end %>
-          <li>
-            <.link href={~p"/lobbies"} class="btn btn-outline">Lobbies</.link>
-          </li>
           <li>
             <.link href={~p"/docs/setup"}>Guides</.link>
           </li>
@@ -125,6 +128,7 @@ defmodule GameServerWeb.Layouts do
                   </span>
                 </li>
                 <li><a href={~p"/users/settings"} class="btn btn-outline">Settings</a></li>
+                <li><a href={~p"/lobbies"} class="btn btn-outline">Lobbies</a></li>
                 <%= if @current_scope && @current_scope.user.is_admin do %>
                   <li><a href={~p"/admin"} class="btn btn-outline">Admin</a></li>
                 <% end %>
@@ -134,8 +138,8 @@ defmodule GameServerWeb.Layouts do
               <% else %>
                 <li><a href={~p"/users/log-in"} class="btn btn-outline">Log in</a></li>
                 <li><a href={~p"/users/register"} class="btn btn-outline">Register</a></li>
+                <li><a href={~p"/lobbies"} class="btn btn-outline">Lobbies</a></li>
               <% end %>
-              <li><a href={~p"/lobbies"} class="btn btn-outline">Lobbies</a></li>
               <li><a href={~p"/docs/setup"}>Guides</a></li>
               <li><a href={~p"/api/docs"} target="_blank">API Docs</a></li>
               <li class="mt-2">
@@ -161,7 +165,6 @@ defmodule GameServerWeb.Layouts do
         <a href={~p"/privacy"} class="hover:underline mr-4">Privacy Policy</a>
         <a href={~p"/terms"} class="hover:underline mr-4">Terms and Conditions</a>
         <a href={~p"/docs/setup"} class="hover:underline mr-4">Guides</a>
-        <a href={~p"/lobbies"} class="hover:underline">Lobbies</a>
       </div>
     </footer>
     """
