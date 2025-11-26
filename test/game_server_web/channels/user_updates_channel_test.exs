@@ -36,6 +36,12 @@ defmodule GameServerWeb.UserUpdatesChannelTest do
     {:ok, token2, _} = Guardian.encode_and_sign(other)
 
     {:ok, socket2} = connect(GameServerWeb.UserSocket, %{"token" => token2})
-    assert {:error, _} = subscribe_and_join(socket2, "user_updates:#{user.id}", %{})
+    require ExUnit.CaptureLog
+
+    # the channel logs a warning when an unauthorized join is attempted; capture
+    # that log in the test so it doesn't show up as noisy output
+    ExUnit.CaptureLog.capture_log(fn ->
+      assert {:error, _} = subscribe_and_join(socket2, "user_updates:#{user.id}", %{})
+    end)
   end
 end

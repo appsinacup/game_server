@@ -59,8 +59,8 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                     <td class="font-mono text-sm">
                       <%= if @config.discord_client_id do %>
-                        Client ID: {@config.discord_client_id}<br />
-                        Client Secret: {@config.discord_client_secret || "Not set"}
+                        Client ID: {mask_secret(@config.discord_client_id)}<br />
+                        Client Secret: {mask_secret(@config.discord_client_secret)}
                       <% else %>
                         <span class="text-error">Client ID missing</span>
                       <% end %>
@@ -77,10 +77,10 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                     <td class="font-mono text-sm">
                       <%= if @config.apple_client_id do %>
-                        Client ID: {@config.apple_client_id}<br />
-                        Team ID: {@config.apple_team_id || "Not set"}<br />
-                        Key ID: {@config.apple_key_id || "Not set"}<br />
-                        Private Key: {@config.apple_private_key || "Not set"}
+                        Client ID: {mask_secret(@config.apple_client_id)}<br />
+                        Team ID: {mask_secret(@config.apple_team_id || "")}<br />
+                        Key ID: {mask_secret(@config.apple_key_id || "")}<br />
+                        Private Key: {mask_secret(@config.apple_private_key)}
                       <% else %>
                         <span class="text-error">Not configured</span>
                       <% end %>
@@ -97,8 +97,8 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                     <td class="font-mono text-sm">
                       <%= if @config.google_client_id do %>
-                        Client ID: {@config.google_client_id}<br />
-                        Client Secret: {@config.google_client_secret || "Not set"}
+                        Client ID: {mask_secret(@config.google_client_id)}<br />
+                        Client Secret: {mask_secret(@config.google_client_secret)}
                       <% else %>
                         <span class="text-error">Client ID missing</span>
                       <% end %>
@@ -115,8 +115,8 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                     <td class="font-mono text-sm">
                       <%= if @config.facebook_client_id do %>
-                        Client ID: {@config.facebook_client_id}<br />
-                        Client Secret: {@config.facebook_client_secret || "Not set"}
+                        Client ID: {mask_secret(@config.facebook_client_id)}<br />
+                        Client Secret: {mask_secret(@config.facebook_client_secret)}
                       <% else %>
                         <span class="text-error">Client ID missing</span>
                       <% end %>
@@ -133,8 +133,8 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                     <td class="text-sm">
                       <div class="font-mono text-xs mt-1">
-                        Username: {@config.smtp_username || "Not set"}<br />
-                        Password: {@config.smtp_password || "Not set"}<br />
+                        Username: {mask_secret(@config.smtp_username)}<br />
+                        Password: {mask_secret(@config.smtp_password)}<br />
                         Relay: {@config.smtp_relay || "Not set"}
                       </div>
                       <%= if @config.email_configured do %>
@@ -184,8 +184,38 @@ defmodule GameServerWeb.AdminLive.Config do
                   </tr>
                   <tr>
                     <td class="font-semibold">Database</td>
-                    <td><span class="badge badge-info">SQLite</span></td>
-                    <td class="font-mono text-sm">{@config.database}</td>
+                    <td>
+                      <%= case @config.database_adapter do %>
+                        <% :postgres -> %>
+                          <span class="badge badge-success">Postgres</span>
+                        <% :sqlite -> %>
+                          <span class="badge badge-info">SQLite</span>
+                      <% end %>
+                    </td>
+                    <td class="font-mono text-sm">
+                      Adapter: {@config.database_adapter} — {@config.database}
+                      <div class="mt-2 text-xs">
+                        <div>
+                          DATABASE_URL:
+                          <span class="font-mono">
+                            {if @config.pg_database_url, do: "set", else: "<unset>"}
+                          </span>
+                        </div>
+                        <div>
+                          POSTGRES_HOST: <span class="font-mono">{@config.pg_host || "<unset>"}</span>
+                        </div>
+                        <div>
+                          POSTGRES_USER: <span class="font-mono">{@config.pg_user || "<unset>"}</span>
+                        </div>
+                        <div>
+                          POSTGRES_DB: <span class="font-mono">{@config.pg_db || "<unset>"}</span>
+                        </div>
+                        <div>
+                          POSTGRES_PASSWORD:
+                          <span class="font-mono">{mask_secret(@config.pg_password)}</span>
+                        </div>
+                      </div>
+                    </td>
                   </tr>
                   <tr>
                     <td class="font-semibold">Hostname</td>
@@ -208,7 +238,7 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                     <td class="font-mono text-sm">
                       <%= if @config.secret_key_base do %>
-                        {String.slice(@config.secret_key_base, 0..15)}...
+                        {mask_secret(@config.secret_key_base)}
                       <% else %>
                         Not configured
                       <% end %>
@@ -243,6 +273,9 @@ defmodule GameServerWeb.AdminLive.Config do
                           <% else %>
                             (default)
                           <% end %>
+                          <div class="mt-1">
+                            DSN: <span class="font-mono">{mask_secret(@config.sentry_dsn)}</span>
+                          </div>
                         </span>
                       <% else %>
                         <span class="text-error">SENTRY_DSN not set - errors won't be monitored</span>
@@ -343,7 +376,15 @@ defmodule GameServerWeb.AdminLive.Config do
       sentry_dsn: System.get_env("SENTRY_DSN"),
       sentry_log_level: System.get_env("SENTRY_LOG_LEVEL"),
       env: to_string(Application.get_env(:game_server, :environment, Mix.env())),
+      repo_conf: Application.get_env(:game_server, GameServer.Repo) || %{},
       database: Application.get_env(:game_server, GameServer.Repo)[:database] || "N/A",
+      # Database environment diagnostics (don't show raw passwords)
+      database_adapter: detect_db_adapter(),
+      pg_database_url: System.get_env("DATABASE_URL"),
+      pg_host: System.get_env("POSTGRES_HOST"),
+      pg_user: System.get_env("POSTGRES_USER"),
+      pg_db: System.get_env("POSTGRES_DB"),
+      pg_password: System.get_env("POSTGRES_PASSWORD"),
       hostname:
         Application.get_env(:game_server, GameServerWeb.Endpoint)[:url][:host] ||
           System.get_env("HOSTNAME") || System.get_env("PHX_HOST") || "localhost",
@@ -357,5 +398,40 @@ defmodule GameServerWeb.AdminLive.Config do
     }
 
     {:ok, assign(socket, :config, config)}
+  end
+
+  defp detect_db_adapter do
+    repo_conf = Application.get_env(:game_server, GameServer.Repo) || %{}
+
+    cond do
+      System.get_env("DATABASE_URL") -> :postgres
+      System.get_env("POSTGRES_HOST") && System.get_env("POSTGRES_USER") -> :postgres
+      repo_conf[:adapter] in [Ecto.Adapters.Postgres, Ecto.Adapters.Postgres] -> :postgres
+      true -> :sqlite
+    end
+  end
+
+  # Helpers for masking secrets shown in the admin UI.
+  # We show the first 2 and last 2 characters for secrets longer than 6
+  # (e.g. ab...yz). For very short values we show them with a small mask.
+  defp mask_secret(nil), do: "<unset>"
+  defp mask_secret(""), do: "<unset>"
+
+  defp mask_secret(s) when is_binary(s) do
+    len = byte_size(s)
+
+    cond do
+      len <= 4 ->
+        String.duplicate("*", len)
+
+      true ->
+        # Reveal a roughly half-window by showing the first and last ceil(len/4)
+        # characters. This is a balance between usefulness and not leaking
+        # full secrets in the admin UI.
+        visible = max(1, div(len + 3, 4))
+        first = String.slice(s, 0, visible)
+        last = String.slice(s, -visible, visible)
+        "#{first}...#{last}"
+    end
   end
 end
