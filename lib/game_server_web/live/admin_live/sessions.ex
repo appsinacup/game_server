@@ -77,9 +77,23 @@ defmodule GameServerWeb.AdminLive.Sessions do
             </div>
 
             <div class="mt-4 flex gap-2 items-center">
-              <button phx-click="admin_sessions_prev" class="btn btn-xs" disabled={@sessions_page <= 1}>Prev</button>
-              <div class="text-xs text-base-content/70">page {@sessions_page} / {@sessions_total_pages} ({@sessions_count} total)</div>
-              <button phx-click="admin_sessions_next" class="btn btn-xs" disabled={@sessions_page >= @sessions_total_pages || @sessions_total_pages == 0}>Next</button>
+              <button
+                phx-click="admin_sessions_prev"
+                class="btn btn-xs"
+                disabled={@sessions_page <= 1}
+              >
+                Prev
+              </button>
+              <div class="text-xs text-base-content/70">
+                page {@sessions_page} / {@sessions_total_pages} ({@sessions_count} total)
+              </div>
+              <button
+                phx-click="admin_sessions_next"
+                class="btn btn-xs"
+                disabled={@sessions_page >= @sessions_total_pages || @sessions_total_pages == 0}
+              >
+                Next
+              </button>
             </div>
           </div>
         </div>
@@ -126,8 +140,11 @@ defmodule GameServerWeb.AdminLive.Sessions do
         page = socket.assigns[:sessions_page] || 1
         page_size = socket.assigns[:sessions_page_size] || 50
 
-        sessions_count = Repo.aggregate(from(t in UserToken, where: t.context == "session"), :count)
-        total_pages = if page_size > 0, do: div(sessions_count + page_size - 1, page_size), else: 0
+        sessions_count =
+          Repo.aggregate(from(t in UserToken, where: t.context == "session"), :count)
+
+        total_pages =
+          if page_size > 0, do: div(sessions_count + page_size - 1, page_size), else: 0
 
         page = max(1, min(page, total_pages || 1))
 

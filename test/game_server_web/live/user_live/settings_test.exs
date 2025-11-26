@@ -46,7 +46,11 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       # incoming should be present
       assert render(view) =~ "Incoming Requests"
 
-      f = Repo.one(from fr in GameServer.Friends.Friendship, where: fr.requester_id == ^b.id and fr.target_id == ^a.id)
+      f =
+        Repo.one(
+          from fr in GameServer.Friends.Friendship,
+            where: fr.requester_id == ^b.id and fr.target_id == ^a.id
+        )
 
       accept_btn = element(view, "#request-#{f.id} button", "Accept")
       assert render_click(accept_btn)
@@ -65,7 +69,11 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       {:ok, view, _html} = live(logged_conn, ~p"/users/settings")
 
-      f = Repo.one(from fr in GameServer.Friends.Friendship, where: fr.requester_id == ^b.id and fr.target_id == ^a.id)
+      f =
+        Repo.one(
+          from fr in GameServer.Friends.Friendship,
+            where: fr.requester_id == ^b.id and fr.target_id == ^a.id
+        )
 
       block_btn = element(view, "#request-#{f.id} button", "Block")
       assert render_click(block_btn)
@@ -83,7 +91,11 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       logged_conn = conn |> log_in_user(a)
       {:ok, view, _html} = live(logged_conn, ~p"/users/settings")
 
-      f = Repo.one(from fr in GameServer.Friends.Friendship, where: fr.requester_id == ^b.id and fr.target_id == ^a.id)
+      f =
+        Repo.one(
+          from fr in GameServer.Friends.Friendship,
+            where: fr.requester_id == ^b.id and fr.target_id == ^a.id
+        )
 
       # block
       block_btn = element(view, "#request-#{f.id} button", "Block")
@@ -225,17 +237,31 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       assert render_click(send_btn)
 
       # outgoing should now include the request
-      f = Repo.one(from fr in GameServer.Friends.Friendship, where: fr.requester_id == ^a.id and fr.target_id == ^b.id)
+      f =
+        Repo.one(
+          from fr in GameServer.Friends.Friendship,
+            where: fr.requester_id == ^a.id and fr.target_id == ^b.id
+        )
+
       assert f.status == "pending"
     end
 
-    test "friends pagination displays totals and disables Next on last page", %{conn: conn, user: a} do
+    test "friends pagination displays totals and disables Next on last page", %{
+      conn: conn,
+      user: a
+    } do
       # create 30 users who friend 'a' and have their requests accepted so a has 30 friends
       other = for _ <- 1..30, do: user_fixture()
 
       Enum.each(other, fn u ->
         {:ok, _} = Friends.create_request(u.id, a.id)
-        f = Repo.one(from fr in GameServer.Friends.Friendship, where: fr.requester_id == ^u.id and fr.target_id == ^a.id)
+
+        f =
+          Repo.one(
+            from fr in GameServer.Friends.Friendship,
+              where: fr.requester_id == ^u.id and fr.target_id == ^a.id
+          )
+
         {:ok, _} = Friends.accept_friend_request(f.id, %GameServer.Accounts.User{id: a.id})
       end)
 

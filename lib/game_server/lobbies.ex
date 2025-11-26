@@ -64,7 +64,7 @@ defmodule GameServer.Lobbies do
   end
 
   @doc "List lobbies. Accepts optional search filters: %{q: string}"
-    def list_lobbies(filters \\ %{}, opts \\ []) do
+  def list_lobbies(filters \\ %{}, opts \\ []) do
     q = from(l in Lobby)
 
     q =
@@ -81,12 +81,10 @@ defmodule GameServer.Lobbies do
             where:
               fragment("lower(?) LIKE ?", l.name, ^ilike_term_down) or
                 fragment("lower(?) LIKE ?", l.title, ^ilike_term_down)
-        end
+      end
 
     # never include hidden lobbies in list results
     q = from l in q, where: l.is_hidden == false
-
-    results = Repo.all(q)
 
     page = Keyword.get(opts, :page, nil)
     page_size = Keyword.get(opts, :page_size, nil)
@@ -98,6 +96,7 @@ defmodule GameServer.Lobbies do
       else
         Repo.all(q)
       end
+
     # optional metadata filtering in-memory (DB JSON search varies by adapter).
     case Map.get(filters, :metadata_key) || Map.get(filters, "metadata_key") do
       nil ->
@@ -113,45 +112,52 @@ defmodule GameServer.Lobbies do
             v -> String.contains?(to_string(v), to_string(value))
           end
         end)
-      end
     end
+  end
 
-    @doc "Count lobbies matching filters (excludes hidden ones unless admin list used). If metadata filters are supplied, they will be applied after fetching." 
-    def count_list_lobbies(filters \\ %{}) do
-      q = from(l in Lobby)
+  @doc "Count lobbies matching filters (excludes hidden ones unless admin list used). If metadata filters are supplied, they will be applied after fetching."
+  def count_list_lobbies(filters \\ %{}) do
+    q = from(l in Lobby)
 
-      q =
-        case Map.get(filters, :q) || Map.get(filters, "q") do
-          nil -> q
-          term ->
-            ilike_term_down = String.downcase("%#{term}%")
-            from l in q,
-              where:
-                fragment("lower(?) LIKE ?", l.name, ^ilike_term_down) or
-                  fragment("lower(?) LIKE ?", l.title, ^ilike_term_down)
-        end
+    q =
+      case Map.get(filters, :q) || Map.get(filters, "q") do
+        nil ->
+          q
 
-      q = from l in q, where: l.is_hidden == false
+        term ->
+          ilike_term_down = String.downcase("%#{term}%")
 
-      # basic db count
-      db_count = Repo.one(from l in q, select: count(l.id)) || 0
+          from l in q,
+            where:
+              fragment("lower(?) LIKE ?", l.name, ^ilike_term_down) or
+                fragment("lower(?) LIKE ?", l.title, ^ilike_term_down)
+      end
 
-      # if metadata filter present, we must apply the in-memory filter to count accurately
-      case Map.get(filters, :metadata_key) || Map.get(filters, "metadata_key") do
-        nil -> db_count
-        key ->
-          value = Map.get(filters, :metadata_value) || Map.get(filters, "metadata_value")
-          results = Repo.all(q)
-          Enum.count(Enum.filter(results, fn l ->
+    q = from l in q, where: l.is_hidden == false
+
+    # basic db count
+    db_count = Repo.one(from l in q, select: count(l.id)) || 0
+
+    # if metadata filter present, we must apply the in-memory filter to count accurately
+    case Map.get(filters, :metadata_key) || Map.get(filters, "metadata_key") do
+      nil ->
+        db_count
+
+      key ->
+        value = Map.get(filters, :metadata_value) || Map.get(filters, "metadata_value")
+        results = Repo.all(q)
+
+        Enum.count(
+          Enum.filter(results, fn l ->
             case Map.get(l.metadata || %{}, key) do
               nil -> false
               _ when is_nil(value) -> true
               v -> String.contains?(to_string(v), to_string(value))
             end
-          end))
-      end
-
+          end)
+        )
     end
+  end
 
   @doc """
   List ALL lobbies including hidden ones. For admin use only.
@@ -185,11 +191,11 @@ defmodule GameServer.Lobbies do
 
       if user_lobby && user_lobby.is_hidden do
         # Add user's hidden lobby to the list if not already present
-          if Enum.any?(public_lobbies, fn l -> l.id == user_lobby_id end) do
-            public_lobbies
-          else
-            [user_lobby | public_lobbies]
-          end
+        if Enum.any?(public_lobbies, fn l -> l.id == user_lobby_id end) do
+          public_lobbies
+        else
+          [user_lobby | public_lobbies]
+        end
       else
         public_lobbies
       end
@@ -411,9 +417,8 @@ defmodule GameServer.Lobbies do
 
           _ ->
             result
+        end
     end
-  end
-
   end
 
   def delete_membership(%GameServer.Accounts.User{} = user) do

@@ -15,7 +15,7 @@ defmodule GameServerWeb.AdminLive.SessionsTest do
 
     # create 51 session tokens so listing has two pages (page_size default 50)
     for _i <- 1..51 do
-      {_token, user_token} = GameServer.Accounts.UserToken.build_session_token(admin)
+      {_token, user_token} = UserToken.build_session_token(admin)
       GameServer.Repo.insert!(user_token)
     end
 

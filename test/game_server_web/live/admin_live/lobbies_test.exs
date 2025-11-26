@@ -70,7 +70,11 @@ defmodule GameServerWeb.AdminLive.LobbiesTest do
 
     # create 30 lobbies so admin listing has two pages with default page_size 25
     for i <- 1..30 do
-      GameServer.Lobbies.create_lobby(%{name: "admin-pagi-#{i}", title: "Admin Pagi #{i}", hostless: true})
+      GameServer.Lobbies.create_lobby(%{
+        name: "admin-pagi-#{i}",
+        title: "Admin Pagi #{i}",
+        hostless: true
+      })
     end
 
     {:ok, view, html} = conn |> log_in_user(admin) |> live(~p"/admin/lobbies")

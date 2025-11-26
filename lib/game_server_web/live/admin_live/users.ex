@@ -142,9 +142,19 @@ defmodule GameServerWeb.AdminLive.Users do
               </table>
             </div>
             <div class="mt-4 flex gap-2 items-center">
-              <button phx-click="admin_users_prev" class="btn btn-xs" disabled={@users_page <= 1}>Prev</button>
-              <div class="text-xs text-base-content/70">page {@users_page} / {@users_total_pages} ({@users_count} total)</div>
-              <button phx-click="admin_users_next" class="btn btn-xs" disabled={@users_page >= @users_total_pages || @users_total_pages == 0}>Next</button>
+              <button phx-click="admin_users_prev" class="btn btn-xs" disabled={@users_page <= 1}>
+                Prev
+              </button>
+              <div class="text-xs text-base-content/70">
+                page {@users_page} / {@users_total_pages} ({@users_count} total)
+              </div>
+              <button
+                phx-click="admin_users_next"
+                class="btn btn-xs"
+                disabled={@users_page >= @users_total_pages || @users_total_pages == 0}
+              >
+                Next
+              </button>
             </div>
           </div>
         </div>
@@ -208,7 +218,12 @@ defmodule GameServerWeb.AdminLive.Users do
     page_size = 25
 
     users =
-      Repo.all(from u in User, order_by: [desc: u.inserted_at], offset: ^((page - 1) * page_size), limit: ^page_size)
+      Repo.all(
+        from u in User,
+          order_by: [desc: u.inserted_at],
+          offset: ^((page - 1) * page_size),
+          limit: ^page_size
+      )
 
     total_count = Repo.aggregate(User, :count)
     total_pages = if page_size > 0, do: div(total_count + page_size - 1, page_size), else: 0
@@ -267,7 +282,12 @@ defmodule GameServerWeb.AdminLive.Users do
         page_size = socket.assigns[:users_page_size] || 25
 
         users =
-          Repo.all(from u in User, order_by: [desc: u.inserted_at], offset: ^((page - 1) * page_size), limit: ^page_size)
+          Repo.all(
+            from u in User,
+              order_by: [desc: u.inserted_at],
+              offset: ^((page - 1) * page_size),
+              limit: ^page_size
+          )
 
         total_count = Repo.aggregate(User, :count)
         total_pages = if page_size > 0, do: div(total_count + page_size - 1, page_size), else: 0
@@ -284,7 +304,6 @@ defmodule GameServerWeb.AdminLive.Users do
       {:error, changeset} ->
         {:noreply, assign(socket, :form, to_form(changeset, as: "user"))}
     end
-
   end
 
   def handle_event("delete_user", %{"id" => id}, socket) do
@@ -302,7 +321,12 @@ defmodule GameServerWeb.AdminLive.Users do
         page = max(1, min(page, total_pages || 1))
 
         users =
-          Repo.all(from u in User, order_by: [desc: u.inserted_at], offset: ^((page - 1) * page_size), limit: ^page_size)
+          Repo.all(
+            from u in User,
+              order_by: [desc: u.inserted_at],
+              offset: ^((page - 1) * page_size),
+              limit: ^page_size
+          )
 
         {:noreply,
          socket
@@ -316,13 +340,19 @@ defmodule GameServerWeb.AdminLive.Users do
         {:noreply, put_flash(socket, :error, "Failed to delete user")}
     end
   end
+
   @impl true
   def handle_event("admin_users_prev", _params, socket) do
     page = max(1, (socket.assigns[:users_page] || 1) - 1)
     page_size = socket.assigns[:users_page_size] || 25
 
     users =
-      Repo.all(from u in User, order_by: [desc: u.inserted_at], offset: ^((page - 1) * page_size), limit: ^page_size)
+      Repo.all(
+        from u in User,
+          order_by: [desc: u.inserted_at],
+          offset: ^((page - 1) * page_size),
+          limit: ^page_size
+      )
 
     total_count = Repo.aggregate(User, :count)
     total_pages = if page_size > 0, do: div(total_count + page_size - 1, page_size), else: 0
@@ -340,7 +370,12 @@ defmodule GameServerWeb.AdminLive.Users do
     page_size = socket.assigns[:users_page_size] || 25
 
     users =
-      Repo.all(from u in User, order_by: [desc: u.inserted_at], offset: ^((page - 1) * page_size), limit: ^page_size)
+      Repo.all(
+        from u in User,
+          order_by: [desc: u.inserted_at],
+          offset: ^((page - 1) * page_size),
+          limit: ^page_size
+      )
 
     total_count = Repo.aggregate(User, :count)
     total_pages = if page_size > 0, do: div(total_count + page_size - 1, page_size), else: 0
@@ -352,5 +387,4 @@ defmodule GameServerWeb.AdminLive.Users do
      |> assign(:users_count, total_count)
      |> assign(:users_total_pages, total_pages)}
   end
-
-  end
+end

@@ -9,15 +9,22 @@ defmodule GameServerWeb.AdminLive.Lobbies do
     lobbies_page = 1
     lobbies_page_size = 25
 
-    lobbies = Lobbies.list_all_lobbies(page: lobbies_page, page_size: lobbies_page_size) |> GameServer.Repo.preload(:users)
+    lobbies =
+      Lobbies.list_all_lobbies(page: lobbies_page, page_size: lobbies_page_size)
+      |> GameServer.Repo.preload(:users)
+
     total_count = GameServer.Repo.aggregate(GameServer.Lobbies.Lobby, :count, :id)
-    total_pages = if lobbies_page_size > 0, do: div(total_count + lobbies_page_size - 1, lobbies_page_size), else: 0
+
+    total_pages =
+      if lobbies_page_size > 0,
+        do: div(total_count + lobbies_page_size - 1, lobbies_page_size),
+        else: 0
 
     {:ok,
      socket
-    |> assign(:lobbies, lobbies)
-    |> assign(:count, total_count)
-    |> assign(:lobbies_total_pages, total_pages)
+     |> assign(:lobbies, lobbies)
+     |> assign(:count, total_count)
+     |> assign(:lobbies_total_pages, total_pages)
      |> assign(:lobbies_page, lobbies_page)
      |> assign(:lobbies_page_size, lobbies_page_size)
      |> assign(:selected_lobby, nil)
@@ -94,11 +101,21 @@ defmodule GameServerWeb.AdminLive.Lobbies do
                 </tbody>
               </table>
             </div>
-                    <div class="mt-4 flex gap-2 items-center">
-                      <button phx-click="admin_lobbies_prev" class="btn btn-xs" disabled={@lobbies_page <= 1}>Prev</button>
-                      <div class="text-xs text-base-content/70">page {@lobbies_page} / {@lobbies_total_pages} ({@count} total)</div>
-                      <button phx-click="admin_lobbies_next" class="btn btn-xs" disabled={@lobbies_page >= @lobbies_total_pages || @lobbies_total_pages == 0}>Next</button>
-                    </div>
+            <div class="mt-4 flex gap-2 items-center">
+              <button phx-click="admin_lobbies_prev" class="btn btn-xs" disabled={@lobbies_page <= 1}>
+                Prev
+              </button>
+              <div class="text-xs text-base-content/70">
+                page {@lobbies_page} / {@lobbies_total_pages} ({@count} total)
+              </div>
+              <button
+                phx-click="admin_lobbies_next"
+                class="btn btn-xs"
+                disabled={@lobbies_page >= @lobbies_total_pages || @lobbies_total_pages == 0}
+              >
+                Next
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -151,22 +168,54 @@ defmodule GameServerWeb.AdminLive.Lobbies do
 
   def handle_event("admin_lobbies_prev", _params, socket) do
     page = max(1, (socket.assigns[:lobbies_page] || 1) - 1)
-    lobbies = Lobbies.list_all_lobbies(page: page, page_size: socket.assigns[:lobbies_page_size] || 25) |> GameServer.Repo.preload(:users)
+
+    lobbies =
+      Lobbies.list_all_lobbies(page: page, page_size: socket.assigns[:lobbies_page_size] || 25)
+      |> GameServer.Repo.preload(:users)
+
     total_count = GameServer.Repo.aggregate(GameServer.Lobbies.Lobby, :count, :id)
 
-    total_pages = if (socket.assigns[:lobbies_page_size] || 25) > 0, do: div(total_count + (socket.assigns[:lobbies_page_size] || 25) - 1, (socket.assigns[:lobbies_page_size] || 25)), else: 0
+    total_pages =
+      if (socket.assigns[:lobbies_page_size] || 25) > 0,
+        do:
+          div(
+            total_count + (socket.assigns[:lobbies_page_size] || 25) - 1,
+            socket.assigns[:lobbies_page_size] || 25
+          ),
+        else: 0
 
-    {:noreply, socket |> assign(:lobbies_page, page) |> assign(:lobbies, lobbies) |> assign(:count, total_count) |> assign(:lobbies_total_pages, total_pages)}
+    {:noreply,
+     socket
+     |> assign(:lobbies_page, page)
+     |> assign(:lobbies, lobbies)
+     |> assign(:count, total_count)
+     |> assign(:lobbies_total_pages, total_pages)}
   end
 
   def handle_event("admin_lobbies_next", _params, socket) do
     page = (socket.assigns[:lobbies_page] || 1) + 1
-    lobbies = Lobbies.list_all_lobbies(page: page, page_size: socket.assigns[:lobbies_page_size] || 25) |> GameServer.Repo.preload(:users)
+
+    lobbies =
+      Lobbies.list_all_lobbies(page: page, page_size: socket.assigns[:lobbies_page_size] || 25)
+      |> GameServer.Repo.preload(:users)
+
     total_count = GameServer.Repo.aggregate(GameServer.Lobbies.Lobby, :count, :id)
 
-    total_pages = if (socket.assigns[:lobbies_page_size] || 25) > 0, do: div(total_count + (socket.assigns[:lobbies_page_size] || 25) - 1, (socket.assigns[:lobbies_page_size] || 25)), else: 0
+    total_pages =
+      if (socket.assigns[:lobbies_page_size] || 25) > 0,
+        do:
+          div(
+            total_count + (socket.assigns[:lobbies_page_size] || 25) - 1,
+            socket.assigns[:lobbies_page_size] || 25
+          ),
+        else: 0
 
-    {:noreply, socket |> assign(:lobbies_page, page) |> assign(:lobbies, lobbies) |> assign(:count, total_count) |> assign(:lobbies_total_pages, total_pages)}
+    {:noreply,
+     socket
+     |> assign(:lobbies_page, page)
+     |> assign(:lobbies, lobbies)
+     |> assign(:count, total_count)
+     |> assign(:lobbies_total_pages, total_pages)}
   end
 
   def handle_event("save_lobby", %{"lobby" => params}, socket) do
@@ -205,7 +254,12 @@ defmodule GameServerWeb.AdminLive.Lobbies do
 
     case res do
       {:ok, _} ->
-        lobbies = Lobbies.list_all_lobbies(page: socket.assigns.lobbies_page || 1, page_size: socket.assigns.lobbies_page_size || 25) |> GameServer.Repo.preload(:users)
+        lobbies =
+          Lobbies.list_all_lobbies(
+            page: socket.assigns.lobbies_page || 1,
+            page_size: socket.assigns.lobbies_page_size || 25
+          )
+          |> GameServer.Repo.preload(:users)
 
         total_count = GameServer.Repo.aggregate(GameServer.Lobbies.Lobby, :count, :id)
 
@@ -227,7 +281,12 @@ defmodule GameServerWeb.AdminLive.Lobbies do
 
     case Lobbies.delete_lobby(lobby) do
       {:ok, _} ->
-        lobbies = Lobbies.list_all_lobbies(page: socket.assigns.lobbies_page || 1, page_size: socket.assigns.lobbies_page_size || 25) |> GameServer.Repo.preload(:users)
+        lobbies =
+          Lobbies.list_all_lobbies(
+            page: socket.assigns.lobbies_page || 1,
+            page_size: socket.assigns.lobbies_page_size || 25
+          )
+          |> GameServer.Repo.preload(:users)
 
         total_count = GameServer.Repo.aggregate(GameServer.Lobbies.Lobby, :count, :id)
 

@@ -37,9 +37,11 @@ defmodule GameServer.Friends do
   Returns {:ok, friendship} on success or {:error, reason}.
   "
   @spec create_request(User.t() | integer(), integer()) :: {:ok, Friendship.t()} | {:error, any()}
-  def create_request(%User{id: requester_id}, target_id), do: create_request(requester_id, target_id)
+  def create_request(%User{id: requester_id}, target_id),
+    do: create_request(requester_id, target_id)
 
-  def create_request(requester_id, target_id) when is_integer(requester_id) and is_integer(target_id) do
+  def create_request(requester_id, target_id)
+      when is_integer(requester_id) and is_integer(target_id) do
     if requester_id == target_id do
       {:error, :cannot_friend_self}
     else
@@ -53,30 +55,52 @@ defmodule GameServer.Friends do
       end
 
       # if there's a block in either direction, disallow
-      if (existing_same && existing_same.status == "blocked") || (existing_reverse && existing_reverse.status == "blocked") do
+      if (existing_same && existing_same.status == "blocked") ||
+           (existing_reverse && existing_reverse.status == "blocked") do
         {:error, :blocked}
       else
         # check already friends
-        if Repo.get_by(Friendship, requester_id: requester_id, target_id: target_id, status: "accepted") ||
-             Repo.get_by(Friendship, requester_id: target_id, target_id: requester_id, status: "accepted") do
+        if Repo.get_by(Friendship,
+             requester_id: requester_id,
+             target_id: target_id,
+             status: "accepted"
+           ) ||
+             Repo.get_by(Friendship,
+               requester_id: target_id,
+               target_id: requester_id,
+               status: "accepted"
+             ) do
           {:error, :already_friends}
         else
           # same-direction pending
-          if Repo.get_by(Friendship, requester_id: requester_id, target_id: target_id, status: "pending") do
+          if Repo.get_by(Friendship,
+               requester_id: requester_id,
+               target_id: target_id,
+               status: "pending"
+             ) do
             {:error, :already_requested}
           else
             # check reverse pending — accept that instead
-            case Repo.get_by(Friendship, requester_id: target_id, target_id: requester_id, status: "pending") do
-              %Friendship{} = pending_reverse -> accept_friend_request(pending_reverse.id, %User{id: requester_id})
+            case Repo.get_by(Friendship,
+                   requester_id: target_id,
+                   target_id: requester_id,
+                   status: "pending"
+                 ) do
+              %Friendship{} = pending_reverse ->
+                accept_friend_request(pending_reverse.id, %User{id: requester_id})
+
               _ ->
-                case %Friendship{} |> Friendship.changeset(%{requester_id: requester_id, target_id: target_id}) |> Repo.insert() do
+                case %Friendship{}
+                     |> Friendship.changeset(%{requester_id: requester_id, target_id: target_id})
+                     |> Repo.insert() do
                   {:ok, f} = ok ->
                     broadcast_user(target_id, {:incoming_request, f})
                     broadcast_user(requester_id, {:outgoing_request, f})
                     broadcast_all({:friend_created, f})
                     ok
 
-                  err -> err
+                  err ->
+                    err
                 end
             end
           end
@@ -92,9 +116,13 @@ defmodule GameServer.Friends do
            true <- f.target_id == user_id,
            true <- f.status == "pending",
            {:ok, accepted} <- f |> Ecto.Changeset.change(status: "accepted") |> Repo.update() do
-
         # remove any reverse pending request if present
-        Repo.delete_all(from ff in Friendship, where: ff.requester_id == ^f.target_id and ff.target_id == ^f.requester_id and ff.status == "pending")
+        Repo.delete_all(
+          from ff in Friendship,
+            where:
+              ff.requester_id == ^f.target_id and ff.target_id == ^f.requester_id and
+                ff.status == "pending"
+        )
 
         # broadcast accepted to both users
         broadcast_user(accepted.requester_id, {:friend_accepted, accepted})
@@ -111,10 +139,10 @@ defmodule GameServer.Friends do
 
   @doc "Reject a friend request (only the target may reject). Returns {:ok, friendship}."
   def reject_friend_request(friendship_id, %User{id: user_id}) when is_integer(friendship_id) do
-     with %Friendship{} = f <- Repo.get(Friendship, friendship_id),
-        true <- f.target_id == user_id,
-        true <- f.status == "pending",
-        {:ok, rejected} <- f |> Ecto.Changeset.change(status: "rejected") |> Repo.update() do
+    with %Friendship{} = f <- Repo.get(Friendship, friendship_id),
+         true <- f.target_id == user_id,
+         true <- f.status == "pending",
+         {:ok, rejected} <- f |> Ecto.Changeset.change(status: "rejected") |> Repo.update() do
       # broadcast rejection
       broadcast_user(rejected.requester_id, {:friend_rejected, rejected})
       broadcast_user(rejected.target_id, {:friend_rejected, rejected})
@@ -148,9 +176,16 @@ defmodule GameServer.Friends do
 
   @doc "Remove a friendship (either direction) — only participating users may call this."
   def remove_friend(user_id, friend_id) when is_integer(user_id) and is_integer(friend_id) do
-    case Repo.one(from f in Friendship, where: (f.requester_id == ^user_id and f.target_id == ^friend_id) or (f.requester_id == ^friend_id and f.target_id == ^user_id), limit: 1) do
+    case Repo.one(
+           from f in Friendship,
+             where:
+               (f.requester_id == ^user_id and f.target_id == ^friend_id) or
+                 (f.requester_id == ^friend_id and f.target_id == ^user_id),
+             limit: 1
+         ) do
       %Friendship{} = f ->
         result = Repo.delete(f)
+
         case result do
           {:ok, _} ->
             # broadcast removal
@@ -159,13 +194,16 @@ defmodule GameServer.Friends do
             broadcast_all({:friend_removed, f})
             result
 
-          err -> err
+          err ->
+            err
         end
-      nil -> {:error, :not_found}
+
+      nil ->
+        {:error, :not_found}
     end
   end
 
-  @doc "Block an incoming request (only the target may block). Returns {:ok, friendship} with status \"blocked\"." 
+  @doc "Block an incoming request (only the target may block). Returns {:ok, friendship} with status \"blocked\"."
   def block_friend_request(friendship_id, %User{id: user_id}) when is_integer(friendship_id) do
     with %Friendship{} = f <- Repo.get(Friendship, friendship_id),
          true <- f.target_id == user_id,
@@ -206,10 +244,14 @@ defmodule GameServer.Friends do
   def count_blocked_for_user(%User{id: id}), do: count_blocked_for_user(id)
 
   def count_blocked_for_user(user_id) when is_integer(user_id) do
-    Repo.one(from f in Friendship, where: f.target_id == ^user_id and f.status == "blocked", select: count(f.id)) || 0
+    Repo.one(
+      from f in Friendship,
+        where: f.target_id == ^user_id and f.status == "blocked",
+        select: count(f.id)
+    ) || 0
   end
 
-  @doc "Unblock a previously-blocked friendship (only the user who blocked may unblock). Returns {:ok, :unblocked} on success." 
+  @doc "Unblock a previously-blocked friendship (only the user who blocked may unblock). Returns {:ok, :unblocked} on success."
   def unblock_friendship(friendship_id, %User{id: user_id}) when is_integer(friendship_id) do
     with %Friendship{} = f <- Repo.get(Friendship, friendship_id),
          true <- f.target_id == user_id,
@@ -237,12 +279,27 @@ defmodule GameServer.Friends do
     page_size = Keyword.get(opts, :page_size, 25)
     offset = (page - 1) * page_size
 
-    q1 = from f in Friendship, where: f.status == "accepted" and f.requester_id == ^user_id, select: %{id: f.target_id}
-    q2 = from f in Friendship, where: f.status == "accepted" and f.target_id == ^user_id, select: %{id: f.requester_id}
+    q1 =
+      from f in Friendship,
+        where: f.status == "accepted" and f.requester_id == ^user_id,
+        select: %{id: f.target_id}
+
+    q2 =
+      from f in Friendship,
+        where: f.status == "accepted" and f.target_id == ^user_id,
+        select: %{id: f.requester_id}
+
     union_q = union_all(q1, ^q2)
 
     # union the two sets and paginate
-    ids = Repo.all(from id_row in subquery(union_q), select: id_row.id, distinct: true, limit: ^page_size, offset: ^offset)
+    ids =
+      Repo.all(
+        from id_row in subquery(union_q),
+          select: id_row.id,
+          distinct: true,
+          limit: ^page_size,
+          offset: ^offset
+      )
 
     Repo.all(from u in User, where: u.id in ^ids)
   end
@@ -251,8 +308,16 @@ defmodule GameServer.Friends do
   def count_friends_for_user(%User{id: id}), do: count_friends_for_user(id)
 
   def count_friends_for_user(user_id) when is_integer(user_id) do
-    q1 = from f in Friendship, where: f.status == "accepted" and f.requester_id == ^user_id, select: %{id: f.target_id}
-    q2 = from f in Friendship, where: f.status == "accepted" and f.target_id == ^user_id, select: %{id: f.requester_id}
+    q1 =
+      from f in Friendship,
+        where: f.status == "accepted" and f.requester_id == ^user_id,
+        select: %{id: f.target_id}
+
+    q2 =
+      from f in Friendship,
+        where: f.status == "accepted" and f.target_id == ^user_id,
+        select: %{id: f.requester_id}
+
     union_q = union_all(q1, ^q2)
 
     Repo.one(from id_row in subquery(union_q), select: count(id_row.id, :distinct)) || 0
@@ -276,11 +341,15 @@ defmodule GameServer.Friends do
     )
   end
 
-    @doc "Count incoming pending friend requests for a user."
+  @doc "Count incoming pending friend requests for a user."
   def count_incoming_requests(%User{id: id}), do: count_incoming_requests(id)
 
   def count_incoming_requests(user_id) when is_integer(user_id) do
-    Repo.one(from f in Friendship, where: f.target_id == ^user_id and f.status == "pending", select: count(f.id)) || 0
+    Repo.one(
+      from f in Friendship,
+        where: f.target_id == ^user_id and f.status == "pending",
+        select: count(f.id)
+    ) || 0
   end
 
   @doc "List outgoing pending friend requests for a user (Friendship structs)."
@@ -305,13 +374,17 @@ defmodule GameServer.Friends do
   def count_outgoing_requests(%User{id: id}), do: count_outgoing_requests(id)
 
   def count_outgoing_requests(user_id) when is_integer(user_id) do
-    Repo.one(from f in Friendship, where: f.requester_id == ^user_id and f.status == "pending", select: count(f.id)) || 0
+    Repo.one(
+      from f in Friendship,
+        where: f.requester_id == ^user_id and f.status == "pending",
+        select: count(f.id)
+    ) || 0
   end
 
-  @doc "Get friendship by id" 
+  @doc "Get friendship by id"
   def get_friendship!(id), do: Repo.get!(Friendship, id)
 
-  @doc "Get friendship between two users (ordered requester->target) if exists" 
+  @doc "Get friendship between two users (ordered requester->target) if exists"
   def get_by_pair(requester_id, target_id) do
     Repo.get_by(Friendship, requester_id: requester_id, target_id: target_id)
   end

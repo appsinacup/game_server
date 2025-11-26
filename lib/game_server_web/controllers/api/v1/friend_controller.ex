@@ -16,14 +16,19 @@ defmodule GameServerWeb.Api.V1.FriendController do
     request_body: {
       "Friend request",
       "application/json",
-        %Schema{
+      %Schema{
         type: :object,
-        properties: %{target_user_id: %Schema{type: :integer, description: "Target user's id (user_id) to whom the request will be sent"}},
+        properties: %{
+          target_user_id: %Schema{
+            type: :integer,
+            description: "Target user's id (user_id) to whom the request will be sent"
+          }
+        },
         required: [:target_user_id]
       }
     },
     responses: [
-        created: {"Request created", "application/json", nil},
+      created: {"Request created", "application/json", nil},
       conflict: {"Already friends or requested", "application/json", %Schema{type: :object}},
       unauthorized: {"Not authenticated", "application/json", nil}
     ]
@@ -33,15 +38,72 @@ defmodule GameServerWeb.Api.V1.FriendController do
     operation_id: "list_friends",
     summary: "List current user's friends (returns a paginated set of user objects)",
     security: [%{"authorization" => []}],
-    parameters: [page: [in: :query, schema: %Schema{type: :integer}, description: "Page number (1-based)", required: false], page_size: [in: :query, schema: %Schema{type: :integer}, description: "Page size (max results per page)", required: false]],
-    responses: [ok: {"List of friends (paginated)", "application/json", %Schema{type: :object, properties: %{data: %Schema{type: :array, items: %Schema{type: :object, properties: %{id: %Schema{type: :integer}, email: %Schema{type: :string}, display_name: %Schema{type: :string}, profile_url: %Schema{type: :string}}}}, meta: %Schema{type: :object, properties: %{page: %Schema{type: :integer}, page_size: %Schema{type: :integer}, count: %Schema{type: :integer}, total_count: %Schema{type: :integer}, total_pages: %Schema{type: :integer}, has_more: %Schema{type: :boolean}}}}}}]
+    parameters: [
+      page: [
+        in: :query,
+        schema: %Schema{type: :integer},
+        description: "Page number (1-based)",
+        required: false
+      ],
+      page_size: [
+        in: :query,
+        schema: %Schema{type: :integer},
+        description: "Page size (max results per page)",
+        required: false
+      ]
+    ],
+    responses: [
+      ok:
+        {"List of friends (paginated)", "application/json",
+         %Schema{
+           type: :object,
+           properties: %{
+             data: %Schema{
+               type: :array,
+               items: %Schema{
+                 type: :object,
+                 properties: %{
+                   id: %Schema{type: :integer},
+                   email: %Schema{type: :string},
+                   display_name: %Schema{type: :string},
+                   profile_url: %Schema{type: :string}
+                 }
+               }
+             },
+             meta: %Schema{
+               type: :object,
+               properties: %{
+                 page: %Schema{type: :integer},
+                 page_size: %Schema{type: :integer},
+                 count: %Schema{type: :integer},
+                 total_count: %Schema{type: :integer},
+                 total_pages: %Schema{type: :integer},
+                 has_more: %Schema{type: :boolean}
+               }
+             }
+           }
+         }}
+    ]
   )
 
   operation(:requests,
     operation_id: "list_friend_requests",
     summary: "List pending friend requests (incoming and outgoing)",
     security: [%{"authorization" => []}],
-    parameters: [page: [in: :query, schema: %Schema{type: :integer}, description: "Page number (1-based, applied to both lists)", required: false], page_size: [in: :query, schema: %Schema{type: :integer}, description: "Page size (applied to both lists)", required: false]],
+    parameters: [
+      page: [
+        in: :query,
+        schema: %Schema{type: :integer},
+        description: "Page number (1-based, applied to both lists)",
+        required: false
+      ],
+      page_size: [
+        in: :query,
+        schema: %Schema{type: :integer},
+        description: "Page size (applied to both lists)",
+        required: false
+      ]
+    ],
     responses: [
       ok: {
         "Requests",
@@ -49,9 +111,67 @@ defmodule GameServerWeb.Api.V1.FriendController do
         %Schema{
           type: :object,
           properties: %{
-            incoming: %Schema{type: :array, items: %Schema{type: :object, properties: %{id: %Schema{type: :integer}, requester: %Schema{type: :object, properties: %{id: %Schema{type: :integer}, display_name: %Schema{type: :string}}}, target: %Schema{type: :object, properties: %{id: %Schema{type: :integer}, display_name: %Schema{type: :string}}}, status: %Schema{type: :string}, inserted_at: %Schema{type: :string, format: :date_time}}}},
-            outgoing: %Schema{type: :array, items: %Schema{type: :object, properties: %{id: %Schema{type: :integer}, requester: %Schema{type: :object, properties: %{id: %Schema{type: :integer}, display_name: %Schema{type: :string}}}, target: %Schema{type: :object, properties: %{id: %Schema{type: :integer}, display_name: %Schema{type: :string}}}, status: %Schema{type: :string}, inserted_at: %Schema{type: :string, format: :date_time}}}},
-            meta: %Schema{type: :object, properties: %{page: %Schema{type: :integer}, page_size: %Schema{type: :integer}, counts: %Schema{type: :object}, total_counts: %Schema{type: :object}, total_pages: %Schema{type: :object}, has_more: %Schema{type: :object}}}
+            incoming: %Schema{
+              type: :array,
+              items: %Schema{
+                type: :object,
+                properties: %{
+                  id: %Schema{type: :integer},
+                  requester: %Schema{
+                    type: :object,
+                    properties: %{
+                      id: %Schema{type: :integer},
+                      display_name: %Schema{type: :string}
+                    }
+                  },
+                  target: %Schema{
+                    type: :object,
+                    properties: %{
+                      id: %Schema{type: :integer},
+                      display_name: %Schema{type: :string}
+                    }
+                  },
+                  status: %Schema{type: :string},
+                  inserted_at: %Schema{type: :string, format: :date_time}
+                }
+              }
+            },
+            outgoing: %Schema{
+              type: :array,
+              items: %Schema{
+                type: :object,
+                properties: %{
+                  id: %Schema{type: :integer},
+                  requester: %Schema{
+                    type: :object,
+                    properties: %{
+                      id: %Schema{type: :integer},
+                      display_name: %Schema{type: :string}
+                    }
+                  },
+                  target: %Schema{
+                    type: :object,
+                    properties: %{
+                      id: %Schema{type: :integer},
+                      display_name: %Schema{type: :string}
+                    }
+                  },
+                  status: %Schema{type: :string},
+                  inserted_at: %Schema{type: :string, format: :date_time}
+                }
+              }
+            },
+            meta: %Schema{
+              type: :object,
+              properties: %{
+                page: %Schema{type: :integer},
+                page_size: %Schema{type: :integer},
+                counts: %Schema{type: :object},
+                total_counts: %Schema{type: :object},
+                total_pages: %Schema{type: :object},
+                has_more: %Schema{type: :object}
+              }
+            }
           }
         }
       }
@@ -62,31 +182,80 @@ defmodule GameServerWeb.Api.V1.FriendController do
     operation_id: "accept_friend_request",
     summary: "Accept a friend request",
     security: [%{"authorization" => []}],
-    parameters: [id: [in: :path, schema: %Schema{type: :integer}, description: "Friendship record id (friendship_id) — the id of the friendship row, not a user id", required: true]],
-    responses: [no_content: {"Accepted", "application/json", nil}, unauthorized: {"Not authenticated", "application/json", nil}, forbidden: {"Not authorized", "application/json", nil}]
+    parameters: [
+      id: [
+        in: :path,
+        schema: %Schema{type: :integer},
+        description:
+          "Friendship record id (friendship_id) — the id of the friendship row, not a user id",
+        required: true
+      ]
+    ],
+    responses: [
+      no_content: {"Accepted", "application/json", nil},
+      unauthorized: {"Not authenticated", "application/json", nil},
+      forbidden: {"Not authorized", "application/json", nil}
+    ]
   )
 
   operation(:reject,
     operation_id: "reject_friend_request",
     summary: "Reject a friend request",
     security: [%{"authorization" => []}],
-    parameters: [id: [in: :path, schema: %Schema{type: :integer}, description: "Friendship record id (friendship_id) — the id of the friendship row, not a user id", required: true]],
-    responses: [no_content: {"Rejected", "application/json", nil}, unauthorized: {"Not authenticated", "application/json", nil}, forbidden: {"Not authorized", "application/json", nil}]
+    parameters: [
+      id: [
+        in: :path,
+        schema: %Schema{type: :integer},
+        description:
+          "Friendship record id (friendship_id) — the id of the friendship row, not a user id",
+        required: true
+      ]
+    ],
+    responses: [
+      no_content: {"Rejected", "application/json", nil},
+      unauthorized: {"Not authenticated", "application/json", nil},
+      forbidden: {"Not authorized", "application/json", nil}
+    ]
   )
 
   operation(:block,
     operation_id: "block_friend_request",
     summary: "Block a friend request / user",
     security: [%{"authorization" => []}],
-    parameters: [id: [in: :path, schema: %Schema{type: :integer}, description: "Friendship record id (friendship_id) — the id of the friendship row, not a user id", required: true]],
-    responses: [no_content: {"Blocked", "application/json", nil}, unauthorized: {"Not authenticated", "application/json", nil}, forbidden: {"Not authorized", "application/json", nil}]
+    parameters: [
+      id: [
+        in: :path,
+        schema: %Schema{type: :integer},
+        description:
+          "Friendship record id (friendship_id) — the id of the friendship row, not a user id",
+        required: true
+      ]
+    ],
+    responses: [
+      no_content: {"Blocked", "application/json", nil},
+      unauthorized: {"Not authenticated", "application/json", nil},
+      forbidden: {"Not authorized", "application/json", nil}
+    ]
   )
 
   operation(:blocked,
     operation_id: "list_blocked_friends",
     summary: "List users you've blocked",
     security: [%{"authorization" => []}],
-    parameters: [page: [in: :query, schema: %Schema{type: :integer}, description: "Page number (1-based)", required: false], page_size: [in: :query, schema: %Schema{type: :integer}, description: "Page size (max results per page)", required: false]],
+    parameters: [
+      page: [
+        in: :query,
+        schema: %Schema{type: :integer},
+        description: "Page number (1-based)",
+        required: false
+      ],
+      page_size: [
+        in: :query,
+        schema: %Schema{type: :integer},
+        description: "Page size (max results per page)",
+        required: false
+      ]
+    ],
     responses: [
       ok: {
         "Blocked list",
@@ -132,8 +301,21 @@ defmodule GameServerWeb.Api.V1.FriendController do
     operation_id: "unblock_friend",
     summary: "Unblock a previously-blocked friendship",
     security: [%{"authorization" => []}],
-    parameters: [id: [in: :path, schema: %Schema{type: :integer}, description: "Friendship record id (friendship_id) — the id of the friendship row, not a user id", required: true]],
-    responses: [no_content: {"Unblocked", "application/json", nil}, unauthorized: {"Not authenticated", "application/json", nil}, forbidden: {"Not authorized", "application/json", nil}, not_found: {"Not found", "application/json", nil}]
+    parameters: [
+      id: [
+        in: :path,
+        schema: %Schema{type: :integer},
+        description:
+          "Friendship record id (friendship_id) — the id of the friendship row, not a user id",
+        required: true
+      ]
+    ],
+    responses: [
+      no_content: {"Unblocked", "application/json", nil},
+      unauthorized: {"Not authenticated", "application/json", nil},
+      forbidden: {"Not authorized", "application/json", nil},
+      not_found: {"Not found", "application/json", nil}
+    ]
   )
 
   operation(:delete,
@@ -141,7 +323,11 @@ defmodule GameServerWeb.Api.V1.FriendController do
     summary: "Remove/cancel a friendship or request",
     security: [%{"authorization" => []}],
     parameters: [id: [in: :path, schema: %Schema{type: :integer}, required: true]],
-    responses: [no_content: {"No content", "application/json", nil}, unauthorized: {"Not authenticated", "application/json", nil}, forbidden: {"Not authorized", "application/json", nil}]
+    responses: [
+      no_content: {"No content", "application/json", nil},
+      unauthorized: {"Not authenticated", "application/json", nil},
+      forbidden: {"Not authorized", "application/json", nil}
+    ]
   )
 
   # Clarify: the :id path parameter in accept/reject/block/delete/unblock refers to the friendship record ID (friendship_id), not a user_id.
@@ -152,34 +338,49 @@ defmodule GameServerWeb.Api.V1.FriendController do
         target_id = params["target_user_id"]
 
         case Friends.create_request(user.id, target_id) do
-            {:ok, _f} -> conn |> put_status(:created) |> send_resp(:created, "")
-          {:error, :cannot_friend_self} -> conn |> put_status(:bad_request) |> json(%{error: "cannot_friend_self"})
-          {:error, :already_friends} -> conn |> put_status(:conflict) |> json(%{error: "already_friends"})
-          {:error, :already_requested} -> conn |> put_status(:conflict) |> json(%{error: "already_requested"})
-          {:error, %Ecto.Changeset{} = cs} -> conn |> put_status(:unprocessable_entity) |> json(%{errors: Ecto.Changeset.traverse_errors(cs, & &1)})
-          {:error, reason} -> conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
+          {:ok, _f} ->
+            conn |> put_status(:created) |> send_resp(:created, "")
+
+          {:error, :cannot_friend_self} ->
+            conn |> put_status(:bad_request) |> json(%{error: "cannot_friend_self"})
+
+          {:error, :already_friends} ->
+            conn |> put_status(:conflict) |> json(%{error: "already_friends"})
+
+          {:error, :already_requested} ->
+            conn |> put_status(:conflict) |> json(%{error: "already_requested"})
+
+          {:error, %Ecto.Changeset{} = cs} ->
+            conn
+            |> put_status(:unprocessable_entity)
+            |> json(%{errors: Ecto.Changeset.traverse_errors(cs, & &1)})
+
+          {:error, reason} ->
+            conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
         end
 
-      _ -> conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
+      _ ->
+        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
     end
-
   end
 
   defp parse_page_params(params) do
     page = params["page"] || params[:page]
     page_size = params["page_size"] || params[:page_size]
 
-    page = case page do
-      p when is_binary(p) -> String.to_integer(p)
-      p when is_integer(p) -> p
-      _ -> 1
-    end
+    page =
+      case page do
+        p when is_binary(p) -> String.to_integer(p)
+        p when is_integer(p) -> p
+        _ -> 1
+      end
 
-    page_size = case page_size do
-      p when is_binary(p) -> String.to_integer(p)
-      p when is_integer(p) -> p
-      _ -> 25
-    end
+    page_size =
+      case page_size do
+        p when is_binary(p) -> String.to_integer(p)
+        p when is_integer(p) -> p
+        _ -> 25
+      end
 
     {page, page_size}
   end
@@ -188,13 +389,21 @@ defmodule GameServerWeb.Api.V1.FriendController do
     case conn.assigns.current_scope do
       %{user: user} when not is_nil(user) ->
         case Friends.block_friend_request(String.to_integer(id), user) do
-          {:ok, _f} -> send_resp(conn, :no_content, "")
-          {:error, :not_found} -> conn |> put_status(:not_found) |> json(%{error: "not_found"})
-          {:error, :not_authorized} -> conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
-          {:error, reason} -> conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
+          {:ok, _f} ->
+            send_resp(conn, :no_content, "")
+
+          {:error, :not_found} ->
+            conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+          {:error, :not_authorized} ->
+            conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
+
+          {:error, reason} ->
+            conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
         end
 
-      _ -> conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
+      _ ->
+        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
     end
   end
 
@@ -208,9 +417,13 @@ defmodule GameServerWeb.Api.V1.FriendController do
         count = length(serialized)
         total_count = Friends.count_friends_for_user(user)
 
-        json(conn, %{data: serialized, meta: GameServerWeb.Pagination.meta(page, page_size, count, total_count)})
+        json(conn, %{
+          data: serialized,
+          meta: GameServerWeb.Pagination.meta(page, page_size, count, total_count)
+        })
 
-      _ -> conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
+      _ ->
+        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
     end
   end
 
@@ -220,13 +433,20 @@ defmodule GameServerWeb.Api.V1.FriendController do
         {page, page_size} = parse_page_params(params)
 
         blocked = Friends.list_blocked_for_user(user, page: page, page_size: page_size)
-        serialized = Enum.map(blocked, fn f -> %{id: f.id, requester: serialize_user(f.requester)} end)
+
+        serialized =
+          Enum.map(blocked, fn f -> %{id: f.id, requester: serialize_user(f.requester)} end)
+
         count = length(serialized)
         total_count = Friends.count_blocked_for_user(user)
 
-        json(conn, %{data: serialized, meta: GameServerWeb.Pagination.meta(page, page_size, count, total_count)})
+        json(conn, %{
+          data: serialized,
+          meta: GameServerWeb.Pagination.meta(page, page_size, count, total_count)
+        })
 
-      _ -> conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
+      _ ->
+        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
     end
   end
 
@@ -234,13 +454,21 @@ defmodule GameServerWeb.Api.V1.FriendController do
     case conn.assigns.current_scope do
       %{user: user} when not is_nil(user) ->
         case Friends.unblock_friendship(String.to_integer(id), user) do
-          {:ok, :unblocked} -> send_resp(conn, :no_content, "")
-          {:error, :not_found} -> conn |> put_status(:not_found) |> json(%{error: "not_found"})
-          {:error, :not_authorized} -> conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
-          {:error, reason} -> conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
+          {:ok, :unblocked} ->
+            send_resp(conn, :no_content, "")
+
+          {:error, :not_found} ->
+            conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+          {:error, :not_authorized} ->
+            conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
+
+          {:error, reason} ->
+            conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
         end
 
-      _ -> conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
+      _ ->
+        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
     end
   end
 
@@ -261,9 +489,24 @@ defmodule GameServerWeb.Api.V1.FriendController do
         total_pages_in = if page_size > 0, do: div(total_in + page_size - 1, page_size), else: 0
         total_pages_out = if page_size > 0, do: div(total_out + page_size - 1, page_size), else: 0
 
-        json(conn, %{incoming: inc_serialized, outgoing: out_serialized, meta: %{page: page, page_size: page_size, counts: %{incoming: length(inc_serialized), outgoing: length(out_serialized)}, total_counts: %{incoming: total_in, outgoing: total_out}, total_pages: %{incoming: total_pages_in, outgoing: total_pages_out}, has_more: %{incoming: length(inc_serialized) == page_size, outgoing: length(out_serialized) == page_size}}})
+        json(conn, %{
+          incoming: inc_serialized,
+          outgoing: out_serialized,
+          meta: %{
+            page: page,
+            page_size: page_size,
+            counts: %{incoming: length(inc_serialized), outgoing: length(out_serialized)},
+            total_counts: %{incoming: total_in, outgoing: total_out},
+            total_pages: %{incoming: total_pages_in, outgoing: total_pages_out},
+            has_more: %{
+              incoming: length(inc_serialized) == page_size,
+              outgoing: length(out_serialized) == page_size
+            }
+          }
+        })
 
-      _ -> conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
+      _ ->
+        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
     end
   end
 
@@ -271,13 +514,21 @@ defmodule GameServerWeb.Api.V1.FriendController do
     case conn.assigns.current_scope do
       %{user: user} when not is_nil(user) ->
         case Friends.accept_friend_request(String.to_integer(id), user) do
-          {:ok, _f} -> send_resp(conn, :no_content, "")
-          {:error, :not_found} -> conn |> put_status(:not_found) |> json(%{error: "not_found"})
-          {:error, :not_authorized} -> conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
-          {:error, reason} -> conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
+          {:ok, _f} ->
+            send_resp(conn, :no_content, "")
+
+          {:error, :not_found} ->
+            conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+          {:error, :not_authorized} ->
+            conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
+
+          {:error, reason} ->
+            conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
         end
 
-      _ -> conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
+      _ ->
+        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
     end
   end
 
@@ -285,13 +536,21 @@ defmodule GameServerWeb.Api.V1.FriendController do
     case conn.assigns.current_scope do
       %{user: user} when not is_nil(user) ->
         case Friends.reject_friend_request(String.to_integer(id), user) do
-          {:ok, _f} -> send_resp(conn, :no_content, "")
-          {:error, :not_found} -> conn |> put_status(:not_found) |> json(%{error: "not_found"})
-          {:error, :not_authorized} -> conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
-          {:error, reason} -> conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
+          {:ok, _f} ->
+            send_resp(conn, :no_content, "")
+
+          {:error, :not_found} ->
+            conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+          {:error, :not_authorized} ->
+            conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
+
+          {:error, reason} ->
+            conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
         end
 
-      _ -> conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
+      _ ->
+        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
     end
   end
 
@@ -300,7 +559,9 @@ defmodule GameServerWeb.Api.V1.FriendController do
       %{user: user} when not is_nil(user) ->
         # Try to fetch and delete. allow requesters to cancel pending, or either user to delete accepted friendship
         case Repo.get(Friends.Friendship, String.to_integer(id)) do
-          nil -> conn |> put_status(:not_found) |> json(%{error: "not_found"})
+          nil ->
+            conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
           f ->
             cond do
               f.status == "pending" and f.requester_id == user.id ->
@@ -310,33 +571,45 @@ defmodule GameServerWeb.Api.V1.FriendController do
                 end
 
               f.status == "accepted" and (f.requester_id == user.id or f.target_id == user.id) ->
-                case Friends.remove_friend(user.id, if(f.requester_id == user.id, do: f.target_id, else: f.requester_id)) do
+                case Friends.remove_friend(
+                       user.id,
+                       if(f.requester_id == user.id, do: f.target_id, else: f.requester_id)
+                     ) do
                   {:ok, _} -> send_resp(conn, :no_content, "")
                   err -> conn |> put_status(:bad_request) |> json(%{error: to_string(err)})
                 end
 
-              true -> conn |> put_status(:forbidden) |> json(%{error: "not_authorized"})
+              true ->
+                conn |> put_status(:forbidden) |> json(%{error: "not_authorized"})
             end
         end
 
-      _ -> conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
+      _ ->
+        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
     end
   end
 
   defp serialize_user(user) do
-    %{id: user.id, email: user.email, display_name: user.display_name, profile_url: user.profile_url}
+    %{
+      id: user.id,
+      email: user.email,
+      display_name: user.display_name,
+      profile_url: user.profile_url
+    }
   end
 
   defp serialize_request(%Friends.Friendship{} = f) do
-    requester = case f.requester do
-      %Ecto.Association.NotLoaded{} -> %{id: f.requester_id, display_name: nil}
-      %{} = r -> %{id: r.id, display_name: r.display_name}
-    end
+    requester =
+      case f.requester do
+        %Ecto.Association.NotLoaded{} -> %{id: f.requester_id, display_name: nil}
+        %{} = r -> %{id: r.id, display_name: r.display_name}
+      end
 
-    target = case f.target do
-      %Ecto.Association.NotLoaded{} -> %{id: f.target_id, display_name: nil}
-      %{} = t -> %{id: t.id, display_name: t.display_name}
-    end
+    target =
+      case f.target do
+        %Ecto.Association.NotLoaded{} -> %{id: f.target_id, display_name: nil}
+        %{} = t -> %{id: t.id, display_name: t.display_name}
+      end
 
     %{
       id: f.id,

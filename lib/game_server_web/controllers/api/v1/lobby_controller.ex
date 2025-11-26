@@ -44,8 +44,18 @@ defmodule GameServerWeb.Api.V1.LobbyController do
         schema: %Schema{type: :string},
         description: "Search term for name or title"
       ],
-      page: [in: :query, schema: %Schema{type: :integer}, description: "Page number (1-based)", required: false],
-      page_size: [in: :query, schema: %Schema{type: :integer}, description: "Page size (max results per page)", required: false],
+      page: [
+        in: :query,
+        schema: %Schema{type: :integer},
+        description: "Page number (1-based)",
+        required: false
+      ],
+      page_size: [
+        in: :query,
+        schema: %Schema{type: :integer},
+        description: "Page size (max results per page)",
+        required: false
+      ],
       metadata_key: [
         in: :query,
         schema: %Schema{type: :string},
@@ -58,7 +68,25 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       ]
     ],
     responses: [
-      ok: {"List of lobbies (paginated)", "application/json", %Schema{type: :object, properties: %{data: %Schema{type: :array, items: @lobby_schema}, meta: %Schema{type: :object, properties: %{page: %Schema{type: :integer}, page_size: %Schema{type: :integer}, count: %Schema{type: :integer}, total_count: %Schema{type: :integer}, total_pages: %Schema{type: :integer}, has_more: %Schema{type: :boolean}}}}}}
+      ok:
+        {"List of lobbies (paginated)", "application/json",
+         %Schema{
+           type: :object,
+           properties: %{
+             data: %Schema{type: :array, items: @lobby_schema},
+             meta: %Schema{
+               type: :object,
+               properties: %{
+                 page: %Schema{type: :integer},
+                 page_size: %Schema{type: :integer},
+                 count: %Schema{type: :integer},
+                 total_count: %Schema{type: :integer},
+                 total_pages: %Schema{type: :integer},
+                 has_more: %Schema{type: :boolean}
+               }
+             }
+           }
+         }}
     ]
   )
 
@@ -234,17 +262,20 @@ defmodule GameServerWeb.Api.V1.LobbyController do
 
   def index(conn, params) do
     filters = Map.take(params || %{}, ["q", "metadata_key", "metadata_value"]) |> Enum.into(%{})
-    page = case params["page"] || params[:page] do
-      p when is_binary(p) -> String.to_integer(p)
-      p when is_integer(p) -> p
-      _ -> 1
-    end
 
-    page_size = case params["page_size"] || params[:page_size] do
-      p when is_binary(p) -> String.to_integer(p)
-      p when is_integer(p) -> p
-      _ -> 25
-    end
+    page =
+      case params["page"] || params[:page] do
+        p when is_binary(p) -> String.to_integer(p)
+        p when is_integer(p) -> p
+        _ -> 1
+      end
+
+    page_size =
+      case params["page_size"] || params[:page_size] do
+        p when is_binary(p) -> String.to_integer(p)
+        p when is_integer(p) -> p
+        _ -> 25
+      end
 
     lobbies = Lobbies.list_lobbies(filters, page: page, page_size: page_size)
     serialized = Enum.map(lobbies, &serialize_lobby/1)
@@ -252,7 +283,10 @@ defmodule GameServerWeb.Api.V1.LobbyController do
 
     total_count = Lobbies.count_list_lobbies(filters)
 
-    json(conn, %{data: serialized, meta: GameServerWeb.Pagination.meta(page, page_size, count, total_count)})
+    json(conn, %{
+      data: serialized,
+      meta: GameServerWeb.Pagination.meta(page, page_size, count, total_count)
+    })
   end
 
   def create(conn, params) do

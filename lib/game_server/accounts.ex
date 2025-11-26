@@ -59,12 +59,12 @@ defmodule GameServer.Accounts do
 
     Repo.all(
       from u in User,
-        where: fragment("LOWER(?) LIKE LOWER(?)", u.email, ^pattern) or
-               fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^pattern),
+        where:
+          fragment("LOWER(?) LIKE LOWER(?)", u.email, ^pattern) or
+            fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^pattern),
         limit: ^page_size,
         offset: ^offset
     )
-
   end
 
   @doc """
@@ -72,6 +72,7 @@ defmodule GameServer.Accounts do
   """
   def count_search_users(query) when is_binary(query) do
     q = String.trim(query)
+
     if q == "" do
       0
     else
@@ -91,8 +92,9 @@ defmodule GameServer.Accounts do
 
     Repo.one(
       from u in User,
-        where: fragment("LOWER(?) LIKE LOWER(?)", u.email, ^pattern) or
-               fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^pattern),
+        where:
+          fragment("LOWER(?) LIKE LOWER(?)", u.email, ^pattern) or
+            fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^pattern),
         select: count(u.id)
     ) || 0
   end

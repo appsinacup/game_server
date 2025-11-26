@@ -65,17 +65,25 @@ defmodule GameServerWeb.UserLive.Settings do
       </div>
 
       <div class="divider" />
-
-      <!-- Friends panel (embedded) -->
+      
+    <!-- Friends panel (embedded) -->
       <div id="friends" class="card bg-base-200 p-4 rounded-lg mt-6">
         <div class="flex items-center justify-between">
           <div>
             <div class="font-semibold text-lg">Friends</div>
-            <div class="text-sm text-base-content/70">View and manage friend requests and current friends</div>
+            <div class="text-sm text-base-content/70">
+              View and manage friend requests and current friends
+            </div>
           </div>
           <div class="flex items-center gap-2">
             <form phx-change="search_users">
-              <input type="text" name="q" value={@search_query} placeholder="Search by email or display name" class="input input-sm" />
+              <input
+                type="text"
+                name="q"
+                value={@search_query}
+                placeholder="Search by email or display name"
+                class="input input-sm"
+              />
             </form>
           </div>
         </div>
@@ -83,51 +91,113 @@ defmodule GameServerWeb.UserLive.Settings do
         <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <h4 class="font-semibold">Incoming Requests</h4>
-            <div :for={req <- @incoming} id={"request-" <> Integer.to_string(req.id)} class="p-2 border rounded mt-2">
+            <div
+              :for={req <- @incoming}
+              id={"request-" <> Integer.to_string(req.id)}
+              class="p-2 border rounded mt-2"
+            >
               <div class="text-sm">
-                {req.requester && req.requester.display_name || "User " <> to_string(req.requester_id)}
+                {(req.requester && req.requester.display_name) ||
+                  "User " <> to_string(req.requester_id)}
                 <span class="text-xs text-base-content/60 ml-2">(id: {req.requester_id})</span>
               </div>
               <div class="flex gap-2 mt-2">
-                <button phx-click="accept_friend" phx-value-id={req.id} class="btn btn-sm">Accept</button>
-                <button phx-click="reject_friend" phx-value-id={req.id} class="btn btn-sm">Reject</button>
-                <button phx-click="block_friend" phx-value-id={req.id} class="btn btn-sm btn-outline">Block</button>
+                <button phx-click="accept_friend" phx-value-id={req.id} class="btn btn-sm">
+                  Accept
+                </button>
+                <button phx-click="reject_friend" phx-value-id={req.id} class="btn btn-sm">
+                  Reject
+                </button>
+                <button phx-click="block_friend" phx-value-id={req.id} class="btn btn-sm btn-outline">
+                  Block
+                </button>
               </div>
             </div>
             <div class="mt-2 flex gap-2 items-center">
-              <button phx-click="incoming_prev" class="btn btn-xs" disabled={@incoming_page <= 1}>Prev</button>
-              <div class="text-xs text-base-content/70">page {@incoming_page} / {@incoming_total_pages} ({@incoming_total} total)</div>
-              <button phx-click="incoming_next" class="btn btn-xs" disabled={@incoming_page >= @incoming_total_pages || @incoming_total_pages == 0}>Next</button>
+              <button phx-click="incoming_prev" class="btn btn-xs" disabled={@incoming_page <= 1}>
+                Prev
+              </button>
+              <div class="text-xs text-base-content/70">
+                page {@incoming_page} / {@incoming_total_pages} ({@incoming_total} total)
+              </div>
+              <button
+                phx-click="incoming_next"
+                class="btn btn-xs"
+                disabled={@incoming_page >= @incoming_total_pages || @incoming_total_pages == 0}
+              >
+                Next
+              </button>
             </div>
           </div>
 
           <div>
             <h4 class="font-semibold">Outgoing Requests</h4>
-            <div :for={req <- @outgoing} id={"outgoing-" <> Integer.to_string(req.id)} class="p-2 border rounded mt-2">
-              <div class="text-sm">{req.target && req.target.display_name || "User " <> to_string(req.target_id)}</div>
+            <div
+              :for={req <- @outgoing}
+              id={"outgoing-" <> Integer.to_string(req.id)}
+              class="p-2 border rounded mt-2"
+            >
+              <div class="text-sm">
+                {(req.target && req.target.display_name) || "User " <> to_string(req.target_id)}
+              </div>
               <div class="flex gap-2 mt-2">
-                <button phx-click="cancel_friend" phx-value-id={req.id} class="btn btn-sm">Cancel</button>
+                <button phx-click="cancel_friend" phx-value-id={req.id} class="btn btn-sm">
+                  Cancel
+                </button>
               </div>
             </div>
             <div class="mt-2 flex gap-2 items-center">
-              <button phx-click="outgoing_prev" class="btn btn-xs" disabled={@outgoing_page <= 1}>Prev</button>
-              <div class="text-xs text-base-content/70">page {@outgoing_page} / {@outgoing_total_pages} ({@outgoing_total} total)</div>
-              <button phx-click="outgoing_next" class="btn btn-xs" disabled={@outgoing_page >= @outgoing_total_pages || @outgoing_total_pages == 0}>Next</button>
+              <button phx-click="outgoing_prev" class="btn btn-xs" disabled={@outgoing_page <= 1}>
+                Prev
+              </button>
+              <div class="text-xs text-base-content/70">
+                page {@outgoing_page} / {@outgoing_total_pages} ({@outgoing_total} total)
+              </div>
+              <button
+                phx-click="outgoing_next"
+                class="btn btn-xs"
+                disabled={@outgoing_page >= @outgoing_total_pages || @outgoing_total_pages == 0}
+              >
+                Next
+              </button>
             </div>
           </div>
 
           <div>
             <h4 class="font-semibold">Friends</h4>
-            <div :for={u <- @friends} id={"friend-" <> Integer.to_string(u.id)} class="p-2 border rounded mt-2">
+            <div
+              :for={u <- @friends}
+              id={"friend-" <> Integer.to_string(u.id)}
+              class="p-2 border rounded mt-2"
+            >
               <div class="flex justify-between items-center gap-2">
-                <div class="text-sm">{u.display_name || u.email} <span class="text-xs text-base-content/60 ml-2">(id: {u.id})</span></div>
-                <button phx-click="remove_friend" phx-value-friend_id={u.id} class="btn btn-sm text-red-500">Remove</button>
+                <div class="text-sm">
+                  {u.display_name || u.email}
+                  <span class="text-xs text-base-content/60 ml-2">(id: {u.id})</span>
+                </div>
+                <button
+                  phx-click="remove_friend"
+                  phx-value-friend_id={u.id}
+                  class="btn btn-sm text-red-500"
+                >
+                  Remove
+                </button>
               </div>
             </div>
             <div class="mt-2 flex gap-2 items-center">
-              <button phx-click="friends_prev" class="btn btn-xs" disabled={@friends_page <= 1}>Prev</button>
-              <div class="text-xs text-base-content/70">page {@friends_page} / {@friends_total_pages} ({@friends_total} total)</div>
-              <button phx-click="friends_next" class="btn btn-xs" disabled={@friends_page >= @friends_total_pages || @friends_total_pages == 0}>Next</button>
+              <button phx-click="friends_prev" class="btn btn-xs" disabled={@friends_page <= 1}>
+                Prev
+              </button>
+              <div class="text-xs text-base-content/70">
+                page {@friends_page} / {@friends_total_pages} ({@friends_total} total)
+              </div>
+              <button
+                phx-click="friends_next"
+                class="btn btn-xs"
+                disabled={@friends_page >= @friends_total_pages || @friends_total_pages == 0}
+              >
+                Next
+              </button>
             </div>
           </div>
         </div>
@@ -137,30 +207,68 @@ defmodule GameServerWeb.UserLive.Settings do
         <div class="mt-2">
           <div :if={length(@blocked) > 0} class="mt-4">
             <div class="text-xs text-base-content/70">Blocked users</div>
-            <div :for={b <- @blocked} id={"blocked-" <> Integer.to_string(b.id)} class="p-2 border rounded mt-2 flex items-center justify-between">
-              <div class="text-sm">{b.requester && b.requester.display_name || "User " <> to_string(b.requester_id)} <span class="text-xs text-base-content/60 ml-2">(id: {b.requester_id})</span></div>
+            <div
+              :for={b <- @blocked}
+              id={"blocked-" <> Integer.to_string(b.id)}
+              class="p-2 border rounded mt-2 flex items-center justify-between"
+            >
+              <div class="text-sm">
+                {(b.requester && b.requester.display_name) || "User " <> to_string(b.requester_id)}
+                <span class="text-xs text-base-content/60 ml-2">(id: {b.requester_id})</span>
+              </div>
               <div>
-                <button phx-click="unblock_friend" phx-value-id={b.id} class="btn btn-xs btn-outline">Unblock</button>
+                <button phx-click="unblock_friend" phx-value-id={b.id} class="btn btn-xs btn-outline">
+                  Unblock
+                </button>
               </div>
             </div>
             <div class="mt-2 flex gap-2 items-center">
-              <button phx-click="blocked_prev" class="btn btn-xs" disabled={@blocked_page <= 1}>Prev</button>
-              <div class="text-xs text-base-content/70">page {@blocked_page} / {@blocked_total_pages} ({@blocked_total} total)</div>
-              <button phx-click="blocked_next" class="btn btn-xs" disabled={@blocked_page >= @blocked_total_pages || @blocked_total_pages == 0}>Next</button>
+              <button phx-click="blocked_prev" class="btn btn-xs" disabled={@blocked_page <= 1}>
+                Prev
+              </button>
+              <div class="text-xs text-base-content/70">
+                page {@blocked_page} / {@blocked_total_pages} ({@blocked_total} total)
+              </div>
+              <button
+                phx-click="blocked_next"
+                class="btn btn-xs"
+                disabled={@blocked_page >= @blocked_total_pages || @blocked_total_pages == 0}
+              >
+                Next
+              </button>
             </div>
           </div>
           <div :if={length(@search_results) > 0} class="mt-3">
             <div class="text-xs text-base-content/70">Search results</div>
-            <div :for={s <- @search_results} id={"search-" <> Integer.to_string(s.id)} class="p-2 border rounded mt-2 flex items-center justify-between">
-              <div class="text-sm">{s.display_name || s.email} <span class="text-xs text-base-content/60 ml-2">(id: {s.id})</span></div>
+            <div
+              :for={s <- @search_results}
+              id={"search-" <> Integer.to_string(s.id)}
+              class="p-2 border rounded mt-2 flex items-center justify-between"
+            >
+              <div class="text-sm">
+                {s.display_name || s.email}
+                <span class="text-xs text-base-content/60 ml-2">(id: {s.id})</span>
+              </div>
               <div>
-                <button phx-click="send_friend" phx-value-target={s.id} class="btn btn-xs">Send</button>
+                <button phx-click="send_friend" phx-value-target={s.id} class="btn btn-xs">
+                  Send
+                </button>
               </div>
             </div>
             <div class="mt-2 flex gap-2 items-center">
-              <button phx-click="search_prev" class="btn btn-xs" disabled={@search_page <= 1}>Prev</button>
-              <div class="text-xs text-base-content/70">page {@search_page} / {@search_total_pages} ({@search_total} total)</div>
-              <button phx-click="search_next" class="btn btn-xs" disabled={@search_page >= @search_total_pages || @search_total_pages == 0}>Next</button>
+              <button phx-click="search_prev" class="btn btn-xs" disabled={@search_page <= 1}>
+                Prev
+              </button>
+              <div class="text-xs text-base-content/70">
+                page {@search_page} / {@search_total_pages} ({@search_total} total)
+              </div>
+              <button
+                phx-click="search_next"
+                class="btn btn-xs"
+                disabled={@search_page >= @search_total_pages || @search_total_pages == 0}
+              >
+                Next
+              </button>
             </div>
           </div>
         </div>
@@ -401,19 +509,31 @@ defmodule GameServerWeb.UserLive.Settings do
       |> assign(:incoming_page, 1)
       |> assign(:incoming_page_size, 25)
       |> assign(:incoming_total, Friends.count_incoming_requests(user))
-      |> assign(:incoming_total_pages, if(25 > 0, do: div(Friends.count_incoming_requests(user) + 25 - 1, 25), else: 0))
+      |> assign(
+        :incoming_total_pages,
+        if(25 > 0, do: div(Friends.count_incoming_requests(user) + 25 - 1, 25), else: 0)
+      )
       |> assign(:outgoing_page, 1)
       |> assign(:outgoing_page_size, 25)
       |> assign(:outgoing_total, Friends.count_outgoing_requests(user))
-      |> assign(:outgoing_total_pages, if(25 > 0, do: div(Friends.count_outgoing_requests(user) + 25 - 1, 25), else: 0))
+      |> assign(
+        :outgoing_total_pages,
+        if(25 > 0, do: div(Friends.count_outgoing_requests(user) + 25 - 1, 25), else: 0)
+      )
       |> assign(:friends_page, 1)
       |> assign(:friends_page_size, 25)
       |> assign(:friends_total, Friends.count_friends_for_user(user))
-      |> assign(:friends_total_pages, if(25 > 0, do: div(Friends.count_friends_for_user(user) + 25 - 1, 25), else: 0))
+      |> assign(
+        :friends_total_pages,
+        if(25 > 0, do: div(Friends.count_friends_for_user(user) + 25 - 1, 25), else: 0)
+      )
       |> assign(:blocked_page, 1)
       |> assign(:blocked_page_size, 25)
       |> assign(:blocked_total, Friends.count_blocked_for_user(user))
-      |> assign(:blocked_total_pages, if(25 > 0, do: div(Friends.count_blocked_for_user(user) + 25 - 1, 25), else: 0))
+      |> assign(
+        :blocked_total_pages,
+        if(25 > 0, do: div(Friends.count_blocked_for_user(user) + 25 - 1, 25), else: 0)
+      )
       |> assign(:incoming, Friends.list_incoming_requests(user, page: 1, page_size: 25))
       |> assign(:outgoing, Friends.list_outgoing_requests(user, page: 1, page_size: 25))
       |> assign(:friends, Friends.list_friends_for_user(user, page: 1, page_size: 25))
@@ -437,7 +557,7 @@ defmodule GameServerWeb.UserLive.Settings do
   def handle_event(event, params, socket) do
     user = get_user_from_scope(socket.assigns)
 
-     case {event, params} do
+    case {event, params} do
       {"validate_email", %{"user" => user_params}} ->
         email_form =
           user
@@ -464,7 +584,13 @@ defmodule GameServerWeb.UserLive.Settings do
         total = if q == "", do: 0, else: Accounts.count_search_users(q)
         total_pages = if page_size > 0, do: div(total + page_size - 1, page_size), else: 0
 
-        {:noreply, assign(socket, search_query: q, search_results: results, search_total: total, search_total_pages: total_pages)}
+        {:noreply,
+         assign(socket,
+           search_query: q,
+           search_results: results,
+           search_total: total,
+           search_total_pages: total_pages
+         )}
 
       {"send_friend", params} ->
         target = params["target_id"] || params["target"]
@@ -472,7 +598,8 @@ defmodule GameServerWeb.UserLive.Settings do
 
         case Friends.create_request(user.id, target_id) do
           {:ok, _} ->
-            {:noreply, socket |> put_flash(:info, "Friend request sent") |> refresh_friend_lists(user)}
+            {:noreply,
+             socket |> put_flash(:info, "Friend request sent") |> refresh_friend_lists(user)}
 
           {:error, %Ecto.Changeset{} = cs} ->
             {:noreply, put_flash(socket, :error, "Could not send request: #{inspect(cs.errors)}")}
@@ -485,8 +612,11 @@ defmodule GameServerWeb.UserLive.Settings do
         id = if is_binary(id), do: String.to_integer(id), else: id
 
         case Friends.block_friend_request(id, user) do
-          {:ok, _} -> {:noreply, refresh_friend_lists(socket, user)}
-          {:error, reason} -> {:noreply, put_flash(socket, :error, "Could not block: #{inspect(reason)}")}
+          {:ok, _} ->
+            {:noreply, refresh_friend_lists(socket, user)}
+
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, "Could not block: #{inspect(reason)}")}
         end
 
       {"search_prev", _} ->
@@ -497,7 +627,13 @@ defmodule GameServerWeb.UserLive.Settings do
         total = if q == "", do: 0, else: Accounts.count_search_users(q)
         total_pages = if page_size > 0, do: div(total + page_size - 1, page_size), else: 0
 
-        {:noreply, assign(socket, search_page: page, search_results: results, search_total: total, search_total_pages: total_pages)}
+        {:noreply,
+         assign(socket,
+           search_page: page,
+           search_results: results,
+           search_total: total,
+           search_total_pages: total_pages
+         )}
 
       {"search_next", _} ->
         page = (socket.assigns.search_page || 1) + 1
@@ -507,46 +643,67 @@ defmodule GameServerWeb.UserLive.Settings do
         total = if q == "", do: 0, else: Accounts.count_search_users(q)
         total_pages = if page_size > 0, do: div(total + page_size - 1, page_size), else: 0
 
-        {:noreply, assign(socket, search_page: page, search_results: results, search_total: total, search_total_pages: total_pages)}
+        {:noreply,
+         assign(socket,
+           search_page: page,
+           search_results: results,
+           search_total: total,
+           search_total_pages: total_pages
+         )}
 
       {"accept_friend", %{"id" => id}} ->
         id = if is_binary(id), do: String.to_integer(id), else: id
 
         case Friends.accept_friend_request(id, user) do
-          {:ok, _} -> {:noreply, refresh_friend_lists(socket, user)}
-          {:error, reason} -> {:noreply, put_flash(socket, :error, "Could not accept: #{inspect(reason)}")}
+          {:ok, _} ->
+            {:noreply, refresh_friend_lists(socket, user)}
+
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, "Could not accept: #{inspect(reason)}")}
         end
 
       {"reject_friend", %{"id" => id}} ->
         id = if is_binary(id), do: String.to_integer(id), else: id
 
         case Friends.reject_friend_request(id, user) do
-          {:ok, _} -> {:noreply, refresh_friend_lists(socket, user)}
-          {:error, reason} -> {:noreply, put_flash(socket, :error, "Could not reject: #{inspect(reason)}")}
+          {:ok, _} ->
+            {:noreply, refresh_friend_lists(socket, user)}
+
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, "Could not reject: #{inspect(reason)}")}
         end
 
       {"cancel_friend", %{"id" => id}} ->
         id = if is_binary(id), do: String.to_integer(id), else: id
 
         case Friends.cancel_request(id, user) do
-          {:ok, _} -> {:noreply, refresh_friend_lists(socket, user)}
-          {:error, reason} -> {:noreply, put_flash(socket, :error, "Could not cancel: #{inspect(reason)}")}
+          {:ok, _} ->
+            {:noreply, refresh_friend_lists(socket, user)}
+
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, "Could not cancel: #{inspect(reason)}")}
         end
 
       {"remove_friend", %{"friend_id" => fid}} ->
         fid = if is_binary(fid), do: String.to_integer(fid), else: fid
 
         case Friends.remove_friend(user.id, fid) do
-          {:ok, _} -> {:noreply, refresh_friend_lists(socket, user)}
-          {:error, reason} -> {:noreply, put_flash(socket, :error, "Could not remove: #{inspect(reason)}")}
+          {:ok, _} ->
+            {:noreply, refresh_friend_lists(socket, user)}
+
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, "Could not remove: #{inspect(reason)}")}
         end
 
       {"unblock_friend", %{"id" => id}} ->
         id = if is_binary(id), do: String.to_integer(id), else: id
 
         case Friends.unblock_friendship(id, user) do
-          {:ok, :unblocked} -> {:noreply, refresh_friend_lists(socket, user)}
-          {:error, reason} -> {:noreply, put_flash(socket, :error, "Could not unblock: #{inspect(reason)}")}
+          {:ok, :unblocked} ->
+            {:noreply, refresh_friend_lists(socket, user)}
+
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, "Could not unblock: #{inspect(reason)}")}
         end
 
       {"update_email", %{"user" => user_params}} ->
@@ -567,8 +724,11 @@ defmodule GameServerWeb.UserLive.Settings do
 
       {"update_display_name", %{"user" => user_params}} ->
         case Accounts.update_user_display_name(user, user_params) do
-          {:ok, user} -> {:noreply, socket |> put_flash(:info, "Display name updated.") |> assign(:user, user)}
-          {:error, changeset} -> {:noreply, assign(socket, display_form: to_form(changeset, action: :insert))}
+          {:ok, user} ->
+            {:noreply, socket |> put_flash(:info, "Display name updated.") |> assign(:user, user)}
+
+          {:error, changeset} ->
+            {:noreply, assign(socket, display_form: to_form(changeset, action: :insert))}
         end
 
       {"validate_password", %{"user" => user_params}} ->
@@ -582,8 +742,11 @@ defmodule GameServerWeb.UserLive.Settings do
 
       {"update_password", %{"user" => user_params}} ->
         case Accounts.change_user_password(user, user_params) do
-          %{valid?: true} = changeset -> {:noreply, assign(socket, trigger_submit: true, password_form: to_form(changeset))}
-          changeset -> {:noreply, assign(socket, password_form: to_form(changeset, action: :insert))}
+          %{valid?: true} = changeset ->
+            {:noreply, assign(socket, trigger_submit: true, password_form: to_form(changeset))}
+
+          changeset ->
+            {:noreply, assign(socket, password_form: to_form(changeset, action: :insert))}
         end
 
       {"unlink_provider", %{"provider" => provider}} ->
@@ -599,9 +762,13 @@ defmodule GameServerWeb.UserLive.Settings do
           {:error, :last_provider} ->
             {:noreply,
              socket
-             |> put_flash(:error, "Cannot unlink the last linked social provider (you must have at least one social login connected).")}
+             |> put_flash(
+               :error,
+               "Cannot unlink the last linked social provider (you must have at least one social login connected)."
+             )}
 
-          {:error, _} -> {:noreply, socket |> put_flash(:error, "Failed to unlink provider.")}
+          {:error, _} ->
+            {:noreply, socket |> put_flash(:error, "Failed to unlink provider.")}
         end
 
       {"delete_user", _} ->
@@ -612,14 +779,16 @@ defmodule GameServerWeb.UserLive.Settings do
              |> put_flash(:info, "Your account has been deleted successfully.")
              |> redirect(to: ~p"/")}
 
-          {:error, _changeset} -> {:noreply, put_flash(socket, :error, "Failed to delete account. Please try again.")}
+          {:error, _changeset} ->
+            {:noreply, put_flash(socket, :error, "Failed to delete account. Please try again.")}
         end
 
       {"delete_conflicting_account", %{"id" => id}} ->
         current = user
 
         case GameServer.Repo.get(GameServer.Accounts.User, id) do
-          nil -> {:noreply, put_flash(socket, :error, "Account not found.")}
+          nil ->
+            {:noreply, put_flash(socket, :error, "Account not found.")}
 
           %GameServer.Accounts.User{} = other_user ->
             current_email = (current.email || "") |> String.downcase()
@@ -627,63 +796,123 @@ defmodule GameServerWeb.UserLive.Settings do
 
             cond do
               other_user.id == current.id ->
-                {:noreply, put_flash(socket, :error, "You cannot delete your currently logged-in account here.")}
+                {:noreply,
+                 put_flash(
+                   socket,
+                   :error,
+                   "You cannot delete your currently logged-in account here."
+                 )}
 
               other_email == current_email and other_email != "" ->
                 case Accounts.delete_user(other_user) do
-                  {:ok, _} -> {:noreply, socket |> put_flash(:info, "Conflicting account deleted. You can now try linking the provider again.") |> assign(:conflict_user, nil)}
-                  {:error, _} -> {:noreply, put_flash(socket, :error, "Failed to delete the conflicting account.")}
+                  {:ok, _} ->
+                    {:noreply,
+                     socket
+                     |> put_flash(
+                       :info,
+                       "Conflicting account deleted. You can now try linking the provider again."
+                     )
+                     |> assign(:conflict_user, nil)}
+
+                  {:error, _} ->
+                    {:noreply,
+                     put_flash(socket, :error, "Failed to delete the conflicting account.")}
                 end
 
               other_user.hashed_password == nil ->
                 case Accounts.delete_user(other_user) do
-                  {:ok, _} -> {:noreply, socket |> put_flash(:info, "Conflicting account deleted. You can now try linking the provider again.") |> assign(:conflict_user, nil)}
-                  {:error, _} -> {:noreply, put_flash(socket, :error, "Failed to delete the conflicting account.")}
+                  {:ok, _} ->
+                    {:noreply,
+                     socket
+                     |> put_flash(
+                       :info,
+                       "Conflicting account deleted. You can now try linking the provider again."
+                     )
+                     |> assign(:conflict_user, nil)}
+
+                  {:error, _} ->
+                    {:noreply,
+                     put_flash(socket, :error, "Failed to delete the conflicting account.")}
                 end
 
               true ->
-                {:noreply, put_flash(socket, :error, "Cannot delete an account you do not own. Log in to the other account directly if you control it.")}
+                {:noreply,
+                 put_flash(
+                   socket,
+                   :error,
+                   "Cannot delete an account you do not own. Log in to the other account directly if you control it."
+                 )}
             end
         end
 
       {"incoming_prev", _} ->
         page = max(1, (socket.assigns.incoming_page || 1) - 1)
-        {:noreply, socket |> assign(incoming_page: page) |> refresh_friend_lists(get_user_from_scope(socket.assigns))}
+
+        {:noreply,
+         socket
+         |> assign(incoming_page: page)
+         |> refresh_friend_lists(get_user_from_scope(socket.assigns))}
 
       {"incoming_next", _} ->
         page = (socket.assigns.incoming_page || 1) + 1
-        {:noreply, socket |> assign(incoming_page: page) |> refresh_friend_lists(get_user_from_scope(socket.assigns))}
+
+        {:noreply,
+         socket
+         |> assign(incoming_page: page)
+         |> refresh_friend_lists(get_user_from_scope(socket.assigns))}
 
       {"outgoing_prev", _} ->
         page = max(1, (socket.assigns.outgoing_page || 1) - 1)
-        {:noreply, socket |> assign(outgoing_page: page) |> refresh_friend_lists(get_user_from_scope(socket.assigns))}
+
+        {:noreply,
+         socket
+         |> assign(outgoing_page: page)
+         |> refresh_friend_lists(get_user_from_scope(socket.assigns))}
 
       {"outgoing_next", _} ->
         page = (socket.assigns.outgoing_page || 1) + 1
-        {:noreply, socket |> assign(outgoing_page: page) |> refresh_friend_lists(get_user_from_scope(socket.assigns))}
+
+        {:noreply,
+         socket
+         |> assign(outgoing_page: page)
+         |> refresh_friend_lists(get_user_from_scope(socket.assigns))}
 
       {"friends_prev", _} ->
         page = max(1, (socket.assigns.friends_page || 1) - 1)
-        {:noreply, socket |> assign(friends_page: page) |> refresh_friend_lists(get_user_from_scope(socket.assigns))}
+
+        {:noreply,
+         socket
+         |> assign(friends_page: page)
+         |> refresh_friend_lists(get_user_from_scope(socket.assigns))}
 
       {"friends_next", _} ->
         page = (socket.assigns.friends_page || 1) + 1
-        {:noreply, socket |> assign(friends_page: page) |> refresh_friend_lists(get_user_from_scope(socket.assigns))}
+
+        {:noreply,
+         socket
+         |> assign(friends_page: page)
+         |> refresh_friend_lists(get_user_from_scope(socket.assigns))}
 
       {"blocked_prev", _} ->
         page = max(1, (socket.assigns.blocked_page || 1) - 1)
-        {:noreply, socket |> assign(blocked_page: page) |> refresh_friend_lists(get_user_from_scope(socket.assigns))}
+
+        {:noreply,
+         socket
+         |> assign(blocked_page: page)
+         |> refresh_friend_lists(get_user_from_scope(socket.assigns))}
 
       {"blocked_next", _} ->
         page = (socket.assigns.blocked_page || 1) + 1
-        {:noreply, socket |> assign(blocked_page: page) |> refresh_friend_lists(get_user_from_scope(socket.assigns))}
+
+        {:noreply,
+         socket
+         |> assign(blocked_page: page)
+         |> refresh_friend_lists(get_user_from_scope(socket.assigns))}
 
       _ ->
         {:noreply, socket}
     end
   end
-
-  
 
   defp refresh_friend_lists(socket, user) do
     incoming_page = socket.assigns.incoming_page || 1
@@ -695,20 +924,42 @@ defmodule GameServerWeb.UserLive.Settings do
     blocked_page = socket.assigns.blocked_page || 1
     blocked_page_size = socket.assigns.blocked_page_size || 25
 
-    incoming = Friends.list_incoming_requests(user, page: incoming_page, page_size: incoming_page_size)
-    outgoing = Friends.list_outgoing_requests(user, page: outgoing_page, page_size: outgoing_page_size)
-    friends = Friends.list_friends_for_user(user, page: friends_page, page_size: friends_page_size)
-    blocked = Friends.list_blocked_for_user(user, page: blocked_page, page_size: blocked_page_size)
+    incoming =
+      Friends.list_incoming_requests(user, page: incoming_page, page_size: incoming_page_size)
+
+    outgoing =
+      Friends.list_outgoing_requests(user, page: outgoing_page, page_size: outgoing_page_size)
+
+    friends =
+      Friends.list_friends_for_user(user, page: friends_page, page_size: friends_page_size)
+
+    blocked =
+      Friends.list_blocked_for_user(user, page: blocked_page, page_size: blocked_page_size)
 
     incoming_total = Friends.count_incoming_requests(user)
     outgoing_total = Friends.count_outgoing_requests(user)
     friends_total = Friends.count_friends_for_user(user)
     blocked_total = Friends.count_blocked_for_user(user)
 
-    incoming_total_pages = if incoming_page_size > 0, do: div(incoming_total + incoming_page_size - 1, incoming_page_size), else: 0
-    outgoing_total_pages = if outgoing_page_size > 0, do: div(outgoing_total + outgoing_page_size - 1, outgoing_page_size), else: 0
-    friends_total_pages = if friends_page_size > 0, do: div(friends_total + friends_page_size - 1, friends_page_size), else: 0
-    blocked_total_pages = if blocked_page_size > 0, do: div(blocked_total + blocked_page_size - 1, blocked_page_size), else: 0
+    incoming_total_pages =
+      if incoming_page_size > 0,
+        do: div(incoming_total + incoming_page_size - 1, incoming_page_size),
+        else: 0
+
+    outgoing_total_pages =
+      if outgoing_page_size > 0,
+        do: div(outgoing_total + outgoing_page_size - 1, outgoing_page_size),
+        else: 0
+
+    friends_total_pages =
+      if friends_page_size > 0,
+        do: div(friends_total + friends_page_size - 1, friends_page_size),
+        else: 0
+
+    blocked_total_pages =
+      if blocked_page_size > 0,
+        do: div(blocked_total + blocked_page_size - 1, blocked_page_size),
+        else: 0
 
     assign(socket,
       incoming: incoming,
@@ -741,33 +992,29 @@ defmodule GameServerWeb.UserLive.Settings do
     {:noreply, refresh_friend_lists(socket, user)}
   end
 
-  def handle_info({:friend_accepted, _f}, socket), do: {:noreply, refresh_friend_lists(socket, get_user_from_scope(socket.assigns))}
+  def handle_info({:friend_accepted, _f}, socket),
+    do: {:noreply, refresh_friend_lists(socket, get_user_from_scope(socket.assigns))}
 
-  def handle_info({:friend_rejected, _f}, socket), do: {:noreply, refresh_friend_lists(socket, get_user_from_scope(socket.assigns))}
+  def handle_info({:friend_rejected, _f}, socket),
+    do: {:noreply, refresh_friend_lists(socket, get_user_from_scope(socket.assigns))}
 
-  def handle_info({:friend_blocked, _f}, socket), do: {:noreply, refresh_friend_lists(socket, get_user_from_scope(socket.assigns))}
+  def handle_info({:friend_blocked, _f}, socket),
+    do: {:noreply, refresh_friend_lists(socket, get_user_from_scope(socket.assigns))}
 
-  def handle_info({:request_cancelled, _f}, socket), do: {:noreply, refresh_friend_lists(socket, get_user_from_scope(socket.assigns))}
+  def handle_info({:request_cancelled, _f}, socket),
+    do: {:noreply, refresh_friend_lists(socket, get_user_from_scope(socket.assigns))}
 
-  def handle_info({:friend_removed, _f}, socket), do: {:noreply, refresh_friend_lists(socket, get_user_from_scope(socket.assigns))}
+  def handle_info({:friend_removed, _f}, socket),
+    do: {:noreply, refresh_friend_lists(socket, get_user_from_scope(socket.assigns))}
 
-  def handle_info({:friend_unblocked, _f}, socket), do: {:noreply, refresh_friend_lists(socket, get_user_from_scope(socket.assigns)) |> assign(:blocked, Friends.list_blocked_for_user(get_user_from_scope(socket.assigns)))}
-
-  
-
-  
-
-  
-
-  
-
-  
-
+  def handle_info({:friend_unblocked, _f}, socket),
+    do:
+      {:noreply,
+       refresh_friend_lists(socket, get_user_from_scope(socket.assigns))
+       |> assign(:blocked, Friends.list_blocked_for_user(get_user_from_scope(socket.assigns)))}
 
   ## handle_params is implemented after event handlers to keep handle_event/3
   ## clauses grouped together (avoid compile warnings about grouping clauses).
-
-  
 
   @impl true
   def handle_params(params, _url, socket) do

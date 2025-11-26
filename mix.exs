@@ -78,6 +78,7 @@ defmodule GameServer.MixProject do
       {:bandit, "~> 1.8"},
       {:ueberauth, "~> 0.10"},
       {:open_api_spex, "~> 3.22"},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:guardian, "~> 2.3"}
     ]
   end
@@ -102,9 +103,16 @@ defmodule GameServer.MixProject do
         "phx.digest"
       ],
       lint: [
-        "format --check-formatted"
+        "format --check-formatted",
+        "credo --strict"
       ],
-      precommit: ["compile --warning-as-errors", "deps.unlock --unused", "format", "test"]
+      precommit: [
+        "compile --warning-as-errors",
+        "deps.unlock --unused",
+        "format",
+        "credo --strict",
+        "test"
+      ]
     ]
   end
 end

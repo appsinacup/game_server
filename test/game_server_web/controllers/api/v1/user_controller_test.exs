@@ -11,15 +11,15 @@ defmodule GameServerWeb.Api.V1.UserControllerTest do
 
     resp = json_response(conn, 200)
     assert is_map(resp)
-    assert is_list(resp["data"]) 
+    assert is_list(resp["data"])
     assert Enum.any?(resp["data"], fn r -> r["id"] == a.id end)
   end
 
   test "search pagination returns total_count and total_pages", %{conn: conn} do
     # create 3 matching users
-    a = user_fixture(%{email: "many1@example.com", display_name: "Many"})
-    b = user_fixture(%{email: "many2@example.com", display_name: "Many"})
-    c = user_fixture(%{email: "other@example.com", display_name: "Many"})
+    _a = user_fixture(%{email: "many1@example.com", display_name: "Many"})
+    _b = user_fixture(%{email: "many2@example.com", display_name: "Many"})
+    _c = user_fixture(%{email: "other@example.com", display_name: "Many"})
 
     # page 1, size 2
     conn1 = get(conn, "/api/v1/users", %{q: "Many", page: 1, page_size: 2})

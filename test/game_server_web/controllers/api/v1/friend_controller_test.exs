@@ -32,7 +32,11 @@ defmodule GameServerWeb.Api.V1.FriendControllerTest do
     assert conn_a.status == 201
 
     # refresh the friendship from DB
-    f = Repo.one(from fr in GameServer.Friends.Friendship, where: fr.requester_id == ^a.id and fr.target_id == ^b.id)
+    f =
+      Repo.one(
+        from fr in GameServer.Friends.Friendship,
+          where: fr.requester_id == ^a.id and fr.target_id == ^b.id
+      )
 
     # accept as b
     {:ok, token_b, _} = Guardian.encode_and_sign(b)
@@ -60,8 +64,9 @@ defmodule GameServerWeb.Api.V1.FriendControllerTest do
     conn_b = conn |> put_req_header("authorization", "Bearer " <> token_b)
     resp = get(conn_b, "/api/v1/me/friend-requests") |> json_response(200)
 
-    assert length(resp["incoming"]) == 1
-    assert length(resp["outgoing"]) == 0
+    # Expect exactly one incoming and zero outgoing requests
+    assert [_] = resp["incoming"]
+    assert [] = resp["outgoing"]
 
     # meta total counts and pages should be present
     assert resp["meta"]["total_counts"]["incoming"] == 1
@@ -78,7 +83,11 @@ defmodule GameServerWeb.Api.V1.FriendControllerTest do
     conn_a = conn |> put_req_header("authorization", "Bearer " <> token_a)
     post(conn_a, "/api/v1/friends", %{target_user_id: b.id})
 
-    f = Repo.one(from fr in GameServer.Friends.Friendship, where: fr.requester_id == ^a.id and fr.target_id == ^b.id)
+    f =
+      Repo.one(
+        from fr in GameServer.Friends.Friendship,
+          where: fr.requester_id == ^a.id and fr.target_id == ^b.id
+      )
 
     # cancel as a
     conn_cancel = conn_a |> delete("/api/v1/friends/#{f.id}")
@@ -87,7 +96,12 @@ defmodule GameServerWeb.Api.V1.FriendControllerTest do
 
     # create again and accept
     post(conn_a, "/api/v1/friends", %{target_user_id: b.id})
-    f2 = Repo.one(from fr in GameServer.Friends.Friendship, where: fr.requester_id == ^a.id and fr.target_id == ^b.id)
+
+    f2 =
+      Repo.one(
+        from fr in GameServer.Friends.Friendship,
+          where: fr.requester_id == ^a.id and fr.target_id == ^b.id
+      )
 
     {:ok, token_b, _} = Guardian.encode_and_sign(b)
     conn_b = conn |> put_req_header("authorization", "Bearer " <> token_b)
@@ -144,7 +158,12 @@ defmodule GameServerWeb.Api.V1.FriendControllerTest do
     assert resp2.status in [200, 201]
 
     # verify friendship is accepted
-    f = Repo.one(from fr in GameServer.Friends.Friendship, where: fr.requester_id == ^b.id and fr.target_id == ^a.id)
+    f =
+      Repo.one(
+        from fr in GameServer.Friends.Friendship,
+          where: fr.requester_id == ^b.id and fr.target_id == ^a.id
+      )
+
     assert f.status == "accepted"
   end
 
@@ -176,7 +195,11 @@ defmodule GameServerWeb.Api.V1.FriendControllerTest do
     conn_a = put_req_header(conn, "authorization", "Bearer " <> token_a)
     post(conn_a, "/api/v1/friends", %{target_user_id: b.id})
 
-    f = Repo.one(from fr in GameServer.Friends.Friendship, where: fr.requester_id == ^a.id and fr.target_id == ^b.id)
+    f =
+      Repo.one(
+        from fr in GameServer.Friends.Friendship,
+          where: fr.requester_id == ^a.id and fr.target_id == ^b.id
+      )
 
     # c trying to accept should get forbidden
     {:ok, token_c, _} = Guardian.encode_and_sign(c)
@@ -197,7 +220,11 @@ defmodule GameServerWeb.Api.V1.FriendControllerTest do
     conn_a = put_req_header(conn, "authorization", "Bearer " <> token_a)
     post(conn_a, "/api/v1/friends", %{target_user_id: b.id})
 
-    f = Repo.one(from fr in GameServer.Friends.Friendship, where: fr.requester_id == ^a.id and fr.target_id == ^b.id)
+    f =
+      Repo.one(
+        from fr in GameServer.Friends.Friendship,
+          where: fr.requester_id == ^a.id and fr.target_id == ^b.id
+      )
 
     # b blocks the incoming request
     {:ok, token_b, _} = Guardian.encode_and_sign(b)
@@ -222,7 +249,11 @@ defmodule GameServerWeb.Api.V1.FriendControllerTest do
     conn_a = put_req_header(conn, "authorization", "Bearer " <> token_a)
     post(conn_a, "/api/v1/friends", %{target_user_id: b.id})
 
-    f = Repo.one(from fr in GameServer.Friends.Friendship, where: fr.requester_id == ^a.id and fr.target_id == ^b.id)
+    f =
+      Repo.one(
+        from fr in GameServer.Friends.Friendship,
+          where: fr.requester_id == ^a.id and fr.target_id == ^b.id
+      )
 
     # b blocks
     {:ok, token_b, _} = Guardian.encode_and_sign(b)
@@ -258,7 +289,13 @@ defmodule GameServerWeb.Api.V1.FriendControllerTest do
     # make friendships by having others send request -> accept
     Enum.each(other, fn u ->
       {:ok, _} = Friends.create_request(u.id, a.id)
-      f = Repo.one(from fr in GameServer.Friends.Friendship, where: fr.requester_id == ^u.id and fr.target_id == ^a.id)
+
+      f =
+        Repo.one(
+          from fr in GameServer.Friends.Friendship,
+            where: fr.requester_id == ^u.id and fr.target_id == ^a.id
+        )
+
       {:ok, _} = Friends.accept_friend_request(f.id, %GameServer.Accounts.User{id: a.id})
     end)
 
@@ -292,7 +329,11 @@ defmodule GameServerWeb.Api.V1.FriendControllerTest do
     conn_a = put_req_header(conn, "authorization", "Bearer " <> token_a)
     post(conn_a, "/api/v1/friends", %{target_user_id: b.id})
 
-    f = Repo.one(from fr in GameServer.Friends.Friendship, where: fr.requester_id == ^a.id and fr.target_id == ^b.id)
+    f =
+      Repo.one(
+        from fr in GameServer.Friends.Friendship,
+          where: fr.requester_id == ^a.id and fr.target_id == ^b.id
+      )
 
     {:ok, token_c, _} = Guardian.encode_and_sign(c)
     conn_c = put_req_header(conn, "authorization", "Bearer " <> token_c)
