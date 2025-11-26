@@ -7,6 +7,27 @@ defmodule GameServerWeb.AuthController do
   alias GameServerWeb.UserAuth
 
   # Browser OAuth request - redirects to provider
+  operation(:request,
+    operation_id: "oauth_request_browser",
+    summary: "Browser OAuth request",
+    description: "Initiate a browser OAuth flow and redirect the user to the provider",
+    tags: ["Authentication"],
+    parameters: [
+      provider: [
+        in: :path,
+        name: "provider",
+        schema: %OpenApiSpex.Schema{
+          type: :string,
+          enum: ["discord", "apple", "google", "facebook"]
+        },
+        required: true
+      ]
+    ],
+    responses: [
+      found: {"Redirect to provider", "text/html", %OpenApiSpex.Schema{type: :string}}
+    ]
+  )
+
   def request(conn, %{"provider" => "discord"}) do
     client_id = System.get_env("DISCORD_CLIENT_ID")
     base = GameServerWeb.Endpoint.url()
@@ -112,6 +133,38 @@ defmodule GameServerWeb.AuthController do
         end
     end
   end
+
+  operation(:callback,
+    operation_id: "oauth_callback_browser",
+    summary: "Browser OAuth callback",
+    description:
+      "Handles provider callback for browser OAuth flows (redirects or shows messages)",
+    tags: ["Authentication"],
+    parameters: [
+      provider: [
+        in: :path,
+        name: "provider",
+        schema: %OpenApiSpex.Schema{type: :string},
+        required: true
+      ],
+      code: [
+        in: :query,
+        name: "code",
+        schema: %OpenApiSpex.Schema{type: :string},
+        required: false
+      ],
+      state: [
+        in: :query,
+        name: "state",
+        schema: %OpenApiSpex.Schema{type: :string},
+        required: false
+      ]
+    ],
+    responses: [
+      found: {"Redirect or success page", "text/html", %OpenApiSpex.Schema{type: :string}},
+      bad_request: {"Bad request", "text/html", %OpenApiSpex.Schema{type: :string}}
+    ]
+  )
 
   def callback(conn, %{"provider" => "google", "code" => code} = params) do
     require Logger
