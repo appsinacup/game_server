@@ -6,7 +6,7 @@ defmodule GameServer.Accounts do
   import Ecto.Query, warn: false
   alias GameServer.Repo
 
-  alias GameServer.Accounts.{User, UserToken, UserNotifier}
+  alias GameServer.Accounts.{User, UserNotifier, UserToken}
 
   ## Database getters
 

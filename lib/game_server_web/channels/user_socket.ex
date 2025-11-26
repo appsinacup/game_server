@@ -2,8 +2,8 @@ defmodule GameServerWeb.UserSocket do
   use Phoenix.Socket
   require Logger
 
-  alias GameServerWeb.Auth.Guardian
   alias GameServer.Accounts.Scope
+  alias GameServerWeb.Auth.Guardian
 
   # A Socket handler
   #

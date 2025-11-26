@@ -7,8 +7,8 @@ defmodule GameServer.Accounts.UserNotifier do
   """
   import Swoosh.Email
 
-  alias GameServer.Mailer
   alias GameServer.Accounts.User
+  alias GameServer.Mailer
 
   # Delivers the email using the application mailer.
   defp deliver(recipient, subject, body) do

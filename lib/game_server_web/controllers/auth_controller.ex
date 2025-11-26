@@ -3,8 +3,8 @@ defmodule GameServerWeb.AuthController do
   use OpenApiSpex.ControllerSpecs
 
   alias GameServer.Accounts
-  alias GameServerWeb.UserAuth
   alias GameServerWeb.Auth.Guardian
+  alias GameServerWeb.UserAuth
 
   # Browser OAuth request - redirects to provider
   def request(conn, %{"provider" => "discord"}) do

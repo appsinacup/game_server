@@ -1,10 +1,10 @@
 defmodule GameServerWeb.AdminLive.Index do
   use GameServerWeb, :live_view
 
-  alias GameServer.Repo
   alias GameServer.Accounts.User
   alias GameServer.Accounts.UserToken
   alias GameServer.Lobbies.Lobby
+  alias GameServer.Repo
 
   @dev_routes? Application.compile_env(:game_server, :dev_routes, false)
 

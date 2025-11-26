@@ -4,8 +4,8 @@ defmodule GameServer.OAuthSessions do
   """
 
   import Ecto.Query, warn: false
-  alias GameServer.Repo
   alias GameServer.OAuthSession
+  alias GameServer.Repo
 
   @spec create_session(String.t(), map()) ::
           {:ok, OAuthSession.t()} | {:error, Ecto.Changeset.t()}

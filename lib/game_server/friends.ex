@@ -12,9 +12,9 @@ defmodule GameServer.Friends do
   """
 
   import Ecto.Query, warn: false
-  alias GameServer.Repo
-  alias GameServer.Friends.Friendship
   alias GameServer.Accounts.User
+  alias GameServer.Friends.Friendship
+  alias GameServer.Repo
   @friends_topic "friends"
   def subscribe_user(user_id) when is_integer(user_id) do
     Phoenix.PubSub.subscribe(GameServer.PubSub, "friends:user:#{user_id}")

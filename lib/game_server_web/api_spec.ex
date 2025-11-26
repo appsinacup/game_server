@@ -3,8 +3,8 @@ defmodule GameServerWeb.ApiSpec do
   OpenAPI specification for the Game Server API.
   """
 
-  alias OpenApiSpex.{Info, OpenApi, Paths, Server, Components, SecurityScheme}
   alias GameServerWeb.{Endpoint, Router}
+  alias OpenApiSpex.{Info, OpenApi, Paths, Server, Components, SecurityScheme}
   @behaviour OpenApi
 
   @impl OpenApi

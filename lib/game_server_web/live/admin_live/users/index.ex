@@ -7,9 +7,9 @@ defmodule GameServerWeb.AdminLive.Users.Index do
 
   use GameServerWeb, :live_view
 
-  alias GameServer.Repo
   alias GameServer.Accounts
   alias GameServer.Accounts.User
+  alias GameServer.Repo
   import Ecto.Query
 
   @impl true
