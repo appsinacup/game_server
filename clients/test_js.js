@@ -1,4 +1,4 @@
-const { ApiClient, HealthApi, AuthenticationApi, UsersApi } = require('./javascript/dist/index.js');
+const { ApiClient, HealthApi, AuthenticationApi, UsersApi, LobbiesApi } = require('./javascript/dist/index.js');
 const { default: open } = require('open');
 //const basePath = 'http://localhost:4000';
 const basePath = 'https://gamend.appsinacup.com';
@@ -122,7 +122,7 @@ async function runOAuthFlow(provider) {
   }
 }
 
-async function testAuthenticatedAPI(accessToken, refreshToken, provider) {
+async function testUserAPI(accessToken, refreshToken, provider) {
   try {
     console.log('Testing authenticated API calls...');
 
@@ -139,7 +139,7 @@ async function testAuthenticatedAPI(accessToken, refreshToken, provider) {
 
     // Test getting user profile
     console.log('Getting user profile...');
-    const userProfile = await usersApi.getCurrentUser(`Bearer ${accessToken}`);
+    const userProfile = await usersApi.getCurrentUser();
     console.log('✅ User profile:', userProfile);
 
 
@@ -160,10 +160,11 @@ async function testAuthenticatedAPI(accessToken, refreshToken, provider) {
 
     // Test logout
     console.log('Testing logout...');
-    const logoutResponse = await authApi.logout(`Bearer ${accessToken}`);
+    const logoutResponse = await authApi.logout();
     console.log('✅ Logout response:', logoutResponse);
 
     console.log('✅ All authenticated API calls completed!');
+      return { apiClient };
 
   } catch (error) {
     console.error('❌ Error testing authenticated API:', error);
@@ -182,7 +183,12 @@ async function runAllTests() {
     console.log(`\n--- Testing ${provider.toUpperCase()} ---\n`);
     const result = await runOAuthFlow(provider);
     if (result && result.tokenData && result.tokenData.accessToken) {
-      await testAuthenticatedAPI(result.tokenData.accessToken, result.tokenData.refreshToken, provider);
+      const { apiClient } = await testUserAPI(result.tokenData.accessToken, result.tokenData.refreshToken, provider);
+
+      // After a successful auth + basic user tests, exercise lobby APIs
+      if (apiClient) {
+        await testLobbyAPI(apiClient);
+      }
     } else if (result && result.status === 'conflict') {
       console.log(`⚠️  ${provider} OAuth resulted in conflict. Skipping authenticated API tests.`);
     } else {
@@ -192,6 +198,39 @@ async function runAllTests() {
   }
 
   console.log('🎉 All tests completed!');
+}
+
+// Exercise the lobby API after login (create -> list -> update -> leave)
+async function testLobbyAPI(apiClient) {
+  try {
+    console.log('Testing lobby API flow...');
+
+    const lobbiesApi = new LobbiesApi(apiClient);
+
+    // Create a lobby (authenticated user becomes host and joined automatically)
+    console.log('Creating a new lobby...');
+    const createRequest = { createLobbyRequest: { title: `JS test lobby ${Date.now()}`, max_users: 6 } };
+    const lobby = await lobbiesApi.createLobby(createRequest);
+    console.log('✅ Lobby created:', lobby);
+
+    // List public lobbies (should include the newly created lobby)
+    console.log('Listing public lobbies...');
+    const lobbies = await lobbiesApi.listLobbies();
+    console.log('✅ Lobbies count:', Array.isArray(lobbies) ? lobbies.length : '(unexpected response)', lobbies.map(l => l.id));
+
+    // Update the lobby's title (host-only action)
+    console.log('Updating lobby title...');
+    const updated = await lobbiesApi.updateLobby(lobby.id, { updateLobbyRequest: { title: lobby.title + ' (updated)' } });
+    console.log('✅ Updated lobby:', updated);
+
+    // Leave the lobby
+    console.log('Leaving lobby...');
+    const leave = await lobbiesApi.leaveLobby(lobby.id);
+    console.log('✅ Left lobby:', leave);
+
+  } catch (error) {
+    console.error('❌ Error testing lobby API:', error);
+  }
 }
 
 runAllTests();

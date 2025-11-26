@@ -15,7 +15,4 @@ fi
 mix compile --force
 
 # Create and migrate the database (start.sh boots the app with the DB ready)
-mix ecto.create
-mix ecto.migrate
-
 mix phx.server
