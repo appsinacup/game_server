@@ -148,8 +148,15 @@ defmodule GameServerWeb.UserLive.Registration do
               &url(~p"/users/settings/confirm-email/#{&1}")
             )
 
-          changeset = Accounts.change_user_registration(user)
-          {:noreply, socket |> assign(trigger_submit: true) |> assign_form(changeset)}
+          # After registration we send a confirmation email and redirect the
+          # user to the login page with an informative message.
+          {:noreply,
+           socket
+           |> put_flash(
+             :info,
+             "An email was sent to #{user.email}, please access it to confirm your account"
+           )
+           |> push_navigate(to: ~p"/users/log-in")}
         end
 
       {:error, %Ecto.Changeset{} = changeset} ->

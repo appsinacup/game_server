@@ -670,11 +670,11 @@ defmodule GameServer.Lobbies do
 
   defp maybe_hash_password(attrs) when is_map(attrs) do
     cond do
-      Map.has_key?(attrs, "password") and not is_nil(attrs["password"]) ->
+      Map.has_key?(attrs, "password") and attrs["password"] != nil ->
         Map.put(attrs, "password_hash", Bcrypt.hash_pwd_salt(attrs["password"]))
         |> Map.delete("password")
 
-      Map.has_key?(attrs, :password) and not is_nil(attrs[:password]) ->
+      Map.has_key?(attrs, :password) and attrs[:password] != nil ->
         Map.put(attrs, :password_hash, Bcrypt.hash_pwd_salt(attrs[:password]))
         |> Map.delete(:password)
 

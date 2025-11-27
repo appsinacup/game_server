@@ -302,4 +302,168 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       metadata: lobby.metadata || %{}
     }
   end
+
+  ### API actions (create/join/update/leave/kick) ###
+
+  def create(conn, params) do
+    # disallow hostless creation from public API
+    if Map.get(params, "hostless") == true or Map.get(params, :hostless) == true do
+      conn
+      |> put_status(:unauthorized)
+      |> json(%{error: "Not authenticated"})
+    else
+      case conn.assigns[:current_scope] do
+        %{user: user} when is_map(user) ->
+          attrs = Map.put(params, "host_id", user.id)
+
+          case Lobbies.create_lobby(attrs) do
+            {:ok, lobby} ->
+              conn
+              |> put_status(:created)
+              |> json(serialize_lobby(lobby))
+
+            {:error, %Ecto.Changeset{} = changeset} ->
+              conn
+              |> put_status(:conflict)
+              |> json(%{
+                error: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
+              })
+
+            other ->
+              conn
+              |> put_status(:unprocessable_entity)
+              |> json(%{error: inspect(other)})
+          end
+
+        _ ->
+          conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
+      end
+    end
+  end
+
+  def join(conn, %{"id" => id} = params) do
+    case conn.assigns[:current_scope] do
+      %{user: user} when is_map(user) ->
+        password = Map.get(params, "password") || Map.get(params, :password)
+
+        case Lobbies.join_lobby(user, id, %{password: password}) do
+          {:ok, _member} ->
+            send_resp(conn, :no_content, "")
+
+          {:error, :invalid_lobby} ->
+            conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+          {:error, :already_in_lobby} ->
+            conn |> put_status(:forbidden) |> json(%{error: "already_in_lobby"})
+
+          {:error, :password_required} ->
+            conn |> put_status(:forbidden) |> json(%{error: "password_required"})
+
+          {:error, :invalid_password} ->
+            conn |> put_status(:forbidden) |> json(%{error: "invalid_password"})
+
+          {:error, :locked} ->
+            conn |> put_status(:forbidden) |> json(%{error: "locked"})
+
+          {:error, :full} ->
+            conn |> put_status(:forbidden) |> json(%{error: "full"})
+
+          {:error, {:hook_rejected, _}} ->
+            conn |> put_status(:forbidden) |> json(%{error: "rejected"})
+
+          _ ->
+            conn |> put_status(:forbidden) |> json(%{error: "cannot_join"})
+        end
+
+      _ ->
+        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
+    end
+  end
+
+  def update(conn, %{"id" => id} = params) do
+    case conn.assigns[:current_scope] do
+      %{user: user} when is_map(user) ->
+        lobby = Lobbies.get_lobby!(id)
+
+        case Lobbies.update_lobby_by_host(user, lobby, params) do
+          {:ok, updated} ->
+            json(conn, serialize_lobby(updated))
+
+          {:error, :not_host} ->
+            conn |> put_status(:forbidden) |> json(%{error: "not_host"})
+
+          {:error, :too_small} ->
+            conn |> put_status(:unprocessable_entity) |> json(%{error: "too_small"})
+
+          {:error, %Ecto.Changeset{} = changeset} ->
+            conn
+            |> put_status(:unprocessable_entity)
+            |> json(%{error: Ecto.Changeset.traverse_errors(changeset, fn {msg, _} -> msg end)})
+
+          other ->
+            conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
+        end
+
+      _ ->
+        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
+    end
+  end
+
+  def kick(conn, %{"id" => id, "target_user_id" => target_user_id}) do
+    case conn.assigns[:current_scope] do
+      %{user: user} when is_map(user) ->
+        lobby = Lobbies.get_lobby!(id)
+        target = GameServer.Accounts.get_user!(target_user_id)
+
+        case Lobbies.kick_user(user, lobby, target) do
+          {:ok, _} ->
+            send_resp(conn, :no_content, "")
+
+          {:error, :not_host} ->
+            conn |> put_status(:forbidden) |> json(%{error: "not_host"})
+
+          {:error, :cannot_kick_self} ->
+            conn |> put_status(:forbidden) |> json(%{error: "cannot_kick_self"})
+
+          {:error, :not_found} ->
+            conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+          {:error, {:hook_rejected, _}} ->
+            conn |> put_status(:forbidden) |> json(%{error: "rejected"})
+
+          other ->
+            conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
+        end
+
+      _ ->
+        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
+    end
+  end
+
+  def leave(conn, %{"id" => id}) do
+    case conn.assigns[:current_scope] do
+      %{user: user} when is_map(user) ->
+        # Ensure user is leaving their own lobby
+        if user.lobby_id == String.to_integer(id) or user.lobby_id == id do
+          case Lobbies.leave_lobby(user) do
+            {:ok, _} ->
+              send_resp(conn, :no_content, "")
+
+            {:error, :not_in_lobby} ->
+              conn |> put_status(:bad_request) |> json(%{error: "not_in_lobby"})
+
+            {:error, {:hook_rejected, _}} ->
+              conn |> put_status(:forbidden) |> json(%{error: "rejected"})
+
+            other ->
+              conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
+          end
+        else
+          conn |> put_status(:bad_request) |> json(%{error: "not_in_lobby"})
+        end
+
+      _ ->
+        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
+    end
+  end
 end
