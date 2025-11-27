@@ -17,11 +17,11 @@ defmodule GameServerWeb.ConnCase do
 
   use ExUnit.CaseTemplate
 
+  alias GameServer.Accounts
+  alias GameServer.Accounts.Scope
+  alias GameServer.AccountsFixtures
   alias GameServer.DataCase
   alias Phoenix.ConnTest
-  alias GameServer.AccountsFixtures
-  alias GameServer.Accounts.Scope
-  alias GameServer.Accounts
 
   using do
     quote do

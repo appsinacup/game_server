@@ -2,6 +2,7 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
   use GameServerWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
+  alias GameServer.Accounts.User
   alias GameServer.AccountsFixtures
   alias GameServer.Repo
 
@@ -10,7 +11,7 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
 
     {:ok, user} =
       user
-      |> GameServer.Accounts.User.admin_changeset(%{"is_admin" => true})
+      |> User.admin_changeset(%{"is_admin" => true})
       |> Repo.update()
 
     {:ok, _lv, html} =
@@ -67,7 +68,7 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
 
     {:ok, user} =
       AccountsFixtures.user_fixture()
-      |> GameServer.Accounts.User.admin_changeset(%{"is_admin" => true})
+      |> User.admin_changeset(%{"is_admin" => true})
       |> Repo.update()
 
     {:ok, _lv, html} =

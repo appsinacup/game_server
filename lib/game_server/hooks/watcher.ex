@@ -142,39 +142,30 @@ defmodule GameServer.Hooks.Watcher do
   end
 
   def handle_info(:trigger_compile, %{path: path} = state) when is_binary(path) do
-    try do
-      case File.stat(path) do
-        {:ok, %File.Stat{mtime: mtime}} ->
-          if state.mtime != mtime do
-            Logger.info("Hooks watcher: detected change or first load for #{path}. Loading...")
+    case File.stat(path) do
+      {:ok, %File.Stat{mtime: mtime}} ->
+        if state.mtime != mtime do
+          Logger.info("Hooks watcher: detected change or first load for #{path}. Loading...")
 
-            case GameServer.Hooks.register_file(path) do
-              {:ok, mod} ->
-                Logger.info("Hooks watcher: registered #{inspect(mod)} from #{path}")
-                {:noreply, %{state | mtime: mtime}}
+          case GameServer.Hooks.register_file(path) do
+            {:ok, mod} ->
+              Logger.info("Hooks watcher: registered #{inspect(mod)} from #{path}")
+              {:noreply, %{state | mtime: mtime}}
 
-              {:error, reason} ->
-                Logger.error(
-                  "Hooks watcher: failed to register hooks from #{path}: #{inspect(reason)}"
-                )
+            {:error, reason} ->
+              Logger.error(
+                "Hooks watcher: failed to register hooks from #{path}: #{inspect(reason)}"
+              )
 
-                {:noreply, %{state | mtime: mtime}}
-            end
-          else
-            {:noreply, state}
+              {:noreply, %{state | mtime: mtime}}
           end
-
-        {:error, _} ->
-          # File missing or inaccessible — log and keep trying
-          Logger.debug("Hooks watcher: file not found or inaccessible: #{path}")
+        else
           {:noreply, state}
-      end
-    rescue
-      e ->
-        Logger.error(
-          "Hooks watcher: unexpected error while handling file event for #{path}: #{inspect(e)}"
-        )
+        end
 
+      {:error, _} ->
+        # File missing or inaccessible — log and keep trying
+        Logger.debug("Hooks watcher: file not found or inaccessible: #{path}")
         {:noreply, state}
     end
   end

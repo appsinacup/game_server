@@ -6,6 +6,8 @@ defmodule GameServer.HooksTest do
   use GameServer.DataCase, async: false
 
   alias GameServer.Accounts
+  alias GameServer.Accounts.User
+  alias GameServer.Accounts.UserToken
   alias GameServer.Repo
   import GameServer.AccountsFixtures
 
@@ -69,7 +71,7 @@ defmodule GameServer.HooksTest do
         user,
         %{discord_id: "d999"},
         :discord_id,
-        &GameServer.Accounts.User.discord_oauth_changeset/2
+        &User.discord_oauth_changeset/2
       )
 
     assert user.discord_id == "d999"
@@ -80,7 +82,7 @@ defmodule GameServer.HooksTest do
     Application.put_env(:game_server, :hooks_module, TestHooksRegister)
 
     user = unconfirmed_user_fixture()
-    {encoded_token, user_token} = Accounts.UserToken.build_email_token(user, "login")
+    {encoded_token, user_token} = UserToken.build_email_token(user, "login")
     Repo.insert!(user_token)
 
     assert {:ok, {_, _}} = Accounts.login_user_by_magic_link(encoded_token)

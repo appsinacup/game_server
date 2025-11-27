@@ -2,6 +2,7 @@ defmodule GameServerWeb.Api.V1.ProviderControllerTest do
   use GameServerWeb.ConnCase, async: true
 
   alias GameServer.Accounts
+  alias GameServerWeb.Auth.Guardian
   import GameServer.AccountsFixtures
   alias GameServer.Repo
 
@@ -10,7 +11,7 @@ defmodule GameServerWeb.Api.V1.ProviderControllerTest do
       user = user_fixture()
 
       {:ok, token, _} =
-        GameServerWeb.Auth.Guardian.encode_and_sign(user, %{}, token_type: "access")
+        Guardian.encode_and_sign(user, %{}, token_type: "access")
 
       {:ok, conn: put_req_header(conn, "authorization", "Bearer #{token}"), user: user}
     end

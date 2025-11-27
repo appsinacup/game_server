@@ -2,9 +2,9 @@ defmodule GameServerWeb.UserLive.SettingsTest do
   use GameServerWeb.ConnCase, async: true
 
   alias GameServer.Accounts
+  alias GameServer.Accounts.User
   alias GameServer.Friends
   alias GameServer.Repo
-  alias GameServer.Accounts.User
   import Ecto.Query
   import Phoenix.LiveViewTest
   import GameServer.AccountsFixtures

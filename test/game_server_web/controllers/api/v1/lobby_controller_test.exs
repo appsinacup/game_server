@@ -1,6 +1,7 @@
 defmodule GameServerWeb.Api.V1.LobbyControllerTest do
   use GameServerWeb.ConnCase
 
+  alias GameServer.Accounts.User
   alias GameServer.AccountsFixtures
   alias GameServer.Lobbies
   alias GameServerWeb.Auth.Guardian
@@ -64,7 +65,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     # join returns 204 No Content now
     assert conn.status == 204
 
-    reloaded = GameServer.Repo.get(GameServer.Accounts.User, other.id)
+    reloaded = GameServer.Repo.get(User, other.id)
     assert reloaded.lobby_id == lobby.id
   end
 
@@ -171,7 +172,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     # kick returns 204 No Content now
     assert conn.status == 204
 
-    reloaded = GameServer.Repo.get(GameServer.Accounts.User, other.id)
+    reloaded = GameServer.Repo.get(User, other.id)
     assert is_nil(reloaded.lobby_id)
   end
 
@@ -195,7 +196,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     assert json_response(conn, 403)["error"] == "not_host"
 
     # member2 should still be in the lobby
-    reloaded = GameServer.Repo.get(GameServer.Accounts.User, member2.id)
+    reloaded = GameServer.Repo.get(User, member2.id)
     assert reloaded.lobby_id == lobby.id
   end
 
@@ -214,7 +215,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     assert json_response(conn, 403)["error"] == "cannot_kick_self"
 
     # host should still be in the lobby
-    reloaded = GameServer.Repo.get(GameServer.Accounts.User, host.id)
+    reloaded = GameServer.Repo.get(User, host.id)
     assert reloaded.lobby_id == lobby.id
   end
 

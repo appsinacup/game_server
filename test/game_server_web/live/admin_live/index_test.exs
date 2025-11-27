@@ -1,6 +1,7 @@
 defmodule GameServerWeb.AdminLive.IndexTest do
   use GameServerWeb.ConnCase, async: true
   import Phoenix.LiveViewTest
+  alias GameServer.Accounts.User
   alias GameServer.AccountsFixtures
   alias GameServer.Repo
 
@@ -9,7 +10,7 @@ defmodule GameServerWeb.AdminLive.IndexTest do
 
     {:ok, admin} =
       admin
-      |> GameServer.Accounts.User.admin_changeset(%{"is_admin" => true})
+      |> User.admin_changeset(%{"is_admin" => true})
       |> Repo.update()
 
     # create two lobbies so count will be 2

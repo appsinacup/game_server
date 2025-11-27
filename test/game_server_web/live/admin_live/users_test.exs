@@ -3,16 +3,17 @@ defmodule GameServerWeb.AdminLive.UsersTest do
 
   import Phoenix.LiveViewTest
   import Ecto.Query
+  alias GameServer.Accounts
+  alias GameServer.Accounts.User
   alias GameServer.AccountsFixtures
   alias GameServer.Repo
-  alias GameServer.Accounts.User
 
   test "admin users pagination displays totals and disables Next on last page", %{conn: conn} do
     user = AccountsFixtures.user_fixture()
 
     {:ok, admin} =
       user
-      |> GameServer.Accounts.User.admin_changeset(%{"is_admin" => true})
+      |> User.admin_changeset(%{"is_admin" => true})
       |> Repo.update()
 
     # create 30 users so admin listing has two pages with default page_size 25
@@ -49,24 +50,24 @@ defmodule GameServerWeb.AdminLive.UsersTest do
 
     {:ok, admin} =
       user
-      |> GameServer.Accounts.User.admin_changeset(%{"is_admin" => true})
+      |> User.admin_changeset(%{"is_admin" => true})
       |> Repo.update()
 
     # create users with provider fields using provider helpers
     {:ok, _d1} =
-      GameServer.Accounts.find_or_create_from_discord(%{
+      Accounts.find_or_create_from_discord(%{
         discord_id: "d1",
         email: "discord1@example.com"
       })
 
     {:ok, _d2} =
-      GameServer.Accounts.find_or_create_from_discord(%{
+      Accounts.find_or_create_from_discord(%{
         discord_id: "d2",
         email: "discord2@example.com"
       })
 
     {:ok, _g1} =
-      GameServer.Accounts.find_or_create_from_google(%{
+      Accounts.find_or_create_from_google(%{
         google_id: "g1",
         email: "google1@example.com"
       })

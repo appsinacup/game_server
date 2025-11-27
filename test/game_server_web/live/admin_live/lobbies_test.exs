@@ -2,6 +2,7 @@ defmodule GameServerWeb.AdminLive.LobbiesTest do
   use GameServerWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
+  alias GameServer.Accounts.User
   alias GameServer.AccountsFixtures
   alias GameServer.Repo
 
@@ -10,7 +11,7 @@ defmodule GameServerWeb.AdminLive.LobbiesTest do
 
     {:ok, user} =
       user
-      |> GameServer.Accounts.User.admin_changeset(%{"is_admin" => true})
+      |> User.admin_changeset(%{"is_admin" => true})
       |> Repo.update()
 
     # create a few lobbies (one hosted, one hostless)
@@ -67,7 +68,7 @@ defmodule GameServerWeb.AdminLive.LobbiesTest do
 
     {:ok, admin} =
       user
-      |> GameServer.Accounts.User.admin_changeset(%{"is_admin" => true})
+      |> User.admin_changeset(%{"is_admin" => true})
       |> Repo.update()
 
     # create 30 lobbies so admin listing has two pages with default page_size 25
@@ -101,7 +102,7 @@ defmodule GameServerWeb.AdminLive.LobbiesTest do
 
     {:ok, admin} =
       user
-      |> GameServer.Accounts.User.admin_changeset(%{"is_admin" => true})
+      |> User.admin_changeset(%{"is_admin" => true})
       |> GameServer.Repo.update()
 
     # create a lobby hosted by admin
@@ -136,7 +137,7 @@ defmodule GameServerWeb.AdminLive.LobbiesTest do
 
     {:ok, admin} =
       user
-      |> GameServer.Accounts.User.admin_changeset(%{"is_admin" => true})
+      |> User.admin_changeset(%{"is_admin" => true})
       |> Repo.update()
 
     # create a lobby
