@@ -21,8 +21,8 @@ defmodule GameServer.MixProject do
   def application do
     [
       mod: {GameServer.Application, []},
+      # Start the OS monitoring tools in production only.
       extra_applications:
-        # Start the OS monitoring tools in production only.
         [:logger, :runtime_tools, :swoosh, :sentry] ++
           if(Mix.env() == :prod, do: [:os_mon], else: [])
     ]

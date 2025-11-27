@@ -42,9 +42,18 @@ defmodule GameServerWeb.UserAuth do
   def log_in_user(conn, user, params \\ %{}) do
     user_return_to = get_session(conn, :user_return_to)
 
-    conn
-    |> create_or_extend_session(user, params)
-    |> redirect(to: user_return_to || signed_in_path(conn))
+    conn = create_or_extend_session(conn, user, params)
+
+    # Fire-and-forget login hook for non-token logins (magic-link tokens are
+    # handled specially in Accounts.login_user_by_magic_link so they already
+    # trigger the hook there). Skip double-invocation when params contain
+    # a magic-link "token" key.
+    unless Map.has_key?(params || %{}, "token") do
+      hooks = GameServer.Hooks.module()
+      Task.start(fn -> hooks.after_user_login(user) end)
+    end
+
+    conn |> redirect(to: user_return_to || signed_in_path(conn))
   end
 
   @doc """

@@ -178,7 +178,13 @@ defmodule GameServer.Hooks.Watcher do
   defp start_fs(path) do
     dir = Path.dirname(path)
 
-    case FileSystem.start_link(dirs: [dir], name: __MODULE__) do
+    # Use a distinct registered name for the FileSystem process so it
+    # doesn't conflict with this GenServer's registered name (__MODULE__).
+    # If someone else already started a watcher for the same directory we
+    # will reuse it via the {:already_started, pid} clause below.
+    fs_name = Module.concat(__MODULE__, :FileSystem)
+
+    case FileSystem.start_link(dirs: [dir], name: fs_name) do
       {:ok, pid} ->
         FileSystem.subscribe(pid)
         {:ok, pid}

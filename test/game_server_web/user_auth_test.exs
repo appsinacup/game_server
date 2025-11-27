@@ -1,5 +1,5 @@
 defmodule GameServerWeb.UserAuthTest do
-  use GameServerWeb.ConnCase, async: true
+  use GameServerWeb.ConnCase, async: false
 
   alias GameServer.Accounts
   alias GameServer.Accounts.Scope
@@ -21,12 +21,57 @@ defmodule GameServerWeb.UserAuthTest do
   end
 
   describe "log_in_user/3" do
+    setup do
+      orig = Application.get_env(:game_server, :hooks_module)
+      on_exit(fn -> Application.put_env(:game_server, :hooks_module, orig) end)
+      :ok
+    end
+
+    defmodule TestHooksLogin do
+      @behaviour GameServer.Hooks
+
+      alias GameServer.Repo
+
+      def after_user_register(_user), do: :ok
+
+      def after_user_login(user) do
+        meta = Map.put(user.metadata || %{}, "hooked_from_log_in", true)
+        Repo.update!(Ecto.Changeset.change(user, metadata: meta))
+      end
+
+      def before_lobby_create(attrs), do: {:ok, attrs}
+      def after_lobby_create(_lobby), do: :ok
+      def before_lobby_join(user, lobby, opts), do: {:ok, {user, lobby, opts}}
+      def after_lobby_join(_user, _lobby), do: :ok
+      def before_lobby_leave(user, lobby), do: {:ok, {user, lobby}}
+      def after_lobby_leave(_user, _lobby), do: :ok
+      def before_lobby_update(_lobby, attrs), do: {:ok, attrs}
+      def after_lobby_update(_lobby), do: :ok
+      def before_lobby_delete(lobby), do: {:ok, lobby}
+      def after_lobby_delete(_lobby), do: :ok
+      def before_user_kicked(host, target, lobby), do: {:ok, {host, target, lobby}}
+      def after_user_kicked(_host, _target, _lobby), do: :ok
+      def after_lobby_host_change(_lobby, _new_host_id), do: :ok
+    end
+
     test "stores the user token in the session", %{conn: conn, user: user} do
       conn = UserAuth.log_in_user(conn, user)
       assert token = get_session(conn, :user_token)
       assert get_session(conn, :live_socket_id) == "users_sessions:#{Base.url_encode64(token)}"
       assert redirected_to(conn) == ~p"/"
       assert Accounts.get_user_by_session_token(token)
+    end
+
+    test "triggers hooks.after_user_login for non-token logins", %{conn: conn, user: user} do
+      Application.put_env(:game_server, :hooks_module, TestHooksLogin)
+
+      conn = UserAuth.log_in_user(conn, user, %{})
+
+      # hooks run asynchronously
+      Process.sleep(50)
+
+      reloaded = GameServer.Accounts.get_user!(user.id)
+      assert Map.get(reloaded.metadata || %{}, "hooked_from_log_in") == true
     end
 
     test "clears everything previously stored in the session", %{conn: conn, user: user} do
