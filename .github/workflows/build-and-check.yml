@@ -456,7 +456,7 @@ jobs:
           # Export for remaining steps in this job
           echo "APP_VERSION=${VERSION}" >> $GITHUB_ENV
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
-        # set up the fly CLI
+      # set up the fly CLI
       - uses: superfly/flyctl-actions/setup-flyctl@master
 
 
