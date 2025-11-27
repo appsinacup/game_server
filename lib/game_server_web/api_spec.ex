@@ -15,7 +15,7 @@ defmodule GameServerWeb.ApiSpec do
       ],
       info: %Info{
         title: "Game Server API",
-        version: "1.0.0",
+        version: api_version(),
         description: """
         API for Game Server application
 
@@ -62,6 +62,13 @@ defmodule GameServerWeb.ApiSpec do
       }
     }
     |> OpenApiSpex.resolve_schema_modules()
+  end
+
+  defp api_version do
+    case Application.spec(:game_server, :vsn) do
+      nil -> Mix.Project.config()[:version] || "1.0.0"
+      vsn -> to_string(vsn)
+    end
   end
 
   # Filter out non-API routes (browser routes) from the OpenAPI spec

@@ -165,9 +165,17 @@ defmodule GameServerWeb.Layouts do
         <a href={~p"/privacy"} class="hover:underline mr-4">Privacy Policy</a>
         <a href={~p"/terms"} class="hover:underline mr-4">Terms and Conditions</a>
         <a href={~p"/docs/setup"} class="hover:underline mr-4">Guides</a>
+        <span class="text-xs opacity-60">v{app_version()}</span>
       </div>
     </footer>
     """
+  end
+
+  defp app_version do
+    case Application.spec(:game_server, :vsn) do
+      nil -> Mix.Project.config()[:version] || "1.0.0"
+      vsn -> to_string(vsn)
+    end
   end
 
   defp profile_initials(nil), do: "?"

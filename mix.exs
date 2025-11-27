@@ -4,7 +4,7 @@ defmodule GameServer.MixProject do
   def project do
     [
       app: :game_server,
-      version: "0.1.0",
+      version: System.get_env("APP_VERSION") || "1.0.0",
       elixir: "~> 1.19",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,

@@ -83,6 +83,16 @@ jobs:
           key: ${{ runner.os }}-mix-deps-${{ hashFiles('mix.lock') }}
           restore-keys: ${{ runner.os }}-mix-deps-
 
+      - name: Compute version (CI-only)
+        id: version
+        run: |
+          echo "Generating version from commit count for docs job"
+          git fetch --prune --unshallow || true
+          COMMIT_COUNT=$(git rev-list --count HEAD)
+          VERSION="1.0.${COMMIT_COUNT}"
+          echo "APP_VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
       - name: Install dependencies
         run: MIX_ENV=dev mix deps.get
 
@@ -270,6 +280,21 @@ jobs:
           # so the cache key is computed correctly.
           cache-dependency-path: clients/package-lock.json
 
+      - name: Compute version (release tag, or fallback to commit count)
+        id: version
+        run: |
+          echo "No release tag found - generating version from commit count"
+          # Ensure we have full history in case the checkout was shallow
+          git fetch --prune --unshallow || true
+          COMMIT_COUNT=$(git rev-list --count HEAD)
+          # Build a simple semver style version used on CI: 1.0.<commit_count>
+          VERSION="1.0.${COMMIT_COUNT}"
+          echo "Generated version=${VERSION}"
+
+          # Export for remaining steps in this job
+          echo "APP_VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
       - name: Install Elixir deps (for generating spec)
         run: |
           mix local.hex --force
@@ -293,20 +318,6 @@ jobs:
           if [ -z "${NPM_TOKEN}" ]; then echo "No NPM_TOKEN provided in secrets"; exit 1; fi
           cd clients/javascript
           npm config set //registry.npmjs.org/:_authToken "${NPM_TOKEN}"
-
-      - name: Compute version (release tag, or fallback to commit count)
-        id: version
-        run: |
-          echo "No release tag found - generating version from commit count"
-          # Ensure we have full history in case the checkout was shallow
-          git fetch --prune --unshallow || true
-          COMMIT_COUNT=$(git rev-list --count HEAD)
-          SHORT_SHA=$(git rev-parse --short HEAD)
-          # Build a sensible fallback semver-like version: 1.0.<commit_count>+<sha>
-          VERSION="1.0.${COMMIT_COUNT}+${SHORT_SHA}"
-          echo "Generated version=${VERSION}"
-
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Apply version and publish
         env:
