@@ -466,5 +466,5 @@ jobs:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
           flyctl secrets set APP_VERSION=${{ steps.version.outputs.version }} --app game-server-uro
-          fly secrets sync --app game-server-uro
-          fly secrets deploy --app game-server-uro
+          flyctl secrets sync --app game-server-uro
+          flyctl secrets deploy --app game-server-uro
