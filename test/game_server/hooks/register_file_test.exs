@@ -1,5 +1,8 @@
 defmodule GameServer.Hooks.RegisterFileTest do
-  use ExUnit.Case, async: true
+  # This test modifies global application config (:hooks_module) and can race
+  # with other tests that also read or set the value. Run serially to avoid
+  # cross-test interference on CI (especially in database-backed jobs).
+  use ExUnit.Case, async: false
 
   @tmp_dir System.tmp_dir!()
 

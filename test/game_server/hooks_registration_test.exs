@@ -1,5 +1,8 @@
 defmodule GameServer.HooksRegistrationTest do
-  use ExUnit.Case, async: true
+  # Registering files at runtime changes application state and can race with
+  # other tests that expect a particular hooks module. Run serially to avoid
+  # flakiness in CI where tests may run in parallel or with Postgres workers.
+  use ExUnit.Case, async: false
 
   # register/unregister helpers were intentionally removed from the public
   # API — use register_file/1 or the runtime watcher configured via
