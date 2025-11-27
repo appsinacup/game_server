@@ -22,13 +22,13 @@ defmodule GameServer.HooksTest do
     # Use metadata to avoid interfering with email-based token logic.
     def after_user_register(user) do
       meta = Map.put(user.metadata || %{}, "registered_hook", true)
-      GameServer.Repo.update!(Ecto.Changeset.change(user, metadata: meta))
+      Repo.update!(Ecto.Changeset.change(user, metadata: meta))
     end
 
     def after_user_login(user) do
       # mark metadata to signal the hook ran
       meta = Map.put(user.metadata || %{}, "hooked", true)
-      GameServer.Repo.update!(Ecto.Changeset.change(user, metadata: meta))
+      Repo.update!(Ecto.Changeset.change(user, metadata: meta))
     end
 
     # Lobby hooks - no-op implementations for test
@@ -81,7 +81,7 @@ defmodule GameServer.HooksTest do
 
     user = unconfirmed_user_fixture()
     {encoded_token, user_token} = Accounts.UserToken.build_email_token(user, "login")
-    GameServer.Repo.insert!(user_token)
+    Repo.insert!(user_token)
 
     assert {:ok, {_, _}} = Accounts.login_user_by_magic_link(encoded_token)
 

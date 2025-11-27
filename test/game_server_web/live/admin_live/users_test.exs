@@ -5,6 +5,7 @@ defmodule GameServerWeb.AdminLive.UsersTest do
   import Ecto.Query
   alias GameServer.AccountsFixtures
   alias GameServer.Repo
+  alias GameServer.Accounts.User
 
   test "admin users pagination displays totals and disables Next on last page", %{conn: conn} do
     user = GameServer.AccountsFixtures.user_fixture()
@@ -20,7 +21,7 @@ defmodule GameServerWeb.AdminLive.UsersTest do
     end
 
     # sanity-check: DB has users we created (pagination test)
-    assert GameServer.Repo.aggregate(GameServer.Accounts.User, :count, :id) >= 4
+    assert Repo.aggregate(User, :count, :id) >= 4
 
     {:ok, view, html} = conn |> log_in_user(admin) |> live(~p"/admin/users")
 
