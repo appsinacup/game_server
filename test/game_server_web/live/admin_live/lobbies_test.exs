@@ -2,6 +2,8 @@ defmodule GameServerWeb.AdminLive.LobbiesTest do
   use GameServerWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
+  alias GameServer.AccountsFixtures
+  alias GameServer.Repo
 
   test "admin can view lobbies", %{conn: conn} do
     user = GameServer.AccountsFixtures.user_fixture()
@@ -87,7 +89,7 @@ defmodule GameServerWeb.AdminLive.LobbiesTest do
     refute html =~ ~r/<button[^>]*phx-click="admin_lobbies_next"[^>]*disabled/
 
     # go to next page
-    view |> element("button[phx-click=\"admin_lobbies_next\"]") |> render_click()
+    view |> element(~S(button[phx-click="admin_lobbies_next"])) |> render_click()
     html2 = render(view)
 
     # on last page Next should be disabled

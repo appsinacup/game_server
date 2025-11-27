@@ -3,6 +3,8 @@ defmodule GameServerWeb.AdminLive.UsersTest do
 
   import Phoenix.LiveViewTest
   import Ecto.Query
+  alias GameServer.AccountsFixtures
+  alias GameServer.Repo
 
   test "admin users pagination displays totals and disables Next on last page", %{conn: conn} do
     user = GameServer.AccountsFixtures.user_fixture()
@@ -33,7 +35,7 @@ defmodule GameServerWeb.AdminLive.UsersTest do
     refute html =~ ~r/<button[^>]*phx-click="admin_users_next"[^>]*disabled/
 
     # go to next page
-    view |> element("button[phx-click=\"admin_users_next\"]") |> render_click()
+    view |> element(~S(button[phx-click="admin_users_next"])) |> render_click()
     html2 = render(view)
 
     # on last page Next should be disabled
@@ -95,7 +97,7 @@ defmodule GameServerWeb.AdminLive.UsersTest do
 
     # toggle discord filter on
     view
-    |> element("input[phx-click=\"toggle_provider\"][phx-value-provider=\"discord\"]")
+    |> element(~S(input[phx-click="toggle_provider"][phx-value-provider="discord"]))
     |> render_click(%{"provider" => "discord"})
 
     html2 = render(view)
@@ -111,11 +113,11 @@ defmodule GameServerWeb.AdminLive.UsersTest do
 
     # toggle discord off and google on
     view
-    |> element("input[phx-click=\"toggle_provider\"][phx-value-provider=\"discord\"]")
+    |> element(~S(input[phx-click="toggle_provider"][phx-value-provider="discord"]))
     |> render_click(%{"provider" => "discord"})
 
     view
-    |> element("input[phx-click=\"toggle_provider\"][phx-value-provider=\"google\"]")
+    |> element(~S(input[phx-click="toggle_provider"][phx-value-provider="google"]))
     |> render_click(%{"provider" => "google"})
 
     html3 = render(view)
@@ -126,12 +128,12 @@ defmodule GameServerWeb.AdminLive.UsersTest do
 
     # now test email/password filter
     view
-    |> element("input[phx-click=\"toggle_provider\"][phx-value-provider=\"google\"]")
+    |> element(~S(input[phx-click="toggle_provider"][phx-value-provider="google"]))
     |> render_click(%{"provider" => "google"})
 
     # toggle on email filter
     view
-    |> element("input[phx-click=\"toggle_provider\"][phx-value-provider=\"email\"]")
+    |> element(~S(input[phx-click="toggle_provider"][phx-value-provider="email"]))
     |> render_click(%{"provider" => "email"})
 
     html4 = render(view)

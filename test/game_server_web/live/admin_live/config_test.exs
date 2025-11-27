@@ -2,6 +2,8 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
   use GameServerWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
+  alias GameServer.AccountsFixtures
+  alias GameServer.Repo
 
   test "renders config page with collapsible cards for admin", %{conn: conn} do
     user = GameServer.AccountsFixtures.user_fixture()

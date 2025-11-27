@@ -4,6 +4,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
   alias GameServer.Accounts
   alias GameServer.Friends
   alias GameServer.Repo
+  alias GameServer.Accounts.User
   import Ecto.Query
   import Phoenix.LiveViewTest
   import GameServer.AccountsFixtures

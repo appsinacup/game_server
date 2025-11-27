@@ -6,6 +6,7 @@ defmodule GameServer.HooksTest do
   use GameServer.DataCase, async: false
 
   alias GameServer.Accounts
+  alias GameServer.Repo
   import GameServer.AccountsFixtures
 
   setup do

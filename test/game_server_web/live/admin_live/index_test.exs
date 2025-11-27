@@ -1,6 +1,8 @@
 defmodule GameServerWeb.AdminLive.IndexTest do
   use GameServerWeb.ConnCase, async: true
   import Phoenix.LiveViewTest
+  alias GameServer.AccountsFixtures
+  alias GameServer.Repo
 
   test "admin dashboard shows lobbies count in the quick links", %{conn: conn} do
     admin = GameServer.AccountsFixtures.user_fixture()

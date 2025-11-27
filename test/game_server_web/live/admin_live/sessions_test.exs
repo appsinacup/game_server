@@ -2,6 +2,8 @@ defmodule GameServerWeb.AdminLive.SessionsTest do
   use GameServerWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
+  alias GameServer.AccountsFixtures
+  alias GameServer.Repo
 
   alias GameServer.Accounts.UserToken
 
@@ -31,7 +33,7 @@ defmodule GameServerWeb.AdminLive.SessionsTest do
     refute html =~ ~r/<button[^>]*phx-click="admin_sessions_next"[^>]*disabled/
 
     # go to next page
-    view |> element("button[phx-click=\"admin_sessions_next\"]") |> render_click()
+    view |> element(~S(button[phx-click="admin_sessions_next"])) |> render_click()
     html2 = render(view)
 
     # on last page Next should be disabled

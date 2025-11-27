@@ -3,6 +3,7 @@ defmodule GameServerWeb.Api.V1.ProviderControllerTest do
 
   alias GameServer.Accounts
   import GameServer.AccountsFixtures
+  alias GameServer.Repo
 
   describe "DELETE /api/v1/me/providers/:provider" do
     setup %{conn: conn} do
