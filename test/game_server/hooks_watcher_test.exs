@@ -26,14 +26,18 @@ defmodule GameServer.HooksWatcherTest do
     end
 
     # wait a short amount for the watcher to trigger compile
-    mod = Enum.reduce_while(1..20, false, fn _, _ ->
-      case Application.get_env(:game_server, :hooks_module) do
-        mod when is_atom(mod) and mod != GameServer.Hooks.Default -> {:halt, mod}
-        _ ->
-          Process.sleep(50)
-          {:cont, false}
-      end
-    end)
+    mod =
+      Enum.reduce_while(1..20, false, fn _, _ ->
+        case Application.get_env(:game_server, :hooks_module) do
+          mod when is_atom(mod) and mod != GameServer.Hooks.Default ->
+            {:halt, mod}
+
+          _ ->
+            Process.sleep(50)
+            {:cont, false}
+        end
+      end)
+
     assert mod == GameServer.Modules.ExampleHook
 
     # cleanup watcher

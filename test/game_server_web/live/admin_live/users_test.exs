@@ -50,12 +50,29 @@ defmodule GameServerWeb.AdminLive.UsersTest do
       |> GameServer.Repo.update()
 
     # create users with provider fields using provider helpers
-    {:ok, _d1} = GameServer.Accounts.find_or_create_from_discord(%{discord_id: "d1", email: "discord1@example.com"})
-    {:ok, _d2} = GameServer.Accounts.find_or_create_from_discord(%{discord_id: "d2", email: "discord2@example.com"})
-    {:ok, _g1} = GameServer.Accounts.find_or_create_from_google(%{google_id: "g1", email: "google1@example.com"})
+    {:ok, _d1} =
+      GameServer.Accounts.find_or_create_from_discord(%{
+        discord_id: "d1",
+        email: "discord1@example.com"
+      })
+
+    {:ok, _d2} =
+      GameServer.Accounts.find_or_create_from_discord(%{
+        discord_id: "d2",
+        email: "discord2@example.com"
+      })
+
+    {:ok, _g1} =
+      GameServer.Accounts.find_or_create_from_google(%{
+        google_id: "g1",
+        email: "google1@example.com"
+      })
+
     _plain = GameServer.AccountsFixtures.user_fixture(%{email: "plain@example.com"})
     # create a user with a password so they show up in the email/password filter
-    _password_user = GameServer.AccountsFixtures.user_fixture(%{email: "pw@example.com"}) |> GameServer.AccountsFixtures.set_password()
+    _password_user =
+      GameServer.AccountsFixtures.user_fixture(%{email: "pw@example.com"})
+      |> GameServer.AccountsFixtures.set_password()
 
     {:ok, view, html} = conn |> log_in_user(admin) |> live(~p"/admin/users")
 
@@ -67,12 +84,20 @@ defmodule GameServerWeb.AdminLive.UsersTest do
 
     # confirm DB-level provider counts match expectations
     discord_count =
-      GameServer.Repo.one(from(u in GameServer.Accounts.User, where: not is_nil(u.discord_id) and u.discord_id != "", select: count(u.id)))
+      GameServer.Repo.one(
+        from(u in GameServer.Accounts.User,
+          where: not is_nil(u.discord_id) and u.discord_id != "",
+          select: count(u.id)
+        )
+      )
 
     assert discord_count >= 2
 
     # toggle discord filter on
-    view |> element("input[phx-click=\"toggle_provider\"][phx-value-provider=\"discord\"]") |> render_click(%{"provider" => "discord"})
+    view
+    |> element("input[phx-click=\"toggle_provider\"][phx-value-provider=\"discord\"]")
+    |> render_click(%{"provider" => "discord"})
+
     html2 = render(view)
 
     # only discord users should remain
@@ -85,8 +110,14 @@ defmodule GameServerWeb.AdminLive.UsersTest do
     assert html2 =~ "(2)" or html2 =~ "(3)"
 
     # toggle discord off and google on
-    view |> element("input[phx-click=\"toggle_provider\"][phx-value-provider=\"discord\"]") |> render_click(%{"provider" => "discord"})
-    view |> element("input[phx-click=\"toggle_provider\"][phx-value-provider=\"google\"]") |> render_click(%{"provider" => "google"})
+    view
+    |> element("input[phx-click=\"toggle_provider\"][phx-value-provider=\"discord\"]")
+    |> render_click(%{"provider" => "discord"})
+
+    view
+    |> element("input[phx-click=\"toggle_provider\"][phx-value-provider=\"google\"]")
+    |> render_click(%{"provider" => "google"})
+
     html3 = render(view)
 
     assert html3 =~ "google1@example.com"
@@ -94,9 +125,15 @@ defmodule GameServerWeb.AdminLive.UsersTest do
     refute html3 =~ "discord2@example.com"
 
     # now test email/password filter
-    view |> element("input[phx-click=\"toggle_provider\"][phx-value-provider=\"google\"]") |> render_click(%{"provider" => "google"})
+    view
+    |> element("input[phx-click=\"toggle_provider\"][phx-value-provider=\"google\"]")
+    |> render_click(%{"provider" => "google"})
+
     # toggle on email filter
-    view |> element("input[phx-click=\"toggle_provider\"][phx-value-provider=\"email\"]") |> render_click(%{"provider" => "email"})
+    view
+    |> element("input[phx-click=\"toggle_provider\"][phx-value-provider=\"email\"]")
+    |> render_click(%{"provider" => "email"})
+
     html4 = render(view)
 
     assert html4 =~ "pw@example.com"

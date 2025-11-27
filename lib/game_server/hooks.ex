@@ -85,13 +85,19 @@ defmodule GameServer.Hooks do
           now = DateTime.utc_now() |> DateTime.to_iso8601()
           Application.put_env(:game_server, :hooks_last_compiled_at, now)
           Application.put_env(:game_server, :hooks_last_compile_status, {:error, reason})
-          Logger.error("Hooks.register_file: compile exception for #{inspect(path)}: #{inspect(reason)}")
+
+          Logger.error(
+            "Hooks.register_file: compile exception for #{inspect(path)}: #{inspect(reason)}"
+          )
+
           {:error, {:compile_error, reason}}
 
         modules when is_list(modules) ->
           case modules do
             [{mod, _bin} | _] ->
-              warnings = if String.contains?(output, "warning:"), do: String.trim(output), else: nil
+              warnings =
+                if String.contains?(output, "warning:"), do: String.trim(output), else: nil
+
               now = DateTime.utc_now() |> DateTime.to_iso8601()
 
               case Code.ensure_compiled(mod) do
@@ -101,12 +107,25 @@ defmodule GameServer.Hooks do
                     status = if warnings, do: {:ok_with_warnings, mod, warnings}, else: {:ok, mod}
                     Application.put_env(:game_server, :hooks_last_compiled_at, now)
                     Application.put_env(:game_server, :hooks_last_compile_status, status)
-                    Logger.info("Hooks.register_file: registered hooks module #{inspect(mod)} at #{now}")
+
+                    Logger.info(
+                      "Hooks.register_file: registered hooks module #{inspect(mod)} at #{now}"
+                    )
+
                     {:ok, mod}
                   else
                     Application.put_env(:game_server, :hooks_last_compiled_at, now)
-                    Application.put_env(:game_server, :hooks_last_compile_status, {:error, :invalid_hooks_impl})
-                    Logger.error("Hooks.register_file: compiled module #{inspect(mod)} does not implement expected callback (registered_at=#{now})")
+
+                    Application.put_env(
+                      :game_server,
+                      :hooks_last_compile_status,
+                      {:error, :invalid_hooks_impl}
+                    )
+
+                    Logger.error(
+                      "Hooks.register_file: compiled module #{inspect(mod)} does not implement expected callback (registered_at=#{now})"
+                    )
+
                     {:error, :invalid_hooks_impl}
                   end
 
@@ -117,7 +136,13 @@ defmodule GameServer.Hooks do
             [] ->
               now = DateTime.utc_now() |> DateTime.to_iso8601()
               Application.put_env(:game_server, :hooks_last_compiled_at, now)
-              Application.put_env(:game_server, :hooks_last_compile_status, {:error, :no_module_in_file})
+
+              Application.put_env(
+                :game_server,
+                :hooks_last_compile_status,
+                {:error, :no_module_in_file}
+              )
+
               Logger.error("Hooks.register_file: no module defined in #{path} (time=#{now})")
               {:error, :no_module_in_file}
           end
@@ -182,4 +207,4 @@ defmodule GameServer.Hooks.Default do
   def after_lobby_host_change(_lobby, _new_host_id), do: :ok
 end
 
-  # friends hooks removed
+# friends hooks removed

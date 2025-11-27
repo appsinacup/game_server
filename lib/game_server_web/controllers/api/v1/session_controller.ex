@@ -134,24 +134,24 @@ defmodule GameServerWeb.Api.V1.SessionController do
   def create_device(conn, %{"device_id" => device_id}) when is_binary(device_id) do
     if Accounts.device_auth_enabled?() do
       case Accounts.find_or_create_from_device(device_id) do
-      {:ok, user} ->
-        {:ok, access_token, _} = Guardian.encode_and_sign(user, %{}, token_type: "access")
+        {:ok, user} ->
+          {:ok, access_token, _} = Guardian.encode_and_sign(user, %{}, token_type: "access")
 
-        {:ok, refresh_token, _} =
-          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+          {:ok, refresh_token, _} =
+            Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
 
-        json(conn, %{
-          data: %{access_token: access_token, refresh_token: refresh_token, expires_in: 900}
-        })
+          json(conn, %{
+            data: %{access_token: access_token, refresh_token: refresh_token, expires_in: 900}
+          })
 
-      {:error, changeset} ->
-        conn
-        |> put_status(:bad_request)
+        {:error, changeset} ->
+          conn
+          |> put_status(:bad_request)
           |> json(%{
             error: "unable to create device user",
             details: Ecto.Changeset.traverse_errors(changeset, fn {msg, _} -> msg end)
           })
-        end
+      end
     else
       conn
       |> put_status(:forbidden)

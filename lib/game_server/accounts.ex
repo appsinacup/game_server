@@ -268,7 +268,8 @@ defmodule GameServer.Accounts do
   create an anonymous confirmed user and attach the device_id.
   """
   def find_or_create_from_device(device_id, attrs \\ %{}) when is_binary(device_id) do
-      unless device_auth_enabled?(), do: {:error, :disabled}
+    unless device_auth_enabled?(), do: {:error, :disabled}
+
     case Repo.get_by(User, device_id: device_id) do
       %User{} = user ->
         {:ok, user}
@@ -318,7 +319,9 @@ defmodule GameServer.Accounts do
           _ -> true
         end
 
-      bool when is_boolean(bool) -> bool
+      bool when is_boolean(bool) ->
+        bool
+
       other ->
         # support string-like values in config
         case other do

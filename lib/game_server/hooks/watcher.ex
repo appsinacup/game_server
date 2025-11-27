@@ -27,7 +27,8 @@ defmodule GameServer.Hooks.Watcher do
     env_path = System.get_env("HOOKS_FILE_PATH")
     path = app_path || env_path
 
-    interval_sec = Application.get_env(:game_server, :hooks_file_watch_interval, @default_interval_sec)
+    interval_sec =
+      Application.get_env(:game_server, :hooks_file_watch_interval, @default_interval_sec)
 
     # Normalize to milliseconds for Process.send_after
     interval_ms =
@@ -54,7 +55,10 @@ defmodule GameServer.Hooks.Watcher do
                 %{state | fs_pid: pid}
 
               {:error, reason} ->
-                Logger.warning("Hooks watcher: failed to start file watcher #{inspect(reason)} - will still attempt initial compile")
+                Logger.warning(
+                  "Hooks watcher: failed to start file watcher #{inspect(reason)} - will still attempt initial compile"
+                )
+
                 # Still attempt initial compile now that file exists
                 Process.send_after(self(), :trigger_compile, 0)
                 state
@@ -85,6 +89,7 @@ defmodule GameServer.Hooks.Watcher do
 
     if is_binary(new_path) and File.exists?(new_path) do
       Logger.info("Hooks watcher discovered hooks file path: #{inspect(new_path)}")
+
       case start_fs(new_path) do
         {:ok, pid} ->
           # ensure we also compile the file after discovery
@@ -92,7 +97,10 @@ defmodule GameServer.Hooks.Watcher do
           {:noreply, %{state | path: new_path, fs_pid: pid}}
 
         {:error, reason} ->
-          Logger.warning("Hooks watcher: failed to start file watcher for #{inspect(new_path)}: #{inspect(reason)} - attempting compile anyway")
+          Logger.warning(
+            "Hooks watcher: failed to start file watcher for #{inspect(new_path)}: #{inspect(reason)} - attempting compile anyway"
+          )
+
           # attempt an immediate compile even if we couldn't start fs watcher
           Process.send_after(self(), :trigger_compile, 0)
           {:noreply, %{state | path: new_path}}
@@ -118,7 +126,8 @@ defmodule GameServer.Hooks.Watcher do
     # and includes modification-like events, schedule a compile.
     interested = String.ends_with?(file_path, Path.basename(path)) or file_path == path
 
-    if interested and Enum.any?(events, fn e -> e in [:modified, :closed_write, :moved_to, :created] end) do
+    if interested and
+         Enum.any?(events, fn e -> e in [:modified, :closed_write, :moved_to, :created] end) do
       # trigger compilation asynchronously so we quickly return from this
       # message handler
       send(self(), :trigger_compile)
@@ -145,7 +154,10 @@ defmodule GameServer.Hooks.Watcher do
                 {:noreply, %{state | mtime: mtime}}
 
               {:error, reason} ->
-                Logger.error("Hooks watcher: failed to register hooks from #{path}: #{inspect(reason)}")
+                Logger.error(
+                  "Hooks watcher: failed to register hooks from #{path}: #{inspect(reason)}"
+                )
+
                 {:noreply, %{state | mtime: mtime}}
             end
           else
@@ -159,7 +171,10 @@ defmodule GameServer.Hooks.Watcher do
       end
     rescue
       e ->
-        Logger.error("Hooks watcher: unexpected error while handling file event for #{path}: #{inspect(e)}")
+        Logger.error(
+          "Hooks watcher: unexpected error while handling file event for #{path}: #{inspect(e)}"
+        )
+
         {:noreply, state}
     end
   end
@@ -173,9 +188,9 @@ defmodule GameServer.Hooks.Watcher do
     dir = Path.dirname(path)
 
     case FileSystem.start_link(dirs: [dir], name: __MODULE__) do
-        {:ok, pid} ->
-          FileSystem.subscribe(pid)
-          {:ok, pid}
+      {:ok, pid} ->
+        FileSystem.subscribe(pid)
+        {:ok, pid}
 
       {:error, _} = err ->
         err

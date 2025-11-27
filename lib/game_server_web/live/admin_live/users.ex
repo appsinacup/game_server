@@ -28,8 +28,14 @@ defmodule GameServerWeb.AdminLive.Users do
 
               <div class="flex gap-2">
                 <form phx-change="search_users" phx-submit="search_users" class="flex items-center">
-                  <input type="text" name="q" id="admin-user-search" placeholder="Search by name, email or id" value={@search_query}
-                    class="input input-sm" />
+                  <input
+                    type="text"
+                    name="q"
+                    id="admin-user-search"
+                    placeholder="Search by name, email or id"
+                    value={@search_query}
+                    class="input input-sm"
+                  />
                 </form>
                 <button phx-click="clear_search" class="btn btn-sm">Clear</button>
               </div>
@@ -39,27 +45,63 @@ defmodule GameServerWeb.AdminLive.Users do
               <div class="text-sm">Filter by auth provider:</div>
               <div class="flex items-center gap-3">
                 <label class="label cursor-pointer">
-                  <input type="checkbox" phx-click="toggle_provider" phx-value-provider="discord" checked={"discord" in @filters} class="checkbox" />
+                  <input
+                    type="checkbox"
+                    phx-click="toggle_provider"
+                    phx-value-provider="discord"
+                    checked={"discord" in @filters}
+                    class="checkbox"
+                  />
                   <span class="label-text ml-2">Discord</span>
                 </label>
                 <label class="label cursor-pointer">
-                  <input type="checkbox" phx-click="toggle_provider" phx-value-provider="google" checked={"google" in @filters} class="checkbox" />
+                  <input
+                    type="checkbox"
+                    phx-click="toggle_provider"
+                    phx-value-provider="google"
+                    checked={"google" in @filters}
+                    class="checkbox"
+                  />
                   <span class="label-text ml-2">Google</span>
                 </label>
                 <label class="label cursor-pointer">
-                  <input type="checkbox" phx-click="toggle_provider" phx-value-provider="apple" checked={"apple" in @filters} class="checkbox" />
+                  <input
+                    type="checkbox"
+                    phx-click="toggle_provider"
+                    phx-value-provider="apple"
+                    checked={"apple" in @filters}
+                    class="checkbox"
+                  />
                   <span class="label-text ml-2">Apple</span>
                 </label>
                 <label class="label cursor-pointer">
-                  <input type="checkbox" phx-click="toggle_provider" phx-value-provider="facebook" checked={"facebook" in @filters} class="checkbox" />
+                  <input
+                    type="checkbox"
+                    phx-click="toggle_provider"
+                    phx-value-provider="facebook"
+                    checked={"facebook" in @filters}
+                    class="checkbox"
+                  />
                   <span class="label-text ml-2">Facebook</span>
                 </label>
                 <label class="label cursor-pointer">
-                  <input type="checkbox" phx-click="toggle_provider" phx-value-provider="device" checked={"device" in @filters} class="checkbox" />
+                  <input
+                    type="checkbox"
+                    phx-click="toggle_provider"
+                    phx-value-provider="device"
+                    checked={"device" in @filters}
+                    class="checkbox"
+                  />
                   <span class="label-text ml-2">Device</span>
                 </label>
                 <label class="label cursor-pointer">
-                  <input type="checkbox" phx-click="toggle_provider" phx-value-provider="email" checked={"email" in @filters} class="checkbox" />
+                  <input
+                    type="checkbox"
+                    phx-click="toggle_provider"
+                    phx-value-provider="email"
+                    checked={"email" in @filters}
+                    class="checkbox"
+                  />
                   <span class="label-text ml-2">Email (password)</span>
                 </label>
               </div>
@@ -257,7 +299,13 @@ defmodule GameServerWeb.AdminLive.Users do
     page = 1
     page_size = 25
 
-    {users, total_count, total_pages} = load_users(page, page_size, socket.assigns[:search_query] || "", socket.assigns[:filters] || [])
+    {users, total_count, total_pages} =
+      load_users(
+        page,
+        page_size,
+        socket.assigns[:search_query] || "",
+        socket.assigns[:filters] || []
+      )
 
     {:ok,
      socket
@@ -372,7 +420,12 @@ defmodule GameServerWeb.AdminLive.Users do
         page_size = socket.assigns[:users_page_size] || 25
 
         {users, total_count, total_pages} =
-          load_users(page, page_size, socket.assigns[:search_query] || "", socket.assigns[:filters] || [])
+          load_users(
+            page,
+            page_size,
+            socket.assigns[:search_query] || "",
+            socket.assigns[:filters] || []
+          )
 
         {:noreply,
          socket
@@ -397,7 +450,12 @@ defmodule GameServerWeb.AdminLive.Users do
         page_size = socket.assigns[:users_page_size] || 25
 
         {users, total_count, total_pages} =
-          load_users(page, page_size, socket.assigns[:search_query] || "", socket.assigns[:filters] || [])
+          load_users(
+            page,
+            page_size,
+            socket.assigns[:search_query] || "",
+            socket.assigns[:filters] || []
+          )
 
         # ensure current page is within range (if we deleted the last item on last page)
         page = max(1, min(page, total_pages || 1))
@@ -420,7 +478,13 @@ defmodule GameServerWeb.AdminLive.Users do
     page = max(1, (socket.assigns[:users_page] || 1) - 1)
     page_size = socket.assigns[:users_page_size] || 25
 
-    {users, total_count, total_pages} = load_users(page, page_size, socket.assigns[:search_query] || "", socket.assigns[:filters] || [])
+    {users, total_count, total_pages} =
+      load_users(
+        page,
+        page_size,
+        socket.assigns[:search_query] || "",
+        socket.assigns[:filters] || []
+      )
 
     {:noreply,
      socket
@@ -434,7 +498,13 @@ defmodule GameServerWeb.AdminLive.Users do
     page = (socket.assigns[:users_page] || 1) + 1
     page_size = socket.assigns[:users_page_size] || 25
 
-    {users, total_count, total_pages} = load_users(page, page_size, socket.assigns[:search_query] || "", socket.assigns[:filters] || [])
+    {users, total_count, total_pages} =
+      load_users(
+        page,
+        page_size,
+        socket.assigns[:search_query] || "",
+        socket.assigns[:filters] || []
+      )
 
     {:noreply,
      socket
@@ -516,5 +586,4 @@ defmodule GameServerWeb.AdminLive.Users do
 
     {users, total_count, total_pages}
   end
-
 end

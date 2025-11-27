@@ -10,12 +10,11 @@ defmodule GameServerWeb.AdminLive.Config do
           ← Back to Admin
         </.link>
 
-
         <.header>
           Configuration
           <:subtitle>System configuration settings and setup guides</:subtitle>
         </.header>
-
+        
     <!-- Current Configuration Status -->
         <div class="card bg-base-100 shadow-xl" data-card-key="config_status">
           <div class="card-body">
@@ -62,20 +61,26 @@ defmodule GameServerWeb.AdminLive.Config do
                       HOOKS_FILE_PATH: {@config.hooks_file_path_env || "<unset>"}<br />
                       <%= if @config.hooks_watch_interval_app || @config.hooks_watch_interval_env do %>
                         Watch interval (app): {@config.hooks_watch_interval_app || "<unset>"} s<br />
-                        GAME_SERVER_HOOKS_WATCH_INTERVAL: {@config.hooks_watch_interval_env || "<unset>"} s<br />
+                        GAME_SERVER_HOOKS_WATCH_INTERVAL: {@config.hooks_watch_interval_env ||
+                          "<unset>"} s<br />
                       <% end %>
-                      Registered module: <span class="font-mono">{inspect(@config.hooks_registered_module)}</span><br />
-                      Last compiled: {@config.hooks_last_compiled_at || "<unset>"}<br />
+                      Registered module:
+                      <span class="font-mono">{inspect(@config.hooks_registered_module)}</span>
+                      <br /> Last compiled: {@config.hooks_last_compiled_at || "<unset>"}<br />
                       Last compile status:
                       <%= case @config.hooks_last_compile_status do %>
                         <% {:ok, _mod} -> %>
                           <span class="badge badge-success">OK</span>
                         <% {:ok_with_warnings, _mod, warnings} -> %>
                           <span class="badge badge-warning">Warnings</span>
-                          <div class="mt-1 text-xs font-mono whitespace-pre-wrap">{String.slice(warnings, 0, 512)}{if String.length(warnings) > 512, do: "…"}</div>
+                          <div class="mt-1 text-xs font-mono whitespace-pre-wrap">
+                            {String.slice(warnings, 0, 512)}{if String.length(warnings) > 512, do: "…"}
+                          </div>
                         <% {:error, reason} -> %>
                           <span class="badge badge-error">Error</span>
-                          <div class="mt-1 text-xs font-mono whitespace-pre-wrap">{inspect(reason)}</div>
+                          <div class="mt-1 text-xs font-mono whitespace-pre-wrap">
+                            {inspect(reason)}
+                          </div>
                         <% _ -> %>
                           &lt;unset&gt;
                       <% end %>
@@ -107,7 +112,7 @@ defmodule GameServerWeb.AdminLive.Config do
                       <%= if @config.discord_client_id do %>
                         DISCORD_CLIENT_ID: {mask_secret(@config.discord_client_id)}<br />
                         DISCORD_CLIENT_SECRET: {mask_secret(@config.discord_client_secret)}
-                        <% else %>
+                      <% else %>
                         <span class="text-error">Client ID missing</span>
                       <% end %>
                     </td>
@@ -127,7 +132,7 @@ defmodule GameServerWeb.AdminLive.Config do
                         APPLE_TEAM_ID: {mask_secret(@config.apple_team_id || "")}<br />
                         APPLE_KEY_ID: {mask_secret(@config.apple_key_id || "")}<br />
                         APPLE_PRIVATE_KEY: {mask_secret(@config.apple_private_key)}
-                        <% else %>
+                      <% else %>
                         <span class="text-error">Not configured</span>
                       <% end %>
                     </td>
@@ -145,7 +150,7 @@ defmodule GameServerWeb.AdminLive.Config do
                       <%= if @config.google_client_id do %>
                         GOOGLE_CLIENT_ID: {mask_secret(@config.google_client_id)}<br />
                         GOOGLE_CLIENT_SECRET: {mask_secret(@config.google_client_secret)}
-                        <% else %>
+                      <% else %>
                         <span class="text-error">Client ID missing</span>
                       <% end %>
                     </td>
@@ -163,7 +168,7 @@ defmodule GameServerWeb.AdminLive.Config do
                       <%= if @config.facebook_client_id do %>
                         FACEBOOK_CLIENT_ID: {mask_secret(@config.facebook_client_id)}<br />
                         FACEBOOK_CLIENT_SECRET: {mask_secret(@config.facebook_client_secret)}
-                        <% else %>
+                      <% else %>
                         <span class="text-error">Client ID missing</span>
                       <% end %>
                     </td>
@@ -179,9 +184,9 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                     <td class="text-sm">
                       <div class="font-mono text-sm">
-                          SMTP_USERNAME: {mask_secret(@config.smtp_username)}<br />
-                          SMTP_PASSWORD: {mask_secret(@config.smtp_password)}<br />
-                          SMTP_RELAY: {@config.smtp_relay || "<unset>"}
+                        SMTP_USERNAME: {mask_secret(@config.smtp_username)}<br />
+                        SMTP_PASSWORD: {mask_secret(@config.smtp_password)}<br />
+                        SMTP_RELAY: {@config.smtp_relay || "<unset>"}
                       </div>
                       <%= if @config.email_configured do %>
                         SMTP configured - emails are sent via {@config.smtp_relay ||
@@ -308,7 +313,8 @@ defmodule GameServerWeb.AdminLive.Config do
                             {@config.sentry_log_level || "error"}
                           </span>
                           <div class="mt-1">
-                            SENTRY_DSN: <span class="font-mono">{mask_secret(@config.sentry_dsn)}</span>
+                            SENTRY_DSN:
+                            <span class="font-mono">{mask_secret(@config.sentry_dsn)}</span>
                           </div>
                         </span>
                       <% else %>
@@ -321,7 +327,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-
+        
     <!-- Admin Tools -->
         <div class="card bg-base-100 shadow-xl" data-card-key="admin_tools">
           <div class="card-body">
