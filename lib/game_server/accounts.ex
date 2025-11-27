@@ -555,7 +555,7 @@ defmodule GameServer.Accounts do
   one other social provider remaining. This prevents users losing all
   social logins unexpectedly.
   """
-    def unlink_provider(%User{} = user, provider)
+  def unlink_provider(%User{} = user, provider)
       when provider in [:discord, :apple, :google, :facebook, :steam] do
     provider_field = provider_field(provider)
 

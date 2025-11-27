@@ -17,7 +17,7 @@ defmodule GameServerWeb.PublicDocs do
             Platform setup, OAuth providers, email, error monitoring, and server hooks
           </:subtitle>
         </.header>
-
+        
     <!-- JavaScript Client SDK -->
         <div class="card bg-base-100 shadow-xl collapsed" data-card-key="js_client">
           <div class="card-body">
@@ -591,7 +591,7 @@ defmodule GameServerWeb.PublicDocs do
                   </p>
                 </div>
               </div>
-
+              
     <!-- Step 2: Create App ID -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -619,7 +619,7 @@ defmodule GameServerWeb.PublicDocs do
                   </ol>
                 </div>
               </div>
-
+              
     <!-- Step 3: Create Service ID -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -651,7 +651,7 @@ defmodule GameServerWeb.PublicDocs do
                   </div>
                 </div>
               </div>
-
+              
     <!-- Step 4: Create Private Key -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -676,7 +676,7 @@ defmodule GameServerWeb.PublicDocs do
                   </ol>
                 </div>
               </div>
-
+              
     <!-- Step 5: Get Team ID -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -699,7 +699,7 @@ defmodule GameServerWeb.PublicDocs do
                   </ol>
                 </div>
               </div>
-
+              
     <!-- Step 6: Configure Environment Variables -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -719,13 +719,13 @@ defmodule GameServerWeb.PublicDocs do
                   </div>
                 </div>
               </div>
-
+              
     <!-- Step: Steam OpenID Setup -->
               <div class="card bg-base-100 shadow-xl collapsed" data-card-key="steam_setup">
                 <div class="card-body">
                   <h2 class="card-title text-2xl mb-4 flex items-center gap-3">
                     <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 0C5.372 0 0 5.373 0 12c0 6.627 5.372 12 12 12s12-5.373 12-12C24 5.373 18.628 0 12 0zm-1.2 17.6c-.6 0-1.2-.3-1.6-.8l4-3.1c.6-.4 1.5-.2 1.9.4.4.6.1 1.4-.6 1.8l-3.7 1.7c-.4.1-.8.1-1 0z"/>
+                      <path d="M12 0C5.372 0 0 5.373 0 12c0 6.627 5.372 12 12 12s12-5.373 12-12C24 5.373 18.628 0 12 0zm-1.2 17.6c-.6 0-1.2-.3-1.6-.8l4-3.1c.6-.4 1.5-.2 1.9.4.4.6.1 1.4-.6 1.8l-3.7 1.7c-.4.1-.8.1-1 0z" />
                     </svg>
                     Steam OpenID Setup
                     <a
@@ -735,7 +735,12 @@ defmodule GameServerWeb.PublicDocs do
                     >
                       Steam Dev Portal
                       <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                        />
                       </svg>
                     </a>
                     <button
@@ -747,7 +752,12 @@ defmodule GameServerWeb.PublicDocs do
                       title="Collapse/Expand"
                     >
                       <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 8l4 4 4-4" />
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M6 8l4 4 4-4"
+                        />
                       </svg>
                     </button>
                   </h2>
@@ -760,7 +770,13 @@ defmodule GameServerWeb.PublicDocs do
                       <div class="ml-8 space-y-3">
                         <p>
                           Visit the Steam Web API page at
-                          <a href="https://steamcommunity.com/dev" target="_blank" class="link link-primary">https://steamcommunity.com/dev</a>
+                          <a
+                            href="https://steamcommunity.com/dev"
+                            target="_blank"
+                            class="link link-primary"
+                          >
+                            https://steamcommunity.com/dev
+                          </a>
                           and register your domain to get an <strong>API key</strong>.
                         </p>
                       </div>
@@ -787,7 +803,8 @@ defmodule GameServerWeb.PublicDocs do
                           <div>STEAM_API_KEY="&lt;your_steam_api_key&gt;"</div>
                         </div>
                         <p>
-                          For local development add it to <code>.env</code> or your shell environment; for Fly deployments use <code>flyctl secrets set STEAM_API_KEY=...</code>.
+                          For local development add it to <code>.env</code>
+                          or your shell environment; for Fly deployments use <code>flyctl secrets set STEAM_API_KEY=...</code>.
                         </p>
                       </div>
                     </div>
@@ -798,15 +815,18 @@ defmodule GameServerWeb.PublicDocs do
                       </h3>
                       <div class="ml-8 space-y-3">
                         <p>
-                          - Browser flow: <code>/auth/steam</code> redirects to Steam and the server handles the callback on <code>/auth/steam/callback</code>.
-                          <br />- API (SDK) flow: request an authorization URL via <code>GET /api/v1/auth/steam</code>, check session status with <code>GET /api/v1/auth/session/:session_id</code> until completed.
+                          - Browser flow: <code>/auth/steam</code>
+                          redirects to Steam and the server handles the callback on <code>/auth/steam/callback</code>.
+                          <br />- API (SDK) flow: request an authorization URL via <code>GET /api/v1/auth/steam</code>, check session status with
+                          <code>GET /api/v1/auth/session/:session_id</code>
+                          until completed.
                         </p>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-
+              
     <!-- Step 7: Test -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -825,7 +845,7 @@ defmodule GameServerWeb.PublicDocs do
             </div>
           </div>
         </div>
-
+        
     <!-- Discord OAuth Setup Guide -->
         <div class="card bg-base-100 shadow-xl collapsed" data-card-key="discord_oauth">
           <div class="card-body">
@@ -892,7 +912,7 @@ defmodule GameServerWeb.PublicDocs do
                   </ol>
                 </div>
               </div>
-
+              
     <!-- Step 2: Configure Redirect URIs -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -915,7 +935,7 @@ defmodule GameServerWeb.PublicDocs do
                   </p>
                 </div>
               </div>
-
+              
     <!-- Step 3: Get Application Credentials -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -943,7 +963,7 @@ defmodule GameServerWeb.PublicDocs do
                   </div>
                 </div>
               </div>
-
+              
     <!-- Step 4: Configure Application -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -977,7 +997,7 @@ defmodule GameServerWeb.PublicDocs do
             </div>
           </div>
         </div>
-
+        
     <!-- Google OAuth Setup Guide -->
         <div class="card bg-base-100 shadow-xl collapsed" data-card-key="google_oauth">
           <div class="card-body">
@@ -1060,7 +1080,7 @@ defmodule GameServerWeb.PublicDocs do
                   </ol>
                 </div>
               </div>
-
+              
     <!-- Step 2: Enable Google+ API -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -1075,7 +1095,7 @@ defmodule GameServerWeb.PublicDocs do
                   </ol>
                 </div>
               </div>
-
+              
     <!-- Step 3: Configure OAuth Consent Screen -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -1097,7 +1117,7 @@ defmodule GameServerWeb.PublicDocs do
                   </ol>
                 </div>
               </div>
-
+              
     <!-- Step 4: Create OAuth Credentials -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -1121,7 +1141,7 @@ defmodule GameServerWeb.PublicDocs do
                   </ol>
                 </div>
               </div>
-
+              
     <!-- Step 5: Configure Environment Variables -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -1137,7 +1157,7 @@ defmodule GameServerWeb.PublicDocs do
                   </div>
                 </div>
               </div>
-
+              
     <!-- Step 6: Test -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -1156,7 +1176,7 @@ defmodule GameServerWeb.PublicDocs do
             </div>
           </div>
         </div>
-
+        
     <!-- Facebook OAuth Setup Guide -->
         <div class="card bg-base-100 shadow-xl collapsed" data-card-key="facebook_oauth">
           <div class="card-body">
@@ -1233,7 +1253,7 @@ defmodule GameServerWeb.PublicDocs do
                   </ol>
                 </div>
               </div>
-
+              
     <!-- Step 2: Add Facebook Login Product -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -1250,7 +1270,7 @@ defmodule GameServerWeb.PublicDocs do
                   </ol>
                 </div>
               </div>
-
+              
     <!-- Step 3: Configure OAuth Redirect URIs -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -1270,7 +1290,7 @@ defmodule GameServerWeb.PublicDocs do
                   </ol>
                 </div>
               </div>
-
+              
     <!-- Step 4: Get App Credentials -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -1291,7 +1311,7 @@ defmodule GameServerWeb.PublicDocs do
                   </div>
                 </div>
               </div>
-
+              
     <!-- Step 5: Make App Public -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -1308,7 +1328,7 @@ defmodule GameServerWeb.PublicDocs do
                   </ol>
                 </div>
               </div>
-
+              
     <!-- Step 6: Configure Environment Variables -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -1324,7 +1344,7 @@ defmodule GameServerWeb.PublicDocs do
                   </div>
                 </div>
               </div>
-
+              
     <!-- Step 7: Test -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -1343,7 +1363,7 @@ defmodule GameServerWeb.PublicDocs do
             </div>
           </div>
         </div>
-
+        
     <!-- Email Configuration -->
         <div class="card bg-base-100 shadow-xl collapsed" data-card-key="email_config">
           <div class="card-body">
@@ -1455,7 +1475,7 @@ defmodule GameServerWeb.PublicDocs do
             </div>
           </div>
         </div>
-
+        
     <!-- Sentry Error Monitoring Setup -->
         <div class="card bg-base-100 shadow-xl collapsed" data-card-key="sentry_setup">
           <div class="card-body">
@@ -1524,7 +1544,7 @@ defmodule GameServerWeb.PublicDocs do
                   </ol>
                 </div>
               </div>
-
+              
     <!-- Step 2: Get DSN -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -1544,7 +1564,7 @@ defmodule GameServerWeb.PublicDocs do
                   </div>
                 </div>
               </div>
-
+              
     <!-- Step 3: Configure Environment Variable -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -1559,7 +1579,7 @@ defmodule GameServerWeb.PublicDocs do
                   </div>
                 </div>
               </div>
-
+              
     <!-- Step 4: Deploy and Test -->
               <div class="step">
                 <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -1578,7 +1598,7 @@ defmodule GameServerWeb.PublicDocs do
             </div>
           </div>
         </div>
-
+        
     <!-- PostgreSQL Configuration -->
         <div class="card bg-base-100 shadow-xl collapsed" data-card-key="postgres_config">
           <div class="card-body">

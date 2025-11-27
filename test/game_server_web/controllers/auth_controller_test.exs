@@ -292,7 +292,7 @@ defmodule GameServerWeb.AuthControllerTest do
 
   test "callback (steam) on error without state shows flash", %{conn: conn} do
     # Simulate Ueberauth failure assign
-    failure = %{errors: [reason: :invalid]} 
+    failure = %{errors: [reason: :invalid]}
 
     conn = conn |> assign(:ueberauth_failure, failure) |> get("/auth/steam/callback")
 
@@ -305,7 +305,10 @@ defmodule GameServerWeb.AuthControllerTest do
 
     failure = %{errors: [reason: :invalid]}
 
-    conn = conn |> assign(:ueberauth_failure, failure) |> get("/auth/steam/callback?state=#{session_id}")
+    conn =
+      conn
+      |> assign(:ueberauth_failure, failure)
+      |> get("/auth/steam/callback?state=#{session_id}")
 
     sess = OAuthSessions.get_session(session_id)
     assert sess.status == "error"

@@ -112,5 +112,4 @@ config :ueberauth, Ueberauth.Strategy.Facebook.OAuth,
   client_id: System.get_env("FACEBOOK_CLIENT_ID"),
   client_secret: System.get_env("FACEBOOK_CLIENT_SECRET")
 
-config :ueberauth, Ueberauth.Strategy.Steam,
-  api_key: System.get_env("STEAM_API_KEY")
+config :ueberauth, Ueberauth.Strategy.Steam, api_key: System.get_env("STEAM_API_KEY")

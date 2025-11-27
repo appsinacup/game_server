@@ -42,7 +42,10 @@ defmodule GameServerWeb.AuthController do
   end
 
   # Ueberauth Steam callback handler
-  def callback(%Plug.Conn{assigns: %{ueberauth_auth: auth}} = conn, %{"provider" => "steam"} = params) do
+  def callback(
+        %Plug.Conn{assigns: %{ueberauth_auth: auth}} = conn,
+        %{"provider" => "steam"} = params
+      ) do
     uid = to_string(auth.uid)
     info = auth.info || %{}
     display_name = Map.get(info, :nickname) || Map.get(info, :name)
@@ -60,7 +63,10 @@ defmodule GameServerWeb.AuthController do
     end
   end
 
-  def callback(%Plug.Conn{assigns: %{ueberauth_failure: failure}} = conn, %{"provider" => "steam"} = params) do
+  def callback(
+        %Plug.Conn{assigns: %{ueberauth_failure: failure}} = conn,
+        %{"provider" => "steam"} = params
+      ) do
     require Logger
     Logger.error("Steam OAuth exchange failed: #{inspect(failure)}")
 
@@ -399,8 +405,8 @@ defmodule GameServerWeb.AuthController do
         in: :path,
         name: "provider",
         schema: %OpenApiSpex.Schema{
-              type: :string,
-              enum: ["discord", "apple", "google", "facebook", "steam"]
+          type: :string,
+          enum: ["discord", "apple", "google", "facebook", "steam"]
         },
         description: "OAuth provider",
         required: true,
@@ -526,8 +532,8 @@ defmodule GameServerWeb.AuthController do
         in: :path,
         name: "provider",
         schema: %OpenApiSpex.Schema{
-              type: :string,
-              enum: ["discord", "apple", "google", "facebook", "steam"]
+          type: :string,
+          enum: ["discord", "apple", "google", "facebook", "steam"]
         },
         required: true
       ],
@@ -788,59 +794,59 @@ defmodule GameServerWeb.AuthController do
     end
   end
 
-    defp handle_browser_steam_callback(conn, user_params) do
-      case conn.assigns[:current_scope] do
-        %{:user => current_user} ->
-          case Accounts.link_account(
-                 current_user,
-                 user_params,
-                 :steam_id,
-                 &GameServer.Accounts.User.steam_oauth_changeset/2
-               ) do
-            {:ok, _user} ->
-              conn
-              |> put_flash(:info, "Linked Steam to your account.")
-              |> redirect(to: ~p"/users/settings")
+  defp handle_browser_steam_callback(conn, user_params) do
+    case conn.assigns[:current_scope] do
+      %{:user => current_user} ->
+        case Accounts.link_account(
+               current_user,
+               user_params,
+               :steam_id,
+               &GameServer.Accounts.User.steam_oauth_changeset/2
+             ) do
+          {:ok, _user} ->
+            conn
+            |> put_flash(:info, "Linked Steam to your account.")
+            |> redirect(to: ~p"/users/settings")
 
-            {:error, {:conflict, other_user}} ->
-              require Logger
-              Logger.warning("Steam already linked to another user id=#{other_user.id}")
+          {:error, {:conflict, other_user}} ->
+            require Logger
+            Logger.warning("Steam already linked to another user id=#{other_user.id}")
 
-              conn
-              |> put_flash(
-                :error,
-                "Steam is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
-              )
-              |> redirect(
-                to: ~p"/users/settings?conflict_provider=steam&conflict_user_id=#{other_user.id}"
-              )
+            conn
+            |> put_flash(
+              :error,
+              "Steam is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+            )
+            |> redirect(
+              to: ~p"/users/settings?conflict_provider=steam&conflict_user_id=#{other_user.id}"
+            )
 
-            {:error, changeset} ->
-              require Logger
-              Logger.error("Failed to link Steam: #{inspect(changeset.errors)}")
+          {:error, changeset} ->
+            require Logger
+            Logger.error("Failed to link Steam: #{inspect(changeset.errors)}")
 
-              conn
-              |> put_flash(:error, "Failed to link Steam account.")
-              |> redirect(to: ~p"/users/settings")
-          end
+            conn
+            |> put_flash(:error, "Failed to link Steam account.")
+            |> redirect(to: ~p"/users/settings")
+        end
 
-        _ ->
-          case Accounts.find_or_create_from_steam(user_params) do
-            {:ok, user} ->
-              conn
-              |> put_flash(:info, "Successfully authenticated with Steam.")
-              |> UserAuth.log_in_user(user)
+      _ ->
+        case Accounts.find_or_create_from_steam(user_params) do
+          {:ok, user} ->
+            conn
+            |> put_flash(:info, "Successfully authenticated with Steam.")
+            |> UserAuth.log_in_user(user)
 
-            {:error, changeset} ->
-              require Logger
-              Logger.error("Failed to create user from Steam: #{inspect(changeset.errors)}")
+          {:error, changeset} ->
+            require Logger
+            Logger.error("Failed to create user from Steam: #{inspect(changeset.errors)}")
 
-              conn
-              |> put_flash(:error, "Failed to create or update user account.")
-              |> redirect(to: ~p"/users/log-in")
-          end
-      end
+            conn
+            |> put_flash(:error, "Failed to create or update user account.")
+            |> redirect(to: ~p"/users/log-in")
+        end
     end
+  end
 
   defp handle_browser_discord_callback(conn, user_params) do
     case conn.assigns[:current_scope] do
@@ -1024,35 +1030,35 @@ defmodule GameServerWeb.AuthController do
     end
   end
 
-    defp do_find_or_create_steam_for_session(conn, user_params, session_id) do
-      case Accounts.find_or_create_from_steam(user_params) do
-        {:ok, user} ->
-          {:ok, access_token, _access_claims} =
-            Guardian.encode_and_sign(user, %{}, token_type: "access")
+  defp do_find_or_create_steam_for_session(conn, user_params, session_id) do
+    case Accounts.find_or_create_from_steam(user_params) do
+      {:ok, user} ->
+        {:ok, access_token, _access_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "access")
 
-          {:ok, refresh_token, _refresh_claims} =
-            Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+        {:ok, refresh_token, _refresh_claims} =
+          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
 
-          # Store tokens in session
-          GameServer.OAuthSessions.create_session(session_id, %{
-            status: "completed",
-            data: %{
-              access_token: access_token,
-              refresh_token: refresh_token,
-              expires_in: 900
-            }
-          })
+        # Store tokens in session
+        GameServer.OAuthSessions.create_session(session_id, %{
+          status: "completed",
+          data: %{
+            access_token: access_token,
+            refresh_token: refresh_token,
+            expires_in: 900
+          }
+        })
 
-          # Redirect to success page
-          redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+        # Redirect to success page
+        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
 
-        {:error, changeset} ->
-          GameServer.OAuthSessions.create_session(session_id, %{
-            status: "error",
-            data: %{details: changeset.errors}
-          })
+      {:error, changeset} ->
+        GameServer.OAuthSessions.create_session(session_id, %{
+          status: "error",
+          data: %{details: changeset.errors}
+        })
 
-          redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
-      end
+        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
     end
+  end
 end
