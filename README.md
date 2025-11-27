@@ -6,8 +6,6 @@
 
 Game + Backend = Gamend
 
-Docs: 
-
 -----
 
 [Discord](https://discord.com/invite/56dMud8HYn) | [Elixir Docs](https://appsinacup.github.io/game_server/) | [API Docs](https://gamend.appsinacup.com/api/docs) | [Guides](https://gamend.appsinacup.com/docs/setup)

@@ -392,6 +392,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Configure git safe.directory for Actions runner
+        run: |
+          git config --global --add safe.directory $GITHUB_WORKSPACE || true
+
+      - name: Compute version (CI-only)
+        id: version
+        run: |
+          echo "Computing APP_VERSION for docs job"
+          # Ensure we have a full history for correct commit count
+          git fetch --prune --unshallow || true
+          COMMIT_COUNT=$(git rev-list --count HEAD)
+          VERSION="1.0.${COMMIT_COUNT}"
+          echo "APP_VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "Computed version=${VERSION}"
+
       - name: Setup Elixir
         uses: erlef/setup-elixir@v1
         with:
@@ -405,7 +420,11 @@ jobs:
           mix deps.get
 
       - name: Generate docs
-        run: MIX_ENV=dev mix docs
+        env:
+          APP_VERSION: ${{ env.APP_VERSION }}
+        run: |
+          echo "Using APP_VERSION=${APP_VERSION:-$(echo $APP_VERSION)}"
+          MIX_ENV=dev mix docs
 
       - name: Publish to gh-pages
         uses: peaceiris/actions-gh-pages@v3
