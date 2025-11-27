@@ -14,7 +14,7 @@ defmodule GameServerWeb.AdminLive.Config do
           Configuration
           <:subtitle>System configuration settings and setup guides</:subtitle>
         </.header>
-        
+
     <!-- Current Configuration Status -->
         <div class="card bg-base-100 shadow-xl" data-card-key="config_status">
           <div class="card-body">
@@ -54,7 +54,7 @@ defmodule GameServerWeb.AdminLive.Config do
                       <%= if @config.hooks_file_path_env do %>
                         <span class="badge badge-success">Configured</span>
                       <% else %>
-                        <span class="badge badge-error">Not Configured</span>
+                        <span class="badge badge-error">Disabled</span>
                       <% end %>
                     </td>
                     <td class="font-mono text-sm">
@@ -105,7 +105,7 @@ defmodule GameServerWeb.AdminLive.Config do
                       <%= if @config.discord_client_id && @config.discord_client_secret do %>
                         <span class="badge badge-success">Configured</span>
                       <% else %>
-                        <span class="badge badge-error">Not Configured</span>
+                        <span class="badge badge-error">Disabled</span>
                       <% end %>
                     </td>
                     <td class="font-mono text-sm">
@@ -123,7 +123,7 @@ defmodule GameServerWeb.AdminLive.Config do
                       <%= if @config.apple_client_id && @config.apple_team_id && @config.apple_key_id && @config.apple_private_key do %>
                         <span class="badge badge-success">Configured</span>
                       <% else %>
-                        <span class="badge badge-error">Not Configured</span>
+                        <span class="badge badge-error">Disabled</span>
                       <% end %>
                     </td>
                     <td class="font-mono text-sm">
@@ -133,7 +133,7 @@ defmodule GameServerWeb.AdminLive.Config do
                         APPLE_KEY_ID: {mask_secret(@config.apple_key_id || "")}<br />
                         APPLE_PRIVATE_KEY: {mask_secret(@config.apple_private_key)}
                       <% else %>
-                        <span class="text-error">Not configured</span>
+                        <span class="text-error">Disabled</span>
                       <% end %>
                     </td>
                   </tr>
@@ -143,7 +143,7 @@ defmodule GameServerWeb.AdminLive.Config do
                       <%= if @config.google_client_id && @config.google_client_secret do %>
                         <span class="badge badge-success">Configured</span>
                       <% else %>
-                        <span class="badge badge-error">Not Configured</span>
+                        <span class="badge badge-error">Disabled</span>
                       <% end %>
                     </td>
                     <td class="font-mono text-sm">
@@ -161,7 +161,7 @@ defmodule GameServerWeb.AdminLive.Config do
                       <%= if @config.facebook_client_id && @config.facebook_client_secret do %>
                         <span class="badge badge-success">Configured</span>
                       <% else %>
-                        <span class="badge badge-error">Not Configured</span>
+                        <span class="badge badge-error">Disabled</span>
                       <% end %>
                     </td>
                     <td class="font-mono text-sm">
@@ -285,7 +285,7 @@ defmodule GameServerWeb.AdminLive.Config do
                       <%= if @config.secret_key_base do %>
                         SECRET_KEY_BASE: {mask_secret(@config.secret_key_base)}
                       <% else %>
-                        Not configured
+                        Disabled
                       <% end %>
                     </td>
                   </tr>
@@ -327,7 +327,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Admin Tools -->
         <div class="card bg-base-100 shadow-xl" data-card-key="admin_tools">
           <div class="card-body">
