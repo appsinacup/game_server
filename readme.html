@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.1">
+    <meta name="project" content="game_server v0.1.0">
+
+
+    <title>README — game_server v0.1.0</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
+
+    <script defer src="dist/sidebar_items-2ECBC3BB.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-HBZYRXZS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://github.com/appsinacup/game_server" class="sidebar-projectName" translate="no">
+game_server
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-extra" id="main" data-type="extras">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of game_server</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>README</h1>
+
+
+      <a href="https://github.com/appsinacup/game_server/blob/main/README.md#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+<p><img src="./priv/static/images/banner.png" alt="gamend banner"/></p><hr class="thin"/><p><strong>Open source <em>game server</em> with <em>authentication, users, lobbies, and an admin portal</em>.</strong></p><p>Game + Backend = Gamend</p><hr class="thin"/><p><a href="https://discord.com/invite/56dMud8HYn">Discord</a></p><p>To start your server:</p><ul><li>Run <code class="inline">mix setup</code> to install and setup dependencies.</li></ul><p>Now you can visit <a href="http://localhost:4000"><code class="inline">localhost:4000</code></a> from your browser.</p><h2 id="authentication" class="section-heading"><a href="#authentication" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Authentication</span></h2><p>This application supports two authentication methods:</p><h3 id="browser-authentication-session-based" class="section-heading"><a href="#browser-authentication-session-based" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Browser Authentication (Session-based)</span></h3><p>Traditional session-based authentication for browser flows:</p><ul><li>Email/password registration and login</li><li>Discord OAuth login  </li><li>Session tokens stored in database</li><li>Managed via cookies and Phoenix sessions</li></ul><h3 id="api-authentication-jwt" class="section-heading"><a href="#api-authentication-jwt" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">API Authentication (JWT)</span></h3><p>Modern JWT authentication using access + refresh tokens (industry standard):</p><p><strong>Token Types:</strong></p><ul><li><strong>Access tokens</strong>: Short-lived (15 minutes), used for API requests</li><li><strong>Refresh tokens</strong>: Long-lived (30 days), used to obtain new access tokens</li></ul><h2 id="how-to-deploy" class="section-heading"><a href="#how-to-deploy" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">How to deploy</span></h2><ol><li>Fork this repo.</li><li>Go to fly.io and deploy (select the forked repo).</li><li>Set secrets all values in <code class="inline">.env.example</code>. Run locally <code class="inline">fly secrets sync</code> and <code class="inline">fly secrets deploy</code> (in case secrets don't deploy/update).</li><li>Configure all things from <a href="https://gamend.appsinacup.com/docs/setup">Guides</a> page.</li><li>Monthly cost (without Postgres) will be about 5$.</li></ol>
+
+</div>
+
+<div class="bottom-actions" id="bottom-actions">
+  <div class="bottom-actions-item">
+
+  </div>
+  <div class="bottom-actions-item">
+
+  </div>
+</div>
+    <footer class="footer">
+      <p>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="game_server.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.1) for the
+
+          <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+
+  </body>
+</html>

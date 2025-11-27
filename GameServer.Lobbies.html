@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.1">
+    <meta name="project" content="game_server v0.1.0">
+
+
+    <title>GameServer.Lobbies — game_server v0.1.0</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
+
+    <script defer src="dist/sidebar_items-2ECBC3BB.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-HBZYRXZS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://github.com/appsinacup/game_server" class="sidebar-projectName" translate="no">
+game_server
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of game_server</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">GameServer.Lobbies</span> 
+      <small class="app-vsn" translate="no">(game_server v0.1.0)</small>
+
+    </h1>
+
+      <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Context module for lobby management: creating, updating, listing and searching lobbies.</p><p>This module contains the core domain operations; more advanced membership and
+permission logic will be added in follow-up tasks.</p><h2 id="module-pubsub-events" class="section-heading"><a href="#module-pubsub-events" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">PubSub Events</span></h2><p>This module broadcasts the following events:</p><ul><li><p><code class="inline">&quot;lobbies&quot;</code> topic (global lobby list changes):</p><ul><li><code class="inline">{:lobby_created, lobby}</code> - a new lobby was created</li><li><code class="inline">{:lobby_updated, lobby}</code> - a lobby was updated</li><li><code class="inline">{:lobby_deleted, lobby_id}</code> - a lobby was deleted</li></ul></li><li><p><code class="inline">&quot;lobby:&lt;lobby_id&gt;&quot;</code> topic (per-lobby membership changes):</p><ul><li><code class="inline">{:user_joined, lobby_id, user_id}</code> - a user joined the lobby</li><li><code class="inline">{:user_left, lobby_id, user_id}</code> - a user left the lobby</li><li><code class="inline">{:user_kicked, lobby_id, user_id}</code> - a user was kicked from the lobby</li><li><code class="inline">{:lobby_updated, lobby}</code> - the lobby settings were updated</li><li><code class="inline">{:host_changed, lobby_id, new_host_id}</code> - the host changed (e.g., after host leaves)</li></ul></li></ul>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h1>
+<div class="summary-functions summary">
+  <h2>
+    <a href="#functions">Functions</a>
+  </h2>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#can_edit_lobby?/2" data-no-tooltip="" translate="no">can_edit_lobby?(arg1, lobby)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Check if a user can edit a lobby (is host or lobby is hostless).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#can_view_lobby?/2" data-no-tooltip="" translate="no">can_view_lobby?(user, lobby)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Check if a user can view a lobby's details.
+Users can view any lobby they can see in the list.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#change_lobby/2" data-no-tooltip="" translate="no">change_lobby(lobby, attrs \\ %{})</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_list_lobbies/1" data-no-tooltip="" translate="no">count_list_lobbies(filters \\ %{})</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count lobbies matching filters (excludes hidden ones unless admin list used). If metadata filters are supplied, they will be applied after fetching.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#create_lobby/1" data-no-tooltip="" translate="no">create_lobby(attrs \\ %{})</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#create_membership/1" data-no-tooltip="" translate="no">create_membership(attrs)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#delete_lobby/1" data-no-tooltip="" translate="no">delete_lobby(lobby)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#delete_membership/1" data-no-tooltip="" translate="no">delete_membership(user)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_lobby/1" data-no-tooltip="" translate="no">get_lobby(id)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_lobby!/1" data-no-tooltip="" translate="no">get_lobby!(id)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#join_lobby/3" data-no-tooltip="" translate="no">join_lobby(user, lobby_arg, opts \\ %{})</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#kick_user/3" data-no-tooltip="" translate="no">kick_user(arg1, lobby, arg3)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Kick a user from a lobby. Only the host can kick users.
+Returns {:ok, user} on success, {:error, reason} on failure.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#leave_lobby/1" data-no-tooltip="" translate="no">leave_lobby(user)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_all_lobbies/1" data-no-tooltip="" translate="no">list_all_lobbies(opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List ALL lobbies including hidden ones. For admin use only.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_lobbies/2" data-no-tooltip="" translate="no">list_lobbies(filters \\ %{}, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List lobbies. Accepts optional search filters: %{q: string}</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_lobbies_for_user/3" data-no-tooltip="" translate="no">list_lobbies_for_user(user, filters \\ %{}, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List lobbies visible to a specific user.
+Includes the user's own lobby even if it's hidden.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_memberships_for_lobby/1" data-no-tooltip="" translate="no">list_memberships_for_lobby(lobby_id)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#subscribe_lobbies/0" data-no-tooltip="" translate="no">subscribe_lobbies()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Subscribe to global lobby events (lobby created, updated, deleted).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#subscribe_lobby/1" data-no-tooltip="" translate="no">subscribe_lobby(lobby_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Subscribe to a specific lobby's events (membership changes, updates).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#unsubscribe_lobby/1" data-no-tooltip="" translate="no">unsubscribe_lobby(lobby_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Unsubscribe from a specific lobby's events.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#update_lobby/2" data-no-tooltip="" translate="no">update_lobby(lobby, attrs)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#update_lobby_by_host/3" data-no-tooltip="" translate="no">update_lobby_by_host(user, lobby, attrs)</a>
+
+      </div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="functions" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h1>
+
+    <div class="functions-list">
+<section class="detail" id="can_edit_lobby?/2">
+
+  <div class="detail-header">
+    <a href="#can_edit_lobby?/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">can_edit_lobby?(arg1, lobby)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L610" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Check if a user can edit a lobby (is host or lobby is hostless).</p>
+  </section>
+</section>
+<section class="detail" id="can_view_lobby?/2">
+
+  <div class="detail-header">
+    <a href="#can_view_lobby?/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">can_view_lobby?(user, lobby)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L621" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Check if a user can view a lobby's details.
+Users can view any lobby they can see in the list.</p>
+  </section>
+</section>
+<section class="detail" id="change_lobby/2">
+
+    <span id="change_lobby/1"></span>
+
+  <div class="detail-header">
+    <a href="#change_lobby/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">change_lobby(lobby, attrs \\ %{})</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L418" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+
+  </section>
+</section>
+<section class="detail" id="count_list_lobbies/1">
+
+    <span id="count_list_lobbies/0"></span>
+
+  <div class="detail-header">
+    <a href="#count_list_lobbies/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_list_lobbies(filters \\ %{})</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L118" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Count lobbies matching filters (excludes hidden ones unless admin list used). If metadata filters are supplied, they will be applied after fetching.</p>
+  </section>
+</section>
+<section class="detail" id="create_lobby/1">
+
+    <span id="create_lobby/0"></span>
+
+  <div class="detail-header">
+    <a href="#create_lobby/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">create_lobby(attrs \\ %{})</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L290" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+
+  </section>
+</section>
+<section class="detail" id="create_membership/1">
+
+  <div class="detail-header">
+    <a href="#create_membership/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">create_membership(attrs)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L424" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+
+  </section>
+</section>
+<section class="detail" id="delete_lobby/1">
+
+  <div class="detail-header">
+    <a href="#delete_lobby/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">delete_lobby(lobby)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L398" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+
+  </section>
+</section>
+<section class="detail" id="delete_membership/1">
+
+  <div class="detail-header">
+    <a href="#delete_membership/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">delete_membership(user)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L459" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+
+  </section>
+</section>
+<section class="detail" id="get_lobby/1">
+
+  <div class="detail-header">
+    <a href="#get_lobby/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_lobby(id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L288" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+
+  </section>
+</section>
+<section class="detail" id="get_lobby!/1">
+
+  <div class="detail-header">
+    <a href="#get_lobby!/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_lobby!(id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L286" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+
+  </section>
+</section>
+<section class="detail" id="join_lobby/3">
+
+    <span id="join_lobby/2"></span>
+
+  <div class="detail-header">
+    <a href="#join_lobby/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">join_lobby(user, lobby_arg, opts \\ %{})</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L203" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+
+  </section>
+</section>
+<section class="detail" id="kick_user/3">
+
+  <div class="detail-header">
+    <a href="#kick_user/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">kick_user(arg1, lobby, arg3)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L555" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Kick a user from a lobby. Only the host can kick users.
+Returns {:ok, user} on success, {:error, reason} on failure.</p>
+  </section>
+</section>
+<section class="detail" id="leave_lobby/1">
+
+  <div class="detail-header">
+    <a href="#leave_lobby/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">leave_lobby(user)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L465" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+
+  </section>
+</section>
+<section class="detail" id="list_all_lobbies/1">
+
+    <span id="list_all_lobbies/0"></span>
+
+  <div class="detail-header">
+    <a href="#list_all_lobbies/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_all_lobbies(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L162" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>List ALL lobbies including hidden ones. For admin use only.</p>
+  </section>
+</section>
+<section class="detail" id="list_lobbies/2">
+
+    <span id="list_lobbies/0"></span>
+
+    <span id="list_lobbies/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_lobbies/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_lobbies(filters \\ %{}, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L66" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>List lobbies. Accepts optional search filters: %{q: string}</p>
+  </section>
+</section>
+<section class="detail" id="list_lobbies_for_user/3">
+
+    <span id="list_lobbies_for_user/1"></span>
+
+    <span id="list_lobbies_for_user/2"></span>
+
+  <div class="detail-header">
+    <a href="#list_lobbies_for_user/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_lobbies_for_user(user, filters \\ %{}, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L180" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>List lobbies visible to a specific user.
+Includes the user's own lobby even if it's hidden.</p>
+  </section>
+</section>
+<section class="detail" id="list_memberships_for_lobby/1">
+
+  <div class="detail-header">
+    <a href="#list_memberships_for_lobby/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_memberships_for_lobby(lobby_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L688" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+
+  </section>
+</section>
+<section class="detail" id="subscribe_lobbies/0">
+
+  <div class="detail-header">
+    <a href="#subscribe_lobbies/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">subscribe_lobbies()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L39" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Subscribe to global lobby events (lobby created, updated, deleted).</p>
+  </section>
+</section>
+<section class="detail" id="subscribe_lobby/1">
+
+  <div class="detail-header">
+    <a href="#subscribe_lobby/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">subscribe_lobby(lobby_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L46" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Subscribe to a specific lobby's events (membership changes, updates).</p>
+  </section>
+</section>
+<section class="detail" id="unsubscribe_lobby/1">
+
+  <div class="detail-header">
+    <a href="#unsubscribe_lobby/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">unsubscribe_lobby(lobby_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L53" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Unsubscribe from a specific lobby's events.</p>
+  </section>
+</section>
+<section class="detail" id="update_lobby/2">
+
+  <div class="detail-header">
+    <a href="#update_lobby/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">update_lobby(lobby, attrs)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L371" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+
+  </section>
+</section>
+<section class="detail" id="update_lobby_by_host/3">
+
+  <div class="detail-header">
+    <a href="#update_lobby_by_host/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">update_lobby_by_host(user, lobby, attrs)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/lobbies.ex#L625" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+      <p>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="game_server.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.1) for the
+
+          <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.1">
+    <meta name="project" content="game_server v0.1.0">
+
+
+    <title>API Reference — game_server v0.1.0</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
+
+    <script defer src="dist/sidebar_items-2ECBC3BB.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-HBZYRXZS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://github.com/appsinacup/game_server" class="sidebar-projectName" translate="no">
+game_server
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-extra" id="main" data-type="extras">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of game_server</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>API Reference <small class="app-vsn">game_server v#0.1.0</small></h1>
+
+      <a href="https://github.com/appsinacup/game_server" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+    <section class="details-list">
+      <h2 id="modules" class="section-heading">Modules</h2>
+      <div class="summary">
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.html" translate="no">GameServer</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>GameServer keeps the contexts that define your domain
+and business logic.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Accounts.html" translate="no">GameServer.Accounts</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>The Accounts context.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Accounts.Scope.html" translate="no">GameServer.Accounts.Scope</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Defines the scope of the caller to be used throughout the app.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Accounts.User.html" translate="no">GameServer.Accounts.User</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>The User schema and associated changeset functions used across the
+application (registration, OAuth, and admin changes).</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Accounts.UserNotifier.html" translate="no">GameServer.Accounts.UserNotifier</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Small helpers used to deliver transactional emails for the Accounts flow
+(confirmation, magic link, and email change instructions).</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Accounts.UserToken.html" translate="no">GameServer.Accounts.UserToken</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Functions and schema for persistent user tokens used by sessions, magic links,
+and email-change workflows.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Apple.html" translate="no">GameServer.Apple</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Apple OAuth client secret generation for Ueberauth.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Friends.html" translate="no">GameServer.Friends</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Friends context — handles friend requests and relationships.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Friends.Friendship.html" translate="no">GameServer.Friends.Friendship</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Ecto schema representing a friendship/request between two users.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Hooks.html" translate="no">GameServer.Hooks</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Behaviour for application-level hooks / callbacks.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Hooks.Default.html" translate="no">GameServer.Hooks.Default</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Default no-op implementation for GameServer.Hooks</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Hooks.Watcher.html" translate="no">GameServer.Hooks.Watcher</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Small file-watcher that will automatically register a hooks implementation
+from a source file specified in config: :game_server, :hooks_file_path</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Lobbies.html" translate="no">GameServer.Lobbies</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Context module for lobby management: creating, updating, listing and searching lobbies.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Lobbies.Lobby.html" translate="no">GameServer.Lobbies.Lobby</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Ecto schema for the <code class="inline">lobbies</code> table and changeset helpers.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Mailer.html" translate="no">GameServer.Mailer</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.OAuth.Exchanger.html" translate="no">GameServer.OAuth.Exchanger</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Default implementation for exchanging OAuth codes with providers.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.OAuthSession.html" translate="no">GameServer.OAuthSession</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Simple Ecto schema for OAuth session polling used by client SDKs.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.OAuthSessions.html" translate="no">GameServer.OAuthSessions</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Helpers for creating and retrieving short-lived OAuth sessions.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Repo.html" translate="no">GameServer.Repo</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.html" translate="no">GameServerWeb</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>The entrypoint for defining your web interface, such
+as controllers, components, channels, and so on.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.AdminLive.Config.html" translate="no">GameServerWeb.AdminLive.Config</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.AdminLive.Index.html" translate="no">GameServerWeb.AdminLive.Index</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.AdminLive.Lobbies.html" translate="no">GameServerWeb.AdminLive.Lobbies</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.AdminLive.Sessions.html" translate="no">GameServerWeb.AdminLive.Sessions</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.AdminLive.Users.html" translate="no">GameServerWeb.AdminLive.Users</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.AdminLive.Users.Index.html" translate="no">GameServerWeb.AdminLive.Users.Index</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Admin LiveView for listing and managing users.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Api.V1.FriendController.html" translate="no">GameServerWeb.Api.V1.FriendController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Api.V1.HealthController.html" translate="no">GameServerWeb.Api.V1.HealthController</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Health check endpoint for the API.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Api.V1.LobbyController.html" translate="no">GameServerWeb.Api.V1.LobbyController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Api.V1.MeController.html" translate="no">GameServerWeb.Api.V1.MeController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Api.V1.MetadataController.html" translate="no">GameServerWeb.Api.V1.MetadataController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Api.V1.ProviderController.html" translate="no">GameServerWeb.Api.V1.ProviderController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Api.V1.SessionController.html" translate="no">GameServerWeb.Api.V1.SessionController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Api.V1.UserController.html" translate="no">GameServerWeb.Api.V1.UserController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.ApiSpec.html" translate="no">GameServerWeb.ApiSpec</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>OpenAPI specification for the Game Server API.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Auth.AssignCurrentScope.html" translate="no">GameServerWeb.Auth.AssignCurrentScope</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Plug to assign current_scope from Guardian's loaded user resource.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Auth.ErrorHandler.html" translate="no">GameServerWeb.Auth.ErrorHandler</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Handles authentication errors for the Guardian pipeline.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Auth.Guardian.html" translate="no">GameServerWeb.Auth.Guardian</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Guardian implementation for JWT-based authentication.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Auth.Guardian.Plug.html" translate="no">GameServerWeb.Auth.Guardian.Plug</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Auth.Pipeline.html" translate="no">GameServerWeb.Auth.Pipeline</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Guardian pipeline for API JWT authentication.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.AuthController.html" translate="no">GameServerWeb.AuthController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.AuthSuccessLive.html" translate="no">GameServerWeb.AuthSuccessLive</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.CoreComponents.html" translate="no">GameServerWeb.CoreComponents</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Provides core UI components.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Endpoint.html" translate="no">GameServerWeb.Endpoint</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.ErrorHTML.html" translate="no">GameServerWeb.ErrorHTML</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>This module is invoked by your endpoint in case of errors on HTML requests.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.ErrorJSON.html" translate="no">GameServerWeb.ErrorJSON</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>This module is invoked by your endpoint in case of errors on JSON requests.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Gettext.html" translate="no">GameServerWeb.Gettext</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>A module providing Internationalization with a gettext-based API.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Layouts.html" translate="no">GameServerWeb.Layouts</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>This module holds layouts and related functionality
+used by your application.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.LobbyChannel.html" translate="no">GameServerWeb.LobbyChannel</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Channel for lobby realtime events.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.LobbyLive.Index.html" translate="no">GameServerWeb.LobbyLive.Index</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.PageController.html" translate="no">GameServerWeb.PageController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.PageHTML.html" translate="no">GameServerWeb.PageHTML</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>This module contains pages rendered by PageController.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Pagination.html" translate="no">GameServerWeb.Pagination</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Small helper to build pagination meta for API list endpoints.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Plugs.SentryContext.html" translate="no">GameServerWeb.Plugs.SentryContext</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>A small Plug that sets Sentry scope information for each request.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.PublicDocs.html" translate="no">GameServerWeb.PublicDocs</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Static LiveView that renders setup guides, API usage examples, and public
+documentation pages for SDKs and provider setup instructions.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Router.html" translate="no">GameServerWeb.Router</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Schemas.ErrorResponse.html" translate="no">GameServerWeb.Schemas.ErrorResponse</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Error response schema</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Schemas.HealthResponse.html" translate="no">GameServerWeb.Schemas.HealthResponse</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Health check response schema</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Schemas.OAuthSessionData.html" translate="no">GameServerWeb.Schemas.OAuthSessionData</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Describes the payload stored in <code class="inline">OAuthSession.data</code> when a session completes or errors.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Schemas.OAuthSessionStatus.html" translate="no">GameServerWeb.Schemas.OAuthSessionStatus</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Schema describing the response for OAuth session status checks</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.SwaggerController.html" translate="no">GameServerWeb.SwaggerController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.SwaggerHTML.html" translate="no">GameServerWeb.SwaggerHTML</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Telemetry.html" translate="no">GameServerWeb.Telemetry</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.UserAuth.html" translate="no">GameServerWeb.UserAuth</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Helpers for session / cookie based authentication and LiveView mounts.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.UserLive.Confirmation.html" translate="no">GameServerWeb.UserLive.Confirmation</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.UserLive.Login.html" translate="no">GameServerWeb.UserLive.Login</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.UserLive.Registration.html" translate="no">GameServerWeb.UserLive.Registration</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.UserLive.Settings.html" translate="no">GameServerWeb.UserLive.Settings</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.UserSessionController.html" translate="no">GameServerWeb.UserSessionController</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.UserSocket.html" translate="no">GameServerWeb.UserSocket</a>
+
+  </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.UserUpdatesChannel.html" translate="no">GameServerWeb.UserUpdatesChannel</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Channel for sending per-user realtime updates (e.g. metadata changes).</p></div>
+
+</div>
+
+      </div>
+    </section>
+
+
+</div>
+    <footer class="footer">
+      <p>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="game_server.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.1) for the
+
+          <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.1">
+    <meta name="project" content="game_server v0.1.0">
+
+
+    <title>GameServer.Friends — game_server v0.1.0</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
+
+    <script defer src="dist/sidebar_items-2ECBC3BB.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-HBZYRXZS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://github.com/appsinacup/game_server" class="sidebar-projectName" translate="no">
+game_server
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of game_server</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">GameServer.Friends</span> 
+      <small class="app-vsn" translate="no">(game_server v0.1.0)</small>
+
+    </h1>
+
+      <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Friends context — handles friend requests and relationships.</p><p>Basic semantics:</p><ul><li>A single <code class="inline">friendships</code> row represents a directed request from requester -&gt; target.</li><li><p>status: &quot;pending&quot; | &quot;accepted&quot; | &quot;rejected&quot; | &quot;blocked&quot;</p></li><li>When a user accepts a pending incoming request, that request becomes <code class="inline">accepted</code>.
+If a reverse pending request exists, it will be removed to avoid duplicate rows.</li><li>Listing friends returns the other user from rows with status <code class="inline">accepted</code> in either
+direction.</li></ul>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h1>
+<div class="summary-functions summary">
+  <h2>
+    <a href="#functions">Functions</a>
+  </h2>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#accept_friend_request/2" data-no-tooltip="" translate="no">accept_friend_request(friendship_id, user)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Accept a friend request (only the target may accept). Returns {:ok, friendship}.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#block_friend_request/2" data-no-tooltip="" translate="no">block_friend_request(friendship_id, user)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Block an incoming request (only the target may block). Returns {:ok, friendship} with status &quot;blocked&quot;.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#cancel_request/2" data-no-tooltip="" translate="no">cancel_request(friendship_id, user)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Cancel an outgoing friend request (only the requester may cancel).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_blocked_for_user/1" data-no-tooltip="" translate="no">count_blocked_for_user(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count blocked friendships for a user (number of blocked rows where user is target).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_friends_for_user/1" data-no-tooltip="" translate="no">count_friends_for_user(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count accepted friends for a given user (distinct other user ids).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_incoming_requests/1" data-no-tooltip="" translate="no">count_incoming_requests(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count incoming pending friend requests for a user.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_outgoing_requests/1" data-no-tooltip="" translate="no">count_outgoing_requests(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count outgoing pending friend requests for a user.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#create_request/2" data-no-tooltip="" translate="no">create_request(requester_id, target_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Create a friend request from requester -&gt; target.
+  If a reverse pending request exists (target -&gt; requester) it will be accepted instead.
+  Returns {:ok, friendship} on success or {:error, reason}.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_by_pair/2" data-no-tooltip="" translate="no">get_by_pair(requester_id, target_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Get friendship between two users (ordered requester-&gt;target) if exists</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_friendship!/1" data-no-tooltip="" translate="no">get_friendship!(id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Get friendship by id</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_blocked_for_user/2" data-no-tooltip="" translate="no">list_blocked_for_user(user_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List blocked friendships for a user (Friendship structs where the user is the blocker / target).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_friends_for_user/2" data-no-tooltip="" translate="no">list_friends_for_user(user_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List accepted friends for a given user id — returns list of User structs.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_incoming_requests/2" data-no-tooltip="" translate="no">list_incoming_requests(user_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List incoming pending friend requests for a user (Friendship structs).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_outgoing_requests/2" data-no-tooltip="" translate="no">list_outgoing_requests(user_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List outgoing pending friend requests for a user (Friendship structs).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#reject_friend_request/2" data-no-tooltip="" translate="no">reject_friend_request(friendship_id, user)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Reject a friend request (only the target may reject). Returns {:ok, friendship}.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#remove_friend/2" data-no-tooltip="" translate="no">remove_friend(user_id, friend_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Remove a friendship (either direction) — only participating users may call this.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#subscribe_user/1" data-no-tooltip="" translate="no">subscribe_user(user_id)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#unblock_friendship/2" data-no-tooltip="" translate="no">unblock_friendship(friendship_id, user)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Unblock a previously-blocked friendship (only the user who blocked may unblock). Returns {:ok, :unblocked} on success.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#unsubscribe_user/1" data-no-tooltip="" translate="no">unsubscribe_user(user_id)</a>
+
+      </div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="functions" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h1>
+
+    <div class="functions-list">
+<section class="detail" id="accept_friend_request/2">
+
+  <div class="detail-header">
+    <a href="#accept_friend_request/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">accept_friend_request(friendship_id, user)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L118" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Accept a friend request (only the target may accept). Returns {:ok, friendship}.</p>
+  </section>
+</section>
+<section class="detail" id="block_friend_request/2">
+
+  <div class="detail-header">
+    <a href="#block_friend_request/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">block_friend_request(friendship_id, user)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L212" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Block an incoming request (only the target may block). Returns {:ok, friendship} with status &quot;blocked&quot;.</p>
+  </section>
+</section>
+<section class="detail" id="cancel_request/2">
+
+  <div class="detail-header">
+    <a href="#cancel_request/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">cancel_request(friendship_id, user)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L165" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Cancel an outgoing friend request (only the requester may cancel).</p>
+  </section>
+</section>
+<section class="detail" id="count_blocked_for_user/1">
+
+  <div class="detail-header">
+    <a href="#count_blocked_for_user/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_blocked_for_user(user_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L248" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Count blocked friendships for a user (number of blocked rows where user is target).</p>
+  </section>
+</section>
+<section class="detail" id="count_friends_for_user/1">
+
+  <div class="detail-header">
+    <a href="#count_friends_for_user/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_friends_for_user(user_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L312" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Count accepted friends for a given user (distinct other user ids).</p>
+  </section>
+</section>
+<section class="detail" id="count_incoming_requests/1">
+
+  <div class="detail-header">
+    <a href="#count_incoming_requests/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_incoming_requests(user_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L349" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Count incoming pending friend requests for a user.</p>
+  </section>
+</section>
+<section class="detail" id="count_outgoing_requests/1">
+
+  <div class="detail-header">
+    <a href="#count_outgoing_requests/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_outgoing_requests(user_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L378" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Count outgoing pending friend requests for a user.</p>
+  </section>
+</section>
+<section class="detail" id="create_request/2">
+
+  <div class="detail-header">
+    <a href="#create_request/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">create_request(requester_id, target_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L40" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> create_request(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  {:ok, <a href="GameServer.Friends.Friendship.html#t:t/0">GameServer.Friends.Friendship.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()}</pre>
+
+      </div>
+
+<p>Create a friend request from requester -&gt; target.
+  If a reverse pending request exists (target -&gt; requester) it will be accepted instead.
+  Returns {:ok, friendship} on success or {:error, reason}.</p>
+  </section>
+</section>
+<section class="detail" id="get_by_pair/2">
+
+  <div class="detail-header">
+    <a href="#get_by_pair/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_by_pair(requester_id, target_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L392" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Get friendship between two users (ordered requester-&gt;target) if exists</p>
+  </section>
+</section>
+<section class="detail" id="get_friendship!/1">
+
+  <div class="detail-header">
+    <a href="#get_friendship!/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_friendship!(id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L389" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Get friendship by id</p>
+  </section>
+</section>
+<section class="detail" id="list_blocked_for_user/2">
+
+    <span id="list_blocked_for_user/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_blocked_for_user/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_blocked_for_user(user_id, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L230" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>List blocked friendships for a user (Friendship structs where the user is the blocker / target).</p>
+  </section>
+</section>
+<section class="detail" id="list_friends_for_user/2">
+
+    <span id="list_friends_for_user/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_friends_for_user/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_friends_for_user(user_id, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L278" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>List accepted friends for a given user id — returns list of User structs.</p>
+  </section>
+</section>
+<section class="detail" id="list_incoming_requests/2">
+
+    <span id="list_incoming_requests/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_incoming_requests/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_incoming_requests(user_id, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L331" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>List incoming pending friend requests for a user (Friendship structs).</p>
+  </section>
+</section>
+<section class="detail" id="list_outgoing_requests/2">
+
+    <span id="list_outgoing_requests/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_outgoing_requests/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_outgoing_requests(user_id, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L360" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>List outgoing pending friend requests for a user (Friendship structs).</p>
+  </section>
+</section>
+<section class="detail" id="reject_friend_request/2">
+
+  <div class="detail-header">
+    <a href="#reject_friend_request/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">reject_friend_request(friendship_id, user)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L146" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Reject a friend request (only the target may reject). Returns {:ok, friendship}.</p>
+  </section>
+</section>
+<section class="detail" id="remove_friend/2">
+
+  <div class="detail-header">
+    <a href="#remove_friend/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">remove_friend(user_id, friend_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L183" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Remove a friendship (either direction) — only participating users may call this.</p>
+  </section>
+</section>
+<section class="detail" id="subscribe_user/1">
+
+  <div class="detail-header">
+    <a href="#subscribe_user/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">subscribe_user(user_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L19" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+
+  </section>
+</section>
+<section class="detail" id="unblock_friendship/2">
+
+  <div class="detail-header">
+    <a href="#unblock_friendship/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">unblock_friendship(friendship_id, user)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L259" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Unblock a previously-blocked friendship (only the user who blocked may unblock). Returns {:ok, :unblocked} on success.</p>
+  </section>
+</section>
+<section class="detail" id="unsubscribe_user/1">
+
+  <div class="detail-header">
+    <a href="#unsubscribe_user/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">unsubscribe_user(user_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L23" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+      <p>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="game_server.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.1) for the
+
+          <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+
+  </body>
+</html>

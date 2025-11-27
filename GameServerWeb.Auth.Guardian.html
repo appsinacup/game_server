@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.1">
+    <meta name="project" content="game_server v0.1.0">
+
+
+    <title>GameServerWeb.Auth.Guardian — game_server v0.1.0</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
+
+    <script defer src="dist/sidebar_items-2ECBC3BB.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-HBZYRXZS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://github.com/appsinacup/game_server" class="sidebar-projectName" translate="no">
+game_server
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v0.1.0
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of game_server</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">GameServerWeb.Auth.Guardian</span> 
+      <small class="app-vsn" translate="no">(game_server v0.1.0)</small>
+
+    </h1>
+
+      <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Guardian implementation for JWT-based authentication.</p><p>This module handles encoding and decoding JWT tokens for API authentication.
+It works alongside the existing session-based authentication for browser flows.</p>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h1>
+<div class="summary-functions summary">
+  <h2>
+    <a href="#functions">Functions</a>
+  </h2>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#after_encode_and_sign/4" data-no-tooltip="" translate="no">after_encode_and_sign(r, claims, token, _)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a><code class="inline">Guardian.after_encode_and_sign/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#after_sign_in/5" data-no-tooltip="" translate="no">after_sign_in(conn, r, t, c, o)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a><code class="inline">Guardian.after_sign_in/5</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#before_sign_out/3" data-no-tooltip="" translate="no">before_sign_out(conn, location, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a><code class="inline">Guardian.before_sign_out/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#build_claims/3" data-no-tooltip="" translate="no">build_claims(c, _, _)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a><code class="inline">Guardian.build_claims/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#config/0" data-no-tooltip="" translate="no">config()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Fetches the configuration for this module.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#config/2" data-no-tooltip="" translate="no">config(key, default \\ nil)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns a resolved value of the configuration found at a key.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#decode_and_verify/3" data-no-tooltip="" translate="no">decode_and_verify(token, claims_to_check \\ %{}, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Decodes and verifies a token using the configuration on the implementation
+module.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#default_token_type/0" data-no-tooltip="" translate="no">default_token_type()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>The default type of token for this module.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#encode_and_sign/3" data-no-tooltip="" translate="no">encode_and_sign(resource, claims \\ %{}, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Encodes the claims.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#exchange/4" data-no-tooltip="" translate="no">exchange(token, from_type, to_type, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Exchanges a token of one type for another.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#on_exchange/3" data-no-tooltip="" translate="no">on_exchange(old_stuff, new_stuff, options)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a><code class="inline">Guardian.on_exchange/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#on_refresh/3" data-no-tooltip="" translate="no">on_refresh(old_stuff, new_stuff, options)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a><code class="inline">Guardian.on_refresh/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#on_revoke/3" data-no-tooltip="" translate="no">on_revoke(claims, token, options)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a><code class="inline">Guardian.on_revoke/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#on_verify/3" data-no-tooltip="" translate="no">on_verify(claims, token, options)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a><code class="inline">Guardian.on_verify/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#peek/1" data-no-tooltip="" translate="no">peek(token)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Provides the content of the token but without verification
+of either the claims or the signature.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#refresh/2" data-no-tooltip="" translate="no">refresh(old_token, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Refresh a token.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#resource_from_claims/1" data-no-tooltip="" translate="no">resource_from_claims(arg1)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Retrieves the user from the database using the subject (user ID) from the token.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#resource_from_token/3" data-no-tooltip="" translate="no">resource_from_token(token, claims_to_check \\ %{}, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Fetch the resource and claims directly from a token.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#revoke/2" data-no-tooltip="" translate="no">revoke(token, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Revoke a token.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#sliding_cookie/3" data-no-tooltip="" translate="no">sliding_cookie(current_claims, current_resource, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>If Guardian.Plug.SlidingCookie is used, this callback will be invoked to
+return the new claims, or an error (which will mean the cookie will not
+be refreshed).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#subject_for_token/2" data-no-tooltip="" translate="no">subject_for_token(arg1, arg2)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Encodes the user ID into the JWT token as the subject.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#verify_claims/2" data-no-tooltip="" translate="no">verify_claims(claims, options)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a><code class="inline">Guardian.verify_claims/2</code></a>.</p></div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="functions" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h1>
+
+    <div class="functions-list">
+<section class="detail" id="after_encode_and_sign/4">
+
+  <div class="detail-header">
+    <a href="#after_encode_and_sign/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_encode_and_sign(r, claims, token, _)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.html#c:after_encode_and_sign/4"><code class="inline">Guardian.after_encode_and_sign/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="after_sign_in/5">
+
+  <div class="detail-header">
+    <a href="#after_sign_in/5" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_sign_in(conn, r, t, c, o)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.html#c:after_sign_in/5"><code class="inline">Guardian.after_sign_in/5</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="before_sign_out/3">
+
+  <div class="detail-header">
+    <a href="#before_sign_out/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_sign_out(conn, location, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.html#c:before_sign_out/3"><code class="inline">Guardian.before_sign_out/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="build_claims/3">
+
+  <div class="detail-header">
+    <a href="#build_claims/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">build_claims(c, _, _)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.html#c:build_claims/3"><code class="inline">Guardian.build_claims/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="config/0">
+
+  <div class="detail-header">
+    <a href="#config/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">config()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> config() :: <a href="https://hexdocs.pm/elixir/Keyword.html#t:t/0">Keyword.t</a>()</pre>
+
+      </div>
+
+<p>Fetches the configuration for this module.</p>
+  </section>
+</section>
+<section class="detail" id="config/2">
+
+    <span id="config/1"></span>
+
+  <div class="detail-header">
+    <a href="#config/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">config(key, default \\ nil)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> config(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>() | <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+<p>Returns a resolved value of the configuration found at a key.</p><p>See <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Config.html#resolve_value/1"><code class="inline">Guardian.Config.resolve_value/1</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="decode_and_verify/3">
+
+    <span id="decode_and_verify/1"></span>
+
+    <span id="decode_and_verify/2"></span>
+
+  <div class="detail-header">
+    <a href="#decode_and_verify/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">decode_and_verify(token, claims_to_check \\ %{}, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> decode_and_verify(
+  <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:token/0">Guardian.Token.token</a>(),
+  <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:claims/0">Guardian.Token.claims</a>(),
+  <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.html#t:options/0">Guardian.options</a>()
+) ::
+  {:ok, <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:claims/0">Guardian.Token.claims</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()}</pre>
+
+      </div>
+
+<p>Decodes and verifies a token using the configuration on the implementation
+module.</p><p>See <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.html#decode_and_verify/4"><code class="inline">Guardian.decode_and_verify/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="default_token_type/0">
+
+  <div class="detail-header">
+    <a href="#default_token_type/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">default_token_type()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> default_token_type() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
+
+      </div>
+
+<p>The default type of token for this module.</p>
+  </section>
+</section>
+<section class="detail" id="encode_and_sign/3">
+
+    <span id="encode_and_sign/1"></span>
+
+    <span id="encode_and_sign/2"></span>
+
+  <div class="detail-header">
+    <a href="#encode_and_sign/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">encode_and_sign(resource, claims \\ %{}, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> encode_and_sign(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>(), <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:claims/0">Guardian.Token.claims</a>(), <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.html#t:options/0">Guardian.options</a>()) ::
+  {:ok, <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:token/0">Guardian.Token.token</a>(), <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:claims/0">Guardian.Token.claims</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()}</pre>
+
+      </div>
+
+<p>Encodes the claims.</p><p>See <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.html#encode_and_sign/4"><code class="inline">Guardian.encode_and_sign/4</code></a> for more information.</p>
+  </section>
+</section>
+<section class="detail" id="exchange/4">
+
+    <span id="exchange/3"></span>
+
+  <div class="detail-header">
+    <a href="#exchange/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">exchange(token, from_type, to_type, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> exchange(
+  token :: <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:token/0">Guardian.Token.token</a>(),
+  from_type :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | [<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), ...],
+  to_type :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  options :: <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.html#t:options/0">Guardian.options</a>()
+) ::
+  {:ok, {<a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:token/0">Guardian.Token.token</a>(), <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:claims/0">Guardian.Token.claims</a>()},
+   {<a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:token/0">Guardian.Token.token</a>(), <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:claims/0">Guardian.Token.claims</a>()}}
+  | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()}</pre>
+
+      </div>
+
+<p>Exchanges a token of one type for another.</p><p>See <code class="inline">Guardian.exchange</code> for more information.</p>
+  </section>
+</section>
+<section class="detail" id="on_exchange/3">
+
+  <div class="detail-header">
+    <a href="#on_exchange/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">on_exchange(old_stuff, new_stuff, options)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.html#c:on_exchange/3"><code class="inline">Guardian.on_exchange/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="on_refresh/3">
+
+  <div class="detail-header">
+    <a href="#on_refresh/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">on_refresh(old_stuff, new_stuff, options)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.html#c:on_refresh/3"><code class="inline">Guardian.on_refresh/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="on_revoke/3">
+
+  <div class="detail-header">
+    <a href="#on_revoke/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">on_revoke(claims, token, options)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.html#c:on_revoke/3"><code class="inline">Guardian.on_revoke/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="on_verify/3">
+
+  <div class="detail-header">
+    <a href="#on_verify/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">on_verify(claims, token, options)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.html#c:on_verify/3"><code class="inline">Guardian.on_verify/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="peek/1">
+
+  <div class="detail-header">
+    <a href="#peek/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">peek(token)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> peek(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()</pre>
+
+      </div>
+
+<p>Provides the content of the token but without verification
+of either the claims or the signature.</p><p>Claims will be present at the <code class="inline">:claims</code> key.</p><p>See <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.html#peek/2"><code class="inline">Guardian.peek/2</code></a> for more information.</p>
+  </section>
+</section>
+<section class="detail" id="refresh/2">
+
+    <span id="refresh/1"></span>
+
+  <div class="detail-header">
+    <a href="#refresh/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">refresh(old_token, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> refresh(<a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:token/0">Guardian.Token.token</a>(), <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.html#t:options/0">Guardian.options</a>()) ::
+  {:ok, {<a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:token/0">Guardian.Token.token</a>(), <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:claims/0">Guardian.Token.claims</a>()},
+   {<a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:token/0">Guardian.Token.token</a>(), <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:claims/0">Guardian.Token.claims</a>()}}
+  | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()}</pre>
+
+      </div>
+
+<p>Refresh a token.</p><p>See <code class="inline">Guardian.refresh</code> for more information.</p>
+  </section>
+</section>
+<section class="detail" id="resource_from_claims/1">
+
+  <div class="detail-header">
+    <a href="#resource_from_claims/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">resource_from_claims(arg1)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L27" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Retrieves the user from the database using the subject (user ID) from the token.</p>
+  </section>
+</section>
+<section class="detail" id="resource_from_token/3">
+
+    <span id="resource_from_token/1"></span>
+
+    <span id="resource_from_token/2"></span>
+
+  <div class="detail-header">
+    <a href="#resource_from_token/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">resource_from_token(token, claims_to_check \\ %{}, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> resource_from_token(
+  token :: <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:token/0">Guardian.Token.token</a>(),
+  claims_to_check :: <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:claims/0">Guardian.Token.claims</a>() | nil,
+  opts :: <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.html#t:options/0">Guardian.options</a>()
+) :: {:ok, <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:resource/0">Guardian.Token.resource</a>(), <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:claims/0">Guardian.Token.claims</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()}</pre>
+
+      </div>
+
+<p>Fetch the resource and claims directly from a token.</p><p>See <code class="inline">Guardian.resource_from_token</code> for more information.</p>
+  </section>
+</section>
+<section class="detail" id="revoke/2">
+
+    <span id="revoke/1"></span>
+
+  <div class="detail-header">
+    <a href="#revoke/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">revoke(token, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> revoke(<a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:token/0">Guardian.Token.token</a>(), <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.html#t:options/0">Guardian.options</a>()) ::
+  {:ok, <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:claims/0">Guardian.Token.claims</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()}</pre>
+
+      </div>
+
+<p>Revoke a token.</p><p>See <code class="inline">Guardian.revoke</code> for more information.</p>
+  </section>
+</section>
+<section class="detail" id="sliding_cookie/3">
+
+    <span id="sliding_cookie/2"></span>
+
+  <div class="detail-header">
+    <a href="#sliding_cookie/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">sliding_cookie(current_claims, current_resource, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> sliding_cookie(
+  current_claims :: <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:claims/0">Guardian.Token.claims</a>(),
+  current_resource :: <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:resource/0">Guardian.Token.resource</a>(),
+  options :: <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.html#t:options/0">Guardian.options</a>()
+) :: {:ok, new_claims :: <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.Token.html#t:claims/0">Guardian.Token.claims</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()}</pre>
+
+      </div>
+
+<p>If Guardian.Plug.SlidingCookie is used, this callback will be invoked to
+return the new claims, or an error (which will mean the cookie will not
+be refreshed).</p>
+  </section>
+</section>
+<section class="detail" id="subject_for_token/2">
+
+  <div class="detail-header">
+    <a href="#subject_for_token/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">subject_for_token(arg1, arg2)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L16" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Encodes the user ID into the JWT token as the subject.</p>
+  </section>
+</section>
+<section class="detail" id="verify_claims/2">
+
+  <div class="detail-header">
+    <a href="#verify_claims/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">verify_claims(claims, options)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/auth/guardian.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/guardian/2.4.0/Guardian.html#c:verify_claims/2"><code class="inline">Guardian.verify_claims/2</code></a>.</p>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+      <p>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="game_server.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.1) for the
+
+          <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+
+  </body>
+</html>
