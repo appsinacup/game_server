@@ -9,7 +9,8 @@ defmodule GameServer.OAuth.ExchangerTest do
       b64 = payload |> Base.url_encode64(padding: false)
       token = ["hdr", b64, "sig"] |> Enum.join(".")
 
-      assert {:ok, %{"sub" => "user1", "email" => "u@example.com"}} = Exchanger.parse_apple_id_token(token)
+      assert {:ok, %{"sub" => "user1", "email" => "u@example.com"}} =
+               Exchanger.parse_apple_id_token(token)
     end
 
     test "returns error for malformed token" do

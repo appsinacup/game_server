@@ -6,6 +6,15 @@ defmodule GameServer.Accounts.User do
   This module keeps Ecto changesets for common user interactions and
   validations so other domains can reuse them safely.
   """
+  @typedoc "The public user struct used across the application."
+  @type t :: %__MODULE__{
+          id: Ecto.UUID.t() | integer() | nil,
+          email: String.t() | nil,
+          hashed_password: String.t() | nil,
+          confirmed_at: DateTime.t() | nil,
+          display_name: String.t() | nil,
+          metadata: map()
+        }
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -29,6 +38,15 @@ defmodule GameServer.Accounts.User do
     belongs_to :lobby, GameServer.Lobbies.Lobby
 
     timestamps(type: :utc_datetime)
+  end
+
+  @doc """
+  A user changeset for registering a new user.
+  """
+  def registration_changeset(user, attrs, opts \\ []) do
+    user
+    |> email_changeset(attrs, opts)
+    |> password_changeset(attrs, opts)
   end
 
   @doc """

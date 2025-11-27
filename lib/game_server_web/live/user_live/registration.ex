@@ -108,7 +108,7 @@ defmodule GameServerWeb.UserLive.Registration do
 
   @impl true
   def mount(_params, _session, %{assigns: %{current_scope: %{user: user}}} = socket)
-      when not is_nil(user) do
+      when user != nil do
     {:ok, redirect(socket, to: GameServerWeb.UserAuth.signed_in_path(socket))}
   end
 
@@ -142,29 +142,23 @@ defmodule GameServerWeb.UserLive.Registration do
            )
            |> push_navigate(to: ~p"/users/log-in/#{token}")}
         else
-          # All other users: always send confirmation email (goes to mailbox if SMTP not configured)
           {:ok, _} =
-            Accounts.deliver_login_instructions(
+            Accounts.deliver_user_confirmation_instructions(
               user,
-              &url(~p"/users/log-in/#{&1}")
+              &url(~p"/users/settings/confirm-email/#{&1}")
             )
 
-          {:noreply,
-           socket
-           |> put_flash(
-             :info,
-             "An email was sent to #{user.email}, please access it to confirm your account."
-           )
-           |> push_navigate(to: ~p"/users/log-in")}
+          changeset = Accounts.change_user_registration(user)
+          {:noreply, socket |> assign(trigger_submit: true) |> assign_form(changeset)}
         end
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, assign_form(socket, changeset)}
+        {:noreply, socket |> assign(check_errors: true) |> assign_form(changeset)}
     end
   end
 
   def handle_event("validate", %{"user" => user_params}, socket) do
-    changeset = Accounts.change_user_email(%User{}, user_params, validate_unique: false)
+    changeset = Accounts.change_user_registration(%User{}, user_params)
     {:noreply, assign_form(socket, Map.put(changeset, :action, :validate))}
   end
 

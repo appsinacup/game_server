@@ -29,7 +29,7 @@ defmodule GameServerWeb.Api.V1.MetadataController do
   def show(conn, _params) do
     # Guardian pipeline has already authenticated and loaded the user
     case conn.assigns.current_scope do
-      %{user: user} when not is_nil(user) ->
+      %{user: user} when user != nil ->
         json(conn, %{data: user.metadata || %{}})
 
       _ ->

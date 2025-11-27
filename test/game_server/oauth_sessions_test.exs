@@ -13,7 +13,9 @@ defmodule GameServer.OAuthSessionsTest do
     fetched = OAuthSessions.get_session(session_id)
     assert fetched.id == session.id
 
-    {:ok, updated} = OAuthSessions.update_session(session_id, %{status: "completed", data: %{a: 2}})
+    {:ok, updated} =
+      OAuthSessions.update_session(session_id, %{status: "completed", data: %{a: 2}})
+
     assert updated.status == "completed"
 
     assert :not_found == OAuthSessions.update_session("nope", %{status: "x"})

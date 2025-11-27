@@ -335,7 +335,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
 
   def create(conn, %{"target_user_id" => _} = params) do
     case conn.assigns.current_scope do
-      %{user: user} when not is_nil(user) ->
+      %{user: user} when user != nil ->
         target_id = params["target_user_id"]
 
         case Friends.create_request(user.id, target_id) do
@@ -388,7 +388,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
 
   def block(conn, %{"id" => id}) do
     case conn.assigns.current_scope do
-      %{user: user} when not is_nil(user) ->
+      %{user: user} when user != nil ->
         case Friends.block_friend_request(String.to_integer(id), user) do
           {:ok, _f} ->
             send_resp(conn, :no_content, "")
@@ -410,7 +410,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
 
   def index(conn, params) do
     case conn.assigns.current_scope do
-      %{user: user} when not is_nil(user) ->
+      %{user: user} when user != nil ->
         {page, page_size} = parse_page_params(params)
 
         friends = Friends.list_friends_for_user(user, page: page, page_size: page_size)
@@ -430,7 +430,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
 
   def blocked(conn, params) do
     case conn.assigns.current_scope do
-      %{user: user} when not is_nil(user) ->
+      %{user: user} when user != nil ->
         {page, page_size} = parse_page_params(params)
 
         blocked = Friends.list_blocked_for_user(user, page: page, page_size: page_size)
@@ -453,7 +453,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
 
   def unblock(conn, %{"id" => id}) do
     case conn.assigns.current_scope do
-      %{user: user} when not is_nil(user) ->
+      %{user: user} when user != nil ->
         case Friends.unblock_friendship(String.to_integer(id), user) do
           {:ok, :unblocked} ->
             send_resp(conn, :no_content, "")
@@ -475,7 +475,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
 
   def requests(conn, params) do
     case conn.assigns.current_scope do
-      %{user: user} when not is_nil(user) ->
+      %{user: user} when user != nil ->
         {page, page_size} = parse_page_params(params)
 
         incoming = Friends.list_incoming_requests(user, page: page, page_size: page_size)
@@ -513,7 +513,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
 
   def accept(conn, %{"id" => id}) do
     case conn.assigns.current_scope do
-      %{user: user} when not is_nil(user) ->
+      %{user: user} when user != nil ->
         case Friends.accept_friend_request(String.to_integer(id), user) do
           {:ok, _f} ->
             send_resp(conn, :no_content, "")
@@ -535,7 +535,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
 
   def reject(conn, %{"id" => id}) do
     case conn.assigns.current_scope do
-      %{user: user} when not is_nil(user) ->
+      %{user: user} when user != nil ->
         case Friends.reject_friend_request(String.to_integer(id), user) do
           {:ok, _f} ->
             send_resp(conn, :no_content, "")
@@ -557,7 +557,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
 
   def delete(conn, %{"id" => id}) do
     case conn.assigns.current_scope do
-      %{user: user} when not is_nil(user) ->
+      %{user: user} when user != nil ->
         # Try to fetch and delete. allow requesters to cancel pending, or either user to delete accepted friendship
         case Repo.get(Friends.Friendship, String.to_integer(id)) do
           nil ->

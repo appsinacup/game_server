@@ -61,7 +61,8 @@ defmodule GameServer.Friends do
         pending_reverse = find_pending_reverse(requester_id, target_id) ->
           accept_friend_request(pending_reverse.id, %User{id: requester_id})
 
-        true -> create_new_friend_request(requester_id, target_id)
+        true ->
+          create_new_friend_request(requester_id, target_id)
       end
     end
   end
@@ -83,7 +84,11 @@ defmodule GameServer.Friends do
 
   defp already_friends?(requester_id, target_id) do
     Repo.get_by(Friendship, requester_id: requester_id, target_id: target_id, status: "accepted") ||
-      Repo.get_by(Friendship, requester_id: target_id, target_id: requester_id, status: "accepted")
+      Repo.get_by(Friendship,
+        requester_id: target_id,
+        target_id: requester_id,
+        status: "accepted"
+      )
   end
 
   defp same_direction_pending?(requester_id, target_id) do
@@ -95,14 +100,17 @@ defmodule GameServer.Friends do
   end
 
   defp create_new_friend_request(requester_id, target_id) do
-    case %Friendship{} |> Friendship.changeset(%{requester_id: requester_id, target_id: target_id}) |> Repo.insert() do
+    case %Friendship{}
+         |> Friendship.changeset(%{requester_id: requester_id, target_id: target_id})
+         |> Repo.insert() do
       {:ok, f} = ok ->
         broadcast_user(target_id, {:incoming_request, f})
         broadcast_user(requester_id, {:outgoing_request, f})
         broadcast_all({:friend_created, f})
         ok
 
-      err -> err
+      err ->
+        err
     end
   end
 

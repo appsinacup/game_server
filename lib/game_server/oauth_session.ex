@@ -18,6 +18,15 @@ defmodule GameServer.OAuthSession do
     timestamps()
   end
 
+  @typedoc "A short-lived OAuth session used for polling by SDKs."
+  @type t :: %__MODULE__{
+          id: integer() | nil,
+          session_id: String.t(),
+          provider: String.t(),
+          status: String.t(),
+          data: map()
+        }
+
   @doc false
   def changeset(session, attrs) do
     session

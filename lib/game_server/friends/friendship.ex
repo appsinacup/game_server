@@ -22,6 +22,14 @@ defmodule GameServer.Friends.Friendship do
     timestamps()
   end
 
+  @typedoc "A friendship/request record between two users."
+  @type t :: %__MODULE__{
+          id: integer() | nil,
+          requester_id: integer() | nil,
+          target_id: integer() | nil,
+          status: String.t()
+        }
+
   @doc false
   def changeset(friendship, attrs) do
     friendship

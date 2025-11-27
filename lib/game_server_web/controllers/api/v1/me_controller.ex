@@ -34,7 +34,7 @@ defmodule GameServerWeb.Api.V1.MeController do
     # Guardian pipeline has already authenticated and loaded the user
     # into current_scope via AssignCurrentScope plug
     case conn.assigns.current_scope do
-      %{user: user} when not is_nil(user) ->
+      %{user: user} when user != nil ->
         json(conn, %{
           id: user.id,
           email: user.email,

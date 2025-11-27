@@ -71,7 +71,8 @@ defmodule GameServer.Apple do
           |> Enum.chunk_every(64)
           |> Enum.map(&Enum.join/1)
 
-        ([header] ++ body_lines ++ [footer])
+        [header, body_lines, footer]
+        |> List.flatten()
         |> Enum.join("\n")
       end)
     end

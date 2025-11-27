@@ -146,7 +146,10 @@ defmodule GameServer.LobbiesTest do
       assert {:error, :not_in_lobby} == Lobbies.leave_lobby(other)
     end
 
-    test "kick errors: cannot kick self, not_host, not_found, not_in_lobby", %{host: host, other: other} do
+    test "kick errors: cannot kick self, not_host, not_found, not_in_lobby", %{
+      host: host,
+      other: other
+    } do
       # set up lobby and memberships
       {:ok, lobby} = Lobbies.create_lobby(%{name: "errors-room", host_id: host.id, max_users: 5})
       assert {:ok, _} = Lobbies.join_lobby(other, lobby)
@@ -159,7 +162,8 @@ defmodule GameServer.LobbiesTest do
       assert {:error, :not_host} = Lobbies.kick_user(another, lobby, other)
 
       # not_found (target id points to non-existing user)
-      assert {:error, :not_found} = Lobbies.kick_user(host, lobby, %GameServer.Accounts.User{id: 999_999})
+      assert {:error, :not_found} =
+               Lobbies.kick_user(host, lobby, %GameServer.Accounts.User{id: 999_999})
 
       # not_in_lobby: target exists but not in this lobby
       outsider = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
@@ -173,7 +177,8 @@ defmodule GameServer.LobbiesTest do
       assert {:ok, _} = Lobbies.join_lobby(other, lobby1)
 
       # tries to join a different lobby and should get error :already_in_lobby
-      {:ok, lobby2} = Lobbies.create_lobby(%{name: "a-room-2", host_id: AccountsFixtures.user_fixture().id})
+      {:ok, lobby2} =
+        Lobbies.create_lobby(%{name: "a-room-2", host_id: AccountsFixtures.user_fixture().id})
 
       assert {:error, :already_in_lobby} = Lobbies.join_lobby(other, lobby2)
     end

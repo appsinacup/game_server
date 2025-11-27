@@ -11,7 +11,15 @@ defmodule GameServer.MixProject do
       aliases: aliases(),
       deps: deps(),
       compilers: [:phoenix_live_view] ++ Mix.compilers(),
-      listeners: [Phoenix.CodeReloader]
+      listeners: [Phoenix.CodeReloader],
+      # ExDoc configuration used to build HTML docs locally or in CI
+      docs: [
+        main: "readme",
+        extras: ["README.md"],
+        source_url: "https://github.com/appsinacup/game_server",
+        source_ref: "main",
+        homepage_url: "https://github.com/appsinacup/game_server"
+      ]
     ]
   end
 
@@ -83,6 +91,7 @@ defmodule GameServer.MixProject do
       {:ueberauth, "~> 0.10"},
       {:open_api_spex, "~> 3.22"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.30", only: :dev, runtime: false},
       {:guardian, "~> 2.3"}
     ]
   end

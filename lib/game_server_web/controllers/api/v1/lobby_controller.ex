@@ -289,102 +289,6 @@ defmodule GameServerWeb.Api.V1.LobbyController do
     })
   end
 
-  def create(conn, params) do
-    # authenticated user becomes host by default if not hostless
-    case conn.assigns.current_scope do
-      %{user: %{id: id}} when not is_nil(id) ->
-        params = Map.put(params, "host_id", id)
-
-        case Lobbies.create_lobby(params) do
-          {:ok, lobby} ->
-            conn |> put_status(:created) |> json(serialize_lobby(lobby))
-
-          {:error, :already_in_lobby} ->
-            conn |> put_status(:conflict) |> json(%{error: "User already in a lobby"})
-
-          {:error, cs} ->
-            conn |> put_status(:unprocessable_entity) |> json(%{errors: errors_on(cs)})
-        end
-
-      _ ->
-        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
-    end
-  end
-
-  def join(conn, %{"id" => id} = params) do
-    case conn.assigns.current_scope do
-      %{user: user} when not is_nil(user) ->
-        opts = if Map.has_key?(params, "password"), do: %{password: params["password"]}, else: %{}
-
-        case Lobbies.join_lobby(user, id, opts) do
-          {:ok, _membership} -> send_resp(conn, :no_content, "")
-          {:error, reason} -> conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
-        end
-
-      _ ->
-        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
-    end
-  end
-
-  def leave(conn, _params) do
-    case conn.assigns.current_scope do
-      %{user: user} when not is_nil(user) ->
-        case Lobbies.leave_lobby(user) do
-          {:ok, _} ->
-            # leave is a mutating action that doesn't need to return a payload
-            send_resp(conn, :no_content, "")
-
-          {:error, reason} ->
-            conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
-        end
-
-      _ ->
-        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
-    end
-  end
-
-  def update(conn, %{"id" => id} = params) do
-    case conn.assigns.current_scope do
-      %{user: user} when not is_nil(user) ->
-        lobby = Lobbies.get_lobby!(id)
-
-        case Lobbies.update_lobby_by_host(user, lobby, params) do
-          {:ok, lobby} ->
-            json(conn, serialize_lobby(lobby))
-
-          {:error, :not_host} ->
-            conn |> put_status(:forbidden) |> json(%{error: "not_host"})
-
-          {:error, :too_small} ->
-            conn |> put_status(:unprocessable_entity) |> json(%{error: "too_small"})
-
-          {:error, reason} ->
-            conn |> put_status(:unprocessable_entity) |> json(%{error: to_string(reason)})
-        end
-
-      _ ->
-        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
-    end
-  end
-
-  def kick(conn, %{"id" => id, "target_user_id" => target_user_id}) do
-    case conn.assigns.current_scope do
-      %{user: user} when not is_nil(user) ->
-        lobby = Lobbies.get_lobby!(id)
-        target_id = String.to_integer(to_string(target_user_id))
-
-        target_user = GameServer.Accounts.get_user!(target_id)
-
-        case Lobbies.kick_user(user, lobby, target_user) do
-          {:ok, _} -> send_resp(conn, :no_content, "")
-          {:error, reason} -> conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
-        end
-
-      _ ->
-        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
-    end
-  end
-
   defp serialize_lobby(lobby) do
     %{
       id: lobby.id,
@@ -398,11 +302,4 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       metadata: lobby.metadata || %{}
     }
   end
-
-  defp errors_on(changeset) when is_map(changeset) do
-    # Basic errors extraction for API responses
-    Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
-  end
-
-  defp errors_on(_), do: %{}
 end

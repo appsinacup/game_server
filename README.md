@@ -2,17 +2,13 @@
 
 -----
 
-<p align="center">Open source <b>game server</b> with <b>authentication, users, lobbies, and admin portal</b>.
-<br> 
-<br> Game + Backend = Gamend</p>
+**Open source _game server_ with _authentication, users, lobbies, and an admin portal_.**
+
+Game + Backend = Gamend
 
 -----
 
-<p align = "center">
-    <strong>
-        <a href="https://discord.com/invite/56dMud8HYn">Discord</a>
-    </strong>
-</p>
+[Discord](https://discord.com/invite/56dMud8HYn)
 
 To start your server:
 

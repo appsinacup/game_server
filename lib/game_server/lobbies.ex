@@ -256,7 +256,8 @@ defmodule GameServer.Lobbies do
 
     case hooks.before_lobby_join(user, lobby, opts) do
       {:ok, _} ->
-        password = if is_list(opts), do: Keyword.get(opts, :password), else: Map.get(opts, :password)
+        password =
+          if is_list(opts), do: Keyword.get(opts, :password), else: Map.get(opts, :password)
 
         validate_and_join(lobby, user_id, password)
 
@@ -270,7 +271,7 @@ defmodule GameServer.Lobbies do
       {nil, _} ->
         create_membership(%{lobby_id: lobby.id, user_id: user_id})
 
-      {phash, nil} when not is_nil(phash) ->
+      {phash, nil} when phash != nil ->
         {:error, :password_required}
 
       {phash, password} ->
@@ -290,71 +291,54 @@ defmodule GameServer.Lobbies do
     attrs = maybe_hash_password(attrs)
     # if host_id is provided, prevent a user who is already a member of a lobby
     # from creating an additional lobby
-    host_id = Map.get(attrs, "host_id") || Map.get(attrs, :host_id)
+    # if no name was provided, generate a unique slug from the title
+    has_name = Map.has_key?(attrs, "name") || Map.has_key?(attrs, :name)
 
-    # Check if host is already in a lobby and return early if so
-    already_in_lobby =
-      if host_id do
-        case Repo.get(GameServer.Accounts.User, host_id) do
-          %GameServer.Accounts.User{lobby_id: lobby_id} when not is_nil(lobby_id) -> true
-          _ -> false
-        end
+    attrs =
+      if has_name do
+        attrs
       else
-        false
+        title = Map.get(attrs, "title") || Map.get(attrs, :title) || "lobby"
+        base = slugify(title)
+
+        unique_name =
+          Stream.iterate(0, &(&1 + 1))
+          |> Stream.map(fn
+            0 -> base
+            n -> base <> "-" <> Integer.to_string(n)
+          end)
+          |> Enum.find(fn candidate -> Repo.get_by(Lobby, name: candidate) == nil end)
+
+        Map.put(attrs, "name", unique_name)
       end
 
-    if already_in_lobby do
-      {:error, :already_in_lobby}
-    else
-      # if no name was provided, generate a unique slug from the title
-      has_name = Map.has_key?(attrs, "name") || Map.has_key?(attrs, :name)
+    hooks = GameServer.Hooks.module()
 
-      attrs =
-        if has_name do
-          attrs
-        else
-          title = Map.get(attrs, "title") || Map.get(attrs, :title) || "lobby"
-          base = slugify(title)
+    case hooks.before_lobby_create(attrs) do
+      {:ok, attrs} ->
+        Multi.new()
+        |> Multi.insert(:lobby, Lobby.changeset(%Lobby{}, attrs))
+        |> maybe_add_host_membership(attrs)
+        |> Repo.transaction()
 
-          unique_name =
-            Stream.iterate(0, &(&1 + 1))
-            |> Stream.map(fn
-              0 -> base
-              n -> base <> "-" <> Integer.to_string(n)
-            end)
-            |> Enum.find(fn candidate -> Repo.get_by(Lobby, name: candidate) == nil end)
+      {:error, reason} ->
+        {:error, {:hook_rejected, reason}}
+    end
+    |> case do
+      {:ok, %{lobby: lobby}} ->
+        Task.start(fn -> hooks.after_lobby_create(lobby) end)
+        broadcast_lobbies({:lobby_created, lobby})
+        {:ok, lobby}
 
-          Map.put(attrs, "name", unique_name)
-        end
+      {:error, _op, changeset, _} ->
+        {:error, changeset}
 
-      hooks = GameServer.Hooks.module()
-
-      case hooks.before_lobby_create(attrs) do
-        {:ok, attrs} ->
-          Multi.new()
-          |> Multi.insert(:lobby, Lobby.changeset(%Lobby{}, attrs))
-          |> maybe_add_host_membership(attrs)
-          |> Repo.transaction()
-
-        {:error, reason} ->
-          {:error, {:hook_rejected, reason}}
-      end
-      |> case do
-        {:ok, %{lobby: lobby}} ->
-          Task.start(fn -> hooks.after_lobby_create(lobby) end)
-          broadcast_lobbies({:lobby_created, lobby})
-          {:ok, lobby}
-
-        {:error, _op, changeset, _} ->
-          {:error, changeset}
-
-        other ->
-          other
-      end
+      other ->
+        other
     end
   end
 
-  defp maybe_add_host_membership(multi, %{"host_id" => host_id}) when not is_nil(host_id) do
+  defp maybe_add_host_membership(multi, %{"host_id" => host_id}) when host_id != nil do
     multi
     |> Multi.run(:membership, fn repo, %{lobby: lobby} ->
       user = repo.get(GameServer.Accounts.User, host_id)
@@ -363,7 +347,7 @@ defmodule GameServer.Lobbies do
     end)
   end
 
-  defp maybe_add_host_membership(multi, %{host_id: host_id}) when not is_nil(host_id) do
+  defp maybe_add_host_membership(multi, %{host_id: host_id}) when host_id != nil do
     multi
     |> Multi.run(:membership, fn repo, %{lobby: lobby} ->
       user = repo.get(GameServer.Accounts.User, host_id)

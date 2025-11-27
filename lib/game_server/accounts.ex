@@ -721,7 +721,7 @@ defmodule GameServer.Accounts do
 
     case Repo.one(query) do
       # Prevent session fixation attacks by disallowing magic links for unconfirmed users with password
-      {%User{confirmed_at: nil, hashed_password: hash}, _token} when not is_nil(hash) ->
+      {%User{confirmed_at: nil, hashed_password: hash}, _token} when hash != nil ->
         raise """
         magic link log in is not allowed for unconfirmed users with a password set!
 
@@ -891,6 +891,25 @@ defmodule GameServer.Accounts do
 
       other ->
         other
+    end
+  end
+
+  def change_user_registration(%User{} = user, attrs \\ %{}) do
+    User.registration_changeset(user, attrs, [])
+  end
+
+  def deliver_user_confirmation_instructions(%User{} = user, confirmation_url_fun)
+      when is_function(confirmation_url_fun, 1) do
+    if user.confirmed_at do
+      {:error, :already_confirmed}
+    else
+      {encoded_token, user_token} = UserToken.build_email_token(user, "confirm")
+      Repo.insert!(user_token)
+
+      UserNotifier.deliver_confirmation_instructions(
+        user,
+        confirmation_url_fun.(encoded_token)
+      )
     end
   end
 end
