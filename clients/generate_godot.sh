@@ -60,6 +60,18 @@ find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/OA
 
 echo "Post-processing complete."
 
+# If APP_VERSION is set (CI), stamp it into the gamend_template so the
+# generated Godot addon contains explicit version metadata that consumers can
+# read at runtime.
+if [ -n "${APP_VERSION:-}" ]; then
+  echo "Adding version metadata to gamend_template: ${APP_VERSION}"
+  TEMPLATE_VERSION_FILE="$ROOT_DIR/clients/gamend_template/GamendVersion.gd"
+  cat > "$TEMPLATE_VERSION_FILE" <<EOF
+# Auto-generated version information. Do not edit -- CI will overwrite.
+const GAMEND_VERSION = "${APP_VERSION}"
+EOF
+fi
+
 # Copy the main client pieces (apis, core, model) to a separate godot_api folder
 # This keeps the API surface separated for distribution or packaging.
 DEST_API_DIR="$ROOT_DIR/clients/gamend"

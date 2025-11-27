@@ -36,6 +36,33 @@ Modern JWT authentication using access + refresh tokens (industry standard):
 - **Access tokens**: Short-lived (15 minutes), used for API requests
 - **Refresh tokens**: Long-lived (30 days), used to obtain new access tokens
 
+## Users
+
+User management:
+
+- Multiple sign-in flows supported: Email/password, device tokens (SDK), and OAuth (Discord / Google / Facebook / Apple).
+- Per-user profile metadata as JSON
+- Account lifecycle: registration, login, password reset, and account deletion endpoints.
+
+## Friends
+
+Social features:
+
+- Friend requests with accept / reject / block flows.
+
+## Lobbies
+
+Matchmaking and lobbies:
+
+- Host-managed behavior, max users, hidden/locked states, and password protection.
+- Public APIs are provided for listing, creating, joining, leaving, updating and kicking.
+
+## Server scripting (Elixir)
+
+Extendable server behavior:
+
+- Hooks on server events (eg. on_user_login, on_lobby_created)
+
 ## How to deploy
 
 1. Fork this repo.

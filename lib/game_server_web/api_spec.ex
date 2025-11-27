@@ -65,7 +65,9 @@ defmodule GameServerWeb.ApiSpec do
   end
 
   defp api_version do
-    case Application.spec(:game_server, :vsn) do
+    # Prefer an environment-supplied APP_VERSION when present (CI injects this),
+    # then fall back to the application vsn or Mix project version.
+    case System.get_env("APP_VERSION") || Application.spec(:game_server, :vsn) do
       nil -> Mix.Project.config()[:version] || "1.0.0"
       vsn -> to_string(vsn)
     end

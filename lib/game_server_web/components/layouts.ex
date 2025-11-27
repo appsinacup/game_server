@@ -112,7 +112,7 @@ defmodule GameServerWeb.Layouts do
             <.theme_toggle />
           </li>
         </ul>
-        
+
     <!-- Mobile Navigation -->
         <div class="md:hidden">
           <div class="dropdown dropdown-end">
@@ -190,7 +190,9 @@ defmodule GameServerWeb.Layouts do
   end
 
   defp app_version do
-    case Application.spec(:game_server, :vsn) do
+    # Prefer CI-injected APP_VERSION when present, otherwise fall back to the
+    # compiled application vsn or the Mix project version.
+    case System.get_env("APP_VERSION") || Application.spec(:game_server, :vsn) do
       nil -> Mix.Project.config()[:version] || "1.0.0"
       vsn -> to_string(vsn)
     end

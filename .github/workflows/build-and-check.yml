@@ -325,6 +325,20 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Configure git safe.directory for Actions runner
+        run: |
+          git config --global --add safe.directory $GITHUB_WORKSPACE || true
+
+      - name: Compute version (fallback to commit count)
+        id: version
+        run: |
+          echo "Generating APP_VERSION for Godot client"
+          git fetch --prune --unshallow || true
+          COMMIT_COUNT=$(git rev-list --count HEAD)
+          VERSION="1.0.${COMMIT_COUNT}"
+          echo "APP_VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
         with:
           fetch-depth: 0
 
@@ -356,7 +370,10 @@ jobs:
           mix deps.get
 
       - name: Run Godot generation script
+        env:
+          APP_VERSION: ${{ env.APP_VERSION }}
         run: |
+          echo "Generating Godot client with APP_VERSION=${APP_VERSION:-$(echo $APP_VERSION)}"
           ./clients/generate_godot.sh
 
       - name: Upload addons zip
