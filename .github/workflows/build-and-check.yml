@@ -364,3 +364,33 @@ jobs:
           generate_release_notes: true
           make_latest: true
           fail_on_unmatched_files: true
+
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Elixir
+        uses: erlef/setup-elixir@v1
+        with:
+          elixir-version: '1.19.3'
+          otp-version: '26.2'
+
+      - name: Install dependencies
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+          mix deps.get
+
+      - name: Generate docs
+        run: MIX_ENV=dev mix docs
+
+      - name: Publish to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./doc
+          # keep history to allow diffs in gh-pages
+          publish_branch: gh-pages
