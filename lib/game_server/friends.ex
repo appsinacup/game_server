@@ -45,67 +45,64 @@ defmodule GameServer.Friends do
     if requester_id == target_id do
       {:error, :cannot_friend_self}
     else
-      # existing rows
-      existing_same = Repo.get_by(Friendship, requester_id: requester_id, target_id: target_id)
-      existing_reverse = Repo.get_by(Friendship, requester_id: target_id, target_id: requester_id)
+      # clean up any rejected same-direction rows to allow fresh request creation
+      remove_rejected_same_direction(requester_id, target_id)
 
-      # remove old rejected same-direction row so a fresh request can be created
-      if existing_same && existing_same.status == "rejected" do
-        Repo.delete(existing_same)
-      end
+      cond do
+        blocked?(requester_id, target_id) ->
+          {:error, :blocked}
 
-      # if there's a block in either direction, disallow
-      if (existing_same && existing_same.status == "blocked") ||
-           (existing_reverse && existing_reverse.status == "blocked") do
-        {:error, :blocked}
-      else
-        # check already friends
-        if Repo.get_by(Friendship,
-             requester_id: requester_id,
-             target_id: target_id,
-             status: "accepted"
-           ) ||
-             Repo.get_by(Friendship,
-               requester_id: target_id,
-               target_id: requester_id,
-               status: "accepted"
-             ) do
+        already_friends?(requester_id, target_id) ->
           {:error, :already_friends}
-        else
-          # same-direction pending
-          if Repo.get_by(Friendship,
-               requester_id: requester_id,
-               target_id: target_id,
-               status: "pending"
-             ) do
-            {:error, :already_requested}
-          else
-            # check reverse pending — accept that instead
-            case Repo.get_by(Friendship,
-                   requester_id: target_id,
-                   target_id: requester_id,
-                   status: "pending"
-                 ) do
-              %Friendship{} = pending_reverse ->
-                accept_friend_request(pending_reverse.id, %User{id: requester_id})
 
-              _ ->
-                case %Friendship{}
-                     |> Friendship.changeset(%{requester_id: requester_id, target_id: target_id})
-                     |> Repo.insert() do
-                  {:ok, f} = ok ->
-                    broadcast_user(target_id, {:incoming_request, f})
-                    broadcast_user(requester_id, {:outgoing_request, f})
-                    broadcast_all({:friend_created, f})
-                    ok
+        same_direction_pending?(requester_id, target_id) ->
+          {:error, :already_requested}
 
-                  err ->
-                    err
-                end
-            end
-          end
-        end
+        pending_reverse = find_pending_reverse(requester_id, target_id) ->
+          accept_friend_request(pending_reverse.id, %User{id: requester_id})
+
+        true -> create_new_friend_request(requester_id, target_id)
       end
+    end
+  end
+
+  defp remove_rejected_same_direction(requester_id, target_id) do
+    case Repo.get_by(Friendship, requester_id: requester_id, target_id: target_id) do
+      %Friendship{status: "rejected"} = f -> Repo.delete(f)
+      _ -> :ok
+    end
+  end
+
+  defp blocked?(requester_id, target_id) do
+    existing_same = Repo.get_by(Friendship, requester_id: requester_id, target_id: target_id)
+    existing_reverse = Repo.get_by(Friendship, requester_id: target_id, target_id: requester_id)
+
+    (existing_same && existing_same.status == "blocked") ||
+      (existing_reverse && existing_reverse.status == "blocked")
+  end
+
+  defp already_friends?(requester_id, target_id) do
+    Repo.get_by(Friendship, requester_id: requester_id, target_id: target_id, status: "accepted") ||
+      Repo.get_by(Friendship, requester_id: target_id, target_id: requester_id, status: "accepted")
+  end
+
+  defp same_direction_pending?(requester_id, target_id) do
+    Repo.get_by(Friendship, requester_id: requester_id, target_id: target_id, status: "pending")
+  end
+
+  defp find_pending_reverse(requester_id, target_id) do
+    Repo.get_by(Friendship, requester_id: target_id, target_id: requester_id, status: "pending")
+  end
+
+  defp create_new_friend_request(requester_id, target_id) do
+    case %Friendship{} |> Friendship.changeset(%{requester_id: requester_id, target_id: target_id}) |> Repo.insert() do
+      {:ok, f} = ok ->
+        broadcast_user(target_id, {:incoming_request, f})
+        broadcast_user(requester_id, {:outgoing_request, f})
+        broadcast_all({:friend_created, f})
+        ok
+
+      err -> err
     end
   end
 

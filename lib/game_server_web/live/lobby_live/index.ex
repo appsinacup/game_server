@@ -127,45 +127,48 @@ defmodule GameServerWeb.LobbyLive.Index do
         {:noreply, assign(socket, joining_lobby_id: l.id, join_password: "")}
 
       %{} = l ->
-        case socket.assigns.current_scope do
-          %{user: user} when not is_nil(user) ->
-            # prevent joining a lobby if already in it or in another lobby
-            if user.lobby_id == l.id do
-              {:noreply, put_flash(socket, :info, "You are already in this lobby")}
-            else
-              case Lobbies.join_lobby(user, l.id) do
-                {:ok, _member} ->
-                  # refresh user to update lobby_id first
-                  refreshed_user = GameServer.Accounts.get_user!(user.id)
+        # delegate the complicated user check / join flow to helpers to keep
+        # the public handler shallow and readable
+        handle_start_join_for_lobby(socket, l)
+    end
+  end
 
-                  lobbies =
-                    Lobbies.list_lobbies_for_user(refreshed_user, %{},
-                      page: socket.assigns[:lobbies_page] || 1,
-                      page_size: socket.assigns[:lobbies_page_size] || 12
-                    )
+  defp handle_start_join_for_lobby(socket, lobby) do
+    case socket.assigns.current_scope do
+      %{user: user} when not is_nil(user) -> handle_start_join_for_user(socket, lobby, user)
+      _ -> {:noreply, push_navigate(socket, to: "/users/log-in")}
+    end
+  end
 
-                  memberships_map =
-                    Enum.into(lobbies, %{}, fn lp ->
-                      {lp.id, Lobbies.list_memberships_for_lobby(lp.id)}
-                    end)
+  defp handle_start_join_for_user(socket, lobby, user) do
+    if user.lobby_id == lobby.id do
+      {:noreply, put_flash(socket, :info, "You are already in this lobby")}
+    else
+      case Lobbies.join_lobby(user, lobby.id) do
+        {:ok, _member} ->
+          # refresh user to update lobby_id first
+          refreshed_user = GameServer.Accounts.get_user!(user.id)
 
-                  updated_scope = %{socket.assigns.current_scope | user: refreshed_user}
+          lobbies =
+            Lobbies.list_lobbies_for_user(refreshed_user, %{},
+              page: socket.assigns[:lobbies_page] || 1,
+              page_size: socket.assigns[:lobbies_page_size] || 12
+            )
 
-                  {:noreply,
-                   assign(socket,
-                     lobbies: lobbies,
-                     memberships_map: memberships_map,
-                     current_scope: updated_scope
-                   )}
+          memberships_map = Enum.into(lobbies, %{}, fn lp -> {lp.id, Lobbies.list_memberships_for_lobby(lp.id)} end)
 
-                {:error, reason} ->
-                  {:noreply, put_flash(socket, :error, "Could not join: #{inspect(reason)}")}
-              end
-            end
+          updated_scope = %{socket.assigns.current_scope | user: refreshed_user}
 
-          _ ->
-            {:noreply, push_navigate(socket, to: "/users/log-in")}
-        end
+          {:noreply,
+           assign(socket,
+             lobbies: lobbies,
+             memberships_map: memberships_map,
+             current_scope: updated_scope
+           )}
+
+        {:error, reason} ->
+          {:noreply, put_flash(socket, :error, "Could not join: #{inspect(reason)}")}
+      end
     end
   end
 

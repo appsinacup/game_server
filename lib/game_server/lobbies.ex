@@ -246,19 +246,22 @@ defmodule GameServer.Lobbies do
           {:error, :locked}
 
         true ->
-          hooks = GameServer.Hooks.module()
-
-          case hooks.before_lobby_join(user, lobby, opts) do
-            {:ok, _} ->
-              password =
-                if is_list(opts), do: Keyword.get(opts, :password), else: Map.get(opts, :password)
-
-              validate_and_join(lobby, user_id, password)
-
-            {:error, reason} ->
-              {:error, {:hook_rejected, reason}}
-          end
+          run_before_join_and_validate(user, lobby, opts, user_id)
       end
+    end
+  end
+
+  defp run_before_join_and_validate(user, lobby, opts, user_id) do
+    hooks = GameServer.Hooks.module()
+
+    case hooks.before_lobby_join(user, lobby, opts) do
+      {:ok, _} ->
+        password = if is_list(opts), do: Keyword.get(opts, :password), else: Map.get(opts, :password)
+
+        validate_and_join(lobby, user_id, password)
+
+      {:error, reason} ->
+        {:error, {:hook_rejected, reason}}
     end
   end
 
@@ -581,37 +584,7 @@ defmodule GameServer.Lobbies do
             {:error, :not_found}
 
           %GameServer.Accounts.User{lobby_id: ^lobby_id} = membership ->
-            hooks = GameServer.Hooks.module()
-
-            case hooks.before_user_kicked(
-                   %GameServer.Accounts.User{id: host_id},
-                   membership,
-                   lobby
-                 ) do
-              {:ok, _} ->
-                result = Repo.update(Ecto.Changeset.change(membership, %{lobby_id: nil}))
-
-                case result do
-                  {:ok, _} ->
-                    Task.start(fn ->
-                      hooks.after_user_kicked(
-                        %GameServer.Accounts.User{id: host_id},
-                        membership,
-                        lobby
-                      )
-                    end)
-
-                    broadcast_lobby(lobby_id, {:user_kicked, lobby_id, target_id})
-                    broadcast_lobbies({:lobby_membership_changed, lobby_id})
-                    result
-
-                  _ ->
-                    result
-                end
-
-              {:error, reason} ->
-                {:error, {:hook_rejected, reason}}
-            end
+            do_kick_membership(membership, host_id, lobby)
 
           _ ->
             {:error, :not_in_lobby}
@@ -620,6 +593,32 @@ defmodule GameServer.Lobbies do
   end
 
   def kick_user(_host, _lobby, _target), do: {:error, :invalid}
+
+  defp do_kick_membership(membership, host_id, lobby) do
+    hooks = GameServer.Hooks.module()
+
+    case hooks.before_user_kicked(%GameServer.Accounts.User{id: host_id}, membership, lobby) do
+      {:ok, _} ->
+        result = Repo.update(Ecto.Changeset.change(membership, %{lobby_id: nil}))
+
+        case result do
+          {:ok, _} ->
+            Task.start(fn ->
+              hooks.after_user_kicked(%GameServer.Accounts.User{id: host_id}, membership, lobby)
+            end)
+
+            broadcast_lobby(lobby.id, {:user_kicked, lobby.id, membership.id})
+            broadcast_lobbies({:lobby_membership_changed, lobby.id})
+            result
+
+          _ ->
+            result
+        end
+
+      {:error, reason} ->
+        {:error, {:hook_rejected, reason}}
+    end
+  end
 
   @doc """
   Check if a user can edit a lobby (is host or lobby is hostless).
