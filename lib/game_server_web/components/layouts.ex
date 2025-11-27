@@ -40,6 +40,7 @@ defmodule GameServerWeb.Layouts do
         <a href="/" class="flex-1 flex w-fit items-center gap-2">
           <img src={~p"/images/logo.png"} width="36" alt="Game Server" />
           <span class="text-sm font-semibold">Gamend: Game Server</span>
+          <span class="text-xs opacity-60 ml-2">v{app_version()}</span>
         </a>
       </div>
       <div class="flex-none">
@@ -93,26 +94,10 @@ defmodule GameServerWeb.Layouts do
             </li>
           <% end %>
           <li>
-            <.link href={~p"/docs/setup"}>Guides</.link>
-          </li>
-          <li>
-            <.link href={~p"/api/docs"} target="_blank">API Docs</.link>
-          </li>
-          <li>
-            <a
-              href="https://appsinacup.github.io/game_server/"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="hover:underline mr-4"
-            >
-              Elixir Docs
-            </a>
-          </li>
-          <li>
             <.theme_toggle />
           </li>
         </ul>
-
+        
     <!-- Mobile Navigation -->
         <div class="md:hidden">
           <div class="dropdown dropdown-end">
@@ -133,9 +118,14 @@ defmodule GameServerWeb.Layouts do
             >
               <%= if @current_scope do %>
                 <li class="menu-title">
-                  <span>
-                    {profile_initials(@current_scope.user)} {profile_display_name(@current_scope.user)}
-                  </span>
+                  <div class="flex justify-between items-center w-full pr-2">
+                    <span>
+                      {profile_initials(@current_scope.user)} {profile_display_name(
+                        @current_scope.user
+                      )}
+                    </span>
+                    <span class="text-xs opacity-60">v{app_version()}</span>
+                  </div>
                 </li>
                 <li><a href={~p"/users/settings"} class="btn btn-outline">Settings</a></li>
                 <li><a href={~p"/lobbies"} class="btn btn-outline">Lobbies</a></li>
@@ -149,6 +139,11 @@ defmodule GameServerWeb.Layouts do
                 <li><a href={~p"/users/log-in"} class="btn btn-outline">Log in</a></li>
                 <li><a href={~p"/users/register"} class="btn btn-outline">Register</a></li>
                 <li><a href={~p"/lobbies"} class="btn btn-outline">Lobbies</a></li>
+                <li class="menu-title">
+                  <div class="flex justify-end items-center w-full pr-2">
+                    <span class="text-xs opacity-60">v{app_version()}</span>
+                  </div>
+                </li>
               <% end %>
               <li><a href={~p"/docs/setup"}>Guides</a></li>
               <li><a href={~p"/api/docs"} target="_blank">API Docs</a></li>
