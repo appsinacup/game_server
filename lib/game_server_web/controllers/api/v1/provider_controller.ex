@@ -31,9 +31,21 @@ defmodule GameServerWeb.Api.V1.ProviderController do
   def unlink(conn, %{"provider" => provider}) do
     user = conn.assigns.current_scope.user
 
-    provider_atom = String.to_existing_atom(provider)
+    provider_atom =
+      case provider do
+        "discord" -> :discord
+        "apple" -> :apple
+        "google" -> :google
+        "facebook" -> :facebook
+        _ -> :unknown_provider
+      end
 
-    case Accounts.unlink_provider(user, provider_atom) do
+    if provider_atom == :unknown_provider do
+      conn
+      |> put_status(:bad_request)
+      |> json(%{error: "Unknown provider"})
+    else
+      case Accounts.unlink_provider(user, provider_atom) do
       {:ok, _user} ->
         send_resp(conn, :no_content, "")
 
@@ -46,6 +58,7 @@ defmodule GameServerWeb.Api.V1.ProviderController do
         conn
         |> put_status(:bad_request)
         |> json(%{error: "Failed to unlink provider"})
+      end
     end
   end
 end

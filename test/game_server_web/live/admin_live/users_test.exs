@@ -8,16 +8,16 @@ defmodule GameServerWeb.AdminLive.UsersTest do
   alias GameServer.Accounts.User
 
   test "admin users pagination displays totals and disables Next on last page", %{conn: conn} do
-    user = GameServer.AccountsFixtures.user_fixture()
+    user = AccountsFixtures.user_fixture()
 
     {:ok, admin} =
       user
       |> GameServer.Accounts.User.admin_changeset(%{"is_admin" => true})
-      |> GameServer.Repo.update()
+      |> Repo.update()
 
     # create 30 users so admin listing has two pages with default page_size 25
     for i <- 1..30 do
-      GameServer.AccountsFixtures.user_fixture(%{email: "pagi-user-#{i}@example.com"})
+      AccountsFixtures.user_fixture(%{email: "pagi-user-#{i}@example.com"})
     end
 
     # sanity-check: DB has users we created (pagination test)
@@ -45,12 +45,12 @@ defmodule GameServerWeb.AdminLive.UsersTest do
 
   test "filter by provider checkboxes works and updates counts", %{conn: conn} do
     # admin user
-    user = GameServer.AccountsFixtures.user_fixture()
+    user = AccountsFixtures.user_fixture()
 
     {:ok, admin} =
       user
       |> GameServer.Accounts.User.admin_changeset(%{"is_admin" => true})
-      |> GameServer.Repo.update()
+      |> Repo.update()
 
     # create users with provider fields using provider helpers
     {:ok, _d1} =
@@ -71,11 +71,11 @@ defmodule GameServerWeb.AdminLive.UsersTest do
         email: "google1@example.com"
       })
 
-    _plain = GameServer.AccountsFixtures.user_fixture(%{email: "plain@example.com"})
+    _plain = AccountsFixtures.user_fixture(%{email: "plain@example.com"})
     # create a user with a password so they show up in the email/password filter
     _password_user =
-      GameServer.AccountsFixtures.user_fixture(%{email: "pw@example.com"})
-      |> GameServer.AccountsFixtures.set_password()
+      AccountsFixtures.user_fixture(%{email: "pw@example.com"})
+      |> AccountsFixtures.set_password()
 
     {:ok, view, html} = conn |> log_in_user(admin) |> live(~p"/admin/users")
 
@@ -87,8 +87,8 @@ defmodule GameServerWeb.AdminLive.UsersTest do
 
     # confirm DB-level provider counts match expectations
     discord_count =
-      GameServer.Repo.one(
-        from(u in GameServer.Accounts.User,
+      Repo.one(
+        from(u in User,
           where: not is_nil(u.discord_id) and u.discord_id != "",
           select: count(u.id)
         )

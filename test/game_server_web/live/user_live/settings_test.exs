@@ -15,11 +15,11 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       {:ok, user} =
         user
-        |> GameServer.Accounts.User.admin_changeset(%{
+        |> User.admin_changeset(%{
           "display_name" => "Tester",
           "is_admin" => true
         })
-        |> GameServer.Repo.update()
+        |> Repo.update()
 
       {:ok, _lv, html} =
         conn
@@ -49,14 +49,14 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       f =
         Repo.one(
-          from fr in GameServer.Friends.Friendship,
+          from fr in Friends.Friendship,
             where: fr.requester_id == ^b.id and fr.target_id == ^a.id
         )
 
       accept_btn = element(view, "#request-#{f.id} button", "Accept")
       assert render_click(accept_btn)
 
-      f2 = Repo.get!(GameServer.Friends.Friendship, f.id)
+      f2 = Repo.get!(Friends.Friendship, f.id)
       assert f2.status == "accepted"
     end
 
@@ -72,14 +72,14 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       f =
         Repo.one(
-          from fr in GameServer.Friends.Friendship,
+          from fr in Friends.Friendship,
             where: fr.requester_id == ^b.id and fr.target_id == ^a.id
         )
 
       block_btn = element(view, "#request-#{f.id} button", "Block")
       assert render_click(block_btn)
 
-      f2 = Repo.get!(GameServer.Friends.Friendship, f.id)
+      f2 = Repo.get!(Friends.Friendship, f.id)
       assert f2.status == "blocked"
     end
 
@@ -94,7 +94,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       f =
         Repo.one(
-          from fr in GameServer.Friends.Friendship,
+          from fr in Friends.Friendship,
             where: fr.requester_id == ^b.id and fr.target_id == ^a.id
         )
 
@@ -111,7 +111,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       assert render_click(unblock_btn)
 
       # friendship should be removed
-      assert Repo.get(GameServer.Friends.Friendship, f.id) == nil
+      assert Repo.get(Friends.Friendship, f.id) == nil
     end
 
     test "redirects if user is not logged in", %{conn: conn} do
@@ -196,7 +196,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       assert render(lv) =~ "Display name updated"
 
       # reload from DB
-      reloaded = GameServer.Repo.get(GameServer.Accounts.User, user.id)
+      reloaded = Repo.get(User, user.id)
       assert reloaded.display_name == new_display
     end
 
@@ -240,7 +240,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       # outgoing should now include the request
       f =
         Repo.one(
-          from fr in GameServer.Friends.Friendship,
+            from fr in Friends.Friendship,
             where: fr.requester_id == ^a.id and fr.target_id == ^b.id
         )
 
@@ -259,11 +259,11 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
         f =
           Repo.one(
-            from fr in GameServer.Friends.Friendship,
+            from fr in Friends.Friendship,
               where: fr.requester_id == ^u.id and fr.target_id == ^a.id
           )
 
-        {:ok, _} = Friends.accept_friend_request(f.id, %GameServer.Accounts.User{id: a.id})
+        {:ok, _} = Friends.accept_friend_request(f.id, %User{id: a.id})
       end)
 
       {:ok, lv, _html} = live(conn |> log_in_user(a), ~p"/users/settings")
@@ -365,7 +365,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
     test "can unlink a provider when another provider remains", %{conn: conn, user: user} do
       _user =
-        GameServer.Repo.update!(
+        Repo.update!(
           Ecto.Changeset.change(user, %{
             discord_id: "d1",
             google_id: "g1",
@@ -388,7 +388,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
     end
 
     test "cannot unlink last remaining social provider", %{conn: conn, user: user} do
-      _user = GameServer.Repo.update!(Ecto.Changeset.change(user, %{discord_id: "d1"}))
+      _user = Repo.update!(Ecto.Changeset.change(user, %{discord_id: "d1"}))
 
       {:ok, lv, _html} = live(conn, ~p"/users/settings")
 
@@ -416,7 +416,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       lv |> element("button[phx-value-id=\"#{other_user.id}\"]") |> render_click()
 
       # other account should be removed
-      refute GameServer.Repo.get(GameServer.Accounts.User, other_user.id)
+      refute Repo.get(User, other_user.id)
       assert render(lv) =~ "Conflicting account deleted"
     end
 
@@ -436,7 +436,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       lv |> element("button[phx-value-id=\"#{other_user.id}\"]") |> render_click()
 
       # other account should remain
-      assert GameServer.Repo.get(GameServer.Accounts.User, other_user.id)
+      assert Repo.get(User, other_user.id)
       assert render(lv) =~ "Cannot delete an account you do not own"
     end
   end

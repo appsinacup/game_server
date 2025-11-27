@@ -6,12 +6,12 @@ defmodule GameServerWeb.AdminLive.LobbiesTest do
   alias GameServer.Repo
 
   test "admin can view lobbies", %{conn: conn} do
-    user = GameServer.AccountsFixtures.user_fixture()
+    user = AccountsFixtures.user_fixture()
 
     {:ok, user} =
       user
       |> GameServer.Accounts.User.admin_changeset(%{"is_admin" => true})
-      |> GameServer.Repo.update()
+      |> Repo.update()
 
     # create a few lobbies (one hosted, one hostless)
     {:ok, lobby1} =
@@ -63,12 +63,12 @@ defmodule GameServerWeb.AdminLive.LobbiesTest do
   end
 
   test "admin lobbies pagination displays totals and disables Next on last page", %{conn: conn} do
-    user = GameServer.AccountsFixtures.user_fixture()
+    user = AccountsFixtures.user_fixture()
 
     {:ok, admin} =
       user
       |> GameServer.Accounts.User.admin_changeset(%{"is_admin" => true})
-      |> GameServer.Repo.update()
+      |> Repo.update()
 
     # create 30 lobbies so admin listing has two pages with default page_size 25
     for i <- 1..30 do
@@ -113,7 +113,7 @@ defmodule GameServerWeb.AdminLive.LobbiesTest do
       })
 
     # normal user opens public lobbies page
-    normal = GameServer.AccountsFixtures.user_fixture()
+    normal = AccountsFixtures.user_fixture()
     {:ok, view_public, public_html} = conn |> log_in_user(normal) |> live(~p"/lobbies")
     assert public_html =~ "admin-prop"
 
@@ -132,12 +132,12 @@ defmodule GameServerWeb.AdminLive.LobbiesTest do
   end
 
   test "admin deletion is propagated to public lobbies view", %{conn: conn} do
-    user = GameServer.AccountsFixtures.user_fixture()
+    user = AccountsFixtures.user_fixture()
 
     {:ok, admin} =
       user
       |> GameServer.Accounts.User.admin_changeset(%{"is_admin" => true})
-      |> GameServer.Repo.update()
+      |> Repo.update()
 
     # create a lobby
     {:ok, lobby} =
@@ -148,7 +148,7 @@ defmodule GameServerWeb.AdminLive.LobbiesTest do
       })
 
     # normal user opens public lobbies page
-    normal = GameServer.AccountsFixtures.user_fixture()
+    normal = AccountsFixtures.user_fixture()
     {:ok, _view_public, public_html} = conn |> log_in_user(normal) |> live(~p"/lobbies")
     assert public_html =~ "cross-delete"
 

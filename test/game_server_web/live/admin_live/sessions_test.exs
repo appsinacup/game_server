@@ -8,17 +8,17 @@ defmodule GameServerWeb.AdminLive.SessionsTest do
   alias GameServer.Accounts.UserToken
 
   test "admin sessions pagination displays totals and disables Next on last page", %{conn: conn} do
-    user = GameServer.AccountsFixtures.user_fixture()
+    user = AccountsFixtures.user_fixture()
 
     {:ok, admin} =
       user
       |> GameServer.Accounts.User.admin_changeset(%{"is_admin" => true})
-      |> GameServer.Repo.update()
+      |> Repo.update()
 
     # create 51 session tokens so listing has two pages (page_size default 50)
     for _i <- 1..51 do
       {_token, user_token} = UserToken.build_session_token(admin)
-      GameServer.Repo.insert!(user_token)
+      Repo.insert!(user_token)
     end
 
     {:ok, view, html} = conn |> log_in_user(admin) |> live(~p"/admin/sessions")

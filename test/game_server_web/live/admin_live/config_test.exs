@@ -6,12 +6,12 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
   alias GameServer.Repo
 
   test "renders config page with collapsible cards for admin", %{conn: conn} do
-    user = GameServer.AccountsFixtures.user_fixture()
+    user = AccountsFixtures.user_fixture()
 
     {:ok, user} =
       user
       |> GameServer.Accounts.User.admin_changeset(%{"is_admin" => true})
-      |> GameServer.Repo.update()
+      |> Repo.update()
 
     {:ok, _lv, html} =
       conn
@@ -66,9 +66,9 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     end)
 
     {:ok, user} =
-      GameServer.AccountsFixtures.user_fixture()
+      AccountsFixtures.user_fixture()
       |> GameServer.Accounts.User.admin_changeset(%{"is_admin" => true})
-      |> GameServer.Repo.update()
+      |> Repo.update()
 
     {:ok, _lv, html} =
       conn
