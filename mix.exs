@@ -64,7 +64,9 @@ defmodule GameServer.MixProject do
        depth: 1},
       {:swoosh, "~> 1.16"},
       {:req, "~> 0.5"},
-      {:file_system, "~> 0.2"},
+      # allow the 0.2 or 1.x families so projects depending on either
+      # version can still work; 1.x is preferred for newer environments
+      {:file_system, "~> 0.2 or ~> 1.0"},
       {:sentry, "~> 11.0"},
       {:hackney, "~> 1.18"},
       {:telemetry_metrics, "~> 1.0"},
