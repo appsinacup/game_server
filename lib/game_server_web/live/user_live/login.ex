@@ -152,6 +152,16 @@ defmodule GameServerWeb.UserLive.Login do
             </svg>
             Sign in with Facebook
           </.link>
+
+          <.link
+            href={~p"/auth/steam"}
+            class="btn btn-neutral w-full flex items-center justify-center gap-2"
+          >
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm4.8 17.6c-.6 0-1.2-.3-1.6-.8l4-3.1c.6-.4 1.5-.2 1.9.4.4.6.1 1.4-.6 1.8l-3.7 1.7c-.4.1-.8.1-1 0z"/>
+            </svg>
+            Sign in with Steam
+          </.link>
         </div>
       </div>
     </Layouts.app>

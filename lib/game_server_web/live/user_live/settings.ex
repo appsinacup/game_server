@@ -400,6 +400,30 @@ defmodule GameServerWeb.UserLive.Settings do
               <% end %>
             </div>
           </div>
+
+          <div class="flex items-center justify-between">
+            <div>
+              <strong>Steam</strong>
+              <div class="text-sm text-base-content/70">Sign in with Steam and link to your account</div>
+            </div>
+            <div class="flex items-center gap-2">
+              <%= if @user.steam_id do %>
+                <%= if provider_count > 1 do %>
+                  <button
+                    phx-click="unlink_provider"
+                    phx-value-provider="steam"
+                    class="btn btn-outline btn-sm"
+                  >
+                    Unlink
+                  </button>
+                <% else %>
+                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>Unlink</button>
+                <% end %>
+              <% else %>
+                <.link href={~p"/auth/steam"} class="btn btn-primary btn-sm">Link</.link>
+              <% end %>
+            </div>
+          </div>
         </div>
       </div>
 

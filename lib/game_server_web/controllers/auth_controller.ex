@@ -122,6 +122,24 @@ defmodule GameServerWeb.AuthController do
     redirect(conn, external: url)
   end
 
+  def request(conn, %{"provider" => "steam"}) do
+    # Steam uses OpenID (checkid_setup). Build the redirect URL for the
+    # browser flow and send the user to Steam's OpenID endpoint.
+    base = GameServerWeb.Endpoint.url()
+    callback_url = "#{base}/auth/steam/callback"
+
+    params = %{
+      "openid.mode" => "checkid_setup",
+      "openid.ns" => "http://specs.openid.net/auth/2.0",
+      "openid.claimed_id" => "http://specs.openid.net/auth/2.0/identifier_select",
+      "openid.identity" => "http://specs.openid.net/auth/2.0/identifier_select",
+      "openid.realm" => callback_url,
+      "openid.return_to" => callback_url
+    }
+
+    redirect(conn, external: "https://steamcommunity.com/openid/login?" <> URI.encode_query(params))
+  end
+
   # Unified OAuth callback - handles both browser and API flows
   # API flows include a 'state' parameter with session_id
   # Browser flows don't have state
