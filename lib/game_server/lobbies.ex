@@ -450,9 +450,14 @@ defmodule GameServer.Lobbies do
             broadcast_lobby(lobby_id, {:user_joined, lobby_id, user_id})
             broadcast_lobbies({:lobby_membership_changed, lobby_id})
 
+            # Fetch the lobby before starting the background task so the task
+            # does not need to check out a DB connection from the sandbox.
+            # Using Repo.get/2 avoids raising if the lobby disappears (tests
+            # shouldn't crash because of a background DB lookup).
+            lobby = Repo.get(Lobby, lobby_id)
+
             Task.start(fn ->
               hooks = GameServer.Hooks.module()
-              lobby = Repo.get!(Lobby, lobby_id)
               hooks.after_lobby_join(updated_user, lobby)
             end)
 

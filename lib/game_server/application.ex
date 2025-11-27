@@ -18,7 +18,9 @@ defmodule GameServer.Application do
         GameServer.Repo,
         {DNSCluster, query: Application.get_env(:game_server, :dns_cluster_query) || :ignore},
         {Phoenix.PubSub, name: GameServer.PubSub},
-        GameServerWeb.Endpoint
+        GameServerWeb.Endpoint,
+        # optional hooks watcher - will be a no-op when :hooks_file_path isn't set
+        GameServer.Hooks.Watcher
       ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

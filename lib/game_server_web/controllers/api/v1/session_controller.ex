@@ -72,8 +72,11 @@ defmodule GameServerWeb.Api.V1.SessionController do
       # If device_id provided and not already attached, attempt to attach it
       case conn.body_params do
         %{"device_id" => device_id} when is_binary(device_id) and is_nil(user.device_id) ->
-          # best-effort attach (ignore attach errors so standard login still succeeds)
-          _ = Accounts.attach_device_to_user(user, device_id)
+          # Attach only if device-based auth/attachment is enabled by config
+          if Accounts.device_auth_enabled?() do
+            # best-effort attach (ignore attach errors so standard login still succeeds)
+            _ = Accounts.attach_device_to_user(user, device_id)
+          end
 
         _ ->
           :ok
@@ -129,7 +132,8 @@ defmodule GameServerWeb.Api.V1.SessionController do
   # Device-specific login endpoint. This route accepts only a device_id
   # and returns JWT tokens for the device's user.
   def create_device(conn, %{"device_id" => device_id}) when is_binary(device_id) do
-    case Accounts.find_or_create_from_device(device_id) do
+    if Accounts.device_auth_enabled?() do
+      case Accounts.find_or_create_from_device(device_id) do
       {:ok, user} ->
         {:ok, access_token, _} = Guardian.encode_and_sign(user, %{}, token_type: "access")
 
@@ -143,10 +147,15 @@ defmodule GameServerWeb.Api.V1.SessionController do
       {:error, changeset} ->
         conn
         |> put_status(:bad_request)
-        |> json(%{
-          error: "unable to create device user",
-          details: Ecto.Changeset.traverse_errors(changeset, fn {msg, _} -> msg end)
-        })
+          |> json(%{
+            error: "unable to create device user",
+            details: Ecto.Changeset.traverse_errors(changeset, fn {msg, _} -> msg end)
+          })
+        end
+    else
+      conn
+      |> put_status(:forbidden)
+      |> json(%{error: "device-based authentication is disabled"})
     end
   end
 

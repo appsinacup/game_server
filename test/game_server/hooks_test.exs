@@ -29,6 +29,21 @@ defmodule GameServer.HooksTest do
       meta = Map.put(user.metadata || %{}, "hooked", true)
       GameServer.Repo.update!(Ecto.Changeset.change(user, metadata: meta))
     end
+
+    # Lobby hooks - no-op implementations for test
+    def before_lobby_create(attrs), do: {:ok, attrs}
+    def after_lobby_create(_lobby), do: :ok
+    def before_lobby_join(user, lobby, opts), do: {:ok, {user, lobby, opts}}
+    def after_lobby_join(_user, _lobby), do: :ok
+    def before_lobby_leave(user, lobby), do: {:ok, {user, lobby}}
+    def after_lobby_leave(_user, _lobby), do: :ok
+    def before_lobby_update(_lobby, attrs), do: {:ok, attrs}
+    def after_lobby_update(_lobby), do: :ok
+    def before_lobby_delete(lobby), do: {:ok, lobby}
+    def after_lobby_delete(_lobby), do: :ok
+    def before_user_kicked(host, target, lobby), do: {:ok, {host, target, lobby}}
+    def after_user_kicked(_host, _target, _lobby), do: :ok
+    def after_lobby_host_change(_lobby, _new_host_id), do: :ok
   end
 
   test "after_user_register hook runs and can modify the created user" do

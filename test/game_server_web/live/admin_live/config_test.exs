@@ -35,6 +35,7 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     System.put_env("GOOGLE_CLIENT_SECRET", "goSecret987")
     System.put_env("SECRET_KEY_BASE", "myverylongsecret_key_value_here")
     System.put_env("SENTRY_DSN", "https://abcdef@o123.ingest")
+    System.put_env("SENTRY_LOG_LEVEL", "info")
     System.put_env("SMTP_USERNAME", "smtpuser")
     System.put_env("SMTP_PASSWORD", "smtppass")
     System.put_env("POSTGRES_HOST", "localhost")
@@ -50,6 +51,7 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
             "GOOGLE_CLIENT_SECRET",
             "SECRET_KEY_BASE",
             "SENTRY_DSN",
+            "SENTRY_LOG_LEVEL",
             "SMTP_USERNAME",
             "SMTP_PASSWORD",
             "POSTGRES_HOST",
@@ -100,5 +102,23 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     assert html =~ mask.("https://abcdef@o123.ingest")
     assert html =~ mask.("smtppass")
     assert html =~ mask.("pg_secret_very_long")
+
+    # ensure secret and sentry env label presence
+    assert html =~ "SECRET_KEY_BASE"
+    assert html =~ "SENTRY_DSN"
+    assert html =~ "SENTRY_LOG_LEVEL"
+
+    # ensure we've rendered env-var style labels for client config and hooks/device env names
+    assert html =~ "DISCORD_CLIENT_ID"
+    assert html =~ "GOOGLE_CLIENT_ID"
+    assert html =~ "HOOKS_FILE_PATH"
+    assert html =~ "DEVICE_AUTH_ENABLED"
+
+    # SMTP env var label should be shown
+    assert html =~ "SMTP_USERNAME"
+
+    # if no hooks watch interval set, these should not be visible
+    refute html =~ "Watch interval (app): <unset>"
+    refute html =~ "GAME_SERVER_HOOKS_WATCH_INTERVAL"
   end
 end

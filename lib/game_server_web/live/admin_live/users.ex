@@ -23,7 +23,47 @@ defmodule GameServerWeb.AdminLive.Users do
 
         <div class="card bg-base-200">
           <div class="card-body">
-            <h2 class="card-title">Users ({@users_count})</h2>
+            <div class="flex items-center justify-between gap-4">
+              <h2 class="card-title">Users ({@users_count})</h2>
+
+              <div class="flex gap-2">
+                <form phx-change="search_users" phx-submit="search_users" class="flex items-center">
+                  <input type="text" name="q" id="admin-user-search" placeholder="Search by name, email or id" value={@search_query}
+                    class="input input-sm" />
+                </form>
+                <button phx-click="clear_search" class="btn btn-sm">Clear</button>
+              </div>
+            </div>
+
+            <div class="mt-2 flex items-center gap-4">
+              <div class="text-sm">Filter by auth provider:</div>
+              <div class="flex items-center gap-3">
+                <label class="label cursor-pointer">
+                  <input type="checkbox" phx-click="toggle_provider" phx-value-provider="discord" checked={"discord" in @filters} class="checkbox" />
+                  <span class="label-text ml-2">Discord</span>
+                </label>
+                <label class="label cursor-pointer">
+                  <input type="checkbox" phx-click="toggle_provider" phx-value-provider="google" checked={"google" in @filters} class="checkbox" />
+                  <span class="label-text ml-2">Google</span>
+                </label>
+                <label class="label cursor-pointer">
+                  <input type="checkbox" phx-click="toggle_provider" phx-value-provider="apple" checked={"apple" in @filters} class="checkbox" />
+                  <span class="label-text ml-2">Apple</span>
+                </label>
+                <label class="label cursor-pointer">
+                  <input type="checkbox" phx-click="toggle_provider" phx-value-provider="facebook" checked={"facebook" in @filters} class="checkbox" />
+                  <span class="label-text ml-2">Facebook</span>
+                </label>
+                <label class="label cursor-pointer">
+                  <input type="checkbox" phx-click="toggle_provider" phx-value-provider="device" checked={"device" in @filters} class="checkbox" />
+                  <span class="label-text ml-2">Device</span>
+                </label>
+                <label class="label cursor-pointer">
+                  <input type="checkbox" phx-click="toggle_provider" phx-value-provider="email" checked={"email" in @filters} class="checkbox" />
+                  <span class="label-text ml-2">Email (password)</span>
+                </label>
+              </div>
+            </div>
             <div class="overflow-x-auto">
               <table class="table table-zebra">
                 <thead>
@@ -217,16 +257,7 @@ defmodule GameServerWeb.AdminLive.Users do
     page = 1
     page_size = 25
 
-    users =
-      Repo.all(
-        from u in User,
-          order_by: [desc: u.inserted_at],
-          offset: ^((page - 1) * page_size),
-          limit: ^page_size
-      )
-
-    total_count = Repo.aggregate(User, :count)
-    total_pages = if page_size > 0, do: div(total_count + page_size - 1, page_size), else: 0
+    {users, total_count, total_pages} = load_users(page, page_size, socket.assigns[:search_query] || "", socket.assigns[:filters] || [])
 
     {:ok,
      socket
@@ -236,7 +267,9 @@ defmodule GameServerWeb.AdminLive.Users do
      |> assign(:users_page_size, page_size)
      |> assign(:users_total_pages, total_pages)
      |> assign(:selected_user, nil)
-     |> assign(:form, nil)}
+     |> assign(:form, nil)
+     |> assign(:search_query, "")
+     |> assign(:filters, [])}
   end
 
   @impl true
@@ -249,6 +282,63 @@ defmodule GameServerWeb.AdminLive.Users do
      socket
      |> assign(:selected_user, user)
      |> assign(:form, form)}
+  end
+
+  # Search / filter handlers
+  def handle_event("search_users", %{"q" => q}, socket) do
+    page = 1
+    page_size = socket.assigns[:users_page_size] || 25
+
+    {users, total_count, total_pages} = load_users(page, page_size, q, socket.assigns[:filters])
+
+    {:noreply,
+     socket
+     |> assign(:search_query, q)
+     |> assign(:users_page, page)
+     |> assign(:recent_users, users)
+     |> assign(:users_count, total_count)
+     |> assign(:users_total_pages, total_pages)}
+  end
+
+  def handle_event("clear_search", _params, socket) do
+    page = 1
+    page_size = socket.assigns[:users_page_size] || 25
+
+    {users, total_count, total_pages} = load_users(page, page_size, "", [])
+
+    {:noreply,
+     socket
+     |> assign(:search_query, "")
+     |> assign(:filters, [])
+     |> assign(:users_page, page)
+     |> assign(:recent_users, users)
+     |> assign(:users_count, total_count)
+     |> assign(:users_total_pages, total_pages)}
+  end
+
+  def handle_event("toggle_provider", %{"provider" => provider}, socket) do
+    filters = socket.assigns[:filters] || []
+
+    filters =
+      if provider in filters do
+        List.delete(filters, provider)
+      else
+        [provider | filters]
+      end
+
+    page = 1
+    page_size = socket.assigns[:users_page_size] || 25
+    q = socket.assigns[:search_query] || ""
+
+    {users, total_count, total_pages} = load_users(page, page_size, q, filters)
+
+    {:noreply,
+     socket
+     |> assign(:filters, filters)
+     |> assign(:users_page, page)
+     |> assign(:recent_users, users)
+     |> assign(:users_count, total_count)
+     |> assign(:users_total_pages, total_pages)}
   end
 
   def handle_event("cancel_edit", _, socket) do
@@ -277,20 +367,12 @@ defmodule GameServerWeb.AdminLive.Users do
 
     case Accounts.update_user_admin(user, attrs) do
       {:ok, _user} ->
-        # re-fetch current page of users
+        # re-fetch current page of users, keeping search and filters
         page = socket.assigns[:users_page] || 1
         page_size = socket.assigns[:users_page_size] || 25
 
-        users =
-          Repo.all(
-            from u in User,
-              order_by: [desc: u.inserted_at],
-              offset: ^((page - 1) * page_size),
-              limit: ^page_size
-          )
-
-        total_count = Repo.aggregate(User, :count)
-        total_pages = if page_size > 0, do: div(total_count + page_size - 1, page_size), else: 0
+        {users, total_count, total_pages} =
+          load_users(page, page_size, socket.assigns[:search_query] || "", socket.assigns[:filters] || [])
 
         {:noreply,
          socket
@@ -314,19 +396,11 @@ defmodule GameServerWeb.AdminLive.Users do
         page = socket.assigns[:users_page] || 1
         page_size = socket.assigns[:users_page_size] || 25
 
-        total_count = Repo.aggregate(User, :count)
-        total_pages = if page_size > 0, do: div(total_count + page_size - 1, page_size), else: 0
+        {users, total_count, total_pages} =
+          load_users(page, page_size, socket.assigns[:search_query] || "", socket.assigns[:filters] || [])
 
         # ensure current page is within range (if we deleted the last item on last page)
         page = max(1, min(page, total_pages || 1))
-
-        users =
-          Repo.all(
-            from u in User,
-              order_by: [desc: u.inserted_at],
-              offset: ^((page - 1) * page_size),
-              limit: ^page_size
-          )
 
         {:noreply,
          socket
@@ -346,16 +420,7 @@ defmodule GameServerWeb.AdminLive.Users do
     page = max(1, (socket.assigns[:users_page] || 1) - 1)
     page_size = socket.assigns[:users_page_size] || 25
 
-    users =
-      Repo.all(
-        from u in User,
-          order_by: [desc: u.inserted_at],
-          offset: ^((page - 1) * page_size),
-          limit: ^page_size
-      )
-
-    total_count = Repo.aggregate(User, :count)
-    total_pages = if page_size > 0, do: div(total_count + page_size - 1, page_size), else: 0
+    {users, total_count, total_pages} = load_users(page, page_size, socket.assigns[:search_query] || "", socket.assigns[:filters] || [])
 
     {:noreply,
      socket
@@ -369,16 +434,7 @@ defmodule GameServerWeb.AdminLive.Users do
     page = (socket.assigns[:users_page] || 1) + 1
     page_size = socket.assigns[:users_page_size] || 25
 
-    users =
-      Repo.all(
-        from u in User,
-          order_by: [desc: u.inserted_at],
-          offset: ^((page - 1) * page_size),
-          limit: ^page_size
-      )
-
-    total_count = Repo.aggregate(User, :count)
-    total_pages = if page_size > 0, do: div(total_count + page_size - 1, page_size), else: 0
+    {users, total_count, total_pages} = load_users(page, page_size, socket.assigns[:search_query] || "", socket.assigns[:filters] || [])
 
     {:noreply,
      socket
@@ -387,4 +443,78 @@ defmodule GameServerWeb.AdminLive.Users do
      |> assign(:users_count, total_count)
      |> assign(:users_total_pages, total_pages)}
   end
+
+  # Helper to load users with search + provider filters
+  defp load_users(page, page_size, search, filters) do
+    base = from(u in User)
+
+    search_term = String.trim(search || "")
+
+    base =
+      cond do
+        search_term == "" ->
+          base
+
+        Regex.match?(~r/^\d+$/, search_term) ->
+          # numeric id - short-circuit and return the single match.
+          id = String.to_integer(search_term)
+
+          case Repo.get(User, id) do
+            nil ->
+              # fall back to text search if no exact id match
+              q = "%#{search_term}%"
+
+              from u in base,
+                where:
+                  fragment("LOWER(?) LIKE LOWER(?)", u.email, ^q) or
+                    fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^q)
+
+            %User{} = user ->
+              # special marker: we return a query that matches only this ID
+              from u in base, where: u.id == ^user.id
+          end
+
+        true ->
+          q = "%#{search_term}%"
+
+          from u in base,
+            where:
+              fragment("LOWER(?) LIKE LOWER(?)", u.email, ^q) or
+                fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^q)
+      end
+
+    # build provider filter conditions (OR)
+    conds =
+      filters
+      |> Enum.map(fn
+        "discord" -> dynamic([u], not is_nil(u.discord_id) and u.discord_id != "")
+        "google" -> dynamic([u], not is_nil(u.google_id) and u.google_id != "")
+        "apple" -> dynamic([u], not is_nil(u.apple_id) and u.apple_id != "")
+        "facebook" -> dynamic([u], not is_nil(u.facebook_id) and u.facebook_id != "")
+        "device" -> dynamic([u], not is_nil(u.device_id) and u.device_id != "")
+        "email" -> dynamic([u], not is_nil(u.hashed_password) and u.hashed_password != "")
+      end)
+
+    base =
+      if conds == [] do
+        base
+      else
+        combined = Enum.reduce(conds, fn c, acc -> dynamic([u], ^acc or ^c) end)
+        from u in base, where: ^combined
+      end
+
+    total_count = Repo.one(from u in base, select: count(u.id)) || 0
+    total_pages = if page_size > 0, do: div(total_count + page_size - 1, page_size), else: 0
+
+    users =
+      Repo.all(
+        from u in base,
+          order_by: [desc: u.inserted_at],
+          offset: ^((page - 1) * page_size),
+          limit: ^page_size
+      )
+
+    {users, total_count, total_pages}
+  end
+
 end

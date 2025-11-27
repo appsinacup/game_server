@@ -1,0 +1,184 @@
+defmodule GameServer.Hooks.Watcher do
+  @moduledoc """
+  Small file-watcher that will automatically register a hooks implementation
+  from a source file specified in config: :game_server, :hooks_file_path
+
+  It polls the file's mtime every few seconds and will recompile & register
+  the module when the file changes. This provides a simple and robust way
+  for developers to point the app at a local hook implementation and have
+  it hot-reload when edited.
+  """
+
+  use GenServer
+  require Logger
+
+  # Use seconds for configuration values (makes runtime config more readable).
+  # Default to 2 seconds between checks for env/config availability and for
+  # debounce behaviour when falling back to env polling.
+  @default_interval_sec 2
+
+  def start_link(_opts) do
+    GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
+  end
+
+  @impl true
+  def init(_) do
+    app_path = Application.get_env(:game_server, :hooks_file_path)
+    env_path = System.get_env("HOOKS_FILE_PATH")
+    path = app_path || env_path
+
+    interval_sec = Application.get_env(:game_server, :hooks_file_watch_interval, @default_interval_sec)
+
+    # Normalize to milliseconds for Process.send_after
+    interval_ms =
+      cond do
+        is_integer(interval_sec) and interval_sec > 0 -> interval_sec * 1_000
+        is_float(interval_sec) and interval_sec > 0.0 -> trunc(interval_sec * 1_000)
+        true -> @default_interval_sec * 1_000
+      end
+
+    Logger.info("Hooks watcher starting with path=#{inspect(path)} interval_ms=#{interval_ms}")
+
+    state = %{path: path, interval_ms: interval_ms, fs_pid: nil, mtime: nil}
+
+    state =
+      case path do
+        p when is_binary(p) ->
+          if File.exists?(p) do
+            # try to start the filesystem watcher (best-effort); regardless
+            # of success we want to trigger an initial compile so the file
+            # gets registered even if FileSystem failed to start.
+            case start_fs(p) do
+              {:ok, pid} ->
+                Process.send_after(self(), :trigger_compile, 0)
+                %{state | fs_pid: pid}
+
+              {:error, reason} ->
+                Logger.warning("Hooks watcher: failed to start file watcher #{inspect(reason)} - will still attempt initial compile")
+                # Still attempt initial compile now that file exists
+                Process.send_after(self(), :trigger_compile, 0)
+                state
+            end
+          else
+            Process.send_after(self(), :env_check, 0)
+            state
+          end
+
+        _ ->
+          # No file yet - schedule an env/config check loop to pick it up
+          Process.send_after(self(), :env_check, 0)
+          state
+      end
+
+    {:ok, state}
+  end
+
+  @impl true
+  def handle_info(:env_check, state) do
+    # No path configured — check app config and environment again so this
+    # process can pick up a path that was exported after startup (convenient
+    # for quick dev workflows).
+    app_path = Application.get_env(:game_server, :hooks_file_path)
+    env_path = System.get_env("HOOKS_FILE_PATH")
+
+    new_path = app_path || env_path
+
+    if is_binary(new_path) and File.exists?(new_path) do
+      Logger.info("Hooks watcher discovered hooks file path: #{inspect(new_path)}")
+      case start_fs(new_path) do
+        {:ok, pid} ->
+          # ensure we also compile the file after discovery
+          Process.send_after(self(), :trigger_compile, 0)
+          {:noreply, %{state | path: new_path, fs_pid: pid}}
+
+        {:error, reason} ->
+          Logger.warning("Hooks watcher: failed to start file watcher for #{inspect(new_path)}: #{inspect(reason)} - attempting compile anyway")
+          # attempt an immediate compile even if we couldn't start fs watcher
+          Process.send_after(self(), :trigger_compile, 0)
+          {:noreply, %{state | path: new_path}}
+      end
+    else
+      # Still missing — reschedule and continue waiting
+      Logger.debug("Hooks watcher: no hooks_file_path configured yet; will keep polling")
+      Process.send_after(self(), :env_check, state.interval_ms)
+      {:noreply, state}
+    end
+  end
+
+  @impl true
+  @doc false
+  # file_system sends {:file_event, pid, {path, events}} messages. We simply
+  # trigger a compile when the file changes. Editors can emit multiple events
+  # for a single save, so we debounce using a small scheduled message.
+  def handle_info({:file_event, _watcher_pid, {file_path, events}}, %{path: path} = state) do
+    file_path = to_string(file_path)
+    events = List.wrap(events)
+
+    # If the event refers to the exact file (or to the watched directory),
+    # and includes modification-like events, schedule a compile.
+    interested = String.ends_with?(file_path, Path.basename(path)) or file_path == path
+
+    if interested and Enum.any?(events, fn e -> e in [:modified, :closed_write, :moved_to, :created] end) do
+      # trigger compilation asynchronously so we quickly return from this
+      # message handler
+      send(self(), :trigger_compile)
+    end
+
+    {:noreply, state}
+  end
+
+  def handle_info({:file_event, _watcher_pid, :stop}, state) do
+    Logger.info("Hooks watcher: file_system watcher stopped")
+    {:noreply, %{state | fs_pid: nil}}
+  end
+
+  def handle_info(:trigger_compile, %{path: path} = state) when is_binary(path) do
+    try do
+      case File.stat(path) do
+        {:ok, %File.Stat{mtime: mtime}} ->
+          if state.mtime != mtime do
+            Logger.info("Hooks watcher: detected change or first load for #{path}. Loading...")
+
+            case GameServer.Hooks.register_file(path) do
+              {:ok, mod} ->
+                Logger.info("Hooks watcher: registered #{inspect(mod)} from #{path}")
+                {:noreply, %{state | mtime: mtime}}
+
+              {:error, reason} ->
+                Logger.error("Hooks watcher: failed to register hooks from #{path}: #{inspect(reason)}")
+                {:noreply, %{state | mtime: mtime}}
+            end
+          else
+            {:noreply, state}
+          end
+
+        {:error, _} ->
+          # File missing or inaccessible — log and keep trying
+          Logger.debug("Hooks watcher: file not found or inaccessible: #{path}")
+          {:noreply, state}
+      end
+    rescue
+      e ->
+        Logger.error("Hooks watcher: unexpected error while handling file event for #{path}: #{inspect(e)}")
+        {:noreply, state}
+    end
+  end
+
+  def handle_info(_msg, state) do
+    # ignore other messages
+    {:noreply, state}
+  end
+
+  defp start_fs(path) do
+    dir = Path.dirname(path)
+
+    case FileSystem.start_link(dirs: [dir], name: __MODULE__) do
+        {:ok, pid} ->
+          FileSystem.subscribe(pid)
+          {:ok, pid}
+
+      {:error, _} = err ->
+        err
+    end
+  end
+end

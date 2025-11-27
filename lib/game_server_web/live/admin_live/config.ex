@@ -10,13 +10,14 @@ defmodule GameServerWeb.AdminLive.Config do
           ← Back to Admin
         </.link>
 
+
         <.header>
           Configuration
           <:subtitle>System configuration settings and setup guides</:subtitle>
         </.header>
-        
+
     <!-- Current Configuration Status -->
-        <div class="card bg-base-100 shadow-xl collapsed" data-card-key="config_status">
+        <div class="card bg-base-100 shadow-xl" data-card-key="config_status">
           <div class="card-body">
             <h2 class="card-title text-xl mb-4 flex items-center gap-3">
               Current Configuration Status
@@ -49,6 +50,51 @@ defmodule GameServerWeb.AdminLive.Config do
                 </thead>
                 <tbody>
                   <tr>
+                    <td class="font-semibold">Runtime Hooks</td>
+                    <td>
+                      <%= if @config.hooks_file_path_env do %>
+                        <span class="badge badge-success">Configured</span>
+                      <% else %>
+                        <span class="badge badge-error">Not Configured</span>
+                      <% end %>
+                    </td>
+                    <td class="font-mono text-sm">
+                      HOOKS_FILE_PATH: {@config.hooks_file_path_env || "<unset>"}<br />
+                      <%= if @config.hooks_watch_interval_app || @config.hooks_watch_interval_env do %>
+                        Watch interval (app): {@config.hooks_watch_interval_app || "<unset>"} s<br />
+                        GAME_SERVER_HOOKS_WATCH_INTERVAL: {@config.hooks_watch_interval_env || "<unset>"} s<br />
+                      <% end %>
+                      Registered module: <span class="font-mono">{inspect(@config.hooks_registered_module)}</span><br />
+                      Last compiled: {@config.hooks_last_compiled_at || "<unset>"}<br />
+                      Last compile status:
+                      <%= case @config.hooks_last_compile_status do %>
+                        <% {:ok, _mod} -> %>
+                          <span class="badge badge-success">OK</span>
+                        <% {:ok_with_warnings, _mod, warnings} -> %>
+                          <span class="badge badge-warning">Warnings</span>
+                          <div class="mt-1 text-xs font-mono whitespace-pre-wrap">{String.slice(warnings, 0, 512)}{if String.length(warnings) > 512, do: "…"}</div>
+                        <% {:error, reason} -> %>
+                          <span class="badge badge-error">Error</span>
+                          <div class="mt-1 text-xs font-mono whitespace-pre-wrap">{inspect(reason)}</div>
+                        <% _ -> %>
+                          &lt;unset&gt;
+                      <% end %>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="font-semibold">Device auth</td>
+                    <td>
+                      <%= if @config.device_auth_enabled_app || @config.device_auth_enabled_env do %>
+                        <span class="badge badge-success">Enabled</span>
+                      <% else %>
+                        <span class="badge badge-error">Disabled</span>
+                      <% end %>
+                    </td>
+                    <td class="font-mono text-sm">
+                      DEVICE_AUTH_ENABLED: {@config.device_auth_enabled_env || "<unset>"}
+                    </td>
+                  </tr>
+                  <tr>
                     <td class="font-semibold">Discord OAuth</td>
                     <td>
                       <%= if @config.discord_client_id && @config.discord_client_secret do %>
@@ -59,9 +105,9 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                     <td class="font-mono text-sm">
                       <%= if @config.discord_client_id do %>
-                        Client ID: {mask_secret(@config.discord_client_id)}<br />
-                        Client Secret: {mask_secret(@config.discord_client_secret)}
-                      <% else %>
+                        DISCORD_CLIENT_ID: {mask_secret(@config.discord_client_id)}<br />
+                        DISCORD_CLIENT_SECRET: {mask_secret(@config.discord_client_secret)}
+                        <% else %>
                         <span class="text-error">Client ID missing</span>
                       <% end %>
                     </td>
@@ -77,11 +123,11 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                     <td class="font-mono text-sm">
                       <%= if @config.apple_client_id do %>
-                        Client ID: {mask_secret(@config.apple_client_id)}<br />
-                        Team ID: {mask_secret(@config.apple_team_id || "")}<br />
-                        Key ID: {mask_secret(@config.apple_key_id || "")}<br />
-                        Private Key: {mask_secret(@config.apple_private_key)}
-                      <% else %>
+                        APPLE_CLIENT_ID: {mask_secret(@config.apple_client_id)}<br />
+                        APPLE_TEAM_ID: {mask_secret(@config.apple_team_id || "")}<br />
+                        APPLE_KEY_ID: {mask_secret(@config.apple_key_id || "")}<br />
+                        APPLE_PRIVATE_KEY: {mask_secret(@config.apple_private_key)}
+                        <% else %>
                         <span class="text-error">Not configured</span>
                       <% end %>
                     </td>
@@ -97,9 +143,9 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                     <td class="font-mono text-sm">
                       <%= if @config.google_client_id do %>
-                        Client ID: {mask_secret(@config.google_client_id)}<br />
-                        Client Secret: {mask_secret(@config.google_client_secret)}
-                      <% else %>
+                        GOOGLE_CLIENT_ID: {mask_secret(@config.google_client_id)}<br />
+                        GOOGLE_CLIENT_SECRET: {mask_secret(@config.google_client_secret)}
+                        <% else %>
                         <span class="text-error">Client ID missing</span>
                       <% end %>
                     </td>
@@ -115,9 +161,9 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                     <td class="font-mono text-sm">
                       <%= if @config.facebook_client_id do %>
-                        Client ID: {mask_secret(@config.facebook_client_id)}<br />
-                        Client Secret: {mask_secret(@config.facebook_client_secret)}
-                      <% else %>
+                        FACEBOOK_CLIENT_ID: {mask_secret(@config.facebook_client_id)}<br />
+                        FACEBOOK_CLIENT_SECRET: {mask_secret(@config.facebook_client_secret)}
+                        <% else %>
                         <span class="text-error">Client ID missing</span>
                       <% end %>
                     </td>
@@ -132,10 +178,10 @@ defmodule GameServerWeb.AdminLive.Config do
                       <% end %>
                     </td>
                     <td class="text-sm">
-                      <div class="font-mono text-xs mt-1">
-                        Username: {mask_secret(@config.smtp_username)}<br />
-                        Password: {mask_secret(@config.smtp_password)}<br />
-                        Relay: {@config.smtp_relay || "Not set"}
+                      <div class="font-mono text-sm">
+                          SMTP_USERNAME: {mask_secret(@config.smtp_username)}<br />
+                          SMTP_PASSWORD: {mask_secret(@config.smtp_password)}<br />
+                          SMTP_RELAY: {@config.smtp_relay || "<unset>"}
                       </div>
                       <%= if @config.email_configured do %>
                         SMTP configured - emails are sent via {@config.smtp_relay ||
@@ -174,12 +220,7 @@ defmodule GameServerWeb.AdminLive.Config do
                       </span>
                     </td>
                     <td class="text-sm">
-                      Current logging level: <span class="font-mono">{@config.log_level}</span>
-                      <%= if @config.log_level_env do %>
-                        <span class="text-success">(set via LOG_LEVEL env var)</span>
-                      <% else %>
-                        <span class="text-info">(using default)</span>
-                      <% end %>
+                      LOG_LEVEL: <span class="font-mono">{@config.log_level}</span>
                     </td>
                   </tr>
                   <tr>
@@ -193,15 +234,7 @@ defmodule GameServerWeb.AdminLive.Config do
                       <% end %>
                     </td>
                     <td class="font-mono text-sm">
-                      Adapter: {@config.database_adapter}
-                      <div class="mt-1 text-xs">
-                        Source: <span class="font-mono">{to_string(@config.db_source)}</span>
-                      </div>
-                      <div class="mt-1 text-xs">
-                        Effective:
-                        <span class="font-mono">{mask_secret(@config.db_effective_value)}</span>
-                      </div>
-                      <div class="mt-2 text-xs">
+                      <div class="mt-2 text-sm">
                         <div>
                           DATABASE_URL:
                           <span class="font-mono">
@@ -245,7 +278,7 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                     <td class="font-mono text-sm">
                       <%= if @config.secret_key_base do %>
-                        {mask_secret(@config.secret_key_base)}
+                        SECRET_KEY_BASE: {mask_secret(@config.secret_key_base)}
                       <% else %>
                         Not configured
                       <% end %>
@@ -262,9 +295,8 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                     <td class="text-sm">
                       <%= if @config.sentry_dsn do %>
-                        Error monitoring enabled - production errors will be tracked<br />
-                        <span class="font-mono text-xs">
-                          Log level:
+                        <span class="font-mono text-sm">
+                          SENTRY_LOG_LEVEL:
                           <span class={[
                             "font-semibold",
                             case @config.sentry_log_level do
@@ -275,13 +307,8 @@ defmodule GameServerWeb.AdminLive.Config do
                           ]}>
                             {@config.sentry_log_level || "error"}
                           </span>
-                          <%= if @config.sentry_log_level do %>
-                            (via SENTRY_LOG_LEVEL)
-                          <% else %>
-                            (default)
-                          <% end %>
                           <div class="mt-1">
-                            DSN: <span class="font-mono">{mask_secret(@config.sentry_dsn)}</span>
+                            SENTRY_DSN: <span class="font-mono">{mask_secret(@config.sentry_dsn)}</span>
                           </div>
                         </span>
                       <% else %>
@@ -294,9 +321,9 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Admin Tools -->
-        <div class="card bg-base-100 shadow-xl collapsed" data-card-key="admin_tools">
+        <div class="card bg-base-100 shadow-xl" data-card-key="admin_tools">
           <div class="card-body">
             <h2 class="card-title text-xl mb-4 flex items-center gap-3">
               Admin Tools
@@ -404,7 +431,17 @@ defmodule GameServerWeb.AdminLive.Config do
           Application.get_env(:game_server, GameServerWeb.Endpoint)[:secret_key_base],
       live_reload: Application.get_env(:game_server, GameServerWeb.Endpoint)[:live_reload] != nil,
       log_level: Logger.level(),
-      log_level_env: System.get_env("LOG_LEVEL")
+      log_level_env: System.get_env("LOG_LEVEL"),
+      # Hooks runtime config diagnostics
+      hooks_file_path_app: Application.get_env(:game_server, :hooks_file_path),
+      hooks_file_path_env: System.get_env("HOOKS_FILE_PATH"),
+      hooks_watch_interval_app: Application.get_env(:game_server, :hooks_file_watch_interval),
+      hooks_watch_interval_env: System.get_env("GAME_SERVER_HOOKS_WATCH_INTERVAL"),
+      hooks_registered_module: GameServer.Hooks.module(),
+      hooks_last_compiled_at: Application.get_env(:game_server, :hooks_last_compiled_at),
+      hooks_last_compile_status: Application.get_env(:game_server, :hooks_last_compile_status),
+      device_auth_enabled_app: Application.get_env(:game_server, :device_auth_enabled),
+      device_auth_enabled_env: System.get_env("DEVICE_AUTH_ENABLED")
     }
 
     {:ok, assign(socket, :config, config)}

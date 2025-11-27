@@ -1,7 +1,8 @@
 defmodule GameServerWeb.AdminLive.UsersTest do
-  use GameServerWeb.ConnCase, async: true
+  use GameServerWeb.ConnCase, async: false
 
   import Phoenix.LiveViewTest
+  import Ecto.Query
 
   test "admin users pagination displays totals and disables Next on last page", %{conn: conn} do
     user = GameServer.AccountsFixtures.user_fixture()
@@ -15,6 +16,9 @@ defmodule GameServerWeb.AdminLive.UsersTest do
     for i <- 1..30 do
       GameServer.AccountsFixtures.user_fixture(%{email: "pagi-user-#{i}@example.com"})
     end
+
+    # sanity-check: DB has users we created (pagination test)
+    assert GameServer.Repo.aggregate(GameServer.Accounts.User, :count, :id) >= 4
 
     {:ok, view, html} = conn |> log_in_user(admin) |> live(~p"/admin/users")
 
@@ -34,5 +38,69 @@ defmodule GameServerWeb.AdminLive.UsersTest do
 
     # on last page Next should be disabled
     assert html2 =~ ~r/<button[^>]*phx-click="admin_users_next"[^>]*disabled/
+  end
+
+  test "filter by provider checkboxes works and updates counts", %{conn: conn} do
+    # admin user
+    user = GameServer.AccountsFixtures.user_fixture()
+
+    {:ok, admin} =
+      user
+      |> GameServer.Accounts.User.admin_changeset(%{"is_admin" => true})
+      |> GameServer.Repo.update()
+
+    # create users with provider fields using provider helpers
+    {:ok, _d1} = GameServer.Accounts.find_or_create_from_discord(%{discord_id: "d1", email: "discord1@example.com"})
+    {:ok, _d2} = GameServer.Accounts.find_or_create_from_discord(%{discord_id: "d2", email: "discord2@example.com"})
+    {:ok, _g1} = GameServer.Accounts.find_or_create_from_google(%{google_id: "g1", email: "google1@example.com"})
+    _plain = GameServer.AccountsFixtures.user_fixture(%{email: "plain@example.com"})
+    # create a user with a password so they show up in the email/password filter
+    _password_user = GameServer.AccountsFixtures.user_fixture(%{email: "pw@example.com"}) |> GameServer.AccountsFixtures.set_password()
+
+    {:ok, view, html} = conn |> log_in_user(admin) |> live(~p"/admin/users")
+
+    # verify all users present initially
+    assert html =~ "discord1@example.com"
+    assert html =~ "discord2@example.com"
+    assert html =~ "google1@example.com"
+    assert html =~ "plain@example.com"
+
+    # confirm DB-level provider counts match expectations
+    discord_count =
+      GameServer.Repo.one(from(u in GameServer.Accounts.User, where: not is_nil(u.discord_id) and u.discord_id != "", select: count(u.id)))
+
+    assert discord_count >= 2
+
+    # toggle discord filter on
+    view |> element("input[phx-click=\"toggle_provider\"][phx-value-provider=\"discord\"]") |> render_click(%{"provider" => "discord"})
+    html2 = render(view)
+
+    # only discord users should remain
+    assert html2 =~ "discord1@example.com"
+    assert html2 =~ "discord2@example.com"
+    refute html2 =~ "google1@example.com"
+    refute html2 =~ "plain@example.com"
+
+    # heading count should reflect 2 users (may include other system users depending on fixtures)
+    assert html2 =~ "(2)" or html2 =~ "(3)"
+
+    # toggle discord off and google on
+    view |> element("input[phx-click=\"toggle_provider\"][phx-value-provider=\"discord\"]") |> render_click(%{"provider" => "discord"})
+    view |> element("input[phx-click=\"toggle_provider\"][phx-value-provider=\"google\"]") |> render_click(%{"provider" => "google"})
+    html3 = render(view)
+
+    assert html3 =~ "google1@example.com"
+    refute html3 =~ "discord1@example.com"
+    refute html3 =~ "discord2@example.com"
+
+    # now test email/password filter
+    view |> element("input[phx-click=\"toggle_provider\"][phx-value-provider=\"google\"]") |> render_click(%{"provider" => "google"})
+    # toggle on email filter
+    view |> element("input[phx-click=\"toggle_provider\"][phx-value-provider=\"email\"]") |> render_click(%{"provider" => "email"})
+    html4 = render(view)
+
+    assert html4 =~ "pw@example.com"
+    refute html4 =~ "discord1@example.com"
+    refute html4 =~ "google1@example.com"
   end
 end

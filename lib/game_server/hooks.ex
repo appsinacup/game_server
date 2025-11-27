@@ -51,6 +51,85 @@ defmodule GameServer.Hooks do
       mod -> mod
     end
   end
+
+  @doc """
+  Register a module from a source file at runtime. We capture any
+  compiler output (warnings or compile-time prints) and record a
+  timestamp and status (ok, ok_with_warnings, error) in application
+  environment so the admin UI can display diagnostics.
+  """
+  def register_file(path) when is_binary(path) do
+    require Logger
+
+    Logger.info("Hooks.register_file: attempting to compile #{path}")
+
+    if File.exists?(path) do
+      {:ok, io} = StringIO.open("")
+      old_gl = Process.group_leader()
+      Process.group_leader(self(), io)
+
+      compile_result =
+        try do
+          Code.compile_file(path)
+        rescue
+          e -> {:compile_exception, Exception.format(:error, e, __STACKTRACE__)}
+        after
+          # restore group leader
+          Process.group_leader(self(), old_gl)
+        end
+
+      {_, output} = StringIO.contents(io)
+
+      case compile_result do
+        {:compile_exception, reason} ->
+          now = DateTime.utc_now() |> DateTime.to_iso8601()
+          Application.put_env(:game_server, :hooks_last_compiled_at, now)
+          Application.put_env(:game_server, :hooks_last_compile_status, {:error, reason})
+          Logger.error("Hooks.register_file: compile exception for #{inspect(path)}: #{inspect(reason)}")
+          {:error, {:compile_error, reason}}
+
+        modules when is_list(modules) ->
+          case modules do
+            [{mod, _bin} | _] ->
+              warnings = if String.contains?(output, "warning:"), do: String.trim(output), else: nil
+              now = DateTime.utc_now() |> DateTime.to_iso8601()
+
+              case Code.ensure_compiled(mod) do
+                {:module, _} ->
+                  if function_exported?(mod, :after_user_register, 1) do
+                    Application.put_env(:game_server, :hooks_module, mod)
+                    status = if warnings, do: {:ok_with_warnings, mod, warnings}, else: {:ok, mod}
+                    Application.put_env(:game_server, :hooks_last_compiled_at, now)
+                    Application.put_env(:game_server, :hooks_last_compile_status, status)
+                    Logger.info("Hooks.register_file: registered hooks module #{inspect(mod)} at #{now}")
+                    {:ok, mod}
+                  else
+                    Application.put_env(:game_server, :hooks_last_compiled_at, now)
+                    Application.put_env(:game_server, :hooks_last_compile_status, {:error, :invalid_hooks_impl})
+                    Logger.error("Hooks.register_file: compiled module #{inspect(mod)} does not implement expected callback (registered_at=#{now})")
+                    {:error, :invalid_hooks_impl}
+                  end
+
+                {:error, _} = err ->
+                  err
+              end
+
+            [] ->
+              now = DateTime.utc_now() |> DateTime.to_iso8601()
+              Application.put_env(:game_server, :hooks_last_compiled_at, now)
+              Application.put_env(:game_server, :hooks_last_compile_status, {:error, :no_module_in_file})
+              Logger.error("Hooks.register_file: no module defined in #{path} (time=#{now})")
+              {:error, :no_module_in_file}
+          end
+      end
+    else
+      now = DateTime.utc_now() |> DateTime.to_iso8601()
+      Application.put_env(:game_server, :hooks_last_compiled_at, now)
+      Application.put_env(:game_server, :hooks_last_compile_status, {:error, :enoent})
+      Logger.error("Hooks.register_file: file not found: #{path} (time=#{now})")
+      {:error, :enoent}
+    end
+  end
 end
 
 defmodule GameServer.Hooks.Default do
@@ -103,96 +182,4 @@ defmodule GameServer.Hooks.Default do
   def after_lobby_host_change(_lobby, _new_host_id), do: :ok
 end
 
-defmodule GameServer.Hooks.LuaInvoker do
-  @moduledoc """
-  Small helper that can invoke an external Lua script to run hook logic.
-
-  This module is a convenience shim and expects a configured script path
-  set via `:game_server, :hooks_lua_script` config. The script will be called
-  with the hook name and JSON payload on STDIN and should emit JSON on STDOUT.
-
-  This is intentionally minimal - you can replace it with a more robust
-  bridge (erlport, escript, NIF, etc.) in production.
-  """
-
-  @behaviour GameServer.Hooks
-
-  defp run_lua(hook, payload) do
-    script = Application.get_env(:game_server, :hooks_lua_script)
-
-    if is_binary(script) and File.exists?(script) do
-      json = Jason.encode!(payload)
-
-      case System.cmd("lua", [script, Atom.to_string(hook)], input: json, stderr_to_stdout: true) do
-        {out, 0} ->
-          case Jason.decode(out) do
-            {:ok, %{"result" => "ok", "data" => data}} -> {:ok, data}
-            {:ok, %{"result" => "error", "reason" => r}} -> {:error, r}
-            _ -> {:error, :invalid_lua_response}
-          end
-
-        {out, _} ->
-          {:error, {:lua_failed, out}}
-      end
-    else
-      {:ok, payload}
-    end
-  end
-
-  @impl true
-  def after_user_register(user), do: run_lua(:after_user_register, Map.from_struct(user))
-
-  @impl true
-  def after_user_login(user), do: run_lua(:after_user_login, Map.from_struct(user))
-
-  # Lobbies
-  @impl true
-  def before_lobby_create(attrs), do: run_lua(:before_lobby_create, attrs)
-
-  @impl true
-  def after_lobby_create(_lobby), do: :ok
-
-  @impl true
-  def before_lobby_join(user, lobby, opts),
-    do: run_lua(:before_lobby_join, %{user: Map.from_struct(user), lobby: lobby, opts: opts})
-
-  @impl true
-  def after_lobby_join(_user, _lobby), do: :ok
-
-  @impl true
-  def before_lobby_leave(user, lobby),
-    do: run_lua(:before_lobby_leave, %{user: Map.from_struct(user), lobby: lobby})
-
-  @impl true
-  def after_lobby_leave(_user, _lobby), do: :ok
-
-  @impl true
-  def before_lobby_update(lobby, attrs),
-    do: run_lua(:before_lobby_update, %{lobby: lobby, attrs: attrs})
-
-  @impl true
-  def after_lobby_update(_lobby), do: :ok
-
-  @impl true
-  def before_lobby_delete(lobby), do: run_lua(:before_lobby_delete, lobby)
-
-  @impl true
-  def after_lobby_delete(_lobby), do: :ok
-
-  @impl true
-  def before_user_kicked(host, target, lobby),
-    do:
-      run_lua(:before_user_kicked, %{
-        host: Map.from_struct(host),
-        target: Map.from_struct(target),
-        lobby: lobby
-      })
-
-  @impl true
-  def after_user_kicked(_host, _target, _lobby), do: :ok
-
-  @impl true
-  def after_lobby_host_change(_lobby, _new_host_id), do: :ok
-
   # friends hooks removed
-end

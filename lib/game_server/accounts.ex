@@ -268,6 +268,7 @@ defmodule GameServer.Accounts do
   create an anonymous confirmed user and attach the device_id.
   """
   def find_or_create_from_device(device_id, attrs \\ %{}) when is_binary(device_id) do
+      unless device_auth_enabled?(), do: {:error, :disabled}
     case Repo.get_by(User, device_id: device_id) do
       %User{} = user ->
         {:ok, user}
@@ -300,6 +301,32 @@ defmodule GameServer.Accounts do
     user
     |> User.attach_device_changeset(%{device_id: device_id})
     |> Repo.update()
+  end
+
+  @doc """
+  Returns true when device-based auth is enabled. This checks the
+  application config `:game_server, :device_auth_enabled` and falls back
+  to the environment variable `DEVICE_AUTH_ENABLED`. If neither
+  is set, device auth is enabled by default.
+  """
+  def device_auth_enabled? do
+    case Application.get_env(:game_server, :device_auth_enabled) do
+      nil ->
+        case System.get_env("DEVICE_AUTH_ENABLED") do
+          v when v in ["1", "true", "TRUE", "True"] -> true
+          v when v in ["0", "false", "FALSE", "False"] -> false
+          _ -> true
+        end
+
+      bool when is_boolean(bool) -> bool
+      other ->
+        # support string-like values in config
+        case other do
+          v when v in ["1", "true", "TRUE", "True"] -> true
+          v when v in ["0", "false", "FALSE", "False"] -> false
+          _ -> true
+        end
+    end
   end
 
   # Generic OAuth find or create helper

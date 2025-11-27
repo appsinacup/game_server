@@ -5,6 +5,62 @@ defmodule GameServer.LobbiesTest do
   alias GameServer.Lobbies
 
   describe "lobbies and memberships" do
+    defmodule CaptureHook do
+      @behaviour GameServer.Hooks
+
+      @impl true
+      def after_user_register(_user), do: :ok
+
+      @impl true
+      def after_user_login(_user), do: :ok
+
+      # Lobby lifecycle hooks - implement minimal no-ops and capture after_lobby_join
+      @impl true
+      def before_lobby_create(attrs), do: {:ok, attrs}
+
+      @impl true
+      def after_lobby_create(_lobby), do: :ok
+
+      @impl true
+      def before_lobby_join(user, lobby, opts), do: {:ok, {user, lobby, opts}}
+
+      @impl true
+      def after_lobby_join(_user, lobby) do
+        if pid = Application.get_env(:game_server, :hooks_test_pid) do
+          send(pid, {:after_lobby_join, lobby})
+        end
+
+        :ok
+      end
+
+      @impl true
+      def before_lobby_leave(user, lobby), do: {:ok, {user, lobby}}
+
+      @impl true
+      def after_lobby_leave(_user, _lobby), do: :ok
+
+      @impl true
+      def before_lobby_update(_lobby, attrs), do: {:ok, attrs}
+
+      @impl true
+      def after_lobby_update(_lobby), do: :ok
+
+      @impl true
+      def before_lobby_delete(lobby), do: {:ok, lobby}
+
+      @impl true
+      def after_lobby_delete(_lobby), do: :ok
+
+      @impl true
+      def before_user_kicked(host, target, lobby), do: {:ok, {host, target, lobby}}
+
+      @impl true
+      def after_user_kicked(_host, _target, _lobby), do: :ok
+
+      @impl true
+      def after_lobby_host_change(_lobby, _new_host_id), do: :ok
+    end
+
     setup do
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
       other = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
@@ -88,6 +144,33 @@ defmodule GameServer.LobbiesTest do
       assert {:ok, _} = Lobbies.kick_user(host, lobby, other)
       # ensure other no longer in the lobby
       assert {:error, :not_in_lobby} == Lobbies.leave_lobby(other)
+    end
+
+    test "create_membership invokes hook without doing DB checkouts in child task", %{
+      host: host,
+      other: other
+    } do
+      orig = Application.get_env(:game_server, :hooks_module)
+      orig_pid = Application.get_env(:game_server, :hooks_test_pid)
+
+      on_exit(fn ->
+        Application.put_env(:game_server, :hooks_module, orig)
+        Application.put_env(:game_server, :hooks_test_pid, orig_pid)
+      end)
+
+      # register our capture hook and give it the pid so it can notify us
+      Application.put_env(:game_server, :hooks_module, CaptureHook)
+      Application.put_env(:game_server, :hooks_test_pid, self())
+
+      {:ok, lobby} = Lobbies.create_lobby(%{name: "hook-room", host_id: host.id, max_users: 5})
+
+      # Ensure join triggers create_membership which starts background task
+      assert {:ok, _} = Lobbies.join_lobby(other, lobby)
+
+      # create_membership starts a background task; wait for the hook message
+      assert_receive {:after_lobby_join, received_lobby}, 200
+
+      assert received_lobby.id == lobby.id
     end
 
     test "cannot shrink lobby max_users below current member count", %{host: host, other: other} do
