@@ -36,7 +36,7 @@ defmodule GameServerWeb.Api.V1.ProviderControllerTest do
       assert json_response(resp, 400)["error"] =~ "last"
     end
 
-    test "invalid provider returns 400", %{conn: conn, user: user} do
+    test "invalid provider returns 400", %{conn: conn} do
       resp = delete(conn, ~p"/api/v1/me/providers/invalid-provider")
 
       assert resp.status == 400

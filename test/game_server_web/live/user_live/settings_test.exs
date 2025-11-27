@@ -240,7 +240,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       # outgoing should now include the request
       f =
         Repo.one(
-            from fr in Friends.Friendship,
+          from fr in Friends.Friendship,
             where: fr.requester_id == ^a.id and fr.target_id == ^b.id
         )
 

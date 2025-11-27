@@ -192,6 +192,14 @@ defmodule GameServer.Hooks.Watcher do
         FileSystem.subscribe(pid)
         {:ok, pid}
 
+      # If the FileSystem process is already started under the same name,
+      # subscribe to it and reuse the existing pid instead of returning an
+      # error. This avoids noisy `{:already_started, pid}` failures and
+      # supports environments where the watcher may already be running.
+      {:error, {:already_started, pid}} ->
+        FileSystem.subscribe(pid)
+        {:ok, pid}
+
       {:error, _} = err ->
         err
     end

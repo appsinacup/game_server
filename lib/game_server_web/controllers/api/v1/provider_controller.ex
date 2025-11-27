@@ -46,18 +46,18 @@ defmodule GameServerWeb.Api.V1.ProviderController do
       |> json(%{error: "Unknown provider"})
     else
       case Accounts.unlink_provider(user, provider_atom) do
-      {:ok, _user} ->
-        send_resp(conn, :no_content, "")
+        {:ok, _user} ->
+          send_resp(conn, :no_content, "")
 
-      {:error, :last_provider} ->
-        conn
-        |> put_status(:bad_request)
-        |> json(%{error: "Cannot unlink the last linked provider"})
+        {:error, :last_provider} ->
+          conn
+          |> put_status(:bad_request)
+          |> json(%{error: "Cannot unlink the last linked provider"})
 
-      {:error, _} ->
-        conn
-        |> put_status(:bad_request)
-        |> json(%{error: "Failed to unlink provider"})
+        {:error, _} ->
+          conn
+          |> put_status(:bad_request)
+          |> json(%{error: "Failed to unlink provider"})
       end
     end
   end
