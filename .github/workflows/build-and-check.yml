@@ -457,9 +457,7 @@ jobs:
           echo "APP_VERSION=${VERSION}" >> $GITHUB_ENV
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
         # set up the fly CLI
-      - uses: superfly/flyctl-actions/setup-flyctl@v2
-        with:
-          version: 'latest'
+      - uses: superfly/flyctl-actions/setup-flyctl@master
 
 
       # set the APP_VERSION secret for Fly using the computed version
