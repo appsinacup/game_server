@@ -112,58 +112,59 @@ defmodule GameServer.Hooks do
 
   defp handle_compiled_modules(modules, output, path) do
     case modules do
-      [{mod, _bin} | _] ->
-        warnings = if String.contains?(output, "warning:"), do: String.trim(output), else: nil
-
-        now = DateTime.utc_now() |> DateTime.to_iso8601()
-
-        case Code.ensure_compiled(mod) do
-          {:module, _} ->
-            if function_exported?(mod, :after_user_register, 1) do
-              Application.put_env(:game_server, :hooks_module, mod)
-              status = if(warnings, do: {:ok_with_warnings, mod, warnings}, else: {:ok, mod})
-              Application.put_env(:game_server, :hooks_last_compiled_at, now)
-              Application.put_env(:game_server, :hooks_last_compile_status, status)
-
-              Logger.info(
-                "Hooks.register_file: registered hooks module #{inspect(mod)} at #{now}"
-              )
-
-              {:ok, mod}
-            else
-              Application.put_env(:game_server, :hooks_last_compiled_at, now)
-
-              Application.put_env(
-                :game_server,
-                :hooks_last_compile_status,
-                {:error, :invalid_hooks_impl}
-              )
-
-              Logger.error(
-                "Hooks.register_file: compiled module #{inspect(mod)} does not implement expected callback (registered_at=#{now})"
-              )
-
-              {:error, :invalid_hooks_impl}
-            end
-
-          {:error, _} = err ->
-            err
-        end
-
-      [] ->
-        now = DateTime.utc_now() |> DateTime.to_iso8601()
-        Application.put_env(:game_server, :hooks_last_compiled_at, now)
-
-        Application.put_env(
-          :game_server,
-          :hooks_last_compile_status,
-          {:error, :no_module_in_file}
-        )
-
-        Logger.error("Hooks.register_file: no module defined in #{path} (time=#{now})")
-        {:error, :no_module_in_file}
+      [{mod, _bin} | _] -> process_compiled_module(mod, output)
+      [] -> handle_no_module(path)
     end
   end
+
+  defp process_compiled_module(mod, output) do
+    warnings = if String.contains?(output, "warning:"), do: String.trim(output), else: nil
+    now = timestamp()
+
+    case Code.ensure_compiled(mod) do
+      {:module, _} -> register_module_if_valid(mod, warnings, now)
+      {:error, _} = err -> err
+    end
+  end
+
+  defp register_module_if_valid(mod, warnings, now) do
+    if function_exported?(mod, :after_user_register, 1) do
+      Application.put_env(:game_server, :hooks_module, mod)
+      status = if(warnings, do: {:ok_with_warnings, mod, warnings}, else: {:ok, mod})
+      Application.put_env(:game_server, :hooks_last_compiled_at, now)
+      Application.put_env(:game_server, :hooks_last_compile_status, status)
+
+      Logger.info("Hooks.register_file: registered hooks module #{inspect(mod)} at #{now}")
+
+      {:ok, mod}
+    else
+      Application.put_env(:game_server, :hooks_last_compiled_at, now)
+
+      Application.put_env(:game_server, :hooks_last_compile_status, {:error, :invalid_hooks_impl})
+
+      Logger.error(
+        "Hooks.register_file: compiled module #{inspect(mod)} does not implement expected callback (registered_at=#{now})"
+      )
+
+      {:error, :invalid_hooks_impl}
+    end
+  end
+
+  defp handle_no_module(path) do
+    now = timestamp()
+    Application.put_env(:game_server, :hooks_last_compiled_at, now)
+
+    Application.put_env(
+      :game_server,
+      :hooks_last_compile_status,
+      {:error, :no_module_in_file}
+    )
+
+    Logger.error("Hooks.register_file: no module defined in #{path} (time=#{now})")
+    {:error, :no_module_in_file}
+  end
+
+  defp timestamp, do: DateTime.utc_now() |> DateTime.to_iso8601()
 end
 
 defmodule GameServer.Hooks.Default do

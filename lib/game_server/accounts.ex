@@ -338,50 +338,60 @@ defmodule GameServer.Accounts do
     email = Map.get(attrs, :email)
 
     cond do
-      # If provider id is present then prefer to look up by provider id first.
       provider_id != nil ->
-        case Repo.get_by(User, [{provider_id_field, provider_id}]) do
-          %User{} = user ->
-            attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
-
-            user
-            |> changeset_fn.(attrs)
-            |> update_and_clear_device()
-
-          nil ->
-            # If there is an email, attempt to find that user and link/update
-            # it; otherwise fall through and create a new user below.
-            if email do
-              case Repo.get_by(User, email: email) do
-                nil ->
-                  create_user_from_provider(attrs, changeset_fn)
-
-                %User{} = user ->
-                  attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
-
-                  user
-                  |> changeset_fn.(attrs)
-                  |> update_and_clear_device()
-              end
-            else
-              create_user_from_provider(attrs, changeset_fn)
-            end
-        end
+        handle_provider_id(provider_id, attrs, provider_id_field, changeset_fn)
 
       email != nil ->
-        case Repo.get_by(User, email: email) do
-          nil ->
-            create_user_from_provider(attrs, changeset_fn)
+        handle_by_email(email, attrs, provider_id_field, changeset_fn)
 
-          %User{} = user ->
-            attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
-
-            user |> changeset_fn.(attrs) |> update_and_clear_device()
-        end
-
-      # Neither provider id nor email - create a new user
       true ->
         create_user_from_provider(attrs, changeset_fn)
+    end
+  end
+
+  defp handle_provider_id(provider_id, attrs, provider_id_field, changeset_fn) do
+    case Repo.get_by(User, [{provider_id_field, provider_id}]) do
+      %User{} = user ->
+        attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
+
+        user
+        |> changeset_fn.(attrs)
+        |> update_and_clear_device()
+
+      nil ->
+        handle_provider_id_missing(attrs, provider_id_field, changeset_fn)
+    end
+  end
+
+  defp handle_provider_id_missing(attrs, provider_id_field, changeset_fn) do
+    email = Map.get(attrs, :email)
+
+    if email do
+      case Repo.get_by(User, email: email) do
+        nil ->
+          create_user_from_provider(attrs, changeset_fn)
+
+        %User{} = user ->
+          attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
+
+          user
+          |> changeset_fn.(attrs)
+          |> update_and_clear_device()
+      end
+    else
+      create_user_from_provider(attrs, changeset_fn)
+    end
+  end
+
+  defp handle_by_email(email, attrs, provider_id_field, changeset_fn) do
+    case Repo.get_by(User, email: email) do
+      nil ->
+        create_user_from_provider(attrs, changeset_fn)
+
+      %User{} = user ->
+        attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
+
+        user |> changeset_fn.(attrs) |> update_and_clear_device()
     end
   end
 
