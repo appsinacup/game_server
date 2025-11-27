@@ -44,8 +44,29 @@ defmodule GameServerWeb.ApiSpec do
         ### Refreshing Tokens
         When your access token expires, use POST `/api/v1/refresh` with your refresh token to get a new access token.
 
-        ## Endpoints
-        All API endpoints are under `/api/v1`
+        ## Users
+        Users endpoints cover the user lifecycle and profile features. Key highlights:
+
+        - **Registration and login** (email/password, device token for SDKs, and OAuth providers)
+        - **Profile metadata** (JSON blob per user) and editable profile fields
+        - **Account lifecycle**: password reset, email confirmation, and account deletion
+        - **Sessions & tokens**: both browser sessions and JWT-based API tokens are supported
+
+        ## Friends
+        The Friends domain offers lightweight social features:
+
+        - **Friend requests** (send / accept / reject / block flows)
+        - **Friend listing & pagination**, with basic privacy controls
+        - **Domain helpers** to manage and query friend relationships from API or UI contexts
+
+        ## Lobbies
+        Lobbies provide matchmaking / room management primitives. Highlights:
+
+        - **Create / list / update / delete** lobbies with rich metadata (mode, region, tags)
+        - **Host-managed or hostless** modes (hostless allowed internally, not creatable via public API)
+        - **Membership management**: join, leave, kick users, and automatic host transfer
+        - **Controls & protection**: max users, hidden/locked states, and optional password protection
+        - **Hidden lobbies** are excluded from public listings; public listing endpoints are paginated
         """
       },
       paths: filter_api_paths(Paths.from_router(Router)),
