@@ -1,4 +1,4 @@
-![gamend banner](https://github.com/appsinacup/game_server/blob/main/priv/static/images/banner.png)
+![gamend banner](https://github.com/appsinacup/game_server/blob/main/priv/static/images/banner.png?raw=true)
 
 -----
 
