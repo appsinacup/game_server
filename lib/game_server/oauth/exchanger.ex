@@ -21,13 +21,13 @@ defmodule GameServer.OAuth.Exchanger do
 
     headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
 
-    case Req.post(url, form: body, headers: headers) do
+    case http_client().post(url, form: body, headers: headers) do
       {:ok, %{status: 200, body: %{"access_token" => access_token}}} ->
         # Get user info with access token
         user_url = "https://discord.com/api/users/@me"
         auth_headers = [{"Authorization", "Bearer #{access_token}"}]
 
-        case Req.get(user_url, headers: auth_headers) do
+        case http_client().get(user_url, headers: auth_headers) do
           {:ok, %{status: 200, body: user_info}} ->
             {:ok, user_info}
 
@@ -55,13 +55,13 @@ defmodule GameServer.OAuth.Exchanger do
 
     headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
 
-    case Req.post(url, form: body, headers: headers) do
+    case http_client().post(url, form: body, headers: headers) do
       {:ok, %{status: 200, body: %{"access_token" => access_token}}} ->
         # Get user info with access token
         user_url = "https://www.googleapis.com/oauth2/v2/userinfo"
         auth_headers = [{"Authorization", "Bearer #{access_token}"}]
 
-        case Req.get(user_url, headers: auth_headers) do
+        case http_client().get(user_url, headers: auth_headers) do
           {:ok, %{status: 200, body: user_info}} ->
             {:ok, user_info}
 
@@ -86,7 +86,7 @@ defmodule GameServer.OAuth.Exchanger do
       redirect_uri: redirect_uri
     }
 
-    case Req.get(url, params: params) do
+    case http_client().get(url, params: params) do
       {:ok, %{status: 200, body: %{"access_token" => access_token}}} ->
         # Get user info with access token
         user_url = "https://graph.facebook.com/v18.0/me"
@@ -97,7 +97,7 @@ defmodule GameServer.OAuth.Exchanger do
           access_token: access_token
         }
 
-        case Req.get(user_url, params: user_params) do
+        case http_client().get(user_url, params: user_params) do
           {:ok, %{status: 200, body: user_info}} when is_map(user_info) ->
             {:ok, user_info}
 
@@ -134,7 +134,7 @@ defmodule GameServer.OAuth.Exchanger do
 
     Logger.info("Apple OAuth: Exchanging code with Apple. URL: #{url}")
 
-    case Req.post(url, form: body, headers: headers) do
+    case http_client().post(url, form: body, headers: headers) do
       {:ok, %{status: 200, body: %{"id_token" => id_token}}} ->
         Logger.info("Apple OAuth: Successfully received id_token")
         # Parse the JWT id_token to get user info
@@ -162,7 +162,8 @@ defmodule GameServer.OAuth.Exchanger do
   end
 
   # Parse Apple's JWT id_token to extract user information
-  defp parse_apple_id_token(id_token) do
+  @doc false
+  def parse_apple_id_token(id_token) do
     # Use safe, non-raising operations and return {:ok, map} or {:error, reason}
     case String.split(id_token, ".") do
       [_header, payload, _signature] ->
@@ -182,5 +183,10 @@ defmodule GameServer.OAuth.Exchanger do
       _ ->
         {:error, "Invalid JWT token"}
     end
+  end
+
+  # Helper to allow injecting a test HTTP client in tests. Defaults to Req.
+  defp http_client do
+    Application.get_env(:game_server, :oauth_exchanger_client, Req)
   end
 end

@@ -146,6 +146,65 @@ defmodule GameServer.LobbiesTest do
       assert {:error, :not_in_lobby} == Lobbies.leave_lobby(other)
     end
 
+    test "kick errors: cannot kick self, not_host, not_found, not_in_lobby", %{host: host, other: other} do
+      # set up lobby and memberships
+      {:ok, lobby} = Lobbies.create_lobby(%{name: "errors-room", host_id: host.id, max_users: 5})
+      assert {:ok, _} = Lobbies.join_lobby(other, lobby)
+
+      # cannot kick self
+      assert {:error, :cannot_kick_self} = Lobbies.kick_user(host, lobby, host)
+
+      # not_host (some other non-host user tries to kick) - create additional user
+      another = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+      assert {:error, :not_host} = Lobbies.kick_user(another, lobby, other)
+
+      # not_found (target id points to non-existing user)
+      assert {:error, :not_found} = Lobbies.kick_user(host, lobby, %GameServer.Accounts.User{id: 999_999})
+
+      # not_in_lobby: target exists but not in this lobby
+      outsider = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+      assert {:error, :not_in_lobby} = Lobbies.kick_user(host, lobby, outsider)
+    end
+
+    test "cannot join if already in a lobby", %{host: host, other: other} do
+      {:ok, lobby1} = Lobbies.create_lobby(%{name: "a-room-1", host_id: host.id})
+
+      # other joins lobby1
+      assert {:ok, _} = Lobbies.join_lobby(other, lobby1)
+
+      # tries to join a different lobby and should get error :already_in_lobby
+      {:ok, lobby2} = Lobbies.create_lobby(%{name: "a-room-2", host_id: AccountsFixtures.user_fixture().id})
+
+      assert {:error, :already_in_lobby} = Lobbies.join_lobby(other, lobby2)
+    end
+
+    test "before_lobby_join hook can reject a join", %{host: host, other: other} do
+      orig = Application.get_env(:game_server, :hooks_module)
+
+      defmodule DenyJoinHook do
+        def before_lobby_create(attrs), do: {:ok, attrs}
+        def before_lobby_join(_user, _lobby, _opts), do: {:error, :banned}
+        def after_lobby_create(_), do: :ok
+        def after_lobby_join(_user, _lobby), do: :ok
+        def before_lobby_leave(_, _), do: {:ok, :noop}
+        def after_lobby_leave(_, _), do: :ok
+        def before_user_kicked(_, _, _), do: {:ok, :noop}
+        def after_user_kicked(_, _, _), do: :ok
+        def before_lobby_update(_, _), do: {:ok, %{}}
+        def after_lobby_update(_), do: :ok
+        def before_lobby_delete(_), do: {:ok, %{}}
+        def after_lobby_delete(_), do: :ok
+        def after_lobby_host_change(_, _), do: :ok
+      end
+
+      Application.put_env(:game_server, :hooks_module, DenyJoinHook)
+
+      on_exit(fn -> Application.put_env(:game_server, :hooks_module, orig) end)
+
+      {:ok, lobby} = Lobbies.create_lobby(%{name: "deny-room", host_id: host.id})
+      assert {:error, {:hook_rejected, :banned}} = Lobbies.join_lobby(other, lobby)
+    end
+
     test "create_membership invokes hook without doing DB checkouts in child task", %{
       host: host,
       other: other
