@@ -262,6 +262,23 @@ defmodule GameServer.Accounts do
   end
 
   @doc """
+  Finds a user by Steam ID or creates a new user from Steam OpenID data.
+
+  ## Examples
+
+      iex> find_or_create_from_steam(%{steam_id: "12345", email: "user@example.com"})
+      {:ok, %User{}}
+
+  """
+  def find_or_create_from_steam(attrs) do
+    find_or_create_from_oauth(
+      attrs,
+      :steam_id,
+      &User.steam_oauth_changeset/2
+    )
+  end
+
+  @doc """
   Finds or creates a user associated with the given device_id.
 
   If a user already exists with the device_id we return it. Otherwise we
@@ -538,8 +555,8 @@ defmodule GameServer.Accounts do
   one other social provider remaining. This prevents users losing all
   social logins unexpectedly.
   """
-  def unlink_provider(%User{} = user, provider)
-      when provider in [:discord, :apple, :google, :facebook] do
+    def unlink_provider(%User{} = user, provider)
+      when provider in [:discord, :apple, :google, :facebook, :steam] do
     provider_field = provider_field(provider)
 
     # Count remaining linked providers (only non-empty, non-nil strings)
@@ -577,6 +594,7 @@ defmodule GameServer.Accounts do
   defp provider_field(:apple), do: :apple_id
   defp provider_field(:google), do: :google_id
   defp provider_field(:facebook), do: :facebook_id
+  defp provider_field(:steam), do: :steam_id
 
   ## Settings
 

@@ -1,6 +1,7 @@
 defmodule GameServerWeb.AuthController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
+  plug Ueberauth
 
   alias GameServer.Accounts
   alias GameServerWeb.Auth.Guardian
@@ -18,7 +19,7 @@ defmodule GameServerWeb.AuthController do
         name: "provider",
         schema: %OpenApiSpex.Schema{
           type: :string,
-          enum: ["discord", "apple", "google", "facebook"]
+          enum: ["discord", "apple", "google", "facebook", "steam"]
         },
         required: true
       ]
@@ -38,6 +39,45 @@ defmodule GameServerWeb.AuthController do
       "https://discord.com/oauth2/authorize?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}"
 
     redirect(conn, external: url)
+  end
+
+  # Ueberauth Steam callback handler
+  def callback(%Plug.Conn{assigns: %{ueberauth_auth: auth}} = conn, %{"provider" => "steam"} = params) do
+    uid = to_string(auth.uid)
+    info = auth.info || %{}
+    display_name = Map.get(info, :nickname) || Map.get(info, :name)
+    profile_url = get_in(info, [:urls, :profile]) || Map.get(info, :image)
+
+    user_params = %{
+      steam_id: uid,
+      display_name: display_name,
+      profile_url: profile_url
+    }
+
+    case params["state"] do
+      nil -> handle_browser_steam_callback(conn, user_params)
+      session_id -> do_find_or_create_steam_for_session(conn, user_params, session_id)
+    end
+  end
+
+  def callback(%Plug.Conn{assigns: %{ueberauth_failure: failure}} = conn, %{"provider" => "steam"} = params) do
+    require Logger
+    Logger.error("Steam OAuth exchange failed: #{inspect(failure)}")
+
+    case params["state"] do
+      nil ->
+        conn
+        |> put_flash(:error, "Failed to authenticate with Steam.")
+        |> redirect(to: ~p"/users/log-in")
+
+      session_id ->
+        GameServer.OAuthSessions.create_session(session_id, %{
+          status: "error",
+          data: %{details: inspect(failure)}
+        })
+
+        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+    end
   end
 
   def request(conn, %{"provider" => "google"}) do
@@ -359,8 +399,8 @@ defmodule GameServerWeb.AuthController do
         in: :path,
         name: "provider",
         schema: %OpenApiSpex.Schema{
-          type: :string,
-          enum: ["discord", "apple", "google", "facebook"]
+              type: :string,
+              enum: ["discord", "apple", "google", "facebook", "steam"]
         },
         description: "OAuth provider",
         required: true,
@@ -486,8 +526,8 @@ defmodule GameServerWeb.AuthController do
         in: :path,
         name: "provider",
         schema: %OpenApiSpex.Schema{
-          type: :string,
-          enum: ["discord", "apple", "google", "facebook"]
+              type: :string,
+              enum: ["discord", "apple", "google", "facebook", "steam"]
         },
         required: true
       ],
@@ -748,6 +788,60 @@ defmodule GameServerWeb.AuthController do
     end
   end
 
+    defp handle_browser_steam_callback(conn, user_params) do
+      case conn.assigns[:current_scope] do
+        %{:user => current_user} ->
+          case Accounts.link_account(
+                 current_user,
+                 user_params,
+                 :steam_id,
+                 &GameServer.Accounts.User.steam_oauth_changeset/2
+               ) do
+            {:ok, _user} ->
+              conn
+              |> put_flash(:info, "Linked Steam to your account.")
+              |> redirect(to: ~p"/users/settings")
+
+            {:error, {:conflict, other_user}} ->
+              require Logger
+              Logger.warning("Steam already linked to another user id=#{other_user.id}")
+
+              conn
+              |> put_flash(
+                :error,
+                "Steam is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+              )
+              |> redirect(
+                to: ~p"/users/settings?conflict_provider=steam&conflict_user_id=#{other_user.id}"
+              )
+
+            {:error, changeset} ->
+              require Logger
+              Logger.error("Failed to link Steam: #{inspect(changeset.errors)}")
+
+              conn
+              |> put_flash(:error, "Failed to link Steam account.")
+              |> redirect(to: ~p"/users/settings")
+          end
+
+        _ ->
+          case Accounts.find_or_create_from_steam(user_params) do
+            {:ok, user} ->
+              conn
+              |> put_flash(:info, "Successfully authenticated with Steam.")
+              |> UserAuth.log_in_user(user)
+
+            {:error, changeset} ->
+              require Logger
+              Logger.error("Failed to create user from Steam: #{inspect(changeset.errors)}")
+
+              conn
+              |> put_flash(:error, "Failed to create or update user account.")
+              |> redirect(to: ~p"/users/log-in")
+          end
+      end
+    end
+
   defp handle_browser_discord_callback(conn, user_params) do
     case conn.assigns[:current_scope] do
       %{:user => current_user} ->
@@ -929,4 +1023,36 @@ defmodule GameServerWeb.AuthController do
         redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
     end
   end
+
+    defp do_find_or_create_steam_for_session(conn, user_params, session_id) do
+      case Accounts.find_or_create_from_steam(user_params) do
+        {:ok, user} ->
+          {:ok, access_token, _access_claims} =
+            Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+          {:ok, refresh_token, _refresh_claims} =
+            Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+          # Store tokens in session
+          GameServer.OAuthSessions.create_session(session_id, %{
+            status: "completed",
+            data: %{
+              access_token: access_token,
+              refresh_token: refresh_token,
+              expires_in: 900
+            }
+          })
+
+          # Redirect to success page
+          redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+
+        {:error, changeset} ->
+          GameServer.OAuthSessions.create_session(session_id, %{
+            status: "error",
+            data: %{details: changeset.errors}
+          })
+
+          redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+      end
+    end
 end

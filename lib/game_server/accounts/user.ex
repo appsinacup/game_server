@@ -29,6 +29,7 @@ defmodule GameServer.Accounts.User do
     field :display_name, :string
     field :device_id, :string
     field :apple_id, :string
+    field :steam_id, :string
     field :google_id, :string
     field :facebook_id, :string
     field :is_admin, :boolean, default: false
@@ -176,6 +177,30 @@ defmodule GameServer.Accounts.User do
     |> unsafe_validate_unique(:discord_id, GameServer.Repo)
     |> unique_constraint(:email)
     |> unique_constraint(:discord_id)
+    |> put_change(:confirmed_at, DateTime.utc_now(:second))
+  end
+
+  @doc """
+  A user changeset for Steam OpenID registration.
+
+  Expects steam_id and optional profile fields.
+  """
+  def steam_oauth_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:email, :steam_id, :profile_url, :is_admin, :display_name])
+    |> update_change(:email, fn
+      nil -> nil
+      email -> String.downcase(email)
+    end)
+    |> validate_required([:steam_id])
+    |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+$/,
+      message: "must have the @ sign and no spaces"
+    )
+    |> validate_length(:email, max: 160)
+    |> unsafe_validate_unique(:email, GameServer.Repo)
+    |> unsafe_validate_unique(:steam_id, GameServer.Repo)
+    |> unique_constraint(:email)
+    |> unique_constraint(:steam_id)
     |> put_change(:confirmed_at, DateTime.utc_now(:second))
   end
 

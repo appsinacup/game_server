@@ -281,4 +281,33 @@ defmodule GameServerWeb.AuthControllerTest do
     session = OAuthSessions.get_session(session_id)
     assert session.status == "error"
   end
+
+  test "request redirects to provider (steam)", %{conn: conn} do
+    # Ueberauth Steam strategy uses Steam OpenID redirect URL
+    conn = get(conn, "/auth/steam")
+
+    # The request should redirect to Steam's OpenID path
+    assert redirected_to(conn) =~ "steamcommunity.com/openid"
+  end
+
+  test "callback (steam) on error without state shows flash", %{conn: conn} do
+    # Simulate Ueberauth failure assign
+    failure = %{errors: [reason: :invalid]} 
+
+    conn = conn |> assign(:ueberauth_failure, failure) |> get("/auth/steam/callback")
+
+    assert redirected_to(conn) =~ "/"
+    assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Failed to authenticate"
+  end
+
+  test "callback (steam) on error with state creates oauth session", %{conn: conn} do
+    session_id = "session-#{System.unique_integer([:positive])}"
+
+    failure = %{errors: [reason: :invalid]}
+
+    conn = conn |> assign(:ueberauth_failure, failure) |> get("/auth/steam/callback?state=#{session_id}")
+
+    sess = OAuthSessions.get_session(session_id)
+    assert sess.status == "error"
+  end
 end

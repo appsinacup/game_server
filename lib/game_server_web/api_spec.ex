@@ -30,6 +30,7 @@ defmodule GameServerWeb.ApiSpec do
         - **Google OAuth**: Use `/api/v1/auth/google` flow
         - **Facebook OAuth**: Use `/api/v1/auth/facebook` flow
         - **Apple Sign In**: Use `/auth/apple` browser flow (API flow not yet implemented)
+        - **Steam (OpenID)**: Use `/api/v1/auth/steam` for API flows or `/auth/steam` for browser flows — the server will generate an OAuth session for SDKs and provide a polling session status via `/api/v1/auth/session/:session_id`.
 
         Both methods return:
         - `access_token` - Short-lived (15 min), use for API requests

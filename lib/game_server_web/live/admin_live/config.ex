@@ -14,7 +14,7 @@ defmodule GameServerWeb.AdminLive.Config do
           Configuration
           <:subtitle>System configuration settings and setup guides</:subtitle>
         </.header>
-        
+
     <!-- Current Configuration Status -->
         <div class="card bg-base-100 shadow-xl" data-card-key="config_status">
           <div class="card-body">
@@ -327,7 +327,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Admin Tools -->
         <div class="card bg-base-100 shadow-xl" data-card-key="admin_tools">
           <div class="card-body">
@@ -409,6 +409,7 @@ defmodule GameServerWeb.AdminLive.Config do
       facebook_client_secret:
         Application.get_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth)[:client_secret] ||
           System.get_env("FACEBOOK_CLIENT_SECRET"),
+      steam_api_key: Application.get_env(:ueberauth, Ueberauth.Strategy.Steam)[:api_key] || System.get_env("STEAM_API_KEY"),
       email_configured: System.get_env("SMTP_PASSWORD") != nil,
       smtp_username: System.get_env("SMTP_USERNAME"),
       smtp_password: System.get_env("SMTP_PASSWORD"),
