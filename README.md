@@ -6,6 +6,8 @@
 
 Game + Backend = Gamend
 
+Docs: https://appsinacup.github.io/game_server/
+
 -----
 
 [Discord](https://discord.com/invite/56dMud8HYn)

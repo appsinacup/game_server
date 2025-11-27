@@ -99,6 +99,16 @@ defmodule GameServerWeb.Layouts do
             <.link href={~p"/api/docs"} target="_blank">API Docs</.link>
           </li>
           <li>
+            <a
+              href="https://appsinacup.github.io/game_server/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="hover:underline mr-4"
+            >
+              Elixir Docs
+            </a>
+          </li>
+          <li>
             <.theme_toggle />
           </li>
         </ul>
@@ -165,6 +175,14 @@ defmodule GameServerWeb.Layouts do
         <a href={~p"/privacy"} class="hover:underline mr-4">Privacy Policy</a>
         <a href={~p"/terms"} class="hover:underline mr-4">Terms and Conditions</a>
         <a href={~p"/docs/setup"} class="hover:underline mr-4">Guides</a>
+        <a
+          href="https://appsinacup.github.io/game_server/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hover:underline mr-4"
+        >
+          Elixir Docs
+        </a>
         <span class="text-xs opacity-60">v{app_version()}</span>
       </div>
     </footer>

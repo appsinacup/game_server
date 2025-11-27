@@ -66,6 +66,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Configure git safe.directory for Actions runner
+        run: |
+          # GitHub Actions runners may show 'detected dubious ownership' for the workspace
+          # when using actions/checkout in certain environments. Configure the workspace
+          # as a safe directory so subsequent git commands (fetch/rev-list) succeed.
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+
       - name: Install system dependencies
         run: |
           apt update
@@ -285,6 +292,8 @@ jobs:
         run: |
           echo "No release tag found - generating version from commit count"
           # Ensure we have full history in case the checkout was shallow
+          # Ensure the runner will accept the workspace ownership before running git operations
+          git config --global --add safe.directory $GITHUB_WORKSPACE || true
           git fetch --prune --unshallow || true
           COMMIT_COUNT=$(git rev-list --count HEAD)
           # Build a simple semver style version used on CI: 1.0.<commit_count>
