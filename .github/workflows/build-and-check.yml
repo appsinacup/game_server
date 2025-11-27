@@ -298,6 +298,11 @@ jobs:
           cd clients
           npm ci
           npm run generate
+      
+      - name: Ensure license is included for JS SDK
+        run: |
+          cp LICENSE clients/javascript/LICENSE
+          jq '.license = "MIT"' clients/javascript/package.json > clients/javascript/package.json.tmp && mv clients/javascript/package.json.tmp clients/javascript/package.json
 
       - name: Configure npm auth
         env:
