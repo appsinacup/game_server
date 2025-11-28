@@ -113,8 +113,38 @@ func authenticate_refresh_token(refresh_token: RefreshTokenRequest):
 func friends_create_friend_request(friend_request: CreateFriendRequestRequest):
 	return _call_api(_friends, "create_friend_request", [friend_request])
 
+## Remove/cancel a friendship or request
+func friends_remove_friendship(id: int):
+	return _call_api(_friends, "remove_friendship", [id])
+
+## Accept a friend request
 func friends_accept_friend_request(id: int):
 	return _call_api(_friends, "accept_friend_request", [id])
+
+## Block a friend request / user
+func friends_block_friend_request(id: int):
+	return _call_api(_friends, "block_friend_request", [id])
+
+## Reject a friend request
+func friends_reject_friend_request(id: int):
+	return _call_api(_friends, "reject_friend_request", [id])
+
+## Unblock a previously-blocked friendship
+func friends_unblock_friend(id: int):
+	return _call_api(_friends, "unblock_friend", [id])
+
+## List users you've blocked
+func friends_list_blocked_friends(page = 0, page_size = 0):
+	_friends.list_blocked_friends()
+	return _call_api(_friends, "list_blocked_friends", [page, page_size])
+
+## List pending friend requests (incoming and outgoing)
+func friends_list_friend_requests(page = 0, page_size = 0):
+	return _call_api(_friends, "list_friend_requests", [page, page_size])
+
+## List current user's friends (returns a paginated set of user objects)
+func friends_list_friends(page = 0, page_size = 0):
+	return _call_api(_friends, "list_friends", [page, page_size])
 
 ### LOBBIES
 

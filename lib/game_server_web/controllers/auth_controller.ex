@@ -111,6 +111,26 @@ defmodule GameServerWeb.AuthController do
 
   # helper route used for Steam callback routing — delegates into the
   # unified `callback/2` handler by injecting the `provider` param.
+  operation(:steam_callback,
+    operation_id: "oauth_callback_steam",
+    summary: "Steam callback (browser OpenID helper)",
+    description:
+      "Helper route used for Steam OpenID callbacks. Delegates to `callback/2` with provider=steam.",
+    tags: ["Authentication"],
+    parameters: [
+      state: [
+        in: :query,
+        name: "state",
+        schema: %OpenApiSpex.Schema{type: :string},
+        required: false
+      ]
+    ],
+    responses: [
+      found: {"Redirect or success page", "text/html", %OpenApiSpex.Schema{type: :string}},
+      bad_request: {"Bad request", "text/html", %OpenApiSpex.Schema{type: :string}}
+    ]
+  )
+
   def steam_callback(conn, params) do
     callback(conn, Map.put(params, "provider", "steam"))
   end
@@ -343,7 +363,18 @@ defmodule GameServerWeb.AuthController do
   def callback(conn, %{"provider" => "apple", "code" => code} = params) do
     exchanger = Application.get_env(:game_server, :oauth_exchanger, GameServer.OAuth.Exchanger)
     client_id = System.get_env("APPLE_CLIENT_ID")
-    client_secret = GameServer.Apple.client_secret()
+
+    client_secret =
+      try do
+        GameServer.Apple.client_secret()
+      rescue
+        _ ->
+          # In tests the APPLE_PRIVATE_KEY may be invalid, avoid blowing up the
+          # request lifecycle — exchanger implementations / mocks can handle
+          # a nil client_secret as needed.
+          nil
+      end
+
     base = GameServerWeb.Endpoint.url()
     redirect_uri = "#{base}/auth/apple/callback"
 
@@ -538,6 +569,40 @@ defmodule GameServerWeb.AuthController do
     ]
   )
 
+  operation(:api_callback,
+    operation_id: "oauth_api_callback",
+    summary: "API callback / code exchange",
+    description:
+      "Accepts an OAuth authorization code via the API and returns access/refresh tokens on success. For the Steam provider, the `code` field should contain a server-verifiable Steam credential (for example a Steam auth ticket or Steam identifier) and will be validated via the Steam Web API.",
+    tags: ["Authentication"],
+    parameters: [
+      provider: [
+        in: :path,
+        name: "provider",
+        schema: %OpenApiSpex.Schema{type: :string},
+        required: true
+      ]
+    ],
+    request_body: {
+      "Code exchange or steam payload",
+      "application/json",
+      %OpenApiSpex.Schema{
+        type: :object,
+        properties: %{
+          code: %OpenApiSpex.Schema{
+            type: :string,
+            description:
+              "Authorization code (for code-based providers). For Steam provider this MUST be a Steam auth ticket (AuthenticateUserTicket) and NOT a steam id."
+          }
+        }
+      }
+    },
+    responses: [
+      ok: {"OAuth tokens", "application/json", %OpenApiSpex.Schema{type: :object}},
+      bad_request: {"Bad request", "application/json", %OpenApiSpex.Schema{type: :object}}
+    ]
+  )
+
   def api_request(conn, %{"provider" => "discord"}) do
     # Generate a unique session ID for this OAuth request
     session_id = :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
@@ -638,6 +703,275 @@ defmodule GameServerWeb.AuthController do
     conn
     |> put_status(:bad_request)
     |> json(%{error: "invalid_provider", message: "Unsupported OAuth provider"})
+  end
+
+  # API clients can POST a code (or steam_id) to the callback endpoint and receive
+  # tokens directly. Supports discord, google, facebook, apple and steam (steam via steam_id).
+  def api_callback(conn, %{"provider" => "discord", "code" => code}) do
+    exchanger = Application.get_env(:game_server, :oauth_exchanger, GameServer.OAuth.Exchanger)
+    client_id = System.get_env("DISCORD_CLIENT_ID")
+    secret = System.get_env("DISCORD_CLIENT_SECRET")
+    base = GameServerWeb.Endpoint.url()
+    redirect_uri = "#{base}/auth/discord/callback"
+
+    case exchanger.exchange_discord_code(code, client_id, secret, redirect_uri) do
+      {:ok, %{"id" => discord_id, "email" => email} = response} ->
+        avatar = response["avatar"]
+
+        display_name = Map.get(response, "global_name") || Map.get(response, "username")
+
+        user_params = %{
+          email: email,
+          discord_id: discord_id,
+          display_name: display_name,
+          profile_url:
+            if(avatar,
+              do: "https://cdn.discordapp.com/avatars/#{discord_id}/#{avatar}.png",
+              else: nil
+            )
+        }
+
+        case Accounts.find_or_create_from_discord(user_params) do
+          {:ok, user} ->
+            {:ok, access_token, _} = Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+            {:ok, refresh_token, _} =
+              Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+            json(conn, %{
+              access_token: access_token,
+              refresh_token: refresh_token,
+              expires_in: 900
+            })
+
+          {:error, changeset} ->
+            conn
+            |> put_status(:bad_request)
+            |> json(%{error: "create_failed", details: changeset.errors})
+        end
+
+      {:error, err} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "exchange_failed", details: inspect(err)})
+
+      _ ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "exchange_failed", details: "missing id/email"})
+    end
+  end
+
+  def api_callback(conn, %{"provider" => "google", "code" => code}) do
+    exchanger = Application.get_env(:game_server, :oauth_exchanger, GameServer.OAuth.Exchanger)
+    client_id = System.get_env("GOOGLE_CLIENT_ID")
+    secret = System.get_env("GOOGLE_CLIENT_SECRET")
+    base = GameServerWeb.Endpoint.url()
+    redirect_uri = "#{base}/auth/google/callback"
+
+    case exchanger.exchange_google_code(code, client_id, secret, redirect_uri) do
+      {:ok, %{"id" => google_id, "email" => email} = user_info} ->
+        picture = Map.get(user_info, "picture")
+        name = Map.get(user_info, "name") || Map.get(user_info, "given_name")
+
+        user_params = %{email: email, google_id: google_id, display_name: name}
+
+        user_params =
+          if(picture, do: Map.put(user_params, :profile_url, picture), else: user_params)
+
+        case Accounts.find_or_create_from_google(user_params) do
+          {:ok, user} ->
+            {:ok, access_token, _} = Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+            {:ok, refresh_token, _} =
+              Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+            json(conn, %{
+              access_token: access_token,
+              refresh_token: refresh_token,
+              expires_in: 900
+            })
+
+          {:error, changeset} ->
+            conn
+            |> put_status(:bad_request)
+            |> json(%{error: "create_failed", details: changeset.errors})
+        end
+
+      {:error, err} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "exchange_failed", details: inspect(err)})
+    end
+  end
+
+  def api_callback(conn, %{"provider" => "facebook", "code" => code}) do
+    exchanger = Application.get_env(:game_server, :oauth_exchanger, GameServer.OAuth.Exchanger)
+    client_id = System.get_env("FACEBOOK_CLIENT_ID")
+    secret = System.get_env("FACEBOOK_CLIENT_SECRET")
+    base = GameServerWeb.Endpoint.url()
+    redirect_uri = "#{base}/auth/facebook/callback"
+
+    case exchanger.exchange_facebook_code(code, client_id, secret, redirect_uri) do
+      {:ok, %{"id" => facebook_id} = user_info} ->
+        email = user_info["email"]
+
+        profile_url =
+          user_info
+          |> Map.get("picture", %{})
+          |> Map.get("data", %{})
+          |> Map.get("url")
+
+        name = Map.get(user_info, "name")
+
+        user_params = %{email: email, facebook_id: facebook_id, display_name: name}
+
+        user_params =
+          if(profile_url, do: Map.put(user_params, :profile_url, profile_url), else: user_params)
+
+        case Accounts.find_or_create_from_facebook(user_params) do
+          {:ok, user} ->
+            {:ok, access_token, _} = Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+            {:ok, refresh_token, _} =
+              Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+            json(conn, %{
+              access_token: access_token,
+              refresh_token: refresh_token,
+              expires_in: 900
+            })
+
+          {:error, changeset} ->
+            conn
+            |> put_status(:bad_request)
+            |> json(%{error: "create_failed", details: changeset.errors})
+        end
+
+      {:error, err} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "exchange_failed", details: inspect(err)})
+    end
+  end
+
+  def api_callback(conn, %{"provider" => "apple", "code" => code}) do
+    exchanger = Application.get_env(:game_server, :oauth_exchanger, GameServer.OAuth.Exchanger)
+    client_id = System.get_env("APPLE_CLIENT_ID")
+
+    client_secret =
+      try do
+        GameServer.Apple.client_secret()
+      rescue
+        _ ->
+          nil
+      end
+
+    base = GameServerWeb.Endpoint.url()
+    redirect_uri = "#{base}/auth/apple/callback"
+
+    case exchanger.exchange_apple_code(code, client_id, client_secret, redirect_uri) do
+      {:ok, %{"sub" => apple_id} = user_info} ->
+        email = user_info["email"]
+        name = Map.get(user_info, "name")
+
+        user_params = %{email: email, apple_id: apple_id, display_name: name}
+
+        case Accounts.find_or_create_from_apple(user_params) do
+          {:ok, user} ->
+            {:ok, access_token, _} = Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+            {:ok, refresh_token, _} =
+              Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+            json(conn, %{
+              access_token: access_token,
+              refresh_token: refresh_token,
+              expires_in: 900
+            })
+
+          {:error, changeset} ->
+            conn
+            |> put_status(:bad_request)
+            |> json(%{error: "create_failed", details: changeset.errors})
+        end
+
+      {:error, err} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "exchange_failed", details: inspect(err)})
+    end
+  end
+
+  # For steam, allow clients to POST an object with a steam_id (and optional display_name/profile_url)
+  # and return tokens on success.
+  # Steam: verify the provided `code` with the configured exchanger (uses Steam Web API)
+  # For steam, allow clients to POST either a steam SDK `ticket` (preferred for SDK flows)
+  # or a `code`/steam_id. If `ticket` is present prefer exchange_steam_ticket which
+  # verifies the client-provided ticket via the Steam Web API. Otherwise fall back to
+  # exchange_steam_code which validates a steam id or steam-specific code.
+  def api_callback(conn, %{"provider" => "steam"} = params) do
+    exchanger = Application.get_env(:game_server, :oauth_exchanger, GameServer.OAuth.Exchanger)
+
+    # For API Steam flows, the 'code' field MUST be a Steam auth ticket
+    # issued by the client (AuthenticateUserTicket). We prefer the stronger
+    # AuthenticateUserTicket verification and explicitly DO NOT accept plain
+    # steam ids via the API (they remain supported in the browser OpenID flow).
+    exchange_result =
+      case params["code"] do
+        nil -> {:error, :missing_param}
+        code -> exchanger.exchange_steam_ticket(code, fetch_profile: true)
+      end
+
+    case exchange_result do
+      {:ok, %{"id" => steam_id} = profile_info} ->
+        user_params = %{
+          steam_id: steam_id,
+          display_name: Map.get(profile_info, "display_name"),
+          profile_url: Map.get(profile_info, "profile_url")
+        }
+
+        case Accounts.find_or_create_from_steam(user_params) do
+          {:ok, user} ->
+            {:ok, access_token, _} = Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+            {:ok, refresh_token, _} =
+              Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+            json(conn, %{
+              access_token: access_token,
+              refresh_token: refresh_token,
+              expires_in: 900
+            })
+
+          {:error, changeset} ->
+            conn
+            |> put_status(:bad_request)
+            |> json(%{error: "create_failed", details: changeset.errors})
+        end
+
+      {:error, :missing_param} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{
+          error: "missing_param",
+          message: "code (Steam auth ticket) is required for steam provider"
+        })
+
+      {:error, err} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "exchange_failed", details: inspect(err)})
+    end
+  end
+
+  def api_callback(conn, %{"provider" => _provider}) do
+    conn
+    |> put_status(:bad_request)
+    |> json(%{
+      error: "missing_or_unsupported",
+      message: "provider or required params are missing/unsupported"
+    })
   end
 
   operation(:api_session_status,

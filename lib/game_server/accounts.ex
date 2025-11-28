@@ -279,6 +279,51 @@ defmodule GameServer.Accounts do
   end
 
   @doc """
+  Get a user by their Steam ID (steam_id).
+
+  Returns `%User{}` or `nil`.
+  """
+  def get_user_by_steam_id(steam_id) when is_binary(steam_id) do
+    Repo.get_by(User, steam_id: steam_id)
+  end
+
+  @doc """
+  Get a user by their Google ID.
+
+  Returns `%User{}` or `nil`.
+  """
+  def get_user_by_google_id(google_id) when is_binary(google_id) do
+    Repo.get_by(User, google_id: google_id)
+  end
+
+  @doc """
+  Get a user by their Apple ID.
+
+  Returns `%User{}` or `nil`.
+  """
+  def get_user_by_apple_id(apple_id) when is_binary(apple_id) do
+    Repo.get_by(User, apple_id: apple_id)
+  end
+
+  @doc """
+  Get a user by their Discord ID.
+
+  Returns `%User{}` or `nil`.
+  """
+  def get_user_by_discord_id(discord_id) when is_binary(discord_id) do
+    Repo.get_by(User, discord_id: discord_id)
+  end
+
+  @doc """
+  Get a user by their Facebook ID.
+
+  Returns `%User{}` or `nil`.
+  """
+  def get_user_by_facebook_id(facebook_id) when is_binary(facebook_id) do
+    Repo.get_by(User, facebook_id: facebook_id)
+  end
+
+  @doc """
   Finds or creates a user associated with the given device_id.
 
   If a user already exists with the device_id we return it. Otherwise we

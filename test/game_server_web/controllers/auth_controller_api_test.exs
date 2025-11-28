@@ -5,7 +5,13 @@ defmodule GameServerWeb.AuthControllerApiTest do
     # allow tests to inject a mock exchanger
     orig = Application.get_env(:game_server, :oauth_exchanger)
 
-    on_exit(fn -> Application.put_env(:game_server, :oauth_exchanger, orig) end)
+    on_exit(fn ->
+      if is_nil(orig) do
+        Application.delete_env(:game_server, :oauth_exchanger)
+      else
+        Application.put_env(:game_server, :oauth_exchanger, orig)
+      end
+    end)
 
     :ok
   end
@@ -51,5 +57,337 @@ defmodule GameServerWeb.AuthControllerApiTest do
       assert session.provider == "steam"
       assert session.status == "pending"
     end
+
+    test "POST /api/v1/auth/:provider/callback exchanges code and returns tokens (discord)", %{
+      conn: conn
+    } do
+      # install a mock exchanger module that returns a successful discord payload
+      defmodule MockExchangerDiscordOk do
+        def exchange_discord_code(_code, _cid, _secret, _redirect),
+          do:
+            {:ok,
+             %{
+               "id" => "d123",
+               "email" => "d@example.com",
+               "global_name" => "DiscordName",
+               "avatar" => "av"
+             }}
+      end
+
+      Application.put_env(:game_server, :oauth_exchanger, MockExchangerDiscordOk)
+
+      conn = post(conn, "/api/v1/auth/discord/callback", %{code: "ok"})
+      assert conn.status == 200
+      body = json_response(conn, 200)
+
+      assert is_binary(body["access_token"]) and is_binary(body["refresh_token"]) and
+               is_integer(body["expires_in"])
+    end
+
+    test "POST /api/v1/auth/:provider/callback returns 400 on code exchange failure", %{
+      conn: conn
+    } do
+      defmodule MockExchangerDiscordFail do
+        def exchange_discord_code(_code, _cid, _sec, _r), do: {:error, :boom}
+      end
+
+      Application.put_env(:game_server, :oauth_exchanger, MockExchangerDiscordFail)
+
+      conn = post(conn, "/api/v1/auth/discord/callback", %{code: "bad"})
+      assert conn.status == 400
+      assert json_response(conn, 400)["error"] == "exchange_failed"
+    end
+
+    test "POST /api/v1/auth/steam/callback with code (ticket) returns tokens", %{conn: conn} do
+      # For API flows code is treated as the Steam auth ticket
+      defmodule MockExchangerSteamTicketOk do
+        def exchange_steam_ticket("valid_ticket"),
+          do:
+            {:ok,
+             %{
+               "id" => "99999",
+               "display_name" => "SteamUser",
+               "profile_url" => "https://steam/profile/99999"
+             }}
+
+        def exchange_steam_ticket("valid_ticket", opts) when is_list(opts) do
+          if Keyword.get(opts, :fetch_profile, false) == false do
+            {:ok, %{"id" => "99999"}}
+          else
+            exchange_steam_ticket("valid_ticket")
+          end
+        end
+
+        def get_player_profile("99999"),
+          do:
+            {:ok,
+             %{
+               "id" => "99999",
+               "display_name" => "SteamUser",
+               "profile_url" => "https://steam/profile/99999"
+             }}
+      end
+
+      Application.put_env(:game_server, :oauth_exchanger, MockExchangerSteamTicketOk)
+
+      conn = post(conn, "/api/v1/auth/steam/callback", %{code: "valid_ticket"})
+
+      assert conn.status == 200
+      body = json_response(conn, 200)
+
+      assert is_binary(body["access_token"]) and is_binary(body["refresh_token"]) and
+               is_integer(body["expires_in"])
+    end
+
+    test "POST /api/v1/auth/google/callback skips profile lookup when user already has profile",
+         %{conn: conn} do
+      # Create existing user with google_id and display/profile set
+      {:ok, _user} =
+        GameServer.Accounts.find_or_create_from_google(%{
+          google_id: "g1",
+          display_name: "Existing",
+          profile_url: "https://x",
+          email: "existing@example.com"
+        })
+
+      defmodule MockExchangerGoogle do
+        def exchange_google_code("valid_ticket", _cid, _sec, _redirect),
+          do:
+            {:ok,
+             %{"id" => "g1", "email" => "g@example.com", "picture" => "pic", "name" => "Gname"}}
+
+        def exchange_google_code("valid_ticket", _cid, _sec, _redirect, opts)
+            when is_list(opts) do
+          if Keyword.get(opts, :fetch_profile, false) == false do
+            {:ok, %{"id" => "g1"}}
+          else
+            {:ok,
+             %{"id" => "g1", "email" => "g@example.com", "picture" => "pic", "name" => "Gname"}}
+          end
+        end
+      end
+
+      Application.put_env(:game_server, :oauth_exchanger, MockExchangerGoogle)
+
+      conn = post(conn, "/api/v1/auth/google/callback", %{code: "valid_ticket"})
+      assert conn.status == 200
+    end
+
+    test "POST /api/v1/auth/google/callback fills missing profile fields for existing user", %{
+      conn: conn
+    } do
+      # Create existing user with google_id but missing display_name
+      {:ok, user} =
+        GameServer.Accounts.find_or_create_from_google(%{
+          google_id: "g2",
+          email: "u2@example.com",
+          display_name: nil
+        })
+
+      defmodule MockExchangerGoogleFetch do
+        def exchange_google_code("valid_ticket", _cid, _sec, _redirect) do
+          {:ok,
+           %{
+             "id" => "g2",
+             "email" => "g2@example.com",
+             "picture" => "https://g2",
+             "name" => "FetchedG"
+           }}
+        end
+
+        def exchange_google_code("valid_ticket", _cid, _sec, _redirect, opts)
+            when is_list(opts) do
+          if Keyword.get(opts, :fetch_profile, false) == false do
+            {:ok, %{"id" => "g2"}}
+          else
+            {:ok,
+             %{
+               "id" => "g2",
+               "email" => "g2@example.com",
+               "picture" => "https://g2",
+               "name" => "FetchedG"
+             }}
+          end
+        end
+      end
+
+      Application.put_env(:game_server, :oauth_exchanger, MockExchangerGoogleFetch)
+
+      conn = post(conn, "/api/v1/auth/google/callback", %{code: "valid_ticket"})
+      assert conn.status == 200
+
+      reloaded = GameServer.Repo.get(GameServer.Accounts.User, user.id)
+      assert reloaded.display_name == "FetchedG"
+    end
+
+    test "POST /api/v1/auth/steam/callback returns 400 when verification fails", %{conn: conn} do
+      defmodule MockExchangerSteamFail do
+        def exchange_steam_ticket(_code), do: {:error, :invalid}
+
+        def exchange_steam_ticket(_code, _opts), do: {:error, :invalid}
+      end
+
+      Application.put_env(:game_server, :oauth_exchanger, MockExchangerSteamFail)
+
+      conn = post(conn, "/api/v1/auth/steam/callback", %{code: "bad_ticket"})
+      assert conn.status == 400
+      assert json_response(conn, 400)["error"] == "exchange_failed"
+    end
+
+    test "POST /api/v1/auth/apple/callback skips profile lookup when user already has profile", %{
+      conn: conn
+    } do
+      {:ok, _user} =
+        GameServer.Accounts.find_or_create_from_apple(%{
+          apple_id: "a1",
+          display_name: "Existing",
+          profile_url: "https://x",
+          email: "existing@apple.com"
+        })
+
+      # ensure Apple client secret generation doesn't fail in tests
+      System.put_env(
+        "APPLE_PRIVATE_KEY",
+        "-----BEGIN PRIVATE KEY-----\nMYSAMPLE\n-----END PRIVATE KEY-----"
+      )
+
+      on_exit(fn -> System.delete_env("APPLE_PRIVATE_KEY") end)
+
+      defmodule MockExchangerApple do
+        def exchange_apple_code("valid_ticket", _cid, _secret, _redirect) do
+          {:ok, %{"sub" => "a1", "email" => "a@example.com", "name" => "Aname"}}
+        end
+
+        def exchange_apple_code("valid_ticket", _cid, _secret, _redirect, opts)
+            when is_list(opts) do
+          if Keyword.get(opts, :fetch_profile, false) == false do
+            {:ok, %{"sub" => "a1"}}
+          else
+            {:ok, %{"sub" => "a1", "email" => "a@example.com", "name" => "Aname"}}
+          end
+        end
+      end
+
+      Application.put_env(:game_server, :oauth_exchanger, MockExchangerApple)
+
+      conn = post(conn, "/api/v1/auth/apple/callback", %{code: "valid_ticket"})
+      assert conn.status == 200
+    end
+
+    test "POST /api/v1/auth/apple/callback fetches profile when missing fields", %{conn: conn} do
+      {:ok, user} =
+        GameServer.Accounts.find_or_create_from_apple(%{apple_id: "a2", display_name: nil})
+
+      # ensure Apple client secret generation doesn't fail in tests
+      System.put_env(
+        "APPLE_PRIVATE_KEY",
+        "-----BEGIN PRIVATE KEY-----\nMYSAMPLE\n-----END PRIVATE KEY-----"
+      )
+
+      on_exit(fn -> System.delete_env("APPLE_PRIVATE_KEY") end)
+
+      defmodule MockExchangerAppleFetch do
+        def exchange_apple_code("valid_ticket", _cid, _secret, _redirect) do
+          {:ok, %{"sub" => "a2", "email" => "a2@example.com", "name" => "FetchedA"}}
+        end
+
+        def exchange_apple_code("valid_ticket", _cid, _secret, _redirect, opts)
+            when is_list(opts) do
+          if Keyword.get(opts, :fetch_profile, false) == false do
+            {:ok, %{"sub" => "a2"}}
+          else
+            {:ok, %{"sub" => "a2", "email" => "a2@example.com", "name" => "FetchedA"}}
+          end
+        end
+      end
+
+      Application.put_env(:game_server, :oauth_exchanger, MockExchangerAppleFetch)
+
+      conn = post(conn, "/api/v1/auth/apple/callback", %{code: "valid_ticket"})
+      assert conn.status == 200
+
+      reloaded = GameServer.Repo.get(GameServer.Accounts.User, user.id)
+      assert reloaded.display_name == "FetchedA"
+    end
+
+    test "POST /api/v1/auth/steam/callback skips profile lookup when user already has profile", %{
+      conn: conn
+    } do
+      # Create existing user that already has display_name and profile_url
+      {:ok, existing} =
+        GameServer.Accounts.find_or_create_from_steam(%{
+          steam_id: "99999",
+          display_name: "Existing",
+          profile_url: "https://x"
+        })
+
+      defmodule MockExchangerSteamIdOnlyNoProfile do
+        def exchange_steam_ticket("valid_ticket", _opts) do
+          {:ok,
+           %{
+             "id" => "99999",
+             "display_name" => "SteamUser",
+             "profile_url" => "https://steam/profile/99999"
+           }}
+        end
+
+        def get_player_profile(_steamid),
+          do:
+            {:ok,
+             %{
+               "id" => "99999",
+               "display_name" => "SteamUser",
+               "profile_url" => "https://steam/profile/99999"
+             }}
+      end
+
+      Application.put_env(:game_server, :oauth_exchanger, MockExchangerSteamIdOnlyNoProfile)
+
+      conn = post(conn, "/api/v1/auth/steam/callback", %{code: "valid_ticket"})
+      assert conn.status == 200
+      body = json_response(conn, 200)
+
+      assert is_binary(body["access_token"]) and is_binary(body["refresh_token"]) and
+               is_integer(body["expires_in"])
+    end
+
+    test "POST /api/v1/auth/steam/callback fills missing profile fields for existing user", %{
+      conn: conn
+    } do
+      # Create existing user with missing display_name to force fetching
+      {:ok, existing} =
+        GameServer.Accounts.find_or_create_from_steam(%{steam_id: "99999", display_name: nil})
+
+      defmodule MockExchangerSteamIdOnlyWithProfile do
+        def exchange_steam_ticket("valid_ticket", _opts) do
+          {:ok,
+           %{
+             "id" => "99999",
+             "display_name" => "FetchedName",
+             "profile_url" => "https://steam/profile/99999"
+           }}
+        end
+
+        def get_player_profile("99999") do
+          {:ok,
+           %{
+             "id" => "99999",
+             "display_name" => "FetchedName",
+             "profile_url" => "https://steam/profile/99999"
+           }}
+        end
+      end
+
+      Application.put_env(:game_server, :oauth_exchanger, MockExchangerSteamIdOnlyWithProfile)
+
+      conn = post(conn, "/api/v1/auth/steam/callback", %{code: "valid_ticket"})
+      assert conn.status == 200
+
+      # ensure user got updated with display_name
+      reloaded = GameServer.Repo.get(GameServer.Accounts.User, existing.id)
+      assert reloaded.display_name == "FetchedName"
+    end
+
+    # Note: API now expects 'code' to be a Steam auth ticket. Supplying a steam id is not allowed.
   end
 end

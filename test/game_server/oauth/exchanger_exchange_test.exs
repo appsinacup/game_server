@@ -37,6 +37,20 @@ defmodule GameServer.OAuth.ExchangerExchangeTest do
       end
     end
 
+    def post("https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/", opts) do
+      case opts[:form] do
+        %{ticket: "valid_ticket", appid: _, key: _} ->
+          {:ok,
+           %{
+             status: 200,
+             body: %{"response" => %{"params" => %{"ownersteamid" => "99999"}, "result" => "OK"}}
+           }}
+
+        _ ->
+          {:ok, %{status: 200, body: %{"response" => %{"result" => "Fail"}}}}
+      end
+    end
+
     # Group all get/2 clauses together
     def get("https://discord.com/api/users/@me", opts) do
       case opts[:headers] do
@@ -74,12 +88,66 @@ defmodule GameServer.OAuth.ExchangerExchangeTest do
           {:error, :bad}
       end
     end
+
+    def get("https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/", opts) do
+      case opts[:params] do
+        %{steamids: "12345"} ->
+          {:ok,
+           %{
+             status: 200,
+             body: %{
+               "response" => %{
+                 "players" => [
+                   %{
+                     "steamid" => "12345",
+                     "personaname" => "steam_user",
+                     "profileurl" => "https://steam/profile/12345",
+                     "avatarfull" => "https://steam/avatar/12345_full.jpg"
+                   }
+                 ]
+               }
+             }
+           }}
+
+        %{steamids: "99999"} ->
+          {:ok,
+           %{
+             status: 200,
+             body: %{
+               "response" => %{
+                 "players" => [
+                   %{
+                     "steamid" => "99999",
+                     "personaname" => "steam_ticket_user",
+                     "profileurl" => "https://steam/profile/99999",
+                     "avatarfull" => "https://steam/avatar/99999_full.jpg"
+                   }
+                 ]
+               }
+             }
+           }}
+
+        _ ->
+          {:ok, %{status: 200, body: %{"response" => %{"players" => []}}}}
+      end
+    end
+
+    # steam ticket POST handler moved to the grouped post/2 section
   end
 
   setup do
     Application.put_env(:game_server, :oauth_exchanger_client, TestClient)
+    # Ensure a test steam api key and app id are available
+    Application.put_env(:ueberauth, Ueberauth.Strategy.Steam, api_key: "testkey")
+    System.put_env("STEAM_APP_ID", "12345")
+    # Ensure a test steam api key is available for steam lookups
+    Application.put_env(:ueberauth, Ueberauth.Strategy.Steam, api_key: "testkey")
 
-    on_exit(fn -> Application.delete_env(:game_server, :oauth_exchanger_client) end)
+    on_exit(fn ->
+      Application.delete_env(:game_server, :oauth_exchanger_client)
+      Application.delete_env(:ueberauth, Ueberauth.Strategy.Steam)
+      System.delete_env("STEAM_APP_ID")
+    end)
 
     :ok
   end
@@ -127,6 +195,38 @@ defmodule GameServer.OAuth.ExchangerExchangeTest do
 
     test "returns error when exchange fails" do
       assert {:error, _} = Exchanger.exchange_apple_code("bad", "cid", "secret", "r")
+    end
+  end
+
+  describe "exchange_steam_code/1" do
+    test "returns player info when steam id found" do
+      assert {:ok, %{"id" => "12345", "display_name" => "steam_user"}} =
+               Exchanger.exchange_steam_code("steam:12345")
+    end
+
+    test "returns error when no player found" do
+      assert {:error, _} = Exchanger.exchange_steam_code("steam:notfound")
+    end
+  end
+
+  describe "exchange_steam_ticket/1" do
+    test "valid ticket returns owner steam id and profile" do
+      assert {:ok,
+              %{
+                "id" => "99999",
+                "display_name" => "steam_ticket_user",
+                "profile_url" => "https://steam/profile/99999"
+              }} =
+               Exchanger.exchange_steam_ticket("valid_ticket")
+    end
+
+    test "valid ticket can return only id when fetch_profile=false" do
+      assert {:ok, %{"id" => "99999"}} =
+               Exchanger.exchange_steam_ticket("valid_ticket", fetch_profile: false)
+    end
+
+    test "invalid ticket returns error" do
+      assert {:error, _} = Exchanger.exchange_steam_ticket("invalid_ticket")
     end
   end
 end
