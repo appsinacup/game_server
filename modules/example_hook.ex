@@ -103,6 +103,7 @@ defmodule GameServer.Modules.ExampleHook do
     "Hello2, #{name} #{name2}!"
   end
 
+  @doc "Say hi 3"
   def hello3(name, count, list) do
     "Hello3, #{name} #{count} #{list}!"
   end

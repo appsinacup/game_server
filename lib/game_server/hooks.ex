@@ -61,11 +61,11 @@ defmodule GameServer.Hooks do
          {:ok, quoted} <- Code.string_to_quoted(src) do
       # find the defmodule AST whose module name matches the provided module
       Enum.reduce(find_module_asts(quoted, mod), %{}, fn {_mod_ast, do_block}, acc ->
-        {_ast, acc2} =
-          Macro.prewalk(do_block, acc, fn
+        {_ast, {acc2, _last_doc}} =
+          Macro.prewalk(do_block, {acc, nil}, fn
             # handle definitions with guards (eg. def foo(x) when is_binary(x))
             {:def, _meta, [{:when, _when_meta, [{name, _nmeta, args_ast}, _guard]}, _body]} = node,
-            acc_inner ->
+            {acc_inner, last_doc} ->
               arity = length(args_ast || [])
 
               arg_names =
@@ -75,9 +75,17 @@ defmodule GameServer.Hooks do
                 end)
 
               sig = "#{name}(#{Enum.join(arg_names, ", ")})"
-              {node, Map.put(acc_inner, {name, arity}, sig)}
+              doc_text = if is_binary(last_doc), do: last_doc, else: nil
+              returns_text = returns_from_doc(doc_text)
 
-            {:def, _meta, [{name, _nmeta, args_ast}, _body]} = node, acc_inner ->
+              {node,
+               {Map.put(acc_inner, {name, arity}, %{
+                  signature: sig,
+                  doc: doc_text,
+                  returns: returns_text
+                }), nil}}
+
+            {:def, _meta, [{name, _nmeta, args_ast}, _body]} = node, {acc_inner, last_doc} ->
               arity = length(args_ast || [])
 
               arg_names =
@@ -87,10 +95,23 @@ defmodule GameServer.Hooks do
                 end)
 
               sig = "#{name}(#{Enum.join(arg_names, ", ")})"
-              {node, Map.put(acc_inner, {name, arity}, sig)}
+              doc_text = if is_binary(last_doc), do: last_doc, else: nil
+              returns_text = returns_from_doc(doc_text)
 
-            node, acc_inner ->
-              {node, acc_inner}
+              {node,
+               {Map.put(acc_inner, {name, arity}, %{
+                  signature: sig,
+                  doc: doc_text,
+                  returns: returns_text
+                }), nil}}
+
+            {:@, _meta, [{:doc, _doc_meta, [doc_val]}]} = node, {acc_inner, _last_doc} ->
+              # capture module attribute @doc which applies to the next def
+              doc_text = if is_binary(doc_val), do: doc_val, else: nil
+              {node, {acc_inner, doc_text}}
+
+            node, {acc_inner, last_doc} ->
+              {node, {acc_inner, last_doc}}
           end)
 
         acc2
@@ -290,9 +311,28 @@ defmodule GameServer.Hooks do
                 _ -> Enum.map_join(signatures, "\n", &to_string/1)
               end
 
-            Map.update(acc, name, %{arity => %{signature: sig_text, doc: doc_text}}, fn map ->
-              Map.put(map, arity, %{signature: sig_text, doc: doc_text})
-            end)
+            # normalize doc_text which Code.fetch_docs may return as an i18n map
+            normalized_doc =
+              cond do
+                is_binary(doc_text) ->
+                  doc_text
+
+                is_map(doc_text) ->
+                  Map.get(doc_text, "en") || Map.get(doc_text, :en) ||
+                    Enum.join(Map.values(doc_text), "\n")
+
+                true ->
+                  nil
+              end
+
+            Map.update(
+              acc,
+              name,
+              %{arity => %{signature: sig_text, doc: normalized_doc}},
+              fn map ->
+                Map.put(map, arity, %{signature: sig_text, doc: normalized_doc})
+              end
+            )
 
           _, acc ->
             acc
@@ -422,23 +462,27 @@ defmodule GameServer.Hooks do
           sigs =
             Enum.map(arities, fn ar ->
               # prefer parsed signature text when available, otherwise use docs signature
-              parsed = Map.get(parsed_signatures, {name, ar})
-              doc_entry = Map.get(Map.get(doc_signatures, name, %{}), ar, %{})
-              doc_text = Map.get(doc_entry, :doc)
+              parsed_entry = Map.get(parsed_signatures, {name, ar})
+              # parsed_entry may be a map with :signature/:doc/:returns or a simple string
+              parsed_sig =
+                if is_map(parsed_entry), do: Map.get(parsed_entry, :signature), else: parsed_entry
 
-              # Extract 'Returns' info from docs
-              returns_text = returns_from_doc(doc_text)
+              doc_entry = Map.get(Map.get(doc_signatures, name, %{}), ar, %{})
+
+              # prefer doc text discovered in the parsed source, otherwise use compiled docs
+              doc_text = Map.get(parsed_entry || %{}, :doc) || Map.get(doc_entry, :doc)
+
+              # returns are not surfaced - we only keep doc text
 
               # choose the readable signature and example arguments
               typespec_sig = Map.get(spec_map, {name, ar})
-              chosen_signature = choose_signature(parsed, doc_entry, typespec_sig)
+              chosen_signature = choose_signature(parsed_sig, doc_entry, typespec_sig)
               example_args = example_args_for(chosen_signature)
 
               %{
                 arity: ar,
                 signature: chosen_signature,
                 doc: doc_text,
-                returns: returns_text,
                 example_args: example_args
               }
             end)
@@ -458,7 +502,7 @@ defmodule GameServer.Hooks do
       l = String.trim(line)
 
       if String.match?(l, ~r/^Returns?:/i),
-        do: String.replace_leading(l, ~r/^Returns?:\s*/i, ""),
+        do: Regex.replace(~r/^Returns?:\s*/i, l, ""),
         else: nil
     end)
   end

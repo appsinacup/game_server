@@ -77,6 +77,41 @@ defmodule GameServer.Hooks.CallTest do
     File.rm!(tmp)
   end
 
+  test "parses docs and returns from source file when available" do
+    tmp = Path.join(System.tmp_dir!(), "hooks_doc_#{System.unique_integer([:positive])}.ex")
+
+    mod =
+      Module.concat([
+        GameServer,
+        TestHooks,
+        String.to_atom("DocTest_#{System.unique_integer([:positive])}")
+      ])
+
+    src = """
+    defmodule #{inspect(mod)} do
+      @doc "Does something.\n\nReturns: a special return value"
+      def foo(a), do: {:ok, a}
+    end
+    """
+
+    File.write!(tmp, src)
+
+    Code.compile_file(tmp)
+    Application.put_env(:game_server, :hooks_module, mod)
+    Application.put_env(:game_server, :hooks_file_path, tmp)
+
+    funcs = GameServer.Hooks.exported_functions()
+    foo = Enum.find(funcs, fn f -> f.name == "foo" end)
+    assert foo != nil
+
+    sig = Enum.find(foo.signatures, &(&1.arity == 1))
+    assert sig != nil
+    assert sig.doc =~ "Does something"
+    assert sig.doc =~ "Returns: a special return value"
+
+    File.rm!(tmp)
+  end
+
   test "parses function heads with guards from source file" do
     tmp = Path.join(System.tmp_dir!(), "hooks_sig_guard_#{System.unique_integer([:positive])}.ex")
 
@@ -139,7 +174,7 @@ defmodule GameServer.Hooks.CallTest do
 
     if is_binary(sig.doc) do
       assert sig.doc =~ "Does something"
-      assert sig.returns == "a special return value"
+      assert sig.doc =~ "Returns: a special return value"
     end
   end
 

@@ -157,6 +157,10 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     assert html_after =~ "id=\"hooks-args-input\""
     assert html_after =~ "name" and html_after =~ "name2"
 
+    # the full docs panel should appear and contain the doc text
+    assert html_after =~ "Full docs: hello2/2"
+    assert html_after =~ "Say hi with two names"
+
     # cleanup env
     Application.delete_env(:game_server, :hooks_file_path)
     Application.delete_env(:game_server, :hooks_module)

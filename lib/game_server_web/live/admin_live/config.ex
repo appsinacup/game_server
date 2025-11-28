@@ -363,20 +363,8 @@ defmodule GameServerWeb.AdminLive.Config do
                                         >
                                           {f.name}/{s.arity}
                                         </span>
-                                        <%= if s.doc do %>
-                                          <button
-                                            type="button"
-                                            phx-click="show_docs"
-                                            phx-value-doc={s.doc}
-                                            phx-value-name={f.name}
-                                            phx-value-arity={s.arity}
-                                            class="btn btn-ghost btn-xs ml-2"
-                                          >
-                                            docs
-                                          </button>
-                                        <% end %>
                                         <%= if s.signature do %>
-                                          <span class="text-muted"> —  {s.signature}</span>
+                                          <span class="text-muted"> —   {s.signature}</span>
                                         <% end %>
                                         <%!-- example button removed: clicking the function name now auto-prefills the example args --%>
                                         <%= if s.doc do %>
@@ -385,9 +373,6 @@ defmodule GameServerWeb.AdminLive.Config do
                                                                                200,
                                                                              do: "…"}
                                           </span>
-                                        <% end %>
-                                        <%= if s.returns do %>
-                                          <div class="text-xs text-success">Returns: {s.returns}</div>
                                         <% end %>
                                       </div>
                                     <% end %>
@@ -652,10 +637,36 @@ defmodule GameServerWeb.AdminLive.Config do
       socket.assigns.config.hooks_exported_functions
       |> Enum.find_value(nil, fn f ->
         if to_string(f.name) == fn_name do
-          # prefer first signature's example_args
           case f.signatures do
             [first | _] -> Map.get(first, :example_args) || ""
-            _ -> ""
+            _ -> nil
+          end
+        else
+          nil
+        end
+      end)
+
+    # Also set full docs panel when doc text is available
+    doc_text =
+      socket.assigns.config.hooks_exported_functions
+      |> Enum.find_value(nil, fn f ->
+        if to_string(f.name) == fn_name do
+          case f.signatures do
+            [first | _] -> Map.get(first, :doc)
+            _ -> nil
+          end
+        else
+          nil
+        end
+      end)
+
+    full_name =
+      socket.assigns.config.hooks_exported_functions
+      |> Enum.find_value(nil, fn f ->
+        if to_string(f.name) == fn_name do
+          case f.signatures do
+            [first | _] -> "#{fn_name}/#{first.arity}"
+            _ -> nil
           end
         else
           nil
@@ -665,7 +676,9 @@ defmodule GameServerWeb.AdminLive.Config do
     {:noreply,
      assign(socket,
        hooks_prefill: %{value: fn_name, seq: seq},
-       hooks_args_prefill: %{value: example || "", seq: seq}
+       hooks_args_prefill: %{value: example || "", seq: seq},
+       hooks_full_doc: doc_text,
+       hooks_full_name: full_name
      )}
   end
 
