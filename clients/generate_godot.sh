@@ -55,9 +55,29 @@ find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/lo
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/login_200_response_data_user/Login200ResponseDataUser/g" -i
 # Replace OAuthSessionData_details with OAuthSessionDataDetails
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/OAuthSessionData_details/OAuthSessionDataDetails/g" -i
-
-
-
+# Replace list_blocked_friends_200_response_data_inner with ListBlockedFriends200ResponseDataInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_blocked_friends_200_response_data_inner/ListBlockedFriends200ResponseDataInner/g" -i
+# Replace list_lobbies_200_response_meta with ListLobbies200ResponseMeta
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_lobbies_200_response_meta/ListLobbies200ResponseMeta/g" -i
+# Replace list_blocked_friends_200_response_data_inner_requester with ListBlockedFriends200ResponseDataInnerRequester
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_blocked_friends_200_response_data_inner_requester/ListBlockedFriends200ResponseDataInnerRequester/g" -i
+# Replace list_friend_requests_200_response_incoming_inner with ListFriendRequests200ResponseIncomingInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_friend_requests_200_response_incoming_inner/ListFriendRequests200ResponseIncomingInner/g" -i
+# Replace list_friend_requests_200_response_meta with ListFriendRequests200ResponseMeta
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_friend_requests_200_response_meta/ListFriendRequests200ResponseMeta/g" -i
+# Replace list_friend_requests_200_response_incoming_inner_requester with ListFriendRequests200ResponseIncomingInnerRequester
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_friend_requests_200_response_incoming_inner_requester/ListFriendRequests200ResponseIncomingInnerRequester/g" -i
+# Replace list_friends_200_response_data_inner with ListFriends200ResponseDataInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_friends_200_response_data_inner/ListFriends200ResponseDataInner/g" -i
+# Replace list_lobbies_200_response_data_inner with ListLobbies200ResponseDataInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_lobbies_200_response_data_inner/ListLobbies200ResponseDataInner/g" -i
+# Replace Login200ResponseData_user with Login200ResponseDataUser
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/Login200ResponseData_user/Login200ResponseDataUser/g" -i
+# Replace ListBlockedFriends200ResponseDataInner_requester with ListBlockedFriends200ResponseDataInnerRequester
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/ListBlockedFriends200ResponseDataInner_requester/ListBlockedFriends200ResponseDataInnerRequester/g" -i
+# Replace ListFriendRequests200ResponseIncomingInner_requester with ListFriendRequests200ResponseIncomingInnerRequester
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/ListFriendRequests200ResponseIncomingInner_requester/ListFriendRequests200ResponseIncomingInnerRequester/g" -i
+# Replace ListFriends200
 echo "Post-processing complete."
 
 # If APP_VERSION is set (CI), stamp it into the gamend_template so the

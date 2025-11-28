@@ -76,11 +76,12 @@ defmodule GameServerWeb.Router do
     pipe_through [:api, :api_auth]
 
     get "/me", MeController, :show
+    delete "/me", MeController, :delete
     post "/lobbies", LobbyController, :create
-    patch "/lobbies/:id", LobbyController, :update
+    patch "/lobbies", LobbyController, :update
     post "/lobbies/:id/join", LobbyController, :join
-    post "/lobbies/:id/leave", LobbyController, :leave
-    post "/lobbies/:id/kick", LobbyController, :kick
+    post "/lobbies/leave", LobbyController, :leave
+    post "/lobbies/kick", LobbyController, :kick
     patch "/me/password", MeController, :update_password
     patch "/me/display_name", MeController, :update_display_name
     delete "/me/providers/:provider", ProviderController, :unlink
@@ -102,12 +103,6 @@ defmodule GameServerWeb.Router do
 
     get "/:provider", AuthController, :api_request
     get "/session/:session_id", AuthController, :api_session_status
-  end
-
-  scope "/api/v1/auth", GameServerWeb do
-    pipe_through [:api, :api_auth]
-
-    post "/:provider/conflict-delete", AuthController, :api_conflict_delete
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview for admins (dev only)

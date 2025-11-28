@@ -53,17 +53,15 @@ defmodule GameServerWeb.Api.V1.MeController do
   operation(:update_password,
     operation_id: "update_current_user_password",
     summary: "Update current user password",
-    request_body: %{
-      description: "New password payload",
-      content: %{
-        "application/json" => %Schema{
-          type: :object,
-          properties: %{
-            password: %Schema{type: :string},
-            password_confirmation: %Schema{type: :string}
-          },
-          required: [:password]
-        }
+    request_body: {
+      "New password payload",
+      "application/json",
+      %Schema{
+        type: :object,
+        properties: %{
+          password: %Schema{type: :string}
+        },
+        required: [:password]
       }
     },
     security: [%{"authorization" => []}],
@@ -91,16 +89,15 @@ defmodule GameServerWeb.Api.V1.MeController do
   operation(:update_display_name,
     operation_id: "update_current_user_display_name",
     summary: "Update current user's display name",
-    request_body: %{
-      description: "Display name payload",
-      content: %{
-        "application/json" => %Schema{
-          type: :object,
-          properties: %{
-            display_name: %Schema{type: :string}
-          },
-          required: [:display_name]
-        }
+    request_body: {
+      "Display name payload",
+      "application/json",
+      %Schema{
+        type: :object,
+        properties: %{
+          display_name: %Schema{type: :string}
+        },
+        required: [:display_name]
       }
     },
     security: [%{"authorization" => []}],
@@ -122,6 +119,32 @@ defmodule GameServerWeb.Api.V1.MeController do
         conn
         |> put_status(:bad_request)
         |> json(%{errors: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)})
+    end
+  end
+
+  operation(:delete,
+    operation_id: "delete_current_user",
+    summary: "Delete current user",
+    description: "Deletes the authenticated user's account",
+    security: [%{"authorization" => []}],
+    responses: [
+      no_content: {"Account deleted", "application/json", nil},
+      bad_request: {"Failed to delete account", "application/json", nil},
+      unauthorized: {"Not authenticated", "application/json", nil}
+    ]
+  )
+
+  def delete(conn, _params) do
+    user = conn.assigns.current_scope.user
+
+    case GameServer.Accounts.delete_user(user) do
+      {:ok, _} ->
+        send_resp(conn, :no_content, "")
+
+      {:error, _} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "Failed to delete account"})
     end
   end
 end

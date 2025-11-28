@@ -5,6 +5,7 @@ defmodule GameServerWeb.AuthController do
   plug Ueberauth, only: [:request, :callback], providers: [:steam]
 
   alias GameServer.Accounts
+  alias GameServer.Accounts.User
   alias GameServer.OAuthSessions
   alias GameServerWeb.Auth.Guardian
   alias GameServerWeb.UserAuth
@@ -639,84 +640,6 @@ defmodule GameServerWeb.AuthController do
     |> json(%{error: "invalid_provider", message: "Unsupported OAuth provider"})
   end
 
-  operation(:api_conflict_delete,
-    operation_id: "oauth_conflict_delete",
-    summary: "Delete conflicting provider account",
-    description:
-      "Deletes a conflicting account that owns a provider ID when allowed (must be authenticated). Only allowed when the conflicting account either has no password (provider-only) or has the same email as the current user.",
-    tags: ["Authentication"],
-    security: [%{"authorization" => []}],
-    parameters: [
-      provider: [
-        in: :path,
-        name: "provider",
-        schema: %OpenApiSpex.Schema{
-          type: :string,
-          enum: ["discord", "apple", "google", "facebook", "steam"]
-        },
-        required: true
-      ],
-      conflict_user_id: [
-        in: :query,
-        name: "conflict_user_id",
-        schema: %OpenApiSpex.Schema{type: :integer},
-        required: true
-      ]
-    ],
-    responses: [
-      no_content: {"No Content", "application/json", %OpenApiSpex.Schema{type: :object}},
-      bad_request: {"Bad Request", "application/json", %OpenApiSpex.Schema{type: :object}},
-      unauthorized: {"Unauthorized", "application/json", %OpenApiSpex.Schema{type: :object}}
-    ]
-  )
-
-  def api_conflict_delete(conn, %{"provider" => _provider, "conflict_user_id" => conflict_user_id}) do
-    # Delete conflicting account via API (authenticated)
-    current = conn.assigns.current_scope.user
-
-    case Integer.parse(conflict_user_id) do
-      {id, ""} ->
-        case Accounts.get_user!(id) do
-          %Accounts.User{} = other_user ->
-            cond do
-              other_user.id == current.id ->
-                conn
-                |> put_status(:bad_request)
-                |> json(%{error: "Cannot delete your own logged-in account"})
-
-              (other_user.email || "") |> String.downcase() ==
-                (current.email || "") |> String.downcase() and
-                  (other_user.email || "") != "" ->
-                attempt_delete_user(conn, other_user)
-
-              other_user.hashed_password == nil ->
-                attempt_delete_user(conn, other_user)
-
-              true ->
-                conn
-                |> put_status(:bad_request)
-                |> json(%{error: "Cannot delete an account you do not own"})
-            end
-
-          _ ->
-            conn |> put_status(:bad_request) |> json(%{error: "Account not found"})
-        end
-
-      :error ->
-        conn |> put_status(:bad_request) |> json(%{error: "invalid id"})
-    end
-  end
-
-  defp attempt_delete_user(conn, user) do
-    case Accounts.delete_user(user) do
-      {:ok, _} ->
-        send_resp(conn, :no_content, "")
-
-      {:error, _} ->
-        conn |> put_status(:bad_request) |> json(%{error: "Failed to delete account"})
-    end
-  end
-
   operation(:api_session_status,
     operation_id: "oauth_session_status",
     summary: "Get OAuth session status",
@@ -758,7 +681,7 @@ defmodule GameServerWeb.AuthController do
                current_user,
                user_params,
                :google_id,
-               &GameServer.Accounts.User.google_oauth_changeset/2
+               &User.google_oauth_changeset/2
              ) do
           {:ok, _user} ->
             conn
@@ -812,7 +735,7 @@ defmodule GameServerWeb.AuthController do
                current_user,
                user_params,
                :facebook_id,
-               &GameServer.Accounts.User.facebook_oauth_changeset/2
+               &User.facebook_oauth_changeset/2
              ) do
           {:ok, _user} ->
             conn
@@ -866,7 +789,7 @@ defmodule GameServerWeb.AuthController do
                current_user,
                user_params,
                :apple_id,
-               &GameServer.Accounts.User.apple_oauth_changeset/2
+               &User.apple_oauth_changeset/2
              ) do
           {:ok, _user} ->
             conn
@@ -920,7 +843,7 @@ defmodule GameServerWeb.AuthController do
                current_user,
                user_params,
                :steam_id,
-               &GameServer.Accounts.User.steam_oauth_changeset/2
+               &User.steam_oauth_changeset/2
              ) do
           {:ok, _user} ->
             conn
@@ -974,7 +897,7 @@ defmodule GameServerWeb.AuthController do
                current_user,
                user_params,
                :discord_id,
-               &GameServer.Accounts.User.discord_oauth_changeset/2
+               &User.discord_oauth_changeset/2
              ) do
           {:ok, _user} ->
             conn

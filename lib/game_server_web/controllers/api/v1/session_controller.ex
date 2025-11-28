@@ -107,7 +107,7 @@ defmodule GameServerWeb.Api.V1.SessionController do
 
   operation(:create_device,
     operation_id: "device_login",
-    summary: "Device login (SDK)",
+    summary: "Device login",
     description: "Authenticate or create a device-backed user using a device_id (no password).",
     request_body: {
       "Device login",

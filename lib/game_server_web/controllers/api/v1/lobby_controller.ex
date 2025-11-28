@@ -144,9 +144,6 @@ defmodule GameServerWeb.Api.V1.LobbyController do
     description:
       "Update lobby settings. Only the host can update the lobby via the API (returns 403 if not host). Admins can still modify lobbies from the admin console - those changes are broadcast to viewers.",
     security: [%{"authorization" => []}],
-    parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Lobby ID", required: true]
-    ],
     request_body: {
       "Lobby update parameters",
       "application/json",
@@ -167,6 +164,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
         }
       }
     },
+    # Uses the authenticated user's lobby_id — no path id required
     responses: [
       ok: {"Lobby updated", "application/json", @lobby_schema},
       forbidden:
@@ -184,9 +182,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
     description:
       "Join an existing lobby. If the lobby requires a password, include it in the request body.",
     security: [%{"authorization" => []}],
-    parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Lobby ID", required: true]
-    ],
+    # Uses the authenticated user's current lobby (no path id required)
     request_body: {
       "Join parameters (optional)",
       "application/json",
@@ -214,9 +210,6 @@ defmodule GameServerWeb.Api.V1.LobbyController do
     summary: "Leave the current lobby",
     description: "Leave the lobby you are currently in.",
     security: [%{"authorization" => []}],
-    parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Lobby ID", required: true]
-    ],
     responses: [
       no_content: {"No content", "application/json", nil},
       bad_request:
@@ -230,13 +223,10 @@ defmodule GameServerWeb.Api.V1.LobbyController do
 
   operation(:kick,
     operation_id: "kick_user",
-    summary: "Kick a user from the lobby",
+    summary: "Kick a user from the lobby (host only)",
     description:
       "Remove a user from the lobby. Only the host can kick users via the API (returns 403 if not host).",
     security: [%{"authorization" => []}],
-    parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Lobby ID", required: true]
-    ],
     request_body: {
       "Kick parameters",
       "application/json",
@@ -380,28 +370,33 @@ defmodule GameServerWeb.Api.V1.LobbyController do
     end
   end
 
-  def update(conn, %{"id" => id} = params) do
+  def update(conn, params) do
     case conn.assigns[:current_scope] do
       %{user: user} when is_map(user) ->
-        lobby = Lobbies.get_lobby!(id)
+        # Use the authenticated user's lobby_id — require that the user is in a lobby
+        if is_nil(user.lobby_id) do
+          conn |> put_status(:bad_request) |> json(%{error: "not_in_lobby"})
+        else
+          lobby = Lobbies.get_lobby!(user.lobby_id)
 
-        case Lobbies.update_lobby_by_host(user, lobby, params) do
-          {:ok, updated} ->
-            json(conn, serialize_lobby(updated))
+          case Lobbies.update_lobby_by_host(user, lobby, params) do
+            {:ok, updated} ->
+              json(conn, serialize_lobby(updated))
 
-          {:error, :not_host} ->
-            conn |> put_status(:forbidden) |> json(%{error: "not_host"})
+            {:error, :not_host} ->
+              conn |> put_status(:forbidden) |> json(%{error: "not_host"})
 
-          {:error, :too_small} ->
-            conn |> put_status(:unprocessable_entity) |> json(%{error: "too_small"})
+            {:error, :too_small} ->
+              conn |> put_status(:unprocessable_entity) |> json(%{error: "too_small"})
 
-          {:error, %Ecto.Changeset{} = changeset} ->
-            conn
-            |> put_status(:unprocessable_entity)
-            |> json(%{error: Ecto.Changeset.traverse_errors(changeset, fn {msg, _} -> msg end)})
+            {:error, %Ecto.Changeset{} = changeset} ->
+              conn
+              |> put_status(:unprocessable_entity)
+              |> json(%{error: Ecto.Changeset.traverse_errors(changeset, fn {msg, _} -> msg end)})
 
-          other ->
-            conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
+            other ->
+              conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
+          end
         end
 
       _ ->
@@ -409,30 +404,34 @@ defmodule GameServerWeb.Api.V1.LobbyController do
     end
   end
 
-  def kick(conn, %{"id" => id, "target_user_id" => target_user_id}) do
+  def kick(conn, %{"target_user_id" => target_user_id}) do
     case conn.assigns[:current_scope] do
       %{user: user} when is_map(user) ->
-        lobby = Lobbies.get_lobby!(id)
-        target = GameServer.Accounts.get_user!(target_user_id)
+        if is_nil(user.lobby_id) do
+          conn |> put_status(:bad_request) |> json(%{error: "not_in_lobby"})
+        else
+          lobby = Lobbies.get_lobby!(user.lobby_id)
+          target = GameServer.Accounts.get_user!(target_user_id)
 
-        case Lobbies.kick_user(user, lobby, target) do
-          {:ok, _} ->
-            send_resp(conn, :no_content, "")
+          case Lobbies.kick_user(user, lobby, target) do
+            {:ok, _} ->
+              send_resp(conn, :no_content, "")
 
-          {:error, :not_host} ->
-            conn |> put_status(:forbidden) |> json(%{error: "not_host"})
+            {:error, :not_host} ->
+              conn |> put_status(:forbidden) |> json(%{error: "not_host"})
 
-          {:error, :cannot_kick_self} ->
-            conn |> put_status(:forbidden) |> json(%{error: "cannot_kick_self"})
+            {:error, :cannot_kick_self} ->
+              conn |> put_status(:forbidden) |> json(%{error: "cannot_kick_self"})
 
-          {:error, :not_found} ->
-            conn |> put_status(:not_found) |> json(%{error: "not_found"})
+            {:error, :not_found} ->
+              conn |> put_status(:not_found) |> json(%{error: "not_found"})
 
-          {:error, {:hook_rejected, _}} ->
-            conn |> put_status(:forbidden) |> json(%{error: "rejected"})
+            {:error, {:hook_rejected, _}} ->
+              conn |> put_status(:forbidden) |> json(%{error: "rejected"})
 
-          other ->
-            conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
+            other ->
+              conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
+          end
         end
 
       _ ->
@@ -440,11 +439,13 @@ defmodule GameServerWeb.Api.V1.LobbyController do
     end
   end
 
-  def leave(conn, %{"id" => id}) do
+  def leave(conn, _params) do
     case conn.assigns[:current_scope] do
       %{user: user} when is_map(user) ->
-        # Ensure user is leaving their own lobby
-        if user.lobby_id == String.to_integer(id) or user.lobby_id == id do
+        # Use the authenticated user's lobby (ignore path id)
+        if is_nil(user.lobby_id) do
+          conn |> put_status(:bad_request) |> json(%{error: "not_in_lobby"})
+        else
           case Lobbies.leave_lobby(user) do
             {:ok, _} ->
               send_resp(conn, :no_content, "")
@@ -458,8 +459,6 @@ defmodule GameServerWeb.Api.V1.LobbyController do
             other ->
               conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
           end
-        else
-          conn |> put_status(:bad_request) |> json(%{error: "not_in_lobby"})
         end
 
       _ ->

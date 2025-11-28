@@ -114,14 +114,17 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     conn1 =
       conn
       |> put_req_header("authorization", "Bearer " <> token_other)
-      |> patch("/api/v1/lobbies/#{lobby.id}", %{title: "bad"})
+      |> patch("/api/v1/lobbies", %{title: "bad"})
 
-    assert conn1.status in [403, 422]
+    # After switching to using the authenticated user's lobby, a non-host
+    # who isn't in the lobby will get 400 (not_in_lobby) — if the user
+    # is in the lobby but not host they'd get 403. Accept either.
+    assert conn1.status in [400, 403, 422]
 
     conn2 =
       conn
       |> put_req_header("authorization", "Bearer " <> token_host)
-      |> patch("/api/v1/lobbies/#{lobby.id}", %{title: "New Title"})
+      |> patch("/api/v1/lobbies", %{title: "New Title"})
 
     assert json_response(conn2, 200)["title"] == "New Title"
   end
@@ -142,7 +145,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     conn_fail =
       conn
       |> put_req_header("authorization", "Bearer " <> token_host)
-      |> patch("/api/v1/lobbies/#{lobby.id}", %{max_users: 2})
+      |> patch("/api/v1/lobbies", %{max_users: 2})
 
     assert conn_fail.status == 422
     assert json_response(conn_fail, 422)["error"] == "too_small"
@@ -151,7 +154,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     conn_ok =
       conn
       |> put_req_header("authorization", "Bearer " <> token_host)
-      |> patch("/api/v1/lobbies/#{lobby.id}", %{max_users: 6})
+      |> patch("/api/v1/lobbies", %{max_users: 6})
 
     assert json_response(conn_ok, 200)["max_users"] == 6
   end
@@ -167,7 +170,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     conn =
       conn
       |> put_req_header("authorization", "Bearer " <> token_host)
-      |> post("/api/v1/lobbies/#{lobby.id}/kick", %{target_user_id: other.id})
+      |> post("/api/v1/lobbies/kick", %{target_user_id: other.id})
 
     # kick returns 204 No Content now
     assert conn.status == 204
@@ -190,7 +193,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     conn =
       conn
       |> put_req_header("authorization", "Bearer " <> token_member1)
-      |> post("/api/v1/lobbies/#{lobby.id}/kick", %{target_user_id: member2.id})
+      |> post("/api/v1/lobbies/kick", %{target_user_id: member2.id})
 
     assert conn.status == 403
     assert json_response(conn, 403)["error"] == "not_host"
@@ -209,7 +212,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     conn =
       conn
       |> put_req_header("authorization", "Bearer " <> token_host)
-      |> post("/api/v1/lobbies/#{lobby.id}/kick", %{target_user_id: host.id})
+      |> post("/api/v1/lobbies/kick", %{target_user_id: host.id})
 
     assert conn.status == 403
     assert json_response(conn, 403)["error"] == "cannot_kick_self"
@@ -217,6 +220,33 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     # host should still be in the lobby
     reloaded = GameServer.Repo.get(User, host.id)
     assert reloaded.lobby_id == lobby.id
+  end
+
+  test "POST /api/v1/lobbies/:id/kick uses authenticated user's lobby when path id mismatches", %{
+    conn: conn
+  } do
+    host = AccountsFixtures.user_fixture()
+    other = AccountsFixtures.user_fixture()
+    {:ok, lobby} = Lobbies.create_lobby(%{name: "kick-mismatch-room", host_id: host.id})
+
+    # create a different lobby to use as mismatched path id
+    other_host = AccountsFixtures.user_fixture()
+    {:ok, other_lobby} = Lobbies.create_lobby(%{name: "other-room", host_id: other_host.id})
+
+    assert {:ok, _} = Lobbies.join_lobby(other, lobby)
+
+    {:ok, token_host, _} = Guardian.encode_and_sign(host)
+
+    conn =
+      conn
+      |> put_req_header("authorization", "Bearer " <> token_host)
+      |> post("/api/v1/lobbies/kick", %{target_user_id: other.id})
+
+    # kick returns 204 No Content now and uses host's lobby, not path id
+    assert conn.status == 204
+
+    reloaded = GameServer.Repo.get(User, other.id)
+    assert is_nil(reloaded.lobby_id)
   end
 
   test "POST /api/v1/lobbies/:id/leave removes user from lobby", %{conn: conn} do
@@ -230,9 +260,37 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     conn =
       conn
       |> put_req_header("authorization", "Bearer " <> token_member)
-      |> post("/api/v1/lobbies/#{lobby.id}/leave")
+      |> post("/api/v1/lobbies/leave")
 
     # leave now returns 204 No Content
+    assert conn.status == 204
+
+    reloaded = GameServer.Repo.get(GameServer.Accounts.User, member.id)
+    assert is_nil(reloaded.lobby_id)
+  end
+
+  test "POST /api/v1/lobbies/:id/leave ignores path id and removes authenticated user", %{
+    conn: conn
+  } do
+    host = AccountsFixtures.user_fixture()
+    member = AccountsFixtures.user_fixture()
+    {:ok, lobby} = Lobbies.create_lobby(%{name: "leave-mismatch-room", host_id: host.id})
+
+    {:ok, other_lobby} =
+      Lobbies.create_lobby(%{
+        name: "other-leave-room",
+        host_id: AccountsFixtures.user_fixture().id
+      })
+
+    assert {:ok, _} = Lobbies.join_lobby(member, lobby)
+
+    {:ok, token_member, _} = Guardian.encode_and_sign(member)
+
+    conn =
+      conn
+      |> put_req_header("authorization", "Bearer " <> token_member)
+      |> post("/api/v1/lobbies/leave")
+
     assert conn.status == 204
 
     reloaded = GameServer.Repo.get(GameServer.Accounts.User, member.id)

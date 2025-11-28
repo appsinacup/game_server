@@ -67,10 +67,7 @@ defmodule GameServerWeb.Api.V1.MeControllerTest do
       conn =
         conn
         |> put_req_header("authorization", "Bearer " <> token)
-        |> patch("/api/v1/me/password", %{
-          password: new_password,
-          password_confirmation: new_password
-        })
+        |> patch("/api/v1/me/password", %{password: new_password})
 
       assert json_response(conn, 200)
 
@@ -86,7 +83,7 @@ defmodule GameServerWeb.Api.V1.MeControllerTest do
       conn =
         conn
         |> put_req_header("authorization", "Bearer " <> token)
-        |> patch("/api/v1/me/password", %{password: "", password_confirmation: ""})
+        |> patch("/api/v1/me/password", %{password: ""})
 
       assert conn.status == 400
       body = json_response(conn, 400)
@@ -103,6 +100,28 @@ defmodule GameServerWeb.Api.V1.MeControllerTest do
       refute GameServer.Accounts.get_user_by_email_and_password(user.email, "")
       # and with any random string should also fail
       refute GameServer.Accounts.get_user_by_email_and_password(user.email, "pw")
+    end
+  end
+
+  describe "DELETE /api/v1/me" do
+    test "deletes the authenticated user's account", %{conn: conn} do
+      user = GameServer.AccountsFixtures.user_fixture()
+      {:ok, token, _} = Guardian.encode_and_sign(user)
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer " <> token)
+        |> delete("/api/v1/me")
+
+      assert conn.status == 204
+
+      # Ensure user was deleted
+      assert GameServer.Repo.get(GameServer.Accounts.User, user.id) == nil
+    end
+
+    test "returns 401 when not authenticated", %{conn: conn} do
+      conn = delete(conn, "/api/v1/me")
+      assert json_response(conn, 401)
     end
   end
 end

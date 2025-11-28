@@ -9,7 +9,7 @@ defmodule GameServerWeb.Api.V1.UserController do
 
   operation(:index,
     operation_id: "search_users",
-    summary: "Search users by id/email/display_name (public)",
+    summary: "Search users by id/email/display_name",
     parameters: [
       q: [in: :query, schema: %Schema{type: :string}],
       page: [in: :query, schema: %Schema{type: :integer}],
@@ -51,7 +51,7 @@ defmodule GameServerWeb.Api.V1.UserController do
 
   operation(:show,
     operation_id: "get_user",
-    summary: "Get a user by id (public)",
+    summary: "Get a user by id",
     parameters: [id: [in: :path, schema: %Schema{type: :integer}, required: true]],
     responses: [
       ok:

@@ -57,16 +57,16 @@ export function joinLobby(lobbyId, opts = {}) {
   return apiRequest('POST', `/api/v1/lobbies/${lobbyId}/join`, opts)
 }
 
-export function leaveLobby(lobbyId) {
-  return apiRequest('POST', `/api/v1/lobbies/${lobbyId}/leave`, {})
+export function leaveLobby() {
+  return apiRequest('POST', `/api/v1/lobbies/leave`, {})
 }
 
-export function updateLobby(lobbyId, attrs) {
-  return apiRequest('PATCH', `/api/v1/lobbies/${lobbyId}`, attrs)
+export function updateLobby(attrs) {
+  return apiRequest('PATCH', `/api/v1/lobbies`, attrs)
 }
 
-export function kickUser(lobbyId, targetUserId) {
-  return apiRequest('POST', `/api/v1/lobbies/${lobbyId}/kick`, {target_user_id: targetUserId})
+export function kickUser(targetUserId) {
+  return apiRequest('POST', `/api/v1/lobbies/kick`, {target_user_id: targetUserId})
 }
 
 // Channels: create/join lobby channel

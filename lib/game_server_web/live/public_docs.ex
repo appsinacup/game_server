@@ -264,21 +264,21 @@ defmodule GameServerWeb.PublicDocs do
     await lobbiesApi.joinLobby(lobbyId, { password: 'secret123' });
 
     // Leave the current lobby (authenticated)
-    await lobbiesApi.leaveLobby(lobbyId);
+    await lobbiesApi.leaveLobby();
     console.log('Left the lobby');</code></pre>
                   </div>
 
                   <h4 class="font-semibold mt-4">Update & Kick (host only)</h4>
                   <div class="bg-base-200 p-4 rounded-lg">
                     <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>// Update lobby settings (host only)
-    await lobbiesApi.updateLobby(lobbyId, {
+    await lobbiesApi.updateLobby({
     title: 'Updated Room Name',
     max_users: 8,
     is_locked: true
     });
 
     // Kick a user (host only)
-    await lobbiesApi.kickUser(lobbyId, { target_user_id: 123 });
+    await lobbiesApi.kickUser(123);
     console.log('User kicked from lobby');</code></pre>
                   </div>
                   <h4 class="font-semibold mt-4">Friends</h4>

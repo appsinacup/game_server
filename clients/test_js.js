@@ -222,12 +222,12 @@ async function testLobbyAPI(apiClient) {
 
     // Update the lobby's title (host-only action)
     console.log('Updating lobby title...');
-    const updated = await lobbiesApi.updateLobby(lobby.id, { updateLobbyRequest: { title: lobby.title + ' (updated)' } });
+    const updated = await lobbiesApi.updateLobby({ updateLobbyRequest: { title: lobby.title + ' (updated)' } });
     console.log('✅ Updated lobby:', updated);
 
     // Leave the lobby
     console.log('Leaving lobby...');
-    const leave = await lobbiesApi.leaveLobby(lobby.id);
+    const leave = await lobbiesApi.leaveLobby();
     console.log('✅ Left lobby:', leave);
 
   } catch (error) {
