@@ -98,6 +98,16 @@ defmodule GameServerWeb.AdminLive.Users do
                   <input
                     type="checkbox"
                     phx-click="toggle_provider"
+                    phx-value-provider="steam"
+                    checked={"steam" in @filters}
+                    class="checkbox"
+                  />
+                  <span class="label-text ml-2">Steam</span>
+                </label>
+                <label class="label cursor-pointer">
+                  <input
+                    type="checkbox"
+                    phx-click="toggle_provider"
                     phx-value-provider="email"
                     checked={"email" in @filters}
                     class="checkbox"
@@ -114,6 +124,7 @@ defmodule GameServerWeb.AdminLive.Users do
                     <th>Email</th>
                     <th>Display Name</th>
                     <th>Discord ID</th>
+                    <th>Steam ID</th>
                     <th>Profile</th>
                     <th>Apple ID</th>
                     <th>Google ID</th>
@@ -140,6 +151,13 @@ defmodule GameServerWeb.AdminLive.Users do
                     <td class="font-mono text-sm">
                       <%= if user.discord_id do %>
                         {user.discord_id}
+                      <% else %>
+                        <span class="text-gray-500">-</span>
+                      <% end %>
+                    </td>
+                    <td class="font-mono text-sm">
+                      <%= if user.steam_id do %>
+                        {user.steam_id}
                       <% else %>
                         <span class="text-gray-500">-</span>
                       <% end %>
@@ -537,7 +555,8 @@ defmodule GameServerWeb.AdminLive.Users do
               from u in base,
                 where:
                   fragment("LOWER(?) LIKE LOWER(?)", u.email, ^q) or
-                    fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^q)
+                    fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^q) or
+                    fragment("LOWER(?) LIKE LOWER(?)", u.steam_id, ^q)
 
             %User{} = user ->
               # special marker: we return a query that matches only this ID
@@ -550,7 +569,8 @@ defmodule GameServerWeb.AdminLive.Users do
           from u in base,
             where:
               fragment("LOWER(?) LIKE LOWER(?)", u.email, ^q) or
-                fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^q)
+                fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^q) or
+                fragment("LOWER(?) LIKE LOWER(?)", u.steam_id, ^q)
       end
 
     # build provider filter conditions (OR)
@@ -561,6 +581,7 @@ defmodule GameServerWeb.AdminLive.Users do
         "google" -> dynamic([u], not is_nil(u.google_id) and u.google_id != "")
         "apple" -> dynamic([u], not is_nil(u.apple_id) and u.apple_id != "")
         "facebook" -> dynamic([u], not is_nil(u.facebook_id) and u.facebook_id != "")
+        "steam" -> dynamic([u], not is_nil(u.steam_id) and u.steam_id != "")
         "device" -> dynamic([u], not is_nil(u.device_id) and u.device_id != "")
         "email" -> dynamic([u], not is_nil(u.hashed_password) and u.hashed_password != "")
       end)

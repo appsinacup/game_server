@@ -437,6 +437,30 @@ defmodule GameServerWeb.AuthControllerTest do
     assert session.status == "completed"
   end
 
+  test "callback (steam) captures personaname from raw_info when info.name is missing", %{
+    conn: conn
+  } do
+    # simulate raw info only (no info.name or info.nickname)
+    auth = %{
+      uid: 123_456,
+      info: %{
+        urls: %{profile: "https://steam/profile/123456"}
+      },
+      extra: %{
+        raw_info: %{user: %{personaname: "Estar", profileurl: "https://steam/profile/123456"}}
+      }
+    }
+
+    conn1 = conn |> assign(:ueberauth_auth, auth) |> get("/auth/steam/callback")
+
+    assert redirected_to(conn1) =~ "/"
+
+    # Reload from DB and assert display_name stored
+    user = GameServer.Repo.get_by(GameServer.Accounts.User, steam_id: "123456")
+    assert user != nil
+    assert user.display_name == "Estar"
+  end
+
   test "callback (steam) with state but no session is treated as browser flow", %{conn: conn} do
     auth = %{
       uid: 424_243,

@@ -178,7 +178,7 @@ async function runAllTests() {
   await testSDK();
   console.log('');
 
-  const providers = ['discord', 'google', 'facebook', 'apple'];
+  const providers = ['steam', 'discord', 'google', 'facebook', 'apple'];
   for (const provider of providers) {
     console.log(`\n--- Testing ${provider.toUpperCase()} ---\n`);
     const result = await runOAuthFlow(provider);

@@ -53,9 +53,10 @@ defmodule GameServerWeb.AuthController do
   )
 
   def request(conn, %{"provider" => "discord"}) do
-    client_id = System.get_env("DISCORD_CLIENT_ID")
+    cfg = Application.get_env(:ueberauth, Ueberauth.Strategy.Discord.OAuth, [])
+    client_id = cfg[:client_id] || System.get_env("DISCORD_CLIENT_ID")
     base = GameServerWeb.Endpoint.url()
-    redirect_uri = "#{base}/auth/discord/callback"
+    redirect_uri = cfg[:redirect_uri] || "#{base}/auth/discord/callback"
     scope = "identify email"
 
     url =
@@ -73,10 +74,33 @@ defmodule GameServerWeb.AuthController do
         %Plug.Conn{assigns: %{ueberauth_auth: auth}} = conn,
         %{"provider" => "steam"} = params
       ) do
+    if Mix.env() == :dev do
+      require Logger
+      cookie = Map.get(conn.cookies || %{}, "ueberauth.state_param")
+
+      Logger.debug(
+        "[Steam OAuth] callback success — params[state]=#{inspect(params["state"])}, cookie=#{inspect(cookie)}, auth.uid=#{inspect(auth.uid)}"
+      )
+    end
+
     uid = to_string(auth.uid)
     info = auth.info || %{}
-    display_name = Map.get(info, :nickname) || Map.get(info, :name)
-    profile_url = get_in(info, [:urls, :profile]) || Map.get(info, :image)
+    # Steam provides a personaname in its API which is wired to auth.info.name
+    # via the strategy. Try a few places for a friendly display name in order of
+    # preference: info.name (personaname), info.nickname, and finally the raw
+    # Steam user payload (personaname or realname).
+    extra = Map.get(auth, :extra) || %{}
+    raw_info = Map.get(extra, :raw_info) || %{}
+    raw_user = Map.get(raw_info, :user) || %{}
+
+    display_name =
+      Map.get(info, :name) ||
+        Map.get(info, :nickname) ||
+        Map.get(raw_user, :personaname) ||
+        Map.get(raw_user, :realname)
+
+    urls = Map.get(info, :urls, %{})
+    profile_url = Map.get(urls, :profile) || Map.get(info, :image)
 
     user_params = %{
       steam_id: uid,
@@ -104,6 +128,16 @@ defmodule GameServerWeb.AuthController do
         %Plug.Conn{assigns: %{ueberauth_failure: failure}} = conn,
         %{"provider" => "steam"} = params
       ) do
+    # Diagnostic logging for CSRF failures — logs session cookie + state param
+    if Mix.env() == :dev do
+      require Logger
+      cookie = Map.get(conn.cookies || %{}, "ueberauth.state_param")
+
+      Logger.debug(
+        "[Steam OAuth] callback failure — params[state]=#{inspect(params["state"])}, cookie=#{inspect(cookie)}, failure=#{inspect(failure)}"
+      )
+    end
+
     case params["state"] do
       nil ->
         browser_oauth_error_redirect(conn, "steam", failure)
@@ -125,9 +159,10 @@ defmodule GameServerWeb.AuthController do
   end
 
   def request(conn, %{"provider" => "google"}) do
-    client_id = System.get_env("GOOGLE_CLIENT_ID")
+    cfg = Application.get_env(:ueberauth, Ueberauth.Strategy.Google.OAuth, [])
+    client_id = cfg[:client_id] || System.get_env("GOOGLE_CLIENT_ID")
     base = GameServerWeb.Endpoint.url()
-    redirect_uri = "#{base}/auth/google/callback"
+    redirect_uri = cfg[:redirect_uri] || "#{base}/auth/google/callback"
     scope = "email profile"
 
     url =
@@ -137,9 +172,10 @@ defmodule GameServerWeb.AuthController do
   end
 
   def request(conn, %{"provider" => "facebook"}) do
-    client_id = System.get_env("FACEBOOK_CLIENT_ID")
+    cfg = Application.get_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth, [])
+    client_id = cfg[:client_id] || System.get_env("FACEBOOK_CLIENT_ID")
     base = GameServerWeb.Endpoint.url()
-    redirect_uri = "#{base}/auth/facebook/callback"
+    redirect_uri = cfg[:redirect_uri] || "#{base}/auth/facebook/callback"
     scope = "email"
 
     url =
@@ -149,35 +185,16 @@ defmodule GameServerWeb.AuthController do
   end
 
   def request(conn, %{"provider" => "apple"}) do
-    client_id = System.get_env("APPLE_CLIENT_ID")
+    cfg = Application.get_env(:ueberauth, Ueberauth.Strategy.Apple.OAuth, [])
+    client_id = cfg[:client_id] || System.get_env("APPLE_CLIENT_ID")
     base = GameServerWeb.Endpoint.url()
-    redirect_uri = "#{base}/auth/apple/callback"
+    redirect_uri = cfg[:redirect_uri] || "#{base}/auth/apple/callback"
     scope = "name email"
 
     url =
       "https://appleid.apple.com/auth/authorize?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&response_mode=form_post&scope=#{URI.encode_www_form(scope)}"
 
     redirect(conn, external: url)
-  end
-
-  def request(conn, %{"provider" => "steam"}) do
-    # Steam uses OpenID (checkid_setup). Build the redirect URL for the
-    # browser flow and send the user to Steam's OpenID endpoint.
-    base = GameServerWeb.Endpoint.url()
-    callback_url = "#{base}/auth/steam/callback"
-
-    params = %{
-      "openid.mode" => "checkid_setup",
-      "openid.ns" => "http://specs.openid.net/auth/2.0",
-      "openid.claimed_id" => "http://specs.openid.net/auth/2.0/identifier_select",
-      "openid.identity" => "http://specs.openid.net/auth/2.0/identifier_select",
-      "openid.realm" => base,
-      "openid.return_to" => callback_url
-    }
-
-    redirect(conn,
-      external: "https://steamcommunity.com/openid/login?" <> URI.encode_query(params)
-    )
   end
 
   # Unified OAuth callback - handles both browser and API flows
@@ -592,6 +609,26 @@ defmodule GameServerWeb.AuthController do
 
     url =
       "https://www.facebook.com/v18.0/dialog/oauth?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}&state=#{URI.encode_www_form(session_id)}"
+
+    json(conn, %{authorization_url: url, session_id: session_id})
+  end
+
+  def api_request(conn, %{"provider" => "steam"}) do
+    # Generate a unique session ID for this OpenID (Steam) request
+    session_id = :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
+
+    GameServer.OAuthSessions.create_session(session_id, %{provider: "steam", status: "pending"})
+
+    base = GameServerWeb.Endpoint.url()
+
+    # For Steam OpenID, include the session_id in the return_to callback so
+    # the callback handler can treat this as an API/session flow when the
+    # session_id is present.
+    return_to = "#{base}/auth/steam/callback?state=#{URI.encode_www_form(session_id)}"
+    realm = base
+
+    url =
+      "https://steamcommunity.com/openid/login?openid.ns=http://specs.openid.net/auth/2.0&openid.mode=checkid_setup&openid.return_to=#{URI.encode_www_form(return_to)}&openid.realm=#{URI.encode_www_form(realm)}&openid.identity=http://specs.openid.net/auth/2.0/identifier_select&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select"
 
     json(conn, %{authorization_url: url, session_id: session_id})
   end

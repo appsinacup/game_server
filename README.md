@@ -24,7 +24,11 @@ This application supports two authentication methods:
 
 Traditional session-based authentication for browser flows:
 - Email/password registration and login
-- Discord OAuth login  
+- Discord OAuth
+- Apple Sing In
+- Google OAuth
+- Steam OpenID
+- Facebook OAuth
 - Session tokens stored in database
 - Managed via cookies and Phoenix sessions
 

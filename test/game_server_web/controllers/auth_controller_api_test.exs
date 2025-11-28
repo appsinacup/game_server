@@ -98,5 +98,24 @@ defmodule GameServerWeb.AuthControllerApiTest do
       assert conn.status == 400
       assert json_response(conn, 400)["error"] == "invalid_provider"
     end
+
+    test "steam returns OpenID URL and session id", %{conn: conn} do
+      conn = get(conn, ~p"/api/v1/auth/steam")
+
+      assert conn.status == 200
+
+      body = json_response(conn, 200)
+
+      assert is_binary(body["authorization_url"]) and
+               String.contains?(body["authorization_url"], "steamcommunity.com/openid/login")
+
+      assert is_binary(body["session_id"]) and byte_size(body["session_id"]) > 0
+
+      # server should have created a pending session record
+      session = GameServer.OAuthSessions.get_session(body["session_id"])
+      assert session != nil
+      assert session.provider == "steam"
+      assert session.status == "pending"
+    end
   end
 end

@@ -72,6 +72,11 @@ defmodule GameServerWeb.AdminLive.UsersTest do
         email: "google1@example.com"
       })
 
+    {:ok, _s1} =
+      Accounts.find_or_create_from_steam(%{
+        steam_id: "s1"
+      })
+
     _plain = AccountsFixtures.user_fixture(%{email: "plain@example.com"})
     # create a user with a password so they show up in the email/password filter
     _password_user =
@@ -84,6 +89,7 @@ defmodule GameServerWeb.AdminLive.UsersTest do
     assert html =~ "discord1@example.com"
     assert html =~ "discord2@example.com"
     assert html =~ "google1@example.com"
+    assert html =~ "s1"
     assert html =~ "plain@example.com"
 
     # confirm DB-level provider counts match expectations
@@ -141,6 +147,16 @@ defmodule GameServerWeb.AdminLive.UsersTest do
     html4 = render(view)
 
     assert html4 =~ "pw@example.com"
+    # toggle steam filter on
+    view
+    |> element(~S(input[phx-click="toggle_provider"][phx-value-provider="steam"]))
+    |> render_click(%{"provider" => "steam"})
+
+    html5 = render(view)
+
+    assert html5 =~ "s1"
+    refute html5 =~ "discord1@example.com"
+    refute html5 =~ "google1@example.com"
     refute html4 =~ "discord1@example.com"
     refute html4 =~ "google1@example.com"
   end

@@ -37,6 +37,7 @@ defmodule GameServerWeb.AdminLive.Users.Index do
                     <th>Email</th>
                     <th>Profile</th>
                     <th>Discord ID</th>
+                    <th>Steam ID</th>
                     <th>Confirmed</th>
                     <th>Created</th>
                     <th>Actions</th>
@@ -54,6 +55,7 @@ defmodule GameServerWeb.AdminLive.Users.Index do
                       <% end %>
                     </td>
                     <td class="font-mono text-xs">{user.discord_id || "-"}</td>
+                    <td class="font-mono text-xs">{user.steam_id || "-"}</td>
                     <td>
                       <%= if user.confirmed_at do %>
                         <span class="badge badge-success badge-sm">Yes</span>

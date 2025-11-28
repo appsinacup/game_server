@@ -92,7 +92,7 @@ config :ueberauth, Ueberauth,
     apple: {Ueberauth.Strategy.Apple, []},
     google: {Ueberauth.Strategy.Google, []},
     facebook: {Ueberauth.Strategy.Facebook, []},
-    steam: {Ueberauth.Strategy.Steam, []}
+    steam: {Ueberauth.Strategy.Steam, [ignores_csrf_attack: true]}
   ]
 
 config :ueberauth, Ueberauth.Strategy.Discord.OAuth,
