@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.1">
-    <meta name="project" content="game_server v1.0.207">
+    <meta name="project" content="game_server v1.0.220">
 
 
-    <title>GameServer.OAuth.Exchanger — game_server v1.0.207</title>
+    <title>GameServer.OAuth.Exchanger — game_server v1.0.220</title>
 
     <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
 
-    <script defer src="dist/sidebar_items-808323B8.js"></script>
+    <script defer src="dist/sidebar_items-32C227BD.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-HBZYRXZS.js"></script>
 
@@ -37,7 +37,7 @@
 game_server
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.207
+          v1.0.220
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.OAuth.Exchanger</span> 
-      <small class="app-vsn" translate="no">(game_server v1.0.207)</small>
+      <small class="app-vsn" translate="no">(game_server v1.0.220)</small>
 
     </h1>
 
@@ -127,7 +127,7 @@ Tests may replace the exchanger via application config for easier stubbing.</p>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#exchange_apple_code/4" data-no-tooltip="" translate="no">exchange_apple_code(code, client_id, client_secret, redirect_uri)</a>
+        <a href="#exchange_apple_code/5" data-no-tooltip="" translate="no">exchange_apple_code(code, client_id, client_secret, redirect_uri, opts \\ [])</a>
 
       </div>
 
@@ -135,7 +135,7 @@ Tests may replace the exchanger via application config for easier stubbing.</p>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#exchange_discord_code/4" data-no-tooltip="" translate="no">exchange_discord_code(code, client_id, client_secret, redirect_uri)</a>
+        <a href="#exchange_discord_code/5" data-no-tooltip="" translate="no">exchange_discord_code(code, client_id, client_secret, redirect_uri, opts \\ [])</a>
 
       </div>
 
@@ -143,7 +143,7 @@ Tests may replace the exchanger via application config for easier stubbing.</p>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#exchange_facebook_code/4" data-no-tooltip="" translate="no">exchange_facebook_code(code, client_id, client_secret, redirect_uri)</a>
+        <a href="#exchange_facebook_code/5" data-no-tooltip="" translate="no">exchange_facebook_code(code, client_id, client_secret, redirect_uri, opts \\ [])</a>
 
       </div>
 
@@ -151,9 +151,38 @@ Tests may replace the exchanger via application config for easier stubbing.</p>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#exchange_google_code/4" data-no-tooltip="" translate="no">exchange_google_code(code, client_id, client_secret, redirect_uri)</a>
+        <a href="#exchange_google_code/5" data-no-tooltip="" translate="no">exchange_google_code(code, client_id, client_secret, redirect_uri, opts \\ [])</a>
 
       </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#exchange_steam_code/1" data-no-tooltip="" translate="no">exchange_steam_code(code)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#exchange_steam_ticket/2" data-no-tooltip="" translate="no">exchange_steam_ticket(ticket, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Verify a Steam auth ticket using ISteamUserAuth/AuthenticateUserTicket/v1</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_player_profile/1" data-no-tooltip="" translate="no">get_player_profile(steamid)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Fetch a public Steam profile for a given steamid using GetPlayerSummaries.
+Returns {:ok, map} or {:error, reason}.</p></div>
 
     </div>
 
@@ -171,17 +200,19 @@ Tests may replace the exchanger via application config for easier stubbing.</p>
     </h1>
 
     <div class="functions-list">
-<section class="detail" id="exchange_apple_code/4">
+<section class="detail" id="exchange_apple_code/5">
+
+    <span id="exchange_apple_code/4"></span>
 
   <div class="detail-header">
-    <a href="#exchange_apple_code/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#exchange_apple_code/5" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">exchange_apple_code(code, client_id, client_secret, redirect_uri)</h1>
+      <h1 class="signature" translate="no">exchange_apple_code(code, client_id, client_secret, redirect_uri, opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/oauth/exchanger.ex#L122" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/oauth/exchanger.ex#L152" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -192,7 +223,7 @@ Tests may replace the exchanger via application config for easier stubbing.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> exchange_apple_code(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) ::
+          <pre translate="no"><span class="attribute">@spec</span> exchange_apple_code(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
   {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
@@ -200,14 +231,16 @@ Tests may replace the exchanger via application config for easier stubbing.</p>
 
   </section>
 </section>
-<section class="detail" id="exchange_discord_code/4">
+<section class="detail" id="exchange_discord_code/5">
+
+    <span id="exchange_discord_code/4"></span>
 
   <div class="detail-header">
-    <a href="#exchange_discord_code/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#exchange_discord_code/5" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">exchange_discord_code(code, client_id, client_secret, redirect_uri)</h1>
+      <h1 class="signature" translate="no">exchange_discord_code(code, client_id, client_secret, redirect_uri, opts \\ [])</h1>
 
 
         <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/oauth/exchanger.ex#L11" class="icon-action" rel="help" aria-label="View Source">
@@ -221,7 +254,7 @@ Tests may replace the exchanger via application config for easier stubbing.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> exchange_discord_code(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) ::
+          <pre translate="no"><span class="attribute">@spec</span> exchange_discord_code(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
   {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
@@ -229,17 +262,19 @@ Tests may replace the exchanger via application config for easier stubbing.</p>
 
   </section>
 </section>
-<section class="detail" id="exchange_facebook_code/4">
+<section class="detail" id="exchange_facebook_code/5">
+
+    <span id="exchange_facebook_code/4"></span>
 
   <div class="detail-header">
-    <a href="#exchange_facebook_code/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#exchange_facebook_code/5" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">exchange_facebook_code(code, client_id, client_secret, redirect_uri)</h1>
+      <h1 class="signature" translate="no">exchange_facebook_code(code, client_id, client_secret, redirect_uri, opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/oauth/exchanger.ex#L79" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/oauth/exchanger.ex#L109" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -250,7 +285,13 @@ Tests may replace the exchanger via application config for easier stubbing.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> exchange_facebook_code(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) ::
+          <pre translate="no"><span class="attribute">@spec</span> exchange_facebook_code(
+  <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) ::
   {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
@@ -258,14 +299,16 @@ Tests may replace the exchanger via application config for easier stubbing.</p>
 
   </section>
 </section>
-<section class="detail" id="exchange_google_code/4">
+<section class="detail" id="exchange_google_code/5">
+
+    <span id="exchange_google_code/4"></span>
 
   <div class="detail-header">
-    <a href="#exchange_google_code/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#exchange_google_code/5" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">exchange_google_code(code, client_id, client_secret, redirect_uri)</h1>
+      <h1 class="signature" translate="no">exchange_google_code(code, client_id, client_secret, redirect_uri, opts \\ [])</h1>
 
 
         <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/oauth/exchanger.ex#L45" class="icon-action" rel="help" aria-label="View Source">
@@ -279,12 +322,97 @@ Tests may replace the exchanger via application config for easier stubbing.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> exchange_google_code(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) ::
+          <pre translate="no"><span class="attribute">@spec</span> exchange_google_code(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
   {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
 
+  </section>
+</section>
+<section class="detail" id="exchange_steam_code/1">
+
+  <div class="detail-header">
+    <a href="#exchange_steam_code/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">exchange_steam_code(code)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/oauth/exchanger.ex#L253" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> exchange_steam_code(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="exchange_steam_ticket/2">
+
+    <span id="exchange_steam_ticket/1"></span>
+
+  <div class="detail-header">
+    <a href="#exchange_steam_ticket/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">exchange_steam_ticket(ticket, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/oauth/exchanger.ex#L297" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> exchange_steam_ticket(
+  <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) :: {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Verify a Steam auth ticket using ISteamUserAuth/AuthenticateUserTicket/v1</p><p>Expects a ticket (binary blob) returned by the Steamworks client SDK. Returns
+{:ok, user_info} on successful verification or {:error, reason} on failure.</p>
+  </section>
+</section>
+<section class="detail" id="get_player_profile/1">
+
+  <div class="detail-header">
+    <a href="#get_player_profile/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_player_profile(steamid)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/oauth/exchanger.ex#L360" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Fetch a public Steam profile for a given steamid using GetPlayerSummaries.
+Returns {:ok, map} or {:error, reason}.</p>
   </section>
 </section>
 

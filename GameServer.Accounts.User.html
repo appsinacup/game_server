@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.1">
-    <meta name="project" content="game_server v1.0.207">
+    <meta name="project" content="game_server v1.0.220">
 
 
-    <title>GameServer.Accounts.User — game_server v1.0.207</title>
+    <title>GameServer.Accounts.User — game_server v1.0.220</title>
 
     <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
 
-    <script defer src="dist/sidebar_items-808323B8.js"></script>
+    <script defer src="dist/sidebar_items-32C227BD.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-HBZYRXZS.js"></script>
 
@@ -37,7 +37,7 @@
 game_server
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.207
+          v1.0.220
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.Accounts.User</span> 
-      <small class="app-vsn" translate="no">(game_server v1.0.207)</small>
+      <small class="app-vsn" translate="no">(game_server v1.0.220)</small>
 
     </h1>
 
@@ -266,6 +266,16 @@ constraint.</p></div>
 
     <div class="summary-row">
       <div class="summary-signature">
+        <a href="#steam_oauth_changeset/2" data-no-tooltip="" translate="no">steam_oauth_changeset(user, attrs)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>A user changeset for Steam OpenID registration.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
         <a href="#valid_password?/2" data-no-tooltip="" translate="no">valid_password?(arg1, password)</a>
 
       </div>
@@ -329,6 +339,7 @@ constraint.</p></div>
   metadata: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(),
   password: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
   profile_url: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  steam_id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
   updated_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()
 }</pre>
 
@@ -360,7 +371,7 @@ constraint.</p></div>
       <h1 class="signature" translate="no">admin_changeset(user, attrs)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L282" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L307" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -382,7 +393,7 @@ constraint.</p></div>
       <h1 class="signature" translate="no">apple_oauth_changeset(user, attrs)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L187" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L212" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -404,7 +415,7 @@ constraint.</p></div>
       <h1 class="signature" translate="no">attach_device_changeset(user, attrs)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L272" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L297" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -428,7 +439,7 @@ constraint.</p>
       <h1 class="signature" translate="no">confirm_changeset(user)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L153" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L154" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -450,7 +461,7 @@ constraint.</p>
       <h1 class="signature" translate="no">device_changeset(user, attrs)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L260" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L285" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -473,7 +484,7 @@ immediately confirmed so the SDK can receive tokens without email confirmation.<
       <h1 class="signature" translate="no">discord_oauth_changeset(user, attrs)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L163" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L164" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -495,7 +506,7 @@ immediately confirmed so the SDK can receive tokens without email confirmation.<
       <h1 class="signature" translate="no">display_name_changeset(user, attrs)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L291" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L316" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -519,7 +530,7 @@ immediately confirmed so the SDK can receive tokens without email confirmation.<
       <h1 class="signature" translate="no">email_changeset(user, attrs, opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L63" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L64" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -543,7 +554,7 @@ Defaults to <code class="inline">true</code>.</li></ul>
       <h1 class="signature" translate="no">facebook_oauth_changeset(user, attrs)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L235" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L260" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -565,7 +576,7 @@ Defaults to <code class="inline">true</code>.</li></ul>
       <h1 class="signature" translate="no">google_oauth_changeset(user, attrs)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L211" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L236" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -589,7 +600,7 @@ Defaults to <code class="inline">true</code>.</li></ul>
       <h1 class="signature" translate="no">password_changeset(user, attrs, opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L115" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L116" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -619,7 +630,7 @@ Defaults to <code class="inline">true</code>.</li></ul>
       <h1 class="signature" translate="no">registration_changeset(user, attrs, opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L46" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L47" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -629,6 +640,28 @@ Defaults to <code class="inline">true</code>.</li></ul>
   <section class="docstring">
 
 <p>A user changeset for registering a new user.</p>
+  </section>
+</section>
+<section class="detail" id="steam_oauth_changeset/2">
+
+  <div class="detail-header">
+    <a href="#steam_oauth_changeset/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">steam_oauth_changeset(user, attrs)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L188" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>A user changeset for Steam OpenID registration.</p><p>Expects steam_id and optional profile fields.</p>
   </section>
 </section>
 <section class="detail" id="valid_password?/2">
@@ -641,7 +674,7 @@ Defaults to <code class="inline">true</code>.</li></ul>
       <h1 class="signature" translate="no">valid_password?(arg1, password)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L304" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts/user.ex#L329" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
