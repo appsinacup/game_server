@@ -352,7 +352,7 @@ defmodule GameServerWeb.AuthControllerTest do
     # create a pending session to match API flow expectations
     OAuthSessions.create_session(session_id, %{provider: "steam", status: "pending"})
 
-    conn =
+    _conn =
       conn
       |> assign(:ueberauth_failure, failure)
       |> get("/auth/steam/callback?state=#{session_id}")
@@ -397,7 +397,7 @@ defmodule GameServerWeb.AuthControllerTest do
     logged_conn = ctx.conn
     scope = ctx.scope
 
-    auth = %{uid: 99999, info: %{nickname: "conflict", urls: %{profile: "https://steam/99999"}}}
+    auth = %{uid: 99_999, info: %{nickname: "conflict", urls: %{profile: "https://steam/99999"}}}
 
     conn =
       logged_conn
@@ -430,7 +430,7 @@ defmodule GameServerWeb.AuthControllerTest do
     session_id = "s-#{System.unique_integer([:positive])}"
     OAuthSessions.create_session(session_id, %{provider: "steam", status: "pending"})
 
-    conn2 =
+    _conn2 =
       conn |> assign(:ueberauth_auth, auth) |> get("/auth/steam/callback?state=#{session_id}")
 
     session = OAuthSessions.get_session(session_id)

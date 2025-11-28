@@ -65,7 +65,7 @@ defmodule GameServerWeb.UserAuthTest do
     test "triggers hooks.after_user_login for non-token logins", %{conn: conn, user: user} do
       Application.put_env(:game_server, :hooks_module, TestHooksLogin)
 
-      conn = UserAuth.log_in_user(conn, user, %{})
+      _conn = UserAuth.log_in_user(conn, user, %{})
 
       # hooks run asynchronously
       Process.sleep(50)

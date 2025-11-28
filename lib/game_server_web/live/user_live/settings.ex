@@ -580,6 +580,7 @@ defmodule GameServerWeb.UserLive.Settings do
   end
 
   @impl true
+  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   def handle_event(event, params, socket) do
     user = get_user_from_scope(socket.assigns)
 

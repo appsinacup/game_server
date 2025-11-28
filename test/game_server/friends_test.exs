@@ -105,7 +105,7 @@ defmodule GameServer.FriendsTest do
 
     test "cannot send request when blocked", %{a: a, b: b} do
       {:ok, f} = Friends.create_request(a.id, b.id)
-      {:ok, blocked} = Friends.block_friend_request(f.id, b)
+      {:ok, _blocked} = Friends.block_friend_request(f.id, b)
 
       # now a should not be able to send new request to b
       assert {:error, :blocked} = Friends.create_request(a.id, b.id)

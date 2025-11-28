@@ -538,61 +538,8 @@ defmodule GameServerWeb.AdminLive.Users do
 
     search_term = String.trim(search || "")
 
-    base =
-      cond do
-        search_term == "" ->
-          base
-
-        Regex.match?(~r/^\d+$/, search_term) ->
-          # numeric id - short-circuit and return the single match.
-          id = String.to_integer(search_term)
-
-          case Repo.get(User, id) do
-            nil ->
-              # fall back to text search if no exact id match
-              q = "%#{search_term}%"
-
-              from u in base,
-                where:
-                  fragment("LOWER(?) LIKE LOWER(?)", u.email, ^q) or
-                    fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^q) or
-                    fragment("LOWER(?) LIKE LOWER(?)", u.steam_id, ^q)
-
-            %User{} = user ->
-              # special marker: we return a query that matches only this ID
-              from u in base, where: u.id == ^user.id
-          end
-
-        true ->
-          q = "%#{search_term}%"
-
-          from u in base,
-            where:
-              fragment("LOWER(?) LIKE LOWER(?)", u.email, ^q) or
-                fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^q) or
-                fragment("LOWER(?) LIKE LOWER(?)", u.steam_id, ^q)
-      end
-
-    # build provider filter conditions (OR)
-    conds =
-      filters
-      |> Enum.map(fn
-        "discord" -> dynamic([u], not is_nil(u.discord_id) and u.discord_id != "")
-        "google" -> dynamic([u], not is_nil(u.google_id) and u.google_id != "")
-        "apple" -> dynamic([u], not is_nil(u.apple_id) and u.apple_id != "")
-        "facebook" -> dynamic([u], not is_nil(u.facebook_id) and u.facebook_id != "")
-        "steam" -> dynamic([u], not is_nil(u.steam_id) and u.steam_id != "")
-        "device" -> dynamic([u], not is_nil(u.device_id) and u.device_id != "")
-        "email" -> dynamic([u], not is_nil(u.hashed_password) and u.hashed_password != "")
-      end)
-
-    base =
-      if conds == [] do
-        base
-      else
-        combined = Enum.reduce(conds, fn c, acc -> dynamic([u], ^acc or ^c) end)
-        from u in base, where: ^combined
-      end
+    base = apply_search(base, search_term)
+    base = apply_provider_filters(base, filters)
 
     total_count = Repo.one(from u in base, select: count(u.id)) || 0
     total_pages = if page_size > 0, do: div(total_count + page_size - 1, page_size), else: 0
@@ -606,5 +553,62 @@ defmodule GameServerWeb.AdminLive.Users do
       )
 
     {users, total_count, total_pages}
+  end
+
+  defp apply_search(base, search_term) do
+    cond do
+      search_term == "" ->
+        base
+
+      Regex.match?(~r/^\d+$/, search_term) ->
+        # numeric id - short-circuit and return the single match.
+        id = String.to_integer(search_term)
+
+        case Repo.get(User, id) do
+          nil ->
+            # fall back to text search if no exact id match
+            q = "%#{search_term}%"
+
+            from u in base,
+              where:
+                fragment("LOWER(?) LIKE LOWER(?)", u.email, ^q) or
+                  fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^q) or
+                  fragment("LOWER(?) LIKE LOWER(?)", u.steam_id, ^q)
+
+          %User{} = user ->
+            # special marker: we return a query that matches only this ID
+            from u in base, where: u.id == ^user.id
+        end
+
+      true ->
+        q = "%#{search_term}%"
+
+        from u in base,
+          where:
+            fragment("LOWER(?) LIKE LOWER(?)", u.email, ^q) or
+              fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^q) or
+              fragment("LOWER(?) LIKE LOWER(?)", u.steam_id, ^q)
+    end
+  end
+
+  defp apply_provider_filters(base, filters) do
+    conds =
+      filters
+      |> Enum.map(fn
+        "discord" -> dynamic([u], not is_nil(u.discord_id) and u.discord_id != "")
+        "google" -> dynamic([u], not is_nil(u.google_id) and u.google_id != "")
+        "apple" -> dynamic([u], not is_nil(u.apple_id) and u.apple_id != "")
+        "facebook" -> dynamic([u], not is_nil(u.facebook_id) and u.facebook_id != "")
+        "steam" -> dynamic([u], not is_nil(u.steam_id) and u.steam_id != "")
+        "device" -> dynamic([u], not is_nil(u.device_id) and u.device_id != "")
+        "email" -> dynamic([u], not is_nil(u.hashed_password) and u.hashed_password != "")
+      end)
+
+    if conds == [] do
+      base
+    else
+      combined = Enum.reduce(conds, fn c, acc -> dynamic([u], ^acc or ^c) end)
+      from u in base, where: ^combined
+    end
   end
 end

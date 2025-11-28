@@ -65,98 +65,9 @@ defmodule GameServerWeb.AuthController do
     redirect(conn, external: url)
   end
 
-  def steam_callback(conn, params) do
-    callback(conn, Map.put(params, "provider", "steam"))
-  end
+  # steam_callback helper is defined with the other callbacks below
 
-  # Ueberauth Steam callback handler
-  def callback(
-        %Plug.Conn{assigns: %{ueberauth_auth: auth}} = conn,
-        %{"provider" => "steam"} = params
-      ) do
-    if Mix.env() == :dev do
-      require Logger
-      cookie = Map.get(conn.cookies || %{}, "ueberauth.state_param")
-
-      Logger.debug(
-        "[Steam OAuth] callback success — params[state]=#{inspect(params["state"])}, cookie=#{inspect(cookie)}, auth.uid=#{inspect(auth.uid)}"
-      )
-    end
-
-    uid = to_string(auth.uid)
-    info = auth.info || %{}
-    # Steam provides a personaname in its API which is wired to auth.info.name
-    # via the strategy. Try a few places for a friendly display name in order of
-    # preference: info.name (personaname), info.nickname, and finally the raw
-    # Steam user payload (personaname or realname).
-    extra = Map.get(auth, :extra) || %{}
-    raw_info = Map.get(extra, :raw_info) || %{}
-    raw_user = Map.get(raw_info, :user) || %{}
-
-    display_name =
-      Map.get(info, :name) ||
-        Map.get(info, :nickname) ||
-        Map.get(raw_user, :personaname) ||
-        Map.get(raw_user, :realname)
-
-    urls = Map.get(info, :urls, %{})
-    profile_url = Map.get(urls, :profile) || Map.get(info, :image)
-
-    user_params = %{
-      steam_id: uid,
-      display_name: display_name,
-      profile_url: profile_url
-    }
-
-    case params["state"] do
-      nil ->
-        handle_browser_steam_callback(conn, user_params)
-
-      session_id ->
-        # Only treat as API/session flow if a matching session exists
-        case OAuthSessions.get_session(session_id) do
-          nil ->
-            handle_browser_steam_callback(conn, user_params)
-
-          _ ->
-            do_find_or_create_steam_for_session(conn, user_params, session_id)
-        end
-    end
-  end
-
-  def callback(
-        %Plug.Conn{assigns: %{ueberauth_failure: failure}} = conn,
-        %{"provider" => "steam"} = params
-      ) do
-    # Diagnostic logging for CSRF failures — logs session cookie + state param
-    if Mix.env() == :dev do
-      require Logger
-      cookie = Map.get(conn.cookies || %{}, "ueberauth.state_param")
-
-      Logger.debug(
-        "[Steam OAuth] callback failure — params[state]=#{inspect(params["state"])}, cookie=#{inspect(cookie)}, failure=#{inspect(failure)}"
-      )
-    end
-
-    case params["state"] do
-      nil ->
-        browser_oauth_error_redirect(conn, "steam", failure)
-
-      session_id ->
-        case OAuthSessions.get_session(session_id) do
-          nil ->
-            browser_oauth_error_redirect(conn, "steam", failure)
-
-          _ ->
-            GameServer.OAuthSessions.create_session(session_id, %{
-              status: "error",
-              data: %{details: inspect(failure)}
-            })
-
-            redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
-        end
-    end
-  end
+  # Steam callback handlers live alongside other provider callbacks below
 
   def request(conn, %{"provider" => "google"}) do
     cfg = Application.get_env(:ueberauth, Ueberauth.Strategy.Google.OAuth, [])
@@ -196,6 +107,44 @@ defmodule GameServerWeb.AuthController do
 
     redirect(conn, external: url)
   end
+
+  # helper route used for Steam callback routing — delegates into the
+  # unified `callback/2` handler by injecting the `provider` param.
+  def steam_callback(conn, params) do
+    callback(conn, Map.put(params, "provider", "steam"))
+  end
+
+  operation(:callback,
+    operation_id: "oauth_callback_browser",
+    summary: "Browser OAuth callback",
+    description:
+      "Handles provider callback for browser OAuth flows (redirects or shows messages)",
+    tags: ["Authentication"],
+    parameters: [
+      provider: [
+        in: :path,
+        name: "provider",
+        schema: %OpenApiSpex.Schema{type: :string},
+        required: true
+      ],
+      code: [
+        in: :query,
+        name: "code",
+        schema: %OpenApiSpex.Schema{type: :string},
+        required: false
+      ],
+      state: [
+        in: :query,
+        name: "state",
+        schema: %OpenApiSpex.Schema{type: :string},
+        required: false
+      ]
+    ],
+    responses: [
+      found: {"Redirect or success page", "text/html", %OpenApiSpex.Schema{type: :string}},
+      bad_request: {"Bad request", "text/html", %OpenApiSpex.Schema{type: :string}}
+    ]
+  )
 
   # Unified OAuth callback - handles both browser and API flows
   # API flows include a 'state' parameter with session_id
@@ -263,38 +212,6 @@ defmodule GameServerWeb.AuthController do
         end
     end
   end
-
-  operation(:callback,
-    operation_id: "oauth_callback_browser",
-    summary: "Browser OAuth callback",
-    description:
-      "Handles provider callback for browser OAuth flows (redirects or shows messages)",
-    tags: ["Authentication"],
-    parameters: [
-      provider: [
-        in: :path,
-        name: "provider",
-        schema: %OpenApiSpex.Schema{type: :string},
-        required: true
-      ],
-      code: [
-        in: :query,
-        name: "code",
-        schema: %OpenApiSpex.Schema{type: :string},
-        required: false
-      ],
-      state: [
-        in: :query,
-        name: "state",
-        schema: %OpenApiSpex.Schema{type: :string},
-        required: false
-      ]
-    ],
-    responses: [
-      found: {"Redirect or success page", "text/html", %OpenApiSpex.Schema{type: :string}},
-      bad_request: {"Bad request", "text/html", %OpenApiSpex.Schema{type: :string}}
-    ]
-  )
 
   def callback(conn, %{"provider" => "google", "code" => code} = params) do
     require Logger
@@ -471,6 +388,88 @@ defmodule GameServerWeb.AuthController do
 
                 redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
             end
+        end
+    end
+  end
+
+  def callback(
+        %Plug.Conn{assigns: %{ueberauth_auth: auth}} = conn,
+        %{"provider" => "steam"} = params
+      ) do
+    if Mix.env() == :dev do
+      require Logger
+      cookie = Map.get(conn.cookies || %{}, "ueberauth.state_param")
+
+      Logger.debug(
+        "[Steam OAuth] callback success — params[state]=#{inspect(params["state"])}, cookie=#{inspect(cookie)}, auth.uid=#{inspect(auth.uid)}"
+      )
+    end
+
+    uid = to_string(auth.uid)
+    info = auth.info || %{}
+    extra = Map.get(auth, :extra) || %{}
+    raw_info = Map.get(extra, :raw_info) || %{}
+    raw_user = Map.get(raw_info, :user) || %{}
+
+    display_name =
+      Map.get(info, :name) ||
+        Map.get(info, :nickname) ||
+        Map.get(raw_user, :personaname) ||
+        Map.get(raw_user, :realname)
+
+    urls = Map.get(info, :urls, %{})
+    profile_url = Map.get(urls, :profile) || Map.get(info, :image)
+
+    user_params = %{
+      steam_id: uid,
+      display_name: display_name,
+      profile_url: profile_url
+    }
+
+    case params["state"] do
+      nil ->
+        handle_browser_steam_callback(conn, user_params)
+
+      session_id ->
+        case OAuthSessions.get_session(session_id) do
+          nil ->
+            handle_browser_steam_callback(conn, user_params)
+
+          _ ->
+            do_find_or_create_steam_for_session(conn, user_params, session_id)
+        end
+    end
+  end
+
+  def callback(
+        %Plug.Conn{assigns: %{ueberauth_failure: failure}} = conn,
+        %{"provider" => "steam"} = params
+      ) do
+    if Mix.env() == :dev do
+      require Logger
+      cookie = Map.get(conn.cookies || %{}, "ueberauth.state_param")
+
+      Logger.debug(
+        "[Steam OAuth] callback failure — params[state]=#{inspect(params["state"])}, cookie=#{inspect(cookie)}, failure=#{inspect(failure)}"
+      )
+    end
+
+    case params["state"] do
+      nil ->
+        browser_oauth_error_redirect(conn, "steam", failure)
+
+      session_id ->
+        case OAuthSessions.get_session(session_id) do
+          nil ->
+            browser_oauth_error_redirect(conn, "steam", failure)
+
+          _ ->
+            GameServer.OAuthSessions.create_session(session_id, %{
+              status: "error",
+              data: %{details: inspect(failure)}
+            })
+
+            redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
         end
     end
   end
