@@ -1,11 +1,6 @@
 defmodule GameServerWeb.AuthControllerApiTest do
   use GameServerWeb.ConnCase, async: true
 
-  alias GameServer.Accounts
-  alias GameServerWeb.Auth.Guardian
-
-  import GameServer.AccountsFixtures
-
   setup do
     # allow tests to inject a mock exchanger
     orig = Application.get_env(:game_server, :oauth_exchanger)

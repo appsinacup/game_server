@@ -106,7 +106,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
   test "PATCH /api/v1/lobbies/:id update allowed for host only", %{conn: conn} do
     host = AccountsFixtures.user_fixture()
     other = AccountsFixtures.user_fixture()
-    {:ok, lobby} = Lobbies.create_lobby(%{name: "update-room", host_id: host.id})
+    {:ok, _lobby} = Lobbies.create_lobby(%{name: "update-room", host_id: host.id})
 
     {:ok, token_host, _} = Guardian.encode_and_sign(host)
     {:ok, token_other, _} = Guardian.encode_and_sign(other)
@@ -231,7 +231,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
 
     # create a different lobby to use as mismatched path id
     other_host = AccountsFixtures.user_fixture()
-    {:ok, other_lobby} = Lobbies.create_lobby(%{name: "other-room", host_id: other_host.id})
+    {:ok, _other_lobby} = Lobbies.create_lobby(%{name: "other-room", host_id: other_host.id})
 
     assert {:ok, _} = Lobbies.join_lobby(other, lobby)
 
@@ -276,7 +276,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     member = AccountsFixtures.user_fixture()
     {:ok, lobby} = Lobbies.create_lobby(%{name: "leave-mismatch-room", host_id: host.id})
 
-    {:ok, other_lobby} =
+    {:ok, _other_lobby} =
       Lobbies.create_lobby(%{
         name: "other-leave-room",
         host_id: AccountsFixtures.user_fixture().id
