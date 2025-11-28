@@ -171,6 +171,13 @@ defmodule GameServerWeb.Layouts do
         <a href={~p"/terms"} class="hover:underline mr-4">Terms and Conditions</a>
         <a href={~p"/docs/setup"} class="hover:underline mr-4">Guides</a>
         <a
+          href={~p"/api/docs"}
+          rel="noopener noreferrer"
+          class="hover:underline mr-4"
+        >
+          API Docs
+        </a>
+        <a
           href="https://appsinacup.github.io/game_server/"
           target="_blank"
           rel="noopener noreferrer"
