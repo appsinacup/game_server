@@ -171,18 +171,20 @@ defmodule GameServerWeb.Router do
 
   ## OAuth routes - unified for both browser and API flows
 
+  # Apple OAuth uses POST callback (response_mode=form_post)
+  # This must be exempt from CSRF protection since it's a cross-site POST from Apple's domain
+  # Steam uses OpenID GET callback which also fails CSRF checks
+  scope "/auth", GameServerWeb do
+    pipe_through :oauth_callback
+
+    post "/:provider/callback", AuthController, :callback
+    get "/steam/callback", AuthController, :steam_callback
+  end
+
   scope "/auth", GameServerWeb do
     pipe_through :browser
 
     get "/:provider", AuthController, :request
     get "/:provider/callback", AuthController, :callback
-  end
-
-  # Apple OAuth uses POST callback (response_mode=form_post)
-  # This must be exempt from CSRF protection since it's a cross-site POST from Apple's domain
-  scope "/auth", GameServerWeb do
-    pipe_through :oauth_callback
-
-    post "/:provider/callback", AuthController, :callback
   end
 end

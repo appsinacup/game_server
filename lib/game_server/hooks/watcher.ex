@@ -107,7 +107,6 @@ defmodule GameServer.Hooks.Watcher do
       end
     else
       # Still missing — reschedule and continue waiting
-      Logger.debug("Hooks watcher: no hooks_file_path configured yet; will keep polling")
       Process.send_after(self(), :env_check, state.interval_ms)
       {:noreply, state}
     end

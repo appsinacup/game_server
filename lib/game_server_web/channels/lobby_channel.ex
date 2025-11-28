@@ -30,7 +30,6 @@ defmodule GameServerWeb.LobbyChannel do
          %GameServer.Lobbies.Lobby{} <- Lobbies.get_lobby(lobby_id) do
       case GameServer.Repo.get_by(GameServer.Accounts.User, id: user_id, lobby_id: lobby_id) do
         %GameServer.Accounts.User{} ->
-          Logger.debug("LobbyChannel: user #{user_id} joined lobby #{lobby_id}")
           # Subscribe to lobby PubSub events to forward to WebSocket clients
           Lobbies.subscribe_lobby(lobby_id)
           {:ok, assign(socket, :lobby_id, lobby_id)}

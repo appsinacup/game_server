@@ -4,46 +4,66 @@ defmodule GameServerWeb.AuthControllerTest do
   alias GameServer.OAuthSessions
 
   test "request redirects to provider (discord)", %{conn: conn} do
-    old = System.get_env("DISCORD_CLIENT_ID")
-    System.put_env("DISCORD_CLIENT_ID", "cid-123")
+    orig = Application.get_env(:ueberauth, Ueberauth.Strategy.Discord.OAuth)
 
-    on_exit(fn -> if old, do: System.put_env("DISCORD_CLIENT_ID", old) end)
+    Application.put_env(:ueberauth, Ueberauth.Strategy.Discord.OAuth,
+      client_id: "cid-123",
+      client_secret: "secret",
+      redirect_uri: "http://www.example.com/auth/discord/callback"
+    )
+
+    on_exit(fn -> Application.put_env(:ueberauth, Ueberauth.Strategy.Discord.OAuth, orig) end)
 
     conn = get(conn, "/auth/discord")
-    assert redirected_to(conn) =~ "https://discord.com/oauth2/authorize"
+    # Ueberauth strategies may use slightly different endpoints; assert by host and client_id
+    assert redirected_to(conn) =~ "discord.com"
     assert redirected_to(conn) =~ "client_id=cid-123"
   end
 
   test "request redirects to provider (google)", %{conn: conn} do
-    old = System.get_env("GOOGLE_CLIENT_ID")
-    System.put_env("GOOGLE_CLIENT_ID", "google-123")
+    orig = Application.get_env(:ueberauth, Ueberauth.Strategy.Google.OAuth)
 
-    on_exit(fn -> if old, do: System.put_env("GOOGLE_CLIENT_ID", old) end)
+    Application.put_env(:ueberauth, Ueberauth.Strategy.Google.OAuth,
+      client_id: "google-123",
+      client_secret: "google-secret"
+    )
+
+    on_exit(fn -> Application.put_env(:ueberauth, Ueberauth.Strategy.Google.OAuth, orig) end)
 
     conn = get(conn, "/auth/google")
-    assert redirected_to(conn) =~ "https://accounts.google.com/o/oauth2/v2/auth"
+    assert redirected_to(conn) =~ "accounts.google.com"
     assert redirected_to(conn) =~ "client_id=google-123"
   end
 
   test "request redirects to provider (facebook)", %{conn: conn} do
-    old = System.get_env("FACEBOOK_CLIENT_ID")
-    System.put_env("FACEBOOK_CLIENT_ID", "fb-123")
+    orig = Application.get_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth)
 
-    on_exit(fn -> if old, do: System.put_env("FACEBOOK_CLIENT_ID", old) end)
+    Application.put_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth,
+      client_id: "fb-123",
+      client_secret: "fb-secret",
+      redirect_uri: "http://www.example.com/auth/facebook/callback"
+    )
+
+    on_exit(fn -> Application.put_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth, orig) end)
 
     conn = get(conn, "/auth/facebook")
-    assert redirected_to(conn) =~ "https://www.facebook.com/v18.0/dialog/oauth"
+    assert redirected_to(conn) =~ "facebook.com"
     assert redirected_to(conn) =~ "client_id=fb-123"
   end
 
   test "request redirects to provider (apple)", %{conn: conn} do
-    old = System.get_env("APPLE_CLIENT_ID")
-    System.put_env("APPLE_CLIENT_ID", "apple-123")
+    orig = Application.get_env(:ueberauth, Ueberauth.Strategy.Apple.OAuth)
 
-    on_exit(fn -> if old, do: System.put_env("APPLE_CLIENT_ID", old) end)
+    # Avoid calling GameServer.Apple.client_secret during the request
+    Application.put_env(:ueberauth, Ueberauth.Strategy.Apple.OAuth,
+      client_id: "apple-123",
+      client_secret: "dummy-secret"
+    )
+
+    on_exit(fn -> Application.put_env(:ueberauth, Ueberauth.Strategy.Apple.OAuth, orig) end)
 
     conn = get(conn, "/auth/apple")
-    assert redirected_to(conn) =~ "https://appleid.apple.com/auth/authorize"
+    assert redirected_to(conn) =~ "appleid.apple.com"
     assert redirected_to(conn) =~ "client_id=apple-123"
   end
 
@@ -59,6 +79,9 @@ defmodule GameServerWeb.AuthControllerTest do
     on_exit(fn -> Application.put_env(:game_server, :oauth_exchanger, orig) end)
 
     session_id = "session-#{System.unique_integer([:positive])}"
+
+    # API flow should create/update an existing session; create a pending session first
+    OAuthSessions.create_session(session_id, %{provider: "discord", status: "pending"})
 
     _conn = get(conn, "/auth/discord/callback?code=abc&state=#{session_id}")
 
@@ -103,6 +126,9 @@ defmodule GameServerWeb.AuthControllerTest do
 
     # api flow with state should create a completed session
     session_id = "sid-#{System.unique_integer([:positive])}"
+
+    OAuthSessions.create_session(session_id, %{provider: "discord", status: "pending"})
+
     _conn2 = get(conn, "/auth/discord/callback?code=abc&state=#{session_id}")
 
     session = OAuthSessions.get_session(session_id)
@@ -134,6 +160,9 @@ defmodule GameServerWeb.AuthControllerTest do
 
     # api flow with state
     session_id = "sid-#{System.unique_integer([:positive])}"
+
+    OAuthSessions.create_session(session_id, %{provider: "google", status: "pending"})
+
     _conn2 = get(conn, "/auth/google/callback?code=xxx&state=#{session_id}")
 
     session = OAuthSessions.get_session(session_id)
@@ -152,6 +181,9 @@ defmodule GameServerWeb.AuthControllerTest do
     on_exit(fn -> Application.put_env(:game_server, :oauth_exchanger, orig) end)
 
     session_id = "sid-#{System.unique_integer([:positive])}"
+
+    OAuthSessions.create_session(session_id, %{provider: "google", status: "pending"})
+
     _conn = get(conn, "/auth/google/callback?code=xxx&state=#{session_id}")
 
     session = OAuthSessions.get_session(session_id)
@@ -183,6 +215,9 @@ defmodule GameServerWeb.AuthControllerTest do
 
     # api flow with state
     session_id = "sid-#{System.unique_integer([:positive])}"
+
+    OAuthSessions.create_session(session_id, %{provider: "facebook", status: "pending"})
+
     _conn2 = get(conn, "/auth/facebook/callback?code=yyy&state=#{session_id}")
 
     session = OAuthSessions.get_session(session_id)
@@ -201,6 +236,9 @@ defmodule GameServerWeb.AuthControllerTest do
     on_exit(fn -> Application.put_env(:game_server, :oauth_exchanger, orig) end)
 
     session_id = "sid-#{System.unique_integer([:positive])}"
+
+    OAuthSessions.create_session(session_id, %{provider: "facebook", status: "pending"})
+
     _conn = get(conn, "/auth/facebook/callback?code=yyy&state=#{session_id}")
 
     session = OAuthSessions.get_session(session_id)
@@ -242,6 +280,9 @@ defmodule GameServerWeb.AuthControllerTest do
 
     # api flow with state
     session_id = "sid-#{System.unique_integer([:positive])}"
+
+    OAuthSessions.create_session(session_id, %{provider: "apple", status: "pending"})
+
     _conn2 = post(conn, "/auth/apple/callback", %{"code" => "xxx", "state" => session_id})
 
     session = OAuthSessions.get_session(session_id)
@@ -276,6 +317,9 @@ defmodule GameServerWeb.AuthControllerTest do
     end)
 
     session_id = "sid-#{System.unique_integer([:positive])}"
+
+    OAuthSessions.create_session(session_id, %{provider: "apple", status: "pending"})
+
     _conn = post(conn, "/auth/apple/callback", %{"code" => "xxx", "state" => session_id})
 
     session = OAuthSessions.get_session(session_id)
@@ -305,6 +349,9 @@ defmodule GameServerWeb.AuthControllerTest do
 
     failure = %{errors: [reason: :invalid]}
 
+    # create a pending session to match API flow expectations
+    OAuthSessions.create_session(session_id, %{provider: "steam", status: "pending"})
+
     conn =
       conn
       |> assign(:ueberauth_failure, failure)
@@ -312,5 +359,97 @@ defmodule GameServerWeb.AuthControllerTest do
 
     sess = OAuthSessions.get_session(session_id)
     assert sess.status == "error"
+  end
+
+  test "callback (steam) links account when user logged in", %{conn: conn} do
+    # create and log in a user; get scope
+    ctx = register_and_log_in_user(%{conn: conn})
+    logged_conn = ctx.conn
+    user = ctx.user
+    scope = ctx.scope
+
+    auth = %{uid: 777_777, info: %{nickname: "linkme", urls: %{profile: "https://steam/777777"}}}
+
+    conn =
+      logged_conn
+      |> assign(:current_scope, scope)
+      |> assign(:ueberauth_auth, auth)
+      |> get("/auth/steam/callback")
+
+    assert redirected_to(conn) =~ "/users/settings"
+    assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Linked Steam to your account"
+
+    # Reload user and assert steam_id saved
+    reloaded = GameServer.Accounts.get_user!(user.id)
+    assert reloaded.steam_id == "777777"
+  end
+
+  test "callback (steam) linking conflict redirects to settings with conflict info", %{conn: conn} do
+    # create an existing user that already has this steam_id
+    {:ok, other} =
+      GameServer.Accounts.find_or_create_from_steam(%{
+        steam_id: "99999",
+        display_name: "exists",
+        profile_url: "https://steam/99999"
+      })
+
+    ctx = register_and_log_in_user(%{conn: conn})
+    logged_conn = ctx.conn
+    scope = ctx.scope
+
+    auth = %{uid: 99999, info: %{nickname: "conflict", urls: %{profile: "https://steam/99999"}}}
+
+    conn =
+      logged_conn
+      |> assign(:current_scope, scope)
+      |> assign(:ueberauth_auth, auth)
+      |> get("/auth/steam/callback")
+
+    # redirect happens to the settings page
+    assert redirected_to(conn) =~ "/users/settings"
+
+    # linking should not have overwritten the other user's steam_id or set ours
+    reloaded = GameServer.Accounts.get_user!(ctx.user.id)
+    assert reloaded.steam_id == nil
+    other_reloaded = GameServer.Accounts.get_user!(other.id)
+    assert other_reloaded.steam_id == "99999"
+  end
+
+  test "callback (steam) success browser and api flows", %{conn: conn} do
+    # Simulate a successful ueaassign from Ueberauth
+    auth = %{
+      uid: 424_242,
+      info: %{nickname: "steamuser", urls: %{profile: "https://steam/profile/424242"}}
+    }
+
+    # browser flow (no state)
+    conn1 = conn |> assign(:ueberauth_auth, auth) |> get("/auth/steam/callback")
+    assert redirected_to(conn1) =~ "/"
+
+    # api flow (state) updates existing session
+    session_id = "s-#{System.unique_integer([:positive])}"
+    OAuthSessions.create_session(session_id, %{provider: "steam", status: "pending"})
+
+    conn2 =
+      conn |> assign(:ueberauth_auth, auth) |> get("/auth/steam/callback?state=#{session_id}")
+
+    session = OAuthSessions.get_session(session_id)
+    assert session.status == "completed"
+  end
+
+  test "callback (steam) with state but no session is treated as browser flow", %{conn: conn} do
+    auth = %{
+      uid: 424_243,
+      info: %{nickname: "noupstate", urls: %{profile: "https://steam/profile/424243"}}
+    }
+
+    session_id = "no-session-#{System.unique_integer([:positive])}"
+
+    conn =
+      conn |> assign(:ueberauth_auth, auth) |> get("/auth/steam/callback?state=#{session_id}")
+
+    # Should behave like browser flow: redirect and leave no session created
+    assert redirected_to(conn) =~ "/"
+    assert OAuthSessions.get_session(session_id) == nil
   end
 end

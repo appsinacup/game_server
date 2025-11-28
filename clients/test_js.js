@@ -1,7 +1,7 @@
 const { ApiClient, HealthApi, AuthenticationApi, UsersApi, LobbiesApi } = require('./javascript/dist/index.js');
 const { default: open } = require('open');
-//const basePath = 'http://localhost:4000';
-const basePath = 'https://gamend.appsinacup.com';
+const basePath = 'http://localhost:4000';
+//const basePath = 'https://gamend.appsinacup.com';
 async function testSDK() {
   try {
     console.log('Testing SDK health check...');
@@ -73,7 +73,7 @@ async function runOAuthFlow(provider) {
           return null;
         } else if (sessionData.status === 'conflict') {
           console.error('❌ OAuth conflict:', sessionData.message || 'Account already linked to another user');
-          return {status: 'conflict', data: sessionData.data || sessionData};
+          return { status: 'conflict', data: sessionData.data || sessionData };
         }
 
         // Wait 1 second before next poll
@@ -114,7 +114,7 @@ async function runOAuthFlow(provider) {
     console.log('Expires In:', tokenData.expiresIn, 'seconds');
     console.log('');
 
-    return {provider, tokenData};
+    return { provider, tokenData };
 
   } catch (error) {
     console.error(`Error testing ${provider} auth:`, error);
@@ -164,7 +164,7 @@ async function testUserAPI(accessToken, refreshToken, provider) {
     console.log('✅ Logout response:', logoutResponse);
 
     console.log('✅ All authenticated API calls completed!');
-      return { apiClient };
+    return { apiClient };
 
   } catch (error) {
     console.error('❌ Error testing authenticated API:', error);
@@ -215,8 +215,10 @@ async function testLobbyAPI(apiClient) {
 
     // List public lobbies (should include the newly created lobby)
     console.log('Listing public lobbies...');
-    const lobbies = await lobbiesApi.listLobbies();
-    console.log('✅ Lobbies count:', Array.isArray(lobbies) ? lobbies.length : '(unexpected response)', lobbies.map(l => l.id));
+    const lobbiesResponse = await lobbiesApi.listLobbies();
+    const lobbies = lobbiesResponse.data || [];
+    console.log('✅ Lobbies count:', lobbies.length, 'IDs:', lobbies.map(l => l.id));
+    console.log('✅ Pagination meta:', lobbiesResponse.meta);
 
     // Update the lobby's title (host-only action)
     console.log('Updating lobby title...');

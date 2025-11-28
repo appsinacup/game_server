@@ -404,7 +404,9 @@ defmodule GameServerWeb.UserLive.Settings do
           <div class="flex items-center justify-between">
             <div>
               <strong>Steam</strong>
-              <div class="text-sm text-base-content/70">Sign in with Steam and link to your account</div>
+              <div class="text-sm text-base-content/70">
+                Sign in with Steam and link to your account
+              </div>
             </div>
             <div class="flex items-center gap-2">
               <%= if @user.steam_id do %>

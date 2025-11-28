@@ -20,7 +20,6 @@ defmodule GameServerWeb.UserUpdatesChannel do
       {user_id, ""} ->
         case current_scope do
           %Scope{user: %{id: ^user_id}} = _scope ->
-            Logger.debug("UserUpdatesChannel: join allowed for user=#{user_id}")
             {:ok, socket}
 
           _ ->

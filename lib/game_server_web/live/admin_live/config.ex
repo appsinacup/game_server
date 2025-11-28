@@ -174,6 +174,23 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                   </tr>
                   <tr>
+                    <td class="font-semibold">Steam OpenID</td>
+                    <td>
+                      <%= if @config.steam_api_key do %>
+                        <span class="badge badge-success">Configured</span>
+                      <% else %>
+                        <span class="badge badge-error">Disabled</span>
+                      <% end %>
+                    </td>
+                    <td class="font-mono text-sm">
+                      <%= if @config.steam_api_key do %>
+                        STEAM_API_KEY: {mask_secret(@config.steam_api_key)}
+                      <% else %>
+                        <span class="text-error">STEAM_API_KEY: unset</span>
+                      <% end %>
+                    </td>
+                  </tr>
+                  <tr>
                     <td class="font-semibold">Email Service</td>
                     <td>
                       <%= if @config.email_configured do %>

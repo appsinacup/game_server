@@ -1,11 +1,34 @@
 defmodule GameServerWeb.AuthController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
-  plug Ueberauth
+  # Only use Ueberauth for Steam (OpenID), other providers use custom implementation
+  plug Ueberauth, only: [:request, :callback], providers: [:steam]
 
   alias GameServer.Accounts
+  alias GameServer.OAuthSessions
   alias GameServerWeb.Auth.Guardian
   alias GameServerWeb.UserAuth
+
+  # Show a helpful dev-mode flash for browser flows when exchanges fail
+  defp browser_oauth_error_redirect(conn, provider, error) do
+    # Log the error at controller level as well
+    require Logger
+
+    Logger.error(
+      "#{String.capitalize(provider)} OAuth exchange failed (controller): #{inspect(error)}"
+    )
+
+    msg =
+      if Mix.env() == :dev do
+        "Failed to authenticate with #{String.capitalize(provider)}: #{inspect(error)}"
+      else
+        "Failed to authenticate with #{String.capitalize(provider)}."
+      end
+
+    conn
+    |> put_flash(:error, msg)
+    |> redirect(to: ~p"/users/log-in")
+  end
 
   # Browser OAuth request - redirects to provider
   operation(:request,
@@ -41,6 +64,10 @@ defmodule GameServerWeb.AuthController do
     redirect(conn, external: url)
   end
 
+  def steam_callback(conn, params) do
+    callback(conn, Map.put(params, "provider", "steam"))
+  end
+
   # Ueberauth Steam callback handler
   def callback(
         %Plug.Conn{assigns: %{ueberauth_auth: auth}} = conn,
@@ -58,8 +85,18 @@ defmodule GameServerWeb.AuthController do
     }
 
     case params["state"] do
-      nil -> handle_browser_steam_callback(conn, user_params)
-      session_id -> do_find_or_create_steam_for_session(conn, user_params, session_id)
+      nil ->
+        handle_browser_steam_callback(conn, user_params)
+
+      session_id ->
+        # Only treat as API/session flow if a matching session exists
+        case OAuthSessions.get_session(session_id) do
+          nil ->
+            handle_browser_steam_callback(conn, user_params)
+
+          _ ->
+            do_find_or_create_steam_for_session(conn, user_params, session_id)
+        end
     end
   end
 
@@ -67,22 +104,23 @@ defmodule GameServerWeb.AuthController do
         %Plug.Conn{assigns: %{ueberauth_failure: failure}} = conn,
         %{"provider" => "steam"} = params
       ) do
-    require Logger
-    Logger.error("Steam OAuth exchange failed: #{inspect(failure)}")
-
     case params["state"] do
       nil ->
-        conn
-        |> put_flash(:error, "Failed to authenticate with Steam.")
-        |> redirect(to: ~p"/users/log-in")
+        browser_oauth_error_redirect(conn, "steam", failure)
 
       session_id ->
-        GameServer.OAuthSessions.create_session(session_id, %{
-          status: "error",
-          data: %{details: inspect(failure)}
-        })
+        case OAuthSessions.get_session(session_id) do
+          nil ->
+            browser_oauth_error_redirect(conn, "steam", failure)
 
-        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+          _ ->
+            GameServer.OAuthSessions.create_session(session_id, %{
+              status: "error",
+              data: %{details: inspect(failure)}
+            })
+
+            redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+        end
     end
   end
 
@@ -133,11 +171,13 @@ defmodule GameServerWeb.AuthController do
       "openid.ns" => "http://specs.openid.net/auth/2.0",
       "openid.claimed_id" => "http://specs.openid.net/auth/2.0/identifier_select",
       "openid.identity" => "http://specs.openid.net/auth/2.0/identifier_select",
-      "openid.realm" => callback_url,
+      "openid.realm" => base,
       "openid.return_to" => callback_url
     }
 
-    redirect(conn, external: "https://steamcommunity.com/openid/login?" <> URI.encode_query(params))
+    redirect(conn,
+      external: "https://steamcommunity.com/openid/login?" <> URI.encode_query(params)
+    )
   end
 
   # Unified OAuth callback - handles both browser and API flows
@@ -174,26 +214,35 @@ defmodule GameServerWeb.AuthController do
             handle_browser_discord_callback(conn, user_params)
 
           session_id ->
-            # API flow - has state parameter with session_id
-            do_find_or_create_discord_for_session(conn, user_params, session_id)
+            case OAuthSessions.get_session(session_id) do
+              nil ->
+                # No matching session -> treat like browser flow
+                handle_browser_discord_callback(conn, user_params)
+
+              _ ->
+                # API flow - has valid session_id
+                do_find_or_create_discord_for_session(conn, user_params, session_id)
+            end
         end
 
       {:error, error} ->
-        Logger.error("Discord OAuth exchange failed: #{inspect(error)}")
-
         case params["state"] do
           nil ->
-            conn
-            |> put_flash(:error, "Failed to authenticate with Discord.")
-            |> redirect(to: ~p"/users/log-in")
+            browser_oauth_error_redirect(conn, "discord", error)
 
           session_id ->
-            GameServer.OAuthSessions.create_session(session_id, %{
-              status: "error",
-              data: %{details: inspect(error)}
-            })
+            case OAuthSessions.get_session(session_id) do
+              nil ->
+                browser_oauth_error_redirect(conn, "discord", error)
 
-            redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+              _ ->
+                GameServer.OAuthSessions.create_session(session_id, %{
+                  status: "error",
+                  data: %{details: inspect(error)}
+                })
+
+                redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+            end
         end
     end
   end
@@ -256,26 +305,35 @@ defmodule GameServerWeb.AuthController do
             handle_browser_google_callback(conn, user_params)
 
           session_id ->
-            # API flow
-            do_find_or_create_google_for_session(conn, user_params, session_id)
+            case OAuthSessions.get_session(session_id) do
+              nil ->
+                # No matching session -> treat as browser flow
+                handle_browser_google_callback(conn, user_params)
+
+              _ ->
+                # API flow
+                do_find_or_create_google_for_session(conn, user_params, session_id)
+            end
         end
 
       {:error, error} ->
-        Logger.error("Google OAuth exchange failed: #{inspect(error)}")
-
         case params["state"] do
           nil ->
-            conn
-            |> put_flash(:error, "Failed to authenticate with Google.")
-            |> redirect(to: ~p"/users/log-in")
+            browser_oauth_error_redirect(conn, "google", error)
 
           session_id ->
-            GameServer.OAuthSessions.create_session(session_id, %{
-              status: "error",
-              data: %{details: inspect(error)}
-            })
+            case OAuthSessions.get_session(session_id) do
+              nil ->
+                browser_oauth_error_redirect(conn, "google", error)
 
-            redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+              _ ->
+                GameServer.OAuthSessions.create_session(session_id, %{
+                  status: "error",
+                  data: %{details: inspect(error)}
+                })
+
+                redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+            end
         end
     end
   end
@@ -314,47 +372,48 @@ defmodule GameServerWeb.AuthController do
             handle_browser_facebook_callback(conn, user_params)
 
           session_id ->
-            # API flow
-            do_find_or_create_facebook_for_session(conn, user_params, session_id)
+            case OAuthSessions.get_session(session_id) do
+              nil ->
+                # No matching session -> treat as browser flow
+                handle_browser_facebook_callback(conn, user_params)
+
+              _ ->
+                # API flow
+                do_find_or_create_facebook_for_session(conn, user_params, session_id)
+            end
         end
 
       {:error, error} ->
-        Logger.error("Facebook OAuth exchange failed: #{inspect(error)}")
-
         case params["state"] do
           nil ->
-            conn
-            |> put_flash(:error, "Failed to authenticate with Facebook.")
-            |> redirect(to: ~p"/users/log-in")
+            browser_oauth_error_redirect(conn, "facebook", error)
 
           session_id ->
-            GameServer.OAuthSessions.create_session(session_id, %{
-              status: "error",
-              data: %{details: inspect(error)}
-            })
+            case OAuthSessions.get_session(session_id) do
+              nil ->
+                browser_oauth_error_redirect(conn, "facebook", error)
 
-            redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+              _ ->
+                GameServer.OAuthSessions.create_session(session_id, %{
+                  status: "error",
+                  data: %{details: inspect(error)}
+                })
+
+                redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+            end
         end
     end
   end
 
   def callback(conn, %{"provider" => "apple", "code" => code} = params) do
-    require Logger
-    Logger.info("Apple OAuth callback received. Params: #{inspect(Map.keys(params))}")
-
     exchanger = Application.get_env(:game_server, :oauth_exchanger, GameServer.OAuth.Exchanger)
     client_id = System.get_env("APPLE_CLIENT_ID")
     client_secret = GameServer.Apple.client_secret()
     base = GameServerWeb.Endpoint.url()
     redirect_uri = "#{base}/auth/apple/callback"
 
-    Logger.info(
-      "Apple OAuth: Exchanging code. Client ID: #{client_id}, Redirect URI: #{redirect_uri}"
-    )
-
     case exchanger.exchange_apple_code(code, client_id, client_secret, redirect_uri) do
       {:ok, %{"sub" => apple_id} = user_info} ->
-        Logger.info("Apple OAuth: Successfully exchanged code. User info: #{inspect(user_info)}")
         email = user_info["email"]
         # Apple may include name payload in the id_token on first authentication
         name = Map.get(user_info, "name")
@@ -363,32 +422,38 @@ defmodule GameServerWeb.AuthController do
 
         case params["state"] do
           nil ->
-            Logger.info("Apple OAuth: Browser flow")
             # Browser flow
             handle_browser_apple_callback(conn, user_params)
 
           session_id ->
-            Logger.info("Apple OAuth: API flow with session_id: #{session_id}")
-            # API flow
-            do_find_or_create_apple_for_session(conn, user_params, session_id)
+            case OAuthSessions.get_session(session_id) do
+              nil ->
+                handle_browser_apple_callback(conn, user_params)
+
+              _ ->
+                # API flow
+                do_find_or_create_apple_for_session(conn, user_params, session_id)
+            end
         end
 
       {:error, error} ->
-        Logger.error("Apple OAuth exchange failed: #{inspect(error)}")
-
         case params["state"] do
           nil ->
-            conn
-            |> put_flash(:error, "Failed to authenticate with Apple.")
-            |> redirect(to: ~p"/users/log-in")
+            browser_oauth_error_redirect(conn, "apple", error)
 
           session_id ->
-            GameServer.OAuthSessions.create_session(session_id, %{
-              status: "error",
-              data: %{details: inspect(error)}
-            })
+            case OAuthSessions.get_session(session_id) do
+              nil ->
+                browser_oauth_error_redirect(conn, "apple", error)
 
-            redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+              _ ->
+                GameServer.OAuthSessions.create_session(session_id, %{
+                  status: "error",
+                  data: %{details: inspect(error)}
+                })
+
+                redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+            end
         end
     end
   end
