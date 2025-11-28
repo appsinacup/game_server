@@ -12,7 +12,7 @@ if [ -f .env ]; then
 fi
 
 # Ensure the project is compiled (so adapter configuration loaded from .env/config files)
-MIX_ENV=dev mix compile --force
+MIX_ENV=dev mix compile
 
 # Create and migrate the database (start.sh boots the app with the DB ready)
 MIX_ENV=dev mix phx.server

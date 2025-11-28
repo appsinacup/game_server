@@ -165,6 +165,9 @@ jobs:
       - name: Install dependencies
         run: MIX_ENV=test mix deps.get
 
+      - name: Prepare database
+        run: MIX_ENV=test mix ecto.create && MIX_ENV=test mix ecto.migrate
+
       - name: Compile
         run: MIX_ENV=test mix compile --warnings-as-errors
 
@@ -230,6 +233,9 @@ jobs:
 
       - name: Compile
         run: MIX_ENV=test mix compile --warnings-as-errors
+
+      - name: Prepare database
+        run: MIX_ENV=test mix ecto.create && MIX_ENV=test mix ecto.migrate
 
       - name: Run tests
         run: MIX_ENV=test mix test
