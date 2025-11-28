@@ -13,7 +13,6 @@ defmodule GameServer.Hooks do
   """
 
   alias GameServer.Accounts.User
-  alias GameServer.Hooks.Default
   require Logger
 
   @type hook_result(attrs_or_user) :: {:ok, attrs_or_user} | {:error, term()}
