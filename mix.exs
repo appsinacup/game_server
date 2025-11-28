@@ -124,8 +124,8 @@ defmodule GameServer.MixProject do
         "compile --warning-as-errors",
         "deps.unlock --unused",
         "format",
-        "credo --strict",
-        "test"
+        "test",
+        "credo --strict"
       ]
     ]
   end

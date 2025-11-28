@@ -5,7 +5,7 @@ defmodule GameServer.HooksRegistrationTest do
   use ExUnit.Case, async: false
 
   # register/unregister helpers were intentionally removed from the public
-  # API — use register_file/1 or the runtime watcher configured via
+  # API - use register_file/1 or the runtime watcher configured via
   # :game_server, :hooks_file_path to enable automatic registration.
 
   test "register_file/1 compiles and registers a module file at runtime" do

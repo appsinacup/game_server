@@ -109,7 +109,7 @@ defmodule GameServerWeb.AuthController do
     redirect(conn, external: url)
   end
 
-  # helper route used for Steam callback routing — delegates into the
+  # helper route used for Steam callback routing - delegates into the
   # unified `callback/2` handler by injecting the `provider` param.
   operation(:steam_callback,
     operation_id: "oauth_callback_steam",
@@ -370,7 +370,7 @@ defmodule GameServerWeb.AuthController do
       rescue
         _ ->
           # In tests the APPLE_PRIVATE_KEY may be invalid, avoid blowing up the
-          # request lifecycle — exchanger implementations / mocks can handle
+          # request lifecycle - exchanger implementations / mocks can handle
           # a nil client_secret as needed.
           nil
       end
@@ -433,7 +433,7 @@ defmodule GameServerWeb.AuthController do
       cookie = Map.get(conn.cookies || %{}, "ueberauth.state_param")
 
       Logger.debug(
-        "[Steam OAuth] callback success — params[state]=#{inspect(params["state"])}, cookie=#{inspect(cookie)}, auth.uid=#{inspect(auth.uid)}"
+        "[Steam OAuth] callback success - params[state]=#{inspect(params["state"])}, cookie=#{inspect(cookie)}, auth.uid=#{inspect(auth.uid)}"
       )
     end
 
@@ -482,7 +482,7 @@ defmodule GameServerWeb.AuthController do
       cookie = Map.get(conn.cookies || %{}, "ueberauth.state_param")
 
       Logger.debug(
-        "[Steam OAuth] callback failure — params[state]=#{inspect(params["state"])}, cookie=#{inspect(cookie)}, failure=#{inspect(failure)}"
+        "[Steam OAuth] callback failure - params[state]=#{inspect(params["state"])}, cookie=#{inspect(cookie)}, failure=#{inspect(failure)}"
       )
     end
 

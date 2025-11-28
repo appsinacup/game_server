@@ -164,7 +164,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
         }
       }
     },
-    # Uses the authenticated user's lobby_id — no path id required
+    # Uses the authenticated user's lobby_id - no path id required
     responses: [
       ok: {"Lobby updated", "application/json", @lobby_schema},
       forbidden:
@@ -375,7 +375,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
   def update(conn, params) do
     case conn.assigns[:current_scope] do
       %{user: user} when is_map(user) ->
-        # Use the authenticated user's lobby_id — require that the user is in a lobby
+        # Use the authenticated user's lobby_id - require that the user is in a lobby
         if is_nil(user.lobby_id) do
           conn |> put_status(:bad_request) |> json(%{error: "not_in_lobby"})
         else

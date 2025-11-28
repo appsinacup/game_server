@@ -1,6 +1,6 @@
 defmodule GameServer.Friends do
   @moduledoc """
-  Friends context — handles friend requests and relationships.
+  Friends context - handles friend requests and relationships.
 
   Basic semantics:
   - A single `friendships` row represents a directed request from requester -> target.
@@ -179,7 +179,7 @@ defmodule GameServer.Friends do
     end
   end
 
-  @doc "Remove a friendship (either direction) — only participating users may call this."
+  @doc "Remove a friendship (either direction) - only participating users may call this."
   def remove_friend(user_id, friend_id) when is_integer(user_id) and is_integer(friend_id) do
     case Repo.one(
            from f in Friendship,
@@ -274,7 +274,7 @@ defmodule GameServer.Friends do
     end
   end
 
-  @doc "List accepted friends for a given user id — returns list of User structs."
+  @doc "List accepted friends for a given user id - returns list of User structs."
   def list_friends_for_user(user_id, opts \\ [])
   def list_friends_for_user(%User{id: id}, opts), do: list_friends_for_user(id, opts)
 

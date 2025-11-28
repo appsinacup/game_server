@@ -79,7 +79,7 @@ defmodule GameServer.Hooks.Watcher do
 
   @impl true
   def handle_info(:env_check, state) do
-    # No path configured — check app config and environment again so this
+    # No path configured - check app config and environment again so this
     # process can pick up a path that was exported after startup (convenient
     # for quick dev workflows).
     app_path = Application.get_env(:game_server, :hooks_file_path)
@@ -106,7 +106,7 @@ defmodule GameServer.Hooks.Watcher do
           {:noreply, %{state | path: new_path}}
       end
     else
-      # Still missing — reschedule and continue waiting
+      # Still missing - reschedule and continue waiting
       Process.send_after(self(), :env_check, state.interval_ms)
       {:noreply, state}
     end
@@ -163,7 +163,7 @@ defmodule GameServer.Hooks.Watcher do
         end
 
       {:error, _} ->
-        # File missing or inaccessible — log and keep trying
+        # File missing or inaccessible - log and keep trying
         Logger.debug("Hooks watcher: file not found or inaccessible: #{path}")
         {:noreply, state}
     end

@@ -43,7 +43,7 @@ defmodule GameServer.Hooks do
 
   @callback after_lobby_host_change(term(), term()) :: any()
 
-  # (friends hooks removed — see config / code changes)
+  # (friends hooks removed - see config / code changes)
 
   @doc "Return the configured module that implements the hooks behaviour."
   def module do
@@ -426,7 +426,7 @@ defmodule GameServer.Hooks do
 
     case Code.ensure_loaded(mod) do
       {:module, _} ->
-        # Exclude functions coming from the default implementation — show only
+        # Exclude functions coming from the default implementation - show only
         # functions uniquely exported by the user-provided hooks module.
         default_names =
           GameServer.Hooks.Default.__info__(:functions)

@@ -20,7 +20,7 @@ defmodule GameServer.HooksTest do
   defmodule TestHooksRegister do
     @behaviour GameServer.Hooks
 
-    # After-register hook — mutate the user record in DB so tests can observe it
+    # After-register hook - mutate the user record in DB so tests can observe it
     # Use metadata to avoid interfering with email-based token logic.
     def after_user_register(user) do
       meta = Map.put(user.metadata || %{}, "registered_hook", true)

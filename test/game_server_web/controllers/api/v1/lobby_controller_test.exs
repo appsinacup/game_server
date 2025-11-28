@@ -117,7 +117,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
       |> patch("/api/v1/lobbies", %{title: "bad"})
 
     # After switching to using the authenticated user's lobby, a non-host
-    # who isn't in the lobby will get 400 (not_in_lobby) — if the user
+    # who isn't in the lobby will get 400 (not_in_lobby) - if the user
     # is in the lobby but not host they'd get 403. Accept either.
     assert conn1.status in [400, 403, 422]
 

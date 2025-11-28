@@ -187,7 +187,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
         in: :path,
         schema: %Schema{type: :integer},
         description:
-          "Friendship record id (friendship_id) — the id of the friendship row, not a user id",
+          "Friendship record id (friendship_id) - the id of the friendship row, not a user id",
         required: true
       ]
     ],
@@ -207,7 +207,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
         in: :path,
         schema: %Schema{type: :integer},
         description:
-          "Friendship record id (friendship_id) — the id of the friendship row, not a user id",
+          "Friendship record id (friendship_id) - the id of the friendship row, not a user id",
         required: true
       ]
     ],
@@ -227,7 +227,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
         in: :path,
         schema: %Schema{type: :integer},
         description:
-          "Friendship record id (friendship_id) — the id of the friendship row, not a user id",
+          "Friendship record id (friendship_id) - the id of the friendship row, not a user id",
         required: true
       ]
     ],
@@ -306,7 +306,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
         in: :path,
         schema: %Schema{type: :integer},
         description:
-          "Friendship record id (friendship_id) — the id of the friendship row, not a user id",
+          "Friendship record id (friendship_id) - the id of the friendship row, not a user id",
         required: true
       ]
     ],
