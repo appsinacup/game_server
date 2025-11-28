@@ -26,6 +26,7 @@ GameServerWeb.AdminLive.Users.Index.html
 GameServerWeb.AdminLive.Users.html
 GameServerWeb.Api.V1.FriendController.html
 GameServerWeb.Api.V1.HealthController.html
+GameServerWeb.Api.V1.HookController.html
 GameServerWeb.Api.V1.LobbyController.html
 GameServerWeb.Api.V1.MeController.html
 GameServerWeb.Api.V1.MetadataController.html
@@ -78,8 +79,8 @@ dist/lato-latin-700-normal-2XVSBPG4.woff2
 dist/lato-latin-ext-400-normal-N27NCBWW.woff2
 dist/lato-latin-ext-700-normal-Q2L5DVMW.woff2
 dist/remixicon-QPNJX265.woff2
-dist/search_data-F76A5B3F.js
-dist/sidebar_items-32C227BD.js
+dist/search_data-ADFF15C9.js
+dist/sidebar_items-27E6EEFA.js
 index.html
 readme.html
 search.html

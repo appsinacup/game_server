@@ -8,7 +8,7 @@
     <meta name="project" content="game_server v1.0.225">
 
 
-    <title>GameServerWeb.AuthController — game_server v1.0.225</title>
+    <title>GameServerWeb.Api.V1.HookController — game_server v1.0.225</title>
 
     <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
 
@@ -93,12 +93,12 @@ game_server
 <div id="top-content">
   <div class="heading-with-actions top-heading">
     <h1>
-      <span translate="no">GameServerWeb.AuthController</span> 
+      <span translate="no">GameServerWeb.Api.V1.HookController</span> 
       <small class="app-vsn" translate="no">(game_server v1.0.225)</small>
 
     </h1>
 
-      <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/auth_controller.ex#L1" title="View Source" class="icon-action" rel="help">
+      <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/api/v1/hook_controller.ex#L1" title="View Source" class="icon-action" rel="help">
         <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         <span class="sr-only">View Source</span>
       </a>
@@ -122,7 +122,7 @@ game_server
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#api_callback/2" data-no-tooltip="" translate="no">api_callback(conn, params)</a>
+        <a href="#index/2" data-no-tooltip="" translate="no">index(conn, params)</a>
 
       </div>
 
@@ -130,31 +130,7 @@ game_server
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#api_request/2" data-no-tooltip="" translate="no">api_request(conn, map)</a>
-
-      </div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#api_session_status/2" data-no-tooltip="" translate="no">api_session_status(conn, map)</a>
-
-      </div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#callback/2" data-no-tooltip="" translate="no">callback(conn, params)</a>
-
-      </div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#delete/2" data-no-tooltip="" translate="no">delete(conn, params)</a>
+        <a href="#invoke/2" data-no-tooltip="" translate="no">invoke(conn, params)</a>
 
       </div>
 
@@ -163,14 +139,6 @@ game_server
     <div class="summary-row">
       <div class="summary-signature">
         <a href="#open_api_operation/1" data-no-tooltip="" translate="no">open_api_operation(action)</a>
-
-      </div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#request/2" data-no-tooltip="" translate="no">request(conn, map)</a>
 
       </div>
 
@@ -192,14 +160,6 @@ game_server
 
     </div>
 
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#steam_callback/2" data-no-tooltip="" translate="no">steam_callback(conn, params)</a>
-
-      </div>
-
-    </div>
-
 </div>
 
   </section>
@@ -214,17 +174,17 @@ game_server
     </h1>
 
     <div class="functions-list">
-<section class="detail" id="api_callback/2">
+<section class="detail" id="index/2">
 
   <div class="detail-header">
-    <a href="#api_callback/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#index/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">api_callback(conn, params)</h1>
+      <h1 class="signature" translate="no">index(conn, params)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/auth_controller.ex#L710" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/api/v1/hook_controller.ex#L15" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -236,83 +196,17 @@ game_server
 
   </section>
 </section>
-<section class="detail" id="api_request/2">
+<section class="detail" id="invoke/2">
 
   <div class="detail-header">
-    <a href="#api_request/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#invoke/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">api_request(conn, map)</h1>
+      <h1 class="signature" translate="no">invoke(conn, params)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/auth_controller.ex#L606" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-
-  </section>
-</section>
-<section class="detail" id="api_session_status/2">
-
-  <div class="detail-header">
-    <a href="#api_session_status/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">api_session_status(conn, map)</h1>
-
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/auth_controller.ex#L997" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-
-  </section>
-</section>
-<section class="detail" id="callback/2">
-
-  <div class="detail-header">
-    <a href="#callback/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">callback(conn, params)</h1>
-
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/auth_controller.ex#L173" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-
-  </section>
-</section>
-<section class="detail" id="delete/2">
-
-  <div class="detail-header">
-    <a href="#delete/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">delete(conn, params)</h1>
-
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/auth_controller.ex#L522" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/api/v1/hook_controller.ex#L42" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -334,7 +228,7 @@ game_server
       <h1 class="signature" translate="no">open_api_operation(action)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/auth_controller.ex#L35" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/api/v1/hook_controller.ex#L5" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -352,28 +246,6 @@ game_server
 
   </section>
 </section>
-<section class="detail" id="request/2">
-
-  <div class="detail-header">
-    <a href="#request/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">request(conn, map)</h1>
-
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/auth_controller.ex#L56" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-
-  </section>
-</section>
 <section class="detail" id="shared_security/0">
 
   <div class="detail-header">
@@ -384,7 +256,7 @@ game_server
       <h1 class="signature" translate="no">shared_security()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/auth_controller.ex#L1" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/api/v1/hook_controller.ex#L1" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -406,29 +278,7 @@ game_server
       <h1 class="signature" translate="no">shared_tags()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/auth_controller.ex#L1" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-
-  </section>
-</section>
-<section class="detail" id="steam_callback/2">
-
-  <div class="detail-header">
-    <a href="#steam_callback/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">steam_callback(conn, params)</h1>
-
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/auth_controller.ex#L134" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/api/v1/hook_controller.ex#L1" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
