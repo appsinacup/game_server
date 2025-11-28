@@ -13,6 +13,7 @@ defmodule GameServer.Hooks do
   """
 
   alias GameServer.Accounts.User
+  alias GameServer.Hooks.Default
   require Logger
 
   @type hook_result(attrs_or_user) :: {:ok, attrs_or_user} | {:error, term()}
@@ -51,6 +52,71 @@ defmodule GameServer.Hooks do
       nil -> GameServer.Hooks.Default
       mod -> mod
     end
+  end
+
+  # Parse the source file to extract function parameter names for the
+  # given module. Returns a map keyed by {name, arity} -> signature string.
+  defp parse_signatures_from_file(path, mod) do
+    with {:ok, src} <- File.read(path),
+         {:ok, quoted} <- Code.string_to_quoted(src) do
+      # find the defmodule AST whose module name matches the provided module
+      Enum.reduce(find_module_asts(quoted, mod), %{}, fn {_mod_ast, do_block}, acc ->
+        {_ast, acc2} =
+          Macro.prewalk(do_block, acc, fn
+            # handle definitions with guards (eg. def foo(x) when is_binary(x))
+            {:def, _meta, [{:when, _when_meta, [{name, _nmeta, args_ast}, _guard]}, _body]} = node,
+            acc_inner ->
+              arity = length(args_ast || [])
+
+              arg_names =
+                Enum.map(args_ast || [], fn
+                  {a, _, _} when is_atom(a) -> to_string(a)
+                  _ -> "_"
+                end)
+
+              sig = "#{name}(#{Enum.join(arg_names, ", ")})"
+              {node, Map.put(acc_inner, {name, arity}, sig)}
+
+            {:def, _meta, [{name, _nmeta, args_ast}, _body]} = node, acc_inner ->
+              arity = length(args_ast || [])
+
+              arg_names =
+                Enum.map(args_ast || [], fn
+                  {a, _, _} when is_atom(a) -> to_string(a)
+                  _ -> "_"
+                end)
+
+              sig = "#{name}(#{Enum.join(arg_names, ", ")})"
+              {node, Map.put(acc_inner, {name, arity}, sig)}
+
+            node, acc_inner ->
+              {node, acc_inner}
+          end)
+
+        acc2
+      end)
+    else
+      _ -> %{}
+    end
+  end
+
+  defp find_module_asts(ast, mod) do
+    mod_name_parts = Module.split(mod)
+
+    results =
+      Macro.prewalk(ast, [], fn
+        {:defmodule, _meta, [{:__aliases__, _m2, aliases}, do_block]} = node, acc ->
+          if Module.split(Module.concat(aliases)) == mod_name_parts do
+            {node, [{node, do_block} | acc]}
+          else
+            {node, acc}
+          end
+
+        node, acc ->
+          {node, acc}
+      end)
+
+    elem(results, 1)
   end
 
   @doc """
@@ -165,6 +231,239 @@ defmodule GameServer.Hooks do
   end
 
   defp timestamp, do: DateTime.utc_now() |> DateTime.to_iso8601()
+
+  @doc """
+  Call an arbitrary function exported by the configured hooks module.
+
+  This is a safe wrapper that checks function existence, enforces an allow-list
+  if configured and runs the call inside a short Task with a configurable
+  timeout to avoid long-running user code.
+
+  Returns {:ok, result} | {:error, reason}
+  """
+  def call(name, args \\ [], opts \\ [])
+      when is_list(args) and (is_atom(name) or is_binary(name)) do
+    name = if is_binary(name), do: String.to_atom(name), else: name
+    mod = module()
+    arity = length(args)
+
+    if function_exported?(mod, name, arity) do
+      timeout =
+        Keyword.get(
+          opts,
+          :timeout_ms,
+          Application.get_env(:game_server, :hooks_call_timeout, 5_000)
+        )
+
+      task =
+        Task.async(fn ->
+          try do
+            {:ok, apply(mod, name, args)}
+          rescue
+            e in FunctionClauseError -> {:error, {:function_clause, Exception.message(e)}}
+            e -> {:error, {:exception, Exception.message(e)}}
+          catch
+            kind, reason -> {:error, {kind, reason}}
+          end
+        end)
+
+      case Task.yield(task, timeout) || Task.shutdown(task, :brutal_kill) do
+        {:ok, {:ok, res}} -> {:ok, res}
+        {:ok, {:error, err}} -> {:error, err}
+        nil -> {:error, :timeout}
+        {:exit, reason} -> {:error, {:exit, reason}}
+      end
+    else
+      {:error, :not_implemented}
+    end
+  end
+
+  # Helper: extract docs-based signatures into a map name -> %{arity => %{signature: sig, doc: doc_text}}
+  defp doc_signatures_for(mod) do
+    case Code.fetch_docs(mod) do
+      {:docs_v1, _, _, _, _, _, docs} ->
+        Enum.reduce(docs, %{}, fn
+          {{:function, name, arity}, _line, signatures, doc_text, _meta}, acc ->
+            sig_text =
+              case signatures do
+                [] -> nil
+                _ -> Enum.map_join(signatures, "\n", &to_string/1)
+              end
+
+            Map.update(acc, name, %{arity => %{signature: sig_text, doc: doc_text}}, fn map ->
+              Map.put(map, arity, %{signature: sig_text, doc: doc_text})
+            end)
+
+          _, acc ->
+            acc
+        end)
+
+      _ ->
+        %{}
+    end
+  end
+
+  # Helper: build a map of {{name, arity} => typespec_string} for module specs
+  defp spec_map_for(mod) do
+    case Code.Typespec.fetch_specs(mod) do
+      {:ok, specs} when is_list(specs) ->
+        Enum.reduce(specs, %{}, fn
+          {{name, arity}, spec_list}, acc when is_list(spec_list) and spec_list != [] ->
+            spec = hd(spec_list)
+
+            spec_str =
+              try do
+                Code.Typespec.spec_to_quoted(name, spec) |> Macro.to_string()
+              rescue
+                _ -> nil
+              end
+
+            if is_binary(spec_str), do: Map.put(acc, {name, arity}, spec_str), else: acc
+
+          _, acc ->
+            acc
+        end)
+
+      _ ->
+        %{}
+    end
+  end
+
+  defp choose_signature(parsed, doc_entry, typespec_sig) do
+    # Prefer parsed -> doc signature -> typespec
+    parsed || Map.get(doc_entry || %{}, :signature) || typespec_sig
+  end
+
+  defp example_args_for(nil), do: nil
+
+  defp example_args_for(chosen_signature) when is_binary(chosen_signature) do
+    if String.contains?(chosen_signature, "(") do
+      params =
+        chosen_signature
+        |> String.trim()
+        |> String.replace(~r/^\w+\(/, "")
+        |> String.replace(~r/\)$/, "")
+        |> String.split(",")
+        |> Enum.map(&String.trim/1)
+
+      example_list =
+        Enum.map(params, fn
+          "" ->
+            []
+
+          p ->
+            cond do
+              String.match?(p, ~r/^\w+\d+$/) -> p
+              String.match?(p, ~r/name|user|email|id|msg|message|text/i) -> "name"
+              String.match?(p, ~r/count|num|index|n|id\b/i) -> 0
+              String.match?(p, ~r/bool|flag|active|enabled|true|false/i) -> true
+              String.match?(p, ~r/list|items|arr|_list/i) -> []
+              String.match?(p, ~r/map|opts|options|attrs|params|meta/i) -> %{}
+              true -> "#{p}"
+            end
+        end)
+
+      json =
+        Enum.map_join(example_list, ", ", fn
+          val when is_binary(val) -> "\"#{val}\""
+          val when is_integer(val) -> to_string(val)
+          other -> inspect(other)
+        end)
+
+      "[#{json}]"
+    else
+      nil
+    end
+  end
+
+  @doc """
+  Return a list of exported functions on the currently registered hooks module.
+
+  The result is a list of maps like: [%{name: "start_game", arities: [2,3]}, ...]
+  This is useful for tooling and admin UI to display what RPCs are available.
+  """
+  def exported_functions do
+    mod = module()
+
+    case Code.ensure_loaded(mod) do
+      {:module, _} ->
+        # Exclude functions coming from the default implementation — show only
+        # functions uniquely exported by the user-provided hooks module.
+        default_names =
+          GameServer.Hooks.Default.__info__(:functions)
+          |> Enum.map(fn {n, _} -> n end)
+          |> MapSet.new()
+
+        # Group functions by name -> arities and then filter out the default set
+        func_map =
+          mod.__info__(:functions)
+          |> Enum.group_by(fn {name, _arity} -> name end, fn {_name, arity} -> arity end)
+          |> Enum.reject(fn {name, _arities} -> MapSet.member?(default_names, name) end)
+
+        # Extract docs-based signatures from compiled module docs
+        doc_signatures = doc_signatures_for(mod)
+
+        # If available, try to parse function signatures from the source file
+        src_path =
+          Application.get_env(:game_server, :hooks_file_path) || System.get_env("HOOKS_FILE_PATH")
+
+        parsed_signatures =
+          if is_binary(src_path) and File.exists?(src_path) do
+            parse_signatures_from_file(src_path, mod)
+          else
+            %{}
+          end
+
+        # Extract typespecs -> signature strings
+        spec_map = spec_map_for(mod)
+
+        func_map
+        |> Enum.map(fn {name, arities} ->
+          sigs =
+            Enum.map(arities, fn ar ->
+              # prefer parsed signature text when available, otherwise use docs signature
+              parsed = Map.get(parsed_signatures, {name, ar})
+              doc_entry = Map.get(Map.get(doc_signatures, name, %{}), ar, %{})
+              doc_text = Map.get(doc_entry, :doc)
+
+              # Extract 'Returns' info from docs
+              returns_text = returns_from_doc(doc_text)
+
+              # choose the readable signature and example arguments
+              typespec_sig = Map.get(spec_map, {name, ar})
+              chosen_signature = choose_signature(parsed, doc_entry, typespec_sig)
+              example_args = example_args_for(chosen_signature)
+
+              %{
+                arity: ar,
+                signature: chosen_signature,
+                doc: doc_text,
+                returns: returns_text,
+                example_args: example_args
+              }
+            end)
+
+          %{name: to_string(name), arities: Enum.sort(arities), signatures: sigs}
+        end)
+
+      {:error, _} ->
+        []
+    end
+  end
+
+  defp returns_from_doc(t) when is_binary(t) do
+    t
+    |> String.split("\n")
+    |> Enum.find_value(nil, fn line ->
+      l = String.trim(line)
+
+      if String.match?(l, ~r/^Returns?:/i),
+        do: String.replace_leading(l, ~r/^Returns?:\s*/i, ""),
+        else: nil
+    end)
+  end
+
+  defp returns_from_doc(_), do: nil
 end
 
 defmodule GameServer.Hooks.Default do

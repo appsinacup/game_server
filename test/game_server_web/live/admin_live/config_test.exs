@@ -124,4 +124,41 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     refute html =~ "Watch interval (app): <unset>"
     refute html =~ "GAME_SERVER_HOOKS_WATCH_INTERVAL"
   end
+
+  test "clicking function name pre-fills function and example args", %{conn: conn} do
+    user = AccountsFixtures.user_fixture()
+
+    {:ok, user} =
+      user
+      |> User.admin_changeset(%{"is_admin" => true})
+      |> Repo.update()
+
+    # Ensure example hook source is compiled & registered so exported_functions
+    # includes signatures and example args.
+    path = Path.join(File.cwd!(), "modules/example_hook.ex")
+    Application.put_env(:game_server, :hooks_file_path, path)
+    assert {:ok, _mod} = GameServer.Hooks.register_file(path)
+
+    {:ok, lv, _html} =
+      conn
+      |> log_in_user(user)
+      |> live(~p"/admin/config")
+
+    # click the function name for hello2 (should auto-prefill args too)
+    # trigger the phx-click on the span element and assert the inputs were updated
+    hello2_el = element(lv, "span[phx-click='prefill_hook'][phx-value-fn='hello2']")
+    html_after = render_click(hello2_el)
+
+    # function input should contain hello2
+    assert html_after =~ "id=\"hooks-fn-input\""
+    assert html_after =~ "value=\"hello2\""
+
+    # args input should contain a generated example args JSON containing both parameter examples
+    assert html_after =~ "id=\"hooks-args-input\""
+    assert html_after =~ "name" and html_after =~ "name2"
+
+    # cleanup env
+    Application.delete_env(:game_server, :hooks_file_path)
+    Application.delete_env(:game_server, :hooks_module)
+  end
 end

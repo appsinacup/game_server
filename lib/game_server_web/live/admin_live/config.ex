@@ -86,6 +86,7 @@ defmodule GameServerWeb.AdminLive.Config do
                       <% end %>
                     </td>
                   </tr>
+                  <!-- Hooks Test RPC moved to the end of the card -->
                   <tr>
                     <td class="font-semibold">Device auth</td>
                     <td>
@@ -339,6 +340,114 @@ defmodule GameServerWeb.AdminLive.Config do
                       <% end %>
                     </td>
                   </tr>
+                  <tr>
+                    <td class="font-semibold">Hooks - Test RPC</td>
+                    <td colspan="2">
+                      <div class="space-y-2">
+                        <div class="text-sm">
+                          <p class="text-xs font-semibold">Available functions</p>
+                          <div class="mt-2 grid grid-cols-2 gap-2">
+                            <% funcs = GameServer.Hooks.exported_functions() %>
+                            <%= if funcs == [] do %>
+                              <div class="text-xs text-muted col-span-2">No exported functions</div>
+                            <% else %>
+                              <%= for f <- funcs do %>
+                                <div class="p-2 border rounded bg-base-200">
+                                  <div class="font-mono text-sm truncate">
+                                    <%= for s <- f.signatures do %>
+                                      <div class="truncate">
+                                        <span
+                                          phx-click="prefill_hook"
+                                          phx-value-fn={f.name}
+                                          class="cursor-pointer font-semibold"
+                                        >
+                                          {f.name}/{s.arity}
+                                        </span>
+                                        <%= if s.doc do %>
+                                          <button
+                                            type="button"
+                                            phx-click="show_docs"
+                                            phx-value-doc={s.doc}
+                                            phx-value-name={f.name}
+                                            phx-value-arity={s.arity}
+                                            class="btn btn-ghost btn-xs ml-2"
+                                          >
+                                            docs
+                                          </button>
+                                        <% end %>
+                                        <%= if s.signature do %>
+                                          <span class="text-muted"> —  {s.signature}</span>
+                                        <% end %>
+                                        <%!-- example button removed: clicking the function name now auto-prefills the example args --%>
+                                        <%= if s.doc do %>
+                                          <span class="text-xs block text-muted mt-1">
+                                            {String.slice(s.doc, 0, 200)}{if String.length(s.doc) >
+                                                                               200,
+                                                                             do: "…"}
+                                          </span>
+                                        <% end %>
+                                        <%= if s.returns do %>
+                                          <div class="text-xs text-success">Returns: {s.returns}</div>
+                                        <% end %>
+                                      </div>
+                                    <% end %>
+                                  </div>
+                                </div>
+                              <% end %>
+                            <% end %>
+                          </div>
+                        </div>
+
+                        <.form for={%{}} phx-submit="call_hook" id="hooks-call-form">
+                          <div class="flex gap-2 items-center">
+                            <input
+                              id="hooks-fn-input"
+                              name="fn"
+                              value={@hooks_prefill.value || ""}
+                              placeholder="function_name"
+                              readonly
+                              class="input input-sm w-40"
+                            />
+                            <input
+                              id="hooks-args-input"
+                              name="args"
+                              value={@hooks_args_prefill.value || ""}
+                              placeholder="JSON array args (eg [1,2] or [])"
+                              class="input input-sm w-96"
+                            />
+                            <button class="btn btn-primary btn-sm" type="submit">Call</button>
+                          </div>
+                        </.form>
+
+                        <div class="font-mono text-sm">
+                          <%= if @config.hooks_test_result do %>
+                            <div>Result: {@config.hooks_test_result}</div>
+                          <% else %>
+                            <div class="text-xs text-muted">No test yet</div>
+                          <% end %>
+                        </div>
+                        
+    <!-- Full docs modal / pane -->
+                        <%= if @hooks_full_doc do %>
+                          <div class="mt-2 p-3 border rounded bg-base-100">
+                            <div class="flex items-center justify-between">
+                              <div class="font-semibold">Full docs: {@hooks_full_name}</div>
+                              <div>
+                                <button
+                                  type="button"
+                                  phx-click="close_docs"
+                                  class="btn btn-outline btn-sm"
+                                >
+                                  Close
+                                </button>
+                              </div>
+                            </div>
+                            <pre class="whitespace-pre-wrap text-sm mt-2 font-mono">{@hooks_full_doc}</pre>
+                          </div>
+                        <% end %>
+                      </div>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -464,14 +573,117 @@ defmodule GameServerWeb.AdminLive.Config do
       hooks_watch_interval_app: Application.get_env(:game_server, :hooks_file_watch_interval),
       hooks_watch_interval_env: System.get_env("GAME_SERVER_HOOKS_WATCH_INTERVAL"),
       hooks_registered_module: GameServer.Hooks.module(),
+      hooks_exported_functions: GameServer.Hooks.exported_functions(),
+      hooks_test_result: nil,
       hooks_last_compiled_at: Application.get_env(:game_server, :hooks_last_compiled_at),
       hooks_last_compile_status: Application.get_env(:game_server, :hooks_last_compile_status),
       device_auth_enabled_app: Application.get_env(:game_server, :device_auth_enabled),
       device_auth_enabled_env: System.get_env("DEVICE_AUTH_ENABLED")
     }
 
-    {:ok, assign(socket, :config, config)}
+    {:ok,
+     assign(socket,
+       config: config,
+       hooks_prefill: %{value: "", seq: 0},
+       hooks_args_prefill: %{value: "", seq: 0},
+       hooks_full_doc: nil,
+       hooks_full_name: nil
+     )}
   end
+
+  @impl true
+  def handle_event("call_hook", %{"fn" => fn_name, "args" => args_text}, socket) do
+    args =
+      case args_text do
+        v when is_binary(v) and v != "" ->
+          case Jason.decode(v) do
+            {:ok, parsed} when is_list(parsed) -> parsed
+            {:ok, parsed} -> [parsed]
+            _ -> []
+          end
+
+        _ ->
+          []
+      end
+
+    result =
+      case GameServer.Hooks.call(fn_name, args) do
+        {:ok, res} ->
+          inspect(res)
+
+        # If function not implemented, and we have a hooks_file_path configured,
+        # attempt to register the file and retry the call once so the admin UI
+        # can call functions directly when modules are provided as source file.
+        {:error, :not_implemented} ->
+          src =
+            socket.assigns.config.hooks_file_path_app || socket.assigns.config.hooks_file_path_env
+
+          if is_binary(src) and File.exists?(src) do
+            case GameServer.Hooks.register_file(src) do
+              {:ok, _mod} ->
+                case GameServer.Hooks.call(fn_name, args) do
+                  {:ok, res2} -> inspect(res2)
+                  {:error, r2} -> "error: #{inspect(r2)}"
+                end
+
+              {:error, reason} ->
+                "error: register_failed: #{inspect(reason)}"
+            end
+          else
+            "error: :not_implemented"
+          end
+
+        {:error, reason} ->
+          "error: #{inspect(reason)}"
+      end
+
+    config = Map.put(socket.assigns.config, :hooks_test_result, result)
+
+    {:noreply, assign(socket, :config, config)}
+  end
+
+  @impl true
+  def handle_event("prefill_hook", %{"fn" => fn_name}, socket) do
+    seq = System.unique_integer([:positive])
+
+    # Try to find example args for the selected function from the mounted
+    # hooks_exported_functions (rendered into socket.assigns.config earlier)
+    example =
+      socket.assigns.config.hooks_exported_functions
+      |> Enum.find_value(nil, fn f ->
+        if to_string(f.name) == fn_name do
+          # prefer first signature's example_args
+          case f.signatures do
+            [first | _] -> Map.get(first, :example_args) || ""
+            _ -> ""
+          end
+        else
+          nil
+        end
+      end)
+
+    {:noreply,
+     assign(socket,
+       hooks_prefill: %{value: fn_name, seq: seq},
+       hooks_args_prefill: %{value: example || "", seq: seq}
+     )}
+  end
+
+  def handle_event("prefill_args", %{"args" => args_text}, socket) do
+    seq = System.unique_integer([:positive])
+    {:noreply, assign(socket, :hooks_args_prefill, %{value: args_text, seq: seq})}
+  end
+
+  def handle_event("show_docs", %{"doc" => doc, "name" => name, "arity" => arity}, socket) do
+    # arity may arrive as string; keep it as-is for display
+    full_name = "#{name}/#{arity}"
+    {:noreply, assign(socket, hooks_full_doc: doc, hooks_full_name: full_name)}
+  end
+
+  def handle_event("close_docs", _params, socket),
+    do: {:noreply, assign(socket, hooks_full_doc: nil, hooks_full_name: nil)}
+
+  def handle_event("call_hook", _params, socket), do: {:noreply, socket}
 
   defp detect_db_adapter do
     repo_conf = Application.get_env(:game_server, GameServer.Repo) || %{}

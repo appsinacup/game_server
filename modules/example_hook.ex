@@ -12,10 +12,6 @@ defmodule GameServer.Modules.ExampleHook do
 
   alias GameServer.Repo
 
-# Print at compile time so you can see when this file is compiled by
-# Code.compile_file/1 or by the watcher. This runs when the module is compiled.
-IO.puts("[ExampleHook] compiled at: #{inspect(DateTime.utc_now())}")
-
   @impl true
   def after_user_register(user) do
     # simple side-effect: add a flag to user metadata (if present). Keep safe
@@ -93,4 +89,21 @@ IO.puts("[ExampleHook] compiled at: #{inspect(DateTime.utc_now())}")
 
   @impl true
   def after_lobby_host_change(_lobby, _new_host_id), do: :ok
+
+  @spec hello(String.t()) :: String.t()
+  @doc "Say hi to a user"
+  def hello(name) when is_bitstring(name) do
+    "Hello, #{name}!"
+  end
+
+
+  @spec hello2(String.t(), String.t()) :: String.t()
+  @doc "Say hi with two names"
+  def hello2(name, name2) do
+    "Hello2, #{name} #{name2}!"
+  end
+
+  def hello3(name, count, list) do
+    "Hello3, #{name} #{count} #{list}!"
+  end
 end

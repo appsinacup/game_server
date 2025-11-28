@@ -95,6 +95,9 @@ defmodule GameServerWeb.Router do
     post "/friends/:id/block", FriendController, :block
     post "/friends/:id/unblock", FriendController, :unblock
     delete "/friends/:id", FriendController, :delete
+    # Hooks API - list available hook functions and call them
+    get "/hooks", HookController, :index
+    post "/hooks/call", HookController, :invoke
   end
 
   # API OAuth routes

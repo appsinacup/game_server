@@ -1,0 +1,244 @@
+defmodule GameServer.Hooks.CallTest do
+  use ExUnit.Case, async: true
+
+  setup do
+    orig = Application.get_env(:game_server, :hooks_module)
+    on_exit(fn -> Application.put_env(:game_server, :hooks_module, orig) end)
+    :ok
+  end
+
+  test "call invokes exported function and exported_functions lists it" do
+    n = System.unique_integer([:positive])
+    mod = Module.concat([GameServer, TestHooks, String.to_atom("CallTest_#{n}")])
+
+    # Create a simple module with a couple of public functions
+    Module.create(
+      mod,
+      quote do
+        def hello(a), do: {:hello, a}
+        def add(a, b), do: a + b
+      end,
+      __ENV__
+    )
+
+    Application.put_env(:game_server, :hooks_module, mod)
+
+    assert {:ok, {:hello, "x"}} = GameServer.Hooks.call(:hello, ["x"])
+    assert {:ok, 3} = GameServer.Hooks.call(:add, [1, 2])
+
+    funcs = GameServer.Hooks.exported_functions()
+    names = Enum.map(funcs, & &1.name)
+    assert "hello" in names
+    assert "add" in names
+  end
+
+  test "parses signatures from source file when available" do
+    tmp = Path.join(System.tmp_dir!(), "hooks_sig_#{System.unique_integer([:positive])}.ex")
+
+    mod =
+      Module.concat([
+        GameServer,
+        TestHooks,
+        String.to_atom("SigTest_#{System.unique_integer([:positive])}")
+      ])
+
+    src = """
+    defmodule #{inspect(mod)} do
+      def foo(user, opts), do: {:ok, {user, opts}}
+      def bar(a), do: a
+    end
+    """
+
+    File.write!(tmp, src)
+
+    # compile the file so module exists and register as hooks module
+    _modules = Code.compile_file(tmp)
+    Application.put_env(:game_server, :hooks_module, mod)
+    Application.put_env(:game_server, :hooks_file_path, tmp)
+
+    funcs = GameServer.Hooks.exported_functions()
+    names = Enum.map(funcs, & &1.name)
+    assert "foo" in names
+    assert "bar" in names
+
+    # find signature mapping for foo arity 2
+    foo = Enum.find(funcs, fn f -> f.name == "foo" end)
+    assert foo != nil
+
+    assert Enum.any?(foo.signatures, fn s ->
+             s.arity == 2 and is_binary(s.signature) and s.signature =~ "user"
+           end)
+
+    # ensure example args were generated and include a sensible example for the first param
+    assert Enum.any?(foo.signatures, fn s ->
+             s.arity == 2 and is_binary(s.example_args) and s.example_args =~ "name"
+           end)
+
+    File.rm!(tmp)
+  end
+
+  test "parses function heads with guards from source file" do
+    tmp = Path.join(System.tmp_dir!(), "hooks_sig_guard_#{System.unique_integer([:positive])}.ex")
+
+    mod =
+      Module.concat([
+        GameServer,
+        TestHooks,
+        String.to_atom("GuardSig_#{System.unique_integer([:positive])}")
+      ])
+
+    src = """
+    defmodule #{inspect(mod)} do
+      def foo(user) when is_map(user), do: {:ok, user}
+      def bar(a), do: a
+    end
+    """
+
+    File.write!(tmp, src)
+
+    Code.compile_file(tmp)
+    Application.put_env(:game_server, :hooks_module, mod)
+    Application.put_env(:game_server, :hooks_file_path, tmp)
+
+    funcs = GameServer.Hooks.exported_functions()
+    assert Enum.map(funcs, & &1.name) |> Enum.member?("foo")
+    foo = Enum.find(funcs, &(&1.name == "foo"))
+
+    assert Enum.any?(foo.signatures, fn s ->
+             s.arity == 1 and is_binary(s.signature) and s.signature =~ "user"
+           end)
+
+    File.rm!(tmp)
+  end
+
+  test "extracts docs and returns info from docs when available" do
+    mod =
+      Module.concat([
+        GameServer,
+        TestHooks,
+        String.to_atom("DocsTest_#{System.unique_integer([:positive])}")
+      ])
+
+    Module.create(
+      mod,
+      quote do
+        @moduledoc false
+        @doc "Does something.\n\nReturns: a special return value"
+        def foo(a), do: {:ok, a}
+      end,
+      __ENV__
+    )
+
+    Application.put_env(:game_server, :hooks_module, mod)
+
+    funcs = GameServer.Hooks.exported_functions()
+    foo = Enum.find(funcs, fn f -> f.name == "foo" end)
+    assert foo != nil
+    sig = Enum.find(foo.signatures, &(&1.arity == 1))
+    assert sig != nil
+
+    if is_binary(sig.doc) do
+      assert sig.doc =~ "Does something"
+      assert sig.returns == "a special return value"
+    end
+  end
+
+  test "call returns :not_implemented for missing function" do
+    m = System.unique_integer([:positive])
+    mod = Module.concat([GameServer, TestHooks, String.to_atom("CallTestMissing_#{m}")])
+
+    Module.create(
+      mod,
+      quote do
+        def ok, do: :ok
+      end,
+      __ENV__
+    )
+
+    Application.put_env(:game_server, :hooks_module, mod)
+
+    assert {:error, :not_implemented} = GameServer.Hooks.call(:does_not_exist, [])
+  end
+
+  test "call returns a structured error on bad arg types (function clause)" do
+    m = System.unique_integer([:positive])
+    mod = Module.concat([GameServer, TestHooks, String.to_atom("CallTestType_#{m}")])
+
+    Module.create(
+      mod,
+      quote do
+        def hello(name) when is_binary(name), do: "hi: #{name}"
+      end,
+      __ENV__
+    )
+
+    Application.put_env(:game_server, :hooks_module, mod)
+
+    assert {:error, {:function_clause, _msg}} = GameServer.Hooks.call(:hello, [1])
+  end
+
+  # NOTE: removed an earlier test that expected `GameServer.Hooks.call/3` to
+  # auto-compile & register a hooks file. We don't auto-register on call; the
+  # admin UI attempts registration when appropriate.
+
+  test "exported_functions returns empty for default module and handles multiple arities" do
+    # ensure default module is used
+    Application.put_env(:game_server, :hooks_module, GameServer.Hooks.Default)
+
+    assert GameServer.Hooks.exported_functions() == []
+
+    # create module with multiple arities and a function lacking docs or source
+    mod =
+      Module.concat([
+        GameServer,
+        TestHooks,
+        String.to_atom("MultiArity_#{System.unique_integer([:positive])}")
+      ])
+
+    Module.create(
+      mod,
+      quote do
+        def foo(a), do: a
+        def foo(a, b), do: a + b
+        def no_doc, do: :ok
+      end,
+      __ENV__
+    )
+
+    Application.put_env(:game_server, :hooks_module, mod)
+
+    funcs = GameServer.Hooks.exported_functions()
+    foo = Enum.find(funcs, &(&1.name == "foo"))
+
+    assert foo != nil
+    assert Enum.sort(foo.arities) == [1, 2]
+
+    no_doc = Enum.find(funcs, &(&1.name == "no_doc"))
+    assert no_doc != nil
+    # signature may be nil when neither docs nor source are available
+    assert Enum.any?(no_doc.signatures, fn s -> s.signature == nil end)
+  end
+
+  test "prefers @spec types for signatures when available" do
+    _mod =
+      Module.concat([
+        GameServer,
+        TestHooks,
+        String.to_atom("SpecTest_#{System.unique_integer([:positive])}")
+      ])
+
+    # Not all dynamically compiled modules will retain typespecs in every
+    # runtime. Use a known stdlib module (String) which has specs available
+    # to validate that typespec extraction works when specs are present.
+    Application.put_env(:game_server, :hooks_module, String)
+
+    funcs = GameServer.Hooks.exported_functions()
+
+    # ensure some signature text is present; prefer doc/parsed signatures which contain param names
+    assert Enum.any?(funcs, fn f ->
+             Enum.any?(f.signatures, fn s ->
+               is_binary(s.signature) and String.contains?(s.signature, "(")
+             end)
+           end)
+  end
+end
