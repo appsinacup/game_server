@@ -9,6 +9,7 @@ var _authenticate: AuthenticationApi
 var _users: UsersApi
 var _friends: FriendsApi
 var _lobbies: LobbiesApi
+var _hooks: HooksApi
 var _config := ApiApiConfigClient.new()
 
 const PROVIDER_DISCORD = "discord"
@@ -28,6 +29,7 @@ func _create_apis():
 	_users = UsersApi.new(_config)
 	_friends = FriendsApi.new(_config)
 	_lobbies = LobbiesApi.new(_config)
+	_hooks = HooksApi.new(_config)
 
 func _call_api(api: ApiApiBeeClient, method_name: String, params: Array = []) -> GamendResult:
 	var result = GamendResult.new()
@@ -53,6 +55,16 @@ func authorize(access_token: String):
 ## Health check
 func health_index() -> GamendResult:
 	return _call_api(_health, "index")
+
+### HOOKS
+
+## Invoke a hook function
+func hooks_call_hook(hook_request: CallHookRequest) -> GamendResult:
+	return _call_api(_hooks, "call_hook", [hook_request])
+
+## List available hook functions
+func hooks_list_hooks() -> GamendResult:
+	return _call_api(_hooks, "list_hooks", [])
 
 ### USERS
 
