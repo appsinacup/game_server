@@ -1,3 +1,6 @@
+## Open source game server with authentication, users, lobbies, and an admin portal
+##
+## Game + Backend = Gamend
 class_name GamendApi
 extends Node2D
 
@@ -28,18 +31,19 @@ func _create_apis():
 
 func _call_api(api: ApiApiBeeClient, method_name: String, params: Array = []) -> GamendResult:
 	var result = GamendResult.new()
-	api.call(method_name,
+	var callables = [
 		func(response: ApiApiResponseClient):
 			result.response = response
 			result.finished.emit(result)
 			,
 		func(error):
 			result.error = error
-			result.finished.emit(result)
-			,
-			params)
+			result.finished.emit(result)]
+	params.append_array(callables)
+	api.callv(method_name, params)
 	return result
 
+## Authorize with access token
 func authorize(access_token: String):
 	_config.headers_base["Authorization"] = "Bearer " + access_token
 	_create_apis()
@@ -86,6 +90,10 @@ func authenticate_oauth_session_status(session_id: String):
 ## Initiate API OAuth
 func authenticate_oauth_request(provider: String):
 	return _call_api(_authenticate, "oauth_request", [provider])
+
+## API Callback / Code Exchange
+func authenticate_oauth_api_callback(provider: String, callback_request: OauthApiCallbackRequest):
+	return _call_api(_authenticate, "oauth_api_callback", [provider, callback_request])
 
 ## Login
 func authenticate_login(login_request: LoginRequest):
