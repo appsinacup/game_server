@@ -182,7 +182,9 @@ defmodule GameServerWeb.Api.V1.LobbyController do
     description:
       "Join an existing lobby. If the lobby requires a password, include it in the request body.",
     security: [%{"authorization" => []}],
-    # Uses the authenticated user's current lobby (no path id required)
+    parameters: [
+      id: [in: :path, schema: %Schema{type: :integer}, description: "Lobby ID", required: true]
+    ],
     request_body: {
       "Join parameters (optional)",
       "application/json",

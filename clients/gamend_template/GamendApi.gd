@@ -97,7 +97,7 @@ func authenticate_device_login(device_id: DeviceLoginRequest):
 
 ## Logout
 func authenticate_logout():
-	return _call_api(_authenticate, "logout", [])
+	return _call_api(_authenticate, "logout")
 
 ## Unlink OAuth provider
 func authenticate_unlink_provider(provider: String):
@@ -106,3 +106,43 @@ func authenticate_unlink_provider(provider: String):
 ## Refresh access token
 func authenticate_refresh_token(refresh_token: RefreshTokenRequest):
 	return _call_api(_authenticate, "refresh_token", [refresh_token])
+
+### FRIENDS
+
+## Send a friend request
+func friends_create_friend_request(friend_request: CreateFriendRequestRequest):
+	return _call_api(_friends, "create_friend_request", [friend_request])
+
+func friends_accept_friend_request(id: int):
+	return _call_api(_friends, "accept_friend_request", [id])
+
+### LOBBIES
+
+## List lobbies
+func lobbies_list_lobbies(
+	query = "",
+	page = null,
+	page_size = null,
+	metadata_key = "",
+	metadata_value = ""):
+	return _call_api(_lobbies, "list_lobbies", [query, page, page_size, metadata_key, metadata_value])
+
+## Update lobby (host only)
+func lobbies_update_lobby(update_request: UpdateLobbyRequest):
+	return _call_api(_lobbies, "update_lobby", [update_request])
+
+## Create a lobby
+func lobbies_create_lobby(create_request: CreateLobbyRequest):
+	return _call_api(_lobbies, "create_lobby", [create_request])
+
+## Kick a user from the lobby (host only)
+func lobbies_kick_user(kick_request: KickUserRequest):
+	return _call_api(_lobbies, "kick_user", [kick_request])
+
+## Leave the current lobby
+func lobbies_leave_lobby():
+	return _call_api(_lobbies, "leave_lobby")
+
+## Join a lobby
+func lobbies_join_lobby(id: int, join_request: JoinLobbyRequest = null):
+	return _call_api(_lobbies, "join_lobby", [id, join_request])
