@@ -1,0 +1,183 @@
+<!-- Server-side scripting / Hooks -->
+<div class="card bg-base-100 shadow-xl collapsed" data-card-key="server_scripting">
+  <div class="card-body">
+    <h2 class="card-title text-2xl mb-4 flex items-center gap-3">
+      <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3 3h18v4H3V3zm0 7h18v11H3V10z" />
+      </svg>
+      Server-side scripting & hooks
+      <button
+        type="button"
+        data-action="toggle-card"
+        data-card-key="server_scripting"
+        aria-expanded="false"
+        class="btn btn-ghost btn-sm ml-auto"
+        title="Collapse/Expand"
+      >
+        <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 8l4 4 4-4"
+          />
+        </svg>
+      </button>
+    </h2>
+
+    <div class="space-y-4">
+      <p class="text-sm text-base-content/80">
+        The application exposes a lightweight server-side scripting surface via the
+        <code class="font-mono">GameServer.Hooks</code>
+        behaviour. Hooks let you run
+        custom code on lifecycle events (eg. user register/login, lobby create/update)
+        and optionally expose RPC functions.
+      </p>
+
+      <div class="bg-base-200 p-4 rounded-lg overflow-auto">
+        <h4 class="font-semibold">Where to look</h4>
+        <ul class="list-disc pl-5 mt-2">
+          <li>
+            <code class="font-mono">lib/game_server/hooks.ex</code>
+            — behaviour, runtime helpers (<code>call/3</code>, <code>internal_call/3</code>), and defaults.
+          </li>
+          <li>
+            <code class="font-mono">lib/game_server/hooks/default.ex</code>
+            — default no-op implementations (used when no hook module is configured).
+          </li>
+          <li>
+            Admin UI uses <code class="font-mono">GameServer.Hooks.register_file/1</code>
+            or <code class="font-mono">:hooks_module</code>
+            app config to set hooks implementation.
+          </li>
+        </ul>
+      </div>
+
+      <div class="step">
+        <h4 class="font-semibold">Add a lifecycle callback</h4>
+        <div class="ml-6 mt-2 space-y-2">
+          <p>
+            Implement the behaviour in a module (either compile with your app or register at runtime via a file):
+          </p>
+          <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
+            <pre><code class="language-elixir" phx-no-curly-interpolation>
+                    defmodule MyApp.HooksImpl do
+                      @behaviour GameServer.Hooks
+
+                      # run immediately after a user registers
+                      @impl true
+                      def after_user_register(user) do
+                        # safe database update (non-blocking in hooks is recommended)
+                        Task.start(fn ->
+                          GameServer.Accounts.update_user(user, %{metadata: Map.put(user.metadata || %{}, "from_hook", true)})
+                        end)
+
+                        :ok
+                      end
+                    end
+                    </code></pre>
+          </div>
+
+          <p>
+            The callback will be called by domain flows (eg. GameServer.Accounts.register_user). Prefer asynchronous side-effects (Task.start/async) and safe error handling so hooks don't crash the flow.
+          </p>
+        </div>
+      </div>
+
+      <div class="step">
+        <h4 class="font-semibold">Registering a runtime hook file</h4>
+        <div class="ml-6 mt-2 space-y-2">
+          <p>
+            You can register a hooks implementation file at runtime (useful for admin testing or rapid iteration):
+          </p>
+          <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
+            <pre><code class="language-elixir" phx-no-curly-interpolation>
+      # compile & register the temporary module file
+      GameServer.Hooks.register_file("/path/to/hooks_impl.ex")
+
+      # or set application env at boot
+      config :game_server, :hooks_module, MyApp.HooksImpl
+              </code></pre>
+          </div>
+          <p>
+            register_file will record compile diagnostics and will set the active hooks module when the module implements the expected callbacks.
+          </p>
+        </div>
+      </div>
+
+      <div class="step">
+        <h4 class="font-semibold">Exposing an RPC function</h4>
+        <div class="ml-6 mt-2 space-y-2">
+          <p>
+            Hooks modules can also export arbitrary functions which the admin UI exposes: use
+            <code class="font-mono">GameServer.Hooks.call/3</code>
+            for safe RPC calls (note: public <code>call/3</code>
+            forbids internal lifecycle names).
+          </p>
+
+          <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
+            <pre><code class="language-elixir" phx-no-curly-interpolation>
+                    defmodule MyApp.HooksImpl do
+                      @behaviour GameServer.Hooks
+
+                      # public helper exposed via hooks.call/3
+                      def my_admin_action(attrs) when is_map(attrs) do
+                        # perform some admin-only work and return {:ok, result} or {:error, reason}
+                        {:ok, :done}
+                      end
+                    end
+
+                    # call safely from admin UI / tests
+                    GameServer.Hooks.call(:my_admin_action, [%{"some" => "payload"}])
+                    </code></pre>
+          </div>
+
+          <p>
+            call/3 runs the function in a short Task and normalizes results to <code
+              class="font-mono"
+              phx-no-curly-interpolation
+            >{:ok, value} | {:error, reason}</code>. It also refuses calls to internal lifecycle names — use
+            <code class="font-mono">internal_call/3</code>
+            when implementing lifecycle hooks.
+          </p>
+        </div>
+      </div>
+
+      <div class="step">
+        <h4 class="font-semibold">Best practices & pitfalls</h4>
+        <div class="ml-6 mt-2 space-y-2 text-sm text-base-content/80">
+          <ul class="list-disc pl-5">
+            <li>
+              Keep hooks fast and resilient — avoid long blocking work in the main request path. Use
+              <code class="font-mono">Task.start</code>
+              for background processing.
+            </li>
+            <li>
+              When returning values from lifecycle hooks, prefer a
+              <code class="font-mono" phx-no-curly-interpolation>{:ok, map}</code>
+              shape for "before" hooks that may modify attrs. Return
+              <code class="font-mono" phx-no-curly-interpolation>{:error, reason}</code>
+              to reject flows; domain code will convert to <code
+                class="font-mono"
+                phx-no-curly-interpolation
+              >{:hook_rejected, reason}</code>.
+            </li>
+            <li>
+              Do not return structs as hook results intended to be used as params — always return plain maps when you intend to pass modified params into changesets.
+            </li>
+            <li>
+              Tests interacting with runtime registration or global
+              <code class="font-mono" phx-no-curly-interpolation>:hooks_module</code>
+              config should run serially (set <code class="font-mono">async: false</code>
+              in the test) and restore Application env via <code class="font-mono">on_exit</code>
+              to avoid cross-test races.
+            </li>
+            <li>
+              Be careful modifying user or lobby data from hooks — reuse high-level domain functions (eg. <code class="font-mono">GameServer.Accounts.update_user/2</code>, <code class="font-mono">GameServer.Lobbies.update_lobby/2</code>) so changes are validated and broadcast consistently.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,111 @@
+<!-- Email Configuration -->
+<div class="card bg-base-100 shadow-xl collapsed" data-card-key="email_config">
+  <div class="card-body">
+    <h2 class="card-title text-2xl mb-4 flex items-center gap-3">
+      <svg
+        class="w-8 h-8 text-green-600"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+        />
+      </svg>
+      Email Setup
+      <a
+        href="https://hexdocs.pm/phoenix/1.3.0-rc.0/sending_email_with_smtp.html"
+        target="_blank"
+        class="btn btn-outline ml-auto"
+      >
+        Email Implementation Docs
+        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+          />
+        </svg>
+      </a>
+      <button
+        type="button"
+        data-action="toggle-card"
+        data-card-key="email_config"
+        aria-expanded="false"
+        class="btn btn-ghost btn-sm"
+        title="Collapse/Expand"
+      >
+        <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 8l4 4 4-4"
+          />
+        </svg>
+      </button>
+    </h2>
+
+    <div class="space-y-6">
+      <div class="step">
+        <h3 class="text-lg font-semibold mb-3">Choose an Email Provider</h3>
+        <div class="ml-8 space-y-3">
+          <p>Recommended providers:</p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-base-200 p-4 rounded-lg text-center">
+              <div class="font-semibold">Resend</div>
+              <div class="text-sm text-base-content/70">3,000 free emails/month</div>
+              <a href="https://resend.com" target="_blank" class="btn btn-sm btn-outline mt-2">
+                Get Started
+              </a>
+            </div>
+            <div class="bg-base-200 p-4 rounded-lg text-center">
+              <div class="font-semibold">SendGrid</div>
+              <div class="text-sm text-base-content/70">100 free emails/day</div>
+              <a
+                href="https://sendgrid.com"
+                target="_blank"
+                class="btn btn-sm btn-outline mt-2"
+              >
+                Get Started
+              </a>
+            </div>
+            <div class="bg-base-200 p-4 rounded-lg text-center">
+              <div class="font-semibold">Mailgun</div>
+              <div class="text-sm text-base-content/70">5,000 free emails/month</div>
+              <a
+                href="https://mailgun.com"
+                target="_blank"
+                class="btn btn-sm btn-outline mt-2"
+              >
+                Get Started
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <h3 class="text-lg font-semibold mb-3">Configure Email Secrets</h3>
+        <div class="ml-8 space-y-3">
+          <p>Set these environment variables based on your provider:</p>
+          <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
+            <div class="space-y-2">
+              <div># For Resend:</div>
+              <div>SMTP_USERNAME="resend"</div>
+              <div>SMTP_PASSWORD="your_resend_api_key"</div>
+              <div>SMTP_RELAY="smtp.resend.com"</div>
+            </div>
+          </div>
+          <p class="text-sm text-base-content/70 mt-2">
+            For other providers, adjust the SMTP settings accordingly. The app will automatically detect when email is configured.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

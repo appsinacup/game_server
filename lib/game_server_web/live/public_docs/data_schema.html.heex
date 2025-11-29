@@ -1,0 +1,192 @@
+<!-- Data Schema -->
+<div class="card bg-base-100 shadow-xl collapsed" data-card-key="data_schema">
+  <div class="card-body">
+    <h2 class="card-title text-2xl mb-4 flex items-center gap-3">
+      <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3 3h18v4H3V3zm0 7h18v11H3V10z" />
+      </svg>
+      Data Schema
+      <a
+        href={~p"/api/docs"}
+        target="_blank"
+        class="btn btn-outline ml-auto"
+      >
+        API Docs
+        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+          />
+        </svg>
+      </a>
+      <button
+        type="button"
+        data-action="toggle-card"
+        data-card-key="data_schema"
+        aria-expanded="false"
+        class="btn btn-ghost btn-sm"
+        title="Collapse/Expand"
+      >
+        <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 8l4 4 4-4"
+          />
+        </svg>
+      </button>
+    </h2>
+
+    <div class="space-y-4">
+      <p class="text-sm text-base-content/80">
+        This section describes the main database table shapes used by the platform - starting with the
+        <code class="font-mono">users</code>
+        table and the important fields you may rely on.
+      </p>
+
+      <h3 class="font-semibold">Users table</h3>
+      <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+        <pre>
+    users (
+      id             : integer (primary key)
+      email          : string (unique, nullable for provider-only accounts)
+      hashed_password: string (bcrypt hash, nullable for OAuth-only accounts)
+      confirmed_at   : utc_datetime
+      authenticated_at: utc_datetime (last sudo login)
+      discord_id     : string (nullable)
+      google_id      : string (nullable)
+      facebook_id    : string (nullable)
+      steam_id.      : string (nullable)
+      apple_id       : string (nullable)
+      profile_url    : string (avatar/profile image URL)
+      display_name   : string (human-friendly display name)
+      is_admin       : boolean
+      metadata       : map (JSON/Map for arbitrary user metadata)
+      inserted_at    : utc_datetime
+      updated_at     : utc_datetime
+    )
+                </pre>
+      </div>
+
+      <h3 class="font-semibold mt-3">Friends</h3>
+      <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+        <pre>
+    friendships (
+      id          : integer (primary key)
+      requester_id: integer (user id of who made the request)
+      target_id   : integer (user id of the target)
+      status      : string ("pending" | "accepted" | "rejected" | "blocked")
+      inserted_at : utc_datetime
+      updated_at  : utc_datetime
+    )
+                </pre>
+      </div>
+
+      <h4 class="font-semibold mt-3">Lobbies</h4>
+      <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+        <pre>
+    lobbies (
+      id           : integer (primary key)
+      name         : string (unique slug)
+      title        : string (display title)
+      host_id      : integer (user id of host, nullable for hostless)
+      hostless     : boolean (server-managed hostless lobbies)
+      max_users    : integer (maximum number of members)
+      is_hidden    : boolean (not returned by public lists)
+      is_locked    : boolean (fully locked - prevents joins)
+      password_hash: string (bcrypt hash, optional: requires password to join)
+      metadata     : jsonb/map (searchable metadata)
+      inserted_at  : utc_datetime
+      updated_at   : utc_datetime
+    )</pre>
+      </div>
+
+      <h3 class="font-semibold mt-2">Notes / behavior</h3>
+      <ul class="list-disc pl-6 text-sm space-y-1 text-base-content/80">
+        <li>
+          <strong>Password auth:</strong>
+          Accounts created only via OAuth commonly have no <code class="font-mono">hashed_password</code>. In that case password-based login does not work
+          (we treat oauth-only accounts as passwordless unless a password is explicitly set by the user).
+        </li>
+        <li>
+          <strong>Display name:</strong>
+          The <code class="font-mono">display_name</code>
+          is a human-friendly name
+          and may be populated from OAuth providers (when available). The app avoids overwriting a user-provided
+          display name when linking providers.
+        </li>
+        <li>
+          <strong>Profile image:</strong>
+          The <code class="font-mono">profile_url</code>
+          is used for avatars and may
+          be populated from provider responses (Google picture, Facebook picture.data.url, Discord CDN).
+        </li>
+        <li>
+          <strong>Metadata:</strong>
+          The JSON <code class="font-mono">metadata</code>
+          field is for arbitrary
+          application data (e.g. display preferences). It's returned by the public API at <code class="font-mono">GET /api/v1/me</code>.
+        </li>
+      </ul>
+
+      <h3 class="font-semibold mt-3">Persisted data and tables</h3>
+      <div class="space-y-3 text-sm text-base-content/80">
+        <p>
+          The platform stores several tables worth of data that client integrations may need to be aware of.
+        </p>
+
+        <h4 class="font-semibold">Users</h4>
+        <p class="pl-4">
+          The <code class="font-mono">users</code>
+          table is the primary identity store and contains
+          fields like <code class="font-mono">email</code>, <code class="font-mono">hashed_password</code>,
+          provider ids (<code class="font-mono">discord_id</code>, <code class="font-mono">google_id</code>, etc.), <code class="font-mono">profile_url</code>, <code class="font-mono">display_name</code>,
+          <code class="font-mono">metadata</code>
+          and admin flags and timestamps.
+        </p>
+
+        <h4 class="font-semibold">User tokens (users_tokens)</h4>
+        <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+          <pre>
+    users_tokens (
+      id              : integer (primary key)
+      token           : binary (hashed for email tokens; raw for session tokens)
+      context         : string ("session", "login", "change:..." etc.)
+      sent_to         : string (email address for email/magic link tokens)
+      authenticated_at: utc_datetime (when this session was created/used)
+      user_id         : integer (foreign key to users)
+      inserted_at     : utc_datetime
+    )</pre>
+        </div>
+        <p class="pl-4 mt-1">
+          The app persists session tokens to let users view/expiration/and revoke individual sessions. Email/magic-link tokens are hashed when stored for safety.
+        </p>
+
+        <h4 class="font-semibold">OAuth sessions (oauth_sessions)</h4>
+        <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+          <pre>
+    oauth_sessions (
+      id        : integer (primary key)
+      session_id: string (unique id used by SDKs to poll/signal status)
+      provider  : string ("discord" | "google" | "facebook" | "apple" | "steam")
+      status    : string ("pending" | "completed" | "failed")
+      data      : jsonb/map (provider response, debug info, or result payload)
+      inserted_at: utc_datetime
+      updated_at: utc_datetime
+    )</pre>
+        </div>
+        <p class="pl-4 mt-1">
+          OAuth sessions are tracked in the DB to support reliable polling flows from client SDKs and to provide safe, multi-step authorization from popups and mobile apps.
+        </p>
+
+        <h4 class="font-semibold">JWT tokens (access + refresh)</h4>
+        <p class="pl-4">
+          The API issues JSON Web Tokens (JWTs) for API authentication. Access tokens are short-lived and refresh tokens are longer-lived (configurable). The server uses Guardian for signing and verification. Refresh tokens are stateless JWTs (no DB lookup) while session tokens and email tokens are persisted where needed.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
