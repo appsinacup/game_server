@@ -29,7 +29,20 @@ ADDITIONAL_PROPERTIES=${ADDITIONAL_PROPERTIES:-coreNamePrefix=Api,coreNameSuffix
 
 echo "Generating GDScript client into $OUT_DIR using Docker image $GEN_IMAGE"
 
-docker run --rm -v "$ROOT_DIR:/local" $GEN_IMAGE generate \
+# Try to make the generator run as the current host user so files written into
+# the mounted volume are owned by the same uid/gid — this prevents
+# permission problems later when doing in-place edits on the host (CI runners
+# often create root-owned files otherwise).
+DOCKER_USER_OPT=""
+if command -v id >/dev/null 2>&1; then
+  HOST_UID=$(id -u)
+  HOST_GID=$(id -g)
+  if [ -n "${HOST_UID}" ] && [ -n "${HOST_GID}" ]; then
+    DOCKER_USER_OPT="-u ${HOST_UID}:${HOST_GID}"
+  fi
+fi
+
+docker run --rm $DOCKER_USER_OPT -v "$ROOT_DIR:/local" $GEN_IMAGE generate \
   -i /local/clients/godot/openapi.json \
   -g "$GENERATOR" \
   -o /local/clients/godot \
@@ -38,6 +51,14 @@ docker run --rm -v "$ROOT_DIR:/local" $GEN_IMAGE generate \
 echo "Generation finished. See $OUT_DIR for generated files."
 
 echo "Post-processing generated files: replacing 'Underscore' -> '_'"
+
+# Ensure we have permission to perform in-place edits on generated files.
+# When the generator ran as a different user (e.g. root inside Docker) files
+# might be owned by a different uid and perl -i will fail to create temp files.
+if [ -n "${HOST_UID:-}" ]; then
+  chown -R "${HOST_UID}:${HOST_GID}" "$OUT_DIR" 2>/dev/null || true
+fi
+chmod -R u+rw "$OUT_DIR" 2>/dev/null || true
 
 # Fix generator errors. Replace Underscore with _
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/Underscore/_/g" -i
