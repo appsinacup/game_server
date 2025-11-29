@@ -364,7 +364,9 @@ defmodule GameServerWeb.AdminLive.Config do
                                           {f.name}/{s.arity}
                                         </span>
                                         <%= if s.signature do %>
-                                          <span class="text-muted"> -             {s.signature}</span>
+                                          <span class="text-muted">
+                                            - {s.signature}
+                                          </span>
                                         <% end %>
                                         <%!-- example button removed: clicking the function name now auto-prefills the example args --%>
                                         <%= if s.doc do %>

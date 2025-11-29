@@ -19,6 +19,7 @@ defmodule GameServerWeb.PublicDocs do
         </.header>
 
         {GameServerWeb.PublicDocsTemplates.js_sdk(assigns)}
+        {GameServerWeb.PublicDocsTemplates.godot_sdk(assigns)}
         {GameServerWeb.PublicDocsTemplates.server_scripting(assigns)}
         {GameServerWeb.PublicDocsTemplates.data_schema(assigns)}
         {GameServerWeb.PublicDocsTemplates.apple_sign_in(assigns)}

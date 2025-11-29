@@ -2,16 +2,31 @@
 <div class="card bg-base-100 shadow-xl collapsed" data-card-key="server_scripting">
   <div class="card-body">
     <h2 class="card-title text-2xl mb-4 flex items-center gap-3">
-      <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+      <svg class="w-12 h-8" viewBox="0 0 24 24" fill="currentColor">
         <path d="M3 3h18v4H3V3zm0 7h18v11H3V10z" />
       </svg>
       Server-side scripting & hooks
+      <a
+        href="https://appsinacup.com/game_server/GameServer.Hooks.html"
+        target="_blank"
+        class="btn btn-outline ml-auto"
+      >
+        Scrpting Interface
+        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+          />
+        </svg>
+      </a>
       <button
         type="button"
         data-action="toggle-card"
         data-card-key="server_scripting"
         aria-expanded="false"
-        class="btn btn-ghost btn-sm ml-auto"
+        class="btn btn-ghost btn-sm"
         title="Collapse/Expand"
       >
         <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
@@ -34,53 +49,27 @@
         and optionally expose RPC functions.
       </p>
 
-      <div class="bg-base-200 p-4 rounded-lg overflow-auto">
-        <h4 class="font-semibold">Where to look</h4>
-        <ul class="list-disc pl-5 mt-2">
-          <li>
-            <code class="font-mono">lib/game_server/hooks.ex</code>
-            — behaviour, runtime helpers (<code>call/3</code>, <code>internal_call/3</code>), and defaults.
-          </li>
-          <li>
-            <code class="font-mono">lib/game_server/hooks/default.ex</code>
-            — default no-op implementations (used when no hook module is configured).
-          </li>
-          <li>
-            Admin UI uses <code class="font-mono">GameServer.Hooks.register_file/1</code>
-            or <code class="font-mono">:hooks_module</code>
-            app config to set hooks implementation.
-          </li>
-        </ul>
-      </div>
-
       <div class="step">
         <h4 class="font-semibold">Add a lifecycle callback</h4>
         <div class="ml-6 mt-2 space-y-2">
           <p>
-            Implement the behaviour in a module (either compile with your app or register at runtime via a file):
+            Implement the behaviour in the modules folder:
           </p>
           <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
-            <pre><code class="language-elixir" phx-no-curly-interpolation>
-                    defmodule MyApp.HooksImpl do
-                      @behaviour GameServer.Hooks
+            <pre><code class="language-elixir" phx-no-curly-interpolation># modules/my_hooks_impl.ex
 
-                      # run immediately after a user registers
-                      @impl true
-                      def after_user_register(user) do
-                        # safe database update (non-blocking in hooks is recommended)
-                        Task.start(fn ->
-                          GameServer.Accounts.update_user(user, %{metadata: Map.put(user.metadata || %{}, "from_hook", true)})
-                        end)
+defmodule MyApp.HooksImpl do
+    @behaviour GameServer.Hooks
 
-                        :ok
-                      end
-                    end
-                    </code></pre>
+    @impl true
+    def after_user_register(user) do
+        # safe database update (non-blocking in hooks is recommended)
+        GameServer.Accounts.update_user(user, %{metadata: Map.put(user.metadata || %{}, "from_hook", true)})
+    :ok
+    end
+end
+</code></pre>
           </div>
-
-          <p>
-            The callback will be called by domain flows (eg. GameServer.Accounts.register_user). Prefer asynchronous side-effects (Task.start/async) and safe error handling so hooks don't crash the flow.
-          </p>
         </div>
       </div>
 
@@ -88,19 +77,14 @@
         <h4 class="font-semibold">Registering a runtime hook file</h4>
         <div class="ml-6 mt-2 space-y-2">
           <p>
-            You can register a hooks implementation file at runtime (useful for admin testing or rapid iteration):
+            You can register a hooks implementation file at runtime by setting the following configuration:
           </p>
           <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
-            <pre><code class="language-elixir" phx-no-curly-interpolation>
-      # compile & register the temporary module file
-      GameServer.Hooks.register_file("/path/to/hooks_impl.ex")
-
-      # or set application env at boot
-      config :game_server, :hooks_module, MyApp.HooksImpl
-              </code></pre>
+            <pre><code class="language-elixir" phx-no-curly-interpolation>HOOKS_FILE_PATH=modules/my_hooks_impl.ex</code></pre>
           </div>
           <p>
-            register_file will record compile diagnostics and will set the active hooks module when the module implements the expected callbacks.
+            This file will be compiled and loaded on application start. On changes, it will auto-reload
+            without restarting the server.
           </p>
         </div>
       </div>
@@ -109,37 +93,23 @@
         <h4 class="font-semibold">Exposing an RPC function</h4>
         <div class="ml-6 mt-2 space-y-2">
           <p>
-            Hooks modules can also export arbitrary functions which the admin UI exposes: use
-            <code class="font-mono">GameServer.Hooks.call/3</code>
-            for safe RPC calls (note: public <code>call/3</code>
-            forbids internal lifecycle names).
+            Hooks modules can also export arbitrary functions:
           </p>
 
           <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
-            <pre><code class="language-elixir" phx-no-curly-interpolation>
-                    defmodule MyApp.HooksImpl do
-                      @behaviour GameServer.Hooks
+            <pre><code class="language-elixir" phx-no-curly-interpolation>defmodule MyApp.HooksImpl do
+  @behaviour GameServer.Hooks
 
-                      # public helper exposed via hooks.call/3
-                      def my_admin_action(attrs) when is_map(attrs) do
-                        # perform some admin-only work and return {:ok, result} or {:error, reason}
-                        {:ok, :done}
-                      end
-                    end
-
-                    # call safely from admin UI / tests
-                    GameServer.Hooks.call(:my_admin_action, [%{"some" => "payload"}])
-                    </code></pre>
+  def hello_world(name) do
+    {:ok, "Hello, #{name}!"}
+  end
+end</code></pre>
           </div>
-
-          <p>
-            call/3 runs the function in a short Task and normalizes results to <code
-              class="font-mono"
-              phx-no-curly-interpolation
-            >{:ok, value} | {:error, reason}</code>. It also refuses calls to internal lifecycle names — use
-            <code class="font-mono">internal_call/3</code>
-            when implementing lifecycle hooks.
-          </p>
+          You can now call this function via the API (or better yet from the client SDK's), eg:
+          <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
+            <pre><code class="language-elixir" phx-no-curly-interpolation>curl -X POST https://your-game-server.com/api/v1/hooks/call \
+-d '{"fn":"hello_world","args":["Alice"]}'</code></pre>
+          </div>
         </div>
       </div>
 
