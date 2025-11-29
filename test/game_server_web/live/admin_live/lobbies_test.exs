@@ -1,5 +1,8 @@
 defmodule GameServerWeb.AdminLive.LobbiesTest do
-  use GameServerWeb.ConnCase, async: true
+  # This test interacts with global hooks/application state in places (eg. lobbies
+  # hooks and saves). Running it concurrently can race with other tests that
+  # modify the same application config, which causes flaky behaviour under CI.
+  use GameServerWeb.ConnCase, async: false
 
   import Phoenix.LiveViewTest
   alias GameServer.Accounts.User

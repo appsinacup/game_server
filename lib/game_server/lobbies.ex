@@ -366,15 +366,34 @@ defmodule GameServer.Lobbies do
 
   def update_lobby(%Lobby{} = lobby, attrs) do
     case GameServer.Hooks.internal_call(:before_lobby_update, [lobby, attrs]) do
-      {:ok, attrs} ->
+      {:ok, returned} ->
+        # prefer hook-returned attrs if it's a plain map; if the hook
+        # incorrectly returns something else (eg. a struct) fall back to
+        # the original params we received so updates from the form are not lost.
+        attrs_to_use =
+          cond do
+            is_map(returned) and not is_struct(returned) ->
+              returned
+
+            true ->
+              require Logger
+
+              Logger.warning(
+                "Hooks.before_lobby_update returned unexpected value; using original params"
+              )
+
+              attrs
+          end
+
         result =
           lobby
-          |> Lobby.changeset(attrs)
+          |> Lobby.changeset(attrs_to_use)
           |> Repo.update()
 
         case result do
           {:ok, updated} ->
             Task.start(fn -> GameServer.Hooks.internal_call(:after_lobby_update, [updated]) end)
+
             # broadcast updates so any UI/channel subscribers get the change
             broadcast_lobby(updated.id, {:lobby_updated, updated})
             broadcast_lobbies({:lobby_updated, updated})
