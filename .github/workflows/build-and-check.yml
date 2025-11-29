@@ -330,7 +330,8 @@ jobs:
           APP_VERSION: ${{ env.APP_VERSION }}
         run: |
           echo "Generating Godot client with APP_VERSION=${APP_VERSION:-$(echo $APP_VERSION)}"
-          ./clients/generate_godot.sh
+          cd clients
+          ./generate_godot.sh
 
       - name: Upload addons zip
         uses: actions/upload-artifact@v4
