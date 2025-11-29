@@ -133,11 +133,35 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
       |> User.admin_changeset(%{"is_admin" => true})
       |> Repo.update()
 
-    # Ensure example hook source is compiled & registered so exported_functions
-    # includes signatures and example args.
-    path = Path.join(File.cwd!(), "modules/example_hook.ex")
-    Application.put_env(:game_server, :hooks_file_path, path)
-    assert {:ok, _mod} = GameServer.Hooks.register_file(path)
+    # Create and register a test-only hooks file (avoid modules/example_hook.ex
+    # because it makes DB updates which can break the test sandbox)
+    tmp = Path.join(System.tmp_dir!(), "hooks_test_#{System.unique_integer([:positive])}.ex")
+
+    test_mod =
+      Module.concat([
+        GameServer,
+        TestHooks,
+        String.to_atom("AdminTest_#{System.unique_integer([:positive])}")
+      ])
+
+    src = """
+    defmodule #{inspect(test_mod)} do
+      @moduledoc false
+
+      # provide a minimal hook callback so register_file will accept this module
+      def after_user_register(_user), do: :ok
+
+      @doc "Say hi with two names"
+      def hello2(name, name2), do: "Hello2, \#{name} \#{name2}!"
+
+      @doc "Say hi to a user"
+      def hello(name), do: "Hello, \#{name}!"
+    end
+    """
+
+    File.write!(tmp, src)
+    Application.put_env(:game_server, :hooks_file_path, tmp)
+    assert {:ok, _mod} = GameServer.Hooks.register_file(tmp)
 
     {:ok, lv, _html} =
       conn
@@ -164,5 +188,6 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     # cleanup env
     Application.delete_env(:game_server, :hooks_file_path)
     Application.delete_env(:game_server, :hooks_module)
+    File.rm!(tmp)
   end
 end

@@ -15,11 +15,20 @@ defmodule GameServer.HooksRegistrationTest do
     # compile & register from a temporary test-only hooks file (avoid using modules/example_hook.ex)
     tmp = Path.join(System.tmp_dir!(), "hooks_register_#{System.unique_integer([:positive])}.ex")
 
-    mod = Module.concat([GameServer, TestHooks, String.to_atom("RegisterTest_#{System.unique_integer([:positive])}")])
+    mod =
+      Module.concat([
+        GameServer,
+        TestHooks,
+        String.to_atom("RegisterTest_#{System.unique_integer([:positive])}")
+      ])
 
     src = """
     defmodule #{inspect(mod)} do
       @moduledoc false
+
+      # implement minimal callback so register_file accepts the module
+      def after_user_register(_user), do: :ok
+
       def example(), do: :ok
     end
     """
