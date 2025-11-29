@@ -428,7 +428,11 @@ defmodule GameServerWeb.AuthController do
         %Plug.Conn{assigns: %{ueberauth_auth: auth}} = conn,
         %{"provider" => "steam"} = params
       ) do
-    if Mix.env() == :dev do
+    # Small opt-in debug helper: set DEBUG_STEAM_CALLBACK=1 in the
+    # runtime environment to capture callback cookie/state/auth or
+    # failure values in the logs. Useful for short-lived production
+    # debugging. Avoid leaving this enabled for long in production.
+    if Mix.env() == :dev or System.get_env("DEBUG_STEAM_CALLBACK") == "1" do
       require Logger
       cookie = Map.get(conn.cookies || %{}, "ueberauth.state_param")
 
@@ -477,7 +481,7 @@ defmodule GameServerWeb.AuthController do
         %Plug.Conn{assigns: %{ueberauth_failure: failure}} = conn,
         %{"provider" => "steam"} = params
       ) do
-    if Mix.env() == :dev do
+    if Mix.env() == :dev or System.get_env("DEBUG_STEAM_CALLBACK") == "1" do
       require Logger
       cookie = Map.get(conn.cookies || %{}, "ueberauth.state_param")
 
