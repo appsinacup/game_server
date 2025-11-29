@@ -1,5 +1,8 @@
 defmodule GameServerWeb.AdminLive.ConfigTest do
-  use GameServerWeb.ConnCase, async: true
+  # This test modifies global environment (register_file and hooks_module) and
+  # must not run concurrently with other tests that depend on this state. Run
+  # serially to avoid CI races (especially when CI uses Postgres).
+  use GameServerWeb.ConnCase, async: false
 
   import Phoenix.LiveViewTest
   alias GameServer.Accounts.User
@@ -170,6 +173,9 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
 
     # click the function name for hello2 (should auto-prefill args too)
     # trigger the phx-click on the span element and assert the inputs were updated
+    # verify the element exists before clicking (avoid transient races)
+    assert has_element?(lv, "span[phx-click='prefill_hook'][phx-value-fn='hello2']")
+
     hello2_el = element(lv, "span[phx-click='prefill_hook'][phx-value-fn='hello2']")
     html_after = render_click(hello2_el)
 
