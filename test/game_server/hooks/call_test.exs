@@ -212,6 +212,59 @@ defmodule GameServer.Hooks.CallTest do
     assert {:error, {:function_clause, _msg}} = GameServer.Hooks.call(:hello, [1])
   end
 
+  test "call exposes caller context available via GameServer.Hooks.caller/0 and caller_id/0" do
+    mod =
+      Module.concat([
+        GameServer,
+        TestHooks,
+        String.to_atom("CallerTest_#{System.unique_integer([:positive])}")
+      ])
+
+    Module.create(
+      mod,
+      quote do
+        def who_called(), do: GameServer.Hooks.caller()
+        def who_called_id(), do: GameServer.Hooks.caller_id()
+      end,
+      __ENV__
+    )
+
+    Application.put_env(:game_server, :hooks_module, mod)
+
+    caller = %{id: 999, email: "caller@example.com"}
+
+    assert {:ok, ^caller} = GameServer.Hooks.call(:who_called, [], caller: caller)
+    assert {:ok, 999} = GameServer.Hooks.call(:who_called_id, [], caller: caller)
+  end
+
+  test "caller_user/0 resolves user struct when caller is id or struct" do
+    # Use a plain struct here (no DB dependency) to test struct-path resolution
+    user = %GameServer.Accounts.User{id: 123_456, email: "caller@example.com"}
+
+    mod =
+      Module.concat([
+        GameServer,
+        TestHooks,
+        String.to_atom("CallerUserTest_#{System.unique_integer([:positive])}")
+      ])
+
+    Module.create(
+      mod,
+      quote do
+        def who_called_user(), do: GameServer.Hooks.caller_user()
+      end,
+      __ENV__
+    )
+
+    Application.put_env(:game_server, :hooks_module, mod)
+
+    # call with full struct (we avoid DB-dependent id resolution in tests)
+    assert {:ok, %GameServer.Accounts.User{id: id2}} =
+             GameServer.Hooks.call(:who_called_user, [], caller: user)
+
+    assert id2 == user.id
+  end
+
   # NOTE: removed an earlier test that expected `GameServer.Hooks.call/3` to
   # auto-compile & register a hooks file. We don't auto-register on call; the
   # admin UI attempts registration when appropriate.

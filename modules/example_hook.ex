@@ -90,22 +90,28 @@ defmodule GameServer.Modules.ExampleHook do
   @impl true
   def after_lobby_host_change(_lobby, _new_host_id), do: :ok
 
-  @spec hello(String.t()) :: String.t()
   @doc "Say hi to a user"
   def hello(name) when is_bitstring(name) do
     "Hello, #{name}!"
   end
 
 
-  @spec hello2(String.t(), String.t()) :: String.t()
   @doc "Say hi with two names"
-  def hello2(name, name2) do
-    "Hello2, #{name} #{name2}!"
-  end
+  def hello2() do
+    user = GameServer.Hooks.caller_user()
 
-  @doc "Say hi 3"
-  def hello3(name, count, list) do
-    "Hello3, #{name} #{count} #{list}!"
+    display =
+      case user do
+        %GameServer.Accounts.User{display_name: dn} when is_binary(dn) and dn != "" ->
+          dn
+
+        nil ->
+          "anonymous"
+
+        other ->
+          inspect(other)
+      end
+    "Hello2, #{display}!"
   end
 
   @doc "Set the user metadata"

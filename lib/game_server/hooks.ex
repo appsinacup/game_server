@@ -266,6 +266,10 @@ defmodule GameServer.Hooks do
       when is_list(args) and (is_atom(name) or is_binary(name)) do
     name = if is_binary(name), do: String.to_atom(name), else: name
     mod = module()
+    # If caller passed as an id or a simple map with id, resolve it here in the
+    # current process so the spawned task doesn't need to hit the DB (tests use
+    # Ecto sandbox ownership rules). If resolution fails, leave caller as-is.
+    opts = resolve_caller(opts)
     arity = length(args)
 
     # Disallow calling internal lifecycle callbacks via the public `call/3`
@@ -285,6 +289,11 @@ defmodule GameServer.Hooks do
 
         task =
           Task.async(fn ->
+            # Make caller context available inside the task via process dictionary.
+            if caller = Keyword.get(opts, :caller) do
+              Process.put(:game_server_hook_caller, caller)
+            end
+
             try do
               apply(mod, name, args)
             rescue
@@ -315,6 +324,9 @@ defmodule GameServer.Hooks do
       when is_list(args) and (is_atom(name) or is_binary(name)) do
     name = if is_binary(name), do: String.to_atom(name), else: name
     mod = module()
+    # resolve caller before spawning a task in case the caller was provided as
+    # a simple id (avoids sandbox issues for spawned tasks in tests)
+    opts = resolve_caller(opts)
 
     timeout =
       Keyword.get(
@@ -328,6 +340,11 @@ defmodule GameServer.Hooks do
     if function_exported?(mod, name, arity) do
       task =
         Task.async(fn ->
+          # Propagate caller context to lifecycle callbacks as well
+          if caller = Keyword.get(opts, :caller) do
+            Process.put(:game_server_hook_caller, caller)
+          end
+
           try do
             apply(mod, name, args)
           rescue
@@ -600,6 +617,87 @@ defmodule GameServer.Hooks do
   end
 
   defp returns_from_doc(_), do: nil
+
+  defp resolve_caller(opts) when is_list(opts) do
+    case Keyword.get(opts, :caller) do
+      %User{} = _u ->
+        opts
+
+      %{} = _m ->
+        # Do not resolve maps with an :id here. Keep map callers untouched so
+        # callers who pass a user-like map will receive it verbatim.
+        opts
+
+      id when is_integer(id) ->
+        try do
+          Keyword.put(opts, :caller, GameServer.Accounts.get_user!(id))
+        rescue
+          Ecto.NoResultsError -> opts
+        end
+
+      _ ->
+        opts
+    end
+  end
+
+  defp resolve_caller(other), do: other
+
+  @doc """
+  When a hooks function is executed via `call/3` or `internal_call/3`, an
+  optional `:caller` can be provided in the options. The caller will be
+  injected into the spawned task's process dictionary and is accessible via
+  `GameServer.Hooks.caller/0` (the raw value) or `caller_id/0` (the numeric id
+  when the value is a user struct or map containing `:id`).
+  """
+  @spec caller() :: any() | nil
+  def caller do
+    Process.get(:game_server_hook_caller)
+  end
+
+  @spec caller_id() :: integer() | nil
+  def caller_id do
+    case caller() do
+      %User{id: id} when is_integer(id) -> id
+      %{} = m when is_map(m) -> Map.get(m, :id) || Map.get(m, "id")
+      id when is_integer(id) -> id
+      _ -> nil
+    end
+  end
+
+  @doc "Return the user struct for the current caller when available. This will
+  attempt to resolve the caller via GameServer.Accounts.get_user!/1 when the
+  caller is an integer id or a map containing an `:id` key. Returns nil when
+  no caller or user is found."
+  @spec caller_user() :: GameServer.Accounts.User.t() | nil
+  def caller_user do
+    case caller() do
+      %User{} = u ->
+        u
+
+      %{} = m ->
+        id = Map.get(m, :id) || Map.get(m, "id")
+
+        if is_integer(id) do
+          try do
+            GameServer.Accounts.get_user!(id)
+          rescue
+            Ecto.NoResultsError -> nil
+          end
+        else
+          nil
+        end
+
+      id when is_integer(id) ->
+        try do
+          GameServer.Accounts.get_user!(id)
+        rescue
+          Ecto.NoResultsError -> nil
+        end
+
+      _ ->
+        nil
+    end
+  end
 end
 
 defmodule GameServer.Hooks.Default do

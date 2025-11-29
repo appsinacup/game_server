@@ -593,8 +593,10 @@ defmodule GameServerWeb.AdminLive.Config do
           []
       end
 
+    caller = socket.assigns.current_scope && socket.assigns.current_scope.user
+
     result =
-      case GameServer.Hooks.call(fn_name, args) do
+      case GameServer.Hooks.call(fn_name, args, caller: caller) do
         {:ok, res} ->
           inspect(res)
 
@@ -608,7 +610,7 @@ defmodule GameServerWeb.AdminLive.Config do
           if is_binary(src) and File.exists?(src) do
             case GameServer.Hooks.register_file(src) do
               {:ok, _mod} ->
-                case GameServer.Hooks.call(fn_name, args) do
+                case GameServer.Hooks.call(fn_name, args, caller: caller) do
                   {:ok, res2} -> inspect(res2)
                   {:error, r2} -> "error: #{inspect(r2)}"
                 end

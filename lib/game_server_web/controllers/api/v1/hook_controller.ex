@@ -47,7 +47,7 @@ defmodule GameServerWeb.Api.V1.HookController do
     # Consumers can decide how they supply args.
     args = if Enum.empty?(args), do: [user], else: args
 
-    case GameServer.Hooks.call(fn_name, args) do
+    case GameServer.Hooks.call(fn_name, args, caller: user) do
       {:ok, res} ->
         json(conn, %{ok: true, result: res})
 
