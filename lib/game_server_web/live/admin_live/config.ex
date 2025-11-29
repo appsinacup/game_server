@@ -604,35 +604,7 @@ defmodule GameServerWeb.AdminLive.Config do
     {:noreply, assign(socket, :config, config)}
   end
 
-  defp parse_hook_args(v) when is_binary(v) and v != "" do
-    case Jason.decode(v) do
-      {:ok, parsed} when is_list(parsed) -> parsed
-      {:ok, parsed} -> [parsed]
-      _ -> []
-    end
-  end
-
-  defp parse_hook_args(_), do: []
-
-  defp try_register_and_call(fn_name, args, caller, config) do
-    src = config.hooks_file_path_app || config.hooks_file_path_env
-
-    if is_binary(src) and File.exists?(src) do
-      case GameServer.Hooks.register_file(src) do
-        {:ok, _mod} ->
-          case GameServer.Hooks.call(fn_name, args, caller: caller) do
-            {:ok, res2} -> inspect(res2)
-            {:error, r2} -> "error: #{inspect(r2)}"
-          end
-
-        {:error, reason} ->
-          "error: register_failed: #{inspect(reason)}"
-      end
-    else
-      "error: :not_implemented"
-    end
-  end
-
+  def handle_event("call_hook", _params, socket), do: {:noreply, socket}
   @impl true
   def handle_event("prefill_hook", %{"fn" => fn_name}, socket) do
     seq = System.unique_integer([:positive])
@@ -702,7 +674,34 @@ defmodule GameServerWeb.AdminLive.Config do
   def handle_event("close_docs", _params, socket),
     do: {:noreply, assign(socket, hooks_full_doc: nil, hooks_full_name: nil)}
 
-  def handle_event("call_hook", _params, socket), do: {:noreply, socket}
+  defp parse_hook_args(v) when is_binary(v) and v != "" do
+    case Jason.decode(v) do
+      {:ok, parsed} when is_list(parsed) -> parsed
+      {:ok, parsed} -> [parsed]
+      _ -> []
+    end
+  end
+
+  defp parse_hook_args(_), do: []
+
+  defp try_register_and_call(fn_name, args, caller, config) do
+    src = config.hooks_file_path_app || config.hooks_file_path_env
+
+    if is_binary(src) and File.exists?(src) do
+      case GameServer.Hooks.register_file(src) do
+        {:ok, _mod} ->
+          case GameServer.Hooks.call(fn_name, args, caller: caller) do
+            {:ok, res2} -> inspect(res2)
+            {:error, r2} -> "error: #{inspect(r2)}"
+          end
+
+        {:error, reason} ->
+          "error: register_failed: #{inspect(reason)}"
+      end
+    else
+      "error: :not_implemented"
+    end
+  end
 
   defp detect_db_adapter do
     repo_conf = Application.get_env(:game_server, GameServer.Repo) || %{}
