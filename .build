@@ -54,6 +54,7 @@ GameServerWeb.PageHTML.html
 GameServerWeb.Pagination.html
 GameServerWeb.Plugs.SentryContext.html
 GameServerWeb.PublicDocs.html
+GameServerWeb.PublicDocsTemplates.html
 GameServerWeb.Router.html
 GameServerWeb.Schemas.ErrorResponse.html
 GameServerWeb.Schemas.HealthResponse.html
@@ -79,8 +80,8 @@ dist/lato-latin-700-normal-2XVSBPG4.woff2
 dist/lato-latin-ext-400-normal-N27NCBWW.woff2
 dist/lato-latin-ext-700-normal-Q2L5DVMW.woff2
 dist/remixicon-QPNJX265.woff2
-dist/search_data-B374C9EC.js
-dist/sidebar_items-0BE22F18.js
+dist/search_data-CCF54F5D.js
+dist/sidebar_items-164EB676.js
 index.html
 readme.html
 search.html
