@@ -32,6 +32,31 @@ defmodule GameServer.Hooks.CallTest do
     assert "add" in names
   end
 
+  test "private defp functions are hidden and not callable via public call/3" do
+    n = System.unique_integer([:positive])
+    mod = Module.concat([GameServer, TestHooks, String.to_atom("HiddenTest_#{n}")])
+
+    Module.create(
+      mod,
+      quote do
+        defp hidden, do: :secret
+        def visible, do: :ok
+      end,
+      __ENV__
+    )
+
+    Application.put_env(:game_server, :hooks_module, mod)
+
+    funcs = GameServer.Hooks.exported_functions()
+    names = Enum.map(funcs, & &1.name)
+
+    assert "visible" in names
+    refute "hidden" in names
+
+    # defp functions are not exported and call/3 should report not_implemented
+    assert {:error, :not_implemented} = GameServer.Hooks.call(:hidden, [])
+  end
+
   test "parses signatures from source file when available" do
     tmp = Path.join(System.tmp_dir!(), "hooks_sig_#{System.unique_integer([:positive])}.ex")
 

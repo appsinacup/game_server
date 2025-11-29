@@ -278,6 +278,9 @@ defmodule GameServer.Hooks do
       name in internal_hooks() ->
         {:error, :disallowed}
 
+      # private functions (defp) are not exported and will be handled by
+      # function_exported?/3 => fall through to :not_implemented
+
       not function_exported?(mod, name, arity) ->
         {:error, :not_implemented}
 

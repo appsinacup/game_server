@@ -95,25 +95,6 @@ defmodule GameServer.Modules.ExampleHook do
     "Hello, #{name}!"
   end
 
-
-  @doc "Say hi with two names"
-  def hello2() do
-    user = GameServer.Hooks.caller_user()
-
-    display =
-      case user do
-        %GameServer.Accounts.User{display_name: dn} when is_binary(dn) and dn != "" ->
-          dn
-
-        nil ->
-          "anonymous"
-
-        other ->
-          inspect(other)
-      end
-    "Hello2, #{display}!"
-  end
-
   @doc "Set the user metadata"
   def set_current_user_meta(key, value) do
     user = GameServer.Hooks.caller_user()
