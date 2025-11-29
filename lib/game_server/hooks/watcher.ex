@@ -178,7 +178,6 @@ defmodule GameServer.Hooks.Watcher do
     end
   end
 
-
   # Polling fallback when FileSystem watcher is not available. We simply
   # stat the file periodically and trigger compilation if mtime changed.
   def handle_info(:poll_check, %{path: path, interval_ms: interval_ms} = state)

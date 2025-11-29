@@ -468,7 +468,6 @@ defmodule GameServerWeb.AuthController do
         %Plug.Conn{assigns: %{ueberauth_failure: failure}} = conn,
         %{"provider" => "steam"} = params
       ) do
-
     case params["state"] do
       nil ->
         browser_oauth_error_redirect(conn, "steam", failure)
