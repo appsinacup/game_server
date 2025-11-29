@@ -49,8 +49,8 @@ defmodule GameServerWeb.UserAuth do
     # trigger the hook there). Skip double-invocation when params contain
     # a magic-link "token" key.
     unless Map.has_key?(params || %{}, "token") do
-      hooks = GameServer.Hooks.module()
-      Task.start(fn -> hooks.after_user_login(user) end)
+      # Use safe wrapper for hook invocation so missing hooks don't crash background tasks
+      Task.start(fn -> GameServer.Hooks.internal_call(:after_user_login, [user]) end)
     end
 
     conn |> redirect(to: user_return_to || signed_in_path(conn))

@@ -267,35 +267,103 @@ defmodule GameServer.Hooks do
     mod = module()
     arity = length(args)
 
-    if function_exported?(mod, name, arity) do
-      timeout =
-        Keyword.get(
-          opts,
-          :timeout_ms,
-          Application.get_env(:game_server, :hooks_call_timeout, 5_000)
-        )
-
-      task =
-        Task.async(fn ->
-          try do
-            {:ok, apply(mod, name, args)}
-          rescue
-            e in FunctionClauseError -> {:error, {:function_clause, Exception.message(e)}}
-            e -> {:error, {:exception, Exception.message(e)}}
-          catch
-            kind, reason -> {:error, {kind, reason}}
-          end
-        end)
-
-      case Task.yield(task, timeout) || Task.shutdown(task, :brutal_kill) do
-        {:ok, {:ok, res}} -> {:ok, res}
-        {:ok, {:error, err}} -> {:error, err}
-        nil -> {:error, :timeout}
-        {:exit, reason} -> {:error, {:exit, reason}}
-      end
+    # Disallow calling internal lifecycle callbacks via the public `call/3`
+    # API. Domain code should use `internal_call/3` which knows how to
+    # handle optional/missing lifecycle callbacks safely and provide
+    # sensible defaults.
+    if name in internal_hooks() do
+      {:error, :disallowed}
     else
-      {:error, :not_implemented}
+      if function_exported?(mod, name, arity) do
+        timeout =
+          Keyword.get(
+            opts,
+            :timeout_ms,
+            Application.get_env(:game_server, :hooks_call_timeout, 5_000)
+          )
+
+        task =
+          Task.async(fn ->
+            try do
+              apply(mod, name, args)
+            rescue
+              e in FunctionClauseError -> {:error, {:function_clause, Exception.message(e)}}
+              e -> {:error, {:exception, Exception.message(e)}}
+            catch
+              kind, reason -> {:error, {kind, reason}}
+            end
+          end)
+
+        case Task.yield(task, timeout) || Task.shutdown(task, :brutal_kill) do
+          {:ok, {:ok, res}} -> {:ok, res}
+          {:ok, {:error, err}} -> {:error, err}
+          {:ok, res} -> {:ok, res}
+          nil -> {:error, :timeout}
+          {:exit, reason} -> {:error, {:exit, reason}}
+        end
+      else
+        {:error, :not_implemented}
+      end
     end
+  end
+
+  @doc "Call an internal lifecycle callback. When a callback is missing this
+  returns a sensible default (eg. {:ok, attrs} for before callbacks) so
+  domain code doesn't need to handle missing hooks specially in most cases."
+  def internal_call(name, args \\ [], opts \\ [])
+      when is_list(args) and (is_atom(name) or is_binary(name)) do
+    name = if is_binary(name), do: String.to_atom(name), else: name
+    mod = module()
+    arity = length(args)
+
+    timeout =
+      Keyword.get(
+        opts,
+        :timeout_ms,
+        Application.get_env(:game_server, :hooks_call_timeout, 5_000)
+      )
+
+    task =
+      Task.async(fn ->
+        try do
+          apply(mod, name, args)
+        rescue
+          e in FunctionClauseError -> {:error, {:function_clause, Exception.message(e)}}
+          e -> {:error, {:exception, Exception.message(e)}}
+        catch
+          kind, reason -> {:error, {kind, reason}}
+        end
+      end)
+
+    case Task.yield(task, timeout) || Task.shutdown(task, :brutal_kill) do
+      {:ok, {:ok, res}} -> {:ok, res}
+      {:ok, {:error, err}} -> {:error, err}
+      {:ok, res} -> {:ok, res}
+      nil -> {:error, :timeout}
+      {:exit, reason} -> {:error, {:exit, reason}}
+    end
+  end
+
+  defp internal_hooks do
+    # set of callback names considered internal/lifecycle hooks and not
+    # callable through the public `call/3` interface.
+    MapSet.new([
+      :after_user_register,
+      :after_user_login,
+      :before_lobby_create,
+      :after_lobby_create,
+      :before_lobby_join,
+      :after_lobby_join,
+      :before_lobby_leave,
+      :after_lobby_leave,
+      :before_lobby_update,
+      :after_lobby_update,
+      :before_lobby_delete,
+      :after_lobby_delete,
+      :before_user_kicked,
+      :after_user_kicked,
+      :after_lobby_host_change
+    ])
   end
 
   # Helper: extract docs-based signatures into a map name -> %{arity => %{signature: sig, doc: doc_text}}

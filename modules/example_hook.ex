@@ -107,4 +107,13 @@ defmodule GameServer.Modules.ExampleHook do
   def hello3(name, count, list) do
     "Hello3, #{name} #{count} #{list}!"
   end
+
+  @doc "Set the user metadata"
+  def set_current_user_meta(user, key, value) do
+    meta = user.metadata || %{}
+    meta = Map.put(meta, key, value)
+    Repo.update!(Ecto.Changeset.change(user, metadata: meta))
+
+    :ok
+  end
 end

@@ -155,15 +155,12 @@ defmodule GameServer.Accounts do
     is_first_user = Repo.aggregate(User, :count, :id) == 0
     attrs = if is_first_user, do: Map.put(attrs, "is_admin", true), else: attrs
 
-    hooks = GameServer.Hooks.module()
-
     case %User{}
          |> User.email_changeset(attrs)
          |> maybe_attach_device(attrs)
          |> Repo.insert() do
       {:ok, user} = ok ->
-        # Fire-and-forget after hook
-        Task.start(fn -> hooks.after_user_register(user) end)
+        Task.start(fn -> GameServer.Hooks.internal_call(:after_user_register, [user]) end)
         ok
 
       err ->
@@ -346,8 +343,7 @@ defmodule GameServer.Accounts do
              |> User.attach_device_changeset(%{device_id: device_id})
              |> Repo.insert() do
           {:ok, user} = ok ->
-            hooks = GameServer.Hooks.module()
-            Task.start(fn -> hooks.after_user_register(user) end)
+            Task.start(fn -> GameServer.Hooks.internal_call(:after_user_register, [user]) end)
             ok
 
           err ->
@@ -468,8 +464,7 @@ defmodule GameServer.Accounts do
 
     case %User{} |> changeset_fn.(attrs) |> Repo.insert() do
       {:ok, user} = ok ->
-        hooks = GameServer.Hooks.module()
-        Task.start(fn -> hooks.after_user_register(user) end)
+        Task.start(fn -> GameServer.Hooks.internal_call(:after_user_register, [user]) end)
         ok
 
       err ->
@@ -798,8 +793,7 @@ defmodule GameServer.Accounts do
 
       {user, token} ->
         Repo.delete!(token)
-        hooks = GameServer.Hooks.module()
-        Task.start(fn -> hooks.after_user_login(user) end)
+        Task.start(fn -> GameServer.Hooks.internal_call(:after_user_login, [user]) end)
         {:ok, {user, []}}
 
       nil ->
@@ -815,8 +809,7 @@ defmodule GameServer.Accounts do
 
     case result do
       {:ok, {user, _tokens}} = ok ->
-        hooks = GameServer.Hooks.module()
-        Task.start(fn -> hooks.after_user_login(user) end)
+        Task.start(fn -> GameServer.Hooks.internal_call(:after_user_login, [user]) end)
         ok
 
       other ->
