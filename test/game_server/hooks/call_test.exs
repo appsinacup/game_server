@@ -1,5 +1,5 @@
 defmodule GameServer.Hooks.CallTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   setup do
     orig = Application.get_env(:game_server, :hooks_module)

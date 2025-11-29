@@ -11,7 +11,7 @@ defmodule GameServer.Hooks.InternalCallTest.NoCallbacks do
 end
 
 defmodule GameServer.Hooks.InternalCallTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   alias GameServer.Hooks
   alias GameServer.Hooks.InternalCallTest.{NoCallbacks, ReturnOkTuple, ReturnRaw}
 

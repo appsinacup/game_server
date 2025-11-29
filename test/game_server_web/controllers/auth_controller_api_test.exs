@@ -1,5 +1,5 @@
 defmodule GameServerWeb.AuthControllerApiTest do
-  use GameServerWeb.ConnCase, async: true
+  use GameServerWeb.ConnCase, async: false
 
   setup do
     # allow tests to inject a mock exchanger

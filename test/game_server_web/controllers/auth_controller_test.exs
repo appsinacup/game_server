@@ -1,5 +1,5 @@
 defmodule GameServerWeb.AuthControllerTest do
-  use GameServerWeb.ConnCase, async: true
+  use GameServerWeb.ConnCase, async: false
 
   alias GameServer.OAuthSessions
 
