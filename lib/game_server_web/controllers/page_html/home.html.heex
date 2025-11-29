@@ -7,12 +7,13 @@
     />
   </div>
   <p class="mt-4 leading-7 text-base-content/70 text-center">
-    Open source game server with authentication, users, lobbies, and admin portal.
+    Open source game server with authentication, users, lobbies, server scripting and admin portal.
   </p>
 
   <div class="flex justify-center">
     <div class="w-full">
-      <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
+      <h2 class="text-lg font-semibold mb-4 text-center">Useful Links</h2>
+      <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
         <a
           href="https://discord.com/invite/56dMud8HYn"
           class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6"
@@ -99,13 +100,9 @@
             <span class="relative z-10 flex items-center gap-4 sm:flex-col">
               <.icon name="hero-lock-closed" class="size-6 text-base-content/80" /> Authentication
             </span>
-            <ul class="relative list-disc pl-5 text-base-content/70 mt-3 z-10">
-              <li>Email</li>
-              <li>Magic-link</li>
-              <li>OAuth</li>
-              <li>JWT (Access + refresh)</li>
-              <li>Session</li>
-            </ul>
+            <span class="relative z-10 mt-2 text-base-content/70 font-light">
+              Supports multiple authentication methods: Email, Magic-link, Oauth, JWT and Session.
+            </span>
           </div>
 
           <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
@@ -114,12 +111,9 @@
             <span class="relative z-10 flex items-center gap-4 sm:flex-col">
               <.icon name="hero-users" class="size-6 text-base-content/80" /> Users
             </span>
-            <ul class="relative list-disc pl-5 text-base-content/70 mt-3">
-              <li>Basic info</li>
-              <li>Confirmations</li>
-              <li>Linking/Unlinking</li>
-              <li>Metadata</li>
-            </ul>
+            <span class="relative z-10 mt-2 text-base-content/70 font-light">
+              User registration, login, password reset, email verification, profile management.
+            </span>
           </div>
 
           <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
@@ -128,13 +122,9 @@
             <span class="relative z-10 flex items-center gap-4 sm:flex-col">
               <.icon name="hero-home" class="size-6 text-base-content/80" /> Lobbies
             </span>
-            <ul class="relative list-disc pl-5 text-base-content/70 mt-3">
-              <li>Host</li>
-              <li>Kick</li>
-              <li>Hidden</li>
-              <li>Locked</li>
-              <li>Search</li>
-            </ul>
+            <span class="relative z-10 mt-2 text-base-content/70 font-light">
+              Create and manage game lobbies with customizable settings and real-time updates.
+            </span>
           </div>
 
           <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
@@ -143,10 +133,9 @@
             <span class="relative z-10 flex items-center gap-4 sm:flex-col">
               <.icon name="hero-paper-clip" class="size-6 text-base-content/80" /> User Data (WIP)
             </span>
-            <ul class="relative list-disc pl-5 text-base-content/70 mt-3">
-              <li>JSON(WIP)</li>
-              <li>Access Rights(WIP)</li>
-            </ul>
+            <span class="relative z-10 mt-2 text-base-content/70 font-light">
+              Store and retrieve custom user data key-value pairs.
+            </span>
           </div>
 
           <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
@@ -156,9 +145,9 @@
               <.icon name="hero-computer-desktop" class="size-6 text-base-content/80" />
               Server Scripting
             </span>
-            <ul class="relative list-disc pl-5 text-base-content/70 mt-3">
-              <li>Elixir Behaviours</li>
-            </ul>
+            <span class="relative z-10 mt-2 text-base-content/70 font-light">
+              Write custom game server logic using Elixir scripts.
+            </span>
           </div>
 
           <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
@@ -168,12 +157,9 @@
               <.icon name="hero-shield-check" class="size-6 text-base-content/80" />
               Admin & Monitoring
             </span>
-            <ul class="relative list-disc pl-5 text-base-content/70 mt-3">
-              <li>Users</li>
-              <li>User data(WIP)</li>
-              <li>Lobbies(WIP)</li>
-              <li>Secrets</li>
-            </ul>
+            <span class="relative z-10 mt-2 text-base-content/70 font-light">
+              Admin portal for managing users, lobbies, Sentry integration and monitoring server metrics.
+            </span>
           </div>
 
           <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
@@ -182,11 +168,9 @@
             <span class="relative z-10 flex items-center gap-4 sm:flex-col">
               <.icon name="hero-sparkles" class="size-6 text-base-content/80" /> UI & Theming
             </span>
-            <ul class="relative list-disc pl-5 text-base-content/70 mt-3">
-              <li>Customizable theme(WIP)</li>
-              <li>Dark / Light theme</li>
-              <li>Responsive design</li>
-            </ul>
+            <span class="relative z-10 mt-2 text-base-content/70 font-light">
+              Built-in web UI for authentication, lobby management, and admin portal.
+            </span>
           </div>
 
           <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
@@ -196,11 +180,9 @@
               <.icon name="hero-server-stack" class="size-6 text-base-content/80" />
               Persistence & Updates
             </span>
-            <ul class="relative list-disc pl-5 text-base-content/70 mt-3">
-              <li>SQLite</li>
-              <li>PostgreSQL</li>
-              <li>Realtime Updates with Websockets</li>
-            </ul>
+            <span class="relative z-10 mt-2 text-base-content/70 font-light">
+              Flexible storage options: SQLite (in memory) and PostgreSQL; and real-time data updates.
+            </span>
           </div>
 
           <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
@@ -209,14 +191,9 @@
             <span class="relative flex items-center gap-4 sm:flex-col">
               <.icon name="hero-puzzle-piece" class="size-6 text-base-content/80" /> Integrations
             </span>
-            <ul class="relative list-disc pl-5 text-base-content/70 mt-3">
-              <li>Discord OAuth</li>
-              <li>Apple Sign In</li>
-              <li>Google OAuth</li>
-              <li>Facebook OAuth</li>
-              <li>Steam OpenID</li>
-              <li>Sentry integration</li>
-            </ul>
+            <span class="relative z-10 mt-2 text-base-content/70 font-light">
+              Easily integrate with popular services: Discord, Apple, Google, Facebook, Steam.
+            </span>
           </div>
         </div>
       </div>

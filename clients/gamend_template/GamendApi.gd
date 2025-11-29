@@ -1,4 +1,4 @@
-## Open source game server with authentication, users, lobbies, and an admin portal
+## Open source game server with authentication, users, lobbies, server scripting and an admin portal
 ##
 ## Game + Backend = Gamend
 class_name GamendApi

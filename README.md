@@ -2,7 +2,7 @@
 
 -----
 
-**Open source _game server_ with _authentication, users, lobbies, and an admin portal_.**
+**Open source _game server_ with _authentication, users, lobbies, server scripting and an admin portal_.**
 
 Game + Backend = Gamend
 
