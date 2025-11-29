@@ -178,10 +178,6 @@ defmodule GameServer.Hooks.Watcher do
     end
   end
 
-  def handle_info(_msg, state) do
-    # ignore other messages
-    {:noreply, state}
-  end
 
   # Polling fallback when FileSystem watcher is not available. We simply
   # stat the file periodically and trigger compilation if mtime changed.
@@ -202,6 +198,11 @@ defmodule GameServer.Hooks.Watcher do
         Process.send_after(self(), :env_check, interval_ms)
         {:noreply, %{state | polling?: false}}
     end
+  end
+
+  def handle_info(_msg, state) do
+    # ignore other messages
+    {:noreply, state}
   end
 
   defp start_fs(path) do
