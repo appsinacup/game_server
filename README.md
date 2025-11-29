@@ -67,6 +67,11 @@ Extendable server behavior:
 
 - Hooks on server events (eg. on_user_login, on_lobby_created)
 
+## Client SDK
+
+- [Javascript SDK](https://www.npmjs.com/package/@ughuuu/game_server)
+- [Godot SDK](https://godotengine.org/asset-library/asset/4510)
+
 ## How to deploy
 
 1. Fork this repo.
