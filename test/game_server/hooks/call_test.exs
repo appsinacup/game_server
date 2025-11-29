@@ -307,6 +307,41 @@ defmodule GameServer.Hooks.CallTest do
     assert Enum.any?(no_doc.signatures, fn s -> s.signature == nil end)
   end
 
+  test "zero-arity functions produce example_args of []" do
+    tmp =
+      Path.join(System.tmp_dir!(), "hooks_zero_arity_#{System.unique_integer([:positive])}.ex")
+
+    mod =
+      Module.concat([
+        GameServer,
+        TestHooks,
+        String.to_atom("ZeroArity_#{System.unique_integer([:positive])}")
+      ])
+
+    src = """
+    defmodule #{inspect(mod)} do
+      def no_args(), do: :ok
+    end
+    """
+
+    File.write!(tmp, src)
+
+    Code.compile_file(tmp)
+    Application.put_env(:game_server, :hooks_module, mod)
+    Application.put_env(:game_server, :hooks_file_path, tmp)
+
+    funcs = GameServer.Hooks.exported_functions()
+    f = Enum.find(funcs, &(&1.name == "no_args"))
+    assert f != nil
+
+    sig = Enum.find(f.signatures, &(&1.arity == 0))
+    assert sig != nil
+    assert sig.signature =~ "no_args("
+    assert sig.example_args == "[]"
+
+    File.rm!(tmp)
+  end
+
   test "prefers @spec types for signatures when available" do
     _mod =
       Module.concat([

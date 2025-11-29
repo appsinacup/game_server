@@ -522,6 +522,15 @@ defmodule GameServer.Hooks do
         |> String.split(",")
         |> Enum.map(&String.trim/1)
 
+      # If params list is a single empty string it means there are no params
+      # (e.g. "fn_name()") — treat as zero-arity and produce an empty list.
+      params =
+        if params == [""] do
+          []
+        else
+          params
+        end
+
       example_list =
         Enum.map(params, fn
           "" ->
@@ -546,7 +555,12 @@ defmodule GameServer.Hooks do
           other -> inspect(other)
         end)
 
-      "[#{json}]"
+      # If there are no parameters, we should render [] not [[]].
+      if example_list == [] do
+        "[]"
+      else
+        "[#{json}]"
+      end
     else
       nil
     end
