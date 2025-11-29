@@ -79,3 +79,17 @@ Extendable server behavior:
 3. Set secrets all values in `.env.example`. Run locally `fly secrets sync` and `fly secrets deploy` (in case secrets don't deploy/update).
 4. Configure all things from [Guides](https://gamend.appsinacup.com/docs/setup) page.
 5. Monthly cost (without Postgres) will be about 5$.
+
+## Git hooks
+
+To install precommit hooks, run:
+
+```sh
+	bin/setup-git-hooks
+```
+
+To skip, run:
+
+```sh
+	SKIP_PRECOMMIT=1 git commit
+```

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Helper script to configure Git to use the repository-provided .githooks
+# directory. Run this once in your local clone to enable automatic precommit hooks.
+set -euo pipefail
+
+# Configure Git to use .githooks (local repository config only)
+git config core.hooksPath .githooks
+
+# Ensure hook is executable
+chmod +x .githooks/pre-commit || true
+
+echo "Configured core.hooksPath to .githooks and made .githooks/pre-commit executable."
+
+echo "To disable locally: git config --unset core.hooksPath"

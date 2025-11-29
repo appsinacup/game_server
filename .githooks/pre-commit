@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Project-level git pre-commit hook: run mix precommit to keep commits clean.
+# To skip the hook temporarily, set SKIP_PRECOMMIT=1 in your environment.
+set -euo pipefail
+
+# If user explicitly skips, exit successfully
+if [ "${SKIP_PRECOMMIT:-}" = "1" ]; then
+  echo "SKIP_PRECOMMIT=1 set — skipping mix precommit"
+  exit 0
+fi
+
+# If running in CI, don't run local precommit hook (CI usually runs checks separately)
+if [ "${CI:-}" = "1" ] || [ "${CI:-}" = "true" ]; then
+  echo "CI environment detected — skipping local precommit hook"
+  exit 0
+fi
+
+# Ensure mix exists
+if ! command -v mix >/dev/null 2>&1; then
+  echo "mix not found — skipping mix precommit"
+  exit 0
+fi
+
+# Run mix precommit; on failure abort the commit with a message.
+# Use the project's mix alias so behaviour matches CI expectations.
+echo "Running mix precommit..."
+if ! mix precommit; then
+  echo "\n---> mix precommit failed. Aborting commit. Fix issues and try again or run 'SKIP_PRECOMMIT=1 git commit' to bypass."
+  exit 1
+fi
+
+exit 0
