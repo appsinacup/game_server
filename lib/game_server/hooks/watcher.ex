@@ -40,7 +40,7 @@ defmodule GameServer.Hooks.Watcher do
 
     Logger.info("Hooks watcher starting with path=#{inspect(path)} interval_ms=#{interval_ms}")
 
-    state = %{path: path, interval_ms: interval_ms, fs_pid: nil, mtime: nil}
+    state = %{path: path, interval_ms: interval_ms, fs_pid: nil, mtime: nil, polling?: false}
 
     state =
       case path do
@@ -60,8 +60,14 @@ defmodule GameServer.Hooks.Watcher do
                 )
 
                 # Still attempt initial compile now that file exists
+                # attempt initial immediate compile
                 Process.send_after(self(), :trigger_compile, 0)
-                state
+
+                # start a simple polling fallback so we keep detecting changes
+                # even when FileSystem (inotify) isn't available in the environment
+                Process.send_after(self(), :poll_check, interval_ms)
+
+                %{state | polling?: true}
             end
           else
             Process.send_after(self(), :env_check, 0)
@@ -103,7 +109,10 @@ defmodule GameServer.Hooks.Watcher do
 
           # attempt an immediate compile even if we couldn't start fs watcher
           Process.send_after(self(), :trigger_compile, 0)
-          {:noreply, %{state | path: new_path}}
+
+          # start polling fallback to keep detecting file changes
+          Process.send_after(self(), :poll_check, state.interval_ms)
+          {:noreply, %{state | path: new_path, polling?: true}}
       end
     else
       # Still missing - reschedule and continue waiting
@@ -174,6 +183,27 @@ defmodule GameServer.Hooks.Watcher do
     {:noreply, state}
   end
 
+  # Polling fallback when FileSystem watcher is not available. We simply
+  # stat the file periodically and trigger compilation if mtime changed.
+  def handle_info(:poll_check, %{path: path, interval_ms: interval_ms} = state)
+      when is_binary(path) do
+    case File.stat(path) do
+      {:ok, %File.Stat{mtime: mtime}} ->
+        if state.mtime != mtime do
+          send(self(), :trigger_compile)
+          {:noreply, %{state | mtime: mtime, polling?: true}}
+        else
+          Process.send_after(self(), :poll_check, interval_ms)
+          {:noreply, state}
+        end
+
+      {:error, _} ->
+        # File missing; stop polling and fall back to env checks
+        Process.send_after(self(), :env_check, interval_ms)
+        {:noreply, %{state | polling?: false}}
+    end
+  end
+
   defp start_fs(path) do
     dir = Path.dirname(path)
 
@@ -195,6 +225,12 @@ defmodule GameServer.Hooks.Watcher do
       {:error, {:already_started, pid}} ->
         FileSystem.subscribe(pid)
         {:ok, pid}
+
+      :ignore ->
+        # file_system returned :ignore (e.g. missing platform binary). Treat
+        # this as an error so the caller can fallback to polling instead of
+        # crashing on an unexpected atom.
+        {:error, :ignored}
 
       {:error, _} = err ->
         err
