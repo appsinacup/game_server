@@ -428,19 +428,6 @@ defmodule GameServerWeb.AuthController do
         %Plug.Conn{assigns: %{ueberauth_auth: auth}} = conn,
         %{"provider" => "steam"} = params
       ) do
-    # Small opt-in debug helper: set DEBUG_STEAM_CALLBACK=1 in the
-    # runtime environment to capture callback cookie/state/auth or
-    # failure values in the logs. Useful for short-lived production
-    # debugging. Avoid leaving this enabled for long in production.
-    if Mix.env() == :dev or System.get_env("DEBUG_STEAM_CALLBACK") == "1" do
-      require Logger
-      cookie = Map.get(conn.cookies || %{}, "ueberauth.state_param")
-
-      Logger.debug(
-        "[Steam OAuth] callback success - params[state]=#{inspect(params["state"])}, cookie=#{inspect(cookie)}, auth.uid=#{inspect(auth.uid)}"
-      )
-    end
-
     uid = to_string(auth.uid)
     info = auth.info || %{}
     extra = Map.get(auth, :extra) || %{}
@@ -481,14 +468,6 @@ defmodule GameServerWeb.AuthController do
         %Plug.Conn{assigns: %{ueberauth_failure: failure}} = conn,
         %{"provider" => "steam"} = params
       ) do
-    if Mix.env() == :dev or System.get_env("DEBUG_STEAM_CALLBACK") == "1" do
-      require Logger
-      cookie = Map.get(conn.cookies || %{}, "ueberauth.state_param")
-
-      Logger.debug(
-        "[Steam OAuth] callback failure - params[state]=#{inspect(params["state"])}, cookie=#{inspect(cookie)}, failure=#{inspect(failure)}"
-      )
-    end
 
     case params["state"] do
       nil ->
