@@ -8,7 +8,7 @@ Game + Backend = Gamend
 
 -----
 
-[Discord](https://discord.com/invite/56dMud8HYn) | [Elixir Docs](https://appsinacup.github.io/game_server/) | [API Docs](https://gamend.appsinacup.com/api/docs) | [Guides](https://gamend.appsinacup.com/docs/setup)
+[Discord](https://discord.com/invite/56dMud8HYn) | [Elixir Docs](https://appsinacup.github.io/game_server/) | [API Docs](https://gamend.appsinacup.com/api/docs) | [Guides](https://gamend.appsinacup.com/docs/setup) | [Starter Template](https://github.com/appsinacup/gamend_starter)
 
 To start your server:
 
@@ -72,9 +72,18 @@ Extendable server behavior:
 - [Javascript SDK](https://www.npmjs.com/package/@ughuuu/game_server)
 - [Godot SDK](https://godotengine.org/asset-library/asset/4510)
 
-## How to deploy
+## How to deploy [Starter Template](https://github.com/appsinacup/gamend_starter)
 
-1. Fork this repo.
+1. Fork this repo (or create a Dockerfile like this):
+
+```sh
+FROM ghcr.io/appsinacup/game_server:latest
+
+WORKDIR /app
+
+COPY modules/ ./modules/
+```
+
 2. Go to fly.io and deploy (select the forked repo).
 3. Set secrets all values in `.env.example`. Run locally `fly secrets sync` and `fly secrets deploy` (in case secrets don't deploy/update).
 4. Configure all things from [Guides](https://gamend.appsinacup.com/docs/setup) page.
