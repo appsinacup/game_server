@@ -83,7 +83,9 @@ defmodule GameServerWeb.AuthControllerTest do
     # API flow should create/update an existing session; create a pending session first
     OAuthSessions.create_session(session_id, %{provider: "discord", status: "pending"})
 
-    _conn = get(conn, "/auth/discord/callback?code=abc&state=#{session_id}")
+    ExUnit.CaptureLog.capture_log(fn ->
+      _conn = get(conn, "/auth/discord/callback?code=abc&state=#{session_id}")
+    end)
 
     # session should be created with error status
     sess = OAuthSessions.get_session(session_id)
@@ -101,8 +103,11 @@ defmodule GameServerWeb.AuthControllerTest do
 
     on_exit(fn -> Application.put_env(:game_server, :oauth_exchanger, orig) end)
 
-    conn = get(conn, "/auth/discord/callback?code=abc")
+    ExUnit.CaptureLog.capture_log(fn ->
+      _conn = get(conn, "/auth/discord/callback?code=abc")
+    end)
 
+    conn = get(conn, "/auth/discord/callback?code=abc")
     assert redirected_to(conn) =~ "/"
     assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Failed to authenticate"
   end
@@ -184,7 +189,9 @@ defmodule GameServerWeb.AuthControllerTest do
 
     OAuthSessions.create_session(session_id, %{provider: "google", status: "pending"})
 
-    _conn = get(conn, "/auth/google/callback?code=xxx&state=#{session_id}")
+    ExUnit.CaptureLog.capture_log(fn ->
+      _conn = get(conn, "/auth/google/callback?code=xxx&state=#{session_id}")
+    end)
 
     session = OAuthSessions.get_session(session_id)
     assert session.status == "error"
@@ -239,7 +246,9 @@ defmodule GameServerWeb.AuthControllerTest do
 
     OAuthSessions.create_session(session_id, %{provider: "facebook", status: "pending"})
 
-    _conn = get(conn, "/auth/facebook/callback?code=yyy&state=#{session_id}")
+    ExUnit.CaptureLog.capture_log(fn ->
+      _conn = get(conn, "/auth/facebook/callback?code=yyy&state=#{session_id}")
+    end)
 
     session = OAuthSessions.get_session(session_id)
     assert session.status == "error"
@@ -320,7 +329,9 @@ defmodule GameServerWeb.AuthControllerTest do
 
     OAuthSessions.create_session(session_id, %{provider: "apple", status: "pending"})
 
-    _conn = post(conn, "/auth/apple/callback", %{"code" => "xxx", "state" => session_id})
+    ExUnit.CaptureLog.capture_log(fn ->
+      _conn = post(conn, "/auth/apple/callback", %{"code" => "xxx", "state" => session_id})
+    end)
 
     session = OAuthSessions.get_session(session_id)
     assert session.status == "error"

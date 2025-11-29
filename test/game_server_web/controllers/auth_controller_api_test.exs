@@ -93,9 +93,11 @@ defmodule GameServerWeb.AuthControllerApiTest do
 
       Application.put_env(:game_server, :oauth_exchanger, MockExchangerDiscordFail)
 
-      conn = post(conn, "/api/v1/auth/discord/callback", %{code: "bad"})
-      assert conn.status == 400
-      assert json_response(conn, 400)["error"] == "exchange_failed"
+      ExUnit.CaptureLog.capture_log(fn ->
+        conn = post(conn, "/api/v1/auth/discord/callback", %{code: "bad"})
+        assert conn.status == 400
+        assert json_response(conn, 400)["error"] == "exchange_failed"
+      end)
     end
 
     test "POST /api/v1/auth/steam/callback with code (ticket) returns tokens", %{conn: conn} do
@@ -229,9 +231,11 @@ defmodule GameServerWeb.AuthControllerApiTest do
 
       Application.put_env(:game_server, :oauth_exchanger, MockExchangerSteamFail)
 
-      conn = post(conn, "/api/v1/auth/steam/callback", %{code: "bad_ticket"})
-      assert conn.status == 400
-      assert json_response(conn, 400)["error"] == "exchange_failed"
+      ExUnit.CaptureLog.capture_log(fn ->
+        conn = post(conn, "/api/v1/auth/steam/callback", %{code: "bad_ticket"})
+        assert conn.status == 400
+        assert json_response(conn, 400)["error"] == "exchange_failed"
+      end)
     end
 
     test "POST /api/v1/auth/apple/callback skips profile lookup when user already has profile", %{

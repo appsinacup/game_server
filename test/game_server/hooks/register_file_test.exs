@@ -43,7 +43,9 @@ defmodule GameServer.Hooks.RegisterFileTest do
 
     File.write!(path, "defmodule #{inspect(mod)} do\n  def foo(), do: :ok\nend\n")
 
-    assert {:error, :invalid_hooks_impl} = GameServer.Hooks.register_file(path)
+    assert ExUnit.CaptureLog.capture_log(fn ->
+             assert {:error, :invalid_hooks_impl} = GameServer.Hooks.register_file(path)
+           end) =~ ""
 
     status = Application.get_env(:game_server, :hooks_last_compile_status)
     assert status == {:error, :invalid_hooks_impl}
@@ -55,7 +57,9 @@ defmodule GameServer.Hooks.RegisterFileTest do
     path = Path.join(@tmp_dir, "hooks_#{System.unique_integer([:positive])}_empty.ex")
     File.write!(path, "# just a comment\n")
 
-    assert {:error, :no_module_in_file} = GameServer.Hooks.register_file(path)
+    assert ExUnit.CaptureLog.capture_log(fn ->
+             assert {:error, :no_module_in_file} = GameServer.Hooks.register_file(path)
+           end) =~ ""
 
     File.rm!(path)
   end
