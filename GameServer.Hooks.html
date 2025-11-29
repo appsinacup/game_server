@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.1">
-    <meta name="project" content="game_server v1.0.246">
+    <meta name="project" content="game_server v1.0.248">
 
 
-    <title>GameServer.Hooks — game_server v1.0.246</title>
+    <title>GameServer.Hooks — game_server v1.0.248</title>
 
     <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
 
-    <script defer src="dist/sidebar_items-2D91DFB8.js"></script>
+    <script defer src="dist/sidebar_items-CB1FC8A8.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-HBZYRXZS.js"></script>
 
@@ -37,7 +37,7 @@
 game_server
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.246
+          v1.0.248
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.Hooks</span> <small>behaviour</small>
-      <small class="app-vsn" translate="no">(game_server v1.0.246)</small>
+      <small class="app-vsn" translate="no">(game_server v1.0.248)</small>
 
     </h1>
 
@@ -272,6 +272,41 @@ game_server
       </div>
 
         <div class="summary-synopsis"><p>Call an arbitrary function exported by the configured hooks module.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#caller/0" data-no-tooltip="" translate="no">caller()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>When a hooks function is executed via <a><code class="inline">call/3</code></a> or <a><code class="inline">internal_call/3</code></a>, an
+optional <code class="inline">:caller</code> can be provided in the options. The caller will be
+injected into the spawned task's process dictionary and is accessible via
+<a><code class="inline">GameServer.Hooks.caller/0</code></a> (the raw value) or <a><code class="inline">caller_id/0</code></a> (the numeric id
+when the value is a user struct or map containing <code class="inline">:id</code>).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#caller_id/0" data-no-tooltip="" translate="no">caller_id()</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#caller_user/0" data-no-tooltip="" translate="no">caller_user()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Return the user struct for the current caller when available. This will
+  attempt to resolve the caller via GameServer.Accounts.get_user!/1 when the
+  caller is an integer id or a map containing an <code class="inline">:id</code> key. Returns nil when
+  no caller or user is found.</p></div>
 
     </div>
 
@@ -849,6 +884,97 @@ if configured and runs the call inside a short Task with a configurable
 timeout to avoid long-running user code.</p><p>Returns {:ok, result} | {:error, reason}</p>
   </section>
 </section>
+<section class="detail" id="caller/0">
+
+  <div class="detail-header">
+    <a href="#caller/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">caller()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L667" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> caller() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>() | nil</pre>
+
+      </div>
+
+<p>When a hooks function is executed via <a href="#call/3"><code class="inline">call/3</code></a> or <a href="#internal_call/3"><code class="inline">internal_call/3</code></a>, an
+optional <code class="inline">:caller</code> can be provided in the options. The caller will be
+injected into the spawned task's process dictionary and is accessible via
+<a href="#caller/0"><code class="inline">GameServer.Hooks.caller/0</code></a> (the raw value) or <a href="#caller_id/0"><code class="inline">caller_id/0</code></a> (the numeric id
+when the value is a user struct or map containing <code class="inline">:id</code>).</p>
+  </section>
+</section>
+<section class="detail" id="caller_id/0">
+
+  <div class="detail-header">
+    <a href="#caller_id/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">caller_id()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L672" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> caller_id() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>() | nil</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="caller_user/0">
+
+  <div class="detail-header">
+    <a href="#caller_user/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">caller_user()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L686" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> caller_user() :: <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>() | nil</pre>
+
+      </div>
+
+<p>Return the user struct for the current caller when available. This will
+  attempt to resolve the caller via GameServer.Accounts.get_user!/1 when the
+  caller is an integer id or a map containing an <code class="inline">:id</code> key. Returns nil when
+  no caller or user is found.</p>
+  </section>
+</section>
 <section class="detail" id="exported_functions/0">
 
   <div class="detail-header">
@@ -859,7 +985,7 @@ timeout to avoid long-running user code.</p><p>Returns {:ok, result} | {:error, 
       <h1 class="signature" translate="no">exported_functions()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L544" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L575" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -886,7 +1012,7 @@ This is useful for tooling and admin UI to display what RPCs are available.</p>
       <h1 class="signature" translate="no">internal_call(name, args \\ [], opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L314" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L323" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
