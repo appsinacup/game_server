@@ -371,18 +371,16 @@ defmodule GameServer.Lobbies do
         # incorrectly returns something else (eg. a struct) fall back to
         # the original params we received so updates from the form are not lost.
         attrs_to_use =
-          cond do
-            is_map(returned) and not is_struct(returned) ->
-              returned
+          if is_map(returned) and not is_struct(returned) do
+            returned
+          else
+            require Logger
 
-            true ->
-              require Logger
+            Logger.warning(
+              "Hooks.before_lobby_update returned unexpected value; using original params"
+            )
 
-              Logger.warning(
-                "Hooks.before_lobby_update returned unexpected value; using original params"
-              )
-
-              attrs
+            attrs
           end
 
         result =
@@ -394,18 +392,6 @@ defmodule GameServer.Lobbies do
           {:ok, updated} ->
             Task.start(fn -> GameServer.Hooks.internal_call(:after_lobby_update, [updated]) end)
 
-            # broadcast updates so any UI/channel subscribers get the change
-            broadcast_lobby(updated.id, {:lobby_updated, updated})
-            broadcast_lobbies({:lobby_updated, updated})
-            {:ok, updated}
-
-          other ->
-            other
-        end
-
-        case result do
-          {:ok, updated} ->
-            Task.start(fn -> GameServer.Hooks.internal_call(:after_lobby_update, [updated]) end)
             # broadcast updates so any UI/channel subscribers get the change
             broadcast_lobby(updated.id, {:lobby_updated, updated})
             broadcast_lobbies({:lobby_updated, updated})

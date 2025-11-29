@@ -58,45 +58,46 @@ defmodule GameServer.OAuth.Exchanger do
     case http_client().post(url, form: body, headers: headers) do
       {:ok, %{status: 200, body: body}} ->
         if Keyword.get(opts, :fetch_profile, true) == false do
-          case body do
-            %{"id_token" => id_token} ->
-              case parse_id_token(id_token) do
-                {:ok, parsed} when is_map(parsed) ->
-                  # normalize: return id key (from sub) and include email if present
-                  id = parsed["sub"] || parsed["id"]
-                  {:ok, Map.put(parsed, "id", id)}
-
-                _ ->
-                  # no id_token parseable, fallback to full flow
-                  exchange_google_code(code, client_id, client_secret, redirect_uri,
-                    fetch_profile: true
-                  )
-              end
-
-            _ ->
-              # no id_token present - perform full flow
-              exchange_google_code(code, client_id, client_secret, redirect_uri,
-                fetch_profile: true
-              )
-          end
+          google_handle_minimal(body, code, client_id, client_secret, redirect_uri)
         else
-          case body do
-            %{"access_token" => access_token} ->
-              # Get user info with access token
-              user_url = "https://www.googleapis.com/oauth2/v2/userinfo"
-              auth_headers = [{"Authorization", "Bearer #{access_token}"}]
+          google_handle_full(body)
+        end
 
-              case http_client().get(user_url, headers: auth_headers) do
-                {:ok, %{status: 200, body: user_info}} ->
-                  {:ok, user_info}
+      _ ->
+        {:error, "Failed to exchange code"}
+    end
+  end
 
-                _ ->
-                  {:error, "Failed to get user info"}
-              end
+  defp google_handle_minimal(body, code, client_id, client_secret, redirect_uri) do
+    case Map.get(body, "id_token") do
+      id_token when is_binary(id_token) ->
+        case parse_id_token(id_token) do
+          {:ok, parsed} when is_map(parsed) ->
+            id = parsed["sub"] || parsed["id"]
+            {:ok, Map.put(parsed, "id", id)}
 
-            _ ->
-              {:error, "Failed to exchange code"}
-          end
+          _ ->
+            # cannot parse id_token -> fall back to full profile flow
+            exchange_google_code(code, client_id, client_secret, redirect_uri,
+              fetch_profile: true
+            )
+        end
+
+      _ ->
+        # no id_token -> perform full flow
+        exchange_google_code(code, client_id, client_secret, redirect_uri, fetch_profile: true)
+    end
+  end
+
+  defp google_handle_full(body) do
+    case Map.get(body, "access_token") do
+      access_token when is_binary(access_token) ->
+        user_url = "https://www.googleapis.com/oauth2/v2/userinfo"
+        auth_headers = [{"Authorization", "Bearer #{access_token}"}]
+
+        case http_client().get(user_url, headers: auth_headers) do
+          {:ok, %{status: 200, body: user_info}} -> {:ok, user_info}
+          _ -> {:error, "Failed to get user info"}
         end
 
       _ ->

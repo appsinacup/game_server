@@ -223,8 +223,8 @@ defmodule GameServer.Hooks.CallTest do
     Module.create(
       mod,
       quote do
-        def who_called(), do: GameServer.Hooks.caller()
-        def who_called_id(), do: GameServer.Hooks.caller_id()
+        def who_called, do: GameServer.Hooks.caller()
+        def who_called_id, do: GameServer.Hooks.caller_id()
       end,
       __ENV__
     )
@@ -251,7 +251,7 @@ defmodule GameServer.Hooks.CallTest do
     Module.create(
       mod,
       quote do
-        def who_called_user(), do: GameServer.Hooks.caller_user()
+        def who_called_user, do: GameServer.Hooks.caller_user()
       end,
       __ENV__
     )

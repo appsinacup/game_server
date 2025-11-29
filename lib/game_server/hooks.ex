@@ -272,14 +272,16 @@ defmodule GameServer.Hooks do
     opts = resolve_caller(opts)
     arity = length(args)
 
-    # Disallow calling internal lifecycle callbacks via the public `call/3`
-    # API. Domain code should use `internal_call/3` which knows how to
-    # handle optional/missing lifecycle callbacks safely and provide
-    # sensible defaults.
-    if name in internal_hooks() do
-      {:error, :disallowed}
-    else
-      if function_exported?(mod, name, arity) do
+    # Disallow calling internal lifecycle callbacks via the public `call/3` API.
+    # Domain code should use `internal_call/3` for lifecycle callbacks.
+    cond do
+      name in internal_hooks() ->
+        {:error, :disallowed}
+
+      not function_exported?(mod, name, arity) ->
+        {:error, :not_implemented}
+
+      true ->
         timeout =
           Keyword.get(
             opts,
@@ -311,9 +313,6 @@ defmodule GameServer.Hooks do
           nil -> {:error, :timeout}
           {:exit, reason} -> {:error, {:exit, reason}}
         end
-      else
-        {:error, :not_implemented}
-      end
     end
   end
 

@@ -14,7 +14,7 @@ defmodule GameServerWeb.AdminLive.Config do
           Configuration
           <:subtitle>System configuration settings and setup guides</:subtitle>
         </.header>
-        
+
     <!-- Current Configuration Status -->
         <div class="card bg-base-100 shadow-xl" data-card-key="config_status">
           <div class="card-body">
@@ -413,7 +413,7 @@ defmodule GameServerWeb.AdminLive.Config do
                             <div class="text-xs text-muted">No test yet</div>
                           <% end %>
                         </div>
-                        
+
     <!-- Full docs modal / pane -->
                         <%= if @hooks_full_doc do %>
                           <div class="mt-2 p-3 border rounded bg-base-100">
@@ -440,7 +440,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Admin Tools -->
         <div class="card bg-base-100 shadow-xl" data-card-key="admin_tools">
           <div class="card-body">
@@ -580,18 +580,7 @@ defmodule GameServerWeb.AdminLive.Config do
 
   @impl true
   def handle_event("call_hook", %{"fn" => fn_name, "args" => args_text}, socket) do
-    args =
-      case args_text do
-        v when is_binary(v) and v != "" ->
-          case Jason.decode(v) do
-            {:ok, parsed} when is_list(parsed) -> parsed
-            {:ok, parsed} -> [parsed]
-            _ -> []
-          end
-
-        _ ->
-          []
-      end
+    args = parse_hook_args(args_text)
 
     caller = socket.assigns.current_scope && socket.assigns.current_scope.user
 
@@ -604,23 +593,7 @@ defmodule GameServerWeb.AdminLive.Config do
         # attempt to register the file and retry the call once so the admin UI
         # can call functions directly when modules are provided as source file.
         {:error, :not_implemented} ->
-          src =
-            socket.assigns.config.hooks_file_path_app || socket.assigns.config.hooks_file_path_env
-
-          if is_binary(src) and File.exists?(src) do
-            case GameServer.Hooks.register_file(src) do
-              {:ok, _mod} ->
-                case GameServer.Hooks.call(fn_name, args, caller: caller) do
-                  {:ok, res2} -> inspect(res2)
-                  {:error, r2} -> "error: #{inspect(r2)}"
-                end
-
-              {:error, reason} ->
-                "error: register_failed: #{inspect(reason)}"
-            end
-          else
-            "error: :not_implemented"
-          end
+          try_register_and_call(fn_name, args, caller, socket.assigns.config)
 
         {:error, reason} ->
           "error: #{inspect(reason)}"
@@ -629,6 +602,35 @@ defmodule GameServerWeb.AdminLive.Config do
     config = Map.put(socket.assigns.config, :hooks_test_result, result)
 
     {:noreply, assign(socket, :config, config)}
+  end
+
+  defp parse_hook_args(v) when is_binary(v) and v != "" do
+    case Jason.decode(v) do
+      {:ok, parsed} when is_list(parsed) -> parsed
+      {:ok, parsed} -> [parsed]
+      _ -> []
+    end
+  end
+
+  defp parse_hook_args(_), do: []
+
+  defp try_register_and_call(fn_name, args, caller, config) do
+    src = config.hooks_file_path_app || config.hooks_file_path_env
+
+    if is_binary(src) and File.exists?(src) do
+      case GameServer.Hooks.register_file(src) do
+        {:ok, _mod} ->
+          case GameServer.Hooks.call(fn_name, args, caller: caller) do
+            {:ok, res2} -> inspect(res2)
+            {:error, r2} -> "error: #{inspect(r2)}"
+          end
+
+        {:error, reason} ->
+          "error: register_failed: #{inspect(reason)}"
+      end
+    else
+      "error: :not_implemented"
+    end
   end
 
   @impl true
