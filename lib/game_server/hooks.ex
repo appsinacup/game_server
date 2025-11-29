@@ -13,6 +13,7 @@ defmodule GameServer.Hooks do
   """
 
   alias GameServer.Accounts.User
+  alias GameServer.Hooks.Default, as: Default
   require Logger
 
   @type hook_result(attrs_or_user) :: {:ok, attrs_or_user} | {:error, term()}
@@ -47,8 +48,8 @@ defmodule GameServer.Hooks do
 
   @doc "Return the configured module that implements the hooks behaviour."
   def module do
-    case Application.get_env(:game_server, :hooks_module, GameServer.Hooks.Default) do
-      nil -> GameServer.Hooks.Default
+    case Application.get_env(:game_server, :hooks_module, Default) do
+      nil -> Default
       mod -> mod
     end
   end
@@ -314,7 +315,6 @@ defmodule GameServer.Hooks do
       when is_list(args) and (is_atom(name) or is_binary(name)) do
     name = if is_binary(name), do: String.to_atom(name), else: name
     mod = module()
-    arity = length(args)
 
     timeout =
       Keyword.get(
@@ -323,24 +323,30 @@ defmodule GameServer.Hooks do
         Application.get_env(:game_server, :hooks_call_timeout, 5_000)
       )
 
-    task =
-      Task.async(fn ->
-        try do
-          apply(mod, name, args)
-        rescue
-          e in FunctionClauseError -> {:error, {:function_clause, Exception.message(e)}}
-          e -> {:error, {:exception, Exception.message(e)}}
-        catch
-          kind, reason -> {:error, {kind, reason}}
-        end
-      end)
+    arity = length(args)
 
-    case Task.yield(task, timeout) || Task.shutdown(task, :brutal_kill) do
-      {:ok, {:ok, res}} -> {:ok, res}
-      {:ok, {:error, err}} -> {:error, err}
-      {:ok, res} -> {:ok, res}
-      nil -> {:error, :timeout}
-      {:exit, reason} -> {:error, {:exit, reason}}
+    if function_exported?(mod, name, arity) do
+      task =
+        Task.async(fn ->
+          try do
+            apply(mod, name, args)
+          rescue
+            e in FunctionClauseError -> {:error, {:function_clause, Exception.message(e)}}
+            e -> {:error, {:exception, Exception.message(e)}}
+          catch
+            kind, reason -> {:error, {kind, reason}}
+          end
+        end)
+
+      case Task.yield(task, timeout) || Task.shutdown(task, :brutal_kill) do
+        {:ok, {:ok, res}} -> {:ok, res}
+        {:ok, {:error, err}} -> {:error, err}
+        {:ok, res} -> {:ok, res}
+        nil -> {:error, :timeout}
+        {:exit, reason} -> {:error, {:exit, reason}}
+      end
+    else
+      defaults_for_missing_callback(name, args)
     end
   end
 
@@ -364,6 +370,23 @@ defmodule GameServer.Hooks do
       :after_user_kicked,
       :after_lobby_host_change
     ])
+  end
+
+  defp defaults_for_missing_callback(name, args) do
+    default_mod = Default
+    arity = length(args)
+
+    if function_exported?(default_mod, name, arity) do
+      case apply(default_mod, name, args) do
+        {:ok, _} = ok -> ok
+        {:error, _} = err -> err
+        other -> {:ok, other}
+      end
+    else
+      # Extremely defensive fallback in case the Default module ever
+      # changes; default to returning first arg when present.
+      {:ok, Enum.at(args, 0)}
+    end
   end
 
   # Helper: extract docs-based signatures into a map name -> %{arity => %{signature: sig, doc: doc_text}}
@@ -408,6 +431,35 @@ defmodule GameServer.Hooks do
       _ ->
         %{}
     end
+  end
+
+  defp parsed_signatures_for(src_path, mod) do
+    if is_binary(src_path) and File.exists?(src_path) do
+      parse_signatures_from_file(src_path, mod)
+    else
+      %{}
+    end
+  end
+
+  defp build_signature(ar, name, parsed_signatures, doc_signatures, spec_map) do
+    parsed_entry = Map.get(parsed_signatures, {name, ar})
+
+    parsed_sig =
+      if is_map(parsed_entry), do: Map.get(parsed_entry, :signature), else: parsed_entry
+
+    doc_entry = Map.get(Map.get(doc_signatures, name, %{}), ar, %{})
+    doc_text = Map.get(parsed_entry || %{}, :doc) || Map.get(doc_entry, :doc)
+
+    typespec_sig = Map.get(spec_map, {name, ar})
+    chosen_signature = choose_signature(parsed_sig, doc_entry, typespec_sig)
+    example_args = example_args_for(chosen_signature)
+
+    %{
+      arity: ar,
+      signature: chosen_signature,
+      doc: doc_text,
+      example_args: example_args
+    }
   end
 
   # Helper: build a map of {{name, arity} => typespec_string} for module specs
@@ -497,7 +549,7 @@ defmodule GameServer.Hooks do
         # Exclude functions coming from the default implementation - show only
         # functions uniquely exported by the user-provided hooks module.
         default_names =
-          GameServer.Hooks.Default.__info__(:functions)
+          Default.__info__(:functions)
           |> Enum.map(fn {n, _} -> n end)
           |> MapSet.new()
 
@@ -514,12 +566,7 @@ defmodule GameServer.Hooks do
         src_path =
           Application.get_env(:game_server, :hooks_file_path) || System.get_env("HOOKS_FILE_PATH")
 
-        parsed_signatures =
-          if is_binary(src_path) and File.exists?(src_path) do
-            parse_signatures_from_file(src_path, mod)
-          else
-            %{}
-          end
+        parsed_signatures = parsed_signatures_for(src_path, mod)
 
         # Extract typespecs -> signature strings
         spec_map = spec_map_for(mod)
@@ -527,32 +574,10 @@ defmodule GameServer.Hooks do
         func_map
         |> Enum.map(fn {name, arities} ->
           sigs =
-            Enum.map(arities, fn ar ->
-              # prefer parsed signature text when available, otherwise use docs signature
-              parsed_entry = Map.get(parsed_signatures, {name, ar})
-              # parsed_entry may be a map with :signature/:doc/:returns or a simple string
-              parsed_sig =
-                if is_map(parsed_entry), do: Map.get(parsed_entry, :signature), else: parsed_entry
-
-              doc_entry = Map.get(Map.get(doc_signatures, name, %{}), ar, %{})
-
-              # prefer doc text discovered in the parsed source, otherwise use compiled docs
-              doc_text = Map.get(parsed_entry || %{}, :doc) || Map.get(doc_entry, :doc)
-
-              # returns are not surfaced - we only keep doc text
-
-              # choose the readable signature and example arguments
-              typespec_sig = Map.get(spec_map, {name, ar})
-              chosen_signature = choose_signature(parsed_sig, doc_entry, typespec_sig)
-              example_args = example_args_for(chosen_signature)
-
-              %{
-                arity: ar,
-                signature: chosen_signature,
-                doc: doc_text,
-                example_args: example_args
-              }
-            end)
+            Enum.map(
+              arities,
+              &build_signature(&1, name, parsed_signatures, doc_signatures, spec_map)
+            )
 
           %{name: to_string(name), arities: Enum.sort(arities), signatures: sigs}
         end)
