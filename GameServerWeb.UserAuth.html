@@ -5,10 +5,10 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.1">
-    <meta name="project" content="game_server v1.0.244">
+    <meta name="project" content="game_server v1.0.245">
 
 
-    <title>GameServerWeb.UserAuth — game_server v1.0.244</title>
+    <title>GameServerWeb.UserAuth — game_server v1.0.245</title>
 
     <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
 
@@ -37,7 +37,7 @@
 game_server
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.244
+          v1.0.245
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServerWeb.UserAuth</span> 
-      <small class="app-vsn" translate="no">(game_server v1.0.244)</small>
+      <small class="app-vsn" translate="no">(game_server v1.0.245)</small>
 
     </h1>
 
@@ -336,14 +336,14 @@ there's no user_token or no matching user.</p></li><li><p><code class="inline">:
 and assigns the current_scope to socket assigns based
 on user_token.
 Redirects to login page if there's no logged user.</p></li></ul><h2 id="on_mount/4-examples" class="section-heading"><a href="#on_mount/4-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><p>Use the <code class="inline">on_mount</code> lifecycle macro in LiveViews to mount or authenticate
-the <code class="inline">current_scope</code>:</p><pre><code class="makeup elixir" translate="no"><span class="kd">defmodule</span><span class="w"> </span><span class="nc">GameServerWeb.PageLive</span><span class="w"> </span><span class="k" data-group-id="8937839440-1">do</span><span class="w">
+the <code class="inline">current_scope</code>:</p><pre><code class="makeup elixir" translate="no"><span class="kd">defmodule</span><span class="w"> </span><span class="nc">GameServerWeb.PageLive</span><span class="w"> </span><span class="k" data-group-id="2424698011-1">do</span><span class="w">
   </span><span class="kn">use</span><span class="w"> </span><span class="nc">GameServerWeb</span><span class="p">,</span><span class="w"> </span><span class="ss">:live_view</span><span class="w">
 
-  </span><span class="n">on_mount</span><span class="w"> </span><span class="p" data-group-id="8937839440-2">{</span><span class="nc">GameServerWeb.UserAuth</span><span class="p">,</span><span class="w"> </span><span class="ss">:mount_current_scope</span><span class="p" data-group-id="8937839440-2">}</span><span class="w">
+  </span><span class="n">on_mount</span><span class="w"> </span><span class="p" data-group-id="2424698011-2">{</span><span class="nc">GameServerWeb.UserAuth</span><span class="p">,</span><span class="w"> </span><span class="ss">:mount_current_scope</span><span class="p" data-group-id="2424698011-2">}</span><span class="w">
   </span><span class="n">...</span><span class="w">
-</span><span class="k" data-group-id="8937839440-1">end</span></code></pre><p>Or use the <code class="inline">live_session</code> of your router to invoke the on_mount callback:</p><pre><code class="makeup elixir" translate="no"><span class="n">live_session</span><span class="w"> </span><span class="ss">:authenticated</span><span class="p">,</span><span class="w"> </span><span class="ss">on_mount</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="0507775240-1">[</span><span class="p" data-group-id="0507775240-2">{</span><span class="nc">GameServerWeb.UserAuth</span><span class="p">,</span><span class="w"> </span><span class="ss">:require_authenticated</span><span class="p" data-group-id="0507775240-2">}</span><span class="p" data-group-id="0507775240-1">]</span><span class="w"> </span><span class="k" data-group-id="0507775240-3">do</span><span class="w">
+</span><span class="k" data-group-id="2424698011-1">end</span></code></pre><p>Or use the <code class="inline">live_session</code> of your router to invoke the on_mount callback:</p><pre><code class="makeup elixir" translate="no"><span class="n">live_session</span><span class="w"> </span><span class="ss">:authenticated</span><span class="p">,</span><span class="w"> </span><span class="ss">on_mount</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="7297682098-1">[</span><span class="p" data-group-id="7297682098-2">{</span><span class="nc">GameServerWeb.UserAuth</span><span class="p">,</span><span class="w"> </span><span class="ss">:require_authenticated</span><span class="p" data-group-id="7297682098-2">}</span><span class="p" data-group-id="7297682098-1">]</span><span class="w"> </span><span class="k" data-group-id="7297682098-3">do</span><span class="w">
   </span><span class="n">live</span><span class="w"> </span><span class="s">&quot;/profile&quot;</span><span class="p">,</span><span class="w"> </span><span class="nc">ProfileLive</span><span class="p">,</span><span class="w"> </span><span class="ss">:index</span><span class="w">
-</span><span class="k" data-group-id="0507775240-3">end</span></code></pre>
+</span><span class="k" data-group-id="7297682098-3">end</span></code></pre>
   </section>
 </section>
 <section class="detail" id="require_admin_user/2">
