@@ -136,36 +136,12 @@ if config_env() == :prod do
   #
   # Configure the mailer - if SMTP_PASSWORD is set, use SMTP, otherwise use local mailbox
   if System.get_env("SMTP_PASSWORD") do
-    port = String.to_integer(System.get_env("SMTP_PORT") || "587")
-    ssl = System.get_env("SMTP_SSL") in ["1", "true", "TRUE", "True"]
-
-    # use the embedded Certifi CA bundle (we depend on :certifi in mix.exs so
-    # releases will include a consistent trust store). Fallback to an empty
-    # list just in case certifi is not available in the runtime (very unlikely
-    # after adding it as a dependency) so we never pass :undefined to gen_smtp.
-    cacerts = if Code.ensure_loaded?(Certifi), do: Certifi.cacerts(), else: []
-
-    ssl_options =
-      if System.get_env("SMTP_INSECURE") in ["1", "true", "TRUE", "True"] do
-        [verify: :verify_none]
-      else
-        [verify: :verify_peer, cacerts: cacerts]
-      end
-
     config :game_server, GameServer.Mailer,
       adapter: Swoosh.Adapters.SMTP,
       relay: System.get_env("SMTP_RELAY"),
       username: System.get_env("SMTP_USERNAME"),
       password: System.get_env("SMTP_PASSWORD"),
-      tls: if(ssl, do: :never, else: :always),
-      ssl: ssl,
-      # Allow opting out of verification in development/diagnostics by setting
-      # SMTP_INSECURE=1 (not recommended for production). When insecure we set
-      # `verify: :verify_none`; otherwise we strongly prefer `:verify_peer` and
-      # pass a valid CACERT list.
-      ssl_options: ssl_options,
-      auth: :always,
-      port: port
+      port: System.get_env("SMTP_PORT")
 
     # Configure Swoosh to use Req for HTTP requests
     config :swoosh, :api_client, Swoosh.ApiClient.Req
