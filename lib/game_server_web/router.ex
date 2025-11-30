@@ -113,14 +113,17 @@ defmodule GameServerWeb.Router do
   import Phoenix.LiveDashboard.Router
 
   scope "/" do
+    pipe_through [:browser]
+    # Mailbox preview only in development
+    if Mix.env() == :dev do
+      forward "/dev/mailbox", Plug.Swoosh.MailboxPreview
+    end
+  end
+
+  scope "/" do
     pipe_through [:browser, :require_admin_user]
 
     live_dashboard "/admin/dashboard", metrics: GameServerWeb.Telemetry
-
-    # Mailbox preview only in development
-    if Mix.env() == :dev do
-      forward "/admin/mailbox", Plug.Swoosh.MailboxPreview
-    end
   end
 
   ## Authentication routes

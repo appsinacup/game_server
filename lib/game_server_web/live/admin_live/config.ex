@@ -301,7 +301,7 @@ defmodule GameServerWeb.AdminLive.Config do
                       <% else %>
                         <%= if @config.env == "dev" do %>
                           Using local delivery - emails are not sent (<a
-                            href="/admin/mailbox"
+                            href="/dev/mailbox"
                             class="link link-primary"
                           >view mailbox</a>)
                         <% else %>
@@ -566,7 +566,7 @@ defmodule GameServerWeb.AdminLive.Config do
                 Live Dashboard
               </a>
               <%= if @config.env == "dev" do %>
-                <a href="/admin/mailbox" class="btn btn-outline btn-secondary">
+                <a href="/dev/mailbox" class="btn btn-outline btn-secondary">
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       stroke-linecap="round"
