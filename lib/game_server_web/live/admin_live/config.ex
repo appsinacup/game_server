@@ -240,7 +240,8 @@ defmodule GameServerWeb.AdminLive.Config do
                         SMTP_PASSWORD: {mask_secret(@config.smtp_password)}<br />
                         SMTP_RELAY: {@config.smtp_relay || "<unset>"}<br />
                         SMTP_PORT: {@config.smtp_port || "<unset>"}<br />
-                        SMTP_SSL: {@config.smtp_ssl || "<unset>"}
+                        SMTP_SSL: {@config.smtp_ssl || "<unset>"} SMTP_TLS: {@config.smtp_tls ||
+                          "<unset>"}
                       </div>
                       <%= if @config.email_configured do %>
                         SMTP configured - emails are sent via {@config.smtp_relay ||
@@ -572,6 +573,7 @@ defmodule GameServerWeb.AdminLive.Config do
       smtp_relay: System.get_env("SMTP_RELAY"),
       smtp_port: System.get_env("SMTP_PORT"),
       smtp_ssl: System.get_env("SMTP_SSL"),
+      smtp_tls: System.get_env("SMTP_TLS"),
       sentry_dsn: System.get_env("SENTRY_DSN"),
       sentry_log_level: System.get_env("SENTRY_LOG_LEVEL"),
       env: to_string(Application.get_env(:game_server, :environment, Mix.env())),

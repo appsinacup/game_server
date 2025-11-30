@@ -104,10 +104,13 @@ config :phoenix_live_view,
 if System.get_env("SMTP_PASSWORD") do
   config :game_server, GameServer.Mailer,
     adapter: Swoosh.Adapters.SMTP,
-    relay: System.get_env("SMTP_RELAY", "smtp.resend.com"),
-    username: System.get_env("SMTP_USERNAME", "resend"),
+    relay: System.get_env("SMTP_RELAY"),
+    username: System.get_env("SMTP_USERNAME"),
     password: System.get_env("SMTP_PASSWORD"),
-    port: System.get_env("SMTP_PORT")
+    port: System.get_env("SMTP_PORT"),
+    tls: String.to_existing_atom(System.get_env("SMTP_TLS") || "if_available"),
+    ssl: String.to_existing_atom(System.get_env("SMTP_SSL") || "true"),
+    retries: 2
 
   # When using an SMTP adapter we may still need the HTTP API client for
   # certain Swoosh adapters; enable Req which is used elsewhere in prod.

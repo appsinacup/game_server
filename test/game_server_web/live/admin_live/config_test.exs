@@ -46,6 +46,7 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     System.put_env("SMTP_PASSWORD", "smtppass")
     System.put_env("SMTP_PORT", "465")
     System.put_env("SMTP_SSL", "true")
+    System.put_env("SMTP_TLS", "true")
     System.put_env("POSTGRES_HOST", "localhost")
     System.put_env("POSTGRES_USER", "postgres")
     System.put_env("POSTGRES_DB", "game_server_test")
