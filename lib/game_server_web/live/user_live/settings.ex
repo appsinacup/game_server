@@ -53,6 +53,33 @@ defmodule GameServerWeb.UserLive.Settings do
             <div><strong>ID:</strong> {@user.id}</div>
             <div><strong>Email:</strong> {@current_email}</div>
             <div><strong>Admin:</strong> {@user.is_admin}</div>
+
+
+      <.form
+        for={@display_form}
+        id="display_form"
+        phx-change="validate_display_name"
+        phx-submit="update_display_name"
+      >
+        <.input
+          field={@display_form[:display_name]}
+          type="text"
+          label="Display name"
+          required
+        />
+        <.button variant="primary" phx-disable-with="Saving...">Save Display Name</.button>
+      </.form>
+
+      <.form for={@email_form} id="email_form" phx-submit="update_email" phx-change="validate_email">
+        <.input
+          field={@email_form[:email]}
+          type="email"
+          label="Email"
+          autocomplete="username"
+          required
+        />
+        <.button variant="primary" phx-disable-with="Changing...">Change Email</.button>
+      </.form>
           </div>
         </div>
 
@@ -61,11 +88,45 @@ defmodule GameServerWeb.UserLive.Settings do
           <div class="text-sm mt-2 font-mono text-xs bg-base-300 p-3 rounded-lg overflow-auto text-base-content/80">
             <pre phx-no-curly-interpolation><%= Jason.encode!(@user.metadata || %{}, pretty: true) %></pre>
           </div>
+
+      <.form
+        for={@password_form}
+        id="password_form"
+        action={~p"/users/update-password"}
+        method="post"
+        phx-change="validate_password"
+        phx-submit="update_password"
+        phx-trigger-action={@trigger_submit}
+      >
+        <input
+          name={@password_form[:email].name}
+          type="hidden"
+          id="hidden_user_email"
+          autocomplete="username"
+          value={@current_email}
+        />
+        <.input
+          field={@password_form[:password]}
+          type="password"
+          label="New password"
+          autocomplete="new-password"
+          required
+        />
+        <.input
+          field={@password_form[:password_confirmation]}
+          type="password"
+          label="Confirm new password"
+          autocomplete="new-password"
+        />
+        <.button variant="primary" phx-disable-with="Saving...">
+          Save Password
+        </.button>
+      </.form>
         </div>
       </div>
 
       <div class="divider" />
-      
+
     <!-- Friends panel (embedded) -->
       <div id="friends" class="card bg-base-200 p-4 rounded-lg mt-6">
         <div class="flex items-center justify-between">
@@ -274,21 +335,6 @@ defmodule GameServerWeb.UserLive.Settings do
         </div>
       </div>
 
-      <.form
-        for={@display_form}
-        id="display_form"
-        phx-change="validate_display_name"
-        phx-submit="update_display_name"
-      >
-        <.input
-          field={@display_form[:display_name]}
-          type="text"
-          label="Display name"
-          required
-        />
-        <.button variant="primary" phx-disable-with="Saving...">Save Display Name</.button>
-      </.form>
-
       <div class="card bg-base-200 p-4 rounded-lg">
         <div class="font-semibold">Linked Accounts</div>
         <div class="mt-2 space-y-2">
@@ -428,53 +474,6 @@ defmodule GameServerWeb.UserLive.Settings do
           </div>
         </div>
       </div>
-
-      <.form for={@email_form} id="email_form" phx-submit="update_email" phx-change="validate_email">
-        <.input
-          field={@email_form[:email]}
-          type="email"
-          label="Email"
-          autocomplete="username"
-          required
-        />
-        <.button variant="primary" phx-disable-with="Changing...">Change Email</.button>
-      </.form>
-
-      <div class="divider" />
-
-      <.form
-        for={@password_form}
-        id="password_form"
-        action={~p"/users/update-password"}
-        method="post"
-        phx-change="validate_password"
-        phx-submit="update_password"
-        phx-trigger-action={@trigger_submit}
-      >
-        <input
-          name={@password_form[:email].name}
-          type="hidden"
-          id="hidden_user_email"
-          autocomplete="username"
-          value={@current_email}
-        />
-        <.input
-          field={@password_form[:password]}
-          type="password"
-          label="New password"
-          autocomplete="new-password"
-          required
-        />
-        <.input
-          field={@password_form[:password_confirmation]}
-          type="password"
-          label="Confirm new password"
-          autocomplete="new-password"
-        />
-        <.button variant="primary" phx-disable-with="Saving...">
-          Save Password
-        </.button>
-      </.form>
 
       <div class="divider" />
 

@@ -101,17 +101,14 @@ defmodule GameServerWeb.Layouts do
               <.link href={~p"/users/log-in"} class="btn btn-primary">Log in</.link>
             </li>
             <li>
-              <.link href={~p"/lobbies"} class="btn btn-outline">Lobbies</.link>
-            </li>
-            <li>
-              <.link href={~p"/users/register"} class="btn btn-outline">Register</.link>
+              <.link href={~p"/users/register"} class="btn btn-accent">Register</.link>
             </li>
           <% end %>
           <li>
             <.theme_toggle />
           </li>
         </ul>
-        
+
     <!-- Mobile Navigation -->
         <div class="md:hidden">
           <div class="dropdown dropdown-end">
