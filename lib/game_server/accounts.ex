@@ -168,6 +168,69 @@ defmodule GameServer.Accounts do
     end
   end
 
+  @doc """
+  Register a user and send the confirmation email inside a DB transaction.
+
+  The function accepts a `confirmation_url_fun` which must be a function of arity 1
+  that receives the encoded token and returns the confirmation URL string.
+
+  If sending the confirmation email fails the transaction is rolled back and
+  `{:error, reason}` is returned. On success it returns `{:ok, user}`.
+  """
+  def register_user_and_deliver(
+        attrs,
+        confirmation_url_fun,
+        notifier \\ GameServer.Accounts.UserNotifier
+      )
+      when is_function(confirmation_url_fun, 1) do
+    # Normalize keys to strings to match form submissions
+    attrs = Map.new(attrs, fn {k, v} -> {to_string(k), v} end)
+
+    # Check if this is the first user and make them admin
+    is_first_user = Repo.aggregate(User, :count, :id) == 0
+    attrs = if is_first_user, do: Map.put(attrs, "is_admin", true), else: attrs
+
+    case Repo.transaction(fn ->
+           case %User{}
+                |> User.email_changeset(attrs)
+                |> maybe_attach_device(attrs)
+                |> Repo.insert() do
+             {:ok, %User{} = user} ->
+               if is_first_user do
+                 user
+               else
+                 # build and persist token then attempt delivery
+                 {encoded_token, user_token} = UserToken.build_email_token(user, "confirm")
+                 Repo.insert!(user_token)
+
+                 case notifier.deliver_confirmation_instructions(
+                        user,
+                        confirmation_url_fun.(encoded_token)
+                      ) do
+                   {:ok, _} ->
+                     user
+
+                   {:error, reason} ->
+                     # rollback entire transaction so the user and token are not persisted
+                     Repo.rollback(reason)
+                 end
+               end
+
+             {:error, %Ecto.Changeset{} = changeset} ->
+               Repo.rollback(changeset)
+
+             err ->
+               Repo.rollback(err)
+           end
+         end) do
+      {:ok, %User{} = user} ->
+        {:ok, user}
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
   defp maybe_attach_device(changeset, %{"device_id" => device_id}) when is_binary(device_id) do
     changeset
     |> Ecto.Changeset.put_change(:device_id, device_id)

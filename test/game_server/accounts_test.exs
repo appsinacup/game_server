@@ -96,6 +96,44 @@ defmodule GameServer.AccountsTest do
 
       assert user.device_id == device_id
     end
+
+    test "register_user_and_deliver/3 succeeds when notifier delivers" do
+      # ensure there's already a user so we are not the first user (first user is auto-admin and skips email delivery)
+      _existing = user_fixture()
+
+      email = unique_user_email()
+      attrs = valid_user_attributes(%{"email" => email})
+
+      defmodule SuccessNotifier do
+        def deliver_confirmation_instructions(_user, _url), do: {:ok, :sent}
+      end
+
+      {:ok, user} =
+        Accounts.register_user_and_deliver(attrs, fn t -> "http://x/#{t}" end, SuccessNotifier)
+
+      assert Repo.get_by(Accounts.User, id: user.id)
+      assert Repo.get_by(Accounts.UserToken, user_id: user.id)
+    end
+
+    test "register_user_and_deliver/3 rolls back when notifier fails" do
+      _existing = user_fixture()
+
+      email = unique_user_email()
+      attrs = valid_user_attributes(%{"email" => email})
+
+      defmodule FailNotifier do
+        def deliver_confirmation_instructions(_user, _url), do: {:error, :smtp_failed}
+      end
+
+      assert {:error, :smtp_failed} =
+               Accounts.register_user_and_deliver(
+                 attrs,
+                 fn t -> "http://x/#{t}" end,
+                 FailNotifier
+               )
+
+      refute Repo.get_by(Accounts.User, email: email)
+    end
   end
 
   describe "sudo_mode?/2" do

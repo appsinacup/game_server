@@ -130,7 +130,13 @@ defmodule GameServerWeb.UserLive.Registration do
 
   @impl true
   def handle_event("save", %{"user" => user_params}, socket) do
-    case Accounts.register_user(user_params) do
+    notifier = Application.get_env(:game_server, :user_notifier, GameServer.Accounts.UserNotifier)
+
+    case Accounts.register_user_and_deliver(
+           user_params,
+           fn t -> url(~p"/users/settings/confirm-email/#{t}") end,
+           notifier
+         ) do
       {:ok, user} ->
         # Check if this is the first user (admin users are auto-created as first user)
         is_first_user = user.is_admin
@@ -152,14 +158,8 @@ defmodule GameServerWeb.UserLive.Registration do
            )
            |> push_navigate(to: ~p"/users/log-in/#{token}")}
         else
-          {:ok, _} =
-            Accounts.deliver_user_confirmation_instructions(
-              user,
-              &url(~p"/users/settings/confirm-email/#{&1}")
-            )
-
-          # After registration we send a confirmation email and redirect the
-          # user to the login page with an informative message.
+          # Not the first user: a confirmation email was sent inside the
+          # registration transaction. Inform the user to check their inbox.
           {:noreply,
            socket
            |> put_flash(
@@ -171,6 +171,23 @@ defmodule GameServerWeb.UserLive.Registration do
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, socket |> assign(check_errors: true) |> assign_form(changeset)}
+
+      {:error, reason} ->
+        # If email delivery failed the user creation was rolled back. Keep the
+        # form open and present a friendly error message.
+        require Logger
+        Logger.error("register_user_and_deliver failed: #{inspect(reason)}")
+
+        changeset = Accounts.change_user_registration(%User{}, user_params)
+
+        {:noreply,
+         socket
+         |> put_flash(
+           :error,
+           "We were unable to create your account right now — please try again later or contact support."
+         )
+         |> assign(check_errors: true)
+         |> assign_form(Map.put(changeset, :action, :insert))}
     end
   end
 

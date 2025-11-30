@@ -50,6 +50,36 @@ defmodule GameServerWeb.UserLive.RegistrationTest do
                ~r/An email was sent to .*, please access it to confirm your account/
     end
 
+    test "shows friendly error when confirmation delivery fails", %{conn: conn} do
+      prev = Application.get_env(:game_server, :user_notifier)
+
+      defmodule FailNotifierForLiveTest do
+        def deliver_confirmation_instructions(_user, _url), do: {:error, :smtp_failed}
+      end
+
+      Application.put_env(:game_server, :user_notifier, FailNotifierForLiveTest)
+
+      on_exit(fn ->
+        if prev,
+          do: Application.put_env(:game_server, :user_notifier, prev),
+          else: Application.delete_env(:game_server, :user_notifier)
+      end)
+
+      # ensure this is not the first user so email delivery is attempted
+      _existing = user_fixture()
+
+      {:ok, lv, _html} = live(conn, ~p"/users/register")
+
+      email = unique_user_email()
+      form = form(lv, "#registration_form", user: valid_user_attributes(email: email))
+
+      html = render_submit(form)
+
+      assert html =~ "We were unable to create your account right now"
+
+      refute GameServer.Repo.get_by(GameServer.Accounts.User, email: email)
+    end
+
     test "renders errors for duplicated email", %{conn: conn} do
       {:ok, lv, _html} = live(conn, ~p"/users/register")
 
