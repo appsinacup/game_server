@@ -3,7 +3,7 @@ FROM elixir:1.19-slim
 # Install git and other build dependencies
 RUN apt-get update && \
     # Install build tools + sqlite dev headers so Exqlite NIF builds in-image
-    apt-get install -y git build-essential libsqlite3-dev sqlite3 pkg-config && \
+    apt-get install -y git build-essential libsqlite3-dev sqlite3 pkg-config ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 # Install hex and rebar
