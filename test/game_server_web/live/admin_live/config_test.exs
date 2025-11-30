@@ -47,6 +47,8 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     System.put_env("SMTP_PORT", "465")
     System.put_env("SMTP_SSL", "true")
     System.put_env("SMTP_TLS", "true")
+    System.put_env("SMTP_FROM_NAME", "Game Server")
+    System.put_env("SMTP_FROM_EMAIL", "no-reply@example.com")
     System.put_env("SMTP_SNI", "mail.resend.com")
     System.put_env("POSTGRES_HOST", "localhost")
     System.put_env("POSTGRES_USER", "postgres")
@@ -66,6 +68,9 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
             "SMTP_PASSWORD",
             "SMTP_PORT",
             "SMTP_SSL",
+            "SMTP_TLS",
+            "SMTP_FROM_NAME",
+            "SMTP_FROM_EMAIL",
             "SMTP_SNI",
             "POSTGRES_HOST",
             "POSTGRES_USER",
@@ -137,6 +142,14 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     assert html =~ "SMTP_SSL"
     # SMTP SNI (server name indication) should be displayed when present
     assert html =~ "SMTP_SNI"
+
+    # From details should be displayed when configured
+    assert html =~ mask.("Game Server")
+    assert html =~ mask.("no-reply@example.com")
+
+    # Admin UI should show guidance about verifying the From address/domain
+    # The ampersand is escaped in HTML; look for the phrase "domain verification" instead
+    assert html =~ "domain verification"
 
     # if no hooks watch interval set, these should not be visible
     refute html =~ "Watch interval (app): <unset>"

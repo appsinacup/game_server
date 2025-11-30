@@ -241,7 +241,9 @@ defmodule GameServerWeb.AdminLive.Config do
                         SMTP_RELAY: {@config.smtp_relay || "<unset>"}<br />
                         SMTP_PORT: {@config.smtp_port || "<unset>"}<br />
                         SMTP_SSL: {@config.smtp_ssl || "<unset>"} SMTP_TLS: {@config.smtp_tls ||
-                          "<unset>"}<br /> SMTP_SNI: {mask_secret(@config.smtp_sni)}
+                          "<unset>"}<br /> SMTP_SNI: {mask_secret(@config.smtp_sni)}<br />
+                        SMTP_FROM_NAME: {mask_secret(@config.smtp_from_name || "") || "<unset>"}<br />
+                        SMTP_FROM_EMAIL: {mask_secret(@config.smtp_from_email || "") || "<unset>"}
                       </div>
 
                       <div class="mt-2 text-xs text-muted">
@@ -276,6 +278,21 @@ defmodule GameServerWeb.AdminLive.Config do
                             Provider docs: Resend SMTP guide
                           </a>
                           <span class="text-xs text-muted ml-2">· see repo docs for examples</span>
+                        </div>
+
+                        <div class="mt-3 text-xs text-muted">
+                          <p class="mb-1 font-semibold">From address & domain verification</p>
+                          <p>
+                            Ensure the <code>SMTP_FROM_EMAIL</code> you configure is a
+                            verified sender/domain in your SMTP provider — many providers
+                            require verification before relaying mail and may return errors
+                            like <code>450 domain not verified</code> otherwise.
+                          </p>
+                          <p class="mt-2">
+                            You can set a friendly sender name via <code>SMTP_FROM_NAME</code>.
+                            If you need to test delivery, use the <em>Send test email</em>
+                            button above to verify runtime delivery and messages.
+                          </p>
                         </div>
                       </div>
                       <%= if @config.email_configured do %>
@@ -608,6 +625,8 @@ defmodule GameServerWeb.AdminLive.Config do
       smtp_relay: System.get_env("SMTP_RELAY"),
       smtp_port: System.get_env("SMTP_PORT"),
       smtp_ssl: System.get_env("SMTP_SSL"),
+      smtp_from_name: System.get_env("SMTP_FROM_NAME"),
+      smtp_from_email: System.get_env("SMTP_FROM_EMAIL"),
       smtp_sni: System.get_env("SMTP_SNI"),
       smtp_tls: System.get_env("SMTP_TLS"),
       sentry_dsn: System.get_env("SENTRY_DSN"),

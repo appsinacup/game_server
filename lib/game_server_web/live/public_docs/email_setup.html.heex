@@ -99,7 +99,33 @@
               <div>SMTP_USERNAME="resend"</div>
               <div>SMTP_PASSWORD="your_resend_api_key"</div>
               <div>SMTP_RELAY="smtp.resend.com"</div>
+              <div></div>
+              <div># Sender configuration (recommended for delivery)</div>
+              <div>SMTP_FROM_NAME="My App"</div>
+              <div>SMTP_FROM_EMAIL="no-reply@yourdomain.com"</div>
             </div>
+          </div>
+          <div class="mt-3 text-sm text-base-content/70">
+            <p class="mb-1">Important — From address & domain verification</p>
+            <p>
+              Many email providers require that the "From" address or sending domain
+              be verified in your SMTP provider dashboard before they'll accept or relay mail
+              (you may see errors like "450 domain not verified"). Configure
+              <code>SMTP_FROM_NAME</code>
+              and <code>SMTP_FROM_EMAIL</code>
+              so that
+              your messages use a verified sender and avoid delivery rejections.
+            </p>
+            <p class="mt-2">
+              If you're not sure what to use, set <code>SMTP_FROM_EMAIL</code> to an
+              address in a domain you control (eg. <code>no-reply@yourdomain.com</code>) and
+              verify that domain with your provider.
+            </p>
+            <p class="mt-2 text-xs">
+              Tip: you can review and test the current runtime SMTP settings in the admin
+              <a href="/admin/config" class="link link-primary">Admin • Configuration</a>
+              page.
+            </p>
           </div>
           <p class="text-sm text-base-content/70 mt-2">
             For other providers, adjust the SMTP settings accordingly. The app will automatically detect when email is configured.

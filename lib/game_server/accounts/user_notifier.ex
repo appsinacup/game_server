@@ -15,7 +15,7 @@ defmodule GameServer.Accounts.UserNotifier do
     email =
       new()
       |> to(recipient)
-      |> from({"GameServer", "contact@example.com"})
+      |> from(sender_tuple())
       |> subject(subject)
       |> text_body(body)
 
@@ -33,6 +33,25 @@ defmodule GameServer.Accounts.UserNotifier do
     catch
       kind, reason ->
         {:error, {kind, reason}}
+    end
+  end
+
+  # Build the sender {name, email} tuple from env or app config
+  defp sender_tuple do
+    name = System.get_env("SMTP_FROM_NAME") || Application.get_env(:game_server, :smtp_from_name)
+
+    email =
+      System.get_env("SMTP_FROM_EMAIL") || Application.get_env(:game_server, :smtp_from_email)
+
+    cond do
+      is_binary(name) and name != "" and is_binary(email) and email != "" ->
+        {name, email}
+
+      is_binary(email) and email != "" ->
+        {"GameServer", email}
+
+      true ->
+        {"GameServer", "contact@gamend.appsinacup.com"}
     end
   end
 
