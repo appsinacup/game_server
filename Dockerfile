@@ -16,6 +16,10 @@ WORKDIR /app
 # Set environment to production
 ENV MIX_ENV=prod
 
+ARG APP_VERSION=1.0.0
+ENV APP_VERSION=${APP_VERSION}
+RUN echo -n "${APP_VERSION}" > /app/VERSION
+
 COPY mix.exs mix.lock ./
 
 # Install dependencies
