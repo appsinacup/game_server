@@ -10,6 +10,8 @@ defmodule GameServerWeb.Plugs.LoadTheme do
 
   import Plug.Conn
 
+  alias GameServer.Theme.JSONConfig
+
   def init(opts), do: opts
 
   def call(conn, _opts) do
@@ -49,16 +51,14 @@ defmodule GameServerWeb.Plugs.LoadTheme do
   end
 
   defp fetch_theme(mod) do
-    try do
-      mod.get_theme() || %{}
-    rescue
-      _ -> %{}
-    end
+    mod.get_theme() || %{}
+  rescue
+    _ -> %{}
   end
 
   defp get_default_theme(_mod) do
     # Defer to the JSON provider's packaged default helper so we have a single
     # implementation that understands where the default JSON lives.
-    GameServer.Theme.JSONConfig.packaged_default()
+    JSONConfig.packaged_default()
   end
 end

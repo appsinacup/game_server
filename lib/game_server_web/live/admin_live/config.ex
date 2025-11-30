@@ -1,6 +1,8 @@
 defmodule GameServerWeb.AdminLive.Config do
   use GameServerWeb, :live_view
 
+  alias GameServer.Theme.JSONConfig
+
   @impl true
   def render(assigns) do
     ~H"""
@@ -602,11 +604,11 @@ defmodule GameServerWeb.AdminLive.Config do
       #  - :theme_config -> the runtime THEME_CONFIG env value (path) or nil
       #  - :theme_map -> resolved theme map (merged default + runtime file)
       #  - :theme_json -> raw JSON shown in the UI (runtime file contents or packaged default)
-      theme_map: GameServer.Theme.JSONConfig.get_theme(),
+      theme_map: JSONConfig.get_theme(),
       # Only rely on JSONConfig for decisions about runtime vs default and raw
       # content. Keep logic inside the provider instead of duplicating parsing
       # here.
-      theme_config: GameServer.Theme.JSONConfig.runtime_path(),
+      theme_config: JSONConfig.runtime_path(),
       device_auth_enabled_app: Application.get_env(:game_server, :device_auth_enabled),
       device_auth_enabled_env: System.get_env("DEVICE_AUTH_ENABLED")
     }

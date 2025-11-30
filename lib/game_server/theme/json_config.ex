@@ -143,21 +143,18 @@ defmodule GameServer.Theme.JSONConfig do
     ]
 
     Enum.find_value(candidates, :error, fn p ->
-      if File.exists?(p) do
-        case File.read(p) do
-          {:ok, content} ->
-            case Jason.decode(content) do
-              {:ok, decoded} when is_map(decoded) -> {:ok, decoded}
-              _ -> :error
-            end
-
-          _ ->
-            :error
-        end
-      else
-        false
-      end
+      try_decode_file(p)
     end)
+  end
+
+  defp try_decode_file(path) when is_binary(path) do
+    with true <- File.exists?(path),
+         {:ok, content} <- File.read(path),
+         {:ok, decoded} when is_map(decoded) <- Jason.decode(content) do
+      {:ok, decoded}
+    else
+      _ -> :error
+    end
   end
 
   defp normalize_asset_paths(map) when is_map(map) do

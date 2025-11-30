@@ -1,6 +1,8 @@
 defmodule GameServer.Theme.JSONConfigTest do
   use ExUnit.Case, async: false
 
+  alias GameServer.Theme.JSONConfig
+
   setup do
     # ensure any global env change is reset after
     orig = System.get_env("THEME_CONFIG")
@@ -19,7 +21,7 @@ defmodule GameServer.Theme.JSONConfigTest do
 
     System.put_env("THEME_CONFIG", tmp)
 
-    theme = GameServer.Theme.JSONConfig.get_theme()
+    theme = JSONConfig.get_theme()
     assert %{"title" => "My Test", "logo" => "/theme/logo.png"} = theme
     # default css path should be merged in when not provided by the file
     assert Map.has_key?(theme, "css")
@@ -28,7 +30,7 @@ defmodule GameServer.Theme.JSONConfigTest do
   test "falls back to default when file missing" do
     System.put_env("THEME_CONFIG", "nonexistent.json")
 
-    theme = GameServer.Theme.JSONConfig.get_theme()
+    theme = JSONConfig.get_theme()
     assert is_map(theme)
     assert Map.has_key?(theme, "title")
     # ensure css default is present when falling back
@@ -48,7 +50,7 @@ defmodule GameServer.Theme.JSONConfigTest do
       if orig, do: System.put_env("THEME_CONFIG", orig), else: System.delete_env("THEME_CONFIG")
     end)
 
-    theme = GameServer.Theme.JSONConfig.get_theme()
+    theme = JSONConfig.get_theme()
     assert is_map(theme)
     assert Map.has_key?(theme, "title")
     default_path = Path.join(:code.priv_dir(:game_server), "static/theme/default_config.json")
@@ -66,7 +68,7 @@ defmodule GameServer.Theme.JSONConfigTest do
       if orig, do: System.put_env("THEME_CONFIG", orig), else: System.delete_env("THEME_CONFIG")
     end)
 
-    theme = GameServer.Theme.JSONConfig.get_theme()
+    theme = JSONConfig.get_theme()
     assert is_map(theme)
     assert Map.get(theme, "title") == "Gamend"
   end
@@ -88,7 +90,7 @@ defmodule GameServer.Theme.JSONConfigTest do
       File.rm(tmp)
     end)
 
-    theme = GameServer.Theme.JSONConfig.get_theme()
+    theme = JSONConfig.get_theme()
 
     # packaged default should still be present for top-level keys
     default_path = Path.join(:code.priv_dir(:game_server), "static/theme/default_config.json")
@@ -123,7 +125,7 @@ defmodule GameServer.Theme.JSONConfigTest do
       File.rm(tmp)
     end)
 
-    theme = GameServer.Theme.JSONConfig.get_theme()
+    theme = JSONConfig.get_theme()
 
     assert Map.get(theme, "css") == "/custom/example_theme.css"
     assert Map.get(theme, "logo") == "/custom/example_logo.png"
