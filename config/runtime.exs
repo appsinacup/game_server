@@ -142,8 +142,8 @@ if config_env() == :prod do
       username: System.get_env("SMTP_USERNAME"),
       password: System.get_env("SMTP_PASSWORD"),
       port: System.get_env("SMTP_PORT"),
-      tls: String.to_existing_atom(System.get_env("SMTP_TLS") || "if_available"),
-      ssl: String.to_existing_atom(System.get_env("SMTP_SSL") || "true"),
+      tls: String.to_existing_atom(System.get_env("SMTP_TLS") || "always"),
+      ssl: String.to_existing_atom(System.get_env("SMTP_SSL") || "never"),
       retries: 2
 
     # Configure Swoosh to use Req for HTTP requests
