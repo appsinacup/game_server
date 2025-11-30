@@ -110,7 +110,20 @@ if System.get_env("SMTP_PASSWORD") do
     port: System.get_env("SMTP_PORT"),
     tls: String.to_existing_atom(System.get_env("SMTP_TLS") || "always"),
     ssl: String.to_existing_atom(System.get_env("SMTP_SSL") || "never"),
-    retries: 2
+    auth: :always,
+    no_mx_lookups: false,
+    retries: 2,
+    auth: :always,
+    sockopts: [
+      versions: [:"tlsv1.2", :"tlsv1.3"],
+      verify: :verify_peer,
+      cacerts: :public_key.cacerts_get(),
+      depth: 3,
+      customize_hostname_check: [
+        match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
+      ],
+      server_name_indication: System.get_env("SMTP_SNI")
+    ]
 
   # When using an SMTP adapter we may still need the HTTP API client for
   # certain Swoosh adapters; enable Req which is used elsewhere in prod.
