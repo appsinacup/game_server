@@ -19,8 +19,20 @@ defmodule GameServer.Accounts.UserNotifier do
       |> subject(subject)
       |> text_body(body)
 
-    with {:ok, _metadata} <- Mailer.deliver(email) do
-      {:ok, email}
+    # Always protect delivery attempts so a missing/invalid Mailer or
+    # transport doesn't crash live processes. Return {:ok, email} on
+    # success and {:error, reason} otherwise.
+    try do
+      case Mailer.deliver(email) do
+        {:ok, _metadata} -> {:ok, email}
+        other -> {:error, other}
+      end
+    rescue
+      e ->
+        {:error, {:exception, e}}
+    catch
+      kind, reason ->
+        {:error, {kind, reason}}
     end
   end
 
