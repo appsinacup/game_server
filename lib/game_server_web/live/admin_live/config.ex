@@ -1,6 +1,7 @@
 defmodule GameServerWeb.AdminLive.Config do
   use GameServerWeb, :live_view
 
+  alias GameServer.Accounts.UserNotifier
   alias GameServer.Theme.JSONConfig
 
   @impl true

@@ -190,44 +190,40 @@ defmodule GameServer.Accounts do
     is_first_user = Repo.aggregate(User, :count, :id) == 0
     attrs = if is_first_user, do: Map.put(attrs, "is_admin", true), else: attrs
 
-    case Repo.transaction(fn ->
-           case %User{}
-                |> User.email_changeset(attrs)
-                |> maybe_attach_device(attrs)
-                |> Repo.insert() do
-             {:ok, %User{} = user} ->
-               if is_first_user do
-                 user
-               else
-                 # build and persist token then attempt delivery
-                 {encoded_token, user_token} = UserToken.build_email_token(user, "confirm")
-                 Repo.insert!(user_token)
+    transaction_fun = fn ->
+      changeset =
+        %User{}
+        |> User.email_changeset(attrs)
+        |> maybe_attach_device(attrs)
 
-                 case notifier.deliver_confirmation_instructions(
-                        user,
-                        confirmation_url_fun.(encoded_token)
-                      ) do
-                   {:ok, _} ->
-                     user
+      case Repo.insert(changeset) do
+        {:ok, %User{} = user} ->
+          if is_first_user do
+            user
+          else
+            {encoded_token, user_token} = UserToken.build_email_token(user, "confirm")
+            Repo.insert!(user_token)
 
-                   {:error, reason} ->
-                     # rollback entire transaction so the user and token are not persisted
-                     Repo.rollback(reason)
-                 end
-               end
+            case notifier.deliver_confirmation_instructions(
+                   user,
+                   confirmation_url_fun.(encoded_token)
+                 ) do
+              {:ok, _} -> user
+              {:error, reason} -> Repo.rollback(reason)
+            end
+          end
 
-             {:error, %Ecto.Changeset{} = changeset} ->
-               Repo.rollback(changeset)
+        {:error, %Ecto.Changeset{} = changeset} ->
+          Repo.rollback(changeset)
 
-             err ->
-               Repo.rollback(err)
-           end
-         end) do
-      {:ok, %User{} = user} ->
-        {:ok, user}
+        err ->
+          Repo.rollback(err)
+      end
+    end
 
-      {:error, reason} ->
-        {:error, reason}
+    case Repo.transaction(transaction_fun) do
+      {:ok, %User{} = user} -> {:ok, user}
+      {:error, reason} -> {:error, reason}
     end
   end
 

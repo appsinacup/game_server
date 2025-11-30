@@ -5,5 +5,7 @@
   "css": "/assets/css/theme/example_theme.css",
   "logo": "/images/example_logo.png",
   "favicon": "/images/example_favicon.ico",
-  "banner": "/images/example_banner.png"
+  "banner": "/images/example_banner.png",
+  "useful_links": [],
+  "features": []
 }
