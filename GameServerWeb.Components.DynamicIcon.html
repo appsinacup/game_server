@@ -5,10 +5,10 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.1">
-    <meta name="project" content="game_server v1.0.291">
+    <meta name="project" content="game_server v1.0.292">
 
 
-    <title>GameServerWeb.Components.DynamicIcon — game_server v1.0.291</title>
+    <title>GameServerWeb.Components.DynamicIcon — game_server v1.0.292</title>
 
     <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
 
@@ -37,7 +37,7 @@
 game_server
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.291
+          v1.0.292
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServerWeb.Components.DynamicIcon</span> 
-      <small class="app-vsn" translate="no">(game_server v1.0.291)</small>
+      <small class="app-vsn" translate="no">(game_server v1.0.292)</small>
 
     </h1>
 
@@ -108,7 +108,7 @@ game_server
 
     <section id="moduledoc">
 <p>A tiny runtime SVG loader for hero-style icons stored under
-<code class="inline">priv/static/heroicons/</code>.</p><p>Usage:</p><pre><code class="makeup elixir" translate="no"><span class="o">&lt;</span><span class="o">.</span><span class="n">dynamic_icon</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="p" data-group-id="7751253308-1">{</span><span class="s">&quot;hero-book-open&quot;</span><span class="p" data-group-id="7751253308-1">}</span><span class="w"> </span><span class="n">class</span><span class="o">=</span><span class="s">&quot;w-5 h-5&quot;</span><span class="w"> </span><span class="o">/</span><span class="o">&gt;</span></code></pre><p>Behavior:</p><ul><li>Loads the raw SVG at runtime from priv/static/heroicons/&lt;name&gt;.svg</li><li>Caches successful reads in an ETS cache for performance</li><li>Falls back to the compiled <code class="inline">&lt;.icon&gt;</code> component when the SVG file is
+<code class="inline">priv/static/heroicons/</code>.</p><p>Usage:</p><pre><code class="makeup elixir" translate="no"><span class="o">&lt;</span><span class="o">.</span><span class="n">dynamic_icon</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="p" data-group-id="3463414947-1">{</span><span class="s">&quot;hero-book-open&quot;</span><span class="p" data-group-id="3463414947-1">}</span><span class="w"> </span><span class="n">class</span><span class="o">=</span><span class="s">&quot;w-5 h-5&quot;</span><span class="w"> </span><span class="o">/</span><span class="o">&gt;</span></code></pre><p>Behavior:</p><ul><li>Loads the raw SVG at runtime from priv/static/heroicons/&lt;name&gt;.svg</li><li>Caches successful reads in an ETS cache for performance</li><li>Falls back to the compiled <code class="inline">&lt;.icon&gt;</code> component when the SVG file is
 missing or when the requested name is considered unsafe</li></ul>
     </section>
 
