@@ -29,7 +29,6 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       assert html =~ "Change Email"
       assert html =~ "Save Password"
       assert html =~ "Tester"
-      assert html =~ "<strong>Admin:</strong>"
     end
 
     test "friends panel shows and can accept incoming requests", %{conn: conn} do

@@ -48,7 +48,6 @@ defmodule GameServerWeb.UserLive.Settings do
           <div class="text-sm mt-2 space-y-1 text-base-content/80">
             <div><strong>ID:</strong> {@user.id}</div>
             <div><strong>Email:</strong> {@current_email}</div>
-            <div><strong>Admin:</strong> {@user.is_admin}</div>
 
             <.form
               for={@display_form}
