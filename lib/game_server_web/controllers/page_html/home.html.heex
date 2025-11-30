@@ -8,6 +8,24 @@
       class="max-w-full h-auto rounded-lg shadow-lg"
     />
   </div>
+  <!-- Hidden static icon references so asset bundlers include them for dynamic usage -->
+  <div class="hidden" aria-hidden="true">
+    <.icon name="hero-chat-bubble-left-ellipsis" />
+    <.icon name="hero-github" />
+    <.icon name="hero-academic-cap" />
+    <.icon name="hero-book-open" />
+    <.icon name="hero-puzzle-piece" />
+    <.icon name="hero-cube" />
+
+    <.icon name="hero-lock-closed" />
+    <.icon name="hero-users" />
+    <.icon name="hero-home" />
+    <.icon name="hero-paper-clip" />
+    <.icon name="hero-computer-desktop" />
+    <.icon name="hero-shield-check" />
+    <.icon name="hero-sparkles" />
+    <.icon name="hero-server-stack" />
+  </div>
   <p class="mt-4 leading-7 text-base-content/70 text-center">
     {Map.get(provider_theme, "description")}
   </p>
@@ -26,7 +44,7 @@
             <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
             </span>
             <span class="relative z-10 flex items-center gap-4 sm:flex-col">
-              <.icon name={link["icon"]} class="size-6 text-base-content/80" />
+              <.dynamic_icon name={link["icon"]} class="size-6 text-base-content/80" />
               {link["title"]}
             </span>
           </a>
@@ -42,7 +60,7 @@
               <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
               </span>
               <span class="relative z-10 flex items-center gap-4 sm:flex-col">
-                <.icon name={feature["icon"]} class="size-6 text-base-content/80" />
+                <.dynamic_icon name={feature["icon"]} class="size-6 text-base-content/80" />
                 {feature["title"]}
               </span>
               <span class="relative z-10 mt-2 text-base-content/70 font-light">

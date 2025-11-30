@@ -86,6 +86,8 @@ defmodule GameServerWeb do
       import Phoenix.HTML
       # Core UI components
       import GameServerWeb.CoreComponents
+      # Dynamic SVG loader component (runtime hero icons)
+      import GameServerWeb.Components.DynamicIcon
 
       # Common modules used in templates
       alias GameServerWeb.Layouts
