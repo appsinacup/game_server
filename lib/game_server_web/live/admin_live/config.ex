@@ -242,8 +242,8 @@ defmodule GameServerWeb.AdminLive.Config do
                         SMTP_PORT: {@config.smtp_port || "<unset>"}<br />
                         SMTP_SSL: {@config.smtp_ssl || "<unset>"} SMTP_TLS: {@config.smtp_tls ||
                           "<unset>"}<br /> SMTP_SNI: {mask_secret(@config.smtp_sni)}<br />
-                        SMTP_FROM_NAME: {mask_secret(@config.smtp_from_name || "") || "<unset>"}<br />
-                        SMTP_FROM_EMAIL: {mask_secret(@config.smtp_from_email || "") || "<unset>"}
+                        SMTP_FROM_NAME: {mask_secret(@config.smtp_from_name || "")}<br />
+                        SMTP_FROM_EMAIL: {mask_secret(@config.smtp_from_email || "")}
                       </div>
 
                       <div class="mt-2 text-xs text-muted">
