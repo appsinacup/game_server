@@ -254,6 +254,42 @@ defmodule GameServer.Accounts do
   end
 
   @doc """
+  Confirm a user by an email confirmation token (context: "confirm").
+
+  Returns {:ok, user} when the token is valid and user was confirmed.
+  Returns {:error, :not_found} or {:error, :expired} when token is invalid/expired.
+  """
+  def confirm_user_by_token(token) when is_binary(token) do
+    case Base.url_decode64(token, padding: false) do
+      {:ok, decoded} ->
+        hashed = :crypto.hash(:sha256, decoded)
+        query =
+          from t in UserToken,
+            where: t.token == ^hashed and t.context == "confirm",
+            where: t.inserted_at > ago(7, "day"),
+            join: u in assoc(t, :user),
+            select: {u, t}
+
+        case Repo.one(query) do
+          {user, _token} ->
+            Repo.transaction(fn ->
+              {:ok, user} = confirm_user(user)
+              Repo.delete_all(from(ut in UserToken, where: ut.user_id == ^user.id and ut.context == "confirm"))
+              user
+            end)
+
+            {:ok, Repo.get(User, user.id)}
+
+          nil ->
+            {:error, :not_found}
+        end
+
+      :error ->
+        {:error, :invalid}
+    end
+  end
+
+  @doc """
   Finds a user by Discord ID or creates a new user from OAuth data.
 
   ## Examples

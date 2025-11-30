@@ -134,7 +134,7 @@ defmodule GameServerWeb.UserLive.Registration do
 
     case Accounts.register_user_and_deliver(
            user_params,
-           fn t -> url(~p"/users/settings/confirm-email/#{t}") end,
+           fn t -> url(~p"/users/confirm/#{t}") end,
            notifier
          ) do
       {:ok, user} ->

@@ -64,4 +64,20 @@ defmodule GameServerWeb.UserSessionController do
     |> put_flash(:info, "Logged out successfully.")
     |> UserAuth.log_out_user()
   end
+
+  def confirm(conn, %{"token" => token}) do
+    case Accounts.confirm_user_by_token(token) do
+      {:ok, user} ->
+        # Auto-login the user after successful confirmation and send them to settings
+        conn
+        |> put_session(:user_return_to, ~p"/users/settings")
+        |> put_flash(:info, "User confirmed successfully.")
+        |> UserAuth.log_in_user(user, %{})
+
+      _ ->
+        conn
+        |> put_flash(:error, "Confirmation link is invalid or it has expired.")
+        |> redirect(to: ~p"/users/log-in")
+    end
+  end
 end

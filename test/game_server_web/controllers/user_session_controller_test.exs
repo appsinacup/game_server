@@ -127,6 +127,27 @@ defmodule GameServerWeb.UserSessionControllerTest do
 
       assert redirected_to(conn) == ~p"/users/log-in"
     end
+
+    test "GET /users/confirm/:token confirms unconfirmed user", %{conn: conn, unconfirmed_user: user} do
+      {encoded_token, user_token} = Accounts.UserToken.build_email_token(user, "confirm")
+      GameServer.Repo.insert!(user_token)
+
+      conn = get(conn, ~p"/users/confirm/#{encoded_token}")
+
+      # Confirmation should auto-login the user and redirect to settings
+      assert get_session(conn, :user_token)
+      assert redirected_to(conn) == ~p"/users/settings"
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "User confirmed successfully."
+
+      assert Accounts.get_user!(user.id).confirmed_at
+    end
+
+    test "GET /users/confirm/:token handles invalid token", %{conn: conn} do
+      conn = get(conn, ~p"/users/confirm/invalid-token")
+
+      assert redirected_to(conn) == ~p"/users/log-in"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Confirmation link is invalid"
+    end
   end
 
   describe "DELETE /users/log-out" do
