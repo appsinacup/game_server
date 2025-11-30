@@ -8,7 +8,7 @@
     <meta name="project" content="game_server v1.0.259">
 
 
-    <title>GameServerWeb.UserSessionController — game_server v1.0.259</title>
+    <title>GameServerWeb.OnMount.Theme — game_server v1.0.259</title>
 
     <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
 
@@ -93,18 +93,24 @@ game_server
 <div id="top-content">
   <div class="heading-with-actions top-heading">
     <h1>
-      <span translate="no">GameServerWeb.UserSessionController</span> 
+      <span translate="no">GameServerWeb.OnMount.Theme</span> 
       <small class="app-vsn" translate="no">(game_server v1.0.259)</small>
 
     </h1>
 
-      <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/user_session_controller.ex#L1" title="View Source" class="icon-action" rel="help">
+      <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/on_mount/theme.ex#L1" title="View Source" class="icon-action" rel="help">
         <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         <span class="sr-only">View Source</span>
       </a>
 
   </div>
 
+
+    <section id="moduledoc">
+<p>on_mount helper for LiveView that ensures <code class="inline">:theme</code> is assigned on the
+socket. LiveViews can rely on <code class="inline">@theme</code> being present whether rendering
+via an HTTP request or a websocket socket lifecycle.</p>
+    </section>
 
 </div>
 
@@ -122,23 +128,7 @@ game_server
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#create/2" data-no-tooltip="" translate="no">create(conn, params)</a>
-
-      </div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#delete/2" data-no-tooltip="" translate="no">delete(conn, params)</a>
-
-      </div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#update_password/2" data-no-tooltip="" translate="no">update_password(conn, params)</a>
+        <a href="#on_mount/4" data-no-tooltip="" translate="no">on_mount(atom, params, session, socket)</a>
 
       </div>
 
@@ -158,61 +148,17 @@ game_server
     </h1>
 
     <div class="functions-list">
-<section class="detail" id="create/2">
+<section class="detail" id="on_mount/4">
 
   <div class="detail-header">
-    <a href="#create/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#on_mount/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">create(conn, params)</h1>
+      <h1 class="signature" translate="no">on_mount(atom, params, session, socket)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/user_session_controller.ex#L7" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-
-  </section>
-</section>
-<section class="detail" id="delete/2">
-
-  <div class="detail-header">
-    <a href="#delete/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">delete(conn, params)</h1>
-
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/user_session_controller.ex#L62" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-
-  </section>
-</section>
-<section class="detail" id="update_password/2">
-
-  <div class="detail-header">
-    <a href="#update_password/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">update_password(conn, params)</h1>
-
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/user_session_controller.ex#L49" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/on_mount/theme.ex#L8" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 

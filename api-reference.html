@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.1">
-    <meta name="project" content="game_server v1.0.258">
+    <meta name="project" content="game_server v1.0.259">
 
 
-    <title>API Reference — game_server v1.0.258</title>
+    <title>API Reference — game_server v1.0.259</title>
 
     <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
 
-    <script defer src="dist/sidebar_items-AA9FA8EF.js"></script>
+    <script defer src="dist/sidebar_items-526DB158.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-HBZYRXZS.js"></script>
 
@@ -37,7 +37,7 @@
 game_server
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.258
+          v1.0.259
         </div>
       </div>
     </div>
@@ -92,7 +92,7 @@ game_server
 
 <div id="top-content">
   <div class="heading-with-actions top-heading">
-    <h1>API Reference <small class="app-vsn">game_server v#1.0.258</small></h1>
+    <h1>API Reference <small class="app-vsn">game_server v#1.0.259</small></h1>
 
       <a href="https://github.com/appsinacup/game_server" title="View Source" class="icon-action" rel="help">
         <i class="ri-code-s-slash-line" aria-hidden="true"></i>
@@ -274,6 +274,25 @@ from a source file specified in config: :game_server, :hooks_file_path</p></div>
     <a href="GameServer.Repo.html" translate="no">GameServer.Repo</a>
 
   </div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Theme.html" translate="no">GameServer.Theme</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Behaviour for pluggable site theming providers.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServer.Theme.JSONConfig.html" translate="no">GameServer.Theme.JSONConfig</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>JSON-backed Theme provider. Reads a JSON file specified by the THEME_CONFIG
+environment variable (single canonical runtime source) — e.g. THEME_CONFIG=theme/custom.json</p></div>
 
 </div>
 <div class="summary-row">
@@ -532,6 +551,17 @@ used by your application.</p></div>
 </div>
 <div class="summary-row">
   <div class="summary-signature">
+    <a href="GameServerWeb.OnMount.Theme.html" translate="no">GameServerWeb.OnMount.Theme</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>on_mount helper for LiveView that ensures <code class="inline">:theme</code> is assigned on the
+socket. LiveViews can rely on <code class="inline">@theme</code> being present whether rendering
+via an HTTP request or a websocket socket lifecycle.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
     <a href="GameServerWeb.PageController.html" translate="no">GameServerWeb.PageController</a>
 
   </div>
@@ -553,6 +583,17 @@ used by your application.</p></div>
   </div>
 
     <div class="summary-synopsis"><p>Small helper to build pagination meta for API list endpoints.</p></div>
+
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="GameServerWeb.Plugs.LoadTheme.html" translate="no">GameServerWeb.Plugs.LoadTheme</a>
+
+  </div>
+
+    <div class="summary-synopsis"><p>Plug that assigns the currently configured Theme provider's theme map as
+<code class="inline">conn.assigns.theme</code> so templates and LiveViews can render config-driven
+values like title, logo, banner and a <code class="inline">css</code> path (external stylesheet).</p></div>
 
 </div>
 <div class="summary-row">

@@ -8,7 +8,7 @@
     <meta name="project" content="game_server v1.0.259">
 
 
-    <title>GameServerWeb.UserSessionController — game_server v1.0.259</title>
+    <title>GameServerWeb.Plugs.LoadTheme — game_server v1.0.259</title>
 
     <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
 
@@ -93,18 +93,25 @@ game_server
 <div id="top-content">
   <div class="heading-with-actions top-heading">
     <h1>
-      <span translate="no">GameServerWeb.UserSessionController</span> 
+      <span translate="no">GameServerWeb.Plugs.LoadTheme</span> 
       <small class="app-vsn" translate="no">(game_server v1.0.259)</small>
 
     </h1>
 
-      <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/user_session_controller.ex#L1" title="View Source" class="icon-action" rel="help">
+      <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/plugs/load_theme.ex#L1" title="View Source" class="icon-action" rel="help">
         <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         <span class="sr-only">View Source</span>
       </a>
 
   </div>
 
+
+    <section id="moduledoc">
+<p>Plug that assigns the currently configured Theme provider's theme map as
+<code class="inline">conn.assigns.theme</code> so templates and LiveViews can render config-driven
+values like title, logo, banner and a <code class="inline">css</code> path (external stylesheet).</p><p>The active theme provider module is configured through:
+  Application.get_env(:game_server, :theme_module) || GameServer.Theme.JSONConfig</p>
+    </section>
 
 </div>
 
@@ -122,7 +129,7 @@ game_server
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#create/2" data-no-tooltip="" translate="no">create(conn, params)</a>
+        <a href="#call/2" data-no-tooltip="" translate="no">call(conn, opts)</a>
 
       </div>
 
@@ -130,15 +137,7 @@ game_server
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#delete/2" data-no-tooltip="" translate="no">delete(conn, params)</a>
-
-      </div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#update_password/2" data-no-tooltip="" translate="no">update_password(conn, params)</a>
+        <a href="#init/1" data-no-tooltip="" translate="no">init(opts)</a>
 
       </div>
 
@@ -158,17 +157,17 @@ game_server
     </h1>
 
     <div class="functions-list">
-<section class="detail" id="create/2">
+<section class="detail" id="call/2">
 
   <div class="detail-header">
-    <a href="#create/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#call/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">create(conn, params)</h1>
+      <h1 class="signature" translate="no">call(conn, opts)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/user_session_controller.ex#L7" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/plugs/load_theme.ex#L15" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -180,39 +179,17 @@ game_server
 
   </section>
 </section>
-<section class="detail" id="delete/2">
+<section class="detail" id="init/1">
 
   <div class="detail-header">
-    <a href="#delete/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#init/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">delete(conn, params)</h1>
+      <h1 class="signature" translate="no">init(opts)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/user_session_controller.ex#L62" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-
-  </section>
-</section>
-<section class="detail" id="update_password/2">
-
-  <div class="detail-header">
-    <a href="#update_password/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">update_password(conn, params)</h1>
-
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/controllers/user_session_controller.ex#L49" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/plugs/load_theme.ex#L13" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
