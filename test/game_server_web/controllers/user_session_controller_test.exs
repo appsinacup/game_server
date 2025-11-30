@@ -128,7 +128,10 @@ defmodule GameServerWeb.UserSessionControllerTest do
       assert redirected_to(conn) == ~p"/users/log-in"
     end
 
-    test "GET /users/confirm/:token confirms unconfirmed user", %{conn: conn, unconfirmed_user: user} do
+    test "GET /users/confirm/:token confirms unconfirmed user", %{
+      conn: conn,
+      unconfirmed_user: user
+    } do
       {encoded_token, user_token} = Accounts.UserToken.build_email_token(user, "confirm")
       GameServer.Repo.insert!(user_token)
 

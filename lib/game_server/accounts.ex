@@ -263,6 +263,7 @@ defmodule GameServer.Accounts do
     case Base.url_decode64(token, padding: false) do
       {:ok, decoded} ->
         hashed = :crypto.hash(:sha256, decoded)
+
         query =
           from t in UserToken,
             where: t.token == ^hashed and t.context == "confirm",
@@ -274,7 +275,11 @@ defmodule GameServer.Accounts do
           {user, _token} ->
             Repo.transaction(fn ->
               {:ok, user} = confirm_user(user)
-              Repo.delete_all(from(ut in UserToken, where: ut.user_id == ^user.id and ut.context == "confirm"))
+
+              Repo.delete_all(
+                from(ut in UserToken, where: ut.user_id == ^user.id and ut.context == "confirm")
+              )
+
               user
             end)
 
