@@ -13,15 +13,8 @@ env:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - platform: linux/amd64
-            os: ubuntu-latest
-          - platform: linux/arm64
-            os: ubuntu-24.04-arm
+    name: Build and publish multi-arch image
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository (full history for commit count)
@@ -42,13 +35,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and (conditionally) push image
+      - name: Build and (conditionally) push multi-arch image
         id: build
         uses: docker/build-push-action@v4
         with:
           context: .
           file: Dockerfile
-          platforms: ${{ matrix.platform }}
+          platforms: linux/amd64,linux/arm64
           push: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
           tags: |
             ${{ env.IMAGE }}:latest
