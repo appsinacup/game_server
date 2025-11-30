@@ -8,7 +8,7 @@
     <meta name="project" content="game_server v1.0.291">
 
 
-    <title>GameServerWeb.Schemas.HealthResponse — game_server v1.0.291</title>
+    <title>GameServerWeb.Components.DynamicIcon — game_server v1.0.291</title>
 
     <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
 
@@ -93,12 +93,12 @@ game_server
 <div id="top-content">
   <div class="heading-with-actions top-heading">
     <h1>
-      <span translate="no">GameServerWeb.Schemas.HealthResponse</span> 
+      <span translate="no">GameServerWeb.Components.DynamicIcon</span> 
       <small class="app-vsn" translate="no">(game_server v1.0.291)</small>
 
     </h1>
 
-      <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/schemas/health_response.ex#L1" title="View Source" class="icon-action" rel="help">
+      <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/components/dynamic_icon.ex#L1" title="View Source" class="icon-action" rel="help">
         <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         <span class="sr-only">View Source</span>
       </a>
@@ -107,7 +107,9 @@ game_server
 
 
     <section id="moduledoc">
-<p>Health check response schema</p>
+<p>A tiny runtime SVG loader for hero-style icons stored under
+<code class="inline">priv/static/heroicons/</code>.</p><p>Usage:</p><pre><code class="makeup elixir" translate="no"><span class="o">&lt;</span><span class="o">.</span><span class="n">dynamic_icon</span><span class="w"> </span><span class="n">name</span><span class="o">=</span><span class="p" data-group-id="7751253308-1">{</span><span class="s">&quot;hero-book-open&quot;</span><span class="p" data-group-id="7751253308-1">}</span><span class="w"> </span><span class="n">class</span><span class="o">=</span><span class="s">&quot;w-5 h-5&quot;</span><span class="w"> </span><span class="o">/</span><span class="o">&gt;</span></code></pre><p>Behavior:</p><ul><li>Loads the raw SVG at runtime from priv/static/heroicons/&lt;name&gt;.svg</li><li>Caches successful reads in an ETS cache for performance</li><li>Falls back to the compiled <code class="inline">&lt;.icon&gt;</code> component when the SVG file is
+missing or when the requested name is considered unsafe</li></ul>
     </section>
 
 </div>
@@ -119,20 +121,6 @@ game_server
       </a>
       <span class="text">Summary</span>
     </h1>
-<div class="summary-types summary">
-  <h2>
-    <a href="#types">Types</a>
-  </h2>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#t:t/0" data-no-tooltip="" translate="no">t()</a>
-
-      </div>
-
-    </div>
-
-</div>
 <div class="summary-functions summary">
   <h2>
     <a href="#functions">Functions</a>
@@ -140,11 +128,11 @@ game_server
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#schema/0" data-no-tooltip="" translate="no">schema()</a>
+        <a href="#dynamic_icon/1" data-no-tooltip="" translate="no">dynamic_icon(assigns)</a>
 
       </div>
 
-        <div class="summary-synopsis"><p>Callback implementation for <a><code class="inline">OpenApiSpex.Schema.schema/0</code></a>.</p></div>
+        <div class="summary-synopsis"></div>
 
     </div>
 
@@ -152,47 +140,6 @@ game_server
 
   </section>
 
-
-  <section id="types" class="details-list">
-    <h1 class="section-heading">
-      <a class="hover-link" href="#types">
-        <i class="ri-link-m" aria-hidden="true"></i>
-      </a>
-      <span class="text">Types</span>
-    </h1>
-
-    <div class="types-list">
-<section class="detail" id="t:t/0">
-
-  <div class="detail-header">
-    <a href="#t:t/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">t()</h1>
-
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/schemas/health_response.ex#L8" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@type</span> t() :: %GameServerWeb.Schemas.HealthResponse{status: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(), timestamp: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
-
-      </div>
-
-
-  </section>
-</section>
-
-    </div>
-  </section>
 
   <section id="functions" class="details-list">
     <h1 class="section-heading">
@@ -203,17 +150,17 @@ game_server
     </h1>
 
     <div class="functions-list">
-<section class="detail" id="schema/0">
+<section class="detail" id="dynamic_icon/1">
 
   <div class="detail-header">
-    <a href="#schema/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#dynamic_icon/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">schema()</h1>
+      <h1 class="signature" translate="no">dynamic_icon(assigns)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/schemas/health_response.ex#L8" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/components/dynamic_icon.ex#L27" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -222,7 +169,7 @@ game_server
 
   <section class="docstring">
 
-<p>Callback implementation for <a href="https://hexdocs.pm/open_api_spex/3.22.1/OpenApiSpex.Schema.html#c:schema/0"><code class="inline">OpenApiSpex.Schema.schema/0</code></a>.</p>
+<h2 id="dynamic_icon/1-attributes" class="section-heading"><a href="#dynamic_icon/1-attributes" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Attributes</span></h2><ul><li><code class="inline">name</code> (<code class="inline">:string</code>) (required)</li><li><code class="inline">class</code> (<code class="inline">:string</code>) - Defaults to <code class="inline">&quot;&quot;</code>.</li></ul>
   </section>
 </section>
 

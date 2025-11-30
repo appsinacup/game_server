@@ -43,6 +43,7 @@ GameServerWeb.Auth.Guardian.html
 GameServerWeb.Auth.Pipeline.html
 GameServerWeb.AuthController.html
 GameServerWeb.AuthSuccessLive.html
+GameServerWeb.Components.DynamicIcon.html
 GameServerWeb.CoreComponents.html
 GameServerWeb.Endpoint.html
 GameServerWeb.ErrorHTML.html
@@ -84,8 +85,8 @@ dist/lato-latin-700-normal-2XVSBPG4.woff2
 dist/lato-latin-ext-400-normal-N27NCBWW.woff2
 dist/lato-latin-ext-700-normal-Q2L5DVMW.woff2
 dist/remixicon-QPNJX265.woff2
-dist/search_data-CEDAFB26.js
-dist/sidebar_items-1B66C7C1.js
+dist/search_data-A478A305.js
+dist/sidebar_items-A200649C.js
 index.html
 readme.html
 search.html
