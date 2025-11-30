@@ -16,187 +16,40 @@
     <div class="w-full">
       <h2 class="text-lg font-semibold mb-4 text-center">Useful Links</h2>
       <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
-        <a
-          href="https://discord.com/invite/56dMud8HYn"
-          class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6"
-        >
-          <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
-          </span>
-          <span class="relative z-10 flex items-center gap-4 sm:flex-col">
-            <.icon name="hero-chat-bubble-left-ellipsis" class="size-6 text-base-content/80" />
-            Discord
-          </span>
-        </a>
-        <a
-          href="https://github.com/appsinacup/game_server"
-          class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6"
-        >
-          <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
-          </span>
-          <span class="relative flex items-center gap-4 sm:flex-col">
-            <svg viewBox="0 0 24 24" aria-hidden="true" class="h-6 w-6">
-              <path
-                fill="currentColor"
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M12 0C5.37 0 0 5.506 0 12.303c0 5.445 3.435 10.043 8.205 11.674.6.107.825-.262.825-.585 0-.292-.015-1.261-.015-2.291C6 21.67 5.22 20.346 4.98 19.654c-.135-.354-.72-1.446-1.23-1.738-.42-.23-1.02-.8-.015-.815.945-.015 1.62.892 1.845 1.261 1.08 1.86 2.805 1.338 3.495 1.015.105-.8.42-1.338.765-1.645-2.67-.308-5.46-1.37-5.46-6.075 0-1.338.465-2.446 1.23-3.307-.12-.308-.54-1.569.12-3.26 0 0 1.005-.323 3.3 1.26.96-.276 1.98-.415 3-.415s2.04.139 3 .416c2.295-1.6 3.3-1.261 3.3-1.261.66 1.691.24 2.952.12 3.26.765.861 1.23 1.953 1.23 3.307 0 4.721-2.805 5.767-5.475 6.075.435.384.81 1.122.81 2.276 0 1.645-.015 2.968-.015 3.383 0 .323.225.707.825.585a12.047 12.047 0 0 0 5.919-4.489A12.536 12.536 0 0 0 24 12.304C24 5.505 18.63 0 12 0Z"
-              />
-            </svg>
-            Source Code
-          </span>
-        </a>
-        <a
-          href={~p"/docs/setup"}
-          class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6"
-        >
-          <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
-          </span>
-          <span class="relative flex items-center gap-4 sm:flex-col">
-            <.icon name="hero-academic-cap" class="size-6 text-base-content/80" /> Guides
-          </span>
-        </a>
-
-        <a
-          href={~p"/api/docs"}
-          class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6"
-        >
-          <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
-          </span>
-          <span class="relative flex items-center gap-4 sm:flex-col">
-            <.icon name="hero-book-open" class="size-6 text-base-content/80" /> API Docs
-          </span>
-        </a>
-        <a
-          href="https://www.npmjs.com/package/@ughuuu/game_server"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6"
-        >
-          <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
-          </span>
-          <span class="relative flex items-center gap-4 sm:flex-col">
-            <.icon name="hero-puzzle-piece" class="size-6 text-base-content/80" /> JS SDK
-          </span>
-        </a>
-        <a
-          href="https://godotengine.org/asset-library/asset/4510"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6"
-        >
-          <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
-          </span>
-          <span class="relative flex items-center gap-4 sm:flex-col">
-            <.icon name="hero-cube" class="size-6 text-base-content/80" /> Godot SDK
-          </span>
-        </a>
+        <%= for link <- Map.get(provider_theme, "useful_links", []) do %>
+          <a
+            href={link["url"]}
+            class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
+            </span>
+            <span class="relative z-10 flex items-center gap-4 sm:flex-col">
+              <.icon name={link["icon"]} class="size-6 text-base-content/80" />
+              {link["title"]}
+            </span>
+          </a>
+        <% end %>
       </div>
       
 <!-- Features overview -->
       <div class="mt-12">
         <h2 class="text-lg font-semibold mb-4 text-center">Features</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-          <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
-            <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
-            </span>
-            <span class="relative z-10 flex items-center gap-4 sm:flex-col">
-              <.icon name="hero-lock-closed" class="size-6 text-base-content/80" /> Authentication
-            </span>
-            <span class="relative z-10 mt-2 text-base-content/70 font-light">
-              Supports multiple authentication methods: Email, Magic-link, Oauth, JWT and Session.
-            </span>
-          </div>
-
-          <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
-            <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
-            </span>
-            <span class="relative z-10 flex items-center gap-4 sm:flex-col">
-              <.icon name="hero-users" class="size-6 text-base-content/80" /> Users
-            </span>
-            <span class="relative z-10 mt-2 text-base-content/70 font-light">
-              User registration, login, password reset, email verification, profile management.
-            </span>
-          </div>
-
-          <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
-            <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
-            </span>
-            <span class="relative z-10 flex items-center gap-4 sm:flex-col">
-              <.icon name="hero-home" class="size-6 text-base-content/80" /> Lobbies
-            </span>
-            <span class="relative z-10 mt-2 text-base-content/70 font-light">
-              Create and manage game lobbies with customizable settings and real-time updates.
-            </span>
-          </div>
-
-          <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
-            <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
-            </span>
-            <span class="relative z-10 flex items-center gap-4 sm:flex-col">
-              <.icon name="hero-paper-clip" class="size-6 text-base-content/80" /> User Data (WIP)
-            </span>
-            <span class="relative z-10 mt-2 text-base-content/70 font-light">
-              Store and retrieve custom user data key-value pairs.
-            </span>
-          </div>
-
-          <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
-            <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
-            </span>
-            <span class="relative z-10 flex items-center gap-4 sm:flex-col">
-              <.icon name="hero-computer-desktop" class="size-6 text-base-content/80" />
-              Server Scripting
-            </span>
-            <span class="relative z-10 mt-2 text-base-content/70 font-light">
-              Write custom game server logic using Elixir scripts.
-            </span>
-          </div>
-
-          <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
-            <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
-            </span>
-            <span class="relative z-10 flex items-center gap-4 sm:flex-col">
-              <.icon name="hero-shield-check" class="size-6 text-base-content/80" />
-              Admin & Monitoring
-            </span>
-            <span class="relative z-10 mt-2 text-base-content/70 font-light">
-              Admin portal for managing users, lobbies, Sentry integration and monitoring server metrics.
-            </span>
-          </div>
-
-          <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
-            <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
-            </span>
-            <span class="relative z-10 flex items-center gap-4 sm:flex-col">
-              <.icon name="hero-sparkles" class="size-6 text-base-content/80" /> UI & Theming
-            </span>
-            <span class="relative z-10 mt-2 text-base-content/70 font-light">
-              Built-in web UI for authentication, lobby management, and admin portal.
-            </span>
-          </div>
-
-          <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
-            <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
-            </span>
-            <span class="relative z-10 flex items-center gap-4 sm:flex-col">
-              <.icon name="hero-server-stack" class="size-6 text-base-content/80" />
-              Persistence & Updates
-            </span>
-            <span class="relative z-10 mt-2 text-base-content/70 font-light">
-              Flexible storage options: SQLite (in memory) and PostgreSQL; and real-time data updates.
-            </span>
-          </div>
-
-          <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
-            <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
-            </span>
-            <span class="relative flex items-center gap-4 sm:flex-col">
-              <.icon name="hero-puzzle-piece" class="size-6 text-base-content/80" /> Integrations
-            </span>
-            <span class="relative z-10 mt-2 text-base-content/70 font-light">
-              Easily integrate with popular services: Discord, Apple, Google, Facebook, Steam.
-            </span>
-          </div>
+          <%= for feature <- Map.get(provider_theme, "features", []) do %>
+            <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
+              <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
+              </span>
+              <span class="relative z-10 flex items-center gap-4 sm:flex-col">
+                <.icon name={feature["icon"]} class="size-6 text-base-content/80" />
+                {feature["title"]}
+              </span>
+              <span class="relative z-10 mt-2 text-base-content/70 font-light">
+                {feature["description"]}
+              </span>
+            </div>
+          <% end %>
         </div>
       </div>
     </div>
