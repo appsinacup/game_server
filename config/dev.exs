@@ -105,6 +105,17 @@ if System.get_env("SMTP_PASSWORD") do
   port = String.to_integer(System.get_env("SMTP_PORT") || "587")
   ssl = System.get_env("SMTP_SSL") in ["1", "true", "TRUE", "True"]
 
+  # Pass a sensible cacerts value for TLS verification to avoid gen_smtp
+  # receiving :undefined (which causes :options incompatible errors).
+  # Always use Certifi's CA store (certifi is an explicit dependency)
+  cacerts = if Code.ensure_loaded?(Certifi), do: Certifi.cacerts(), else: []
+
+  ssl_options =
+    if System.get_env("SMTP_INSECURE") in ["1", "true", "TRUE", "True"] do
+      [verify: :verify_none]
+    else
+      [verify: :verify_peer, cacerts: cacerts]
+    end
   config :game_server, GameServer.Mailer,
     adapter: Swoosh.Adapters.SMTP,
     relay: System.get_env("SMTP_RELAY", "smtp.resend.com"),
@@ -113,6 +124,7 @@ if System.get_env("SMTP_PASSWORD") do
     tls: if(ssl, do: :never, else: :always),
     ssl: ssl,
     auth: :always,
+    ssl_options: ssl_options,
     port: port
 
   # When using an SMTP adapter we may still need the HTTP API client for

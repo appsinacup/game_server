@@ -72,6 +72,7 @@ defmodule GameServer.MixProject do
        compile: false,
        depth: 1},
       {:swoosh, "~> 1.16"},
+      {:certifi, "~> 2.15"},
       # SMTP transport used by Swoosh.Adapters.SMTP
       {:gen_smtp, "~> 1.0"},
       {:req, "~> 0.5"},
