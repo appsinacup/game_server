@@ -47,6 +47,7 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     System.put_env("SMTP_PORT", "465")
     System.put_env("SMTP_SSL", "true")
     System.put_env("SMTP_TLS", "true")
+    System.put_env("SMTP_SNI", "mail.resend.com")
     System.put_env("POSTGRES_HOST", "localhost")
     System.put_env("POSTGRES_USER", "postgres")
     System.put_env("POSTGRES_DB", "game_server_test")
@@ -65,6 +66,7 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
             "SMTP_PASSWORD",
             "SMTP_PORT",
             "SMTP_SSL",
+            "SMTP_SNI",
             "POSTGRES_HOST",
             "POSTGRES_USER",
             "POSTGRES_DB",
@@ -133,6 +135,8 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     # SMTP port and SSL flags should be displayed
     assert html =~ "SMTP_PORT"
     assert html =~ "SMTP_SSL"
+    # SMTP SNI (server name indication) should be displayed when present
+    assert html =~ "SMTP_SNI"
 
     # if no hooks watch interval set, these should not be visible
     refute html =~ "Watch interval (app): <unset>"
