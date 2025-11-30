@@ -7,6 +7,8 @@ defmodule GameServerWeb.PublicDocsTest do
 
     assert html =~ "Lobbies"
     assert html =~ "href=\"/lobbies\""
+    # our new theming docs should render
+    assert html =~ "Runtime theming (JSON)"
   end
 
   test "public docs header includes lobbies link when authenticated", %{conn: conn} do

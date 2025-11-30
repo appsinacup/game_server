@@ -21,6 +21,7 @@ defmodule GameServerWeb.PublicDocs do
         {GameServerWeb.PublicDocsTemplates.js_sdk(assigns)}
         {GameServerWeb.PublicDocsTemplates.godot_sdk(assigns)}
         {GameServerWeb.PublicDocsTemplates.server_scripting(assigns)}
+        {GameServerWeb.PublicDocsTemplates.theme(assigns)}
         {GameServerWeb.PublicDocsTemplates.data_schema(assigns)}
         {GameServerWeb.PublicDocsTemplates.apple_sign_in(assigns)}
         {GameServerWeb.PublicDocsTemplates.steam_openid(assigns)}

@@ -129,7 +129,10 @@ defmodule GameServerWeb.Router do
     pipe_through [:browser, :require_admin_user]
 
     live_session :require_admin,
-      on_mount: [{GameServerWeb.UserAuth, :require_admin}] do
+      on_mount: [
+        {GameServerWeb.UserAuth, :require_admin},
+        {GameServerWeb.OnMount.Theme, :mount_theme}
+      ] do
       # Admin routes
       live "/admin", AdminLive.Index, :index
       live "/admin/config", AdminLive.Config, :index
@@ -143,7 +146,10 @@ defmodule GameServerWeb.Router do
     pipe_through [:browser, :require_authenticated_user]
 
     live_session :require_authenticated_user,
-      on_mount: [{GameServerWeb.UserAuth, :require_authenticated}] do
+      on_mount: [
+        {GameServerWeb.UserAuth, :require_authenticated},
+        {GameServerWeb.OnMount.Theme, :mount_theme}
+      ] do
       live "/users/settings", UserLive.Settings, :edit
       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
     end
@@ -155,7 +161,10 @@ defmodule GameServerWeb.Router do
     pipe_through [:browser]
 
     live_session :current_user,
-      on_mount: [{GameServerWeb.UserAuth, :mount_current_scope}] do
+      on_mount: [
+        {GameServerWeb.UserAuth, :mount_current_scope},
+        {GameServerWeb.OnMount.Theme, :mount_theme}
+      ] do
       live "/users/register", UserLive.Registration, :new
       live "/lobbies", LobbyLive.Index, :index
       live "/users/log-in", UserLive.Login, :new

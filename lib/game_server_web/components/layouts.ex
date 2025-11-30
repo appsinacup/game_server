@@ -36,10 +36,24 @@ defmodule GameServerWeb.Layouts do
   def app(assigns) do
     ~H"""
     <header class="navbar px-4 sm:px-6 lg:px-8">
+      <% provider_theme = GameServer.Theme.JSONConfig.get_theme() || %{} %>
+
+      <% theme = %{
+        "title" => Map.get(provider_theme, "title"),
+        "tagline" => Map.get(provider_theme, "tagline"),
+        "logo" => Map.get(provider_theme, "logo"),
+        "banner" => Map.get(provider_theme, "banner"),
+        "css" => Map.get(provider_theme, "css")
+      } %>
+      <% title = Map.get(theme, "title") %>
+      <% tagline = Map.get(theme, "tagline") %>
       <div class="flex-1">
         <a href="/" class="flex-1 flex w-fit items-center gap-2">
-          <img src={~p"/images/logo.png"} width="36" alt="Game Server" />
-          <span class="text-sm font-semibold">Gamend: Game Server</span>
+          <img src={Map.get(theme, "logo")} width="36" alt={title} />
+          <span class="text-sm font-semibold">{title}</span>
+          <%= if tagline && tagline != "" do %>
+            <span class="text-xs opacity-60 ml-2">: {tagline}</span>
+          <% end %>
           <span class="text-xs opacity-60 ml-2">v{app_version()}</span>
         </a>
       </div>

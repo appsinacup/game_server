@@ -11,6 +11,26 @@ defmodule GameServerWeb.PageControllerTest do
     assert body =~ "SQLite"
   end
 
+  test "home uses default theme title and tagline when THEME_CONFIG unset", %{conn: conn} do
+    orig = System.get_env("THEME_CONFIG")
+    System.delete_env("THEME_CONFIG")
+
+    on_exit(fn ->
+      if orig, do: System.put_env("THEME_CONFIG", orig), else: System.delete_env("THEME_CONFIG")
+    end)
+
+    conn = get(conn, "/")
+    body = html_response(conn, 200)
+
+    # Header should show the shipped defaults (read them from packaged file so tests stay stable)
+    default_path = Path.join(:code.priv_dir(:game_server), "static/theme/default_config.json")
+    {:ok, file} = File.read(default_path)
+    expected = Jason.decode!(file)
+
+    assert body =~ expected["title"]
+    assert body =~ expected["tagline"]
+  end
+
   test "privacy page present", %{conn: conn} do
     conn = get(conn, "/privacy")
     body = html_response(conn, 200)

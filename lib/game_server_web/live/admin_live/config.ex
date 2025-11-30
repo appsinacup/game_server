@@ -101,6 +101,38 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                   </tr>
                   <tr>
+                    <td class="font-semibold">Theme</td>
+                    <td>
+                      <%= if @config.theme_config do %>
+                        <span class="badge badge-success">Configured</span>
+                      <% else %>
+                        <span class="badge badge-error">Default</span>
+                      <% end %>
+                    </td>
+                    <td class="font-mono text-sm">
+                      THEME_CONFIG: {@config.theme_config || "<unset>"}<br />
+
+                      <div class="mt-2 flex items-center gap-3">
+                        <%= if @config.theme_map && Map.get(@config.theme_map, "logo") do %>
+                          <img src={Map.get(@config.theme_map, "logo")} alt="logo" class="h-8 w-auto" />
+                        <% end %>
+
+                        <%= if @config.theme_map && Map.get(@config.theme_map, "banner") do %>
+                          <img
+                            src={Map.get(@config.theme_map, "banner")}
+                            alt="banner"
+                            class="h-8 w-auto"
+                          />
+                        <% end %>
+                      </div>
+
+                      <div class="mt-2">
+                        <div class="text-xs font-semibold">Raw JSON</div>
+                        <pre class="mt-1 text-xs font-mono whitespace-pre-wrap max-h-48 overflow-auto">{Jason.encode!(@config.theme_map)}</pre>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
                     <td class="font-semibold">Discord OAuth</td>
                     <td>
                       <%= if @config.discord_client_id && @config.discord_client_secret do %>
@@ -564,6 +596,17 @@ defmodule GameServerWeb.AdminLive.Config do
       hooks_test_result: nil,
       hooks_last_compiled_at: Application.get_env(:game_server, :hooks_last_compiled_at),
       hooks_last_compile_status: Application.get_env(:game_server, :hooks_last_compile_status),
+      # Theme configuration diagnostics: reuse the existing Theme provider
+      # implementation so behavior is consistent across the app. We expose three
+      # keys used by the template:
+      #  - :theme_config -> the runtime THEME_CONFIG env value (path) or nil
+      #  - :theme_map -> resolved theme map (merged default + runtime file)
+      #  - :theme_json -> raw JSON shown in the UI (runtime file contents or packaged default)
+      theme_map: GameServer.Theme.JSONConfig.get_theme(),
+      # Only rely on JSONConfig for decisions about runtime vs default and raw
+      # content. Keep logic inside the provider instead of duplicating parsing
+      # here.
+      theme_config: GameServer.Theme.JSONConfig.runtime_path(),
       device_auth_enabled_app: Application.get_env(:game_server, :device_auth_enabled),
       device_auth_enabled_env: System.get_env("DEVICE_AUTH_ENABLED")
     }

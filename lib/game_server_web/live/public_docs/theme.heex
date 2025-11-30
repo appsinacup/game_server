@@ -1,0 +1,82 @@
+<div class="card bg-base-100 shadow-xl collapsed" data-card-key="theme">
+  <div class="card-body">
+    <h2 class="card-title text-2xl mb-4 flex items-center gap-3">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        class="w-12 h-12 text-base-content/80"
+        aria-hidden="true"
+      >
+        <path
+          d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18a8 8 0 110-16 8 8 0 010 16z"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+        />
+      </svg>
+      Configure Theme
+      <button
+        type="button"
+        data-action="toggle-card"
+        data-card-key="theme"
+        aria-expanded="false"
+        class="btn btn-ghost btn-sm ml-auto"
+        title="Collapse/Expand"
+      >
+        <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 8l4 4 4-4"
+          />
+        </svg>
+      </button>
+    </h2>
+
+    <div class="space-y-4">
+      <div class="text-sm font-semibold">Runtime theming (JSON)</div>
+      <p class="text-sm text-base-content/80">
+        You can provide simple runtime theming configuration using a JSON file.
+        This lets you customize basic branding (title, tagline) and reference
+        an external stylesheet (css) plus assets (logo, banner).
+      </p>
+    </div>
+
+    <div class="space-y-6">
+      <!-- Step 1: Configure theming JSON -->
+      <div class="step">
+        <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+          <span class="badge badge-primary">2</span> Configure theming JSON
+        </h3>
+        <div class="ml-8 space-y-3">
+          <p>Place a JSON file somewhere in your project, for example:</p>
+          <div class="bg-base-200 p-4 rounded-lg">
+            <pre class="text-sm text-wrap"><code phx-no-curly-interpolation>theme/default_config.json</code></pre>
+          </div>
+          <p>With the following:</p>
+          <pre phx-no-curly-interpolation class="rounded bg-base-200 p-3 text-xs overflow-auto">{
+  "title": "My Game",
+  "tagline": "Play together",
+  "css": "/theme/theme.css",
+  "logo": "/theme/logo.png",
+  "banner": "/theme/banner.png"
+}</pre>
+        </div>
+      </div>
+    </div>
+    
+<!-- Step 2: Configure the app to use it -->
+    <div class="step">
+      <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+        <span class="badge badge-primary">2</span> Configure the app to use it
+      </h3>
+      <div class="ml-8 space-y-3">
+        <p>Point the runtime configuration at the JSON file:</p>
+        <div class="bg-base-200 p-4 rounded-lg">
+          <pre class="text-sm text-wrap"><code phx-no-curly-interpolation>THEME_CONFIG=theme/default_config.json</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

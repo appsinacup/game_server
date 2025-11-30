@@ -5,12 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
     <!-- Open Graph / Twitter meta defaults -->
-    <% title = assigns[:page_title] || "Gamend: Game Server" %>
-    <% description =
-      assigns[:meta_description] ||
-        "Gamend: Game Server - connect and play multiplayer games, tournaments and leaderboards." %>
-    <% base_url = GameServerWeb.Endpoint.url() %>
-    <% image_path = base_url <> to_string(~p"/images/banner.png") %>
+    <% provider_theme = GameServer.Theme.JSONConfig.get_theme() || %{} %>
+    <% title = assigns[:page_title] || Map.get(provider_theme, "title") %>
+    <% description = assigns[:meta_description] || Map.get(provider_theme, "tagline") %>
+    <% image_path = Map.get(provider_theme, "banner") %>
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
@@ -21,11 +19,16 @@
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={image_path} />
-    <.live_title default="Gamend" suffix=" - Game Server">
+    <.live_title default={Map.get(provider_theme, "title")}>
       {assigns[:page_title]}
     </.live_title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
-    <link rel="icon" type="image/x-icon" href={base_url <> to_string(~p"/favicon.ico")} />
+    <%= if Map.get(provider_theme, "css") do %>
+      <link rel="stylesheet" phx-track-static href={Map.get(provider_theme, "css")} />
+    <% end %>
+    <%= if Map.get(provider_theme, "favicon") do %>
+      <link rel="icon" type="image/x-icon" href={Map.get(provider_theme, "favicon")} />
+    <% end %>
     <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
     </script>
     <script>
