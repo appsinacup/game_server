@@ -136,81 +136,46 @@ if config_env() == :prod do
   #
   # Configure the mailer - if SMTP_PASSWORD is set, use SMTP, otherwise use local mailbox
   if System.get_env("SMTP_PASSWORD") do
-    # Normalize port and TLS/SSL env vars safely
-    smtp_port =
-      case System.get_env("SMTP_PORT") do
-        nil -> nil
-        v ->
-          case Integer.parse(v) do
-            {i, _} -> i
-            :error -> v
-          end
-      end
+    # Prepare SNI charlist if provided — gen_smtp expects charlists for
+    # server_name_indication, not binaries (passing a binary causes an
+    # "incompatible options" error). Compute safely outside of keyword lists
+    # so we don't call remote fns in guards.
+    sni_env = System.get_env("SMTP_SNI") || System.get_env("SMTP_RELAY")
 
-    smtp_tls_raw = System.get_env("SMTP_TLS")
-
-    smtp_tls =
-      case smtp_tls_raw do
-        "always" -> :always
-        "never" -> :never
-        "if_available" -> :if_available
-        _ -> :always
-      end
-
-    smtp_ssl =
-      case String.downcase(System.get_env("SMTP_SSL") || "false") do
-        "1" -> true
-        "true" -> true
-        _ -> false
-      end
-
-    # Build CA list: prefer an explicit CACERT file, otherwise use certifi
-    cacerts =
-      case System.get_env("SMTP_CACERTFILE") do
-        path when is_binary(path) and File.exists?(path) ->
-          path
-          |> File.read!()
-          |> :public_key.pem_decode()
-          |> Enum.map(fn
-            {:Certificate, der, _} -> der
-            {_type, der, _} -> der
-          end)
-
-        _ ->
-          # certifi is included as a dependency; fall back to it if present
-          if Code.ensure_loaded?(:certifi) do
-            try do
-              :certifi.cacerts()
-            rescue
-              _ -> :public_key.cacerts_get()
-            end
-          else
-            :public_key.cacerts_get()
-          end
-      end
-
-    # Convert SNI (if given) to a charlist as required by the SSL options
     sni =
-      case System.get_env("SMTP_SNI") || System.get_env("SMTP_RELAY") do
-        v when is_binary(v) and v != "" -> String.to_charlist(v)
-        _ -> nil
-      end
+      if is_binary(sni_env) do
+        trimmed = String.trim(sni_env)
 
-    transport_opts =
-      [ssl: [verify: :verify_peer, cacerts: cacerts, depth: 3, server_name_indication: sni, versions: [:"tlsv1.3", :"tlsv1.2"]], recv_timeout: 5_000]
+        if trimmed != "" do
+          String.to_charlist(trimmed)
+        else
+          nil
+        end
+      else
+        nil
+      end
 
     config :game_server, GameServer.Mailer,
       adapter: Swoosh.Adapters.SMTP,
       relay: System.get_env("SMTP_RELAY"),
       username: System.get_env("SMTP_USERNAME"),
       password: System.get_env("SMTP_PASSWORD"),
-      port: smtp_port,
-      tls: smtp_tls,
-      ssl: smtp_ssl,
+      port: System.get_env("SMTP_PORT"),
+      tls: String.to_existing_atom(System.get_env("SMTP_TLS") || "always"),
+      ssl: String.to_existing_atom(System.get_env("SMTP_SSL") || "never"),
       retries: 2,
       auth: :always,
       no_mx_lookups: false,
-      transport_opts: transport_opts
+      sockopts: [
+        versions: [:"tlsv1.2", :"tlsv1.3"],
+        verify: :verify_peer,
+        cacerts: :public_key.cacerts_get(),
+        depth: 3,
+        customize_hostname_check: [
+          match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
+        ],
+        server_name_indication: sni
+      ]
 
     # Configure Swoosh to use Req for HTTP requests
     config :swoosh, :api_client, Swoosh.ApiClient.Req

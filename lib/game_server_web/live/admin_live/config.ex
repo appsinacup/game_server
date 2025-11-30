@@ -16,7 +16,7 @@ defmodule GameServerWeb.AdminLive.Config do
           Configuration
           <:subtitle>System configuration settings and setup guides</:subtitle>
         </.header>
-
+        
     <!-- Current Configuration Status -->
         <div class="card bg-base-100 shadow-xl" data-card-key="config_status">
           <div class="card-body">
@@ -241,27 +241,38 @@ defmodule GameServerWeb.AdminLive.Config do
                         SMTP_RELAY: {@config.smtp_relay || "<unset>"}<br />
                         SMTP_PORT: {@config.smtp_port || "<unset>"}<br />
                         SMTP_SSL: {@config.smtp_ssl || "<unset>"} SMTP_TLS: {@config.smtp_tls ||
-                          "<unset>"}<br />
-                        SMTP_SNI: {mask_secret(@config.smtp_sni)}
+                          "<unset>"}<br /> SMTP_SNI: {mask_secret(@config.smtp_sni)}
                       </div>
 
                       <div class="mt-2 text-xs text-muted">
                         <p class="mb-1">Notes on TLS modes:</p>
                         <ul class="list-disc ml-4">
                           <li>
-                            <strong>SMTPS (implicit SSL)</strong> — set <code>SMTP_SSL=true</code> and use an
-                            implicit SSL port (eg. <code>2465</code> or <code>465</code>). When using implicit SSL
-                            it's recommended to set <code>SMTP_TLS=never</code> and provide an <code>SMTP_SNI</code>
+                            <strong>SMTPS (implicit SSL)</strong>
+                            — set <code>SMTP_SSL=true</code>
+                            and use an
+                            implicit SSL port (eg. <code>2465</code>
+                            or <code>465</code>). When using implicit SSL
+                            it's recommended to set <code>SMTP_TLS=never</code>
+                            and provide an <code>SMTP_SNI</code>
                             (Server Name Indication) when your provider requires it (example: <code>mail.resend.com</code>).
                           </li>
                           <li>
-                            <strong>STARTTLS</strong> — use <code>SMTP_SSL=false</code> with <code>SMTP_PORT=587</code>
-                            and <code>SMTP_TLS=always</code> (preferred for most providers).
+                            <strong>STARTTLS</strong>
+                            — use <code>SMTP_SSL=false</code>
+                            with <code>SMTP_PORT=587</code>
+                            and <code>SMTP_TLS=always</code>
+                            (preferred for most providers).
                           </li>
                         </ul>
 
                         <div class="mt-2">
-                          <a href="https://resend.com/docs/smtp" target="_blank" rel="noopener" class="link link-primary text-xs">
+                          <a
+                            href="https://resend.com/docs/smtp"
+                            target="_blank"
+                            rel="noopener"
+                            class="link link-primary text-xs"
+                          >
                             Provider docs: Resend SMTP guide
                           </a>
                           <span class="text-xs text-muted ml-2">· see repo docs for examples</span>
@@ -474,7 +485,7 @@ defmodule GameServerWeb.AdminLive.Config do
                             <div class="text-xs text-muted">No test yet</div>
                           <% end %>
                         </div>
-
+                        
     <!-- Full docs modal / pane -->
                         <%= if @hooks_full_doc do %>
                           <div class="mt-2 p-3 border rounded bg-base-100">
@@ -501,7 +512,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-
+        
     <!-- Admin Tools -->
         <div class="card bg-base-100 shadow-xl" data-card-key="admin_tools">
           <div class="card-body">
