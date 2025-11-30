@@ -116,6 +116,7 @@ if System.get_env("SMTP_PASSWORD") do
     else
       [verify: :verify_peer, cacerts: cacerts]
     end
+
   config :game_server, GameServer.Mailer,
     adapter: Swoosh.Adapters.SMTP,
     relay: System.get_env("SMTP_RELAY", "smtp.resend.com"),
