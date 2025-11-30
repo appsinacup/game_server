@@ -288,17 +288,6 @@ defmodule GameServerWeb.AdminLive.Users do
                   ><%= Jason.encode!(@selected_user.metadata || %{}) %></textarea>
                 </label>
               </div>
-              <div class="form-control">
-                <label class="label cursor-pointer">
-                  <span class="label-text">Confirmed</span>
-                  <input
-                    type="checkbox"
-                    name="user[confirmed]"
-                    class="checkbox"
-                    checked={@selected_user.confirmed_at != nil}
-                  />
-                </label>
-              </div>
               <div class="modal-action">
                 <button type="button" phx-click="cancel_edit" class="btn">Cancel</button>
                 <button type="submit" class="btn btn-primary">Save</button>

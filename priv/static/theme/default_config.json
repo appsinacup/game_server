@@ -2,7 +2,7 @@
   "title": "Gamend",
   "tagline": "Game + Backend",
   "description": "Open source game server with authentication, users, lobbies, server scripting and admin portal",
-  "css": "/theme/theme.css",
+  "css": "/assets/css/theme/theme.css",
   "logo": "/images/logo.png",
   "banner": "/images/banner.png",
   "favicon": "/favicon.ico"
