@@ -87,4 +87,23 @@ defmodule GameServer.Accounts.UserNotifier do
     ==============================
     """)
   end
+
+  @doc """
+  Send a simple test email to the given recipient address. Used by admin tools
+  to verify SMTP configuration and delivery.
+  Returns the same shape as `deliver/3`.
+  """
+  def deliver_test_email(recipient) when is_binary(recipient) do
+    subject = "GameServer — test message"
+
+    body = """
+
+    This is a test message sent from the GameServer admin test-email tool.
+
+    If you received this message your email delivery configuration is working.
+
+    """
+
+    deliver(recipient, subject, body)
+  end
 end

@@ -72,6 +72,8 @@ defmodule GameServer.MixProject do
        compile: false,
        depth: 1},
       {:swoosh, "~> 1.16"},
+      # SMTP transport used by Swoosh.Adapters.SMTP
+      {:gen_smtp, "~> 1.0"},
       {:req, "~> 0.5"},
       # allow the 0.2 or 1.x families so projects depending on either
       # version can still work; 1.x is preferred for newer environments

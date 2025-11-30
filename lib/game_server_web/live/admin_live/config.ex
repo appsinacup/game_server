@@ -238,7 +238,9 @@ defmodule GameServerWeb.AdminLive.Config do
                       <div class="font-mono text-sm">
                         SMTP_USERNAME: {mask_secret(@config.smtp_username)}<br />
                         SMTP_PASSWORD: {mask_secret(@config.smtp_password)}<br />
-                        SMTP_RELAY: {@config.smtp_relay || "<unset>"}
+                        SMTP_RELAY: {@config.smtp_relay || "<unset>"}<br />
+                        SMTP_PORT: {@config.smtp_port || "<unset>"}<br />
+                        SMTP_SSL: {@config.smtp_ssl || "<unset>"}
                       </div>
                       <%= if @config.email_configured do %>
                         SMTP configured - emails are sent via {@config.smtp_relay ||
@@ -523,6 +525,11 @@ defmodule GameServerWeb.AdminLive.Config do
                   Mailbox Preview
                 </a>
               <% end %>
+              <%= if @current_scope && @current_scope.user && @current_scope.user.email do %>
+                <button phx-click="send_test_email" class="btn btn-outline btn-accent">
+                  Send test email
+                </button>
+              <% end %>
             </div>
           </div>
         </div>
@@ -563,6 +570,8 @@ defmodule GameServerWeb.AdminLive.Config do
       smtp_username: System.get_env("SMTP_USERNAME"),
       smtp_password: System.get_env("SMTP_PASSWORD"),
       smtp_relay: System.get_env("SMTP_RELAY"),
+      smtp_port: System.get_env("SMTP_PORT"),
+      smtp_ssl: System.get_env("SMTP_SSL"),
       sentry_dsn: System.get_env("SENTRY_DSN"),
       sentry_log_level: System.get_env("SENTRY_LOG_LEVEL"),
       env: to_string(Application.get_env(:game_server, :environment, Mix.env())),
@@ -647,6 +656,41 @@ defmodule GameServerWeb.AdminLive.Config do
     config = Map.put(socket.assigns.config, :hooks_test_result, result)
 
     {:noreply, assign(socket, :config, config)}
+  end
+
+  def handle_event("send_test_email", _params, socket) do
+    user = socket.assigns.current_scope && socket.assigns.current_scope.user
+
+    case user && user.email do
+      nil ->
+        {:noreply, put_flash(socket, :error, "No email address available for current admin")}
+
+      email when is_binary(email) ->
+        case GameServer.Accounts.UserNotifier.deliver_test_email(email) do
+          {:ok, _} ->
+            {:noreply, put_flash(socket, :info, "Test email sent to #{email}")}
+
+          other ->
+            # Log full details for diagnostic purposes
+            require Logger
+            Logger.error("send_test_email failed: #{inspect(other)}")
+
+            # Surface useful error detail in development so admins can debug
+            debug_msg =
+              if socket.assigns.config && socket.assigns.config.env == "dev" do
+                " (details: #{inspect(other) |> to_string() |> String.slice(0, 512)})"
+              else
+                ""
+              end
+
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               "Failed to send test email — check mailer logs and configuration" <> debug_msg
+             )}
+        end
+    end
   end
 
   def handle_event("call_hook", _params, socket), do: {:noreply, socket}

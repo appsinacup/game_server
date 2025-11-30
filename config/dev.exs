@@ -99,8 +99,29 @@ config :phoenix_live_view,
   # Enable helpful, but potentially expensive runtime checks
   enable_expensive_runtime_checks: true
 
-# Disable swoosh api client as it is only required for production adapters.
-config :swoosh, :api_client, false
+# Enable SMTP in development when SMTP_PASSWORD is present, otherwise
+# keep the default Local adapter and disable Swoosh's API client.
+if System.get_env("SMTP_PASSWORD") do
+  port = String.to_integer(System.get_env("SMTP_PORT") || "587")
+  ssl = System.get_env("SMTP_SSL") in ["1", "true", "TRUE", "True"]
+
+  config :game_server, GameServer.Mailer,
+    adapter: Swoosh.Adapters.SMTP,
+    relay: System.get_env("SMTP_RELAY", "smtp.resend.com"),
+    username: System.get_env("SMTP_USERNAME", "resend"),
+    password: System.get_env("SMTP_PASSWORD"),
+    tls: if(ssl, do: :never, else: :always),
+    ssl: ssl,
+    auth: :always,
+    port: port
+
+  # When using an SMTP adapter we may still need the HTTP API client for
+  # certain Swoosh adapters; enable Req which is used elsewhere in prod.
+  config :swoosh, :api_client, Swoosh.ApiClient.Req
+else
+  # Disable swoosh api client as it is only required for production adapters.
+  config :swoosh, :api_client, false
+end
 
 # Configure Guardian for development
 config :game_server, GameServerWeb.Auth.Guardian,

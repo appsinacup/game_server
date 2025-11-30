@@ -136,14 +136,18 @@ if config_env() == :prod do
   #
   # Configure the mailer - if SMTP_PASSWORD is set, use SMTP, otherwise use local mailbox
   if System.get_env("SMTP_PASSWORD") do
+    port = String.to_integer(System.get_env("SMTP_PORT") || "587")
+    ssl = System.get_env("SMTP_SSL") in ["1", "true", "TRUE", "True"]
+
     config :game_server, GameServer.Mailer,
       adapter: Swoosh.Adapters.SMTP,
-      relay: System.get_env("SMTP_RELAY", "smtp.resend.com"),
-      username: System.get_env("SMTP_USERNAME", "resend"),
+      relay: System.get_env("SMTP_RELAY"),
+      username: System.get_env("SMTP_USERNAME"),
       password: System.get_env("SMTP_PASSWORD"),
-      tls: :always,
+      tls: if(ssl, do: :never, else: :always),
+      ssl: ssl,
       auth: :always,
-      port: 587
+      port: port
 
     # Configure Swoosh to use Req for HTTP requests
     config :swoosh, :api_client, Swoosh.ApiClient.Req

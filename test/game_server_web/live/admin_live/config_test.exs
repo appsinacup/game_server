@@ -44,6 +44,8 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     System.put_env("SENTRY_LOG_LEVEL", "info")
     System.put_env("SMTP_USERNAME", "smtpuser")
     System.put_env("SMTP_PASSWORD", "smtppass")
+    System.put_env("SMTP_PORT", "465")
+    System.put_env("SMTP_SSL", "true")
     System.put_env("POSTGRES_HOST", "localhost")
     System.put_env("POSTGRES_USER", "postgres")
     System.put_env("POSTGRES_DB", "game_server_test")
@@ -60,6 +62,8 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
             "SENTRY_LOG_LEVEL",
             "SMTP_USERNAME",
             "SMTP_PASSWORD",
+            "SMTP_PORT",
+            "SMTP_SSL",
             "POSTGRES_HOST",
             "POSTGRES_USER",
             "POSTGRES_DB",
@@ -122,6 +126,12 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
 
     # SMTP env var label should be shown
     assert html =~ "SMTP_USERNAME"
+    # when SMTP_PASSWORD is present the UI should indicate SMTP is configured
+    assert html =~ "<span class=\"badge badge-success\">SMTP</span>"
+
+    # SMTP port and SSL flags should be displayed
+    assert html =~ "SMTP_PORT"
+    assert html =~ "SMTP_SSL"
 
     # if no hooks watch interval set, these should not be visible
     refute html =~ "Watch interval (app): <unset>"
@@ -195,6 +205,31 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     Application.delete_env(:game_server, :hooks_file_path)
     Application.delete_env(:game_server, :hooks_module)
     File.rm!(tmp)
+  end
+
+  test "send test email button delivers a message and shows flash", %{conn: conn} do
+    {:ok, user} =
+      AccountsFixtures.user_fixture()
+      |> User.admin_changeset(%{"is_admin" => true})
+      |> Repo.update()
+
+    {:ok, lv, _html} =
+      conn
+      |> log_in_user(user)
+      |> live(~p"/admin/config")
+
+    # ensure the UI shows the test email button
+    assert has_element?(lv, "button[phx-click='send_test_email']")
+
+    # click and capture the updated HTML (flash present)
+    html_after = render_click(element(lv, "button[phx-click='send_test_email']"))
+
+    assert html_after =~ "Test email sent to #{user.email}"
+
+    # Swoosh.Test adapter sends delivered emails to the current process
+    assert_receive {:email, email}
+
+    assert Enum.any?(email.to, fn {_name, addr} -> addr == user.email end)
   end
 
   test "renders theme diagnostics when THEME_CONFIG is set (env var)", %{conn: conn} do
