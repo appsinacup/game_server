@@ -144,7 +144,19 @@ if config_env() == :prod do
       port: System.get_env("SMTP_PORT"),
       tls: String.to_existing_atom(System.get_env("SMTP_TLS") || "always"),
       ssl: String.to_existing_atom(System.get_env("SMTP_SSL") || "never"),
-      retries: 2
+      retries: 2,
+      auth: :always,
+      no_mx_lookups: false,
+      sockopts: [
+        versions: [:"tlsv1.2", :"tlsv1.3"],
+        verify: :verify_peer,
+        cacerts: :public_key.cacerts_get(),
+        depth: 3,
+        customize_hostname_check: [
+          match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
+        ],
+        server_name_indication: System.get_env("SMTP_SNI")
+      ]
 
     # Configure Swoosh to use Req for HTTP requests
     config :swoosh, :api_client, Swoosh.ApiClient.Req
