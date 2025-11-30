@@ -97,8 +97,7 @@ config :ueberauth, Ueberauth,
 
 config :ueberauth, Ueberauth.Strategy.Discord.OAuth,
   client_id: System.get_env("DISCORD_CLIENT_ID"),
-  client_secret: System.get_env("DISCORD_CLIENT_SECRET"),
-  redirect_uri: "http://localhost:4000/auth/discord/callback"
+  client_secret: System.get_env("DISCORD_CLIENT_SECRET")
 
 config :ueberauth, Ueberauth.Strategy.Apple.OAuth,
   client_id: System.get_env("APPLE_CLIENT_ID"),
