@@ -54,32 +54,36 @@ defmodule GameServerWeb.UserLive.Settings do
             <div><strong>Email:</strong> {@current_email}</div>
             <div><strong>Admin:</strong> {@user.is_admin}</div>
 
+            <.form
+              for={@display_form}
+              id="display_form"
+              phx-change="validate_display_name"
+              phx-submit="update_display_name"
+            >
+              <.input
+                field={@display_form[:display_name]}
+                type="text"
+                label="Display name"
+                required
+              />
+              <.button variant="primary" phx-disable-with="Saving...">Save Display Name</.button>
+            </.form>
 
-      <.form
-        for={@display_form}
-        id="display_form"
-        phx-change="validate_display_name"
-        phx-submit="update_display_name"
-      >
-        <.input
-          field={@display_form[:display_name]}
-          type="text"
-          label="Display name"
-          required
-        />
-        <.button variant="primary" phx-disable-with="Saving...">Save Display Name</.button>
-      </.form>
-
-      <.form for={@email_form} id="email_form" phx-submit="update_email" phx-change="validate_email">
-        <.input
-          field={@email_form[:email]}
-          type="email"
-          label="Email"
-          autocomplete="username"
-          required
-        />
-        <.button variant="primary" phx-disable-with="Changing...">Change Email</.button>
-      </.form>
+            <.form
+              for={@email_form}
+              id="email_form"
+              phx-submit="update_email"
+              phx-change="validate_email"
+            >
+              <.input
+                field={@email_form[:email]}
+                type="email"
+                label="Email"
+                autocomplete="username"
+                required
+              />
+              <.button variant="primary" phx-disable-with="Changing...">Change Email</.button>
+            </.form>
           </div>
         </div>
 
@@ -89,44 +93,44 @@ defmodule GameServerWeb.UserLive.Settings do
             <pre phx-no-curly-interpolation><%= Jason.encode!(@user.metadata || %{}, pretty: true) %></pre>
           </div>
 
-      <.form
-        for={@password_form}
-        id="password_form"
-        action={~p"/users/update-password"}
-        method="post"
-        phx-change="validate_password"
-        phx-submit="update_password"
-        phx-trigger-action={@trigger_submit}
-      >
-        <input
-          name={@password_form[:email].name}
-          type="hidden"
-          id="hidden_user_email"
-          autocomplete="username"
-          value={@current_email}
-        />
-        <.input
-          field={@password_form[:password]}
-          type="password"
-          label="New password"
-          autocomplete="new-password"
-          required
-        />
-        <.input
-          field={@password_form[:password_confirmation]}
-          type="password"
-          label="Confirm new password"
-          autocomplete="new-password"
-        />
-        <.button variant="primary" phx-disable-with="Saving...">
-          Save Password
-        </.button>
-      </.form>
+          <.form
+            for={@password_form}
+            id="password_form"
+            action={~p"/users/update-password"}
+            method="post"
+            phx-change="validate_password"
+            phx-submit="update_password"
+            phx-trigger-action={@trigger_submit}
+          >
+            <input
+              name={@password_form[:email].name}
+              type="hidden"
+              id="hidden_user_email"
+              autocomplete="username"
+              value={@current_email}
+            />
+            <.input
+              field={@password_form[:password]}
+              type="password"
+              label="New password"
+              autocomplete="new-password"
+              required
+            />
+            <.input
+              field={@password_form[:password_confirmation]}
+              type="password"
+              label="Confirm new password"
+              autocomplete="new-password"
+            />
+            <.button variant="primary" phx-disable-with="Saving...">
+              Save Password
+            </.button>
+          </.form>
         </div>
       </div>
 
       <div class="divider" />
-
+      
     <!-- Friends panel (embedded) -->
       <div id="friends" class="card bg-base-200 p-4 rounded-lg mt-6">
         <div class="flex items-center justify-between">
@@ -337,7 +341,7 @@ defmodule GameServerWeb.UserLive.Settings do
 
       <div class="card bg-base-200 p-4 rounded-lg">
         <div class="font-semibold">Linked Accounts</div>
-        <div class="mt-2 space-y-2">
+        <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
           <% provider_count =
             Enum.count([@user.discord_id, @user.apple_id, @user.google_id, @user.facebook_id], fn v ->
               v && v != ""
