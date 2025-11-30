@@ -87,10 +87,10 @@ defmodule GameServerWeb.Layouts do
               <li>
                 <.link href={~p"/admin"} class="btn btn-outline">Admin</.link>
               </li>
+              <li>
+                <.link href={~p"/lobbies"} class="btn btn-outline">Lobbies</.link>
+              </li>
             <% end %>
-            <li>
-              <.link href={~p"/lobbies"} class="btn btn-outline">Lobbies</.link>
-            </li>
             <li>
               <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline">
                 Log out
@@ -135,12 +135,11 @@ defmodule GameServerWeb.Layouts do
                         @current_scope.user
                       )}
                     </span>
-                    <span class="text-xs opacity-60">v{app_version()}</span>
                   </div>
                 </li>
                 <li><a href={~p"/users/settings"} class="btn btn-outline">Settings</a></li>
-                <li><a href={~p"/lobbies"} class="btn btn-outline">Lobbies</a></li>
                 <%= if @current_scope && @current_scope.user.is_admin do %>
+                  <li><a href={~p"/lobbies"} class="btn btn-outline">Lobbies</a></li>
                   <li><a href={~p"/admin"} class="btn btn-outline">Admin</a></li>
                 <% end %>
                 <li>
@@ -156,8 +155,6 @@ defmodule GameServerWeb.Layouts do
                   </div>
                 </li>
               <% end %>
-              <li><a href={~p"/docs/setup"}>Guides</a></li>
-              <li><a href={~p"/api/docs"} target="_blank">API Docs</a></li>
               <li class="mt-2">
                 <div class="flex justify-center">
                   <.theme_toggle />

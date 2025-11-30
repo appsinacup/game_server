@@ -15,10 +15,6 @@ defmodule GameServerWeb.UserLive.Settings do
           <:subtitle>Manage your account email address and password settings</:subtitle>
         </.header>
 
-        <div class="mt-3">
-          <a href="#friends" class="btn btn-sm btn-outline">Friends</a>
-        </div>
-
         <%= if @conflict_user do %>
           <div class="divider" />
 
@@ -128,11 +124,9 @@ defmodule GameServerWeb.UserLive.Settings do
           </.form>
         </div>
       </div>
-
-      <div class="divider" />
       
     <!-- Friends panel (embedded) -->
-      <div id="friends" class="card bg-base-200 p-4 rounded-lg mt-6">
+      <div class="card bg-base-200 p-4 rounded-lg mt-6">
         <div class="flex items-center justify-between">
           <div>
             <div class="font-semibold text-lg">Friends</div>
@@ -481,8 +475,6 @@ defmodule GameServerWeb.UserLive.Settings do
           </div>
         </div>
       </div>
-
-      <div class="divider" />
 
       <div class="card bg-error/10 border-error p-4 rounded-lg">
         <div class="font-semibold text-error">Danger Zone</div>
