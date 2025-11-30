@@ -343,9 +343,12 @@ defmodule GameServerWeb.UserLive.Settings do
         <div class="font-semibold">Linked Accounts</div>
         <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
           <% provider_count =
-            Enum.count([@user.discord_id, @user.apple_id, @user.google_id, @user.facebook_id], fn v ->
-              v && v != ""
-            end) %>
+            Enum.count(
+              [@user.discord_id, @user.apple_id, @user.google_id, @user.facebook_id, @user.steam_id],
+              fn v ->
+                v && v != ""
+              end
+            ) %>
 
           <div class="flex items-center justify-between">
             <div>

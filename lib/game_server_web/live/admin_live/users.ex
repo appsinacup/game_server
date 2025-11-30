@@ -561,8 +561,7 @@ defmodule GameServerWeb.AdminLive.Users do
             from u in base,
               where:
                 fragment("LOWER(?) LIKE LOWER(?)", u.email, ^q) or
-                  fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^q) or
-                  fragment("LOWER(?) LIKE LOWER(?)", u.steam_id, ^q)
+                  fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^q)
 
           %User{} = user ->
             # special marker: we return a query that matches only this ID
@@ -575,8 +574,7 @@ defmodule GameServerWeb.AdminLive.Users do
         from u in base,
           where:
             fragment("LOWER(?) LIKE LOWER(?)", u.email, ^q) or
-              fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^q) or
-              fragment("LOWER(?) LIKE LOWER(?)", u.steam_id, ^q)
+              fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^q)
     end
   end
 
