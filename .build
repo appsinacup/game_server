@@ -50,6 +50,7 @@ GameServerWeb.ErrorHTML.html
 GameServerWeb.ErrorJSON.html
 GameServerWeb.Gettext.html
 GameServerWeb.Layouts.html
+GameServerWeb.LobbiesChannel.html
 GameServerWeb.LobbyChannel.html
 GameServerWeb.LobbyLive.Index.html
 GameServerWeb.OnMount.Theme.html
@@ -69,13 +70,13 @@ GameServerWeb.SwaggerController.html
 GameServerWeb.SwaggerHTML.html
 GameServerWeb.Telemetry.html
 GameServerWeb.UserAuth.html
+GameServerWeb.UserChannel.html
 GameServerWeb.UserLive.Confirmation.html
 GameServerWeb.UserLive.Login.html
 GameServerWeb.UserLive.Registration.html
 GameServerWeb.UserLive.Settings.html
 GameServerWeb.UserSessionController.html
 GameServerWeb.UserSocket.html
-GameServerWeb.UserUpdatesChannel.html
 GameServerWeb.html
 api-reference.html
 dist/html-HBZYRXZS.js
@@ -85,8 +86,8 @@ dist/lato-latin-700-normal-2XVSBPG4.woff2
 dist/lato-latin-ext-400-normal-N27NCBWW.woff2
 dist/lato-latin-ext-700-normal-Q2L5DVMW.woff2
 dist/remixicon-QPNJX265.woff2
-dist/search_data-A478A305.js
-dist/sidebar_items-A200649C.js
+dist/search_data-B5BC936C.js
+dist/sidebar_items-0F47BE0F.js
 index.html
 readme.html
 search.html

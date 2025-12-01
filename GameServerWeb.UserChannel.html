@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.1">
-    <meta name="project" content="game_server v1.0.296">
+    <meta name="project" content="game_server v1.0.304">
 
 
-    <title>GameServerWeb.UserUpdatesChannel — game_server v1.0.296</title>
+    <title>GameServerWeb.UserChannel — game_server v1.0.304</title>
 
     <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
 
-    <script defer src="dist/sidebar_items-A200649C.js"></script>
+    <script defer src="dist/sidebar_items-0F47BE0F.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-HBZYRXZS.js"></script>
 
@@ -37,7 +37,7 @@
 game_server
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.296
+          v1.0.304
         </div>
       </div>
     </div>
@@ -93,12 +93,12 @@ game_server
 <div id="top-content">
   <div class="heading-with-actions top-heading">
     <h1>
-      <span translate="no">GameServerWeb.UserUpdatesChannel</span> 
-      <small class="app-vsn" translate="no">(game_server v1.0.296)</small>
+      <span translate="no">GameServerWeb.UserChannel</span> 
+      <small class="app-vsn" translate="no">(game_server v1.0.304)</small>
 
     </h1>
 
-      <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/channels/user_updates_channel.ex#L1" title="View Source" class="icon-action" rel="help">
+      <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/channels/user_channel.ex#L1" title="View Source" class="icon-action" rel="help">
         <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         <span class="sr-only">View Source</span>
       </a>
@@ -107,7 +107,7 @@ game_server
 
 
     <section id="moduledoc">
-<p>Channel for sending per-user realtime updates (e.g. metadata changes).</p><p>Topic: &quot;user_updates:&lt;user_id&gt;&quot;
+<p>Channel for sending per-user realtime updates (e.g. metadata changes).</p><p>Topic: &quot;user:&lt;user_id&gt;&quot;
 Clients must authenticate the socket connection (JWT) and may only join topics belonging to their own user id.</p>
     </section>
 
@@ -165,7 +165,7 @@ Clients must authenticate the socket connection (JWT) and may only join topics b
       <h1 class="signature" translate="no">child_spec(init_arg)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/channels/user_updates_channel.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/channels/user_channel.ex#L9" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -187,7 +187,7 @@ Clients must authenticate the socket connection (JWT) and may only join topics b
       <h1 class="signature" translate="no">start_link(triplet)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/channels/user_updates_channel.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/channels/user_channel.ex#L9" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
