@@ -301,14 +301,55 @@ console.log('My metadata changed', payload);
 });
 
 // === per-lobby updates ===
-// join "lobby:&lt;lobby_id&gt;" to receive membership and lobby events
+// join "lobby:&lt;lobbyId&gt;" to receive membership and lobby events
 const lobbyChannel = socket.channel('lobby:' + lobbyId, {});
 await lobbyChannel.join();
 
-// events forwarded from the server: user_joined, user_left, user_kicked, lobby_updated, host_changed
-lobbyChannel.on('user_joined', ({ user_id }) => console.log('User joined', user_id));
+// Events forwarded from the server on the lobby:&lt;id&gt; channel:
+// - 'user_joined'  => { user_id }
+// - 'user_left'    => { user_id }
+// - 'user_kicked'  => { user_id }
+// - 'lobby_updated' => lobby object (full lobby payload, contains fields like title, max_users, metadata, etc.)
+// - 'host_changed' => { new_host_id }
+
+lobbyChannel.on('user_joined', ({ user_id }) => {
+  console.log('User joined lobby', user_id)
+})
+
+lobbyChannel.on('user_left', ({ user_id }) => {
+  console.log('User left lobby', user_id)
+})
+
+lobbyChannel.on('user_kicked', ({ user_id }) => {
+  console.warn('User kicked from lobby', user_id)
+})
+
+// lobby_updated contains the full, serialized lobby object. To detect specific
+// field changes (title changed, max_users changed, etc.) compare with the
+// previous lobby state you have stored in the client.
+let currentLobbyState = null
+lobbyChannel.on('lobby_updated', (lobby) => {
+  console.log('Lobby updated', lobby)
+
+  if (currentLobbyState) {
+    if (lobby.title !== currentLobbyState.title) {
+      console.log('Lobby title changed:', currentLobbyState.title, '->', lobby.title)
+    }
+    if (lobby.max_users !== currentLobbyState.max_users) {
+      console.log('Lobby max_users changed:', currentLobbyState.max_users, '->', lobby.max_users)
+    }
+    // Add any other field checks you care about here (is_locked, metadata, host_id, ...)
+  }
+
+  // Save latest state
+  currentLobbyState = lobby
+})
+
 lobbyChannel.on('user_left', ({ user_id }) => console.log('User left', user_id));
 lobbyChannel.on('user_kicked', ({ user_id }) => console.warn('You were kicked', user_id));
+lobbyChannel.on('host_changed', ({ new_host_id }) => {
+  console.log('Lobby host changed ->', new_host_id)
+})
 lobbyChannel.on('lobby_updated', (lobby) => console.log('Lobby updated', lobby));
 lobbyChannel.on('host_changed', ({ new_host_id }) => console.log('Host changed', new_host_id));</code></pre>
           </div>

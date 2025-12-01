@@ -74,6 +74,14 @@ export function joinLobbyChannel(lobbyId, handlers = {}) {
   const socket = _ensureSocket()
   const channel = socket.channel(`lobby:${lobbyId}`, {})
 
+  // wire up specific event handlers if provided
+  if (handlers.onUserJoined) channel.on('user_joined', handlers.onUserJoined)
+  if (handlers.onUserLeft) channel.on('user_left', handlers.onUserLeft)
+  if (handlers.onUserKicked) channel.on('user_kicked', handlers.onUserKicked)
+  if (handlers.onLobbyUpdated) channel.on('lobby_updated', handlers.onLobbyUpdated)
+  if (handlers.onHostChanged) channel.on('host_changed', handlers.onHostChanged)
+
+  // fallback generic handler
   if (handlers.onMessage) channel.on('event', handlers.onMessage)
   if (handlers.onClose) socket.onClose(handlers.onClose)
 

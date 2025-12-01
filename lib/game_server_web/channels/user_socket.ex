@@ -17,6 +17,9 @@ defmodule GameServerWeb.UserSocket do
   # Lobby channels - join workspace level lobby topics (members only)
   channel "lobby:*", GameServerWeb.LobbyChannel
 
+  # Global lobbies channel for list updates and membership-change notifications
+  channel "lobbies", GameServerWeb.LobbiesChannel
+
   # Uncomment the following line to define a "room:*" topic
   # pointing to the `GameServerWeb.RoomChannel`:
   #
