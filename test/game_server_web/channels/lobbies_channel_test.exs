@@ -4,7 +4,6 @@ defmodule GameServerWeb.LobbiesChannelTest do
 
   alias GameServer.AccountsFixtures
   alias GameServer.Lobbies
-  alias GameServerWeb.Auth.Guardian
 
   setup tags do
     GameServer.DataCase.setup_sandbox(tags)

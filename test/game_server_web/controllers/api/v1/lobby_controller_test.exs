@@ -13,7 +13,9 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
   test "GET /api/v1/lobbies lists lobbies but hides hidden ones", %{conn: conn} do
     host = AccountsFixtures.user_fixture()
     {:ok, lobby1} = Lobbies.create_lobby(%{title: "visible-room", host_id: host.id})
-    {:ok, _hidden} = Lobbies.create_lobby(%{title: "hidden-room", hostless: true, is_hidden: true})
+
+    {:ok, _hidden} =
+      Lobbies.create_lobby(%{title: "hidden-room", hostless: true, is_hidden: true})
 
     conn = get(conn, "/api/v1/lobbies")
     resp = json_response(conn, 200)
@@ -278,7 +280,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
 
     {:ok, _other_lobby} =
       Lobbies.create_lobby(%{
-        name: "other-leave-room",
+        title: "other-leave-room",
         host_id: AccountsFixtures.user_fixture().id
       })
 

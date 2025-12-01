@@ -77,8 +77,7 @@ defmodule GameServer.Lobbies do
 
           # Use fragment + lower(...) to support both Postgres and SQLite
           from l in q,
-            where:
-              fragment("lower(?) LIKE ?", l.title, ^ilike_term_down)
+            where: fragment("lower(?) LIKE ?", l.title, ^ilike_term_down)
       end
 
     # never include hidden lobbies in list results
@@ -126,8 +125,7 @@ defmodule GameServer.Lobbies do
           ilike_term_down = String.downcase("%#{term}%")
 
           from l in q,
-            where:
-              fragment("lower(?) LIKE ?", l.title, ^ilike_term_down)
+            where: fragment("lower(?) LIKE ?", l.title, ^ilike_term_down)
       end
 
     q = from l in q, where: l.is_hidden == false
@@ -297,15 +295,7 @@ defmodule GameServer.Lobbies do
         title = Map.get(attrs, "title") || Map.get(attrs, :title) || "lobby"
         base = slugify(title)
 
-        unique_title =
-          Stream.iterate(0, &(&1 + 1))
-          |> Stream.map(fn
-            0 -> base
-            n -> base <> "-" <> Integer.to_string(n)
-          end)
-          |> Enum.find(fn candidate -> Repo.get_by(Lobby, title: candidate) == nil end)
-
-        Map.put(attrs, "title", unique_title)
+        Map.put(attrs, :title, base)
       end
 
     case GameServer.Hooks.internal_call(:before_lobby_create, [attrs]) do

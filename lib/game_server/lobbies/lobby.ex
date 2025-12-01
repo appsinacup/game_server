@@ -37,6 +37,5 @@ defmodule GameServer.Lobbies.Lobby do
     |> validate_required(@required_fields)
     |> validate_length(:title, min: 1, max: 80)
     |> validate_number(:max_users, greater_than: 0, less_than_or_equal_to: 128)
-    |> unique_constraint(:title)
   end
 end

@@ -3,7 +3,7 @@ defmodule GameServer.Repo.Migrations.CreateLobbiesAndLobbyUsers do
 
   def change do
     create table(:lobbies) do
-      add :title, :string
+      add :title, :string, null: true
       add :host_id, references(:users, on_delete: :nilify_all)
       add :hostless, :boolean, default: false, null: false
       add :max_users, :integer, default: 8, null: false
