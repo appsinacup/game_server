@@ -78,8 +78,7 @@ defmodule GameServer.Lobbies do
           # Use fragment + lower(...) to support both Postgres and SQLite
           from l in q,
             where:
-              fragment("lower(?) LIKE ?", l.name, ^ilike_term_down) or
-                fragment("lower(?) LIKE ?", l.title, ^ilike_term_down)
+              fragment("lower(?) LIKE ?", l.title, ^ilike_term_down)
       end
 
     # never include hidden lobbies in list results
@@ -128,8 +127,7 @@ defmodule GameServer.Lobbies do
 
           from l in q,
             where:
-              fragment("lower(?) LIKE ?", l.name, ^ilike_term_down) or
-                fragment("lower(?) LIKE ?", l.title, ^ilike_term_down)
+              fragment("lower(?) LIKE ?", l.title, ^ilike_term_down)
       end
 
     q = from l in q, where: l.is_hidden == false
@@ -204,7 +202,7 @@ defmodule GameServer.Lobbies do
 
   def join_lobby(%User{id: user_id} = _user, %Lobby{} = lobby, opts) do
     if is_nil(lobby.id) do
-      case Repo.get_by(Lobby, name: lobby.name) do
+      case Repo.get_by(Lobby, title: lobby.title) do
         nil ->
           {:error, :invalid_lobby}
 
@@ -289,25 +287,25 @@ defmodule GameServer.Lobbies do
     attrs = maybe_hash_password(attrs)
     # if host_id is provided, prevent a user who is already a member of a lobby
     # from creating an additional lobby
-    # if no name was provided, generate a unique slug from the title
-    has_name = Map.has_key?(attrs, "name") || Map.has_key?(attrs, :name)
+    # ensure title is present; if missing, generate a unique title from a slug
+    has_title = Map.has_key?(attrs, "title") || Map.has_key?(attrs, :title)
 
     attrs =
-      if has_name do
+      if has_title do
         attrs
       else
         title = Map.get(attrs, "title") || Map.get(attrs, :title) || "lobby"
         base = slugify(title)
 
-        unique_name =
+        unique_title =
           Stream.iterate(0, &(&1 + 1))
           |> Stream.map(fn
             0 -> base
             n -> base <> "-" <> Integer.to_string(n)
           end)
-          |> Enum.find(fn candidate -> Repo.get_by(Lobby, name: candidate) == nil end)
+          |> Enum.find(fn candidate -> Repo.get_by(Lobby, title: candidate) == nil end)
 
-        Map.put(attrs, "name", unique_name)
+        Map.put(attrs, "title", unique_title)
       end
 
     case GameServer.Hooks.internal_call(:before_lobby_create, [attrs]) do

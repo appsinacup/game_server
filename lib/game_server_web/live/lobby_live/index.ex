@@ -638,7 +638,7 @@ defmodule GameServerWeb.LobbyLive.Index do
               >
                 <div class="flex justify-between items-start">
                   <div>
-                    <div class="text-lg font-semibold">{lobby.title || lobby.name}</div>
+                    <div class="text-lg font-semibold">{lobby.title}</div>
                     <div class="text-xs text-base-content/60 mt-2">
                       Members: {length(@memberships_map[lobby.id] || [])} / {lobby.max_users}
                     </div>

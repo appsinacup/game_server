@@ -12,7 +12,6 @@ defmodule GameServer.Lobbies.Lobby do
   # membership via users.lobby_id
 
   schema "lobbies" do
-    field :name, :string
     field :title, :string
     field :hostless, :boolean, default: false
     field :max_users, :integer, default: 8
@@ -29,15 +28,15 @@ defmodule GameServer.Lobbies.Lobby do
     timestamps(type: :utc_datetime)
   end
 
-  @required_fields ~w(name)a
-  @optional_fields ~w(title host_id hostless max_users is_hidden is_locked password_hash metadata)a
+  @required_fields ~w(title)a
+  @optional_fields ~w(host_id hostless max_users is_hidden is_locked password_hash metadata)a
 
   def changeset(lobby, attrs) do
     lobby
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
-    |> validate_length(:name, min: 1, max: 80)
+    |> validate_length(:title, min: 1, max: 80)
     |> validate_number(:max_users, greater_than: 0, less_than_or_equal_to: 128)
-    |> unique_constraint(:name)
+    |> unique_constraint(:title)
   end
 end

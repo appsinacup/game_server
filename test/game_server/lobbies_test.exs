@@ -69,18 +69,18 @@ defmodule GameServer.LobbiesTest do
     end
 
     test "create lobby with host and hostless lobby", %{host: host} do
-      {:ok, lobby} = Lobbies.create_lobby(%{name: "room-1", title: "Test Room", host_id: host.id})
+      {:ok, lobby} = Lobbies.create_lobby(%{title: "room-1", host_id: host.id})
 
-      assert lobby.name == "room-1"
+      assert lobby.title == "room-1"
       assert lobby.host_id == host.id
 
-      {:ok, service_lobby} = Lobbies.create_lobby(%{name: "server-room", hostless: true})
+      {:ok, service_lobby} = Lobbies.create_lobby(%{title: "server-room", hostless: true})
       assert service_lobby.hostless
       assert is_nil(service_lobby.host_id)
     end
 
     test "join and capacity rules", %{host: host, other: other} do
-      {:ok, lobby} = Lobbies.create_lobby(%{name: "join-room", host_id: host.id, max_users: 2})
+      {:ok, lobby} = Lobbies.create_lobby(%{title: "join-room", host_id: host.id, max_users: 2})
       # lobby should be persisted and host membership will be created automatically
 
       # other joins
@@ -96,7 +96,7 @@ defmodule GameServer.LobbiesTest do
       phash = Bcrypt.hash_pwd_salt(pw)
 
       {:ok, lobby} =
-        Lobbies.create_lobby(%{name: "pw-room", host_id: host.id, password_hash: phash})
+        Lobbies.create_lobby(%{title: "pw-room", host_id: host.id, password_hash: phash})
 
       assert {:error, :password_required} = Lobbies.join_lobby(other, lobby)
       assert {:error, :invalid_password} = Lobbies.join_lobby(other, lobby, password: "nope")
@@ -106,25 +106,25 @@ defmodule GameServer.LobbiesTest do
     test "search by metadata", %{host: host} do
       {:ok, _} =
         Lobbies.create_lobby(%{
-          name: "meta-room",
+          title: "meta-room",
           host_id: host.id,
           metadata: %{mode: "capture", region: "EU"}
         })
 
       {:ok, _} =
         Lobbies.create_lobby(%{
-          name: "meta-room-2",
+          title: "meta-room-2",
           hostless: true,
           metadata: %{mode: "deathmatch", region: "US"}
         })
 
       results = Lobbies.list_lobbies(%{q: "meta", metadata_key: "mode", metadata_value: "cap"})
-      assert Enum.any?(results, fn r -> r.name == "meta-room" end)
-      refute Enum.any?(results, fn r -> r.name == "meta-room-2" end)
+      assert Enum.any?(results, fn r -> r.title == "meta-room" end)
+      refute Enum.any?(results, fn r -> r.title == "meta-room-2" end)
     end
 
     test "leave lobby and host transfer", %{host: host, other: other} do
-      {:ok, lobby} = Lobbies.create_lobby(%{name: "leave-room", host_id: host.id, max_users: 5})
+      {:ok, lobby} = Lobbies.create_lobby(%{title: "leave-room", host_id: host.id, max_users: 5})
 
       # other joins (host created as a member on lobby creation)
       assert {:ok, _} = Lobbies.join_lobby(other, lobby)
@@ -137,7 +137,7 @@ defmodule GameServer.LobbiesTest do
     end
 
     test "kick user by host", %{host: host, other: other} do
-      {:ok, lobby} = Lobbies.create_lobby(%{name: "kick-room", host_id: host.id, max_users: 5})
+      {:ok, lobby} = Lobbies.create_lobby(%{title: "kick-room", host_id: host.id, max_users: 5})
       # host membership created on lobby creation; ensure other joins
       assert {:ok, _} = Lobbies.join_lobby(other, lobby)
 
@@ -151,7 +151,7 @@ defmodule GameServer.LobbiesTest do
       other: other
     } do
       # set up lobby and memberships
-      {:ok, lobby} = Lobbies.create_lobby(%{name: "errors-room", host_id: host.id, max_users: 5})
+      {:ok, lobby} = Lobbies.create_lobby(%{title: "errors-room", host_id: host.id, max_users: 5})
       assert {:ok, _} = Lobbies.join_lobby(other, lobby)
 
       # cannot kick self
@@ -171,14 +171,14 @@ defmodule GameServer.LobbiesTest do
     end
 
     test "cannot join if already in a lobby", %{host: host, other: other} do
-      {:ok, lobby1} = Lobbies.create_lobby(%{name: "a-room-1", host_id: host.id})
+      {:ok, lobby1} = Lobbies.create_lobby(%{title: "a-room-1", host_id: host.id})
 
       # other joins lobby1
       assert {:ok, _} = Lobbies.join_lobby(other, lobby1)
 
       # tries to join a different lobby and should get error :already_in_lobby
       {:ok, lobby2} =
-        Lobbies.create_lobby(%{name: "a-room-2", host_id: AccountsFixtures.user_fixture().id})
+        Lobbies.create_lobby(%{title: "a-room-2", host_id: AccountsFixtures.user_fixture().id})
 
       assert {:error, :already_in_lobby} = Lobbies.join_lobby(other, lobby2)
     end
@@ -206,7 +206,7 @@ defmodule GameServer.LobbiesTest do
 
       on_exit(fn -> Application.put_env(:game_server, :hooks_module, orig) end)
 
-      {:ok, lobby} = Lobbies.create_lobby(%{name: "deny-room", host_id: host.id})
+      {:ok, lobby} = Lobbies.create_lobby(%{title: "deny-room", host_id: host.id})
       assert {:error, {:hook_rejected, :banned}} = Lobbies.join_lobby(other, lobby)
     end
 
@@ -226,7 +226,7 @@ defmodule GameServer.LobbiesTest do
       Application.put_env(:game_server, :hooks_module, CaptureHook)
       Application.put_env(:game_server, :hooks_test_pid, self())
 
-      {:ok, lobby} = Lobbies.create_lobby(%{name: "hook-room", host_id: host.id, max_users: 5})
+      {:ok, lobby} = Lobbies.create_lobby(%{title: "hook-room", host_id: host.id, max_users: 5})
 
       # Ensure join triggers create_membership which starts background task
       assert {:ok, _} = Lobbies.join_lobby(other, lobby)
@@ -239,7 +239,7 @@ defmodule GameServer.LobbiesTest do
 
     test "cannot shrink lobby max_users below current member count", %{host: host, other: other} do
       # create with max_users 3, host auto-joined
-      {:ok, lobby} = Lobbies.create_lobby(%{name: "shrink-room", host_id: host.id, max_users: 3})
+      {:ok, lobby} = Lobbies.create_lobby(%{title: "shrink-room", host_id: host.id, max_users: 3})
 
       # two other users join -> total 3
       assert {:ok, _} = Lobbies.join_lobby(other, lobby)

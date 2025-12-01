@@ -12,8 +12,8 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
 
   test "GET /api/v1/lobbies lists lobbies but hides hidden ones", %{conn: conn} do
     host = AccountsFixtures.user_fixture()
-    {:ok, lobby1} = Lobbies.create_lobby(%{name: "visible-room", host_id: host.id})
-    {:ok, _hidden} = Lobbies.create_lobby(%{name: "hidden-room", hostless: true, is_hidden: true})
+    {:ok, lobby1} = Lobbies.create_lobby(%{title: "visible-room", host_id: host.id})
+    {:ok, _hidden} = Lobbies.create_lobby(%{title: "hidden-room", hostless: true, is_hidden: true})
 
     conn = get(conn, "/api/v1/lobbies")
     resp = json_response(conn, 200)
@@ -32,7 +32,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     conn =
       conn
       |> put_req_header("authorization", "Bearer " <> token)
-      |> post("/api/v1/lobbies", %{name: "api-room"})
+      |> post("/api/v1/lobbies", %{title: "api-room"})
 
     assert conn.status == 201
     lobby = json_response(conn, 201)
@@ -46,14 +46,14 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
   test "POST /api/v1/lobbies hostless creation removed from public API returns unauthorized", %{
     conn: conn
   } do
-    conn = post(conn, "/api/v1/lobbies", %{name: "service-room", hostless: true})
+    conn = post(conn, "/api/v1/lobbies", %{title: "service-room", hostless: true})
     assert conn.status == 401
   end
 
   test "POST /api/v1/lobbies/:id/join requires auth and manages lobby membership", %{conn: conn} do
     host = AccountsFixtures.user_fixture()
     other = AccountsFixtures.user_fixture()
-    {:ok, lobby} = Lobbies.create_lobby(%{name: "api-join-room", host_id: host.id, max_users: 2})
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "api-join-room", host_id: host.id, max_users: 2})
 
     {:ok, token, _} = Guardian.encode_and_sign(other)
 
@@ -76,7 +76,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     phash = Bcrypt.hash_pwd_salt(pw)
 
     {:ok, lobby} =
-      Lobbies.create_lobby(%{name: "pw-room-api", host_id: host.id, password_hash: phash})
+      Lobbies.create_lobby(%{title: "pw-room-api", host_id: host.id, password_hash: phash})
 
     {:ok, token, _} = Guardian.encode_and_sign(other)
 
@@ -106,7 +106,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
   test "PATCH /api/v1/lobbies/:id update allowed for host only", %{conn: conn} do
     host = AccountsFixtures.user_fixture()
     other = AccountsFixtures.user_fixture()
-    {:ok, _lobby} = Lobbies.create_lobby(%{name: "update-room", host_id: host.id})
+    {:ok, _lobby} = Lobbies.create_lobby(%{title: "update-room", host_id: host.id})
 
     {:ok, token_host, _} = Guardian.encode_and_sign(host)
     {:ok, token_other, _} = Guardian.encode_and_sign(other)
@@ -133,7 +133,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     host = AccountsFixtures.user_fixture()
     member1 = AccountsFixtures.user_fixture()
     member2 = AccountsFixtures.user_fixture()
-    {:ok, lobby} = Lobbies.create_lobby(%{name: "resize-room", host_id: host.id, max_users: 3})
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "resize-room", host_id: host.id, max_users: 3})
 
     # two members join making total 3 (host + 2)
     assert {:ok, _} = Lobbies.join_lobby(member1, lobby)
@@ -162,7 +162,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
   test "POST /api/v1/lobbies/:id/kick allowed for host", %{conn: conn} do
     host = AccountsFixtures.user_fixture()
     other = AccountsFixtures.user_fixture()
-    {:ok, lobby} = Lobbies.create_lobby(%{name: "kick-api-room", host_id: host.id})
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "kick-api-room", host_id: host.id})
     assert {:ok, _} = Lobbies.join_lobby(other, lobby)
 
     {:ok, token_host, _} = Guardian.encode_and_sign(host)
@@ -183,7 +183,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     host = AccountsFixtures.user_fixture()
     member1 = AccountsFixtures.user_fixture()
     member2 = AccountsFixtures.user_fixture()
-    {:ok, lobby} = Lobbies.create_lobby(%{name: "kick-forbidden-room", host_id: host.id})
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "kick-forbidden-room", host_id: host.id})
     assert {:ok, _} = Lobbies.join_lobby(member1, lobby)
     assert {:ok, _} = Lobbies.join_lobby(member2, lobby)
 
@@ -205,7 +205,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
 
   test "POST /api/v1/lobbies/:id/kick host cannot kick self", %{conn: conn} do
     host = AccountsFixtures.user_fixture()
-    {:ok, lobby} = Lobbies.create_lobby(%{name: "self-kick-room", host_id: host.id})
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "self-kick-room", host_id: host.id})
 
     {:ok, token_host, _} = Guardian.encode_and_sign(host)
 
@@ -227,11 +227,11 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
   } do
     host = AccountsFixtures.user_fixture()
     other = AccountsFixtures.user_fixture()
-    {:ok, lobby} = Lobbies.create_lobby(%{name: "kick-mismatch-room", host_id: host.id})
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "kick-mismatch-room", host_id: host.id})
 
     # create a different lobby to use as mismatched path id
     other_host = AccountsFixtures.user_fixture()
-    {:ok, _other_lobby} = Lobbies.create_lobby(%{name: "other-room", host_id: other_host.id})
+    {:ok, _other_lobby} = Lobbies.create_lobby(%{title: "other-room", host_id: other_host.id})
 
     assert {:ok, _} = Lobbies.join_lobby(other, lobby)
 
@@ -252,7 +252,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
   test "POST /api/v1/lobbies/:id/leave removes user from lobby", %{conn: conn} do
     host = AccountsFixtures.user_fixture()
     member = AccountsFixtures.user_fixture()
-    {:ok, lobby} = Lobbies.create_lobby(%{name: "leave-room", host_id: host.id})
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "leave-room", host_id: host.id})
     assert {:ok, _} = Lobbies.join_lobby(member, lobby)
 
     {:ok, token_member, _} = Guardian.encode_and_sign(member)
@@ -274,7 +274,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
   } do
     host = AccountsFixtures.user_fixture()
     member = AccountsFixtures.user_fixture()
-    {:ok, lobby} = Lobbies.create_lobby(%{name: "leave-mismatch-room", host_id: host.id})
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "leave-mismatch-room", host_id: host.id})
 
     {:ok, _other_lobby} =
       Lobbies.create_lobby(%{

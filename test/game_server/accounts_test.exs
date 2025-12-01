@@ -426,7 +426,7 @@ defmodule GameServer.AccountsTest do
       member = user_fixture()
 
       {:ok, lobby} =
-        GameServer.Lobbies.create_lobby(%{title: "hosted", name: "hosted", host_id: host.id})
+        GameServer.Lobbies.create_lobby(%{title: "hosted", host_id: host.id})
 
       # add member to lobby
       {:ok, _} = GameServer.Lobbies.create_membership(%{lobby_id: lobby.id, user_id: member.id})
@@ -452,7 +452,7 @@ defmodule GameServer.AccountsTest do
       host = user_fixture() |> set_password()
 
       {:ok, lobby} =
-        GameServer.Lobbies.create_lobby(%{title: "single", name: "single", host_id: host.id})
+        GameServer.Lobbies.create_lobby(%{title: "single", host_id: host.id})
 
       # create a token for the host
       _t = Accounts.generate_user_session_token(host)

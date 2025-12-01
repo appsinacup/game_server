@@ -17,7 +17,7 @@ defmodule GameServerWeb.LobbyChannelTest do
     host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
     other = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
 
-    {:ok, lobby} = Lobbies.create_lobby(%{name: "channel-room", host_id: host.id})
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "channel-room", host_id: host.id})
 
     # other joins as member
     assert {:ok, _} = Lobbies.join_lobby(other, lobby)
@@ -42,7 +42,7 @@ defmodule GameServerWeb.LobbyChannelTest do
     host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
     stranger = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
 
-    {:ok, lobby} = Lobbies.create_lobby(%{name: "reject-room", host_id: host.id})
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "reject-room", host_id: host.id})
 
     {:ok, token_stranger, _} = Guardian.encode_and_sign(stranger)
     {:ok, socket_stranger} = connect(GameServerWeb.UserSocket, %{"token" => token_stranger})
@@ -54,7 +54,7 @@ defmodule GameServerWeb.LobbyChannelTest do
     host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
     member = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
 
-    {:ok, lobby} = Lobbies.create_lobby(%{name: "kick-channel-room", host_id: host.id})
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "kick-channel-room", host_id: host.id})
     assert {:ok, _} = Lobbies.join_lobby(member, lobby)
 
     {:ok, token_host, _} = Guardian.encode_and_sign(host)
@@ -71,7 +71,7 @@ defmodule GameServerWeb.LobbyChannelTest do
   test "channel receives lobby_updated event when lobby is updated" do
     host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
 
-    {:ok, lobby} = Lobbies.create_lobby(%{name: "update-channel-room", host_id: host.id})
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "update-channel-room", host_id: host.id})
 
     {:ok, token_host, _} = Guardian.encode_and_sign(host)
     {:ok, socket_host} = connect(GameServerWeb.UserSocket, %{"token" => token_host})

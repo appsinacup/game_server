@@ -8,8 +8,5 @@ defmodule GameServer.Repo.Migrations.MigrateMembershipToUsers do
     end
 
     create index(:users, [:lobby_id])
-
-    # drop the lobby_users join table since we'll store membership in users.lobby_id
-    drop_if_exists table(:lobby_users)
   end
 end

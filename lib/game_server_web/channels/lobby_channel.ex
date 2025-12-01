@@ -88,7 +88,6 @@ defmodule GameServerWeb.LobbyChannel do
   defp serialize_lobby(lobby) do
     %{
       id: lobby.id,
-      name: lobby.name,
       title: lobby.title,
       host_id: lobby.host_id,
       hostless: lobby.hostless,

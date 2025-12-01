@@ -22,7 +22,7 @@ defmodule GameServerWeb.LobbiesChannelTest do
     {:ok, _, _socket} = subscribe_and_join(socket, "lobbies", %{})
 
     # create lobby (this should broadcast a lobby_created event)
-    {:ok, lobby} = Lobbies.create_lobby(%{name: "global-room", host_id: host.id})
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "global-room", host_id: host.id})
 
     assert_push "lobby_created", %{id: id}
     assert id == lobby.id

@@ -14,8 +14,8 @@ defmodule GameServerWeb.AdminLive.IndexTest do
       |> Repo.update()
 
     # create two lobbies so count will be 2
-    GameServer.Lobbies.create_lobby(%{name: "dash-1", hostless: true})
-    GameServer.Lobbies.create_lobby(%{name: "dash-2", hostless: true})
+    GameServer.Lobbies.create_lobby(%{title: "dash-1", hostless: true})
+    GameServer.Lobbies.create_lobby(%{title: "dash-2", hostless: true})
 
     {:ok, _view, html} = conn |> log_in_user(admin) |> live(~p"/admin")
 

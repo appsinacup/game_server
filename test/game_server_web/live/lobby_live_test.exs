@@ -41,7 +41,7 @@ defmodule GameServerWeb.LobbyLiveTest do
   end
 
   test "join redirects to login when unauthenticated", %{conn: conn} do
-    {:ok, lobby} = Lobbies.create_lobby(%{name: "lv-join", hostless: true})
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "lv-join", hostless: true})
 
     {:ok, view, _html} = live(conn, "/lobbies")
     # simulate join click for existing lobby
@@ -52,7 +52,7 @@ defmodule GameServerWeb.LobbyLiveTest do
   end
 
   test "password protected lobby requires password to join", %{conn: conn} do
-    {:ok, lobby} = Lobbies.create_lobby(%{name: "pw-room", hostless: true, password: "s3cret"})
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "pw-room", hostless: true, password: "s3cret"})
 
     user = GameServer.AccountsFixtures.user_fixture()
     logged_conn = conn |> log_in_user(user)
@@ -85,7 +85,7 @@ defmodule GameServerWeb.LobbyLiveTest do
     host = GameServer.AccountsFixtures.user_fixture()
     member = GameServer.AccountsFixtures.user_fixture(%{email: "member@example.com"})
 
-    {:ok, lobby} = Lobbies.create_lobby(%{name: "host-room", host_id: host.id})
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "host-room", host_id: host.id})
 
     # member joins
     {:ok, _} = Lobbies.join_lobby(member, lobby.id)
@@ -131,7 +131,7 @@ defmodule GameServerWeb.LobbyLiveTest do
 
   test "member can leave a lobby from lobbies view", %{conn: conn} do
     # Create a hostless lobby for a user to join
-    {:ok, lobby} = Lobbies.create_lobby(%{name: "join-room", hostless: true})
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "join-room", hostless: true})
 
     user = GameServer.AccountsFixtures.user_fixture()
     logged = conn |> log_in_user(user)
@@ -164,7 +164,7 @@ defmodule GameServerWeb.LobbyLiveTest do
     host = GameServer.AccountsFixtures.user_fixture()
     member = GameServer.AccountsFixtures.user_fixture(%{email: "member2@example.com"})
 
-    {:ok, lobby} = Lobbies.create_lobby(%{name: "view-only-room", host_id: host.id})
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "view-only-room", host_id: host.id})
 
     # member joins
     {:ok, _} = Lobbies.join_lobby(member, lobby.id)
@@ -189,7 +189,7 @@ defmodule GameServerWeb.LobbyLiveTest do
     member = GameServer.AccountsFixtures.user_fixture(%{email: "member3@example.com"})
     target = GameServer.AccountsFixtures.user_fixture(%{email: "target@example.com"})
 
-    {:ok, lobby} = Lobbies.create_lobby(%{name: "kick-attempt-room", host_id: host.id})
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "kick-attempt-room", host_id: host.id})
     {:ok, _} = Lobbies.join_lobby(member, lobby.id)
     {:ok, _} = Lobbies.join_lobby(target, lobby.id)
 
@@ -210,7 +210,7 @@ defmodule GameServerWeb.LobbyLiveTest do
   test "lobbies pagination displays totals and enables/disables Next", %{conn: conn} do
     # create more than default page_size=12 so we have multiple pages
     for i <- 1..15 do
-      GameServer.Lobbies.create_lobby(%{name: "pagi-#{i}", title: "Pagi #{i}", hostless: true})
+      GameServer.Lobbies.create_lobby(%{title: "pagi-#{i}", hostless: true})
     end
 
     {:ok, view, html} = live(conn, "/lobbies")
