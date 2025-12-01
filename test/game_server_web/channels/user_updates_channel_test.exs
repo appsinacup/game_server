@@ -1,4 +1,4 @@
-defmodule GameServerWeb.UserUpdatesChannelTest do
+defmodule GameServerWeb.UserChannelTest do
   use ExUnit.Case
   import Phoenix.ChannelTest
 
@@ -20,11 +20,11 @@ defmodule GameServerWeb.UserUpdatesChannelTest do
     # verify connect assigned a current_scope (user auto-loaded)
     assert Map.has_key?(socket.assigns, :current_scope)
     assert socket.assigns.current_scope.user.id == user.id
-    {:ok, _, _socket} = subscribe_and_join(socket, "user_updates:#{user.id}", %{})
+    {:ok, _, _socket} = subscribe_and_join(socket, "user:#{user.id}", %{})
 
     payload = %{id: user.id, metadata: %{"display_name" => "Updated"}}
 
-    GameServerWeb.Endpoint.broadcast("user_updates:#{user.id}", "metadata_updated", payload)
+    GameServerWeb.Endpoint.broadcast("user:#{user.id}", "metadata_updated", payload)
 
     # The test process receives the push
     assert_push "metadata_updated", ^payload
@@ -41,7 +41,7 @@ defmodule GameServerWeb.UserUpdatesChannelTest do
     # the channel logs a warning when an unauthorized join is attempted; capture
     # that log in the test so it doesn't show up as noisy output
     ExUnit.CaptureLog.capture_log(fn ->
-      assert {:error, _} = subscribe_and_join(socket2, "user_updates:#{user.id}", %{})
+      assert {:error, _} = subscribe_and_join(socket2, "user:#{user.id}", %{})
     end)
   end
 end

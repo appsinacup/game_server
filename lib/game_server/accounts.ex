@@ -997,7 +997,7 @@ defmodule GameServer.Accounts do
   Broadcast that the given user has been updated.
 
   This helper is intentionally small and only broadcasts a compact payload
-  intended for client consumption through the `user_updates:<id>` topic.
+  intended for client consumption through the `user:<id>` topic.
   """
   def broadcast_user_update(%User{} = user) do
     payload = %{
@@ -1006,7 +1006,7 @@ defmodule GameServer.Accounts do
       display_name: user.display_name
     }
 
-    GameServerWeb.Endpoint.broadcast("user_updates:#{user.id}", "metadata_updated", payload)
+    GameServerWeb.Endpoint.broadcast("user:#{user.id}", "metadata_updated", payload)
     :ok
   end
 

@@ -293,8 +293,8 @@ const socket = new Socket('/socket', { params: { token: accessToken } });
 socket.connect();
 
 // === per-user updates ===
-// join the "user_updates:&lt;userId&gt;" topic to receive events about that user
-const userChannel = socket.channel('user_updates:' + userId, {});
+// join the "user:&lt;userId&gt;" topic to receive events about that user
+const userChannel = socket.channel('user:' + userId, {});
 await userChannel.join();
 userChannel.on('metadata_updated', (payload) => {
 console.log('My metadata changed', payload);

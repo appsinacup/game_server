@@ -26,7 +26,30 @@ defmodule GameServer.Application do
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: GameServer.Supervisor]
-    Supervisor.start_link(children, opts)
+
+    result = Supervisor.start_link(children, opts)
+
+    # Log the number of Channel modules detected in the running application.
+    # We use the application module list and a simple naming convention
+    # (modules ending with "Channel") to detect channels.
+    {:ok, modules} = :application.get_key(:game_server, :modules)
+
+    channel_mods =
+      modules
+      |> Enum.filter(fn m ->
+        case Atom.to_string(m) do
+          "Elixir." <> rest ->
+            String.ends_with?(rest, "Channel") and String.starts_with?(rest, "GameServerWeb.")
+
+          _ ->
+            false
+        end
+      end)
+
+    require Logger
+    Logger.info("detected #{length(channel_mods)} channel modules: #{inspect(channel_mods)}")
+
+    result
   end
 
   # Tell Phoenix to update the endpoint configuration

@@ -1,8 +1,8 @@
-defmodule GameServerWeb.UserUpdatesChannel do
+defmodule GameServerWeb.UserChannel do
   @moduledoc """
   Channel for sending per-user realtime updates (e.g. metadata changes).
 
-  Topic: "user_updates:<user_id>"
+  Topic: "user:<user_id>"
   Clients must authenticate the socket connection (JWT) and may only join topics belonging to their own user id.
   """
 
@@ -12,7 +12,7 @@ defmodule GameServerWeb.UserUpdatesChannel do
   alias GameServer.Accounts.Scope
 
   @impl true
-  def join("user_updates:" <> user_id_str, _payload, socket) do
+  def join("user:" <> user_id_str, _payload, socket) do
     # ensure the socket has a current_scope assign created during socket connect
     current_scope = Map.get(socket.assigns, :current_scope)
 
@@ -23,7 +23,7 @@ defmodule GameServerWeb.UserUpdatesChannel do
             {:ok, socket}
 
           _ ->
-            Logger.warning("UserUpdatesChannel: unauthorized join attempt for user=#{user_id}")
+            Logger.warning("UserChannel: unauthorized join attempt for user=#{user_id}")
             {:error, %{reason: "unauthorized"}}
         end
 

@@ -11,8 +11,8 @@ defmodule GameServerWeb.UserSocket do
   # assign values that can be accessed by your channel topics.
 
   ## Channels
-  # Register the user_updates channel for per-user realtime events
-  channel "user_updates:*", GameServerWeb.UserUpdatesChannel
+  # Register the user channel for per-user realtime events
+  channel "user:*", GameServerWeb.UserChannel
 
   # Lobby channels - join workspace level lobby topics (members only)
   channel "lobby:*", GameServerWeb.LobbyChannel
