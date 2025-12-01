@@ -1,6 +1,8 @@
 defmodule GameServerWeb.AdminLive.Config do
   use GameServerWeb, :live_view
 
+  alias GameServer.Accounts.UserNotifier
+  alias GameServer.Hooks
   alias GameServer.Theme.JSONConfig
 
   @impl true
@@ -436,7 +438,7 @@ defmodule GameServerWeb.AdminLive.Config do
                         <div class="text-sm">
                           <p class="text-xs font-semibold">Available functions</p>
                           <div class="mt-2 grid grid-cols-2 gap-2">
-                            <% funcs = GameServer.Hooks.exported_functions() %>
+                            <% funcs = Hooks.exported_functions() %>
                             <%= if funcs == [] do %>
                               <div class="text-xs text-muted col-span-2">No exported functions</div>
                             <% else %>
@@ -658,8 +660,8 @@ defmodule GameServerWeb.AdminLive.Config do
       hooks_file_path_env: System.get_env("HOOKS_FILE_PATH"),
       hooks_watch_interval_app: Application.get_env(:game_server, :hooks_file_watch_interval),
       hooks_watch_interval_env: System.get_env("GAME_SERVER_HOOKS_WATCH_INTERVAL"),
-      hooks_registered_module: GameServer.Hooks.module(),
-      hooks_exported_functions: GameServer.Hooks.exported_functions(),
+      hooks_registered_module: Hooks.module(),
+      hooks_exported_functions: Hooks.exported_functions(),
       hooks_test_result: nil,
       hooks_last_compiled_at: Application.get_env(:game_server, :hooks_last_compiled_at),
       hooks_last_compile_status: Application.get_env(:game_server, :hooks_last_compile_status),
@@ -695,7 +697,7 @@ defmodule GameServerWeb.AdminLive.Config do
     caller = socket.assigns.current_scope && socket.assigns.current_scope.user
 
     result =
-      case GameServer.Hooks.call(fn_name, args, caller: caller) do
+      case Hooks.call(fn_name, args, caller: caller) do
         {:ok, res} ->
           inspect(res)
 
@@ -722,7 +724,7 @@ defmodule GameServerWeb.AdminLive.Config do
         {:noreply, put_flash(socket, :error, "No email address available for current admin")}
 
       email when is_binary(email) ->
-        case GameServer.Accounts.UserNotifier.deliver_test_email(email) do
+        case UserNotifier.deliver_test_email(email) do
           {:ok, _} ->
             {:noreply, put_flash(socket, :info, "Test email sent to #{email}")}
 
@@ -833,9 +835,9 @@ defmodule GameServerWeb.AdminLive.Config do
     src = config.hooks_file_path_app || config.hooks_file_path_env
 
     if is_binary(src) and File.exists?(src) do
-      case GameServer.Hooks.register_file(src) do
+      case Hooks.register_file(src) do
         {:ok, _mod} ->
-          case GameServer.Hooks.call(fn_name, args, caller: caller) do
+          case Hooks.call(fn_name, args, caller: caller) do
             {:ok, res2} -> inspect(res2)
             {:error, r2} -> "error: #{inspect(r2)}"
           end

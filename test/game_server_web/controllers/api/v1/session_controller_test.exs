@@ -74,6 +74,8 @@ defmodule GameServerWeb.Api.V1.SessionControllerTest do
                }
              } = resp
 
+      assert is_integer(device_user_id) and device_user_id > 0
+
       assert is_binary(access_token)
       assert is_binary(refresh_token)
 
@@ -106,7 +108,7 @@ defmodule GameServerWeb.Api.V1.SessionControllerTest do
   end
 
   describe "POST /api/v1/refresh" do
-    test "returns new access token with valid refresh token", %{conn: conn, user: user} do
+    test "returns new access token with valid refresh token", %{conn: conn} do
       # Login to get tokens
       conn =
         post(conn, "/api/v1/login", %{

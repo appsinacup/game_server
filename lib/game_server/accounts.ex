@@ -198,19 +198,9 @@ defmodule GameServer.Accounts do
 
       case Repo.insert(changeset) do
         {:ok, %User{} = user} ->
-          if is_first_user do
-            user
-          else
-            {encoded_token, user_token} = UserToken.build_email_token(user, "confirm")
-            Repo.insert!(user_token)
-
-            case notifier.deliver_confirmation_instructions(
-                   user,
-                   confirmation_url_fun.(encoded_token)
-                 ) do
-              {:ok, _} -> user
-              {:error, reason} -> Repo.rollback(reason)
-            end
+          case maybe_send_confirmation(user, is_first_user, notifier, confirmation_url_fun) do
+            :ok -> user
+            {:error, reason} -> Repo.rollback(reason)
           end
 
         {:error, %Ecto.Changeset{} = changeset} ->
@@ -223,6 +213,21 @@ defmodule GameServer.Accounts do
 
     case Repo.transaction(transaction_fun) do
       {:ok, %User{} = user} -> {:ok, user}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  defp maybe_send_confirmation(_user, true, _notifier, _fun), do: :ok
+
+  defp maybe_send_confirmation(user, false, notifier, confirmation_url_fun) do
+    {encoded_token, user_token} = UserToken.build_email_token(user, "confirm")
+    Repo.insert!(user_token)
+
+    case notifier.deliver_confirmation_instructions(
+           user,
+           confirmation_url_fun.(encoded_token)
+         ) do
+      {:ok, _} -> :ok
       {:error, reason} -> {:error, reason}
     end
   end
