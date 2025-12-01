@@ -4,10 +4,6 @@ defmodule GameServer.HooksRegistrationTest do
   # flakiness in CI where tests may run in parallel or with Postgres workers.
   use ExUnit.Case, async: false
 
-  # register/unregister helpers were intentionally removed from the public
-  # API - use register_file/1 or the runtime watcher configured via
-  # :game_server, :hooks_file_path to enable automatic registration.
-
   test "register_file/1 compiles and registers a module file at runtime" do
     orig = Application.get_env(:game_server, :hooks_module)
     on_exit(fn -> Application.put_env(:game_server, :hooks_module, orig) end)

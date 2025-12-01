@@ -44,8 +44,6 @@ defmodule GameServer.Hooks do
 
   @callback after_lobby_host_change(term(), term()) :: any()
 
-  # (friends hooks removed - see config / code changes)
-
   @doc "Return the configured module that implements the hooks behaviour."
   def module do
     case Application.get_env(:game_server, :hooks_module, Default) do
@@ -765,5 +763,3 @@ defmodule GameServer.Hooks.Default do
   @impl true
   def after_lobby_host_change(_lobby, _new_host_id), do: :ok
 end
-
-# friends hooks removed

@@ -457,7 +457,6 @@ defmodule GameServerWeb.AdminLive.Config do
                                             - {s.signature}
                                           </span>
                                         <% end %>
-                                        <%!-- example button removed: clicking the function name now auto-prefills the example args --%>
                                         <%= if s.doc do %>
                                           <span class="text-xs block text-muted mt-1">
                                             {String.slice(s.doc, 0, 200)}{if String.length(s.doc) >

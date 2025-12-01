@@ -290,10 +290,6 @@ defmodule GameServer.Hooks.CallTest do
     assert id2 == user.id
   end
 
-  # NOTE: removed an earlier test that expected `GameServer.Hooks.call/3` to
-  # auto-compile & register a hooks file. We don't auto-register on call; the
-  # admin UI attempts registration when appropriate.
-
   test "exported_functions returns empty for default module and handles multiple arities" do
     # ensure default module is used
     Application.put_env(:game_server, :hooks_module, GameServer.Hooks.Default)

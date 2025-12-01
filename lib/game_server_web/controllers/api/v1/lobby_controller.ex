@@ -288,7 +288,6 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       host_id: lobby.host_id,
       hostless: lobby.hostless,
       max_users: lobby.max_users,
-      # is_private removed; use hidden + locked flags
       is_hidden: lobby.is_hidden,
       is_locked: lobby.is_locked,
       metadata: lobby.metadata || %{}

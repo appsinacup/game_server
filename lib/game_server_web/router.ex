@@ -68,7 +68,6 @@ defmodule GameServerWeb.Router do
     post "/refresh", SessionController, :refresh
     delete "/logout", SessionController, :delete
     get "/lobbies", LobbyController, :index
-    # hostless creation removed (server-managed only). Public create endpoint removed.
   end
 
   # Protected API routes - require JWT authentication

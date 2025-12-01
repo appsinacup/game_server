@@ -135,7 +135,7 @@ API routes use JWT tokens via Guardian for stateless authentication:
 
 - Lobbies are stored in the `lobbies` table with fields: `id`, `name`, `title`, `host_id`, `hostless`, `max_users`, `is_hidden`, `is_locked`, `password_hash`, `metadata`, `inserted_at`, `updated_at`.
 - Membership is now stored on the `users` table via a nullable `lobby_id` field: a user can be in at most one lobby at a time.
-- Hidden lobbies are never returned from public list APIs. Hostless lobbies are allowed as a server-managed concept but **public API creation of hostless lobbies has been removed**.
+- Hidden lobbies are never returned from public list APIs. Hostless lobbies are allowed as a server-managed concept.
 - API endpoints live under `/api/v1/lobbies` and require authentication for creating (host becomes owner), joining, leaving, updating, and kicking users. Listing lobbies is public but excludes hidden lobbies.
 
 ### Pagination (repository convention)
