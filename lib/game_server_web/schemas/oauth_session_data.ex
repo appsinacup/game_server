@@ -17,6 +17,10 @@ defmodule GameServerWeb.Schemas.OAuthSessionData do
       access_token: %Schema{type: :string, description: "Short-lived access token"},
       refresh_token: %Schema{type: :string, description: "Long-lived refresh token"},
       expires_in: %Schema{type: :integer, description: "Seconds until access_token expires"},
+      user_id: %Schema{
+        type: :integer,
+        description: "User id that was authenticated for this session (when completed)"
+      },
       details: %Schema{
         description: "Error details (string or object). When present the session failed",
         oneOf: [
@@ -28,7 +32,8 @@ defmodule GameServerWeb.Schemas.OAuthSessionData do
     example: %{
       access_token: "eyJhb...",
       refresh_token: "eyJhb...",
-      expires_in: 900
+      expires_in: 900,
+      user_id: 123
     }
   })
 end

@@ -104,7 +104,7 @@ const loginResponse = await authApi.login({
   }
 });
 
-const { access_token, refresh_token } = loginResponse.data;</code></pre>
+const { access_token, refresh_token, user_id } = loginResponse.data;</code></pre>
           </div>
 
           <h4 class="font-semibold mt-4">OAuth Flow (Discord, Google, Facebook):</h4>
@@ -124,8 +124,8 @@ do {
   sessionData = await authApi.oauthSessionStatus(sessionId);
 } while (sessionData.status === 'pending');
 
-if (sessionData.status === 'completed') {
-  const { access_token, refresh_token } = sessionData.data;
+  if (sessionData.status === 'completed') {
+  const { access_token, refresh_token, user_id } = sessionData.data;
   console.log('OAuth successful!');
 }</code></pre>
           </div>
@@ -296,7 +296,7 @@ socket.connect();
 // join the "user:&lt;userId&gt;" topic to receive events about that user
 const userChannel = socket.channel('user:' + userId, {});
 await userChannel.join();
-userChannel.on('metadata_updated', (payload) => {
+userChannel.on('updated', (payload) => {
 console.log('My metadata changed', payload);
 });
 

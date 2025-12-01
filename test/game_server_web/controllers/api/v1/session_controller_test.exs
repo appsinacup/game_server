@@ -23,20 +23,25 @@ defmodule GameServerWeb.Api.V1.SessionControllerTest do
   end
 
   describe "POST /api/v1/login" do
-    test "returns access and refresh tokens on successful login", %{conn: conn} do
+    test "returns access and refresh tokens on successful login", %{conn: conn, user: user} do
       conn =
         post(conn, "/api/v1/login", %{
           email: @valid_email,
           password: @valid_password
         })
 
+      resp = json_response(conn, 200)
+
       assert %{
                "data" => %{
                  "access_token" => access_token,
                  "refresh_token" => refresh_token,
-                 "expires_in" => 900
+                 "expires_in" => 900,
+                 "user_id" => user_id
                }
-             } = json_response(conn, 200)
+             } = resp
+
+      assert user_id == user.id
 
       assert is_binary(access_token)
       assert is_binary(refresh_token)
@@ -58,13 +63,16 @@ defmodule GameServerWeb.Api.V1.SessionControllerTest do
 
       conn = post(conn, "/api/v1/login/device", %{device_id: device_id})
 
+      resp = json_response(conn, 200)
+
       assert %{
                "data" => %{
                  "access_token" => access_token,
                  "refresh_token" => refresh_token,
-                 "expires_in" => 900
+                 "expires_in" => 900,
+                 "user_id" => device_user_id
                }
-             } = json_response(conn, 200)
+             } = resp
 
       assert is_binary(access_token)
       assert is_binary(refresh_token)
@@ -89,13 +97,16 @@ defmodule GameServerWeb.Api.V1.SessionControllerTest do
 
       conn = post(conn, "/api/v1/login/device", %{device_id: device_id})
 
-      assert %{"data" => %{"access_token" => access_token}} = json_response(conn, 200)
+      resp = json_response(conn, 200)
+      assert %{"data" => %{"access_token" => access_token, "user_id" => returned_id}} = resp
+      assert returned_id == user.id
+
       assert is_binary(access_token)
     end
   end
 
   describe "POST /api/v1/refresh" do
-    test "returns new access token with valid refresh token", %{conn: conn} do
+    test "returns new access token with valid refresh token", %{conn: conn, user: user} do
       # Login to get tokens
       conn =
         post(conn, "/api/v1/login", %{
@@ -109,10 +120,10 @@ defmodule GameServerWeb.Api.V1.SessionControllerTest do
       conn = build_conn()
       conn = post(conn, "/api/v1/refresh", %{refresh_token: refresh_token})
 
-      assert %{
-               "access_token" => new_access_token,
-               "expires_in" => 900
-             } = json_response(conn, 200)
+      resp = json_response(conn, 200)
+
+      assert %{"data" => %{"access_token" => new_access_token, "expires_in" => 900}} = resp
+      refute Map.has_key?(resp["data"], "user_id")
 
       assert is_binary(new_access_token)
     end

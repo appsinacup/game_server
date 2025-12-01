@@ -58,6 +58,45 @@ defmodule GameServerWeb.AuthControllerApiTest do
       assert session.status == "pending"
     end
 
+    test "API OAuth session flow stores user_id on completion (discord)", %{conn: conn} do
+      # Create an API OAuth session (pending)
+      resp = get(conn, ~p"/api/v1/auth/discord")
+      assert resp.status == 200
+      body = json_response(resp, 200)
+      session_id = body["session_id"]
+
+      # install a mock exchanger module that returns a successful discord payload
+      defmodule MockExchangerDiscordOk2 do
+        def exchange_discord_code(_code, _cid, _secret, _redirect),
+          do:
+            {:ok,
+             %{
+               "id" => "dX",
+               "email" => "d_sess@example.com",
+               "global_name" => "SessDiscord",
+               "avatar" => "av"
+             }}
+      end
+
+      Application.put_env(:game_server, :oauth_exchanger, MockExchangerDiscordOk2)
+
+      # Simulate the provider callback for the browser flow which includes state (session_id)
+      conn = post(conn, "/auth/discord/callback", %{code: "ok", state: session_id})
+
+      # session should be completed now and include user_id in data
+      status_conn = get(conn, ~p"/api/v1/auth/session/#{session_id}")
+      assert status_conn.status == 200
+      status_body = json_response(status_conn, 200)
+
+      assert status_body["status"] == "completed"
+
+      assert is_map(status_body["data"]) and is_integer(status_body["data"]["user_id"]) and
+               status_body["data"]["user_id"] > 0
+
+      # ensure user exists in DB
+      assert GameServer.Repo.get(GameServer.Accounts.User, status_body["data"]["user_id"]) != nil
+    end
+
     test "POST /api/v1/auth/:provider/callback exchanges code and returns tokens (discord)", %{
       conn: conn
     } do
@@ -80,8 +119,10 @@ defmodule GameServerWeb.AuthControllerApiTest do
       assert conn.status == 200
       body = json_response(conn, 200)
 
-      assert is_binary(body["access_token"]) and is_binary(body["refresh_token"]) and
-               is_integer(body["expires_in"])
+      assert is_binary(body["data"]["access_token"]) and is_binary(body["data"]["refresh_token"]) and
+               is_integer(body["data"]["expires_in"])
+
+      assert is_integer(body["data"]["user_id"])
     end
 
     test "POST /api/v1/auth/:provider/callback returns 400 on code exchange failure", %{
@@ -137,8 +178,10 @@ defmodule GameServerWeb.AuthControllerApiTest do
       assert conn.status == 200
       body = json_response(conn, 200)
 
-      assert is_binary(body["access_token"]) and is_binary(body["refresh_token"]) and
-               is_integer(body["expires_in"])
+      assert is_binary(body["data"]["access_token"]) and is_binary(body["data"]["refresh_token"]) and
+               is_integer(body["data"]["expires_in"])
+
+      assert is_integer(body["data"]["user_id"])
     end
 
     test "POST /api/v1/auth/google/callback skips profile lookup when user already has profile",
@@ -351,8 +394,10 @@ defmodule GameServerWeb.AuthControllerApiTest do
       assert conn.status == 200
       body = json_response(conn, 200)
 
-      assert is_binary(body["access_token"]) and is_binary(body["refresh_token"]) and
-               is_integer(body["expires_in"])
+      assert is_binary(body["data"]["access_token"]) and is_binary(body["data"]["refresh_token"]) and
+               is_integer(body["data"]["expires_in"])
+
+      assert is_integer(body["data"]["user_id"])
     end
 
     test "POST /api/v1/auth/steam/callback fills missing profile fields for existing user", %{

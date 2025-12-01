@@ -24,10 +24,10 @@ defmodule GameServerWeb.UserChannelTest do
 
     payload = %{id: user.id, metadata: %{"display_name" => "Updated"}}
 
-    GameServerWeb.Endpoint.broadcast("user:#{user.id}", "metadata_updated", payload)
+    GameServerWeb.Endpoint.broadcast("user:#{user.id}", "updated", payload)
 
     # The test process receives the push
-    assert_push "metadata_updated", ^payload
+    assert_push "updated", ^payload
   end
 
   test "user channel receives friend events for create & accept flows" do

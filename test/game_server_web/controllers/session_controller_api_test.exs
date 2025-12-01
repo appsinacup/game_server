@@ -39,8 +39,11 @@ defmodule GameServerWeb.SessionControllerApiTest do
       resp = post(conn, "/api/v1/refresh", %{refresh_token: refresh_token})
       assert resp.status == 200
       body = json_response(resp, 200)
-      assert is_binary(body["access_token"]) and byte_size(body["access_token"]) > 0
-      assert body["expires_in"] == 900
+
+      assert is_binary(body["data"]["access_token"]) and
+               byte_size(body["data"]["access_token"]) > 0
+
+      assert body["data"]["expires_in"] == 900
     end
   end
 end

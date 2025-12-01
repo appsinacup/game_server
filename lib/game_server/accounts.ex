@@ -1006,7 +1006,7 @@ defmodule GameServer.Accounts do
       display_name: user.display_name
     }
 
-    GameServerWeb.Endpoint.broadcast("user:#{user.id}", "metadata_updated", payload)
+    GameServerWeb.Endpoint.broadcast("user:#{user.id}", "updated", payload)
     :ok
   end
 

@@ -580,7 +580,12 @@ defmodule GameServerWeb.AuthController do
       }
     },
     responses: [
-      ok: {"OAuth tokens", "application/json", %OpenApiSpex.Schema{type: :object}},
+      ok:
+        {"OAuth tokens", "application/json",
+         %OpenApiSpex.Schema{
+           type: :object,
+           properties: %{data: GameServerWeb.Schemas.OAuthSessionData}
+         }},
       bad_request: {"Bad request", "application/json", %OpenApiSpex.Schema{type: :object}}
     ]
   )
@@ -721,9 +726,12 @@ defmodule GameServerWeb.AuthController do
               Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
 
             json(conn, %{
-              access_token: access_token,
-              refresh_token: refresh_token,
-              expires_in: 900
+              data: %{
+                access_token: access_token,
+                refresh_token: refresh_token,
+                expires_in: 900,
+                user_id: user.id
+              }
             })
 
           {:error, changeset} ->
@@ -769,9 +777,12 @@ defmodule GameServerWeb.AuthController do
               Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
 
             json(conn, %{
-              access_token: access_token,
-              refresh_token: refresh_token,
-              expires_in: 900
+              data: %{
+                access_token: access_token,
+                refresh_token: refresh_token,
+                expires_in: 900,
+                user_id: user.id
+              }
             })
 
           {:error, changeset} ->
@@ -819,9 +830,12 @@ defmodule GameServerWeb.AuthController do
               Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
 
             json(conn, %{
-              access_token: access_token,
-              refresh_token: refresh_token,
-              expires_in: 900
+              data: %{
+                access_token: access_token,
+                refresh_token: refresh_token,
+                expires_in: 900,
+                user_id: user.id
+              }
             })
 
           {:error, changeset} ->
@@ -867,9 +881,12 @@ defmodule GameServerWeb.AuthController do
               Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
 
             json(conn, %{
-              access_token: access_token,
-              refresh_token: refresh_token,
-              expires_in: 900
+              data: %{
+                access_token: access_token,
+                refresh_token: refresh_token,
+                expires_in: 900,
+                user_id: user.id
+              }
             })
 
           {:error, changeset} ->
@@ -921,9 +938,12 @@ defmodule GameServerWeb.AuthController do
               Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
 
             json(conn, %{
-              access_token: access_token,
-              refresh_token: refresh_token,
-              expires_in: 900
+              data: %{
+                access_token: access_token,
+                refresh_token: refresh_token,
+                expires_in: 900,
+                user_id: user.id
+              }
             })
 
           {:error, changeset} ->
@@ -1269,13 +1289,14 @@ defmodule GameServerWeb.AuthController do
         {:ok, refresh_token, _refresh_claims} =
           Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
 
-        # Store tokens in session
+        # Store tokens in session (include user_id so API clients polling can know who was authenticated)
         GameServer.OAuthSessions.create_session(session_id, %{
           status: "completed",
           data: %{
             access_token: access_token,
             refresh_token: refresh_token,
-            expires_in: 900
+            expires_in: 900,
+            user_id: user.id
           }
         })
 
@@ -1307,7 +1328,8 @@ defmodule GameServerWeb.AuthController do
           data: %{
             access_token: access_token,
             refresh_token: refresh_token,
-            expires_in: 900
+            expires_in: 900,
+            user_id: user.id
           }
         })
 
@@ -1339,7 +1361,8 @@ defmodule GameServerWeb.AuthController do
           data: %{
             access_token: access_token,
             refresh_token: refresh_token,
-            expires_in: 900
+            expires_in: 900,
+            user_id: user.id
           }
         })
 
@@ -1371,7 +1394,8 @@ defmodule GameServerWeb.AuthController do
           data: %{
             access_token: access_token,
             refresh_token: refresh_token,
-            expires_in: 900
+            expires_in: 900,
+            user_id: user.id
           }
         })
 
@@ -1403,7 +1427,8 @@ defmodule GameServerWeb.AuthController do
           data: %{
             access_token: access_token,
             refresh_token: refresh_token,
-            expires_in: 900
+            expires_in: 900,
+            user_id: user.id
           }
         })
 

@@ -44,13 +44,7 @@ defmodule GameServerWeb.Api.V1.SessionController do
                   type: :integer,
                   description: "Seconds until access token expires"
                 },
-                user: %Schema{
-                  type: :object,
-                  properties: %{
-                    id: %Schema{type: :integer},
-                    email: %Schema{type: :string}
-                  }
-                }
+                user_id: %Schema{type: :integer}
               }
             }
           },
@@ -58,7 +52,8 @@ defmodule GameServerWeb.Api.V1.SessionController do
             data: %{
               access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
               refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-              expires_in: 900
+              expires_in: 900,
+              user_id: 123
             }
           }
         }
@@ -95,7 +90,8 @@ defmodule GameServerWeb.Api.V1.SessionController do
         data: %{
           access_token: access_token,
           refresh_token: refresh_token,
-          expires_in: 900
+          expires_in: 900,
+          user_id: user.id
         }
       })
     else
@@ -122,7 +118,9 @@ defmodule GameServerWeb.Api.V1.SessionController do
       }
     },
     responses: [
-      ok: {"Login successful", "application/json", %Schema{type: :object}},
+      ok:
+        {"Login successful", "application/json",
+         %Schema{type: :object, properties: %{data: GameServerWeb.Schemas.OAuthSessionData}}},
       bad_request: {"Unable to create device user", "application/json", nil}
     ]
   )
@@ -141,7 +139,12 @@ defmodule GameServerWeb.Api.V1.SessionController do
             Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
 
           json(conn, %{
-            data: %{access_token: access_token, refresh_token: refresh_token, expires_in: 900}
+            data: %{
+              access_token: access_token,
+              refresh_token: refresh_token,
+              expires_in: 900,
+              user_id: user.id
+            }
           })
 
         {:error, changeset} ->
@@ -199,12 +202,19 @@ defmodule GameServerWeb.Api.V1.SessionController do
         %Schema{
           type: :object,
           properties: %{
-            access_token: %Schema{type: :string, description: "New access token"},
-            expires_in: %Schema{type: :integer, description: "Seconds until expiry"}
+            data: %Schema{
+              type: :object,
+              properties: %{
+                access_token: %Schema{type: :string, description: "New access token"},
+                expires_in: %Schema{type: :integer, description: "Seconds until expiry"}
+              }
+            }
           },
           example: %{
-            access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-            expires_in: 900
+            data: %{
+              access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+              expires_in: 900
+            }
           }
         }
       },
@@ -222,7 +232,7 @@ defmodule GameServerWeb.Api.V1.SessionController do
             {:ok, new_access_token, _claims} =
               Guardian.encode_and_sign(user, %{}, token_type: "access")
 
-            json(conn, %{access_token: new_access_token, expires_in: 900})
+            json(conn, %{data: %{access_token: new_access_token, expires_in: 900}})
 
           {:error, _reason} ->
             conn
