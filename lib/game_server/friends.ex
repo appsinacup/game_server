@@ -25,7 +25,26 @@ defmodule GameServer.Friends do
   end
 
   defp broadcast_user(user_id, event) when is_integer(user_id) do
+    # keep existing PubSub behavior (server-side consumers)
     Phoenix.PubSub.broadcast(GameServer.PubSub, "friends:user:#{user_id}", event)
+
+    # also push a channel-friendly version to the per-user Phoenix channel
+    # so clients joined to "user:<id>" receive realtime updates via sockets.
+    case event do
+      {name, %Friendship{} = f} when is_atom(name) ->
+        payload = %{
+          id: f.id,
+          requester_id: f.requester_id,
+          target_id: f.target_id,
+          status: f.status
+        }
+
+        # broadcast event name as string, payload as simple map
+        GameServerWeb.Endpoint.broadcast("user:#{user_id}", Atom.to_string(name), payload)
+
+      _ ->
+        :ok
+    end
   end
 
   defp broadcast_all(event) do

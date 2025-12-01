@@ -275,7 +275,7 @@ console.log('Friends:', friends);
 // Subscribe to real-time friend events via phoenix channels on socket
 const socket = new Socket('/socket', { params: { token: accessToken } });
 socket.connect();
-const userChannel = socket.channel('friends:user:' + userId, {});
+const userChannel = socket.channel('user:' + userId, {});
 await userChannel.join();
 userChannel.on('friend_blocked', payload => console.log('Blocked:', payload));
 userChannel.on('friend_unblocked', payload => console.log('Unblocked:', payload));</code></pre>

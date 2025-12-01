@@ -30,6 +30,143 @@ defmodule GameServerWeb.UserChannelTest do
     assert_push "metadata_updated", ^payload
   end
 
+  test "user channel receives friend events for create & accept flows" do
+    a = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+    b = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+
+    {:ok, token_a, _} = Guardian.encode_and_sign(a)
+    {:ok, token_b, _} = Guardian.encode_and_sign(b)
+
+    {:ok, socket_a} = connect(GameServerWeb.UserSocket, %{"token" => token_a})
+    {:ok, socket_b} = connect(GameServerWeb.UserSocket, %{"token" => token_b})
+
+    {:ok, _, _socket_a} = subscribe_and_join(socket_a, "user:#{a.id}", %{})
+    {:ok, _, _socket_b} = subscribe_and_join(socket_b, "user:#{b.id}", %{})
+
+    # create request a -> b
+    assert {:ok, f} = GameServer.Friends.create_request(a.id, b.id)
+
+    expected = %{
+      id: f.id,
+      requester_id: f.requester_id,
+      target_id: f.target_id,
+      status: f.status
+    }
+
+    # both requester and target should receive channel pushes for outgoing/incoming
+    assert_push "outgoing_request", ^expected
+    assert_push "incoming_request", ^expected
+
+    # accept as b
+    assert {:ok, accepted} = GameServer.Friends.accept_friend_request(f.id, b)
+
+    expected_acc = %{
+      id: accepted.id,
+      requester_id: accepted.requester_id,
+      target_id: accepted.target_id,
+      status: accepted.status
+    }
+
+    # both users get friend_accepted
+    assert_push "friend_accepted", ^expected_acc
+    assert_push "friend_accepted", ^expected_acc
+  end
+
+  test "user channel receives friend events for reject and cancel flows" do
+    a = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+    b = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+
+    {:ok, token_a, _} = Guardian.encode_and_sign(a)
+    {:ok, token_b, _} = Guardian.encode_and_sign(b)
+
+    {:ok, socket_a} = connect(GameServerWeb.UserSocket, %{"token" => token_a})
+    {:ok, socket_b} = connect(GameServerWeb.UserSocket, %{"token" => token_b})
+
+    {:ok, _, _socket_a} = subscribe_and_join(socket_a, "user:#{a.id}", %{})
+    {:ok, _, _socket_b} = subscribe_and_join(socket_b, "user:#{b.id}", %{})
+
+    # create request a -> b
+    assert {:ok, f} = GameServer.Friends.create_request(a.id, b.id)
+
+    # reject as b
+    assert {:ok, rejected} = GameServer.Friends.reject_friend_request(f.id, b)
+
+    expected_rej = %{
+      id: rejected.id,
+      requester_id: rejected.requester_id,
+      target_id: rejected.target_id,
+      status: rejected.status
+    }
+
+    assert_push "friend_rejected", ^expected_rej
+    assert_push "friend_rejected", ^expected_rej
+
+    # create a new request then cancel as requester
+    {:ok, f2} = GameServer.Friends.create_request(a.id, b.id)
+    assert {:ok, :cancelled} = GameServer.Friends.cancel_request(f2.id, a)
+
+    expected_cancel = %{
+      id: f2.id,
+      requester_id: f2.requester_id,
+      target_id: f2.target_id,
+      status: f2.status
+    }
+
+    assert_push "request_cancelled", ^expected_cancel
+    assert_push "request_cancelled", ^expected_cancel
+  end
+
+  test "user channel receives friend_blocked, unblocked and removed events" do
+    a = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+    b = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+
+    {:ok, token_a, _} = Guardian.encode_and_sign(a)
+    {:ok, token_b, _} = Guardian.encode_and_sign(b)
+
+    {:ok, socket_a} = connect(GameServerWeb.UserSocket, %{"token" => token_a})
+    {:ok, socket_b} = connect(GameServerWeb.UserSocket, %{"token" => token_b})
+
+    {:ok, _, _socket_a} = subscribe_and_join(socket_a, "user:#{a.id}", %{})
+    {:ok, _, _socket_b} = subscribe_and_join(socket_b, "user:#{b.id}", %{})
+
+    # a -> b then block as b
+    {:ok, f} = GameServer.Friends.create_request(a.id, b.id)
+    assert {:ok, blocked} = GameServer.Friends.block_friend_request(f.id, b)
+
+    expected_block = %{
+      id: blocked.id,
+      requester_id: blocked.requester_id,
+      target_id: blocked.target_id,
+      status: blocked.status
+    }
+
+    assert_push "friend_blocked", ^expected_block
+    assert_push "friend_blocked", ^expected_block
+
+    # unblock as b
+    assert {:ok, :unblocked} = GameServer.Friends.unblock_friendship(blocked.id, b)
+    # The original blocked record is deleted during unblock, but unblock_friendship broadcasts
+    # a friend_unblocked event with the friendship that was removed
+    assert_push "friend_unblocked", ^expected_block
+    assert_push "friend_unblocked", ^expected_block
+
+    # create accepted friend and then remove
+    {:ok, f2} = GameServer.Friends.create_request(a.id, b.id)
+    {:ok, accepted} = GameServer.Friends.accept_friend_request(f2.id, b)
+
+    assert {:ok, _} = GameServer.Friends.remove_friend(a.id, b.id)
+
+    expected_removed = %{
+      id: accepted.id,
+      requester_id: accepted.requester_id,
+      target_id: accepted.target_id,
+      status: accepted.status
+    }
+
+    assert_push "friend_removed", ^expected_removed
+    assert_push "friend_removed", ^expected_removed
+  end
+
   test "join rejected for another user" do
     user = AccountsFixtures.user_fixture()
     other = AccountsFixtures.user_fixture()
