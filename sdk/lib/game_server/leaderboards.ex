@@ -144,8 +144,10 @@ defmodule GameServer.Leaderboards do
       * `:incr` — Add to existing score
       * `:decr` — Subtract from existing score
     
-    Accepts either a leaderboard ID (integer) or slug (string). When using a slug,
-    the score is submitted to the currently active leaderboard with that slug.
+    To submit to a leaderboard by slug, first get the active leaderboard ID:
+    
+        leaderboard = Leaderboards.get_active_leaderboard_by_slug("weekly_kills")
+        Leaderboards.submit_score(leaderboard.id, user_id, 10)
     
     ## Examples
     

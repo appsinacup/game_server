@@ -15,6 +15,25 @@ defmodule GameServer.Modules.ExampleHook do
 
   @impl true
   def after_startup do
+    # Create default leaderboard only if one with this slug doesn't already exist (active)
+    if is_nil(Leaderboards.get_active_leaderboard_by_slug("login_count")) do
+      now = DateTime.utc_now()
+      # Start of current day
+      starts_at = DateTime.new!(Date.utc_today(), ~T[00:00:00], "Etc/UTC")
+      # End of month (last day at 23:59:59)
+      last_day = Date.end_of_month(Date.utc_today())
+      ends_at = DateTime.new!(last_day, ~T[23:59:59], "Etc/UTC")
+
+      Leaderboards.create_leaderboard(%{
+        slug: "login_count",
+        title: "Login Count - #{Calendar.strftime(now, "%B %Y")}",
+        sort_order: "desc",
+        operator: "incr",
+        starts_at: starts_at,
+        ends_at: ends_at
+      })
+    end
+
     :ok
   end
 
@@ -31,8 +50,11 @@ defmodule GameServer.Modules.ExampleHook do
 
   @impl true
   def after_user_login(user) do
-    # Increment login count on leaderboard
-    Leaderboards.submit_score("login_count", user.id, 1)
+    # Increment login count on the active leaderboard
+    case Leaderboards.get_active_leaderboard_by_slug("login_count") do
+      nil -> :ok
+      leaderboard -> Leaderboards.submit_score(leaderboard.id, user.id, 1)
+    end
 
     :ok
   end
