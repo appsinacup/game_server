@@ -15,14 +15,15 @@ defmodule GameServer.Leaderboards do
         operator: :incr
       })
 
-      # Submit score (server-only) - uses slug to find active leaderboard
-      {:ok, record} = Leaderboards.submit_score("weekly_kills", user_id, 10)
+      # Submit score (server-only): resolve the active leaderboard first and submit by integer ID
+      leaderboard = Leaderboards.get_active_leaderboard_by_slug("weekly_kills")
+      {:ok, record} = Leaderboards.submit_score(leaderboard.id, user_id, 10)
 
-      # List records with rank
-      records = Leaderboards.list_records("weekly_kills", page: 1, limit: 25)
+      # List records with rank (use integer leaderboard id)
+      records = Leaderboards.list_records(leaderboard.id, page: 1, limit: 25)
 
-      # Get user's record
-      {:ok, record} = Leaderboards.get_user_record("weekly_kills", user_id)
+      # Get user's record (use integer leaderboard id)
+      {:ok, record} = Leaderboards.get_user_record(leaderboard.id, user_id)
   """
 
   import Ecto.Query, warn: false

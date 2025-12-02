@@ -87,21 +87,25 @@ GameServer.Leaderboards.create_leaderboard(%{
 })
 
 # Submit a score (server-side only)
-GameServer.Leaderboards.submit_score(
-  "weekly_score_2024_w48",  # leaderboard_id
-  user_id,                   # user_id
-  9500,                      # score
-  %{"level" => 15}           # optional metadata
-)
+# First fetch the active leaderboard (by slug) then submit using its integer id
+leaderboard = GameServer.Leaderboards.get_active_leaderboard_by_slug("weekly_score_2024_w48")
+if leaderboard do
+  GameServer.Leaderboards.submit_score(
+    leaderboard.id,   # leaderboard id (integer)
+    user_id,          # user_id
+    9500,             # score
+    %{"level" => 15} # optional metadata
+  )
+end
 
 # List records with pagination
-GameServer.Leaderboards.list_records("weekly_score_2024_w48", page: 1, page_size: 25)
+GameServer.Leaderboards.list_records(leaderboard.id, page: 1, page_size: 25)
 
 # Get user's record with rank
-GameServer.Leaderboards.get_user_record("weekly_score_2024_w48", user_id)
+GameServer.Leaderboards.get_user_record(leaderboard.id, user_id)
 
 # Get records around a user (for context display)
-GameServer.Leaderboards.list_records_around_user("weekly_score_2024_w48", user_id, limit: 5)
+GameServer.Leaderboards.list_records_around_user(leaderboard.id, user_id, limit: 5)
 
 # End a leaderboard (marks it as finished)
 GameServer.Leaderboards.end_leaderboard(leaderboard)</pre>
