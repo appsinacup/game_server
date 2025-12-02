@@ -44,6 +44,8 @@ defmodule GameServerWeb.AdminLive.Lobbies do
                       <th>Hidden</th>
                       <th>Locked</th>
                       <th>Password</th>
+                      <th>Created</th>
+                      <th>Updated</th>
                       <th>Actions</th>
                     </tr>
                     <tr>
@@ -141,6 +143,12 @@ defmodule GameServerWeb.AdminLive.Lobbies do
                         <% end %>
                       </td>
                       <td class="text-sm">
+                        {Calendar.strftime(l.inserted_at, "%Y-%m-%d %H:%M")}
+                      </td>
+                      <td class="text-sm">
+                        {Calendar.strftime(l.updated_at, "%Y-%m-%d %H:%M")}
+                      </td>
+                      <td class="text-sm">
                         <button
                           type="button"
                           phx-click="edit_lobby"
@@ -204,6 +212,21 @@ defmodule GameServerWeb.AdminLive.Lobbies do
             <div class="form-control">
               <label class="label">Metadata (JSON)</label>
               <textarea name="lobby[metadata]" class="textarea textarea-bordered" rows="4"><%= Jason.encode!(@selected_lobby.metadata || %{}) %></textarea>
+            </div>
+
+            <div class="mt-4 text-sm text-base-content/70 space-y-1">
+              <div>
+                Created:
+                <span class="font-mono">
+                  {Calendar.strftime(@selected_lobby.inserted_at, "%Y-%m-%d %H:%M:%S")}
+                </span>
+              </div>
+              <div>
+                Updated:
+                <span class="font-mono">
+                  {Calendar.strftime(@selected_lobby.updated_at, "%Y-%m-%d %H:%M:%S")}
+                </span>
+              </div>
             </div>
 
             <div class="modal-action">

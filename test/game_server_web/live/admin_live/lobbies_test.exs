@@ -40,15 +40,25 @@ defmodule GameServerWeb.AdminLive.LobbiesTest do
     assert html =~ "admin-lobby-1"
     assert html =~ "admin-lobby-2"
 
+    # created/updated timestamps should be visible in the grid
+    assert html =~ Calendar.strftime(lobby1.inserted_at, "%Y-%m-%d %H:%M")
+    assert html =~ Calendar.strftime(lobby1.updated_at, "%Y-%m-%d %H:%M")
+
     # ensure back to admin link exists
     assert html =~ "← Back to Admin"
 
     # test edit flow via live view: open manage UI, change title and save
     {:ok, view, _html} = conn |> log_in_user(user) |> live(~p"/admin/lobbies")
 
-    # open edit modal for first lobby
+    # open edit modal for first lobby and verify modal shows created/updated
     edit_btn = element(view, "#admin-lobby-#{lobby1.id} button", "Edit")
     render_click(edit_btn)
+
+    modal_html = render(view)
+    assert modal_html =~ "Created:"
+    assert modal_html =~ Calendar.strftime(lobby1.inserted_at, "%Y-%m-%d %H:%M:%S")
+    assert modal_html =~ "Updated:"
+    assert modal_html =~ Calendar.strftime(lobby1.updated_at, "%Y-%m-%d %H:%M:%S")
 
     # submit save with new title
     form = form(view, "#lobby-form", %{"lobby" => %{"title" => "Updated Title"}})

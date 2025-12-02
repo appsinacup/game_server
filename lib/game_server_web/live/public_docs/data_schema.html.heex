@@ -54,17 +54,19 @@
       id             : integer (primary key)
       email          : string (unique, nullable for provider-only accounts)
       hashed_password: string (bcrypt hash, nullable for OAuth-only accounts)
-      confirmed_at   : utc_datetime
       authenticated_at: utc_datetime (last sudo login)
       discord_id     : string (nullable)
       google_id      : string (nullable)
       facebook_id    : string (nullable)
-      steam_id.      : string (nullable)
+      steam_id       : string (nullable)
       apple_id       : string (nullable)
+      device_id      : string (nullable)
       profile_url    : string (avatar/profile image URL)
       display_name   : string (human-friendly display name)
       is_admin       : boolean
       metadata       : map (JSON/Map for arbitrary user metadata)
+      lobby_id       : integer (foreign key to lobbies, nullable)
+      confirmed_at   : utc_datetime
       inserted_at    : utc_datetime
       updated_at     : utc_datetime
     )
@@ -90,7 +92,6 @@
         <pre>
     lobbies (
       id           : integer (primary key)
-      name         : string (unique slug)
       title        : string (display title)
       host_id      : integer (user id of host, nullable for hostless)
       hostless     : boolean (server-managed hostless lobbies)
