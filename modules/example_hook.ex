@@ -10,18 +10,13 @@ defmodule GameServer.Modules.ExampleHook do
 
   @behaviour GameServer.Hooks
 
-  alias GameServer.Repo
+  alias GameServer.Accounts
 
   @impl true
   def after_user_register(user) do
-    # simple side-effect: add a flag to user metadata (if present). Keep safe
-    # and resilient so it won't crash tests if Repo isn't available.
-    try do
-      meta = Map.put(user.metadata || %{}, "registered_example", true)
-      Repo.update!(Ecto.Changeset.change(user, metadata: meta))
-    rescue
-      _ -> :ok
-    end
+    # Add a flag to user metadata on registration
+    meta = Map.put(user.metadata || %{}, "registered_example", true)
+    Accounts.update_user_admin(user, %{metadata: meta})
 
     IO.puts("[ExampleHook] after_user_register called for user=#{user.id}")
 
@@ -30,21 +25,13 @@ defmodule GameServer.Modules.ExampleHook do
 
   @impl true
   def after_user_login(user) do
-    # On successful login we'll update user metadata with a last_login timestamp
-    # and bump a simple login counter. Keep this resilient for dev use so it
-    # won't crash if Repo isn't available.
-    try do
-      meta = user.metadata || %{}
+    # Update user metadata with a last_login timestamp and bump login counter
+    meta =
+      (user.metadata || %{})
+      |> Map.put("last_login_at", DateTime.utc_now() |> DateTime.to_iso8601())
+      |> Map.update("login_count", 1, &(&1 + 1))
 
-      meta =
-        meta
-        |> Map.put("last_login_at", DateTime.utc_now() |> DateTime.to_iso8601())
-        |> Map.update("login_count", 1, &(&1 + 1))
-
-      Repo.update!(Ecto.Changeset.change(user, metadata: meta))
-    rescue
-      _ -> :ok
-    end
+    Accounts.update_user_admin(user, %{metadata: meta})
 
     IO.puts("[ExampleHook] after_user_login called for user=#{user.id}")
 
@@ -100,7 +87,7 @@ defmodule GameServer.Modules.ExampleHook do
     user = GameServer.Hooks.caller_user()
     meta = user.metadata || %{}
     meta = Map.put(meta, key, value)
-    Repo.update!(Ecto.Changeset.change(user, metadata: meta))
+    Accounts.update_user_admin(user, %{metadata: meta})
 
     :ok
   end

@@ -9,7 +9,7 @@ defmodule GameServer.Hooks do
 
       config :game_server, :hooks_module, MyApp.HooksImpl
 
-  The default implementation is `GameServer.Hooks.Default` which is a no-op.
+  The default implementation is a no-op.
   """
 
   alias GameServer.Accounts.User

@@ -15,10 +15,49 @@ defmodule GameServer.MixProject do
       # ExDoc configuration used to build HTML docs locally or in CI
       docs: [
         main: "readme",
-        extras: ["README.md"],
+        extras: ["README.md", "docs/LEADERBOARDS_PLAN.md"],
         source_url: "https://github.com/appsinacup/game_server",
         source_ref: "main",
-        homepage_url: "https://github.com/appsinacup/game_server"
+        homepage_url: "https://github.com/appsinacup/game_server",
+        # Hide Web layer and internal modules - only show public API for hooks
+        filter_modules: fn mod, _meta ->
+          mod_name = Atom.to_string(mod)
+          # Only include GameServer.* modules (not GameServerWeb.*)
+          # Internal implementation modules
+          String.starts_with?(mod_name, "Elixir.GameServer.") and
+            not String.starts_with?(mod_name, "Elixir.GameServerWeb") and
+            not String.contains?(mod_name, ".Repo") and
+            not String.contains?(mod_name, ".Application") and
+            not String.contains?(mod_name, ".Mailer") and
+            not String.contains?(mod_name, ".UserNotifier") and
+            not String.contains?(mod_name, ".UserToken") and
+            not String.contains?(mod_name, ".Gettext") and
+            not String.contains?(mod_name, ".DataCase") and
+            not String.contains?(mod_name, ".ConnCase") and
+            not String.contains?(mod_name, "Fixtures") and
+            not String.contains?(mod_name, ".Apple") and
+            not String.contains?(mod_name, ".OAuth") and
+            not String.contains?(mod_name, ".Theme") and
+            not String.contains?(mod_name, ".Hooks.Default") and
+            not String.contains?(mod_name, ".Hooks.Watcher") and
+            not String.contains?(mod_name, ".Scope")
+        end,
+        groups_for_modules: [
+          "Public API (for Hooks)": [
+            GameServer.Accounts,
+            GameServer.Leaderboards,
+            GameServer.Lobbies,
+            GameServer.Friends,
+            GameServer.Hooks
+          ],
+          Schemas: [
+            GameServer.Accounts.User,
+            GameServer.Leaderboards.Leaderboard,
+            GameServer.Leaderboards.Record,
+            GameServer.Lobbies.Lobby,
+            GameServer.Friends.Friendship
+          ]
+        ]
       ]
     ]
   end
