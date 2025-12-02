@@ -55,7 +55,8 @@ defmodule GameServerWeb.LobbiesChannel do
       max_users: lobby.max_users,
       is_hidden: lobby.is_hidden,
       is_locked: lobby.is_locked,
-      metadata: lobby.metadata || %{}
+      metadata: lobby.metadata || %{},
+      is_passworded: lobby.password_hash != nil
     }
   end
 end

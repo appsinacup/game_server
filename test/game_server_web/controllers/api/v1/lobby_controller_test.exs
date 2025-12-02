@@ -21,10 +21,64 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     resp = json_response(conn, 200)
     lobbies = resp["data"]
     assert Enum.any?(lobbies, fn l -> l["id"] == lobby1.id end)
+    # ensure serializer includes is_passworded flag
+    assert Enum.any?(lobbies, fn l -> l["id"] == lobby1.id and l["is_passworded"] == false end)
     refute Enum.any?(lobbies, fn l -> l["id"] == _hidden.id end)
     # meta should include totals
     assert resp["meta"]["total_count"] == 1
     assert resp["meta"]["total_pages"] == 1
+  end
+
+  test "GET /api/v1/lobbies filters by is_passworded and is_locked and max_users range", %{
+    conn: conn
+  } do
+    host = AccountsFixtures.user_fixture()
+
+    # create both locked/unlocked and passworded/unpassworded lobbies
+    phash = Bcrypt.hash_pwd_salt("pw")
+
+    {:ok, p_lobby} =
+      Lobbies.create_lobby(%{
+        title: "pw-room",
+        host_id: host.id,
+        password_hash: phash,
+        max_users: 5
+      })
+
+    {:ok, locked} =
+      Lobbies.create_lobby(%{
+        title: "locked-room",
+        host_id: AccountsFixtures.user_fixture().id,
+        is_locked: true,
+        max_users: 2
+      })
+
+    {:ok, open_small} =
+      Lobbies.create_lobby(%{
+        title: "open-small",
+        host_id: AccountsFixtures.user_fixture().id,
+        max_users: 2
+      })
+
+    {:ok, open_big} =
+      Lobbies.create_lobby(%{
+        title: "open-big",
+        host_id: AccountsFixtures.user_fixture().id,
+        max_users: 10
+      })
+
+    conn1 = get(conn, "/api/v1/lobbies", %{is_passworded: "true"})
+    resp1 = json_response(conn1, 200)
+    assert Enum.any?(resp1["data"], fn l -> l["id"] == p_lobby.id end)
+
+    conn2 = get(conn, "/api/v1/lobbies", %{is_locked: "true"})
+    resp2 = json_response(conn2, 200)
+    assert Enum.any?(resp2["data"], fn l -> l["id"] == locked.id end)
+
+    conn3 = get(conn, "/api/v1/lobbies", %{min_users: 3, max_users: 20})
+    resp3 = json_response(conn3, 200)
+    assert Enum.any?(resp3["data"], fn l -> l["id"] == open_big.id end)
+    refute Enum.any?(resp3["data"], fn l -> l["id"] == open_small.id end)
   end
 
   test "POST /api/v1/lobbies (hosted) requires auth and creates a lobby", %{conn: conn} do
@@ -69,6 +123,60 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
 
     reloaded = GameServer.Repo.get(User, other.id)
     assert reloaded.lobby_id == lobby.id
+  end
+
+  test "POST /api/v1/lobbies/quick_join joins an existing matching lobby (no password)", %{
+    conn: conn
+  } do
+    host = AccountsFixtures.user_fixture()
+    other = AccountsFixtures.user_fixture()
+
+    # create a non-passworded lobby that will match metadata
+    {:ok, lobby} =
+      Lobbies.create_lobby(%{
+        title: "quick-api-room",
+        host_id: host.id,
+        max_users: 4,
+        metadata: %{mode: "capture", region: "EU"}
+      })
+
+    {:ok, token, _} = Guardian.encode_and_sign(other)
+
+    conn =
+      conn
+      |> put_req_header("authorization", "Bearer " <> token)
+      |> post("/api/v1/lobbies/quick_join", %{max_users: 4, metadata: %{mode: "cap"}})
+
+    assert conn.status == 200
+
+    body = json_response(conn, 200)
+    assert body["id"] == lobby.id
+
+    reloaded = GameServer.Repo.get(User, other.id)
+    assert reloaded.lobby_id == lobby.id
+  end
+
+  test "POST /api/v1/lobbies/quick_join creates a new lobby when none match", %{conn: conn} do
+    other = AccountsFixtures.user_fixture()
+    {:ok, token, _} = Guardian.encode_and_sign(other)
+
+    conn =
+      conn
+      |> put_req_header("authorization", "Bearer " <> token)
+      |> post("/api/v1/lobbies/quick_join", %{
+        title: "api-quick-new",
+        max_users: 5,
+        metadata: %{mode: "coop"}
+      })
+
+    assert conn.status == 200
+    body = json_response(conn, 200)
+
+    assert body["title"] == "api-quick-new"
+    assert body["max_users"] == 5
+
+    reloaded = GameServer.Repo.get(User, other.id)
+    assert reloaded.lobby_id == body["id"]
   end
 
   test "POST /api/v1/lobbies/:id/join with password requires correct password", %{conn: conn} do

@@ -77,6 +77,7 @@ defmodule GameServerWeb.Router do
     get "/me", MeController, :show
     delete "/me", MeController, :delete
     post "/lobbies", LobbyController, :create
+    post "/lobbies/quick_join", LobbyController, :quick_join
     patch "/lobbies", LobbyController, :update
     post "/lobbies/:id/join", LobbyController, :join
     post "/lobbies/leave", LobbyController, :leave

@@ -18,6 +18,10 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       max_users: %Schema{type: :integer, description: "Maximum number of users allowed"},
       is_hidden: %Schema{type: :boolean, description: "Hidden from public listings"},
       is_locked: %Schema{type: :boolean, description: "Locked - no new joins allowed"},
+      is_passworded: %Schema{
+        type: :boolean,
+        description: "Whether this lobby requires a password to join"
+      },
       metadata: %Schema{type: :object, description: "Arbitrary metadata"}
     },
     example: %{
@@ -29,6 +33,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       max_users: 8,
       is_hidden: false,
       is_locked: false,
+      is_passworded: false,
       metadata: %{}
     }
   }
@@ -37,12 +42,32 @@ defmodule GameServerWeb.Api.V1.LobbyController do
     operation_id: "list_lobbies",
     summary: "List lobbies",
     description:
-      "Return all non-hidden lobbies. Supports optional text search via 'q' and metadata filters.",
+      "Return all non-hidden lobbies. Supports optional text search via 'title', metadata filters, password/lock filters, and numeric min/max for max_users.",
     parameters: [
-      q: [
+      title: [
         in: :query,
         schema: %Schema{type: :string},
-        description: "Search term for name or title"
+        description: "Search term for title"
+      ],
+      is_passworded: [
+        in: :query,
+        schema: %Schema{type: :string, enum: ["true", "false"]},
+        description: "Filter by passworded lobbies - 'true' or 'false' (omit for any)"
+      ],
+      is_locked: [
+        in: :query,
+        schema: %Schema{type: :string, enum: ["true", "false"]},
+        description: "Filter by locked status - 'true' or 'false' (omit for any)"
+      ],
+      min_users: [
+        in: :query,
+        schema: %Schema{type: :integer},
+        description: "Minimum max_users to include"
+      ],
+      max_users: [
+        in: :query,
+        schema: %Schema{type: :integer},
+        description: "Maximum max_users to include"
       ],
       page: [
         in: :query,
@@ -252,8 +277,53 @@ defmodule GameServerWeb.Api.V1.LobbyController do
     ]
   )
 
+  operation(:quick_join,
+    operation_id: "quick_join",
+    summary: "Quick-join or create a lobby",
+    description:
+      "Attempt to find an open, non-passworded lobby that matches the provided criteria and join it; if none found, create a new lobby. The authenticated user will become the host when a lobby is created.",
+    security: [%{"authorization" => []}],
+    request_body: {
+      "Quick join parameters",
+      "application/json",
+      %Schema{
+        type: :object,
+        properties: %{
+          title: %Schema{type: :string, description: "Optional title for a newly created lobby"},
+          max_users: %Schema{
+            type: :integer,
+            description: "Optional maximum users to match/create"
+          },
+          metadata: %Schema{
+            type: :object,
+            description: "Optional metadata to match (substring match)"
+          }
+        }
+      }
+    },
+    responses: [
+      ok: {"Lobby joined or created", "application/json", @lobby_schema},
+      conflict:
+        {"User already in a lobby", "application/json",
+         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
+      unauthorized:
+        {"Not authenticated", "application/json",
+         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}}
+    ]
+  )
+
   def index(conn, params) do
-    filters = Map.take(params || %{}, ["q", "metadata_key", "metadata_value"]) |> Enum.into(%{})
+    filters =
+      Map.take(params || %{}, [
+        "title",
+        "metadata_key",
+        "metadata_value",
+        "is_passworded",
+        "is_locked",
+        "min_users",
+        "max_users"
+      ])
+      |> Enum.into(%{})
 
     page =
       case params["page"] || params[:page] do
@@ -290,7 +360,8 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       max_users: lobby.max_users,
       is_hidden: lobby.is_hidden,
       is_locked: lobby.is_locked,
-      metadata: lobby.metadata || %{}
+      metadata: lobby.metadata || %{},
+      is_passworded: lobby.password_hash != nil
     }
   end
 
@@ -364,6 +435,35 @@ defmodule GameServerWeb.Api.V1.LobbyController do
 
           _ ->
             conn |> put_status(:forbidden) |> json(%{error: "cannot_join"})
+        end
+
+      _ ->
+        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
+    end
+  end
+
+  def quick_join(conn, params) do
+    case conn.assigns[:current_scope] do
+      %{user: user} when is_map(user) ->
+        title = Map.get(params, "title") || Map.get(params, :title)
+        max_users = Map.get(params, "max_users") || Map.get(params, :max_users)
+        metadata = Map.get(params, "metadata") || Map.get(params, :metadata)
+
+        case Lobbies.quick_join(user, title, max_users, metadata || %{}) do
+          {:ok, lobby} ->
+            json(conn, serialize_lobby(lobby))
+
+          {:error, :already_in_lobby} ->
+            conn |> put_status(:conflict) |> json(%{error: "already_in_lobby"})
+
+          {:error, reason} when is_atom(reason) ->
+            conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
+
+          {:error, {:hook_rejected, _}} ->
+            conn |> put_status(:forbidden) |> json(%{error: "rejected"})
+
+          other ->
+            conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
         end
 
       _ ->

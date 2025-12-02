@@ -118,7 +118,9 @@ defmodule GameServer.LobbiesTest do
           metadata: %{mode: "deathmatch", region: "US"}
         })
 
-      results = Lobbies.list_lobbies(%{q: "meta", metadata_key: "mode", metadata_value: "cap"})
+      results =
+        Lobbies.list_lobbies(%{title: "meta", metadata_key: "mode", metadata_value: "cap"})
+
       assert Enum.any?(results, fn r -> r.title == "meta-room" end)
       refute Enum.any?(results, fn r -> r.title == "meta-room-2" end)
     end
@@ -252,6 +254,89 @@ defmodule GameServer.LobbiesTest do
       # increasing is allowed
       assert {:ok, updated} = Lobbies.update_lobby_by_host(host, lobby, %{max_users: 6})
       assert updated.max_users == 6
+    end
+
+    test "quick_join finds and joins a matching lobby", %{host: host, other: other} do
+      {:ok, lobby} =
+        Lobbies.create_lobby(%{
+          title: "quick-room",
+          host_id: host.id,
+          max_users: 2,
+          metadata: %{mode: "capture", region: "EU"}
+        })
+
+      assert {:ok, matched} = Lobbies.quick_join(other, nil, 2, %{mode: "cap"})
+
+      # ensure the returned lobby matches the query criteria and the user joined it
+      assert matched.max_users == 2
+
+      assert String.contains?(
+               to_string(
+                 Map.get(matched.metadata || %{}, "mode") ||
+                   Map.get(matched.metadata || %{}, :mode)
+               ),
+               "cap"
+             )
+
+      reloaded = GameServer.Repo.get(GameServer.Accounts.User, other.id)
+      assert reloaded.lobby_id == matched.id
+    end
+
+    test "quick_join creates a new lobby when none matches", %{other: other} do
+      # ensure there are no existing matching lobbies
+      assert {:ok, lobby} = Lobbies.quick_join(other, "my-quick-room", 5, %{mode: "coop"})
+
+      assert lobby.title == "my-quick-room"
+      assert lobby.max_users == 5
+      assert lobby.metadata == %{"mode" => "coop"} or lobby.metadata == %{mode: "coop"}
+
+      reloaded = GameServer.Repo.get(GameServer.Accounts.User, other.id)
+      assert reloaded.lobby_id == lobby.id
+    end
+
+    test "quick_join skips passworded lobbies and prefers non-passworded ones", %{
+      host: host,
+      other: other
+    } do
+      pw = "letmein"
+      phash = Bcrypt.hash_pwd_salt(pw)
+
+      # create a passworded lobby with matching metadata
+      {:ok, pw_lobby} =
+        Lobbies.create_lobby(%{
+          title: "pw-match",
+          host_id: host.id,
+          max_users: 4,
+          password_hash: phash,
+          metadata: %{mode: "coop"}
+        })
+
+      # create a non-passworded lobby that should be preferred
+      second_host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+
+      {:ok, non_pw} =
+        Lobbies.create_lobby(%{
+          title: "no-pw",
+          host_id: second_host.id,
+          max_users: 4,
+          metadata: %{mode: "coop"}
+        })
+
+      assert {:ok, matched} = Lobbies.quick_join(other, nil, 4, %{mode: "coop"})
+
+      # matched lobby should be non-passworded and contain the requested metadata
+      assert matched.password_hash == nil
+
+      assert to_string(
+               Map.get(matched.metadata || %{}, :mode) || Map.get(matched.metadata || %{}, "mode")
+             )
+             |> String.contains?("coop")
+
+      # ensure it did not pick the passworded lobby
+      assert matched.id != pw_lobby.id
+
+      reloaded = GameServer.Repo.get(GameServer.Accounts.User, other.id)
+      assert reloaded.lobby_id == matched.id
     end
   end
 end

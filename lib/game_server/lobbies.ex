@@ -62,12 +62,20 @@ defmodule GameServer.Lobbies do
     Phoenix.PubSub.broadcast(GameServer.PubSub, "lobby:#{lobby_id}", event)
   end
 
-  @doc "List lobbies. Accepts optional search filters: %{q: string}"
+  @doc "List lobbies. Accepts optional search filters: %{
+    title: string,
+    is_passworded: boolean or string 'true'/'false' (omit for any),
+    is_locked: boolean or string 'true'/'false' (omit for any),
+    min_users: integer,
+    max_users: integer,
+    metadata_key: string,
+    metadata_value: string
+  }"
   def list_lobbies(filters \\ %{}, opts \\ []) do
     q = from(l in Lobby)
 
     q =
-      case Map.get(filters, :q) || Map.get(filters, "q") do
+      case Map.get(filters, :title) || Map.get(filters, "title") do
         nil ->
           q
 
@@ -82,6 +90,73 @@ defmodule GameServer.Lobbies do
 
     # never include hidden lobbies in list results
     q = from l in q, where: l.is_hidden == false
+
+    # optional tri-state filters
+    q =
+      case Map.get(filters, :is_passworded) || Map.get(filters, "is_passworded") do
+        nil -> q
+        v when v in [true, "true", "1"] -> from l in q, where: not is_nil(l.password_hash)
+        v when v in [false, "false", "0"] -> from l in q, where: is_nil(l.password_hash)
+        _ -> q
+      end
+
+    q =
+      case Map.get(filters, :is_locked) || Map.get(filters, "is_locked") do
+        nil -> q
+        v when v in [true, "true", "1"] -> from l in q, where: l.is_locked == true
+        v when v in [false, "false", "0"] -> from l in q, where: l.is_locked == false
+        _ -> q
+      end
+
+    q =
+      case Map.get(filters, :min_users) || Map.get(filters, "min_users") do
+        nil -> q
+        v when is_binary(v) -> from l in q, where: l.max_users >= ^String.to_integer(v)
+        v when is_integer(v) -> from l in q, where: l.max_users >= ^v
+        _ -> q
+      end
+
+    q =
+      case Map.get(filters, :max_users) || Map.get(filters, "max_users") do
+        nil -> q
+        v when is_binary(v) -> from l in q, where: l.max_users <= ^String.to_integer(v)
+        v when is_integer(v) -> from l in q, where: l.max_users <= ^v
+        _ -> q
+      end
+
+    # optional tri-state filters
+    q =
+      case Map.get(filters, :is_passworded) || Map.get(filters, "is_passworded") do
+        nil -> q
+        v when v in [true, "true", "1"] -> from l in q, where: not is_nil(l.password_hash)
+        v when v in [false, "false", "0"] -> from l in q, where: is_nil(l.password_hash)
+        _ -> q
+      end
+
+    q =
+      case Map.get(filters, :is_locked) || Map.get(filters, "is_locked") do
+        nil -> q
+        v when v in [true, "true", "1"] -> from l in q, where: l.is_locked == true
+        v when v in [false, "false", "0"] -> from l in q, where: l.is_locked == false
+        _ -> q
+      end
+
+    # optional numeric bounds for max_users
+    q =
+      case Map.get(filters, :min_users) || Map.get(filters, "min_users") do
+        nil -> q
+        v when is_binary(v) -> from l in q, where: l.max_users >= ^String.to_integer(v)
+        v when is_integer(v) -> from l in q, where: l.max_users >= ^v
+        _ -> q
+      end
+
+    q =
+      case Map.get(filters, :max_users) || Map.get(filters, "max_users") do
+        nil -> q
+        v when is_binary(v) -> from l in q, where: l.max_users <= ^String.to_integer(v)
+        v when is_integer(v) -> from l in q, where: l.max_users <= ^v
+        _ -> q
+      end
 
     page = Keyword.get(opts, :page, nil)
     page_size = Keyword.get(opts, :page_size, nil)
@@ -117,7 +192,7 @@ defmodule GameServer.Lobbies do
     q = from(l in Lobby)
 
     q =
-      case Map.get(filters, :q) || Map.get(filters, "q") do
+      case Map.get(filters, :title) || Map.get(filters, "title") do
         nil ->
           q
 
@@ -689,5 +764,92 @@ defmodule GameServer.Lobbies do
   def list_memberships_for_lobby(lobby_id) do
     from(u in GameServer.Accounts.User, where: u.lobby_id == ^lobby_id)
     |> Repo.all()
+  end
+
+  @doc """
+  Attempt to find an open lobby matching the given criteria and join it, or
+  create a new lobby if none matches.
+
+  Signature: quick_join(user, title \\ nil, max_users \\ nil, metadata \\ %{})
+
+  - If the user is already in a lobby returns {:error, :already_in_lobby}
+  - On successful join or creation returns {:ok, lobby}
+  - Propagates errors from join or create flows
+  """
+  def quick_join(%User{id: _user_id} = user, title \\ nil, max_users \\ nil, metadata \\ %{}) do
+    if user.lobby_id do
+      {:error, :already_in_lobby}
+    else
+      # base query: only consider visible/unlocked and non-passworded lobbies
+      # quick_join prioritizes public, passwordless matches to avoid prompting for password
+      q =
+        from(l in Lobby,
+          where: l.is_hidden == false and l.is_locked == false and is_nil(l.password_hash)
+        )
+
+      q =
+        if is_nil(max_users) do
+          q
+        else
+          from(l in q, where: l.max_users == ^max_users)
+        end
+
+      # order candidates deterministically by insertion time and limit how many we try
+      max_candidates = 5
+
+      candidates =
+        Repo.all(from(l in q, order_by: [asc: l.inserted_at], limit: ^max_candidates))
+
+      # Try candidates in order — if a candidate fails due to full, move to next.
+      tried =
+        Enum.reduce_while(candidates, {:none, []}, fn lobby, _acc ->
+          # quick metadata match before attempting a DB join
+          ok_metadata =
+            Enum.all?(Map.to_list(metadata || %{}), fn
+              {_k, v} when is_nil(v) ->
+                true
+
+              {k, v} ->
+                case Map.get(lobby.metadata || %{}, k) do
+                  nil -> false
+                  existing -> String.contains?(to_string(existing), to_string(v))
+                end
+            end)
+
+          if not ok_metadata do
+            {:cont, {:none, []}}
+          else
+            case do_join(user.id, lobby, %{}) do
+              {:ok, _} -> {:halt, {:ok, lobby}}
+              {:error, :full} -> {:cont, {:none, []}}
+              other -> {:halt, other}
+            end
+          end
+        end)
+
+      case tried do
+        {:ok, %Lobby{} = lobby} ->
+          {:ok, lobby}
+
+        {:error, _} = err ->
+          err
+
+        {:none, _} ->
+          # no match found -> create a new lobby with the provided params
+          attrs = %{}
+          attrs = if title, do: Map.put(attrs, :title, title), else: attrs
+          attrs = if max_users, do: Map.put(attrs, :max_users, max_users), else: attrs
+
+          attrs =
+            if metadata && metadata != %{}, do: Map.put(attrs, :metadata, metadata), else: attrs
+
+          attrs = Map.put(attrs, :host_id, user.id)
+
+          case create_lobby(attrs) do
+            {:ok, lobby} -> {:ok, lobby}
+            other -> other
+          end
+      end
+    end
   end
 end
