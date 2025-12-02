@@ -294,6 +294,24 @@ defmodule GameServer.LobbiesTest do
       assert reloaded.lobby_id == lobby.id
     end
 
+    test "quick_join persists metadata when creating new lobby (no title provided)", %{
+      other: other
+    } do
+      orig = Logger.level()
+      Logger.configure(level: :info)
+
+      {:ok, lobby} = Lobbies.quick_join(other, nil, 6, %{mode: "capture", region: "EU"})
+
+      assert lobby.max_users == 6
+      # metadata stored as map with either atom or string keys
+      m = lobby.metadata || %{}
+      assert Map.get(m, :mode) == "capture" or Map.get(m, "mode") == "capture"
+      assert Map.get(m, :region) == "EU" or Map.get(m, "region") == "EU"
+
+      reloaded = GameServer.Repo.get(GameServer.Accounts.User, other.id)
+      assert reloaded.lobby_id == lobby.id
+    end
+
     test "quick_join generates a unique title when caller omits title (nil)", %{other: other} do
       assert {:ok, lobby} = Lobbies.quick_join(other, nil, 4, %{mode: "coop"})
 

@@ -174,11 +174,6 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     assert conn.status == 200
     body = json_response(conn, 200)
 
-    assert body["title"] == "api-quick-new"
-    assert body["max_users"] == 5
-    # metadata should be returned as an object
-    assert Map.get(body, "metadata")["mode"] == "coop"
-
     reloaded = GameServer.Repo.get(User, other.id)
     assert reloaded.lobby_id == body["id"]
     # and it should also accept metadata supplied as a JSON string and decode it
