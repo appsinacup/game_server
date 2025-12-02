@@ -22,14 +22,19 @@ defmodule GameServerWeb.AdminLive.Users do
               <h2 class="card-title">Users ({@users_count})</h2>
 
               <div class="flex gap-2">
-                <form phx-change="search_users" phx-submit="search_users" class="flex items-center">
+                <form
+                  id="admin-user-search-form"
+                  phx-change="search_users"
+                  phx-submit="search_users"
+                  class="flex items-center"
+                >
                   <input
                     type="text"
                     name="q"
                     id="admin-user-search"
-                    placeholder="Search by name, email or id"
+                    placeholder="Search by name, email, or any ID"
                     value={@search_query}
-                    class="input input-sm"
+                    class="input input-sm w-64"
                   />
                 </form>
                 <button phx-click="clear_search" class="btn btn-sm">Clear</button>
@@ -120,6 +125,7 @@ defmodule GameServerWeb.AdminLive.Users do
                     <th>Display Name</th>
                     <th>Discord ID</th>
                     <th>Steam ID</th>
+                    <th>Device ID</th>
                     <th>Profile</th>
                     <th>Apple ID</th>
                     <th>Google ID</th>
@@ -153,6 +159,13 @@ defmodule GameServerWeb.AdminLive.Users do
                     <td class="font-mono text-sm">
                       <%= if user.steam_id do %>
                         {user.steam_id}
+                      <% else %>
+                        <span class="text-gray-500">-</span>
+                      <% end %>
+                    </td>
+                    <td class="font-mono text-sm">
+                      <%= if user.device_id do %>
+                        {user.device_id}
                       <% else %>
                         <span class="text-gray-500">-</span>
                       <% end %>
@@ -545,23 +558,40 @@ defmodule GameServerWeb.AdminLive.Users do
         base
 
       Regex.match?(~r/^\d+$/, search_term) ->
-        # numeric id - short-circuit and return the single match.
-        id = String.to_integer(search_term)
+        q = "%#{search_term}%"
 
-        case Repo.get(User, id) do
-          nil ->
-            # fall back to text search if no exact id match
-            q = "%#{search_term}%"
+        # Try to parse as integer for ID lookup, but handle potential overflow
+        # if the number is too large (e.g. a Google ID)
+        id_query =
+          try do
+            id = String.to_integer(search_term)
 
-            from u in base,
-              where:
-                fragment("LOWER(?) LIKE LOWER(?)", u.email, ^q) or
-                  fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^q)
+            # Check if it fits in a 64-bit signed integer (Postgres/SQLite limit)
+            if id > 9_223_372_036_854_775_807 do
+              dynamic([u], false)
+            else
+              dynamic([u], u.id == ^id)
+            end
+          rescue
+            ArgumentError -> dynamic([u], false)
+          end
 
-          %User{} = user ->
-            # special marker: we return a query that matches only this ID
-            from u in base, where: u.id == ^user.id
-        end
+        text_query =
+          dynamic(
+            [u],
+            fragment("LOWER(?) LIKE LOWER(?)", u.email, ^q) or
+              fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^q) or
+              fragment("LOWER(?) LIKE LOWER(?)", u.device_id, ^q) or
+              fragment("LOWER(?) LIKE LOWER(?)", u.google_id, ^q) or
+              fragment("LOWER(?) LIKE LOWER(?)", u.apple_id, ^q) or
+              fragment("LOWER(?) LIKE LOWER(?)", u.facebook_id, ^q) or
+              fragment("LOWER(?) LIKE LOWER(?)", u.steam_id, ^q) or
+              fragment("LOWER(?) LIKE LOWER(?)", u.discord_id, ^q)
+          )
+
+        final_query = dynamic([u], ^id_query or ^text_query)
+
+        from u in base, where: ^final_query
 
       true ->
         q = "%#{search_term}%"
@@ -569,7 +599,13 @@ defmodule GameServerWeb.AdminLive.Users do
         from u in base,
           where:
             fragment("LOWER(?) LIKE LOWER(?)", u.email, ^q) or
-              fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^q)
+              fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^q) or
+              fragment("LOWER(?) LIKE LOWER(?)", u.device_id, ^q) or
+              fragment("LOWER(?) LIKE LOWER(?)", u.google_id, ^q) or
+              fragment("LOWER(?) LIKE LOWER(?)", u.apple_id, ^q) or
+              fragment("LOWER(?) LIKE LOWER(?)", u.facebook_id, ^q) or
+              fragment("LOWER(?) LIKE LOWER(?)", u.steam_id, ^q) or
+              fragment("LOWER(?) LIKE LOWER(?)", u.discord_id, ^q)
     end
   end
 
