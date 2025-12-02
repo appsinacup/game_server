@@ -18,6 +18,7 @@
     { "title": "Authentication", "description": "Supports multiple authentication methods: Email, Magic-link, Oauth, JWT and Session.", "icon": "hero-lock-closed" },
     { "title": "Users", "description": "User registration, login, password reset, email verification, profile management.", "icon": "hero-users" },
     { "title": "Lobbies", "description": "Create and manage game lobbies with customizable settings and real-time updates.", "icon": "hero-home" },
+    { "title": "Leaderboards", "description": "Server-authoritative leaderboards with configurable scoring, rankings, and time-based seasons.", "icon": "hero-trophy" },
     { "title": "User Data (WIP)", "description": "Store and retrieve custom user data key-value pairs.", "icon": "hero-paper-clip" },
     { "title": "Server Scripting", "description": "Write custom game server logic using Elixir scripts.", "icon": "hero-computer-desktop" },
     { "title": "Admin & Monitoring", "description": "Admin portal for managing users, lobbies, Sentry integration and monitoring server metrics.", "icon": "hero-shield-check" },
