@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.1">
-    <meta name="project" content="game_server v1.0.304">
+    <meta name="project" content="game_server v1.0.319">
 
 
-    <title>GameServerWeb.Layouts — game_server v1.0.304</title>
+    <title>GameServer.Leaderboards.Leaderboard — game_server v1.0.319</title>
 
     <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
 
-    <script defer src="dist/sidebar_items-0F47BE0F.js"></script>
+    <script defer src="dist/sidebar_items-5A5D02C1.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-HBZYRXZS.js"></script>
 
@@ -37,7 +37,7 @@
 game_server
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.304
+          v1.0.319
         </div>
       </div>
     </div>
@@ -93,12 +93,12 @@ game_server
 <div id="top-content">
   <div class="heading-with-actions top-heading">
     <h1>
-      <span translate="no">GameServerWeb.Layouts</span> 
-      <small class="app-vsn" translate="no">(game_server v1.0.304)</small>
+      <span translate="no">GameServer.Leaderboards.Leaderboard</span> 
+      <small class="app-vsn" translate="no">(game_server v1.0.319)</small>
 
     </h1>
 
-      <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/components/layouts.ex#L1" title="View Source" class="icon-action" rel="help">
+      <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards/leaderboard.ex#L1" title="View Source" class="icon-action" rel="help">
         <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         <span class="sr-only">View Source</span>
       </a>
@@ -107,8 +107,8 @@ game_server
 
 
     <section id="moduledoc">
-<p>This module holds layouts and related functionality
-used by your application.</p>
+<p>Ecto schema for the <code class="inline">leaderboards</code> table.</p><p>A leaderboard is a self-contained scoreboard that can be permanent or time-limited.
+Each leaderboard has its own settings for sort order and score operator.</p><h2 id="module-sort-order" class="section-heading"><a href="#module-sort-order" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Sort Order</span></h2><ul><li><code class="inline">:desc</code> — Higher scores rank first (default)</li><li><code class="inline">:asc</code> — Lower scores rank first (e.g., fastest time)</li></ul><h2 id="module-operators" class="section-heading"><a href="#module-operators" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Operators</span></h2><ul><li><code class="inline">:set</code> — Always replace with new score</li><li><code class="inline">:best</code> — Only update if new score is better (default)</li><li><code class="inline">:incr</code> — Add to existing score</li><li><code class="inline">:decr</code> — Subtract from existing score</li></ul>
     </section>
 
 </div>
@@ -120,6 +120,28 @@ used by your application.</p>
       </a>
       <span class="text">Summary</span>
     </h1>
+<div class="summary-types summary">
+  <h2>
+    <a href="#types">Types</a>
+  </h2>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:operator/0" data-no-tooltip="" translate="no">operator()</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:sort_order/0" data-no-tooltip="" translate="no">sort_order()</a>
+
+      </div>
+
+    </div>
+
+</div>
 <div class="summary-functions summary">
   <h2>
     <a href="#functions">Functions</a>
@@ -127,39 +149,42 @@ used by your application.</p>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#app/1" data-no-tooltip="" translate="no">app(assigns)</a>
+        <a href="#active?/1" data-no-tooltip="" translate="no">active?(leaderboard)</a>
 
       </div>
 
-        <div class="summary-synopsis"><p>Renders your app layout.</p></div>
+        <div class="summary-synopsis"><p>Returns true if the leaderboard is currently active (not ended).</p></div>
 
     </div>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#flash_group/1" data-no-tooltip="" translate="no">flash_group(assigns)</a>
+        <a href="#changeset/2" data-no-tooltip="" translate="no">changeset(leaderboard, attrs)</a>
 
       </div>
 
-        <div class="summary-synopsis"><p>Shows the flash group with standard titles and content.</p></div>
+        <div class="summary-synopsis"><p>Changeset for creating a new leaderboard.</p></div>
 
     </div>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#root/1" data-no-tooltip="" translate="no">root(assigns)</a>
+        <a href="#ended?/1" data-no-tooltip="" translate="no">ended?(lb)</a>
 
       </div>
+
+        <div class="summary-synopsis"><p>Returns true if the leaderboard has ended.</p></div>
 
     </div>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#theme_toggle/1" data-no-tooltip="" translate="no">theme_toggle(assigns)</a>
+        <a href="#update_changeset/2" data-no-tooltip="" translate="no">update_changeset(leaderboard, attrs)</a>
 
       </div>
 
-        <div class="summary-synopsis"><p>Provides dark vs light theme toggle based on themes defined in app.css.</p></div>
+        <div class="summary-synopsis"><p>Changeset for updating an existing leaderboard.
+Does not allow changing id, sort_order, or operator after creation.</p></div>
 
     </div>
 
@@ -167,6 +192,75 @@ used by your application.</p>
 
   </section>
 
+
+  <section id="types" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#types">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Types</span>
+    </h1>
+
+    <div class="types-list">
+<section class="detail" id="t:operator/0">
+
+  <div class="detail-header">
+    <a href="#t:operator/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">operator()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards/leaderboard.ex#L22" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> operator() :: :set | :best | :incr | :decr</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="t:sort_order/0">
+
+  <div class="detail-header">
+    <a href="#t:sort_order/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">sort_order()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards/leaderboard.ex#L21" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> sort_order() :: :desc | :asc</pre>
+
+      </div>
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
 
   <section id="functions" class="details-list">
     <h1 class="section-heading">
@@ -177,17 +271,17 @@ used by your application.</p>
     </h1>
 
     <div class="functions-list">
-<section class="detail" id="app/1">
+<section class="detail" id="active?/1">
 
   <div class="detail-header">
-    <a href="#app/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#active?/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">app(assigns)</h1>
+      <h1 class="signature" translate="no">active?(leaderboard)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/components/layouts.ex#L36" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards/leaderboard.ex#L72" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -196,24 +290,20 @@ used by your application.</p>
 
   <section class="docstring">
 
-<p>Renders your app layout.</p><p>This function is typically invoked from every template,
-and it often contains your application menu, sidebar,
-or similar.</p><h2 id="app/1-examples" class="section-heading"><a href="#app/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="o">&lt;</span><span class="nc">Layouts</span><span class="o">.</span><span class="n">app</span><span class="w"> </span><span class="n">flash</span><span class="o">=</span><span class="p" data-group-id="6978831947-1">{</span><span class="na">@flash</span><span class="p" data-group-id="6978831947-1">}</span><span class="o">&gt;</span><span class="w">
-  </span><span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="nc">Content</span><span class="o">&lt;</span><span class="o">/</span><span class="n">h1</span><span class="o">&gt;</span><span class="w">
-</span><span class="o">&lt;</span><span class="o">/</span><span class="nc">Layouts</span><span class="o">.</span><span class="n">app</span><span class="o">&gt;</span></code></pre><h2 id="app/1-attributes" class="section-heading"><a href="#app/1-attributes" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Attributes</span></h2><ul><li><code class="inline">flash</code> (<code class="inline">:map</code>) (required) - the map of flash messages.</li><li><code class="inline">current_scope</code> (<code class="inline">:map</code>) - the current <a href="https://hexdocs.pm/phoenix/scopes.html">scope</a>. Defaults to <code class="inline">nil</code>.</li></ul><h2 id="app/1-slots" class="section-heading"><a href="#app/1-slots" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Slots</span></h2><ul><li><code class="inline">inner_block</code> (required)</li></ul>
+<p>Returns true if the leaderboard is currently active (not ended).</p>
   </section>
 </section>
-<section class="detail" id="flash_group/1">
+<section class="detail" id="changeset/2">
 
   <div class="detail-header">
-    <a href="#flash_group/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#changeset/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">flash_group(assigns)</h1>
+      <h1 class="signature" translate="no">changeset(leaderboard, attrs)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/components/layouts.ex#L260" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards/leaderboard.ex#L48" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -222,20 +312,20 @@ or similar.</p><h2 id="app/1-examples" class="section-heading"><a href="#app/1-e
 
   <section class="docstring">
 
-<p>Shows the flash group with standard titles and content.</p><h2 id="flash_group/1-examples" class="section-heading"><a href="#flash_group/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="o">&lt;</span><span class="o">.</span><span class="n">flash_group</span><span class="w"> </span><span class="n">flash</span><span class="o">=</span><span class="p" data-group-id="6327656151-1">{</span><span class="na">@flash</span><span class="p" data-group-id="6327656151-1">}</span><span class="w"> </span><span class="o">/</span><span class="o">&gt;</span></code></pre><h2 id="flash_group/1-attributes" class="section-heading"><a href="#flash_group/1-attributes" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Attributes</span></h2><ul><li><code class="inline">flash</code> (<code class="inline">:map</code>) (required) - the map of flash messages.</li><li><code class="inline">id</code> (<code class="inline">:string</code>) - the optional id of flash container. Defaults to <code class="inline">&quot;flash-group&quot;</code>.</li></ul>
+<p>Changeset for creating a new leaderboard.</p>
   </section>
 </section>
-<section class="detail" id="root/1">
+<section class="detail" id="ended?/1">
 
   <div class="detail-header">
-    <a href="#root/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#ended?/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">root(assigns)</h1>
+      <h1 class="signature" translate="no">ended?(lb)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/components/layouts.ex#L12" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards/leaderboard.ex#L80" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -244,20 +334,20 @@ or similar.</p><h2 id="app/1-examples" class="section-heading"><a href="#app/1-e
 
   <section class="docstring">
 
-
+<p>Returns true if the leaderboard has ended.</p>
   </section>
 </section>
-<section class="detail" id="theme_toggle/1">
+<section class="detail" id="update_changeset/2">
 
   <div class="detail-header">
-    <a href="#theme_toggle/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#update_changeset/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">theme_toggle(assigns)</h1>
+      <h1 class="signature" translate="no">update_changeset(leaderboard, attrs)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server_web/components/layouts.ex#L298" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards/leaderboard.ex#L63" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -266,7 +356,8 @@ or similar.</p><h2 id="app/1-examples" class="section-heading"><a href="#app/1-e
 
   <section class="docstring">
 
-<p>Provides dark vs light theme toggle based on themes defined in app.css.</p><p>See &lt;head&gt; in root.html.heex which applies the theme before page load.</p>
+<p>Changeset for updating an existing leaderboard.
+Does not allow changing id, sort_order, or operator after creation.</p>
   </section>
 </section>
 

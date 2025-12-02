@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.1">
-    <meta name="project" content="game_server v1.0.304">
+    <meta name="project" content="game_server v1.0.319">
 
 
-    <title>GameServer.Friends — game_server v1.0.304</title>
+    <title>GameServer.Friends — game_server v1.0.319</title>
 
     <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
 
-    <script defer src="dist/sidebar_items-0F47BE0F.js"></script>
+    <script defer src="dist/sidebar_items-5A5D02C1.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-HBZYRXZS.js"></script>
 
@@ -37,7 +37,7 @@
 game_server
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.304
+          v1.0.319
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.Friends</span> 
-      <small class="app-vsn" translate="no">(game_server v1.0.304)</small>
+      <small class="app-vsn" translate="no">(game_server v1.0.319)</small>
 
     </h1>
 
@@ -338,7 +338,7 @@ direction.</li></ul>
       <h1 class="signature" translate="no">accept_friend_request(friendship_id, user)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L137" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L139" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -346,6 +346,13 @@ direction.</li></ul>
   </div>
 
   <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> accept_friend_request(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()) ::
+  {:ok, <a href="GameServer.Friends.Friendship.html#t:t/0">GameServer.Friends.Friendship.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
 
 <p>Accept a friend request (only the target may accept). Returns {:ok, friendship}.</p>
   </section>
@@ -360,7 +367,7 @@ direction.</li></ul>
       <h1 class="signature" translate="no">block_friend_request(friendship_id, user)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L231" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L236" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -368,6 +375,13 @@ direction.</li></ul>
   </div>
 
   <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> block_friend_request(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()) ::
+  {:ok, <a href="GameServer.Friends.Friendship.html#t:t/0">GameServer.Friends.Friendship.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
 
 <p>Block an incoming request (only the target may block). Returns {:ok, friendship} with status &quot;blocked&quot;.</p>
   </section>
@@ -382,7 +396,7 @@ direction.</li></ul>
       <h1 class="signature" translate="no">cancel_request(friendship_id, user)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L184" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L187" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -404,7 +418,7 @@ direction.</li></ul>
       <h1 class="signature" translate="no">count_blocked_for_user(user_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L267" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L272" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -426,7 +440,7 @@ direction.</li></ul>
       <h1 class="signature" translate="no">count_friends_for_user(user_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L331" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L344" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -448,7 +462,7 @@ direction.</li></ul>
       <h1 class="signature" translate="no">count_incoming_requests(user_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L368" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L388" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -470,7 +484,7 @@ direction.</li></ul>
       <h1 class="signature" translate="no">count_outgoing_requests(user_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L397" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L424" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -492,7 +506,7 @@ direction.</li></ul>
       <h1 class="signature" translate="no">create_request(requester_id, target_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L59" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L60" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -523,7 +537,7 @@ direction.</li></ul>
       <h1 class="signature" translate="no">get_by_pair(requester_id, target_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L411" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L438" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -545,7 +559,7 @@ direction.</li></ul>
       <h1 class="signature" translate="no">get_friendship!(id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L408" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L435" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -569,7 +583,7 @@ direction.</li></ul>
       <h1 class="signature" translate="no">list_blocked_for_user(user_id, opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L249" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L254" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -593,7 +607,7 @@ direction.</li></ul>
       <h1 class="signature" translate="no">list_friends_for_user(user_id, opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L297" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L310" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -602,7 +616,16 @@ direction.</li></ul>
 
   <section class="docstring">
 
-<p>List accepted friends for a given user id - returns list of User structs.</p>
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_friends_for_user(
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>() | <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  <a href="GameServer.Types.html#t:pagination_opts/0">GameServer.Types.pagination_opts</a>()
+) :: [<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()]</pre>
+
+      </div>
+
+<p>List accepted friends for a given user id - returns list of User structs.</p><h2 id="list_friends_for_user/2-options" class="section-heading"><a href="#list_friends_for_user/2-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><p>See <code class="inline">GameServer.Types.pagination_opts/0</code> for available options.</p>
   </section>
 </section>
 <section class="detail" id="list_incoming_requests/2">
@@ -617,7 +640,7 @@ direction.</li></ul>
       <h1 class="signature" translate="no">list_incoming_requests(user_id, opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L350" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L370" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -626,7 +649,16 @@ direction.</li></ul>
 
   <section class="docstring">
 
-<p>List incoming pending friend requests for a user (Friendship structs).</p>
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_incoming_requests(
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>() | <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  <a href="GameServer.Types.html#t:pagination_opts/0">GameServer.Types.pagination_opts</a>()
+) :: [<a href="GameServer.Friends.Friendship.html#t:t/0">GameServer.Friends.Friendship.t</a>()]</pre>
+
+      </div>
+
+<p>List incoming pending friend requests for a user (Friendship structs).</p><h2 id="list_incoming_requests/2-options" class="section-heading"><a href="#list_incoming_requests/2-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><p>See <code class="inline">GameServer.Types.pagination_opts/0</code> for available options.</p>
   </section>
 </section>
 <section class="detail" id="list_outgoing_requests/2">
@@ -641,7 +673,7 @@ direction.</li></ul>
       <h1 class="signature" translate="no">list_outgoing_requests(user_id, opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L379" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L406" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -650,7 +682,16 @@ direction.</li></ul>
 
   <section class="docstring">
 
-<p>List outgoing pending friend requests for a user (Friendship structs).</p>
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_outgoing_requests(
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>() | <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  <a href="GameServer.Types.html#t:pagination_opts/0">GameServer.Types.pagination_opts</a>()
+) :: [<a href="GameServer.Friends.Friendship.html#t:t/0">GameServer.Friends.Friendship.t</a>()]</pre>
+
+      </div>
+
+<p>List outgoing pending friend requests for a user (Friendship structs).</p><h2 id="list_outgoing_requests/2-options" class="section-heading"><a href="#list_outgoing_requests/2-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><p>See <code class="inline">GameServer.Types.pagination_opts/0</code> for available options.</p>
   </section>
 </section>
 <section class="detail" id="reject_friend_request/2">
@@ -663,7 +704,7 @@ direction.</li></ul>
       <h1 class="signature" translate="no">reject_friend_request(friendship_id, user)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L165" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L168" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -671,6 +712,13 @@ direction.</li></ul>
   </div>
 
   <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> reject_friend_request(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()) ::
+  {:ok, <a href="GameServer.Friends.Friendship.html#t:t/0">GameServer.Friends.Friendship.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
 
 <p>Reject a friend request (only the target may reject). Returns {:ok, friendship}.</p>
   </section>
@@ -685,7 +733,7 @@ direction.</li></ul>
       <h1 class="signature" translate="no">remove_friend(user_id, friend_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L202" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L206" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -693,6 +741,13 @@ direction.</li></ul>
   </div>
 
   <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> remove_friend(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  {:ok, <a href="GameServer.Friends.Friendship.html#t:t/0">GameServer.Friends.Friendship.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
 
 <p>Remove a friendship (either direction) - only participating users may call this.</p>
   </section>
@@ -707,7 +762,7 @@ direction.</li></ul>
       <h1 class="signature" translate="no">subscribe_user(user_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L19" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L20" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -729,7 +784,7 @@ direction.</li></ul>
       <h1 class="signature" translate="no">unblock_friendship(friendship_id, user)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L278" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L284" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -737,6 +792,13 @@ direction.</li></ul>
   </div>
 
   <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> unblock_friendship(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()) ::
+  {:ok, :unblocked} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
 
 <p>Unblock a previously-blocked friendship (only the user who blocked may unblock). Returns {:ok, :unblocked} on success.</p>
   </section>
@@ -751,7 +813,7 @@ direction.</li></ul>
       <h1 class="signature" translate="no">unsubscribe_user(user_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L23" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L24" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 

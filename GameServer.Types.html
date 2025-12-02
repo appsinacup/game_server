@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.1">
+    <meta name="project" content="game_server v1.0.319">
+
+
+    <title>GameServer.Types — game_server v1.0.319</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
+
+    <script defer src="dist/sidebar_items-5A5D02C1.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-HBZYRXZS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://github.com/appsinacup/game_server" class="sidebar-projectName" translate="no">
+game_server
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v1.0.319
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of game_server</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">GameServer.Types</span> 
+      <small class="app-vsn" translate="no">(game_server v1.0.319)</small>
+
+    </h1>
+
+      <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/types.ex#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Shared types used across GameServer contexts.</p><p>These types provide self-documenting function signatures for common
+patterns like pagination options and entity attributes.</p>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h1>
+<div class="summary-types summary">
+  <h2>
+    <a href="#types">Types</a>
+  </h2>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:leaderboard_create_attrs/0" data-no-tooltip="" translate="no">leaderboard_create_attrs()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Attributes for creating a new leaderboard.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:leaderboard_update_attrs/0" data-no-tooltip="" translate="no">leaderboard_update_attrs()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Attributes for updating an existing leaderboard.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:lobby_create_attrs/0" data-no-tooltip="" translate="no">lobby_create_attrs()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Attributes for creating a new lobby.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:lobby_list_opts/0" data-no-tooltip="" translate="no">lobby_list_opts()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Lobby listing options for filtering and pagination.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:lobby_update_attrs/0" data-no-tooltip="" translate="no">lobby_update_attrs()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Attributes for updating an existing lobby.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:pagination_opts/0" data-no-tooltip="" translate="no">pagination_opts()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Pagination options for list queries.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:user_registration_attrs/0" data-no-tooltip="" translate="no">user_registration_attrs()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Attributes for registering a new user.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:user_update_attrs/0" data-no-tooltip="" translate="no">user_update_attrs()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Attributes for updating an existing user.</p></div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="types" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#types">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Types</span>
+    </h1>
+
+    <div class="types-list">
+<section class="detail" id="t:leaderboard_create_attrs/0">
+
+  <div class="detail-header">
+    <a href="#t:leaderboard_create_attrs/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">leaderboard_create_attrs()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/types.ex#L142" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> leaderboard_create_attrs() :: %{
+  :id =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  :title =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  optional(:description) =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  optional(:sort_order) =&gt; :desc | :asc,
+  optional(:operator) =&gt; :set | :best | :incr | :decr,
+  optional(:starts_at) =&gt; <a href="https://hexdocs.pm/elixir/DateTime.html#t:t/0">DateTime.t</a>(),
+  optional(:ends_at) =&gt; <a href="https://hexdocs.pm/elixir/DateTime.html#t:t/0">DateTime.t</a>(),
+  optional(:metadata) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()
+}</pre>
+
+      </div>
+
+<p>Attributes for creating a new leaderboard.</p><h2 id="t:leaderboard_create_attrs/0-fields" class="section-heading"><a href="#t:leaderboard_create_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:id</code> - Unique string identifier (required, 1-100 chars)</li><li><code class="inline">:title</code> - Display title (required, 1-255 chars)</li><li><code class="inline">:description</code> - Optional description</li><li><code class="inline">:sort_order</code> - <code class="inline">:desc</code> (higher is better) or <code class="inline">:asc</code> (lower is better). Default: <code class="inline">:desc</code></li><li><code class="inline">:operator</code> - How scores are combined:<ul><li><code class="inline">:set</code> - Always replace with new score</li><li><code class="inline">:best</code> - Only update if new score is better (default)</li><li><code class="inline">:incr</code> - Add to existing score</li><li><code class="inline">:decr</code> - Subtract from existing score</li></ul></li><li><code class="inline">:starts_at</code> - Optional start time (UTC)</li><li><code class="inline">:ends_at</code> - Optional end time (UTC)</li><li><code class="inline">:metadata</code> - Arbitrary key-value data</li></ul><h2 id="t:leaderboard_create_attrs/0-example" class="section-heading"><a href="#t:leaderboard_create_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">create_leaderboard</span><span class="p" data-group-id="6193502363-1">(</span><span class="p" data-group-id="6193502363-2">%{</span><span class="w">
+  </span><span class="ss">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;weekly_kills_w49&quot;</span><span class="p">,</span><span class="w">
+  </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Weekly Kills - Week 49&quot;</span><span class="p">,</span><span class="w">
+  </span><span class="ss">sort_order</span><span class="p">:</span><span class="w"> </span><span class="ss">:desc</span><span class="p">,</span><span class="w">
+  </span><span class="ss">operator</span><span class="p">:</span><span class="w"> </span><span class="ss">:incr</span><span class="p">,</span><span class="w">
+  </span><span class="ss">ends_at</span><span class="p">:</span><span class="w"> </span><span class="ld">~U[2024-12-08 00:00:00Z]</span><span class="w">
+</span><span class="p" data-group-id="6193502363-2">}</span><span class="p" data-group-id="6193502363-1">)</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="t:leaderboard_update_attrs/0">
+
+  <div class="detail-header">
+    <a href="#t:leaderboard_update_attrs/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">leaderboard_update_attrs()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/types.ex#L174" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> leaderboard_update_attrs() :: %{
+  optional(:title) =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  optional(:description) =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  optional(:starts_at) =&gt; <a href="https://hexdocs.pm/elixir/DateTime.html#t:t/0">DateTime.t</a>(),
+  optional(:ends_at) =&gt; <a href="https://hexdocs.pm/elixir/DateTime.html#t:t/0">DateTime.t</a>(),
+  optional(:metadata) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()
+}</pre>
+
+      </div>
+
+<p>Attributes for updating an existing leaderboard.</p><p>Note: <code class="inline">id</code>, <code class="inline">sort_order</code>, and <code class="inline">operator</code> cannot be changed after creation.</p><h2 id="t:leaderboard_update_attrs/0-fields" class="section-heading"><a href="#t:leaderboard_update_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:title</code> - Display title (1-255 chars)</li><li><code class="inline">:description</code> - Description text</li><li><code class="inline">:starts_at</code> - Start time (UTC)</li><li><code class="inline">:ends_at</code> - End time (UTC)</li><li><code class="inline">:metadata</code> - Arbitrary key-value data</li></ul><h2 id="t:leaderboard_update_attrs/0-example" class="section-heading"><a href="#t:leaderboard_update_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">update_leaderboard</span><span class="p" data-group-id="6589427606-1">(</span><span class="n">leaderboard</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6589427606-2">%{</span><span class="w">
+  </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Updated Title&quot;</span><span class="p">,</span><span class="w">
+  </span><span class="ss">ends_at</span><span class="p">:</span><span class="w"> </span><span class="ld">~U[2024-12-15 00:00:00Z]</span><span class="w">
+</span><span class="p" data-group-id="6589427606-2">}</span><span class="p" data-group-id="6589427606-1">)</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="t:lobby_create_attrs/0">
+
+  <div class="detail-header">
+    <a href="#t:lobby_create_attrs/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">lobby_create_attrs()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/types.ex#L210" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> lobby_create_attrs() :: %{
+  :name =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  :title =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  optional(:max_users) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(),
+  optional(:is_hidden) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>(),
+  optional(:is_locked) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>(),
+  optional(:password) =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  optional(:hostless) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>(),
+  optional(:metadata) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()
+}</pre>
+
+      </div>
+
+<p>Attributes for creating a new lobby.</p><h2 id="t:lobby_create_attrs/0-fields" class="section-heading"><a href="#t:lobby_create_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:name</code> - Unique identifier/slug (required)</li><li><code class="inline">:title</code> - Display title (required)</li><li><code class="inline">:max_users</code> - Maximum number of users allowed (default: 10)</li><li><code class="inline">:is_hidden</code> - Whether lobby is hidden from public lists (default: false)</li><li><code class="inline">:is_locked</code> - Whether lobby is locked from new joins (default: false)</li><li><code class="inline">:password</code> - Optional password for protected lobbies</li><li><code class="inline">:hostless</code> - Whether lobby can exist without a host (default: false)</li><li><code class="inline">:metadata</code> - Arbitrary key-value data</li></ul><h2 id="t:lobby_create_attrs/0-example" class="section-heading"><a href="#t:lobby_create_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">create_lobby</span><span class="p" data-group-id="3693260069-1">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3693260069-2">%{</span><span class="w">
+  </span><span class="ss">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;my-game-room&quot;</span><span class="p">,</span><span class="w">
+  </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;My Game Room&quot;</span><span class="p">,</span><span class="w">
+  </span><span class="ss">max_users</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">
+  </span><span class="ss">password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;secret&quot;</span><span class="w">
+</span><span class="p" data-group-id="3693260069-2">}</span><span class="p" data-group-id="3693260069-1">)</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="t:lobby_list_opts/0">
+
+  <div class="detail-header">
+    <a href="#t:lobby_list_opts/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">lobby_list_opts()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/types.ex#L50" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> lobby_list_opts() :: [
+  page: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>() | nil,
+  page_size: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(),
+  include_hidden: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()
+]</pre>
+
+      </div>
+
+<p>Lobby listing options for filtering and pagination.</p><h2 id="t:lobby_list_opts/0-options" class="section-heading"><a href="#t:lobby_list_opts/0-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:page</code> - The page number (1-indexed). Defaults to <code class="inline">nil</code> (returns all).</li><li><code class="inline">:page_size</code> - Number of items per page. Defaults to <code class="inline">25</code>.</li><li><code class="inline">:include_hidden</code> - Include hidden lobbies in results. Defaults to <code class="inline">false</code>.</li></ul><h2 id="t:lobby_list_opts/0-example" class="section-heading"><a href="#t:lobby_list_opts/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># List all visible lobbies</span><span class="w">
+</span><span class="n">list_lobbies</span><span class="p" data-group-id="7809807759-1">(</span><span class="p" data-group-id="7809807759-2">[</span><span class="p" data-group-id="7809807759-2">]</span><span class="p" data-group-id="7809807759-1">)</span><span class="w">
+
+</span><span class="c1"># List page 1 including hidden lobbies</span><span class="w">
+</span><span class="n">list_lobbies</span><span class="p" data-group-id="7809807759-3">(</span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">include_hidden</span><span class="p">:</span><span class="w"> </span><span class="no">true</span><span class="p" data-group-id="7809807759-3">)</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="t:lobby_update_attrs/0">
+
+  <div class="detail-header">
+    <a href="#t:lobby_update_attrs/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">lobby_update_attrs()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/types.ex#L241" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> lobby_update_attrs() :: %{
+  optional(:title) =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  optional(:max_users) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(),
+  optional(:is_hidden) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>(),
+  optional(:is_locked) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>(),
+  optional(:password) =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil,
+  optional(:metadata) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()
+}</pre>
+
+      </div>
+
+<p>Attributes for updating an existing lobby.</p><h2 id="t:lobby_update_attrs/0-fields" class="section-heading"><a href="#t:lobby_update_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:title</code> - Display title</li><li><code class="inline">:max_users</code> - Maximum number of users allowed</li><li><code class="inline">:is_hidden</code> - Whether lobby is hidden from public lists</li><li><code class="inline">:is_locked</code> - Whether lobby is locked from new joins</li><li><code class="inline">:password</code> - Password for protected lobbies (set to nil to remove)</li><li><code class="inline">:metadata</code> - Arbitrary key-value data</li></ul><h2 id="t:lobby_update_attrs/0-example" class="section-heading"><a href="#t:lobby_update_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">update_lobby</span><span class="p" data-group-id="9976798732-1">(</span><span class="n">lobby</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9976798732-2">%{</span><span class="w">
+  </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;New Title&quot;</span><span class="p">,</span><span class="w">
+  </span><span class="ss">is_locked</span><span class="p">:</span><span class="w"> </span><span class="no">true</span><span class="w">
+</span><span class="p" data-group-id="9976798732-2">}</span><span class="p" data-group-id="9976798732-1">)</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="t:pagination_opts/0">
+
+  <div class="detail-header">
+    <a href="#t:pagination_opts/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">pagination_opts()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/types.ex#L30" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> pagination_opts() :: [page: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(), page_size: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()]</pre>
+
+      </div>
+
+<p>Pagination options for list queries.</p><h2 id="t:pagination_opts/0-options" class="section-heading"><a href="#t:pagination_opts/0-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:page</code> - The page number (1-indexed). Defaults to <code class="inline">1</code>.</li><li><code class="inline">:page_size</code> - Number of items per page. Defaults to <code class="inline">25</code>.</li></ul><h2 id="t:pagination_opts/0-example" class="section-heading"><a href="#t:pagination_opts/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># Get the first page with default size</span><span class="w">
+</span><span class="n">list_users</span><span class="p" data-group-id="9734965221-1">(</span><span class="p" data-group-id="9734965221-2">[</span><span class="p" data-group-id="9734965221-2">]</span><span class="p" data-group-id="9734965221-1">)</span><span class="w">
+
+</span><span class="c1"># Get page 2 with 50 items per page</span><span class="w">
+</span><span class="n">list_users</span><span class="p" data-group-id="9734965221-3">(</span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p" data-group-id="9734965221-3">)</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="t:user_registration_attrs/0">
+
+  <div class="detail-header">
+    <a href="#t:user_registration_attrs/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">user_registration_attrs()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/types.ex#L79" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> user_registration_attrs() :: %{
+  optional(:email) =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  optional(:password) =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  optional(:display_name) =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  optional(:device_id) =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()
+}</pre>
+
+      </div>
+
+<p>Attributes for registering a new user.</p><h2 id="t:user_registration_attrs/0-fields" class="section-heading"><a href="#t:user_registration_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:email</code> - User's email address (required for email registration)</li><li><code class="inline">:password</code> - User's password (required for email registration, min 8 chars)</li><li><code class="inline">:display_name</code> - Optional display name</li><li><code class="inline">:device_id</code> - Optional device ID for anonymous auth</li></ul><h2 id="t:user_registration_attrs/0-example" class="section-heading"><a href="#t:user_registration_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">register_user</span><span class="p" data-group-id="2166150928-1">(</span><span class="p" data-group-id="2166150928-2">%{</span><span class="w">
+  </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p">,</span><span class="w">
+  </span><span class="ss">password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;secret123&quot;</span><span class="p">,</span><span class="w">
+  </span><span class="ss">display_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Player One&quot;</span><span class="w">
+</span><span class="p" data-group-id="2166150928-2">}</span><span class="p" data-group-id="2166150928-1">)</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="t:user_update_attrs/0">
+
+  <div class="detail-header">
+    <a href="#t:user_update_attrs/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">user_update_attrs()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/types.ex#L103" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> user_update_attrs() :: %{
+  optional(:display_name) =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil,
+  optional(:metadata) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(),
+  optional(:is_admin) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()
+}</pre>
+
+      </div>
+
+<p>Attributes for updating an existing user.</p><h2 id="t:user_update_attrs/0-fields" class="section-heading"><a href="#t:user_update_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:display_name</code> - User's display name</li><li><code class="inline">:metadata</code> - Arbitrary key-value data stored with the user</li><li><code class="inline">:is_admin</code> - Whether the user has admin privileges</li></ul><h2 id="t:user_update_attrs/0-example" class="section-heading"><a href="#t:user_update_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">update_user</span><span class="p" data-group-id="5568076923-1">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5568076923-2">%{</span><span class="w">
+  </span><span class="ss">display_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;New Name&quot;</span><span class="p">,</span><span class="w">
+  </span><span class="ss">metadata</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="5568076923-3">%{</span><span class="ss">level</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">xp</span><span class="p">:</span><span class="w"> </span><span class="mi">1200</span><span class="p" data-group-id="5568076923-3">}</span><span class="w">
+</span><span class="p" data-group-id="5568076923-2">}</span><span class="p" data-group-id="5568076923-1">)</span></code></pre>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+      <p>
+
+        <span class="line">
+          <button class="a-main footer-button display-quick-switch" title="Search HexDocs packages">
+            Search HexDocs
+          </button>
+
+            <a href="game_server.epub" title="ePub version">
+              Download ePub version
+            </a>
+
+        </span>
+      </p>
+
+      <p class="built-using">
+        Built using
+        <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.1) for the
+
+          <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+      </p>
+
+    </footer>
+  </div>
+</main>
+</div>
+
+  </body>
+</html>

@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.1">
-    <meta name="project" content="game_server v1.0.304">
+    <meta name="project" content="game_server v1.0.319">
 
 
-    <title>GameServer.Accounts — game_server v1.0.304</title>
+    <title>GameServer.Accounts — game_server v1.0.319</title>
 
     <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
 
-    <script defer src="dist/sidebar_items-0F47BE0F.js"></script>
+    <script defer src="dist/sidebar_items-5A5D02C1.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-HBZYRXZS.js"></script>
 
@@ -37,7 +37,7 @@
 game_server
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.304
+          v1.0.319
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.Accounts</span> 
-      <small class="app-vsn" translate="no">(game_server v1.0.304)</small>
+      <small class="app-vsn" translate="no">(game_server v1.0.319)</small>
 
     </h1>
 
@@ -357,6 +357,16 @@ is set, device auth is enabled by default.</p></div>
 
     <div class="summary-row">
       <div class="summary-signature">
+        <a href="#get_user/1" data-no-tooltip="" translate="no">get_user(id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Gets a single user by ID.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
         <a href="#get_user!/1" data-no-tooltip="" translate="no">get_user!(id)</a>
 
       </div>
@@ -529,11 +539,11 @@ existing email or avatars.</p></div>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#update_user_admin/2" data-no-tooltip="" translate="no">update_user_admin(user, attrs)</a>
+        <a href="#update_user/2" data-no-tooltip="" translate="no">update_user(user, attrs)</a>
 
       </div>
 
-        <div class="summary-synopsis"><p>Admin-level user update wrapper.</p></div>
+        <div class="summary-synopsis"><p>Updates a user with the given attributes.</p></div>
 
     </div>
 
@@ -591,7 +601,7 @@ existing email or avatars.</p></div>
       <h1 class="signature" translate="no">attach_device_to_user(user, device_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L464" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L495" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -614,7 +624,7 @@ existing email or avatars.</p></div>
       <h1 class="signature" translate="no">broadcast_user_update(user)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L1007" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L1038" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -639,7 +649,7 @@ intended for client consumption through the <code class="inline">user:&lt;id&gt;
       <h1 class="signature" translate="no">change_user_display_name(user, attrs \\ %{})</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L1021" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L1052" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -665,7 +675,7 @@ intended for client consumption through the <code class="inline">user:&lt;id&gt;
       <h1 class="signature" translate="no">change_user_email(user, attrs \\ %{}, opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L771" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L802" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -674,8 +684,8 @@ intended for client consumption through the <code class="inline">user:&lt;id&gt;
 
   <section class="docstring">
 
-<p>Returns an <code class="inline">%Ecto.Changeset{}</code> for changing the user email.</p><p>See <a href="GameServer.Accounts.User.html#email_changeset/3"><code class="inline">GameServer.Accounts.User.email_changeset/3</code></a> for a list of supported options.</p><h2 id="change_user_email/3-examples" class="section-heading"><a href="#change_user_email/3-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">change_user_email</span><span class="p" data-group-id="7267550559-1">(</span><span class="n">user</span><span class="p" data-group-id="7267550559-1">)</span><span class="w">
-</span><span class="p" data-group-id="7267550559-2">%</span><span class="nc" data-group-id="7267550559-2">Ecto.Changeset</span><span class="p" data-group-id="7267550559-2">{</span><span class="ss">data</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="7267550559-3">%</span><span class="nc" data-group-id="7267550559-3">User</span><span class="p" data-group-id="7267550559-3">{</span><span class="p" data-group-id="7267550559-3">}</span><span class="p" data-group-id="7267550559-2">}</span></code></pre>
+<p>Returns an <code class="inline">%Ecto.Changeset{}</code> for changing the user email.</p><p>See <a href="GameServer.Accounts.User.html#email_changeset/3"><code class="inline">GameServer.Accounts.User.email_changeset/3</code></a> for a list of supported options.</p><h2 id="change_user_email/3-examples" class="section-heading"><a href="#change_user_email/3-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">change_user_email</span><span class="p" data-group-id="5964829023-1">(</span><span class="n">user</span><span class="p" data-group-id="5964829023-1">)</span><span class="w">
+</span><span class="p" data-group-id="5964829023-2">%</span><span class="nc" data-group-id="5964829023-2">Ecto.Changeset</span><span class="p" data-group-id="5964829023-2">{</span><span class="ss">data</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="5964829023-3">%</span><span class="nc" data-group-id="5964829023-3">User</span><span class="p" data-group-id="5964829023-3">{</span><span class="p" data-group-id="5964829023-3">}</span><span class="p" data-group-id="5964829023-2">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="change_user_password/3">
@@ -692,7 +702,7 @@ intended for client consumption through the <code class="inline">user:&lt;id&gt;
       <h1 class="signature" translate="no">change_user_password(user, attrs \\ %{}, opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L807" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L838" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -701,8 +711,8 @@ intended for client consumption through the <code class="inline">user:&lt;id&gt;
 
   <section class="docstring">
 
-<p>Returns an <code class="inline">%Ecto.Changeset{}</code> for changing the user password.</p><p>See <a href="GameServer.Accounts.User.html#password_changeset/3"><code class="inline">GameServer.Accounts.User.password_changeset/3</code></a> for a list of supported options.</p><h2 id="change_user_password/3-examples" class="section-heading"><a href="#change_user_password/3-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">change_user_password</span><span class="p" data-group-id="0815218004-1">(</span><span class="n">user</span><span class="p" data-group-id="0815218004-1">)</span><span class="w">
-</span><span class="p" data-group-id="0815218004-2">%</span><span class="nc" data-group-id="0815218004-2">Ecto.Changeset</span><span class="p" data-group-id="0815218004-2">{</span><span class="ss">data</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="0815218004-3">%</span><span class="nc" data-group-id="0815218004-3">User</span><span class="p" data-group-id="0815218004-3">{</span><span class="p" data-group-id="0815218004-3">}</span><span class="p" data-group-id="0815218004-2">}</span></code></pre>
+<p>Returns an <code class="inline">%Ecto.Changeset{}</code> for changing the user password.</p><p>See <a href="GameServer.Accounts.User.html#password_changeset/3"><code class="inline">GameServer.Accounts.User.password_changeset/3</code></a> for a list of supported options.</p><h2 id="change_user_password/3-examples" class="section-heading"><a href="#change_user_password/3-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">change_user_password</span><span class="p" data-group-id="3799105043-1">(</span><span class="n">user</span><span class="p" data-group-id="3799105043-1">)</span><span class="w">
+</span><span class="p" data-group-id="3799105043-2">%</span><span class="nc" data-group-id="3799105043-2">Ecto.Changeset</span><span class="p" data-group-id="3799105043-2">{</span><span class="ss">data</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="3799105043-3">%</span><span class="nc" data-group-id="3799105043-3">User</span><span class="p" data-group-id="3799105043-3">{</span><span class="p" data-group-id="3799105043-3">}</span><span class="p" data-group-id="3799105043-2">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="change_user_registration/2">
@@ -717,7 +727,7 @@ intended for client consumption through the <code class="inline">user:&lt;id&gt;
       <h1 class="signature" translate="no">change_user_registration(user, attrs \\ %{})</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L1058" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L1104" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -739,7 +749,7 @@ intended for client consumption through the <code class="inline">user:&lt;id&gt;
       <h1 class="signature" translate="no">confirm_user(user)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L251" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L282" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -748,8 +758,8 @@ intended for client consumption through the <code class="inline">user:&lt;id&gt;
 
   <section class="docstring">
 
-<p>Confirms a user's email by setting confirmed_at timestamp.</p><h2 id="confirm_user/1-examples" class="section-heading"><a href="#confirm_user/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">confirm_user</span><span class="p" data-group-id="3341774097-1">(</span><span class="n">user</span><span class="p" data-group-id="3341774097-1">)</span><span class="w">
-</span><span class="p" data-group-id="3341774097-2">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3341774097-3">%</span><span class="nc" data-group-id="3341774097-3">User</span><span class="p" data-group-id="3341774097-3">{</span><span class="p" data-group-id="3341774097-3">}</span><span class="p" data-group-id="3341774097-2">}</span></code></pre>
+<p>Confirms a user's email by setting confirmed_at timestamp.</p><h2 id="confirm_user/1-examples" class="section-heading"><a href="#confirm_user/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">confirm_user</span><span class="p" data-group-id="0864401382-1">(</span><span class="n">user</span><span class="p" data-group-id="0864401382-1">)</span><span class="w">
+</span><span class="p" data-group-id="0864401382-2">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="0864401382-3">%</span><span class="nc" data-group-id="0864401382-3">User</span><span class="p" data-group-id="0864401382-3">{</span><span class="p" data-group-id="0864401382-3">}</span><span class="p" data-group-id="0864401382-2">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="confirm_user_by_token/1">
@@ -762,7 +772,7 @@ intended for client consumption through the <code class="inline">user:&lt;id&gt;
       <h1 class="signature" translate="no">confirm_user_by_token(token)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L263" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L294" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -785,7 +795,7 @@ Returns {:error, :not_found} or {:error, :expired} when token is invalid/expired
       <h1 class="signature" translate="no">count_search_users(query)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L73" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L80" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -807,7 +817,7 @@ Returns {:error, :not_found} or {:error, :expired} when token is invalid/expired
       <h1 class="signature" translate="no">delete_user(user)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L967" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L998" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -829,7 +839,7 @@ Returns {:error, :not_found} or {:error, :expired} when token is invalid/expired
       <h1 class="signature" translate="no">delete_user_session_token(token)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L955" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L986" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -851,7 +861,7 @@ Returns {:error, :not_found} or {:error, :expired} when token is invalid/expired
       <h1 class="signature" translate="no">deliver_login_instructions(user, magic_link_url_fun)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L945" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L976" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -873,7 +883,7 @@ Returns {:error, :not_found} or {:error, :expired} when token is invalid/expired
       <h1 class="signature" translate="no">deliver_user_confirmation_instructions(user, confirmation_url_fun)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L1062" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L1108" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -895,7 +905,7 @@ Returns {:error, :not_found} or {:error, :expired} when token is invalid/expired
       <h1 class="signature" translate="no">deliver_user_update_email_instructions(user, current_email, update_email_url_fun)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L934" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L965" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -904,8 +914,8 @@ Returns {:error, :not_found} or {:error, :expired} when token is invalid/expired
 
   <section class="docstring">
 
-<p>Delivers the update email instructions to the given user.</p><h2 id="deliver_user_update_email_instructions/3-examples" class="section-heading"><a href="#deliver_user_update_email_instructions/3-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">deliver_user_update_email_instructions</span><span class="p" data-group-id="4462655644-1">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">current_email</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">url</span><span class="p" data-group-id="4462655644-2">(</span><span class="sx">~p&quot;/users/settings/confirm-email/</span><span class="si" data-group-id="4462655644-3">#{</span><span class="ni">&amp;1</span><span class="si" data-group-id="4462655644-3">}</span><span class="sx">&quot;</span><span class="p" data-group-id="4462655644-2">)</span><span class="p" data-group-id="4462655644-1">)</span><span class="w">
-</span><span class="p" data-group-id="4462655644-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="4462655644-5">%{</span><span class="ss">to</span><span class="p">:</span><span class="w"> </span><span class="n">...</span><span class="p">,</span><span class="w"> </span><span class="ss">body</span><span class="p">:</span><span class="w"> </span><span class="n">...</span><span class="p" data-group-id="4462655644-5">}</span><span class="p" data-group-id="4462655644-4">}</span></code></pre>
+<p>Delivers the update email instructions to the given user.</p><h2 id="deliver_user_update_email_instructions/3-examples" class="section-heading"><a href="#deliver_user_update_email_instructions/3-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">deliver_user_update_email_instructions</span><span class="p" data-group-id="0731328042-1">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">current_email</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">url</span><span class="p" data-group-id="0731328042-2">(</span><span class="sx">~p&quot;/users/settings/confirm-email/</span><span class="si" data-group-id="0731328042-3">#{</span><span class="ni">&amp;1</span><span class="si" data-group-id="0731328042-3">}</span><span class="sx">&quot;</span><span class="p" data-group-id="0731328042-2">)</span><span class="p" data-group-id="0731328042-1">)</span><span class="w">
+</span><span class="p" data-group-id="0731328042-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="0731328042-5">%{</span><span class="ss">to</span><span class="p">:</span><span class="w"> </span><span class="n">...</span><span class="p">,</span><span class="w"> </span><span class="ss">body</span><span class="p">:</span><span class="w"> </span><span class="n">...</span><span class="p" data-group-id="0731328042-5">}</span><span class="p" data-group-id="0731328042-4">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="detach_device_from_user/1">
@@ -918,7 +928,7 @@ Returns {:error, :not_found} or {:error, :expired} when token is invalid/expired
       <h1 class="signature" translate="no">detach_device_from_user(user)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L683" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L714" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -941,7 +951,7 @@ Returns {:error, :not_found} or {:error, :expired} when token is invalid/expired
       <h1 class="signature" translate="no">device_auth_enabled?()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L476" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L507" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -966,7 +976,7 @@ is set, device auth is enabled by default.</p>
       <h1 class="signature" translate="no">find_or_create_from_apple(attrs)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L324" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L355" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -975,8 +985,8 @@ is set, device auth is enabled by default.</p>
 
   <section class="docstring">
 
-<p>Finds a user by Apple ID or creates a new user from OAuth data.</p><h2 id="find_or_create_from_apple/1-examples" class="section-heading"><a href="#find_or_create_from_apple/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">find_or_create_from_apple</span><span class="p" data-group-id="3220438721-1">(</span><span class="p" data-group-id="3220438721-2">%{</span><span class="ss">apple_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;123&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p" data-group-id="3220438721-2">}</span><span class="p" data-group-id="3220438721-1">)</span><span class="w">
-</span><span class="p" data-group-id="3220438721-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3220438721-4">%</span><span class="nc" data-group-id="3220438721-4">User</span><span class="p" data-group-id="3220438721-4">{</span><span class="p" data-group-id="3220438721-4">}</span><span class="p" data-group-id="3220438721-3">}</span></code></pre>
+<p>Finds a user by Apple ID or creates a new user from OAuth data.</p><h2 id="find_or_create_from_apple/1-examples" class="section-heading"><a href="#find_or_create_from_apple/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">find_or_create_from_apple</span><span class="p" data-group-id="6357486328-1">(</span><span class="p" data-group-id="6357486328-2">%{</span><span class="ss">apple_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;123&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p" data-group-id="6357486328-2">}</span><span class="p" data-group-id="6357486328-1">)</span><span class="w">
+</span><span class="p" data-group-id="6357486328-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6357486328-4">%</span><span class="nc" data-group-id="6357486328-4">User</span><span class="p" data-group-id="6357486328-4">{</span><span class="p" data-group-id="6357486328-4">}</span><span class="p" data-group-id="6357486328-3">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="find_or_create_from_device/2">
@@ -991,7 +1001,7 @@ is set, device auth is enabled by default.</p>
       <h1 class="signature" translate="no">find_or_create_from_device(device_id, attrs \\ %{})</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L434" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L465" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1014,7 +1024,7 @@ create an anonymous confirmed user and attach the device_id.</p>
       <h1 class="signature" translate="no">find_or_create_from_discord(attrs)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L307" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L338" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1023,8 +1033,8 @@ create an anonymous confirmed user and attach the device_id.</p>
 
   <section class="docstring">
 
-<p>Finds a user by Discord ID or creates a new user from OAuth data.</p><h2 id="find_or_create_from_discord/1-examples" class="section-heading"><a href="#find_or_create_from_discord/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">find_or_create_from_discord</span><span class="p" data-group-id="0144771592-1">(</span><span class="p" data-group-id="0144771592-2">%{</span><span class="ss">discord_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;123&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p" data-group-id="0144771592-2">}</span><span class="p" data-group-id="0144771592-1">)</span><span class="w">
-</span><span class="p" data-group-id="0144771592-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="0144771592-4">%</span><span class="nc" data-group-id="0144771592-4">User</span><span class="p" data-group-id="0144771592-4">{</span><span class="p" data-group-id="0144771592-4">}</span><span class="p" data-group-id="0144771592-3">}</span></code></pre>
+<p>Finds a user by Discord ID or creates a new user from OAuth data.</p><h2 id="find_or_create_from_discord/1-examples" class="section-heading"><a href="#find_or_create_from_discord/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">find_or_create_from_discord</span><span class="p" data-group-id="1056822003-1">(</span><span class="p" data-group-id="1056822003-2">%{</span><span class="ss">discord_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;123&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p" data-group-id="1056822003-2">}</span><span class="p" data-group-id="1056822003-1">)</span><span class="w">
+</span><span class="p" data-group-id="1056822003-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="1056822003-4">%</span><span class="nc" data-group-id="1056822003-4">User</span><span class="p" data-group-id="1056822003-4">{</span><span class="p" data-group-id="1056822003-4">}</span><span class="p" data-group-id="1056822003-3">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="find_or_create_from_facebook/1">
@@ -1037,7 +1047,7 @@ create an anonymous confirmed user and attach the device_id.</p>
       <h1 class="signature" translate="no">find_or_create_from_facebook(attrs)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L358" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L389" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1046,8 +1056,8 @@ create an anonymous confirmed user and attach the device_id.</p>
 
   <section class="docstring">
 
-<p>Finds a user by Facebook ID or creates a new user from OAuth data.</p><h2 id="find_or_create_from_facebook/1-examples" class="section-heading"><a href="#find_or_create_from_facebook/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">find_or_create_from_facebook</span><span class="p" data-group-id="7587431378-1">(</span><span class="p" data-group-id="7587431378-2">%{</span><span class="ss">facebook_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;123&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p" data-group-id="7587431378-2">}</span><span class="p" data-group-id="7587431378-1">)</span><span class="w">
-</span><span class="p" data-group-id="7587431378-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="7587431378-4">%</span><span class="nc" data-group-id="7587431378-4">User</span><span class="p" data-group-id="7587431378-4">{</span><span class="p" data-group-id="7587431378-4">}</span><span class="p" data-group-id="7587431378-3">}</span></code></pre>
+<p>Finds a user by Facebook ID or creates a new user from OAuth data.</p><h2 id="find_or_create_from_facebook/1-examples" class="section-heading"><a href="#find_or_create_from_facebook/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">find_or_create_from_facebook</span><span class="p" data-group-id="7755144961-1">(</span><span class="p" data-group-id="7755144961-2">%{</span><span class="ss">facebook_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;123&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p" data-group-id="7755144961-2">}</span><span class="p" data-group-id="7755144961-1">)</span><span class="w">
+</span><span class="p" data-group-id="7755144961-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="7755144961-4">%</span><span class="nc" data-group-id="7755144961-4">User</span><span class="p" data-group-id="7755144961-4">{</span><span class="p" data-group-id="7755144961-4">}</span><span class="p" data-group-id="7755144961-3">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="find_or_create_from_google/1">
@@ -1060,7 +1070,7 @@ create an anonymous confirmed user and attach the device_id.</p>
       <h1 class="signature" translate="no">find_or_create_from_google(attrs)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L341" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L372" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1069,8 +1079,8 @@ create an anonymous confirmed user and attach the device_id.</p>
 
   <section class="docstring">
 
-<p>Finds a user by Google ID or creates a new user from OAuth data.</p><h2 id="find_or_create_from_google/1-examples" class="section-heading"><a href="#find_or_create_from_google/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">find_or_create_from_google</span><span class="p" data-group-id="0035170174-1">(</span><span class="p" data-group-id="0035170174-2">%{</span><span class="ss">google_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;123&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p" data-group-id="0035170174-2">}</span><span class="p" data-group-id="0035170174-1">)</span><span class="w">
-</span><span class="p" data-group-id="0035170174-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="0035170174-4">%</span><span class="nc" data-group-id="0035170174-4">User</span><span class="p" data-group-id="0035170174-4">{</span><span class="p" data-group-id="0035170174-4">}</span><span class="p" data-group-id="0035170174-3">}</span></code></pre>
+<p>Finds a user by Google ID or creates a new user from OAuth data.</p><h2 id="find_or_create_from_google/1-examples" class="section-heading"><a href="#find_or_create_from_google/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">find_or_create_from_google</span><span class="p" data-group-id="7705979276-1">(</span><span class="p" data-group-id="7705979276-2">%{</span><span class="ss">google_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;123&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p" data-group-id="7705979276-2">}</span><span class="p" data-group-id="7705979276-1">)</span><span class="w">
+</span><span class="p" data-group-id="7705979276-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="7705979276-4">%</span><span class="nc" data-group-id="7705979276-4">User</span><span class="p" data-group-id="7705979276-4">{</span><span class="p" data-group-id="7705979276-4">}</span><span class="p" data-group-id="7705979276-3">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="find_or_create_from_steam/1">
@@ -1083,7 +1093,7 @@ create an anonymous confirmed user and attach the device_id.</p>
       <h1 class="signature" translate="no">find_or_create_from_steam(attrs)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L375" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L406" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1092,8 +1102,8 @@ create an anonymous confirmed user and attach the device_id.</p>
 
   <section class="docstring">
 
-<p>Finds a user by Steam ID or creates a new user from Steam OpenID data.</p><h2 id="find_or_create_from_steam/1-examples" class="section-heading"><a href="#find_or_create_from_steam/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">find_or_create_from_steam</span><span class="p" data-group-id="4567951386-1">(</span><span class="p" data-group-id="4567951386-2">%{</span><span class="ss">steam_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;12345&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p" data-group-id="4567951386-2">}</span><span class="p" data-group-id="4567951386-1">)</span><span class="w">
-</span><span class="p" data-group-id="4567951386-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="4567951386-4">%</span><span class="nc" data-group-id="4567951386-4">User</span><span class="p" data-group-id="4567951386-4">{</span><span class="p" data-group-id="4567951386-4">}</span><span class="p" data-group-id="4567951386-3">}</span></code></pre>
+<p>Finds a user by Steam ID or creates a new user from Steam OpenID data.</p><h2 id="find_or_create_from_steam/1-examples" class="section-heading"><a href="#find_or_create_from_steam/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">find_or_create_from_steam</span><span class="p" data-group-id="0159998339-1">(</span><span class="p" data-group-id="0159998339-2">%{</span><span class="ss">steam_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;12345&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p" data-group-id="0159998339-2">}</span><span class="p" data-group-id="0159998339-1">)</span><span class="w">
+</span><span class="p" data-group-id="0159998339-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="0159998339-4">%</span><span class="nc" data-group-id="0159998339-4">User</span><span class="p" data-group-id="0159998339-4">{</span><span class="p" data-group-id="0159998339-4">}</span><span class="p" data-group-id="0159998339-3">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="generate_user_session_token/1">
@@ -1106,7 +1116,7 @@ create an anonymous confirmed user and attach the device_id.</p>
       <h1 class="signature" translate="no">generate_user_session_token(user)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L836" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L867" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1116,6 +1126,38 @@ create an anonymous confirmed user and attach the device_id.</p>
   <section class="docstring">
 
 <p>Generates a session token.</p>
+  </section>
+</section>
+<section class="detail" id="get_user/1">
+
+  <div class="detail-header">
+    <a href="#get_user/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_user(id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L159" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_user(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>() | nil</pre>
+
+      </div>
+
+<p>Gets a single user by ID.</p><p>Returns <code class="inline">nil</code> if the User does not exist.</p><h2 id="get_user/1-examples" class="section-heading"><a href="#get_user/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">get_user</span><span class="p" data-group-id="2079370534-1">(</span><span class="mi">123</span><span class="p" data-group-id="2079370534-1">)</span><span class="w">
+</span><span class="p" data-group-id="2079370534-2">%</span><span class="nc" data-group-id="2079370534-2">User</span><span class="p" data-group-id="2079370534-2">{</span><span class="p" data-group-id="2079370534-2">}</span><span class="w">
+
+</span><span class="gp unselectable">iex&gt; </span><span class="n">get_user</span><span class="p" data-group-id="2079370534-3">(</span><span class="mi">456</span><span class="p" data-group-id="2079370534-3">)</span><span class="w">
+</span><span class="no">nil</span></code></pre>
   </section>
 </section>
 <section class="detail" id="get_user!/1">
@@ -1128,7 +1170,7 @@ create an anonymous confirmed user and attach the device_id.</p>
       <h1 class="signature" translate="no">get_user!(id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L134" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L142" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1137,10 +1179,16 @@ create an anonymous confirmed user and attach the device_id.</p>
 
   <section class="docstring">
 
-<p>Gets a single user.</p><p>Raises <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.NoResultsError.html"><code class="inline">Ecto.NoResultsError</code></a> if the User does not exist.</p><h2 id="get_user!/1-examples" class="section-heading"><a href="#get_user!/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">get_user!</span><span class="p" data-group-id="6812220654-1">(</span><span class="mi">123</span><span class="p" data-group-id="6812220654-1">)</span><span class="w">
-</span><span class="p" data-group-id="6812220654-2">%</span><span class="nc" data-group-id="6812220654-2">User</span><span class="p" data-group-id="6812220654-2">{</span><span class="p" data-group-id="6812220654-2">}</span><span class="w">
+      <div class="specs">
 
-</span><span class="gp unselectable">iex&gt; </span><span class="n">get_user!</span><span class="p" data-group-id="6812220654-3">(</span><span class="mi">456</span><span class="p" data-group-id="6812220654-3">)</span><span class="w">
+          <pre translate="no"><span class="attribute">@spec</span> get_user!(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()</pre>
+
+      </div>
+
+<p>Gets a single user.</p><p>Raises <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.NoResultsError.html"><code class="inline">Ecto.NoResultsError</code></a> if the User does not exist.</p><h2 id="get_user!/1-examples" class="section-heading"><a href="#get_user!/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">get_user!</span><span class="p" data-group-id="6398376810-1">(</span><span class="mi">123</span><span class="p" data-group-id="6398376810-1">)</span><span class="w">
+</span><span class="p" data-group-id="6398376810-2">%</span><span class="nc" data-group-id="6398376810-2">User</span><span class="p" data-group-id="6398376810-2">{</span><span class="p" data-group-id="6398376810-2">}</span><span class="w">
+
+</span><span class="gp unselectable">iex&gt; </span><span class="n">get_user!</span><span class="p" data-group-id="6398376810-3">(</span><span class="mi">456</span><span class="p" data-group-id="6398376810-3">)</span><span class="w">
 </span><span class="gt">** (Ecto.NoResultsError)</span></code></pre>
   </section>
 </section>
@@ -1154,7 +1202,7 @@ create an anonymous confirmed user and attach the device_id.</p>
       <h1 class="signature" translate="no">get_user_by_apple_id(apple_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L406" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L437" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1176,7 +1224,7 @@ create an anonymous confirmed user and attach the device_id.</p>
       <h1 class="signature" translate="no">get_user_by_discord_id(discord_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L415" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L446" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1198,7 +1246,7 @@ create an anonymous confirmed user and attach the device_id.</p>
       <h1 class="signature" translate="no">get_user_by_email(email)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L25" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L27" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1207,10 +1255,16 @@ create an anonymous confirmed user and attach the device_id.</p>
 
   <section class="docstring">
 
-<p>Gets a user by email.</p><h2 id="get_user_by_email/1-examples" class="section-heading"><a href="#get_user_by_email/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">get_user_by_email</span><span class="p" data-group-id="3935894659-1">(</span><span class="s">&quot;foo@example.com&quot;</span><span class="p" data-group-id="3935894659-1">)</span><span class="w">
-</span><span class="p" data-group-id="3935894659-2">%</span><span class="nc" data-group-id="3935894659-2">User</span><span class="p" data-group-id="3935894659-2">{</span><span class="p" data-group-id="3935894659-2">}</span><span class="w">
+      <div class="specs">
 
-</span><span class="gp unselectable">iex&gt; </span><span class="n">get_user_by_email</span><span class="p" data-group-id="3935894659-3">(</span><span class="s">&quot;unknown@example.com&quot;</span><span class="p" data-group-id="3935894659-3">)</span><span class="w">
+          <pre translate="no"><span class="attribute">@spec</span> get_user_by_email(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>() | nil</pre>
+
+      </div>
+
+<p>Gets a user by email.</p><h2 id="get_user_by_email/1-examples" class="section-heading"><a href="#get_user_by_email/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">get_user_by_email</span><span class="p" data-group-id="9714081786-1">(</span><span class="s">&quot;foo@example.com&quot;</span><span class="p" data-group-id="9714081786-1">)</span><span class="w">
+</span><span class="p" data-group-id="9714081786-2">%</span><span class="nc" data-group-id="9714081786-2">User</span><span class="p" data-group-id="9714081786-2">{</span><span class="p" data-group-id="9714081786-2">}</span><span class="w">
+
+</span><span class="gp unselectable">iex&gt; </span><span class="n">get_user_by_email</span><span class="p" data-group-id="9714081786-3">(</span><span class="s">&quot;unknown@example.com&quot;</span><span class="p" data-group-id="9714081786-3">)</span><span class="w">
 </span><span class="no">nil</span></code></pre>
   </section>
 </section>
@@ -1224,7 +1278,7 @@ create an anonymous confirmed user and attach the device_id.</p>
       <h1 class="signature" translate="no">get_user_by_email_and_password(email, password)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L114" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L121" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1233,10 +1287,10 @@ create an anonymous confirmed user and attach the device_id.</p>
 
   <section class="docstring">
 
-<p>Gets a user by email and password.</p><h2 id="get_user_by_email_and_password/2-examples" class="section-heading"><a href="#get_user_by_email_and_password/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">get_user_by_email_and_password</span><span class="p" data-group-id="5280977501-1">(</span><span class="s">&quot;foo@example.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;correct_password&quot;</span><span class="p" data-group-id="5280977501-1">)</span><span class="w">
-</span><span class="p" data-group-id="5280977501-2">%</span><span class="nc" data-group-id="5280977501-2">User</span><span class="p" data-group-id="5280977501-2">{</span><span class="p" data-group-id="5280977501-2">}</span><span class="w">
+<p>Gets a user by email and password.</p><h2 id="get_user_by_email_and_password/2-examples" class="section-heading"><a href="#get_user_by_email_and_password/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">get_user_by_email_and_password</span><span class="p" data-group-id="3897960759-1">(</span><span class="s">&quot;foo@example.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;correct_password&quot;</span><span class="p" data-group-id="3897960759-1">)</span><span class="w">
+</span><span class="p" data-group-id="3897960759-2">%</span><span class="nc" data-group-id="3897960759-2">User</span><span class="p" data-group-id="3897960759-2">{</span><span class="p" data-group-id="3897960759-2">}</span><span class="w">
 
-</span><span class="gp unselectable">iex&gt; </span><span class="n">get_user_by_email_and_password</span><span class="p" data-group-id="5280977501-3">(</span><span class="s">&quot;foo@example.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;invalid_password&quot;</span><span class="p" data-group-id="5280977501-3">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">get_user_by_email_and_password</span><span class="p" data-group-id="3897960759-3">(</span><span class="s">&quot;foo@example.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;invalid_password&quot;</span><span class="p" data-group-id="3897960759-3">)</span><span class="w">
 </span><span class="no">nil</span></code></pre>
   </section>
 </section>
@@ -1250,7 +1304,7 @@ create an anonymous confirmed user and attach the device_id.</p>
       <h1 class="signature" translate="no">get_user_by_facebook_id(facebook_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L424" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L455" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1272,7 +1326,7 @@ create an anonymous confirmed user and attach the device_id.</p>
       <h1 class="signature" translate="no">get_user_by_google_id(google_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L397" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L428" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1294,7 +1348,7 @@ create an anonymous confirmed user and attach the device_id.</p>
       <h1 class="signature" translate="no">get_user_by_magic_link_token(token)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L855" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L886" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1316,7 +1370,7 @@ create an anonymous confirmed user and attach the device_id.</p>
       <h1 class="signature" translate="no">get_user_by_session_token(token)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L847" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L878" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1338,7 +1392,7 @@ create an anonymous confirmed user and attach the device_id.</p>
       <h1 class="signature" translate="no">get_user_by_steam_id(steam_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L388" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L419" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1360,7 +1414,7 @@ create an anonymous confirmed user and attach the device_id.</p>
       <h1 class="signature" translate="no">link_account(user, attrs, provider_id_field, changeset_fn)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L638" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L669" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1384,7 +1438,7 @@ existing email or avatars.</p><p>Example: link_account(user, %{discord_id: &quot
       <h1 class="signature" translate="no">login_user_by_magic_link(token)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L882" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L913" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1413,7 +1467,7 @@ source of security pitfalls. See the &quot;Mixing magic link and password regist
       <h1 class="signature" translate="no">register_user(attrs)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L150" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L181" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1422,11 +1476,18 @@ source of security pitfalls. See the &quot;Mixing magic link and password regist
 
   <section class="docstring">
 
-<p>Registers a user.</p><h2 id="register_user/1-examples" class="section-heading"><a href="#register_user/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">register_user</span><span class="p" data-group-id="7603021294-1">(</span><span class="p" data-group-id="7603021294-2">%{</span><span class="ss">field</span><span class="p">:</span><span class="w"> </span><span class="n">value</span><span class="p" data-group-id="7603021294-2">}</span><span class="p" data-group-id="7603021294-1">)</span><span class="w">
-</span><span class="p" data-group-id="7603021294-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="7603021294-4">%</span><span class="nc" data-group-id="7603021294-4">User</span><span class="p" data-group-id="7603021294-4">{</span><span class="p" data-group-id="7603021294-4">}</span><span class="p" data-group-id="7603021294-3">}</span><span class="w">
+      <div class="specs">
 
-</span><span class="gp unselectable">iex&gt; </span><span class="n">register_user</span><span class="p" data-group-id="7603021294-5">(</span><span class="p" data-group-id="7603021294-6">%{</span><span class="ss">field</span><span class="p">:</span><span class="w"> </span><span class="n">bad_value</span><span class="p" data-group-id="7603021294-6">}</span><span class="p" data-group-id="7603021294-5">)</span><span class="w">
-</span><span class="p" data-group-id="7603021294-7">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="7603021294-8">%</span><span class="nc" data-group-id="7603021294-8">Ecto.Changeset</span><span class="p" data-group-id="7603021294-8">{</span><span class="p" data-group-id="7603021294-8">}</span><span class="p" data-group-id="7603021294-7">}</span></code></pre>
+          <pre translate="no"><span class="attribute">@spec</span> register_user(<a href="GameServer.Types.html#t:user_registration_attrs/0">GameServer.Types.user_registration_attrs</a>()) ::
+  {:ok, <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()} | {:error, <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+
+      </div>
+
+<p>Registers a user.</p><h2 id="register_user/1-attributes" class="section-heading"><a href="#register_user/1-attributes" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Attributes</span></h2><p>See <code class="inline">GameServer.Types.user_registration_attrs/0</code> for available fields.</p><h2 id="register_user/1-examples" class="section-heading"><a href="#register_user/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">register_user</span><span class="p" data-group-id="3392744212-1">(</span><span class="p" data-group-id="3392744212-2">%{</span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;secret123&quot;</span><span class="p" data-group-id="3392744212-2">}</span><span class="p" data-group-id="3392744212-1">)</span><span class="w">
+</span><span class="p" data-group-id="3392744212-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3392744212-4">%</span><span class="nc" data-group-id="3392744212-4">User</span><span class="p" data-group-id="3392744212-4">{</span><span class="p" data-group-id="3392744212-4">}</span><span class="p" data-group-id="3392744212-3">}</span><span class="w">
+
+</span><span class="gp unselectable">iex&gt; </span><span class="n">register_user</span><span class="p" data-group-id="3392744212-5">(</span><span class="p" data-group-id="3392744212-6">%{</span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;invalid&quot;</span><span class="p" data-group-id="3392744212-6">}</span><span class="p" data-group-id="3392744212-5">)</span><span class="w">
+</span><span class="p" data-group-id="3392744212-7">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3392744212-8">%</span><span class="nc" data-group-id="3392744212-8">Ecto.Changeset</span><span class="p" data-group-id="3392744212-8">{</span><span class="p" data-group-id="3392744212-8">}</span><span class="p" data-group-id="3392744212-7">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="register_user_and_deliver/3">
@@ -1441,7 +1502,7 @@ source of security pitfalls. See the &quot;Mixing magic link and password regist
       <h1 class="signature" translate="no">register_user_and_deliver(attrs, confirmation_url_fun, notifier \\ GameServer.Accounts.UserNotifier)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L180" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L211" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1467,7 +1528,7 @@ that receives the encoded token and returns the confirmation URL string.</p><p>I
       <h1 class="signature" translate="no">search_users(query, opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L34" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L41" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1476,7 +1537,15 @@ that receives the encoded token and returns the confirmation URL string.</p><p>I
 
   <section class="docstring">
 
-<p>Search users by email or display name (case-insensitive, partial match).</p><p>Returns a list of User structs (up to 50 results).</p>
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> search_users(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="GameServer.Types.html#t:pagination_opts/0">GameServer.Types.pagination_opts</a>()) :: [
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()
+]</pre>
+
+      </div>
+
+<p>Search users by email or display name (case-insensitive, partial match).</p><p>Returns a list of User structs.</p><h2 id="search_users/2-options" class="section-heading"><a href="#search_users/2-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><p>See <code class="inline">GameServer.Types.pagination_opts/0</code> for available options.</p>
   </section>
 </section>
 <section class="detail" id="sudo_mode?/2">
@@ -1491,7 +1560,7 @@ that receives the encoded token and returns the confirmation URL string.</p><p>I
       <h1 class="signature" translate="no">sudo_mode?(user, minutes \\ -20)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L752" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L783" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1514,7 +1583,7 @@ than 20 minutes ago. The limit can be given as second argument in minutes.</p>
       <h1 class="signature" translate="no">unlink_provider(user, provider)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L703" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L734" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1529,17 +1598,17 @@ one other social provider remaining. This prevents users losing all
 social logins unexpectedly.</p>
   </section>
 </section>
-<section class="detail" id="update_user_admin/2">
+<section class="detail" id="update_user/2">
 
   <div class="detail-header">
-    <a href="#update_user_admin/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#update_user/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">update_user_admin(user, attrs)</h1>
+      <h1 class="signature" translate="no">update_user(user, attrs)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L1046" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L1092" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1548,9 +1617,20 @@ social logins unexpectedly.</p>
 
   <section class="docstring">
 
-<p>Admin-level user update wrapper.</p><p>This function applies the <code class="inline">User.admin_changeset/2</code> then updates the user and
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> update_user(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="GameServer.Types.html#t:user_update_attrs/0">GameServer.Types.user_update_attrs</a>()) ::
+  {:ok, <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()} | {:error, <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+
+      </div>
+
+<p>Updates a user with the given attributes.</p><p>This function applies the <code class="inline">User.admin_changeset/2</code> then updates the user and
 broadcasts the update on success. It returns the same tuple shape as
-<code class="inline">Repo.update/1</code> so callers can pattern-match as before.</p>
+<code class="inline">Repo.update/1</code> so callers can pattern-match as before.</p><h2 id="update_user/2-attributes" class="section-heading"><a href="#update_user/2-attributes" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Attributes</span></h2><p>See <code class="inline">GameServer.Types.user_update_attrs/0</code> for available fields.</p><h2 id="update_user/2-examples" class="section-heading"><a href="#update_user/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">update_user</span><span class="p" data-group-id="3478871711-1">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3478871711-2">%{</span><span class="ss">display_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;NewName&quot;</span><span class="p" data-group-id="3478871711-2">}</span><span class="p" data-group-id="3478871711-1">)</span><span class="w">
+</span><span class="p" data-group-id="3478871711-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3478871711-4">%</span><span class="nc" data-group-id="3478871711-4">User</span><span class="p" data-group-id="3478871711-4">{</span><span class="p" data-group-id="3478871711-4">}</span><span class="p" data-group-id="3478871711-3">}</span><span class="w">
+
+</span><span class="gp unselectable">iex&gt; </span><span class="n">update_user</span><span class="p" data-group-id="3478871711-5">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3478871711-6">%{</span><span class="ss">metadata</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="3478871711-7">%{</span><span class="ss">level</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p" data-group-id="3478871711-7">}</span><span class="p" data-group-id="3478871711-6">}</span><span class="p" data-group-id="3478871711-5">)</span><span class="w">
+</span><span class="p" data-group-id="3478871711-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3478871711-9">%</span><span class="nc" data-group-id="3478871711-9">User</span><span class="p" data-group-id="3478871711-9">{</span><span class="p" data-group-id="3478871711-9">}</span><span class="p" data-group-id="3478871711-8">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="update_user_display_name/2">
@@ -1563,7 +1643,7 @@ broadcasts the update on success. It returns the same tuple shape as
       <h1 class="signature" translate="no">update_user_display_name(user, attrs)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L1028" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L1059" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1585,7 +1665,7 @@ broadcasts the update on success. It returns the same tuple shape as
       <h1 class="signature" translate="no">update_user_email(user, token)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L780" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L811" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1607,7 +1687,7 @@ broadcasts the update on success. It returns the same tuple shape as
       <h1 class="signature" translate="no">update_user_password(user, attrs)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L825" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/accounts.ex#L856" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1616,11 +1696,11 @@ broadcasts the update on success. It returns the same tuple shape as
 
   <section class="docstring">
 
-<p>Updates the user password.</p><p>Returns a tuple with the updated user, as well as a list of expired tokens.</p><h2 id="update_user_password/2-examples" class="section-heading"><a href="#update_user_password/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">update_user_password</span><span class="p" data-group-id="6714282726-1">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6714282726-2">%{</span><span class="ss">password</span><span class="p">:</span><span class="w"> </span><span class="n">...</span><span class="p" data-group-id="6714282726-2">}</span><span class="p" data-group-id="6714282726-1">)</span><span class="w">
-</span><span class="p" data-group-id="6714282726-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6714282726-4">{</span><span class="p" data-group-id="6714282726-5">%</span><span class="nc" data-group-id="6714282726-5">User</span><span class="p" data-group-id="6714282726-5">{</span><span class="p" data-group-id="6714282726-5">}</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6714282726-6">[</span><span class="n">...</span><span class="p" data-group-id="6714282726-6">]</span><span class="p" data-group-id="6714282726-4">}</span><span class="p" data-group-id="6714282726-3">}</span><span class="w">
+<p>Updates the user password.</p><p>Returns a tuple with the updated user, as well as a list of expired tokens.</p><h2 id="update_user_password/2-examples" class="section-heading"><a href="#update_user_password/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">update_user_password</span><span class="p" data-group-id="5165516562-1">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5165516562-2">%{</span><span class="ss">password</span><span class="p">:</span><span class="w"> </span><span class="n">...</span><span class="p" data-group-id="5165516562-2">}</span><span class="p" data-group-id="5165516562-1">)</span><span class="w">
+</span><span class="p" data-group-id="5165516562-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5165516562-4">{</span><span class="p" data-group-id="5165516562-5">%</span><span class="nc" data-group-id="5165516562-5">User</span><span class="p" data-group-id="5165516562-5">{</span><span class="p" data-group-id="5165516562-5">}</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5165516562-6">[</span><span class="n">...</span><span class="p" data-group-id="5165516562-6">]</span><span class="p" data-group-id="5165516562-4">}</span><span class="p" data-group-id="5165516562-3">}</span><span class="w">
 
-</span><span class="gp unselectable">iex&gt; </span><span class="n">update_user_password</span><span class="p" data-group-id="6714282726-7">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6714282726-8">%{</span><span class="ss">password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;too short&quot;</span><span class="p" data-group-id="6714282726-8">}</span><span class="p" data-group-id="6714282726-7">)</span><span class="w">
-</span><span class="p" data-group-id="6714282726-9">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6714282726-10">%</span><span class="nc" data-group-id="6714282726-10">Ecto.Changeset</span><span class="p" data-group-id="6714282726-10">{</span><span class="p" data-group-id="6714282726-10">}</span><span class="p" data-group-id="6714282726-9">}</span></code></pre>
+</span><span class="gp unselectable">iex&gt; </span><span class="n">update_user_password</span><span class="p" data-group-id="5165516562-7">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5165516562-8">%{</span><span class="ss">password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;too short&quot;</span><span class="p" data-group-id="5165516562-8">}</span><span class="p" data-group-id="5165516562-7">)</span><span class="w">
+</span><span class="p" data-group-id="5165516562-9">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5165516562-10">%</span><span class="nc" data-group-id="5165516562-10">Ecto.Changeset</span><span class="p" data-group-id="5165516562-10">{</span><span class="p" data-group-id="5165516562-10">}</span><span class="p" data-group-id="5165516562-9">}</span></code></pre>
   </section>
 </section>
 
