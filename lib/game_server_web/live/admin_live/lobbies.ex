@@ -30,135 +30,141 @@ defmodule GameServerWeb.AdminLive.Lobbies do
 
         <div class="card bg-base-200">
           <div class="card-body">
-            <h3 class="card-title text-sm">Filters</h3>
-            <form phx-change="filter" class="grid grid-cols-2 md:flex md:flex-wrap gap-4 items-end">
-              <div class="form-control col-span-2 md:w-auto md:flex-1">
-                <label class="label"><span class="label-text">Title</span></label>
-                <input
-                  type="text"
-                  name="title"
-                  value={@filters["title"]}
-                  class="input input-bordered input-sm w-full"
-                  placeholder="Search title..."
-                />
-              </div>
-
-              <div class="form-control">
-                <label class="label"><span class="label-text">Hidden</span></label>
-                <select name="is_hidden" class="select select-bordered select-sm w-full">
-                  <option value="" selected={@filters["is_hidden"] == ""}>Any</option>
-                  <option value="true" selected={@filters["is_hidden"] == "true"}>Hidden</option>
-                  <option value="false" selected={@filters["is_hidden"] == "false"}>Public</option>
-                </select>
-              </div>
-
-              <div class="form-control">
-                <label class="label"><span class="label-text">Locked</span></label>
-                <select name="is_locked" class="select select-bordered select-sm w-full">
-                  <option value="" selected={@filters["is_locked"] == ""}>Any</option>
-                  <option value="true" selected={@filters["is_locked"] == "true"}>Locked</option>
-                  <option value="false" selected={@filters["is_locked"] == "false"}>Open</option>
-                </select>
-              </div>
-
-              <div class="form-control">
-                <label class="label"><span class="label-text">Has Password</span></label>
-                <select name="has_password" class="select select-bordered select-sm w-full">
-                  <option value="" selected={@filters["has_password"] == ""}>Any</option>
-                  <option value="true" selected={@filters["has_password"] == "true"}>Yes</option>
-                  <option value="false" selected={@filters["has_password"] == "false"}>No</option>
-                </select>
-              </div>
-
-              <div class="form-control">
-                <label class="label"><span class="label-text">Min Capacity</span></label>
-                <input
-                  type="number"
-                  name="min_max_users"
-                  value={@filters["min_max_users"]}
-                  class="input input-bordered input-sm w-full"
-                />
-              </div>
-
-              <div class="form-control">
-                <label class="label"><span class="label-text">Max Capacity</span></label>
-                <input
-                  type="number"
-                  name="max_max_users"
-                  value={@filters["max_max_users"]}
-                  class="input input-bordered input-sm w-full"
-                />
-              </div>
-            </form>
-          </div>
-        </div>
-
-        <div class="card bg-base-200">
-          <div class="card-body">
             <h2 class="card-title">Lobbies ({@count})</h2>
 
-            <div class="overflow-x-auto mt-4">
-              <table class="table table-zebra w-full">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Title</th>
-                    <th>Host ID</th>
-                    <th>Users</th>
-                    <th>Hidden</th>
-                    <th>Locked</th>
-                    <th>Password</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr :for={l <- @lobbies} id={"admin-lobby-" <> to_string(l.id)}>
-                    <td class="font-mono text-sm">{l.id}</td>
-                    <td class="text-sm">{l.title || "-"}</td>
-                    <td class="font-mono text-sm">{l.host_id}</td>
-                    <td class="text-sm">{length(l.users || [])}</td>
-                    <td class="text-sm">
-                      <%= if l.is_hidden do %>
-                        <span class="badge badge-info badge-sm">Hidden</span>
-                      <% else %>
-                        <span class="badge badge-ghost badge-sm">Public</span>
-                      <% end %>
-                    </td>
-                    <td class="text-sm">
-                      <%= if l.is_locked do %>
-                        <span class="badge badge-warning badge-sm">Locked</span>
-                      <% else %>
-                        <span class="badge badge-ghost badge-sm">Open</span>
-                      <% end %>
-                    </td>
-                    <td class="text-sm">
-                      <%= if l.password_hash do %>
-                        <span class="badge badge-success badge-sm">Yes</span>
-                      <% else %>
-                        <span class="badge badge-ghost badge-sm">No</span>
-                      <% end %>
-                    </td>
-                    <td class="text-sm">
-                      <button
-                        phx-click="edit_lobby"
-                        phx-value-id={l.id}
-                        class="btn btn-xs btn-outline btn-info mr-2"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        phx-click="delete_lobby"
-                        phx-value-id={l.id}
-                        data-confirm="Are you sure?"
-                        class="btn btn-xs btn-outline btn-error"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            <form phx-change="filter">
+              <div class="overflow-x-auto mt-4">
+                <table class="table table-zebra w-full">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Title</th>
+                      <th>Host ID</th>
+                      <th>Users (Cap)</th>
+                      <th>Hidden</th>
+                      <th>Locked</th>
+                      <th>Password</th>
+                      <th>Actions</th>
+                    </tr>
+                    <tr>
+                      <th></th>
+                      <th>
+                        <input
+                          type="text"
+                          name="title"
+                          value={@filters["title"]}
+                          class="input input-bordered input-xs w-full"
+                          placeholder="Filter..."
+                          phx-debounce="300"
+                        />
+                      </th>
+                      <th></th>
+                      <th class="flex gap-1">
+                        <input
+                          type="number"
+                          name="min_users"
+                          value={@filters["min_users"]}
+                          class="input input-bordered input-xs w-16"
+                          placeholder="Min"
+                          phx-debounce="300"
+                        />
+                        <input
+                          type="number"
+                          name="max_users"
+                          value={@filters["max_users"]}
+                          class="input input-bordered input-xs w-16"
+                          placeholder="Max"
+                          phx-debounce="300"
+                        />
+                      </th>
+                      <th>
+                        <select name="is_hidden" class="select select-bordered select-xs w-full">
+                          <option value="" selected={@filters["is_hidden"] == ""}>All</option>
+                          <option value="true" selected={@filters["is_hidden"] == "true"}>
+                            Hidden
+                          </option>
+                          <option value="false" selected={@filters["is_hidden"] == "false"}>
+                            Public
+                          </option>
+                        </select>
+                      </th>
+                      <th>
+                        <select name="is_locked" class="select select-bordered select-xs w-full">
+                          <option value="" selected={@filters["is_locked"] == ""}>All</option>
+                          <option value="true" selected={@filters["is_locked"] == "true"}>
+                            Locked
+                          </option>
+                          <option value="false" selected={@filters["is_locked"] == "false"}>
+                            Open
+                          </option>
+                        </select>
+                      </th>
+                      <th>
+                        <select name="has_password" class="select select-bordered select-xs w-full">
+                          <option value="" selected={@filters["has_password"] == ""}>All</option>
+                          <option value="true" selected={@filters["has_password"] == "true"}>
+                            Yes
+                          </option>
+                          <option value="false" selected={@filters["has_password"] == "false"}>
+                            No
+                          </option>
+                        </select>
+                      </th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr :for={l <- @lobbies} id={"admin-lobby-" <> to_string(l.id)}>
+                      <td class="font-mono text-sm">{l.id}</td>
+                      <td class="text-sm">{l.title || "-"}</td>
+                      <td class="font-mono text-sm">{l.host_id}</td>
+                      <td class="text-sm">{length(l.users || [])} / {l.max_users}</td>
+                      <td class="text-sm">
+                        <%= if l.is_hidden do %>
+                          <span class="badge badge-info badge-sm">Hidden</span>
+                        <% else %>
+                          <span class="badge badge-ghost badge-sm">Public</span>
+                        <% end %>
+                      </td>
+                      <td class="text-sm">
+                        <%= if l.is_locked do %>
+                          <span class="badge badge-warning badge-sm">Locked</span>
+                        <% else %>
+                          <span class="badge badge-ghost badge-sm">Open</span>
+                        <% end %>
+                      </td>
+                      <td class="text-sm">
+                        <%= if l.password_hash do %>
+                          <span class="badge badge-success badge-sm">Yes</span>
+                        <% else %>
+                          <span class="badge badge-ghost badge-sm">No</span>
+                        <% end %>
+                      </td>
+                      <td class="text-sm">
+                        <button
+                          type="button"
+                          phx-click="edit_lobby"
+                          phx-value-id={l.id}
+                          class="btn btn-xs btn-outline btn-info mr-2"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          phx-click="delete_lobby"
+                          phx-value-id={l.id}
+                          data-confirm="Are you sure?"
+                          class="btn btn-xs btn-outline btn-error"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </form>
+
             <div class="mt-4 flex gap-2 items-center">
               <button phx-click="admin_lobbies_prev" class="btn btn-xs" disabled={@lobbies_page <= 1}>
                 Prev

@@ -175,8 +175,8 @@ defmodule GameServer.Lobbies do
     is_hidden: boolean/string,
     is_locked: boolean/string,
     has_password: boolean/string,
-    min_max_users: integer (filter by max_users >= val),
-    max_max_users: integer (filter by max_users <= val)
+    min_users: integer (filter by max_users >= val),
+    max_users: integer (filter by max_users <= val)
   }
   """
   def list_all_lobbies(filters \\ %{}, opts \\ []) do
@@ -210,8 +210,8 @@ defmodule GameServer.Lobbies do
     |> filter_by_hidden(filters)
     |> filter_by_locked(filters)
     |> filter_by_password(filters)
-    |> filter_by_min_max_users(filters)
-    |> filter_by_max_max_users(filters)
+    |> filter_by_min_users_admin(filters)
+    |> filter_by_max_users_admin(filters)
   end
 
   defp filter_by_title(q, filters) do
@@ -259,8 +259,8 @@ defmodule GameServer.Lobbies do
     end
   end
 
-  defp filter_by_min_max_users(q, filters) do
-    case Map.get(filters, :min_max_users) || Map.get(filters, "min_max_users") do
+  defp filter_by_min_users_admin(q, filters) do
+    case Map.get(filters, :min_users) || Map.get(filters, "min_users") do
       nil ->
         q
 
@@ -273,8 +273,8 @@ defmodule GameServer.Lobbies do
     end
   end
 
-  defp filter_by_max_max_users(q, filters) do
-    case Map.get(filters, :max_max_users) || Map.get(filters, "max_max_users") do
+  defp filter_by_max_users_admin(q, filters) do
+    case Map.get(filters, :max_users) || Map.get(filters, "max_users") do
       nil ->
         q
 
