@@ -5,6 +5,9 @@ defmodule GameServerWeb.AdminLive.Lobbies do
 
   @impl true
   def mount(_params, _session, socket) do
+    # Subscribe to lobby pubsub so admin UI updates live when lobbies are
+    # created/updated/deleted by API/quick_join flows.
+    Lobbies.subscribe_lobbies()
     # Admin sees ALL lobbies including hidden ones (paginated)
     lobbies_page = 1
     lobbies_page_size = 25
@@ -209,6 +212,29 @@ defmodule GameServerWeb.AdminLive.Lobbies do
             socket.assigns[:lobbies_page_size] || 25
           ),
         else: 0
+
+    {:noreply,
+     socket
+     |> assign(:lobbies_page, page)
+     |> assign(:lobbies, lobbies)
+     |> assign(:count, total_count)
+     |> assign(:lobbies_total_pages, total_pages)}
+  end
+
+  @impl true
+  def handle_info({event, _payload}, socket)
+      when event in [:lobby_created, :lobby_updated, :lobby_deleted] do
+    page = socket.assigns[:lobbies_page] || 1
+    page_size = socket.assigns[:lobbies_page_size] || 25
+
+    lobbies =
+      Lobbies.list_all_lobbies(page: page, page_size: page_size)
+      |> GameServer.Repo.preload(:users)
+
+    total_count = GameServer.Repo.aggregate(GameServer.Lobbies.Lobby, :count, :id)
+
+    total_pages =
+      if page_size > 0, do: div(total_count + page_size - 1, page_size), else: 0
 
     {:noreply,
      socket

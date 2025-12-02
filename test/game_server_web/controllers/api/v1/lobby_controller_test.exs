@@ -176,9 +176,27 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
 
     assert body["title"] == "api-quick-new"
     assert body["max_users"] == 5
+    # metadata should be returned as an object
+    assert Map.get(body, "metadata")["mode"] == "coop"
 
     reloaded = GameServer.Repo.get(User, other.id)
     assert reloaded.lobby_id == body["id"]
+    # and it should also accept metadata supplied as a JSON string and decode it
+    json_metadata = Jason.encode!(%{mode: "cap"})
+
+    other2 = AccountsFixtures.user_fixture()
+    {:ok, token2, _} = Guardian.encode_and_sign(other2)
+
+    conn2 =
+      build_conn()
+      |> put_req_header("authorization", "Bearer " <> token2)
+      |> post("/api/v1/lobbies/quick_join", %{max_users: 4, metadata: json_metadata})
+
+    assert conn2.status == 200
+    body2 = json_response(conn2, 200)
+    assert Map.get(body2, "metadata")["mode"] == "cap"
+    # response should contain decoded metadata
+    assert body2["max_users"] == 4
   end
 
   test "POST /api/v1/lobbies/:id/join with password requires correct password", %{conn: conn} do

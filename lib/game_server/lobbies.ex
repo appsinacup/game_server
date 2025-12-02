@@ -360,17 +360,27 @@ defmodule GameServer.Lobbies do
     attrs = maybe_hash_password(attrs)
     # if host_id is provided, prevent a user who is already a member of a lobby
     # from creating an additional lobby
-    # ensure title is present; if missing, generate a unique title from a slug
-    has_title = Map.has_key?(attrs, "title") || Map.has_key?(attrs, :title)
+    # ensure title is present and always ensure it is unique in the DB.
+    # If the caller provided a title, use it as the base and derive a unique
+    # candidate; otherwise fall back to the default base "lobby".
+    # Treat keys that are present but blank/nil as "not provided" so we
+    # generate a title in those cases.
+    title_val = Map.get(attrs, "title") || Map.get(attrs, :title)
+
+    has_title =
+      case title_val do
+        nil -> false
+        v when is_binary(v) -> String.trim(v) != ""
+        _ -> true
+      end
 
     attrs =
       if has_title do
+        # Caller provided a title — respect it as-is.
         attrs
       else
-        title =
-          Map.get(attrs, "title") || Map.get(attrs, :title) || unique_title_candidate("lobby")
-
-        Map.put(attrs, :title, title)
+        # No title provided: generate a unique candidate using default base.
+        Map.put(attrs, :title, unique_title_candidate("lobby"))
       end
 
     case GameServer.Hooks.internal_call(:before_lobby_create, [attrs]) do
@@ -419,19 +429,13 @@ defmodule GameServer.Lobbies do
 
   defp unique_title_candidate(base) when is_binary(base) do
     # Try the base first; if it exists in DB, append a short unique suffix.
-    case Repo.get_by(Lobby, title: base) do
-      nil ->
-        base
+    suffix = :erlang.unique_integer([:positive]) |> Integer.to_string()
+    candidate = "#{base}-#{suffix}"
 
-      _ ->
-        suffix = :erlang.unique_integer([:positive]) |> Integer.to_string()
-        candidate = "#{base}-#{suffix}"
-
-        if Repo.get_by(Lobby, title: candidate) == nil do
-          candidate
-        else
-          unique_title_candidate(candidate)
-        end
+    if Repo.get_by(Lobby, title: candidate) == nil do
+      candidate
+    else
+      unique_title_candidate(candidate)
     end
   end
 

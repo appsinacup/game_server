@@ -294,6 +294,29 @@ defmodule GameServer.LobbiesTest do
       assert reloaded.lobby_id == lobby.id
     end
 
+    test "quick_join generates a unique title when caller omits title (nil)", %{other: other} do
+      assert {:ok, lobby} = Lobbies.quick_join(other, nil, 4, %{mode: "coop"})
+
+      # generated title should be present and non-blank
+      assert lobby.title != nil
+      assert lobby.title |> to_string() |> String.trim() != ""
+
+      reloaded = GameServer.Repo.get(GameServer.Accounts.User, other.id)
+      assert reloaded.lobby_id == lobby.id
+    end
+
+    test "quick_join generates a unique title when caller provides blank title (empty string)", %{
+      other: other
+    } do
+      assert {:ok, lobby} = Lobbies.quick_join(other, "", 3, %{})
+
+      assert lobby.title != nil
+      assert lobby.title |> to_string() |> String.trim() != ""
+
+      reloaded = GameServer.Repo.get(GameServer.Accounts.User, other.id)
+      assert reloaded.lobby_id == lobby.id
+    end
+
     test "quick_join skips passworded lobbies and prefers non-passworded ones", %{
       host: host,
       other: other

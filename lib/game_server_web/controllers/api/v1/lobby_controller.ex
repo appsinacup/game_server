@@ -449,7 +449,33 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       %{user: user} when is_map(user) ->
         title = Map.get(params, "title") || Map.get(params, :title)
         max_users = Map.get(params, "max_users") || Map.get(params, :max_users)
-        metadata = Map.get(params, "metadata") || Map.get(params, :metadata)
+
+        # Normalize metadata: allow either a map (from parsed JSON) or a
+        # JSON-encoded string. If a client sends the metadata as a string
+        # (eg. form submission), try to decode it to a map; otherwise fall
+        # back to an empty map.
+        metadata_raw = Map.get(params, "metadata") || Map.get(params, :metadata)
+
+        metadata =
+          case metadata_raw do
+            nil ->
+              %{}
+
+            "" ->
+              %{}
+
+            s when is_binary(s) ->
+              case Jason.decode(s) do
+                {:ok, map} when is_map(map) -> map
+                _ -> %{}
+              end
+
+            m when is_map(m) ->
+              m
+
+            _ ->
+              %{}
+          end
 
         case Lobbies.quick_join(user, title, max_users, metadata || %{}) do
           {:ok, lobby} ->
