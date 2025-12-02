@@ -9,6 +9,24 @@ defmodule GameServer.Friends do
     If a reverse pending request exists, it will be removed to avoid duplicate rows.
   - Listing friends returns the other user from rows with status `accepted` in either
     direction.
+
+  ## Usage
+
+      # Create a friend request (requester -> target)
+      {:ok, friendship} = GameServer.Friends.create_request(requester_id, target_id)
+
+      # Accept a pending incoming request (performed by the target)
+      {:ok, accepted} = GameServer.Friends.accept_friend_request(friendship.id, %GameServer.Accounts.User{id: target_id})
+
+      # List accepted friends for a user (paginated)
+      friends = GameServer.Friends.list_friends_for_user(user_id, page: 1, page_size: 25)
+
+      # Count accepted friends for a user
+      count = GameServer.Friends.count_friends_for_user(user_id)
+
+      # Remove a friendship (either direction)
+      {:ok, _} = GameServer.Friends.remove_friend(user_id, friend_id)
+
   """
 
   import Ecto.Query, warn: false

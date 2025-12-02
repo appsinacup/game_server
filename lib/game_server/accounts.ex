@@ -1,6 +1,20 @@
 defmodule GameServer.Accounts do
   @moduledoc """
   The Accounts context.
+
+  ## Usage
+
+      # Lookup by id or email
+      user = GameServer.Accounts.get_user(123)
+      user = GameServer.Accounts.get_user_by_email("me@example.com")
+
+      # Update a user
+      {:ok, user} = GameServer.Accounts.update_user(user, %{display_name: "NewName"})
+
+      # Search (paginated) and count
+      users = GameServer.Accounts.search_users("bob", page: 1, page_size: 25)
+      count = GameServer.Accounts.count_search_users("bob")
+
   """
 
   import Ecto.Query, warn: false

@@ -5,6 +5,25 @@ defmodule GameServer.Lobbies do
   This module contains the core domain operations; more advanced membership and
   permission logic will be added in follow-up tasks.
   
+  ## Usage
+  
+      # Create a lobby (returns {:ok, lobby} | {:error, changeset})
+      {:ok, lobby} = GameServer.Lobbies.create_lobby(%{name: "fun-room", title: "Fun Room", host_id: host_id})
+  
+      # List public lobbies (paginated/filterable)
+      lobbies = GameServer.Lobbies.list_lobbies(%{}, page: 1, page_size: 25)
+  
+      # Join and leave
+      {:ok, user} = GameServer.Lobbies.join_lobby(user, lobby.id)
+      {:ok, _} = GameServer.Lobbies.leave_lobby(user)
+  
+      # Get current lobby members
+      members = GameServer.Lobbies.get_lobby_members(lobby)
+  
+      # Subscribe to global or per-lobby events
+      :ok = GameServer.Lobbies.subscribe_lobbies()
+      :ok = GameServer.Lobbies.subscribe_lobby(lobby.id)
+  
   ## PubSub Events
   
   This module broadcasts the following events:
