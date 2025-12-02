@@ -15,7 +15,6 @@ defmodule GameServer.Repo.Migrations.CreateLobbiesAndLobbyUsers do
       timestamps(type: :utc_datetime)
     end
 
-    create unique_index(:lobbies, [:title])
     create index(:lobbies, [:host_id])
     create index(:lobbies, [:is_hidden])
   end

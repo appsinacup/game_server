@@ -118,8 +118,10 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
       |> put_req_header("authorization", "Bearer " <> token)
       |> post("/api/v1/lobbies/#{lobby.id}/join", %{})
 
-    # join returns 204 No Content now
-    assert conn.status == 204
+    # join now returns the lobby representation
+    assert conn.status == 200
+    body = json_response(conn, 200)
+    assert body["id"] == lobby.id
 
     reloaded = GameServer.Repo.get(User, other.id)
     assert reloaded.lobby_id == lobby.id
@@ -209,8 +211,10 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
       |> put_req_header("authorization", "Bearer " <> token)
       |> post("/api/v1/lobbies/#{lobby.id}/join", %{password: pw})
 
-    # join should return 204 No Content now (no payload)
-    assert conn3.status == 204
+    # join should return the lobby representation now
+    assert conn3.status == 200
+    body3 = json_response(conn3, 200)
+    assert body3["id"] == lobby.id
   end
 
   test "PATCH /api/v1/lobbies/:id update allowed for host only", %{conn: conn} do

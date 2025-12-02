@@ -367,10 +367,10 @@ defmodule GameServer.Lobbies do
       if has_title do
         attrs
       else
-        title = Map.get(attrs, "title") || Map.get(attrs, :title) || "lobby"
-        base = slugify(title)
+        title =
+          Map.get(attrs, "title") || Map.get(attrs, :title) || unique_title_candidate("lobby")
 
-        Map.put(attrs, :title, base)
+        Map.put(attrs, :title, title)
       end
 
     case GameServer.Hooks.internal_call(:before_lobby_create, [attrs]) do
@@ -417,15 +417,23 @@ defmodule GameServer.Lobbies do
 
   defp maybe_add_host_membership(multi, _), do: multi
 
-  defp slugify(title) when is_binary(title) do
-    title
-    |> String.downcase()
-    |> String.replace(~r/[^a-z0-9\-\s]/u, "")
-    |> String.replace(~r/\s+/u, "-")
-    |> String.slice(0, 80)
-  end
+  defp unique_title_candidate(base) when is_binary(base) do
+    # Try the base first; if it exists in DB, append a short unique suffix.
+    case Repo.get_by(Lobby, title: base) do
+      nil ->
+        base
 
-  defp slugify(_), do: "lobby"
+      _ ->
+        suffix = :erlang.unique_integer([:positive]) |> Integer.to_string()
+        candidate = "#{base}-#{suffix}"
+
+        if Repo.get_by(Lobby, title: candidate) == nil do
+          candidate
+        else
+          unique_title_candidate(candidate)
+        end
+    end
+  end
 
   def update_lobby(%Lobby{} = lobby, attrs) do
     case GameServer.Hooks.internal_call(:before_lobby_update, [lobby, attrs]) do
@@ -777,7 +785,10 @@ defmodule GameServer.Lobbies do
   - Propagates errors from join or create flows
   """
   def quick_join(%User{id: _user_id} = user, title \\ nil, max_users \\ nil, metadata \\ %{}) do
-    if user.lobby_id do
+    # reload user in case their membership changed since the caller was loaded
+    user = Repo.get(GameServer.Accounts.User, user.id)
+
+    if user && user.lobby_id do
       {:error, :already_in_lobby}
     else
       # base query: only consider visible/unlocked and non-passworded lobbies

@@ -410,7 +410,9 @@ defmodule GameServerWeb.Api.V1.LobbyController do
 
         case Lobbies.join_lobby(user, id, %{password: password}) do
           {:ok, _member} ->
-            send_resp(conn, :no_content, "")
+            # return the full lobby so clients receive the lobby representation
+            lobby = Lobbies.get_lobby!(id)
+            json(conn, serialize_lobby(lobby))
 
           {:error, :invalid_lobby} ->
             conn |> put_status(:not_found) |> json(%{error: "not_found"})
