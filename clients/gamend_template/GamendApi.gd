@@ -4,6 +4,8 @@
 class_name GamendApi
 extends Node2D
 
+signal user_updated(user: Dictionary)
+
 var _health : HealthApi
 var _authenticate: AuthenticationApi
 var _users: UsersApi
@@ -11,12 +13,18 @@ var _friends: FriendsApi
 var _lobbies: LobbiesApi
 var _hooks: HooksApi
 var _config := ApiApiConfigClient.new()
+var _realtime: GamendRealtime
+var enable_logs := false
 
 const PROVIDER_DISCORD = "discord"
 const PROVIDER_APPLE = "apple"
 const PROVIDER_FACEBOOK = "facebook"
 const PROVIDER_GOOGLE = "google"
 const PROVIDER_STEAM = "steam"
+
+var _access_token := ""
+var _refresh_token := ""
+var _user_id = -1
 
 func _init(host: String = "127.0.0.1", port: int = 4000):
 	_config.host = host
@@ -36,18 +44,61 @@ func _call_api(api: ApiApiBeeClient, method_name: String, params: Array = []) ->
 	var callables = [
 		func(response: ApiApiResponseClient):
 			result.response = response
+			_verify_login_result(method_name, response.data)
+			if enable_logs:
+				print(api._bzz_name, " ", method_name, " ", response.body)
 			result.finished.emit(result)
 			,
 		func(error):
 			result.error = error
+			if enable_logs:
+				print(api._bzz_name, " ", method_name, " ", result.error)
 			result.finished.emit(result)]
 	params.append_array(callables)
 	api.callv(method_name, params)
 	return result
 
+func _verify_login_result(method_name: String, data):
+	if data && method_name in ["oauth_session_status", "oauth_api_callback", "login", "device_login", "refresh_token"]:
+		if data.get("data", {}).get("access_token"):
+			_access_token = data["data"]["access_token"]
+		if data.get("data", {}).get("refresh_token"):
+			_refresh_token = data["data"]["refresh_token"]
+		if data.get("data", {}).get("user_id"):
+			_user_id = data["data"]["user_id"]
+		authorize()
+	if method_name == "logout":
+		_access_token = ""
+		_refresh_token = ""
+		_user_id = -1
+		authorize()
+
+func realtime_start():
+	var result := GamendResult.new()
+	_realtime = GamendRealtime.new(_access_token)
+	_realtime.socket_opened.connect(func (): if result: result.finished.emit())
+	_realtime.socket_closed.connect(func (): if result: result.finished.emit())
+	_realtime.socket_errored.connect(func (): if result: result.finished.emit())
+	add_child(_realtime)
+	return result
+
+func realtime_stop():
+	_realtime.queue_free()
+	_realtime = null
+
+func listen_to_user():
+	_realtime.add_channel("user:" + str(int(_user_id)))
+	_realtime.channel_event.connect(_on_channel_event)
+
+
+func _on_channel_event(event: String, payload: Dictionary, status, topic: String):
+	if topic.begins_with("user") && event == "updated":
+		user_updated.emit(payload)
+
 ## Authorize with access token
-func authorize(access_token: String):
-	_config.headers_base["Authorization"] = "Bearer " + access_token
+func authorize():
+	_access_token = _access_token
+	_config.headers_base["Authorization"] = "Bearer " + _access_token
 	_create_apis()
 
 ### HEALTH
@@ -112,8 +163,10 @@ func authenticate_login(login_request: LoginRequest):
 	return _call_api(_authenticate, "login", [login_request])
 
 ## Device login
-func authenticate_device_login(device_id: DeviceLoginRequest):
-	return _call_api(_authenticate, "device_login", [device_id])
+func authenticate_device_login(device_id: String):
+	var device_login := DeviceLoginRequest.new()
+	device_login.device_id = device_id
+	return _call_api(_authenticate, "device_login", [device_login])
 
 ## Logout
 func authenticate_logout():
@@ -192,6 +245,10 @@ func lobbies_kick_user(kick_request: KickUserRequest):
 ## Leave the current lobby
 func lobbies_leave_lobby():
 	return _call_api(_lobbies, "leave_lobby")
+
+## Quick-join or create a lobby
+func lobbies_quick_join(quick_request: QuickJoinRequest):
+	return _call_api(_lobbies, "quick_join", [quick_request])
 
 ## Join a lobby
 func lobbies_join_lobby(id: int, join_request: JoinLobbyRequest = null):
