@@ -16,11 +16,6 @@ defmodule GameServerWeb.AdminLive.Users do
           ← Back to Admin
         </.link>
 
-        <.header>
-          Users
-          <:subtitle>Manage system users</:subtitle>
-        </.header>
-
         <div class="card bg-base-200">
           <div class="card-body">
             <div class="flex items-center justify-between gap-4">

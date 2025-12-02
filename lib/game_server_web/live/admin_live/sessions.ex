@@ -15,11 +15,6 @@ defmodule GameServerWeb.AdminLive.Sessions do
           ← Back to Admin
         </.link>
 
-        <.header>
-          Tokens
-          <:subtitle>Manage user tokens and sessions</:subtitle>
-        </.header>
-
         <div class="card bg-base-200">
           <div class="card-body">
             <h2 class="card-title">Active Sessions ({@sessions_count})</h2>

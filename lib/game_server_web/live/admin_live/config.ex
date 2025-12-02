@@ -13,11 +13,6 @@ defmodule GameServerWeb.AdminLive.Config do
         <.link navigate={~p"/admin"} class="btn btn-outline mb-4">
           ← Back to Admin
         </.link>
-
-        <.header>
-          Configuration
-          <:subtitle>System configuration settings and setup guides</:subtitle>
-        </.header>
         
     <!-- Current Configuration Status -->
         <div class="card bg-base-100 shadow-xl" data-card-key="config_status">

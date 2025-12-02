@@ -28,11 +28,6 @@ defmodule GameServerWeb.AdminLive.Lobbies do
       <div class="space-y-6">
         <.link navigate={~p"/admin"} class="btn btn-outline mb-4">← Back to Admin</.link>
 
-        <.header>
-          Lobbies
-          <:subtitle>Manage game lobbies</:subtitle>
-        </.header>
-
         <div class="card bg-base-200">
           <div class="card-body">
             <h3 class="card-title text-sm">Filters</h3>
