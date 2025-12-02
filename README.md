@@ -72,6 +72,42 @@ Extendable server behavior:
 - [Javascript SDK](https://www.npmjs.com/package/@ughuuu/game_server)
 - [Godot SDK](https://godotengine.org/asset-library/asset/4510)
 
+## Elixir SDK
+
+The `sdk/` folder contains stub modules that provide IDE autocomplete and documentation for custom hook scripts. When building your own [Starter Template](https://github.com/appsinacup/gamend_starter), add the SDK as a dependency:
+
+```elixir
+# mix.exs
+defp deps do
+  [
+    {:game_server_sdk, github: "appsinacup/game_server", sparse: "sdk"}
+  ]
+end
+```
+
+Example hook with autocomplete:
+
+```elixir
+defmodule MyApp.Hooks do
+  use GameServer.Hooks
+
+  @impl true
+  def after_user_login(user) do
+    # IDE autocomplete works for user fields and Accounts functions
+    GameServer.Accounts.update_user(user, %{
+      metadata: Map.put(user.metadata, "last_login", DateTime.utc_now())
+    })
+    :ok
+  end
+end
+```
+
+To regenerate SDK stubs from the main project:
+
+```sh
+mix gen.sdk
+```
+
 ## How to deploy [Starter Template](https://github.com/appsinacup/gamend_starter)
 
 1. Fork this repo (or create a Dockerfile like this):

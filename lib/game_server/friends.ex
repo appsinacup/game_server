@@ -15,6 +15,7 @@ defmodule GameServer.Friends do
   alias GameServer.Accounts.User
   alias GameServer.Friends.Friendship
   alias GameServer.Repo
+  alias GameServer.Types
   @friends_topic "friends"
   def subscribe_user(user_id) when is_integer(user_id) do
     Phoenix.PubSub.subscribe(GameServer.PubSub, "friends:user:#{user_id}")
@@ -134,6 +135,7 @@ defmodule GameServer.Friends do
   end
 
   @doc "Accept a friend request (only the target may accept). Returns {:ok, friendship}."
+  @spec accept_friend_request(integer(), User.t()) :: {:ok, Friendship.t()} | {:error, term()}
   def accept_friend_request(friendship_id, %User{id: user_id}) when is_integer(friendship_id) do
     Repo.transaction(fn ->
       with %Friendship{} = f <- Repo.get(Friendship, friendship_id),
@@ -162,6 +164,7 @@ defmodule GameServer.Friends do
   end
 
   @doc "Reject a friend request (only the target may reject). Returns {:ok, friendship}."
+  @spec reject_friend_request(integer(), User.t()) :: {:ok, Friendship.t()} | {:error, term()}
   def reject_friend_request(friendship_id, %User{id: user_id}) when is_integer(friendship_id) do
     with %Friendship{} = f <- Repo.get(Friendship, friendship_id),
          true <- f.target_id == user_id,
@@ -199,6 +202,7 @@ defmodule GameServer.Friends do
   end
 
   @doc "Remove a friendship (either direction) - only participating users may call this."
+  @spec remove_friend(integer(), integer()) :: {:ok, Friendship.t()} | {:error, term()}
   def remove_friend(user_id, friend_id) when is_integer(user_id) and is_integer(friend_id) do
     case Repo.one(
            from f in Friendship,
@@ -228,6 +232,7 @@ defmodule GameServer.Friends do
   end
 
   @doc "Block an incoming request (only the target may block). Returns {:ok, friendship} with status \"blocked\"."
+  @spec block_friend_request(integer(), User.t()) :: {:ok, Friendship.t()} | {:error, term()}
   def block_friend_request(friendship_id, %User{id: user_id}) when is_integer(friendship_id) do
     with %Friendship{} = f <- Repo.get(Friendship, friendship_id),
          true <- f.target_id == user_id,
@@ -275,6 +280,7 @@ defmodule GameServer.Friends do
   end
 
   @doc "Unblock a previously-blocked friendship (only the user who blocked may unblock). Returns {:ok, :unblocked} on success."
+  @spec unblock_friendship(integer(), User.t()) :: {:ok, :unblocked} | {:error, term()}
   def unblock_friendship(friendship_id, %User{id: user_id}) when is_integer(friendship_id) do
     with %Friendship{} = f <- Repo.get(Friendship, friendship_id),
          true <- f.target_id == user_id,
@@ -293,7 +299,14 @@ defmodule GameServer.Friends do
     end
   end
 
-  @doc "List accepted friends for a given user id - returns list of User structs."
+  @doc """
+  List accepted friends for a given user id - returns list of User structs.
+
+  ## Options
+
+  See `GameServer.Types.pagination_opts/0` for available options.
+  """
+  @spec list_friends_for_user(integer() | User.t(), Types.pagination_opts()) :: [User.t()]
   def list_friends_for_user(user_id, opts \\ [])
   def list_friends_for_user(%User{id: id}, opts), do: list_friends_for_user(id, opts)
 
@@ -346,7 +359,14 @@ defmodule GameServer.Friends do
     Repo.one(from id_row in subquery(union_q), select: count(id_row.id, :distinct)) || 0
   end
 
-  @doc "List incoming pending friend requests for a user (Friendship structs)."
+  @doc """
+  List incoming pending friend requests for a user (Friendship structs).
+
+  ## Options
+
+  See `GameServer.Types.pagination_opts/0` for available options.
+  """
+  @spec list_incoming_requests(integer() | User.t(), Types.pagination_opts()) :: [Friendship.t()]
   def list_incoming_requests(user_id, opts \\ [])
   def list_incoming_requests(%User{id: id}, opts), do: list_incoming_requests(id, opts)
 
@@ -375,7 +395,14 @@ defmodule GameServer.Friends do
     ) || 0
   end
 
-  @doc "List outgoing pending friend requests for a user (Friendship structs)."
+  @doc """
+  List outgoing pending friend requests for a user (Friendship structs).
+
+  ## Options
+
+  See `GameServer.Types.pagination_opts/0` for available options.
+  """
+  @spec list_outgoing_requests(integer() | User.t(), Types.pagination_opts()) :: [Friendship.t()]
   def list_outgoing_requests(user_id, opts \\ [])
   def list_outgoing_requests(%User{id: id}, opts), do: list_outgoing_requests(id, opts)
 

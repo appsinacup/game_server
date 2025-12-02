@@ -27,6 +27,7 @@ defmodule GameServer.Leaderboards do
 
   import Ecto.Query, warn: false
   alias GameServer.Repo
+  alias GameServer.Types
 
   alias GameServer.Leaderboards.Leaderboard
   alias GameServer.Leaderboards.Record
@@ -38,6 +39,10 @@ defmodule GameServer.Leaderboards do
   @doc """
   Creates a new leaderboard.
 
+  ## Attributes
+
+  See `GameServer.Types.leaderboard_create_attrs/0` for available fields.
+
   ## Examples
 
       iex> create_leaderboard(%{id: "my_lb", title: "My Leaderboard"})
@@ -46,6 +51,8 @@ defmodule GameServer.Leaderboards do
       iex> create_leaderboard(%{id: "", title: ""})
       {:error, %Ecto.Changeset{}}
   """
+  @spec create_leaderboard(Types.leaderboard_create_attrs()) ::
+          {:ok, Leaderboard.t()} | {:error, Ecto.Changeset.t()}
   def create_leaderboard(attrs) do
     %Leaderboard{}
     |> Leaderboard.changeset(attrs)
@@ -56,7 +63,13 @@ defmodule GameServer.Leaderboards do
   Updates an existing leaderboard.
 
   Note: `id`, `sort_order`, and `operator` cannot be changed after creation.
+
+  ## Attributes
+
+  See `GameServer.Types.leaderboard_update_attrs/0` for available fields.
   """
+  @spec update_leaderboard(Leaderboard.t(), Types.leaderboard_update_attrs()) ::
+          {:ok, Leaderboard.t()} | {:error, Ecto.Changeset.t()}
   def update_leaderboard(%Leaderboard{} = leaderboard, attrs) do
     leaderboard
     |> Leaderboard.update_changeset(attrs)
@@ -66,6 +79,8 @@ defmodule GameServer.Leaderboards do
   @doc """
   Deletes a leaderboard and all its records.
   """
+  @spec delete_leaderboard(Leaderboard.t()) ::
+          {:ok, Leaderboard.t()} | {:error, Ecto.Changeset.t()}
   def delete_leaderboard(%Leaderboard{} = leaderboard) do
     Repo.delete(leaderboard)
   end
@@ -73,6 +88,7 @@ defmodule GameServer.Leaderboards do
   @doc """
   Gets a leaderboard by ID. Returns `nil` if not found.
   """
+  @spec get_leaderboard(String.t()) :: Leaderboard.t() | nil
   def get_leaderboard(id) when is_binary(id) do
     Repo.get(Leaderboard, id)
   end
@@ -98,6 +114,7 @@ defmodule GameServer.Leaderboards do
       iex> list_leaderboards(active: true)
       [%Leaderboard{}, ...]
   """
+  @spec list_leaderboards(keyword()) :: [Leaderboard.t()]
   def list_leaderboards(opts \\ []) do
     page = Keyword.get(opts, :page, 1)
     page_size = Keyword.get(opts, :page_size, 25)
@@ -186,6 +203,8 @@ defmodule GameServer.Leaderboards do
       iex> submit_score("weekly_kills", user_id, 5, %{weapon: "sword"})
       {:ok, %Record{score: 15, metadata: %{weapon: "sword"}}}
   """
+  @spec submit_score(String.t(), integer(), integer(), map()) ::
+          {:ok, Record.t()} | {:error, term()}
   def submit_score(leaderboard_id, user_id, score, metadata \\ %{})
       when is_binary(leaderboard_id) and is_integer(user_id) and is_integer(score) do
     case get_leaderboard(leaderboard_id) do
@@ -264,6 +283,7 @@ defmodule GameServer.Leaderboards do
   Gets a user's record with their rank.
   Returns `{:ok, record_with_rank}` or `{:error, :not_found}`.
   """
+  @spec get_user_record(String.t(), integer()) :: {:ok, Record.t()} | {:error, :not_found}
   def get_user_record(leaderboard_id, user_id) do
     case get_record(leaderboard_id, user_id) do
       nil ->
@@ -300,11 +320,11 @@ defmodule GameServer.Leaderboards do
 
   ## Options
 
-    * `:page` - Page number (default 1)
-    * `:page_size` - Page size (default 25)
+  See `GameServer.Types.pagination_opts/0` for available options.
 
   Returns records with `rank` field populated.
   """
+  @spec list_records(String.t(), Types.pagination_opts()) :: [Record.t()]
   def list_records(leaderboard_id, opts \\ []) do
     page = Keyword.get(opts, :page, 1)
     page_size = Keyword.get(opts, :page_size, 25)
@@ -401,6 +421,7 @@ defmodule GameServer.Leaderboards do
   @doc """
   Deletes a user's record from a leaderboard.
   """
+  @spec delete_user_record(String.t(), integer()) :: {:ok, Record.t()} | {:error, :not_found}
   def delete_user_record(leaderboard_id, user_id) do
     case get_record(leaderboard_id, user_id) do
       nil -> {:error, :not_found}

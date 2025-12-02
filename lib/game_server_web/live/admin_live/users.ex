@@ -428,7 +428,7 @@ defmodule GameServerWeb.AdminLive.Users do
         end
       end)
 
-    case Accounts.update_user_admin(user, attrs) do
+    case Accounts.update_user(user, attrs) do
       {:ok, _user} ->
         # re-fetch current page of users, keeping search and filters
         page = socket.assigns[:users_page] || 1

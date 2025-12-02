@@ -165,6 +165,7 @@ defmodule GameServer.MixProject do
         "compile --warning-as-errors",
         "deps.unlock --unused",
         "format",
+        "gen.sdk",
         "test",
         "credo --strict"
       ]

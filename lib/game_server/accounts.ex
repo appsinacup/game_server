@@ -5,6 +5,7 @@ defmodule GameServer.Accounts do
 
   import Ecto.Query, warn: false
   alias GameServer.Repo
+  alias GameServer.Types
 
   alias GameServer.Accounts.{User, UserNotifier, UserToken}
 
@@ -22,6 +23,7 @@ defmodule GameServer.Accounts do
       nil
 
   """
+  @spec get_user_by_email(String.t()) :: User.t() | nil
   def get_user_by_email(email) when is_binary(email) do
     Repo.get_by(User, email: String.downcase(email))
   end
@@ -29,8 +31,13 @@ defmodule GameServer.Accounts do
   @doc """
   Search users by email or display name (case-insensitive, partial match).
 
-  Returns a list of User structs (up to 50 results).
+  Returns a list of User structs.
+
+  ## Options
+
+  See `GameServer.Types.pagination_opts/0` for available options.
   """
+  @spec search_users(String.t(), Types.pagination_opts()) :: [User.t()]
   def search_users(query, opts \\ []) when is_binary(query) do
     q = String.trim(query)
     page = Keyword.get(opts, :page, 1)
@@ -131,22 +138,46 @@ defmodule GameServer.Accounts do
       ** (Ecto.NoResultsError)
 
   """
+  @spec get_user!(integer()) :: User.t()
   def get_user!(id), do: Repo.get!(User, id)
+
+  @doc """
+  Gets a single user by ID.
+
+  Returns `nil` if the User does not exist.
+
+  ## Examples
+
+      iex> get_user(123)
+      %User{}
+
+      iex> get_user(456)
+      nil
+
+  """
+  @spec get_user(integer()) :: User.t() | nil
+  def get_user(id), do: Repo.get(User, id)
 
   ## User registration
 
   @doc """
   Registers a user.
 
+  ## Attributes
+
+  See `GameServer.Types.user_registration_attrs/0` for available fields.
+
   ## Examples
 
-      iex> register_user(%{field: value})
+      iex> register_user(%{email: "user@example.com", password: "secret123"})
       {:ok, %User{}}
 
-      iex> register_user(%{field: bad_value})
+      iex> register_user(%{email: "invalid"})
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec register_user(Types.user_registration_attrs()) ::
+          {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def register_user(attrs) do
     # Normalize keys to strings to match form submissions
     attrs = Map.new(attrs, fn {k, v} -> {to_string(k), v} end)
@@ -1037,13 +1068,28 @@ defmodule GameServer.Accounts do
   end
 
   @doc """
-  Admin-level user update wrapper.
+  Updates a user with the given attributes.
 
   This function applies the `User.admin_changeset/2` then updates the user and
   broadcasts the update on success. It returns the same tuple shape as
   `Repo.update/1` so callers can pattern-match as before.
+
+  ## Attributes
+
+  See `GameServer.Types.user_update_attrs/0` for available fields.
+
+  ## Examples
+
+      iex> update_user(user, %{display_name: "NewName"})
+      {:ok, %User{}}
+
+      iex> update_user(user, %{metadata: %{level: 5}})
+      {:ok, %User{}}
+
   """
-  def update_user_admin(%User{} = user, attrs) when is_map(attrs) do
+  @spec update_user(User.t(), Types.user_update_attrs()) ::
+          {:ok, User.t()} | {:error, Ecto.Changeset.t()}
+  def update_user(%User{} = user, attrs) when is_map(attrs) do
     case User.admin_changeset(user, attrs) |> Repo.update() do
       {:ok, updated} = ok ->
         # Broadcast updates so realtime clients can react

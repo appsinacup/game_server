@@ -29,6 +29,7 @@ defmodule GameServer.Lobbies do
   alias GameServer.Accounts.User
   alias GameServer.Lobbies.Lobby
   alias GameServer.Repo
+  alias GameServer.Types
 
   # PubSub topic names
   @lobbies_topic "lobbies"
@@ -36,6 +37,7 @@ defmodule GameServer.Lobbies do
   @doc """
   Subscribe to global lobby events (lobby created, updated, deleted).
   """
+  @spec subscribe_lobbies() :: :ok | {:error, term()}
   def subscribe_lobbies do
     Phoenix.PubSub.subscribe(GameServer.PubSub, @lobbies_topic)
   end
@@ -43,6 +45,7 @@ defmodule GameServer.Lobbies do
   @doc """
   Subscribe to a specific lobby's events (membership changes, updates).
   """
+  @spec subscribe_lobby(integer()) :: :ok | {:error, term()}
   def subscribe_lobby(lobby_id) do
     Phoenix.PubSub.subscribe(GameServer.PubSub, "lobby:#{lobby_id}")
   end
@@ -62,15 +65,24 @@ defmodule GameServer.Lobbies do
     Phoenix.PubSub.broadcast(GameServer.PubSub, "lobby:#{lobby_id}", event)
   end
 
-  @doc "List lobbies. Accepts optional search filters: %{
-    title: string,
-    is_passworded: boolean or string 'true'/'false' (omit for any),
-    is_locked: boolean or string 'true'/'false' (omit for any),
-    min_users: integer,
-    max_users: integer,
-    metadata_key: string,
-    metadata_value: string
-  }"
+  @doc """
+  List lobbies. Accepts optional search filters.
+
+  ## Filters
+
+    * `:title` - Filter by title (partial match)
+    * `:is_passworded` - boolean or string 'true'/'false' (omit for any)
+    * `:is_locked` - boolean or string 'true'/'false' (omit for any)
+    * `:min_users` - Filter lobbies with max_users >= value
+    * `:max_users` - Filter lobbies with max_users <= value
+    * `:metadata_key` - Filter by metadata key
+    * `:metadata_value` - Filter by metadata value (requires metadata_key)
+
+  ## Options
+
+  See `GameServer.Types.lobby_list_opts/0` for available options.
+  """
+  @spec list_lobbies(map(), Types.lobby_list_opts()) :: [Lobby.t()]
   def list_lobbies(filters \\ %{}, opts \\ []) do
     q = from(l in Lobby)
 
@@ -314,6 +326,8 @@ defmodule GameServer.Lobbies do
   def list_lobbies_for_user(nil, filters, opts), do: list_lobbies(filters, opts)
 
   # join behavior for a user -> lobby
+  @spec join_lobby(User.t(), Lobby.t() | integer() | String.t(), map() | keyword()) ::
+          {:ok, User.t()} | {:error, term()}
   def join_lobby(user, lobby_arg, opts \\ %{})
 
   def join_lobby(%User{id: user_id} = _user, %Lobby{} = lobby, opts) do
@@ -395,10 +409,46 @@ defmodule GameServer.Lobbies do
     end
   end
 
+  @spec get_lobby!(integer() | String.t()) :: Lobby.t()
   def get_lobby!(id), do: Repo.get!(Lobby, id)
 
+  @spec get_lobby(integer() | String.t()) :: Lobby.t() | nil
   def get_lobby(id), do: Repo.get(Lobby, id)
 
+  @doc """
+  Gets all users currently in a lobby.
+
+  Returns a list of User structs.
+
+  ## Examples
+
+      iex> get_lobby_members(lobby)
+      [%User{}, %User{}]
+
+      iex> get_lobby_members(lobby_id)
+      [%User{}]
+
+  """
+  @spec get_lobby_members(Lobby.t() | integer() | String.t()) :: [User.t()]
+  def get_lobby_members(%Lobby{id: lobby_id}), do: get_lobby_members(lobby_id)
+
+  def get_lobby_members(lobby_id) when is_binary(lobby_id) or is_integer(lobby_id) do
+    Repo.all(
+      from u in GameServer.Accounts.User,
+        where: u.lobby_id == ^lobby_id,
+        order_by: [asc: u.inserted_at]
+    )
+  end
+
+  @doc """
+  Creates a new lobby.
+
+  ## Attributes
+
+  See `GameServer.Types.lobby_create_attrs/0` for available fields.
+  """
+  @spec create_lobby(Types.lobby_create_attrs()) ::
+          {:ok, Lobby.t()} | {:error, Ecto.Changeset.t() | term()}
   def create_lobby(attrs \\ %{}) do
     attrs = maybe_hash_password(attrs)
     # if host_id is provided, prevent a user who is already a member of a lobby
@@ -482,6 +532,15 @@ defmodule GameServer.Lobbies do
     end
   end
 
+  @doc """
+  Updates an existing lobby.
+
+  ## Attributes
+
+  See `GameServer.Types.lobby_update_attrs/0` for available fields.
+  """
+  @spec update_lobby(Lobby.t(), Types.lobby_update_attrs()) ::
+          {:ok, Lobby.t()} | {:error, Ecto.Changeset.t() | term()}
   def update_lobby(%Lobby{} = lobby, attrs) do
     case GameServer.Hooks.internal_call(:before_lobby_update, [lobby, attrs]) do
       {:ok, returned} ->
@@ -524,6 +583,7 @@ defmodule GameServer.Lobbies do
     end
   end
 
+  @spec delete_lobby(Lobby.t()) :: {:ok, Lobby.t()} | {:error, Ecto.Changeset.t() | term()}
   def delete_lobby(%Lobby{} = lobby) do
     case GameServer.Hooks.internal_call(:before_lobby_delete, [lobby]) do
       {:ok, _} ->
@@ -588,6 +648,7 @@ defmodule GameServer.Lobbies do
     |> Repo.update()
   end
 
+  @spec leave_lobby(User.t()) :: {:ok, term()} | {:error, term()}
   def leave_lobby(%User{id: user_id}) do
     case Repo.get(GameServer.Accounts.User, user_id) do
       nil ->
@@ -598,15 +659,6 @@ defmodule GameServer.Lobbies do
 
       %GameServer.Accounts.User{} = membership ->
         lobby = Repo.get!(Lobby, membership.lobby_id)
-
-        case GameServer.Hooks.internal_call(:before_lobby_leave, [membership, lobby]) do
-          {:ok, _} ->
-            :ok
-
-          {:error, reason} ->
-            {:error, {:hook_rejected, reason}}
-        end
-
         lobby_id = lobby.id
 
         case GameServer.Hooks.internal_call(:before_lobby_leave, [membership, lobby]) do
@@ -677,6 +729,7 @@ defmodule GameServer.Lobbies do
   Kick a user from a lobby. Only the host can kick users.
   Returns {:ok, user} on success, {:error, reason} on failure.
   """
+  @spec kick_user(User.t(), Lobby.t(), User.t()) :: {:ok, User.t()} | {:error, term()}
   def kick_user(%User{id: host_id}, %Lobby{id: lobby_id}, %User{id: target_id}) do
     lobby = Repo.get!(Lobby, lobby_id)
 

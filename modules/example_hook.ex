@@ -16,7 +16,7 @@ defmodule GameServer.Modules.ExampleHook do
   def after_user_register(user) do
     # Add a flag to user metadata on registration
     meta = Map.put(user.metadata || %{}, "registered_example", true)
-    Accounts.update_user_admin(user, %{metadata: meta})
+    Accounts.update_user(user, %{metadata: meta})
 
     IO.puts("[ExampleHook] after_user_register called for user=#{user.id}")
 
@@ -31,7 +31,7 @@ defmodule GameServer.Modules.ExampleHook do
       |> Map.put("last_login_at", DateTime.utc_now() |> DateTime.to_iso8601())
       |> Map.update("login_count", 1, &(&1 + 1))
 
-    Accounts.update_user_admin(user, %{metadata: meta})
+    Accounts.update_user(user, %{metadata: meta})
 
     IO.puts("[ExampleHook] after_user_login called for user=#{user.id}")
 
@@ -87,7 +87,7 @@ defmodule GameServer.Modules.ExampleHook do
     user = GameServer.Hooks.caller_user()
     meta = user.metadata || %{}
     meta = Map.put(meta, key, value)
-    Accounts.update_user_admin(user, %{metadata: meta})
+    Accounts.update_user(user, %{metadata: meta})
 
     :ok
   end
