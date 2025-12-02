@@ -8,30 +8,17 @@ defmodule GameServerWeb.AdminLive.Lobbies do
     # Subscribe to lobby pubsub so admin UI updates live when lobbies are
     # created/updated/deleted by API/quick_join flows.
     Lobbies.subscribe_lobbies()
-    # Admin sees ALL lobbies including hidden ones (paginated)
-    lobbies_page = 1
-    lobbies_page_size = 25
 
-    lobbies =
-      Lobbies.list_all_lobbies(page: lobbies_page, page_size: lobbies_page_size)
-      |> GameServer.Repo.preload(:users)
+    socket =
+      socket
+      |> assign(:lobbies_page, 1)
+      |> assign(:lobbies_page_size, 25)
+      |> assign(:filters, %{})
+      |> assign(:selected_lobby, nil)
+      |> assign(:form, nil)
+      |> reload_lobbies()
 
-    total_count = GameServer.Repo.aggregate(GameServer.Lobbies.Lobby, :count, :id)
-
-    total_pages =
-      if lobbies_page_size > 0,
-        do: div(total_count + lobbies_page_size - 1, lobbies_page_size),
-        else: 0
-
-    {:ok,
-     socket
-     |> assign(:lobbies, lobbies)
-     |> assign(:count, total_count)
-     |> assign(:lobbies_total_pages, total_pages)
-     |> assign(:lobbies_page, lobbies_page)
-     |> assign(:lobbies_page_size, lobbies_page_size)
-     |> assign(:selected_lobby, nil)
-     |> assign(:form, nil)}
+    {:ok, socket}
   end
 
   @impl true
@@ -48,6 +35,71 @@ defmodule GameServerWeb.AdminLive.Lobbies do
 
         <div class="card bg-base-200">
           <div class="card-body">
+            <h3 class="card-title text-sm">Filters</h3>
+            <form phx-change="filter" class="grid grid-cols-2 md:flex md:flex-wrap gap-4 items-end">
+              <div class="form-control col-span-2 md:w-auto md:flex-1">
+                <label class="label"><span class="label-text">Title</span></label>
+                <input
+                  type="text"
+                  name="title"
+                  value={@filters["title"]}
+                  class="input input-bordered input-sm w-full"
+                  placeholder="Search title..."
+                />
+              </div>
+
+              <div class="form-control">
+                <label class="label"><span class="label-text">Hidden</span></label>
+                <select name="is_hidden" class="select select-bordered select-sm w-full">
+                  <option value="" selected={@filters["is_hidden"] == ""}>Any</option>
+                  <option value="true" selected={@filters["is_hidden"] == "true"}>Hidden</option>
+                  <option value="false" selected={@filters["is_hidden"] == "false"}>Public</option>
+                </select>
+              </div>
+
+              <div class="form-control">
+                <label class="label"><span class="label-text">Locked</span></label>
+                <select name="is_locked" class="select select-bordered select-sm w-full">
+                  <option value="" selected={@filters["is_locked"] == ""}>Any</option>
+                  <option value="true" selected={@filters["is_locked"] == "true"}>Locked</option>
+                  <option value="false" selected={@filters["is_locked"] == "false"}>Open</option>
+                </select>
+              </div>
+
+              <div class="form-control">
+                <label class="label"><span class="label-text">Has Password</span></label>
+                <select name="has_password" class="select select-bordered select-sm w-full">
+                  <option value="" selected={@filters["has_password"] == ""}>Any</option>
+                  <option value="true" selected={@filters["has_password"] == "true"}>Yes</option>
+                  <option value="false" selected={@filters["has_password"] == "false"}>No</option>
+                </select>
+              </div>
+
+              <div class="form-control">
+                <label class="label"><span class="label-text">Min Capacity</span></label>
+                <input
+                  type="number"
+                  name="min_max_users"
+                  value={@filters["min_max_users"]}
+                  class="input input-bordered input-sm w-full"
+                />
+              </div>
+
+              <div class="form-control">
+                <label class="label"><span class="label-text">Max Capacity</span></label>
+                <input
+                  type="number"
+                  name="max_max_users"
+                  value={@filters["max_max_users"]}
+                  class="input input-bordered input-sm w-full"
+                />
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="card bg-base-200">
+          <div class="card-body">
             <h2 class="card-title">Lobbies ({@count})</h2>
 
             <div class="overflow-x-auto mt-4">
@@ -60,6 +112,7 @@ defmodule GameServerWeb.AdminLive.Lobbies do
                     <th>Users</th>
                     <th>Hidden</th>
                     <th>Locked</th>
+                    <th>Password</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -81,6 +134,13 @@ defmodule GameServerWeb.AdminLive.Lobbies do
                         <span class="badge badge-warning badge-sm">Locked</span>
                       <% else %>
                         <span class="badge badge-ghost badge-sm">Open</span>
+                      <% end %>
+                    </td>
+                    <td class="text-sm">
+                      <%= if l.password_hash do %>
+                        <span class="badge badge-success badge-sm">Yes</span>
+                      <% else %>
+                        <span class="badge badge-ghost badge-sm">No</span>
                       <% end %>
                     </td>
                     <td class="text-sm">
@@ -157,6 +217,14 @@ defmodule GameServerWeb.AdminLive.Lobbies do
   end
 
   @impl true
+  def handle_event("filter", params, socket) do
+    {:noreply,
+     socket
+     |> assign(:filters, params)
+     |> assign(:lobbies_page, 1)
+     |> reload_lobbies()}
+  end
+
   def handle_event("edit_lobby", %{"id" => id}, socket) do
     lobby = Lobbies.get_lobby!(id)
     changeset = Lobbies.change_lobby(lobby)
@@ -171,77 +239,12 @@ defmodule GameServerWeb.AdminLive.Lobbies do
 
   def handle_event("admin_lobbies_prev", _params, socket) do
     page = max(1, (socket.assigns[:lobbies_page] || 1) - 1)
-
-    lobbies =
-      Lobbies.list_all_lobbies(page: page, page_size: socket.assigns[:lobbies_page_size] || 25)
-      |> GameServer.Repo.preload(:users)
-
-    total_count = GameServer.Repo.aggregate(GameServer.Lobbies.Lobby, :count, :id)
-
-    total_pages =
-      if (socket.assigns[:lobbies_page_size] || 25) > 0,
-        do:
-          div(
-            total_count + (socket.assigns[:lobbies_page_size] || 25) - 1,
-            socket.assigns[:lobbies_page_size] || 25
-          ),
-        else: 0
-
-    {:noreply,
-     socket
-     |> assign(:lobbies_page, page)
-     |> assign(:lobbies, lobbies)
-     |> assign(:count, total_count)
-     |> assign(:lobbies_total_pages, total_pages)}
+    {:noreply, socket |> assign(:lobbies_page, page) |> reload_lobbies()}
   end
 
   def handle_event("admin_lobbies_next", _params, socket) do
     page = (socket.assigns[:lobbies_page] || 1) + 1
-
-    lobbies =
-      Lobbies.list_all_lobbies(page: page, page_size: socket.assigns[:lobbies_page_size] || 25)
-      |> GameServer.Repo.preload(:users)
-
-    total_count = GameServer.Repo.aggregate(GameServer.Lobbies.Lobby, :count, :id)
-
-    total_pages =
-      if (socket.assigns[:lobbies_page_size] || 25) > 0,
-        do:
-          div(
-            total_count + (socket.assigns[:lobbies_page_size] || 25) - 1,
-            socket.assigns[:lobbies_page_size] || 25
-          ),
-        else: 0
-
-    {:noreply,
-     socket
-     |> assign(:lobbies_page, page)
-     |> assign(:lobbies, lobbies)
-     |> assign(:count, total_count)
-     |> assign(:lobbies_total_pages, total_pages)}
-  end
-
-  @impl true
-  def handle_info({event, _payload}, socket)
-      when event in [:lobby_created, :lobby_updated, :lobby_deleted] do
-    page = socket.assigns[:lobbies_page] || 1
-    page_size = socket.assigns[:lobbies_page_size] || 25
-
-    lobbies =
-      Lobbies.list_all_lobbies(page: page, page_size: page_size)
-      |> GameServer.Repo.preload(:users)
-
-    total_count = GameServer.Repo.aggregate(GameServer.Lobbies.Lobby, :count, :id)
-
-    total_pages =
-      if page_size > 0, do: div(total_count + page_size - 1, page_size), else: 0
-
-    {:noreply,
-     socket
-     |> assign(:lobbies_page, page)
-     |> assign(:lobbies, lobbies)
-     |> assign(:count, total_count)
-     |> assign(:lobbies_total_pages, total_pages)}
+    {:noreply, socket |> assign(:lobbies_page, page) |> reload_lobbies()}
   end
 
   def handle_event("save_lobby", %{"lobby" => params}, socket) do
@@ -280,22 +283,12 @@ defmodule GameServerWeb.AdminLive.Lobbies do
 
     case res do
       {:ok, _} ->
-        lobbies =
-          Lobbies.list_all_lobbies(
-            page: socket.assigns.lobbies_page || 1,
-            page_size: socket.assigns.lobbies_page_size || 25
-          )
-          |> GameServer.Repo.preload(:users)
-
-        total_count = GameServer.Repo.aggregate(GameServer.Lobbies.Lobby, :count, :id)
-
         {:noreply,
          socket
          |> put_flash(:info, "Lobby updated")
-         |> assign(:lobbies, lobbies)
-         |> assign(:count, total_count)
          |> assign(:selected_lobby, nil)
-         |> assign(:form, nil)}
+         |> assign(:form, nil)
+         |> reload_lobbies()}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :form, to_form(changeset, as: "lobby"))}
@@ -307,23 +300,42 @@ defmodule GameServerWeb.AdminLive.Lobbies do
 
     case Lobbies.delete_lobby(lobby) do
       {:ok, _} ->
-        lobbies =
-          Lobbies.list_all_lobbies(
-            page: socket.assigns.lobbies_page || 1,
-            page_size: socket.assigns.lobbies_page_size || 25
-          )
-          |> GameServer.Repo.preload(:users)
-
-        total_count = GameServer.Repo.aggregate(GameServer.Lobbies.Lobby, :count, :id)
-
         {:noreply,
          socket
          |> put_flash(:info, "Lobby deleted")
-         |> assign(:lobbies, lobbies)
-         |> assign(:count, total_count)}
+         |> reload_lobbies()}
 
       {:error, _} ->
         {:noreply, put_flash(socket, :error, "Failed to delete lobby")}
     end
+  end
+
+  @impl true
+  def handle_info({event, _payload}, socket)
+      when event in [:lobby_created, :lobby_updated, :lobby_deleted] do
+    {:noreply, reload_lobbies(socket)}
+  end
+
+  defp reload_lobbies(socket) do
+    page = socket.assigns[:lobbies_page] || 1
+    page_size = socket.assigns[:lobbies_page_size] || 25
+    filters = socket.assigns[:filters] || %{}
+
+    lobbies =
+      Lobbies.list_all_lobbies(filters, page: page, page_size: page_size)
+      |> GameServer.Repo.preload(:users)
+
+    total_count = Lobbies.count_list_all_lobbies(filters)
+
+    total_pages =
+      if page_size > 0,
+        do: div(total_count + page_size - 1, page_size),
+        else: 0
+
+    socket
+    |> assign(:lobbies, lobbies)
+    |> assign(:count, total_count)
+    |> assign(:lobbies_total_pages, total_pages)
+    |> assign(:lobbies_page, page)
   end
 end

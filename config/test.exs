@@ -44,7 +44,7 @@ config :sentry,
   dsn: nil
 
 # Print only warnings and errors during test
-config :logger, level: :warning
+config :logger, level: :error
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime

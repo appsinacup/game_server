@@ -257,7 +257,7 @@ defmodule GameServer.LobbiesTest do
     end
 
     test "quick_join finds and joins a matching lobby", %{host: host, other: other} do
-      {:ok, lobby} =
+      {:ok, _lobby} =
         Lobbies.create_lobby(%{
           title: "quick-room",
           host_id: host.id,
@@ -297,9 +297,6 @@ defmodule GameServer.LobbiesTest do
     test "quick_join persists metadata when creating new lobby (no title provided)", %{
       other: other
     } do
-      orig = Logger.level()
-      Logger.configure(level: :info)
-
       {:ok, lobby} = Lobbies.quick_join(other, nil, 6, %{mode: "capture", region: "EU"})
 
       assert lobby.max_users == 6
@@ -355,7 +352,7 @@ defmodule GameServer.LobbiesTest do
       # create a non-passworded lobby that should be preferred
       second_host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
 
-      {:ok, non_pw} =
+      {:ok, _non_pw} =
         Lobbies.create_lobby(%{
           title: "no-pw",
           host_id: second_host.id,

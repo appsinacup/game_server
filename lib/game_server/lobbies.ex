@@ -75,101 +75,51 @@ defmodule GameServer.Lobbies do
     q = from(l in Lobby)
 
     q =
-      case Map.get(filters, :title) || Map.get(filters, "title") do
-        nil ->
-          q
+      q
+      |> filter_by_title(filters)
+      |> filter_by_hidden_false()
+      |> filter_by_passworded(filters)
+      |> filter_by_locked(filters)
+      |> filter_by_min_users(filters)
+      |> filter_by_max_users(filters)
 
-        term ->
-          ilike_term = "%#{term}%"
-          ilike_term_down = String.downcase(ilike_term)
+    results = paginate(q, opts)
 
-          # Use fragment + lower(...) to support both Postgres and SQLite
-          from l in q,
-            where: fragment("lower(?) LIKE ?", l.title, ^ilike_term_down)
-      end
+    filter_by_metadata_in_memory(results, filters)
+  end
 
-    # never include hidden lobbies in list results
-    q = from l in q, where: l.is_hidden == false
+  defp filter_by_hidden_false(q) do
+    from l in q, where: l.is_hidden == false
+  end
 
-    # optional tri-state filters
-    q =
-      case Map.get(filters, :is_passworded) || Map.get(filters, "is_passworded") do
-        nil -> q
-        v when v in [true, "true", "1"] -> from l in q, where: not is_nil(l.password_hash)
-        v when v in [false, "false", "0"] -> from l in q, where: is_nil(l.password_hash)
-        _ -> q
-      end
+  defp filter_by_passworded(q, filters) do
+    case Map.get(filters, :is_passworded) || Map.get(filters, "is_passworded") do
+      nil -> q
+      v when v in [true, "true", "1"] -> from l in q, where: not is_nil(l.password_hash)
+      v when v in [false, "false", "0"] -> from l in q, where: is_nil(l.password_hash)
+      _ -> q
+    end
+  end
 
-    q =
-      case Map.get(filters, :is_locked) || Map.get(filters, "is_locked") do
-        nil -> q
-        v when v in [true, "true", "1"] -> from l in q, where: l.is_locked == true
-        v when v in [false, "false", "0"] -> from l in q, where: l.is_locked == false
-        _ -> q
-      end
+  defp filter_by_min_users(q, filters) do
+    case Map.get(filters, :min_users) || Map.get(filters, "min_users") do
+      nil -> q
+      v when is_binary(v) -> from l in q, where: l.max_users >= ^String.to_integer(v)
+      v when is_integer(v) -> from l in q, where: l.max_users >= ^v
+      _ -> q
+    end
+  end
 
-    q =
-      case Map.get(filters, :min_users) || Map.get(filters, "min_users") do
-        nil -> q
-        v when is_binary(v) -> from l in q, where: l.max_users >= ^String.to_integer(v)
-        v when is_integer(v) -> from l in q, where: l.max_users >= ^v
-        _ -> q
-      end
+  defp filter_by_max_users(q, filters) do
+    case Map.get(filters, :max_users) || Map.get(filters, "max_users") do
+      nil -> q
+      v when is_binary(v) -> from l in q, where: l.max_users <= ^String.to_integer(v)
+      v when is_integer(v) -> from l in q, where: l.max_users <= ^v
+      _ -> q
+    end
+  end
 
-    q =
-      case Map.get(filters, :max_users) || Map.get(filters, "max_users") do
-        nil -> q
-        v when is_binary(v) -> from l in q, where: l.max_users <= ^String.to_integer(v)
-        v when is_integer(v) -> from l in q, where: l.max_users <= ^v
-        _ -> q
-      end
-
-    # optional tri-state filters
-    q =
-      case Map.get(filters, :is_passworded) || Map.get(filters, "is_passworded") do
-        nil -> q
-        v when v in [true, "true", "1"] -> from l in q, where: not is_nil(l.password_hash)
-        v when v in [false, "false", "0"] -> from l in q, where: is_nil(l.password_hash)
-        _ -> q
-      end
-
-    q =
-      case Map.get(filters, :is_locked) || Map.get(filters, "is_locked") do
-        nil -> q
-        v when v in [true, "true", "1"] -> from l in q, where: l.is_locked == true
-        v when v in [false, "false", "0"] -> from l in q, where: l.is_locked == false
-        _ -> q
-      end
-
-    # optional numeric bounds for max_users
-    q =
-      case Map.get(filters, :min_users) || Map.get(filters, "min_users") do
-        nil -> q
-        v when is_binary(v) -> from l in q, where: l.max_users >= ^String.to_integer(v)
-        v when is_integer(v) -> from l in q, where: l.max_users >= ^v
-        _ -> q
-      end
-
-    q =
-      case Map.get(filters, :max_users) || Map.get(filters, "max_users") do
-        nil -> q
-        v when is_binary(v) -> from l in q, where: l.max_users <= ^String.to_integer(v)
-        v when is_integer(v) -> from l in q, where: l.max_users <= ^v
-        _ -> q
-      end
-
-    page = Keyword.get(opts, :page, nil)
-    page_size = Keyword.get(opts, :page_size, nil)
-
-    results =
-      if page && page_size do
-        offset = (page - 1) * page_size
-        Repo.all(from l in q, limit: ^page_size, offset: ^offset)
-      else
-        Repo.all(q)
-      end
-
-    # optional metadata filtering in-memory (DB JSON search varies by adapter).
+  defp filter_by_metadata_in_memory(results, filters) do
     case Map.get(filters, :metadata_key) || Map.get(filters, "metadata_key") do
       nil ->
         results
@@ -192,18 +142,9 @@ defmodule GameServer.Lobbies do
     q = from(l in Lobby)
 
     q =
-      case Map.get(filters, :title) || Map.get(filters, "title") do
-        nil ->
-          q
-
-        term ->
-          ilike_term_down = String.downcase("%#{term}%")
-
-          from l in q,
-            where: fragment("lower(?) LIKE ?", l.title, ^ilike_term_down)
-      end
-
-    q = from l in q, where: l.is_hidden == false
+      q
+      |> filter_by_title(filters)
+      |> filter_by_hidden_false()
 
     # basic db count
     db_count = Repo.one(from l in q, select: count(l.id)) || 0
@@ -229,18 +170,120 @@ defmodule GameServer.Lobbies do
 
   @doc """
   List ALL lobbies including hidden ones. For admin use only.
+  Accepts filters: %{
+    title: string,
+    is_hidden: boolean/string,
+    is_locked: boolean/string,
+    has_password: boolean/string,
+    min_max_users: integer (filter by max_users >= val),
+    max_max_users: integer (filter by max_users <= val)
+  }
   """
-  def list_all_lobbies(opts \\ []) do
+  def list_all_lobbies(filters \\ %{}, opts \\ []) do
     page = Keyword.get(opts, :page, nil)
     page_size = Keyword.get(opts, :page_size, nil)
 
     q = from(l in Lobby)
+
+    q = apply_admin_filters(q, filters)
 
     if page && page_size do
       offset = (page - 1) * page_size
       Repo.all(from l in q, limit: ^page_size, offset: ^offset)
     else
       Repo.all(q)
+    end
+  end
+
+  @doc """
+  Count ALL lobbies matching filters. For admin pagination.
+  """
+  def count_list_all_lobbies(filters \\ %{}) do
+    q = from(l in Lobby)
+    q = apply_admin_filters(q, filters)
+    Repo.aggregate(q, :count, :id)
+  end
+
+  defp apply_admin_filters(q, filters) do
+    q
+    |> filter_by_title(filters)
+    |> filter_by_hidden(filters)
+    |> filter_by_locked(filters)
+    |> filter_by_password(filters)
+    |> filter_by_min_max_users(filters)
+    |> filter_by_max_max_users(filters)
+  end
+
+  defp filter_by_title(q, filters) do
+    case Map.get(filters, :title) || Map.get(filters, "title") do
+      nil ->
+        q
+
+      "" ->
+        q
+
+      term ->
+        ilike_term = "%#{term}%"
+        ilike_term_down = String.downcase(ilike_term)
+        from l in q, where: fragment("lower(?) LIKE ?", l.title, ^ilike_term_down)
+    end
+  end
+
+  defp filter_by_hidden(q, filters) do
+    case Map.get(filters, :is_hidden) || Map.get(filters, "is_hidden") do
+      nil -> q
+      "" -> q
+      val when val in [true, "true", "1"] -> from l in q, where: l.is_hidden == true
+      val when val in [false, "false", "0"] -> from l in q, where: l.is_hidden == false
+      _ -> q
+    end
+  end
+
+  defp filter_by_locked(q, filters) do
+    case Map.get(filters, :is_locked) || Map.get(filters, "is_locked") do
+      nil -> q
+      "" -> q
+      val when val in [true, "true", "1"] -> from l in q, where: l.is_locked == true
+      val when val in [false, "false", "0"] -> from l in q, where: l.is_locked == false
+      _ -> q
+    end
+  end
+
+  defp filter_by_password(q, filters) do
+    case Map.get(filters, :has_password) || Map.get(filters, "has_password") do
+      nil -> q
+      "" -> q
+      val when val in [true, "true", "1"] -> from l in q, where: not is_nil(l.password_hash)
+      val when val in [false, "false", "0"] -> from l in q, where: is_nil(l.password_hash)
+      _ -> q
+    end
+  end
+
+  defp filter_by_min_max_users(q, filters) do
+    case Map.get(filters, :min_max_users) || Map.get(filters, "min_max_users") do
+      nil ->
+        q
+
+      "" ->
+        q
+
+      val ->
+        val_int = if is_binary(val), do: String.to_integer(val), else: val
+        from l in q, where: l.max_users >= ^val_int
+    end
+  end
+
+  defp filter_by_max_max_users(q, filters) do
+    case Map.get(filters, :max_max_users) || Map.get(filters, "max_max_users") do
+      nil ->
+        q
+
+      "" ->
+        q
+
+      val ->
+        val_int = if is_binary(val), do: String.to_integer(val), else: val
+        from l in q, where: l.max_users <= ^val_int
     end
   end
 
@@ -818,27 +861,10 @@ defmodule GameServer.Lobbies do
       # Try candidates in order — if a candidate fails due to full, move to next.
       tried =
         Enum.reduce_while(candidates, {:none, []}, fn lobby, _acc ->
-          # quick metadata match before attempting a DB join
-          ok_metadata =
-            Enum.all?(Map.to_list(metadata || %{}), fn
-              {_k, v} when is_nil(v) ->
-                true
-
-              {k, v} ->
-                case Map.get(lobby.metadata || %{}, k) do
-                  nil -> false
-                  existing -> String.contains?(to_string(existing), to_string(v))
-                end
-            end)
-
-          if not ok_metadata do
-            {:cont, {:none, []}}
+          if matches_metadata?(lobby, metadata) do
+            attempt_quick_join(user, lobby)
           else
-            case do_join(user.id, lobby, %{}) do
-              {:ok, _} -> {:halt, {:ok, lobby}}
-              {:error, :full} -> {:cont, {:none, []}}
-              other -> {:halt, other}
-            end
+            {:cont, {:none, []}}
           end
         end)
 
@@ -865,6 +891,39 @@ defmodule GameServer.Lobbies do
             other -> other
           end
       end
+    end
+  end
+
+  defp paginate(q, opts) do
+    page = Keyword.get(opts, :page, nil)
+    page_size = Keyword.get(opts, :page_size, nil)
+
+    if page && page_size do
+      offset = (page - 1) * page_size
+      Repo.all(from l in q, limit: ^page_size, offset: ^offset)
+    else
+      Repo.all(q)
+    end
+  end
+
+  defp matches_metadata?(lobby, metadata) do
+    Enum.all?(Map.to_list(metadata || %{}), fn
+      {_k, v} when is_nil(v) ->
+        true
+
+      {k, v} ->
+        case Map.get(lobby.metadata || %{}, k) do
+          nil -> false
+          existing -> String.contains?(to_string(existing), to_string(v))
+        end
+    end)
+  end
+
+  defp attempt_quick_join(user, lobby) do
+    case do_join(user.id, lobby, %{}) do
+      {:ok, _} -> {:halt, {:ok, lobby}}
+      {:error, :full} -> {:cont, {:none, []}}
+      other -> {:halt, other}
     end
   end
 end
