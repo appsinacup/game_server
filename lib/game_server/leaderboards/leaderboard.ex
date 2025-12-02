@@ -53,7 +53,9 @@ defmodule GameServer.Leaderboards.Leaderboard do
     |> validate_length(:title, min: 1, max: 255)
     |> validate_inclusion(:sort_order, @sort_orders)
     |> validate_inclusion(:operator, @operators)
-    |> unique_constraint(:id)
+    # Handle both SQLite (leaderboards_id_index) and PostgreSQL (leaderboards_pkey)
+    |> unique_constraint(:id, name: :leaderboards_pkey)
+    |> unique_constraint(:id, name: :leaderboards_id_index)
   end
 
   @doc """
