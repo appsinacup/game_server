@@ -15,14 +15,6 @@ defmodule GameServer.Modules.ExampleHook do
 
   @impl true
   def after_startup do
-    # Create default leaderboard (ignores error if already exists)
-    Leaderboards.create_leaderboard(%{
-      slug: "login_count",
-      title: "Login Count",
-      sort_order: "desc",
-      operator: "incr"
-    })
-
     :ok
   end
 
