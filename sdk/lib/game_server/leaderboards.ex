@@ -9,20 +9,20 @@ defmodule GameServer.Leaderboards do
   
       # Create a leaderboard
       {:ok, lb} = Leaderboards.create_leaderboard(%{
-        id: "weekly_kills_w49",
-        title: "Weekly Kills - Week 49",
+        slug: "weekly_kills",
+        title: "Weekly Kills",
         sort_order: :desc,
         operator: :incr
       })
   
-      # Submit score (server-only)
-      {:ok, record} = Leaderboards.submit_score("weekly_kills_w49", user_id, 10)
+      # Submit score (server-only) - uses slug to find active leaderboard
+      {:ok, record} = Leaderboards.submit_score("weekly_kills", user_id, 10)
   
       # List records with rank
-      records = Leaderboards.list_records("weekly_kills_w49", page: 1, limit: 25)
+      records = Leaderboards.list_records("weekly_kills", page: 1, limit: 25)
   
       # Get user's record
-      {:ok, record} = Leaderboards.get_user_record("weekly_kills_w49", user_id)
+      {:ok, record} = Leaderboards.get_user_record("weekly_kills", user_id)
   
 
   **Note:** This is an SDK stub. Calling these functions will raise an error.
@@ -30,10 +30,18 @@ defmodule GameServer.Leaderboards do
   """
 
   @doc """
-    Gets a leaderboard by ID. Returns `nil` if not found.
+    Gets a leaderboard by its integer ID.
+    
+    ## Examples
+    
+        iex> get_leaderboard(123)
+        %Leaderboard{id: 123}
+    
+        iex> get_leaderboard(999)
+        nil
     
   """
-  @spec get_leaderboard(String.t()) :: GameServer.Leaderboards.Leaderboard.t() | nil
+  @spec get_leaderboard(integer()) :: GameServer.Leaderboards.Leaderboard.t() | nil
   def get_leaderboard(_id) do
     raise "GameServer.Leaderboards.get_leaderboard/1 is a stub - only available at runtime on GameServer"
   end
@@ -48,10 +56,10 @@ defmodule GameServer.Leaderboards do
     
     ## Examples
     
-        iex> create_leaderboard(%{id: "my_lb", title: "My Leaderboard"})
+        iex> create_leaderboard(%{slug: "my_lb", title: "My Leaderboard"})
         {:ok, %Leaderboard{}}
     
-        iex> create_leaderboard(%{id: "", title: ""})
+        iex> create_leaderboard(%{slug: "", title: ""})
         {:error, %Ecto.Changeset{}}
     
   """
@@ -65,7 +73,7 @@ defmodule GameServer.Leaderboards do
   @doc """
     Updates an existing leaderboard.
     
-    Note: `id`, `sort_order`, and `operator` cannot be changed after creation.
+    Note: `slug`, `sort_order`, and `operator` cannot be changed after creation.
     
     ## Attributes
     
@@ -97,13 +105,25 @@ defmodule GameServer.Leaderboards do
     
     ## Options
     
+      * `:slug` - Filter by slug (returns all seasons of that leaderboard)
       * `:active` - If `true`, only active leaderboards. If `false`, only ended.
+      * `:order_by` - Order by field: `:ends_at` or `:inserted_at` (default)
+      * `:starts_after` - Only leaderboards that started after this DateTime
+      * `:starts_before` - Only leaderboards that started before this DateTime
+      * `:ends_after` - Only leaderboards that end after this DateTime
+      * `:ends_before` - Only leaderboards that end before this DateTime
       * `:page` - Page number (default 1)
       * `:page_size` - Page size (default 25)
     
     ## Examples
     
         iex> list_leaderboards(active: true)
+        [%Leaderboard{}, ...]
+    
+        iex> list_leaderboards(slug: "weekly_kills")
+        [%Leaderboard{}, ...]
+    
+        iex> list_leaderboards(starts_after: ~U[2025-01-01 00:00:00Z])
         [%Leaderboard{}, ...]
     
   """
@@ -124,16 +144,19 @@ defmodule GameServer.Leaderboards do
       * `:incr` — Add to existing score
       * `:decr` — Subtract from existing score
     
+    Accepts either a leaderboard ID (integer) or slug (string). When using a slug,
+    the score is submitted to the currently active leaderboard with that slug.
+    
     ## Examples
     
-        iex> submit_score("weekly_kills", user_id, 10)
+        iex> submit_score(123, user_id, 10)
         {:ok, %Record{score: 10}}
     
-        iex> submit_score("weekly_kills", user_id, 5, %{weapon: "sword"})
+        iex> submit_score(123, user_id, 5, %{weapon: "sword"})
         {:ok, %Record{score: 15, metadata: %{weapon: "sword"}}}
     
   """
-  @spec submit_score(String.t(), integer(), integer(), map()) ::
+  @spec submit_score(integer(), integer(), integer(), map()) ::
   {:ok, GameServer.Leaderboards.Record.t()} | {:error, term()}
   def submit_score(_leaderboard_id, _user_id, _score, _metadata) do
     raise "GameServer.Leaderboards.submit_score/4 is a stub - only available at runtime on GameServer"
@@ -150,7 +173,7 @@ defmodule GameServer.Leaderboards do
     Returns records with `rank` field populated.
     
   """
-  @spec list_records(String.t(), GameServer.Types.pagination_opts()) :: [
+  @spec list_records(integer(), GameServer.Types.pagination_opts()) :: [
   GameServer.Leaderboards.Record.t()
 ]
   def list_records(_leaderboard_id, _opts) do
@@ -163,7 +186,7 @@ defmodule GameServer.Leaderboards do
     Returns `{:ok, record_with_rank}` or `{:error, :not_found}`.
     
   """
-  @spec get_user_record(String.t(), integer()) ::
+  @spec get_user_record(integer(), integer()) ::
   {:ok, GameServer.Leaderboards.Record.t()} | {:error, :not_found}
   def get_user_record(_leaderboard_id, _user_id) do
     raise "GameServer.Leaderboards.get_user_record/2 is a stub - only available at runtime on GameServer"
@@ -172,11 +195,12 @@ defmodule GameServer.Leaderboards do
 
   @doc """
     Deletes a user's record from a leaderboard.
+    Accepts either leaderboard ID (integer) or slug (string).
     
   """
-  @spec delete_user_record(String.t(), integer()) ::
+  @spec delete_user_record(integer() | String.t(), integer()) ::
   {:ok, GameServer.Leaderboards.Record.t()} | {:error, :not_found}
-  def delete_user_record(_leaderboard_id, _user_id) do
+  def delete_user_record(_id_or_slug, _user_id) do
     raise "GameServer.Leaderboards.delete_user_record/2 is a stub - only available at runtime on GameServer"
   end
 

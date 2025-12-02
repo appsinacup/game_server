@@ -115,7 +115,7 @@ defmodule GameServer.Types do
 
   ## Fields
 
-    * `:id` - Unique string identifier (required, 1-100 chars)
+    * `:slug` - Human-readable identifier (required, 1-100 chars, lowercase alphanumeric with underscores)
     * `:title` - Display title (required, 1-255 chars)
     * `:description` - Optional description
     * `:sort_order` - `:desc` (higher is better) or `:asc` (lower is better). Default: `:desc`
@@ -131,16 +131,18 @@ defmodule GameServer.Types do
   ## Example
 
       create_leaderboard(%{
-        id: "weekly_kills_w49",
-        title: "Weekly Kills - Week 49",
+        slug: "weekly_kills",
+        title: "Weekly Kills",
         sort_order: :desc,
         operator: :incr,
         ends_at: ~U[2024-12-08 00:00:00Z]
       })
 
+  Note: The same slug can be used for multiple leaderboards (seasons).
+  When querying by slug, the active leaderboard is returned.
   """
   @type leaderboard_create_attrs :: %{
-          required(:id) => String.t(),
+          required(:slug) => String.t(),
           required(:title) => String.t(),
           optional(:description) => String.t(),
           optional(:sort_order) => :desc | :asc,
@@ -153,7 +155,7 @@ defmodule GameServer.Types do
   @typedoc """
   Attributes for updating an existing leaderboard.
 
-  Note: `id`, `sort_order`, and `operator` cannot be changed after creation.
+  Note: `slug`, `sort_order`, and `operator` cannot be changed after creation.
 
   ## Fields
 

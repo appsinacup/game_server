@@ -83,6 +83,9 @@ defmodule GameServerWeb.Layouts do
             <li>
               <.link href={~p"/users/settings"} class="btn btn-outline">Settings</.link>
             </li>
+            <li>
+              <.link href={~p"/leaderboards"} class="btn btn-outline">Leaderboards</.link>
+            </li>
             <%= if @current_scope && @current_scope.user.is_admin do %>
               <li>
                 <.link href={~p"/admin"} class="btn btn-outline">Admin</.link>
@@ -103,10 +106,10 @@ defmodule GameServerWeb.Layouts do
             <li>
               <.link href={~p"/users/register"} class="btn btn-accent">Register</.link>
             </li>
+            <li>
+              <.link href={~p"/leaderboards"} class="btn btn-outline">Leaderboards</.link>
+            </li>
           <% end %>
-          <li>
-            <.link href={~p"/leaderboards"} class="btn btn-outline">Leaderboards</.link>
-          </li>
           <li>
             <.theme_toggle />
           </li>
@@ -141,18 +144,20 @@ defmodule GameServerWeb.Layouts do
                   </div>
                 </li>
                 <li><a href={~p"/users/settings"} class="btn btn-outline">Settings</a></li>
+                <li><a href={~p"/leaderboards"} class="btn btn-outline">Leaderboards</a></li>
                 <%= if @current_scope && @current_scope.user.is_admin do %>
                   <li><a href={~p"/lobbies"} class="btn btn-outline">Lobbies</a></li>
                   <li><a href={~p"/admin"} class="btn btn-outline">Admin</a></li>
                 <% end %>
                 <li>
-                  <a href={~p"/users/log-out"} method="delete" class="btn btn-outline">Log out</a>
+                  <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline">
+                    Log out
+                  </.link>
                 </li>
               <% else %>
-                <li><a href={~p"/leaderboards"} class="btn btn-outline">Leaderboards</a></li>
                 <li><a href={~p"/users/log-in"} class="btn btn-outline">Log in</a></li>
                 <li><a href={~p"/users/register"} class="btn btn-outline">Register</a></li>
-                <li><a href={~p"/lobbies"} class="btn btn-outline">Lobbies</a></li>
+                <li><a href={~p"/leaderboards"} class="btn btn-outline">Leaderboards</a></li>
                 <li class="menu-title">
                   <div class="flex justify-end items-center w-full pr-2">
                     <span class="text-xs opacity-60">v{app_version()}</span>

@@ -3,6 +3,8 @@ defmodule GameServerWeb.LeaderboardsLive do
   Public-facing leaderboards view.
 
   Users can browse active and historical leaderboards and see their rank.
+  Leaderboards are grouped by slug, showing the active/latest one by default
+  with navigation to previous seasons.
   """
   use GameServerWeb, :live_view
 
@@ -16,16 +18,18 @@ defmodule GameServerWeb.LeaderboardsLive do
       |> assign(:page, 1)
       |> assign(:page_size, 25)
       |> assign(:selected_leaderboard, nil)
+      |> assign(:slug_leaderboards, [])
+      |> assign(:current_season_index, 0)
       |> assign(:records_page, 1)
       |> assign(:user_record, nil)
-      |> reload_leaderboards()
+      |> reload_groups()
 
     {:ok, socket}
   end
 
   @impl true
   def handle_params(%{"id" => id}, _uri, socket) do
-    case Leaderboards.get_leaderboard(id) do
+    case Leaderboards.get_leaderboard(String.to_integer(id)) do
       nil ->
         {:noreply,
          socket
@@ -33,11 +37,16 @@ defmodule GameServerWeb.LeaderboardsLive do
          |> push_navigate(to: ~p"/leaderboards")}
 
       leaderboard ->
+        # Load all leaderboards with same slug for season navigation
+        slug_leaderboards = Leaderboards.list_leaderboards_by_slug(leaderboard.slug)
+        current_index = Enum.find_index(slug_leaderboards, &(&1.id == leaderboard.id)) || 0
         user_record = get_user_record(socket, leaderboard.id)
 
         {:noreply,
          socket
          |> assign(:selected_leaderboard, leaderboard)
+         |> assign(:slug_leaderboards, slug_leaderboards)
+         |> assign(:current_season_index, current_index)
          |> assign(:user_record, user_record)
          |> assign(:records_page, 1)
          |> reload_records()}
@@ -48,6 +57,8 @@ defmodule GameServerWeb.LeaderboardsLive do
     {:noreply,
      socket
      |> assign(:selected_leaderboard, nil)
+     |> assign(:slug_leaderboards, [])
+     |> assign(:current_season_index, 0)
      |> assign(:user_record, nil)}
   end
 
@@ -59,6 +70,8 @@ defmodule GameServerWeb.LeaderboardsLive do
         <%= if @selected_leaderboard do %>
           <.render_leaderboard_detail
             leaderboard={@selected_leaderboard}
+            slug_leaderboards={@slug_leaderboards}
+            current_season_index={@current_season_index}
             records={@records}
             records_page={@records_page}
             records_total_pages={@records_total_pages}
@@ -67,8 +80,8 @@ defmodule GameServerWeb.LeaderboardsLive do
             current_user_id={@current_scope && @current_scope.user && @current_scope.user.id}
           />
         <% else %>
-          <.render_leaderboard_list
-            leaderboards={@leaderboards}
+          <.render_group_list
+            groups={@groups}
             page={@page}
             total_pages={@total_pages}
             count={@count}
@@ -83,7 +96,7 @@ defmodule GameServerWeb.LeaderboardsLive do
   # Render Components
   # ---------------------------------------------------------------------------
 
-  defp render_leaderboard_list(assigns) do
+  defp render_group_list(assigns) do
     ~H"""
     <.header>
       Leaderboards
@@ -92,44 +105,37 @@ defmodule GameServerWeb.LeaderboardsLive do
 
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       <.link
-        :for={lb <- @leaderboards}
-        navigate={~p"/leaderboards/#{lb.id}"}
+        :for={group <- @groups}
+        navigate={~p"/leaderboards/#{group.active_id || group.latest_id}"}
         class="card bg-base-200 hover:bg-base-300 transition-colors cursor-pointer"
       >
         <div class="card-body">
           <div class="flex items-start justify-between">
-            <h3 class="card-title text-lg">{lb.title}</h3>
-            <%= if Leaderboard.active?(lb) do %>
-              <span class="badge badge-success">Active</span>
-            <% else %>
-              <span class="badge badge-neutral">Ended</span>
-            <% end %>
+            <h3 class="card-title text-lg">{group.title}</h3>
+            <div class="flex flex-col items-end gap-1">
+              <%= if group.active_id do %>
+                <span class="badge badge-success">Active</span>
+              <% else %>
+                <span class="badge badge-neutral">Ended</span>
+              <% end %>
+              <%= if group.season_count > 1 do %>
+                <span class="badge badge-ghost badge-sm">{group.season_count} seasons</span>
+              <% end %>
+            </div>
           </div>
 
-          <%= if lb.description do %>
-            <p class="text-sm text-base-content/70">{lb.description}</p>
+          <%= if group.description do %>
+            <p class="text-sm text-base-content/70 line-clamp-2">{group.description}</p>
           <% end %>
 
-          <div class="mt-2 flex gap-2 text-xs text-base-content/60">
-            <span class="badge badge-ghost badge-sm">{lb.sort_order}</span>
-            <span class="badge badge-ghost badge-sm">{lb.operator}</span>
-          </div>
-
-          <div class="mt-2 text-xs text-base-content/60">
-            <%= cond do %>
-              <% lb.ends_at && Leaderboard.ended?(lb) -> %>
-                Ended {Calendar.strftime(lb.ends_at, "%b %d, %Y")}
-              <% lb.ends_at -> %>
-                Ends {Calendar.strftime(lb.ends_at, "%b %d, %Y")}
-              <% true -> %>
-                Permanent
-            <% end %>
+          <div class="mt-2 text-xs text-base-content/50">
+            {group.slug}
           </div>
         </div>
       </.link>
     </div>
 
-    <%= if @leaderboards == [] do %>
+    <%= if @groups == [] do %>
       <div class="text-center py-12 text-base-content/60">
         <p>No leaderboards available yet.</p>
       </div>
@@ -151,30 +157,61 @@ defmodule GameServerWeb.LeaderboardsLive do
 
   defp render_leaderboard_detail(assigns) do
     ~H"""
-    <div class="flex items-center gap-4 mb-6">
-      <.link navigate={~p"/leaderboards"} class="btn btn-outline btn-sm">
-        ← Back
-      </.link>
-      <div>
-        <h1 class="text-2xl font-bold">{@leaderboard.title}</h1>
-        <div class="flex items-center gap-2 mt-1">
-          <%= if Leaderboard.active?(@leaderboard) do %>
-            <span class="badge badge-success">Active</span>
-          <% else %>
-            <span class="badge badge-neutral">Ended</span>
-          <% end %>
-          <span class="text-sm text-base-content/60">
-            <%= cond do %>
-              <% @leaderboard.ends_at && Leaderboard.ended?(@leaderboard) -> %>
-                Ended {Calendar.strftime(@leaderboard.ends_at, "%b %d, %Y")}
-              <% @leaderboard.ends_at -> %>
-                Ends {Calendar.strftime(@leaderboard.ends_at, "%b %d, %Y")}
-              <% true -> %>
-                Permanent
+    <div class="flex flex-col gap-4 mb-6">
+      <%!-- Back button and title --%>
+      <div class="flex items-center gap-4">
+        <.link navigate={~p"/leaderboards"} class="btn btn-outline btn-sm">
+          ← Back
+        </.link>
+        <div>
+          <h1 class="text-2xl font-bold">{@leaderboard.title}</h1>
+          <div class="flex items-center gap-2 mt-1">
+            <%= if Leaderboard.active?(@leaderboard) do %>
+              <span class="badge badge-success">Active</span>
+            <% else %>
+              <span class="badge badge-neutral">Ended</span>
             <% end %>
-          </span>
+            <span class="text-sm text-base-content/60">
+              <%= cond do %>
+                <% @leaderboard.ends_at && Leaderboard.ended?(@leaderboard) -> %>
+                  Ended {Calendar.strftime(@leaderboard.ends_at, "%b %d, %Y")}
+                <% @leaderboard.ends_at -> %>
+                  Ends {Calendar.strftime(@leaderboard.ends_at, "%b %d, %Y")}
+                <% true -> %>
+                  Permanent
+              <% end %>
+            </span>
+          </div>
         </div>
       </div>
+
+      <%!-- Season navigation --%>
+      <%= if length(@slug_leaderboards) > 1 do %>
+        <div class="flex items-center gap-3 bg-base-200 rounded-lg px-4 py-2 w-fit">
+          <button
+            phx-click="prev_season"
+            class="btn btn-sm btn-ghost"
+            disabled={@current_season_index >= length(@slug_leaderboards) - 1}
+          >
+            ← Older
+          </button>
+          <div class="text-sm">
+            <span class="font-medium">
+              Season {length(@slug_leaderboards) - @current_season_index}
+            </span>
+            <span class="text-base-content/60">
+              of {length(@slug_leaderboards)}
+            </span>
+          </div>
+          <button
+            phx-click="next_season"
+            class="btn btn-sm btn-ghost"
+            disabled={@current_season_index <= 0}
+          >
+            Newer →
+          </button>
+        </div>
+      <% end %>
     </div>
 
     <%= if @leaderboard.description do %>
@@ -283,14 +320,32 @@ defmodule GameServerWeb.LeaderboardsLive do
     {:noreply,
      socket
      |> assign(:page, max(1, socket.assigns.page - 1))
-     |> reload_leaderboards()}
+     |> reload_groups()}
   end
 
   def handle_event("next_page", _, socket) do
     {:noreply,
      socket
      |> assign(:page, socket.assigns.page + 1)
-     |> reload_leaderboards()}
+     |> reload_groups()}
+  end
+
+  def handle_event("prev_season", _, socket) do
+    # Go to older season (higher index)
+    slug_lbs = socket.assigns.slug_leaderboards
+    new_index = min(socket.assigns.current_season_index + 1, length(slug_lbs) - 1)
+    leaderboard = Enum.at(slug_lbs, new_index)
+
+    {:noreply, push_patch(socket, to: ~p"/leaderboards/#{leaderboard.id}")}
+  end
+
+  def handle_event("next_season", _, socket) do
+    # Go to newer season (lower index)
+    slug_lbs = socket.assigns.slug_leaderboards
+    new_index = max(socket.assigns.current_season_index - 1, 0)
+    leaderboard = Enum.at(slug_lbs, new_index)
+
+    {:noreply, push_patch(socket, to: ~p"/leaderboards/#{leaderboard.id}")}
   end
 
   def handle_event("records_prev", _, socket) do
@@ -311,16 +366,16 @@ defmodule GameServerWeb.LeaderboardsLive do
   # Helpers
   # ---------------------------------------------------------------------------
 
-  defp reload_leaderboards(socket) do
+  defp reload_groups(socket) do
     page = socket.assigns[:page] || 1
     page_size = socket.assigns[:page_size] || 25
 
-    leaderboards = Leaderboards.list_leaderboards(page: page, page_size: page_size)
-    count = Leaderboards.count_leaderboards()
+    groups = Leaderboards.list_leaderboard_groups(page: page, page_size: page_size)
+    count = Leaderboards.count_leaderboard_groups()
     total_pages = max(1, div(count + page_size - 1, page_size))
 
     socket
-    |> assign(:leaderboards, leaderboards)
+    |> assign(:groups, groups)
     |> assign(:count, count)
     |> assign(:total_pages, total_pages)
   end

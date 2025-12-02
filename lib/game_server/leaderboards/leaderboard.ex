@@ -5,6 +5,11 @@ defmodule GameServer.Leaderboards.Leaderboard do
   A leaderboard is a self-contained scoreboard that can be permanent or time-limited.
   Each leaderboard has its own settings for sort order and score operator.
 
+  ## Slug
+  The `slug` is a human-readable identifier (e.g., "weekly_kills") that can be reused
+  across multiple leaderboard instances (seasons). Use the slug to always target the
+  currently active leaderboard, or use the integer `id` for a specific instance.
+
   ## Sort Order
   - `:desc` — Higher scores rank first (default)
   - `:asc` — Lower scores rank first (e.g., fastest time)
@@ -18,14 +23,15 @@ defmodule GameServer.Leaderboards.Leaderboard do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{}
   @type sort_order :: :desc | :asc
   @type operator :: :set | :best | :incr | :decr
 
   @sort_orders ~w(desc asc)a
   @operators ~w(set best incr decr)a
 
-  @primary_key {:id, :string, autogenerate: false}
   schema "leaderboards" do
+    field :slug, :string
     field :title, :string
     field :description, :string
     field :sort_order, Ecto.Enum, values: @sort_orders, default: :desc
@@ -39,7 +45,7 @@ defmodule GameServer.Leaderboards.Leaderboard do
     timestamps(type: :utc_datetime)
   end
 
-  @required_fields ~w(id title)a
+  @required_fields ~w(slug title)a
   @optional_fields ~w(description sort_order operator starts_at ends_at metadata)a
 
   @doc """
@@ -49,18 +55,18 @@ defmodule GameServer.Leaderboards.Leaderboard do
     leaderboard
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
-    |> validate_length(:id, min: 1, max: 100)
+    |> validate_length(:slug, min: 1, max: 100)
+    |> validate_format(:slug, ~r/^[a-z0-9_]+$/,
+      message: "must be lowercase alphanumeric with underscores"
+    )
     |> validate_length(:title, min: 1, max: 255)
     |> validate_inclusion(:sort_order, @sort_orders)
     |> validate_inclusion(:operator, @operators)
-    # Handle both SQLite (leaderboards_id_index) and PostgreSQL (leaderboards_pkey)
-    |> unique_constraint(:id, name: :leaderboards_pkey)
-    |> unique_constraint(:id, name: :leaderboards_id_index)
   end
 
   @doc """
   Changeset for updating an existing leaderboard.
-  Does not allow changing id, sort_order, or operator after creation.
+  Does not allow changing slug, sort_order, or operator after creation.
   """
   def update_changeset(leaderboard, attrs) do
     leaderboard

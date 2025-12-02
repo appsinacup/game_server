@@ -12,7 +12,7 @@ defmodule GameServer.Leaderboards.Record do
   alias GameServer.Leaderboards.Leaderboard
 
   schema "leaderboard_records" do
-    belongs_to :leaderboard, Leaderboard, type: :string
+    belongs_to :leaderboard, Leaderboard
     belongs_to :user, User
 
     field :score, :integer, default: 0

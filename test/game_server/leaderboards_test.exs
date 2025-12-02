@@ -8,7 +8,7 @@ defmodule GameServer.LeaderboardsTest do
   describe "leaderboard CRUD" do
     test "create_leaderboard/1 creates a leaderboard with valid attrs" do
       attrs = %{
-        id: "weekly_score_2024_w48",
+        slug: "weekly_score",
         title: "Weekly High Scores",
         description: "Top scores this week",
         sort_order: :desc,
@@ -18,7 +18,8 @@ defmodule GameServer.LeaderboardsTest do
       }
 
       assert {:ok, %Leaderboard{} = lb} = Leaderboards.create_leaderboard(attrs)
-      assert lb.id == "weekly_score_2024_w48"
+      assert is_integer(lb.id)
+      assert lb.slug == "weekly_score"
       assert lb.title == "Weekly High Scores"
       assert lb.sort_order == :desc
       assert lb.operator == :best
@@ -26,7 +27,7 @@ defmodule GameServer.LeaderboardsTest do
     end
 
     test "create_leaderboard/1 uses defaults for sort_order and operator" do
-      attrs = %{id: "test_lb", title: "Test"}
+      attrs = %{slug: "test_lb", title: "Test"}
 
       assert {:ok, %Leaderboard{} = lb} = Leaderboards.create_leaderboard(attrs)
       assert lb.sort_order == :desc
@@ -35,44 +36,43 @@ defmodule GameServer.LeaderboardsTest do
 
     test "create_leaderboard/1 validates required fields" do
       assert {:error, changeset} = Leaderboards.create_leaderboard(%{})
-      assert "can't be blank" in errors_on(changeset).id
+      assert "can't be blank" in errors_on(changeset).slug
       assert "can't be blank" in errors_on(changeset).title
     end
 
-    test "create_leaderboard/1 validates unique id" do
-      attrs = %{id: "unique_test", title: "Test"}
-      assert {:ok, _} = Leaderboards.create_leaderboard(attrs)
+    test "create_leaderboard/1 validates slug format" do
+      attrs = %{slug: "Invalid-Slug!", title: "Test"}
       assert {:error, changeset} = Leaderboards.create_leaderboard(attrs)
-      assert "has already been taken" in errors_on(changeset).id
+      assert "must be lowercase alphanumeric with underscores" in errors_on(changeset).slug
     end
 
-    test "get_leaderboard!/1 returns the leaderboard" do
-      attrs = %{id: "get_test", title: "Test"}
+    test "get_leaderboard/1 with integer id returns the leaderboard" do
+      attrs = %{slug: "get_test", title: "Test"}
       {:ok, lb} = Leaderboards.create_leaderboard(attrs)
 
-      assert Leaderboards.get_leaderboard!(lb.id).id == lb.id
+      assert Leaderboards.get_leaderboard(lb.id).id == lb.id
     end
 
-    test "get_leaderboard/1 returns nil for non-existent" do
-      assert Leaderboards.get_leaderboard("nonexistent") == nil
+    test "get_leaderboard/1 returns nil for non-existent id" do
+      assert Leaderboards.get_leaderboard(999_999) == nil
     end
 
     test "update_leaderboard/2 updates the leaderboard" do
-      {:ok, lb} = Leaderboards.create_leaderboard(%{id: "update_test", title: "Original"})
+      {:ok, lb} = Leaderboards.create_leaderboard(%{slug: "update_test", title: "Original"})
 
       assert {:ok, updated} = Leaderboards.update_leaderboard(lb, %{title: "Updated"})
       assert updated.title == "Updated"
     end
 
     test "delete_leaderboard/1 deletes the leaderboard" do
-      {:ok, lb} = Leaderboards.create_leaderboard(%{id: "delete_test", title: "Test"})
+      {:ok, lb} = Leaderboards.create_leaderboard(%{slug: "delete_test", title: "Test"})
 
       assert {:ok, %Leaderboard{}} = Leaderboards.delete_leaderboard(lb)
       assert Leaderboards.get_leaderboard(lb.id) == nil
     end
 
     test "end_leaderboard/1 sets ends_at" do
-      {:ok, lb} = Leaderboards.create_leaderboard(%{id: "end_test", title: "Test"})
+      {:ok, lb} = Leaderboards.create_leaderboard(%{slug: "end_test", title: "Test"})
       assert lb.ends_at == nil
 
       assert {:ok, ended} = Leaderboards.end_leaderboard(lb)
@@ -83,7 +83,7 @@ defmodule GameServer.LeaderboardsTest do
   describe "list_leaderboards/1" do
     test "returns all leaderboards with pagination" do
       for i <- 1..5 do
-        Leaderboards.create_leaderboard(%{id: "lb_#{i}", title: "Leaderboard #{i}"})
+        Leaderboards.create_leaderboard(%{slug: "lb_#{i}", title: "Leaderboard #{i}"})
       end
 
       result = Leaderboards.list_leaderboards(page: 1, page_size: 3)
@@ -94,8 +94,8 @@ defmodule GameServer.LeaderboardsTest do
     end
 
     test "returns only active leaderboards when active: true" do
-      {:ok, active} = Leaderboards.create_leaderboard(%{id: "active_lb", title: "Active"})
-      {:ok, ended} = Leaderboards.create_leaderboard(%{id: "ended_lb", title: "Ended"})
+      {:ok, active} = Leaderboards.create_leaderboard(%{slug: "active_lb", title: "Active"})
+      {:ok, ended} = Leaderboards.create_leaderboard(%{slug: "ended_lb", title: "Ended"})
       Leaderboards.end_leaderboard(ended)
 
       result = Leaderboards.list_leaderboards(active: true)
@@ -105,12 +105,38 @@ defmodule GameServer.LeaderboardsTest do
     end
   end
 
+  describe "get_active_leaderboard_by_slug/1" do
+    test "returns active leaderboard with matching slug" do
+      {:ok, lb} = Leaderboards.create_leaderboard(%{slug: "active_slug_test", title: "Active"})
+
+      result = Leaderboards.get_active_leaderboard_by_slug("active_slug_test")
+      assert result.id == lb.id
+    end
+
+    test "returns nil for ended leaderboard" do
+      {:ok, lb} = Leaderboards.create_leaderboard(%{slug: "ended_slug_test", title: "Ended"})
+      Leaderboards.end_leaderboard(lb)
+
+      assert Leaderboards.get_active_leaderboard_by_slug("ended_slug_test") == nil
+    end
+
+    test "returns most recent active when multiple exist" do
+      {:ok, _old} = Leaderboards.create_leaderboard(%{slug: "multi_slug", title: "Old"})
+      # Small delay to ensure different inserted_at
+      Process.sleep(10)
+      {:ok, new} = Leaderboards.create_leaderboard(%{slug: "multi_slug", title: "New"})
+
+      result = Leaderboards.get_active_leaderboard_by_slug("multi_slug")
+      assert result.id == new.id
+    end
+  end
+
   describe "submit_score/4" do
     setup do
       user = AccountsFixtures.user_fixture()
 
       {:ok, lb} =
-        Leaderboards.create_leaderboard(%{id: "score_test", title: "Test", operator: :best})
+        Leaderboards.create_leaderboard(%{slug: "score_test", title: "Test", operator: :best})
 
       %{user: user, leaderboard: lb}
     end
@@ -121,8 +147,14 @@ defmodule GameServer.LeaderboardsTest do
       assert record.user_id == user.id
     end
 
+    test "accepts integer id", %{user: user, leaderboard: lb} do
+      assert {:ok, %Record{} = record} = Leaderboards.submit_score(lb.id, user.id, 1000)
+      assert record.score == 1000
+    end
+
     test "operator :set always replaces the score", %{user: user} do
-      {:ok, lb} = Leaderboards.create_leaderboard(%{id: "set_test", title: "Set", operator: :set})
+      {:ok, lb} =
+        Leaderboards.create_leaderboard(%{slug: "set_test", title: "Set", operator: :set})
 
       {:ok, _} = Leaderboards.submit_score(lb.id, user.id, 1000)
       {:ok, record} = Leaderboards.submit_score(lb.id, user.id, 500)
@@ -145,7 +177,7 @@ defmodule GameServer.LeaderboardsTest do
     test "operator :best respects asc sort_order", %{user: user} do
       {:ok, lb} =
         Leaderboards.create_leaderboard(%{
-          id: "asc_test",
+          slug: "asc_test",
           title: "Asc",
           operator: :best,
           sort_order: :asc
@@ -162,7 +194,7 @@ defmodule GameServer.LeaderboardsTest do
 
     test "operator :incr adds to existing score", %{user: user} do
       {:ok, lb} =
-        Leaderboards.create_leaderboard(%{id: "incr_test", title: "Incr", operator: :incr})
+        Leaderboards.create_leaderboard(%{slug: "incr_test", title: "Incr", operator: :incr})
 
       {:ok, _} = Leaderboards.submit_score(lb.id, user.id, 100)
       {:ok, record} = Leaderboards.submit_score(lb.id, user.id, 50)
@@ -171,7 +203,7 @@ defmodule GameServer.LeaderboardsTest do
 
     test "operator :decr subtracts from existing score", %{user: user} do
       {:ok, lb} =
-        Leaderboards.create_leaderboard(%{id: "decr_test", title: "Decr", operator: :decr})
+        Leaderboards.create_leaderboard(%{slug: "decr_test", title: "Decr", operator: :decr})
 
       {:ok, _} = Leaderboards.submit_score(lb.id, user.id, 100)
       {:ok, record} = Leaderboards.submit_score(lb.id, user.id, 30)
@@ -186,11 +218,11 @@ defmodule GameServer.LeaderboardsTest do
 
     test "fails for non-existent leaderboard", %{user: user} do
       assert {:error, :leaderboard_not_found} =
-               Leaderboards.submit_score("nonexistent", user.id, 100)
+               Leaderboards.submit_score(999_999, user.id, 100)
     end
 
     test "fails for ended leaderboard", %{user: user} do
-      {:ok, lb} = Leaderboards.create_leaderboard(%{id: "ended_test", title: "Ended"})
+      {:ok, lb} = Leaderboards.create_leaderboard(%{slug: "ended_test", title: "Ended"})
       {:ok, ended} = Leaderboards.end_leaderboard(lb)
 
       assert {:error, :leaderboard_ended} = Leaderboards.submit_score(ended.id, user.id, 100)
@@ -199,7 +231,7 @@ defmodule GameServer.LeaderboardsTest do
 
   describe "list_records/2" do
     setup do
-      {:ok, lb} = Leaderboards.create_leaderboard(%{id: "records_test", title: "Test"})
+      {:ok, lb} = Leaderboards.create_leaderboard(%{slug: "records_test", title: "Test"})
 
       users =
         for i <- 1..10 do
@@ -236,7 +268,7 @@ defmodule GameServer.LeaderboardsTest do
 
   describe "get_user_record/2" do
     test "returns user's record with rank" do
-      {:ok, lb} = Leaderboards.create_leaderboard(%{id: "user_record_test", title: "Test"})
+      {:ok, lb} = Leaderboards.create_leaderboard(%{slug: "user_record_test", title: "Test"})
 
       users =
         for i <- 1..5 do
@@ -254,7 +286,7 @@ defmodule GameServer.LeaderboardsTest do
     end
 
     test "returns error for user without record" do
-      {:ok, lb} = Leaderboards.create_leaderboard(%{id: "no_record_test", title: "Test"})
+      {:ok, lb} = Leaderboards.create_leaderboard(%{slug: "no_record_test", title: "Test"})
       user = AccountsFixtures.user_fixture()
 
       assert {:error, :not_found} = Leaderboards.get_user_record(lb.id, user.id)
@@ -263,7 +295,7 @@ defmodule GameServer.LeaderboardsTest do
 
   describe "list_records_around_user/3" do
     test "returns records around the user's position" do
-      {:ok, lb} = Leaderboards.create_leaderboard(%{id: "around_test", title: "Test"})
+      {:ok, lb} = Leaderboards.create_leaderboard(%{slug: "around_test", title: "Test"})
 
       users =
         for i <- 1..10 do
@@ -284,7 +316,7 @@ defmodule GameServer.LeaderboardsTest do
     end
 
     test "returns empty list for user without record" do
-      {:ok, lb} = Leaderboards.create_leaderboard(%{id: "around_empty_test", title: "Test"})
+      {:ok, lb} = Leaderboards.create_leaderboard(%{slug: "around_empty_test", title: "Test"})
       user = AccountsFixtures.user_fixture()
 
       assert Leaderboards.list_records_around_user(lb.id, user.id, limit: 2) == []
@@ -293,7 +325,7 @@ defmodule GameServer.LeaderboardsTest do
 
   describe "delete_record/1" do
     test "deletes a record" do
-      {:ok, lb} = Leaderboards.create_leaderboard(%{id: "delete_record_test", title: "Test"})
+      {:ok, lb} = Leaderboards.create_leaderboard(%{slug: "delete_record_test", title: "Test"})
       user = AccountsFixtures.user_fixture()
       {:ok, record} = Leaderboards.submit_score(lb.id, user.id, 1000)
 

@@ -9,6 +9,9 @@ defmodule GameServer.LobbiesTest do
       @behaviour GameServer.Hooks
 
       @impl true
+      def after_startup, do: :ok
+
+      @impl true
       def after_user_register(_user), do: :ok
 
       @impl true

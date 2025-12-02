@@ -9,20 +9,20 @@ defmodule GameServer.Leaderboards do
 
       # Create a leaderboard
       {:ok, lb} = Leaderboards.create_leaderboard(%{
-        id: "weekly_kills_w49",
-        title: "Weekly Kills - Week 49",
+        slug: "weekly_kills",
+        title: "Weekly Kills",
         sort_order: :desc,
         operator: :incr
       })
 
-      # Submit score (server-only)
-      {:ok, record} = Leaderboards.submit_score("weekly_kills_w49", user_id, 10)
+      # Submit score (server-only) - uses slug to find active leaderboard
+      {:ok, record} = Leaderboards.submit_score("weekly_kills", user_id, 10)
 
       # List records with rank
-      records = Leaderboards.list_records("weekly_kills_w49", page: 1, limit: 25)
+      records = Leaderboards.list_records("weekly_kills", page: 1, limit: 25)
 
       # Get user's record
-      {:ok, record} = Leaderboards.get_user_record("weekly_kills_w49", user_id)
+      {:ok, record} = Leaderboards.get_user_record("weekly_kills", user_id)
   """
 
   import Ecto.Query, warn: false
@@ -45,10 +45,10 @@ defmodule GameServer.Leaderboards do
 
   ## Examples
 
-      iex> create_leaderboard(%{id: "my_lb", title: "My Leaderboard"})
+      iex> create_leaderboard(%{slug: "my_lb", title: "My Leaderboard"})
       {:ok, %Leaderboard{}}
 
-      iex> create_leaderboard(%{id: "", title: ""})
+      iex> create_leaderboard(%{slug: "", title: ""})
       {:error, %Ecto.Changeset{}}
   """
   @spec create_leaderboard(Types.leaderboard_create_attrs()) ::
@@ -62,7 +62,7 @@ defmodule GameServer.Leaderboards do
   @doc """
   Updates an existing leaderboard.
 
-  Note: `id`, `sort_order`, and `operator` cannot be changed after creation.
+  Note: `slug`, `sort_order`, and `operator` cannot be changed after creation.
 
   ## Attributes
 
@@ -86,18 +86,146 @@ defmodule GameServer.Leaderboards do
   end
 
   @doc """
-  Gets a leaderboard by ID. Returns `nil` if not found.
+  Gets a leaderboard by its integer ID.
+
+  ## Examples
+
+      iex> get_leaderboard(123)
+      %Leaderboard{id: 123}
+
+      iex> get_leaderboard(999)
+      nil
   """
-  @spec get_leaderboard(String.t()) :: Leaderboard.t() | nil
-  def get_leaderboard(id) when is_binary(id) do
+  @spec get_leaderboard(integer()) :: Leaderboard.t() | nil
+  def get_leaderboard(id) when is_integer(id) do
     Repo.get(Leaderboard, id)
   end
 
   @doc """
-  Gets a leaderboard by ID. Raises if not found.
+  Gets a leaderboard by its integer ID. Raises if not found.
   """
-  def get_leaderboard!(id) when is_binary(id) do
+  @spec get_leaderboard!(integer()) :: Leaderboard.t()
+  def get_leaderboard!(id) when is_integer(id) do
     Repo.get!(Leaderboard, id)
+  end
+
+  @doc """
+  Gets the currently active leaderboard with the given slug.
+  Returns `nil` if no active leaderboard exists.
+
+  An active leaderboard is one that:
+  - Has not ended (`ends_at` is nil or in the future)
+  - Has started (`starts_at` is nil or in the past)
+
+  If multiple active leaderboards exist with the same slug,
+  returns the most recently created one.
+  """
+  @spec get_active_leaderboard_by_slug(String.t()) :: Leaderboard.t() | nil
+  def get_active_leaderboard_by_slug(slug) when is_binary(slug) do
+    now = DateTime.utc_now()
+
+    from(lb in Leaderboard,
+      where: lb.slug == ^slug,
+      where: is_nil(lb.ends_at) or lb.ends_at > ^now,
+      where: is_nil(lb.starts_at) or lb.starts_at <= ^now,
+      order_by: [desc: lb.inserted_at, desc: lb.id],
+      limit: 1
+    )
+    |> Repo.one()
+  end
+
+  @doc """
+  Lists unique leaderboard slugs with summary info.
+
+  Returns a list of maps with:
+  - `:slug` - the leaderboard slug
+  - `:title` - title from the latest leaderboard
+  - `:description` - description from the latest leaderboard
+  - `:active_id` - ID of the currently active leaderboard (or nil)
+  - `:latest_id` - ID of the most recent leaderboard
+  - `:season_count` - total number of leaderboards with this slug
+  """
+  @spec list_leaderboard_groups(keyword()) :: [map()]
+  def list_leaderboard_groups(opts \\ []) do
+    page = Keyword.get(opts, :page, 1)
+    page_size = Keyword.get(opts, :page_size, 25)
+    offset = (page - 1) * page_size
+
+    # Get unique slugs ordered by most recent end date (nulls first = still active)
+    slugs_query =
+      from lb in Leaderboard,
+        select: lb.slug,
+        group_by: lb.slug,
+        order_by: [desc_nulls_first: max(lb.ends_at)],
+        offset: ^offset,
+        limit: ^page_size
+
+    slugs = Repo.all(slugs_query)
+
+    # For each slug, get the group info
+    Enum.map(slugs, fn slug ->
+      build_group_info(slug)
+    end)
+  end
+
+  defp build_group_info(slug) do
+    now = DateTime.utc_now()
+
+    # Get the latest leaderboard by end date (nulls first = active/permanent ones)
+    latest =
+      from(lb in Leaderboard,
+        where: lb.slug == ^slug,
+        order_by: [desc_nulls_first: lb.ends_at],
+        limit: 1
+      )
+      |> Repo.one()
+
+    # Get the active leaderboard (if any)
+    active =
+      from(lb in Leaderboard,
+        where: lb.slug == ^slug,
+        where: is_nil(lb.ends_at) or lb.ends_at > ^now,
+        where: is_nil(lb.starts_at) or lb.starts_at <= ^now,
+        order_by: [desc_nulls_first: lb.ends_at],
+        limit: 1
+      )
+      |> Repo.one()
+
+    # Count seasons
+    season_count =
+      from(lb in Leaderboard, where: lb.slug == ^slug)
+      |> Repo.aggregate(:count, :id)
+
+    %{
+      slug: slug,
+      title: latest.title,
+      description: latest.description,
+      active_id: active && active.id,
+      latest_id: latest.id,
+      season_count: season_count
+    }
+  end
+
+  @doc """
+  Counts unique leaderboard slugs.
+  """
+  @spec count_leaderboard_groups() :: non_neg_integer()
+  def count_leaderboard_groups do
+    from(lb in Leaderboard,
+      select: count(lb.slug, :distinct)
+    )
+    |> Repo.one()
+  end
+
+  @doc """
+  Lists all leaderboards with the given slug (all seasons), ordered by end date.
+  """
+  @spec list_leaderboards_by_slug(String.t(), keyword()) :: [Leaderboard.t()]
+  def list_leaderboards_by_slug(slug, opts \\ []) when is_binary(slug) do
+    opts
+    |> Keyword.put(:slug, slug)
+    |> Keyword.put_new(:order_by, :ends_at)
+    |> list_leaderboards()
   end
 
   @doc """
@@ -105,7 +233,13 @@ defmodule GameServer.Leaderboards do
 
   ## Options
 
+    * `:slug` - Filter by slug (returns all seasons of that leaderboard)
     * `:active` - If `true`, only active leaderboards. If `false`, only ended.
+    * `:order_by` - Order by field: `:ends_at` or `:inserted_at` (default)
+    * `:starts_after` - Only leaderboards that started after this DateTime
+    * `:starts_before` - Only leaderboards that started before this DateTime
+    * `:ends_after` - Only leaderboards that end after this DateTime
+    * `:ends_before` - Only leaderboards that end before this DateTime
     * `:page` - Page number (default 1)
     * `:page_size` - Page size (default 25)
 
@@ -113,50 +247,98 @@ defmodule GameServer.Leaderboards do
 
       iex> list_leaderboards(active: true)
       [%Leaderboard{}, ...]
+
+      iex> list_leaderboards(slug: "weekly_kills")
+      [%Leaderboard{}, ...]
+
+      iex> list_leaderboards(starts_after: ~U[2025-01-01 00:00:00Z])
+      [%Leaderboard{}, ...]
   """
   @spec list_leaderboards(keyword()) :: [Leaderboard.t()]
   def list_leaderboards(opts \\ []) do
     page = Keyword.get(opts, :page, 1)
     page_size = Keyword.get(opts, :page_size, 25)
     offset = (page - 1) * page_size
+    order_by = Keyword.get(opts, :order_by, :inserted_at)
 
-    base = from(lb in Leaderboard)
-
-    base =
-      case Keyword.get(opts, :active) do
-        true ->
-          from lb in base, where: is_nil(lb.ends_at) or lb.ends_at > ^DateTime.utc_now()
-
-        false ->
-          from lb in base, where: not is_nil(lb.ends_at) and lb.ends_at <= ^DateTime.utc_now()
-
-        nil ->
-          base
-      end
-
-    from(lb in base, order_by: [desc: lb.inserted_at], offset: ^offset, limit: ^page_size)
+    opts
+    |> build_leaderboard_query()
+    |> apply_order_by(order_by)
+    |> offset(^offset)
+    |> limit(^page_size)
     |> Repo.all()
   end
 
   @doc """
   Counts leaderboards matching the given filters.
+
+  Accepts the same filter options as `list_leaderboards/1`.
   """
+  @spec count_leaderboards(keyword()) :: non_neg_integer()
   def count_leaderboards(opts \\ []) do
+    opts
+    |> build_leaderboard_query()
+    |> Repo.aggregate(:count, :id)
+  end
+
+  defp apply_order_by(query, :ends_at) do
+    order_by(query, [lb], desc_nulls_first: lb.ends_at)
+  end
+
+  defp apply_order_by(query, :inserted_at) do
+    order_by(query, [lb], desc: lb.inserted_at)
+  end
+
+  defp apply_order_by(query, _), do: order_by(query, [lb], desc: lb.inserted_at)
+
+  defp build_leaderboard_query(opts) do
+    now = DateTime.utc_now()
     base = from(lb in Leaderboard)
 
-    base =
-      case Keyword.get(opts, :active) do
-        true ->
-          from lb in base, where: is_nil(lb.ends_at) or lb.ends_at > ^DateTime.utc_now()
+    base
+    |> maybe_filter_slug(Keyword.get(opts, :slug))
+    |> maybe_filter_active(Keyword.get(opts, :active), now)
+    |> maybe_filter_starts_after(Keyword.get(opts, :starts_after))
+    |> maybe_filter_starts_before(Keyword.get(opts, :starts_before))
+    |> maybe_filter_ends_after(Keyword.get(opts, :ends_after))
+    |> maybe_filter_ends_before(Keyword.get(opts, :ends_before))
+  end
 
-        false ->
-          from lb in base, where: not is_nil(lb.ends_at) and lb.ends_at <= ^DateTime.utc_now()
+  defp maybe_filter_slug(query, nil), do: query
+  defp maybe_filter_slug(query, slug), do: from(lb in query, where: lb.slug == ^slug)
 
-        nil ->
-          base
-      end
+  defp maybe_filter_active(query, nil, _now), do: query
 
-    Repo.aggregate(base, :count, :id)
+  defp maybe_filter_active(query, true, now) do
+    from(lb in query, where: is_nil(lb.ends_at) or lb.ends_at > ^now)
+  end
+
+  defp maybe_filter_active(query, false, now) do
+    from(lb in query, where: not is_nil(lb.ends_at) and lb.ends_at <= ^now)
+  end
+
+  defp maybe_filter_starts_after(query, nil), do: query
+
+  defp maybe_filter_starts_after(query, datetime) do
+    from(lb in query, where: lb.starts_at > ^datetime)
+  end
+
+  defp maybe_filter_starts_before(query, nil), do: query
+
+  defp maybe_filter_starts_before(query, datetime) do
+    from(lb in query, where: lb.starts_at <= ^datetime)
+  end
+
+  defp maybe_filter_ends_after(query, nil), do: query
+
+  defp maybe_filter_ends_after(query, datetime) do
+    from(lb in query, where: lb.ends_at > ^datetime)
+  end
+
+  defp maybe_filter_ends_before(query, nil), do: query
+
+  defp maybe_filter_ends_before(query, datetime) do
+    from(lb in query, where: lb.ends_at <= ^datetime)
   end
 
   @doc """
@@ -166,8 +348,8 @@ defmodule GameServer.Leaderboards do
     update_leaderboard(leaderboard, %{ends_at: DateTime.utc_now(:second)})
   end
 
-  def end_leaderboard(id) when is_binary(id) do
-    case get_leaderboard(id) do
+  def end_leaderboard(id_or_slug) when is_integer(id_or_slug) or is_binary(id_or_slug) do
+    case get_leaderboard(id_or_slug) do
       nil -> {:error, :not_found}
       lb -> end_leaderboard(lb)
     end
@@ -195,18 +377,21 @@ defmodule GameServer.Leaderboards do
     * `:incr` — Add to existing score
     * `:decr` — Subtract from existing score
 
+  Accepts either a leaderboard ID (integer) or slug (string). When using a slug,
+  the score is submitted to the currently active leaderboard with that slug.
+
   ## Examples
 
-      iex> submit_score("weekly_kills", user_id, 10)
+      iex> submit_score(123, user_id, 10)
       {:ok, %Record{score: 10}}
 
-      iex> submit_score("weekly_kills", user_id, 5, %{weapon: "sword"})
+      iex> submit_score(123, user_id, 5, %{weapon: "sword"})
       {:ok, %Record{score: 15, metadata: %{weapon: "sword"}}}
   """
-  @spec submit_score(String.t(), integer(), integer(), map()) ::
+  @spec submit_score(integer(), integer(), integer(), map()) ::
           {:ok, Record.t()} | {:error, term()}
   def submit_score(leaderboard_id, user_id, score, metadata \\ %{})
-      when is_binary(leaderboard_id) and is_integer(user_id) and is_integer(score) do
+      when is_integer(leaderboard_id) and is_integer(user_id) and is_integer(score) do
     case get_leaderboard(leaderboard_id) do
       nil ->
         {:error, :leaderboard_not_found}
@@ -269,9 +454,10 @@ defmodule GameServer.Leaderboards do
   # ---------------------------------------------------------------------------
 
   @doc """
-  Gets a single record by leaderboard and user ID.
+  Gets a single record by leaderboard ID and user ID.
   """
-  def get_record(leaderboard_id, user_id) do
+  @spec get_record(integer(), integer()) :: Record.t() | nil
+  def get_record(leaderboard_id, user_id) when is_integer(leaderboard_id) do
     from(r in Record,
       where: r.leaderboard_id == ^leaderboard_id and r.user_id == ^user_id,
       preload: [:user]
@@ -283,19 +469,26 @@ defmodule GameServer.Leaderboards do
   Gets a user's record with their rank.
   Returns `{:ok, record_with_rank}` or `{:error, :not_found}`.
   """
-  @spec get_user_record(String.t(), integer()) :: {:ok, Record.t()} | {:error, :not_found}
-  def get_user_record(leaderboard_id, user_id) do
-    case get_record(leaderboard_id, user_id) do
+  @spec get_user_record(integer(), integer()) ::
+          {:ok, Record.t()} | {:error, :not_found}
+  def get_user_record(leaderboard_id, user_id) when is_integer(leaderboard_id) do
+    case get_leaderboard(leaderboard_id) do
       nil ->
         {:error, :not_found}
 
-      record ->
-        rank = calculate_rank(leaderboard_id, record.score)
-        {:ok, %{record | rank: rank}}
+      leaderboard ->
+        case get_record(leaderboard.id, user_id) do
+          nil ->
+            {:error, :not_found}
+
+          record ->
+            rank = calculate_rank(leaderboard.id, record.score)
+            {:ok, %{record | rank: rank}}
+        end
     end
   end
 
-  defp calculate_rank(leaderboard_id, score) do
+  defp calculate_rank(leaderboard_id, score) when is_integer(leaderboard_id) do
     leaderboard = get_leaderboard!(leaderboard_id)
 
     # Count how many records have a better score
@@ -324,40 +517,45 @@ defmodule GameServer.Leaderboards do
 
   Returns records with `rank` field populated.
   """
-  @spec list_records(String.t(), Types.pagination_opts()) :: [Record.t()]
-  def list_records(leaderboard_id, opts \\ []) do
-    page = Keyword.get(opts, :page, 1)
-    page_size = Keyword.get(opts, :page_size, 25)
-    offset = (page - 1) * page_size
+  @spec list_records(integer(), Types.pagination_opts()) :: [Record.t()]
+  def list_records(leaderboard_id, opts \\ []) when is_integer(leaderboard_id) do
+    case get_leaderboard(leaderboard_id) do
+      nil ->
+        []
 
-    leaderboard = get_leaderboard!(leaderboard_id)
+      leaderboard ->
+        page = Keyword.get(opts, :page, 1)
+        page_size = Keyword.get(opts, :page_size, 25)
+        offset = (page - 1) * page_size
 
-    order_by =
-      case leaderboard.sort_order do
-        :desc -> [desc: :score, asc: :updated_at]
-        :asc -> [asc: :score, asc: :updated_at]
-      end
+        order_by =
+          case leaderboard.sort_order do
+            :desc -> [desc: :score, asc: :updated_at]
+            :asc -> [asc: :score, asc: :updated_at]
+          end
 
-    records =
-      from(r in Record,
-        where: r.leaderboard_id == ^leaderboard_id,
-        order_by: ^order_by,
-        offset: ^offset,
-        limit: ^page_size,
-        preload: [:user]
-      )
-      |> Repo.all()
+        records =
+          from(r in Record,
+            where: r.leaderboard_id == ^leaderboard.id,
+            order_by: ^order_by,
+            offset: ^offset,
+            limit: ^page_size,
+            preload: [:user]
+          )
+          |> Repo.all()
 
-    # Add rank to each record
-    records
-    |> Enum.with_index(offset + 1)
-    |> Enum.map(fn {record, rank} -> %{record | rank: rank} end)
+        # Add rank to each record
+        records
+        |> Enum.with_index(offset + 1)
+        |> Enum.map(fn {record, rank} -> %{record | rank: rank} end)
+    end
   end
 
   @doc """
   Counts records for a leaderboard.
   """
-  def count_records(leaderboard_id) do
+  @spec count_records(integer()) :: non_neg_integer()
+  def count_records(leaderboard_id) when is_integer(leaderboard_id) do
     from(r in Record, where: r.leaderboard_id == ^leaderboard_id)
     |> Repo.aggregate(:count, :id)
   end
@@ -371,43 +569,49 @@ defmodule GameServer.Leaderboards do
 
     * `:limit` - Total number of records to return (default 11, centered on user)
   """
-  def list_records_around_user(leaderboard_id, user_id, opts \\ []) do
-    limit = Keyword.get(opts, :limit, 11)
-    half = div(limit, 2)
-
-    case get_user_record(leaderboard_id, user_id) do
-      {:error, :not_found} ->
+  @spec list_records_around_user(integer(), integer(), keyword()) :: [Record.t()]
+  def list_records_around_user(leaderboard_id, user_id, opts \\ [])
+      when is_integer(leaderboard_id) do
+    case get_leaderboard(leaderboard_id) do
+      nil ->
         []
 
-      {:ok, user_record} ->
-        user_rank = user_record.rank
+      leaderboard ->
+        limit = Keyword.get(opts, :limit, 11)
+        half = div(limit, 2)
 
-        # Calculate offset to center on user
-        start_rank = max(1, user_rank - half)
-        offset = start_rank - 1
+        case get_user_record(leaderboard.id, user_id) do
+          {:error, :not_found} ->
+            []
 
-        leaderboard = get_leaderboard!(leaderboard_id)
+          {:ok, user_record} ->
+            user_rank = user_record.rank
 
-        order_by =
-          case leaderboard.sort_order do
-            :desc -> [desc: :score, asc: :updated_at]
-            :asc -> [asc: :score, asc: :updated_at]
-          end
+            # Calculate offset to center on user
+            start_rank = max(1, user_rank - half)
+            offset = start_rank - 1
 
-        records =
-          from(r in Record,
-            where: r.leaderboard_id == ^leaderboard_id,
-            order_by: ^order_by,
-            offset: ^offset,
-            limit: ^limit,
-            preload: [:user]
-          )
-          |> Repo.all()
+            order_by =
+              case leaderboard.sort_order do
+                :desc -> [desc: :score, asc: :updated_at]
+                :asc -> [asc: :score, asc: :updated_at]
+              end
 
-        # Add rank to each record
-        records
-        |> Enum.with_index(start_rank)
-        |> Enum.map(fn {record, rank} -> %{record | rank: rank} end)
+            records =
+              from(r in Record,
+                where: r.leaderboard_id == ^leaderboard.id,
+                order_by: ^order_by,
+                offset: ^offset,
+                limit: ^limit,
+                preload: [:user]
+              )
+              |> Repo.all()
+
+            # Add rank to each record
+            records
+            |> Enum.with_index(start_rank)
+            |> Enum.map(fn {record, rank} -> %{record | rank: rank} end)
+        end
     end
   end
 
@@ -420,12 +624,20 @@ defmodule GameServer.Leaderboards do
 
   @doc """
   Deletes a user's record from a leaderboard.
+  Accepts either leaderboard ID (integer) or slug (string).
   """
-  @spec delete_user_record(String.t(), integer()) :: {:ok, Record.t()} | {:error, :not_found}
-  def delete_user_record(leaderboard_id, user_id) do
-    case get_record(leaderboard_id, user_id) do
-      nil -> {:error, :not_found}
-      record -> delete_record(record)
+  @spec delete_user_record(integer() | String.t(), integer()) ::
+          {:ok, Record.t()} | {:error, :not_found}
+  def delete_user_record(id_or_slug, user_id) do
+    case get_leaderboard(id_or_slug) do
+      nil ->
+        {:error, :not_found}
+
+      leaderboard ->
+        case get_record(leaderboard.id, user_id) do
+          nil -> {:error, :not_found}
+          record -> delete_record(record)
+        end
     end
   end
 

@@ -12,7 +12,11 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
   @leaderboard_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :string, description: "Leaderboard ID"},
+      id: %Schema{type: :integer, description: "Leaderboard ID"},
+      slug: %Schema{
+        type: :string,
+        description: "Human-readable identifier (reusable across seasons)"
+      },
       title: %Schema{type: :string, description: "Display title"},
       description: %Schema{type: :string, description: "Description", nullable: true},
       sort_order: %Schema{
@@ -33,8 +37,9 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
       updated_at: %Schema{type: :string, format: "date-time"}
     },
     example: %{
-      id: "weekly_kills_w49",
-      title: "Weekly Kills - Week 49",
+      id: 1,
+      slug: "weekly_kills",
+      title: "Weekly Kills",
       description: "Get the most kills this week!",
       sort_order: "desc",
       operator: "incr",
@@ -86,12 +91,52 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
   operation(:index,
     operation_id: "list_leaderboards",
     summary: "List leaderboards",
-    description: "Return all leaderboards, optionally filtered by active status.",
+    description: """
+    Return all leaderboards with optional filters. Results are ordered by end date (active/permanent first, then most recently ended).
+
+    **Common use cases:**
+    - Get all leaderboards: `GET /api/v1/leaderboards`
+    - Get all seasons of a leaderboard: `GET /api/v1/leaderboards?slug=weekly_kills`
+    - Get active leaderboard by slug: `GET /api/v1/leaderboards?slug=weekly_kills&active=true`
+    - Get only active leaderboards: `GET /api/v1/leaderboards?active=true`
+    """,
     parameters: [
+      slug: [
+        in: :query,
+        schema: %Schema{type: :string},
+        description:
+          "Filter by slug (returns all seasons of that leaderboard, ordered by end date)"
+      ],
       active: [
         in: :query,
         schema: %Schema{type: :string, enum: ["true", "false"]},
         description: "Filter by active status - 'true' or 'false' (omit for all)"
+      ],
+      order_by: [
+        in: :query,
+        schema: %Schema{type: :string, enum: ["ends_at", "inserted_at"], default: "ends_at"},
+        description:
+          "Order results by field. 'ends_at' (default) puts active first, then by end date. 'inserted_at' orders by creation date."
+      ],
+      starts_after: [
+        in: :query,
+        schema: %Schema{type: :string, format: "date-time"},
+        description: "Only leaderboards that started after this time (ISO 8601)"
+      ],
+      starts_before: [
+        in: :query,
+        schema: %Schema{type: :string, format: "date-time"},
+        description: "Only leaderboards that started before this time (ISO 8601)"
+      ],
+      ends_after: [
+        in: :query,
+        schema: %Schema{type: :string, format: "date-time"},
+        description: "Only leaderboards ending after this time (ISO 8601)"
+      ],
+      ends_before: [
+        in: :query,
+        schema: %Schema{type: :string, format: "date-time"},
+        description: "Only leaderboards ending before this time (ISO 8601)"
       ],
       page: [
         in: :query,
@@ -123,10 +168,19 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
 
     opts =
       [page: page, page_size: page_size]
+      |> maybe_add_slug_filter(params["slug"])
       |> maybe_add_active_filter(params["active"])
+      |> maybe_add_order_by(params["order_by"])
+      |> maybe_add_datetime_filter(:starts_after, params["starts_after"])
+      |> maybe_add_datetime_filter(:starts_before, params["starts_before"])
+      |> maybe_add_datetime_filter(:ends_after, params["ends_after"])
+      |> maybe_add_datetime_filter(:ends_before, params["ends_before"])
+
+    # Build count opts (exclude pagination and ordering)
+    count_opts = Keyword.drop(opts, [:page, :page_size, :order_by])
 
     leaderboards = Leaderboards.list_leaderboards(opts)
-    total_count = Leaderboards.count_leaderboards(Keyword.take(opts, [:active]))
+    total_count = Leaderboards.count_leaderboards(count_opts)
     total_pages = ceil_div(total_count, page_size)
 
     json(conn, %{
@@ -143,17 +197,17 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
   end
 
   # ---------------------------------------------------------------------------
-  # Get Leaderboard
+  # Get Leaderboard by ID
   # ---------------------------------------------------------------------------
 
   operation(:show,
     operation_id: "get_leaderboard",
-    summary: "Get a leaderboard",
-    description: "Return details for a specific leaderboard.",
+    summary: "Get a leaderboard by ID",
+    description: "Return details for a specific leaderboard by its integer ID.",
     parameters: [
       id: [
         in: :path,
-        schema: %Schema{type: :string},
+        schema: %Schema{type: :integer},
         description: "Leaderboard ID",
         required: true
       ]
@@ -165,7 +219,7 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
   )
 
   def show(conn, %{"id" => id}) do
-    case Leaderboards.get_leaderboard(id) do
+    case Leaderboards.get_leaderboard(parse_int(id, 0)) do
       nil ->
         conn
         |> put_status(:not_found)
@@ -183,11 +237,11 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
   operation(:records,
     operation_id: "list_leaderboard_records",
     summary: "List leaderboard records",
-    description: "Return ranked records for a leaderboard.",
+    description: "Return ranked records for a leaderboard by its integer ID.",
     parameters: [
       id: [
         in: :path,
-        schema: %Schema{type: :string},
+        schema: %Schema{type: :integer},
         description: "Leaderboard ID",
         required: true
       ],
@@ -217,18 +271,18 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
   )
 
   def records(conn, %{"id" => id} = params) do
-    case Leaderboards.get_leaderboard(id) do
+    case Leaderboards.get_leaderboard(parse_int(id, 0)) do
       nil ->
         conn
         |> put_status(:not_found)
         |> json(%{error: "Leaderboard not found"})
 
-      _leaderboard ->
+      leaderboard ->
         page = parse_int(params["page"], 1)
         page_size = min(parse_int(params["page_size"], 25), 100)
 
-        records = Leaderboards.list_records(id, page: page, page_size: page_size)
-        total_count = Leaderboards.count_records(id)
+        records = Leaderboards.list_records(leaderboard.id, page: page, page_size: page_size)
+        total_count = Leaderboards.count_records(leaderboard.id)
         total_pages = ceil_div(total_count, page_size)
 
         json(conn, %{
@@ -256,7 +310,7 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
     parameters: [
       id: [
         in: :path,
-        schema: %Schema{type: :string},
+        schema: %Schema{type: :integer},
         description: "Leaderboard ID",
         required: true
       ],
@@ -290,14 +344,14 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
     user_id = parse_int(user_id_str, 0)
     limit = parse_int(params["limit"], 11)
 
-    case Leaderboards.get_leaderboard(id) do
+    case Leaderboards.get_leaderboard(parse_int(id, 0)) do
       nil ->
         conn
         |> put_status(:not_found)
         |> json(%{error: "Leaderboard not found"})
 
-      _leaderboard ->
-        records = Leaderboards.list_records_around_user(id, user_id, limit: limit)
+      leaderboard ->
+        records = Leaderboards.list_records_around_user(leaderboard.id, user_id, limit: limit)
 
         json(conn, %{
           data: Enum.map(records, &serialize_record/1)
@@ -316,7 +370,7 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
     parameters: [
       id: [
         in: :path,
-        schema: %Schema{type: :string},
+        schema: %Schema{type: :integer},
         description: "Leaderboard ID",
         required: true
       ]
@@ -331,14 +385,14 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
   def me(conn, %{"id" => id}) do
     user_id = conn.assigns.current_scope.user.id
 
-    case Leaderboards.get_leaderboard(id) do
+    case Leaderboards.get_leaderboard(parse_int(id, 0)) do
       nil ->
         conn
         |> put_status(:not_found)
         |> json(%{error: "Leaderboard not found"})
 
-      _leaderboard ->
-        case Leaderboards.get_user_record(id, user_id) do
+      leaderboard ->
+        case Leaderboards.get_user_record(leaderboard.id, user_id) do
           {:ok, record} ->
             json(conn, %{data: serialize_record(record)})
 
@@ -357,6 +411,7 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
   defp serialize_leaderboard(lb) do
     %{
       id: lb.id,
+      slug: lb.slug,
       title: lb.title,
       description: lb.description,
       sort_order: to_string(lb.sort_order),
@@ -393,9 +448,27 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
 
   defp parse_int(val, _default) when is_integer(val), do: val
 
+  defp maybe_add_slug_filter(opts, nil), do: opts
+  defp maybe_add_slug_filter(opts, ""), do: opts
+  defp maybe_add_slug_filter(opts, slug), do: Keyword.put(opts, :slug, slug)
+
   defp maybe_add_active_filter(opts, "true"), do: Keyword.put(opts, :active, true)
   defp maybe_add_active_filter(opts, "false"), do: Keyword.put(opts, :active, false)
   defp maybe_add_active_filter(opts, _), do: opts
+
+  defp maybe_add_order_by(opts, "ends_at"), do: Keyword.put(opts, :order_by, :ends_at)
+  defp maybe_add_order_by(opts, "inserted_at"), do: Keyword.put(opts, :order_by, :inserted_at)
+  defp maybe_add_order_by(opts, _), do: Keyword.put(opts, :order_by, :ends_at)
+
+  defp maybe_add_datetime_filter(opts, _key, nil), do: opts
+  defp maybe_add_datetime_filter(opts, _key, ""), do: opts
+
+  defp maybe_add_datetime_filter(opts, key, value) do
+    case DateTime.from_iso8601(value) do
+      {:ok, datetime, _offset} -> Keyword.put(opts, key, datetime)
+      {:error, _} -> opts
+    end
+  end
 
   defp ceil_div(_num, 0), do: 0
   defp ceil_div(num, denom), do: div(num + denom - 1, denom)

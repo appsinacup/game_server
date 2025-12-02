@@ -32,6 +32,8 @@ defmodule GameServerWeb.UserAuthTest do
 
       alias GameServer.Repo
 
+      def after_startup, do: :ok
+
       def after_user_register(_user), do: :ok
 
       def after_user_login(user) do

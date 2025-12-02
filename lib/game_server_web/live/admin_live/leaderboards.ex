@@ -68,6 +68,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
                 <thead>
                   <tr>
                     <th>ID</th>
+                    <th>Slug</th>
                     <th>Title</th>
                     <th>Sort</th>
                     <th>Operator</th>
@@ -80,6 +81,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
                 <tbody>
                   <tr :for={lb <- @leaderboards} id={"admin-lb-#{lb.id}"}>
                     <td class="font-mono text-sm">{lb.id}</td>
+                    <td class="font-mono text-sm">{lb.slug}</td>
                     <td class="text-sm">{lb.title}</td>
                     <td class="text-sm">
                       <span class="badge badge-ghost badge-sm">{lb.sort_order}</span>
@@ -131,6 +133,14 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
                       >
                         Delete
                       </button>
+                      <button
+                        phx-click="new_season_from"
+                        phx-value-id={lb.id}
+                        class="btn btn-xs btn-outline btn-success"
+                        title="Create new season with same settings"
+                      >
+                        + Season
+                      </button>
                     </td>
                   </tr>
                 </tbody>
@@ -166,7 +176,26 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
 
             <.form for={@form} id="leaderboard-form" phx-submit="save_leaderboard">
               <%= if is_nil(@selected_leaderboard) do %>
-                <.input field={@form[:id]} type="text" label="ID (unique, cannot be changed)" />
+                <.input
+                  field={@form[:slug]}
+                  type="text"
+                  label="Slug (unique identifier, e.g. weekly_kills)"
+                />
+              <% else %>
+                <div class="form-control">
+                  <label class="label"><span class="label-text">Slug</span></label>
+                  <input
+                    type="text"
+                    value={@selected_leaderboard.slug}
+                    class="input input-bordered opacity-60"
+                    disabled
+                  />
+                  <label class="label">
+                    <span class="label-text-alt text-base-content/50">
+                      Slug cannot be changed after creation
+                    </span>
+                  </label>
+                </div>
               <% end %>
               <.input field={@form[:title]} type="text" label="Title" />
               <.input field={@form[:description]} type="textarea" label="Description" />
@@ -382,8 +411,31 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
      |> assign(:form, form)}
   end
 
+  def handle_event("new_season_from", %{"id" => id}, socket) do
+    # Load the existing leaderboard to copy settings from
+    source = Leaderboards.get_leaderboard!(String.to_integer(id))
+
+    # Create a new leaderboard struct with copied settings
+    new_leaderboard = %Leaderboard{
+      slug: source.slug,
+      title: source.title,
+      description: source.description,
+      sort_order: source.sort_order,
+      operator: source.operator,
+      metadata: source.metadata
+    }
+
+    changeset = Leaderboards.change_leaderboard(new_leaderboard)
+    form = to_form(changeset, as: "leaderboard")
+
+    {:noreply,
+     socket
+     |> assign(:selected_leaderboard, nil)
+     |> assign(:form, form)}
+  end
+
   def handle_event("edit_leaderboard", %{"id" => id}, socket) do
-    leaderboard = Leaderboards.get_leaderboard!(id)
+    leaderboard = Leaderboards.get_leaderboard!(String.to_integer(id))
     changeset = Leaderboards.change_leaderboard(leaderboard)
     form = to_form(changeset, as: "leaderboard")
 
@@ -434,7 +486,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
   end
 
   def handle_event("end_leaderboard", %{"id" => id}, socket) do
-    case Leaderboards.end_leaderboard(id) do
+    case Leaderboards.end_leaderboard(String.to_integer(id)) do
       {:ok, _lb} ->
         {:noreply,
          socket
@@ -447,7 +499,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
   end
 
   def handle_event("delete_leaderboard", %{"id" => id}, socket) do
-    lb = Leaderboards.get_leaderboard!(id)
+    lb = Leaderboards.get_leaderboard!(String.to_integer(id))
 
     case Leaderboards.delete_leaderboard(lb) do
       {:ok, _} ->
@@ -463,7 +515,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
 
   # Records
   def handle_event("view_records", %{"id" => id}, socket) do
-    leaderboard = Leaderboards.get_leaderboard!(id)
+    leaderboard = Leaderboards.get_leaderboard!(String.to_integer(id))
 
     {:noreply,
      socket

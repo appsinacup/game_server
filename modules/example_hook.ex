@@ -16,17 +16,13 @@ defmodule GameServer.Modules.ExampleHook do
   @impl true
   def after_startup do
     # Create default leaderboard (ignores error if already exists)
-    IO.puts("[ExampleHook] after_startup called - creating default leaderboard")
+    Leaderboards.create_leaderboard(%{
+      slug: "login_count",
+      title: "Login Count",
+      sort_order: "desc",
+      operator: "incr"
+    })
 
-    result =
-      Leaderboards.create_leaderboard(%{
-        id: "login_count",
-        title: "Login Count",
-        sort_order: "desc",
-        operator: "incr"
-      })
-
-    IO.puts("[ExampleHook] create_leaderboard result: #{inspect(result)}")
     :ok
   end
 
