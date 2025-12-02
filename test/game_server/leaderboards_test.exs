@@ -278,7 +278,7 @@ defmodule GameServer.LeaderboardsTest do
       result = Leaderboards.list_records_around_user(lb.id, target_user.id, limit: 5)
 
       # Should get up to 5 records centered around the user
-      assert length(result) > 0
+      refute Enum.empty?(result)
       # The user should be in the result
       assert Enum.any?(result, fn r -> r.user_id == target_user.id end)
     end

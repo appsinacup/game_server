@@ -92,16 +92,20 @@ defmodule GameServerWeb.UserAuth do
   end
 
   defp ensure_user_token(conn) do
-    if token = get_session(conn, :user_token) do
-      {token, conn}
-    else
-      conn = fetch_cookies(conn, signed: [@remember_me_cookie])
+    case get_session(conn, :user_token) do
+      nil ->
+        conn = fetch_cookies(conn, signed: [@remember_me_cookie])
 
-      if token = conn.cookies[@remember_me_cookie] do
-        {token, conn |> put_token_in_session(token) |> put_session(:user_remember_me, true)}
-      else
-        nil
-      end
+        case conn.cookies[@remember_me_cookie] do
+          nil ->
+            nil
+
+          token ->
+            {token, conn |> put_token_in_session(token) |> put_session(:user_remember_me, true)}
+        end
+
+      token ->
+        {token, conn}
     end
   end
 
