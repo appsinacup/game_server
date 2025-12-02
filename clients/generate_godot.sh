@@ -100,6 +100,12 @@ find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/Li
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/ListFriendRequests200ResponseIncomingInner_requester/ListFriendRequests200ResponseIncomingInnerRequester/g" -i
 # Replace refresh_token_200_response_data with RefreshToken200ResponseData
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/refresh_token_200_response_data/RefreshToken200ResponseData/g" -i
+# Replace list_leaderboard_records_200_response_meta with ListLeaderboardRecords200ResponseMeta
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_leaderboard_records_200_response_meta/ListLeaderboardRecords200ResponseMeta/g" -i
+# Replace list_leaderboard_records_200_response_data_inner with ListLeaderboardRecords200ResponseDataInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_leaderboard_records_200_response_data_inner/ListLeaderboardRecords200ResponseDataInner/g" -i
+# Replace list_leaderboards_200_response_data_inner with ListLeaderboards200ResponseDataInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_leaderboards_200_response_data_inner/ListLeaderboards200ResponseDataInner/g" -i
 echo "Post-processing complete."
 
 # If APP_VERSION is set (CI), stamp it into the gamend_template so the
