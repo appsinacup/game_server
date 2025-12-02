@@ -105,6 +105,9 @@ defmodule GameServerWeb.Layouts do
             </li>
           <% end %>
           <li>
+            <.link href={~p"/leaderboards"} class="btn btn-outline">Leaderboards</.link>
+          </li>
+          <li>
             <.theme_toggle />
           </li>
         </ul>
@@ -146,6 +149,7 @@ defmodule GameServerWeb.Layouts do
                   <a href={~p"/users/log-out"} method="delete" class="btn btn-outline">Log out</a>
                 </li>
               <% else %>
+                <li><a href={~p"/leaderboards"} class="btn btn-outline">Leaderboards</a></li>
                 <li><a href={~p"/users/log-in"} class="btn btn-outline">Log in</a></li>
                 <li><a href={~p"/users/register"} class="btn btn-outline">Register</a></li>
                 <li><a href={~p"/lobbies"} class="btn btn-outline">Lobbies</a></li>

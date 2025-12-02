@@ -355,6 +355,57 @@ lobbyChannel.on('host_changed', ({ new_host_id }) => console.log('Host changed',
           </div>
         </div>
       </div>
+
+      <div class="step">
+        <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+          <span class="badge badge-primary">8</span> Leaderboards
+        </h3>
+        <div class="ml-8 space-y-3">
+          <p>
+            Display leaderboards and player rankings (read-only from client, scores are submitted server-side):
+          </p>
+
+          <h4 class="font-semibold">List Leaderboards</h4>
+          <div class="bg-base-200 p-4 rounded-lg">
+            <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>const { LeaderboardsApi } = require('@ughuuu/game_server');
+const leaderboardsApi = new LeaderboardsApi(apiClient);
+
+// List all leaderboards (paginated)
+const leaderboards = await leaderboardsApi.listLeaderboards({ page: 1, pageSize: 25 });
+console.log('Leaderboards:', leaderboards.data);
+
+// Filter to only active leaderboards
+const activeOnly = await leaderboardsApi.listLeaderboards({ active: true });</code></pre>
+          </div>
+
+          <h4 class="font-semibold mt-4">Get Leaderboard Records</h4>
+          <div class="bg-base-200 p-4 rounded-lg">
+            <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>// Get top records for a leaderboard
+const records = await leaderboardsApi.getLeaderboardRecords('weekly_score_2024_w48', {
+  page: 1,
+  pageSize: 25
+});
+console.log('Top players:', records.data);
+// Each record includes: rank, user_id, display_name, score, metadata
+
+// Get records around a specific user (for context)
+const aroundMe = await leaderboardsApi.getRecordsAroundUser('weekly_score_2024_w48', userId, {
+  limit: 5
+});
+console.log('Players around me:', aroundMe.data);</code></pre>
+          </div>
+
+          <h4 class="font-semibold mt-4">Get My Record (requires auth)</h4>
+          <div class="bg-base-200 p-4 rounded-lg">
+            <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>// Get current user's record with rank
+const myRecord = await leaderboardsApi.getMyRecord('weekly_score_2024_w48');
+if (myRecord.data) {
+  console.log('My rank:', myRecord.data.rank);
+  console.log('My score:', myRecord.data.score);
+}</code></pre>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

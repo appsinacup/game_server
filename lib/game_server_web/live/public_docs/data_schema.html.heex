@@ -105,6 +105,33 @@
     )</pre>
       </div>
 
+      <h4 class="font-semibold mt-3">Leaderboards</h4>
+      <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+        <pre>
+    leaderboards (
+      id          : string (primary key, e.g. "weekly_score_2024_w48")
+      title       : string (display name)
+      description : text (optional)
+      sort_order  : enum (asc, desc) - default: desc
+      operator    : enum (set, best, incr, decr) - default: best
+      starts_at   : utc_datetime (optional)
+      ends_at     : utc_datetime (optional, null = active)
+      metadata    : jsonb (optional)
+      inserted_at : utc_datetime
+      updated_at  : utc_datetime
+    )
+
+    leaderboard_records (
+      id             : bigint (primary key)
+      leaderboard_id : string (FK to leaderboards)
+      user_id        : bigint (FK to users)
+      score          : bigint
+      metadata       : jsonb (optional)
+      inserted_at    : utc_datetime
+      updated_at     : utc_datetime
+    )</pre>
+      </div>
+
       <h3 class="font-semibold mt-2">Notes / behavior</h3>
       <ul class="list-disc pl-6 text-sm space-y-1 text-base-content/80">
         <li>

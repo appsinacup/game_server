@@ -68,6 +68,12 @@ defmodule GameServerWeb.Router do
     post "/refresh", SessionController, :refresh
     delete "/logout", SessionController, :delete
     get "/lobbies", LobbyController, :index
+
+    # Leaderboards (public read)
+    get "/leaderboards", LeaderboardController, :index
+    get "/leaderboards/:id", LeaderboardController, :show
+    get "/leaderboards/:id/records", LeaderboardController, :records
+    get "/leaderboards/:id/records/around/:user_id", LeaderboardController, :around
   end
 
   # Protected API routes - require JWT authentication
@@ -98,6 +104,8 @@ defmodule GameServerWeb.Router do
     # Hooks API - list available hook functions and call them
     get "/hooks", HookController, :index
     post "/hooks/call", HookController, :invoke
+    # Leaderboards (authenticated)
+    get "/leaderboards/:id/records/me", LeaderboardController, :me
   end
 
   # API OAuth routes
@@ -140,6 +148,7 @@ defmodule GameServerWeb.Router do
       live "/admin", AdminLive.Index, :index
       live "/admin/config", AdminLive.Config, :index
       live "/admin/lobbies", AdminLive.Lobbies, :index
+      live "/admin/leaderboards", AdminLive.Leaderboards, :index
       live "/admin/users", AdminLive.Users, :index
       live "/admin/sessions", AdminLive.Sessions, :index
     end
@@ -170,6 +179,8 @@ defmodule GameServerWeb.Router do
       ] do
       live "/users/register", UserLive.Registration, :new
       live "/lobbies", LobbyLive.Index, :index
+      live "/leaderboards", LeaderboardsLive, :index
+      live "/leaderboards/:id", LeaderboardsLive, :show
       live "/users/log-in", UserLive.Login, :new
       live "/users/log-in/:token", UserLive.Confirmation, :new
       get "/users/confirm/:token", UserSessionController, :confirm
