@@ -18,6 +18,8 @@ defmodule GameServer.Hooks do
 
   @type hook_result(attrs_or_user) :: {:ok, attrs_or_user} | {:error, term()}
 
+  @callback after_startup() :: any()
+
   @callback after_user_register(User.t()) :: any()
 
   @callback after_user_login(User.t()) :: any()
@@ -371,6 +373,7 @@ defmodule GameServer.Hooks do
     # set of callback names considered internal/lifecycle hooks and not
     # callable through the public `call/3` interface.
     MapSet.new([
+      :after_startup,
       :after_user_register,
       :after_user_login,
       :before_lobby_create,
@@ -717,6 +720,9 @@ end
 defmodule GameServer.Hooks.Default do
   @moduledoc "Default no-op implementation for GameServer.Hooks"
   @behaviour GameServer.Hooks
+
+  @impl true
+  def after_startup, do: :ok
 
   @impl true
   def after_user_register(_user), do: :ok

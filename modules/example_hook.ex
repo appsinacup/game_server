@@ -11,6 +11,24 @@ defmodule GameServer.Modules.ExampleHook do
   @behaviour GameServer.Hooks
 
   alias GameServer.Accounts
+  alias GameServer.Leaderboards
+
+  @impl true
+  def after_startup do
+    # Create default leaderboard (ignores error if already exists)
+    IO.puts("[ExampleHook] after_startup called - creating default leaderboard")
+
+    result =
+      Leaderboards.create_leaderboard(%{
+        id: "login_count",
+        title: "Login Count",
+        sort_order: "desc",
+        operator: "incr"
+      })
+
+    IO.puts("[ExampleHook] create_leaderboard result: #{inspect(result)}")
+    :ok
+  end
 
   @impl true
   def after_user_register(user) do
@@ -25,15 +43,8 @@ defmodule GameServer.Modules.ExampleHook do
 
   @impl true
   def after_user_login(user) do
-    # Update user metadata with a last_login timestamp and bump login counter
-    meta =
-      (user.metadata || %{})
-      |> Map.put("last_login_at", DateTime.utc_now() |> DateTime.to_iso8601())
-      |> Map.update("login_count", 1, &(&1 + 1))
-
-    Accounts.update_user(user, %{metadata: meta})
-
-    IO.puts("[ExampleHook] after_user_login called for user=#{user.id}")
+    # Increment login count on leaderboard
+    Leaderboards.submit_score("login_count", user.id, 1)
 
     :ok
   end

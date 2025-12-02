@@ -158,6 +158,8 @@ defmodule GameServer.Hooks.Watcher do
           case GameServer.Hooks.register_file(path) do
             {:ok, mod} ->
               Logger.info("Hooks watcher: registered #{inspect(mod)} from #{path}")
+              # Call after_startup hook now that the custom hooks module is loaded
+              GameServer.Hooks.internal_call(:after_startup, [])
               {:noreply, %{state | mtime: mtime}}
 
             {:error, reason} ->
