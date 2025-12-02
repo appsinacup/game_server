@@ -5,10 +5,10 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.1">
-    <meta name="project" content="game_server v1.0.320">
+    <meta name="project" content="game_server v1.0.321">
 
 
-    <title>GameServer.Types — game_server v1.0.320</title>
+    <title>GameServer.Types — game_server v1.0.321</title>
 
     <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
 
@@ -37,7 +37,7 @@
 game_server
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.320
+          v1.0.321
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.Types</span> 
-      <small class="app-vsn" translate="no">(game_server v1.0.320)</small>
+      <small class="app-vsn" translate="no">(game_server v1.0.321)</small>
 
     </h1>
 
@@ -253,13 +253,13 @@ patterns like pagination options and entity attributes.</p>
 
       </div>
 
-<p>Attributes for creating a new leaderboard.</p><h2 id="t:leaderboard_create_attrs/0-fields" class="section-heading"><a href="#t:leaderboard_create_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:id</code> - Unique string identifier (required, 1-100 chars)</li><li><code class="inline">:title</code> - Display title (required, 1-255 chars)</li><li><code class="inline">:description</code> - Optional description</li><li><code class="inline">:sort_order</code> - <code class="inline">:desc</code> (higher is better) or <code class="inline">:asc</code> (lower is better). Default: <code class="inline">:desc</code></li><li><code class="inline">:operator</code> - How scores are combined:<ul><li><code class="inline">:set</code> - Always replace with new score</li><li><code class="inline">:best</code> - Only update if new score is better (default)</li><li><code class="inline">:incr</code> - Add to existing score</li><li><code class="inline">:decr</code> - Subtract from existing score</li></ul></li><li><code class="inline">:starts_at</code> - Optional start time (UTC)</li><li><code class="inline">:ends_at</code> - Optional end time (UTC)</li><li><code class="inline">:metadata</code> - Arbitrary key-value data</li></ul><h2 id="t:leaderboard_create_attrs/0-example" class="section-heading"><a href="#t:leaderboard_create_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">create_leaderboard</span><span class="p" data-group-id="2346140189-1">(</span><span class="p" data-group-id="2346140189-2">%{</span><span class="w">
+<p>Attributes for creating a new leaderboard.</p><h2 id="t:leaderboard_create_attrs/0-fields" class="section-heading"><a href="#t:leaderboard_create_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:id</code> - Unique string identifier (required, 1-100 chars)</li><li><code class="inline">:title</code> - Display title (required, 1-255 chars)</li><li><code class="inline">:description</code> - Optional description</li><li><code class="inline">:sort_order</code> - <code class="inline">:desc</code> (higher is better) or <code class="inline">:asc</code> (lower is better). Default: <code class="inline">:desc</code></li><li><code class="inline">:operator</code> - How scores are combined:<ul><li><code class="inline">:set</code> - Always replace with new score</li><li><code class="inline">:best</code> - Only update if new score is better (default)</li><li><code class="inline">:incr</code> - Add to existing score</li><li><code class="inline">:decr</code> - Subtract from existing score</li></ul></li><li><code class="inline">:starts_at</code> - Optional start time (UTC)</li><li><code class="inline">:ends_at</code> - Optional end time (UTC)</li><li><code class="inline">:metadata</code> - Arbitrary key-value data</li></ul><h2 id="t:leaderboard_create_attrs/0-example" class="section-heading"><a href="#t:leaderboard_create_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">create_leaderboard</span><span class="p" data-group-id="9370086946-1">(</span><span class="p" data-group-id="9370086946-2">%{</span><span class="w">
   </span><span class="ss">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;weekly_kills_w49&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Weekly Kills - Week 49&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">sort_order</span><span class="p">:</span><span class="w"> </span><span class="ss">:desc</span><span class="p">,</span><span class="w">
   </span><span class="ss">operator</span><span class="p">:</span><span class="w"> </span><span class="ss">:incr</span><span class="p">,</span><span class="w">
   </span><span class="ss">ends_at</span><span class="p">:</span><span class="w"> </span><span class="ld">~U[2024-12-08 00:00:00Z]</span><span class="w">
-</span><span class="p" data-group-id="2346140189-2">}</span><span class="p" data-group-id="2346140189-1">)</span></code></pre>
+</span><span class="p" data-group-id="9370086946-2">}</span><span class="p" data-group-id="9370086946-1">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="t:leaderboard_update_attrs/0">
@@ -293,10 +293,10 @@ patterns like pagination options and entity attributes.</p>
 
       </div>
 
-<p>Attributes for updating an existing leaderboard.</p><p>Note: <code class="inline">id</code>, <code class="inline">sort_order</code>, and <code class="inline">operator</code> cannot be changed after creation.</p><h2 id="t:leaderboard_update_attrs/0-fields" class="section-heading"><a href="#t:leaderboard_update_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:title</code> - Display title (1-255 chars)</li><li><code class="inline">:description</code> - Description text</li><li><code class="inline">:starts_at</code> - Start time (UTC)</li><li><code class="inline">:ends_at</code> - End time (UTC)</li><li><code class="inline">:metadata</code> - Arbitrary key-value data</li></ul><h2 id="t:leaderboard_update_attrs/0-example" class="section-heading"><a href="#t:leaderboard_update_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">update_leaderboard</span><span class="p" data-group-id="9858863031-1">(</span><span class="n">leaderboard</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9858863031-2">%{</span><span class="w">
+<p>Attributes for updating an existing leaderboard.</p><p>Note: <code class="inline">id</code>, <code class="inline">sort_order</code>, and <code class="inline">operator</code> cannot be changed after creation.</p><h2 id="t:leaderboard_update_attrs/0-fields" class="section-heading"><a href="#t:leaderboard_update_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:title</code> - Display title (1-255 chars)</li><li><code class="inline">:description</code> - Description text</li><li><code class="inline">:starts_at</code> - Start time (UTC)</li><li><code class="inline">:ends_at</code> - End time (UTC)</li><li><code class="inline">:metadata</code> - Arbitrary key-value data</li></ul><h2 id="t:leaderboard_update_attrs/0-example" class="section-heading"><a href="#t:leaderboard_update_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">update_leaderboard</span><span class="p" data-group-id="8267630343-1">(</span><span class="n">leaderboard</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="8267630343-2">%{</span><span class="w">
   </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Updated Title&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">ends_at</span><span class="p">:</span><span class="w"> </span><span class="ld">~U[2024-12-15 00:00:00Z]</span><span class="w">
-</span><span class="p" data-group-id="9858863031-2">}</span><span class="p" data-group-id="9858863031-1">)</span></code></pre>
+</span><span class="p" data-group-id="8267630343-2">}</span><span class="p" data-group-id="8267630343-1">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="t:lobby_create_attrs/0">
@@ -333,12 +333,12 @@ patterns like pagination options and entity attributes.</p>
 
       </div>
 
-<p>Attributes for creating a new lobby.</p><h2 id="t:lobby_create_attrs/0-fields" class="section-heading"><a href="#t:lobby_create_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:name</code> - Unique identifier/slug (required)</li><li><code class="inline">:title</code> - Display title (required)</li><li><code class="inline">:max_users</code> - Maximum number of users allowed (default: 10)</li><li><code class="inline">:is_hidden</code> - Whether lobby is hidden from public lists (default: false)</li><li><code class="inline">:is_locked</code> - Whether lobby is locked from new joins (default: false)</li><li><code class="inline">:password</code> - Optional password for protected lobbies</li><li><code class="inline">:hostless</code> - Whether lobby can exist without a host (default: false)</li><li><code class="inline">:metadata</code> - Arbitrary key-value data</li></ul><h2 id="t:lobby_create_attrs/0-example" class="section-heading"><a href="#t:lobby_create_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">create_lobby</span><span class="p" data-group-id="2123064244-1">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="2123064244-2">%{</span><span class="w">
+<p>Attributes for creating a new lobby.</p><h2 id="t:lobby_create_attrs/0-fields" class="section-heading"><a href="#t:lobby_create_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:name</code> - Unique identifier/slug (required)</li><li><code class="inline">:title</code> - Display title (required)</li><li><code class="inline">:max_users</code> - Maximum number of users allowed (default: 10)</li><li><code class="inline">:is_hidden</code> - Whether lobby is hidden from public lists (default: false)</li><li><code class="inline">:is_locked</code> - Whether lobby is locked from new joins (default: false)</li><li><code class="inline">:password</code> - Optional password for protected lobbies</li><li><code class="inline">:hostless</code> - Whether lobby can exist without a host (default: false)</li><li><code class="inline">:metadata</code> - Arbitrary key-value data</li></ul><h2 id="t:lobby_create_attrs/0-example" class="section-heading"><a href="#t:lobby_create_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">create_lobby</span><span class="p" data-group-id="1442907976-1">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="1442907976-2">%{</span><span class="w">
   </span><span class="ss">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;my-game-room&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;My Game Room&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">max_users</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">
   </span><span class="ss">password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;secret&quot;</span><span class="w">
-</span><span class="p" data-group-id="2123064244-2">}</span><span class="p" data-group-id="2123064244-1">)</span></code></pre>
+</span><span class="p" data-group-id="1442907976-2">}</span><span class="p" data-group-id="1442907976-1">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="t:lobby_list_opts/0">
@@ -371,10 +371,10 @@ patterns like pagination options and entity attributes.</p>
       </div>
 
 <p>Lobby listing options for filtering and pagination.</p><h2 id="t:lobby_list_opts/0-options" class="section-heading"><a href="#t:lobby_list_opts/0-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:page</code> - The page number (1-indexed). Defaults to <code class="inline">nil</code> (returns all).</li><li><code class="inline">:page_size</code> - Number of items per page. Defaults to <code class="inline">25</code>.</li><li><code class="inline">:include_hidden</code> - Include hidden lobbies in results. Defaults to <code class="inline">false</code>.</li></ul><h2 id="t:lobby_list_opts/0-example" class="section-heading"><a href="#t:lobby_list_opts/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># List all visible lobbies</span><span class="w">
-</span><span class="n">list_lobbies</span><span class="p" data-group-id="3346307676-1">(</span><span class="p" data-group-id="3346307676-2">[</span><span class="p" data-group-id="3346307676-2">]</span><span class="p" data-group-id="3346307676-1">)</span><span class="w">
+</span><span class="n">list_lobbies</span><span class="p" data-group-id="8502515894-1">(</span><span class="p" data-group-id="8502515894-2">[</span><span class="p" data-group-id="8502515894-2">]</span><span class="p" data-group-id="8502515894-1">)</span><span class="w">
 
 </span><span class="c1"># List page 1 including hidden lobbies</span><span class="w">
-</span><span class="n">list_lobbies</span><span class="p" data-group-id="3346307676-3">(</span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">include_hidden</span><span class="p">:</span><span class="w"> </span><span class="no">true</span><span class="p" data-group-id="3346307676-3">)</span></code></pre>
+</span><span class="n">list_lobbies</span><span class="p" data-group-id="8502515894-3">(</span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">include_hidden</span><span class="p">:</span><span class="w"> </span><span class="no">true</span><span class="p" data-group-id="8502515894-3">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="t:lobby_update_attrs/0">
@@ -409,10 +409,10 @@ patterns like pagination options and entity attributes.</p>
 
       </div>
 
-<p>Attributes for updating an existing lobby.</p><h2 id="t:lobby_update_attrs/0-fields" class="section-heading"><a href="#t:lobby_update_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:title</code> - Display title</li><li><code class="inline">:max_users</code> - Maximum number of users allowed</li><li><code class="inline">:is_hidden</code> - Whether lobby is hidden from public lists</li><li><code class="inline">:is_locked</code> - Whether lobby is locked from new joins</li><li><code class="inline">:password</code> - Password for protected lobbies (set to nil to remove)</li><li><code class="inline">:metadata</code> - Arbitrary key-value data</li></ul><h2 id="t:lobby_update_attrs/0-example" class="section-heading"><a href="#t:lobby_update_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">update_lobby</span><span class="p" data-group-id="3455419762-1">(</span><span class="n">lobby</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3455419762-2">%{</span><span class="w">
+<p>Attributes for updating an existing lobby.</p><h2 id="t:lobby_update_attrs/0-fields" class="section-heading"><a href="#t:lobby_update_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:title</code> - Display title</li><li><code class="inline">:max_users</code> - Maximum number of users allowed</li><li><code class="inline">:is_hidden</code> - Whether lobby is hidden from public lists</li><li><code class="inline">:is_locked</code> - Whether lobby is locked from new joins</li><li><code class="inline">:password</code> - Password for protected lobbies (set to nil to remove)</li><li><code class="inline">:metadata</code> - Arbitrary key-value data</li></ul><h2 id="t:lobby_update_attrs/0-example" class="section-heading"><a href="#t:lobby_update_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">update_lobby</span><span class="p" data-group-id="9096237138-1">(</span><span class="n">lobby</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9096237138-2">%{</span><span class="w">
   </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;New Title&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">is_locked</span><span class="p">:</span><span class="w"> </span><span class="no">true</span><span class="w">
-</span><span class="p" data-group-id="3455419762-2">}</span><span class="p" data-group-id="3455419762-1">)</span></code></pre>
+</span><span class="p" data-group-id="9096237138-2">}</span><span class="p" data-group-id="9096237138-1">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="t:pagination_opts/0">
@@ -441,10 +441,10 @@ patterns like pagination options and entity attributes.</p>
       </div>
 
 <p>Pagination options for list queries.</p><h2 id="t:pagination_opts/0-options" class="section-heading"><a href="#t:pagination_opts/0-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:page</code> - The page number (1-indexed). Defaults to <code class="inline">1</code>.</li><li><code class="inline">:page_size</code> - Number of items per page. Defaults to <code class="inline">25</code>.</li></ul><h2 id="t:pagination_opts/0-example" class="section-heading"><a href="#t:pagination_opts/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># Get the first page with default size</span><span class="w">
-</span><span class="n">list_users</span><span class="p" data-group-id="1578497571-1">(</span><span class="p" data-group-id="1578497571-2">[</span><span class="p" data-group-id="1578497571-2">]</span><span class="p" data-group-id="1578497571-1">)</span><span class="w">
+</span><span class="n">list_users</span><span class="p" data-group-id="5118526831-1">(</span><span class="p" data-group-id="5118526831-2">[</span><span class="p" data-group-id="5118526831-2">]</span><span class="p" data-group-id="5118526831-1">)</span><span class="w">
 
 </span><span class="c1"># Get page 2 with 50 items per page</span><span class="w">
-</span><span class="n">list_users</span><span class="p" data-group-id="1578497571-3">(</span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p" data-group-id="1578497571-3">)</span></code></pre>
+</span><span class="n">list_users</span><span class="p" data-group-id="5118526831-3">(</span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p" data-group-id="5118526831-3">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="t:user_registration_attrs/0">
@@ -477,11 +477,11 @@ patterns like pagination options and entity attributes.</p>
 
       </div>
 
-<p>Attributes for registering a new user.</p><h2 id="t:user_registration_attrs/0-fields" class="section-heading"><a href="#t:user_registration_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:email</code> - User's email address (required for email registration)</li><li><code class="inline">:password</code> - User's password (required for email registration, min 8 chars)</li><li><code class="inline">:display_name</code> - Optional display name</li><li><code class="inline">:device_id</code> - Optional device ID for anonymous auth</li></ul><h2 id="t:user_registration_attrs/0-example" class="section-heading"><a href="#t:user_registration_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">register_user</span><span class="p" data-group-id="8741173215-1">(</span><span class="p" data-group-id="8741173215-2">%{</span><span class="w">
+<p>Attributes for registering a new user.</p><h2 id="t:user_registration_attrs/0-fields" class="section-heading"><a href="#t:user_registration_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:email</code> - User's email address (required for email registration)</li><li><code class="inline">:password</code> - User's password (required for email registration, min 8 chars)</li><li><code class="inline">:display_name</code> - Optional display name</li><li><code class="inline">:device_id</code> - Optional device ID for anonymous auth</li></ul><h2 id="t:user_registration_attrs/0-example" class="section-heading"><a href="#t:user_registration_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">register_user</span><span class="p" data-group-id="1359879404-1">(</span><span class="p" data-group-id="1359879404-2">%{</span><span class="w">
   </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;secret123&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">display_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Player One&quot;</span><span class="w">
-</span><span class="p" data-group-id="8741173215-2">}</span><span class="p" data-group-id="8741173215-1">)</span></code></pre>
+</span><span class="p" data-group-id="1359879404-2">}</span><span class="p" data-group-id="1359879404-1">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="t:user_update_attrs/0">
@@ -513,10 +513,10 @@ patterns like pagination options and entity attributes.</p>
 
       </div>
 
-<p>Attributes for updating an existing user.</p><h2 id="t:user_update_attrs/0-fields" class="section-heading"><a href="#t:user_update_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:display_name</code> - User's display name</li><li><code class="inline">:metadata</code> - Arbitrary key-value data stored with the user</li><li><code class="inline">:is_admin</code> - Whether the user has admin privileges</li></ul><h2 id="t:user_update_attrs/0-example" class="section-heading"><a href="#t:user_update_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">update_user</span><span class="p" data-group-id="9894358148-1">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9894358148-2">%{</span><span class="w">
+<p>Attributes for updating an existing user.</p><h2 id="t:user_update_attrs/0-fields" class="section-heading"><a href="#t:user_update_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:display_name</code> - User's display name</li><li><code class="inline">:metadata</code> - Arbitrary key-value data stored with the user</li><li><code class="inline">:is_admin</code> - Whether the user has admin privileges</li></ul><h2 id="t:user_update_attrs/0-example" class="section-heading"><a href="#t:user_update_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">update_user</span><span class="p" data-group-id="4294363174-1">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="4294363174-2">%{</span><span class="w">
   </span><span class="ss">display_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;New Name&quot;</span><span class="p">,</span><span class="w">
-  </span><span class="ss">metadata</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="9894358148-3">%{</span><span class="ss">level</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">xp</span><span class="p">:</span><span class="w"> </span><span class="mi">1200</span><span class="p" data-group-id="9894358148-3">}</span><span class="w">
-</span><span class="p" data-group-id="9894358148-2">}</span><span class="p" data-group-id="9894358148-1">)</span></code></pre>
+  </span><span class="ss">metadata</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="4294363174-3">%{</span><span class="ss">level</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">xp</span><span class="p">:</span><span class="w"> </span><span class="mi">1200</span><span class="p" data-group-id="4294363174-3">}</span><span class="w">
+</span><span class="p" data-group-id="4294363174-2">}</span><span class="p" data-group-id="4294363174-1">)</span></code></pre>
   </section>
 </section>
 
