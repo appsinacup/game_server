@@ -47,6 +47,6 @@ clients/javascript/
 clients/node_modules/
 clients/godot/
 clients/addons/
-godot_addons/
+godot_addons/addons/gamend/
 stress/results/
 clients/gamend/
