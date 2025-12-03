@@ -3,6 +3,7 @@ defmodule GameServer.Accounts do
   The Accounts context.
   
   ## Usage
+  
       # Lookup by id or email
       user = GameServer.Accounts.get_user(123)
       user = GameServer.Accounts.get_user_by_email("me@example.com")
