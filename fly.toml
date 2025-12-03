@@ -17,6 +17,18 @@ primary_region = "ams"
   max_machines_running = 1
   processes = ["app"]
 
+  [http_service.concurrency]
+    type = "connections"
+    hard_limit = 1000
+    soft_limit = 500
+
+  [[http_service.checks]]
+    interval = "15s"
+    timeout = "5s"
+    grace_period = "30s"
+    method = "GET"
+    path = "/api/v1/health"
+
 [[vm]]
   size = "shared-cpu-1x"
 
