@@ -15,7 +15,7 @@ var _leaderboards: LeaderboardsApi
 var _hooks: HooksApi
 var _config := ApiApiConfigClient.new()
 var _realtime: GamendRealtime
-var enable_logs := false
+@export var enable_logs := true
 
 const PROVIDER_DISCORD = "discord"
 const PROVIDER_APPLE = "apple"
@@ -59,6 +59,9 @@ func _call_api(api: ApiApiBeeClient, method_name: String, params: Array = []) ->
 	params.append_array(callables)
 	api.callv(method_name, params)
 	return result
+
+func is_authenticated():
+	return _access_token != ""
 
 func _verify_login_result(method_name: String, data):
 	if data && method_name in ["oauth_session_status", "oauth_api_callback", "login", "device_login", "refresh_token"]:
