@@ -412,39 +412,3 @@ jobs:
           publish_dir: ./doc
           # keep history to allow diffs in gh-pages
           publish_branch: gh-pages
-
-  update-fly-version:
-    name: Update Fly.io CLI version
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Compute version
-        id: version
-        run: |
-          git config --global --add safe.directory $GITHUB_WORKSPACE || true
-          git fetch --prune --unshallow || true
-          COMMIT_COUNT=$(git rev-list --count HEAD)
-          # Build a simple semver style version used on CI: 1.0.<commit_count>
-          VERSION="1.0.${COMMIT_COUNT}"
-          echo "Generated version=${VERSION}"
-
-          # Export for remaining steps in this job
-          echo "APP_VERSION=${VERSION}" >> $GITHUB_ENV
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
-      # set up the fly CLI
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-
-
-      # set the APP_VERSION secret for Fly using the computed version
-      - name: Set APP_VERSION secret on Fly
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-        run: |
-          flyctl secrets set APP_VERSION=${{ steps.version.outputs.version }} --app game-server-uro
-          flyctl secrets sync --app game-server-uro
-          flyctl secrets deploy --app game-server-uro

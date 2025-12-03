@@ -2,7 +2,7 @@ app = "game-server-uro"
 primary_region = "ams"
 
 [build]
-  dockerfile = "Dockerfile"
+  image = "ghcr.io/appsinacup/game_server:latest"
 
 [env]
   PORT = "4000"
