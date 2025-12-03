@@ -168,12 +168,12 @@ defmodule GameServerWeb.Api.V1.SessionController do
     description: "Invalidate user session token",
     parameters: [],
     responses: [
-      no_content: {"Logout successful", "application/json", nil}
+      ok: {"Logout successful", "application/json", %Schema{type: :object}}
     ]
   )
 
   def delete(conn, _params) do
-    send_resp(conn, :no_content, "")
+    json(conn, %{})
   end
 
   operation(:refresh,

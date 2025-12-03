@@ -299,8 +299,8 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
       |> put_req_header("authorization", "Bearer " <> token_host)
       |> post("/api/v1/lobbies/kick", %{target_user_id: other.id})
 
-    # kick returns 204 No Content now
-    assert conn.status == 204
+    # kick returns 200 with empty object now
+    assert conn.status == 200
 
     reloaded = GameServer.Repo.get(User, other.id)
     assert is_nil(reloaded.lobby_id)
@@ -369,8 +369,8 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
       |> put_req_header("authorization", "Bearer " <> token_host)
       |> post("/api/v1/lobbies/kick", %{target_user_id: other.id})
 
-    # kick returns 204 No Content now and uses host's lobby, not path id
-    assert conn.status == 204
+    # kick returns 200 with empty object now and uses host's lobby, not path id
+    assert conn.status == 200
 
     reloaded = GameServer.Repo.get(User, other.id)
     assert is_nil(reloaded.lobby_id)
@@ -389,8 +389,8 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
       |> put_req_header("authorization", "Bearer " <> token_member)
       |> post("/api/v1/lobbies/leave")
 
-    # leave now returns 204 No Content
-    assert conn.status == 204
+    # leave now returns 200 with empty object
+    assert conn.status == 200
 
     reloaded = GameServer.Repo.get(GameServer.Accounts.User, member.id)
     assert is_nil(reloaded.lobby_id)
@@ -418,7 +418,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
       |> put_req_header("authorization", "Bearer " <> token_member)
       |> post("/api/v1/lobbies/leave")
 
-    assert conn.status == 204
+    assert conn.status == 200
 
     reloaded = GameServer.Repo.get(GameServer.Accounts.User, member.id)
     assert is_nil(reloaded.lobby_id)

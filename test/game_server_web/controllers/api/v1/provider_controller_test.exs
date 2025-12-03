@@ -22,7 +22,7 @@ defmodule GameServerWeb.Api.V1.ProviderControllerTest do
 
       resp = delete(conn, ~p"/api/v1/me/providers/discord")
 
-      assert response(resp, 204)
+      assert response(resp, 200)
       user = Accounts.get_user!(user.id)
       assert user.discord_id == nil
       assert user.google_id == "g1"

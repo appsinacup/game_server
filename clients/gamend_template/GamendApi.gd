@@ -2,7 +2,7 @@
 ##
 ## Game + Backend = Gamend
 class_name GamendApi
-extends Node2D
+extends Node
 
 signal user_updated(user: Dictionary)
 
@@ -11,6 +11,7 @@ var _authenticate: AuthenticationApi
 var _users: UsersApi
 var _friends: FriendsApi
 var _lobbies: LobbiesApi
+var _leaderboards: LeaderboardsApi
 var _hooks: HooksApi
 var _config := ApiApiConfigClient.new()
 var _realtime: GamendRealtime
@@ -38,6 +39,7 @@ func _create_apis():
 	_friends = FriendsApi.new(_config)
 	_lobbies = LobbiesApi.new(_config)
 	_hooks = HooksApi.new(_config)
+	_leaderboards = LeaderboardsApi.new(_config)
 
 func _call_api(api: ApiApiBeeClient, method_name: String, params: Array = []) -> GamendResult:
 	var result = GamendResult.new()
@@ -60,12 +62,13 @@ func _call_api(api: ApiApiBeeClient, method_name: String, params: Array = []) ->
 
 func _verify_login_result(method_name: String, data):
 	if data && method_name in ["oauth_session_status", "oauth_api_callback", "login", "device_login", "refresh_token"]:
-		if data.get("data", {}).get("access_token"):
-			_access_token = data["data"]["access_token"]
-		if data.get("data", {}).get("refresh_token"):
-			_refresh_token = data["data"]["refresh_token"]
-		if data.get("data", {}).get("user_id"):
-			_user_id = data["data"]["user_id"]
+		data = data.bzz_normalize().get("data").bzz_normalize()
+		if data.get("access_token"):
+			_access_token = data["access_token"]
+		if data.get("refresh_token"):
+			_refresh_token = data["refresh_token"]
+		if data.get("user_id"):
+			_user_id = data["user_id"]
 		authorize()
 	if method_name == "logout":
 		_access_token = ""
@@ -76,6 +79,7 @@ func _verify_login_result(method_name: String, data):
 func realtime_start():
 	var result := GamendResult.new()
 	_realtime = GamendRealtime.new(_access_token)
+	_realtime.enable_logs = enable_logs
 	_realtime.socket_opened.connect(func (): if result: result.finished.emit())
 	_realtime.socket_closed.connect(func (): if result: result.finished.emit())
 	_realtime.socket_errored.connect(func (): if result: result.finished.emit())
@@ -136,7 +140,7 @@ func user_update_current_user_password(password: String):
 	return _call_api(_users, "update_current_user_password", [password])
 
 ## Search users by id/email/display_name
-func users_search_users(query = "", page = 0, pageSize = 25):
+func users_search_users(query = "", page = 1, pageSize = 25):
 	return _call_api(_users, "search_users", [query, page, pageSize])
 
 ## Get a user by id
@@ -207,16 +211,16 @@ func friends_unblock_friend(id: int):
 	return _call_api(_friends, "unblock_friend", [id])
 
 ## List users you've blocked
-func friends_list_blocked_friends(page = 0, page_size = 0):
+func friends_list_blocked_friends(page = 1, page_size = 25):
 	_friends.list_blocked_friends()
 	return _call_api(_friends, "list_blocked_friends", [page, page_size])
 
 ## List pending friend requests (incoming and outgoing)
-func friends_list_friend_requests(page = 0, page_size = 0):
+func friends_list_friend_requests(page = 1, page_size = 25):
 	return _call_api(_friends, "list_friend_requests", [page, page_size])
 
 ## List current user's friends (returns a paginated set of user objects)
-func friends_list_friends(page = 0, page_size = 0):
+func friends_list_friends(page = 1, page_size = 25):
 	return _call_api(_friends, "list_friends", [page, page_size])
 
 ### LOBBIES
@@ -253,3 +257,21 @@ func lobbies_quick_join(quick_request: QuickJoinRequest):
 ## Join a lobby
 func lobbies_join_lobby(id: int, join_request: JoinLobbyRequest = null):
 	return _call_api(_lobbies, "join_lobby", [id, join_request])
+
+### LEADERBOARDS
+
+## List leaderboard records
+func leaderboards_list_leaderboard_records(id: int, page = 1, page_size = 25):
+	return _call_api(_leaderboards, "list_leaderboard_records", [id, page, page_size])
+
+## List leaderboards
+func leaderboards_list_leaderboards(slug = "", active = "", order_by = "ends_at", starts_after = null, starts_before = null, ends_after = null, ends_before = null, page = 1, page_size = 25):
+	return _call_api(_leaderboards, "list_leaderboards", [slug, active, order_by, starts_after, starts_before, ends_after, ends_before, page, page_size])
+
+## Get current user's record
+func leaderboards_get_my_record(id: int):
+	return _call_api(_leaderboards, "get_my_record", [id])
+
+## List records around a user
+func leaderboards_list_records_around_user(id: int, user_id: int, limit = 11):
+	return _call_api(_leaderboards, "list_records_around_user", [id, user_id, limit])

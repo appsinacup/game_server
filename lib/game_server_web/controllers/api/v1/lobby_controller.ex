@@ -222,7 +222,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       }
     },
     responses: [
-      no_content: {"Successfully joined", "application/json", nil},
+      ok: {"Successfully joined", "application/json", %Schema{type: :object}},
       forbidden:
         {"Cannot join (locked, full, wrong password, etc)", "application/json",
          %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
@@ -238,7 +238,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
     description: "Leave the lobby you are currently in.",
     security: [%{"authorization" => []}],
     responses: [
-      no_content: {"No content", "application/json", nil},
+      ok: {"Success", "application/json", %Schema{type: :object}},
       bad_request:
         {"Not in a lobby", "application/json",
          %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
@@ -267,7 +267,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       }
     },
     responses: [
-      no_content: {"User kicked", "application/json", nil},
+      ok: {"User kicked", "application/json", %Schema{type: :object}},
       forbidden:
         {"Not the host or cannot kick this user", "application/json",
          %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
@@ -544,7 +544,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
 
           case Lobbies.kick_user(user, lobby, target) do
             {:ok, _} ->
-              send_resp(conn, :no_content, "")
+              json(conn, %{})
 
             {:error, :not_host} ->
               conn |> put_status(:forbidden) |> json(%{error: "not_host"})
@@ -577,7 +577,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
         else
           case Lobbies.leave_lobby(user) do
             {:ok, _} ->
-              send_resp(conn, :no_content, "")
+              json(conn, %{})
 
             {:error, :not_in_lobby} ->
               conn |> put_status(:bad_request) |> json(%{error: "not_in_lobby"})

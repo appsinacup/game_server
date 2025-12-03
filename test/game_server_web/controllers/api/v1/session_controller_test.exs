@@ -161,10 +161,10 @@ defmodule GameServerWeb.Api.V1.SessionControllerTest do
   end
 
   describe "DELETE /api/v1/logout" do
-    test "returns 204 No Content", %{conn: conn} do
+    test "returns 200 with empty object", %{conn: conn} do
       conn = delete(conn, "/api/v1/logout")
 
-      assert response(conn, 204) == ""
+      assert json_response(conn, 200) == %{}
     end
   end
 end

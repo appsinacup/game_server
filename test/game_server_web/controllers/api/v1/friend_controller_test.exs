@@ -42,8 +42,8 @@ defmodule GameServerWeb.Api.V1.FriendControllerTest do
     {:ok, token_b, _} = Guardian.encode_and_sign(b)
     conn_b = conn |> put_req_header("authorization", "Bearer " <> token_b)
     conn_b = post(conn_b, "/api/v1/friends/#{f.id}/accept")
-    # accept returns 204 No Content now
-    assert conn_b.status == 204
+    # accept returns 200 with empty object now
+    assert conn_b.status == 200
 
     # a's friends list should include b
     conn_a2 = conn |> put_req_header("authorization", "Bearer " <> token_a)
@@ -91,8 +91,8 @@ defmodule GameServerWeb.Api.V1.FriendControllerTest do
 
     # cancel as a
     conn_cancel = conn_a |> delete("/api/v1/friends/#{f.id}")
-    # cancel/delete now returns 204 No Content
-    assert conn_cancel.status == 204
+    # cancel/delete now returns 200 with empty object
+    assert conn_cancel.status == 200
 
     # create again and accept
     post(conn_a, "/api/v1/friends", %{target_user_id: b.id})
@@ -109,8 +109,8 @@ defmodule GameServerWeb.Api.V1.FriendControllerTest do
 
     # now either user can delete (remove friend)
     conn_del = conn_a |> delete("/api/v1/friends/#{f2.id}")
-    # successful removal returns 204 No Content
-    assert conn_del.status == 204
+    # successful removal returns 200 with empty object
+    assert conn_del.status == 200
   end
 
   test "unauthenticated actions are rejected", %{conn: conn} do
@@ -230,8 +230,8 @@ defmodule GameServerWeb.Api.V1.FriendControllerTest do
     {:ok, token_b, _} = Guardian.encode_and_sign(b)
     conn_b = put_req_header(conn, "authorization", "Bearer " <> token_b)
     resp = post(conn_b, "/api/v1/friends/#{f.id}/block")
-    # block returns 204 No Content now
-    assert resp.status == 204
+    # block returns 200 with empty object now
+    assert resp.status == 200
 
     f2 = Repo.get!(GameServer.Friends.Friendship, f.id)
     assert f2.status == "blocked"
@@ -270,8 +270,8 @@ defmodule GameServerWeb.Api.V1.FriendControllerTest do
 
     # unblock as b
     resp_unblock = post(conn_b, "/api/v1/friends/#{f.id}/unblock")
-    # unblock returns 204 No Content now
-    assert resp_unblock.status == 204
+    # unblock returns 200 with empty object now
+    assert resp_unblock.status == 200
 
     # friendship should be removed
     assert Repo.get(GameServer.Friends.Friendship, f.id) == nil

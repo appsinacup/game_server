@@ -128,7 +128,7 @@ defmodule GameServerWeb.Api.V1.MeController do
     description: "Deletes the authenticated user's account",
     security: [%{"authorization" => []}],
     responses: [
-      no_content: {"Account deleted", "application/json", nil},
+      ok: {"Account deleted", "application/json", %Schema{type: :object}},
       bad_request: {"Failed to delete account", "application/json", nil},
       unauthorized: {"Not authenticated", "application/json", nil}
     ]
@@ -139,7 +139,7 @@ defmodule GameServerWeb.Api.V1.MeController do
 
     case GameServer.Accounts.delete_user(user) do
       {:ok, _} ->
-        send_resp(conn, :no_content, "")
+        json(conn, %{})
 
       {:error, _} ->
         conn

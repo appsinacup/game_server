@@ -192,7 +192,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
       ]
     ],
     responses: [
-      no_content: {"Accepted", "application/json", nil},
+      ok: {"Accepted", "application/json", %Schema{type: :object}},
       unauthorized: {"Not authenticated", "application/json", nil},
       forbidden: {"Not authorized", "application/json", nil}
     ]
@@ -212,7 +212,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
       ]
     ],
     responses: [
-      no_content: {"Rejected", "application/json", nil},
+      ok: {"Rejected", "application/json", %Schema{type: :object}},
       unauthorized: {"Not authenticated", "application/json", nil},
       forbidden: {"Not authorized", "application/json", nil}
     ]
@@ -232,7 +232,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
       ]
     ],
     responses: [
-      no_content: {"Blocked", "application/json", nil},
+      ok: {"Blocked", "application/json", %Schema{type: :object}},
       unauthorized: {"Not authenticated", "application/json", nil},
       forbidden: {"Not authorized", "application/json", nil}
     ]
@@ -311,7 +311,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
       ]
     ],
     responses: [
-      no_content: {"Unblocked", "application/json", nil},
+      ok: {"Unblocked", "application/json", %Schema{type: :object}},
       unauthorized: {"Not authenticated", "application/json", nil},
       forbidden: {"Not authorized", "application/json", nil},
       not_found: {"Not found", "application/json", nil}
@@ -324,7 +324,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
     security: [%{"authorization" => []}],
     parameters: [id: [in: :path, schema: %Schema{type: :integer}, required: true]],
     responses: [
-      no_content: {"No content", "application/json", nil},
+      ok: {"Success", "application/json", %Schema{type: :object}},
       unauthorized: {"Not authenticated", "application/json", nil},
       forbidden: {"Not authorized", "application/json", nil}
     ]
@@ -391,7 +391,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
       %{user: user} when user != nil ->
         case Friends.block_friend_request(String.to_integer(id), user) do
           {:ok, _f} ->
-            send_resp(conn, :no_content, "")
+            json(conn, %{})
 
           {:error, :not_found} ->
             conn |> put_status(:not_found) |> json(%{error: "not_found"})
@@ -456,7 +456,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
       %{user: user} when user != nil ->
         case Friends.unblock_friendship(String.to_integer(id), user) do
           {:ok, :unblocked} ->
-            send_resp(conn, :no_content, "")
+            json(conn, %{})
 
           {:error, :not_found} ->
             conn |> put_status(:not_found) |> json(%{error: "not_found"})
@@ -516,7 +516,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
       %{user: user} when user != nil ->
         case Friends.accept_friend_request(String.to_integer(id), user) do
           {:ok, _f} ->
-            send_resp(conn, :no_content, "")
+            json(conn, %{})
 
           {:error, :not_found} ->
             conn |> put_status(:not_found) |> json(%{error: "not_found"})
@@ -538,7 +538,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
       %{user: user} when user != nil ->
         case Friends.reject_friend_request(String.to_integer(id), user) do
           {:ok, _f} ->
-            send_resp(conn, :no_content, "")
+            json(conn, %{})
 
           {:error, :not_found} ->
             conn |> put_status(:not_found) |> json(%{error: "not_found"})
@@ -576,7 +576,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
     cond do
       f.status == "pending" and f.requester_id == user.id ->
         case Friends.cancel_request(f.id, user) do
-          {:ok, :cancelled} -> send_resp(conn, :no_content, "")
+          {:ok, :cancelled} -> json(conn, %{})
           err -> conn |> put_status(:bad_request) |> json(%{error: to_string(err)})
         end
 
@@ -585,7 +585,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
                user.id,
                if(f.requester_id == user.id, do: f.target_id, else: f.requester_id)
              ) do
-          {:ok, _} -> send_resp(conn, :no_content, "")
+          {:ok, _} -> json(conn, %{})
           err -> conn |> put_status(:bad_request) |> json(%{error: to_string(err)})
         end
 

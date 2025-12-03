@@ -113,7 +113,7 @@ defmodule GameServerWeb.Api.V1.MeControllerTest do
         |> put_req_header("authorization", "Bearer " <> token)
         |> delete("/api/v1/me")
 
-      assert conn.status == 204
+      assert conn.status == 200
 
       # Ensure user was deleted
       assert GameServer.Repo.get(GameServer.Accounts.User, user.id) == nil
