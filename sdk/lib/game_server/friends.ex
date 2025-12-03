@@ -71,7 +71,7 @@ defmodule GameServer.Friends do
     
     ## Options
     
-    See `GameServer.Types.pagination_opts/0` for available options.
+    See `t:GameServer.Types.pagination_opts/0` for available options.
     
   """
   @spec list_friends_for_user(
@@ -88,7 +88,7 @@ defmodule GameServer.Friends do
     
     ## Options
     
-    See `GameServer.Types.pagination_opts/0` for available options.
+    See `t:GameServer.Types.pagination_opts/0` for available options.
     
   """
   @spec list_incoming_requests(
@@ -105,7 +105,7 @@ defmodule GameServer.Friends do
     
     ## Options
     
-    See `GameServer.Types.pagination_opts/0` for available options.
+    See `t:GameServer.Types.pagination_opts/0` for available options.
     
   """
   @spec list_outgoing_requests(

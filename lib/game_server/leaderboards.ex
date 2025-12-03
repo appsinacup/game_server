@@ -42,7 +42,7 @@ defmodule GameServer.Leaderboards do
 
   ## Attributes
 
-  See `GameServer.Types.leaderboard_create_attrs/0` for available fields.
+  See `t:GameServer.Types.leaderboard_create_attrs/0` for available fields.
 
   ## Examples
 
@@ -67,7 +67,7 @@ defmodule GameServer.Leaderboards do
 
   ## Attributes
 
-  See `GameServer.Types.leaderboard_update_attrs/0` for available fields.
+  See `t:GameServer.Types.leaderboard_update_attrs/0` for available fields.
   """
   @spec update_leaderboard(Leaderboard.t(), Types.leaderboard_update_attrs()) ::
           {:ok, Leaderboard.t()} | {:error, Ecto.Changeset.t()}
@@ -516,7 +516,7 @@ defmodule GameServer.Leaderboards do
 
   ## Options
 
-  See `GameServer.Types.pagination_opts/0` for available options.
+  See `t:GameServer.Types.pagination_opts/0` for available options.
 
   Returns records with `rank` field populated.
   """

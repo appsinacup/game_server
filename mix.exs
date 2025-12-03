@@ -15,7 +15,7 @@ defmodule GameServer.MixProject do
       # ExDoc configuration used to build HTML docs locally or in CI
       docs: [
         main: "readme",
-        extras: ["README.md", "docs/LEADERBOARDS_PLAN.md"],
+        extras: ["README.md"],
         source_url: "https://github.com/appsinacup/game_server",
         source_ref: "main",
         homepage_url: "https://github.com/appsinacup/game_server",

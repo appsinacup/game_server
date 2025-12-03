@@ -6,6 +6,8 @@ defmodule GameServer.Lobbies.Lobby do
   visibility, lock/password and arbitrary metadata).
   """
   use Ecto.Schema
+
+  @type t :: %__MODULE__{}
   import Ecto.Changeset
 
   alias GameServer.Accounts.User

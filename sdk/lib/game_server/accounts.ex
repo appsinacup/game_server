@@ -68,7 +68,7 @@ defmodule GameServer.Accounts do
     
     ## Options
     
-    See `GameServer.Types.pagination_opts/0` for available options.
+    See `t:GameServer.Types.pagination_opts/0` for available options.
     
   """
   @spec search_users(String.t(), GameServer.Types.pagination_opts()) :: [GameServer.Accounts.User.t()]
@@ -86,7 +86,7 @@ defmodule GameServer.Accounts do
     
     ## Attributes
     
-    See `GameServer.Types.user_update_attrs/0` for available fields.
+    See `t:GameServer.Types.user_update_attrs/0` for available fields.
     
     ## Examples
     
@@ -110,7 +110,7 @@ defmodule GameServer.Accounts do
     
     ## Attributes
     
-    See `GameServer.Types.user_registration_attrs/0` for available fields.
+    See `t:GameServer.Types.user_registration_attrs/0` for available fields.
     
     ## Examples
     

@@ -49,7 +49,7 @@ defmodule GameServer.Accounts do
 
   ## Options
 
-  See `GameServer.Types.pagination_opts/0` for available options.
+  See `t:GameServer.Types.pagination_opts/0` for available options.
   """
   @spec search_users(String.t(), Types.pagination_opts()) :: [User.t()]
   def search_users(query, opts \\ []) when is_binary(query) do
@@ -179,7 +179,7 @@ defmodule GameServer.Accounts do
 
   ## Attributes
 
-  See `GameServer.Types.user_registration_attrs/0` for available fields.
+  See `t:GameServer.Types.user_registration_attrs/0` for available fields.
 
   ## Examples
 
@@ -1090,7 +1090,7 @@ defmodule GameServer.Accounts do
 
   ## Attributes
 
-  See `GameServer.Types.user_update_attrs/0` for available fields.
+  See `t:GameServer.Types.user_update_attrs/0` for available fields.
 
   ## Examples
 

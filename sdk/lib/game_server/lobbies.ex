@@ -92,7 +92,7 @@ defmodule GameServer.Lobbies do
     
     ## Options
     
-    See `GameServer.Types.lobby_list_opts/0` for available options.
+    See `t:GameServer.Types.lobby_list_opts/0` for available options.
     
   """
   @spec list_lobbies(map(), GameServer.Types.lobby_list_opts()) :: [GameServer.Lobbies.Lobby.t()]
@@ -106,7 +106,7 @@ defmodule GameServer.Lobbies do
     
     ## Attributes
     
-    See `GameServer.Types.lobby_create_attrs/0` for available fields.
+    See `t:GameServer.Types.lobby_create_attrs/0` for available fields.
     
   """
   @spec create_lobby(GameServer.Types.lobby_create_attrs()) ::
@@ -121,7 +121,7 @@ defmodule GameServer.Lobbies do
     
     ## Attributes
     
-    See `GameServer.Types.lobby_update_attrs/0` for available fields.
+    See `t:GameServer.Types.lobby_update_attrs/0` for available fields.
     
   """
   @spec update_lobby(GameServer.Lobbies.Lobby.t(), GameServer.Types.lobby_update_attrs()) ::

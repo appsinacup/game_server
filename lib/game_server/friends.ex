@@ -322,7 +322,7 @@ defmodule GameServer.Friends do
 
   ## Options
 
-  See `GameServer.Types.pagination_opts/0` for available options.
+  See `t:GameServer.Types.pagination_opts/0` for available options.
   """
   @spec list_friends_for_user(integer() | User.t(), Types.pagination_opts()) :: [User.t()]
   def list_friends_for_user(user_id, opts \\ [])
@@ -382,7 +382,7 @@ defmodule GameServer.Friends do
 
   ## Options
 
-  See `GameServer.Types.pagination_opts/0` for available options.
+  See `t:GameServer.Types.pagination_opts/0` for available options.
   """
   @spec list_incoming_requests(integer() | User.t(), Types.pagination_opts()) :: [Friendship.t()]
   def list_incoming_requests(user_id, opts \\ [])
@@ -418,7 +418,7 @@ defmodule GameServer.Friends do
 
   ## Options
 
-  See `GameServer.Types.pagination_opts/0` for available options.
+  See `t:GameServer.Types.pagination_opts/0` for available options.
   """
   @spec list_outgoing_requests(integer() | User.t(), Types.pagination_opts()) :: [Friendship.t()]
   def list_outgoing_requests(user_id, opts \\ [])

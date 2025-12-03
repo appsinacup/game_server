@@ -99,7 +99,7 @@ defmodule GameServer.Lobbies do
 
   ## Options
 
-  See `GameServer.Types.lobby_list_opts/0` for available options.
+  See `t:GameServer.Types.lobby_list_opts/0` for available options.
   """
   @spec list_lobbies(map(), Types.lobby_list_opts()) :: [Lobby.t()]
   def list_lobbies(filters \\ %{}, opts \\ []) do
@@ -464,7 +464,7 @@ defmodule GameServer.Lobbies do
 
   ## Attributes
 
-  See `GameServer.Types.lobby_create_attrs/0` for available fields.
+  See `t:GameServer.Types.lobby_create_attrs/0` for available fields.
   """
   @spec create_lobby(Types.lobby_create_attrs()) ::
           {:ok, Lobby.t()} | {:error, Ecto.Changeset.t() | term()}
@@ -556,7 +556,7 @@ defmodule GameServer.Lobbies do
 
   ## Attributes
 
-  See `GameServer.Types.lobby_update_attrs/0` for available fields.
+  See `t:GameServer.Types.lobby_update_attrs/0` for available fields.
   """
   @spec update_lobby(Lobby.t(), Types.lobby_update_attrs()) ::
           {:ok, Lobby.t()} | {:error, Ecto.Changeset.t() | term()}

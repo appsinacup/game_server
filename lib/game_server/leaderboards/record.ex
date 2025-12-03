@@ -6,6 +6,8 @@ defmodule GameServer.Leaderboards.Record do
   Each user can have at most one record per leaderboard.
   """
   use Ecto.Schema
+
+  @type t :: %__MODULE__{}
   import Ecto.Changeset
 
   alias GameServer.Accounts.User
