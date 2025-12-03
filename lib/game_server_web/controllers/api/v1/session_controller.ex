@@ -179,7 +179,7 @@ defmodule GameServerWeb.Api.V1.SessionController do
   operation(:refresh,
     operation_id: "refresh_token",
     summary: "Refresh access token",
-    security: [%{"authorization" => []}],
+    security: [],
     description: "Exchange a valid refresh token for a new access token",
     request_body: {
       "Refresh token",
