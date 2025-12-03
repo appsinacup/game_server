@@ -8,7 +8,7 @@
     <meta name="project" content="game_server v1.0.352">
 
 
-    <title>GameServer.Friends.Friendship — game_server v1.0.352</title>
+    <title>GameServer.Schedule.Lock — game_server v1.0.352</title>
 
     <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
 
@@ -93,12 +93,12 @@ game_server
 <div id="top-content">
   <div class="heading-with-actions top-heading">
     <h1>
-      <span translate="no">GameServer.Friends.Friendship</span> 
+      <span translate="no">GameServer.Schedule.Lock</span> 
       <small class="app-vsn" translate="no">(game_server v1.0.352)</small>
 
     </h1>
 
-      <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends/friendship.ex#L1" title="View Source" class="icon-action" rel="help">
+      <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/schedule/lock.ex#L1" title="View Source" class="icon-action" rel="help">
         <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         <span class="sr-only">View Source</span>
       </a>
@@ -107,90 +107,12 @@ game_server
 
 
     <section id="moduledoc">
-<p>Ecto schema representing a friendship/request between two users.</p><p>The friendship object stores the requester and the target user together with
-a status field which can be &quot;pending&quot;, &quot;accepted&quot;, &quot;rejected&quot; or
-&quot;blocked&quot;.</p>
+<p>Schema for schedule job locks.</p><p>Used to ensure only one instance executes a scheduled job
+in a distributed environment.</p>
     </section>
 
 </div>
 
-  <section id="summary" class="details-list">
-    <h1 class="section-heading">
-      <a class="hover-link" href="#summary">
-        <i class="ri-link-m" aria-hidden="true"></i>
-      </a>
-      <span class="text">Summary</span>
-    </h1>
-<div class="summary-types summary">
-  <h2>
-    <a href="#types">Types</a>
-  </h2>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#t:t/0" data-no-tooltip="" translate="no">t()</a>
-
-      </div>
-
-        <div class="summary-synopsis"><p>A friendship/request record between two users.</p></div>
-
-    </div>
-
-</div>
-
-  </section>
-
-
-  <section id="types" class="details-list">
-    <h1 class="section-heading">
-      <a class="hover-link" href="#types">
-        <i class="ri-link-m" aria-hidden="true"></i>
-      </a>
-      <span class="text">Types</span>
-    </h1>
-
-    <div class="types-list">
-<section class="detail" id="t:t/0">
-
-  <div class="detail-header">
-    <a href="#t:t/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">t()</h1>
-
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends/friendship.ex#L26" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@type</span> t() :: %GameServer.Friends.Friendship{
-  __meta__: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  id: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>() | nil,
-  inserted_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  requester: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  requester_id: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>() | nil,
-  status: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
-  target: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  target_id: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>() | nil,
-  updated_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()
-}</pre>
-
-      </div>
-
-<p>A friendship/request record between two users.</p>
-  </section>
-</section>
-
-    </div>
-  </section>
 
     <footer class="footer">
       <p>

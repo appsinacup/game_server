@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.1">
-    <meta name="project" content="game_server v1.0.351">
+    <meta name="project" content="game_server v1.0.352">
 
 
-    <title>GameServer.Hooks — game_server v1.0.351</title>
+    <title>GameServer.Hooks — game_server v1.0.352</title>
 
     <link rel="stylesheet" href="dist/html-elixir-ZFNMEJKT.css" />
 
-    <script defer src="dist/sidebar_items-20DCF817.js"></script>
+    <script defer src="dist/sidebar_items-8C660EF2.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-HBZYRXZS.js"></script>
 
@@ -37,7 +37,7 @@
 game_server
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.351
+          v1.0.352
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.Hooks</span> <small>behaviour</small>
-      <small class="app-vsn" translate="no">(game_server v1.0.351)</small>
+      <small class="app-vsn" translate="no">(game_server v1.0.352)</small>
 
     </h1>
 
@@ -337,6 +337,16 @@ when the value is a user struct or map containing <code class="inline">:id</code
         <div class="summary-synopsis"><p>Call an internal lifecycle callback. When a callback is missing this
   returns a sensible default (eg. {:ok, attrs} for before callbacks) so
   domain code doesn't need to handle missing hooks specially in most cases.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#invoke/2" data-no-tooltip="" translate="no">invoke(name, args \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Invoke a dynamic hook function by name.</p></div>
 
     </div>
 
@@ -930,7 +940,7 @@ timeout to avoid long-running user code.</p><p>Returns {:ok, result} | {:error, 
       <h1 class="signature" translate="no">caller()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L670" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L714" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -962,7 +972,7 @@ when the value is a user struct or map containing <code class="inline">:id</code
       <h1 class="signature" translate="no">caller_id()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L675" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L719" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -990,7 +1000,7 @@ when the value is a user struct or map containing <code class="inline">:id</code
       <h1 class="signature" translate="no">caller_user()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L689" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L733" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1021,7 +1031,7 @@ when the value is a user struct or map containing <code class="inline">:id</code
       <h1 class="signature" translate="no">exported_functions()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L578" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L617" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1048,7 +1058,7 @@ This is useful for tooling and admin UI to display what RPCs are available.</p>
       <h1 class="signature" translate="no">internal_call(name, args \\ [], opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L325" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L332" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1060,6 +1070,33 @@ This is useful for tooling and admin UI to display what RPCs are available.</p>
 <p>Call an internal lifecycle callback. When a callback is missing this
   returns a sensible default (eg. {:ok, attrs} for before callbacks) so
   domain code doesn't need to handle missing hooks specially in most cases.</p>
+  </section>
+</section>
+<section class="detail" id="invoke/2">
+
+    <span id="invoke/1"></span>
+
+  <div class="detail-header">
+    <a href="#invoke/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">invoke(name, args \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L389" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Invoke a dynamic hook function by name.</p><p>This is used by <a href="GameServer.Schedule.html"><code class="inline">GameServer.Schedule</code></a> to call scheduled job callbacks.
+Unlike <a href="#internal_call/3"><code class="inline">internal_call/3</code></a>, this is designed for user-defined functions
+that are not part of the core lifecycle callbacks.</p><p>Returns <code class="inline">:ok</code> on success, <code class="inline">{:error, reason}</code> on failure or if the
+function doesn't exist.</p>
   </section>
 </section>
 <section class="detail" id="module/0">
