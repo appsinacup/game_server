@@ -138,11 +138,11 @@ defmodule GameServer.Hooks do
   - `:ok` - Success with no data
   """
 
-  @typedoc "A user struct from GameServer.Accounts"
-  @type user :: GameServer.Accounts.user()
+  @typedoc "A user struct from GameServer.Accounts.User"
+  @type user :: GameServer.Accounts.User.t()
 
-  @typedoc "A lobby struct from GameServer.Lobbies"
-  @type lobby :: GameServer.Lobbies.lobby()
+  @typedoc "A lobby struct from GameServer.Lobbies.Lobby"
+  @type lobby :: GameServer.Lobbies.Lobby.t()
 
   @typedoc "Result type for before hooks"
   @type hook_result(t) :: {:ok, t} | {:error, term()}
