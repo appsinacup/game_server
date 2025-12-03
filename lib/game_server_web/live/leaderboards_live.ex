@@ -129,10 +129,6 @@ defmodule GameServerWeb.LeaderboardsLive do
           <%= if group.description do %>
             <p class="text-sm text-base-content/70 line-clamp-2">{group.description}</p>
           <% end %>
-
-          <div class="mt-2 text-xs text-base-content/50">
-            {group.slug}
-          </div>
         </div>
       </.link>
     </div>
