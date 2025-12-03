@@ -123,7 +123,7 @@ defmodule GameServerWeb.UserLive.Settings do
           </.form>
         </div>
       </div>
-
+      
     <!-- Friends panel (embedded) -->
       <div class="card bg-base-200 p-4 rounded-lg mt-6">
         <div class="flex items-center justify-between">
@@ -149,18 +149,23 @@ defmodule GameServerWeb.UserLive.Settings do
                 <span class="text-xs text-base-content/60 ml-2">(id: {req.requester_id})</span>
               </div>
               <div class="flex gap-2 mt-2">
-                <button phx-click="accept_friend" phx-value-id={req.id} class="btn btn-sm">
+                <button phx-click="accept_friend" phx-value-id={req.id} class="btn btn-sm btn-primary">
                   Accept
                 </button>
-                <button phx-click="reject_friend" phx-value-id={req.id} class="btn btn-sm">
+                <button phx-click="reject_friend" phx-value-id={req.id} class="btn btn-sm btn-error">
                   Reject
                 </button>
-                <button phx-click="block_friend" phx-value-id={req.id} class="btn btn-sm btn-outline">
+                <button
+                  phx-click="block_friend"
+                  phx-value-id={req.id}
+                  class="btn btn-sm btn-outline btn-error"
+                >
                   Block
                 </button>
               </div>
             </div>
-            <div class="mt-2 flex gap-2 items-center">
+
+            <div :if={@incoming_total_pages > 1} class="mt-2 flex gap-2 items-center">
               <button phx-click="incoming_prev" class="btn btn-xs" disabled={@incoming_page <= 1}>
                 Prev
               </button>
@@ -188,12 +193,12 @@ defmodule GameServerWeb.UserLive.Settings do
                 {(req.target && req.target.display_name) || "User " <> to_string(req.target_id)}
               </div>
               <div class="flex gap-2 mt-2">
-                <button phx-click="cancel_friend" phx-value-id={req.id} class="btn btn-sm">
+                <button phx-click="cancel_friend" phx-value-id={req.id} class="btn btn-sm btn-error">
                   Cancel
                 </button>
               </div>
             </div>
-            <div class="mt-2 flex gap-2 items-center">
+            <div :if={@outgoing_total_pages > 1} class="mt-2 flex gap-2 items-center">
               <button phx-click="outgoing_prev" class="btn btn-xs" disabled={@outgoing_page <= 1}>
                 Prev
               </button>
@@ -231,7 +236,7 @@ defmodule GameServerWeb.UserLive.Settings do
                 </button>
               </div>
             </div>
-            <div class="mt-2 flex gap-2 items-center">
+            <div :if={@friends_total_pages > 1} class="mt-2 flex gap-2 items-center">
               <button phx-click="friends_prev" class="btn btn-xs" disabled={@friends_page <= 1}>
                 Prev
               </button>
@@ -269,7 +274,7 @@ defmodule GameServerWeb.UserLive.Settings do
                 </button>
               </div>
             </div>
-            <div class="mt-2 flex gap-2 items-center">
+            <div :if={@blocked_total_pages > 1} class="mt-2 flex gap-2 items-center">
               <button phx-click="blocked_prev" class="btn btn-xs" disabled={@blocked_page <= 1}>
                 Prev
               </button>
@@ -298,23 +303,29 @@ defmodule GameServerWeb.UserLive.Settings do
             </form>
           </div>
           <div :if={length(@search_results) > 0} class="mt-3">
-            <div class="text-xs text-base-content/70">Search results</div>
-            <div
-              :for={s <- @search_results}
-              id={"search-" <> Integer.to_string(s.id)}
-              class="p-2 border rounded mt-2 flex items-center justify-between grid-cols-1 md:grid-cols-3"
-            >
-              <div class="text-sm">
-                {s.display_name || s.email}
-                <span class="text-xs text-base-content/60 ml-2">(id: {s.id})</span>
-              </div>
-              <div>
-                <button phx-click="send_friend" phx-value-target={s.id} class="btn btn-xs">
-                  Send
-                </button>
+            <div class="text-xs text-base-content/70 mb-2">Search results</div>
+            
+    <!-- Render search results as a responsive grid so multiple items show side-by-side -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <div :for={s <- @search_results} id={"search-" <> Integer.to_string(s.id)}>
+                <div class="p-2 border rounded bg-base-100 flex items-center justify-between">
+                  <div class="text-sm">
+                    {s.display_name || s.email}
+                    <span class="text-xs text-base-content/60 ml-2">(id: {s.id})</span>
+                  </div>
+                  <div>
+                    <button
+                      phx-click="send_friend"
+                      phx-value-target={s.id}
+                      class="btn btn-xs btn-primary"
+                    >
+                      Send
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="mt-2 flex gap-2 items-center">
+            <div :if={@search_total_pages > 1} class="mt-2 flex gap-2 items-center">
               <button phx-click="search_prev" class="btn btn-xs" disabled={@search_page <= 1}>
                 Prev
               </button>
