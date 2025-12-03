@@ -27,6 +27,7 @@ defmodule GameServer.Modules.ExampleHook do
       Leaderboards.create_leaderboard(%{
         slug: "login_count",
         title: "Login Count - #{Calendar.strftime(now, "%B %Y")}",
+        description: "How many logins this month?",
         sort_order: "desc",
         operator: "incr",
         starts_at: starts_at,
