@@ -141,17 +141,19 @@ defmodule GameServerWeb.LeaderboardsLive do
       </div>
     <% end %>
 
-    <div class="mt-6 flex gap-2 items-center justify-center">
-      <button phx-click="prev_page" class="btn btn-sm" disabled={@page <= 1}>
-        ← Previous
-      </button>
-      <div class="text-sm text-base-content/70">
-        Page {@page} of {@total_pages}
+    <%= if @page > @total_pages do %>
+      <div class="mt-6 flex gap-2 items-center justify-center">
+        <button phx-click="prev_page" class="btn btn-sm" disabled={@page <= 1}>
+          ← Previous
+        </button>
+        <div class="text-sm text-base-content/70">
+          Page {@page} of {@total_pages}
+        </div>
+        <button phx-click="next_page" class="btn btn-sm" disabled={@page >= @total_pages}>
+          Next →
+        </button>
       </div>
-      <button phx-click="next_page" class="btn btn-sm" disabled={@page >= @total_pages}>
-        Next →
-      </button>
-    </div>
+    <% end %>
     """
   end
 
@@ -291,21 +293,23 @@ defmodule GameServerWeb.LeaderboardsLive do
           </div>
         <% end %>
 
-        <div class="mt-4 flex gap-2 items-center justify-center">
-          <button phx-click="records_prev" class="btn btn-sm" disabled={@records_page <= 1}>
-            ← Previous
-          </button>
-          <div class="text-sm text-base-content/70">
-            Page {@records_page} of {@records_total_pages} ({@records_count} total)
+        <%= if @records_page > @records_total_pages do %>
+          <div class="mt-4 flex gap-2 items-center justify-center">
+            <button phx-click="records_prev" class="btn btn-sm" disabled={@records_page <= 1}>
+              ← Previous
+            </button>
+            <div class="text-sm text-base-content/70">
+              Page {@records_page} of {@records_total_pages} ({@records_count} total)
+            </div>
+            <button
+              phx-click="records_next"
+              class="btn btn-sm"
+              disabled={@records_page >= @records_total_pages}
+            >
+              Next →
+            </button>
           </div>
-          <button
-            phx-click="records_next"
-            class="btn btn-sm"
-            disabled={@records_page >= @records_total_pages}
-          >
-            Next →
-          </button>
-        </div>
+        <% end %>
       </div>
     </div>
     """

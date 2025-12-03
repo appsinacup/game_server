@@ -123,7 +123,7 @@ defmodule GameServerWeb.UserLive.Settings do
           </.form>
         </div>
       </div>
-      
+
     <!-- Friends panel (embedded) -->
       <div class="card bg-base-200 p-4 rounded-lg mt-6">
         <div class="flex items-center justify-between">
@@ -132,17 +132,6 @@ defmodule GameServerWeb.UserLive.Settings do
             <div class="text-sm text-base-content/70">
               View and manage friend requests and current friends
             </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <form phx-change="search_users">
-              <input
-                type="text"
-                name="q"
-                value={@search_query}
-                placeholder="Search by email or display name"
-                class="input input-sm"
-              />
-            </form>
           </div>
         </div>
 
@@ -296,12 +285,24 @@ defmodule GameServerWeb.UserLive.Settings do
               </button>
             </div>
           </div>
+
+          <div class="flex items-center gap-2">
+            <form phx-change="search_users" class="w-full">
+              <input
+                type="text"
+                name="q"
+                value={@search_query}
+                placeholder="Search by email or display name"
+                class="input"
+              />
+            </form>
+          </div>
           <div :if={length(@search_results) > 0} class="mt-3">
             <div class="text-xs text-base-content/70">Search results</div>
             <div
               :for={s <- @search_results}
               id={"search-" <> Integer.to_string(s.id)}
-              class="p-2 border rounded mt-2 flex items-center justify-between"
+              class="p-2 border rounded mt-2 flex items-center justify-between grid-cols-1 md:grid-cols-3"
             >
               <div class="text-sm">
                 {s.display_name || s.email}
