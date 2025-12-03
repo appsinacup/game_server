@@ -272,10 +272,17 @@ defmodule GameServer.Hooks do
     opts = resolve_caller(opts)
     arity = length(args)
 
-    # Disallow calling internal lifecycle callbacks via the public `call/3` API.
+    # Disallow calling internal lifecycle callbacks or scheduled job callbacks
+    # via the public `call/3` API.
     # Domain code should use `internal_call/3` for lifecycle callbacks.
+    # Scheduled callbacks are invoked by Schedule module via `invoke/2`.
+    scheduled = GameServer.Schedule.registered_callbacks()
+
     cond do
       name in internal_hooks() ->
+        {:error, :disallowed}
+
+      MapSet.member?(scheduled, name) ->
         {:error, :disallowed}
 
       # private functions (defp) are not exported and will be handled by
@@ -366,6 +373,38 @@ defmodule GameServer.Hooks do
       end
     else
       defaults_for_missing_callback(name, args)
+    end
+  end
+
+  @doc """
+  Invoke a dynamic hook function by name.
+
+  This is used by `GameServer.Schedule` to call scheduled job callbacks.
+  Unlike `internal_call/3`, this is designed for user-defined functions
+  that are not part of the core lifecycle callbacks.
+
+  Returns `:ok` on success, `{:error, reason}` on failure or if the
+  function doesn't exist.
+  """
+  def invoke(name, args \\ []) when is_atom(name) and is_list(args) do
+    mod = module()
+    arity = length(args)
+
+    if function_exported?(mod, name, arity) do
+      try do
+        case apply(mod, name, args) do
+          :ok -> :ok
+          {:ok, _} = ok -> ok
+          {:error, _} = err -> err
+          other -> {:ok, other}
+        end
+      rescue
+        e -> {:error, {:exception, Exception.message(e)}}
+      catch
+        kind, reason -> {:error, {kind, reason}}
+      end
+    else
+      {:error, {:not_found, {mod, name, arity}}}
     end
   end
 
@@ -587,11 +626,16 @@ defmodule GameServer.Hooks do
           |> Enum.map(fn {n, _} -> n end)
           |> MapSet.new()
 
-        # Group functions by name -> arities and then filter out the default set
+        # Also exclude internal hooks and scheduled callbacks
+        internal = internal_hooks()
+        scheduled = GameServer.Schedule.registered_callbacks()
+        excluded = MapSet.union(default_names, MapSet.union(internal, scheduled))
+
+        # Group functions by name -> arities and then filter out the excluded set
         func_map =
           mod.__info__(:functions)
           |> Enum.group_by(fn {name, _arity} -> name end, fn {_name, arity} -> arity end)
-          |> Enum.reject(fn {name, _arities} -> MapSet.member?(default_names, name) end)
+          |> Enum.reject(fn {name, _arities} -> MapSet.member?(excluded, name) end)
 
         # Extract docs-based signatures from compiled module docs
         doc_signatures = doc_signatures_for(mod)

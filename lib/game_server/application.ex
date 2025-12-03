@@ -12,6 +12,9 @@ defmodule GameServer.Application do
     # OAuth session data is now DB backed (oauth_sessions table) - no
     # ETS table created here.
 
+    # Initialize ETS table for Schedule callbacks (before Scheduler starts)
+    GameServer.Schedule.start_link()
+
     children =
       [
         GameServerWeb.Telemetry,
@@ -19,6 +22,8 @@ defmodule GameServer.Application do
         {DNSCluster, query: Application.get_env(:game_server, :dns_cluster_query) || :ignore},
         {Phoenix.PubSub, name: GameServer.PubSub},
         GameServerWeb.Endpoint,
+        # Quantum scheduler for cron-like jobs
+        GameServer.Schedule.Scheduler,
         # optional hooks watcher - will be a no-op when :hooks_file_path isn't set
         GameServer.Hooks.Watcher
       ]

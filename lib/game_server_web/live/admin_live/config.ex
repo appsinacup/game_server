@@ -3,6 +3,7 @@ defmodule GameServerWeb.AdminLive.Config do
 
   alias GameServer.Accounts.UserNotifier
   alias GameServer.Hooks
+  alias GameServer.Schedule
   alias GameServer.Theme.JSONConfig
 
   @impl true
@@ -582,6 +583,70 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
+        
+    <!-- Scheduled Jobs -->
+        <div class="card bg-base-100 shadow-xl" data-card-key="scheduled_jobs">
+          <div class="card-body">
+            <h2 class="card-title text-xl mb-4 flex items-center gap-3">
+              <.icon name="hero-clock" class="w-5 h-5" /> Scheduled Jobs
+              <button
+                type="button"
+                data-action="toggle-card"
+                data-card-key="scheduled_jobs"
+                aria-expanded="false"
+                class="btn btn-ghost btn-sm ml-auto"
+                title="Collapse/Expand"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 8l4 4 4-4"
+                  />
+                </svg>
+              </button>
+            </h2>
+            <%= if @scheduled_jobs == [] do %>
+              <div class="text-sm text-base-content/60">
+                No scheduled jobs registered. Use <code class="font-mono">Schedule.hourly/2</code>, <code class="font-mono">Schedule.daily/2</code>, etc. in your hook's
+                <code class="font-mono">after_startup/0</code>
+                callback.
+              </div>
+            <% else %>
+              <div class="overflow-x-auto">
+                <table class="table table-zebra table-sm">
+                  <thead>
+                    <tr>
+                      <th>Job Name</th>
+                      <th>Schedule</th>
+                      <th>State</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <%= for job <- @scheduled_jobs do %>
+                      <tr>
+                        <td class="font-mono text-sm">{job.name}</td>
+                        <td class="font-mono text-sm">{job.schedule}</td>
+                        <td>
+                          <span class={[
+                            "badge badge-sm",
+                            if(job.state == :active, do: "badge-success", else: "badge-warning")
+                          ]}>
+                            {job.state}
+                          </span>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+              <div class="text-xs text-base-content/60 mt-2">
+                {length(@scheduled_jobs)} job(s) registered. Jobs are distributed-safe via database locks.
+              </div>
+            <% end %>
+          </div>
+        </div>
       </div>
     </Layouts.app>
     """
@@ -678,6 +743,7 @@ defmodule GameServerWeb.AdminLive.Config do
     {:ok,
      assign(socket,
        config: config,
+       scheduled_jobs: Schedule.list(),
        hooks_prefill: %{value: "", seq: 0},
        hooks_args_prefill: %{value: "", seq: 0},
        hooks_full_doc: nil,

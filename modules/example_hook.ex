@@ -12,9 +12,12 @@ defmodule GameServer.Modules.ExampleHook do
 
   alias GameServer.Accounts
   alias GameServer.Leaderboards
+  alias GameServer.Schedule
 
   @impl true
   def after_startup do
+    Schedule.every_minutes(5, :on_every_5m)
+
     # Create default leaderboard only if one with this slug doesn't already exist (active)
     if is_nil(Leaderboards.get_active_leaderboard_by_slug("login_count")) do
       now = DateTime.utc_now()
@@ -111,6 +114,12 @@ defmodule GameServer.Modules.ExampleHook do
     meta = Map.put(meta, key, value)
     Accounts.update_user(user, %{metadata: meta})
 
+    :ok
+  end
+
+  @doc "Called every 5 minutes (if registered)"
+  def on_every_5m(context) do
+    IO.puts("[ExampleHook] 5-minute job triggered at #{context.triggered_at}")
     :ok
   end
 end

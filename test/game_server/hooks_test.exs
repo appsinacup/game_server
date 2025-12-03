@@ -95,4 +95,68 @@ defmodule GameServer.HooksTest do
     reloaded = Accounts.get_user!(user.id)
     assert Map.get(reloaded.metadata || %{}, "hooked") == true
   end
+
+  describe "scheduled callbacks protection" do
+    defmodule ScheduleTestHook do
+      @behaviour GameServer.Hooks
+      alias GameServer.Schedule
+
+      def after_startup do
+        # Register a scheduled callback
+        Schedule.every_minutes(60, :my_scheduled_job)
+        :ok
+      end
+
+      # This is a public scheduled callback - protected from RPC
+      def my_scheduled_job(_context), do: :ok
+
+      # Required callbacks
+      def after_user_register(_user), do: :ok
+      def after_user_login(_user), do: :ok
+      def before_lobby_create(attrs), do: {:ok, attrs}
+      def after_lobby_create(_lobby), do: :ok
+      def before_lobby_join(user, lobby, opts), do: {:ok, {user, lobby, opts}}
+      def after_lobby_join(_user, _lobby), do: :ok
+      def before_lobby_leave(user, lobby), do: {:ok, {user, lobby}}
+      def after_lobby_leave(_user, _lobby), do: :ok
+      def before_lobby_update(_lobby, attrs), do: {:ok, attrs}
+      def after_lobby_update(_lobby), do: :ok
+      def before_lobby_delete(lobby), do: {:ok, lobby}
+      def after_lobby_delete(_lobby), do: :ok
+      def before_user_kicked(host, target, lobby), do: {:ok, {host, target, lobby}}
+      def after_user_kicked(_host, _target, _lobby), do: :ok
+      def after_lobby_host_change(_lobby, _new_host_id), do: :ok
+    end
+
+    alias GameServer.Hooks
+    alias GameServer.Schedule
+
+    test "scheduled callbacks are blocked from RPC call/3" do
+      Application.put_env(:game_server, :hooks_module, ScheduleTestHook)
+
+      # Trigger after_startup to register the scheduled job
+      Hooks.internal_call(:after_startup, [])
+
+      # The scheduled callback should be registered
+      assert MapSet.member?(Schedule.registered_callbacks(), :my_scheduled_job)
+
+      # Trying to call it via the public RPC API should fail
+      assert {:error, :disallowed} = Hooks.call(:my_scheduled_job, [%{}])
+
+      # Clean up
+      Schedule.cancel(:my_scheduled_job)
+    end
+
+    test "cancelling a job removes it from protected list" do
+      Application.put_env(:game_server, :hooks_module, ScheduleTestHook)
+
+      # Register job
+      Schedule.every_minutes(30, :temp_job)
+      assert MapSet.member?(Schedule.registered_callbacks(), :temp_job)
+
+      # Cancel it
+      Schedule.cancel(:temp_job)
+      refute MapSet.member?(Schedule.registered_callbacks(), :temp_job)
+    end
+  end
 end
