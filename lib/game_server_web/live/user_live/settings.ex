@@ -230,7 +230,7 @@ defmodule GameServerWeb.UserLive.Settings do
                 <button
                   phx-click="remove_friend"
                   phx-value-friend_id={u.id}
-                  class="btn btn-sm text-red-500"
+                  class="btn btn-sm btn-error btn-outline"
                 >
                   Remove
                 </button>

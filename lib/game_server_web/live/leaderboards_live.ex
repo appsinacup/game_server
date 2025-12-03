@@ -119,7 +119,9 @@ defmodule GameServerWeb.LeaderboardsLive do
                 <span class="badge badge-neutral">Ended</span>
               <% end %>
               <%= if group.season_count > 1 do %>
-                <span class="badge badge-ghost badge-sm">{group.season_count} seasons</span>
+                <span class="badge badge-ghost badge-sm text-nowrap">
+                  {group.season_count} seasons
+                </span>
               <% end %>
             </div>
           </div>
