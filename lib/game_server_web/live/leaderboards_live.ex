@@ -28,7 +28,7 @@ defmodule GameServerWeb.LeaderboardsLive do
   end
 
   @impl true
-  def handle_params(%{"id" => id}, _uri, socket) do
+  def handle_params(%{"slug" => slug, "id" => id}, _uri, socket) do
     case Leaderboards.get_leaderboard(String.to_integer(id)) do
       nil ->
         {:noreply,
@@ -37,19 +37,41 @@ defmodule GameServerWeb.LeaderboardsLive do
          |> push_navigate(to: ~p"/leaderboards")}
 
       leaderboard ->
-        # Load all leaderboards with same slug for season navigation
-        slug_leaderboards = Leaderboards.list_leaderboards_by_slug(leaderboard.slug)
-        current_index = Enum.find_index(slug_leaderboards, &(&1.id == leaderboard.id)) || 0
-        user_record = get_user_record(socket, leaderboard.id)
+        # Verify slug matches, redirect if not
+        cond do
+          leaderboard.slug != slug ->
+            # Wrong slug, redirect to correct one
+            {:noreply, push_navigate(socket, to: leaderboard_path(leaderboard))}
 
-        {:noreply,
-         socket
-         |> assign(:selected_leaderboard, leaderboard)
-         |> assign(:slug_leaderboards, slug_leaderboards)
-         |> assign(:current_season_index, current_index)
-         |> assign(:user_record, user_record)
-         |> assign(:records_page, 1)
-         |> reload_records()}
+          Leaderboards.Leaderboard.active?(leaderboard) ->
+            # Active leaderboard should use slug-only URL
+            {:noreply, push_navigate(socket, to: ~p"/leaderboards/#{slug}")}
+
+          true ->
+            load_leaderboard(socket, leaderboard)
+        end
+    end
+  end
+
+  def handle_params(%{"slug" => slug}, _uri, socket) do
+    # Slug-only URL: load the active leaderboard directly
+    case Leaderboards.get_active_leaderboard_by_slug(slug) do
+      nil ->
+        # No active one, redirect to the latest with ID
+        case Leaderboards.list_leaderboards_by_slug(slug) do
+          [latest | _] ->
+            {:noreply, push_navigate(socket, to: ~p"/leaderboards/#{slug}/#{latest.id}")}
+
+          [] ->
+            {:noreply,
+             socket
+             |> put_flash(:error, "Leaderboard not found")
+             |> push_navigate(to: ~p"/leaderboards")}
+        end
+
+      leaderboard ->
+        # Active leaderboard found, load it directly
+        load_leaderboard(socket, leaderboard)
     end
   end
 
@@ -106,7 +128,7 @@ defmodule GameServerWeb.LeaderboardsLive do
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       <.link
         :for={group <- @groups}
-        navigate={~p"/leaderboards/#{group.active_id || group.latest_id}"}
+        navigate={~p"/leaderboards/#{group.slug}"}
         class="card bg-base-200 hover:bg-base-300 transition-colors cursor-pointer"
       >
         <div class="card-body">
@@ -338,7 +360,7 @@ defmodule GameServerWeb.LeaderboardsLive do
     new_index = min(socket.assigns.current_season_index + 1, length(slug_lbs) - 1)
     leaderboard = Enum.at(slug_lbs, new_index)
 
-    {:noreply, push_patch(socket, to: ~p"/leaderboards/#{leaderboard.id}")}
+    {:noreply, push_patch(socket, to: leaderboard_path(leaderboard))}
   end
 
   def handle_event("next_season", _, socket) do
@@ -347,7 +369,7 @@ defmodule GameServerWeb.LeaderboardsLive do
     new_index = max(socket.assigns.current_season_index - 1, 0)
     leaderboard = Enum.at(slug_lbs, new_index)
 
-    {:noreply, push_patch(socket, to: ~p"/leaderboards/#{leaderboard.id}")}
+    {:noreply, push_patch(socket, to: leaderboard_path(leaderboard))}
   end
 
   def handle_event("records_prev", _, socket) do
@@ -407,6 +429,33 @@ defmodule GameServerWeb.LeaderboardsLive do
 
       _ ->
         nil
+    end
+  end
+
+  defp load_leaderboard(socket, leaderboard) do
+    # Load all leaderboards with same slug for season navigation
+    slug_leaderboards = Leaderboards.list_leaderboards_by_slug(leaderboard.slug)
+    current_index = Enum.find_index(slug_leaderboards, &(&1.id == leaderboard.id)) || 0
+    user_record = get_user_record(socket, leaderboard.id)
+
+    {:noreply,
+     socket
+     |> assign(:selected_leaderboard, leaderboard)
+     |> assign(:slug_leaderboards, slug_leaderboards)
+     |> assign(:current_season_index, current_index)
+     |> assign(:user_record, user_record)
+     |> assign(:records_page, 1)
+     |> reload_records()}
+  end
+
+  # Returns the appropriate URL for a leaderboard:
+  # - Active leaderboards use slug-only: /leaderboards/weekly_kills
+  # - Historical leaderboards use slug/id: /leaderboards/weekly_kills/123
+  defp leaderboard_path(leaderboard) do
+    if Leaderboard.active?(leaderboard) do
+      ~p"/leaderboards/#{leaderboard.slug}"
+    else
+      ~p"/leaderboards/#{leaderboard.slug}/#{leaderboard.id}"
     end
   end
 

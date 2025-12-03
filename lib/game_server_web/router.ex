@@ -180,7 +180,8 @@ defmodule GameServerWeb.Router do
       live "/users/register", UserLive.Registration, :new
       live "/lobbies", LobbyLive.Index, :index
       live "/leaderboards", LeaderboardsLive, :index
-      live "/leaderboards/:id", LeaderboardsLive, :show
+      live "/leaderboards/:slug/:id", LeaderboardsLive, :show
+      live "/leaderboards/:slug", LeaderboardsLive, :show_active
       live "/users/log-in", UserLive.Login, :new
       live "/users/log-in/:token", UserLive.Confirmation, :new
       get "/users/confirm/:token", UserSessionController, :confirm
