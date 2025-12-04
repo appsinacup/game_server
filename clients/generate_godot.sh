@@ -106,6 +106,13 @@ find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/li
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_leaderboard_records_200_response_data_inner/ListLeaderboardRecords200ResponseDataInner/g" -i
 # Replace list_leaderboards_200_response_data_inner with ListLeaderboards200ResponseDataInner
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_leaderboards_200_response_data_inner/ListLeaderboards200ResponseDataInner/g" -i
+# Replace 
+# headers_for_godot, body_serialized
+# with 
+# headers_for_godot, "" if body_serialized == "null" else body_serialized
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe 's/headers_for_godot, body_serialized/headers_for_godot, "" if body_serialized == "null" else body_serialized/g' -i
+
+
 echo "Post-processing complete."
 
 # If APP_VERSION is set (CI), stamp it into the gamend_template so the
