@@ -88,6 +88,14 @@ defmodule GameServerWeb.AuthSuccessLive do
                           </h3>
                           <div class="mt-2 text-sm text-green-700">
                             <p>You can now close this window and return to your application.</p>
+                            <p
+                              id="auto-close"
+                              phx-hook="AutoClose"
+                              phx-update="ignore"
+                              class="mt-1 text-xs text-green-600"
+                            >
+                              This window will close in 3s...
+                            </p>
                             <% message =
                               Map.get(@session_data, "message") || Map.get(@session_data, :message) %>
                             <%= if message do %>

@@ -135,7 +135,8 @@ defmodule GameServer.MixProject do
       {:ex_doc, "~> 0.30", only: :dev, runtime: false},
       {:guardian, "~> 2.3"},
       {:ueberauth_steam, github: "appsinacup/ueberauth_steam", branch: "master"},
-      {:quantum, "~> 3.5"}
+      {:quantum, "~> 3.5"},
+      {:corsica, "~> 2.0"}
     ]
   end
 

@@ -53,5 +53,11 @@ defmodule GameServerWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
+
+  plug Corsica,
+    origins: "*",
+    allow_headers: ["content-type", "authorization"],
+    allow_methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+
   plug GameServerWeb.Router
 end

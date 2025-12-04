@@ -26,11 +26,35 @@ import {hooks as colocatedHooks} from "phoenix-colocated/game_server"
 import "./lobbies"
 import topbar from "../vendor/topbar"
 
+// Custom hooks
+const Hooks = {
+  AutoClose: {
+    mounted() {
+      let seconds = 3
+      this.el.innerText = `This window will close in ${seconds}s...`
+      
+      this.interval = setInterval(() => {
+        seconds -= 1
+        if (seconds <= 0) {
+          clearInterval(this.interval)
+          this.el.innerText = "Closing..."
+          window.close()
+        } else {
+          this.el.innerText = `This window will close in ${seconds}s...`
+        }
+      }, 1000)
+    },
+    destroyed() {
+      if (this.interval) clearInterval(this.interval)
+    }
+  }
+}
+
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: {_csrf_token: csrfToken},
-  hooks: {...colocatedHooks},
+  hooks: {...colocatedHooks, ...Hooks},
 })
 
 // Show progress bar on live navigation and form submits
