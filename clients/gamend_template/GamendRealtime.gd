@@ -38,8 +38,8 @@ func _socket_on_open(params):
 func _socket_on_error(data):
 	if enable_logs:
 		print("Socket Error ", data)
-	socket_errored.emit(data)
-func _socket_on_close():
+	socket_errored.emit()
+func _socket_on_close(params):
 	if enable_logs:
 		print("Socket Closed")
 	socket_closed.emit()
