@@ -2,6 +2,7 @@ defmodule GameServerWeb.UserChannelTest do
   use ExUnit.Case
   import Phoenix.ChannelTest
 
+  alias GameServer.Accounts.User
   alias GameServer.AccountsFixtures
   alias GameServerWeb.Auth.Guardian
 
@@ -196,7 +197,7 @@ defmodule GameServerWeb.UserChannelTest do
         user,
         %{discord_id: "123456789"},
         :discord_id,
-        &GameServer.Accounts.User.discord_oauth_changeset/2
+        &User.discord_oauth_changeset/2
       )
 
     # Should receive updated event
@@ -214,7 +215,7 @@ defmodule GameServerWeb.UserChannelTest do
         user,
         %{google_id: "google123"},
         :google_id,
-        &GameServer.Accounts.User.google_oauth_changeset/2
+        &User.google_oauth_changeset/2
       )
 
     {:ok, user} =
@@ -222,7 +223,7 @@ defmodule GameServerWeb.UserChannelTest do
         user,
         %{discord_id: "discord456"},
         :discord_id,
-        &GameServer.Accounts.User.discord_oauth_changeset/2
+        &User.discord_oauth_changeset/2
       )
 
     {:ok, token, _} = Guardian.encode_and_sign(user)
