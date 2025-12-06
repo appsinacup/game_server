@@ -18,18 +18,6 @@ defmodule GameServer.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @derive {Jason.Encoder,
-           only: [
-             :id,
-             :email,
-             :display_name,
-             :profile_url,
-             :metadata,
-             :lobby_id,
-             :inserted_at,
-             :updated_at
-           ]}
-
   schema "users" do
     field :email, :string
     field :password, :string, virtual: true, redact: true
@@ -346,5 +334,21 @@ defmodule GameServer.Accounts.User do
   def valid_password?(_, _) do
     Bcrypt.no_user_verify()
     false
+  end
+end
+
+defimpl Jason.Encoder, for: GameServer.Accounts.User do
+  def encode(user, opts) do
+    %{
+      id: user.id,
+      email: user.email || "",
+      display_name: user.display_name || "",
+      profile_url: user.profile_url || "",
+      metadata: user.metadata || %{},
+      lobby_id: user.lobby_id,
+      inserted_at: user.inserted_at,
+      updated_at: user.updated_at
+    }
+    |> Jason.Encode.map(opts)
   end
 end

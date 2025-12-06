@@ -429,8 +429,8 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
     %{
       rank: record.rank,
       user_id: record.user_id,
-      display_name: record.user && record.user.display_name,
-      profile_url: record.user && record.user.profile_url,
+      display_name: (record.user && record.user.display_name) || "",
+      profile_url: (record.user && record.user.profile_url) || "",
       score: record.score,
       metadata: record.metadata,
       updated_at: record.updated_at

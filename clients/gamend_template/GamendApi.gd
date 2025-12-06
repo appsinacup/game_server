@@ -122,7 +122,9 @@ func users_get_current_user():
 
 ## Update current user's display name
 func user_update_current_user_display_name(display_name: String):
-	return _call_api(UsersApi.new(_config), "update_current_user_display_name", [display_name])
+	var request := UpdateCurrentUserDisplayNameRequest.new()
+	request.display_name = display_name
+	return _call_api(UsersApi.new(_config), "update_current_user_display_name", [request])
 
 ## Update current user's password
 func user_update_current_user_password(password: String):

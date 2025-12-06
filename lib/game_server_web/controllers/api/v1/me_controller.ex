@@ -22,7 +22,23 @@ defmodule GameServerWeb.Api.V1.MeController do
             email: %Schema{type: :string},
             profile_url: %Schema{type: :string},
             display_name: %Schema{type: :string},
-            metadata: %Schema{type: :object}
+            metadata: %Schema{type: :object},
+            linked_providers: %Schema{
+              type: :object,
+              description: "Shows which OAuth providers are linked to this account",
+              properties: %{
+                google: %Schema{type: :boolean},
+                facebook: %Schema{type: :boolean},
+                discord: %Schema{type: :boolean},
+                apple: %Schema{type: :boolean},
+                steam: %Schema{type: :boolean},
+                device: %Schema{type: :boolean}
+              }
+            },
+            has_password: %Schema{
+              type: :boolean,
+              description: "Whether the user has a password set"
+            }
           }
         }
       },
@@ -37,10 +53,19 @@ defmodule GameServerWeb.Api.V1.MeController do
       %{user: user} when user != nil ->
         json(conn, %{
           id: user.id,
-          email: user.email,
-          profile_url: user.profile_url,
+          email: user.email || "",
+          profile_url: user.profile_url || "",
           metadata: user.metadata || %{},
-          display_name: user.display_name
+          display_name: user.display_name || "",
+          linked_providers: %{
+            google: user.google_id != nil,
+            facebook: user.facebook_id != nil,
+            discord: user.discord_id != nil,
+            apple: user.apple_id != nil,
+            steam: user.steam_id != nil,
+            device: user.device_id != nil
+          },
+          has_password: user.hashed_password != nil
         })
 
       _ ->
@@ -113,7 +138,7 @@ defmodule GameServerWeb.Api.V1.MeController do
 
     case GameServer.Accounts.update_user_display_name(user, params) do
       {:ok, user} ->
-        json(conn, %{ok: true, id: user.id, display_name: user.display_name})
+        json(conn, %{ok: true, id: user.id, display_name: user.display_name || ""})
 
       {:error, changeset} ->
         conn

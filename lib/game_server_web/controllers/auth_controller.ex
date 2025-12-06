@@ -10,6 +10,74 @@ defmodule GameServerWeb.AuthController do
   alias GameServerWeb.Auth.Guardian
   alias GameServerWeb.UserAuth
 
+  # Optionally extract current user from JWT in Authorization header.
+  # Returns {:ok, user} if valid JWT present, or {:ok, nil} if no JWT or invalid.
+  # This allows the same endpoint to handle both login and linking.
+  defp maybe_load_user_from_jwt(conn) do
+    case Plug.Conn.get_req_header(conn, "authorization") do
+      ["Bearer " <> token] ->
+        case Guardian.decode_and_verify(token, %{"typ" => "access"}) do
+          {:ok, claims} ->
+            case Guardian.resource_from_claims(claims) do
+              {:ok, user} -> {:ok, user}
+              _ -> {:ok, nil}
+            end
+
+          _ ->
+            {:ok, nil}
+        end
+
+      _ ->
+        {:ok, nil}
+    end
+  end
+
+  # Handle linking a provider to an existing user (API flow)
+  defp handle_api_link(conn, user, user_params, provider_id_field, changeset_fn) do
+    case Accounts.link_account(user, user_params, provider_id_field, changeset_fn) do
+      {:ok, _updated_user} ->
+        json(conn, %{data: %{linked: true, provider: Atom.to_string(provider_id_field)}})
+
+      {:error, {:conflict, _other_user}} ->
+        conn
+        |> put_status(:conflict)
+        |> json(%{
+          error: "provider_already_linked",
+          message: "This provider is already linked to another account"
+        })
+
+      {:error, changeset} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "link_failed", details: inspect(changeset.errors)})
+    end
+  end
+
+  # Handle login/create flow (API) - returns JWT tokens
+  defp handle_api_login(conn, find_or_create_fn, user_params) do
+    case find_or_create_fn.(user_params) do
+      {:ok, user} ->
+        {:ok, access_token, _} = Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+        {:ok, refresh_token, _} =
+          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+        json(conn, %{
+          data: %{
+            access_token: access_token,
+            refresh_token: refresh_token,
+            expires_in: 900,
+            user_id: user.id
+          }
+        })
+
+      {:error, changeset} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "create_failed", details: changeset.errors})
+    end
+  end
+
   # Show a helpful dev-mode flash for browser flows when exchanges fail
   defp browser_oauth_error_redirect(conn, provider, error) do
     # Log the error at controller level as well
@@ -694,6 +762,7 @@ defmodule GameServerWeb.AuthController do
 
   # API clients can POST a code (or steam_id) to the callback endpoint and receive
   # tokens directly. Supports discord, google, facebook, apple and steam (steam via steam_id).
+  # If a valid JWT is provided in Authorization header, links the provider instead of login.
   def api_callback(conn, %{"provider" => "discord", "code" => code}) do
     exchanger = Application.get_env(:game_server, :oauth_exchanger, GameServer.OAuth.Exchanger)
     client_id = System.get_env("DISCORD_CLIENT_ID")
@@ -718,26 +787,19 @@ defmodule GameServerWeb.AuthController do
             )
         }
 
-        case Accounts.find_or_create_from_discord(user_params) do
-          {:ok, user} ->
-            {:ok, access_token, _} = Guardian.encode_and_sign(user, %{}, token_type: "access")
+        # Check if user is authenticated (linking) or not (login)
+        case maybe_load_user_from_jwt(conn) do
+          {:ok, %User{} = current_user} ->
+            handle_api_link(
+              conn,
+              current_user,
+              user_params,
+              :discord_id,
+              &User.discord_oauth_changeset/2
+            )
 
-            {:ok, refresh_token, _} =
-              Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
-
-            json(conn, %{
-              data: %{
-                access_token: access_token,
-                refresh_token: refresh_token,
-                expires_in: 900,
-                user_id: user.id
-              }
-            })
-
-          {:error, changeset} ->
-            conn
-            |> put_status(:bad_request)
-            |> json(%{error: "create_failed", details: changeset.errors})
+          {:ok, nil} ->
+            handle_api_login(conn, &Accounts.find_or_create_from_discord/1, user_params)
         end
 
       {:error, err} ->
@@ -769,26 +831,19 @@ defmodule GameServerWeb.AuthController do
         user_params =
           if(picture, do: Map.put(user_params, :profile_url, picture), else: user_params)
 
-        case Accounts.find_or_create_from_google(user_params) do
-          {:ok, user} ->
-            {:ok, access_token, _} = Guardian.encode_and_sign(user, %{}, token_type: "access")
+        # Check if user is authenticated (linking) or not (login)
+        case maybe_load_user_from_jwt(conn) do
+          {:ok, %User{} = current_user} ->
+            handle_api_link(
+              conn,
+              current_user,
+              user_params,
+              :google_id,
+              &User.google_oauth_changeset/2
+            )
 
-            {:ok, refresh_token, _} =
-              Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
-
-            json(conn, %{
-              data: %{
-                access_token: access_token,
-                refresh_token: refresh_token,
-                expires_in: 900,
-                user_id: user.id
-              }
-            })
-
-          {:error, changeset} ->
-            conn
-            |> put_status(:bad_request)
-            |> json(%{error: "create_failed", details: changeset.errors})
+          {:ok, nil} ->
+            handle_api_login(conn, &Accounts.find_or_create_from_google/1, user_params)
         end
 
       {:error, err} ->

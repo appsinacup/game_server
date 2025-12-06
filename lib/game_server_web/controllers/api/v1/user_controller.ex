@@ -106,9 +106,9 @@ defmodule GameServerWeb.Api.V1.UserController do
   defp serialize_user(user) do
     %{
       id: user.id,
-      email: user.email,
-      display_name: user.display_name,
-      profile_url: user.profile_url
+      email: user.email || "",
+      display_name: user.display_name || "",
+      profile_url: user.profile_url || ""
     }
   end
 end

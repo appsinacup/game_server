@@ -597,23 +597,23 @@ defmodule GameServerWeb.Api.V1.FriendController do
   defp serialize_user(user) do
     %{
       id: user.id,
-      email: user.email,
-      display_name: user.display_name,
-      profile_url: user.profile_url
+      email: user.email || "",
+      display_name: user.display_name || "",
+      profile_url: user.profile_url || ""
     }
   end
 
   defp serialize_request(%Friends.Friendship{} = f) do
     requester =
       case f.requester do
-        %Ecto.Association.NotLoaded{} -> %{id: f.requester_id, display_name: nil}
-        %{} = r -> %{id: r.id, display_name: r.display_name}
+        %Ecto.Association.NotLoaded{} -> %{id: f.requester_id, display_name: ""}
+        %{} = r -> %{id: r.id, display_name: r.display_name || ""}
       end
 
     target =
       case f.target do
-        %Ecto.Association.NotLoaded{} -> %{id: f.target_id, display_name: nil}
-        %{} = t -> %{id: t.id, display_name: t.display_name}
+        %Ecto.Association.NotLoaded{} -> %{id: f.target_id, display_name: ""}
+        %{} = t -> %{id: t.id, display_name: t.display_name || ""}
       end
 
     %{
