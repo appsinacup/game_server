@@ -13,6 +13,16 @@ defmodule GameServer.Friends.Friendship do
 
   @statuses ["pending", "accepted", "rejected", "blocked"]
 
+  @derive {Jason.Encoder,
+           only: [
+             :id,
+             :requester_id,
+             :target_id,
+             :status,
+             :inserted_at,
+             :updated_at
+           ]}
+
   schema "friendships" do
     belongs_to :requester, User
     belongs_to :target, User

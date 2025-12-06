@@ -6,16 +6,10 @@ extends Node
 
 signal user_updated(user: Dictionary)
 
-var _health : HealthApi
-var _authenticate: AuthenticationApi
-var _users: UsersApi
-var _friends: FriendsApi
-var _lobbies: LobbiesApi
-var _leaderboards: LeaderboardsApi
-var _hooks: HooksApi
 var _config := ApiApiConfigClient.new()
 var _realtime: GamendRealtime
-@export var enable_logs := true
+var enable_logs := true
+var enable_ssl := false
 
 const PROVIDER_DISCORD = "discord"
 const PROVIDER_APPLE = "apple"
@@ -27,19 +21,10 @@ var _access_token := ""
 var _refresh_token := ""
 var _user_id = -1
 
-func _init(host: String = "127.0.0.1", port: int = 4000):
+func _init(host: String = "127.0.0.1", port: int = 4000, enable_ssl := false):
 	_config.host = host
+	_config.tls_enabled = enable_ssl
 	_config.port = port
-	_create_apis()
-
-func _create_apis():
-	_health = HealthApi.new(_config)
-	_authenticate = AuthenticationApi.new(_config)
-	_users = UsersApi.new(_config)
-	_friends = FriendsApi.new(_config)
-	_lobbies = LobbiesApi.new(_config)
-	_hooks = HooksApi.new(_config)
-	_leaderboards = LeaderboardsApi.new(_config)
 
 func _call_api(api: ApiApiBeeClient, method_name: String, params: Array = []) -> GamendResult:
 	var result = GamendResult.new()
@@ -81,7 +66,10 @@ func _verify_login_result(method_name: String, data):
 
 func realtime_start():
 	var result := GamendResult.new()
-	_realtime = GamendRealtime.new(_access_token)
+	var protocol = "ws://"
+	if _config.tls_enabled:
+		protocol = "wss://"
+	_realtime = GamendRealtime.new(_access_token, protocol + _config.host + ":" + str(_config.port) + "/socket")
 	_realtime.enable_logs = enable_logs
 	_realtime.socket_opened.connect(func (): if result: result.finished.emit())
 	_realtime.socket_closed.connect(func (): if result: result.finished.emit())
@@ -104,127 +92,126 @@ func _on_channel_event(event: String, payload: Dictionary, status, topic: String
 
 ## Authorize with access token
 func authorize():
-	_access_token = _access_token
 	_config.headers_base["Authorization"] = "Bearer " + _access_token
-	_create_apis()
 
 ### HEALTH
 
 ## Health check
 func health_index() -> GamendResult:
-	return _call_api(_health, "index")
+	return _call_api(HealthApi.new(_config), "index")
 
 ### HOOKS
 
 ## Invoke a hook function
 func hooks_call_hook(hook_request: CallHookRequest) -> GamendResult:
-	return _call_api(_hooks, "call_hook", [hook_request])
+	return _call_api(HooksApi.new(_config), "call_hook", [hook_request])
 
 ## List available hook functions
 func hooks_list_hooks() -> GamendResult:
-	return _call_api(_hooks, "list_hooks", [])
+	return _call_api(HooksApi.new(_config), "list_hooks", [])
 
 ### USERS
 
 ## Delete current user
 func user_delete_current_user():
-	return _call_api(_users, "delete_current_user")
+	return _call_api(UsersApi.new(_config), "delete_current_user")
 
 ## Get current user info
 func users_get_current_user():
-	return _call_api(_users, "get_current_user")
+	return _call_api(UsersApi.new(_config), "get_current_user")
 
 ## Update current user's display name
 func user_update_current_user_display_name(display_name: String):
-	return _call_api(_users, "update_current_user_display_name", [display_name])
+	return _call_api(UsersApi.new(_config), "update_current_user_display_name", [display_name])
 
 ## Update current user's password
 func user_update_current_user_password(password: String):
-	return _call_api(_users, "update_current_user_password", [password])
+	return _call_api(UsersApi.new(_config), "update_current_user_password", [password])
 
 ## Search users by id/email/display_name
 func users_search_users(query = "", page = 1, pageSize = 25):
-	return _call_api(_users, "search_users", [query, page, pageSize])
+	return _call_api(UsersApi.new(_config), "search_users", [query, page, pageSize])
 
 ## Get a user by id
 func users_get_user(id: String):
-	return _call_api(_users, "get_user", [id])
+	return _call_api(UsersApi.new(_config), "get_user", [id])
 
 
 ### AUTHENTICATION
 
 ## Get OAuth session status
 func authenticate_oauth_session_status(session_id: String):
-	return _call_api(_authenticate, "oauth_session_status", [session_id])
+	return _call_api(AuthenticationApi.new(_config), "oauth_session_status", [session_id])
 
 ## Initiate API OAuth
 func authenticate_oauth_request(provider: String):
-	return _call_api(_authenticate, "oauth_request", [provider])
+	return _call_api(AuthenticationApi.new(_config), "oauth_request", [provider])
 
 ## API Callback / Code Exchange
 func authenticate_oauth_api_callback(provider: String, callback_request: OauthApiCallbackRequest):
-	return _call_api(_authenticate, "oauth_api_callback", [provider, callback_request])
+	return _call_api(AuthenticationApi.new(_config), "oauth_api_callback", [provider, callback_request])
 
 ## Login
 func authenticate_login(login_request: LoginRequest):
-	return _call_api(_authenticate, "login", [login_request])
+	return _call_api(AuthenticationApi.new(_config), "login", [login_request])
 
 ## Device login
 func authenticate_device_login(device_id: String):
 	var device_login := DeviceLoginRequest.new()
 	device_login.device_id = device_id
-	return _call_api(_authenticate, "device_login", [device_login])
+	return _call_api(AuthenticationApi.new(_config), "device_login", [device_login])
 
 ## Logout
 func authenticate_logout():
-	return _call_api(_authenticate, "logout")
+	return _call_api(AuthenticationApi.new(_config), "logout")
 
 ## Unlink OAuth provider
 func authenticate_unlink_provider(provider: String):
-	return _call_api(_authenticate, "unlink_provider", [provider])
+	return _call_api(AuthenticationApi.new(_config), "unlink_provider", [provider])
 
 ## Refresh access token
-func authenticate_refresh_token(refresh_token: RefreshTokenRequest):
-	return _call_api(_authenticate, "refresh_token", [refresh_token])
+func authenticate_refresh_token(refresh_token: String):
+	var refresh_param:= RefreshTokenRequest.new()
+	refresh_param.refresh_token = refresh_token
+	return _call_api(AuthenticationApi.new(_config), "refresh_token", [refresh_param])
 
 ### FRIENDS
 
 ## Send a friend request
 func friends_create_friend_request(friend_request: CreateFriendRequestRequest):
-	return _call_api(_friends, "create_friend_request", [friend_request])
+	return _call_api(FriendsApi.new(_config), "create_friend_request", [friend_request])
 
 ## Remove/cancel a friendship or request
 func friends_remove_friendship(id: int):
-	return _call_api(_friends, "remove_friendship", [id])
+	return _call_api(FriendsApi.new(_config), "remove_friendship", [id])
 
 ## Accept a friend request
 func friends_accept_friend_request(id: int):
-	return _call_api(_friends, "accept_friend_request", [id])
+	return _call_api(FriendsApi.new(_config), "accept_friend_request", [id])
 
 ## Block a friend request / user
 func friends_block_friend_request(id: int):
-	return _call_api(_friends, "block_friend_request", [id])
+	return _call_api(FriendsApi.new(_config), "block_friend_request", [id])
 
 ## Reject a friend request
 func friends_reject_friend_request(id: int):
-	return _call_api(_friends, "reject_friend_request", [id])
+	return _call_api(FriendsApi.new(_config), "reject_friend_request", [id])
 
 ## Unblock a previously-blocked friendship
 func friends_unblock_friend(id: int):
-	return _call_api(_friends, "unblock_friend", [id])
+	return _call_api(FriendsApi.new(_config), "unblock_friend", [id])
 
 ## List users you've blocked
 func friends_list_blocked_friends(page = 1, page_size = 25):
-	_friends.list_blocked_friends()
-	return _call_api(_friends, "list_blocked_friends", [page, page_size])
+	return _call_api(FriendsApi.new(_config), "list_blocked_friends", [page, page_size])
 
 ## List pending friend requests (incoming and outgoing)
 func friends_list_friend_requests(page = 1, page_size = 25):
-	return _call_api(_friends, "list_friend_requests", [page, page_size])
+	return _call_api(FriendsApi.new(_config), "list_friend_requests", [page, page_size])
 
 ## List current user's friends (returns a paginated set of user objects)
 func friends_list_friends(page = 1, page_size = 25):
-	return _call_api(_friends, "list_friends", [page, page_size])
+	return _call_api(FriendsApi.new(_config), "list_friends", [page, page_size])
 
 ### LOBBIES
 
@@ -235,46 +222,46 @@ func lobbies_list_lobbies(
 	page_size = null,
 	metadata_key = "",
 	metadata_value = ""):
-	return _call_api(_lobbies, "list_lobbies", [query, page, page_size, metadata_key, metadata_value])
+	return _call_api(LobbiesApi.new(_config), "list_lobbies", [query, page, page_size, metadata_key, metadata_value])
 
 ## Update lobby (host only)
 func lobbies_update_lobby(update_request: UpdateLobbyRequest):
-	return _call_api(_lobbies, "update_lobby", [update_request])
+	return _call_api(LobbiesApi.new(_config), "update_lobby", [update_request])
 
 ## Create a lobby
 func lobbies_create_lobby(create_request: CreateLobbyRequest):
-	return _call_api(_lobbies, "create_lobby", [create_request])
+	return _call_api(LobbiesApi.new(_config), "create_lobby", [create_request])
 
 ## Kick a user from the lobby (host only)
 func lobbies_kick_user(kick_request: KickUserRequest):
-	return _call_api(_lobbies, "kick_user", [kick_request])
+	return _call_api(LobbiesApi.new(_config), "kick_user", [kick_request])
 
 ## Leave the current lobby
 func lobbies_leave_lobby():
-	return _call_api(_lobbies, "leave_lobby")
+	return _call_api(LobbiesApi.new(_config), "leave_lobby")
 
 ## Quick-join or create a lobby
 func lobbies_quick_join(quick_request: QuickJoinRequest):
-	return _call_api(_lobbies, "quick_join", [quick_request])
+	return _call_api(LobbiesApi.new(_config), "quick_join", [quick_request])
 
 ## Join a lobby
 func lobbies_join_lobby(id: int, join_request: JoinLobbyRequest = null):
-	return _call_api(_lobbies, "join_lobby", [id, join_request])
+	return _call_api(LobbiesApi.new(_config), "join_lobby", [id, join_request])
 
 ### LEADERBOARDS
 
 ## List leaderboard records
 func leaderboards_list_leaderboard_records(id: int, page = 1, page_size = 25):
-	return _call_api(_leaderboards, "list_leaderboard_records", [id, page, page_size])
+	return _call_api(LeaderboardsApi.new(_config), "list_leaderboard_records", [id, page, page_size])
 
 ## List leaderboards
 func leaderboards_list_leaderboards(slug = "", active = "", order_by = "ends_at", starts_after = null, starts_before = null, ends_after = null, ends_before = null, page = 1, page_size = 25):
-	return _call_api(_leaderboards, "list_leaderboards", [slug, active, order_by, starts_after, starts_before, ends_after, ends_before, page, page_size])
+	return _call_api(LeaderboardsApi.new(_config), "list_leaderboards", [slug, active, order_by, starts_after, starts_before, ends_after, ends_before, page, page_size])
 
 ## Get current user's record
 func leaderboards_get_my_record(id: int):
-	return _call_api(_leaderboards, "get_my_record", [id])
+	return _call_api(LeaderboardsApi.new(_config), "get_my_record", [id])
 
 ## List records around a user
 func leaderboards_list_records_around_user(id: int, user_id: int, limit = 11):
-	return _call_api(_leaderboards, "list_records_around_user", [id, user_id, limit])
+	return _call_api(LeaderboardsApi.new(_config), "list_records_around_user", [id, user_id, limit])

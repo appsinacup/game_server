@@ -13,6 +13,20 @@ defmodule GameServer.Lobbies.Lobby do
   alias GameServer.Accounts.User
   # membership via users.lobby_id
 
+  @derive {Jason.Encoder,
+           only: [
+             :id,
+             :title,
+             :host_id,
+             :hostless,
+             :max_users,
+             :is_hidden,
+             :is_locked,
+             :metadata,
+             :inserted_at,
+             :updated_at
+           ]}
+
   schema "lobbies" do
     field :title, :string
     field :hostless, :boolean, default: false

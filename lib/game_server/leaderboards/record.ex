@@ -13,6 +13,18 @@ defmodule GameServer.Leaderboards.Record do
   alias GameServer.Accounts.User
   alias GameServer.Leaderboards.Leaderboard
 
+  @derive {Jason.Encoder,
+           only: [
+             :id,
+             :leaderboard_id,
+             :user_id,
+             :score,
+             :rank,
+             :metadata,
+             :inserted_at,
+             :updated_at
+           ]}
+
   schema "leaderboard_records" do
     belongs_to :leaderboard, Leaderboard
     belongs_to :user, User

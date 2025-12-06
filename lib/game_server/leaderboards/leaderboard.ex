@@ -30,6 +30,21 @@ defmodule GameServer.Leaderboards.Leaderboard do
   @sort_orders ~w(desc asc)a
   @operators ~w(set best incr decr)a
 
+  @derive {Jason.Encoder,
+           only: [
+             :id,
+             :slug,
+             :title,
+             :description,
+             :sort_order,
+             :operator,
+             :starts_at,
+             :ends_at,
+             :metadata,
+             :inserted_at,
+             :updated_at
+           ]}
+
   schema "leaderboards" do
     field :slug, :string
     field :title, :string

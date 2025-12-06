@@ -108,7 +108,7 @@ defmodule GameServerWeb.Api.V1.SessionControllerTest do
   end
 
   describe "POST /api/v1/refresh" do
-    test "returns new access token with valid refresh token", %{conn: conn} do
+    test "returns new access token with valid refresh token", %{conn: conn, user: user} do
       # Login to get tokens
       conn =
         post(conn, "/api/v1/login", %{
@@ -124,10 +124,18 @@ defmodule GameServerWeb.Api.V1.SessionControllerTest do
 
       resp = json_response(conn, 200)
 
-      assert %{"data" => %{"access_token" => new_access_token, "expires_in" => 900}} = resp
-      refute Map.has_key?(resp["data"], "user_id")
+      assert %{
+               "data" => %{
+                 "access_token" => new_access_token,
+                 "refresh_token" => returned_refresh_token,
+                 "user_id" => user_id,
+                 "expires_in" => 900
+               }
+             } = resp
 
       assert is_binary(new_access_token)
+      assert returned_refresh_token == refresh_token
+      assert user_id == user.id
     end
 
     test "returns 401 with invalid refresh token", %{conn: conn} do
