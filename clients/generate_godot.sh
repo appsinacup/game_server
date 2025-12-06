@@ -106,7 +106,8 @@ find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/li
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_leaderboard_records_200_response_data_inner/ListLeaderboardRecords200ResponseDataInner/g" -i
 # Replace list_leaderboards_200_response_data_inner with ListLeaderboards200ResponseDataInner
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_leaderboards_200_response_data_inner/ListLeaderboards200ResponseDataInner/g" -i
-# Replace 
+# Replace 333 with 16
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/333/16/g" -i
 # headers_for_godot, body_serialized
 # with 
 # headers_for_godot, "" if body_serialized == "null" else body_serialized
