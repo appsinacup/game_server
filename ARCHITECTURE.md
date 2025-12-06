@@ -9,40 +9,24 @@ The system follows a typical Phoenix application structure with game clients (Go
 ```mermaid
 flowchart TB
     subgraph Clients["Clients"]
-        GameClients["Game Clients<br/>(Godot / JS SDK)"]
-        Browser["Web Browser"]
+        GameClients["Game Clients<br/>(Godot / JS SDK)"] ~~~ Browser["Web Browser"]
     end
 
     subgraph Phoenix["Phoenix Application"]
-        API["REST API"]
-        WebUI["Web UI<br/>(LiveViews)"]
-        Realtime["WebSocket<br/>Channels"]
-        Domain["Domain Logic<br/>(Accounts, Lobbies,<br/>Friends, Leaderboards)"]
-        Hooks["Server Scripting<br/>(Hooks)"]
-        Auth["Authentication<br/>(JWT + Sessions)"]
+        Realtime["WebSocket<br/>Channels"] ~~~ WebUI["Web UI<br/>(LiveViews)"] ~~~ API["REST API"]
+    end
+
+    subgraph Core["Core"]
+        Domain["Domain Logic<br/>(Accounts, Lobbies,<br/>Friends, Leaderboards)"] ~~~ Auth["Authentication<br/>(JWT + Sessions)"] ~~~ Hooks["Server Scripting<br/>(Hooks)"]
     end
 
     subgraph External["External Services"]
-        DB[(Database)]
-        OAuth["OAuth Providers<br/>(Discord, Google,<br/>Apple, Facebook, Steam)"]
-        Email["Email (SMTP)"]
-        Monitoring["Monitoring<br/>(Sentry)"]
+        DB[(Database)] ~~~ OAuth["OAuth Providers<br/>(Discord, Google,<br/>Apple, Facebook, Steam)"] ~~~ Email["Email (SMTP)"] ~~~ Monitoring["Monitoring<br/>(Sentry)"]
     end
 
-    GameClients -->|"HTTP"| API
-    GameClients -->|"WebSocket"| Realtime
-    Browser -->|"HTTP"| API & WebUI
-
-    API --> Auth
-    API --> Domain
-    WebUI --> Domain
-    Realtime --> Domain
-
-    Auth --> OAuth
-    Domain --> Hooks
-    Domain --> DB
-    Domain --> Email
-    Domain --> Monitoring
+    Clients --> Phoenix
+    Phoenix --> Core
+    Core --> External
 ```
 
 ## 2. Authentication
