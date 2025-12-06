@@ -32,6 +32,117 @@ defmodule GameServerWeb.AuthController do
     end
   end
 
+  # Create an OAuth session for the API flow.
+  # If a JWT is present, stores the user_id in the data map for linking when the callback completes.
+  defp create_api_oauth_session(conn, provider) do
+    session_id = :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
+
+    # Check if user is authenticated - if so, store their ID for linking
+    data =
+      case maybe_load_user_from_jwt(conn) do
+        {:ok, %User{id: user_id}} ->
+          %{link_user_id: user_id}
+
+        {:ok, nil} ->
+          %{}
+      end
+
+    GameServer.OAuthSessions.create_session(session_id, %{
+      provider: provider,
+      status: "pending",
+      data: data
+    })
+
+    session_id
+  end
+
+  # Handle the session-based OAuth callback (browser redirect flow).
+  # If link_user_id is present in the session data, links the provider instead of login.
+  defp handle_session_oauth_callback(
+         conn,
+         session_id,
+         user_params,
+         provider_id_field,
+         changeset_fn,
+         find_or_create_fn
+       ) do
+    # Check if this session has a link_user_id in its data (meaning we should link, not login)
+    session = OAuthSessions.get_session(session_id)
+    link_user_id = session && get_in(session.data, ["link_user_id"])
+
+    if is_integer(link_user_id) do
+      # This is a linking flow
+      case Accounts.get_user!(link_user_id) do
+        user ->
+          case Accounts.link_account(user, user_params, provider_id_field, changeset_fn) do
+            {:ok, _updated_user} ->
+              OAuthSessions.create_session(session_id, %{
+                status: "completed",
+                data: %{linked: true, provider: Atom.to_string(provider_id_field)}
+              })
+
+              redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+
+            {:error, {:conflict, _other_user}} ->
+              OAuthSessions.create_session(session_id, %{
+                status: "error",
+                data: %{
+                  error: "provider_already_linked",
+                  message: "This provider is already linked to another account"
+                }
+              })
+
+              redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+
+            {:error, changeset} ->
+              OAuthSessions.create_session(session_id, %{
+                status: "error",
+                data: %{error: "link_failed", details: inspect(changeset.errors)}
+              })
+
+              redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+          end
+      end
+    else
+      # Normal login/create flow
+      case find_or_create_fn.(user_params) do
+        {:ok, user} ->
+          {:ok, access_token, _} = Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+          {:ok, refresh_token, _} =
+            Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+          OAuthSessions.create_session(session_id, %{
+            status: "completed",
+            data: %{
+              access_token: access_token,
+              refresh_token: refresh_token,
+              expires_in: 900,
+              user_id: user.id
+            }
+          })
+
+          redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+
+        {:error, changeset} ->
+          OAuthSessions.create_session(session_id, %{
+            status: "error",
+            data: %{details: changeset.errors}
+          })
+
+          redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+      end
+    end
+  rescue
+    Ecto.NoResultsError ->
+      OAuthSessions.create_session(session_id, %{
+        status: "error",
+        data: %{error: "user_not_found", message: "The user to link to was not found"}
+      })
+
+      redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+  end
+
   # Handle linking a provider to an existing user (API flow)
   defp handle_api_link(conn, user, user_params, provider_id_field, changeset_fn) do
     case Accounts.link_account(user, user_params, provider_id_field, changeset_fn) do
@@ -661,31 +772,24 @@ defmodule GameServerWeb.AuthController do
   )
 
   def api_request(conn, %{"provider" => "discord"}) do
-    # Generate a unique session ID for this OAuth request
-    session_id = :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
-
-    # Persist session in DB for polling by API clients
-    GameServer.OAuthSessions.create_session(session_id, %{provider: "discord", status: "pending"})
+    # Create session (with optional link_user_id if JWT is present)
+    session_id = create_api_oauth_session(conn, "discord")
 
     # Generate the Discord OAuth URL with state parameter
     client_id = System.get_env("DISCORD_CLIENT_ID")
-    # Use the unified callback endpoint
     base = GameServerWeb.Endpoint.url()
     redirect_uri = "#{base}/auth/discord/callback"
     scope = "identify email"
-    state = session_id
 
     url =
-      "https://discord.com/oauth2/authorize?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}&state=#{URI.encode_www_form(state)}"
+      "https://discord.com/oauth2/authorize?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}&state=#{URI.encode_www_form(session_id)}"
 
     json(conn, %{authorization_url: url, session_id: session_id})
   end
 
   def api_request(conn, %{"provider" => "apple"}) do
-    # Generate a unique session ID for this OAuth request
-    session_id = :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
-
-    GameServer.OAuthSessions.create_session(session_id, %{provider: "apple", status: "pending"})
+    # Create session (with optional link_user_id if JWT is present)
+    session_id = create_api_oauth_session(conn, "apple")
 
     # Generate the Apple OAuth URL
     client_id = System.get_env("APPLE_CLIENT_ID")
@@ -700,10 +804,8 @@ defmodule GameServerWeb.AuthController do
   end
 
   def api_request(conn, %{"provider" => "google"}) do
-    # Generate a unique session ID for this OAuth request
-    session_id = :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
-
-    GameServer.OAuthSessions.create_session(session_id, %{provider: "google", status: "pending"})
+    # Create session (with optional link_user_id if JWT is present)
+    session_id = create_api_oauth_session(conn, "google")
 
     # Generate the Google OAuth URL
     client_id = System.get_env("GOOGLE_CLIENT_ID")
@@ -718,10 +820,8 @@ defmodule GameServerWeb.AuthController do
   end
 
   def api_request(conn, %{"provider" => "facebook"}) do
-    # Generate a unique session ID for this OAuth request
-    session_id = :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
-
-    GameServer.OAuthSessions.create_session(session_id, %{provider: "facebook", status: "pending"})
+    # Create session (with optional link_user_id if JWT is present)
+    session_id = create_api_oauth_session(conn, "facebook")
 
     # Generate the Facebook OAuth URL
     client_id = System.get_env("FACEBOOK_CLIENT_ID")
@@ -736,10 +836,8 @@ defmodule GameServerWeb.AuthController do
   end
 
   def api_request(conn, %{"provider" => "steam"}) do
-    # Generate a unique session ID for this OpenID (Steam) request
-    session_id = :crypto.strong_rand_bytes(32) |> Base.url_encode64(padding: false)
-
-    GameServer.OAuthSessions.create_session(session_id, %{provider: "steam", status: "pending"})
+    # Create session (with optional link_user_id if JWT is present)
+    session_id = create_api_oauth_session(conn, "steam")
 
     base = GameServerWeb.Endpoint.url()
 
@@ -1317,167 +1415,57 @@ defmodule GameServerWeb.AuthController do
   end
 
   defp do_find_or_create_discord_for_session(conn, user_params, session_id) do
-    case Accounts.find_or_create_from_discord(user_params) do
-      {:ok, user} ->
-        {:ok, access_token, _access_claims} =
-          Guardian.encode_and_sign(user, %{}, token_type: "access")
-
-        {:ok, refresh_token, _refresh_claims} =
-          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
-
-        # Store tokens in session (include user_id so API clients polling can know who was authenticated)
-        GameServer.OAuthSessions.create_session(session_id, %{
-          status: "completed",
-          data: %{
-            access_token: access_token,
-            refresh_token: refresh_token,
-            expires_in: 900,
-            user_id: user.id
-          }
-        })
-
-        # Redirect to success page
-        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
-
-      {:error, changeset} ->
-        GameServer.OAuthSessions.create_session(session_id, %{
-          status: "error",
-          data: %{details: changeset.errors}
-        })
-
-        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
-    end
+    handle_session_oauth_callback(
+      conn,
+      session_id,
+      user_params,
+      :discord_id,
+      &User.discord_oauth_changeset/2,
+      &Accounts.find_or_create_from_discord/1
+    )
   end
 
   defp do_find_or_create_google_for_session(conn, user_params, session_id) do
-    case Accounts.find_or_create_from_google(user_params) do
-      {:ok, user} ->
-        {:ok, access_token, _access_claims} =
-          Guardian.encode_and_sign(user, %{}, token_type: "access")
-
-        {:ok, refresh_token, _refresh_claims} =
-          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
-
-        # Store tokens in session
-        GameServer.OAuthSessions.create_session(session_id, %{
-          status: "completed",
-          data: %{
-            access_token: access_token,
-            refresh_token: refresh_token,
-            expires_in: 900,
-            user_id: user.id
-          }
-        })
-
-        # Redirect to success page
-        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
-
-      {:error, changeset} ->
-        GameServer.OAuthSessions.create_session(session_id, %{
-          status: "error",
-          data: %{details: changeset.errors}
-        })
-
-        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
-    end
+    handle_session_oauth_callback(
+      conn,
+      session_id,
+      user_params,
+      :google_id,
+      &User.google_oauth_changeset/2,
+      &Accounts.find_or_create_from_google/1
+    )
   end
 
   defp do_find_or_create_facebook_for_session(conn, user_params, session_id) do
-    case Accounts.find_or_create_from_facebook(user_params) do
-      {:ok, user} ->
-        {:ok, access_token, _access_claims} =
-          Guardian.encode_and_sign(user, %{}, token_type: "access")
-
-        {:ok, refresh_token, _refresh_claims} =
-          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
-
-        # Store tokens in session
-        GameServer.OAuthSessions.create_session(session_id, %{
-          status: "completed",
-          data: %{
-            access_token: access_token,
-            refresh_token: refresh_token,
-            expires_in: 900,
-            user_id: user.id
-          }
-        })
-
-        # Redirect to success page
-        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
-
-      {:error, changeset} ->
-        GameServer.OAuthSessions.create_session(session_id, %{
-          status: "error",
-          data: %{details: changeset.errors}
-        })
-
-        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
-    end
+    handle_session_oauth_callback(
+      conn,
+      session_id,
+      user_params,
+      :facebook_id,
+      &User.facebook_oauth_changeset/2,
+      &Accounts.find_or_create_from_facebook/1
+    )
   end
 
   defp do_find_or_create_apple_for_session(conn, user_params, session_id) do
-    case Accounts.find_or_create_from_apple(user_params) do
-      {:ok, user} ->
-        {:ok, access_token, _access_claims} =
-          Guardian.encode_and_sign(user, %{}, token_type: "access")
-
-        {:ok, refresh_token, _refresh_claims} =
-          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
-
-        # Store tokens in session
-        GameServer.OAuthSessions.create_session(session_id, %{
-          status: "completed",
-          data: %{
-            access_token: access_token,
-            refresh_token: refresh_token,
-            expires_in: 900,
-            user_id: user.id
-          }
-        })
-
-        # Redirect to success page
-        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
-
-      {:error, changeset} ->
-        GameServer.OAuthSessions.create_session(session_id, %{
-          status: "error",
-          data: %{details: changeset.errors}
-        })
-
-        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
-    end
+    handle_session_oauth_callback(
+      conn,
+      session_id,
+      user_params,
+      :apple_id,
+      &User.apple_oauth_changeset/2,
+      &Accounts.find_or_create_from_apple/1
+    )
   end
 
   defp do_find_or_create_steam_for_session(conn, user_params, session_id) do
-    case Accounts.find_or_create_from_steam(user_params) do
-      {:ok, user} ->
-        {:ok, access_token, _access_claims} =
-          Guardian.encode_and_sign(user, %{}, token_type: "access")
-
-        {:ok, refresh_token, _refresh_claims} =
-          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
-
-        # Store tokens in session
-        GameServer.OAuthSessions.create_session(session_id, %{
-          status: "completed",
-          data: %{
-            access_token: access_token,
-            refresh_token: refresh_token,
-            expires_in: 900,
-            user_id: user.id
-          }
-        })
-
-        # Redirect to success page
-        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
-
-      {:error, changeset} ->
-        GameServer.OAuthSessions.create_session(session_id, %{
-          status: "error",
-          data: %{details: changeset.errors}
-        })
-
-        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
-    end
+    handle_session_oauth_callback(
+      conn,
+      session_id,
+      user_params,
+      :steam_id,
+      &User.steam_oauth_changeset/2,
+      &Accounts.find_or_create_from_steam/1
+    )
   end
 end

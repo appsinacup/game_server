@@ -181,4 +181,59 @@ defmodule GameServerWeb.UserChannelTest do
       assert {:error, _} = subscribe_and_join(socket2, "user:#{user.id}", %{})
     end)
   end
+
+  test "user channel receives updated event when linking a provider" do
+    # Create a user with a password and google_id (so we can link another provider)
+    user = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+
+    {:ok, token, _} = Guardian.encode_and_sign(user)
+    {:ok, socket} = connect(GameServerWeb.UserSocket, %{"token" => token})
+    {:ok, _, _socket} = subscribe_and_join(socket, "user:#{user.id}", %{})
+
+    # Link discord provider to the user
+    {:ok, updated_user} =
+      GameServer.Accounts.link_account(
+        user,
+        %{discord_id: "123456789"},
+        :discord_id,
+        &GameServer.Accounts.User.discord_oauth_changeset/2
+      )
+
+    # Should receive updated event
+    assert_push "updated", payload
+    assert payload.id == updated_user.id
+  end
+
+  test "user channel receives updated event when unlinking a provider" do
+    # Create a user then add multiple providers so we can unlink one
+    user = AccountsFixtures.user_fixture()
+
+    # Use link_account to add providers
+    {:ok, user} =
+      GameServer.Accounts.link_account(
+        user,
+        %{google_id: "google123"},
+        :google_id,
+        &GameServer.Accounts.User.google_oauth_changeset/2
+      )
+
+    {:ok, user} =
+      GameServer.Accounts.link_account(
+        user,
+        %{discord_id: "discord456"},
+        :discord_id,
+        &GameServer.Accounts.User.discord_oauth_changeset/2
+      )
+
+    {:ok, token, _} = Guardian.encode_and_sign(user)
+    {:ok, socket} = connect(GameServerWeb.UserSocket, %{"token" => token})
+    {:ok, _, _socket} = subscribe_and_join(socket, "user:#{user.id}", %{})
+
+    # Unlink discord provider
+    {:ok, updated_user} = GameServer.Accounts.unlink_provider(user, :discord)
+
+    # Should receive updated event
+    assert_push "updated", payload
+    assert payload.id == updated_user.id
+  end
 end

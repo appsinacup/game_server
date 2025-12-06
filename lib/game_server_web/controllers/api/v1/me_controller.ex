@@ -57,15 +57,8 @@ defmodule GameServerWeb.Api.V1.MeController do
           profile_url: user.profile_url || "",
           metadata: user.metadata || %{},
           display_name: user.display_name || "",
-          linked_providers: %{
-            google: user.google_id != nil,
-            facebook: user.facebook_id != nil,
-            discord: user.discord_id != nil,
-            apple: user.apple_id != nil,
-            steam: user.steam_id != nil,
-            device: user.device_id != nil
-          },
-          has_password: user.hashed_password != nil
+          linked_providers: GameServer.Accounts.get_linked_providers(user),
+          has_password: GameServer.Accounts.has_password?(user)
         })
 
       _ ->

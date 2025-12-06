@@ -695,6 +695,9 @@ defmodule GameServer.Accounts do
             _ -> user
           end
 
+        # Broadcast user update to user channel
+        broadcast_user_update(user)
+
         {:ok, user}
 
       {:error, changeset} ->
@@ -774,9 +777,17 @@ defmodule GameServer.Accounts do
           changes
         end
 
-      user
-      |> Ecto.Changeset.change(changes)
-      |> Repo.update()
+      case user
+           |> Ecto.Changeset.change(changes)
+           |> Repo.update() do
+        {:ok, updated_user} ->
+          # Broadcast user update to user channel
+          broadcast_user_update(updated_user)
+          {:ok, updated_user}
+
+        error ->
+          error
+      end
     end
   end
 
@@ -1052,12 +1063,39 @@ defmodule GameServer.Accounts do
   def broadcast_user_update(%User{} = user) do
     payload = %{
       id: user.id,
+      email: user.email || "",
+      profile_url: user.profile_url || "",
       metadata: user.metadata || %{},
-      display_name: user.display_name
+      display_name: user.display_name || "",
+      linked_providers: get_linked_providers(user),
+      has_password: has_password?(user)
     }
 
     GameServerWeb.Endpoint.broadcast("user:#{user.id}", "updated", payload)
     :ok
+  end
+
+  @doc """
+  Returns a map of linked OAuth providers for the user.
+
+  Each provider is a boolean indicating whether that provider is linked.
+  """
+  def get_linked_providers(%User{} = user) do
+    %{
+      google: user.google_id != nil,
+      facebook: user.facebook_id != nil,
+      discord: user.discord_id != nil,
+      apple: user.apple_id != nil,
+      steam: user.steam_id != nil,
+      device: user.device_id != nil
+    }
+  end
+
+  @doc """
+  Returns whether the user has a password set.
+  """
+  def has_password?(%User{} = user) do
+    user.hashed_password != nil
   end
 
   @doc """
