@@ -201,7 +201,19 @@ The hooks system provides server-side scripting capabilities. Elixir modules pla
 
 ## 5. Database Schema
 
-The database schema supports the core features: users with authentication tokens, lobbies with membership tracking, friendships with request states, leaderboards with score records, and OAuth sessions for tracking authentication flows. Users can belong to one lobby at a time (via `lobby_id`), and all entities support JSON metadata for extensibility.
+The database schema supports the core features: users with authentication tokens and OAuth provider IDs, lobbies with membership tracking, friendships with request states, leaderboards with score records, and OAuth sessions for tracking authentication flows. Users can belong to one lobby at a time (via `lobby_id`), and all entities support JSON metadata for extensibility.
+
+### 5.1 Users
+
+User accounts with multiple authentication methods and profile data.
+
+**Features:**
+- **Email/Password authentication** - Traditional registration with hashed passwords and email confirmation
+- **Device tokens** - Anonymous authentication via unique device identifiers
+- **OAuth linking/unlinking** - Link multiple providers (Discord, Google, Apple, Facebook, Steam) to a single account; unlink providers while keeping the account
+- **Profile management** - Display name, profile URL (avatar from OAuth), and arbitrary metadata JSON
+- **Admin flag** - Elevated privileges for admin dashboard access
+- **Real-time updates** - User changes broadcast via PubSub to connected clients
 
 ```mermaid
 erDiagram
@@ -210,9 +222,17 @@ erDiagram
         email string UK
         display_name string
         hashed_password string
+        confirmed_at datetime
+        device_id string
+        discord_id string
+        google_id string
+        apple_id string
+        facebook_id string
+        steam_id string
+        profile_url string
+        is_admin boolean
         metadata jsonb
         lobby_id bigint FK
-        confirmed_at datetime
         inserted_at datetime
         updated_at datetime
     }
@@ -223,12 +243,31 @@ erDiagram
         token binary
         context string
         sent_to string
+        authenticated_at datetime
         inserted_at datetime
     }
 
+    users ||--o{ users_tokens : "has"
+```
+
+### 5.2 Lobbies
+
+Game rooms for matchmaking and multiplayer sessions.
+
+**Features:**
+- **Host management** - One user hosts the lobby with elevated permissions (kick, update settings)
+- **Hostless mode** - Server-managed lobbies without a dedicated host
+- **Capacity limits** - Configurable max users (1-128)
+- **Visibility** - Hidden lobbies excluded from public listings
+- **Locking** - Locked lobbies prevent new joins; optional password protection
+- **Membership tracking** - Users belong to one lobby at a time via `lobby_id` foreign key
+- **Real-time updates** - Lobby changes broadcast to all members and lobby list subscribers
+- **Metadata** - Arbitrary JSON for game-specific settings (map, mode, etc.)
+
+```mermaid
+erDiagram
     lobbies {
         id bigint PK
-        name string UK
         title string
         host_id bigint FK
         hostless boolean
@@ -241,22 +280,64 @@ erDiagram
         updated_at datetime
     }
 
+    users ||--o| lobbies : "member of"
+    users ||--o{ lobbies : "hosts"
+```
+
+### 5.3 Friends
+
+Social connections between users with request workflow.
+
+**Features:**
+- **Friend requests** - Send, accept, or reject friend requests
+- **Blocking** - Block users to prevent further interaction
+- **Bidirectional queries** - Find friends regardless of who initiated the request
+- **Status tracking** - `pending`, `accepted`, `rejected`, `blocked` states
+- **Real-time notifications** - Friend events broadcast to user channels
+
+```mermaid
+erDiagram
     friendships {
         id bigint PK
-        sender_id bigint FK
-        receiver_id bigint FK
+        requester_id bigint FK
+        target_id bigint FK
         status string
         inserted_at datetime
         updated_at datetime
     }
 
+    users ||--o{ friendships : "requester"
+    users ||--o{ friendships : "target"
+```
+
+### 5.4 Leaderboards
+
+Competitive scoreboards with seasonal support and multiple scoring modes.
+
+**Features:**
+- **Seasons via slugs** - Reuse the same `slug` (e.g., "weekly_kills") across multiple leaderboard instances; query by slug for the currently active one, or by ID for a specific season
+- **Time-limited** - Optional `starts_at` and `ends_at` for seasonal/event leaderboards
+- **Sort orders:**
+  - `desc` - Higher scores rank first (default, e.g., points)
+  - `asc` - Lower scores rank first (e.g., fastest time)
+- **Score operators (4 types):**
+  - `set` - Always replace with new score
+  - `best` - Only update if new score is better (default)
+  - `incr` - Add to existing score (cumulative)
+  - `decr` - Subtract from existing score
+- **Pagination** - Efficient ranked queries with cursor-based pagination
+- **User records** - Get a user's score and rank, or scores around their position
+- **Metadata** - Arbitrary JSON per leaderboard and per record
+
+```mermaid
+erDiagram
     leaderboards {
         id bigint PK
         slug string
         title string
         description string
-        sort_order string
-        operator string
+        sort_order enum
+        operator enum
         starts_at datetime
         ends_at datetime
         metadata jsonb
@@ -264,33 +345,41 @@ erDiagram
         updated_at datetime
     }
 
-    records {
+    leaderboard_records {
         id bigint PK
         leaderboard_id bigint FK
         user_id bigint FK
-        score float
+        score integer
         metadata jsonb
         inserted_at datetime
         updated_at datetime
     }
 
+    users ||--o{ leaderboard_records : "has"
+    leaderboards ||--o{ leaderboard_records : "contains"
+```
+
+### 5.5 OAuth Sessions
+
+Temporary sessions for OAuth polling flows used by game clients.
+
+**Features:**
+- **Session polling** - Game clients poll for OAuth completion status
+- **Multi-provider** - Supports all OAuth providers (Discord, Google, Apple, Facebook, Steam)
+- **Status tracking** - `pending`, `completed`, `error`, `conflict` states
+- **Data storage** - Stores tokens, user info, and error details for debugging
+
+```mermaid
+erDiagram
     oauth_sessions {
-        id uuid PK
-        status string
+        id bigint PK
+        session_id string UK
         provider string
+        status string
         data jsonb
-        expires_at datetime
         inserted_at datetime
         updated_at datetime
     }
-
-    users ||--o{ users_tokens : "has"
-    users ||--o| lobbies : "current lobby"
-    users ||--o{ lobbies : "hosts"
-    users ||--o{ friendships : "sender"
-    users ||--o{ friendships : "receiver"
-    users ||--o{ records : "has"
-    leaderboards ||--o{ records : "contains"
 ```
 
 ## 6. Directory Structure
