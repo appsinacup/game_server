@@ -623,7 +623,9 @@ defmodule GameServerWeb.AuthController do
     operation_id: "oauth_api_callback",
     summary: "API callback / code exchange",
     description:
-      "Accepts an OAuth authorization code via the API and returns access/refresh tokens on success. For the Steam provider, the `code` field should contain a server-verifiable Steam credential (for example a Steam auth ticket or Steam identifier) and will be validated via the Steam Web API.",
+      "Accepts an OAuth authorization code via the API and returns access/refresh tokens on success. " <>
+        "If a valid JWT is provided in the Authorization header, the provider will be **linked** to the authenticated user instead of logging in. " <>
+        "For the Steam provider, the `code` field should contain a server-verifiable Steam credential (for example a Steam auth ticket or Steam identifier) and will be validated via the Steam Web API.",
     tags: ["Authentication"],
     parameters: [
       provider: [
@@ -877,26 +879,19 @@ defmodule GameServerWeb.AuthController do
         user_params =
           if(profile_url, do: Map.put(user_params, :profile_url, profile_url), else: user_params)
 
-        case Accounts.find_or_create_from_facebook(user_params) do
-          {:ok, user} ->
-            {:ok, access_token, _} = Guardian.encode_and_sign(user, %{}, token_type: "access")
+        # Check if user is authenticated (linking) or not (login)
+        case maybe_load_user_from_jwt(conn) do
+          {:ok, %User{} = current_user} ->
+            handle_api_link(
+              conn,
+              current_user,
+              user_params,
+              :facebook_id,
+              &User.facebook_oauth_changeset/2
+            )
 
-            {:ok, refresh_token, _} =
-              Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
-
-            json(conn, %{
-              data: %{
-                access_token: access_token,
-                refresh_token: refresh_token,
-                expires_in: 900,
-                user_id: user.id
-              }
-            })
-
-          {:error, changeset} ->
-            conn
-            |> put_status(:bad_request)
-            |> json(%{error: "create_failed", details: changeset.errors})
+          {:ok, nil} ->
+            handle_api_login(conn, &Accounts.find_or_create_from_facebook/1, user_params)
         end
 
       {:error, err} ->
@@ -928,26 +923,19 @@ defmodule GameServerWeb.AuthController do
 
         user_params = %{email: email, apple_id: apple_id, display_name: name}
 
-        case Accounts.find_or_create_from_apple(user_params) do
-          {:ok, user} ->
-            {:ok, access_token, _} = Guardian.encode_and_sign(user, %{}, token_type: "access")
+        # Check if user is authenticated (linking) or not (login)
+        case maybe_load_user_from_jwt(conn) do
+          {:ok, %User{} = current_user} ->
+            handle_api_link(
+              conn,
+              current_user,
+              user_params,
+              :apple_id,
+              &User.apple_oauth_changeset/2
+            )
 
-            {:ok, refresh_token, _} =
-              Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
-
-            json(conn, %{
-              data: %{
-                access_token: access_token,
-                refresh_token: refresh_token,
-                expires_in: 900,
-                user_id: user.id
-              }
-            })
-
-          {:error, changeset} ->
-            conn
-            |> put_status(:bad_request)
-            |> json(%{error: "create_failed", details: changeset.errors})
+          {:ok, nil} ->
+            handle_api_login(conn, &Accounts.find_or_create_from_apple/1, user_params)
         end
 
       {:error, err} ->
@@ -985,26 +973,19 @@ defmodule GameServerWeb.AuthController do
           profile_url: Map.get(profile_info, "profile_url")
         }
 
-        case Accounts.find_or_create_from_steam(user_params) do
-          {:ok, user} ->
-            {:ok, access_token, _} = Guardian.encode_and_sign(user, %{}, token_type: "access")
+        # Check if user is authenticated (linking) or not (login)
+        case maybe_load_user_from_jwt(conn) do
+          {:ok, %User{} = current_user} ->
+            handle_api_link(
+              conn,
+              current_user,
+              user_params,
+              :steam_id,
+              &User.steam_oauth_changeset/2
+            )
 
-            {:ok, refresh_token, _} =
-              Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
-
-            json(conn, %{
-              data: %{
-                access_token: access_token,
-                refresh_token: refresh_token,
-                expires_in: 900,
-                user_id: user.id
-              }
-            })
-
-          {:error, changeset} ->
-            conn
-            |> put_status(:bad_request)
-            |> json(%{error: "create_failed", details: changeset.errors})
+          {:ok, nil} ->
+            handle_api_login(conn, &Accounts.find_or_create_from_steam/1, user_params)
         end
 
       {:error, :missing_param} ->
