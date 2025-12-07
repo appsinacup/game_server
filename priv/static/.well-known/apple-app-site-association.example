@@ -1,0 +1,9 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [{
+      "appID": "your-team-id.com.yourapp.package",
+      "paths": ["/auth/success"]
+    }]
+  }
+}

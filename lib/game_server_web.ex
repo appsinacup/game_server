@@ -17,7 +17,11 @@ defmodule GameServerWeb do
   those modules here.
   """
 
-  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
+  # Add directories that should be served as static at the web root.
+  # Adding ".well-known" allows hosting files like
+  # /.well-known/apple-app-site-association from priv/static/.well-known
+  # so they can be placed/replaced at build time.
+  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt .well-known)
 
   def router do
     quote do
