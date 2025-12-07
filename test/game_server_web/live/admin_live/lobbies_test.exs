@@ -71,9 +71,9 @@ defmodule GameServerWeb.AdminLive.LobbiesTest do
     delete_btn = element(view, "#admin-lobby-#{lobby2.id} button", "Delete")
     render_click(delete_btn)
 
-    # re-fetch the page and ensure it's gone
-    html2 = render(view)
-    refute html2 =~ "admin-lobby-2"
+    # re-fetch the page and ensure that the specific lobby element is gone
+    _html2 = render(view)
+    refute has_element?(view, "#admin-lobby-#{lobby2.id}")
   end
 
   test "admin lobbies pagination displays totals and disables Next on last page", %{conn: conn} do
