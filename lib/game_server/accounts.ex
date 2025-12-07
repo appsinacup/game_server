@@ -564,7 +564,7 @@ defmodule GameServer.Accounts do
 
         user
         |> changeset_fn.(attrs)
-        |> update_and_clear_device()
+        |> Repo.update()
 
       nil ->
         handle_provider_id_missing(attrs, provider_id_field, changeset_fn)
@@ -584,7 +584,7 @@ defmodule GameServer.Accounts do
 
           user
           |> changeset_fn.(attrs)
-          |> update_and_clear_device()
+          |> Repo.update()
       end
     else
       create_user_from_provider(attrs, changeset_fn)
@@ -599,7 +599,7 @@ defmodule GameServer.Accounts do
       %User{} = user ->
         attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
 
-        user |> changeset_fn.(attrs) |> update_and_clear_device()
+        user |> changeset_fn.(attrs) |> Repo.update()
     end
   end
 
@@ -616,21 +616,6 @@ defmodule GameServer.Accounts do
       {:ok, user} = ok ->
         Task.start(fn -> GameServer.Hooks.internal_call(:after_user_register, [user]) end)
         ok
-
-      err ->
-        err
-    end
-  end
-
-  defp update_and_clear_device(changeset) do
-    case Repo.update(changeset) do
-      {:ok, user} = ok ->
-        # best-effort clear device_id when we link providers and return
-        # the updated user if detach succeeds.
-        case detach_device_from_user(user) do
-          {:ok, updated_user} -> {:ok, updated_user}
-          _ -> ok
-        end
 
       err ->
         err
@@ -687,14 +672,6 @@ defmodule GameServer.Accounts do
 
     case Repo.update(changeset) do
       {:ok, user} ->
-        # When a provider is linked to an account, clear any device_id
-        # previously attached to this user so the account is secured.
-        user =
-          case detach_device_from_user(user) do
-            {:ok, u} -> u
-            _ -> user
-          end
-
         # Broadcast user update to user channel
         broadcast_user_update(user)
 
@@ -725,16 +702,68 @@ defmodule GameServer.Accounts do
   end
 
   @doc """
-  Clears a device_id from the user if present. Returns {:ok, user} or
-  {:error, changeset} if update fails.
+  Link a device_id to an existing user account. This allows the user to
+  authenticate using the device_id in addition to their OAuth providers.
+
+  Returns {:ok, user} on success or {:error, changeset} if the device_id
+  is already used by another account.
   """
-  def detach_device_from_user(%User{} = user) do
-    if is_binary(user.device_id) and user.device_id != "" do
-      user
-      |> Ecto.Changeset.change(%{device_id: nil})
-      |> Repo.update()
-    else
+  def link_device_id(%User{} = user, device_id) when is_binary(device_id) do
+    changeset = User.attach_device_changeset(user, %{device_id: device_id})
+
+    case Repo.update(changeset) do
+      {:ok, user} ->
+        # Broadcast user update to user channel
+        broadcast_user_update(user)
+        {:ok, user}
+
+      {:error, changeset} ->
+        {:error, changeset}
+    end
+  end
+
+  @doc """
+  Unlink the device_id from a user's account.
+
+  Returns {:ok, user} when successful or {:error, reason}.
+
+  Guard: we only allow unlinking when the user will still have at least
+  one authentication method remaining (OAuth provider or password).
+  This prevents users losing all login methods unexpectedly.
+  """
+  def unlink_device_id(%User{} = user) do
+    # If device_id is already nil, just return success
+    if user.device_id in [nil, ""] do
       {:ok, user}
+    else
+      # Check if user has at least one OAuth provider or password
+      providers = [:discord_id, :apple_id, :google_id, :facebook_id, :steam_id]
+
+      has_provider =
+        Enum.any?(providers, fn f ->
+          case Map.get(user, f) do
+            v when is_binary(v) -> String.trim(v) != ""
+            _ -> false
+          end
+        end)
+
+      has_password = has_password?(user)
+
+      if has_provider or has_password do
+        changes = %{device_id: nil}
+
+        case user |> Ecto.Changeset.change(changes) |> Repo.update() do
+          {:ok, user} ->
+            # Broadcast user update to user channel
+            broadcast_user_update(user)
+            {:ok, user}
+
+          {:error, changeset} ->
+            {:error, changeset}
+        end
+      else
+        {:error, :last_auth_method}
+      end
     end
   end
 

@@ -91,6 +91,8 @@ defmodule GameServerWeb.Router do
     patch "/me/password", MeController, :update_password
     patch "/me/display_name", MeController, :update_display_name
     delete "/me/providers/:provider", ProviderController, :unlink
+    post "/me/device", ProviderController, :link_device
+    delete "/me/device", ProviderController, :unlink_device
     # Friends API
     post "/friends", FriendController, :create
     get "/me/friends", FriendController, :index

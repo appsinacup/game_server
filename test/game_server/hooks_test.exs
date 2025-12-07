@@ -63,8 +63,9 @@ defmodule GameServer.HooksTest do
     assert Map.get(reloaded.metadata || %{}, "registered_hook") == true
   end
 
-  test "linking a provider removes device_id from user" do
-    user = unconfirmed_user_fixture(%{"device_id" => "dev-#{System.unique_integer([:positive])}"})
+  test "linking a provider does NOT automatically remove device_id from user" do
+    device_id = "dev-#{System.unique_integer([:positive])}"
+    user = unconfirmed_user_fixture(%{"device_id" => device_id})
 
     assert is_binary(user.device_id)
 
@@ -77,7 +78,8 @@ defmodule GameServer.HooksTest do
       )
 
     assert user.discord_id == "d999"
-    assert is_nil(user.device_id)
+    # Device ID should remain - it's NOT automatically cleared anymore
+    assert user.device_id == device_id
   end
 
   test "after_user_login hook runs on successful magic-link login" do
