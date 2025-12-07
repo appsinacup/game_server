@@ -82,24 +82,18 @@ defmodule GameServerWeb.AdminLive.Index do
               <div class="card bg-base-100 p-4">
                 <div class="text-sm font-semibold mb-2">Registration</div>
                 <div class="text-xs text-base-content/60 mt-2 space-y-1">
-                  <div class="font-semibold">Last 24 hours</div>
-                  <div class="text-lg">{@users_registered_1d}</div>
-                  <div class="font-semibold mt-2">Last 7 days</div>
-                  <div class="text-lg">{@users_registered_7d}</div>
-                  <div class="font-semibold mt-2">Last 30 days</div>
-                  <div class="text-lg">{@users_registered_30d}</div>
+                  <div class="font-semibold">Last 24 hours: {@users_registered_1d}</div>
+                  <div class="font-semibold mt-2">Last 7 days: {@users_registered_7d}</div>
+                  <div class="font-semibold mt-2">Last 30 days: {@users_registered_30d}</div>
                 </div>
               </div>
 
               <div class="card bg-base-100 p-4">
                 <div class="text-sm font-semibold mb-2">Activity</div>
                 <div class="text-xs text-base-content/60 mt-2 space-y-1">
-                  <div class="font-semibold">Last 24 hours</div>
-                  <div class="text-lg">{@users_active_1d}</div>
-                  <div class="font-semibold mt-2">Last 7 days</div>
-                  <div class="text-lg">{@users_active_7d}</div>
-                  <div class="font-semibold mt-2">Last 30 days</div>
-                  <div class="text-lg">{@users_active_30d}</div>
+                  <div class="font-semibold">Last 24 hours: {@users_active_1d}</div>
+                  <div class="font-semibold mt-2">Last 7 days: {@users_active_7d}</div>
+                  <div class="font-semibold mt-2">Last 30 days: {@users_active_30d}</div>
                 </div>
               </div>
             </div>
