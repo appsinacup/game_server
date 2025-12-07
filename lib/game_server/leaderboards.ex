@@ -564,6 +564,15 @@ defmodule GameServer.Leaderboards do
   end
 
   @doc """
+  Count all leaderboard records across all leaderboards.
+  """
+  @spec count_all_records() :: non_neg_integer()
+  def count_all_records do
+    from(r in Record)
+    |> Repo.aggregate(:count, :id)
+  end
+
+  @doc """
   Lists records around a specific user (centered on their position).
 
   Returns records above and below the user's rank.

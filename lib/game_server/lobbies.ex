@@ -235,6 +235,38 @@ defmodule GameServer.Lobbies do
     Repo.aggregate(q, :count, :id)
   end
 
+  @doc """
+  Returns the count of hostless lobbies.
+  """
+  @spec count_hostless_lobbies() :: non_neg_integer()
+  def count_hostless_lobbies do
+    Repo.one(from l in Lobby, where: l.hostless == true, select: count(l.id)) || 0
+  end
+
+  @doc """
+  Returns the count of hidden lobbies.
+  """
+  @spec count_hidden_lobbies() :: non_neg_integer()
+  def count_hidden_lobbies do
+    Repo.one(from l in Lobby, where: l.is_hidden == true, select: count(l.id)) || 0
+  end
+
+  @doc """
+  Returns the count of locked lobbies.
+  """
+  @spec count_locked_lobbies() :: non_neg_integer()
+  def count_locked_lobbies do
+    Repo.one(from l in Lobby, where: l.is_locked == true, select: count(l.id)) || 0
+  end
+
+  @doc """
+  Returns the count of lobbies with passwords.
+  """
+  @spec count_passworded_lobbies() :: non_neg_integer()
+  def count_passworded_lobbies do
+    Repo.one(from l in Lobby, where: not is_nil(l.password_hash), select: count(l.id)) || 0
+  end
+
   defp apply_admin_filters(q, filters) do
     q
     |> filter_by_title(filters)

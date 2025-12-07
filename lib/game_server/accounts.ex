@@ -121,6 +121,68 @@ defmodule GameServer.Accounts do
   end
 
   @doc """
+  Returns the total number of users.
+  """
+  @spec count_users() :: non_neg_integer()
+  def count_users do
+    Repo.aggregate(User, :count, :id)
+  end
+
+  @doc """
+  Count users with non-empty provider id for a given provider field (e.g. :google_id)
+  """
+  @spec count_users_with_provider(atom()) :: non_neg_integer()
+  def count_users_with_provider(provider_field) when is_atom(provider_field) do
+    Repo.one(
+      from u in User,
+        where: not is_nil(field(u, ^provider_field)) and field(u, ^provider_field) != "",
+        select: count(u.id)
+    ) || 0
+  end
+
+  @doc """
+  Count users with a password set (hashed_password not nil/empty).
+  """
+  @spec count_users_with_password() :: non_neg_integer()
+  def count_users_with_password do
+    Repo.one(
+      from u in User,
+        where: not is_nil(u.hashed_password) and u.hashed_password != "",
+        select: count(u.id)
+    ) || 0
+  end
+
+  @doc """
+  Count users registered in the last N days.
+  """
+  @spec count_users_registered_since(integer()) :: non_neg_integer()
+  def count_users_registered_since(days) when is_integer(days) do
+    cutoff = DateTime.utc_now() |> DateTime.add(-days, :day)
+    Repo.one(from u in User, where: u.inserted_at >= ^cutoff, select: count(u.id)) || 0
+  end
+
+  @doc """
+  Count users active (authenticated_at updated) in the last N days.
+  Uses UserToken inserted_at to track recent authentications.
+  """
+  @spec count_users_active_since(integer()) :: non_neg_integer()
+  def count_users_active_since(days) when is_integer(days) do
+    cutoff = DateTime.utc_now() |> DateTime.add(-days, :day)
+
+    # Use a subquery to get distinct user_ids, compatible with SQLite
+    subquery =
+      from t in UserToken,
+        where: t.inserted_at >= ^cutoff,
+        select: t.user_id
+
+    query =
+      from u in User,
+        where: u.id in subquery(subquery)
+
+    Repo.aggregate(query, :count, :id)
+  end
+
+  @doc """
   Gets a user by email and password.
 
   ## Examples
