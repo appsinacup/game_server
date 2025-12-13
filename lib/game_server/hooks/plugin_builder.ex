@@ -28,7 +28,7 @@ defmodule GameServer.Hooks.PluginBuilder do
 
   @spec sources_dir() :: String.t()
   def sources_dir do
-    System.get_env("GAME_SERVER_PLUGIN_SOURCES_DIR")
+    System.get_env("GAME_SERVER_PLUGINS_DIR")
   end
 
   @spec list_buildable_plugins() :: [String.t()]
