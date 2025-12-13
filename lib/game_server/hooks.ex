@@ -14,11 +14,14 @@ defmodule GameServer.Hooks do
 
   alias GameServer.Accounts.User
   alias GameServer.Hooks.Default, as: Default
+  alias GameServer.Hooks.PluginManager
   require Logger
 
   @type hook_result(attrs_or_user) :: {:ok, attrs_or_user} | {:error, term()}
 
   @callback after_startup() :: any()
+
+  @callback before_stop() :: any()
 
   @callback after_user_register(User.t()) :: any()
 
@@ -54,205 +57,6 @@ defmodule GameServer.Hooks do
     end
   end
 
-  # Parse the source file to extract function parameter names for the
-  # given module. Returns a map keyed by {name, arity} -> signature string.
-  defp parse_signatures_from_file(path, mod) do
-    with {:ok, src} <- File.read(path),
-         {:ok, quoted} <- Code.string_to_quoted(src) do
-      # find the defmodule AST whose module name matches the provided module
-      Enum.reduce(find_module_asts(quoted, mod), %{}, fn {_mod_ast, do_block}, acc ->
-        {_ast, {acc2, _last_doc}} =
-          Macro.prewalk(do_block, {acc, nil}, fn
-            # handle definitions with guards (eg. def foo(x) when is_binary(x))
-            {:def, _meta, [{:when, _when_meta, [{name, _nmeta, args_ast}, _guard]}, _body]} = node,
-            {acc_inner, last_doc} ->
-              arity = length(args_ast || [])
-
-              arg_names =
-                Enum.map(args_ast || [], fn
-                  {a, _, _} when is_atom(a) -> to_string(a)
-                  _ -> "_"
-                end)
-
-              sig = "#{name}(#{Enum.join(arg_names, ", ")})"
-              doc_text = if is_binary(last_doc), do: last_doc, else: nil
-              returns_text = returns_from_doc(doc_text)
-
-              {node,
-               {Map.put(acc_inner, {name, arity}, %{
-                  signature: sig,
-                  doc: doc_text,
-                  returns: returns_text
-                }), nil}}
-
-            {:def, _meta, [{name, _nmeta, args_ast}, _body]} = node, {acc_inner, last_doc} ->
-              arity = length(args_ast || [])
-
-              arg_names =
-                Enum.map(args_ast || [], fn
-                  {a, _, _} when is_atom(a) -> to_string(a)
-                  _ -> "_"
-                end)
-
-              sig = "#{name}(#{Enum.join(arg_names, ", ")})"
-              doc_text = if is_binary(last_doc), do: last_doc, else: nil
-              returns_text = returns_from_doc(doc_text)
-
-              {node,
-               {Map.put(acc_inner, {name, arity}, %{
-                  signature: sig,
-                  doc: doc_text,
-                  returns: returns_text
-                }), nil}}
-
-            {:@, _meta, [{:doc, _doc_meta, [doc_val]}]} = node, {acc_inner, _last_doc} ->
-              # capture module attribute @doc which applies to the next def
-              doc_text = if is_binary(doc_val), do: doc_val, else: nil
-              {node, {acc_inner, doc_text}}
-
-            node, {acc_inner, last_doc} ->
-              {node, {acc_inner, last_doc}}
-          end)
-
-        acc2
-      end)
-    else
-      _ -> %{}
-    end
-  end
-
-  defp find_module_asts(ast, mod) do
-    mod_name_parts = Module.split(mod)
-
-    results =
-      Macro.prewalk(ast, [], fn
-        {:defmodule, _meta, [{:__aliases__, _m2, aliases}, do_block]} = node, acc ->
-          if Module.split(Module.concat(aliases)) == mod_name_parts do
-            {node, [{node, do_block} | acc]}
-          else
-            {node, acc}
-          end
-
-        node, acc ->
-          {node, acc}
-      end)
-
-    elem(results, 1)
-  end
-
-  @doc """
-  Register a module from a source file at runtime. We capture any
-  compiler output (warnings or compile-time prints) and record a
-  timestamp and status (ok, ok_with_warnings, error) in application
-  environment so the admin UI can display diagnostics.
-  """
-  def register_file(path) when is_binary(path) do
-    require Logger
-
-    Logger.info("Hooks.register_file: attempting to compile #{path}")
-
-    if File.exists?(path) do
-      {compile_result, output} = compile_file_and_capture_output(path)
-
-      case compile_result do
-        {:compile_exception, reason} ->
-          now = DateTime.utc_now() |> DateTime.to_iso8601()
-          Application.put_env(:game_server, :hooks_last_compiled_at, now)
-          Application.put_env(:game_server, :hooks_last_compile_status, {:error, reason})
-
-          Logger.error(
-            "Hooks.register_file: compile exception for #{inspect(path)}: #{inspect(reason)}"
-          )
-
-          {:error, {:compile_error, reason}}
-
-        modules when is_list(modules) ->
-          handle_compiled_modules(modules, output, path)
-      end
-    else
-      now = DateTime.utc_now() |> DateTime.to_iso8601()
-      Application.put_env(:game_server, :hooks_last_compiled_at, now)
-      Application.put_env(:game_server, :hooks_last_compile_status, {:error, :enoent})
-      Logger.error("Hooks.register_file: file not found: #{path} (time=#{now})")
-      {:error, :enoent}
-    end
-  end
-
-  defp compile_file_and_capture_output(path) do
-    {:ok, io} = StringIO.open("")
-    old_gl = Process.group_leader()
-    Process.group_leader(self(), io)
-
-    result =
-      try do
-        Code.compile_file(path)
-      rescue
-        e -> {:compile_exception, Exception.format(:error, e, __STACKTRACE__)}
-      after
-        # restore group leader even when exceptions occur
-        Process.group_leader(self(), old_gl)
-      end
-
-    {_, output} = StringIO.contents(io)
-    {result, output}
-  end
-
-  defp handle_compiled_modules(modules, output, path) do
-    case modules do
-      [{mod, _bin} | _] -> process_compiled_module(mod, output)
-      [] -> handle_no_module(path)
-    end
-  end
-
-  defp process_compiled_module(mod, output) do
-    warnings = if String.contains?(output, "warning:"), do: String.trim(output), else: nil
-    now = timestamp()
-
-    case Code.ensure_compiled(mod) do
-      {:module, _} -> register_module_if_valid(mod, warnings, now)
-      {:error, _} = err -> err
-    end
-  end
-
-  defp register_module_if_valid(mod, warnings, now) do
-    if function_exported?(mod, :after_user_register, 1) do
-      Application.put_env(:game_server, :hooks_module, mod)
-      status = if(warnings, do: {:ok_with_warnings, mod, warnings}, else: {:ok, mod})
-      Application.put_env(:game_server, :hooks_last_compiled_at, now)
-      Application.put_env(:game_server, :hooks_last_compile_status, status)
-
-      Logger.info("Hooks.register_file: registered hooks module #{inspect(mod)} at #{now}")
-
-      {:ok, mod}
-    else
-      Application.put_env(:game_server, :hooks_last_compiled_at, now)
-
-      Application.put_env(:game_server, :hooks_last_compile_status, {:error, :invalid_hooks_impl})
-
-      Logger.error(
-        "Hooks.register_file: compiled module #{inspect(mod)} does not implement expected callback (registered_at=#{now})"
-      )
-
-      {:error, :invalid_hooks_impl}
-    end
-  end
-
-  defp handle_no_module(path) do
-    now = timestamp()
-    Application.put_env(:game_server, :hooks_last_compiled_at, now)
-
-    Application.put_env(
-      :game_server,
-      :hooks_last_compile_status,
-      {:error, :no_module_in_file}
-    )
-
-    Logger.error("Hooks.register_file: no module defined in #{path} (time=#{now})")
-    {:error, :no_module_in_file}
-  end
-
-  defp timestamp, do: DateTime.utc_now() |> DateTime.to_iso8601()
-
   @doc """
   Call an arbitrary function exported by the configured hooks module.
 
@@ -275,7 +79,6 @@ defmodule GameServer.Hooks do
     # Disallow calling internal lifecycle callbacks or scheduled job callbacks
     # via the public `call/3` API.
     # Domain code should use `internal_call/3` for lifecycle callbacks.
-    # Scheduled callbacks are invoked by Schedule module via `invoke/2`.
     scheduled = GameServer.Schedule.registered_callbacks()
 
     cond do
@@ -332,10 +135,11 @@ defmodule GameServer.Hooks do
   def internal_call(name, args \\ [], opts \\ [])
       when is_list(args) and (is_atom(name) or is_binary(name)) do
     name = if is_binary(name), do: String.to_atom(name), else: name
-    mod = module()
     # resolve caller before spawning a task in case the caller was provided as
     # a simple id (avoids sandbox issues for spawned tasks in tests)
     opts = resolve_caller(opts)
+
+    mods = lifecycle_modules()
 
     timeout =
       Keyword.get(
@@ -346,33 +150,10 @@ defmodule GameServer.Hooks do
 
     arity = length(args)
 
-    if function_exported?(mod, name, arity) do
-      task =
-        Task.async(fn ->
-          # Propagate caller context to lifecycle callbacks as well
-          if caller = Keyword.get(opts, :caller) do
-            Process.put(:game_server_hook_caller, caller)
-          end
-
-          try do
-            apply(mod, name, args)
-          rescue
-            e in FunctionClauseError -> {:error, {:function_clause, Exception.message(e)}}
-            e -> {:error, {:exception, Exception.message(e)}}
-          catch
-            kind, reason -> {:error, {kind, reason}}
-          end
-        end)
-
-      case Task.yield(task, timeout) || Task.shutdown(task, :brutal_kill) do
-        {:ok, {:ok, res}} -> {:ok, res}
-        {:ok, {:error, err}} -> {:error, err}
-        {:ok, res} -> {:ok, res}
-        nil -> {:error, :timeout}
-        {:exit, reason} -> {:error, {:exit, reason}}
-      end
+    if lifecycle_pipeline_hook?(name, arity) do
+      run_before_pipeline(mods, name, args, opts, timeout)
     else
-      defaults_for_missing_callback(name, args)
+      run_fanout(mods, name, args, opts, timeout)
     end
   end
 
@@ -413,6 +194,7 @@ defmodule GameServer.Hooks do
     # callable through the public `call/3` interface.
     MapSet.new([
       :after_startup,
+      :before_stop,
       :after_user_register,
       :after_user_login,
       :before_lobby_create,
@@ -429,6 +211,182 @@ defmodule GameServer.Hooks do
       :after_user_kicked,
       :after_lobby_host_change
     ])
+  end
+
+  defp lifecycle_modules do
+    base = module()
+
+    plugin_mods =
+      case PluginManager.hook_modules() do
+        list when is_list(list) -> Enum.map(list, fn {_name, mod} -> mod end)
+        _ -> []
+      end
+
+    [base | plugin_mods]
+    |> Enum.uniq()
+  end
+
+  defp lifecycle_pipeline_hook?(name, arity) when is_atom(name) and is_integer(arity) do
+    # Pipeline-style hooks transform their inputs. These are the "before_*" hooks
+    # used by domain flows.
+    name in [
+      :before_lobby_create,
+      :before_lobby_join,
+      :before_lobby_leave,
+      :before_lobby_update,
+      :before_lobby_delete,
+      :before_user_kicked
+    ] and arity > 0
+  end
+
+  defp run_before_pipeline(mods, name, args, opts, timeout) do
+    arity = length(args)
+
+    if Enum.any?(mods, &function_exported?(&1, name, arity)) do
+      mods
+      |> Enum.reduce_while(args, fn mod, current_args ->
+        pipeline_step(mod, name, current_args, opts, timeout, arity)
+      end)
+      |> case do
+        {:error, reason} -> {:error, reason}
+        final_args -> {:ok, finalize_pipeline_value(name, final_args)}
+      end
+    else
+      defaults_for_missing_callback(name, args)
+    end
+  end
+
+  defp pipeline_step(mod, name, current_args, opts, timeout, arity)
+       when is_atom(mod) and is_atom(name) and is_list(current_args) and is_list(opts) and
+              is_integer(timeout) and is_integer(arity) do
+    if function_exported?(mod, name, arity) do
+      mod
+      |> safe_apply_raw(name, current_args, opts, timeout)
+      |> handle_pipeline_apply_result(name, current_args)
+    else
+      {:cont, current_args}
+    end
+  end
+
+  defp handle_pipeline_apply_result({:ok, {:error, reason}}, _name, _current_args),
+    do: {:halt, {:error, reason}}
+
+  defp handle_pipeline_apply_result({:error, reason}, _name, _current_args),
+    do: {:halt, {:error, reason}}
+
+  defp handle_pipeline_apply_result({:ok, {:ok, new}}, name, current_args) do
+    case normalize_pipeline_args(name, new, current_args) do
+      {:ok, new_args} -> {:cont, new_args}
+      {:error, reason} -> {:halt, {:error, reason}}
+    end
+  end
+
+  defp handle_pipeline_apply_result({:ok, new}, name, current_args) do
+    # For convenience, allow before_* hooks to return a raw value and treat it
+    # like {:ok, value}.
+    handle_pipeline_apply_result({:ok, {:ok, new}}, name, current_args)
+  end
+
+  defp normalize_pipeline_args(:before_lobby_update, value, current_args)
+       when is_list(current_args) and length(current_args) == 2 do
+    case value do
+      tuple when is_tuple(tuple) and tuple_size(tuple) == 2 -> {:ok, Tuple.to_list(tuple)}
+      attrs -> {:ok, [Enum.at(current_args, 0), attrs]}
+    end
+  end
+
+  defp normalize_pipeline_args(_name, value, current_args) when is_list(current_args) do
+    arity = length(current_args)
+
+    cond do
+      is_tuple(value) and tuple_size(value) == arity ->
+        {:ok, Tuple.to_list(value)}
+
+      arity == 1 ->
+        {:ok, [value]}
+
+      true ->
+        {:error, {:invalid_arity, arity}}
+    end
+  end
+
+  defp finalize_pipeline_value(:before_lobby_update, args)
+       when is_list(args) and length(args) == 2 do
+    Enum.at(args, 1)
+  end
+
+  defp finalize_pipeline_value(name, args) when is_atom(name) and is_list(args) do
+    case args do
+      [single] ->
+        single
+
+      many
+      when name in [:before_lobby_join, :before_lobby_leave, :before_user_kicked] ->
+        List.to_tuple(many)
+
+      _other ->
+        List.to_tuple(args)
+    end
+  end
+
+  defp run_fanout(mods, name, args, opts, timeout) do
+    arity = length(args)
+
+    if Enum.any?(mods, &function_exported?(&1, name, arity)) do
+      mods
+      |> Enum.reduce(nil, fn mod, first_res ->
+        fanout_first_result(mod, name, args, opts, timeout, arity, first_res)
+      end)
+      |> case do
+        {:ok, {:ok, res}} -> {:ok, res}
+        {:ok, {:error, err}} -> {:error, err}
+        {:ok, res} -> {:ok, res}
+        {:error, reason} -> {:error, reason}
+        nil -> defaults_for_missing_callback(name, args)
+      end
+    else
+      defaults_for_missing_callback(name, args)
+    end
+  end
+
+  defp fanout_first_result(mod, name, args, opts, timeout, arity, first_res)
+       when is_atom(mod) and is_atom(name) and is_list(args) and is_list(opts) and
+              is_integer(timeout) and is_integer(arity) do
+    cond do
+      not is_nil(first_res) ->
+        first_res
+
+      function_exported?(mod, name, arity) ->
+        safe_apply_raw(mod, name, args, opts, timeout)
+
+      true ->
+        nil
+    end
+  end
+
+  defp safe_apply_raw(mod, name, args, opts, timeout)
+       when is_atom(mod) and is_atom(name) and is_list(args) and is_list(opts) do
+    task =
+      Task.async(fn ->
+        if caller = Keyword.get(opts, :caller) do
+          Process.put(:game_server_hook_caller, caller)
+        end
+
+        try do
+          apply(mod, name, args)
+        rescue
+          e in FunctionClauseError -> {:error, {:function_clause, Exception.message(e)}}
+          e -> {:error, {:exception, Exception.message(e)}}
+        catch
+          kind, reason -> {:error, {kind, reason}}
+        end
+      end)
+
+    case Task.yield(task, timeout) || Task.shutdown(task, :brutal_kill) do
+      {:ok, res} -> {:ok, res}
+      nil -> {:error, :timeout}
+      {:exit, reason} -> {:error, {:exit, reason}}
+    end
   end
 
   defp defaults_for_missing_callback(name, args) do
@@ -489,14 +447,6 @@ defmodule GameServer.Hooks do
 
       _ ->
         %{}
-    end
-  end
-
-  defp parsed_signatures_for(src_path, mod) do
-    if is_binary(src_path) and File.exists?(src_path) do
-      parse_signatures_from_file(src_path, mod)
-    else
-      %{}
     end
   end
 
@@ -614,9 +564,7 @@ defmodule GameServer.Hooks do
   The result is a list of maps like: [%{name: "start_game", arities: [2,3]}, ...]
   This is useful for tooling and admin UI to display what RPCs are available.
   """
-  def exported_functions do
-    mod = module()
-
+  def exported_functions(mod \\ module()) when is_atom(mod) do
     case Code.ensure_loaded(mod) do
       {:module, _} ->
         # Exclude functions coming from the default implementation - show only
@@ -640,11 +588,9 @@ defmodule GameServer.Hooks do
         # Extract docs-based signatures from compiled module docs
         doc_signatures = doc_signatures_for(mod)
 
-        # If available, try to parse function signatures from the source file
-        src_path =
-          Application.get_env(:game_server, :hooks_file_path) || System.get_env("HOOKS_FILE_PATH")
-
-        parsed_signatures = parsed_signatures_for(src_path, mod)
+        # Source-based signature parsing (via HOOKS_FILE_PATH / :hooks_file_path)
+        # has been removed. We only use BEAM metadata (docs + typespecs).
+        parsed_signatures = %{}
 
         # Extract typespecs -> signature strings
         spec_map = spec_map_for(mod)
@@ -664,20 +610,6 @@ defmodule GameServer.Hooks do
         []
     end
   end
-
-  defp returns_from_doc(t) when is_binary(t) do
-    t
-    |> String.split("\n")
-    |> Enum.find_value(nil, fn line ->
-      l = String.trim(line)
-
-      if String.match?(l, ~r/^Returns?:/i),
-        do: Regex.replace(~r/^Returns?:\s*/i, l, ""),
-        else: nil
-    end)
-  end
-
-  defp returns_from_doc(_), do: nil
 
   defp resolve_caller(opts) when is_list(opts) do
     case Keyword.get(opts, :caller) do
@@ -767,6 +699,9 @@ defmodule GameServer.Hooks.Default do
 
   @impl true
   def after_startup, do: :ok
+
+  @impl true
+  def before_stop, do: :ok
 
   @impl true
   def after_user_register(_user), do: :ok

@@ -22,6 +22,8 @@ defmodule GameServer.HooksTest do
 
     def after_startup, do: :ok
 
+    def before_stop, do: :ok
+
     # After-register hook - mutate the user record in DB so tests can observe it
     # Use metadata to avoid interfering with email-based token logic.
     def after_user_register(user) do
@@ -108,6 +110,8 @@ defmodule GameServer.HooksTest do
         Schedule.every_minutes(60, :my_scheduled_job)
         :ok
       end
+
+      def before_stop, do: :ok
 
       # This is a public scheduled callback - protected from RPC
       def my_scheduled_job(_context), do: :ok

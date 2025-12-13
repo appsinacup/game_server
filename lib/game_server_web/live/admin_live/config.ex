@@ -3,6 +3,7 @@ defmodule GameServerWeb.AdminLive.Config do
 
   alias GameServer.Accounts.UserNotifier
   alias GameServer.Hooks
+  alias GameServer.Hooks.PluginManager
   alias GameServer.Schedule
   alias GameServer.Theme.JSONConfig
 
@@ -10,7 +11,7 @@ defmodule GameServerWeb.AdminLive.Config do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="max-w-4xl mx-auto space-y-8">
+      <div class="space-y-6">
         <.link navigate={~p"/admin"} class="btn btn-outline mb-4">
           ← Back to Admin
         </.link>
@@ -28,18 +29,16 @@ defmodule GameServerWeb.AdminLive.Config do
                 class="btn btn-ghost btn-sm ml-auto"
                 title="Collapse/Expand"
               >
-                <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M6 8l4 4 4-4"
-                  />
-                </svg>
+                <.icon name="hero-chevron-down" class="w-4 h-4" />
               </button>
             </h2>
-            <div class="overflow-x-auto">
-              <table class="table table-zebra">
+            <div class="overflow-x-auto lg:overflow-x-hidden">
+              <table class="table table-zebra table-fixed w-full min-w-[48rem] lg:min-w-0">
+                <colgroup>
+                  <col class="w-44" />
+                  <col class="w-32" />
+                  <col class="w-auto" />
+                </colgroup>
                 <thead>
                   <tr>
                     <th>Service</th>
@@ -49,41 +48,61 @@ defmodule GameServerWeb.AdminLive.Config do
                 </thead>
                 <tbody>
                   <tr>
-                    <td class="font-semibold">Runtime Hooks</td>
+                    <td class="font-semibold">Hooks Plugins</td>
                     <td>
-                      <%= if @config.hooks_file_path_env do %>
-                        <span class="badge badge-success">Configured</span>
+                      <%= if @plugins_counts.total == 0 do %>
+                        <span class="badge badge-ghost">None</span>
                       <% else %>
-                        <span class="badge badge-error">Disabled</span>
+                        <span class="badge badge-success">OK {@plugins_counts.ok}</span>
+                        <%= if @plugins_counts.error > 0 do %>
+                          <span class="badge badge-error">ERR {@plugins_counts.error}</span>
+                        <% end %>
                       <% end %>
                     </td>
-                    <td class="font-mono text-sm">
-                      HOOKS_FILE_PATH: {@config.hooks_file_path_env || "<unset>"}<br />
-                      <%= if @config.hooks_watch_interval_app || @config.hooks_watch_interval_env do %>
-                        Watch interval (app): {@config.hooks_watch_interval_app || "<unset>"} s<br />
-                        GAME_SERVER_HOOKS_WATCH_INTERVAL: {@config.hooks_watch_interval_env ||
-                          "<unset>"} s<br />
+                    <td class="text-sm break-words whitespace-normal">
+                      <div class="flex flex-wrap items-center gap-3 min-w-0">
+                        <div class="font-mono break-all min-w-0">
+                          DIR: {PluginManager.plugins_dir()}
+                        </div>
+                        <button
+                          id="plugins-reload-btn"
+                          type="button"
+                          phx-click="reload_plugins"
+                          class="btn btn-outline btn-sm"
+                        >
+                          Reload plugins
+                        </button>
+                      </div>
+
+                      <div class="mt-1 text-xs font-mono break-all">
+                        Last reload: {@plugins_last_reloaded_at || "<never>"}
+                      </div>
+
+                      <%= if @plugins_reload_result do %>
+                        <div class="mt-2 text-xs font-mono whitespace-pre-wrap break-words">
+                          {inspect(@plugins_reload_result) |> String.slice(0, 1024)}
+                          {if String.length(inspect(@plugins_reload_result)) > 1024, do: "…"}
+                        </div>
                       <% end %>
-                      Registered module:
-                      <span class="font-mono">{inspect(@config.hooks_registered_module)}</span>
-                      <br /> Last compiled: {@config.hooks_last_compiled_at || "<unset>"}<br />
-                      Last compile status:
-                      <%= case @config.hooks_last_compile_status do %>
-                        <% {:ok, _mod} -> %>
-                          <span class="badge badge-success">OK</span>
-                        <% {:ok_with_warnings, _mod, warnings} -> %>
-                          <span class="badge badge-warning">Warnings</span>
-                          <div class="mt-1 text-xs font-mono whitespace-pre-wrap">
-                            {String.slice(warnings, 0, 512)}{if String.length(warnings) > 512, do: "…"}
+
+                      <div class="mt-2 space-y-1">
+                        <%= for p <- @plugins do %>
+                          <div class="font-mono break-all">
+                            {p.name} ({p.vsn || "<no_vsn>"}) —
+                            <%= case p.status do %>
+                              <% :ok -> %>
+                                OK — {inspect(p.hooks_module)}
+                              <% {:error, reason} -> %>
+                                ERROR — {inspect(reason)}
+                            <% end %>
+                            <span class="text-xs opacity-70">
+                              (loaded_at: {if p.loaded_at,
+                                do: DateTime.to_iso8601(p.loaded_at),
+                                else: "<unknown>"})
+                            </span>
                           </div>
-                        <% {:error, reason} -> %>
-                          <span class="badge badge-error">Error</span>
-                          <div class="mt-1 text-xs font-mono whitespace-pre-wrap">
-                            {inspect(reason)}
-                          </div>
-                        <% _ -> %>
-                          &lt;unset&gt;
-                      <% end %>
+                        <% end %>
+                      </div>
                     </td>
                   </tr>
                   <!-- Hooks Test RPC moved to the end of the card -->
@@ -96,7 +115,7 @@ defmodule GameServerWeb.AdminLive.Config do
                         <span class="badge badge-error">Disabled</span>
                       <% end %>
                     </td>
-                    <td class="font-mono text-sm">
+                    <td class="font-mono text-sm break-all whitespace-normal">
                       DEVICE_AUTH_ENABLED: {@config.device_auth_enabled_env || "<unset>"}
                     </td>
                   </tr>
@@ -109,7 +128,7 @@ defmodule GameServerWeb.AdminLive.Config do
                         <span class="badge badge-error">Default</span>
                       <% end %>
                     </td>
-                    <td class="font-mono text-sm">
+                    <td class="font-mono text-sm break-all whitespace-normal">
                       THEME_CONFIG: {@config.theme_config || "<unset>"}<br />
 
                       <div class="mt-2 flex items-center gap-3">
@@ -141,7 +160,7 @@ defmodule GameServerWeb.AdminLive.Config do
                         <span class="badge badge-error">Disabled</span>
                       <% end %>
                     </td>
-                    <td class="font-mono text-sm">
+                    <td class="font-mono text-sm break-all whitespace-normal">
                       <%= if @config.discord_client_id do %>
                         DISCORD_CLIENT_ID: {mask_secret(@config.discord_client_id)}<br />
                         DISCORD_CLIENT_SECRET: {mask_secret(@config.discord_client_secret)}
@@ -159,7 +178,7 @@ defmodule GameServerWeb.AdminLive.Config do
                         <span class="badge badge-error">Disabled</span>
                       <% end %>
                     </td>
-                    <td class="font-mono text-sm">
+                    <td class="font-mono text-sm break-all whitespace-normal">
                       <%= if @config.apple_client_id do %>
                         APPLE_CLIENT_ID: {mask_secret(@config.apple_client_id)}<br />
                         APPLE_TEAM_ID: {mask_secret(@config.apple_team_id || "")}<br />
@@ -179,7 +198,7 @@ defmodule GameServerWeb.AdminLive.Config do
                         <span class="badge badge-error">Disabled</span>
                       <% end %>
                     </td>
-                    <td class="font-mono text-sm">
+                    <td class="font-mono text-sm break-all whitespace-normal">
                       <%= if @config.google_client_id do %>
                         GOOGLE_CLIENT_ID: {mask_secret(@config.google_client_id)}<br />
                         GOOGLE_CLIENT_SECRET: {mask_secret(@config.google_client_secret)}
@@ -197,7 +216,7 @@ defmodule GameServerWeb.AdminLive.Config do
                         <span class="badge badge-error">Disabled</span>
                       <% end %>
                     </td>
-                    <td class="font-mono text-sm">
+                    <td class="font-mono text-sm break-all whitespace-normal">
                       <%= if @config.facebook_client_id do %>
                         FACEBOOK_CLIENT_ID: {mask_secret(@config.facebook_client_id)}<br />
                         FACEBOOK_CLIENT_SECRET: {mask_secret(@config.facebook_client_secret)}
@@ -215,7 +234,7 @@ defmodule GameServerWeb.AdminLive.Config do
                         <span class="badge badge-error">Disabled</span>
                       <% end %>
                     </td>
-                    <td class="font-mono text-sm">
+                    <td class="font-mono text-sm break-all whitespace-normal">
                       <%= if @config.steam_api_key do %>
                         STEAM_API_KEY: {mask_secret(@config.steam_api_key)}
                       <% else %>
@@ -232,7 +251,7 @@ defmodule GameServerWeb.AdminLive.Config do
                         <span class="badge badge-info">Local</span>
                       <% end %>
                     </td>
-                    <td class="text-sm">
+                    <td class="text-sm break-words whitespace-normal">
                       <div class="font-mono text-sm">
                         SMTP_USERNAME: {mask_secret(@config.smtp_username)}<br />
                         SMTP_PASSWORD: {mask_secret(@config.smtp_password)}<br />
@@ -311,7 +330,7 @@ defmodule GameServerWeb.AdminLive.Config do
                   <tr>
                     <td class="font-semibold">Environment</td>
                     <td><span class="badge badge-info">{@config.env}</span></td>
-                    <td class="font-mono text-sm">{@config.env}</td>
+                    <td class="font-mono text-sm break-all whitespace-normal">{@config.env}</td>
                   </tr>
                   <tr>
                     <td class="font-semibold">Log Level</td>
@@ -329,8 +348,8 @@ defmodule GameServerWeb.AdminLive.Config do
                         {String.upcase(to_string(@config.log_level))}
                       </span>
                     </td>
-                    <td class="text-sm">
-                      LOG_LEVEL: <span class="font-mono">{@config.log_level}</span>
+                    <td class="text-sm break-words whitespace-normal">
+                      LOG_LEVEL: <span class="font-mono break-all">{@config.log_level}</span>
                     </td>
                   </tr>
                   <tr>
@@ -343,7 +362,7 @@ defmodule GameServerWeb.AdminLive.Config do
                           <span class="badge badge-info">SQLite</span>
                       <% end %>
                     </td>
-                    <td class="font-mono text-sm">
+                    <td class="font-mono text-sm break-all whitespace-normal">
                       <div class="mt-2 text-sm">
                         <div>
                           DATABASE_URL:
@@ -370,12 +389,16 @@ defmodule GameServerWeb.AdminLive.Config do
                   <tr>
                     <td class="font-semibold">Hostname</td>
                     <td><span class="badge badge-info">System</span></td>
-                    <td class="font-mono text-sm">{@config.hostname || "Not set"}</td>
+                    <td class="font-mono text-sm break-all whitespace-normal">
+                      {@config.hostname || "Not set"}
+                    </td>
                   </tr>
                   <tr>
                     <td class="font-semibold">Port</td>
                     <td><span class="badge badge-info">Server</span></td>
-                    <td class="font-mono text-sm">{@config.port || "4000"}</td>
+                    <td class="font-mono text-sm break-all whitespace-normal">
+                      {@config.port || "4000"}
+                    </td>
                   </tr>
                   <tr>
                     <td class="font-semibold">Secret Key Base</td>
@@ -386,7 +409,7 @@ defmodule GameServerWeb.AdminLive.Config do
                         <span class="badge badge-error">Not Set</span>
                       <% end %>
                     </td>
-                    <td class="font-mono text-sm">
+                    <td class="font-mono text-sm break-all whitespace-normal">
                       <%= if @config.secret_key_base do %>
                         SECRET_KEY_BASE: {mask_secret(@config.secret_key_base)}
                       <% else %>
@@ -403,7 +426,7 @@ defmodule GameServerWeb.AdminLive.Config do
                         <span class="badge badge-error">Not Configured</span>
                       <% end %>
                     </td>
-                    <td class="text-sm">
+                    <td class="text-sm break-words whitespace-normal">
                       <%= if @config.sentry_dsn do %>
                         <span class="font-mono text-sm">
                           SENTRY_LOG_LEVEL:
@@ -417,7 +440,7 @@ defmodule GameServerWeb.AdminLive.Config do
                           ]}>
                             {@config.sentry_log_level || "error"}
                           </span>
-                          <div class="mt-1">
+                          <div class="mt-1 break-all">
                             SENTRY_DSN:
                             <span class="font-mono">{mask_secret(@config.sentry_dsn)}</span>
                           </div>
@@ -433,30 +456,33 @@ defmodule GameServerWeb.AdminLive.Config do
                       <div class="space-y-2">
                         <div class="text-sm">
                           <p class="text-xs font-semibold">Available functions</p>
-                          <div class="mt-2 grid grid-cols-2 gap-2">
-                            <% funcs = Hooks.exported_functions() %>
+                          <div class="mt-2 grid grid-cols-1 lg:grid-cols-2 gap-2">
+                            <% funcs = @config.hooks_exported_functions %>
                             <%= if funcs == [] do %>
                               <div class="text-xs text-muted col-span-2">No exported functions</div>
                             <% else %>
                               <%= for f <- funcs do %>
-                                <div class="p-2 border rounded bg-base-200">
-                                  <div class="font-mono text-sm truncate">
+                                <div class="p-2 border rounded bg-base-200 min-w-0">
+                                  <div class="font-mono text-sm min-w-0">
                                     <%= for s <- f.signatures do %>
-                                      <div class="truncate">
-                                        <span
-                                          phx-click="prefill_hook"
-                                          phx-value-fn={f.name}
-                                          class="cursor-pointer font-semibold"
-                                        >
-                                          {f.name}/{s.arity}
-                                        </span>
-                                        <%= if s.signature do %>
-                                          <span class="text-muted">
-                                            - {s.signature}
+                                      <div class="min-w-0">
+                                        <div class="break-all">
+                                          <span
+                                            phx-click="prefill_hook"
+                                            phx-value-fn={f.name}
+                                            phx-value-plugin={f.plugin}
+                                            class="cursor-pointer font-semibold"
+                                          >
+                                            {f.plugin}:{f.name}/{s.arity}
                                           </span>
-                                        <% end %>
+                                          <%= if s.signature do %>
+                                            <span class="text-muted">
+                                              - {s.signature}
+                                            </span>
+                                          <% end %>
+                                        </div>
                                         <%= if s.doc do %>
-                                          <span class="text-xs block text-muted mt-1">
+                                          <span class="text-xs block text-muted mt-1 break-words whitespace-normal">
                                             {String.slice(s.doc, 0, 200)}{if String.length(s.doc) >
                                                                                200,
                                                                              do: "…"}
@@ -472,23 +498,33 @@ defmodule GameServerWeb.AdminLive.Config do
                         </div>
 
                         <.form for={%{}} phx-submit="call_hook" id="hooks-call-form">
-                          <div class="flex gap-2 items-center">
+                          <div class="flex flex-col md:flex-row gap-2 md:items-center min-w-0">
+                            <input
+                              id="hooks-plugin-input"
+                              name="plugin"
+                              value={@hooks_plugin_prefill.value || ""}
+                              placeholder="plugin_name"
+                              readonly
+                              class="input input-sm w-full md:w-40 min-w-0"
+                            />
                             <input
                               id="hooks-fn-input"
                               name="fn"
                               value={@hooks_prefill.value || ""}
                               placeholder="function_name"
                               readonly
-                              class="input input-sm w-40"
+                              class="input input-sm w-full md:w-40 min-w-0"
                             />
                             <input
                               id="hooks-args-input"
                               name="args"
                               value={@hooks_args_prefill.value || ""}
                               placeholder="JSON array args (eg [1,2] or [])"
-                              class="input input-sm w-96"
+                              class="input input-sm w-full md:flex-1 min-w-0"
                             />
-                            <button class="btn btn-primary btn-sm" type="submit">Call</button>
+                            <button class="btn btn-primary btn-sm w-full md:w-auto" type="submit">
+                              Call
+                            </button>
                           </div>
                         </.form>
 
@@ -614,8 +650,8 @@ defmodule GameServerWeb.AdminLive.Config do
                 callback.
               </div>
             <% else %>
-              <div class="overflow-x-auto">
-                <table class="table table-zebra table-sm">
+              <div class="overflow-x-auto lg:overflow-x-hidden">
+                <table class="table table-zebra table-sm table-fixed w-full min-w-[32rem] lg:min-w-0">
                   <thead>
                     <tr>
                       <th>Job Name</th>
@@ -626,8 +662,8 @@ defmodule GameServerWeb.AdminLive.Config do
                   <tbody>
                     <%= for job <- @scheduled_jobs do %>
                       <tr>
-                        <td class="font-mono text-sm">{job.name}</td>
-                        <td class="font-mono text-sm">{job.schedule}</td>
+                        <td class="font-mono text-sm break-all whitespace-normal">{job.name}</td>
+                        <td class="font-mono text-sm break-all whitespace-normal">{job.schedule}</td>
                         <td>
                           <span class={[
                             "badge badge-sm",
@@ -715,16 +751,9 @@ defmodule GameServerWeb.AdminLive.Config do
       live_reload: Application.get_env(:game_server, GameServerWeb.Endpoint)[:live_reload] != nil,
       log_level: Logger.level(),
       log_level_env: System.get_env("LOG_LEVEL"),
-      # Hooks runtime config diagnostics
-      hooks_file_path_app: Application.get_env(:game_server, :hooks_file_path),
-      hooks_file_path_env: System.get_env("HOOKS_FILE_PATH"),
-      hooks_watch_interval_app: Application.get_env(:game_server, :hooks_file_watch_interval),
-      hooks_watch_interval_env: System.get_env("GAME_SERVER_HOOKS_WATCH_INTERVAL"),
-      hooks_registered_module: Hooks.module(),
-      hooks_exported_functions: Hooks.exported_functions(),
+      # Hooks plugin diagnostics
+      hooks_exported_functions: exported_plugin_functions(),
       hooks_test_result: nil,
-      hooks_last_compiled_at: Application.get_env(:game_server, :hooks_last_compiled_at),
-      hooks_last_compile_status: Application.get_env(:game_server, :hooks_last_compile_status),
       # Theme configuration diagnostics: reuse the existing Theme provider
       # implementation so behavior is consistent across the app. We expose three
       # keys used by the template:
@@ -744,29 +773,49 @@ defmodule GameServerWeb.AdminLive.Config do
      assign(socket,
        config: config,
        scheduled_jobs: Schedule.list(),
+       hooks_plugin_prefill: %{value: "", seq: 0},
        hooks_prefill: %{value: "", seq: 0},
        hooks_args_prefill: %{value: "", seq: 0},
        hooks_full_doc: nil,
-       hooks_full_name: nil
+       hooks_full_name: nil,
+       plugins: PluginManager.list(),
+       plugins_counts: plugin_counts(PluginManager.list()),
+       plugins_last_reloaded_at: nil,
+       plugins_reload_result: nil
      )}
   end
 
   @impl true
-  def handle_event("call_hook", %{"fn" => fn_name, "args" => args_text}, socket) do
+  def handle_event("reload_plugins", _params, socket) do
+    res = PluginManager.reload_and_after_startup()
+
+    plugins = PluginManager.list()
+    now = DateTime.utc_now() |> DateTime.to_iso8601()
+
+    {:noreply,
+     assign(socket,
+       plugins: plugins,
+       plugins_counts: plugin_counts(plugins),
+       plugins_last_reloaded_at: now,
+       plugins_reload_result: res
+     )}
+  end
+
+  @impl true
+  def handle_event(
+        "call_hook",
+        %{"plugin" => plugin, "fn" => fn_name, "args" => args_text},
+        socket
+      )
+      when is_binary(plugin) and is_binary(fn_name) do
     args = parse_hook_args(args_text)
 
     caller = socket.assigns.current_scope && socket.assigns.current_scope.user
 
     result =
-      case Hooks.call(fn_name, args, caller: caller) do
+      case PluginManager.call_rpc(plugin, fn_name, args, caller: caller) do
         {:ok, res} ->
           inspect(res)
-
-        # If function not implemented, and we have a hooks_file_path configured,
-        # attempt to register the file and retry the call once so the admin UI
-        # can call functions directly when modules are provided as source file.
-        {:error, :not_implemented} ->
-          try_register_and_call(fn_name, args, caller, socket.assigns.config)
 
         {:error, reason} ->
           "error: #{inspect(reason)}"
@@ -814,7 +863,8 @@ defmodule GameServerWeb.AdminLive.Config do
 
   def handle_event("call_hook", _params, socket), do: {:noreply, socket}
   @impl true
-  def handle_event("prefill_hook", %{"fn" => fn_name}, socket) do
+  def handle_event("prefill_hook", %{"plugin" => plugin, "fn" => fn_name}, socket)
+      when is_binary(plugin) and is_binary(fn_name) do
     seq = System.unique_integer([:positive])
 
     # Try to find example args for the selected function from the mounted
@@ -822,7 +872,7 @@ defmodule GameServerWeb.AdminLive.Config do
     example =
       socket.assigns.config.hooks_exported_functions
       |> Enum.find_value(nil, fn f ->
-        if to_string(f.name) == fn_name do
+        if to_string(f.name) == fn_name and to_string(f.plugin) == plugin do
           case f.signatures do
             [first | _] -> Map.get(first, :example_args) || ""
             _ -> nil
@@ -836,7 +886,7 @@ defmodule GameServerWeb.AdminLive.Config do
     doc_text =
       socket.assigns.config.hooks_exported_functions
       |> Enum.find_value(nil, fn f ->
-        if to_string(f.name) == fn_name do
+        if to_string(f.name) == fn_name and to_string(f.plugin) == plugin do
           case f.signatures do
             [first | _] -> Map.get(first, :doc)
             _ -> nil
@@ -849,7 +899,7 @@ defmodule GameServerWeb.AdminLive.Config do
     full_name =
       socket.assigns.config.hooks_exported_functions
       |> Enum.find_value(nil, fn f ->
-        if to_string(f.name) == fn_name do
+        if to_string(f.name) == fn_name and to_string(f.plugin) == plugin do
           case f.signatures do
             [first | _] -> "#{fn_name}/#{first.arity}"
             _ -> nil
@@ -861,12 +911,15 @@ defmodule GameServerWeb.AdminLive.Config do
 
     {:noreply,
      assign(socket,
+       hooks_plugin_prefill: %{value: plugin, seq: seq},
        hooks_prefill: %{value: fn_name, seq: seq},
        hooks_args_prefill: %{value: example || "", seq: seq},
        hooks_full_doc: doc_text,
-       hooks_full_name: full_name
+       hooks_full_name: if(full_name, do: "#{plugin}:#{full_name}", else: nil)
      )}
   end
+
+  def handle_event("prefill_hook", _params, socket), do: {:noreply, socket}
 
   def handle_event("prefill_args", %{"args" => args_text}, socket) do
     seq = System.unique_integer([:positive])
@@ -892,23 +945,13 @@ defmodule GameServerWeb.AdminLive.Config do
 
   defp parse_hook_args(_), do: []
 
-  defp try_register_and_call(fn_name, args, caller, config) do
-    src = config.hooks_file_path_app || config.hooks_file_path_env
-
-    if is_binary(src) and File.exists?(src) do
-      case Hooks.register_file(src) do
-        {:ok, _mod} ->
-          case Hooks.call(fn_name, args, caller: caller) do
-            {:ok, res2} -> inspect(res2)
-            {:error, r2} -> "error: #{inspect(r2)}"
-          end
-
-        {:error, reason} ->
-          "error: register_failed: #{inspect(reason)}"
-      end
-    else
-      "error: :not_implemented"
-    end
+  defp exported_plugin_functions do
+    PluginManager.hook_modules()
+    |> Enum.flat_map(fn {plugin, mod} ->
+      Hooks.exported_functions(mod)
+      |> Enum.map(&Map.put(&1, :plugin, plugin))
+    end)
+    |> Enum.sort_by(fn f -> {f.plugin, f.name} end)
   end
 
   defp detect_db_adapter do
@@ -951,6 +994,18 @@ defmodule GameServerWeb.AdminLive.Config do
           to_string(repo_conf[:database] || "N/A")
         end
     end
+  end
+
+  defp plugin_counts(plugins) when is_list(plugins) do
+    Enum.reduce(plugins, %{total: 0, ok: 0, error: 0}, fn plugin, acc ->
+      acc = %{acc | total: acc.total + 1}
+
+      case plugin.status do
+        :ok -> %{acc | ok: acc.ok + 1}
+        {:error, _} -> %{acc | error: acc.error + 1}
+        _ -> acc
+      end
+    end)
   end
 
   # Helpers for masking secrets shown in the admin UI.

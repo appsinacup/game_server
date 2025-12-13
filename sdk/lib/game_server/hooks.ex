@@ -147,6 +147,10 @@ defmodule GameServer.Hooks do
   @typedoc "Result type for before hooks"
   @type hook_result(t) :: {:ok, t} | {:error, term()}
 
+  # Startup/shutdown callbacks
+  @callback after_startup() :: any()
+  @callback before_stop() :: any()
+
   # User lifecycle callbacks
   @callback after_user_register(user()) :: any()
   @callback after_user_login(user()) :: any()
@@ -194,6 +198,12 @@ defmodule GameServer.Hooks do
   defmacro __using__(_opts) do
     quote do
       @behaviour GameServer.Hooks
+
+      @impl true
+      def after_startup, do: :ok
+
+      @impl true
+      def before_stop, do: :ok
 
       @impl true
       def after_user_register(_user), do: :ok

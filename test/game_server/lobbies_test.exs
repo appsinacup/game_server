@@ -12,6 +12,9 @@ defmodule GameServer.LobbiesTest do
       def after_startup, do: :ok
 
       @impl true
+      def before_stop, do: :ok
+
+      @impl true
       def after_user_register(_user), do: :ok
 
       @impl true

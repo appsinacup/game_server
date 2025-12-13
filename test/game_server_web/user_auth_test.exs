@@ -34,6 +34,8 @@ defmodule GameServerWeb.UserAuthTest do
 
       def after_startup, do: :ok
 
+      def before_stop, do: :ok
+
       def after_user_register(_user), do: :ok
 
       def after_user_login(user) do

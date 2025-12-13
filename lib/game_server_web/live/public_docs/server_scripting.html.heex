@@ -53,10 +53,10 @@
         <h4 class="font-semibold">Add a lifecycle callback</h4>
         <div class="ml-6 mt-2 space-y-2">
           <p>
-            Implement the behaviour in the modules folder:
+            Implement the behaviour in a hooks module:
           </p>
           <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
-            <pre><code class="language-elixir" phx-no-curly-interpolation># modules/my_hooks_impl.ex
+            <pre><code class="language-elixir" phx-no-curly-interpolation># your_hook_module.ex
 
 defmodule MyApp.HooksImpl do
     @behaviour GameServer.Hooks
@@ -74,17 +74,23 @@ end
       </div>
 
       <div class="step">
-        <h4 class="font-semibold">Registering a runtime hook file</h4>
+        <h4 class="font-semibold">Loading hooks via OTP plugins</h4>
         <div class="ml-6 mt-2 space-y-2">
           <p>
-            You can register a hooks implementation file at runtime by setting the following configuration:
+            Hooks are loaded from OTP plugin applications under <code class="font-mono">modules/plugins/*</code>.
+            You can override the plugins directory using:
           </p>
           <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
-            <pre><code class="language-elixir" phx-no-curly-interpolation>HOOKS_FILE_PATH=modules/my_hooks_impl.ex</code></pre>
+            <pre><code class="language-elixir" phx-no-curly-interpolation>GAME_SERVER_PLUGINS_DIR=modules/plugins</code></pre>
           </div>
           <p>
-            This file will be compiled and loaded on application start. On changes, it will auto-reload
-            without restarting the server.
+            Each plugin is an OTP app directory with an <code class="font-mono">ebin</code>
+            folder containing a <code class="font-mono">.app</code>
+            file and compiled <code class="font-mono">.beam</code>
+            modules.
+            The plugin's <code class="font-mono">.app</code>
+            env must include a <code class="font-mono">hooks_module</code>
+            entry pointing at the module name.
           </p>
         </div>
       </div>
@@ -108,7 +114,7 @@ end</code></pre>
           You can now call this function via the API (or better yet from the client SDK's), eg:
           <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
             <pre><code class="language-elixir" phx-no-curly-interpolation>curl -X POST https://your-game-server.com/api/v1/hooks/call \
--d '{"fn":"hello_world","args":["Alice"]}'</code></pre>
+-d '{"plugin":"polyglot_hook","fn":"hello_world","args":["Alice"]}'</code></pre>
           </div>
         </div>
       </div>
@@ -136,10 +142,9 @@ end</code></pre>
               Do not return structs as hook results intended to be used as params — always return plain maps when you intend to pass modified params into changesets.
             </li>
             <li>
-              Tests interacting with runtime registration or global
-              <code class="font-mono" phx-no-curly-interpolation>:hooks_module</code>
-              config should run serially (set <code class="font-mono">async: false</code>
-              in the test) and restore Application env via <code class="font-mono">on_exit</code>
+              Tests that modify global plugin configuration (eg. <code class="font-mono">GAME_SERVER_PLUGINS_DIR</code>) should run serially
+              (<code class="font-mono">async: false</code>) and restore env via
+              <code class="font-mono">on_exit</code>
               to avoid cross-test races.
             </li>
             <li>

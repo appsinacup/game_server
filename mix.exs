@@ -39,7 +39,6 @@ defmodule GameServer.MixProject do
             not String.contains?(mod_name, ".OAuth") and
             not String.contains?(mod_name, ".Theme") and
             not String.contains?(mod_name, ".Hooks.Default") and
-            not String.contains?(mod_name, ".Hooks.Watcher") and
             not String.contains?(mod_name, ".Scope")
         end,
         groups_for_modules: [
@@ -114,9 +113,6 @@ defmodule GameServer.MixProject do
       # SMTP transport used by Swoosh.Adapters.SMTP
       {:gen_smtp, "~> 1.0"},
       {:req, "~> 0.5"},
-      # allow the 0.2 or 1.x families so projects depending on either
-      # version can still work; 1.x is preferred for newer environments
-      {:file_system, "~> 0.2 or ~> 1.0"},
       {:sentry, "~> 11.0"},
       {:hackney, "~> 1.18"},
       {:telemetry_metrics, "~> 1.0"},

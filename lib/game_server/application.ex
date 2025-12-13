@@ -22,10 +22,10 @@ defmodule GameServer.Application do
         {DNSCluster, query: Application.get_env(:game_server, :dns_cluster_query) || :ignore},
         {Phoenix.PubSub, name: GameServer.PubSub},
         GameServerWeb.Endpoint,
+        # Load hook plugins (OTP apps) shipped under modules/plugins/*
+        GameServer.Hooks.PluginManager,
         # Quantum scheduler for cron-like jobs
-        GameServer.Schedule.Scheduler,
-        # optional hooks watcher - will be a no-op when :hooks_file_path isn't set
-        GameServer.Hooks.Watcher
+        GameServer.Schedule.Scheduler
       ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
