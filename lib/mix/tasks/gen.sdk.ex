@@ -105,7 +105,7 @@ defmodule Mix.Tasks.Gen.Sdk do
 
     """
     defmodule #{module_name} do
-      @moduledoc \"\"\"
+      @moduledoc ~S\"\"\"
     #{indent_doc(escape_doc(module_doc), 2)}
 
       **Note:** This is an SDK stub. Calling these functions will raise an error.
@@ -170,7 +170,7 @@ defmodule Mix.Tasks.Gen.Sdk do
         "  @doc false\n"
       else
         """
-          @doc \"\"\"
+          @doc ~S\"\"\"
         #{indent_doc(escape_doc(doc_text), 4)}
           \"\"\"
         """

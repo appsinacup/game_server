@@ -1,5 +1,5 @@
 defmodule GameServer.Schedule do
-  @moduledoc """
+  @moduledoc ~S"""
   Dynamic cron-like job scheduling for hooks.
   
   Use this module in your `after_startup/0` hook to register scheduled jobs
@@ -55,7 +55,7 @@ defmodule GameServer.Schedule do
   The actual implementation runs on the GameServer.
   """
 
-  @doc """
+  @doc ~S"""
     Cancel a scheduled job.
     
     ## Examples
@@ -68,7 +68,7 @@ defmodule GameServer.Schedule do
   end
 
 
-  @doc """
+  @doc ~S"""
     Clean up old schedule locks older than the specified number of days.
     
     This is called automatically during job execution, but can also be
@@ -85,7 +85,7 @@ defmodule GameServer.Schedule do
   end
 
 
-  @doc """
+  @doc ~S"""
     Clean up old schedule locks older than the specified number of days.
     
     This is called automatically during job execution, but can also be
@@ -102,7 +102,7 @@ defmodule GameServer.Schedule do
   end
 
 
-  @doc """
+  @doc ~S"""
     Register a job with full cron syntax.
     
     ## Examples
@@ -116,7 +116,7 @@ defmodule GameServer.Schedule do
   end
 
 
-  @doc """
+  @doc ~S"""
     Run a job every day.
     
     ## Options
@@ -136,7 +136,7 @@ defmodule GameServer.Schedule do
   end
 
 
-  @doc """
+  @doc ~S"""
     Run a job every day.
     
     ## Options
@@ -156,7 +156,7 @@ defmodule GameServer.Schedule do
   end
 
 
-  @doc """
+  @doc ~S"""
     Run a job every N minutes.
     
     ## Examples
@@ -170,7 +170,7 @@ defmodule GameServer.Schedule do
   end
 
 
-  @doc """
+  @doc ~S"""
     Run a job every hour.
     
     ## Options
@@ -188,7 +188,7 @@ defmodule GameServer.Schedule do
   end
 
 
-  @doc """
+  @doc ~S"""
     Run a job every hour.
     
     ## Options
@@ -206,7 +206,7 @@ defmodule GameServer.Schedule do
   end
 
 
-  @doc """
+  @doc ~S"""
     List all scheduled jobs.
     
     Returns a list of job info maps.
@@ -217,7 +217,7 @@ defmodule GameServer.Schedule do
   end
 
 
-  @doc """
+  @doc ~S"""
     Returns the set of callback function names registered for scheduled jobs.
     
     These are protected from user RPC calls via `Hooks.call/3`.
@@ -235,7 +235,7 @@ defmodule GameServer.Schedule do
   end
 
 
-  @doc """
+  @doc ~S"""
     Run a job every week.
     
     ## Options
@@ -255,7 +255,7 @@ defmodule GameServer.Schedule do
   end
 
 
-  @doc """
+  @doc ~S"""
     Run a job every week.
     
     ## Options

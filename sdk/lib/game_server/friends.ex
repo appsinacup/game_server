@@ -1,5 +1,5 @@
 defmodule GameServer.Friends do
-  @moduledoc """
+  @moduledoc ~S"""
   Friends context - handles friend requests and relationships.
   
   Basic semantics:
@@ -33,7 +33,7 @@ defmodule GameServer.Friends do
   The actual implementation runs on the GameServer.
   """
 
-  @doc """
+  @doc ~S"""
     Accept a friend request (only the target may accept). Returns {:ok, friendship}.
   """
   @spec accept_friend_request(integer(), GameServer.Accounts.User.t()) ::
@@ -43,7 +43,7 @@ defmodule GameServer.Friends do
   end
 
 
-  @doc """
+  @doc ~S"""
     Block an incoming request (only the target may block). Returns {:ok, friendship} with status "blocked".
   """
   @spec block_friend_request(integer(), GameServer.Accounts.User.t()) ::
@@ -53,7 +53,7 @@ defmodule GameServer.Friends do
   end
 
 
-  @doc """
+  @doc ~S"""
     Cancel an outgoing friend request (only the requester may cancel).
   """
   def cancel_request(_friendship_id, _user) do
@@ -61,7 +61,7 @@ defmodule GameServer.Friends do
   end
 
 
-  @doc """
+  @doc ~S"""
     Count blocked friendships for a user (number of blocked rows where user is target).
   """
   def count_blocked_for_user(_user_id) do
@@ -69,7 +69,7 @@ defmodule GameServer.Friends do
   end
 
 
-  @doc """
+  @doc ~S"""
     Count accepted friends for a given user (distinct other user ids).
   """
   def count_friends_for_user(_user_id) do
@@ -77,7 +77,7 @@ defmodule GameServer.Friends do
   end
 
 
-  @doc """
+  @doc ~S"""
     Count incoming pending friend requests for a user.
   """
   def count_incoming_requests(_user_id) do
@@ -85,7 +85,7 @@ defmodule GameServer.Friends do
   end
 
 
-  @doc """
+  @doc ~S"""
     Count outgoing pending friend requests for a user.
   """
   def count_outgoing_requests(_user_id) do
@@ -93,7 +93,7 @@ defmodule GameServer.Friends do
   end
 
 
-  @doc """
+  @doc ~S"""
     Create a friend request from requester -> target.
       If a reverse pending request exists (target -> requester) it will be accepted instead.
       Returns {:ok, friendship} on success or {:error, reason}.
@@ -106,7 +106,7 @@ defmodule GameServer.Friends do
   end
 
 
-  @doc """
+  @doc ~S"""
     Get friendship between two users (ordered requester->target) if exists
   """
   def get_by_pair(_requester_id, _target_id) do
@@ -114,7 +114,7 @@ defmodule GameServer.Friends do
   end
 
 
-  @doc """
+  @doc ~S"""
     Get friendship by id
   """
   def get_friendship!(_id) do
@@ -122,7 +122,7 @@ defmodule GameServer.Friends do
   end
 
 
-  @doc """
+  @doc ~S"""
     List blocked friendships for a user (Friendship structs where the user is the blocker / target).
   """
   def list_blocked_for_user(_user_id) do
@@ -130,7 +130,7 @@ defmodule GameServer.Friends do
   end
 
 
-  @doc """
+  @doc ~S"""
     List blocked friendships for a user (Friendship structs where the user is the blocker / target).
   """
   def list_blocked_for_user(_user_id, _opts) do
@@ -138,7 +138,7 @@ defmodule GameServer.Friends do
   end
 
 
-  @doc """
+  @doc ~S"""
     List accepted friends for a given user id - returns list of User structs.
     
     ## Options
@@ -151,7 +151,7 @@ defmodule GameServer.Friends do
   end
 
 
-  @doc """
+  @doc ~S"""
     List accepted friends for a given user id - returns list of User structs.
     
     ## Options
@@ -168,7 +168,7 @@ defmodule GameServer.Friends do
   end
 
 
-  @doc """
+  @doc ~S"""
     List incoming pending friend requests for a user (Friendship structs).
     
     ## Options
@@ -181,7 +181,7 @@ defmodule GameServer.Friends do
   end
 
 
-  @doc """
+  @doc ~S"""
     List incoming pending friend requests for a user (Friendship structs).
     
     ## Options
@@ -198,7 +198,7 @@ defmodule GameServer.Friends do
   end
 
 
-  @doc """
+  @doc ~S"""
     List outgoing pending friend requests for a user (Friendship structs).
     
     ## Options
@@ -211,7 +211,7 @@ defmodule GameServer.Friends do
   end
 
 
-  @doc """
+  @doc ~S"""
     List outgoing pending friend requests for a user (Friendship structs).
     
     ## Options
@@ -228,7 +228,7 @@ defmodule GameServer.Friends do
   end
 
 
-  @doc """
+  @doc ~S"""
     Reject a friend request (only the target may reject). Returns {:ok, friendship}.
   """
   @spec reject_friend_request(integer(), GameServer.Accounts.User.t()) ::
@@ -238,7 +238,7 @@ defmodule GameServer.Friends do
   end
 
 
-  @doc """
+  @doc ~S"""
     Remove a friendship (either direction) - only participating users may call this.
   """
   @spec remove_friend(integer(), integer()) :: {:ok, GameServer.Friends.Friendship.t()} | {:error, term()}
@@ -253,7 +253,7 @@ defmodule GameServer.Friends do
   end
 
 
-  @doc """
+  @doc ~S"""
     Unblock a previously-blocked friendship (only the user who blocked may unblock). Returns {:ok, :unblocked} on success.
   """
   @spec unblock_friendship(integer(), GameServer.Accounts.User.t()) ::

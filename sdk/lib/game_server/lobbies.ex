@@ -1,5 +1,5 @@
 defmodule GameServer.Lobbies do
-  @moduledoc """
+  @moduledoc ~S"""
   Context module for lobby management: creating, updating, listing and searching lobbies.
   
   This module contains the core domain operations; more advanced membership and
@@ -45,7 +45,7 @@ defmodule GameServer.Lobbies do
   The actual implementation runs on the GameServer.
   """
 
-  @doc """
+  @doc ~S"""
     Check if a user can edit a lobby (is host or lobby is hostless).
     
   """
@@ -54,7 +54,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     Check if a user can view a lobby's details.
     Users can view any lobby they can see in the list.
     
@@ -76,7 +76,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     Returns the count of hidden lobbies.
     
   """
@@ -86,7 +86,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     Returns the count of hostless lobbies.
     
   """
@@ -96,7 +96,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     Count ALL lobbies matching filters. For admin pagination.
     
   """
@@ -105,7 +105,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     Count ALL lobbies matching filters. For admin pagination.
     
   """
@@ -114,7 +114,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     Count lobbies matching filters (excludes hidden ones unless admin list used). If metadata filters are supplied, they will be applied after fetching.
   """
   def count_list_lobbies() do
@@ -122,7 +122,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     Count lobbies matching filters (excludes hidden ones unless admin list used). If metadata filters are supplied, they will be applied after fetching.
   """
   def count_list_lobbies(_filters) do
@@ -130,7 +130,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     Returns the count of locked lobbies.
     
   """
@@ -140,7 +140,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     Returns the count of lobbies with passwords.
     
   """
@@ -150,7 +150,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     Creates a new lobby.
     
     ## Attributes
@@ -163,7 +163,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     Creates a new lobby.
     
     ## Attributes
@@ -212,7 +212,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     Gets all users currently in a lobby.
     
     Returns a list of User structs.
@@ -252,7 +252,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     Kick a user from a lobby. Only the host can kick users.
     Returns {:ok, user} on success, {:error, reason} on failure.
     
@@ -274,7 +274,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     List ALL lobbies including hidden ones. For admin use only.
     Accepts filters: %{
       title: string,
@@ -291,7 +291,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     List ALL lobbies including hidden ones. For admin use only.
     Accepts filters: %{
       title: string,
@@ -308,7 +308,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     List ALL lobbies including hidden ones. For admin use only.
     Accepts filters: %{
       title: string,
@@ -325,7 +325,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     List lobbies. Accepts optional search filters.
     
     ## Filters
@@ -348,7 +348,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     List lobbies. Accepts optional search filters.
     
     ## Filters
@@ -371,7 +371,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     List lobbies. Accepts optional search filters.
     
     ## Filters
@@ -395,7 +395,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     List lobbies visible to a specific user.
     Includes the user's own lobby even if it's hidden.
     
@@ -405,7 +405,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     List lobbies visible to a specific user.
     Includes the user's own lobby even if it's hidden.
     
@@ -415,7 +415,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     List lobbies visible to a specific user.
     Includes the user's own lobby even if it's hidden.
     
@@ -431,7 +431,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     Attempt to find an open lobby matching the given criteria and join it, or
     create a new lobby if none matches.
     
@@ -447,7 +447,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     Attempt to find an open lobby matching the given criteria and join it, or
     create a new lobby if none matches.
     
@@ -463,7 +463,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     Attempt to find an open lobby matching the given criteria and join it, or
     create a new lobby if none matches.
     
@@ -479,7 +479,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     Attempt to find an open lobby matching the given criteria and join it, or
     create a new lobby if none matches.
     
@@ -495,7 +495,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     Subscribe to global lobby events (lobby created, updated, deleted).
     
   """
@@ -505,7 +505,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     Subscribe to a specific lobby's events (membership changes, updates).
     
   """
@@ -515,7 +515,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     Unsubscribe from a specific lobby's events.
     
   """
@@ -524,7 +524,7 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc """
+  @doc ~S"""
     Updates an existing lobby.
     
     ## Attributes

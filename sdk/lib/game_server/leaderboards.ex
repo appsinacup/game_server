@@ -1,5 +1,5 @@
 defmodule GameServer.Leaderboards do
-  @moduledoc """
+  @moduledoc ~S"""
   The Leaderboards context.
   
   Provides server-authoritative leaderboard management. Scores can only be
@@ -30,7 +30,7 @@ defmodule GameServer.Leaderboards do
   The actual implementation runs on the GameServer.
   """
 
-  @doc """
+  @doc ~S"""
     Returns a changeset for a leaderboard (used in forms).
     
   """
@@ -39,7 +39,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Returns a changeset for a leaderboard (used in forms).
     
   """
@@ -48,7 +48,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Returns a changeset for a record (used in admin forms).
     
   """
@@ -57,7 +57,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Returns a changeset for a record (used in admin forms).
     
   """
@@ -66,7 +66,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Count all leaderboard records across all leaderboards.
     
   """
@@ -76,7 +76,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Counts unique leaderboard slugs.
     
   """
@@ -86,7 +86,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Counts leaderboards matching the given filters.
     
     Accepts the same filter options as `list_leaderboards/1`.
@@ -97,7 +97,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Counts leaderboards matching the given filters.
     
     Accepts the same filter options as `list_leaderboards/1`.
@@ -109,7 +109,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Counts records for a leaderboard.
     
   """
@@ -119,7 +119,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Creates a new leaderboard.
     
     ## Attributes
@@ -142,7 +142,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Deletes a leaderboard and all its records.
     
   """
@@ -153,7 +153,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Deletes a record.
     
   """
@@ -162,7 +162,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Deletes a user's record from a leaderboard.
     Accepts either leaderboard ID (integer) or slug (string).
     
@@ -174,7 +174,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Ends a leaderboard by setting `ends_at` to the current time.
     
   """
@@ -183,7 +183,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Gets the currently active leaderboard with the given slug.
     Returns `nil` if no active leaderboard exists.
     
@@ -201,7 +201,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Gets a leaderboard by its integer ID.
     
     ## Examples
@@ -219,7 +219,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Gets a leaderboard by its integer ID. Raises if not found.
     
   """
@@ -229,7 +229,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Gets a single record by leaderboard ID and user ID.
     
   """
@@ -239,7 +239,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Gets a user's record with their rank.
     Returns `{:ok, record_with_rank}` or `{:error, :not_found}`.
     
@@ -251,7 +251,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Lists unique leaderboard slugs with summary info.
     
     Returns a list of maps with:
@@ -268,7 +268,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Lists unique leaderboard slugs with summary info.
     
     Returns a list of maps with:
@@ -286,7 +286,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Lists leaderboards with optional filters.
     
     ## Options
@@ -318,7 +318,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Lists leaderboards with optional filters.
     
     ## Options
@@ -351,7 +351,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Lists all leaderboards with the given slug (all seasons), ordered by end date.
     
   """
@@ -360,7 +360,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Lists all leaderboards with the given slug (all seasons), ordered by end date.
     
   """
@@ -373,7 +373,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Lists records for a leaderboard, ordered by rank.
     
     ## Options
@@ -388,7 +388,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Lists records for a leaderboard, ordered by rank.
     
     ## Options
@@ -406,7 +406,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Lists records around a specific user (centered on their position).
     
     Returns records above and below the user's rank.
@@ -421,7 +421,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Lists records around a specific user (centered on their position).
     
     Returns records above and below the user's rank.
@@ -437,7 +437,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Submits a score for a user on a leaderboard.
     
     This is a server-only function — there is no public API for score submission.
@@ -467,7 +467,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Submits a score for a user on a leaderboard.
     
     This is a server-only function — there is no public API for score submission.
@@ -499,7 +499,7 @@ defmodule GameServer.Leaderboards do
   end
 
 
-  @doc """
+  @doc ~S"""
     Updates an existing leaderboard.
     
     Note: `slug`, `sort_order`, and `operator` cannot be changed after creation.

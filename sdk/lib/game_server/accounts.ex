@@ -1,5 +1,5 @@
 defmodule GameServer.Accounts do
-  @moduledoc """
+  @moduledoc ~S"""
   The Accounts context.
   
   ## Usage
@@ -21,7 +21,7 @@ defmodule GameServer.Accounts do
   The actual implementation runs on the GameServer.
   """
 
-  @doc """
+  @doc ~S"""
     Attach a device_id to an existing user record. Returns {:ok, user} or
     {:error, changeset} if the device_id is already used.
     
@@ -31,7 +31,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Broadcast that the given user has been updated.
     
     This helper is intentionally small and only broadcasts a compact payload
@@ -43,7 +43,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Returns an `%Ecto.Changeset{}` for changing the user display_name.
     
   """
@@ -52,7 +52,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Returns an `%Ecto.Changeset{}` for changing the user display_name.
     
   """
@@ -61,7 +61,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Returns an `%Ecto.Changeset{}` for changing the user email.
     
     See `GameServer.Accounts.User.email_changeset/3` for a list of supported options.
@@ -78,7 +78,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Returns an `%Ecto.Changeset{}` for changing the user email.
     
     See `GameServer.Accounts.User.email_changeset/3` for a list of supported options.
@@ -95,7 +95,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Returns an `%Ecto.Changeset{}` for changing the user email.
     
     See `GameServer.Accounts.User.email_changeset/3` for a list of supported options.
@@ -112,7 +112,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Returns an `%Ecto.Changeset{}` for changing the user password.
     
     See `GameServer.Accounts.User.password_changeset/3` for a list of supported options.
@@ -129,7 +129,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Returns an `%Ecto.Changeset{}` for changing the user password.
     
     See `GameServer.Accounts.User.password_changeset/3` for a list of supported options.
@@ -146,7 +146,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Returns an `%Ecto.Changeset{}` for changing the user password.
     
     See `GameServer.Accounts.User.password_changeset/3` for a list of supported options.
@@ -175,7 +175,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Confirms a user's email by setting confirmed_at timestamp.
     
     ## Examples
@@ -190,7 +190,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Confirm a user by an email confirmation token (context: "confirm").
     
     Returns {:ok, user} when the token is valid and user was confirmed.
@@ -202,7 +202,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Count users matching a text query (email or display_name). Returns integer.
     
   """
@@ -211,7 +211,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Returns the total number of users.
     
   """
@@ -221,7 +221,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Count users active (authenticated_at updated) in the last N days.
     Uses UserToken inserted_at to track recent authentications.
     
@@ -232,7 +232,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Count users registered in the last N days.
     
   """
@@ -242,7 +242,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Count users with a password set (hashed_password not nil/empty).
     
   """
@@ -252,7 +252,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Count users with non-empty provider id for a given provider field (e.g. :google_id)
     
   """
@@ -262,7 +262,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Deletes a user and associated resources.
     
     Returns `{:ok, user}` on success or `{:error, changeset}` on failure.
@@ -273,7 +273,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Deletes the signed token with the given context.
     
   """
@@ -282,7 +282,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Delivers the magic link login instructions to the given user.
     
   """
@@ -297,7 +297,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Delivers the update email instructions to the given user.
     
     ## Examples
@@ -312,7 +312,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Returns true when device-based auth is enabled. This checks the
     application config `:game_server, :device_auth_enabled` and falls back
     to the environment variable `DEVICE_AUTH_ENABLED`. If neither
@@ -324,7 +324,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Finds a user by Apple ID or creates a new user from OAuth data.
     
     ## Examples
@@ -339,7 +339,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Finds or creates a user associated with the given device_id.
     
     If a user already exists with the device_id we return it. Otherwise we
@@ -351,7 +351,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Finds or creates a user associated with the given device_id.
     
     If a user already exists with the device_id we return it. Otherwise we
@@ -363,7 +363,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Finds a user by Discord ID or creates a new user from OAuth data.
     
     ## Examples
@@ -378,7 +378,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Finds a user by Facebook ID or creates a new user from OAuth data.
     
     ## Examples
@@ -393,7 +393,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Finds a user by Google ID or creates a new user from OAuth data.
     
     ## Examples
@@ -408,7 +408,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Finds a user by Steam ID or creates a new user from Steam OpenID data.
     
     ## Examples
@@ -423,7 +423,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Generates a session token.
     
   """
@@ -432,7 +432,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Returns a map of linked OAuth providers for the user.
     
     Each provider is a boolean indicating whether that provider is linked.
@@ -443,7 +443,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Gets a single user by ID.
     
     Returns `nil` if the User does not exist.
@@ -464,7 +464,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Gets a single user.
     
     Raises `Ecto.NoResultsError` if the User does not exist.
@@ -485,7 +485,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Get a user by their Apple ID.
     
     Returns `%User{}` or `nil`.
@@ -496,7 +496,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Get a user by their Discord ID.
     
     Returns `%User{}` or `nil`.
@@ -507,7 +507,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Gets a user by email.
     
     ## Examples
@@ -526,7 +526,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Gets a user by email and password.
     
     ## Examples
@@ -544,7 +544,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Get a user by their Facebook ID.
     
     Returns `%User{}` or `nil`.
@@ -555,7 +555,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Get a user by their Google ID.
     
     Returns `%User{}` or `nil`.
@@ -566,7 +566,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Gets the user with the given magic link token.
     
   """
@@ -575,7 +575,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Gets the user with the given signed token.
     
     If the token is valid `{user, token_inserted_at}` is returned, otherwise `nil` is returned.
@@ -586,7 +586,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Get a user by their Steam ID (steam_id).
     
     Returns `%User{}` or `nil`.
@@ -597,7 +597,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Returns whether the user has a password set.
     
   """
@@ -606,7 +606,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Link an OAuth provider to an existing user account. Updates the user
     via the provider's oauth changeset while being careful not to overwrite
     existing email or avatars.
@@ -619,7 +619,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Link a device_id to an existing user account. This allows the user to
     authenticate using the device_id in addition to their OAuth providers.
     
@@ -632,7 +632,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Logs the user in by magic link.
     
     There are three cases to consider:
@@ -656,7 +656,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Registers a user.
     
     ## Attributes
@@ -680,7 +680,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Register a user and send the confirmation email inside a DB transaction.
     
     The function accepts a `confirmation_url_fun` which must be a function of arity 1
@@ -695,7 +695,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Register a user and send the confirmation email inside a DB transaction.
     
     The function accepts a `confirmation_url_fun` which must be a function of arity 1
@@ -710,7 +710,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Search users by email or display name (case-insensitive, partial match).
     
     Returns a list of User structs.
@@ -725,7 +725,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Search users by email or display name (case-insensitive, partial match).
     
     Returns a list of User structs.
@@ -741,7 +741,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Checks whether the user is in sudo mode.
     
     The user is in sudo mode when the last authentication was done no further
@@ -753,7 +753,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Checks whether the user is in sudo mode.
     
     The user is in sudo mode when the last authentication was done no further
@@ -765,7 +765,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Unlink the device_id from a user's account.
     
     Returns {:ok, user} when successful or {:error, reason}.
@@ -780,7 +780,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Unlink an OAuth provider from a user's account.
     
     provider should be one of :discord, :apple, :google, :facebook.
@@ -796,7 +796,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Updates a user with the given attributes.
     
     This function applies the `User.admin_changeset/2` then updates the user and
@@ -824,7 +824,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Updates the user's display name and broadcasts the change.
     
   """
@@ -833,7 +833,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Updates the user email using the given token.
     
     If the token matches, the user email is updated and the token is deleted.
@@ -844,7 +844,7 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc """
+  @doc ~S"""
     Updates the user password.
     
     Returns a tuple with the updated user, as well as a list of expired tokens.
