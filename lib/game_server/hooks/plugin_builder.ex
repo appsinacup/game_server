@@ -28,14 +28,14 @@ defmodule GameServer.Hooks.PluginBuilder do
 
   @spec sources_dir() :: String.t()
   def sources_dir do
-    System.get_env("GAME_SERVER_PLUGIN_SOURCES_DIR") || Path.expand("modules/plugins_examples")
+    System.get_env("GAME_SERVER_PLUGIN_SOURCES_DIR")
   end
 
   @spec list_buildable_plugins() :: [String.t()]
   def list_buildable_plugins do
     dir = sources_dir()
 
-    if File.dir?(dir) do
+    if dir && File.dir?(dir) do
       dir
       |> File.ls!()
       |> Enum.map(&Path.join(dir, &1))
