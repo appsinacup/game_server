@@ -1,3 +1,7 @@
+# 13 Dec 2025
+
+- Make hooks be OTP packages.
+
 # 3 Dec 2025
 
 - Add server scheduler.

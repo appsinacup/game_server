@@ -1,14 +1,14 @@
 defmodule GameServerSdk.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "1.0.0"
   @source_url "https://github.com/appsinacup/game_server"
 
   def project do
     [
       app: :game_server_sdk,
       version: @version,
-      elixir: "~> 1.16",
+      elixir: "~> 1.19",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       description: description(),
