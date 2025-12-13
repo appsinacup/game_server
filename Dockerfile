@@ -16,6 +16,10 @@ WORKDIR /app
 # Set environment to production
 ENV MIX_ENV=prod
 
+# Plugin build configuration
+ARG GAME_SERVER_PLUGINS_DIR=modules/plugins_examples
+ENV GAME_SERVER_PLUGINS_DIR=${GAME_SERVER_PLUGINS_DIR}
+
 ARG APP_VERSION=1.0.0
 ENV APP_VERSION=${APP_VERSION}
 RUN echo -n "${APP_VERSION}" > /app/VERSION
@@ -26,8 +30,19 @@ COPY mix.exs mix.lock ./
 RUN mix deps.get
 
 
-# Copy the rest of the application
 COPY . .
+
+# Build any plugins that ship with the repository (can be skipped via BUILD_PLUGINS_IN_IMAGE)
+RUN if [ -d "${GAME_SERVER_PLUGINS_DIR}" ]; then \
+        for plugin_path in ${GAME_SERVER_PLUGINS_DIR}/*; do \
+            if [ -d "${plugin_path}" ] && [ -f "${plugin_path}/mix.exs" ]; then \
+                echo "Building plugin ${plugin_path}"; \
+                (cd "${plugin_path}" && mix deps.get && mix compile && mix plugin.bundle); \
+            fi; \
+        done; \
+    else \
+        echo "Plugin sources dir ${GAME_SERVER_PLUGINS_DIR} missing, skipping plugin builds"; \
+    fi;
 
 # Compile the application FIRST (generates phoenix-colocated hooks)
 RUN mix compile
