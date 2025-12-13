@@ -32,7 +32,7 @@ RUN mix deps.get
 
 COPY . .
 
-# Build any plugins that ship with the repository (can be skipped via BUILD_PLUGINS_IN_IMAGE)
+# Build any plugins that ship with the repository
 RUN if [ -d "${GAME_SERVER_PLUGINS_DIR}" ]; then \
         for plugin_path in ${GAME_SERVER_PLUGINS_DIR}/*; do \
             if [ -d "${plugin_path}" ] && [ -f "${plugin_path}/mix.exs" ]; then \
@@ -42,7 +42,7 @@ RUN if [ -d "${GAME_SERVER_PLUGINS_DIR}" ]; then \
         done; \
     else \
         echo "Plugin sources dir ${GAME_SERVER_PLUGINS_DIR} missing, skipping plugin builds"; \
-    fi;
+    fi
 
 # Compile the application FIRST (generates phoenix-colocated hooks)
 RUN mix compile

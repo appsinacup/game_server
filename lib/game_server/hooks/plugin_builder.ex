@@ -21,20 +21,6 @@ defmodule GameServer.Hooks.PluginBuilder do
           steps: [step_result()]
         }
 
-  @auto_build_env "GAME_SERVER_AUTO_BUILD_PLUGINS"
-  @auto_build_off_values ["0", "false", "no", "off", ""]
-
-  @spec enabled?() :: boolean()
-  def enabled? do
-    (System.get_env(@auto_build_env) || "false")
-    |> String.trim()
-    |> String.downcase()
-    |> auto_build_enabled?()
-  end
-
-  defp auto_build_enabled?(value) when value in @auto_build_off_values, do: false
-  defp auto_build_enabled?(_), do: true
-
   @spec sources_dir() :: String.t()
   def sources_dir do
     System.get_env("GAME_SERVER_PLUGINS_DIR")

@@ -22,7 +22,6 @@ defmodule GameServer.Application do
         {DNSCluster, query: Application.get_env(:game_server, :dns_cluster_query) || :ignore},
         {Phoenix.PubSub, name: GameServer.PubSub},
         GameServerWeb.Endpoint,
-        GameServer.Hooks.PluginBuilderRunner,
         # Load hook plugins (OTP apps) shipped under modules/plugins/*
         GameServer.Hooks.PluginManager,
         # Quantum scheduler for cron-like jobs
