@@ -34,6 +34,66 @@ defmodule GameServer.Friends do
   """
 
   @doc """
+    Accept a friend request (only the target may accept). Returns {:ok, friendship}.
+  """
+  @spec accept_friend_request(integer(), GameServer.Accounts.User.t()) ::
+  {:ok, GameServer.Friends.Friendship.t()} | {:error, term()}
+  def accept_friend_request(_friendship_id, _user) do
+    raise "GameServer.Friends.accept_friend_request/2 is a stub - only available at runtime on GameServer"
+  end
+
+
+  @doc """
+    Block an incoming request (only the target may block). Returns {:ok, friendship} with status "blocked".
+  """
+  @spec block_friend_request(integer(), GameServer.Accounts.User.t()) ::
+  {:ok, GameServer.Friends.Friendship.t()} | {:error, term()}
+  def block_friend_request(_friendship_id, _user) do
+    raise "GameServer.Friends.block_friend_request/2 is a stub - only available at runtime on GameServer"
+  end
+
+
+  @doc """
+    Cancel an outgoing friend request (only the requester may cancel).
+  """
+  def cancel_request(_friendship_id, _user) do
+    raise "GameServer.Friends.cancel_request/2 is a stub - only available at runtime on GameServer"
+  end
+
+
+  @doc """
+    Count blocked friendships for a user (number of blocked rows where user is target).
+  """
+  def count_blocked_for_user(_user_id) do
+    raise "GameServer.Friends.count_blocked_for_user/1 is a stub - only available at runtime on GameServer"
+  end
+
+
+  @doc """
+    Count accepted friends for a given user (distinct other user ids).
+  """
+  def count_friends_for_user(_user_id) do
+    raise "GameServer.Friends.count_friends_for_user/1 is a stub - only available at runtime on GameServer"
+  end
+
+
+  @doc """
+    Count incoming pending friend requests for a user.
+  """
+  def count_incoming_requests(_user_id) do
+    raise "GameServer.Friends.count_incoming_requests/1 is a stub - only available at runtime on GameServer"
+  end
+
+
+  @doc """
+    Count outgoing pending friend requests for a user.
+  """
+  def count_outgoing_requests(_user_id) do
+    raise "GameServer.Friends.count_outgoing_requests/1 is a stub - only available at runtime on GameServer"
+  end
+
+
+  @doc """
     Create a friend request from requester -> target.
       If a reverse pending request exists (target -> requester) it will be accepted instead.
       Returns {:ok, friendship} on success or {:error, reason}.
@@ -47,22 +107,47 @@ defmodule GameServer.Friends do
 
 
   @doc """
-    Accept a friend request (only the target may accept). Returns {:ok, friendship}.
+    Get friendship between two users (ordered requester->target) if exists
   """
-  @spec accept_friend_request(integer(), GameServer.Accounts.User.t()) ::
-  {:ok, GameServer.Friends.Friendship.t()} | {:error, term()}
-  def accept_friend_request(_friendship_id, _user) do
-    raise "GameServer.Friends.accept_friend_request/2 is a stub - only available at runtime on GameServer"
+  def get_by_pair(_requester_id, _target_id) do
+    raise "GameServer.Friends.get_by_pair/2 is a stub - only available at runtime on GameServer"
   end
 
 
   @doc """
-    Reject a friend request (only the target may reject). Returns {:ok, friendship}.
+    Get friendship by id
   """
-  @spec reject_friend_request(integer(), GameServer.Accounts.User.t()) ::
-  {:ok, GameServer.Friends.Friendship.t()} | {:error, term()}
-  def reject_friend_request(_friendship_id, _user) do
-    raise "GameServer.Friends.reject_friend_request/2 is a stub - only available at runtime on GameServer"
+  def get_friendship!(_id) do
+    raise "GameServer.Friends.get_friendship!/1 is a stub - only available at runtime on GameServer"
+  end
+
+
+  @doc """
+    List blocked friendships for a user (Friendship structs where the user is the blocker / target).
+  """
+  def list_blocked_for_user(_user_id) do
+    raise "GameServer.Friends.list_blocked_for_user/1 is a stub - only available at runtime on GameServer"
+  end
+
+
+  @doc """
+    List blocked friendships for a user (Friendship structs where the user is the blocker / target).
+  """
+  def list_blocked_for_user(_user_id, _opts) do
+    raise "GameServer.Friends.list_blocked_for_user/2 is a stub - only available at runtime on GameServer"
+  end
+
+
+  @doc """
+    List accepted friends for a given user id - returns list of User structs.
+    
+    ## Options
+    
+    See `t:GameServer.Types.pagination_opts/0` for available options.
+    
+  """
+  def list_friends_for_user(_user_id) do
+    raise "GameServer.Friends.list_friends_for_user/1 is a stub - only available at runtime on GameServer"
   end
 
 
@@ -91,6 +176,19 @@ defmodule GameServer.Friends do
     See `t:GameServer.Types.pagination_opts/0` for available options.
     
   """
+  def list_incoming_requests(_user_id) do
+    raise "GameServer.Friends.list_incoming_requests/1 is a stub - only available at runtime on GameServer"
+  end
+
+
+  @doc """
+    List incoming pending friend requests for a user (Friendship structs).
+    
+    ## Options
+    
+    See `t:GameServer.Types.pagination_opts/0` for available options.
+    
+  """
   @spec list_incoming_requests(
   integer() | GameServer.Accounts.User.t(),
   GameServer.Types.pagination_opts()
@@ -108,12 +206,66 @@ defmodule GameServer.Friends do
     See `t:GameServer.Types.pagination_opts/0` for available options.
     
   """
+  def list_outgoing_requests(_user_id) do
+    raise "GameServer.Friends.list_outgoing_requests/1 is a stub - only available at runtime on GameServer"
+  end
+
+
+  @doc """
+    List outgoing pending friend requests for a user (Friendship structs).
+    
+    ## Options
+    
+    See `t:GameServer.Types.pagination_opts/0` for available options.
+    
+  """
   @spec list_outgoing_requests(
   integer() | GameServer.Accounts.User.t(),
   GameServer.Types.pagination_opts()
 ) :: [GameServer.Friends.Friendship.t()]
   def list_outgoing_requests(_user_id, _opts) do
     raise "GameServer.Friends.list_outgoing_requests/2 is a stub - only available at runtime on GameServer"
+  end
+
+
+  @doc """
+    Reject a friend request (only the target may reject). Returns {:ok, friendship}.
+  """
+  @spec reject_friend_request(integer(), GameServer.Accounts.User.t()) ::
+  {:ok, GameServer.Friends.Friendship.t()} | {:error, term()}
+  def reject_friend_request(_friendship_id, _user) do
+    raise "GameServer.Friends.reject_friend_request/2 is a stub - only available at runtime on GameServer"
+  end
+
+
+  @doc """
+    Remove a friendship (either direction) - only participating users may call this.
+  """
+  @spec remove_friend(integer(), integer()) :: {:ok, GameServer.Friends.Friendship.t()} | {:error, term()}
+  def remove_friend(_user_id, _friend_id) do
+    raise "GameServer.Friends.remove_friend/2 is a stub - only available at runtime on GameServer"
+  end
+
+
+  @doc false
+  def subscribe_user(_user_id) do
+    raise "GameServer.Friends.subscribe_user/1 is a stub - only available at runtime on GameServer"
+  end
+
+
+  @doc """
+    Unblock a previously-blocked friendship (only the user who blocked may unblock). Returns {:ok, :unblocked} on success.
+  """
+  @spec unblock_friendship(integer(), GameServer.Accounts.User.t()) ::
+  {:ok, :unblocked} | {:error, term()}
+  def unblock_friendship(_friendship_id, _user) do
+    raise "GameServer.Friends.unblock_friendship/2 is a stub - only available at runtime on GameServer"
+  end
+
+
+  @doc false
+  def unsubscribe_user(_user_id) do
+    raise "GameServer.Friends.unsubscribe_user/1 is a stub - only available at runtime on GameServer"
   end
 
 end
