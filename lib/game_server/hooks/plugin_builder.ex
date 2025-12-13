@@ -51,13 +51,25 @@ defmodule GameServer.Hooks.PluginBuilder do
 
   @spec build(String.t()) :: {:ok, build_result()} | {:error, term()}
   def build(plugin_name) when is_binary(plugin_name) do
-    source_dir = sources_dir()
-    plugin_dir = Path.join(source_dir, plugin_name)
+    case sources_dir() do
+      nil ->
+        return_error(:plugin_sources_dir_unset)
 
-    unless File.exists?(Path.join(plugin_dir, "mix.exs")) do
-      return_error({:missing_mix_project, plugin_dir})
+      source_dir ->
+        plugin_dir = Path.join(source_dir, plugin_name)
+
+        if File.exists?(Path.join(plugin_dir, "mix.exs")) do
+          run_build_steps(plugin_name, source_dir, plugin_dir)
+        else
+          return_error({:missing_mix_project, plugin_dir})
+        end
     end
+  rescue
+    e ->
+      {:error, {:build_failed, Exception.message(e)}}
+  end
 
+  defp run_build_steps(plugin_name, source_dir, plugin_dir) do
     started_at = DateTime.utc_now()
 
     env =
@@ -96,9 +108,6 @@ defmodule GameServer.Hooks.PluginBuilder do
        finished_at: finished_at,
        steps: steps
      }}
-  rescue
-    e ->
-      {:error, {:build_failed, Exception.message(e)}}
   end
 
   defp return_error(reason), do: {:error, reason}
