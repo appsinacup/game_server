@@ -22,7 +22,7 @@ defmodule ExampleHook.MixProject do
   # in-repo SDK via a path dependency.
   defp deps do
     [
-      {:game_server_sdk, path: "../../../sdk"},
+      {:game_server_sdk, path: "../../../sdk", runtime: false},
       {:bunt, "~> 1.0"}
     ]
   end

@@ -3,6 +3,7 @@ defmodule GameServerWeb.AdminLive.Config do
 
   alias GameServer.Accounts.UserNotifier
   alias GameServer.Hooks
+  alias GameServer.Hooks.PluginBuilder
   alias GameServer.Hooks.PluginManager
   alias GameServer.Schedule
   alias GameServer.Theme.JSONConfig
@@ -15,7 +16,7 @@ defmodule GameServerWeb.AdminLive.Config do
         <.link navigate={~p"/admin"} class="btn btn-outline mb-4">
           ← Back to Admin
         </.link>
-        
+
     <!-- Current Configuration Status -->
         <div class="card bg-base-100 shadow-xl" data-card-key="config_status">
           <div class="card-body">
@@ -74,6 +75,35 @@ defmodule GameServerWeb.AdminLive.Config do
                         </button>
                       </div>
 
+                      <div class="mt-2 flex flex-wrap items-center gap-3">
+                        <.form
+                          for={@plugin_build_form}
+                          id="plugins-build-form"
+                          phx-submit="build_plugin_bundle"
+                          class="flex flex-wrap items-center gap-2"
+                        >
+                          <.input
+                            field={@plugin_build_form[:name]}
+                            type="select"
+                            options={@plugin_build_options}
+                            class="select select-bordered select-sm w-52"
+                          />
+
+                          <button
+                            id="plugins-build-btn"
+                            type="submit"
+                            class="btn btn-outline btn-sm"
+                            disabled={@plugin_build_running? or @plugin_build_options == []}
+                          >
+                            {if @plugin_build_running?, do: "Building…", else: "Build bundle"}
+                          </button>
+
+                          <div class="text-xs font-mono opacity-70 break-all">
+                            SRC: {PluginBuilder.sources_dir()} — MIX_ENV: {System.get_env("MIX_ENV") || "<unset>"}
+                          </div>
+                        </.form>
+                      </div>
+
                       <div class="mt-1 text-xs font-mono break-all">
                         Last reload: {@plugins_last_reloaded_at || "<never>"}
                       </div>
@@ -82,6 +112,27 @@ defmodule GameServerWeb.AdminLive.Config do
                         <div class="mt-2 text-xs font-mono whitespace-pre-wrap break-words">
                           {inspect(@plugins_reload_result) |> String.slice(0, 1024)}
                           {if String.length(inspect(@plugins_reload_result)) > 1024, do: "…"}
+                        </div>
+                      <% end %>
+
+                      <%= if @plugin_build_result do %>
+                        <div class="mt-3">
+                          <div class="flex flex-wrap items-center gap-2">
+                            <span class={[
+                              "badge badge-sm",
+                              if(@plugin_build_result.ok?, do: "badge-success", else: "badge-error")
+                            ]}>
+                              {if @plugin_build_result.ok?, do: "BUILD OK", else: "BUILD ERR"}
+                            </span>
+
+                            <div class="text-xs font-mono opacity-70 break-all">
+                              {@plugin_build_result.plugin} — {DateTime.to_iso8601(
+                                @plugin_build_result.started_at
+                              )} → {DateTime.to_iso8601(@plugin_build_result.finished_at)}
+                            </div>
+                          </div>
+
+                          <pre class="mt-2 text-xs font-mono whitespace-pre-wrap break-words max-h-64 overflow-auto bg-base-200/60 rounded-lg p-3">{plugin_build_output(@plugin_build_result) |> String.slice(0, 8192)}{if String.length(plugin_build_output(@plugin_build_result)) > 8192, do: "\n…", else: ""}</pre>
                         </div>
                       <% end %>
 
@@ -535,7 +586,7 @@ defmodule GameServerWeb.AdminLive.Config do
                             <div class="text-xs text-muted">No test yet</div>
                           <% end %>
                         </div>
-                        
+
     <!-- Full docs modal / pane -->
                         <%= if @hooks_full_doc do %>
                           <div class="mt-2 p-3 border rounded bg-base-100">
@@ -562,7 +613,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Admin Tools -->
         <div class="card bg-base-100 shadow-xl" data-card-key="admin_tools">
           <div class="card-body">
@@ -619,7 +670,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Scheduled Jobs -->
         <div class="card bg-base-100 shadow-xl" data-card-key="scheduled_jobs">
           <div class="card-body">
@@ -781,7 +832,12 @@ defmodule GameServerWeb.AdminLive.Config do
        plugins: PluginManager.list(),
        plugins_counts: plugin_counts(PluginManager.list()),
        plugins_last_reloaded_at: nil,
-       plugins_reload_result: nil
+       plugins_reload_result: nil,
+       plugin_build_options: plugin_build_options(),
+       plugin_build_running?: false,
+       plugin_build_result: nil,
+       plugin_build_form:
+         to_form(%{"name" => default_plugin_build_selection()}, as: :plugin_build)
      )}
   end
 
@@ -799,6 +855,32 @@ defmodule GameServerWeb.AdminLive.Config do
        plugins_last_reloaded_at: now,
        plugins_reload_result: res
      )}
+  end
+
+  @impl true
+  def handle_event("build_plugin_bundle", %{"plugin_build" => %{"name" => name}}, socket)
+      when is_binary(name) do
+    cond do
+      socket.assigns.plugin_build_running? ->
+        {:noreply, socket}
+
+      socket.assigns.plugin_build_options == [] ->
+        {:noreply, put_flash(socket, :error, "No buildable plugins found under #{PluginBuilder.sources_dir()}")}
+
+      true ->
+        parent = self()
+
+        Task.start(fn ->
+          result = PluginBuilder.build(name)
+          send(parent, {:plugin_build_finished, name, result})
+        end)
+
+        {:noreply,
+         socket
+         |> assign(:plugin_build_running?, true)
+         |> assign(:plugin_build_result, nil)
+         |> put_flash(:info, "Building plugin bundle for #{name}…")}
+    end
   end
 
   @impl true
@@ -934,6 +1016,45 @@ defmodule GameServerWeb.AdminLive.Config do
 
   def handle_event("close_docs", _params, socket),
     do: {:noreply, assign(socket, hooks_full_doc: nil, hooks_full_name: nil)}
+
+  @impl true
+  def handle_info({:plugin_build_finished, _name, {:ok, build_result}}, socket) do
+    {:noreply,
+     socket
+     |> assign(:plugin_build_running?, false)
+     |> assign(:plugin_build_result, build_result)
+     |> put_flash(:info, "Plugin build finished")}
+  end
+
+  @impl true
+  def handle_info({:plugin_build_finished, _name, {:error, reason}}, socket) do
+    {:noreply,
+     socket
+     |> assign(:plugin_build_running?, false)
+     |> put_flash(:error, "Plugin build failed: #{inspect(reason)}")}
+  end
+
+  defp plugin_build_options do
+    PluginBuilder.list_buildable_plugins()
+    |> Enum.map(fn name -> {name, name} end)
+  end
+
+  defp default_plugin_build_selection do
+    plugin_build_options()
+    |> Enum.at(0)
+    |> case do
+      {name, _} -> name
+      _ -> ""
+    end
+  end
+
+  defp plugin_build_output(%{steps: steps}) when is_list(steps) do
+    steps
+    |> Enum.map_join("\n\n", fn s ->
+      "$ #{s.cmd} (exit=#{s.status})\n" <> (s.output || "")
+    end)
+    |> String.trim()
+  end
 
   defp parse_hook_args(v) when is_binary(v) and v != "" do
     case Jason.decode(v) do
