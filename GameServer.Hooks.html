@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.2">
-    <meta name="project" content="game_server v1.0.375">
+    <meta name="project" content="game_server v1.0.376">
 
 
-    <title>GameServer.Hooks — game_server v1.0.375</title>
+    <title>GameServer.Hooks — game_server v1.0.376</title>
 
     <link rel="stylesheet" href="dist/html-elixir-VYWJUHZE.css" />
 
-    <script defer src="dist/sidebar_items-FB1DFA6F.js"></script>
+    <script defer src="dist/sidebar_items-24434028.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-XBCM4BHM.js"></script>
 
@@ -37,7 +37,7 @@
 game_server
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.375
+          v1.0.376
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.Hooks</span> <small>behaviour</small>
-      <small class="app-vsn" translate="no">(game_server v1.0.375)</small>
+      <small class="app-vsn" translate="no">(game_server v1.0.376)</small>
 
     </h1>
 
@@ -261,6 +261,14 @@ game_server
 
     <div class="summary-row">
       <div class="summary-signature">
+        <a href="#c:before_stop/0" data-no-tooltip="" translate="no">before_stop()</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
         <a href="#c:before_user_kicked/3" data-no-tooltip="" translate="no">before_user_kicked(t, t, term)</a>
 
       </div>
@@ -320,7 +328,7 @@ when the value is a user struct or map containing <code class="inline">:id</code
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#exported_functions/0" data-no-tooltip="" translate="no">exported_functions()</a>
+        <a href="#exported_functions/1" data-no-tooltip="" translate="no">exported_functions(mod \\ module())</a>
 
       </div>
 
@@ -360,19 +368,6 @@ when the value is a user struct or map containing <code class="inline">:id</code
 
     </div>
 
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#register_file/1" data-no-tooltip="" translate="no">register_file(path)</a>
-
-      </div>
-
-        <div class="summary-synopsis"><p>Register a module from a source file at runtime. We capture any
-compiler output (warnings or compile-time prints) and record a
-timestamp and status (ok, ok_with_warnings, error) in application
-environment so the admin UI can display diagnostics.</p></div>
-
-    </div>
-
 </div>
 
   </section>
@@ -397,7 +392,7 @@ environment so the admin UI can display diagnostics.</p></div>
       <h1 class="signature" translate="no">hook_result(attrs_or_user)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L19" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L20" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -438,7 +433,7 @@ environment so the admin UI can display diagnostics.</p></div>
       <h1 class="signature" translate="no">after_lobby_create(term)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L29" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L32" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -466,7 +461,7 @@ environment so the admin UI can display diagnostics.</p></div>
       <h1 class="signature" translate="no">after_lobby_delete(term)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L41" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L44" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -494,7 +489,7 @@ environment so the admin UI can display diagnostics.</p></div>
       <h1 class="signature" translate="no">after_lobby_host_change(term, term)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L47" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L50" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -522,7 +517,7 @@ environment so the admin UI can display diagnostics.</p></div>
       <h1 class="signature" translate="no">after_lobby_join(t, term)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L32" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L35" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -550,7 +545,7 @@ environment so the admin UI can display diagnostics.</p></div>
       <h1 class="signature" translate="no">after_lobby_leave(t, term)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L35" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L38" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -578,7 +573,7 @@ environment so the admin UI can display diagnostics.</p></div>
       <h1 class="signature" translate="no">after_lobby_update(term)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L38" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L41" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -606,7 +601,7 @@ environment so the admin UI can display diagnostics.</p></div>
       <h1 class="signature" translate="no">after_startup()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L21" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L22" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -634,7 +629,7 @@ environment so the admin UI can display diagnostics.</p></div>
       <h1 class="signature" translate="no">after_user_kicked(t, t, term)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L45" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L48" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -666,7 +661,7 @@ environment so the admin UI can display diagnostics.</p></div>
       <h1 class="signature" translate="no">after_user_login(t)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L25" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L28" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -694,7 +689,7 @@ environment so the admin UI can display diagnostics.</p></div>
       <h1 class="signature" translate="no">after_user_register(t)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L23" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L26" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -722,7 +717,7 @@ environment so the admin UI can display diagnostics.</p></div>
       <h1 class="signature" translate="no">before_lobby_create(map)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L28" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L31" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -750,7 +745,7 @@ environment so the admin UI can display diagnostics.</p></div>
       <h1 class="signature" translate="no">before_lobby_delete(term)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L40" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L43" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -778,7 +773,7 @@ environment so the admin UI can display diagnostics.</p></div>
       <h1 class="signature" translate="no">before_lobby_join(t, term, term)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L31" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L34" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -807,7 +802,7 @@ environment so the admin UI can display diagnostics.</p></div>
       <h1 class="signature" translate="no">before_lobby_leave(t, term)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L34" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L37" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -836,7 +831,7 @@ environment so the admin UI can display diagnostics.</p></div>
       <h1 class="signature" translate="no">before_lobby_update(term, map)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L37" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L40" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -854,6 +849,34 @@ environment so the admin UI can display diagnostics.</p></div>
 
   </section>
 </section>
+<section class="detail" id="c:before_stop/0">
+
+  <div class="detail-header">
+    <a href="#c:before_stop/0" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_stop()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L24" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_stop() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
 <section class="detail" id="c:before_user_kicked/3">
 
   <div class="detail-header">
@@ -864,7 +887,7 @@ environment so the admin UI can display diagnostics.</p></div>
       <h1 class="signature" translate="no">before_user_kicked(t, t, term)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L43" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L46" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -916,7 +939,7 @@ environment so the admin UI can display diagnostics.</p></div>
       <h1 class="signature" translate="no">call(name, args \\ [], opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L265" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L69" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -940,7 +963,7 @@ timeout to avoid long-running user code.</p><p>Returns {:ok, result} | {:error, 
       <h1 class="signature" translate="no">caller()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L714" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L646" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -972,7 +995,7 @@ when the value is a user struct or map containing <code class="inline">:id</code
       <h1 class="signature" translate="no">caller_id()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L719" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L651" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1000,7 +1023,7 @@ when the value is a user struct or map containing <code class="inline">:id</code
       <h1 class="signature" translate="no">caller_user()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L733" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L665" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1021,17 +1044,19 @@ when the value is a user struct or map containing <code class="inline">:id</code
   no caller or user is found.</p>
   </section>
 </section>
-<section class="detail" id="exported_functions/0">
+<section class="detail" id="exported_functions/1">
+
+    <span id="exported_functions/0"></span>
 
   <div class="detail-header">
-    <a href="#exported_functions/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#exported_functions/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">exported_functions()</h1>
+      <h1 class="signature" translate="no">exported_functions(mod \\ module())</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L617" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L567" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1058,7 +1083,7 @@ This is useful for tooling and admin UI to display what RPCs are available.</p>
       <h1 class="signature" translate="no">internal_call(name, args \\ [], opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L332" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L135" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1084,7 +1109,7 @@ This is useful for tooling and admin UI to display what RPCs are available.</p>
       <h1 class="signature" translate="no">invoke(name, args \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L389" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L170" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1109,7 +1134,7 @@ function doesn't exist.</p>
       <h1 class="signature" translate="no">module()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L50" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L53" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -1119,31 +1144,6 @@ function doesn't exist.</p>
   <section class="docstring">
 
 <p>Return the configured module that implements the hooks behaviour.</p>
-  </section>
-</section>
-<section class="detail" id="register_file/1">
-
-  <div class="detail-header">
-    <a href="#register_file/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">register_file(path)</h1>
-
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/hooks.ex#L149" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-<p>Register a module from a source file at runtime. We capture any
-compiler output (warnings or compile-time prints) and record a
-timestamp and status (ok, ok_with_warnings, error) in application
-environment so the admin UI can display diagnostics.</p>
   </section>
 </section>
 
