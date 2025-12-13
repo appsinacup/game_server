@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.Plugin.Bundle do
   use Mix.Task
 
-  @shortdoc "Builds a plugin bundle into ./ebin"
+  @shortdoc "Builds a plugin bundle into ./ebin (and deps/*/ebin)"
 
   @moduledoc """
   Builds a plugin bundle directory in the project root.
@@ -10,18 +10,23 @@ defmodule Mix.Tasks.Plugin.Bundle do
   - runs `mix compile`
   - recreates `./ebin/`
   - copies compiled BEAMs and the `.app` file from the build output
-  - copies compiled dependency BEAMs into `./deps/<dep>/ebin/`
+  - copies compiled *runtime* dependency BEAMs into `./deps/<dep>/ebin/`
 
-  The result is an `ebin/` directory suitable for dropping into the server's
-  plugin directory (e.g. `modules/plugins/example_hook/ebin`).
+  The result is suitable for dropping the plugin directory into the server's
+  plugin directory (e.g. `modules/plugins/<plugin_name>`), where the server will
+  load:
+
+  - `<plugin>/ebin`
+  - `<plugin>/deps/*/ebin`
 
   Options:
 
-    * `--no-clean` - do not delete the existing `./ebin` directory first
+    * `--no-clean` - do not delete the existing `./ebin` (and `deps/*/ebin`) first
 
-  Note: if your plugin depends on other OTP apps not available in the server
-  release, you must also ship those dependencies' `ebin/` directories under
-  `deps/<dep>/ebin` (see `docs/hooks-otp-plugins-plan.md` in the main repo).
+  Notes:
+
+  - Only dependencies with `runtime: true` (the default) are bundled.
+  - Dependencies marked `runtime: false` are assumed to be compile-time only.
   """
 
   @impl true
@@ -47,28 +52,16 @@ defmodule Mix.Tasks.Plugin.Bundle do
 
     File.mkdir_p!(dest_ebin)
 
-    build_ebin
-    |> File.ls!()
-    |> Enum.each(fn entry ->
-      src = Path.join(build_ebin, entry)
-      dest = Path.join(dest_ebin, entry)
+    copy_dir_contents!(build_ebin, dest_ebin)
 
-      cond do
-        File.dir?(src) ->
-          File.cp_r!(src, dest)
-
-        true ->
-          File.cp!(src, dest)
-      end
-    end)
-
-    # Also bundle compiled dependency BEAMs.
-    # These are loaded by the server from `deps/*/ebin` under the plugin directory.
     deps_to_bundle =
       Mix.Dep.load_and_cache()
+      |> Enum.filter(fn dep ->
+        dep_app = dep.app
+        dep_app != Mix.Project.config()[:app] and dep.opts[:runtime] != false
+      end)
       |> Enum.map(& &1.app)
       |> Enum.uniq()
-      |> Enum.reject(&(&1 in [:example_hook, :game_server_sdk]))
 
     Enum.each(deps_to_bundle, fn dep_app ->
       dep_name = Atom.to_string(dep_app)
@@ -81,24 +74,25 @@ defmodule Mix.Tasks.Plugin.Bundle do
         end
 
         File.mkdir_p!(dest_dep_ebin)
-
-        src_dep_ebin
-        |> File.ls!()
-        |> Enum.each(fn entry ->
-          src = Path.join(src_dep_ebin, entry)
-          dest = Path.join(dest_dep_ebin, entry)
-
-          cond do
-            File.dir?(src) ->
-              File.cp_r!(src, dest)
-
-            true ->
-              File.cp!(src, dest)
-          end
-        end)
+        copy_dir_contents!(src_dep_ebin, dest_dep_ebin)
       end
     end)
 
     Mix.shell().info("Bundled plugin ebin to #{dest_ebin}")
+  end
+
+  defp copy_dir_contents!(src_dir, dest_dir) do
+    src_dir
+    |> File.ls!()
+    |> Enum.each(fn entry ->
+      src = Path.join(src_dir, entry)
+      dest = Path.join(dest_dir, entry)
+
+      if File.dir?(src) do
+        File.cp_r!(src, dest)
+      else
+        File.cp!(src, dest)
+      end
+    end)
   end
 end

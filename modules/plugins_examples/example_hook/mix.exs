@@ -4,7 +4,7 @@ defmodule ExampleHook.MixProject do
   def project do
     [
       app: :example_hook,
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.19",
       start_permanent: Mix.env() == :prod,
       deps: deps()
@@ -23,6 +23,7 @@ defmodule ExampleHook.MixProject do
   defp deps do
     [
       {:game_server_sdk, path: "../../../sdk", runtime: false},
+      {:game_server_plugin_tools, path: "../../../sdk_tools", runtime: false},
       {:bunt, "~> 1.0"}
     ]
   end
