@@ -210,10 +210,11 @@ jobs:
 
   publish-js-sdk:
     name: Publish JS SDK
+    if: false # Disabled for now
     runs-on: ubuntu-latest
     env:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+    # if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
 
     steps:
       - name: Checkout repository (full history for commit count)
