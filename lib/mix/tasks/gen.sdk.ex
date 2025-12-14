@@ -261,22 +261,24 @@ defmodule Mix.Tasks.Gen.Sdk do
       # This keeps stub bodies type-friendly for external type checkers that infer from code.
       {fn rt ->
          String.contains?(rt, "GameServer.Accounts.User.t()") and String.contains?(rt, "| nil")
-       end, user_placeholder_expr()},
+       end, "if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: #{user_placeholder_expr()}"},
       {fn rt ->
          String.contains?(rt, "GameServer.Lobbies.Lobby.t()") and String.contains?(rt, "| nil")
-       end, lobby_placeholder_expr()},
+       end, "if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: #{lobby_placeholder_expr()}"},
       {fn rt ->
          String.contains?(rt, "GameServer.Leaderboards.Leaderboard.t()") and
            String.contains?(rt, "| nil")
-       end, leaderboard_placeholder_expr()},
+       end,
+       "if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: #{leaderboard_placeholder_expr()}"},
       {fn rt ->
          String.contains?(rt, "GameServer.Leaderboards.Record.t()") and
            String.contains?(rt, "| nil")
-       end, record_placeholder_expr()},
+       end, "if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: #{record_placeholder_expr()}"},
       {fn rt ->
          String.contains?(rt, "GameServer.Friends.Friendship.t()") and
            String.contains?(rt, "| nil")
-       end, friendship_placeholder_expr()},
+       end,
+       "if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: #{friendship_placeholder_expr()}"},
       {fn rt -> friendship_struct_return?(rt) end, friendship_placeholder_expr()},
 
       # Fallback: if the return type allows nil and we can't infer a better placeholder, use nil.

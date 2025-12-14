@@ -322,7 +322,7 @@ defmodule GameServer.Lobbies do
   def get_lobby(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        %GameServer.Lobbies.Lobby{id: 0, name: "", title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}
+        if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: %GameServer.Lobbies.Lobby{id: 0, name: "", title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}
 
       _ ->
         raise "GameServer.Lobbies.get_lobby/1 is a stub - only available at runtime on GameServer"
