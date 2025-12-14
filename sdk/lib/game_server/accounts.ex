@@ -338,8 +338,11 @@ defmodule GameServer.Accounts do
 
 
   @doc ~S"""
-    Count users active (authenticated_at updated) in the last N days.
-    Uses UserToken inserted_at to track recent authentications.
+    Count users active in the last N days.
+    
+    This metric is based on `users.updated_at` (any user record update,
+    including registration/creation), so it reflects all users and not just
+    session-token based authentication.
     
   """
   @spec count_users_active_since(integer()) :: non_neg_integer()

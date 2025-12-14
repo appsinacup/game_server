@@ -252,8 +252,11 @@ defmodule GameServer.Accounts do
   end
 
   @doc """
-  Count users active (authenticated_at updated) in the last N days.
-  Uses UserToken inserted_at to track recent authentications.
+  Count users active in the last N days.
+
+  This metric is based on `users.updated_at` (any user record update,
+  including registration/creation), so it reflects all users and not just
+  session-token based authentication.
   """
   @spec count_users_active_since(integer()) :: non_neg_integer()
   def count_users_active_since(days) when is_integer(days) do
@@ -267,17 +270,7 @@ defmodule GameServer.Accounts do
   defp count_users_active_since_cached(days) do
     cutoff = DateTime.utc_now() |> DateTime.add(-days, :day)
 
-    # Use a subquery to get distinct user_ids, compatible with SQLite
-    subquery =
-      from t in UserToken,
-        where: t.inserted_at >= ^cutoff,
-        select: t.user_id
-
-    query =
-      from u in User,
-        where: u.id in subquery(subquery)
-
-    Repo.aggregate(query, :count, :id)
+    Repo.one(from u in User, where: u.updated_at >= ^cutoff, select: count(u.id)) || 0
   end
 
   @doc """
