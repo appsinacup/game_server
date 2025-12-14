@@ -44,22 +44,28 @@ if config_env() == :prod do
 
   config :game_server, GameServerWeb.Endpoint, access_log: access_log_level
 
-  repo_pool_size = GameServer.Env.integer("POOL_SIZE", 10)
+  # Check if PostgreSQL environment variables are set
+  has_postgres_config =
+    System.get_env("DATABASE_URL") ||
+      (System.get_env("POSTGRES_HOST") && System.get_env("POSTGRES_USER"))
+
+  # NOTE: SQLite has a single-writer concurrency model. A very large pool
+  # usually increases contention/lock waits rather than throughput.
+  default_pool_size = if has_postgres_config, do: 10, else: 5
+
+  repo_pool_size = GameServer.Env.integer("POOL_SIZE", default_pool_size)
 
   # Backpressure/overload tuning:
   # - pool_timeout: how long a request waits for a DB connection checkout (ms)
   # - queue_target/queue_interval: DBConnection queueing algorithm (ms)
   # - timeout: query timeout (ms)
   # NOTE: Increasing queue_target/interval makes requests wait longer (can increase memory under load).
-  repo_pool_timeout = GameServer.Env.integer("DB_POOL_TIMEOUT", 2000)
-  repo_queue_target = GameServer.Env.integer("DB_QUEUE_TARGET", 50)
+  # Default to more forgiving backpressure in prod to avoid dropping requests too quickly
+  # under bursty load. These can still be overridden via env vars.
+  repo_pool_timeout = GameServer.Env.integer("DB_POOL_TIMEOUT", 10_000)
+  repo_queue_target = GameServer.Env.integer("DB_QUEUE_TARGET", 10_000)
   repo_queue_interval = GameServer.Env.integer("DB_QUEUE_INTERVAL", 1000)
   repo_query_timeout = GameServer.Env.integer("DB_QUERY_TIMEOUT", 15_000)
-
-  # Check if PostgreSQL environment variables are set
-  has_postgres_config =
-    System.get_env("DATABASE_URL") ||
-      (System.get_env("POSTGRES_HOST") && System.get_env("POSTGRES_USER"))
 
   if has_postgres_config do
     # Use PostgreSQL when configured
@@ -83,6 +89,25 @@ if config_env() == :prod do
     # Use SQLITE_DATABASE_PATH if set (e.g. a mounted Fly volume), otherwise default to db/game_server_prod.db
     db_path = System.get_env("SQLITE_DATABASE_PATH") || "db/game_server_prod.db"
 
+    # SQLite performance/durability tuning.
+    # - WAL: better read concurrency and typically fewer full-db fsyncs
+    # - synchronous=normal: less fsync pressure vs full (tradeoff: slightly less durability)
+    # - temp_store=memory: reduces disk writes for temp tables
+    # - cache_size: in KiB when negative (e.g. -200_000 => ~200MB page cache)
+    # - busy_timeout: wait for locks instead of immediate "database is locked" failures
+    sqlite_synchronous =
+      case System.get_env("SQLITE_SYNCHRONOUS") do
+        "off" -> :off
+        "normal" -> :normal
+        "full" -> :full
+        "extra" -> :extra
+        _ -> :normal
+      end
+
+    sqlite_cache_size_kb = GameServer.Env.integer("SQLITE_CACHE_SIZE_KB", 200_000)
+    sqlite_busy_timeout_ms = GameServer.Env.integer("SQLITE_BUSY_TIMEOUT", 10_000)
+    sqlite_wal_autocheckpoint = GameServer.Env.integer("SQLITE_WAL_AUTOCHECKPOINT", 2000)
+
     config :game_server, GameServer.Repo,
       database: db_path,
       adapter: Ecto.Adapters.SQLite3,
@@ -90,7 +115,16 @@ if config_env() == :prod do
       pool_timeout: repo_pool_timeout,
       queue_target: repo_queue_target,
       queue_interval: repo_queue_interval,
-      timeout: repo_query_timeout
+      timeout: repo_query_timeout,
+      pragmas: [
+        foreign_keys: :on,
+        journal_mode: :wal,
+        synchronous: sqlite_synchronous,
+        temp_store: :memory,
+        cache_size: -sqlite_cache_size_kb,
+        busy_timeout: sqlite_busy_timeout_ms,
+        wal_autocheckpoint: sqlite_wal_autocheckpoint
+      ]
   end
 
   # The secret key base is used to sign/encrypt cookies and other secrets.

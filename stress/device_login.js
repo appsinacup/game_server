@@ -23,7 +23,8 @@ import { Trend } from 'k6/metrics';
  */
 
 const BASE_URL = __ENV.BASE_URL || 'https://gamend.appsinacup.com';
-const TARGET_VUS = Number.parseInt(__ENV.TARGET_VUS || '5000', 10);
+// const BASE_URL = 'http://localhost:4000';
+const TARGET_VUS = Number.parseInt(__ENV.TARGET_VUS || '1000', 10);
 const STAGE_DURATION = __ENV.STAGE_DURATION || '60s';
 const ME_CALLS = Number.parseInt(__ENV.ME_CALLS || '10', 10);
 const SLEEP_SECONDS = Number.parseFloat(__ENV.SLEEP_SECONDS || '1');
