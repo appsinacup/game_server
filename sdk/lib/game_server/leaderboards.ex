@@ -294,7 +294,7 @@ defmodule GameServer.Leaderboards do
   def get_active_leaderboard_by_slug(_slug) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        %GameServer.Leaderboards.Leaderboard{id: 0, slug: "", title: "", description: nil, sort_order: :desc, operator: :set, starts_at: nil, ends_at: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}
 
       _ ->
         raise "GameServer.Leaderboards.get_active_leaderboard_by_slug/1 is a stub - only available at runtime on GameServer"
@@ -318,7 +318,7 @@ defmodule GameServer.Leaderboards do
   def get_leaderboard(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        %GameServer.Leaderboards.Leaderboard{id: 0, slug: "", title: "", description: nil, sort_order: :desc, operator: :set, starts_at: nil, ends_at: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}
 
       _ ->
         raise "GameServer.Leaderboards.get_leaderboard/1 is a stub - only available at runtime on GameServer"
@@ -350,7 +350,7 @@ defmodule GameServer.Leaderboards do
   def get_record(_leaderboard_id, _user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}
 
       _ ->
         raise "GameServer.Leaderboards.get_record/2 is a stub - only available at runtime on GameServer"

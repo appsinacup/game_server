@@ -246,7 +246,6 @@ defmodule Mix.Tasks.Gen.Sdk do
 
   defp placeholder_expr_for_named_types(return_type) when is_binary(return_type) do
     rules = [
-      {fn rt -> String.contains?(rt, "| nil") end, "nil"},
       {fn rt -> String.contains?(rt, "{:ok, GameServer.Accounts.User.t()}") end,
        "{:ok, #{user_placeholder_expr()}}"},
       {fn rt -> String.contains?(rt, "{:ok, GameServer.Lobbies.Lobby.t()}") end,
@@ -257,7 +256,31 @@ defmodule Mix.Tasks.Gen.Sdk do
        "{:ok, #{record_placeholder_expr()}}"},
       {fn rt -> String.contains?(rt, "{:ok, GameServer.Friends.Friendship.t()}") end,
        "{:ok, #{friendship_placeholder_expr()}}"},
-      {fn rt -> friendship_struct_return?(rt) end, friendship_placeholder_expr()}
+
+      # For unions like `T | nil`, prefer a non-nil placeholder when we recognize T.
+      # This keeps stub bodies type-friendly for external type checkers that infer from code.
+      {fn rt ->
+         String.contains?(rt, "GameServer.Accounts.User.t()") and String.contains?(rt, "| nil")
+       end, user_placeholder_expr()},
+      {fn rt ->
+         String.contains?(rt, "GameServer.Lobbies.Lobby.t()") and String.contains?(rt, "| nil")
+       end, lobby_placeholder_expr()},
+      {fn rt ->
+         String.contains?(rt, "GameServer.Leaderboards.Leaderboard.t()") and
+           String.contains?(rt, "| nil")
+       end, leaderboard_placeholder_expr()},
+      {fn rt ->
+         String.contains?(rt, "GameServer.Leaderboards.Record.t()") and
+           String.contains?(rt, "| nil")
+       end, record_placeholder_expr()},
+      {fn rt ->
+         String.contains?(rt, "GameServer.Friends.Friendship.t()") and
+           String.contains?(rt, "| nil")
+       end, friendship_placeholder_expr()},
+      {fn rt -> friendship_struct_return?(rt) end, friendship_placeholder_expr()},
+
+      # Fallback: if the return type allows nil and we can't infer a better placeholder, use nil.
+      {fn rt -> String.contains?(rt, "| nil") end, "nil"}
     ]
 
     Enum.find_value(rules, fn {pred, expr} -> if pred.(return_type), do: expr, else: nil end)
