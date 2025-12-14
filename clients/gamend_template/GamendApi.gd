@@ -24,6 +24,7 @@ var _user_id = -1
 func _init(host: String = "127.0.0.1", port: int = 4000, enable_ssl := false):
 	_config.host = host
 	_config.tls_enabled = enable_ssl
+	_config.log_level = ApiApiConfigClient.LogLevel.INFO
 	_config.port = port
 
 func _call_api(api: ApiApiBeeClient, method_name: String, params: Array = []) -> GamendResult:
@@ -65,6 +66,7 @@ func _verify_login_result(method_name: String, data):
 		authorize()
 
 func realtime_start():
+	realtime_stop()
 	var result := GamendResult.new()
 	var protocol = "ws://"
 	if _config.tls_enabled:
@@ -78,7 +80,8 @@ func realtime_start():
 	return result
 
 func realtime_stop():
-	_realtime.queue_free()
+	if _realtime:
+		_realtime.queue_free()
 	_realtime = null
 
 func listen_to_user():
@@ -170,6 +173,16 @@ func authenticate_logout():
 ## Unlink OAuth provider
 func authenticate_unlink_provider(provider: String):
 	return _call_api(AuthenticationApi.new(_config), "unlink_provider", [provider])
+
+## Unlink device
+func authenticate_unlink_device():
+	return _call_api(AuthenticationApi.new(_config), "unlink_device", [])
+
+## Link device
+func authenticate_link_device(device_id: String):
+	var linkDeviceRequest:= LinkDeviceRequest.new()
+	linkDeviceRequest.device_id = device_id
+	return _call_api(AuthenticationApi.new(_config), "link_device", [linkDeviceRequest])
 
 ## Refresh access token
 func authenticate_refresh_token(refresh_token: String):
