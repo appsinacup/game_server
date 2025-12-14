@@ -1445,8 +1445,8 @@ defmodule GameServer.Accounts do
 
   Returns `{:ok, user}` on success or `{:error, changeset}` on failure.
   """
-  alias GameServer.Lobbies
   alias GameServer.Friends
+  alias GameServer.Lobbies
 
   @spec delete_user(User.t()) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def delete_user(%User{} = user) do
