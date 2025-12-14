@@ -38,6 +38,7 @@ defmodule GameServer.Friends do
   @friends_topic "friends"
 
   @friends_cache_ttl_ms 30_000
+  @friendships_cache_ttl_ms 30_000
 
   @type user_id :: integer()
 
@@ -55,6 +56,18 @@ defmodule GameServer.Friends do
     _ = invalidate_friends_cache(b)
     :ok
   end
+
+  defp friendship_cache_version(friendship_id) when is_integer(friendship_id) do
+    GameServer.Cache.get({:friends, :friendship_version, friendship_id}) || 1
+  end
+
+  defp invalidate_friendship_cache(friendship_id) when is_integer(friendship_id) do
+    _ = GameServer.Cache.incr({:friends, :friendship_version, friendship_id}, 1, default: 1)
+    :ok
+  end
+
+  defp cache_match(nil), do: false
+  defp cache_match(_), do: true
 
   @decorate cacheable(
               key:
@@ -191,6 +204,7 @@ defmodule GameServer.Friends do
          |> Friendship.changeset(%{requester_id: requester_id, target_id: target_id})
          |> Repo.insert() do
       {:ok, f} = ok ->
+        _ = invalidate_friendship_cache(f.id)
         _ = invalidate_friends_cache_pair(requester_id, target_id)
         broadcast_user(target_id, {:incoming_request, f})
         broadcast_user(requester_id, {:outgoing_request, f})
@@ -206,7 +220,7 @@ defmodule GameServer.Friends do
   @spec accept_friend_request(integer(), User.t()) :: {:ok, Friendship.t()} | {:error, term()}
   def accept_friend_request(friendship_id, %User{id: user_id}) when is_integer(friendship_id) do
     Repo.transaction(fn ->
-      with %Friendship{} = f <- Repo.get(Friendship, friendship_id),
+      with %Friendship{} = f <- get_friendship(friendship_id),
            true <- f.target_id == user_id,
            true <- f.status == "pending",
            {:ok, accepted} <- f |> Ecto.Changeset.change(status: "accepted") |> Repo.update() do
@@ -218,6 +232,7 @@ defmodule GameServer.Friends do
                 ff.status == "pending"
         )
 
+        _ = invalidate_friendship_cache(accepted.id)
         _ = invalidate_friends_cache_pair(accepted.requester_id, accepted.target_id)
 
         # broadcast accepted to both users
@@ -236,10 +251,11 @@ defmodule GameServer.Friends do
   @doc "Reject a friend request (only the target may reject). Returns {:ok, friendship}."
   @spec reject_friend_request(integer(), User.t()) :: {:ok, Friendship.t()} | {:error, term()}
   def reject_friend_request(friendship_id, %User{id: user_id}) when is_integer(friendship_id) do
-    with %Friendship{} = f <- Repo.get(Friendship, friendship_id),
+    with %Friendship{} = f <- get_friendship(friendship_id),
          true <- f.target_id == user_id,
          true <- f.status == "pending",
          {:ok, rejected} <- f |> Ecto.Changeset.change(status: "rejected") |> Repo.update() do
+      _ = invalidate_friendship_cache(rejected.id)
       _ = invalidate_friends_cache_pair(rejected.requester_id, rejected.target_id)
 
       # broadcast rejection
@@ -259,9 +275,10 @@ defmodule GameServer.Friends do
   @spec cancel_request(integer(), User.t()) ::
           {:ok, :cancelled} | {:error, :not_found | :not_authorized | term()}
   def cancel_request(friendship_id, %User{id: user_id}) when is_integer(friendship_id) do
-    with %Friendship{} = f <- Repo.get(Friendship, friendship_id),
+    with %Friendship{} = f <- get_friendship(friendship_id),
          true <- f.requester_id == user_id,
          {:ok, _} <- Repo.delete(f) do
+      _ = invalidate_friendship_cache(f.id)
       _ = invalidate_friends_cache_pair(f.requester_id, f.target_id)
 
       # broadcast cancellation
@@ -292,6 +309,7 @@ defmodule GameServer.Friends do
 
         case result do
           {:ok, _} ->
+            _ = invalidate_friendship_cache(f.id)
             _ = invalidate_friends_cache_pair(user_id, friend_id)
 
             # broadcast removal
@@ -312,10 +330,11 @@ defmodule GameServer.Friends do
   @doc "Block an incoming request (only the target may block). Returns {:ok, friendship} with status \"blocked\"."
   @spec block_friend_request(integer(), User.t()) :: {:ok, Friendship.t()} | {:error, term()}
   def block_friend_request(friendship_id, %User{id: user_id}) when is_integer(friendship_id) do
-    with %Friendship{} = f <- Repo.get(Friendship, friendship_id),
+    with %Friendship{} = f <- get_friendship(friendship_id),
          true <- f.target_id == user_id,
          true <- f.status in ["pending", "rejected"],
          {:ok, blocked} <- f |> Ecto.Changeset.change(status: "blocked") |> Repo.update() do
+      _ = invalidate_friendship_cache(blocked.id)
       _ = invalidate_friends_cache_pair(blocked.requester_id, blocked.target_id)
 
       # broadcast blocked
@@ -384,10 +403,11 @@ defmodule GameServer.Friends do
   @doc "Unblock a previously-blocked friendship (only the user who blocked may unblock). Returns {:ok, :unblocked} on success."
   @spec unblock_friendship(integer(), User.t()) :: {:ok, :unblocked} | {:error, term()}
   def unblock_friendship(friendship_id, %User{id: user_id}) when is_integer(friendship_id) do
-    with %Friendship{} = f <- Repo.get(Friendship, friendship_id),
+    with %Friendship{} = f <- get_friendship(friendship_id),
          true <- f.target_id == user_id,
          true <- f.status == "blocked",
          {:ok, _} <- Repo.delete(f) do
+      _ = invalidate_friendship_cache(f.id)
       _ = invalidate_friends_cache_pair(f.requester_id, f.target_id)
 
       # broadcast unblocked so UI/SDK can refresh
@@ -600,10 +620,19 @@ defmodule GameServer.Friends do
 
   @doc "Get friendship by id"
   @spec get_friendship!(integer()) :: Friendship.t()
-  def get_friendship!(id), do: Repo.get!(Friendship, id)
+  @decorate cacheable(
+              key: {:friends, :friendship, friendship_cache_version(id), id},
+              opts: [ttl: @friendships_cache_ttl_ms]
+            )
+  def get_friendship!(id) when is_integer(id), do: Repo.get!(Friendship, id)
 
   @doc "Get friendship by id (returns nil when not found)"
   @spec get_friendship(integer()) :: Friendship.t() | nil
+  @decorate cacheable(
+              key: {:friends, :friendship, friendship_cache_version(id), id},
+              match: &cache_match/1,
+              opts: [ttl: @friendships_cache_ttl_ms]
+            )
   def get_friendship(id) when is_integer(id), do: Repo.get(Friendship, id)
 
   @doc "Get friendship between two users (ordered requester->target) if exists"

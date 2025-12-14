@@ -143,19 +143,26 @@ defmodule GameServerWeb.LobbyLive.Index do
 
   @impl true
   def handle_event("start_join", %{"id" => id}, socket) do
-    lobby = Lobbies.get_lobby(id)
+    case parse_int(id) do
+      {:ok, lobby_id} ->
+        case Lobbies.get_lobby(lobby_id) do
+          nil ->
+            {:noreply, put_flash(socket, :error, "Lobby not found")}
 
-    case lobby do
-      %{} = l when l.is_locked ->
-        {:noreply, put_flash(socket, :error, "Lobby is locked")}
+          %{} = l when l.is_locked ->
+            {:noreply, put_flash(socket, :error, "Lobby is locked")}
 
-      %{} = l when l.password_hash != nil ->
-        {:noreply, assign(socket, joining_lobby_id: l.id, join_password: "")}
+          %{} = l when l.password_hash != nil ->
+            {:noreply, assign(socket, joining_lobby_id: l.id, join_password: "")}
 
-      %{} = l ->
-        # delegate the complicated user check / join flow to helpers to keep
-        # the public handler shallow and readable
-        handle_start_join_for_lobby(socket, l)
+          %{} = l ->
+            # delegate the complicated user check / join flow to helpers to keep
+            # the public handler shallow and readable
+            handle_start_join_for_lobby(socket, l)
+        end
+
+      :error ->
+        {:noreply, put_flash(socket, :error, "Lobby not found")}
     end
   end
 
@@ -164,7 +171,8 @@ defmodule GameServerWeb.LobbyLive.Index do
   end
 
   def handle_event("start_manage", %{"id" => id}, socket) do
-    lobby = Lobbies.get_lobby(id)
+    lobby_id = if is_binary(id), do: String.to_integer(id), else: id
+    lobby = Lobbies.get_lobby(lobby_id)
 
     edit_attrs = %{
       "title" => lobby.title || "",
@@ -267,6 +275,7 @@ defmodule GameServerWeb.LobbyLive.Index do
   def handle_event("kick", %{"lobby_id" => lobby_id, "target_id" => target_id}, socket) do
     case socket.assigns.current_scope do
       %{user: user} when user != nil ->
+        lobby_id = if is_binary(lobby_id), do: String.to_integer(lobby_id), else: lobby_id
         lobby = Lobbies.get_lobby(lobby_id)
         target = GameServer.Accounts.get_user!(target_id)
 
@@ -419,6 +428,17 @@ defmodule GameServerWeb.LobbyLive.Index do
       end
     end
   end
+
+  defp parse_int(v) when is_integer(v), do: {:ok, v}
+
+  defp parse_int(v) when is_binary(v) do
+    case Integer.parse(v) do
+      {int, ""} -> {:ok, int}
+      _ -> :error
+    end
+  end
+
+  defp parse_int(_), do: :error
 
   # PubSub handlers for real-time updates
 

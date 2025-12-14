@@ -408,35 +408,41 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       %{user: user} when is_map(user) ->
         password = Map.get(params, "password") || Map.get(params, :password)
 
-        case Lobbies.join_lobby(user, id, %{password: password}) do
-          {:ok, _member} ->
-            # return the full lobby so clients receive the lobby representation
-            lobby = Lobbies.get_lobby!(id)
-            json(conn, serialize_lobby(lobby))
+        case Integer.parse(to_string(id)) do
+          {lobby_id, ""} ->
+            case Lobbies.join_lobby(user, lobby_id, %{password: password}) do
+              {:ok, _member} ->
+                # return the full lobby so clients receive the lobby representation
+                lobby = Lobbies.get_lobby!(lobby_id)
+                json(conn, serialize_lobby(lobby))
 
-          {:error, :invalid_lobby} ->
-            conn |> put_status(:not_found) |> json(%{error: "not_found"})
+              {:error, :invalid_lobby} ->
+                conn |> put_status(:not_found) |> json(%{error: "not_found"})
 
-          {:error, :already_in_lobby} ->
-            conn |> put_status(:forbidden) |> json(%{error: "already_in_lobby"})
+              {:error, :already_in_lobby} ->
+                conn |> put_status(:forbidden) |> json(%{error: "already_in_lobby"})
 
-          {:error, :password_required} ->
-            conn |> put_status(:forbidden) |> json(%{error: "password_required"})
+              {:error, :password_required} ->
+                conn |> put_status(:forbidden) |> json(%{error: "password_required"})
 
-          {:error, :invalid_password} ->
-            conn |> put_status(:forbidden) |> json(%{error: "invalid_password"})
+              {:error, :invalid_password} ->
+                conn |> put_status(:forbidden) |> json(%{error: "invalid_password"})
 
-          {:error, :locked} ->
-            conn |> put_status(:forbidden) |> json(%{error: "locked"})
+              {:error, :locked} ->
+                conn |> put_status(:forbidden) |> json(%{error: "locked"})
 
-          {:error, :full} ->
-            conn |> put_status(:forbidden) |> json(%{error: "full"})
+              {:error, :full} ->
+                conn |> put_status(:forbidden) |> json(%{error: "full"})
 
-          {:error, {:hook_rejected, _}} ->
-            conn |> put_status(:forbidden) |> json(%{error: "rejected"})
+              {:error, {:hook_rejected, _}} ->
+                conn |> put_status(:forbidden) |> json(%{error: "rejected"})
+
+              _ ->
+                conn |> put_status(:forbidden) |> json(%{error: "cannot_join"})
+            end
 
           _ ->
-            conn |> put_status(:forbidden) |> json(%{error: "cannot_join"})
+            conn |> put_status(:not_found) |> json(%{error: "not_found"})
         end
 
       _ ->

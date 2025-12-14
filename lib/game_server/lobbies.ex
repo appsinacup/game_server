@@ -44,8 +44,11 @@ defmodule GameServer.Lobbies do
   import Ecto.Query, warn: false
   use Nebulex.Caching, cache: GameServer.Cache
 
+  require Logger
+
   alias Bcrypt
   alias Ecto.Multi
+  alias GameServer.Accounts
   alias GameServer.Accounts.User
   alias GameServer.Lobbies.Lobby
   alias GameServer.Repo
@@ -62,10 +65,23 @@ defmodule GameServer.Lobbies do
   @lobbies_topic "lobbies"
 
   @public_list_cache_ttl_ms 60_000
+  @lobby_cache_ttl_ms 60_000
 
   defp public_lobbies_cache_version do
     GameServer.Cache.get({:lobbies, :public_list_version}) || 1
   end
+
+  defp lobby_cache_version(lobby_id) when is_integer(lobby_id) do
+    GameServer.Cache.get({:lobbies, :lobby_version, lobby_id}) || 1
+  end
+
+  defp invalidate_lobby_cache(lobby_id) when is_integer(lobby_id) do
+    _ = GameServer.Cache.incr({:lobbies, :lobby_version, lobby_id}, 1, default: 1)
+    :ok
+  end
+
+  defp cache_match(nil), do: false
+  defp cache_match(_), do: true
 
   @doc """
   Subscribe to global lobby events (lobby created, updated, deleted).
@@ -435,7 +451,7 @@ defmodule GameServer.Lobbies do
       public_lobbies
     else
       # Check if user's lobby is hidden and needs to be included
-      user_lobby = Repo.get(Lobby, user_lobby_id)
+      user_lobby = get_lobby(user_lobby_id)
 
       if user_lobby && user_lobby.is_hidden &&
            !Enum.any?(public_lobbies, &(&1.id == user_lobby_id)) do
@@ -457,28 +473,37 @@ defmodule GameServer.Lobbies do
 
   def join_lobby(%User{id: user_id} = _user, %Lobby{} = lobby, opts) do
     if is_nil(lobby.id) do
-      case Repo.get_by(Lobby, title: lobby.title) do
-        nil ->
-          {:error, :invalid_lobby}
+      Logger.error(
+        "join_lobby called with lobby missing id user_id=#{user_id} title=#{inspect(lobby.title)}"
+      )
 
-        persisted ->
-          do_join(user_id, persisted, opts)
-      end
+      {:error, :invalid_lobby}
     else
       do_join(user_id, lobby, opts)
     end
   end
 
-  def join_lobby(%User{} = user, lobby_id, opts)
-      when is_binary(lobby_id) or is_integer(lobby_id) do
-    lobby = Repo.get!(Lobby, lobby_id)
-    join_lobby(user, lobby, opts)
+  def join_lobby(%User{} = user, lobby_id, opts) when is_integer(lobby_id) do
+    case get_lobby(lobby_id) do
+      %Lobby{} = lobby ->
+        join_lobby(user, lobby, opts)
+
+      nil ->
+        {:error, :invalid_lobby}
+    end
+  end
+
+  def join_lobby(%User{} = user, lobby_id, opts) when is_binary(lobby_id) do
+    case Integer.parse(lobby_id) do
+      {int, ""} -> join_lobby(user, int, opts)
+      _ -> {:error, :invalid}
+    end
   end
 
   def join_lobby(_user, _lobby, _opts), do: {:error, :invalid}
 
   defp do_join(user_id, lobby, opts) do
-    user = Repo.get(GameServer.Accounts.User, user_id)
+    user = Accounts.get_user(user_id)
 
     if user && user.lobby_id do
       {:error, :already_in_lobby}
@@ -534,11 +559,20 @@ defmodule GameServer.Lobbies do
     end
   end
 
-  @spec get_lobby!(integer() | String.t()) :: Lobby.t()
-  def get_lobby!(id), do: Repo.get!(Lobby, id)
+  @spec get_lobby!(integer()) :: Lobby.t()
+  @decorate cacheable(
+              key: {:lobbies, :get, lobby_cache_version(id), id},
+              opts: [ttl: @lobby_cache_ttl_ms]
+            )
+  def get_lobby!(id) when is_integer(id), do: Repo.get!(Lobby, id)
 
-  @spec get_lobby(integer() | String.t()) :: Lobby.t() | nil
-  def get_lobby(id), do: Repo.get(Lobby, id)
+  @spec get_lobby(integer()) :: Lobby.t() | nil
+  @decorate cacheable(
+              key: {:lobbies, :get, lobby_cache_version(id), id},
+              match: &cache_match/1,
+              opts: [ttl: @lobby_cache_ttl_ms]
+            )
+  def get_lobby(id) when is_integer(id), do: Repo.get(Lobby, id)
 
   @doc """
   Gets all users currently in a lobby.
@@ -615,6 +649,7 @@ defmodule GameServer.Lobbies do
     |> case do
       {:ok, %{lobby: lobby}} ->
         Task.start(fn -> GameServer.Hooks.internal_call(:after_lobby_create, [lobby]) end)
+        _ = invalidate_lobby_cache(lobby.id)
         invalidate_public_lobbies_cache()
         broadcast_lobbies({:lobby_created, lobby})
         {:ok, lobby}
@@ -666,15 +701,8 @@ defmodule GameServer.Lobbies do
   defp maybe_add_host_membership(multi, _), do: multi
 
   defp unique_title_candidate(base) when is_binary(base) do
-    # Try the base first; if it exists in DB, append a short unique suffix.
     suffix = :erlang.unique_integer([:positive]) |> Integer.to_string()
-    candidate = "#{base}-#{suffix}"
-
-    if Repo.get_by(Lobby, title: candidate) == nil do
-      candidate
-    else
-      unique_title_candidate(candidate)
-    end
+    "#{base}-#{suffix}"
   end
 
   @doc """
@@ -714,6 +742,8 @@ defmodule GameServer.Lobbies do
           {:ok, updated} ->
             Task.start(fn -> GameServer.Hooks.internal_call(:after_lobby_update, [updated]) end)
 
+            _ = invalidate_lobby_cache(updated.id)
+
             invalidate_public_lobbies_cache()
 
             # broadcast updates so any UI/channel subscribers get the change
@@ -737,6 +767,7 @@ defmodule GameServer.Lobbies do
         case Repo.delete(lobby) do
           {:ok, deleted} ->
             Task.start(fn -> GameServer.Hooks.internal_call(:after_lobby_delete, [deleted]) end)
+            _ = invalidate_lobby_cache(deleted.id)
             invalidate_public_lobbies_cache()
             broadcast_lobbies({:lobby_deleted, deleted.id})
             {:ok, deleted}
@@ -761,7 +792,7 @@ defmodule GameServer.Lobbies do
   @spec create_membership(%{lobby_id: integer(), user_id: integer()}) ::
           {:ok, User.t()} | {:error, :not_found | Ecto.Changeset.t() | term()}
   def create_membership(%{lobby_id: lobby_id, user_id: user_id} = _attrs) do
-    case Repo.get(GameServer.Accounts.User, user_id) do
+    case Accounts.get_user(user_id) do
       nil ->
         {:error, :not_found}
 
@@ -781,7 +812,7 @@ defmodule GameServer.Lobbies do
             # does not need to check out a DB connection from the sandbox.
             # Using Repo.get/2 avoids raising if the lobby disappears (tests
             # shouldn't crash because of a background DB lookup).
-            lobby = Repo.get(Lobby, lobby_id)
+            lobby = get_lobby(lobby_id)
 
             Task.start(fn ->
               GameServer.Hooks.internal_call(:after_lobby_join, [updated_user, lobby])
@@ -812,7 +843,7 @@ defmodule GameServer.Lobbies do
 
   @spec leave_lobby(User.t()) :: {:ok, term()} | {:error, term()}
   def leave_lobby(%User{id: user_id}) do
-    case Repo.get(GameServer.Accounts.User, user_id) do
+    case Accounts.get_user(user_id) do
       nil ->
         {:error, :not_in_lobby}
 
@@ -820,7 +851,7 @@ defmodule GameServer.Lobbies do
         {:error, :not_in_lobby}
 
       %GameServer.Accounts.User{} = membership ->
-        lobby = Repo.get!(Lobby, membership.lobby_id)
+        lobby = get_lobby!(membership.lobby_id)
         lobby_id = lobby.id
 
         case GameServer.Hooks.internal_call(:before_lobby_leave, [membership, lobby]) do
@@ -852,12 +883,14 @@ defmodule GameServer.Lobbies do
 
       case remaining do
         [%GameServer.Accounts.User{id: new_host_id} | _] ->
-          Repo.update!(Ecto.Changeset.change(lobby, %{host_id: new_host_id}))
+          _ = Repo.update!(Ecto.Changeset.change(lobby, %{host_id: new_host_id}))
+          _ = invalidate_lobby_cache(lobby.id)
           {:host_changed, new_host_id}
 
         [] ->
           # no members left - delete lobby
-          Repo.delete!(lobby)
+          _ = Repo.delete!(lobby)
+          _ = invalidate_lobby_cache(lobby.id)
           :lobby_deleted
       end
     else
@@ -869,11 +902,15 @@ defmodule GameServer.Lobbies do
     case result do
       {:ok, :lobby_deleted} ->
         _ = invalidate_accounts_user_cache(user_id)
+        _ = invalidate_public_lobbies_cache()
+        _ = invalidate_lobby_cache(lobby_id)
         broadcast_lobbies({:lobby_deleted, lobby_id})
         result
 
       {:ok, {:host_changed, new_host_id}} ->
         _ = invalidate_accounts_user_cache(user_id)
+        _ = invalidate_public_lobbies_cache()
+        _ = invalidate_lobby_cache(lobby_id)
         broadcast_lobby(lobby_id, {:user_left, lobby_id, user_id})
         broadcast_lobby(lobby_id, {:host_changed, lobby_id, new_host_id})
         broadcast_lobbies({:lobby_membership_changed, lobby_id})
@@ -881,6 +918,8 @@ defmodule GameServer.Lobbies do
 
       {:ok, _} ->
         _ = invalidate_accounts_user_cache(user_id)
+        _ = invalidate_public_lobbies_cache()
+        _ = invalidate_lobby_cache(lobby_id)
         broadcast_lobby(lobby_id, {:user_left, lobby_id, user_id})
         broadcast_lobbies({:lobby_membership_changed, lobby_id})
         result
@@ -896,7 +935,7 @@ defmodule GameServer.Lobbies do
   """
   @spec kick_user(User.t(), Lobby.t(), User.t()) :: {:ok, User.t()} | {:error, term()}
   def kick_user(%User{id: host_id}, %Lobby{id: lobby_id}, %User{id: target_id}) do
-    lobby = Repo.get!(Lobby, lobby_id)
+    lobby = get_lobby!(lobby_id)
 
     cond do
       lobby.host_id != host_id and not lobby.hostless ->
@@ -906,7 +945,7 @@ defmodule GameServer.Lobbies do
         {:error, :cannot_kick_self}
 
       true ->
-        case Repo.get(GameServer.Accounts.User, target_id) do
+        case Accounts.get_user(target_id) do
           nil ->
             {:error, :not_found}
 
@@ -1066,7 +1105,7 @@ defmodule GameServer.Lobbies do
           {:ok, Lobby.t()} | {:error, :already_in_lobby | Ecto.Changeset.t() | term()}
   def quick_join(%User{id: _user_id} = user, title \\ nil, max_users \\ nil, metadata \\ %{}) do
     # reload user in case their membership changed since the caller was loaded
-    user = Repo.get(GameServer.Accounts.User, user.id)
+    user = Accounts.get_user(user.id)
 
     if user && user.lobby_id do
       {:error, :already_in_lobby}

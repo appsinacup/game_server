@@ -250,7 +250,8 @@ defmodule GameServerWeb.AdminLive.Lobbies do
   end
 
   def handle_event("edit_lobby", %{"id" => id}, socket) do
-    lobby = Lobbies.get_lobby!(id)
+    {lobby_id, ""} = Integer.parse(to_string(id))
+    lobby = Lobbies.get_lobby!(lobby_id)
     changeset = Lobbies.change_lobby(lobby)
     form = to_form(changeset, as: "lobby")
 
@@ -320,7 +321,8 @@ defmodule GameServerWeb.AdminLive.Lobbies do
   end
 
   def handle_event("delete_lobby", %{"id" => id}, socket) do
-    lobby = Lobbies.get_lobby!(id)
+    {lobby_id, ""} = Integer.parse(to_string(id))
+    lobby = Lobbies.get_lobby!(lobby_id)
 
     case Lobbies.delete_lobby(lobby) do
       {:ok, _} ->

@@ -318,7 +318,7 @@ defmodule GameServer.Lobbies do
 
 
   @doc false
-  @spec get_lobby(integer() | String.t()) :: GameServer.Lobbies.Lobby.t() | nil
+  @spec get_lobby(integer()) :: GameServer.Lobbies.Lobby.t() | nil
   def get_lobby(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -331,7 +331,7 @@ defmodule GameServer.Lobbies do
 
 
   @doc false
-  @spec get_lobby!(integer() | String.t()) :: GameServer.Lobbies.Lobby.t()
+  @spec get_lobby!(integer()) :: GameServer.Lobbies.Lobby.t()
   def get_lobby!(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
