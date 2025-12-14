@@ -27,6 +27,24 @@ if log_level = System.get_env("LOG_LEVEL") do
 end
 
 if config_env() == :prod do
+  access_log_level =
+    case System.get_env("ACCESS_LOG_LEVEL") do
+      nil -> :debug
+      "" -> :debug
+      "false" -> false
+      "0" -> false
+      "off" -> false
+      "none" -> false
+      "debug" -> :debug
+      "info" -> :info
+      "warning" -> :warning
+      "warn" -> :warning
+      "error" -> :error
+      _ -> :debug
+    end
+
+  config :game_server, GameServerWeb.Endpoint, access_log: access_log_level
+
   # Check if PostgreSQL environment variables are set
   has_postgres_config =
     System.get_env("DATABASE_URL") ||

@@ -17,5 +17,9 @@ config :swoosh, local: false
 # Do not print debug messages in production
 config :logger, level: :info
 
+# Purge debug logs at compile-time in production builds.
+# Note: this means `Logger.debug/1` calls won't be available in prod without rebuilding.
+config :logger, compile_time_purge_level: :info
+
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.

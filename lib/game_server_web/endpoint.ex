@@ -11,12 +11,12 @@ defmodule GameServerWeb.Endpoint do
     same_site: "Lax"
   ]
   socket "/socket", GameServerWeb.UserSocket,
-    websocket: true,
+    websocket: [log: false],
     longpoll: false
 
   socket "/live", Phoenix.LiveView.Socket,
-    websocket: [connect_info: [session: @session_options]],
-    longpoll: [connect_info: [session: @session_options]]
+    websocket: [connect_info: [session: @session_options], log: false],
+    longpoll: [connect_info: [session: @session_options], log: false]
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -48,7 +48,10 @@ defmodule GameServerWeb.Endpoint do
     cookie_key: "request_logger"
 
   plug Plug.RequestId
-  plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
+
+  plug Plug.Telemetry,
+    event_prefix: [:phoenix, :endpoint],
+    log: {__MODULE__, :access_log_level, []}
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
@@ -65,4 +68,16 @@ defmodule GameServerWeb.Endpoint do
     allow_methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
 
   plug GameServerWeb.Router
+
+  # Used by Plug.Telemetry (Phoenix.Logger) to decide access logging.
+  # We keep it global (no per-route logic). Set ACCESS_LOG_LEVEL=false to disable.
+  # By default, logs are at :debug so production can stay at Logger :info
+  # without emitting per-request logs.
+  def access_log_level(_conn) do
+    case Application.get_env(:game_server, __MODULE__)[:access_log] do
+      level when level in [:debug, :info, :warning, :error] -> level
+      false -> false
+      _ -> :debug
+    end
+  end
 end
