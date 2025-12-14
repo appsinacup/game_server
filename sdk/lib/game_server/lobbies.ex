@@ -45,6 +45,8 @@ defmodule GameServer.Lobbies do
   The actual implementation runs on the GameServer.
   """
 
+
+
   @doc ~S"""
     Check if a user can edit a lobby (is host or lobby is hostless).
     

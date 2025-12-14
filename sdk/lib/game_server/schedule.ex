@@ -55,6 +55,8 @@ defmodule GameServer.Schedule do
   The actual implementation runs on the GameServer.
   """
 
+
+
   @doc ~S"""
     Cancel a scheduled job.
     
@@ -111,7 +113,7 @@ defmodule GameServer.Schedule do
         Schedule.cleanup_old_locks(days: 30)
     
   """
-  @spec cleanup_old_locks(schedule_opts()) :: {:ok, non_neg_integer()}
+  @spec cleanup_old_locks(keyword()) :: {:ok, non_neg_integer()}
   def cleanup_old_locks(_opts) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->

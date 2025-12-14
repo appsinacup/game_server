@@ -62,9 +62,6 @@ defmodule GameServer.Schedule do
   # ETS table to track registered scheduled callbacks
   @callbacks_table :schedule_callbacks
 
-  @typedoc false
-  @type schedule_opts :: keyword()
-
   @doc false
   @spec start_link() :: :ignore
   def start_link do
@@ -268,7 +265,7 @@ defmodule GameServer.Schedule do
       Schedule.cleanup_old_locks(days: 30)
   """
   @spec cleanup_old_locks() :: {:ok, non_neg_integer()}
-  @spec cleanup_old_locks(schedule_opts()) :: {:ok, non_neg_integer()}
+  @spec cleanup_old_locks(keyword()) :: {:ok, non_neg_integer()}
   def cleanup_old_locks(opts \\ []) do
     days = Keyword.get(opts, :days, 7)
     cutoff = DateTime.utc_now() |> DateTime.add(-days * 24 * 60 * 60, :second)

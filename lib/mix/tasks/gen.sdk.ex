@@ -41,6 +41,7 @@ defmodule Mix.Tasks.Gen.Sdk do
     {:docs_v1, _, :elixir, _, module_doc, _, function_docs} = Code.fetch_docs(module)
 
     specs = get_specs(module)
+    types = get_types(module)
 
     functions = list_public_functions(module)
 
@@ -58,6 +59,7 @@ defmodule Mix.Tasks.Gen.Sdk do
       generate_module_content(
         module,
         module_doc_text,
+        types,
         functions,
         function_docs,
         function_docs_by_name,
@@ -77,9 +79,17 @@ defmodule Mix.Tasks.Gen.Sdk do
     end
   end
 
+  defp get_types(module) do
+    case Code.Typespec.fetch_types(module) do
+      {:ok, types} -> types
+      :error -> []
+    end
+  end
+
   defp generate_module_content(
          module,
          module_doc,
+         types,
          functions,
          function_docs,
          function_docs_by_name,
@@ -87,6 +97,12 @@ defmodule Mix.Tasks.Gen.Sdk do
          specs
        ) do
     module_name = inspect(module)
+
+    type_stubs =
+      types
+      |> Enum.map(&type_entry_to_string/1)
+      |> Enum.reject(&(&1 == ""))
+      |> Enum.join("\n")
 
     function_stubs =
       functions
@@ -112,10 +128,20 @@ defmodule Mix.Tasks.Gen.Sdk do
       The actual implementation runs on the GameServer.
       \"\"\"
 
+    #{type_stubs}
+
     #{function_stubs}
     end
     """
   end
+
+  defp type_entry_to_string({kind, type_form}) when kind in [:type, :opaque] do
+    quoted = Code.Typespec.type_to_quoted(type_form)
+    attr = if kind == :opaque, do: "@opaque", else: "@type"
+    "  #{attr} #{Macro.to_string(quoted)}"
+  end
+
+  defp type_entry_to_string(_), do: ""
 
   defp generate_function_stub(
          {function_name, arity},

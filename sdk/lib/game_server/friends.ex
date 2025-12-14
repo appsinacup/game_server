@@ -33,6 +33,8 @@ defmodule GameServer.Friends do
   The actual implementation runs on the GameServer.
   """
 
+  @type user_id() :: integer()
+
   @doc ~S"""
     Accept a friend request (only the target may accept). Returns {:ok, friendship}.
   """
