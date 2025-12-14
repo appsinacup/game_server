@@ -2,62 +2,118 @@ import http from 'k6/http';
 import { check, group, sleep } from 'k6';
 import { Trend } from 'k6/metrics';
 
-//const base = __ENV.BASE_URL || 'http://localhost:4000';
-const base = __ENV.BASE_URL || 'https://gamend.appsinacup.com';
+/**
+ * k6 load test: device login + authenticated calls
+ *
+ * What it does per VU iteration:
+ *  1) POST /api/v1/login/device with a randomized device_id
+ *  2) Extract access_token from JSON response
+ *  3) Perform N authenticated GETs to /api/v1/me using that token
+ *  4) Sleep for pacing
+ *
+ * Notes:
+ *  - `target` below is VUs (virtual users), NOT requests/second.
+ *    Your effective request rate depends on iteration time + pacing.
+ *  - Configure via environment variables (examples):
+ *      BASE_URL=https://example.com TARGET_VUS=2000 STAGE_DURATION=30s ME_CALLS=10 SLEEP_SECONDS=1 REUSE_TOKEN=true k6 run device_login.js
+ *
+ *  - `REUSE_TOKEN=true` caches the token per VU and skips re-login on every iteration.
+ *    This is more realistic for steady-state traffic. If the token expires (15m in prod
+ *    by default), /api/v1/me will return 401 and the script will re-login next iteration.
+ */
+
+const BASE_URL = __ENV.BASE_URL || 'https://gamend.appsinacup.com';
+const TARGET_VUS = Number.parseInt(__ENV.TARGET_VUS || '5000', 10);
+const STAGE_DURATION = __ENV.STAGE_DURATION || '60s';
+const ME_CALLS = Number.parseInt(__ENV.ME_CALLS || '10', 10);
+const SLEEP_SECONDS = Number.parseFloat(__ENV.SLEEP_SECONDS || '1');
+const REUSE_TOKEN = (__ENV.REUSE_TOKEN || 'true').toLowerCase() === 'true';
+
 const deviceLoginTrend = new Trend('device_login_latency');
+const meTrend = new Trend('me_latency');
 
 export let options = {
   stages: [
-    { duration: '30s', target: 5000 },
+    { duration: STAGE_DURATION, target: TARGET_VUS },
   ]
 };
 
-function randomDeviceId() {
+let cachedAccessToken = null;
+let cachedDeviceId = null;
+
+function getOrCreateDeviceId() {
+  if (REUSE_TOKEN) {
+    if (cachedDeviceId) return cachedDeviceId;
+    cachedDeviceId = `device-${__VU}-${Math.floor(Math.random() * 1e9)}`;
+    return cachedDeviceId;
+  }
+
   return `device-${Math.floor(Math.random() * 1e9)}-${__VU}-${__ITER}`;
+}
+
+function loginDevice(device_id) {
+  return http.post(`${BASE_URL}/api/v1/login/device`, JSON.stringify({ device_id }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
 }
 
 export default function () {
   group('DeviceLoginAndCall', function () {
-    let device_id = randomDeviceId();
-    let loginRes = http.post(`${base}/api/v1/login/device`, JSON.stringify({ device_id }), {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    let device_id = getOrCreateDeviceId();
 
-    check(loginRes, {
-      'login status 200': (r) => r.status === 200,
-      'login returned access token': (r) => {
+    let access = REUSE_TOKEN ? cachedAccessToken : null;
+    let loginRes = null;
+
+    if (!access) {
+      loginRes = loginDevice(device_id);
+
+      check(loginRes, {
+        'login status 200': (r) => r.status === 200,
+        'login returned access token': (r) => {
+          try {
+            let json = r.json();
+            return !!(json && json.data && json.data.access_token);
+          } catch (e) {
+            console.error('login parse error', e, 'status', r.status, 'body_len', r.body ? r.body.length : 0);
+            return false;
+          }
+        },
+      });
+
+      deviceLoginTrend.add(loginRes.timings.duration);
+
+      if (loginRes.status === 200) {
         try {
-          let json = r.json();
-          return !!(json && json.data && json.data.access_token);
+          let parsed = loginRes.json();
+          access = parsed && parsed.data && parsed.data.access_token;
         } catch (e) {
-          console.error('login parse error', e, 'status', r.status, 'body_len', r.body ? r.body.length : 0);
-          return false;
+          console.error('login parse error when extracting token', e, 'status', loginRes.status, 'body_len', loginRes.body ? loginRes.body.length : 0);
         }
-      },
-    });
 
-    deviceLoginTrend.add(loginRes.timings.duration);
-
-    if (loginRes.status === 200) {
-      let access = null;
-      try {
-        let parsed = loginRes.json();
-        access = parsed && parsed.data && parsed.data.access_token;
-      } catch (e) {
-        console.error('login parse error when extracting token', e, 'status', loginRes.status, 'body_len', loginRes.body ? loginRes.body.length : 0);
+        if (REUSE_TOKEN) {
+          cachedAccessToken = access;
+        }
       }
+    }
 
-      if (access) {
-        // Call a protected endpoint
-        let r = http.get(`${base}/api/v1/me`, {
+    if (access) {
+      // Call a protected endpoint multiple times using the same token.
+      for (let i = 0; i < ME_CALLS; i++) {
+        let r = http.get(`${BASE_URL}/api/v1/me`, {
           headers: { Authorization: `Bearer ${access}` }
         });
-        check(r, { 'me status 200': (r) => r.status === 200 });
-      } else {
-        console.error('no access token in login response', loginRes.status);
+        meTrend.add(r.timings.duration);
+
+        let ok = check(r, { 'me status 200': (r) => r.status === 200 });
+        if (!ok && r.status === 401 && REUSE_TOKEN) {
+          // Token likely expired or got invalidated; force re-login next iteration.
+          cachedAccessToken = null;
+        }
       }
+    } else if (loginRes) {
+      console.error('no access token in login response', loginRes.status);
     }
   });
 
-  sleep(1); // pacing
+  sleep(SLEEP_SECONDS); // pacing
 }
