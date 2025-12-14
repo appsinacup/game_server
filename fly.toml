@@ -30,7 +30,7 @@ primary_region = "ams"
     path = "/api/v1/health"
 
 [[vm]]
-  size = "shared-cpu-1x"
+  size = "shared-cpu-2x"
 
 [[mounts]]
   source = "game_server_data"

@@ -1,1 +1,1 @@
-k6 run stress/k6/device_login.js
+k6 run device_login.js

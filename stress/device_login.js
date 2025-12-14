@@ -26,20 +26,36 @@ export default function () {
     check(loginRes, {
       'login status 200': (r) => r.status === 200,
       'login returned access token': (r) => {
-        let json = r.json();
-        return json && json.data && json.data.access_token;
+        try {
+          let json = r.json();
+          return !!(json && json.data && json.data.access_token);
+        } catch (e) {
+          console.error('login parse error', e, 'status', r.status, 'body_len', r.body ? r.body.length : 0);
+          return false;
+        }
       },
     });
 
     deviceLoginTrend.add(loginRes.timings.duration);
 
     if (loginRes.status === 200) {
-      let access = loginRes.json().data.access_token;
-      // Call a protected endpoint
-      let r = http.get(`${base}/api/v1/me`, {
-        headers: { Authorization: `Bearer ${access}` }
-      });
-      check(r, { 'me status 200': (r) => r.status === 200 });
+      let access = null;
+      try {
+        let parsed = loginRes.json();
+        access = parsed && parsed.data && parsed.data.access_token;
+      } catch (e) {
+        console.error('login parse error when extracting token', e, 'status', loginRes.status, 'body_len', loginRes.body ? loginRes.body.length : 0);
+      }
+
+      if (access) {
+        // Call a protected endpoint
+        let r = http.get(`${base}/api/v1/me`, {
+          headers: { Authorization: `Bearer ${access}` }
+        });
+        check(r, { 'me status 200': (r) => r.status === 200 });
+      } else {
+        console.error('no access token in login response', loginRes.status);
+      }
     }
   });
 
