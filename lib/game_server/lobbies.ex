@@ -324,9 +324,14 @@ defmodule GameServer.Lobbies do
         q
 
       term ->
-        ilike_term = "%#{term}%"
-        ilike_term_down = String.downcase(ilike_term)
-        from l in q, where: fragment("lower(?) LIKE ?", l.title, ^ilike_term_down)
+        trimmed = term |> to_string() |> String.trim()
+
+        if trimmed == "" do
+          q
+        else
+          prefix = String.downcase(trimmed) <> "%"
+          from l in q, where: fragment("lower(?) LIKE ?", l.title, ^prefix)
+        end
     end
   end
 

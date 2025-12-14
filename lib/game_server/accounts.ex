@@ -116,15 +116,15 @@ defmodule GameServer.Accounts do
               opts: [ttl: @search_cache_ttl_ms]
             )
   defp search_users_by_text_cached(normalized_q, q, page, page_size) do
-    _ = normalized_q
-    pattern = "%#{q}%"
+    _ = q
+    pattern = "#{normalized_q}%"
     offset = (page - 1) * page_size
 
     Repo.all(
       from u in User,
         where:
-          fragment("LOWER(?) LIKE LOWER(?)", u.email, ^pattern) or
-            fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^pattern),
+          like(u.email, ^pattern) or
+            fragment("lower(?) LIKE ?", u.display_name, ^pattern),
         limit: ^page_size,
         offset: ^offset
     )
@@ -163,14 +163,14 @@ defmodule GameServer.Accounts do
               opts: [ttl: @search_cache_ttl_ms]
             )
   defp count_search_users_by_text_cached(normalized_q, q) do
-    _ = normalized_q
-    pattern = "%#{q}%"
+    _ = q
+    pattern = "#{normalized_q}%"
 
     Repo.one(
       from u in User,
         where:
-          fragment("LOWER(?) LIKE LOWER(?)", u.email, ^pattern) or
-            fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^pattern),
+          like(u.email, ^pattern) or
+            fragment("lower(?) LIKE ?", u.display_name, ^pattern),
         select: count(u.id)
     ) || 0
   end
@@ -339,22 +339,21 @@ defmodule GameServer.Accounts do
 
   """
   @spec get_user(integer()) :: User.t() | nil
-  @decorate cacheable(key: {:accounts, :user, id}, match: &__MODULE__.cache_match/1)
+  @decorate cacheable(key: {:accounts, :user, id}, match: &cache_match/1)
   def get_user(id), do: Repo.get(User, id)
 
   @decorate cacheable(
               key: {:accounts, :user_by, field, value},
               references: &(&1 && keyref({:accounts, :user, &1.id})),
-              match: &__MODULE__.cache_match/1
+              match: &cache_match/1
             )
   defp get_user_by_field(field, value) when is_atom(field) do
     Repo.get_by(User, [{field, value}])
   end
 
   @spec cache_match(term()) :: boolean()
-  def cache_match(nil), do: false
-
-  def cache_match(_), do: true
+  defp cache_match(nil), do: false
+  defp cache_match(_), do: true
 
   @user_cache_fields [
     :email,

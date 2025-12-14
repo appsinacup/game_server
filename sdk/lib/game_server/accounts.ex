@@ -60,19 +60,6 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc false
-  @spec cache_match(term()) :: boolean()
-  def cache_match(_arg1) do
-    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
-      :placeholder ->
-        false
-
-      _ ->
-        raise "GameServer.Accounts.cache_match/1 is a stub - only available at runtime on GameServer"
-    end
-  end
-
-
   @doc ~S"""
     Returns an `%Ecto.Changeset{}` for changing the user display_name.
     
