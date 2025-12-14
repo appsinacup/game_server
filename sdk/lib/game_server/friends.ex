@@ -39,7 +39,13 @@ defmodule GameServer.Friends do
   @spec accept_friend_request(integer(), GameServer.Accounts.User.t()) ::
   {:ok, GameServer.Friends.Friendship.t()} | {:error, term()}
   def accept_friend_request(_friendship_id, _user) do
-    raise "GameServer.Friends.accept_friend_request/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Friends.Friendship{id: 0, requester_id: 0, target_id: 0, requester: nil, target: nil, status: "pending", inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Friends.accept_friend_request/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -49,7 +55,13 @@ defmodule GameServer.Friends do
   @spec block_friend_request(integer(), GameServer.Accounts.User.t()) ::
   {:ok, GameServer.Friends.Friendship.t()} | {:error, term()}
   def block_friend_request(_friendship_id, _user) do
-    raise "GameServer.Friends.block_friend_request/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Friends.Friendship{id: 0, requester_id: 0, target_id: 0, requester: nil, target: nil, status: "pending", inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Friends.block_friend_request/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -57,7 +69,13 @@ defmodule GameServer.Friends do
     Cancel an outgoing friend request (only the requester may cancel).
   """
   def cancel_request(_friendship_id, _user) do
-    raise "GameServer.Friends.cancel_request/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Friends.cancel_request/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -65,7 +83,13 @@ defmodule GameServer.Friends do
     Count blocked friendships for a user (number of blocked rows where user is target).
   """
   def count_blocked_for_user(_user_id) do
-    raise "GameServer.Friends.count_blocked_for_user/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Friends.count_blocked_for_user/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -73,7 +97,13 @@ defmodule GameServer.Friends do
     Count accepted friends for a given user (distinct other user ids).
   """
   def count_friends_for_user(_user_id) do
-    raise "GameServer.Friends.count_friends_for_user/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Friends.count_friends_for_user/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -81,7 +111,13 @@ defmodule GameServer.Friends do
     Count incoming pending friend requests for a user.
   """
   def count_incoming_requests(_user_id) do
-    raise "GameServer.Friends.count_incoming_requests/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Friends.count_incoming_requests/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -89,7 +125,13 @@ defmodule GameServer.Friends do
     Count outgoing pending friend requests for a user.
   """
   def count_outgoing_requests(_user_id) do
-    raise "GameServer.Friends.count_outgoing_requests/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Friends.count_outgoing_requests/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -102,7 +144,13 @@ defmodule GameServer.Friends do
   @spec create_request(GameServer.Accounts.User.t() | integer(), integer()) ::
   {:ok, GameServer.Friends.Friendship.t()} | {:error, any()}
   def create_request(_requester_id, _target_id) do
-    raise "GameServer.Friends.create_request/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Friends.Friendship{id: 0, requester_id: 0, target_id: 0, requester: nil, target: nil, status: "pending", inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Friends.create_request/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -110,7 +158,13 @@ defmodule GameServer.Friends do
     Get friendship between two users (ordered requester->target) if exists
   """
   def get_by_pair(_requester_id, _target_id) do
-    raise "GameServer.Friends.get_by_pair/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Friends.get_by_pair/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -118,7 +172,13 @@ defmodule GameServer.Friends do
     Get friendship by id
   """
   def get_friendship!(_id) do
-    raise "GameServer.Friends.get_friendship!/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Friends.get_friendship!/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -126,7 +186,13 @@ defmodule GameServer.Friends do
     List blocked friendships for a user (Friendship structs where the user is the blocker / target).
   """
   def list_blocked_for_user(_user_id) do
-    raise "GameServer.Friends.list_blocked_for_user/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Friends.list_blocked_for_user/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -134,7 +200,13 @@ defmodule GameServer.Friends do
     List blocked friendships for a user (Friendship structs where the user is the blocker / target).
   """
   def list_blocked_for_user(_user_id, _opts) do
-    raise "GameServer.Friends.list_blocked_for_user/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Friends.list_blocked_for_user/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -147,7 +219,13 @@ defmodule GameServer.Friends do
     
   """
   def list_friends_for_user(_user_id) do
-    raise "GameServer.Friends.list_friends_for_user/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Friends.list_friends_for_user/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -164,7 +242,13 @@ defmodule GameServer.Friends do
   GameServer.Types.pagination_opts()
 ) :: [GameServer.Accounts.User.t()]
   def list_friends_for_user(_user_id, _opts) do
-    raise "GameServer.Friends.list_friends_for_user/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Friends.list_friends_for_user/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -177,7 +261,13 @@ defmodule GameServer.Friends do
     
   """
   def list_incoming_requests(_user_id) do
-    raise "GameServer.Friends.list_incoming_requests/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Friends.list_incoming_requests/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -194,7 +284,13 @@ defmodule GameServer.Friends do
   GameServer.Types.pagination_opts()
 ) :: [GameServer.Friends.Friendship.t()]
   def list_incoming_requests(_user_id, _opts) do
-    raise "GameServer.Friends.list_incoming_requests/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Friends.list_incoming_requests/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -207,7 +303,13 @@ defmodule GameServer.Friends do
     
   """
   def list_outgoing_requests(_user_id) do
-    raise "GameServer.Friends.list_outgoing_requests/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Friends.list_outgoing_requests/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -224,7 +326,13 @@ defmodule GameServer.Friends do
   GameServer.Types.pagination_opts()
 ) :: [GameServer.Friends.Friendship.t()]
   def list_outgoing_requests(_user_id, _opts) do
-    raise "GameServer.Friends.list_outgoing_requests/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Friends.list_outgoing_requests/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -234,7 +342,13 @@ defmodule GameServer.Friends do
   @spec reject_friend_request(integer(), GameServer.Accounts.User.t()) ::
   {:ok, GameServer.Friends.Friendship.t()} | {:error, term()}
   def reject_friend_request(_friendship_id, _user) do
-    raise "GameServer.Friends.reject_friend_request/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Friends.Friendship{id: 0, requester_id: 0, target_id: 0, requester: nil, target: nil, status: "pending", inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Friends.reject_friend_request/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -243,13 +357,25 @@ defmodule GameServer.Friends do
   """
   @spec remove_friend(integer(), integer()) :: {:ok, GameServer.Friends.Friendship.t()} | {:error, term()}
   def remove_friend(_user_id, _friend_id) do
-    raise "GameServer.Friends.remove_friend/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Friends.Friendship{id: 0, requester_id: 0, target_id: 0, requester: nil, target: nil, status: "pending", inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Friends.remove_friend/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
   @doc false
   def subscribe_user(_user_id) do
-    raise "GameServer.Friends.subscribe_user/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Friends.subscribe_user/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -259,13 +385,25 @@ defmodule GameServer.Friends do
   @spec unblock_friendship(integer(), GameServer.Accounts.User.t()) ::
   {:ok, :unblocked} | {:error, term()}
   def unblock_friendship(_friendship_id, _user) do
-    raise "GameServer.Friends.unblock_friendship/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, nil}
+
+      _ ->
+        raise "GameServer.Friends.unblock_friendship/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
   @doc false
   def unsubscribe_user(_user_id) do
-    raise "GameServer.Friends.unsubscribe_user/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Friends.unsubscribe_user/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 end

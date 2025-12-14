@@ -50,7 +50,13 @@ defmodule GameServer.Lobbies do
     
   """
   def can_edit_lobby?(_user, _lobby) do
-    raise "GameServer.Lobbies.can_edit_lobby?/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        false
+
+      _ ->
+        raise "GameServer.Lobbies.can_edit_lobby?/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -60,19 +66,37 @@ defmodule GameServer.Lobbies do
     
   """
   def can_view_lobby?(_user, _lobby) do
-    raise "GameServer.Lobbies.can_view_lobby?/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        false
+
+      _ ->
+        raise "GameServer.Lobbies.can_view_lobby?/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
   @doc false
   def change_lobby(_lobby) do
-    raise "GameServer.Lobbies.change_lobby/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Lobbies.change_lobby/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
   @doc false
   def change_lobby(_lobby, _attrs) do
-    raise "GameServer.Lobbies.change_lobby/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Lobbies.change_lobby/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -82,7 +106,13 @@ defmodule GameServer.Lobbies do
   """
   @spec count_hidden_lobbies() :: non_neg_integer()
   def count_hidden_lobbies() do
-    raise "GameServer.Lobbies.count_hidden_lobbies/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Lobbies.count_hidden_lobbies/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -92,7 +122,13 @@ defmodule GameServer.Lobbies do
   """
   @spec count_hostless_lobbies() :: non_neg_integer()
   def count_hostless_lobbies() do
-    raise "GameServer.Lobbies.count_hostless_lobbies/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Lobbies.count_hostless_lobbies/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -101,7 +137,13 @@ defmodule GameServer.Lobbies do
     
   """
   def count_list_all_lobbies() do
-    raise "GameServer.Lobbies.count_list_all_lobbies/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Lobbies.count_list_all_lobbies/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -110,7 +152,13 @@ defmodule GameServer.Lobbies do
     
   """
   def count_list_all_lobbies(_filters) do
-    raise "GameServer.Lobbies.count_list_all_lobbies/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Lobbies.count_list_all_lobbies/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -118,7 +166,13 @@ defmodule GameServer.Lobbies do
     Count lobbies matching filters (excludes hidden ones unless admin list used). If metadata filters are supplied, they will be applied after fetching.
   """
   def count_list_lobbies() do
-    raise "GameServer.Lobbies.count_list_lobbies/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Lobbies.count_list_lobbies/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -126,7 +180,13 @@ defmodule GameServer.Lobbies do
     Count lobbies matching filters (excludes hidden ones unless admin list used). If metadata filters are supplied, they will be applied after fetching.
   """
   def count_list_lobbies(_filters) do
-    raise "GameServer.Lobbies.count_list_lobbies/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Lobbies.count_list_lobbies/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -136,7 +196,13 @@ defmodule GameServer.Lobbies do
   """
   @spec count_locked_lobbies() :: non_neg_integer()
   def count_locked_lobbies() do
-    raise "GameServer.Lobbies.count_locked_lobbies/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Lobbies.count_locked_lobbies/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -146,7 +212,13 @@ defmodule GameServer.Lobbies do
   """
   @spec count_passworded_lobbies() :: non_neg_integer()
   def count_passworded_lobbies() do
-    raise "GameServer.Lobbies.count_passworded_lobbies/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Lobbies.count_passworded_lobbies/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -159,7 +231,13 @@ defmodule GameServer.Lobbies do
     
   """
   def create_lobby() do
-    raise "GameServer.Lobbies.create_lobby/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, nil}
+
+      _ ->
+        raise "GameServer.Lobbies.create_lobby/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -174,13 +252,25 @@ defmodule GameServer.Lobbies do
   @spec create_lobby(GameServer.Types.lobby_create_attrs()) ::
   {:ok, GameServer.Lobbies.Lobby.t()} | {:error, Ecto.Changeset.t() | term()}
   def create_lobby(_attrs) do
-    raise "GameServer.Lobbies.create_lobby/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Lobbies.Lobby{id: 0, name: "", title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Lobbies.create_lobby/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
   @doc false
   def create_membership(_attrs) do
-    raise "GameServer.Lobbies.create_membership/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, nil}
+
+      _ ->
+        raise "GameServer.Lobbies.create_membership/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -188,27 +278,51 @@ defmodule GameServer.Lobbies do
   @spec delete_lobby(GameServer.Lobbies.Lobby.t()) ::
   {:ok, GameServer.Lobbies.Lobby.t()} | {:error, Ecto.Changeset.t() | term()}
   def delete_lobby(_lobby) do
-    raise "GameServer.Lobbies.delete_lobby/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Lobbies.Lobby{id: 0, name: "", title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Lobbies.delete_lobby/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
   @doc false
   def delete_membership(_user) do
-    raise "GameServer.Lobbies.delete_membership/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, nil}
+
+      _ ->
+        raise "GameServer.Lobbies.delete_membership/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
   @doc false
   @spec get_lobby(integer() | String.t()) :: GameServer.Lobbies.Lobby.t() | nil
   def get_lobby(_id) do
-    raise "GameServer.Lobbies.get_lobby/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Lobbies.get_lobby/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
   @doc false
   @spec get_lobby!(integer() | String.t()) :: GameServer.Lobbies.Lobby.t()
   def get_lobby!(_id) do
-    raise "GameServer.Lobbies.get_lobby!/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Lobbies.get_lobby!/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -231,13 +345,25 @@ defmodule GameServer.Lobbies do
   GameServer.Accounts.User.t()
 ]
   def get_lobby_members(_lobby_id) do
-    raise "GameServer.Lobbies.get_lobby_members/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Lobbies.get_lobby_members/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
   @doc false
   def join_lobby(_user, _lobby) do
-    raise "GameServer.Lobbies.join_lobby/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Lobbies.join_lobby/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -248,7 +374,13 @@ defmodule GameServer.Lobbies do
   map() | keyword()
 ) :: {:ok, GameServer.Accounts.User.t()} | {:error, term()}
   def join_lobby(_user, _lobby_arg, _opts) do
-    raise "GameServer.Lobbies.join_lobby/3 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Lobbies.join_lobby/3 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -263,14 +395,26 @@ defmodule GameServer.Lobbies do
   GameServer.Accounts.User.t()
 ) :: {:ok, GameServer.Accounts.User.t()} | {:error, term()}
   def kick_user(_host, _lobby, _target) do
-    raise "GameServer.Lobbies.kick_user/3 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Lobbies.kick_user/3 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
   @doc false
   @spec leave_lobby(GameServer.Accounts.User.t()) :: {:ok, term()} | {:error, term()}
   def leave_lobby(_user) do
-    raise "GameServer.Lobbies.leave_lobby/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, nil}
+
+      _ ->
+        raise "GameServer.Lobbies.leave_lobby/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -287,7 +431,13 @@ defmodule GameServer.Lobbies do
     
   """
   def list_all_lobbies() do
-    raise "GameServer.Lobbies.list_all_lobbies/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Lobbies.list_all_lobbies/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -304,7 +454,13 @@ defmodule GameServer.Lobbies do
     
   """
   def list_all_lobbies(_filters) do
-    raise "GameServer.Lobbies.list_all_lobbies/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Lobbies.list_all_lobbies/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -321,7 +477,13 @@ defmodule GameServer.Lobbies do
     
   """
   def list_all_lobbies(_filters, _opts) do
-    raise "GameServer.Lobbies.list_all_lobbies/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Lobbies.list_all_lobbies/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -344,7 +506,13 @@ defmodule GameServer.Lobbies do
     
   """
   def list_lobbies() do
-    raise "GameServer.Lobbies.list_lobbies/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Lobbies.list_lobbies/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -367,7 +535,13 @@ defmodule GameServer.Lobbies do
     
   """
   def list_lobbies(_filters) do
-    raise "GameServer.Lobbies.list_lobbies/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Lobbies.list_lobbies/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -391,7 +565,13 @@ defmodule GameServer.Lobbies do
   """
   @spec list_lobbies(map(), GameServer.Types.lobby_list_opts()) :: [GameServer.Lobbies.Lobby.t()]
   def list_lobbies(_filters, _opts) do
-    raise "GameServer.Lobbies.list_lobbies/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Lobbies.list_lobbies/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -401,7 +581,13 @@ defmodule GameServer.Lobbies do
     
   """
   def list_lobbies_for_user(_user) do
-    raise "GameServer.Lobbies.list_lobbies_for_user/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Lobbies.list_lobbies_for_user/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -411,7 +597,13 @@ defmodule GameServer.Lobbies do
     
   """
   def list_lobbies_for_user(_user, _filters) do
-    raise "GameServer.Lobbies.list_lobbies_for_user/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Lobbies.list_lobbies_for_user/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -421,13 +613,25 @@ defmodule GameServer.Lobbies do
     
   """
   def list_lobbies_for_user(_user, _filters, _opts) do
-    raise "GameServer.Lobbies.list_lobbies_for_user/3 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Lobbies.list_lobbies_for_user/3 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
   @doc false
   def list_memberships_for_lobby(_lobby_id) do
-    raise "GameServer.Lobbies.list_memberships_for_lobby/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Lobbies.list_memberships_for_lobby/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -443,7 +647,13 @@ defmodule GameServer.Lobbies do
     
   """
   def quick_join(_user) do
-    raise "GameServer.Lobbies.quick_join/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Lobbies.quick_join/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -459,7 +669,13 @@ defmodule GameServer.Lobbies do
     
   """
   def quick_join(_user, _title) do
-    raise "GameServer.Lobbies.quick_join/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Lobbies.quick_join/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -475,7 +691,13 @@ defmodule GameServer.Lobbies do
     
   """
   def quick_join(_user, _title, _max_users) do
-    raise "GameServer.Lobbies.quick_join/3 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Lobbies.quick_join/3 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -491,7 +713,13 @@ defmodule GameServer.Lobbies do
     
   """
   def quick_join(_user, _title, _max_users, _metadata) do
-    raise "GameServer.Lobbies.quick_join/4 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Lobbies.quick_join/4 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -501,7 +729,13 @@ defmodule GameServer.Lobbies do
   """
   @spec subscribe_lobbies() :: :ok | {:error, term()}
   def subscribe_lobbies() do
-    raise "GameServer.Lobbies.subscribe_lobbies/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        :ok
+
+      _ ->
+        raise "GameServer.Lobbies.subscribe_lobbies/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -511,7 +745,13 @@ defmodule GameServer.Lobbies do
   """
   @spec subscribe_lobby(integer()) :: :ok | {:error, term()}
   def subscribe_lobby(_lobby_id) do
-    raise "GameServer.Lobbies.subscribe_lobby/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        :ok
+
+      _ ->
+        raise "GameServer.Lobbies.subscribe_lobby/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -520,7 +760,13 @@ defmodule GameServer.Lobbies do
     
   """
   def unsubscribe_lobby(_lobby_id) do
-    raise "GameServer.Lobbies.unsubscribe_lobby/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Lobbies.unsubscribe_lobby/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -535,13 +781,25 @@ defmodule GameServer.Lobbies do
   @spec update_lobby(GameServer.Lobbies.Lobby.t(), GameServer.Types.lobby_update_attrs()) ::
   {:ok, GameServer.Lobbies.Lobby.t()} | {:error, Ecto.Changeset.t() | term()}
   def update_lobby(_lobby, _attrs) do
-    raise "GameServer.Lobbies.update_lobby/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Lobbies.Lobby{id: 0, name: "", title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Lobbies.update_lobby/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
   @doc false
   def update_lobby_by_host(_user, _lobby, _attrs) do
-    raise "GameServer.Lobbies.update_lobby_by_host/3 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, nil}
+
+      _ ->
+        raise "GameServer.Lobbies.update_lobby_by_host/3 is a stub - only available at runtime on GameServer"
+    end
   end
 
 end

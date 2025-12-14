@@ -27,7 +27,13 @@ defmodule GameServer.Accounts do
     
   """
   def attach_device_to_user(_user, _device_id) do
-    raise "GameServer.Accounts.attach_device_to_user/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.attach_device_to_user/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -39,7 +45,13 @@ defmodule GameServer.Accounts do
     
   """
   def broadcast_user_update(_user) do
-    raise "GameServer.Accounts.broadcast_user_update/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.broadcast_user_update/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -48,7 +60,13 @@ defmodule GameServer.Accounts do
     
   """
   def change_user_display_name(_user) do
-    raise "GameServer.Accounts.change_user_display_name/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.change_user_display_name/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -57,7 +75,13 @@ defmodule GameServer.Accounts do
     
   """
   def change_user_display_name(_user, _attrs) do
-    raise "GameServer.Accounts.change_user_display_name/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.change_user_display_name/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -74,7 +98,13 @@ defmodule GameServer.Accounts do
     
   """
   def change_user_email(_user) do
-    raise "GameServer.Accounts.change_user_email/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.change_user_email/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -91,7 +121,13 @@ defmodule GameServer.Accounts do
     
   """
   def change_user_email(_user, _attrs) do
-    raise "GameServer.Accounts.change_user_email/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.change_user_email/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -108,7 +144,13 @@ defmodule GameServer.Accounts do
     
   """
   def change_user_email(_user, _attrs, _opts) do
-    raise "GameServer.Accounts.change_user_email/3 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.change_user_email/3 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -125,7 +167,13 @@ defmodule GameServer.Accounts do
     
   """
   def change_user_password(_user) do
-    raise "GameServer.Accounts.change_user_password/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.change_user_password/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -142,7 +190,13 @@ defmodule GameServer.Accounts do
     
   """
   def change_user_password(_user, _attrs) do
-    raise "GameServer.Accounts.change_user_password/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.change_user_password/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -159,19 +213,37 @@ defmodule GameServer.Accounts do
     
   """
   def change_user_password(_user, _attrs, _opts) do
-    raise "GameServer.Accounts.change_user_password/3 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.change_user_password/3 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
   @doc false
   def change_user_registration(_user) do
-    raise "GameServer.Accounts.change_user_registration/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.change_user_registration/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
   @doc false
   def change_user_registration(_user, _attrs) do
-    raise "GameServer.Accounts.change_user_registration/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.change_user_registration/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -186,7 +258,13 @@ defmodule GameServer.Accounts do
     
   """
   def confirm_user(_user) do
-    raise "GameServer.Accounts.confirm_user/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.confirm_user/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -198,7 +276,13 @@ defmodule GameServer.Accounts do
     
   """
   def confirm_user_by_token(_token) do
-    raise "GameServer.Accounts.confirm_user_by_token/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.confirm_user_by_token/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -207,7 +291,13 @@ defmodule GameServer.Accounts do
     
   """
   def count_search_users(_query) do
-    raise "GameServer.Accounts.count_search_users/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Accounts.count_search_users/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -217,7 +307,13 @@ defmodule GameServer.Accounts do
   """
   @spec count_users() :: non_neg_integer()
   def count_users() do
-    raise "GameServer.Accounts.count_users/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Accounts.count_users/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -228,7 +324,13 @@ defmodule GameServer.Accounts do
   """
   @spec count_users_active_since(integer()) :: non_neg_integer()
   def count_users_active_since(_days) do
-    raise "GameServer.Accounts.count_users_active_since/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Accounts.count_users_active_since/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -238,7 +340,13 @@ defmodule GameServer.Accounts do
   """
   @spec count_users_registered_since(integer()) :: non_neg_integer()
   def count_users_registered_since(_days) do
-    raise "GameServer.Accounts.count_users_registered_since/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Accounts.count_users_registered_since/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -248,7 +356,13 @@ defmodule GameServer.Accounts do
   """
   @spec count_users_with_password() :: non_neg_integer()
   def count_users_with_password() do
-    raise "GameServer.Accounts.count_users_with_password/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Accounts.count_users_with_password/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -258,7 +372,13 @@ defmodule GameServer.Accounts do
   """
   @spec count_users_with_provider(atom()) :: non_neg_integer()
   def count_users_with_provider(_provider_field) do
-    raise "GameServer.Accounts.count_users_with_provider/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Accounts.count_users_with_provider/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -269,7 +389,13 @@ defmodule GameServer.Accounts do
     
   """
   def delete_user(_user) do
-    raise "GameServer.Accounts.delete_user/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, nil}
+
+      _ ->
+        raise "GameServer.Accounts.delete_user/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -278,7 +404,13 @@ defmodule GameServer.Accounts do
     
   """
   def delete_user_session_token(_token) do
-    raise "GameServer.Accounts.delete_user_session_token/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, nil}
+
+      _ ->
+        raise "GameServer.Accounts.delete_user_session_token/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -287,13 +419,25 @@ defmodule GameServer.Accounts do
     
   """
   def deliver_login_instructions(_user, _magic_link_url_fun) do
-    raise "GameServer.Accounts.deliver_login_instructions/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.deliver_login_instructions/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
   @doc false
   def deliver_user_confirmation_instructions(_user, _confirmation_url_fun) do
-    raise "GameServer.Accounts.deliver_user_confirmation_instructions/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.deliver_user_confirmation_instructions/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -308,7 +452,13 @@ defmodule GameServer.Accounts do
     
   """
   def deliver_user_update_email_instructions(_user, _current_email, _update_email_url_fun) do
-    raise "GameServer.Accounts.deliver_user_update_email_instructions/3 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.deliver_user_update_email_instructions/3 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -320,7 +470,13 @@ defmodule GameServer.Accounts do
     
   """
   def device_auth_enabled?() do
-    raise "GameServer.Accounts.device_auth_enabled?/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        false
+
+      _ ->
+        raise "GameServer.Accounts.device_auth_enabled?/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -335,7 +491,13 @@ defmodule GameServer.Accounts do
     
   """
   def find_or_create_from_apple(_attrs) do
-    raise "GameServer.Accounts.find_or_create_from_apple/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.find_or_create_from_apple/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -347,7 +509,13 @@ defmodule GameServer.Accounts do
     
   """
   def find_or_create_from_device(_device_id) do
-    raise "GameServer.Accounts.find_or_create_from_device/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.find_or_create_from_device/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -359,7 +527,13 @@ defmodule GameServer.Accounts do
     
   """
   def find_or_create_from_device(_device_id, _attrs) do
-    raise "GameServer.Accounts.find_or_create_from_device/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.find_or_create_from_device/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -374,7 +548,13 @@ defmodule GameServer.Accounts do
     
   """
   def find_or_create_from_discord(_attrs) do
-    raise "GameServer.Accounts.find_or_create_from_discord/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.find_or_create_from_discord/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -389,7 +569,13 @@ defmodule GameServer.Accounts do
     
   """
   def find_or_create_from_facebook(_attrs) do
-    raise "GameServer.Accounts.find_or_create_from_facebook/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.find_or_create_from_facebook/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -404,7 +590,13 @@ defmodule GameServer.Accounts do
     
   """
   def find_or_create_from_google(_attrs) do
-    raise "GameServer.Accounts.find_or_create_from_google/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.find_or_create_from_google/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -419,7 +611,13 @@ defmodule GameServer.Accounts do
     
   """
   def find_or_create_from_steam(_attrs) do
-    raise "GameServer.Accounts.find_or_create_from_steam/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.find_or_create_from_steam/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -428,7 +626,13 @@ defmodule GameServer.Accounts do
     
   """
   def generate_user_session_token(_user) do
-    raise "GameServer.Accounts.generate_user_session_token/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.generate_user_session_token/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -439,7 +643,13 @@ defmodule GameServer.Accounts do
     
   """
   def get_linked_providers(_user) do
-    raise "GameServer.Accounts.get_linked_providers/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.get_linked_providers/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -460,7 +670,13 @@ defmodule GameServer.Accounts do
   """
   @spec get_user(integer()) :: GameServer.Accounts.User.t() | nil
   def get_user(_id) do
-    raise "GameServer.Accounts.get_user/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.get_user/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -481,7 +697,13 @@ defmodule GameServer.Accounts do
   """
   @spec get_user!(integer()) :: GameServer.Accounts.User.t()
   def get_user!(_id) do
-    raise "GameServer.Accounts.get_user!/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.get_user!/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -492,7 +714,13 @@ defmodule GameServer.Accounts do
     
   """
   def get_user_by_apple_id(_apple_id) do
-    raise "GameServer.Accounts.get_user_by_apple_id/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.get_user_by_apple_id/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -503,7 +731,13 @@ defmodule GameServer.Accounts do
     
   """
   def get_user_by_discord_id(_discord_id) do
-    raise "GameServer.Accounts.get_user_by_discord_id/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.get_user_by_discord_id/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -522,7 +756,13 @@ defmodule GameServer.Accounts do
   """
   @spec get_user_by_email(String.t()) :: GameServer.Accounts.User.t() | nil
   def get_user_by_email(_email) do
-    raise "GameServer.Accounts.get_user_by_email/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.get_user_by_email/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -540,7 +780,13 @@ defmodule GameServer.Accounts do
     
   """
   def get_user_by_email_and_password(_email, _password) do
-    raise "GameServer.Accounts.get_user_by_email_and_password/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.get_user_by_email_and_password/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -551,7 +797,13 @@ defmodule GameServer.Accounts do
     
   """
   def get_user_by_facebook_id(_facebook_id) do
-    raise "GameServer.Accounts.get_user_by_facebook_id/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.get_user_by_facebook_id/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -562,7 +814,13 @@ defmodule GameServer.Accounts do
     
   """
   def get_user_by_google_id(_google_id) do
-    raise "GameServer.Accounts.get_user_by_google_id/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.get_user_by_google_id/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -571,7 +829,13 @@ defmodule GameServer.Accounts do
     
   """
   def get_user_by_magic_link_token(_token) do
-    raise "GameServer.Accounts.get_user_by_magic_link_token/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.get_user_by_magic_link_token/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -582,7 +846,13 @@ defmodule GameServer.Accounts do
     
   """
   def get_user_by_session_token(_token) do
-    raise "GameServer.Accounts.get_user_by_session_token/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.get_user_by_session_token/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -593,7 +863,13 @@ defmodule GameServer.Accounts do
     
   """
   def get_user_by_steam_id(_steam_id) do
-    raise "GameServer.Accounts.get_user_by_steam_id/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.get_user_by_steam_id/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -602,7 +878,13 @@ defmodule GameServer.Accounts do
     
   """
   def has_password?(_user) do
-    raise "GameServer.Accounts.has_password?/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        false
+
+      _ ->
+        raise "GameServer.Accounts.has_password?/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -615,7 +897,13 @@ defmodule GameServer.Accounts do
     
   """
   def link_account(_user, _attrs, _provider_id_field, _changeset_fn) do
-    raise "GameServer.Accounts.link_account/4 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.link_account/4 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -628,7 +916,13 @@ defmodule GameServer.Accounts do
     
   """
   def link_device_id(_user, _device_id) do
-    raise "GameServer.Accounts.link_device_id/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.link_device_id/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -652,7 +946,13 @@ defmodule GameServer.Accounts do
     
   """
   def login_user_by_magic_link(_token) do
-    raise "GameServer.Accounts.login_user_by_magic_link/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.login_user_by_magic_link/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -676,7 +976,13 @@ defmodule GameServer.Accounts do
   @spec register_user(GameServer.Types.user_registration_attrs()) ::
   {:ok, GameServer.Accounts.User.t()} | {:error, Ecto.Changeset.t()}
   def register_user(_attrs) do
-    raise "GameServer.Accounts.register_user/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Accounts.register_user/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -691,7 +997,13 @@ defmodule GameServer.Accounts do
     
   """
   def register_user_and_deliver(_attrs, _confirmation_url_fun) do
-    raise "GameServer.Accounts.register_user_and_deliver/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.register_user_and_deliver/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -706,7 +1018,13 @@ defmodule GameServer.Accounts do
     
   """
   def register_user_and_deliver(_attrs, _confirmation_url_fun, _notifier) do
-    raise "GameServer.Accounts.register_user_and_deliver/3 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.register_user_and_deliver/3 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -721,7 +1039,13 @@ defmodule GameServer.Accounts do
     
   """
   def search_users(_query) do
-    raise "GameServer.Accounts.search_users/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.search_users/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -737,7 +1061,13 @@ defmodule GameServer.Accounts do
   """
   @spec search_users(String.t(), GameServer.Types.pagination_opts()) :: [GameServer.Accounts.User.t()]
   def search_users(_query, _opts) do
-    raise "GameServer.Accounts.search_users/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Accounts.search_users/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -749,7 +1079,13 @@ defmodule GameServer.Accounts do
     
   """
   def sudo_mode?(_user) do
-    raise "GameServer.Accounts.sudo_mode?/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        false
+
+      _ ->
+        raise "GameServer.Accounts.sudo_mode?/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -761,7 +1097,13 @@ defmodule GameServer.Accounts do
     
   """
   def sudo_mode?(_user, _minutes) do
-    raise "GameServer.Accounts.sudo_mode?/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        false
+
+      _ ->
+        raise "GameServer.Accounts.sudo_mode?/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -776,7 +1118,13 @@ defmodule GameServer.Accounts do
     
   """
   def unlink_device_id(_user) do
-    raise "GameServer.Accounts.unlink_device_id/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.unlink_device_id/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -792,7 +1140,13 @@ defmodule GameServer.Accounts do
     
   """
   def unlink_provider(_user, _provider) do
-    raise "GameServer.Accounts.unlink_provider/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.unlink_provider/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -820,7 +1174,13 @@ defmodule GameServer.Accounts do
   @spec update_user(GameServer.Accounts.User.t(), GameServer.Types.user_update_attrs()) ::
   {:ok, GameServer.Accounts.User.t()} | {:error, Ecto.Changeset.t()}
   def update_user(_user, _attrs) do
-    raise "GameServer.Accounts.update_user/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Accounts.update_user/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -829,7 +1189,13 @@ defmodule GameServer.Accounts do
     
   """
   def update_user_display_name(_user, _attrs) do
-    raise "GameServer.Accounts.update_user_display_name/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, nil}
+
+      _ ->
+        raise "GameServer.Accounts.update_user_display_name/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -840,7 +1206,13 @@ defmodule GameServer.Accounts do
     
   """
   def update_user_email(_user, _token) do
-    raise "GameServer.Accounts.update_user_email/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, nil}
+
+      _ ->
+        raise "GameServer.Accounts.update_user_email/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -860,7 +1232,13 @@ defmodule GameServer.Accounts do
     
   """
   def update_user_password(_user, _attrs) do
-    raise "GameServer.Accounts.update_user_password/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, nil}
+
+      _ ->
+        raise "GameServer.Accounts.update_user_password/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 end

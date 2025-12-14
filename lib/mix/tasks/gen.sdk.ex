@@ -156,6 +156,7 @@ defmodule Mix.Tasks.Gen.Sdk do
       end
 
     spec_text = find_spec_text(function_name, arity, specs)
+    return_expr = stub_return_expression(function_name, spec_text)
 
     arg_names =
       arg_names_from_signature(signatures, arity)
@@ -178,9 +179,156 @@ defmodule Mix.Tasks.Gen.Sdk do
 
     """
     #{doc_block}#{spec_text}  def #{function_name}(#{ignored_args}) do
-        raise "#{module_name}.#{function_name}/#{arity} is a stub - only available at runtime on GameServer"
+        case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+          :placeholder ->
+            #{return_expr}
+
+          _ ->
+            raise "#{module_name}.#{function_name}/#{arity} is a stub - only available at runtime on GameServer"
+        end
       end
     """
+  end
+
+  defp stub_return_expression(function_name, spec_text)
+       when is_atom(function_name) and is_binary(spec_text) do
+    return_type = extract_spec_return_type(spec_text)
+
+    cond do
+      is_binary(return_type) and String.contains?(return_type, "| nil") ->
+        "nil"
+
+      is_binary(return_type) and
+          String.contains?(return_type, "{:ok, GameServer.Accounts.User.t()}") ->
+        "{:ok, #{user_placeholder_expr()}}"
+
+      is_binary(return_type) and
+          String.contains?(return_type, "{:ok, GameServer.Lobbies.Lobby.t()}") ->
+        "{:ok, #{lobby_placeholder_expr()}}"
+
+      is_binary(return_type) and
+          String.contains?(return_type, "{:ok, GameServer.Leaderboards.Leaderboard.t()}") ->
+        "{:ok, #{leaderboard_placeholder_expr()}}"
+
+      is_binary(return_type) and
+          String.contains?(return_type, "{:ok, GameServer.Leaderboards.Record.t()}") ->
+        "{:ok, #{record_placeholder_expr()}}"
+
+      is_binary(return_type) and
+          String.contains?(return_type, "{:ok, GameServer.Friends.Friendship.t()}") ->
+        "{:ok, #{friendship_placeholder_expr()}}"
+
+      is_binary(return_type) and
+        String.contains?(return_type, "GameServer.Friends.Friendship.t()") and
+        not String.contains?(return_type, "list(") and not String.contains?(return_type, "[") ->
+        friendship_placeholder_expr()
+
+      is_binary(return_type) and String.contains?(return_type, "{:ok,") ->
+        # Best-effort generic ok tuple for result-returning functions.
+        "{:ok, nil}"
+
+      is_binary(return_type) and String.contains?(return_type, "hook_result(") ->
+        "{:ok, nil}"
+
+      is_binary(return_type) and String.contains?(return_type, "boolean()") ->
+        "false"
+
+      is_binary(return_type) and String.contains?(return_type, "integer()") ->
+        "0"
+
+      is_binary(return_type) and String.contains?(return_type, "String.t()") ->
+        "\"\""
+
+      is_binary(return_type) and
+          (String.contains?(return_type, "map()") or String.contains?(return_type, "%{")) ->
+        "%{}"
+
+      is_binary(return_type) and
+          (String.contains?(return_type, "keyword()") or
+             String.contains?(return_type, "Keyword.t()")) ->
+        "[]"
+
+      is_binary(return_type) and
+          (String.contains?(return_type, "list(") or String.contains?(return_type, "[") or
+             String.contains?(return_type, "List.t()")) ->
+        "[]"
+
+      is_binary(return_type) and String.contains?(return_type, ":ok") ->
+        ":ok"
+
+      true ->
+        fallback_placeholder_by_name(function_name)
+    end
+  end
+
+  defp stub_return_expression(function_name, _spec_text) when is_atom(function_name) do
+    fallback_placeholder_by_name(function_name)
+  end
+
+  defp extract_spec_return_type(spec_text) when is_binary(spec_text) do
+    # spec_text is formatted like "  @spec foo(arg) :: return\n".
+    # Extract the return portion after "::".
+    case Regex.run(~r/::\s*(.+)\n\z/, spec_text) do
+      [_, return_type] -> String.trim(return_type)
+      _ -> nil
+    end
+  end
+
+  defp fallback_placeholder_by_name(function_name) when is_atom(function_name) do
+    name = Atom.to_string(function_name)
+
+    cond do
+      String.ends_with?(name, "?") ->
+        "false"
+
+      String.starts_with?(name, "list_") ->
+        "[]"
+
+      String.starts_with?(name, "count_") ->
+        "0"
+
+      String.starts_with?(name, "get_") or String.starts_with?(name, "find_") ->
+        "nil"
+
+      String.starts_with?(name, "update_") or String.starts_with?(name, "create_") or
+        String.starts_with?(name, "delete_") or String.starts_with?(name, "upsert_") ->
+        "{:ok, nil}"
+
+      true ->
+        "nil"
+    end
+  end
+
+  defp dt_placeholder_expr, do: "~U[1970-01-01 00:00:00Z]"
+
+  defp user_placeholder_expr do
+    dt = dt_placeholder_expr()
+
+    "%GameServer.Accounts.User{id: 0, email: \"\", display_name: nil, metadata: %{}, is_admin: false, inserted_at: #{dt}, updated_at: #{dt}}"
+  end
+
+  defp lobby_placeholder_expr do
+    dt = dt_placeholder_expr()
+
+    "%GameServer.Lobbies.Lobby{id: 0, name: \"\", title: \"\", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: #{dt}, updated_at: #{dt}}"
+  end
+
+  defp leaderboard_placeholder_expr do
+    dt = dt_placeholder_expr()
+
+    "%GameServer.Leaderboards.Leaderboard{id: 0, slug: \"\", title: \"\", description: nil, sort_order: :desc, operator: :set, starts_at: nil, ends_at: nil, metadata: %{}, inserted_at: #{dt}, updated_at: #{dt}}"
+  end
+
+  defp record_placeholder_expr do
+    dt = dt_placeholder_expr()
+
+    "%GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, score: 0, rank: nil, metadata: %{}, inserted_at: #{dt}, updated_at: #{dt}}"
+  end
+
+  defp friendship_placeholder_expr do
+    dt = dt_placeholder_expr()
+
+    "%GameServer.Friends.Friendship{id: 0, requester_id: 0, target_id: 0, requester: nil, target: nil, status: \"pending\", inserted_at: #{dt}, updated_at: #{dt}}"
   end
 
   defp build_function_docs_by_name(function_docs) do

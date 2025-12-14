@@ -568,6 +568,8 @@ defmodule GameServer.Accounts do
   Attach a device_id to an existing user record. Returns {:ok, user} or
   {:error, changeset} if the device_id is already used.
   """
+  @spec attach_device_to_user(User.t(), String.t()) ::
+          {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def attach_device_to_user(%User{} = user, device_id) when is_binary(device_id) do
     user
     |> User.attach_device_changeset(%{device_id: device_id})

@@ -276,7 +276,21 @@ defmodule GameServer.Hooks do
   """
   @spec caller() :: any() | nil
   def caller do
-    raise "#{__MODULE__}.caller/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        %GameServer.Accounts.User{
+          id: 0,
+          email: "",
+          display_name: nil,
+          metadata: %{},
+          is_admin: false,
+          inserted_at: ~U[1970-01-01 00:00:00Z],
+          updated_at: ~U[1970-01-01 00:00:00Z]
+        }
+
+      _ ->
+        raise "#{__MODULE__}.caller/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
   @doc """
@@ -289,7 +303,10 @@ defmodule GameServer.Hooks do
   """
   @spec caller_id() :: integer() | nil
   def caller_id do
-    raise "#{__MODULE__}.caller_id/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder -> 0
+      _ -> raise "#{__MODULE__}.caller_id/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
   @doc """
@@ -303,6 +320,20 @@ defmodule GameServer.Hooks do
   """
   @spec caller_user() :: GameServer.Accounts.User.t() | nil
   def caller_user do
-    raise "#{__MODULE__}.caller_user/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        %GameServer.Accounts.User{
+          id: 0,
+          email: "",
+          display_name: nil,
+          metadata: %{},
+          is_admin: false,
+          inserted_at: ~U[1970-01-01 00:00:00Z],
+          updated_at: ~U[1970-01-01 00:00:00Z]
+        }
+
+      _ ->
+        raise "#{__MODULE__}.caller_user/0 is a stub - only available at runtime on GameServer"
+    end
   end
 end

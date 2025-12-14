@@ -64,7 +64,13 @@ defmodule GameServer.Schedule do
     
   """
   def cancel(_name) do
-    raise "GameServer.Schedule.cancel/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Schedule.cancel/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -81,7 +87,13 @@ defmodule GameServer.Schedule do
     
   """
   def cleanup_old_locks() do
-    raise "GameServer.Schedule.cleanup_old_locks/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Schedule.cleanup_old_locks/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -98,7 +110,13 @@ defmodule GameServer.Schedule do
     
   """
   def cleanup_old_locks(_opts) do
-    raise "GameServer.Schedule.cleanup_old_locks/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Schedule.cleanup_old_locks/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -112,7 +130,13 @@ defmodule GameServer.Schedule do
     
   """
   def cron(_name, _cron_expr, _hook_fn) do
-    raise "GameServer.Schedule.cron/3 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Schedule.cron/3 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -132,7 +156,13 @@ defmodule GameServer.Schedule do
     
   """
   def daily(_hook_fn) do
-    raise "GameServer.Schedule.daily/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Schedule.daily/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -152,7 +182,13 @@ defmodule GameServer.Schedule do
     
   """
   def daily(_hook_fn, _opts) do
-    raise "GameServer.Schedule.daily/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Schedule.daily/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -166,7 +202,13 @@ defmodule GameServer.Schedule do
     
   """
   def every_minutes(_n, _hook_fn) do
-    raise "GameServer.Schedule.every_minutes/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Schedule.every_minutes/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -184,7 +226,13 @@ defmodule GameServer.Schedule do
     
   """
   def hourly(_hook_fn) do
-    raise "GameServer.Schedule.hourly/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Schedule.hourly/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -202,7 +250,13 @@ defmodule GameServer.Schedule do
     
   """
   def hourly(_hook_fn, _opts) do
-    raise "GameServer.Schedule.hourly/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Schedule.hourly/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -213,7 +267,13 @@ defmodule GameServer.Schedule do
     
   """
   def list() do
-    raise "GameServer.Schedule.list/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Schedule.list/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -225,13 +285,25 @@ defmodule GameServer.Schedule do
   """
   @spec registered_callbacks() :: MapSet.t(atom())
   def registered_callbacks() do
-    raise "GameServer.Schedule.registered_callbacks/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Schedule.registered_callbacks/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
   @doc false
   def start_link() do
-    raise "GameServer.Schedule.start_link/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Schedule.start_link/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -251,7 +323,13 @@ defmodule GameServer.Schedule do
     
   """
   def weekly(_hook_fn) do
-    raise "GameServer.Schedule.weekly/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Schedule.weekly/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -271,7 +349,13 @@ defmodule GameServer.Schedule do
     
   """
   def weekly(_hook_fn, _opts) do
-    raise "GameServer.Schedule.weekly/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Schedule.weekly/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 end

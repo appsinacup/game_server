@@ -35,7 +35,13 @@ defmodule GameServer.Leaderboards do
     
   """
   def change_leaderboard(_leaderboard) do
-    raise "GameServer.Leaderboards.change_leaderboard/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Leaderboards.change_leaderboard/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -44,7 +50,13 @@ defmodule GameServer.Leaderboards do
     
   """
   def change_leaderboard(_leaderboard, _attrs) do
-    raise "GameServer.Leaderboards.change_leaderboard/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Leaderboards.change_leaderboard/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -53,7 +65,13 @@ defmodule GameServer.Leaderboards do
     
   """
   def change_record(_record) do
-    raise "GameServer.Leaderboards.change_record/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Leaderboards.change_record/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -62,7 +80,13 @@ defmodule GameServer.Leaderboards do
     
   """
   def change_record(_record, _attrs) do
-    raise "GameServer.Leaderboards.change_record/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Leaderboards.change_record/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -72,7 +96,13 @@ defmodule GameServer.Leaderboards do
   """
   @spec count_all_records() :: non_neg_integer()
   def count_all_records() do
-    raise "GameServer.Leaderboards.count_all_records/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Leaderboards.count_all_records/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -82,7 +112,13 @@ defmodule GameServer.Leaderboards do
   """
   @spec count_leaderboard_groups() :: non_neg_integer()
   def count_leaderboard_groups() do
-    raise "GameServer.Leaderboards.count_leaderboard_groups/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Leaderboards.count_leaderboard_groups/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -93,7 +129,13 @@ defmodule GameServer.Leaderboards do
     
   """
   def count_leaderboards() do
-    raise "GameServer.Leaderboards.count_leaderboards/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Leaderboards.count_leaderboards/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -105,7 +147,13 @@ defmodule GameServer.Leaderboards do
   """
   @spec count_leaderboards(keyword()) :: non_neg_integer()
   def count_leaderboards(_opts) do
-    raise "GameServer.Leaderboards.count_leaderboards/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Leaderboards.count_leaderboards/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -115,7 +163,13 @@ defmodule GameServer.Leaderboards do
   """
   @spec count_records(integer()) :: non_neg_integer()
   def count_records(_leaderboard_id) do
-    raise "GameServer.Leaderboards.count_records/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Leaderboards.count_records/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -138,7 +192,13 @@ defmodule GameServer.Leaderboards do
   @spec create_leaderboard(GameServer.Types.leaderboard_create_attrs()) ::
   {:ok, GameServer.Leaderboards.Leaderboard.t()} | {:error, Ecto.Changeset.t()}
   def create_leaderboard(_attrs) do
-    raise "GameServer.Leaderboards.create_leaderboard/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Leaderboards.Leaderboard{id: 0, slug: "", title: "", description: nil, sort_order: :desc, operator: :set, starts_at: nil, ends_at: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Leaderboards.create_leaderboard/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -149,7 +209,13 @@ defmodule GameServer.Leaderboards do
   @spec delete_leaderboard(GameServer.Leaderboards.Leaderboard.t()) ::
   {:ok, GameServer.Leaderboards.Leaderboard.t()} | {:error, Ecto.Changeset.t()}
   def delete_leaderboard(_leaderboard) do
-    raise "GameServer.Leaderboards.delete_leaderboard/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Leaderboards.Leaderboard{id: 0, slug: "", title: "", description: nil, sort_order: :desc, operator: :set, starts_at: nil, ends_at: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Leaderboards.delete_leaderboard/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -158,7 +224,13 @@ defmodule GameServer.Leaderboards do
     
   """
   def delete_record(_record) do
-    raise "GameServer.Leaderboards.delete_record/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, nil}
+
+      _ ->
+        raise "GameServer.Leaderboards.delete_record/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -170,7 +242,13 @@ defmodule GameServer.Leaderboards do
   @spec delete_user_record(integer() | String.t(), integer()) ::
   {:ok, GameServer.Leaderboards.Record.t()} | {:error, :not_found}
   def delete_user_record(_id_or_slug, _user_id) do
-    raise "GameServer.Leaderboards.delete_user_record/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Leaderboards.delete_user_record/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -179,7 +257,13 @@ defmodule GameServer.Leaderboards do
     
   """
   def end_leaderboard(_leaderboard) do
-    raise "GameServer.Leaderboards.end_leaderboard/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Leaderboards.end_leaderboard/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -197,7 +281,13 @@ defmodule GameServer.Leaderboards do
   """
   @spec get_active_leaderboard_by_slug(String.t()) :: GameServer.Leaderboards.Leaderboard.t() | nil
   def get_active_leaderboard_by_slug(_slug) do
-    raise "GameServer.Leaderboards.get_active_leaderboard_by_slug/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Leaderboards.get_active_leaderboard_by_slug/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -215,7 +305,13 @@ defmodule GameServer.Leaderboards do
   """
   @spec get_leaderboard(integer()) :: GameServer.Leaderboards.Leaderboard.t() | nil
   def get_leaderboard(_id) do
-    raise "GameServer.Leaderboards.get_leaderboard/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Leaderboards.get_leaderboard/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -225,7 +321,13 @@ defmodule GameServer.Leaderboards do
   """
   @spec get_leaderboard!(integer()) :: GameServer.Leaderboards.Leaderboard.t()
   def get_leaderboard!(_id) do
-    raise "GameServer.Leaderboards.get_leaderboard!/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Leaderboards.get_leaderboard!/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -235,7 +337,13 @@ defmodule GameServer.Leaderboards do
   """
   @spec get_record(integer(), integer()) :: GameServer.Leaderboards.Record.t() | nil
   def get_record(_leaderboard_id, _user_id) do
-    raise "GameServer.Leaderboards.get_record/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Leaderboards.get_record/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -247,7 +355,13 @@ defmodule GameServer.Leaderboards do
   @spec get_user_record(integer(), integer()) ::
   {:ok, GameServer.Leaderboards.Record.t()} | {:error, :not_found}
   def get_user_record(_leaderboard_id, _user_id) do
-    raise "GameServer.Leaderboards.get_user_record/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Leaderboards.get_user_record/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -264,7 +378,13 @@ defmodule GameServer.Leaderboards do
     
   """
   def list_leaderboard_groups() do
-    raise "GameServer.Leaderboards.list_leaderboard_groups/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Leaderboards.list_leaderboard_groups/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -282,7 +402,13 @@ defmodule GameServer.Leaderboards do
   """
   @spec list_leaderboard_groups(keyword()) :: [map()]
   def list_leaderboard_groups(_opts) do
-    raise "GameServer.Leaderboards.list_leaderboard_groups/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        %{}
+
+      _ ->
+        raise "GameServer.Leaderboards.list_leaderboard_groups/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -314,7 +440,13 @@ defmodule GameServer.Leaderboards do
     
   """
   def list_leaderboards() do
-    raise "GameServer.Leaderboards.list_leaderboards/0 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Leaderboards.list_leaderboards/0 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -347,7 +479,13 @@ defmodule GameServer.Leaderboards do
   """
   @spec list_leaderboards(keyword()) :: [GameServer.Leaderboards.Leaderboard.t()]
   def list_leaderboards(_opts) do
-    raise "GameServer.Leaderboards.list_leaderboards/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Leaderboards.list_leaderboards/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -356,7 +494,13 @@ defmodule GameServer.Leaderboards do
     
   """
   def list_leaderboards_by_slug(_slug) do
-    raise "GameServer.Leaderboards.list_leaderboards_by_slug/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Leaderboards.list_leaderboards_by_slug/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -369,7 +513,13 @@ defmodule GameServer.Leaderboards do
   keyword()
 ) :: [GameServer.Leaderboards.Leaderboard.t()]
   def list_leaderboards_by_slug(_slug, _opts) do
-    raise "GameServer.Leaderboards.list_leaderboards_by_slug/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Leaderboards.list_leaderboards_by_slug/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -384,7 +534,13 @@ defmodule GameServer.Leaderboards do
     
   """
   def list_records(_leaderboard_id) do
-    raise "GameServer.Leaderboards.list_records/1 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Leaderboards.list_records/1 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -402,7 +558,13 @@ defmodule GameServer.Leaderboards do
   GameServer.Leaderboards.Record.t()
 ]
   def list_records(_leaderboard_id, _opts) do
-    raise "GameServer.Leaderboards.list_records/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Leaderboards.list_records/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -417,7 +579,13 @@ defmodule GameServer.Leaderboards do
     
   """
   def list_records_around_user(_leaderboard_id, _user_id) do
-    raise "GameServer.Leaderboards.list_records_around_user/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Leaderboards.list_records_around_user/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -433,7 +601,13 @@ defmodule GameServer.Leaderboards do
   """
   @spec list_records_around_user(integer(), integer(), keyword()) :: [GameServer.Leaderboards.Record.t()]
   def list_records_around_user(_leaderboard_id, _user_id, _opts) do
-    raise "GameServer.Leaderboards.list_records_around_user/3 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Leaderboards.list_records_around_user/3 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -463,7 +637,13 @@ defmodule GameServer.Leaderboards do
     
   """
   def submit_score(_leaderboard_id, _user_id, _score) do
-    raise "GameServer.Leaderboards.submit_score/3 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Leaderboards.submit_score/3 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -495,7 +675,13 @@ defmodule GameServer.Leaderboards do
   @spec submit_score(integer(), integer(), integer(), map()) ::
   {:ok, GameServer.Leaderboards.Record.t()} | {:error, term()}
   def submit_score(_leaderboard_id, _user_id, _score, _metadata) do
-    raise "GameServer.Leaderboards.submit_score/4 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Leaderboards.submit_score/4 is a stub - only available at runtime on GameServer"
+    end
   end
 
 
@@ -514,7 +700,13 @@ defmodule GameServer.Leaderboards do
   GameServer.Types.leaderboard_update_attrs()
 ) :: {:ok, GameServer.Leaderboards.Leaderboard.t()} | {:error, Ecto.Changeset.t()}
   def update_leaderboard(_leaderboard, _attrs) do
-    raise "GameServer.Leaderboards.update_leaderboard/2 is a stub - only available at runtime on GameServer"
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Leaderboards.Leaderboard{id: 0, slug: "", title: "", description: nil, sort_order: :desc, operator: :set, starts_at: nil, ends_at: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Leaderboards.update_leaderboard/2 is a stub - only available at runtime on GameServer"
+    end
   end
 
 end
