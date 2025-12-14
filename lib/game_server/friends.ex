@@ -42,6 +42,36 @@ defmodule GameServer.Friends do
 
   @type user_id :: integer()
 
+  @doc """
+  Best-effort cache invalidation for user deletion.
+
+  Friendships are defined with `on_delete: :delete_all` foreign keys, so deleting
+  a user cascades and removes friendship rows at the DB layer. Because those
+  deletes do not go through the Friends context, we need an explicit invalidation
+  hook to avoid serving stale cached friend lists / friendship lookups.
+
+  Call this *before* deleting the user.
+  """
+  @spec invalidate_for_user_deletion(user_id()) :: :ok
+  def invalidate_for_user_deletion(user_id) when is_integer(user_id) do
+    rows =
+      Repo.all(
+        from f in Friendship,
+          where: f.requester_id == ^user_id or f.target_id == ^user_id,
+          select: {f.id, f.requester_id, f.target_id}
+      )
+
+    Enum.each(rows, fn {friendship_id, requester_id, target_id} ->
+      _ = invalidate_friendship_cache(friendship_id)
+      _ = invalidate_friends_cache_pair(requester_id, target_id)
+    end)
+
+    # Even if there were no rows, bump the user's version so list caches for
+    # that user won't be served after deletion.
+    _ = invalidate_friends_cache(user_id)
+    :ok
+  end
+
   defp friends_cache_version(user_id) when is_integer(user_id) do
     GameServer.Cache.get({:friends, :version, user_id}) || 1
   end

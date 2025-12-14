@@ -1446,6 +1446,7 @@ defmodule GameServer.Accounts do
   Returns `{:ok, user}` on success or `{:error, changeset}` on failure.
   """
   alias GameServer.Lobbies
+  alias GameServer.Friends
 
   @spec delete_user(User.t()) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def delete_user(%User{} = user) do
@@ -1456,6 +1457,10 @@ defmodule GameServer.Accounts do
     rescue
       _ -> :ok
     end
+
+    # Friendships are deleted via DB cascade; invalidate cached friend lists / lookups
+    # before deleting so we can still query affected rows.
+    _ = Friends.invalidate_for_user_deletion(user.id)
 
     case Repo.delete(user) do
       {:ok, _user} = ok ->
