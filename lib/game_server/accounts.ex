@@ -51,6 +51,7 @@ defmodule GameServer.Accounts do
 
   See `t:GameServer.Types.pagination_opts/0` for available options.
   """
+  @spec search_users(String.t()) :: [User.t()]
   @spec search_users(String.t(), Types.pagination_opts()) :: [User.t()]
   def search_users(query, opts \\ []) when is_binary(query) do
     q = String.trim(query)
@@ -91,6 +92,7 @@ defmodule GameServer.Accounts do
   @doc """
   Count users matching a text query (email or display_name). Returns integer.
   """
+  @spec count_search_users(String.t()) :: non_neg_integer()
   def count_search_users(query) when is_binary(query) do
     q = String.trim(query)
 
@@ -194,6 +196,7 @@ defmodule GameServer.Accounts do
       nil
 
   """
+  @spec get_user_by_email_and_password(String.t(), String.t()) :: User.t() | nil
   def get_user_by_email_and_password(email, password)
       when is_binary(email) and is_binary(password) do
     user = Repo.get_by(User, email: String.downcase(email))
@@ -284,6 +287,13 @@ defmodule GameServer.Accounts do
   If sending the confirmation email fails the transaction is rolled back and
   `{:error, reason}` is returned. On success it returns `{:ok, user}`.
   """
+  @spec register_user_and_deliver(Types.user_registration_attrs(), (String.t() -> String.t())) ::
+          {:ok, User.t()} | {:error, Ecto.Changeset.t() | term()}
+  @spec register_user_and_deliver(
+          Types.user_registration_attrs(),
+          (String.t() -> String.t()),
+          module()
+        ) :: {:ok, User.t()} | {:error, Ecto.Changeset.t() | term()}
   def register_user_and_deliver(
         attrs,
         confirmation_url_fun,
@@ -355,6 +365,7 @@ defmodule GameServer.Accounts do
       {:ok, %User{}}
 
   """
+  @spec confirm_user(User.t()) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def confirm_user(user) do
     user
     |> User.confirm_changeset()
@@ -367,6 +378,7 @@ defmodule GameServer.Accounts do
   Returns {:ok, user} when the token is valid and user was confirmed.
   Returns {:error, :not_found} or {:error, :expired} when token is invalid/expired.
   """
+  @spec confirm_user_by_token(String.t()) :: {:ok, User.t()} | {:error, :invalid | :not_found}
   def confirm_user_by_token(token) when is_binary(token) do
     case Base.url_decode64(token, padding: false) do
       {:ok, decoded} ->
@@ -411,6 +423,8 @@ defmodule GameServer.Accounts do
       {:ok, %User{}}
 
   """
+  @spec find_or_create_from_discord(map()) ::
+          {:ok, User.t()} | {:error, Ecto.Changeset.t() | term()}
   def find_or_create_from_discord(attrs) do
     find_or_create_from_oauth(
       attrs,
@@ -428,6 +442,8 @@ defmodule GameServer.Accounts do
       {:ok, %User{}}
 
   """
+  @spec find_or_create_from_apple(map()) ::
+          {:ok, User.t()} | {:error, Ecto.Changeset.t() | term()}
   def find_or_create_from_apple(attrs) do
     find_or_create_from_oauth(
       attrs,
@@ -445,6 +461,8 @@ defmodule GameServer.Accounts do
       {:ok, %User{}}
 
   """
+  @spec find_or_create_from_google(map()) ::
+          {:ok, User.t()} | {:error, Ecto.Changeset.t() | term()}
   def find_or_create_from_google(attrs) do
     find_or_create_from_oauth(
       attrs,
@@ -462,6 +480,8 @@ defmodule GameServer.Accounts do
       {:ok, %User{}}
 
   """
+  @spec find_or_create_from_facebook(map()) ::
+          {:ok, User.t()} | {:error, Ecto.Changeset.t() | term()}
   def find_or_create_from_facebook(attrs) do
     find_or_create_from_oauth(
       attrs,
@@ -479,6 +499,8 @@ defmodule GameServer.Accounts do
       {:ok, %User{}}
 
   """
+  @spec find_or_create_from_steam(map()) ::
+          {:ok, User.t()} | {:error, Ecto.Changeset.t() | term()}
   def find_or_create_from_steam(attrs) do
     find_or_create_from_oauth(
       attrs,
@@ -492,6 +514,7 @@ defmodule GameServer.Accounts do
 
   Returns `%User{}` or `nil`.
   """
+  @spec get_user_by_steam_id(String.t()) :: User.t() | nil
   def get_user_by_steam_id(steam_id) when is_binary(steam_id) do
     Repo.get_by(User, steam_id: steam_id)
   end
@@ -501,6 +524,7 @@ defmodule GameServer.Accounts do
 
   Returns `%User{}` or `nil`.
   """
+  @spec get_user_by_google_id(String.t()) :: User.t() | nil
   def get_user_by_google_id(google_id) when is_binary(google_id) do
     Repo.get_by(User, google_id: google_id)
   end
@@ -510,6 +534,7 @@ defmodule GameServer.Accounts do
 
   Returns `%User{}` or `nil`.
   """
+  @spec get_user_by_apple_id(String.t()) :: User.t() | nil
   def get_user_by_apple_id(apple_id) when is_binary(apple_id) do
     Repo.get_by(User, apple_id: apple_id)
   end
@@ -519,6 +544,7 @@ defmodule GameServer.Accounts do
 
   Returns `%User{}` or `nil`.
   """
+  @spec get_user_by_discord_id(String.t()) :: User.t() | nil
   def get_user_by_discord_id(discord_id) when is_binary(discord_id) do
     Repo.get_by(User, discord_id: discord_id)
   end
@@ -528,6 +554,7 @@ defmodule GameServer.Accounts do
 
   Returns `%User{}` or `nil`.
   """
+  @spec get_user_by_facebook_id(String.t()) :: User.t() | nil
   def get_user_by_facebook_id(facebook_id) when is_binary(facebook_id) do
     Repo.get_by(User, facebook_id: facebook_id)
   end
@@ -538,6 +565,10 @@ defmodule GameServer.Accounts do
   If a user already exists with the device_id we return it. Otherwise we
   create an anonymous confirmed user and attach the device_id.
   """
+  @spec find_or_create_from_device(String.t()) ::
+          {:ok, User.t()} | {:error, :disabled | Ecto.Changeset.t() | term()}
+  @spec find_or_create_from_device(String.t(), map()) ::
+          {:ok, User.t()} | {:error, :disabled | Ecto.Changeset.t() | term()}
   def find_or_create_from_device(device_id, attrs \\ %{}) when is_binary(device_id) do
     unless device_auth_enabled?(), do: {:error, :disabled}
 
@@ -582,6 +613,7 @@ defmodule GameServer.Accounts do
   to the environment variable `DEVICE_AUTH_ENABLED`. If neither
   is set, device auth is enabled by default.
   """
+  @spec device_auth_enabled?() :: boolean()
   def device_auth_enabled? do
     case Application.get_env(:game_server, :device_auth_enabled) do
       nil ->
@@ -729,6 +761,8 @@ defmodule GameServer.Accounts do
 
   Example: link_account(user, %{discord_id: "123", profile_url: "https://..."}, :discord_id, &User.discord_oauth_changeset/2)
   """
+  @spec link_account(User.t(), map(), atom(), (User.t(), map() -> Ecto.Changeset.t())) ::
+          {:ok, User.t()} | {:error, Ecto.Changeset.t() | {:conflict, User.t()}}
   def link_account(%User{} = user, attrs, provider_id_field, changeset_fn) do
     attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
 
@@ -772,6 +806,7 @@ defmodule GameServer.Accounts do
   Returns {:ok, user} on success or {:error, changeset} if the device_id
   is already used by another account.
   """
+  @spec link_device_id(User.t(), String.t()) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def link_device_id(%User{} = user, device_id) when is_binary(device_id) do
     changeset = User.attach_device_changeset(user, %{device_id: device_id})
 
@@ -795,6 +830,8 @@ defmodule GameServer.Accounts do
   one authentication method remaining (OAuth provider or password).
   This prevents users losing all login methods unexpectedly.
   """
+  @spec unlink_device_id(User.t()) ::
+          {:ok, User.t()} | {:error, :last_auth_method | Ecto.Changeset.t()}
   def unlink_device_id(%User{} = user) do
     # If device_id is already nil, just return success
     if user.device_id in [nil, ""] do
@@ -841,6 +878,8 @@ defmodule GameServer.Accounts do
   one other social provider remaining. This prevents users losing all
   social logins unexpectedly.
   """
+  @spec unlink_provider(User.t(), :discord | :apple | :google | :facebook | :steam) ::
+          {:ok, User.t()} | {:error, :last_provider | Ecto.Changeset.t() | term()}
   def unlink_provider(%User{} = user, provider)
       when provider in [:discord, :apple, :google, :facebook, :steam] do
     provider_field = provider_field(provider)
@@ -898,6 +937,8 @@ defmodule GameServer.Accounts do
   The user is in sudo mode when the last authentication was done no further
   than 20 minutes ago. The limit can be given as second argument in minutes.
   """
+  @spec sudo_mode?(User.t()) :: boolean()
+  @spec sudo_mode?(User.t(), integer()) :: boolean()
   def sudo_mode?(user, minutes \\ -20)
 
   def sudo_mode?(%User{authenticated_at: ts}, minutes) when is_struct(ts, DateTime) do
@@ -917,6 +958,9 @@ defmodule GameServer.Accounts do
       %Ecto.Changeset{data: %User{}}
 
   """
+  @spec change_user_email(User.t()) :: Ecto.Changeset.t()
+  @spec change_user_email(User.t(), map()) :: Ecto.Changeset.t()
+  @spec change_user_email(User.t(), map(), keyword()) :: Ecto.Changeset.t()
   def change_user_email(user, attrs \\ %{}, opts \\ []) do
     User.email_changeset(user, attrs, opts)
   end
@@ -926,6 +970,8 @@ defmodule GameServer.Accounts do
 
   If the token matches, the user email is updated and the token is deleted.
   """
+  @spec update_user_email(User.t(), String.t()) ::
+          {:ok, User.t()} | {:error, :transaction_aborted}
   def update_user_email(user, token) do
     context = "change:#{user.email}"
 
@@ -953,6 +999,9 @@ defmodule GameServer.Accounts do
       %Ecto.Changeset{data: %User{}}
 
   """
+  @spec change_user_password(User.t()) :: Ecto.Changeset.t()
+  @spec change_user_password(User.t(), map()) :: Ecto.Changeset.t()
+  @spec change_user_password(User.t(), map(), keyword()) :: Ecto.Changeset.t()
   def change_user_password(user, attrs \\ %{}, opts \\ []) do
     User.password_changeset(user, attrs, opts)
   end
@@ -971,6 +1020,8 @@ defmodule GameServer.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec update_user_password(User.t(), map()) ::
+          {:ok, {User.t(), [UserToken.t()]}} | {:error, Ecto.Changeset.t()}
   def update_user_password(user, attrs) do
     user
     |> User.password_changeset(attrs)
@@ -982,6 +1033,7 @@ defmodule GameServer.Accounts do
   @doc """
   Generates a session token.
   """
+  @spec generate_user_session_token(User.t()) :: binary()
   def generate_user_session_token(user) do
     {token, user_token} = UserToken.build_session_token(user)
     Repo.insert!(user_token)
@@ -993,6 +1045,7 @@ defmodule GameServer.Accounts do
 
   If the token is valid `{user, token_inserted_at}` is returned, otherwise `nil` is returned.
   """
+  @spec get_user_by_session_token(binary()) :: {User.t(), DateTime.t()} | nil
   def get_user_by_session_token(token) do
     {:ok, query} = UserToken.verify_session_token_query(token)
     Repo.one(query)
@@ -1001,6 +1054,7 @@ defmodule GameServer.Accounts do
   @doc """
   Gets the user with the given magic link token.
   """
+  @spec get_user_by_magic_link_token(String.t()) :: User.t() | nil
   def get_user_by_magic_link_token(token) do
     with {:ok, query} <- UserToken.verify_magic_link_token_query(token),
          {user, _token} <- Repo.one(query) do
@@ -1028,6 +1082,8 @@ defmodule GameServer.Accounts do
      source of security pitfalls. See the "Mixing magic link and password registration" section of
      `mix help phx.gen.auth`.
   """
+  @spec login_user_by_magic_link(String.t()) ::
+          {:ok, {User.t(), [UserToken.t()]}} | {:error, :not_found | Ecto.Changeset.t() | term()}
   def login_user_by_magic_link(token) do
     {:ok, query} = UserToken.verify_magic_link_token_query(token)
 
@@ -1080,6 +1136,11 @@ defmodule GameServer.Accounts do
       {:ok, %{to: ..., body: ...}}
 
   """
+  @spec deliver_user_update_email_instructions(
+          User.t(),
+          String.t(),
+          (String.t() -> String.t())
+        ) :: {:ok, Swoosh.Email.t()} | {:error, term()}
   def deliver_user_update_email_instructions(%User{} = user, current_email, update_email_url_fun)
       when is_function(update_email_url_fun, 1) do
     {encoded_token, user_token} = UserToken.build_email_token(user, "change:#{current_email}")
@@ -1091,6 +1152,8 @@ defmodule GameServer.Accounts do
   @doc """
   Delivers the magic link login instructions to the given user.
   """
+  @spec deliver_login_instructions(User.t(), (String.t() -> String.t())) ::
+          {:ok, Swoosh.Email.t()} | {:error, term()}
   def deliver_login_instructions(%User{} = user, magic_link_url_fun)
       when is_function(magic_link_url_fun, 1) do
     {encoded_token, user_token} = UserToken.build_email_token(user, "login")
@@ -1101,6 +1164,7 @@ defmodule GameServer.Accounts do
   @doc """
   Deletes the signed token with the given context.
   """
+  @spec delete_user_session_token(binary()) :: :ok
   def delete_user_session_token(token) do
     Repo.delete_all(from(UserToken, where: [token: ^token, context: "session"]))
     :ok
@@ -1113,6 +1177,7 @@ defmodule GameServer.Accounts do
   """
   alias GameServer.Lobbies
 
+  @spec delete_user(User.t()) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def delete_user(%User{} = user) do
     # Best-effort: try to remove the user from any lobby they may belong to,
     # then delete the user regardless of hook checks (hooks for deletion were removed).
@@ -1153,6 +1218,7 @@ defmodule GameServer.Accounts do
   This helper is intentionally small and only broadcasts a compact payload
   intended for client consumption through the `user:<id>` topic.
   """
+  @spec broadcast_user_update(User.t()) :: :ok
   def broadcast_user_update(%User{} = user) do
     payload = %{
       id: user.id,
@@ -1173,6 +1239,14 @@ defmodule GameServer.Accounts do
 
   Each provider is a boolean indicating whether that provider is linked.
   """
+  @spec get_linked_providers(User.t()) :: %{
+          google: boolean(),
+          facebook: boolean(),
+          discord: boolean(),
+          apple: boolean(),
+          steam: boolean(),
+          device: boolean()
+        }
   def get_linked_providers(%User{} = user) do
     %{
       google: user.google_id != nil,
@@ -1187,6 +1261,7 @@ defmodule GameServer.Accounts do
   @doc """
   Returns whether the user has a password set.
   """
+  @spec has_password?(User.t()) :: boolean()
   def has_password?(%User{} = user) do
     user.hashed_password != nil
   end
@@ -1194,6 +1269,8 @@ defmodule GameServer.Accounts do
   @doc """
   Returns an `%Ecto.Changeset{}` for changing the user display_name.
   """
+  @spec change_user_display_name(User.t()) :: Ecto.Changeset.t()
+  @spec change_user_display_name(User.t(), map()) :: Ecto.Changeset.t()
   def change_user_display_name(user, attrs \\ %{}) do
     User.display_name_changeset(user, attrs)
   end
@@ -1201,6 +1278,8 @@ defmodule GameServer.Accounts do
   @doc """
   Updates the user's display name and broadcasts the change.
   """
+  @spec update_user_display_name(User.t(), map()) ::
+          {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def update_user_display_name(%User{} = user, attrs) do
     case User.display_name_changeset(user, attrs) |> Repo.update() do
       {:ok, updated} = ok ->
@@ -1246,10 +1325,14 @@ defmodule GameServer.Accounts do
     end
   end
 
+  @spec change_user_registration(User.t()) :: Ecto.Changeset.t()
+  @spec change_user_registration(User.t(), map()) :: Ecto.Changeset.t()
   def change_user_registration(%User{} = user, attrs \\ %{}) do
     User.registration_changeset(user, attrs, [])
   end
 
+  @spec deliver_user_confirmation_instructions(User.t(), (String.t() -> String.t())) ::
+          {:ok, Swoosh.Email.t()} | {:error, :already_confirmed | term()}
   def deliver_user_confirmation_instructions(%User{} = user, confirmation_url_fun)
       when is_function(confirmation_url_fun, 1) do
     if user.confirmed_at do

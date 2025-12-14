@@ -26,10 +26,12 @@ defmodule GameServer.Accounts do
     {:error, changeset} if the device_id is already used.
     
   """
+  @spec attach_device_to_user(GameServer.Accounts.User.t(), String.t()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, Ecto.Changeset.t()}
   def attach_device_to_user(_user, _device_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Accounts.attach_device_to_user/2 is a stub - only available at runtime on GameServer"
@@ -44,10 +46,11 @@ defmodule GameServer.Accounts do
     intended for client consumption through the `user:<id>` topic.
     
   """
+  @spec broadcast_user_update(GameServer.Accounts.User.t()) :: :ok
   def broadcast_user_update(_user) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        :ok
 
       _ ->
         raise "GameServer.Accounts.broadcast_user_update/1 is a stub - only available at runtime on GameServer"
@@ -59,6 +62,7 @@ defmodule GameServer.Accounts do
     Returns an `%Ecto.Changeset{}` for changing the user display_name.
     
   """
+  @spec change_user_display_name(GameServer.Accounts.User.t()) :: Ecto.Changeset.t()
   def change_user_display_name(_user) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -74,6 +78,7 @@ defmodule GameServer.Accounts do
     Returns an `%Ecto.Changeset{}` for changing the user display_name.
     
   """
+  @spec change_user_display_name(GameServer.Accounts.User.t(), map()) :: Ecto.Changeset.t()
   def change_user_display_name(_user, _attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -97,6 +102,7 @@ defmodule GameServer.Accounts do
     
     
   """
+  @spec change_user_email(GameServer.Accounts.User.t()) :: Ecto.Changeset.t()
   def change_user_email(_user) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -120,6 +126,7 @@ defmodule GameServer.Accounts do
     
     
   """
+  @spec change_user_email(GameServer.Accounts.User.t(), map()) :: Ecto.Changeset.t()
   def change_user_email(_user, _attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -143,6 +150,7 @@ defmodule GameServer.Accounts do
     
     
   """
+  @spec change_user_email(GameServer.Accounts.User.t(), map(), keyword()) :: Ecto.Changeset.t()
   def change_user_email(_user, _attrs, _opts) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -166,6 +174,7 @@ defmodule GameServer.Accounts do
     
     
   """
+  @spec change_user_password(GameServer.Accounts.User.t()) :: Ecto.Changeset.t()
   def change_user_password(_user) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -189,6 +198,7 @@ defmodule GameServer.Accounts do
     
     
   """
+  @spec change_user_password(GameServer.Accounts.User.t(), map()) :: Ecto.Changeset.t()
   def change_user_password(_user, _attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -212,6 +222,7 @@ defmodule GameServer.Accounts do
     
     
   """
+  @spec change_user_password(GameServer.Accounts.User.t(), map(), keyword()) :: Ecto.Changeset.t()
   def change_user_password(_user, _attrs, _opts) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -224,6 +235,7 @@ defmodule GameServer.Accounts do
 
 
   @doc false
+  @spec change_user_registration(GameServer.Accounts.User.t()) :: Ecto.Changeset.t()
   def change_user_registration(_user) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -236,6 +248,7 @@ defmodule GameServer.Accounts do
 
 
   @doc false
+  @spec change_user_registration(GameServer.Accounts.User.t(), map()) :: Ecto.Changeset.t()
   def change_user_registration(_user, _attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -257,10 +270,12 @@ defmodule GameServer.Accounts do
     
     
   """
+  @spec confirm_user(GameServer.Accounts.User.t()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, Ecto.Changeset.t()}
   def confirm_user(_user) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Accounts.confirm_user/1 is a stub - only available at runtime on GameServer"
@@ -275,10 +290,12 @@ defmodule GameServer.Accounts do
     Returns {:error, :not_found} or {:error, :expired} when token is invalid/expired.
     
   """
+  @spec confirm_user_by_token(String.t()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, :invalid | :not_found}
   def confirm_user_by_token(_token) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Accounts.confirm_user_by_token/1 is a stub - only available at runtime on GameServer"
@@ -290,6 +307,7 @@ defmodule GameServer.Accounts do
     Count users matching a text query (email or display_name). Returns integer.
     
   """
+  @spec count_search_users(String.t()) :: non_neg_integer()
   def count_search_users(_query) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -388,10 +406,12 @@ defmodule GameServer.Accounts do
     Returns `{:ok, user}` on success or `{:error, changeset}` on failure.
     
   """
+  @spec delete_user(GameServer.Accounts.User.t()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, Ecto.Changeset.t()}
   def delete_user(_user) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, nil}
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Accounts.delete_user/1 is a stub - only available at runtime on GameServer"
@@ -403,10 +423,11 @@ defmodule GameServer.Accounts do
     Deletes the signed token with the given context.
     
   """
+  @spec delete_user_session_token(binary()) :: :ok
   def delete_user_session_token(_token) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, nil}
+        :ok
 
       _ ->
         raise "GameServer.Accounts.delete_user_session_token/1 is a stub - only available at runtime on GameServer"
@@ -418,10 +439,12 @@ defmodule GameServer.Accounts do
     Delivers the magic link login instructions to the given user.
     
   """
+  @spec deliver_login_instructions(GameServer.Accounts.User.t(), (String.t() -> String.t())) ::
+  {:ok, Swoosh.Email.t()} | {:error, term()}
   def deliver_login_instructions(_user, _magic_link_url_fun) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, nil}
 
       _ ->
         raise "GameServer.Accounts.deliver_login_instructions/2 is a stub - only available at runtime on GameServer"
@@ -430,10 +453,12 @@ defmodule GameServer.Accounts do
 
 
   @doc false
+  @spec deliver_user_confirmation_instructions(GameServer.Accounts.User.t(), (String.t() -> String.t())) ::
+  {:ok, Swoosh.Email.t()} | {:error, :already_confirmed | term()}
   def deliver_user_confirmation_instructions(_user, _confirmation_url_fun) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, nil}
 
       _ ->
         raise "GameServer.Accounts.deliver_user_confirmation_instructions/2 is a stub - only available at runtime on GameServer"
@@ -451,10 +476,15 @@ defmodule GameServer.Accounts do
     
     
   """
+  @spec deliver_user_update_email_instructions(
+  GameServer.Accounts.User.t(),
+  String.t(),
+  (String.t() -> String.t())
+) :: {:ok, Swoosh.Email.t()} | {:error, term()}
   def deliver_user_update_email_instructions(_user, _current_email, _update_email_url_fun) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, nil}
 
       _ ->
         raise "GameServer.Accounts.deliver_user_update_email_instructions/3 is a stub - only available at runtime on GameServer"
@@ -469,6 +499,7 @@ defmodule GameServer.Accounts do
     is set, device auth is enabled by default.
     
   """
+  @spec device_auth_enabled?() :: boolean()
   def device_auth_enabled?() do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -490,10 +521,12 @@ defmodule GameServer.Accounts do
     
     
   """
+  @spec find_or_create_from_apple(map()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, Ecto.Changeset.t() | term()}
   def find_or_create_from_apple(_attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Accounts.find_or_create_from_apple/1 is a stub - only available at runtime on GameServer"
@@ -508,10 +541,12 @@ defmodule GameServer.Accounts do
     create an anonymous confirmed user and attach the device_id.
     
   """
+  @spec find_or_create_from_device(String.t()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, :disabled | Ecto.Changeset.t() | term()}
   def find_or_create_from_device(_device_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Accounts.find_or_create_from_device/1 is a stub - only available at runtime on GameServer"
@@ -526,10 +561,12 @@ defmodule GameServer.Accounts do
     create an anonymous confirmed user and attach the device_id.
     
   """
+  @spec find_or_create_from_device(String.t(), map()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, :disabled | Ecto.Changeset.t() | term()}
   def find_or_create_from_device(_device_id, _attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Accounts.find_or_create_from_device/2 is a stub - only available at runtime on GameServer"
@@ -547,10 +584,12 @@ defmodule GameServer.Accounts do
     
     
   """
+  @spec find_or_create_from_discord(map()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, Ecto.Changeset.t() | term()}
   def find_or_create_from_discord(_attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Accounts.find_or_create_from_discord/1 is a stub - only available at runtime on GameServer"
@@ -568,10 +607,12 @@ defmodule GameServer.Accounts do
     
     
   """
+  @spec find_or_create_from_facebook(map()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, Ecto.Changeset.t() | term()}
   def find_or_create_from_facebook(_attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Accounts.find_or_create_from_facebook/1 is a stub - only available at runtime on GameServer"
@@ -589,10 +630,12 @@ defmodule GameServer.Accounts do
     
     
   """
+  @spec find_or_create_from_google(map()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, Ecto.Changeset.t() | term()}
   def find_or_create_from_google(_attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Accounts.find_or_create_from_google/1 is a stub - only available at runtime on GameServer"
@@ -610,10 +653,12 @@ defmodule GameServer.Accounts do
     
     
   """
+  @spec find_or_create_from_steam(map()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, Ecto.Changeset.t() | term()}
   def find_or_create_from_steam(_attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Accounts.find_or_create_from_steam/1 is a stub - only available at runtime on GameServer"
@@ -625,6 +670,7 @@ defmodule GameServer.Accounts do
     Generates a session token.
     
   """
+  @spec generate_user_session_token(GameServer.Accounts.User.t()) :: binary()
   def generate_user_session_token(_user) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -642,6 +688,14 @@ defmodule GameServer.Accounts do
     Each provider is a boolean indicating whether that provider is linked.
     
   """
+  @spec get_linked_providers(GameServer.Accounts.User.t()) :: %{
+  google: boolean(),
+  facebook: boolean(),
+  discord: boolean(),
+  apple: boolean(),
+  steam: boolean(),
+  device: boolean()
+}
   def get_linked_providers(_user) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -713,6 +767,7 @@ defmodule GameServer.Accounts do
     Returns `%User{}` or `nil`.
     
   """
+  @spec get_user_by_apple_id(String.t()) :: GameServer.Accounts.User.t() | nil
   def get_user_by_apple_id(_apple_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -730,6 +785,7 @@ defmodule GameServer.Accounts do
     Returns `%User{}` or `nil`.
     
   """
+  @spec get_user_by_discord_id(String.t()) :: GameServer.Accounts.User.t() | nil
   def get_user_by_discord_id(_discord_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -779,6 +835,7 @@ defmodule GameServer.Accounts do
     
     
   """
+  @spec get_user_by_email_and_password(String.t(), String.t()) :: GameServer.Accounts.User.t() | nil
   def get_user_by_email_and_password(_email, _password) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -796,6 +853,7 @@ defmodule GameServer.Accounts do
     Returns `%User{}` or `nil`.
     
   """
+  @spec get_user_by_facebook_id(String.t()) :: GameServer.Accounts.User.t() | nil
   def get_user_by_facebook_id(_facebook_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -813,6 +871,7 @@ defmodule GameServer.Accounts do
     Returns `%User{}` or `nil`.
     
   """
+  @spec get_user_by_google_id(String.t()) :: GameServer.Accounts.User.t() | nil
   def get_user_by_google_id(_google_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -828,6 +887,7 @@ defmodule GameServer.Accounts do
     Gets the user with the given magic link token.
     
   """
+  @spec get_user_by_magic_link_token(String.t()) :: GameServer.Accounts.User.t() | nil
   def get_user_by_magic_link_token(_token) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -845,6 +905,7 @@ defmodule GameServer.Accounts do
     If the token is valid `{user, token_inserted_at}` is returned, otherwise `nil` is returned.
     
   """
+  @spec get_user_by_session_token(binary()) :: {GameServer.Accounts.User.t(), DateTime.t()} | nil
   def get_user_by_session_token(_token) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -862,6 +923,7 @@ defmodule GameServer.Accounts do
     Returns `%User{}` or `nil`.
     
   """
+  @spec get_user_by_steam_id(String.t()) :: GameServer.Accounts.User.t() | nil
   def get_user_by_steam_id(_steam_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -877,6 +939,7 @@ defmodule GameServer.Accounts do
     Returns whether the user has a password set.
     
   """
+  @spec has_password?(GameServer.Accounts.User.t()) :: boolean()
   def has_password?(_user) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -896,6 +959,10 @@ defmodule GameServer.Accounts do
     Example: link_account(user, %{discord_id: "123", profile_url: "https://..."}, :discord_id, &User.discord_oauth_changeset/2)
     
   """
+  @spec link_account(GameServer.Accounts.User.t(), map(), atom(), (GameServer.Accounts.User.t(), map() ->
+                                                             Ecto.Changeset.t())) ::
+  {:ok, GameServer.Accounts.User.t()}
+  | {:error, Ecto.Changeset.t() | {:conflict, GameServer.Accounts.User.t()}}
   def link_account(_user, _attrs, _provider_id_field, _changeset_fn) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -915,10 +982,12 @@ defmodule GameServer.Accounts do
     is already used by another account.
     
   """
+  @spec link_device_id(GameServer.Accounts.User.t(), String.t()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, Ecto.Changeset.t()}
   def link_device_id(_user, _device_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Accounts.link_device_id/2 is a stub - only available at runtime on GameServer"
@@ -945,6 +1014,9 @@ defmodule GameServer.Accounts do
        `mix help phx.gen.auth`.
     
   """
+  @spec login_user_by_magic_link(String.t()) ::
+  {:ok, {GameServer.Accounts.User.t(), [GameServer.Accounts.UserToken.t()]}}
+  | {:error, :not_found | Ecto.Changeset.t() | term()}
   def login_user_by_magic_link(_token) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -996,10 +1068,12 @@ defmodule GameServer.Accounts do
     `{:error, reason}` is returned. On success it returns `{:ok, user}`.
     
   """
+  @spec register_user_and_deliver(GameServer.Types.user_registration_attrs(), (String.t() -> String.t())) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, Ecto.Changeset.t() | term()}
   def register_user_and_deliver(_attrs, _confirmation_url_fun) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Accounts.register_user_and_deliver/2 is a stub - only available at runtime on GameServer"
@@ -1017,10 +1091,15 @@ defmodule GameServer.Accounts do
     `{:error, reason}` is returned. On success it returns `{:ok, user}`.
     
   """
+  @spec register_user_and_deliver(
+  GameServer.Types.user_registration_attrs(),
+  (String.t() -> String.t()),
+  module()
+) :: {:ok, GameServer.Accounts.User.t()} | {:error, Ecto.Changeset.t() | term()}
   def register_user_and_deliver(_attrs, _confirmation_url_fun, _notifier) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Accounts.register_user_and_deliver/3 is a stub - only available at runtime on GameServer"
@@ -1038,10 +1117,11 @@ defmodule GameServer.Accounts do
     See `t:GameServer.Types.pagination_opts/0` for available options.
     
   """
+  @spec search_users(String.t()) :: [GameServer.Accounts.User.t()]
   def search_users(_query) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        []
 
       _ ->
         raise "GameServer.Accounts.search_users/1 is a stub - only available at runtime on GameServer"
@@ -1078,6 +1158,7 @@ defmodule GameServer.Accounts do
     than 20 minutes ago. The limit can be given as second argument in minutes.
     
   """
+  @spec sudo_mode?(GameServer.Accounts.User.t()) :: boolean()
   def sudo_mode?(_user) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -1096,6 +1177,7 @@ defmodule GameServer.Accounts do
     than 20 minutes ago. The limit can be given as second argument in minutes.
     
   """
+  @spec sudo_mode?(GameServer.Accounts.User.t(), integer()) :: boolean()
   def sudo_mode?(_user, _minutes) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -1117,10 +1199,12 @@ defmodule GameServer.Accounts do
     This prevents users losing all login methods unexpectedly.
     
   """
+  @spec unlink_device_id(GameServer.Accounts.User.t()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, :last_auth_method | Ecto.Changeset.t()}
   def unlink_device_id(_user) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Accounts.unlink_device_id/1 is a stub - only available at runtime on GameServer"
@@ -1139,10 +1223,12 @@ defmodule GameServer.Accounts do
     social logins unexpectedly.
     
   """
+  @spec unlink_provider(GameServer.Accounts.User.t(), :discord | :apple | :google | :facebook | :steam) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, :last_provider | Ecto.Changeset.t() | term()}
   def unlink_provider(_user, _provider) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Accounts.unlink_provider/2 is a stub - only available at runtime on GameServer"
@@ -1188,10 +1274,12 @@ defmodule GameServer.Accounts do
     Updates the user's display name and broadcasts the change.
     
   """
+  @spec update_user_display_name(GameServer.Accounts.User.t(), map()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, Ecto.Changeset.t()}
   def update_user_display_name(_user, _attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, nil}
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Accounts.update_user_display_name/2 is a stub - only available at runtime on GameServer"
@@ -1205,10 +1293,12 @@ defmodule GameServer.Accounts do
     If the token matches, the user email is updated and the token is deleted.
     
   """
+  @spec update_user_email(GameServer.Accounts.User.t(), String.t()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, :transaction_aborted}
   def update_user_email(_user, _token) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, nil}
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Accounts.update_user_email/2 is a stub - only available at runtime on GameServer"
@@ -1231,6 +1321,9 @@ defmodule GameServer.Accounts do
     
     
   """
+  @spec update_user_password(GameServer.Accounts.User.t(), map()) ::
+  {:ok, {GameServer.Accounts.User.t(), [GameServer.Accounts.UserToken.t()]}}
+  | {:error, Ecto.Changeset.t()}
   def update_user_password(_user, _attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->

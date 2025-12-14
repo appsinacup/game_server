@@ -49,6 +49,8 @@ defmodule GameServer.Lobbies do
     Check if a user can edit a lobby (is host or lobby is hostless).
     
   """
+  @spec can_edit_lobby?(GameServer.Accounts.User.t() | nil, GameServer.Lobbies.Lobby.t() | nil) ::
+  boolean()
   def can_edit_lobby?(_user, _lobby) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -65,6 +67,8 @@ defmodule GameServer.Lobbies do
     Users can view any lobby they can see in the list.
     
   """
+  @spec can_view_lobby?(GameServer.Accounts.User.t() | nil, GameServer.Lobbies.Lobby.t() | nil) ::
+  boolean()
   def can_view_lobby?(_user, _lobby) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -77,6 +81,7 @@ defmodule GameServer.Lobbies do
 
 
   @doc false
+  @spec change_lobby(GameServer.Lobbies.Lobby.t()) :: Ecto.Changeset.t()
   def change_lobby(_lobby) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -89,6 +94,7 @@ defmodule GameServer.Lobbies do
 
 
   @doc false
+  @spec change_lobby(GameServer.Lobbies.Lobby.t(), map()) :: Ecto.Changeset.t()
   def change_lobby(_lobby, _attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -136,6 +142,7 @@ defmodule GameServer.Lobbies do
     Count ALL lobbies matching filters. For admin pagination.
     
   """
+  @spec count_list_all_lobbies() :: non_neg_integer()
   def count_list_all_lobbies() do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -151,6 +158,7 @@ defmodule GameServer.Lobbies do
     Count ALL lobbies matching filters. For admin pagination.
     
   """
+  @spec count_list_all_lobbies(map()) :: non_neg_integer()
   def count_list_all_lobbies(_filters) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -165,6 +173,7 @@ defmodule GameServer.Lobbies do
   @doc ~S"""
     Count lobbies matching filters (excludes hidden ones unless admin list used). If metadata filters are supplied, they will be applied after fetching.
   """
+  @spec count_list_lobbies() :: non_neg_integer()
   def count_list_lobbies() do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -179,6 +188,7 @@ defmodule GameServer.Lobbies do
   @doc ~S"""
     Count lobbies matching filters (excludes hidden ones unless admin list used). If metadata filters are supplied, they will be applied after fetching.
   """
+  @spec count_list_lobbies(map()) :: non_neg_integer()
   def count_list_lobbies(_filters) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -230,10 +240,11 @@ defmodule GameServer.Lobbies do
     See `t:GameServer.Types.lobby_create_attrs/0` for available fields.
     
   """
+  @spec create_lobby() :: {:ok, GameServer.Lobbies.Lobby.t()} | {:error, Ecto.Changeset.t() | term()}
   def create_lobby() do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, nil}
+        {:ok, %GameServer.Lobbies.Lobby{id: 0, name: "", title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Lobbies.create_lobby/0 is a stub - only available at runtime on GameServer"
@@ -263,10 +274,12 @@ defmodule GameServer.Lobbies do
 
 
   @doc false
+  @spec create_membership(%{lobby_id: integer(), user_id: integer()}) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, :not_found | Ecto.Changeset.t() | term()}
   def create_membership(_attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, nil}
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Lobbies.create_membership/1 is a stub - only available at runtime on GameServer"
@@ -289,10 +302,12 @@ defmodule GameServer.Lobbies do
 
 
   @doc false
+  @spec delete_membership(GameServer.Accounts.User.t()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, Ecto.Changeset.t()}
   def delete_membership(_user) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, nil}
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Lobbies.delete_membership/1 is a stub - only available at runtime on GameServer"
@@ -356,10 +371,12 @@ defmodule GameServer.Lobbies do
 
 
   @doc false
+  @spec join_lobby(GameServer.Accounts.User.t(), GameServer.Lobbies.Lobby.t() | integer() | String.t()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, term()}
   def join_lobby(_user, _lobby) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Lobbies.join_lobby/2 is a stub - only available at runtime on GameServer"
@@ -430,6 +447,7 @@ defmodule GameServer.Lobbies do
     }
     
   """
+  @spec list_all_lobbies() :: [GameServer.Lobbies.Lobby.t()]
   def list_all_lobbies() do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -453,6 +471,7 @@ defmodule GameServer.Lobbies do
     }
     
   """
+  @spec list_all_lobbies(map()) :: [GameServer.Lobbies.Lobby.t()]
   def list_all_lobbies(_filters) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -476,6 +495,7 @@ defmodule GameServer.Lobbies do
     }
     
   """
+  @spec list_all_lobbies(map(), GameServer.Types.pagination_opts()) :: [GameServer.Lobbies.Lobby.t()]
   def list_all_lobbies(_filters, _opts) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -505,6 +525,7 @@ defmodule GameServer.Lobbies do
     See `t:GameServer.Types.lobby_list_opts/0` for available options.
     
   """
+  @spec list_lobbies() :: [GameServer.Lobbies.Lobby.t()]
   def list_lobbies() do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -534,6 +555,7 @@ defmodule GameServer.Lobbies do
     See `t:GameServer.Types.lobby_list_opts/0` for available options.
     
   """
+  @spec list_lobbies(map()) :: [GameServer.Lobbies.Lobby.t()]
   def list_lobbies(_filters) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -580,6 +602,7 @@ defmodule GameServer.Lobbies do
     Includes the user's own lobby even if it's hidden.
     
   """
+  @spec list_lobbies_for_user(GameServer.Accounts.User.t() | nil) :: [GameServer.Lobbies.Lobby.t()]
   def list_lobbies_for_user(_user) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -596,6 +619,7 @@ defmodule GameServer.Lobbies do
     Includes the user's own lobby even if it's hidden.
     
   """
+  @spec list_lobbies_for_user(GameServer.Accounts.User.t() | nil, map()) :: [GameServer.Lobbies.Lobby.t()]
   def list_lobbies_for_user(_user, _filters) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -612,6 +636,11 @@ defmodule GameServer.Lobbies do
     Includes the user's own lobby even if it's hidden.
     
   """
+  @spec list_lobbies_for_user(
+  GameServer.Accounts.User.t() | nil,
+  map(),
+  GameServer.Types.lobby_list_opts()
+) :: [GameServer.Lobbies.Lobby.t()]
   def list_lobbies_for_user(_user, _filters, _opts) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -624,6 +653,7 @@ defmodule GameServer.Lobbies do
 
 
   @doc false
+  @spec list_memberships_for_lobby(integer() | String.t()) :: [GameServer.Accounts.User.t()]
   def list_memberships_for_lobby(_lobby_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -646,10 +676,12 @@ defmodule GameServer.Lobbies do
     - Propagates errors from join or create flows
     
   """
+  @spec quick_join(GameServer.Accounts.User.t()) ::
+  {:ok, GameServer.Lobbies.Lobby.t()} | {:error, :already_in_lobby | Ecto.Changeset.t() | term()}
   def quick_join(_user) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, %GameServer.Lobbies.Lobby{id: 0, name: "", title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Lobbies.quick_join/1 is a stub - only available at runtime on GameServer"
@@ -668,10 +700,12 @@ defmodule GameServer.Lobbies do
     - Propagates errors from join or create flows
     
   """
+  @spec quick_join(GameServer.Accounts.User.t(), String.t() | nil) ::
+  {:ok, GameServer.Lobbies.Lobby.t()} | {:error, :already_in_lobby | Ecto.Changeset.t() | term()}
   def quick_join(_user, _title) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, %GameServer.Lobbies.Lobby{id: 0, name: "", title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Lobbies.quick_join/2 is a stub - only available at runtime on GameServer"
@@ -690,10 +724,12 @@ defmodule GameServer.Lobbies do
     - Propagates errors from join or create flows
     
   """
+  @spec quick_join(GameServer.Accounts.User.t(), String.t() | nil, integer() | nil) ::
+  {:ok, GameServer.Lobbies.Lobby.t()} | {:error, :already_in_lobby | Ecto.Changeset.t() | term()}
   def quick_join(_user, _title, _max_users) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, %GameServer.Lobbies.Lobby{id: 0, name: "", title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Lobbies.quick_join/3 is a stub - only available at runtime on GameServer"
@@ -712,10 +748,12 @@ defmodule GameServer.Lobbies do
     - Propagates errors from join or create flows
     
   """
+  @spec quick_join(GameServer.Accounts.User.t(), String.t() | nil, integer() | nil, map()) ::
+  {:ok, GameServer.Lobbies.Lobby.t()} | {:error, :already_in_lobby | Ecto.Changeset.t() | term()}
   def quick_join(_user, _title, _max_users, _metadata) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, %GameServer.Lobbies.Lobby{id: 0, name: "", title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Lobbies.quick_join/4 is a stub - only available at runtime on GameServer"
@@ -759,10 +797,11 @@ defmodule GameServer.Lobbies do
     Unsubscribe from a specific lobby's events.
     
   """
+  @spec unsubscribe_lobby(integer()) :: :ok
   def unsubscribe_lobby(_lobby_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        :ok
 
       _ ->
         raise "GameServer.Lobbies.unsubscribe_lobby/1 is a stub - only available at runtime on GameServer"
@@ -792,6 +831,13 @@ defmodule GameServer.Lobbies do
 
 
   @doc false
+  @spec update_lobby_by_host(
+  GameServer.Accounts.User.t(),
+  GameServer.Lobbies.Lobby.t(),
+  GameServer.Types.lobby_update_attrs()
+) ::
+  {:ok, GameServer.Lobbies.Lobby.t()}
+  | {:error, :not_host | :too_small | Ecto.Changeset.t() | term()}
   def update_lobby_by_host(_user, _lobby, _attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->

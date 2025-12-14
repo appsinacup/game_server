@@ -35,10 +35,15 @@ defmodule GameServer.Friends do
   alias GameServer.Repo
   alias GameServer.Types
   @friends_topic "friends"
+
+  @type user_id :: integer()
+
+  @spec subscribe_user(user_id()) :: :ok
   def subscribe_user(user_id) when is_integer(user_id) do
     Phoenix.PubSub.subscribe(GameServer.PubSub, "friends:user:#{user_id}")
   end
 
+  @spec unsubscribe_user(user_id()) :: :ok
   def unsubscribe_user(user_id) when is_integer(user_id) do
     Phoenix.PubSub.unsubscribe(GameServer.PubSub, "friends:user:#{user_id}")
   end
@@ -74,7 +79,10 @@ defmodule GameServer.Friends do
   If a reverse pending request exists (target -> requester) it will be accepted instead.
   Returns {:ok, friendship} on success or {:error, reason}.
   "
-  @spec create_request(User.t() | integer(), integer()) :: {:ok, Friendship.t()} | {:error, any()}
+  @spec create_request(User.t() | user_id(), user_id()) ::
+          {:ok, Friendship.t()}
+          | {:error,
+             :cannot_friend_self | :blocked | :already_friends | :already_requested | term()}
   def create_request(%User{id: requester_id}, target_id),
     do: create_request(requester_id, target_id)
 
@@ -202,6 +210,8 @@ defmodule GameServer.Friends do
   end
 
   @doc "Cancel an outgoing friend request (only the requester may cancel)."
+  @spec cancel_request(integer(), User.t()) ::
+          {:ok, :cancelled} | {:error, :not_found | :not_authorized | term()}
   def cancel_request(friendship_id, %User{id: user_id}) when is_integer(friendship_id) do
     with %Friendship{} = f <- Repo.get(Friendship, friendship_id),
          true <- f.requester_id == user_id,
@@ -269,6 +279,8 @@ defmodule GameServer.Friends do
   end
 
   @doc "List blocked friendships for a user (Friendship structs where the user is the blocker / target)."
+  @spec list_blocked_for_user(user_id() | User.t()) :: [Friendship.t()]
+  @spec list_blocked_for_user(user_id() | User.t(), Types.pagination_opts()) :: [Friendship.t()]
   def list_blocked_for_user(user_id, opts \\ [])
   def list_blocked_for_user(%User{id: id}, opts), do: list_blocked_for_user(id, opts)
 
@@ -287,6 +299,7 @@ defmodule GameServer.Friends do
   end
 
   @doc "Count blocked friendships for a user (number of blocked rows where user is target)."
+  @spec count_blocked_for_user(user_id() | User.t()) :: non_neg_integer()
   def count_blocked_for_user(%User{id: id}), do: count_blocked_for_user(id)
 
   def count_blocked_for_user(user_id) when is_integer(user_id) do
@@ -324,6 +337,7 @@ defmodule GameServer.Friends do
 
   See `t:GameServer.Types.pagination_opts/0` for available options.
   """
+  @spec list_friends_for_user(integer() | User.t()) :: [User.t()]
   @spec list_friends_for_user(integer() | User.t(), Types.pagination_opts()) :: [User.t()]
   def list_friends_for_user(user_id, opts \\ [])
   def list_friends_for_user(%User{id: id}, opts), do: list_friends_for_user(id, opts)
@@ -359,6 +373,7 @@ defmodule GameServer.Friends do
   end
 
   @doc "Count accepted friends for a given user (distinct other user ids)."
+  @spec count_friends_for_user(user_id() | User.t()) :: non_neg_integer()
   def count_friends_for_user(%User{id: id}), do: count_friends_for_user(id)
 
   def count_friends_for_user(user_id) when is_integer(user_id) do
@@ -384,6 +399,7 @@ defmodule GameServer.Friends do
 
   See `t:GameServer.Types.pagination_opts/0` for available options.
   """
+  @spec list_incoming_requests(integer() | User.t()) :: [Friendship.t()]
   @spec list_incoming_requests(integer() | User.t(), Types.pagination_opts()) :: [Friendship.t()]
   def list_incoming_requests(user_id, opts \\ [])
   def list_incoming_requests(%User{id: id}, opts), do: list_incoming_requests(id, opts)
@@ -403,6 +419,7 @@ defmodule GameServer.Friends do
   end
 
   @doc "Count incoming pending friend requests for a user."
+  @spec count_incoming_requests(user_id() | User.t()) :: non_neg_integer()
   def count_incoming_requests(%User{id: id}), do: count_incoming_requests(id)
 
   def count_incoming_requests(user_id) when is_integer(user_id) do
@@ -420,6 +437,7 @@ defmodule GameServer.Friends do
 
   See `t:GameServer.Types.pagination_opts/0` for available options.
   """
+  @spec list_outgoing_requests(integer() | User.t()) :: [Friendship.t()]
   @spec list_outgoing_requests(integer() | User.t(), Types.pagination_opts()) :: [Friendship.t()]
   def list_outgoing_requests(user_id, opts \\ [])
   def list_outgoing_requests(%User{id: id}, opts), do: list_outgoing_requests(id, opts)
@@ -439,6 +457,7 @@ defmodule GameServer.Friends do
   end
 
   @doc "Count outgoing pending friend requests for a user."
+  @spec count_outgoing_requests(user_id() | User.t()) :: non_neg_integer()
   def count_outgoing_requests(%User{id: id}), do: count_outgoing_requests(id)
 
   def count_outgoing_requests(user_id) when is_integer(user_id) do
@@ -450,9 +469,11 @@ defmodule GameServer.Friends do
   end
 
   @doc "Get friendship by id"
+  @spec get_friendship!(integer()) :: Friendship.t()
   def get_friendship!(id), do: Repo.get!(Friendship, id)
 
   @doc "Get friendship between two users (ordered requester->target) if exists"
+  @spec get_by_pair(user_id(), user_id()) :: Friendship.t() | nil
   def get_by_pair(requester_id, target_id) do
     Repo.get_by(Friendship, requester_id: requester_id, target_id: target_id)
   end

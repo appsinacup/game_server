@@ -155,7 +155,8 @@ defmodule Mix.Tasks.Gen.Sdk do
           end
       end
 
-    spec_text = find_spec_text(function_name, arity, specs)
+    spec_text_raw = find_spec_text(function_name, arity, specs)
+    spec_text = ensure_spec_text(module_name, function_name, arity, spec_text_raw)
     return_expr = stub_return_expression(function_name, spec_text)
 
     arg_names =
@@ -190,79 +191,98 @@ defmodule Mix.Tasks.Gen.Sdk do
     """
   end
 
+  defp ensure_spec_text(module_name, function_name, arity, spec_text)
+       when is_binary(module_name) and is_atom(function_name) and is_integer(arity) do
+    if is_binary(spec_text) and spec_text != "" do
+      spec_text
+    else
+      raise "Missing @spec for #{module_name}.#{function_name}/#{arity}. Add a correct typespec in the server module before generating the SDK."
+    end
+  end
+
   defp stub_return_expression(function_name, spec_text)
        when is_atom(function_name) and is_binary(spec_text) do
     return_type = extract_spec_return_type(spec_text)
-
-    cond do
-      is_binary(return_type) and String.contains?(return_type, "| nil") ->
-        "nil"
-
-      is_binary(return_type) and
-          String.contains?(return_type, "{:ok, GameServer.Accounts.User.t()}") ->
-        "{:ok, #{user_placeholder_expr()}}"
-
-      is_binary(return_type) and
-          String.contains?(return_type, "{:ok, GameServer.Lobbies.Lobby.t()}") ->
-        "{:ok, #{lobby_placeholder_expr()}}"
-
-      is_binary(return_type) and
-          String.contains?(return_type, "{:ok, GameServer.Leaderboards.Leaderboard.t()}") ->
-        "{:ok, #{leaderboard_placeholder_expr()}}"
-
-      is_binary(return_type) and
-          String.contains?(return_type, "{:ok, GameServer.Leaderboards.Record.t()}") ->
-        "{:ok, #{record_placeholder_expr()}}"
-
-      is_binary(return_type) and
-          String.contains?(return_type, "{:ok, GameServer.Friends.Friendship.t()}") ->
-        "{:ok, #{friendship_placeholder_expr()}}"
-
-      is_binary(return_type) and
-        String.contains?(return_type, "GameServer.Friends.Friendship.t()") and
-        not String.contains?(return_type, "list(") and not String.contains?(return_type, "[") ->
-        friendship_placeholder_expr()
-
-      is_binary(return_type) and String.contains?(return_type, "{:ok,") ->
-        # Best-effort generic ok tuple for result-returning functions.
-        "{:ok, nil}"
-
-      is_binary(return_type) and String.contains?(return_type, "hook_result(") ->
-        "{:ok, nil}"
-
-      is_binary(return_type) and String.contains?(return_type, "boolean()") ->
-        "false"
-
-      is_binary(return_type) and String.contains?(return_type, "integer()") ->
-        "0"
-
-      is_binary(return_type) and String.contains?(return_type, "String.t()") ->
-        "\"\""
-
-      is_binary(return_type) and
-          (String.contains?(return_type, "map()") or String.contains?(return_type, "%{")) ->
-        "%{}"
-
-      is_binary(return_type) and
-          (String.contains?(return_type, "keyword()") or
-             String.contains?(return_type, "Keyword.t()")) ->
-        "[]"
-
-      is_binary(return_type) and
-          (String.contains?(return_type, "list(") or String.contains?(return_type, "[") or
-             String.contains?(return_type, "List.t()")) ->
-        "[]"
-
-      is_binary(return_type) and String.contains?(return_type, ":ok") ->
-        ":ok"
-
-      true ->
-        fallback_placeholder_by_name(function_name)
-    end
+    placeholder_expr_for_return_type(return_type) || fallback_placeholder_by_name(function_name)
   end
 
   defp stub_return_expression(function_name, _spec_text) when is_atom(function_name) do
     fallback_placeholder_by_name(function_name)
+  end
+
+  defp placeholder_expr_for_return_type(return_type) when is_binary(return_type) do
+    placeholder_expr_for_named_types(return_type) ||
+      placeholder_expr_for_generics(return_type) ||
+      placeholder_expr_for_primitives(return_type)
+  end
+
+  defp placeholder_expr_for_return_type(_), do: nil
+
+  defp placeholder_expr_for_named_types(return_type) when is_binary(return_type) do
+    rules = [
+      {fn rt -> String.contains?(rt, "| nil") end, "nil"},
+      {fn rt -> String.contains?(rt, "{:ok, GameServer.Accounts.User.t()}") end,
+       "{:ok, #{user_placeholder_expr()}}"},
+      {fn rt -> String.contains?(rt, "{:ok, GameServer.Lobbies.Lobby.t()}") end,
+       "{:ok, #{lobby_placeholder_expr()}}"},
+      {fn rt -> String.contains?(rt, "{:ok, GameServer.Leaderboards.Leaderboard.t()}") end,
+       "{:ok, #{leaderboard_placeholder_expr()}}"},
+      {fn rt -> String.contains?(rt, "{:ok, GameServer.Leaderboards.Record.t()}") end,
+       "{:ok, #{record_placeholder_expr()}}"},
+      {fn rt -> String.contains?(rt, "{:ok, GameServer.Friends.Friendship.t()}") end,
+       "{:ok, #{friendship_placeholder_expr()}}"},
+      {fn rt -> friendship_struct_return?(rt) end, friendship_placeholder_expr()}
+    ]
+
+    Enum.find_value(rules, fn {pred, expr} -> if pred.(return_type), do: expr, else: nil end)
+  end
+
+  defp friendship_struct_return?(return_type) when is_binary(return_type) do
+    String.contains?(return_type, "GameServer.Friends.Friendship.t()") and
+      not String.contains?(return_type, "list(") and
+      not String.contains?(return_type, "[")
+  end
+
+  defp placeholder_expr_for_generics(return_type) when is_binary(return_type) do
+    cond do
+      String.contains?(return_type, "hook_result(") ->
+        "{:ok, nil}"
+
+      String.contains?(return_type, "{:ok,") ->
+        "{:ok, nil}"
+
+      true ->
+        nil
+    end
+  end
+
+  defp placeholder_expr_for_primitives(return_type) when is_binary(return_type) do
+    cond do
+      String.contains?(return_type, "boolean()") ->
+        "false"
+
+      String.contains?(return_type, "integer()") ->
+        "0"
+
+      String.contains?(return_type, "String.t()") ->
+        "\"\""
+
+      String.contains?(return_type, ":ok") ->
+        ":ok"
+
+      String.contains?(return_type, "map()") or String.contains?(return_type, "%{") ->
+        "%{}"
+
+      String.contains?(return_type, "keyword()") or String.contains?(return_type, "Keyword.t()") ->
+        "[]"
+
+      String.contains?(return_type, "list(") or String.contains?(return_type, "[") or
+          String.contains?(return_type, "List.t()") ->
+        "[]"
+
+      true ->
+        nil
+    end
   end
 
   defp extract_spec_return_type(spec_text) when is_binary(spec_text) do

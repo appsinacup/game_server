@@ -63,10 +63,11 @@ defmodule GameServer.Schedule do
         Schedule.cancel(:my_job)
     
   """
+  @spec cancel(atom()) :: :ok
   def cancel(_name) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        :ok
 
       _ ->
         raise "GameServer.Schedule.cancel/1 is a stub - only available at runtime on GameServer"
@@ -86,10 +87,11 @@ defmodule GameServer.Schedule do
         Schedule.cleanup_old_locks(days: 30)
     
   """
+  @spec cleanup_old_locks() :: {:ok, non_neg_integer()}
   def cleanup_old_locks() do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, nil}
 
       _ ->
         raise "GameServer.Schedule.cleanup_old_locks/0 is a stub - only available at runtime on GameServer"
@@ -109,10 +111,11 @@ defmodule GameServer.Schedule do
         Schedule.cleanup_old_locks(days: 30)
     
   """
+  @spec cleanup_old_locks(schedule_opts()) :: {:ok, non_neg_integer()}
   def cleanup_old_locks(_opts) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, nil}
 
       _ ->
         raise "GameServer.Schedule.cleanup_old_locks/1 is a stub - only available at runtime on GameServer"
@@ -129,10 +132,11 @@ defmodule GameServer.Schedule do
         Schedule.cron(:weekdays, "0 9 * * 1-5", :on_weekday_morning)
     
   """
+  @spec cron(atom(), String.t(), atom()) :: :ok | {:error, term()}
   def cron(_name, _cron_expr, _hook_fn) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        :ok
 
       _ ->
         raise "GameServer.Schedule.cron/3 is a stub - only available at runtime on GameServer"
@@ -155,10 +159,11 @@ defmodule GameServer.Schedule do
         Schedule.daily(:on_evening, hour: 18, minute: 30)
     
   """
+  @spec daily(atom()) :: :ok | {:error, term()}
   def daily(_hook_fn) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        :ok
 
       _ ->
         raise "GameServer.Schedule.daily/1 is a stub - only available at runtime on GameServer"
@@ -181,10 +186,11 @@ defmodule GameServer.Schedule do
         Schedule.daily(:on_evening, hour: 18, minute: 30)
     
   """
+  @spec daily(atom(), hour: 0..23, minute: 0..59) :: :ok | {:error, term()}
   def daily(_hook_fn, _opts) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        :ok
 
       _ ->
         raise "GameServer.Schedule.daily/2 is a stub - only available at runtime on GameServer"
@@ -201,10 +207,11 @@ defmodule GameServer.Schedule do
         Schedule.every_minutes(15, :on_15m)
     
   """
+  @spec every_minutes(pos_integer(), atom()) :: :ok | {:error, term()}
   def every_minutes(_n, _hook_fn) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        :ok
 
       _ ->
         raise "GameServer.Schedule.every_minutes/2 is a stub - only available at runtime on GameServer"
@@ -225,10 +232,11 @@ defmodule GameServer.Schedule do
         Schedule.hourly(:on_half_hour, minute: 30)
     
   """
+  @spec hourly(atom()) :: :ok | {:error, term()}
   def hourly(_hook_fn) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        :ok
 
       _ ->
         raise "GameServer.Schedule.hourly/1 is a stub - only available at runtime on GameServer"
@@ -249,10 +257,11 @@ defmodule GameServer.Schedule do
         Schedule.hourly(:on_half_hour, minute: 30)
     
   """
+  @spec hourly(atom(), [{:minute, 0..59}]) :: :ok | {:error, term()}
   def hourly(_hook_fn, _opts) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        :ok
 
       _ ->
         raise "GameServer.Schedule.hourly/2 is a stub - only available at runtime on GameServer"
@@ -266,10 +275,11 @@ defmodule GameServer.Schedule do
     Returns a list of job info maps.
     
   """
+  @spec list() :: [%{name: atom(), schedule: String.t(), state: term()}]
   def list() do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        ""
 
       _ ->
         raise "GameServer.Schedule.list/0 is a stub - only available at runtime on GameServer"
@@ -296,6 +306,7 @@ defmodule GameServer.Schedule do
 
 
   @doc false
+  @spec start_link() :: :ignore
   def start_link() do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -322,10 +333,11 @@ defmodule GameServer.Schedule do
         Schedule.weekly(:on_monday_morning, day: :monday, hour: 9)
     
   """
+  @spec weekly(atom()) :: :ok | {:error, term()}
   def weekly(_hook_fn) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        :ok
 
       _ ->
         raise "GameServer.Schedule.weekly/1 is a stub - only available at runtime on GameServer"
@@ -348,10 +360,11 @@ defmodule GameServer.Schedule do
         Schedule.weekly(:on_monday_morning, day: :monday, hour: 9)
     
   """
+  @spec weekly(atom(), day: atom(), hour: 0..23, minute: 0..59) :: :ok | {:error, term()}
   def weekly(_hook_fn, _opts) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        :ok
 
       _ ->
         raise "GameServer.Schedule.weekly/2 is a stub - only available at runtime on GameServer"

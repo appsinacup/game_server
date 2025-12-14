@@ -62,7 +62,11 @@ defmodule GameServer.Schedule do
   # ETS table to track registered scheduled callbacks
   @callbacks_table :schedule_callbacks
 
+  @typedoc false
+  @type schedule_opts :: keyword()
+
   @doc false
+  @spec start_link() :: :ignore
   def start_link do
     # Create ETS table to track registered callbacks
     # Format: {job_name, hook_fn}
@@ -117,6 +121,7 @@ defmodule GameServer.Schedule do
       Schedule.cron(:my_job, "*/15 * * * *", :on_every_15m)
       Schedule.cron(:weekdays, "0 9 * * 1-5", :on_weekday_morning)
   """
+  @spec cron(atom(), String.t(), atom()) :: :ok | {:error, term()}
   def cron(name, cron_expr, hook_fn) when is_atom(name) and is_atom(hook_fn) do
     case Parser.parse(cron_expr) do
       {:ok, schedule} ->
@@ -149,6 +154,7 @@ defmodule GameServer.Schedule do
       Schedule.every_minutes(5, :on_5m)
       Schedule.every_minutes(15, :on_15m)
   """
+  @spec every_minutes(pos_integer(), atom()) :: :ok | {:error, term()}
   def every_minutes(n, hook_fn) when is_integer(n) and n > 0 and is_atom(hook_fn) do
     cron(hook_fn, "*/#{n} * * * *", hook_fn)
   end
@@ -165,6 +171,8 @@ defmodule GameServer.Schedule do
       Schedule.hourly(:on_hourly)
       Schedule.hourly(:on_half_hour, minute: 30)
   """
+  @spec hourly(atom()) :: :ok | {:error, term()}
+  @spec hourly(atom(), minute: 0..59) :: :ok | {:error, term()}
   def hourly(hook_fn, opts \\ []) when is_atom(hook_fn) do
     minute = Keyword.get(opts, :minute, 0)
     cron(hook_fn, "#{minute} * * * *", hook_fn)
@@ -184,6 +192,8 @@ defmodule GameServer.Schedule do
       Schedule.daily(:on_morning, hour: 9)
       Schedule.daily(:on_evening, hour: 18, minute: 30)
   """
+  @spec daily(atom()) :: :ok | {:error, term()}
+  @spec daily(atom(), hour: 0..23, minute: 0..59) :: :ok | {:error, term()}
   def daily(hook_fn, opts \\ []) when is_atom(hook_fn) do
     hour = Keyword.get(opts, :hour, 0)
     minute = Keyword.get(opts, :minute, 0)
@@ -204,6 +214,8 @@ defmodule GameServer.Schedule do
       Schedule.weekly(:on_sunday)
       Schedule.weekly(:on_monday_morning, day: :monday, hour: 9)
   """
+  @spec weekly(atom()) :: :ok | {:error, term()}
+  @spec weekly(atom(), day: atom(), hour: 0..23, minute: 0..59) :: :ok | {:error, term()}
   def weekly(hook_fn, opts \\ []) when is_atom(hook_fn) do
     day = Keyword.get(opts, :day, :sunday)
     hour = Keyword.get(opts, :hour, 0)
@@ -219,6 +231,7 @@ defmodule GameServer.Schedule do
 
       Schedule.cancel(:my_job)
   """
+  @spec cancel(atom()) :: :ok
   def cancel(name) when is_atom(name) do
     Scheduler.delete_job(name)
     unregister_callback(name)
@@ -231,6 +244,7 @@ defmodule GameServer.Schedule do
 
   Returns a list of job info maps.
   """
+  @spec list() :: [%{name: atom(), schedule: String.t(), state: term()}]
   def list do
     Scheduler.jobs()
     |> Enum.map(fn {name, job} ->
@@ -253,6 +267,8 @@ defmodule GameServer.Schedule do
       Schedule.cleanup_old_locks()
       Schedule.cleanup_old_locks(days: 30)
   """
+  @spec cleanup_old_locks() :: {:ok, non_neg_integer()}
+  @spec cleanup_old_locks(schedule_opts()) :: {:ok, non_neg_integer()}
   def cleanup_old_locks(opts \\ []) do
     days = Keyword.get(opts, :days, 7)
     cutoff = DateTime.utc_now() |> DateTime.add(-days * 24 * 60 * 60, :second)

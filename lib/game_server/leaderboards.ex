@@ -97,9 +97,13 @@ defmodule GameServer.Leaderboards do
       iex> get_leaderboard(999)
       nil
   """
-  @spec get_leaderboard(integer()) :: Leaderboard.t() | nil
+  @spec get_leaderboard(integer() | String.t()) :: Leaderboard.t() | nil
   def get_leaderboard(id) when is_integer(id) do
     Repo.get(Leaderboard, id)
+  end
+
+  def get_leaderboard(slug) when is_binary(slug) do
+    get_active_leaderboard_by_slug(slug)
   end
 
   @doc """
@@ -146,6 +150,7 @@ defmodule GameServer.Leaderboards do
   - `:latest_id` - ID of the most recent leaderboard
   - `:season_count` - total number of leaderboards with this slug
   """
+  @spec list_leaderboard_groups() :: [map()]
   @spec list_leaderboard_groups(keyword()) :: [map()]
   def list_leaderboard_groups(opts \\ []) do
     page = Keyword.get(opts, :page, 1)
@@ -221,6 +226,7 @@ defmodule GameServer.Leaderboards do
   @doc """
   Lists all leaderboards with the given slug (all seasons), ordered by end date.
   """
+  @spec list_leaderboards_by_slug(String.t()) :: [Leaderboard.t()]
   @spec list_leaderboards_by_slug(String.t(), keyword()) :: [Leaderboard.t()]
   def list_leaderboards_by_slug(slug, opts \\ []) when is_binary(slug) do
     opts
@@ -255,6 +261,7 @@ defmodule GameServer.Leaderboards do
       iex> list_leaderboards(starts_after: ~U[2025-01-01 00:00:00Z])
       [%Leaderboard{}, ...]
   """
+  @spec list_leaderboards() :: [Leaderboard.t()]
   @spec list_leaderboards(keyword()) :: [Leaderboard.t()]
   def list_leaderboards(opts \\ []) do
     page = Keyword.get(opts, :page, 1)
@@ -275,6 +282,7 @@ defmodule GameServer.Leaderboards do
 
   Accepts the same filter options as `list_leaderboards/1`.
   """
+  @spec count_leaderboards() :: non_neg_integer()
   @spec count_leaderboards(keyword()) :: non_neg_integer()
   def count_leaderboards(opts \\ []) do
     opts
@@ -345,20 +353,30 @@ defmodule GameServer.Leaderboards do
   @doc """
   Ends a leaderboard by setting `ends_at` to the current time.
   """
+  @spec end_leaderboard(Leaderboard.t() | integer() | String.t()) ::
+          {:ok, Leaderboard.t()} | {:error, Ecto.Changeset.t() | :not_found}
   def end_leaderboard(%Leaderboard{} = leaderboard) do
     update_leaderboard(leaderboard, %{ends_at: DateTime.utc_now(:second)})
   end
 
   def end_leaderboard(id_or_slug) when is_integer(id_or_slug) or is_binary(id_or_slug) do
-    case get_leaderboard(id_or_slug) do
+    leaderboard =
+      case id_or_slug do
+        id when is_integer(id) -> get_leaderboard(id)
+        slug when is_binary(slug) -> get_active_leaderboard_by_slug(slug)
+      end
+
+    case leaderboard do
       nil -> {:error, :not_found}
-      lb -> end_leaderboard(lb)
+      %Leaderboard{} = lb -> end_leaderboard(lb)
     end
   end
 
   @doc """
   Returns a changeset for a leaderboard (used in forms).
   """
+  @spec change_leaderboard(Leaderboard.t()) :: Ecto.Changeset.t()
+  @spec change_leaderboard(Leaderboard.t(), map()) :: Ecto.Changeset.t()
   def change_leaderboard(%Leaderboard{} = leaderboard, attrs \\ %{}) do
     Leaderboard.changeset(leaderboard, attrs)
   end
@@ -391,6 +409,7 @@ defmodule GameServer.Leaderboards do
       iex> submit_score(123, user_id, 5, %{weapon: "sword"})
       {:ok, %Record{score: 15, metadata: %{weapon: "sword"}}}
   """
+  @spec submit_score(integer(), integer(), integer()) :: {:ok, Record.t()} | {:error, term()}
   @spec submit_score(integer(), integer(), integer(), map()) ::
           {:ok, Record.t()} | {:error, term()}
   def submit_score(leaderboard_id, user_id, score, metadata \\ %{})
@@ -520,6 +539,7 @@ defmodule GameServer.Leaderboards do
 
   Returns records with `rank` field populated.
   """
+  @spec list_records(integer()) :: [Record.t()]
   @spec list_records(integer(), Types.pagination_opts()) :: [Record.t()]
   def list_records(leaderboard_id, opts \\ []) when is_integer(leaderboard_id) do
     case get_leaderboard(leaderboard_id) do
@@ -581,6 +601,7 @@ defmodule GameServer.Leaderboards do
 
     * `:limit` - Total number of records to return (default 11, centered on user)
   """
+  @spec list_records_around_user(integer(), integer()) :: [Record.t()]
   @spec list_records_around_user(integer(), integer(), keyword()) :: [Record.t()]
   def list_records_around_user(leaderboard_id, user_id, opts \\ [])
       when is_integer(leaderboard_id) do
@@ -630,6 +651,7 @@ defmodule GameServer.Leaderboards do
   @doc """
   Deletes a record.
   """
+  @spec delete_record(Record.t()) :: {:ok, Record.t()} | {:error, Ecto.Changeset.t()}
   def delete_record(%Record{} = record) do
     Repo.delete(record)
   end
@@ -641,11 +663,17 @@ defmodule GameServer.Leaderboards do
   @spec delete_user_record(integer() | String.t(), integer()) ::
           {:ok, Record.t()} | {:error, :not_found}
   def delete_user_record(id_or_slug, user_id) do
-    case get_leaderboard(id_or_slug) do
+    leaderboard =
+      case id_or_slug do
+        id when is_integer(id) -> get_leaderboard(id)
+        slug when is_binary(slug) -> get_active_leaderboard_by_slug(slug)
+      end
+
+    case leaderboard do
       nil ->
         {:error, :not_found}
 
-      leaderboard ->
+      %Leaderboard{} = leaderboard ->
         case get_record(leaderboard.id, user_id) do
           nil -> {:error, :not_found}
           record -> delete_record(record)
@@ -656,6 +684,8 @@ defmodule GameServer.Leaderboards do
   @doc """
   Returns a changeset for a record (used in admin forms).
   """
+  @spec change_record(Record.t()) :: Ecto.Changeset.t()
+  @spec change_record(Record.t(), map()) :: Ecto.Changeset.t()
   def change_record(%Record{} = record, attrs \\ %{}) do
     Record.changeset(record, attrs)
   end

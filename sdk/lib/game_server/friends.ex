@@ -68,10 +68,12 @@ defmodule GameServer.Friends do
   @doc ~S"""
     Cancel an outgoing friend request (only the requester may cancel).
   """
+  @spec cancel_request(integer(), GameServer.Accounts.User.t()) ::
+  {:ok, :cancelled} | {:error, :not_found | :not_authorized | term()}
   def cancel_request(_friendship_id, _user) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, nil}
 
       _ ->
         raise "GameServer.Friends.cancel_request/2 is a stub - only available at runtime on GameServer"
@@ -82,6 +84,7 @@ defmodule GameServer.Friends do
   @doc ~S"""
     Count blocked friendships for a user (number of blocked rows where user is target).
   """
+  @spec count_blocked_for_user(user_id() | GameServer.Accounts.User.t()) :: non_neg_integer()
   def count_blocked_for_user(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -96,6 +99,7 @@ defmodule GameServer.Friends do
   @doc ~S"""
     Count accepted friends for a given user (distinct other user ids).
   """
+  @spec count_friends_for_user(user_id() | GameServer.Accounts.User.t()) :: non_neg_integer()
   def count_friends_for_user(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -110,6 +114,7 @@ defmodule GameServer.Friends do
   @doc ~S"""
     Count incoming pending friend requests for a user.
   """
+  @spec count_incoming_requests(user_id() | GameServer.Accounts.User.t()) :: non_neg_integer()
   def count_incoming_requests(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -124,6 +129,7 @@ defmodule GameServer.Friends do
   @doc ~S"""
     Count outgoing pending friend requests for a user.
   """
+  @spec count_outgoing_requests(user_id() | GameServer.Accounts.User.t()) :: non_neg_integer()
   def count_outgoing_requests(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -141,12 +147,13 @@ defmodule GameServer.Friends do
       Returns {:ok, friendship} on success or {:error, reason}.
       
   """
-  @spec create_request(GameServer.Accounts.User.t() | integer(), integer()) ::
-  {:ok, GameServer.Friends.Friendship.t()} | {:error, any()}
+  @spec create_request(GameServer.Accounts.User.t() | user_id(), user_id()) ::
+  {:ok, GameServer.Friends.Friendship.t()}
+  | {:error, :cannot_friend_self | :blocked | :already_friends | :already_requested | term()}
   def create_request(_requester_id, _target_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, %GameServer.Friends.Friendship{id: 0, requester_id: 0, target_id: 0, requester: nil, target: nil, status: "pending", inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+        {:ok, nil}
 
       _ ->
         raise "GameServer.Friends.create_request/2 is a stub - only available at runtime on GameServer"
@@ -157,6 +164,7 @@ defmodule GameServer.Friends do
   @doc ~S"""
     Get friendship between two users (ordered requester->target) if exists
   """
+  @spec get_by_pair(user_id(), user_id()) :: GameServer.Friends.Friendship.t() | nil
   def get_by_pair(_requester_id, _target_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -171,10 +179,11 @@ defmodule GameServer.Friends do
   @doc ~S"""
     Get friendship by id
   """
+  @spec get_friendship!(integer()) :: GameServer.Friends.Friendship.t()
   def get_friendship!(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        %GameServer.Friends.Friendship{id: 0, requester_id: 0, target_id: 0, requester: nil, target: nil, status: "pending", inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}
 
       _ ->
         raise "GameServer.Friends.get_friendship!/1 is a stub - only available at runtime on GameServer"
@@ -185,6 +194,9 @@ defmodule GameServer.Friends do
   @doc ~S"""
     List blocked friendships for a user (Friendship structs where the user is the blocker / target).
   """
+  @spec list_blocked_for_user(user_id() | GameServer.Accounts.User.t()) :: [
+  GameServer.Friends.Friendship.t()
+]
   def list_blocked_for_user(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -199,6 +211,10 @@ defmodule GameServer.Friends do
   @doc ~S"""
     List blocked friendships for a user (Friendship structs where the user is the blocker / target).
   """
+  @spec list_blocked_for_user(
+  user_id() | GameServer.Accounts.User.t(),
+  GameServer.Types.pagination_opts()
+) :: [GameServer.Friends.Friendship.t()]
   def list_blocked_for_user(_user_id, _opts) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -218,6 +234,7 @@ defmodule GameServer.Friends do
     See `t:GameServer.Types.pagination_opts/0` for available options.
     
   """
+  @spec list_friends_for_user(integer() | GameServer.Accounts.User.t()) :: [GameServer.Accounts.User.t()]
   def list_friends_for_user(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -260,6 +277,9 @@ defmodule GameServer.Friends do
     See `t:GameServer.Types.pagination_opts/0` for available options.
     
   """
+  @spec list_incoming_requests(integer() | GameServer.Accounts.User.t()) :: [
+  GameServer.Friends.Friendship.t()
+]
   def list_incoming_requests(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -302,6 +322,9 @@ defmodule GameServer.Friends do
     See `t:GameServer.Types.pagination_opts/0` for available options.
     
   """
+  @spec list_outgoing_requests(integer() | GameServer.Accounts.User.t()) :: [
+  GameServer.Friends.Friendship.t()
+]
   def list_outgoing_requests(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -368,10 +391,11 @@ defmodule GameServer.Friends do
 
 
   @doc false
+  @spec subscribe_user(user_id()) :: :ok
   def subscribe_user(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        :ok
 
       _ ->
         raise "GameServer.Friends.subscribe_user/1 is a stub - only available at runtime on GameServer"
@@ -396,10 +420,11 @@ defmodule GameServer.Friends do
 
 
   @doc false
+  @spec unsubscribe_user(user_id()) :: :ok
   def unsubscribe_user(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        :ok
 
       _ ->
         raise "GameServer.Friends.unsubscribe_user/1 is a stub - only available at runtime on GameServer"

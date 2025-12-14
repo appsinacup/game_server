@@ -72,6 +72,7 @@ defmodule GameServer.Lobbies do
   @doc """
   Unsubscribe from a specific lobby's events.
   """
+  @spec unsubscribe_lobby(integer()) :: :ok
   def unsubscribe_lobby(lobby_id) do
     Phoenix.PubSub.unsubscribe(GameServer.PubSub, "lobby:#{lobby_id}")
   end
@@ -101,6 +102,8 @@ defmodule GameServer.Lobbies do
 
   See `t:GameServer.Types.lobby_list_opts/0` for available options.
   """
+  @spec list_lobbies() :: [Lobby.t()]
+  @spec list_lobbies(map()) :: [Lobby.t()]
   @spec list_lobbies(map(), Types.lobby_list_opts()) :: [Lobby.t()]
   def list_lobbies(filters \\ %{}, opts \\ []) do
     q = from(l in Lobby)
@@ -169,6 +172,8 @@ defmodule GameServer.Lobbies do
   end
 
   @doc "Count lobbies matching filters (excludes hidden ones unless admin list used). If metadata filters are supplied, they will be applied after fetching."
+  @spec count_list_lobbies() :: non_neg_integer()
+  @spec count_list_lobbies(map()) :: non_neg_integer()
   def count_list_lobbies(filters \\ %{}) do
     q = from(l in Lobby)
 
@@ -210,6 +215,9 @@ defmodule GameServer.Lobbies do
     max_users: integer (filter by max_users <= val)
   }
   """
+  @spec list_all_lobbies() :: [Lobby.t()]
+  @spec list_all_lobbies(map()) :: [Lobby.t()]
+  @spec list_all_lobbies(map(), Types.pagination_opts()) :: [Lobby.t()]
   def list_all_lobbies(filters \\ %{}, opts \\ []) do
     page = Keyword.get(opts, :page, nil)
     page_size = Keyword.get(opts, :page_size, nil)
@@ -229,6 +237,8 @@ defmodule GameServer.Lobbies do
   @doc """
   Count ALL lobbies matching filters. For admin pagination.
   """
+  @spec count_list_all_lobbies() :: non_neg_integer()
+  @spec count_list_all_lobbies(map()) :: non_neg_integer()
   def count_list_all_lobbies(filters \\ %{}) do
     q = from(l in Lobby)
     q = apply_admin_filters(q, filters)
@@ -354,6 +364,9 @@ defmodule GameServer.Lobbies do
   List lobbies visible to a specific user.
   Includes the user's own lobby even if it's hidden.
   """
+  @spec list_lobbies_for_user(User.t() | nil) :: [Lobby.t()]
+  @spec list_lobbies_for_user(User.t() | nil, map()) :: [Lobby.t()]
+  @spec list_lobbies_for_user(User.t() | nil, map(), Types.lobby_list_opts()) :: [Lobby.t()]
   def list_lobbies_for_user(user, filters \\ %{}, opts \\ [])
 
   def list_lobbies_for_user(%User{lobby_id: user_lobby_id}, filters, opts) do
@@ -377,6 +390,8 @@ defmodule GameServer.Lobbies do
   def list_lobbies_for_user(nil, filters, opts), do: list_lobbies(filters, opts)
 
   # join behavior for a user -> lobby
+  @spec join_lobby(User.t(), Lobby.t() | integer() | String.t()) ::
+          {:ok, User.t()} | {:error, term()}
   @spec join_lobby(User.t(), Lobby.t() | integer() | String.t(), map() | keyword()) ::
           {:ok, User.t()} | {:error, term()}
   def join_lobby(user, lobby_arg, opts \\ %{})
@@ -498,6 +513,7 @@ defmodule GameServer.Lobbies do
 
   See `t:GameServer.Types.lobby_create_attrs/0` for available fields.
   """
+  @spec create_lobby() :: {:ok, Lobby.t()} | {:error, Ecto.Changeset.t() | term()}
   @spec create_lobby(Types.lobby_create_attrs()) ::
           {:ok, Lobby.t()} | {:error, Ecto.Changeset.t() | term()}
   def create_lobby(attrs \\ %{}) do
@@ -653,12 +669,16 @@ defmodule GameServer.Lobbies do
     end
   end
 
+  @spec change_lobby(Lobby.t()) :: Ecto.Changeset.t()
+  @spec change_lobby(Lobby.t(), map()) :: Ecto.Changeset.t()
   def change_lobby(%Lobby{} = lobby, attrs \\ %{}) do
     Lobby.changeset(lobby, attrs)
   end
 
   ## Membership helpers (minimal for now)
 
+  @spec create_membership(%{lobby_id: integer(), user_id: integer()}) ::
+          {:ok, User.t()} | {:error, :not_found | Ecto.Changeset.t() | term()}
   def create_membership(%{lobby_id: lobby_id, user_id: user_id} = _attrs) do
     case Repo.get(GameServer.Accounts.User, user_id) do
       nil ->
@@ -693,6 +713,7 @@ defmodule GameServer.Lobbies do
     end
   end
 
+  @spec delete_membership(User.t()) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def delete_membership(%GameServer.Accounts.User{} = user) do
     user
     |> Ecto.Changeset.change(%{lobby_id: nil})
@@ -842,6 +863,7 @@ defmodule GameServer.Lobbies do
   @doc """
   Check if a user can edit a lobby (is host or lobby is hostless).
   """
+  @spec can_edit_lobby?(User.t() | nil, Lobby.t() | nil) :: boolean()
   def can_edit_lobby?(%User{id: user_id}, %Lobby{} = lobby) do
     lobby.host_id == user_id or lobby.hostless
   end
@@ -853,10 +875,13 @@ defmodule GameServer.Lobbies do
   Check if a user can view a lobby's details.
   Users can view any lobby they can see in the list.
   """
+  @spec can_view_lobby?(User.t() | nil, Lobby.t() | nil) :: boolean()
   def can_view_lobby?(%User{} = _user, %Lobby{} = _lobby), do: true
   def can_view_lobby?(nil, %Lobby{is_hidden: false}), do: true
   def can_view_lobby?(nil, _lobby), do: false
 
+  @spec update_lobby_by_host(User.t(), Lobby.t(), Types.lobby_update_attrs()) ::
+          {:ok, Lobby.t()} | {:error, :not_host | :too_small | Ecto.Changeset.t() | term()}
   def update_lobby_by_host(%User{id: host_id}, %Lobby{} = lobby, attrs) do
     if lobby.host_id == host_id or lobby.hostless do
       attrs = maybe_hash_password(attrs)
@@ -920,6 +945,7 @@ defmodule GameServer.Lobbies do
 
   defp maybe_hash_password(other), do: other
 
+  @spec list_memberships_for_lobby(integer() | String.t()) :: [User.t()]
   def list_memberships_for_lobby(lobby_id) do
     from(u in GameServer.Accounts.User, where: u.lobby_id == ^lobby_id)
     |> Repo.all()
@@ -935,6 +961,14 @@ defmodule GameServer.Lobbies do
   - On successful join or creation returns {:ok, lobby}
   - Propagates errors from join or create flows
   """
+  @spec quick_join(User.t()) ::
+          {:ok, Lobby.t()} | {:error, :already_in_lobby | Ecto.Changeset.t() | term()}
+  @spec quick_join(User.t(), String.t() | nil) ::
+          {:ok, Lobby.t()} | {:error, :already_in_lobby | Ecto.Changeset.t() | term()}
+  @spec quick_join(User.t(), String.t() | nil, integer() | nil) ::
+          {:ok, Lobby.t()} | {:error, :already_in_lobby | Ecto.Changeset.t() | term()}
+  @spec quick_join(User.t(), String.t() | nil, integer() | nil, map()) ::
+          {:ok, Lobby.t()} | {:error, :already_in_lobby | Ecto.Changeset.t() | term()}
   def quick_join(%User{id: _user_id} = user, title \\ nil, max_users \\ nil, metadata \\ %{}) do
     # reload user in case their membership changed since the caller was loaded
     user = Repo.get(GameServer.Accounts.User, user.id)

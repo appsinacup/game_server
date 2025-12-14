@@ -34,6 +34,7 @@ defmodule GameServer.Leaderboards do
     Returns a changeset for a leaderboard (used in forms).
     
   """
+  @spec change_leaderboard(GameServer.Leaderboards.Leaderboard.t()) :: Ecto.Changeset.t()
   def change_leaderboard(_leaderboard) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -49,6 +50,7 @@ defmodule GameServer.Leaderboards do
     Returns a changeset for a leaderboard (used in forms).
     
   """
+  @spec change_leaderboard(GameServer.Leaderboards.Leaderboard.t(), map()) :: Ecto.Changeset.t()
   def change_leaderboard(_leaderboard, _attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -64,6 +66,7 @@ defmodule GameServer.Leaderboards do
     Returns a changeset for a record (used in admin forms).
     
   """
+  @spec change_record(GameServer.Leaderboards.Record.t()) :: Ecto.Changeset.t()
   def change_record(_record) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -79,6 +82,7 @@ defmodule GameServer.Leaderboards do
     Returns a changeset for a record (used in admin forms).
     
   """
+  @spec change_record(GameServer.Leaderboards.Record.t(), map()) :: Ecto.Changeset.t()
   def change_record(_record, _attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -128,6 +132,7 @@ defmodule GameServer.Leaderboards do
     Accepts the same filter options as `list_leaderboards/1`.
     
   """
+  @spec count_leaderboards() :: non_neg_integer()
   def count_leaderboards() do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -223,10 +228,12 @@ defmodule GameServer.Leaderboards do
     Deletes a record.
     
   """
+  @spec delete_record(GameServer.Leaderboards.Record.t()) ::
+  {:ok, GameServer.Leaderboards.Record.t()} | {:error, Ecto.Changeset.t()}
   def delete_record(_record) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, nil}
+        {:ok, %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Leaderboards.delete_record/1 is a stub - only available at runtime on GameServer"
@@ -256,10 +263,12 @@ defmodule GameServer.Leaderboards do
     Ends a leaderboard by setting `ends_at` to the current time.
     
   """
+  @spec end_leaderboard(GameServer.Leaderboards.Leaderboard.t() | integer() | String.t()) ::
+  {:ok, GameServer.Leaderboards.Leaderboard.t()} | {:error, Ecto.Changeset.t() | :not_found}
   def end_leaderboard(_leaderboard) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, %GameServer.Leaderboards.Leaderboard{id: 0, slug: "", title: "", description: nil, sort_order: :desc, operator: :set, starts_at: nil, ends_at: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Leaderboards.end_leaderboard/1 is a stub - only available at runtime on GameServer"
@@ -303,7 +312,7 @@ defmodule GameServer.Leaderboards do
         nil
     
   """
-  @spec get_leaderboard(integer()) :: GameServer.Leaderboards.Leaderboard.t() | nil
+  @spec get_leaderboard(integer() | String.t()) :: GameServer.Leaderboards.Leaderboard.t() | nil
   def get_leaderboard(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -377,10 +386,11 @@ defmodule GameServer.Leaderboards do
     - `:season_count` - total number of leaderboards with this slug
     
   """
+  @spec list_leaderboard_groups() :: [map()]
   def list_leaderboard_groups() do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        []
+        %{}
 
       _ ->
         raise "GameServer.Leaderboards.list_leaderboard_groups/0 is a stub - only available at runtime on GameServer"
@@ -439,6 +449,7 @@ defmodule GameServer.Leaderboards do
         [%Leaderboard{}, ...]
     
   """
+  @spec list_leaderboards() :: [GameServer.Leaderboards.Leaderboard.t()]
   def list_leaderboards() do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -493,6 +504,7 @@ defmodule GameServer.Leaderboards do
     Lists all leaderboards with the given slug (all seasons), ordered by end date.
     
   """
+  @spec list_leaderboards_by_slug(String.t()) :: [GameServer.Leaderboards.Leaderboard.t()]
   def list_leaderboards_by_slug(_slug) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -533,6 +545,7 @@ defmodule GameServer.Leaderboards do
     Returns records with `rank` field populated.
     
   """
+  @spec list_records(integer()) :: [GameServer.Leaderboards.Record.t()]
   def list_records(_leaderboard_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -578,6 +591,7 @@ defmodule GameServer.Leaderboards do
       * `:limit` - Total number of records to return (default 11, centered on user)
     
   """
+  @spec list_records_around_user(integer(), integer()) :: [GameServer.Leaderboards.Record.t()]
   def list_records_around_user(_leaderboard_id, _user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -636,10 +650,12 @@ defmodule GameServer.Leaderboards do
         {:ok, %Record{score: 15, metadata: %{weapon: "sword"}}}
     
   """
+  @spec submit_score(integer(), integer(), integer()) ::
+  {:ok, GameServer.Leaderboards.Record.t()} | {:error, term()}
   def submit_score(_leaderboard_id, _user_id, _score) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        {:ok, %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Leaderboards.submit_score/3 is a stub - only available at runtime on GameServer"
