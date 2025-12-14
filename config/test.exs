@@ -46,6 +46,9 @@ config :sentry,
 # Print only warnings and errors during test
 config :logger, level: :warning
 
+# Disable app-level caching in tests to avoid stale reads across assertions.
+config :game_server, GameServer.Cache, bypass_mode: true
+
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 

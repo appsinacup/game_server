@@ -42,6 +42,7 @@ defmodule GameServer.Lobbies do
   """
 
   import Ecto.Query, warn: false
+  use Nebulex.Caching, cache: GameServer.Cache
 
   alias Bcrypt
   alias Ecto.Multi
@@ -52,6 +53,12 @@ defmodule GameServer.Lobbies do
 
   # PubSub topic names
   @lobbies_topic "lobbies"
+
+  @public_list_cache_ttl_ms 60_000
+
+  defp public_lobbies_cache_version do
+    GameServer.Cache.get({:lobbies, :public_list_version}) || 1
+  end
 
   @doc """
   Subscribe to global lobby events (lobby created, updated, deleted).
@@ -106,6 +113,14 @@ defmodule GameServer.Lobbies do
   @spec list_lobbies(map()) :: [Lobby.t()]
   @spec list_lobbies(map(), Types.lobby_list_opts()) :: [Lobby.t()]
   def list_lobbies(filters \\ %{}, opts \\ []) do
+    list_lobbies_cached(filters, opts)
+  end
+
+  @decorate cacheable(
+              key: {:lobbies, :list, public_lobbies_cache_version(), filters, opts},
+              opts: [ttl: @public_list_cache_ttl_ms]
+            )
+  defp list_lobbies_cached(filters, opts) do
     q = from(l in Lobby)
 
     q =
@@ -175,33 +190,46 @@ defmodule GameServer.Lobbies do
   @spec count_list_lobbies() :: non_neg_integer()
   @spec count_list_lobbies(map()) :: non_neg_integer()
   def count_list_lobbies(filters \\ %{}) do
-    q = from(l in Lobby)
+    count_list_lobbies_cached(filters)
+  end
 
+  @decorate cacheable(
+              key: {:lobbies, :count_list, public_lobbies_cache_version(), filters},
+              opts: [ttl: @public_list_cache_ttl_ms]
+            )
+  defp count_list_lobbies_cached(filters) do
+    count_list_lobbies_uncached(filters)
+  end
+
+  defp count_list_lobbies_uncached(filters) do
     q =
-      q
+      from(l in Lobby)
       |> filter_by_title(filters)
       |> filter_by_hidden_false()
 
-    # basic db count
     db_count = Repo.one(from l in q, select: count(l.id)) || 0
 
-    # if metadata filter present, we must apply the in-memory filter to count accurately
-    case Map.get(filters, :metadata_key) || Map.get(filters, "metadata_key") do
-      nil ->
-        db_count
+    metadata_key = Map.get(filters, :metadata_key) || Map.get(filters, "metadata_key")
+    metadata_value = Map.get(filters, :metadata_value) || Map.get(filters, "metadata_value")
 
-      key ->
-        value = Map.get(filters, :metadata_value) || Map.get(filters, "metadata_value")
-        results = Repo.all(q)
-
-        Enum.count(results, fn l ->
-          case Map.get(l.metadata || %{}, key) do
-            nil -> false
-            _ when is_nil(value) -> true
-            v -> String.contains?(to_string(v), to_string(value))
-          end
-        end)
+    if is_nil(metadata_key) do
+      db_count
+    else
+      q
+      |> Repo.all()
+      |> Enum.count(fn l ->
+        case Map.get(l.metadata || %{}, metadata_key) do
+          nil -> false
+          _ when is_nil(metadata_value) -> true
+          v -> String.contains?(to_string(v), to_string(metadata_value))
+        end
+      end)
     end
+  end
+
+  defp invalidate_public_lobbies_cache do
+    _ = GameServer.Cache.incr({:lobbies, :public_list_version}, 1, default: 1)
+    :ok
   end
 
   @doc """
@@ -556,6 +584,7 @@ defmodule GameServer.Lobbies do
     |> case do
       {:ok, %{lobby: lobby}} ->
         Task.start(fn -> GameServer.Hooks.internal_call(:after_lobby_create, [lobby]) end)
+        invalidate_public_lobbies_cache()
         broadcast_lobbies({:lobby_created, lobby})
         {:ok, lobby}
 
@@ -636,6 +665,8 @@ defmodule GameServer.Lobbies do
           {:ok, updated} ->
             Task.start(fn -> GameServer.Hooks.internal_call(:after_lobby_update, [updated]) end)
 
+            invalidate_public_lobbies_cache()
+
             # broadcast updates so any UI/channel subscribers get the change
             broadcast_lobby(updated.id, {:lobby_updated, updated})
             broadcast_lobbies({:lobby_updated, updated})
@@ -657,6 +688,7 @@ defmodule GameServer.Lobbies do
         case Repo.delete(lobby) do
           {:ok, deleted} ->
             Task.start(fn -> GameServer.Hooks.internal_call(:after_lobby_delete, [deleted]) end)
+            invalidate_public_lobbies_cache()
             broadcast_lobbies({:lobby_deleted, deleted.id})
             {:ok, deleted}
 

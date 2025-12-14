@@ -27,14 +27,14 @@ defmodule GameServerWeb.Auth.Guardian do
   def resource_from_claims(%{"sub" => id}) do
     case Integer.parse(id) do
       {user_id, ""} ->
-        user = Accounts.get_user!(user_id)
-        {:ok, user}
+        case Accounts.get_user(user_id) do
+          %{} = user -> {:ok, user}
+          nil -> {:error, :user_not_found}
+        end
 
       _ ->
         {:error, :invalid_id}
     end
-  rescue
-    Ecto.NoResultsError -> {:error, :user_not_found}
   end
 
   def resource_from_claims(_claims) do

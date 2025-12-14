@@ -18,10 +18,33 @@ defmodule GameServer.Accounts do
   """
 
   import Ecto.Query, warn: false
+  use Nebulex.Caching, cache: GameServer.Cache
   alias GameServer.Repo
   alias GameServer.Types
 
   alias GameServer.Accounts.{User, UserNotifier, UserToken}
+
+  @search_cache_ttl_ms 60_000
+  @stats_cache_ttl_ms 60_000
+  @users_count_cache_ttl_ms 60_000
+
+  defp users_search_cache_version do
+    GameServer.Cache.get({:accounts, :users_search_version}) || 1
+  end
+
+  defp users_stats_cache_version do
+    GameServer.Cache.get({:accounts, :users_stats_version}) || 1
+  end
+
+  defp invalidate_users_search_cache do
+    _ = GameServer.Cache.incr({:accounts, :users_search_version}, 1, default: 1)
+    :ok
+  end
+
+  defp invalidate_users_stats_cache do
+    _ = GameServer.Cache.incr({:accounts, :users_stats_version}, 1, default: 1)
+    :ok
+  end
 
   ## Database getters
 
@@ -39,7 +62,13 @@ defmodule GameServer.Accounts do
   """
   @spec get_user_by_email(String.t()) :: User.t() | nil
   def get_user_by_email(email) when is_binary(email) do
-    Repo.get_by(User, email: String.downcase(email))
+    normalized = email |> String.trim() |> String.downcase()
+
+    if normalized == "" do
+      nil
+    else
+      get_user_by_field(:email, normalized)
+    end
   end
 
   @doc """
@@ -63,20 +92,32 @@ defmodule GameServer.Accounts do
     else
       # If query looks like an id, attempt a direct lookup first
       if Regex.match?(~r/^\d+$/, q) do
-        case Repo.get(User, String.to_integer(q)) do
-          nil -> search_users_by_text(q, page: page, page_size: page_size)
-          user -> [user]
+        id = String.to_integer(q)
+
+        case get_user(id) do
+          nil ->
+            normalized_q = String.downcase(q)
+            search_users_by_text_cached(normalized_q, q, page, page_size)
+
+          user ->
+            [user]
         end
       else
-        search_users_by_text(q, page: page, page_size: page_size)
+        normalized_q = String.downcase(q)
+        search_users_by_text_cached(normalized_q, q, page, page_size)
       end
     end
   end
 
-  defp search_users_by_text(q, opts) do
+  @decorate cacheable(
+              key:
+                {:accounts, :search_users, users_search_cache_version(), normalized_q, page,
+                 page_size},
+              opts: [ttl: @search_cache_ttl_ms]
+            )
+  defp search_users_by_text_cached(normalized_q, q, page, page_size) do
+    _ = normalized_q
     pattern = "%#{q}%"
-    page = Keyword.get(opts, :page, 1)
-    page_size = Keyword.get(opts, :page_size, 25)
     offset = (page - 1) * page_size
 
     Repo.all(
@@ -100,17 +141,29 @@ defmodule GameServer.Accounts do
       0
     else
       if Regex.match?(~r/^\d+$/, q) do
-        case Repo.get(User, String.to_integer(q)) do
-          nil -> count_search_users_by_text(q)
-          _ -> 1
+        id = String.to_integer(q)
+
+        case get_user(id) do
+          nil ->
+            normalized_q = String.downcase(q)
+            count_search_users_by_text_cached(normalized_q, q)
+
+          _ ->
+            1
         end
       else
-        count_search_users_by_text(q)
+        normalized_q = String.downcase(q)
+        count_search_users_by_text_cached(normalized_q, q)
       end
     end
   end
 
-  defp count_search_users_by_text(q) do
+  @decorate cacheable(
+              key: {:accounts, :count_search_users, users_search_cache_version(), normalized_q},
+              opts: [ttl: @search_cache_ttl_ms]
+            )
+  defp count_search_users_by_text_cached(normalized_q, q) do
+    _ = normalized_q
     pattern = "%#{q}%"
 
     Repo.one(
@@ -126,8 +179,16 @@ defmodule GameServer.Accounts do
   Returns the total number of users.
   """
   @spec count_users() :: non_neg_integer()
-  def count_users do
-    Repo.aggregate(User, :count, :id)
+  @decorate cacheable(key: {:accounts, :users_count}, opts: [ttl: @users_count_cache_ttl_ms])
+  def count_users, do: Repo.aggregate(User, :count, :id)
+
+  defp invalidate_users_count_cache do
+    _ = GameServer.Cache.delete({:accounts, :users_count})
+    :ok
+  end
+
+  defp first_user? do
+    Repo.aggregate(User, :count, :id) == 0
   end
 
   @doc """
@@ -135,6 +196,16 @@ defmodule GameServer.Accounts do
   """
   @spec count_users_with_provider(atom()) :: non_neg_integer()
   def count_users_with_provider(provider_field) when is_atom(provider_field) do
+    count_users_with_provider_cached(provider_field)
+  end
+
+  @decorate cacheable(
+              key:
+                {:accounts, :stats, users_stats_cache_version(), :users_with_provider,
+                 provider_field},
+              opts: [ttl: @stats_cache_ttl_ms]
+            )
+  defp count_users_with_provider_cached(provider_field) do
     Repo.one(
       from u in User,
         where: not is_nil(field(u, ^provider_field)) and field(u, ^provider_field) != "",
@@ -147,6 +218,14 @@ defmodule GameServer.Accounts do
   """
   @spec count_users_with_password() :: non_neg_integer()
   def count_users_with_password do
+    count_users_with_password_cached()
+  end
+
+  @decorate cacheable(
+              key: {:accounts, :stats, users_stats_cache_version(), :users_with_password},
+              opts: [ttl: @stats_cache_ttl_ms]
+            )
+  defp count_users_with_password_cached do
     Repo.one(
       from u in User,
         where: not is_nil(u.hashed_password) and u.hashed_password != "",
@@ -159,6 +238,15 @@ defmodule GameServer.Accounts do
   """
   @spec count_users_registered_since(integer()) :: non_neg_integer()
   def count_users_registered_since(days) when is_integer(days) do
+    count_users_registered_since_cached(days)
+  end
+
+  @decorate cacheable(
+              key:
+                {:accounts, :stats, users_stats_cache_version(), :users_registered_since, days},
+              opts: [ttl: @stats_cache_ttl_ms]
+            )
+  defp count_users_registered_since_cached(days) do
     cutoff = DateTime.utc_now() |> DateTime.add(-days, :day)
     Repo.one(from u in User, where: u.inserted_at >= ^cutoff, select: count(u.id)) || 0
   end
@@ -169,6 +257,14 @@ defmodule GameServer.Accounts do
   """
   @spec count_users_active_since(integer()) :: non_neg_integer()
   def count_users_active_since(days) when is_integer(days) do
+    count_users_active_since_cached(days)
+  end
+
+  @decorate cacheable(
+              key: {:accounts, :stats, users_stats_cache_version(), :users_active_since, days},
+              opts: [ttl: @stats_cache_ttl_ms]
+            )
+  defp count_users_active_since_cached(days) do
     cutoff = DateTime.utc_now() |> DateTime.add(-days, :day)
 
     # Use a subquery to get distinct user_ids, compatible with SQLite
@@ -199,7 +295,7 @@ defmodule GameServer.Accounts do
   @spec get_user_by_email_and_password(String.t(), String.t()) :: User.t() | nil
   def get_user_by_email_and_password(email, password)
       when is_binary(email) and is_binary(password) do
-    user = Repo.get_by(User, email: String.downcase(email))
+    user = get_user_by_email(email)
     if User.valid_password?(user, password), do: user
   end
 
@@ -218,7 +314,15 @@ defmodule GameServer.Accounts do
 
   """
   @spec get_user!(integer()) :: User.t()
-  def get_user!(id), do: Repo.get!(User, id)
+  def get_user!(id) do
+    case get_user(id) do
+      %User{} = user ->
+        user
+
+      nil ->
+        raise Ecto.NoResultsError, queryable: User
+    end
+  end
 
   @doc """
   Gets a single user by ID.
@@ -235,7 +339,61 @@ defmodule GameServer.Accounts do
 
   """
   @spec get_user(integer()) :: User.t() | nil
+  @decorate cacheable(key: {:accounts, :user, id}, match: &__MODULE__.cache_match/1)
   def get_user(id), do: Repo.get(User, id)
+
+  @decorate cacheable(
+              key: {:accounts, :user_by, field, value},
+              references: &(&1 && keyref({:accounts, :user, &1.id})),
+              match: &__MODULE__.cache_match/1
+            )
+  defp get_user_by_field(field, value) when is_atom(field) do
+    Repo.get_by(User, [{field, value}])
+  end
+
+  @spec cache_match(term()) :: boolean()
+  def cache_match(nil), do: false
+
+  def cache_match(_), do: true
+
+  @user_cache_fields [
+    :email,
+    :device_id,
+    :steam_id,
+    :google_id,
+    :apple_id,
+    :discord_id,
+    :facebook_id
+  ]
+
+  defp user_index_keys(%User{} = user) do
+    Enum.reduce(@user_cache_fields, [], fn field, acc ->
+      value = Map.get(user, field)
+
+      cond do
+        is_binary(value) and String.trim(value) != "" and field == :email ->
+          [{:accounts, :user_by, :email, String.downcase(value)} | acc]
+
+        is_binary(value) and String.trim(value) != "" ->
+          [{:accounts, :user_by, field, value} | acc]
+
+        true ->
+          acc
+      end
+    end)
+  end
+
+  defp invalidate_user_cache(%User{id: id} = user) do
+    _ = GameServer.Cache.delete({:accounts, :user, id})
+
+    user
+    |> user_index_keys()
+    |> Enum.each(fn key ->
+      _ = GameServer.Cache.delete(key)
+    end)
+
+    :ok
+  end
 
   ## User registration
 
@@ -262,7 +420,7 @@ defmodule GameServer.Accounts do
     attrs = Map.new(attrs, fn {k, v} -> {to_string(k), v} end)
 
     # Check if this is the first user and make them admin
-    is_first_user = Repo.aggregate(User, :count, :id) == 0
+    is_first_user = first_user?()
     attrs = if is_first_user, do: Map.put(attrs, "is_admin", true), else: attrs
 
     case %User{}
@@ -270,6 +428,7 @@ defmodule GameServer.Accounts do
          |> maybe_attach_device(attrs)
          |> Repo.insert() do
       {:ok, user} = ok ->
+        invalidate_users_count_cache()
         Task.start(fn -> GameServer.Hooks.internal_call(:after_user_register, [user]) end)
         ok
 
@@ -304,7 +463,7 @@ defmodule GameServer.Accounts do
     attrs = Map.new(attrs, fn {k, v} -> {to_string(k), v} end)
 
     # Check if this is the first user and make them admin
-    is_first_user = Repo.aggregate(User, :count, :id) == 0
+    is_first_user = first_user?()
     attrs = if is_first_user, do: Map.put(attrs, "is_admin", true), else: attrs
 
     transaction_fun = fn ->
@@ -329,8 +488,12 @@ defmodule GameServer.Accounts do
     end
 
     case Repo.transaction(transaction_fun) do
-      {:ok, %User{} = user} -> {:ok, user}
-      {:error, reason} -> {:error, reason}
+      {:ok, %User{} = user} ->
+        invalidate_users_count_cache()
+        {:ok, user}
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 
@@ -367,9 +530,17 @@ defmodule GameServer.Accounts do
   """
   @spec confirm_user(User.t()) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def confirm_user(user) do
-    user
-    |> User.confirm_changeset()
-    |> Repo.update()
+    case user
+         |> User.confirm_changeset()
+         |> Repo.update() do
+      {:ok, %User{} = updated} = ok ->
+        invalidate_user_cache(user)
+        invalidate_user_cache(updated)
+        ok
+
+      other ->
+        other
+    end
   end
 
   @doc """
@@ -380,38 +551,47 @@ defmodule GameServer.Accounts do
   """
   @spec confirm_user_by_token(String.t()) :: {:ok, User.t()} | {:error, :invalid | :not_found}
   def confirm_user_by_token(token) when is_binary(token) do
-    case Base.url_decode64(token, padding: false) do
-      {:ok, decoded} ->
-        hashed = :crypto.hash(:sha256, decoded)
-
-        query =
-          from t in UserToken,
-            where: t.token == ^hashed and t.context == "confirm",
-            where: t.inserted_at > ago(7, "day"),
-            join: u in assoc(t, :user),
-            select: {u, t}
-
-        case Repo.one(query) do
-          {user, _token} ->
-            Repo.transaction(fn ->
-              {:ok, user} = confirm_user(user)
-
-              Repo.delete_all(
-                from(ut in UserToken, where: ut.user_id == ^user.id and ut.context == "confirm")
-              )
-
-              user
-            end)
-
-            {:ok, Repo.get(User, user.id)}
-
-          nil ->
-            {:error, :not_found}
-        end
-
+    with {:ok, decoded} <- Base.url_decode64(token, padding: false),
+         hashed <- :crypto.hash(:sha256, decoded),
+         {:ok, %User{} = user} <- fetch_user_for_confirm_token(hashed),
+         {:ok, %User{} = confirmed_user} <- confirm_user_by_token_tx(user) do
+      {:ok, get_user(confirmed_user.id)}
+    else
       :error ->
         {:error, :invalid}
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, _} ->
+        {:error, :not_found}
     end
+  end
+
+  defp fetch_user_for_confirm_token(hashed) do
+    query =
+      from t in UserToken,
+        where: t.token == ^hashed and t.context == "confirm",
+        where: t.inserted_at > ago(7, "day"),
+        join: u in assoc(t, :user),
+        select: {u, t}
+
+    case Repo.one(query) do
+      {%User{} = user, _token} -> {:ok, user}
+      nil -> {:error, :not_found}
+    end
+  end
+
+  defp confirm_user_by_token_tx(%User{} = user) do
+    Repo.transaction(fn ->
+      {:ok, confirmed_user} = confirm_user(user)
+
+      Repo.delete_all(
+        from(ut in UserToken, where: ut.user_id == ^confirmed_user.id and ut.context == "confirm")
+      )
+
+      confirmed_user
+    end)
   end
 
   @doc """
@@ -516,7 +696,7 @@ defmodule GameServer.Accounts do
   """
   @spec get_user_by_steam_id(String.t()) :: User.t() | nil
   def get_user_by_steam_id(steam_id) when is_binary(steam_id) do
-    Repo.get_by(User, steam_id: steam_id)
+    get_user_by_field(:steam_id, steam_id)
   end
 
   @doc """
@@ -526,7 +706,7 @@ defmodule GameServer.Accounts do
   """
   @spec get_user_by_google_id(String.t()) :: User.t() | nil
   def get_user_by_google_id(google_id) when is_binary(google_id) do
-    Repo.get_by(User, google_id: google_id)
+    get_user_by_field(:google_id, google_id)
   end
 
   @doc """
@@ -536,7 +716,7 @@ defmodule GameServer.Accounts do
   """
   @spec get_user_by_apple_id(String.t()) :: User.t() | nil
   def get_user_by_apple_id(apple_id) when is_binary(apple_id) do
-    Repo.get_by(User, apple_id: apple_id)
+    get_user_by_field(:apple_id, apple_id)
   end
 
   @doc """
@@ -546,7 +726,7 @@ defmodule GameServer.Accounts do
   """
   @spec get_user_by_discord_id(String.t()) :: User.t() | nil
   def get_user_by_discord_id(discord_id) when is_binary(discord_id) do
-    Repo.get_by(User, discord_id: discord_id)
+    get_user_by_field(:discord_id, discord_id)
   end
 
   @doc """
@@ -556,7 +736,11 @@ defmodule GameServer.Accounts do
   """
   @spec get_user_by_facebook_id(String.t()) :: User.t() | nil
   def get_user_by_facebook_id(facebook_id) when is_binary(facebook_id) do
-    Repo.get_by(User, facebook_id: facebook_id)
+    get_user_by_field(:facebook_id, facebook_id)
+  end
+
+  defp get_user_by_device_id(device_id) when is_binary(device_id) do
+    get_user_by_field(:device_id, device_id)
   end
 
   @doc """
@@ -572,7 +756,7 @@ defmodule GameServer.Accounts do
   def find_or_create_from_device(device_id, attrs \\ %{}) when is_binary(device_id) do
     unless device_auth_enabled?(), do: {:error, :disabled}
 
-    case Repo.get_by(User, device_id: device_id) do
+    case get_user_by_device_id(device_id) do
       %User{} = user ->
         {:ok, user}
 
@@ -586,6 +770,7 @@ defmodule GameServer.Accounts do
              |> User.attach_device_changeset(%{device_id: device_id})
              |> Repo.insert() do
           {:ok, user} = ok ->
+            invalidate_users_count_cache()
             Task.start(fn -> GameServer.Hooks.internal_call(:after_user_register, [user]) end)
             ok
 
@@ -602,9 +787,17 @@ defmodule GameServer.Accounts do
   @spec attach_device_to_user(User.t(), String.t()) ::
           {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def attach_device_to_user(%User{} = user, device_id) when is_binary(device_id) do
-    user
-    |> User.attach_device_changeset(%{device_id: device_id})
-    |> Repo.update()
+    case user
+         |> User.attach_device_changeset(%{device_id: device_id})
+         |> Repo.update() do
+      {:ok, %User{} = updated} = ok ->
+        invalidate_user_cache(user)
+        invalidate_user_cache(updated)
+        ok
+
+      other ->
+        other
+    end
   end
 
   @doc """
@@ -654,13 +847,21 @@ defmodule GameServer.Accounts do
   end
 
   defp handle_provider_id(provider_id, attrs, provider_id_field, changeset_fn) do
-    case Repo.get_by(User, [{provider_id_field, provider_id}]) do
+    case get_user_by_field(provider_id_field, provider_id) do
       %User{} = user ->
         attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
 
-        user
-        |> changeset_fn.(attrs)
-        |> Repo.update()
+        case user
+             |> changeset_fn.(attrs)
+             |> Repo.update() do
+          {:ok, %User{} = updated} = ok ->
+            invalidate_user_cache(user)
+            invalidate_user_cache(updated)
+            ok
+
+          other ->
+            other
+        end
 
       nil ->
         handle_provider_id_missing(attrs, provider_id_field, changeset_fn)
@@ -671,16 +872,24 @@ defmodule GameServer.Accounts do
     email = Map.get(attrs, :email)
 
     if email do
-      case Repo.get_by(User, email: email) do
+      case get_user_by_email(email) do
         nil ->
           create_user_from_provider(attrs, changeset_fn)
 
         %User{} = user ->
           attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
 
-          user
-          |> changeset_fn.(attrs)
-          |> Repo.update()
+          case user
+               |> changeset_fn.(attrs)
+               |> Repo.update() do
+            {:ok, %User{} = updated} = ok ->
+              invalidate_user_cache(user)
+              invalidate_user_cache(updated)
+              ok
+
+            other ->
+              other
+          end
       end
     else
       create_user_from_provider(attrs, changeset_fn)
@@ -688,20 +897,28 @@ defmodule GameServer.Accounts do
   end
 
   defp handle_by_email(email, attrs, provider_id_field, changeset_fn) do
-    case Repo.get_by(User, email: email) do
+    case get_user_by_email(email) do
       nil ->
         create_user_from_provider(attrs, changeset_fn)
 
       %User{} = user ->
         attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
 
-        user |> changeset_fn.(attrs) |> Repo.update()
+        case user |> changeset_fn.(attrs) |> Repo.update() do
+          {:ok, %User{} = updated} = ok ->
+            invalidate_user_cache(user)
+            invalidate_user_cache(updated)
+            ok
+
+          other ->
+            other
+        end
     end
   end
 
   defp create_user_from_provider(attrs, changeset_fn) do
     # Check if this is the first user and make them admin
-    is_first_user = Repo.aggregate(User, :count, :id) == 0
+    is_first_user = first_user?()
     attrs = if is_first_user, do: Map.put(attrs, :is_admin, true), else: attrs
 
     # For new user creation when provider didn't return an email, avoid
@@ -710,6 +927,7 @@ defmodule GameServer.Accounts do
 
     case %User{} |> changeset_fn.(attrs) |> Repo.insert() do
       {:ok, user} = ok ->
+        invalidate_users_count_cache()
         Task.start(fn -> GameServer.Hooks.internal_call(:after_user_register, [user]) end)
         ok
 
@@ -769,11 +987,15 @@ defmodule GameServer.Accounts do
     changeset = changeset_fn.(user, attrs)
 
     case Repo.update(changeset) do
-      {:ok, user} ->
+      {:ok, %User{} = updated_user} ->
+        invalidate_user_cache(user)
+        invalidate_user_cache(updated_user)
+        invalidate_users_search_cache()
+        invalidate_users_stats_cache()
         # Broadcast user update to user channel
-        broadcast_user_update(user)
+        broadcast_user_update(updated_user)
 
-        {:ok, user}
+        {:ok, updated_user}
 
       {:error, changeset} ->
         handle_link_error(user, attrs, provider_id_field, changeset)
@@ -787,7 +1009,7 @@ defmodule GameServer.Accounts do
     provider_value = Map.get(attrs, provider_id_field)
 
     if provider_value do
-      case Repo.get_by(User, [{provider_id_field, provider_value}]) do
+      case get_user_by_field(provider_id_field, provider_value) do
         %User{} = other_user when other_user.id != user.id ->
           {:error, {:conflict, other_user}}
 
@@ -811,10 +1033,14 @@ defmodule GameServer.Accounts do
     changeset = User.attach_device_changeset(user, %{device_id: device_id})
 
     case Repo.update(changeset) do
-      {:ok, user} ->
+      {:ok, %User{} = updated_user} ->
+        invalidate_user_cache(user)
+        invalidate_user_cache(updated_user)
+        invalidate_users_search_cache()
+        invalidate_users_stats_cache()
         # Broadcast user update to user channel
-        broadcast_user_update(user)
-        {:ok, user}
+        broadcast_user_update(updated_user)
+        {:ok, updated_user}
 
       {:error, changeset} ->
         {:error, changeset}
@@ -854,10 +1080,14 @@ defmodule GameServer.Accounts do
         changes = %{device_id: nil}
 
         case user |> Ecto.Changeset.change(changes) |> Repo.update() do
-          {:ok, user} ->
+          {:ok, %User{} = updated_user} ->
+            invalidate_user_cache(user)
+            invalidate_user_cache(updated_user)
+            invalidate_users_search_cache()
+            invalidate_users_stats_cache()
             # Broadcast user update to user channel
-            broadcast_user_update(user)
-            {:ok, user}
+            broadcast_user_update(updated_user)
+            {:ok, updated_user}
 
           {:error, changeset} ->
             {:error, changeset}
@@ -913,6 +1143,10 @@ defmodule GameServer.Accounts do
            |> Ecto.Changeset.change(changes)
            |> Repo.update() do
         {:ok, updated_user} ->
+          invalidate_user_cache(user)
+          invalidate_user_cache(updated_user)
+          invalidate_users_search_cache()
+          invalidate_users_stats_cache()
           # Broadcast user update to user channel
           broadcast_user_update(updated_user)
           {:ok, updated_user}
@@ -978,10 +1212,14 @@ defmodule GameServer.Accounts do
     Repo.transact(fn ->
       with {:ok, query} <- UserToken.verify_change_email_token_query(token, context),
            %UserToken{sent_to: email} <- Repo.one(query),
-           {:ok, user} <- Repo.update(User.email_changeset(user, %{email: email})),
+           {:ok, updated_user} <- Repo.update(User.email_changeset(user, %{email: email})),
            {_count, _result} <-
-             Repo.delete_all(from(UserToken, where: [user_id: ^user.id, context: ^context])) do
-        {:ok, user}
+             Repo.delete_all(
+               from(UserToken, where: [user_id: ^updated_user.id, context: ^context])
+             ) do
+        invalidate_user_cache(user)
+        invalidate_user_cache(updated_user)
+        {:ok, updated_user}
       else
         _ -> {:error, :transaction_aborted}
       end
@@ -1189,6 +1427,8 @@ defmodule GameServer.Accounts do
 
     case Repo.delete(user) do
       {:ok, _user} = ok ->
+        invalidate_users_count_cache()
+        invalidate_user_cache(user)
         ok
 
       err ->
@@ -1203,6 +1443,7 @@ defmodule GameServer.Accounts do
   defp update_user_and_delete_all_tokens(changeset) do
     Repo.transact(fn ->
       with {:ok, user} <- Repo.update(changeset) do
+        invalidate_user_cache(user)
         tokens_to_expire = Repo.all_by(UserToken, user_id: user.id)
 
         Repo.delete_all(from(t in UserToken, where: t.id in ^Enum.map(tokens_to_expire, & &1.id)))
@@ -1283,6 +1524,9 @@ defmodule GameServer.Accounts do
   def update_user_display_name(%User{} = user, attrs) do
     case User.display_name_changeset(user, attrs) |> Repo.update() do
       {:ok, updated} = ok ->
+        invalidate_user_cache(user)
+        invalidate_user_cache(updated)
+        invalidate_users_search_cache()
         broadcast_user_update(updated)
         ok
 
@@ -1316,6 +1560,10 @@ defmodule GameServer.Accounts do
   def update_user(%User{} = user, attrs) when is_map(attrs) do
     case User.admin_changeset(user, attrs) |> Repo.update() do
       {:ok, updated} = ok ->
+        invalidate_user_cache(user)
+        invalidate_user_cache(updated)
+        invalidate_users_search_cache()
+        invalidate_users_stats_cache()
         # Broadcast updates so realtime clients can react
         broadcast_user_update(updated)
         ok

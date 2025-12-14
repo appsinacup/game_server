@@ -152,6 +152,21 @@ This flow is simpler since there's no browser redirect or polling. It's ideal fo
 
 Real-time features use Phoenix PubSub for broadcasting events. Domain modules (Lobbies, Friends, Accounts) publish to topic-based channels. WebSocket channels and LiveViews subscribe to relevant topics to receive instant updates. This enables features like live lobby member lists or friend request notifications.
 
+## 3.1 In-memory Caching (Nebulex)
+
+For production deployments using SQLite, the app can enable a **single-node, in-memory** cache to reduce repeated DB reads (notably the per-request user lookup during JWT authentication).
+
+- Cache implementation: `Nebulex` (local in-memory adapter) via [lib/game_server/cache.ex](lib/game_server/cache.ex)
+- Scope: **one instance only** (no cross-node invalidation). If you run multiple Fly machines, cached reads can become stale unless you add a distributed invalidation strategy.
+- Write behavior: key write paths invalidate affected cache entries (e.g. updating a user invalidates that user's cached record; lobby create/update/delete invalidates cached public lobby lists).
+
+**Production env vars**
+- `CACHE_ENABLED`: `true`/`false` (default `true`)
+
+When `CACHE_ENABLED=false`, the cache runs in `bypass_mode` (adapter switches to a no-op adapter), which effectively disables caching while keeping the same API.
+
+This is primarily a stopgap to reduce lock contention/queueing pressure when running on SQLite under high read load. For sustained high concurrency and write-heavy workloads, Postgres is the recommended production database.
+
 ```mermaid
 flowchart LR
     subgraph Publishers

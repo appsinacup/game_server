@@ -90,6 +90,9 @@ defmodule GameServer.MixProject do
   defp deps do
     [
       {:bcrypt_elixir, "~> 3.0"},
+      {:nebulex, "~> 3.0.0-rc.2"},
+      {:nebulex_local, "~> 3.0.0-rc.2"},
+      {:decorator, "~> 1.4"},
       {:phoenix, "~> 1.8.3"},
       {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.13.3"},

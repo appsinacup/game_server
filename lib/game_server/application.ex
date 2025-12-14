@@ -19,6 +19,7 @@ defmodule GameServer.Application do
       [
         GameServerWeb.Telemetry,
         GameServer.Repo,
+        {GameServer.Cache, []},
         {DNSCluster, query: Application.get_env(:game_server, :dns_cluster_query) || :ignore},
         {Phoenix.PubSub, name: GameServer.PubSub},
         GameServerWeb.Endpoint,

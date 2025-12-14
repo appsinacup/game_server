@@ -27,23 +27,34 @@ if log_level = System.get_env("LOG_LEVEL") do
 end
 
 if config_env() == :prod do
-  access_log_level =
-    case System.get_env("ACCESS_LOG_LEVEL") do
-      nil -> :debug
-      "" -> :debug
-      "false" -> false
-      "0" -> false
-      "off" -> false
-      "none" -> false
-      "debug" -> :debug
-      "info" -> :info
-      "warning" -> :warning
-      "warn" -> :warning
-      "error" -> :error
-      _ -> :debug
-    end
+  cache_enabled = GameServer.Env.bool("CACHE_ENABLED", true)
+
+  config :game_server, GameServer.Cache,
+    bypass_mode: not cache_enabled,
+    # Create new generation every 12 hours
+    gc_interval: :timer.hours(12),
+    # Max 1M entries
+    max_size: 1_000_000,
+    # Max 2GB of memory
+    allocated_memory: 2_000_000_000,
+    # Run size and memory checks every 10 seconds
+    gc_memory_check_interval: :timer.seconds(10)
+
+  access_log_level = GameServer.Env.log_level("ACCESS_LOG_LEVEL", :debug)
 
   config :game_server, GameServerWeb.Endpoint, access_log: access_log_level
+
+  repo_pool_size = GameServer.Env.integer("POOL_SIZE", 10)
+
+  # Backpressure/overload tuning:
+  # - pool_timeout: how long a request waits for a DB connection checkout (ms)
+  # - queue_target/queue_interval: DBConnection queueing algorithm (ms)
+  # - timeout: query timeout (ms)
+  # NOTE: Increasing queue_target/interval makes requests wait longer (can increase memory under load).
+  repo_pool_timeout = GameServer.Env.integer("DB_POOL_TIMEOUT", 2000)
+  repo_queue_target = GameServer.Env.integer("DB_QUEUE_TARGET", 50)
+  repo_queue_interval = GameServer.Env.integer("DB_QUEUE_INTERVAL", 1000)
+  repo_query_timeout = GameServer.Env.integer("DB_QUERY_TIMEOUT", 15_000)
 
   # Check if PostgreSQL environment variables are set
   has_postgres_config =
@@ -61,7 +72,11 @@ if config_env() == :prod do
     config :game_server, GameServer.Repo,
       url: database_url,
       adapter: Ecto.Adapters.Postgres,
-      pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+      pool_size: repo_pool_size,
+      pool_timeout: repo_pool_timeout,
+      queue_target: repo_queue_target,
+      queue_interval: repo_queue_interval,
+      timeout: repo_query_timeout,
       socket_options: maybe_ipv6
   else
     # Fallback to persistent SQLite when no PostgreSQL config
@@ -71,7 +86,11 @@ if config_env() == :prod do
     config :game_server, GameServer.Repo,
       database: db_path,
       adapter: Ecto.Adapters.SQLite3,
-      pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
+      pool_size: repo_pool_size,
+      pool_timeout: repo_pool_timeout,
+      queue_target: repo_queue_target,
+      queue_interval: repo_queue_interval,
+      timeout: repo_query_timeout
   end
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
@@ -96,7 +115,7 @@ if config_env() == :prod do
     ttl: {15, :minutes}
 
   host = System.get_env("PHX_HOST") || "localhost"
-  port = String.to_integer(System.get_env("PORT") || "4000")
+  port = GameServer.Env.integer("PORT", 4000)
 
   config :game_server, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
