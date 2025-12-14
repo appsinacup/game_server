@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.3">
-    <meta name="project" content="game_server v1.0.407">
+    <meta name="project" content="game_server v1.0.409">
 
 
-    <title>GameServer.Friends — game_server v1.0.407</title>
+    <title>GameServer.Friends — game_server v1.0.409</title>
 
     <link rel="stylesheet" href="dist/html-elixir-VYWJUHZE.css" />
 
-    <script defer src="dist/sidebar_items-1EE144EA.js"></script>
+    <script defer src="dist/sidebar_items-0FB2861C.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-XBCM4BHM.js"></script>
 
@@ -37,7 +37,7 @@
 game_server
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.407
+          v1.0.409
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ game_server
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.Friends</span> 
-      <small class="app-vsn" translate="no">(game_server v1.0.407)</small>
+      <small class="app-vsn" translate="no">(game_server v1.0.409)</small>
 
     </h1>
 
@@ -110,19 +110,19 @@ game_server
 <p>Friends context - handles friend requests and relationships.</p><p>Basic semantics:</p><ul><li>A single <code class="inline">friendships</code> row represents a directed request from requester -&gt; target.</li><li><p>status: &quot;pending&quot; | &quot;accepted&quot; | &quot;rejected&quot; | &quot;blocked&quot;</p></li><li>When a user accepts a pending incoming request, that request becomes <code class="inline">accepted</code>.
 If a reverse pending request exists, it will be removed to avoid duplicate rows.</li><li>Listing friends returns the other user from rows with status <code class="inline">accepted</code> in either
 direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#module-usage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># Create a friend request (requester -&gt; target)</span><span class="w">
-</span><span class="p" data-group-id="8171307095-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">friendship</span><span class="p" data-group-id="8171307095-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">create_request</span><span class="p" data-group-id="8171307095-2">(</span><span class="n">requester_id</span><span class="p">,</span><span class="w"> </span><span class="n">target_id</span><span class="p" data-group-id="8171307095-2">)</span><span class="w">
+</span><span class="p" data-group-id="5880184220-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">friendship</span><span class="p" data-group-id="5880184220-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">create_request</span><span class="p" data-group-id="5880184220-2">(</span><span class="n">requester_id</span><span class="p">,</span><span class="w"> </span><span class="n">target_id</span><span class="p" data-group-id="5880184220-2">)</span><span class="w">
 
 </span><span class="c1"># Accept a pending incoming request (performed by the target)</span><span class="w">
-</span><span class="p" data-group-id="8171307095-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">accepted</span><span class="p" data-group-id="8171307095-3">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">accept_friend_request</span><span class="p" data-group-id="8171307095-4">(</span><span class="n">friendship</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="8171307095-5">%</span><span class="nc" data-group-id="8171307095-5">GameServer.Accounts.User</span><span class="p" data-group-id="8171307095-5">{</span><span class="ss">id</span><span class="p">:</span><span class="w"> </span><span class="n">target_id</span><span class="p" data-group-id="8171307095-5">}</span><span class="p" data-group-id="8171307095-4">)</span><span class="w">
+</span><span class="p" data-group-id="5880184220-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">accepted</span><span class="p" data-group-id="5880184220-3">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">accept_friend_request</span><span class="p" data-group-id="5880184220-4">(</span><span class="n">friendship</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5880184220-5">%</span><span class="nc" data-group-id="5880184220-5">GameServer.Accounts.User</span><span class="p" data-group-id="5880184220-5">{</span><span class="ss">id</span><span class="p">:</span><span class="w"> </span><span class="n">target_id</span><span class="p" data-group-id="5880184220-5">}</span><span class="p" data-group-id="5880184220-4">)</span><span class="w">
 
 </span><span class="c1"># List accepted friends for a user (paginated)</span><span class="w">
-</span><span class="n">friends</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">list_friends_for_user</span><span class="p" data-group-id="8171307095-6">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p" data-group-id="8171307095-6">)</span><span class="w">
+</span><span class="n">friends</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">list_friends_for_user</span><span class="p" data-group-id="5880184220-6">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p" data-group-id="5880184220-6">)</span><span class="w">
 
 </span><span class="c1"># Count accepted friends for a user</span><span class="w">
-</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">count_friends_for_user</span><span class="p" data-group-id="8171307095-7">(</span><span class="n">user_id</span><span class="p" data-group-id="8171307095-7">)</span><span class="w">
+</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">count_friends_for_user</span><span class="p" data-group-id="5880184220-7">(</span><span class="n">user_id</span><span class="p" data-group-id="5880184220-7">)</span><span class="w">
 
 </span><span class="c1"># Remove a friendship (either direction)</span><span class="w">
-</span><span class="p" data-group-id="8171307095-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="bp">_</span><span class="p" data-group-id="8171307095-8">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">remove_friend</span><span class="p" data-group-id="8171307095-9">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="n">friend_id</span><span class="p" data-group-id="8171307095-9">)</span></code></pre>
+</span><span class="p" data-group-id="5880184220-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="bp">_</span><span class="p" data-group-id="5880184220-8">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">remove_friend</span><span class="p" data-group-id="5880184220-9">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="n">friend_id</span><span class="p" data-group-id="5880184220-9">)</span></code></pre>
     </section>
 
 </div>
@@ -262,6 +262,16 @@ direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#modu
       </div>
 
         <div class="summary-synopsis"><p>Get friendship by id</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#invalidate_for_user_deletion/1" data-no-tooltip="" translate="no">invalidate_for_user_deletion(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Best-effort cache invalidation for user deletion.</p></div>
 
     </div>
 
@@ -416,7 +426,7 @@ direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#modu
       <h1 class="signature" translate="no">accept_friend_request(friendship_id, user)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L221" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L251" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -445,7 +455,7 @@ direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#modu
       <h1 class="signature" translate="no">block_friend_request(friendship_id, user)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L332" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L362" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -474,7 +484,7 @@ direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#modu
       <h1 class="signature" translate="no">cancel_request(friendship_id, user)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L277" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L307" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -503,7 +513,7 @@ direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#modu
       <h1 class="signature" translate="no">count_blocked_for_user(user_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L385" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L415" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -532,7 +542,7 @@ direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#modu
       <h1 class="signature" translate="no">count_friends_for_user(user_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L481" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L511" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -561,7 +571,7 @@ direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#modu
       <h1 class="signature" translate="no">count_incoming_requests(user_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L546" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L576" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -590,7 +600,7 @@ direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#modu
       <h1 class="signature" translate="no">count_outgoing_requests(user_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L603" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L633" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -619,7 +629,7 @@ direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#modu
       <h1 class="signature" translate="no">create_request(requester_id, target_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L128" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L158" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -656,7 +666,7 @@ direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#modu
       <h1 class="signature" translate="no">get_by_pair(requester_id, target_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L640" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L670" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -730,6 +740,37 @@ direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#modu
 <p>Get friendship by id</p>
   </section>
 </section>
+<section class="detail" id="invalidate_for_user_deletion/1">
+
+  <div class="detail-header">
+    <a href="#invalidate_for_user_deletion/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">invalidate_for_user_deletion(user_id)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L56" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> invalidate_for_user_deletion(<a href="#t:user_id/0">user_id</a>()) :: :ok</pre>
+
+      </div>
+
+<p>Best-effort cache invalidation for user deletion.</p><p>Friendships are defined with <code class="inline">on_delete: :delete_all</code> foreign keys, so deleting
+a user cascades and removes friendship rows at the DB layer. Because those
+deletes do not go through the Friends context, we need an explicit invalidation
+hook to avoid serving stale cached friend lists / friendship lookups.</p><p>Call this <em>before</em> deleting the user.</p>
+  </section>
+</section>
 <section class="detail" id="list_blocked_for_user/2">
 
     <span id="list_blocked_for_user/1"></span>
@@ -742,7 +783,7 @@ direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#modu
       <h1 class="signature" translate="no">list_blocked_for_user(user_id, opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L355" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L385" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -775,7 +816,7 @@ direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#modu
       <h1 class="signature" translate="no">list_friends_for_user(user_id, opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L435" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L465" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -808,7 +849,7 @@ direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#modu
       <h1 class="signature" translate="no">list_incoming_requests(user_id, opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L516" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L546" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -841,7 +882,7 @@ direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#modu
       <h1 class="signature" translate="no">list_outgoing_requests(user_id, opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L573" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L603" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -872,7 +913,7 @@ direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#modu
       <h1 class="signature" translate="no">reject_friend_request(friendship_id, user)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L253" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L283" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -901,7 +942,7 @@ direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#modu
       <h1 class="signature" translate="no">remove_friend(user_id, friend_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L299" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L329" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -930,7 +971,7 @@ direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#modu
       <h1 class="signature" translate="no">subscribe_user(user_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L84" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L114" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -958,7 +999,7 @@ direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#modu
       <h1 class="signature" translate="no">unblock_friendship(friendship_id, user)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L405" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L435" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
@@ -987,7 +1028,7 @@ direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#modu
       <h1 class="signature" translate="no">unsubscribe_user(user_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L89" class="icon-action" rel="help" aria-label="View Source">
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/friends.ex#L119" class="icon-action" rel="help" aria-label="View Source">
           <i class="ri-code-s-slash-line" aria-hidden="true"></i>
         </a>
 
