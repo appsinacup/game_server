@@ -558,7 +558,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
   end
 
   def handle_event("edit_record", %{"id" => id}, socket) do
-    record = GameServer.Repo.get!(Record, id)
+    record = Leaderboards.get_record!(String.to_integer(id))
     changeset = Leaderboards.change_record(record)
     form = to_form(changeset, as: "record")
 
@@ -597,9 +597,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
 
         record ->
           # Update existing record
-          record
-          |> Record.update_changeset(params)
-          |> GameServer.Repo.update()
+          Leaderboards.update_record(record, params)
       end
 
     case result do
@@ -617,7 +615,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
   end
 
   def handle_event("delete_record", %{"id" => id}, socket) do
-    record = GameServer.Repo.get!(Record, id)
+    record = Leaderboards.get_record!(String.to_integer(id))
 
     case Leaderboards.delete_record(record) do
       {:ok, _} ->

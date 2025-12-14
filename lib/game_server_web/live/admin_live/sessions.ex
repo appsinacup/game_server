@@ -1,6 +1,7 @@
 defmodule GameServerWeb.AdminLive.Sessions do
   use GameServerWeb, :live_view
 
+  alias GameServer.Accounts
   alias GameServer.Accounts.UserToken
   alias GameServer.Repo
 
@@ -128,9 +129,9 @@ defmodule GameServerWeb.AdminLive.Sessions do
 
   @impl true
   def handle_event("delete_session", %{"id" => id}, socket) do
-    session = Repo.get!(UserToken, id)
+    session = Accounts.get_user_token!(String.to_integer(id))
 
-    case Repo.delete(session) do
+    case Accounts.delete_user_token(session) do
       {:ok, _session} ->
         page = socket.assigns[:sessions_page] || 1
         page_size = socket.assigns[:sessions_page_size] || 50

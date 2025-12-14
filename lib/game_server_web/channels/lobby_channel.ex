@@ -18,7 +18,9 @@ defmodule GameServerWeb.LobbyChannel do
   use Phoenix.Channel
   require Logger
 
+  alias GameServer.Accounts
   alias GameServer.Accounts.Scope
+  alias GameServer.Accounts.User
   alias GameServer.Lobbies
 
   @impl true
@@ -28,8 +30,8 @@ defmodule GameServerWeb.LobbyChannel do
     with {lobby_id, ""} <- Integer.parse(lobby_id_str),
          %Scope{user: %{id: user_id}} <- current_scope,
          %GameServer.Lobbies.Lobby{} <- Lobbies.get_lobby(lobby_id) do
-      case GameServer.Repo.get_by(GameServer.Accounts.User, id: user_id, lobby_id: lobby_id) do
-        %GameServer.Accounts.User{} ->
+      case Accounts.get_user(user_id) do
+        %User{lobby_id: ^lobby_id} ->
           # Subscribe to lobby PubSub events to forward to WebSocket clients
           Lobbies.subscribe_lobby(lobby_id)
           {:ok, assign(socket, :lobby_id, lobby_id)}

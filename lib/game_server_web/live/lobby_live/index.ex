@@ -1,6 +1,7 @@
 defmodule GameServerWeb.LobbyLive.Index do
   use GameServerWeb, :live_view
 
+  alias GameServer.Accounts
   alias GameServer.Lobbies
 
   @impl true
@@ -66,7 +67,7 @@ defmodule GameServerWeb.LobbyLive.Index do
         attrs = Map.put(attrs, "host_id", id)
 
         # prevent creating more than one lobby for the same user
-        case GameServer.Repo.get(GameServer.Accounts.User, id) do
+        case Accounts.get_user(id) do
           %GameServer.Accounts.User{lobby_id: existing} when existing != nil ->
             {:noreply,
              put_flash(socket, :error, "You are already in a lobby and cannot create another")}

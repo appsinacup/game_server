@@ -359,6 +359,24 @@ defmodule GameServer.Leaderboards do
 
 
   @doc ~S"""
+    Gets a record by its integer ID. Raises if not found.
+    
+    Intended for internal/admin usage.
+    
+  """
+  @spec get_record!(integer()) :: GameServer.Leaderboards.Record.t()
+  def get_record!(_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Leaderboards.get_record!/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Gets a user's record with their rank.
     Returns `{:ok, record_with_rank}` or `{:error, :not_found}`.
     
@@ -724,6 +742,25 @@ defmodule GameServer.Leaderboards do
 
       _ ->
         raise "GameServer.Leaderboards.update_leaderboard/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Updates an existing record.
+    
+    Intended for internal/admin usage.
+    
+  """
+  @spec update_record(GameServer.Leaderboards.Record.t(), map()) ::
+  {:ok, GameServer.Leaderboards.Record.t()} | {:error, Ecto.Changeset.t()}
+  def update_record(_record, _attrs) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Leaderboards.update_record/2 is a stub - only available at runtime on GameServer"
     end
   end
 

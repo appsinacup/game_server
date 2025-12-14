@@ -3,8 +3,6 @@ defmodule GameServerWeb.Api.V1.FriendController do
   use OpenApiSpex.ControllerSpecs
 
   alias GameServer.Friends
-  alias GameServer.Repo
-  # Accounts is not used here, remove to avoid warnings
   alias OpenApiSpex.Schema
 
   tags(["Friends"])
@@ -559,7 +557,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
     case conn.assigns.current_scope do
       %{user: user} when user != nil ->
         # Try to fetch and delete. allow requesters to cancel pending, or either user to delete accepted friendship
-        case Repo.get(Friends.Friendship, String.to_integer(id)) do
+        case Friends.get_friendship(String.to_integer(id)) do
           nil ->
             conn |> put_status(:not_found) |> json(%{error: "not_found"})
 

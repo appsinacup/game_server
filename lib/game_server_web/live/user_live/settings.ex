@@ -822,12 +822,18 @@ defmodule GameServerWeb.UserLive.Settings do
       {"delete_conflicting_account", %{"id" => id}} ->
         current = user
 
-        case GameServer.Repo.get(GameServer.Accounts.User, id) do
-          nil ->
-            {:noreply, put_flash(socket, :error, "Account not found.")}
+        other_user =
+          case Integer.parse(id) do
+            {id, ""} -> Accounts.get_user(id)
+            _ -> nil
+          end
 
+        case other_user do
           %GameServer.Accounts.User{} = other_user ->
             handle_delete_conflicting_account(socket, current, other_user)
+
+          _ ->
+            {:noreply, put_flash(socket, :error, "Account not found.")}
         end
 
       {"incoming_prev", _} ->
@@ -1006,8 +1012,8 @@ defmodule GameServerWeb.UserLive.Settings do
     conflict_user =
       case params do
         %{"conflict_user_id" => id} when is_binary(id) ->
-          case GameServer.Repo.get(GameServer.Accounts.User, id) do
-            %GameServer.Accounts.User{} = u -> u
+          case Integer.parse(id) do
+            {id, ""} -> Accounts.get_user(id)
             _ -> nil
           end
 

@@ -30,13 +30,42 @@ defmodule GameServer.Friends do
   """
 
   import Ecto.Query, warn: false
+  use Nebulex.Caching, cache: GameServer.Cache
   alias GameServer.Accounts.User
   alias GameServer.Friends.Friendship
   alias GameServer.Repo
   alias GameServer.Types
   @friends_topic "friends"
 
+  @friends_cache_ttl_ms 30_000
+
   @type user_id :: integer()
+
+  defp friends_cache_version(user_id) when is_integer(user_id) do
+    GameServer.Cache.get({:friends, :version, user_id}) || 1
+  end
+
+  defp invalidate_friends_cache(user_id) when is_integer(user_id) do
+    _ = GameServer.Cache.incr({:friends, :version, user_id}, 1, default: 1)
+    :ok
+  end
+
+  defp invalidate_friends_cache_pair(a, b) when is_integer(a) and is_integer(b) do
+    _ = invalidate_friends_cache(a)
+    _ = invalidate_friends_cache(b)
+    :ok
+  end
+
+  @decorate cacheable(
+              key:
+                {:friends, :pair, friends_cache_version(requester_id),
+                 friends_cache_version(target_id), requester_id, target_id},
+              opts: [ttl: @friends_cache_ttl_ms]
+            )
+  defp get_by_pair_cached(requester_id, target_id)
+       when is_integer(requester_id) and is_integer(target_id) do
+    Repo.get_by(Friendship, requester_id: requester_id, target_id: target_id)
+  end
 
   @spec subscribe_user(user_id()) :: :ok
   def subscribe_user(user_id) when is_integer(user_id) do
@@ -114,35 +143,47 @@ defmodule GameServer.Friends do
   end
 
   defp remove_rejected_same_direction(requester_id, target_id) do
-    case Repo.get_by(Friendship, requester_id: requester_id, target_id: target_id) do
-      %Friendship{status: "rejected"} = f -> Repo.delete(f)
-      _ -> :ok
+    case get_by_pair(requester_id, target_id) do
+      %Friendship{status: "rejected"} = f ->
+        _ = Repo.delete(f)
+        _ = invalidate_friends_cache_pair(requester_id, target_id)
+        :ok
+
+      _ ->
+        :ok
     end
   end
 
   defp blocked?(requester_id, target_id) do
-    existing_same = Repo.get_by(Friendship, requester_id: requester_id, target_id: target_id)
-    existing_reverse = Repo.get_by(Friendship, requester_id: target_id, target_id: requester_id)
+    existing_same = get_by_pair(requester_id, target_id)
+    existing_reverse = get_by_pair(target_id, requester_id)
 
     (existing_same && existing_same.status == "blocked") ||
       (existing_reverse && existing_reverse.status == "blocked")
   end
 
   defp already_friends?(requester_id, target_id) do
-    Repo.get_by(Friendship, requester_id: requester_id, target_id: target_id, status: "accepted") ||
-      Repo.get_by(Friendship,
-        requester_id: target_id,
-        target_id: requester_id,
-        status: "accepted"
-      )
+    case get_by_pair(requester_id, target_id) do
+      %Friendship{status: "accepted"} = f ->
+        f
+
+      _ ->
+        case get_by_pair(target_id, requester_id) do
+          %Friendship{status: "accepted"} = f -> f
+          _ -> nil
+        end
+    end
   end
 
   defp same_direction_pending?(requester_id, target_id) do
-    Repo.get_by(Friendship, requester_id: requester_id, target_id: target_id, status: "pending")
+    match?(%Friendship{status: "pending"}, get_by_pair(requester_id, target_id))
   end
 
   defp find_pending_reverse(requester_id, target_id) do
-    Repo.get_by(Friendship, requester_id: target_id, target_id: requester_id, status: "pending")
+    case get_by_pair(target_id, requester_id) do
+      %Friendship{status: "pending"} = f -> f
+      _ -> nil
+    end
   end
 
   defp create_new_friend_request(requester_id, target_id) do
@@ -150,6 +191,7 @@ defmodule GameServer.Friends do
          |> Friendship.changeset(%{requester_id: requester_id, target_id: target_id})
          |> Repo.insert() do
       {:ok, f} = ok ->
+        _ = invalidate_friends_cache_pair(requester_id, target_id)
         broadcast_user(target_id, {:incoming_request, f})
         broadcast_user(requester_id, {:outgoing_request, f})
         broadcast_all({:friend_created, f})
@@ -176,6 +218,8 @@ defmodule GameServer.Friends do
                 ff.status == "pending"
         )
 
+        _ = invalidate_friends_cache_pair(accepted.requester_id, accepted.target_id)
+
         # broadcast accepted to both users
         broadcast_user(accepted.requester_id, {:friend_accepted, accepted})
         broadcast_user(accepted.target_id, {:friend_accepted, accepted})
@@ -196,6 +240,8 @@ defmodule GameServer.Friends do
          true <- f.target_id == user_id,
          true <- f.status == "pending",
          {:ok, rejected} <- f |> Ecto.Changeset.change(status: "rejected") |> Repo.update() do
+      _ = invalidate_friends_cache_pair(rejected.requester_id, rejected.target_id)
+
       # broadcast rejection
       broadcast_user(rejected.requester_id, {:friend_rejected, rejected})
       broadcast_user(rejected.target_id, {:friend_rejected, rejected})
@@ -216,6 +262,8 @@ defmodule GameServer.Friends do
     with %Friendship{} = f <- Repo.get(Friendship, friendship_id),
          true <- f.requester_id == user_id,
          {:ok, _} <- Repo.delete(f) do
+      _ = invalidate_friends_cache_pair(f.requester_id, f.target_id)
+
       # broadcast cancellation
       broadcast_user(f.requester_id, {:request_cancelled, f})
       broadcast_user(f.target_id, {:request_cancelled, f})
@@ -244,6 +292,8 @@ defmodule GameServer.Friends do
 
         case result do
           {:ok, _} ->
+            _ = invalidate_friends_cache_pair(user_id, friend_id)
+
             # broadcast removal
             broadcast_user(user_id, {:friend_removed, f})
             broadcast_user(friend_id, {:friend_removed, f})
@@ -266,6 +316,8 @@ defmodule GameServer.Friends do
          true <- f.target_id == user_id,
          true <- f.status in ["pending", "rejected"],
          {:ok, blocked} <- f |> Ecto.Changeset.change(status: "blocked") |> Repo.update() do
+      _ = invalidate_friends_cache_pair(blocked.requester_id, blocked.target_id)
+
       # broadcast blocked
       broadcast_user(blocked.requester_id, {:friend_blocked, blocked})
       broadcast_user(blocked.target_id, {:friend_blocked, blocked})
@@ -287,6 +339,17 @@ defmodule GameServer.Friends do
   def list_blocked_for_user(user_id, opts) when is_integer(user_id) do
     page = Keyword.get(opts, :page, 1)
     page_size = Keyword.get(opts, :page_size, 25)
+
+    list_blocked_for_user_cached(user_id, page, page_size)
+  end
+
+  @decorate cacheable(
+              key:
+                {:friends, :list_blocked, friends_cache_version(user_id), user_id, page,
+                 page_size},
+              opts: [ttl: @friends_cache_ttl_ms]
+            )
+  defp list_blocked_for_user_cached(user_id, page, page_size) do
     offset = (page - 1) * page_size
 
     Repo.all(
@@ -303,6 +366,14 @@ defmodule GameServer.Friends do
   def count_blocked_for_user(%User{id: id}), do: count_blocked_for_user(id)
 
   def count_blocked_for_user(user_id) when is_integer(user_id) do
+    count_blocked_for_user_cached(user_id)
+  end
+
+  @decorate cacheable(
+              key: {:friends, :count_blocked, friends_cache_version(user_id), user_id},
+              opts: [ttl: @friends_cache_ttl_ms]
+            )
+  defp count_blocked_for_user_cached(user_id) do
     Repo.one(
       from f in Friendship,
         where: f.target_id == ^user_id and f.status == "blocked",
@@ -317,6 +388,8 @@ defmodule GameServer.Friends do
          true <- f.target_id == user_id,
          true <- f.status == "blocked",
          {:ok, _} <- Repo.delete(f) do
+      _ = invalidate_friends_cache_pair(f.requester_id, f.target_id)
+
       # broadcast unblocked so UI/SDK can refresh
       broadcast_user(f.requester_id, {:friend_unblocked, f})
       broadcast_user(f.target_id, {:friend_unblocked, f})
@@ -345,6 +418,17 @@ defmodule GameServer.Friends do
   def list_friends_for_user(user_id, opts) when is_integer(user_id) do
     page = Keyword.get(opts, :page, 1)
     page_size = Keyword.get(opts, :page_size, 25)
+
+    list_friends_for_user_cached(user_id, page, page_size)
+  end
+
+  @decorate cacheable(
+              key:
+                {:friends, :list_friends, friends_cache_version(user_id), user_id, page,
+                 page_size},
+              opts: [ttl: @friends_cache_ttl_ms]
+            )
+  defp list_friends_for_user_cached(user_id, page, page_size) do
     offset = (page - 1) * page_size
 
     q1 =
@@ -377,6 +461,14 @@ defmodule GameServer.Friends do
   def count_friends_for_user(%User{id: id}), do: count_friends_for_user(id)
 
   def count_friends_for_user(user_id) when is_integer(user_id) do
+    count_friends_for_user_cached(user_id)
+  end
+
+  @decorate cacheable(
+              key: {:friends, :count_friends, friends_cache_version(user_id), user_id},
+              opts: [ttl: @friends_cache_ttl_ms]
+            )
+  defp count_friends_for_user_cached(user_id) do
     q1 =
       from f in Friendship,
         where: f.status == "accepted" and f.requester_id == ^user_id,
@@ -407,6 +499,17 @@ defmodule GameServer.Friends do
   def list_incoming_requests(user_id, opts) when is_integer(user_id) do
     page = Keyword.get(opts, :page, 1)
     page_size = Keyword.get(opts, :page_size, 25)
+
+    list_incoming_requests_cached(user_id, page, page_size)
+  end
+
+  @decorate cacheable(
+              key:
+                {:friends, :list_incoming, friends_cache_version(user_id), user_id, page,
+                 page_size},
+              opts: [ttl: @friends_cache_ttl_ms]
+            )
+  defp list_incoming_requests_cached(user_id, page, page_size) do
     offset = (page - 1) * page_size
 
     Repo.all(
@@ -423,6 +526,14 @@ defmodule GameServer.Friends do
   def count_incoming_requests(%User{id: id}), do: count_incoming_requests(id)
 
   def count_incoming_requests(user_id) when is_integer(user_id) do
+    count_incoming_requests_cached(user_id)
+  end
+
+  @decorate cacheable(
+              key: {:friends, :count_incoming, friends_cache_version(user_id), user_id},
+              opts: [ttl: @friends_cache_ttl_ms]
+            )
+  defp count_incoming_requests_cached(user_id) do
     Repo.one(
       from f in Friendship,
         where: f.target_id == ^user_id and f.status == "pending",
@@ -445,6 +556,17 @@ defmodule GameServer.Friends do
   def list_outgoing_requests(user_id, opts) when is_integer(user_id) do
     page = Keyword.get(opts, :page, 1)
     page_size = Keyword.get(opts, :page_size, 25)
+
+    list_outgoing_requests_cached(user_id, page, page_size)
+  end
+
+  @decorate cacheable(
+              key:
+                {:friends, :list_outgoing, friends_cache_version(user_id), user_id, page,
+                 page_size},
+              opts: [ttl: @friends_cache_ttl_ms]
+            )
+  defp list_outgoing_requests_cached(user_id, page, page_size) do
     offset = (page - 1) * page_size
 
     Repo.all(
@@ -461,6 +583,14 @@ defmodule GameServer.Friends do
   def count_outgoing_requests(%User{id: id}), do: count_outgoing_requests(id)
 
   def count_outgoing_requests(user_id) when is_integer(user_id) do
+    count_outgoing_requests_cached(user_id)
+  end
+
+  @decorate cacheable(
+              key: {:friends, :count_outgoing, friends_cache_version(user_id), user_id},
+              opts: [ttl: @friends_cache_ttl_ms]
+            )
+  defp count_outgoing_requests_cached(user_id) do
     Repo.one(
       from f in Friendship,
         where: f.requester_id == ^user_id and f.status == "pending",
@@ -472,9 +602,13 @@ defmodule GameServer.Friends do
   @spec get_friendship!(integer()) :: Friendship.t()
   def get_friendship!(id), do: Repo.get!(Friendship, id)
 
+  @doc "Get friendship by id (returns nil when not found)"
+  @spec get_friendship(integer()) :: Friendship.t() | nil
+  def get_friendship(id) when is_integer(id), do: Repo.get(Friendship, id)
+
   @doc "Get friendship between two users (ordered requester->target) if exists"
   @spec get_by_pair(user_id(), user_id()) :: Friendship.t() | nil
   def get_by_pair(requester_id, target_id) do
-    Repo.get_by(Friendship, requester_id: requester_id, target_id: target_id)
+    get_by_pair_cached(requester_id, target_id)
   end
 end

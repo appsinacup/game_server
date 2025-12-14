@@ -51,6 +51,13 @@ defmodule GameServer.Lobbies do
   alias GameServer.Repo
   alias GameServer.Types
 
+  defp invalidate_accounts_user_cache(user_id) when is_integer(user_id) do
+    # Accounts.get_user/1 is cached; lobbies updates users.lobby_id directly,
+    # so we must invalidate the cached user to avoid stale lobby_id.
+    _ = GameServer.Cache.delete({:accounts, :user, user_id})
+    :ok
+  end
+
   # PubSub topic names
   @lobbies_topic "lobbies"
 
@@ -250,16 +257,27 @@ defmodule GameServer.Lobbies do
     page = Keyword.get(opts, :page, nil)
     page_size = Keyword.get(opts, :page_size, nil)
 
-    q = from(l in Lobby)
-
-    q = apply_admin_filters(q, filters)
-
     if page && page_size do
-      offset = (page - 1) * page_size
-      Repo.all(from l in q, limit: ^page_size, offset: ^offset)
+      list_all_lobbies_paged_cached(filters, page, page_size)
     else
+      q = from(l in Lobby)
+      q = apply_admin_filters(q, filters)
       Repo.all(q)
     end
+  end
+
+  @decorate cacheable(
+              key:
+                {:lobbies, :admin_list, public_lobbies_cache_version(), filters, page, page_size},
+              opts: [ttl: @public_list_cache_ttl_ms]
+            )
+  defp list_all_lobbies_paged_cached(filters, page, page_size)
+       when is_map(filters) and is_integer(page) and is_integer(page_size) do
+    q = from(l in Lobby)
+    q = apply_admin_filters(q, filters)
+
+    offset = (page - 1) * page_size
+    Repo.all(from l in q, limit: ^page_size, offset: ^offset)
   end
 
   @doc """
@@ -268,6 +286,14 @@ defmodule GameServer.Lobbies do
   @spec count_list_all_lobbies() :: non_neg_integer()
   @spec count_list_all_lobbies(map()) :: non_neg_integer()
   def count_list_all_lobbies(filters \\ %{}) do
+    count_list_all_lobbies_cached(filters)
+  end
+
+  @decorate cacheable(
+              key: {:lobbies, :admin_count, public_lobbies_cache_version(), filters},
+              opts: [ttl: @public_list_cache_ttl_ms]
+            )
+  defp count_list_all_lobbies_cached(filters) when is_map(filters) do
     q = from(l in Lobby)
     q = apply_admin_filters(q, filters)
     Repo.aggregate(q, :count, :id)
@@ -606,7 +632,16 @@ defmodule GameServer.Lobbies do
     |> Multi.run(:membership, fn repo, %{lobby: lobby} ->
       user = repo.get(GameServer.Accounts.User, host_id)
       changeset = Ecto.Changeset.change(user, %{lobby_id: lobby.id})
+
       repo.update(changeset)
+      |> case do
+        {:ok, updated} = ok ->
+          _ = invalidate_accounts_user_cache(updated.id)
+          ok
+
+        other ->
+          other
+      end
     end)
   end
 
@@ -615,7 +650,16 @@ defmodule GameServer.Lobbies do
     |> Multi.run(:membership, fn repo, %{lobby: lobby} ->
       user = repo.get(GameServer.Accounts.User, host_id)
       changeset = Ecto.Changeset.change(user, %{lobby_id: lobby.id})
+
       repo.update(changeset)
+      |> case do
+        {:ok, updated} = ok ->
+          _ = invalidate_accounts_user_cache(updated.id)
+          ok
+
+        other ->
+          other
+      end
     end)
   end
 
@@ -729,6 +773,7 @@ defmodule GameServer.Lobbies do
 
         case result do
           {:ok, updated_user} ->
+            _ = invalidate_accounts_user_cache(updated_user.id)
             broadcast_lobby(lobby_id, {:user_joined, lobby_id, user_id})
             broadcast_lobbies({:lobby_membership_changed, lobby_id})
 
@@ -755,6 +800,14 @@ defmodule GameServer.Lobbies do
     user
     |> Ecto.Changeset.change(%{lobby_id: nil})
     |> Repo.update()
+    |> case do
+      {:ok, updated} = ok ->
+        _ = invalidate_accounts_user_cache(updated.id)
+        ok
+
+      other ->
+        other
+    end
   end
 
   @spec leave_lobby(User.t()) :: {:ok, term()} | {:error, term()}
@@ -815,16 +868,19 @@ defmodule GameServer.Lobbies do
   defp broadcast_leave_result(result, lobby_id, user_id) do
     case result do
       {:ok, :lobby_deleted} ->
+        _ = invalidate_accounts_user_cache(user_id)
         broadcast_lobbies({:lobby_deleted, lobby_id})
         result
 
       {:ok, {:host_changed, new_host_id}} ->
+        _ = invalidate_accounts_user_cache(user_id)
         broadcast_lobby(lobby_id, {:user_left, lobby_id, user_id})
         broadcast_lobby(lobby_id, {:host_changed, lobby_id, new_host_id})
         broadcast_lobbies({:lobby_membership_changed, lobby_id})
         result
 
       {:ok, _} ->
+        _ = invalidate_accounts_user_cache(user_id)
         broadcast_lobby(lobby_id, {:user_left, lobby_id, user_id})
         broadcast_lobbies({:lobby_membership_changed, lobby_id})
         result
@@ -876,6 +932,8 @@ defmodule GameServer.Lobbies do
 
         case result do
           {:ok, _} ->
+            _ = invalidate_accounts_user_cache(membership.id)
+
             Task.start(fn ->
               GameServer.Hooks.internal_call(:after_user_kicked, [
                 %GameServer.Accounts.User{id: host_id},

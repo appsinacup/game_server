@@ -27,11 +27,45 @@ defmodule GameServer.Leaderboards do
   """
 
   import Ecto.Query, warn: false
+  use Nebulex.Caching, cache: GameServer.Cache
   alias GameServer.Repo
   alias GameServer.Types
 
   alias GameServer.Leaderboards.Leaderboard
   alias GameServer.Leaderboards.Record
+
+  @leaderboards_cache_ttl_ms 60_000
+  @records_cache_ttl_ms 10_000
+
+  defp leaderboards_cache_version do
+    GameServer.Cache.get({:leaderboards, :version}) || 1
+  end
+
+  defp records_cache_version(leaderboard_id) when is_integer(leaderboard_id) do
+    GameServer.Cache.get({:leaderboards, :records_version, leaderboard_id}) || 1
+  end
+
+  defp record_cache_version(record_id) when is_integer(record_id) do
+    GameServer.Cache.get({:leaderboards, :record_version, record_id}) || 1
+  end
+
+  defp invalidate_leaderboards_cache do
+    _ = GameServer.Cache.incr({:leaderboards, :version}, 1, default: 1)
+    :ok
+  end
+
+  defp invalidate_records_cache(leaderboard_id) when is_integer(leaderboard_id) do
+    _ = GameServer.Cache.incr({:leaderboards, :records_version, leaderboard_id}, 1, default: 1)
+    :ok
+  end
+
+  defp invalidate_record_cache(record_id) when is_integer(record_id) do
+    _ = GameServer.Cache.incr({:leaderboards, :record_version, record_id}, 1, default: 1)
+    :ok
+  end
+
+  defp cache_ok({:ok, _}), do: true
+  defp cache_ok(_), do: false
 
   # ---------------------------------------------------------------------------
   # Leaderboard CRUD
@@ -58,6 +92,14 @@ defmodule GameServer.Leaderboards do
     %Leaderboard{}
     |> Leaderboard.changeset(attrs)
     |> Repo.insert()
+    |> case do
+      {:ok, _lb} = ok ->
+        _ = invalidate_leaderboards_cache()
+        ok
+
+      other ->
+        other
+    end
   end
 
   @doc """
@@ -75,6 +117,15 @@ defmodule GameServer.Leaderboards do
     leaderboard
     |> Leaderboard.update_changeset(attrs)
     |> Repo.update()
+    |> case do
+      {:ok, lb} = ok ->
+        _ = invalidate_leaderboards_cache()
+        _ = invalidate_records_cache(lb.id)
+        ok
+
+      other ->
+        other
+    end
   end
 
   @doc """
@@ -84,6 +135,15 @@ defmodule GameServer.Leaderboards do
           {:ok, Leaderboard.t()} | {:error, Ecto.Changeset.t()}
   def delete_leaderboard(%Leaderboard{} = leaderboard) do
     Repo.delete(leaderboard)
+    |> case do
+      {:ok, lb} = ok ->
+        _ = invalidate_leaderboards_cache()
+        _ = invalidate_records_cache(lb.id)
+        ok
+
+      other ->
+        other
+    end
   end
 
   @doc """
@@ -99,7 +159,7 @@ defmodule GameServer.Leaderboards do
   """
   @spec get_leaderboard(integer() | String.t()) :: Leaderboard.t() | nil
   def get_leaderboard(id) when is_integer(id) do
-    Repo.get(Leaderboard, id)
+    get_leaderboard_cached(id)
   end
 
   def get_leaderboard(slug) when is_binary(slug) do
@@ -111,7 +171,18 @@ defmodule GameServer.Leaderboards do
   """
   @spec get_leaderboard!(integer()) :: Leaderboard.t()
   def get_leaderboard!(id) when is_integer(id) do
-    Repo.get!(Leaderboard, id)
+    case get_leaderboard(id) do
+      %Leaderboard{} = lb -> lb
+      nil -> raise Ecto.NoResultsError, queryable: Leaderboard
+    end
+  end
+
+  @decorate cacheable(
+              key: {:leaderboards, :get, leaderboards_cache_version(), id},
+              opts: [ttl: @leaderboards_cache_ttl_ms]
+            )
+  defp get_leaderboard_cached(id) when is_integer(id) do
+    Repo.get(Leaderboard, id)
   end
 
   @doc """
@@ -127,6 +198,15 @@ defmodule GameServer.Leaderboards do
   """
   @spec get_active_leaderboard_by_slug(String.t()) :: Leaderboard.t() | nil
   def get_active_leaderboard_by_slug(slug) when is_binary(slug) do
+    get_active_leaderboard_by_slug_cached(slug)
+  end
+
+  # Short TTL: this depends on DateTime.utc_now/0 (leaderboard can become active/inactive over time)
+  @decorate cacheable(
+              key: {:leaderboards, :active_by_slug, leaderboards_cache_version(), slug},
+              opts: [ttl: @records_cache_ttl_ms]
+            )
+  defp get_active_leaderboard_by_slug_cached(slug) when is_binary(slug) do
     now = DateTime.utc_now()
 
     from(lb in Leaderboard,
@@ -155,6 +235,15 @@ defmodule GameServer.Leaderboards do
   def list_leaderboard_groups(opts \\ []) do
     page = Keyword.get(opts, :page, 1)
     page_size = Keyword.get(opts, :page_size, 25)
+
+    list_leaderboard_groups_cached(page, page_size)
+  end
+
+  @decorate cacheable(
+              key: {:leaderboards, :list_groups, leaderboards_cache_version(), page, page_size},
+              opts: [ttl: @leaderboards_cache_ttl_ms]
+            )
+  defp list_leaderboard_groups_cached(page, page_size) do
     offset = (page - 1) * page_size
 
     # Get unique slugs ordered by most recent end date (nulls first = still active)
@@ -217,6 +306,14 @@ defmodule GameServer.Leaderboards do
   """
   @spec count_leaderboard_groups() :: non_neg_integer()
   def count_leaderboard_groups do
+    count_leaderboard_groups_cached()
+  end
+
+  @decorate cacheable(
+              key: {:leaderboards, :count_groups, leaderboards_cache_version()},
+              opts: [ttl: @leaderboards_cache_ttl_ms]
+            )
+  defp count_leaderboard_groups_cached do
     from(lb in Leaderboard,
       select: count(lb.slug, :distinct)
     )
@@ -266,8 +363,19 @@ defmodule GameServer.Leaderboards do
   def list_leaderboards(opts \\ []) do
     page = Keyword.get(opts, :page, 1)
     page_size = Keyword.get(opts, :page_size, 25)
-    offset = (page - 1) * page_size
     order_by = Keyword.get(opts, :order_by, :inserted_at)
+
+    list_leaderboards_cached(opts, order_by, page, page_size)
+  end
+
+  @decorate cacheable(
+              key:
+                {:leaderboards, :list, leaderboards_cache_version(), opts, order_by, page,
+                 page_size},
+              opts: [ttl: @leaderboards_cache_ttl_ms]
+            )
+  defp list_leaderboards_cached(opts, order_by, page, page_size) do
+    offset = (page - 1) * page_size
 
     opts
     |> build_leaderboard_query()
@@ -285,6 +393,14 @@ defmodule GameServer.Leaderboards do
   @spec count_leaderboards() :: non_neg_integer()
   @spec count_leaderboards(keyword()) :: non_neg_integer()
   def count_leaderboards(opts \\ []) do
+    count_leaderboards_cached(opts)
+  end
+
+  @decorate cacheable(
+              key: {:leaderboards, :count, leaderboards_cache_version(), opts},
+              opts: [ttl: @leaderboards_cache_ttl_ms]
+            )
+  defp count_leaderboards_cached(opts) do
     opts
     |> build_leaderboard_query()
     |> Repo.aggregate(:count, :id)
@@ -440,6 +556,14 @@ defmodule GameServer.Leaderboards do
           metadata: metadata
         })
         |> Repo.insert()
+        |> case do
+          {:ok, _record} = ok ->
+            _ = invalidate_records_cache(leaderboard.id)
+            ok
+
+          other ->
+            other
+        end
 
       existing ->
         # Update existing record based on operator
@@ -449,6 +573,15 @@ defmodule GameServer.Leaderboards do
         existing
         |> Record.update_changeset(%{score: new_score, metadata: new_metadata})
         |> Repo.update()
+        |> case do
+          {:ok, _record} = ok ->
+            _ = invalidate_records_cache(leaderboard.id)
+            _ = invalidate_record_cache(existing.id)
+            ok
+
+          other ->
+            other
+        end
     end
   end
 
@@ -476,6 +609,41 @@ defmodule GameServer.Leaderboards do
   # ---------------------------------------------------------------------------
 
   @doc """
+  Gets a record by its integer ID. Raises if not found.
+
+  Intended for internal/admin usage.
+  """
+  @spec get_record!(integer()) :: Record.t()
+  @decorate cacheable(
+              key: {:leaderboards, :record, record_cache_version(id), id},
+              opts: [ttl: @records_cache_ttl_ms]
+            )
+  def get_record!(id) when is_integer(id) do
+    Repo.get!(Record, id)
+  end
+
+  @doc """
+  Updates an existing record.
+
+  Intended for internal/admin usage.
+  """
+  @spec update_record(Record.t(), map()) :: {:ok, Record.t()} | {:error, Ecto.Changeset.t()}
+  def update_record(%Record{} = record, attrs) when is_map(attrs) do
+    record
+    |> Record.update_changeset(attrs)
+    |> Repo.update()
+    |> case do
+      {:ok, updated} = ok ->
+        _ = invalidate_records_cache(updated.leaderboard_id)
+        _ = invalidate_record_cache(updated.id)
+        ok
+
+      other ->
+        other
+    end
+  end
+
+  @doc """
   Gets a single record by leaderboard ID and user ID.
   """
   @spec get_record(integer(), integer()) :: Record.t() | nil
@@ -494,6 +662,18 @@ defmodule GameServer.Leaderboards do
   @spec get_user_record(integer(), integer()) ::
           {:ok, Record.t()} | {:error, :not_found}
   def get_user_record(leaderboard_id, user_id) when is_integer(leaderboard_id) do
+    get_user_record_cached(leaderboard_id, user_id)
+  end
+
+  @decorate cacheable(
+              key:
+                {:leaderboards, :user_record, records_cache_version(leaderboard_id),
+                 leaderboard_id, user_id},
+              match: &cache_ok/1,
+              opts: [ttl: @records_cache_ttl_ms]
+            )
+  defp get_user_record_cached(leaderboard_id, user_id)
+       when is_integer(leaderboard_id) and is_integer(user_id) do
     case get_leaderboard(leaderboard_id) do
       nil ->
         {:error, :not_found}
@@ -549,29 +729,41 @@ defmodule GameServer.Leaderboards do
       leaderboard ->
         page = Keyword.get(opts, :page, 1)
         page_size = Keyword.get(opts, :page_size, 25)
-        offset = (page - 1) * page_size
 
-        order_by =
-          case leaderboard.sort_order do
-            :desc -> [desc: :score, asc: :updated_at]
-            :asc -> [asc: :score, asc: :updated_at]
-          end
-
-        records =
-          from(r in Record,
-            where: r.leaderboard_id == ^leaderboard.id,
-            order_by: ^order_by,
-            offset: ^offset,
-            limit: ^page_size,
-            preload: [:user]
-          )
-          |> Repo.all()
-
-        # Add rank to each record
-        records
-        |> Enum.with_index(offset + 1)
-        |> Enum.map(fn {record, rank} -> %{record | rank: rank} end)
+        list_records_cached(leaderboard.id, leaderboard.sort_order, page, page_size)
     end
+  end
+
+  @decorate cacheable(
+              key:
+                {:leaderboards, :list_records, records_cache_version(leaderboard_id),
+                 leaderboard_id, sort_order, page, page_size},
+              opts: [ttl: @records_cache_ttl_ms]
+            )
+  defp list_records_cached(leaderboard_id, sort_order, page, page_size)
+       when is_integer(leaderboard_id) and is_integer(page) and is_integer(page_size) do
+    offset = (page - 1) * page_size
+
+    order_by =
+      case sort_order do
+        :desc -> [desc: :score, asc: :updated_at]
+        :asc -> [asc: :score, asc: :updated_at]
+      end
+
+    records =
+      from(r in Record,
+        where: r.leaderboard_id == ^leaderboard_id,
+        order_by: ^order_by,
+        offset: ^offset,
+        limit: ^page_size,
+        preload: [:user]
+      )
+      |> Repo.all()
+
+    # Add rank to each record
+    records
+    |> Enum.with_index(offset + 1)
+    |> Enum.map(fn {record, rank} -> %{record | rank: rank} end)
   end
 
   @doc """
@@ -579,6 +771,16 @@ defmodule GameServer.Leaderboards do
   """
   @spec count_records(integer()) :: non_neg_integer()
   def count_records(leaderboard_id) when is_integer(leaderboard_id) do
+    count_records_cached(leaderboard_id)
+  end
+
+  @decorate cacheable(
+              key:
+                {:leaderboards, :count_records, records_cache_version(leaderboard_id),
+                 leaderboard_id},
+              opts: [ttl: @records_cache_ttl_ms]
+            )
+  defp count_records_cached(leaderboard_id) when is_integer(leaderboard_id) do
     from(r in Record, where: r.leaderboard_id == ^leaderboard_id)
     |> Repo.aggregate(:count, :id)
   end
@@ -611,40 +813,52 @@ defmodule GameServer.Leaderboards do
 
       leaderboard ->
         limit = Keyword.get(opts, :limit, 11)
-        half = div(limit, 2)
 
-        case get_user_record(leaderboard.id, user_id) do
-          {:error, :not_found} ->
-            []
+        list_records_around_user_cached(leaderboard.id, leaderboard.sort_order, user_id, limit)
+    end
+  end
 
-          {:ok, user_record} ->
-            user_rank = user_record.rank
+  @decorate cacheable(
+              key:
+                {:leaderboards, :around_user, records_cache_version(leaderboard_id),
+                 leaderboard_id, sort_order, user_id, limit},
+              opts: [ttl: @records_cache_ttl_ms]
+            )
+  defp list_records_around_user_cached(leaderboard_id, sort_order, user_id, limit)
+       when is_integer(leaderboard_id) and is_integer(user_id) and is_integer(limit) do
+    half = div(limit, 2)
 
-            # Calculate offset to center on user
-            start_rank = max(1, user_rank - half)
-            offset = start_rank - 1
+    case get_user_record(leaderboard_id, user_id) do
+      {:error, :not_found} ->
+        []
 
-            order_by =
-              case leaderboard.sort_order do
-                :desc -> [desc: :score, asc: :updated_at]
-                :asc -> [asc: :score, asc: :updated_at]
-              end
+      {:ok, user_record} ->
+        user_rank = user_record.rank
 
-            records =
-              from(r in Record,
-                where: r.leaderboard_id == ^leaderboard.id,
-                order_by: ^order_by,
-                offset: ^offset,
-                limit: ^limit,
-                preload: [:user]
-              )
-              |> Repo.all()
+        # Calculate offset to center on user
+        start_rank = max(1, user_rank - half)
+        offset = start_rank - 1
 
-            # Add rank to each record
-            records
-            |> Enum.with_index(start_rank)
-            |> Enum.map(fn {record, rank} -> %{record | rank: rank} end)
-        end
+        order_by =
+          case sort_order do
+            :desc -> [desc: :score, asc: :updated_at]
+            :asc -> [asc: :score, asc: :updated_at]
+          end
+
+        records =
+          from(r in Record,
+            where: r.leaderboard_id == ^leaderboard_id,
+            order_by: ^order_by,
+            offset: ^offset,
+            limit: ^limit,
+            preload: [:user]
+          )
+          |> Repo.all()
+
+        # Add rank to each record
+        records
+        |> Enum.with_index(start_rank)
+        |> Enum.map(fn {record, rank} -> %{record | rank: rank} end)
     end
   end
 
@@ -654,6 +868,14 @@ defmodule GameServer.Leaderboards do
   @spec delete_record(Record.t()) :: {:ok, Record.t()} | {:error, Ecto.Changeset.t()}
   def delete_record(%Record{} = record) do
     Repo.delete(record)
+    |> case do
+      {:ok, rec} = ok ->
+        _ = invalidate_records_cache(rec.leaderboard_id)
+        ok
+
+      other ->
+        other
+    end
   end
 
   @doc """
@@ -675,8 +897,19 @@ defmodule GameServer.Leaderboards do
 
       %Leaderboard{} = leaderboard ->
         case get_record(leaderboard.id, user_id) do
-          nil -> {:error, :not_found}
-          record -> delete_record(record)
+          nil ->
+            {:error, :not_found}
+
+          record ->
+            delete_record(record)
+            |> case do
+              {:ok, _} = ok ->
+                _ = invalidate_records_cache(leaderboard.id)
+                ok
+
+              other ->
+                other
+            end
         end
     end
   end

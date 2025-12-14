@@ -179,6 +179,21 @@ defmodule GameServer.Friends do
 
 
   @doc ~S"""
+    Get friendship by id (returns nil when not found)
+  """
+  @spec get_friendship(integer()) :: GameServer.Friends.Friendship.t() | nil
+  def get_friendship(_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: %GameServer.Friends.Friendship{id: 0, requester_id: 0, target_id: 0, requester: nil, target: nil, status: "pending", inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}
+
+      _ ->
+        raise "GameServer.Friends.get_friendship/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Get friendship by id
   """
   @spec get_friendship!(integer()) :: GameServer.Friends.Friendship.t()

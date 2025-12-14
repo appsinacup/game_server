@@ -180,7 +180,7 @@ defmodule GameServerWeb.AdminLive.Users.Index do
 
   @impl true
   def handle_event("edit_user", %{"id" => id}, socket) do
-    user = Repo.get!(User, id)
+    user = Accounts.get_user!(String.to_integer(id))
     changeset = Accounts.change_user_email(user, %{}, validate_unique: false)
     form = to_form(changeset, as: "user")
 
@@ -237,7 +237,7 @@ defmodule GameServerWeb.AdminLive.Users.Index do
   end
 
   def handle_event("delete_user", %{"id" => id}, socket) do
-    user = Repo.get!(User, id)
+    user = Accounts.get_user!(String.to_integer(id))
 
     case Accounts.delete_user(user) do
       {:ok, _user} ->

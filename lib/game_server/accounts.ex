@@ -1407,6 +1407,39 @@ defmodule GameServer.Accounts do
     :ok
   end
 
+  @doc false
+  @spec get_user_token(integer()) :: UserToken.t() | nil
+  @decorate cacheable(
+              key: {:accounts, :user_token, id},
+              match: &cache_match/1,
+              opts: [ttl: 5_000]
+            )
+  def get_user_token(id) when is_integer(id) do
+    Repo.get(UserToken, id)
+  end
+
+  @doc false
+  @spec get_user_token!(integer()) :: UserToken.t()
+  def get_user_token!(id) when is_integer(id) do
+    case get_user_token(id) do
+      %UserToken{} = token -> token
+      nil -> raise Ecto.NoResultsError, queryable: UserToken
+    end
+  end
+
+  @doc false
+  @spec delete_user_token(UserToken.t()) :: {:ok, UserToken.t()} | {:error, Ecto.Changeset.t()}
+  def delete_user_token(%UserToken{} = token) do
+    case Repo.delete(token) do
+      {:ok, _} = ok ->
+        _ = GameServer.Cache.delete({:accounts, :user_token, token.id})
+        ok
+
+      other ->
+        other
+    end
+  end
+
   @doc """
   Deletes a user and associated resources.
 
