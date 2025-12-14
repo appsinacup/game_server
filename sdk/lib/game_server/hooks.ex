@@ -267,4 +267,42 @@ defmodule GameServer.Hooks do
                      after_lobby_host_change: 2
     end
   end
+
+  @doc """
+  Returns the raw caller value for the current hook invocation.
+
+  When GameServer executes a hook function, it may inject a `:caller` into the
+  hook task's process dictionary. This helper fetches that raw value.
+  """
+  @spec caller() :: any() | nil
+  def caller do
+    raise "#{__MODULE__}.caller/0 is a stub - only available at runtime on GameServer"
+  end
+
+  @doc """
+  Returns the caller's numeric id when available.
+
+  If the caller is a `GameServer.Accounts.User` struct, returns its `id`.
+  If the caller is a map, returns `:id` or `"id"`.
+  If the caller is already an integer, returns it.
+  Otherwise returns `nil`.
+  """
+  @spec caller_id() :: integer() | nil
+  def caller_id do
+    raise "#{__MODULE__}.caller_id/0 is a stub - only available at runtime on GameServer"
+  end
+
+  @doc """
+  Returns the user struct for the current caller when available.
+
+  This is a convenience wrapper over `caller/0` that returns a user struct when
+  the caller is already a `%GameServer.Accounts.User{}`.
+
+  In the full GameServer application this may also resolve ids/maps via the DB.
+  In the SDK it only returns the struct when it is already present.
+  """
+  @spec caller_user() :: GameServer.Accounts.User.t() | nil
+  def caller_user do
+    raise "#{__MODULE__}.caller_user/0 is a stub - only available at runtime on GameServer"
+  end
 end
