@@ -19,7 +19,7 @@ config :logger, level: :info
 
 # Purge debug logs at compile-time in production builds.
 # Note: this means `Logger.debug/1` calls won't be available in prod without rebuilding.
-config :logger, compile_time_purge_matching: [level_lower_than: :info]
+config :logger, compile_time_purge_matching: [[level_lower_than: :info]]
 
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.
