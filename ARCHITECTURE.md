@@ -12,12 +12,15 @@ flowchart TB
         GameClients["Game Clients<br/>(Godot / JS SDK)"] ~~~ Browser["Web Browser"]
     end
 
-    subgraph Phoenix["Phoenix Application"]
+    subgraph GameServer["Game Server"]
+
+    subgraph Phoenix["Web Layer (HTTP)"]
         Realtime["WebSocket<br/>Channels"] ~~~ WebUI["Web UI<br/>(LiveViews)"] ~~~ API["REST API"]
     end
 
-    subgraph Core["Core"]
+    subgraph Core["Business Layer"]
         Domain["Domain Logic<br/>(Accounts, Lobbies,<br/>Friends, Leaderboards)"] ~~~ Auth["Authentication<br/>(JWT + Sessions)"] ~~~ Hooks["Server Scripting<br/>(Hooks)"]
+    end
     end
 
     subgraph External["External Services"]

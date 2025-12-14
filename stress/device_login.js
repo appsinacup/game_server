@@ -27,7 +27,6 @@ const TARGET_VUS = Number.parseInt(__ENV.TARGET_VUS || '5000', 10);
 const STAGE_DURATION = __ENV.STAGE_DURATION || '60s';
 const ME_CALLS = Number.parseInt(__ENV.ME_CALLS || '10', 10);
 const SLEEP_SECONDS = Number.parseFloat(__ENV.SLEEP_SECONDS || '1');
-const REUSE_TOKEN = (__ENV.REUSE_TOKEN || 'true').toLowerCase() === 'true';
 
 const deviceLoginTrend = new Trend('device_login_latency');
 const meTrend = new Trend('me_latency');
@@ -38,16 +37,7 @@ export let options = {
   ]
 };
 
-let cachedAccessToken = null;
-let cachedDeviceId = null;
-
 function getOrCreateDeviceId() {
-  if (REUSE_TOKEN) {
-    if (cachedDeviceId) return cachedDeviceId;
-    cachedDeviceId = `device-${__VU}-${Math.floor(Math.random() * 1e9)}`;
-    return cachedDeviceId;
-  }
-
   return `device-${Math.floor(Math.random() * 1e9)}-${__VU}-${__ITER}`;
 }
 
@@ -61,7 +51,7 @@ export default function () {
   group('DeviceLoginAndCall', function () {
     let device_id = getOrCreateDeviceId();
 
-    let access = REUSE_TOKEN ? cachedAccessToken : null;
+    let access = null;
     let loginRes = null;
 
     if (!access) {
@@ -89,10 +79,6 @@ export default function () {
         } catch (e) {
           console.error('login parse error when extracting token', e, 'status', loginRes.status, 'body_len', loginRes.body ? loginRes.body.length : 0);
         }
-
-        if (REUSE_TOKEN) {
-          cachedAccessToken = access;
-        }
       }
     }
 
@@ -105,10 +91,6 @@ export default function () {
         meTrend.add(r.timings.duration);
 
         let ok = check(r, { 'me status 200': (r) => r.status === 200 });
-        if (!ok && r.status === 401 && REUSE_TOKEN) {
-          // Token likely expired or got invalidated; force re-login next iteration.
-          cachedAccessToken = null;
-        }
       }
     } else if (loginRes) {
       console.error('no access token in login response', loginRes.status);
