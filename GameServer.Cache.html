@@ -1,0 +1,3837 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.39.3">
+    <meta name="project" content="game_server v1.0.406">
+
+
+    <title>GameServer.Cache — game_server v1.0.406</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-VYWJUHZE.css" />
+
+    <script defer src="dist/sidebar_items-1EE144EA.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-XBCM4BHM.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="https://github.com/appsinacup/game_server" class="sidebar-projectName" translate="no">
+game_server
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v1.0.406
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of game_server</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">GameServer.Cache</span> 
+      <small class="app-vsn" translate="no">(game_server v1.0.406)</small>
+
+    </h1>
+
+      <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L1" title="View Source" class="icon-action" rel="help">
+        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        <span class="sr-only">View Source</span>
+      </a>
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Application cache backed by Nebulex.</p><p>We currently use a local (in-memory) adapter for simplicity. In the future,
+this can be swapped for other Nebulex adapters/topologies.</p>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h1>
+<div class="summary-functions summary">
+  <h2>
+    <a href="#functions">Functions</a>
+  </h2>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_all/2" data-no-tooltip="" translate="no">count_all(query_spec \\ [], opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:count_all/2"><code class="inline">Nebulex.Cache.count_all/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_all/3" data-no-tooltip="" translate="no">count_all(dynamic_cache, query_spec, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:count_all/3"><code class="inline">Nebulex.Cache.count_all/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_all!/2" data-no-tooltip="" translate="no">count_all!(query_spec \\ [], opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:count_all!/2"><code class="inline">Nebulex.Cache.count_all!/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_all!/3" data-no-tooltip="" translate="no">count_all!(dynamic_cache, query_spec, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:count_all!/3"><code class="inline">Nebulex.Cache.count_all!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#decr/3" data-no-tooltip="" translate="no">decr(key, amount \\ 1, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:decr/3"><code class="inline">Nebulex.Cache.decr/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#decr/4" data-no-tooltip="" translate="no">decr(dynamic_cache, key, amount, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:decr/4"><code class="inline">Nebulex.Cache.decr/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#decr!/3" data-no-tooltip="" translate="no">decr!(key, amount \\ 1, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:decr!/3"><code class="inline">Nebulex.Cache.decr!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#decr!/4" data-no-tooltip="" translate="no">decr!(dynamic_cache, key, amount, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:decr!/4"><code class="inline">Nebulex.Cache.decr!/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#delete/2" data-no-tooltip="" translate="no">delete(key, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:delete/2"><code class="inline">Nebulex.Cache.delete/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#delete/3" data-no-tooltip="" translate="no">delete(dynamic_cache, key, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:delete/3"><code class="inline">Nebulex.Cache.delete/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#delete!/2" data-no-tooltip="" translate="no">delete!(key, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:delete!/2"><code class="inline">Nebulex.Cache.delete!/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#delete!/3" data-no-tooltip="" translate="no">delete!(dynamic_cache, key, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:delete!/3"><code class="inline">Nebulex.Cache.delete!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#delete_all/2" data-no-tooltip="" translate="no">delete_all(query_spec \\ [], opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:delete_all/2"><code class="inline">Nebulex.Cache.delete_all/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#delete_all/3" data-no-tooltip="" translate="no">delete_all(dynamic_cache, query_spec, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:delete_all/3"><code class="inline">Nebulex.Cache.delete_all/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#delete_all!/2" data-no-tooltip="" translate="no">delete_all!(query_spec \\ [], opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:delete_all!/2"><code class="inline">Nebulex.Cache.delete_all!/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#delete_all!/3" data-no-tooltip="" translate="no">delete_all!(dynamic_cache, query_spec, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:delete_all!/3"><code class="inline">Nebulex.Cache.delete_all!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#expire/3" data-no-tooltip="" translate="no">expire(key, ttl, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:expire/3"><code class="inline">Nebulex.Cache.expire/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#expire/4" data-no-tooltip="" translate="no">expire(dynamic_cache, key, ttl, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:expire/4"><code class="inline">Nebulex.Cache.expire/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#expire!/3" data-no-tooltip="" translate="no">expire!(key, ttl, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:expire!/3"><code class="inline">Nebulex.Cache.expire!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#expire!/4" data-no-tooltip="" translate="no">expire!(dynamic_cache, key, ttl, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:expire!/4"><code class="inline">Nebulex.Cache.expire!/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#fetch/2" data-no-tooltip="" translate="no">fetch(key, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:fetch/2"><code class="inline">Nebulex.Cache.fetch/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#fetch/3" data-no-tooltip="" translate="no">fetch(dynamic_cache, key, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:fetch/3"><code class="inline">Nebulex.Cache.fetch/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#fetch!/2" data-no-tooltip="" translate="no">fetch!(key, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:fetch!/2"><code class="inline">Nebulex.Cache.fetch!/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#fetch!/3" data-no-tooltip="" translate="no">fetch!(dynamic_cache, key, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:fetch!/3"><code class="inline">Nebulex.Cache.fetch!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#fetch_or_store/3" data-no-tooltip="" translate="no">fetch_or_store(key, fun, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:fetch_or_store/3"><code class="inline">Nebulex.Cache.fetch_or_store/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#fetch_or_store/4" data-no-tooltip="" translate="no">fetch_or_store(dynamic_cache, key, fun, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:fetch_or_store/4"><code class="inline">Nebulex.Cache.fetch_or_store/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#fetch_or_store!/3" data-no-tooltip="" translate="no">fetch_or_store!(key, fun, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:fetch_or_store!/3"><code class="inline">Nebulex.Cache.fetch_or_store!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#fetch_or_store!/4" data-no-tooltip="" translate="no">fetch_or_store!(dynamic_cache, key, fun, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:fetch_or_store!/4"><code class="inline">Nebulex.Cache.fetch_or_store!/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#generations/0" data-no-tooltip="" translate="no">generations()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>A convenience function for retrieving the current generations.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get/3" data-no-tooltip="" translate="no">get(key, default \\ nil, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get/3"><code class="inline">Nebulex.Cache.get/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get/4" data-no-tooltip="" translate="no">get(dynamic_cache, key, default, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get/4"><code class="inline">Nebulex.Cache.get/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get!/3" data-no-tooltip="" translate="no">get!(key, default \\ nil, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get!/3"><code class="inline">Nebulex.Cache.get!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get!/4" data-no-tooltip="" translate="no">get!(dynamic_cache, key, default, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get!/4"><code class="inline">Nebulex.Cache.get!/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_all/2" data-no-tooltip="" translate="no">get_all(query_spec \\ [], opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_all/2"><code class="inline">Nebulex.Cache.get_all/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_all/3" data-no-tooltip="" translate="no">get_all(dynamic_cache, query_spec, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_all/3"><code class="inline">Nebulex.Cache.get_all/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_all!/2" data-no-tooltip="" translate="no">get_all!(query_spec \\ [], opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_all!/2"><code class="inline">Nebulex.Cache.get_all!/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_all!/3" data-no-tooltip="" translate="no">get_all!(dynamic_cache, query_spec, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_all!/3"><code class="inline">Nebulex.Cache.get_all!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_and_update/3" data-no-tooltip="" translate="no">get_and_update(key, fun, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_and_update/3"><code class="inline">Nebulex.Cache.get_and_update/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_and_update/4" data-no-tooltip="" translate="no">get_and_update(dynamic_cache, key, fun, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_and_update/4"><code class="inline">Nebulex.Cache.get_and_update/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_and_update!/3" data-no-tooltip="" translate="no">get_and_update!(key, fun, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_and_update!/3"><code class="inline">Nebulex.Cache.get_and_update!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_and_update!/4" data-no-tooltip="" translate="no">get_and_update!(dynamic_cache, key, fun, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_and_update!/4"><code class="inline">Nebulex.Cache.get_and_update!/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_or_store/3" data-no-tooltip="" translate="no">get_or_store(key, fun, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_or_store/3"><code class="inline">Nebulex.Cache.get_or_store/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_or_store/4" data-no-tooltip="" translate="no">get_or_store(dynamic_cache, key, fun, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_or_store/4"><code class="inline">Nebulex.Cache.get_or_store/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_or_store!/3" data-no-tooltip="" translate="no">get_or_store!(key, fun, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_or_store!/3"><code class="inline">Nebulex.Cache.get_or_store!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_or_store!/4" data-no-tooltip="" translate="no">get_or_store!(dynamic_cache, key, fun, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_or_store!/4"><code class="inline">Nebulex.Cache.get_or_store!/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#has_key?/2" data-no-tooltip="" translate="no">has_key?(key, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:has_key?/2"><code class="inline">Nebulex.Cache.has_key?/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#has_key?/3" data-no-tooltip="" translate="no">has_key?(dynamic_cache, key, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:has_key?/3"><code class="inline">Nebulex.Cache.has_key?/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#in_transaction?/1" data-no-tooltip="" translate="no">in_transaction?(opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:in_transaction?/1"><code class="inline">Nebulex.Cache.in_transaction?/1</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#in_transaction?/2" data-no-tooltip="" translate="no">in_transaction?(dynamic_cache, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:in_transaction?/2"><code class="inline">Nebulex.Cache.in_transaction?/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#incr/3" data-no-tooltip="" translate="no">incr(key, amount \\ 1, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:incr/3"><code class="inline">Nebulex.Cache.incr/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#incr/4" data-no-tooltip="" translate="no">incr(dynamic_cache, key, amount, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:incr/4"><code class="inline">Nebulex.Cache.incr/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#incr!/3" data-no-tooltip="" translate="no">incr!(key, amount \\ 1, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:incr!/3"><code class="inline">Nebulex.Cache.incr!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#incr!/4" data-no-tooltip="" translate="no">incr!(dynamic_cache, key, amount, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:incr!/4"><code class="inline">Nebulex.Cache.incr!/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#info/2" data-no-tooltip="" translate="no">info(spec \\ :all, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:info/2"><code class="inline">Nebulex.Cache.info/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#info/3" data-no-tooltip="" translate="no">info(dynamic_cache, spec, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:info/3"><code class="inline">Nebulex.Cache.info/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#info!/2" data-no-tooltip="" translate="no">info!(spec \\ :all, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:info!/2"><code class="inline">Nebulex.Cache.info!/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#info!/3" data-no-tooltip="" translate="no">info!(dynamic_cache, spec, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:info!/3"><code class="inline">Nebulex.Cache.info!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#new_generation/1" data-no-tooltip="" translate="no">new_generation(opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>A convenience function for creating new generations.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#newer_generation/0" data-no-tooltip="" translate="no">newer_generation()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>A convenience function for retrieving the newer generation.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#put/3" data-no-tooltip="" translate="no">put(key, value, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put/3"><code class="inline">Nebulex.Cache.put/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#put/4" data-no-tooltip="" translate="no">put(dynamic_cache, key, value, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put/4"><code class="inline">Nebulex.Cache.put/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#put!/3" data-no-tooltip="" translate="no">put!(key, value, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put!/3"><code class="inline">Nebulex.Cache.put!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#put!/4" data-no-tooltip="" translate="no">put!(dynamic_cache, key, value, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put!/4"><code class="inline">Nebulex.Cache.put!/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#put_all/2" data-no-tooltip="" translate="no">put_all(entries, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_all/2"><code class="inline">Nebulex.Cache.put_all/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#put_all/3" data-no-tooltip="" translate="no">put_all(dynamic_cache, entries, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_all/3"><code class="inline">Nebulex.Cache.put_all/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#put_all!/2" data-no-tooltip="" translate="no">put_all!(entries, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_all!/2"><code class="inline">Nebulex.Cache.put_all!/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#put_all!/3" data-no-tooltip="" translate="no">put_all!(dynamic_cache, entries, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_all!/3"><code class="inline">Nebulex.Cache.put_all!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#put_new/3" data-no-tooltip="" translate="no">put_new(key, value, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_new/3"><code class="inline">Nebulex.Cache.put_new/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#put_new/4" data-no-tooltip="" translate="no">put_new(dynamic_cache, key, value, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_new/4"><code class="inline">Nebulex.Cache.put_new/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#put_new!/3" data-no-tooltip="" translate="no">put_new!(key, value, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_new!/3"><code class="inline">Nebulex.Cache.put_new!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#put_new!/4" data-no-tooltip="" translate="no">put_new!(dynamic_cache, key, value, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_new!/4"><code class="inline">Nebulex.Cache.put_new!/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#put_new_all/2" data-no-tooltip="" translate="no">put_new_all(entries, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_new_all/2"><code class="inline">Nebulex.Cache.put_new_all/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#put_new_all/3" data-no-tooltip="" translate="no">put_new_all(dynamic_cache, entries, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_new_all/3"><code class="inline">Nebulex.Cache.put_new_all/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#put_new_all!/2" data-no-tooltip="" translate="no">put_new_all!(entries, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_new_all!/2"><code class="inline">Nebulex.Cache.put_new_all!/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#put_new_all!/3" data-no-tooltip="" translate="no">put_new_all!(dynamic_cache, entries, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_new_all!/3"><code class="inline">Nebulex.Cache.put_new_all!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#register_event_listener/2" data-no-tooltip="" translate="no">register_event_listener(listener, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:register_event_listener/2"><code class="inline">Nebulex.Cache.register_event_listener/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#register_event_listener/3" data-no-tooltip="" translate="no">register_event_listener(dynamic_cache, listener, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:register_event_listener/3"><code class="inline">Nebulex.Cache.register_event_listener/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#register_event_listener!/2" data-no-tooltip="" translate="no">register_event_listener!(listener, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:register_event_listener!/2"><code class="inline">Nebulex.Cache.register_event_listener!/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#register_event_listener!/3" data-no-tooltip="" translate="no">register_event_listener!(dynamic_cache, listener, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:register_event_listener!/3"><code class="inline">Nebulex.Cache.register_event_listener!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#replace/3" data-no-tooltip="" translate="no">replace(key, value, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:replace/3"><code class="inline">Nebulex.Cache.replace/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#replace/4" data-no-tooltip="" translate="no">replace(dynamic_cache, key, value, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:replace/4"><code class="inline">Nebulex.Cache.replace/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#replace!/3" data-no-tooltip="" translate="no">replace!(key, value, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:replace!/3"><code class="inline">Nebulex.Cache.replace!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#replace!/4" data-no-tooltip="" translate="no">replace!(dynamic_cache, key, value, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:replace!/4"><code class="inline">Nebulex.Cache.replace!/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#reset_gc_interval/0" data-no-tooltip="" translate="no">reset_gc_interval()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>A convenience function for reset the GC interval.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#stream/2" data-no-tooltip="" translate="no">stream(query_spec \\ [], opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:stream/2"><code class="inline">Nebulex.Cache.stream/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#stream/3" data-no-tooltip="" translate="no">stream(dynamic_cache, query_spec, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:stream/3"><code class="inline">Nebulex.Cache.stream/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#stream!/2" data-no-tooltip="" translate="no">stream!(query_spec \\ [], opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:stream!/2"><code class="inline">Nebulex.Cache.stream!/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#stream!/3" data-no-tooltip="" translate="no">stream!(dynamic_cache, query_spec, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:stream!/3"><code class="inline">Nebulex.Cache.stream!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#take/2" data-no-tooltip="" translate="no">take(key, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:take/2"><code class="inline">Nebulex.Cache.take/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#take/3" data-no-tooltip="" translate="no">take(dynamic_cache, key, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:take/3"><code class="inline">Nebulex.Cache.take/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#take!/2" data-no-tooltip="" translate="no">take!(key, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:take!/2"><code class="inline">Nebulex.Cache.take!/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#take!/3" data-no-tooltip="" translate="no">take!(dynamic_cache, key, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:take!/3"><code class="inline">Nebulex.Cache.take!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#touch/2" data-no-tooltip="" translate="no">touch(key, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:touch/2"><code class="inline">Nebulex.Cache.touch/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#touch/3" data-no-tooltip="" translate="no">touch(dynamic_cache, key, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:touch/3"><code class="inline">Nebulex.Cache.touch/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#touch!/2" data-no-tooltip="" translate="no">touch!(key, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:touch!/2"><code class="inline">Nebulex.Cache.touch!/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#touch!/3" data-no-tooltip="" translate="no">touch!(dynamic_cache, key, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:touch!/3"><code class="inline">Nebulex.Cache.touch!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#transaction/2" data-no-tooltip="" translate="no">transaction(fun, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:transaction/2"><code class="inline">Nebulex.Cache.transaction/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#transaction/3" data-no-tooltip="" translate="no">transaction(dynamic_cache, fun, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:transaction/3"><code class="inline">Nebulex.Cache.transaction/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#ttl/2" data-no-tooltip="" translate="no">ttl(key, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:ttl/2"><code class="inline">Nebulex.Cache.ttl/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#ttl/3" data-no-tooltip="" translate="no">ttl(dynamic_cache, key, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:ttl/3"><code class="inline">Nebulex.Cache.ttl/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#ttl!/2" data-no-tooltip="" translate="no">ttl!(key, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:ttl!/2"><code class="inline">Nebulex.Cache.ttl!/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#ttl!/3" data-no-tooltip="" translate="no">ttl!(dynamic_cache, key, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:ttl!/3"><code class="inline">Nebulex.Cache.ttl!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#unregister_event_listener/2" data-no-tooltip="" translate="no">unregister_event_listener(id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:unregister_event_listener/2"><code class="inline">Nebulex.Cache.unregister_event_listener/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#unregister_event_listener/3" data-no-tooltip="" translate="no">unregister_event_listener(dynamic_cache, id, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:unregister_event_listener/3"><code class="inline">Nebulex.Cache.unregister_event_listener/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#unregister_event_listener!/2" data-no-tooltip="" translate="no">unregister_event_listener!(id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:unregister_event_listener!/2"><code class="inline">Nebulex.Cache.unregister_event_listener!/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#unregister_event_listener!/3" data-no-tooltip="" translate="no">unregister_event_listener!(dynamic_cache, id, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:unregister_event_listener!/3"><code class="inline">Nebulex.Cache.unregister_event_listener!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#update/4" data-no-tooltip="" translate="no">update(key, initial, fun, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:update/4"><code class="inline">Nebulex.Cache.update/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#update/5" data-no-tooltip="" translate="no">update(dynamic_cache, key, initial, fun, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:update/5"><code class="inline">Nebulex.Cache.update/5</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#update!/4" data-no-tooltip="" translate="no">update!(key, initial, fun, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:update!/4"><code class="inline">Nebulex.Cache.update!/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#update!/5" data-no-tooltip="" translate="no">update!(dynamic_cache, key, initial, fun, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:update!/5"><code class="inline">Nebulex.Cache.update!/5</code></a>.</p></div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="functions" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h1>
+
+    <div class="functions-list">
+<section class="detail" id="count_all/2">
+
+    <span id="count_all/0"></span>
+
+    <span id="count_all/1"></span>
+
+  <div class="detail-header">
+    <a href="#count_all/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_all(query_spec \\ [], opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:count_all/2"><code class="inline">Nebulex.Cache.count_all/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="count_all/3">
+
+  <div class="detail-header">
+    <a href="#count_all/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_all(dynamic_cache, query_spec, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:count_all/3"><code class="inline">Nebulex.Cache.count_all/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="count_all!/2">
+
+    <span id="count_all!/0"></span>
+
+    <span id="count_all!/1"></span>
+
+  <div class="detail-header">
+    <a href="#count_all!/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_all!(query_spec \\ [], opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:count_all!/2"><code class="inline">Nebulex.Cache.count_all!/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="count_all!/3">
+
+  <div class="detail-header">
+    <a href="#count_all!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_all!(dynamic_cache, query_spec, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:count_all!/3"><code class="inline">Nebulex.Cache.count_all!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="decr/3">
+
+    <span id="decr/1"></span>
+
+    <span id="decr/2"></span>
+
+  <div class="detail-header">
+    <a href="#decr/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">decr(key, amount \\ 1, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:decr/3"><code class="inline">Nebulex.Cache.decr/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="decr/4">
+
+  <div class="detail-header">
+    <a href="#decr/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">decr(dynamic_cache, key, amount, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:decr/4"><code class="inline">Nebulex.Cache.decr/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="decr!/3">
+
+    <span id="decr!/1"></span>
+
+    <span id="decr!/2"></span>
+
+  <div class="detail-header">
+    <a href="#decr!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">decr!(key, amount \\ 1, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:decr!/3"><code class="inline">Nebulex.Cache.decr!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="decr!/4">
+
+  <div class="detail-header">
+    <a href="#decr!/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">decr!(dynamic_cache, key, amount, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:decr!/4"><code class="inline">Nebulex.Cache.decr!/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="delete/2">
+
+    <span id="delete/1"></span>
+
+  <div class="detail-header">
+    <a href="#delete/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">delete(key, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:delete/2"><code class="inline">Nebulex.Cache.delete/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="delete/3">
+
+  <div class="detail-header">
+    <a href="#delete/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">delete(dynamic_cache, key, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:delete/3"><code class="inline">Nebulex.Cache.delete/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="delete!/2">
+
+    <span id="delete!/1"></span>
+
+  <div class="detail-header">
+    <a href="#delete!/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">delete!(key, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:delete!/2"><code class="inline">Nebulex.Cache.delete!/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="delete!/3">
+
+  <div class="detail-header">
+    <a href="#delete!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">delete!(dynamic_cache, key, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:delete!/3"><code class="inline">Nebulex.Cache.delete!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="delete_all/2">
+
+    <span id="delete_all/0"></span>
+
+    <span id="delete_all/1"></span>
+
+  <div class="detail-header">
+    <a href="#delete_all/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">delete_all(query_spec \\ [], opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:delete_all/2"><code class="inline">Nebulex.Cache.delete_all/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="delete_all/3">
+
+  <div class="detail-header">
+    <a href="#delete_all/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">delete_all(dynamic_cache, query_spec, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:delete_all/3"><code class="inline">Nebulex.Cache.delete_all/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="delete_all!/2">
+
+    <span id="delete_all!/0"></span>
+
+    <span id="delete_all!/1"></span>
+
+  <div class="detail-header">
+    <a href="#delete_all!/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">delete_all!(query_spec \\ [], opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:delete_all!/2"><code class="inline">Nebulex.Cache.delete_all!/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="delete_all!/3">
+
+  <div class="detail-header">
+    <a href="#delete_all!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">delete_all!(dynamic_cache, query_spec, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:delete_all!/3"><code class="inline">Nebulex.Cache.delete_all!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="expire/3">
+
+    <span id="expire/2"></span>
+
+  <div class="detail-header">
+    <a href="#expire/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">expire(key, ttl, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:expire/3"><code class="inline">Nebulex.Cache.expire/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="expire/4">
+
+  <div class="detail-header">
+    <a href="#expire/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">expire(dynamic_cache, key, ttl, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:expire/4"><code class="inline">Nebulex.Cache.expire/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="expire!/3">
+
+    <span id="expire!/2"></span>
+
+  <div class="detail-header">
+    <a href="#expire!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">expire!(key, ttl, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:expire!/3"><code class="inline">Nebulex.Cache.expire!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="expire!/4">
+
+  <div class="detail-header">
+    <a href="#expire!/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">expire!(dynamic_cache, key, ttl, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:expire!/4"><code class="inline">Nebulex.Cache.expire!/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="fetch/2">
+
+    <span id="fetch/1"></span>
+
+  <div class="detail-header">
+    <a href="#fetch/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">fetch(key, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:fetch/2"><code class="inline">Nebulex.Cache.fetch/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="fetch/3">
+
+  <div class="detail-header">
+    <a href="#fetch/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">fetch(dynamic_cache, key, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:fetch/3"><code class="inline">Nebulex.Cache.fetch/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="fetch!/2">
+
+    <span id="fetch!/1"></span>
+
+  <div class="detail-header">
+    <a href="#fetch!/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">fetch!(key, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:fetch!/2"><code class="inline">Nebulex.Cache.fetch!/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="fetch!/3">
+
+  <div class="detail-header">
+    <a href="#fetch!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">fetch!(dynamic_cache, key, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:fetch!/3"><code class="inline">Nebulex.Cache.fetch!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="fetch_or_store/3">
+
+    <span id="fetch_or_store/2"></span>
+
+  <div class="detail-header">
+    <a href="#fetch_or_store/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">fetch_or_store(key, fun, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:fetch_or_store/3"><code class="inline">Nebulex.Cache.fetch_or_store/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="fetch_or_store/4">
+
+  <div class="detail-header">
+    <a href="#fetch_or_store/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">fetch_or_store(dynamic_cache, key, fun, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:fetch_or_store/4"><code class="inline">Nebulex.Cache.fetch_or_store/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="fetch_or_store!/3">
+
+    <span id="fetch_or_store!/2"></span>
+
+  <div class="detail-header">
+    <a href="#fetch_or_store!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">fetch_or_store!(key, fun, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:fetch_or_store!/3"><code class="inline">Nebulex.Cache.fetch_or_store!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="fetch_or_store!/4">
+
+  <div class="detail-header">
+    <a href="#fetch_or_store!/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">fetch_or_store!(dynamic_cache, key, fun, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:fetch_or_store!/4"><code class="inline">Nebulex.Cache.fetch_or_store!/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="generations/0">
+
+  <div class="detail-header">
+    <a href="#generations/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">generations()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L1" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>A convenience function for retrieving the current generations.</p>
+  </section>
+</section>
+<section class="detail" id="get/3">
+
+    <span id="get/1"></span>
+
+    <span id="get/2"></span>
+
+  <div class="detail-header">
+    <a href="#get/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get(key, default \\ nil, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get/3"><code class="inline">Nebulex.Cache.get/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="get/4">
+
+  <div class="detail-header">
+    <a href="#get/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get(dynamic_cache, key, default, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get/4"><code class="inline">Nebulex.Cache.get/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="get!/3">
+
+    <span id="get!/1"></span>
+
+    <span id="get!/2"></span>
+
+  <div class="detail-header">
+    <a href="#get!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get!(key, default \\ nil, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get!/3"><code class="inline">Nebulex.Cache.get!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="get!/4">
+
+  <div class="detail-header">
+    <a href="#get!/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get!(dynamic_cache, key, default, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get!/4"><code class="inline">Nebulex.Cache.get!/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="get_all/2">
+
+    <span id="get_all/0"></span>
+
+    <span id="get_all/1"></span>
+
+  <div class="detail-header">
+    <a href="#get_all/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_all(query_spec \\ [], opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_all/2"><code class="inline">Nebulex.Cache.get_all/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="get_all/3">
+
+  <div class="detail-header">
+    <a href="#get_all/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_all(dynamic_cache, query_spec, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_all/3"><code class="inline">Nebulex.Cache.get_all/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="get_all!/2">
+
+    <span id="get_all!/0"></span>
+
+    <span id="get_all!/1"></span>
+
+  <div class="detail-header">
+    <a href="#get_all!/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_all!(query_spec \\ [], opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_all!/2"><code class="inline">Nebulex.Cache.get_all!/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="get_all!/3">
+
+  <div class="detail-header">
+    <a href="#get_all!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_all!(dynamic_cache, query_spec, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_all!/3"><code class="inline">Nebulex.Cache.get_all!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="get_and_update/3">
+
+    <span id="get_and_update/2"></span>
+
+  <div class="detail-header">
+    <a href="#get_and_update/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_and_update(key, fun, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_and_update/3"><code class="inline">Nebulex.Cache.get_and_update/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="get_and_update/4">
+
+  <div class="detail-header">
+    <a href="#get_and_update/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_and_update(dynamic_cache, key, fun, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_and_update/4"><code class="inline">Nebulex.Cache.get_and_update/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="get_and_update!/3">
+
+    <span id="get_and_update!/2"></span>
+
+  <div class="detail-header">
+    <a href="#get_and_update!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_and_update!(key, fun, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_and_update!/3"><code class="inline">Nebulex.Cache.get_and_update!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="get_and_update!/4">
+
+  <div class="detail-header">
+    <a href="#get_and_update!/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_and_update!(dynamic_cache, key, fun, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_and_update!/4"><code class="inline">Nebulex.Cache.get_and_update!/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="get_or_store/3">
+
+    <span id="get_or_store/2"></span>
+
+  <div class="detail-header">
+    <a href="#get_or_store/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_or_store(key, fun, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_or_store/3"><code class="inline">Nebulex.Cache.get_or_store/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="get_or_store/4">
+
+  <div class="detail-header">
+    <a href="#get_or_store/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_or_store(dynamic_cache, key, fun, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_or_store/4"><code class="inline">Nebulex.Cache.get_or_store/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="get_or_store!/3">
+
+    <span id="get_or_store!/2"></span>
+
+  <div class="detail-header">
+    <a href="#get_or_store!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_or_store!(key, fun, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_or_store!/3"><code class="inline">Nebulex.Cache.get_or_store!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="get_or_store!/4">
+
+  <div class="detail-header">
+    <a href="#get_or_store!/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_or_store!(dynamic_cache, key, fun, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:get_or_store!/4"><code class="inline">Nebulex.Cache.get_or_store!/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="has_key?/2">
+
+    <span id="has_key?/1"></span>
+
+  <div class="detail-header">
+    <a href="#has_key?/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">has_key?(key, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:has_key?/2"><code class="inline">Nebulex.Cache.has_key?/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="has_key?/3">
+
+  <div class="detail-header">
+    <a href="#has_key?/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">has_key?(dynamic_cache, key, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:has_key?/3"><code class="inline">Nebulex.Cache.has_key?/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="in_transaction?/1">
+
+    <span id="in_transaction?/0"></span>
+
+  <div class="detail-header">
+    <a href="#in_transaction?/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">in_transaction?(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:in_transaction?/1"><code class="inline">Nebulex.Cache.in_transaction?/1</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="in_transaction?/2">
+
+  <div class="detail-header">
+    <a href="#in_transaction?/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">in_transaction?(dynamic_cache, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:in_transaction?/2"><code class="inline">Nebulex.Cache.in_transaction?/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="incr/3">
+
+    <span id="incr/1"></span>
+
+    <span id="incr/2"></span>
+
+  <div class="detail-header">
+    <a href="#incr/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">incr(key, amount \\ 1, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:incr/3"><code class="inline">Nebulex.Cache.incr/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="incr/4">
+
+  <div class="detail-header">
+    <a href="#incr/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">incr(dynamic_cache, key, amount, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:incr/4"><code class="inline">Nebulex.Cache.incr/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="incr!/3">
+
+    <span id="incr!/1"></span>
+
+    <span id="incr!/2"></span>
+
+  <div class="detail-header">
+    <a href="#incr!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">incr!(key, amount \\ 1, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:incr!/3"><code class="inline">Nebulex.Cache.incr!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="incr!/4">
+
+  <div class="detail-header">
+    <a href="#incr!/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">incr!(dynamic_cache, key, amount, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:incr!/4"><code class="inline">Nebulex.Cache.incr!/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="info/2">
+
+    <span id="info/0"></span>
+
+    <span id="info/1"></span>
+
+  <div class="detail-header">
+    <a href="#info/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">info(spec \\ :all, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:info/2"><code class="inline">Nebulex.Cache.info/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="info/3">
+
+  <div class="detail-header">
+    <a href="#info/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">info(dynamic_cache, spec, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:info/3"><code class="inline">Nebulex.Cache.info/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="info!/2">
+
+    <span id="info!/0"></span>
+
+    <span id="info!/1"></span>
+
+  <div class="detail-header">
+    <a href="#info!/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">info!(spec \\ :all, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:info!/2"><code class="inline">Nebulex.Cache.info!/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="info!/3">
+
+  <div class="detail-header">
+    <a href="#info!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">info!(dynamic_cache, spec, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:info!/3"><code class="inline">Nebulex.Cache.info!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="new_generation/1">
+
+    <span id="new_generation/0"></span>
+
+  <div class="detail-header">
+    <a href="#new_generation/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">new_generation(opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L1" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>A convenience function for creating new generations.</p>
+  </section>
+</section>
+<section class="detail" id="newer_generation/0">
+
+  <div class="detail-header">
+    <a href="#newer_generation/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">newer_generation()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L1" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>A convenience function for retrieving the newer generation.</p>
+  </section>
+</section>
+<section class="detail" id="put/3">
+
+    <span id="put/2"></span>
+
+  <div class="detail-header">
+    <a href="#put/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">put(key, value, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put/3"><code class="inline">Nebulex.Cache.put/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="put/4">
+
+  <div class="detail-header">
+    <a href="#put/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">put(dynamic_cache, key, value, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put/4"><code class="inline">Nebulex.Cache.put/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="put!/3">
+
+    <span id="put!/2"></span>
+
+  <div class="detail-header">
+    <a href="#put!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">put!(key, value, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put!/3"><code class="inline">Nebulex.Cache.put!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="put!/4">
+
+  <div class="detail-header">
+    <a href="#put!/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">put!(dynamic_cache, key, value, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put!/4"><code class="inline">Nebulex.Cache.put!/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="put_all/2">
+
+    <span id="put_all/1"></span>
+
+  <div class="detail-header">
+    <a href="#put_all/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">put_all(entries, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_all/2"><code class="inline">Nebulex.Cache.put_all/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="put_all/3">
+
+  <div class="detail-header">
+    <a href="#put_all/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">put_all(dynamic_cache, entries, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_all/3"><code class="inline">Nebulex.Cache.put_all/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="put_all!/2">
+
+    <span id="put_all!/1"></span>
+
+  <div class="detail-header">
+    <a href="#put_all!/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">put_all!(entries, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_all!/2"><code class="inline">Nebulex.Cache.put_all!/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="put_all!/3">
+
+  <div class="detail-header">
+    <a href="#put_all!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">put_all!(dynamic_cache, entries, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_all!/3"><code class="inline">Nebulex.Cache.put_all!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="put_new/3">
+
+    <span id="put_new/2"></span>
+
+  <div class="detail-header">
+    <a href="#put_new/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">put_new(key, value, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_new/3"><code class="inline">Nebulex.Cache.put_new/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="put_new/4">
+
+  <div class="detail-header">
+    <a href="#put_new/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">put_new(dynamic_cache, key, value, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_new/4"><code class="inline">Nebulex.Cache.put_new/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="put_new!/3">
+
+    <span id="put_new!/2"></span>
+
+  <div class="detail-header">
+    <a href="#put_new!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">put_new!(key, value, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_new!/3"><code class="inline">Nebulex.Cache.put_new!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="put_new!/4">
+
+  <div class="detail-header">
+    <a href="#put_new!/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">put_new!(dynamic_cache, key, value, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_new!/4"><code class="inline">Nebulex.Cache.put_new!/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="put_new_all/2">
+
+    <span id="put_new_all/1"></span>
+
+  <div class="detail-header">
+    <a href="#put_new_all/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">put_new_all(entries, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_new_all/2"><code class="inline">Nebulex.Cache.put_new_all/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="put_new_all/3">
+
+  <div class="detail-header">
+    <a href="#put_new_all/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">put_new_all(dynamic_cache, entries, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_new_all/3"><code class="inline">Nebulex.Cache.put_new_all/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="put_new_all!/2">
+
+    <span id="put_new_all!/1"></span>
+
+  <div class="detail-header">
+    <a href="#put_new_all!/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">put_new_all!(entries, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_new_all!/2"><code class="inline">Nebulex.Cache.put_new_all!/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="put_new_all!/3">
+
+  <div class="detail-header">
+    <a href="#put_new_all!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">put_new_all!(dynamic_cache, entries, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:put_new_all!/3"><code class="inline">Nebulex.Cache.put_new_all!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="register_event_listener/2">
+
+    <span id="register_event_listener/1"></span>
+
+  <div class="detail-header">
+    <a href="#register_event_listener/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">register_event_listener(listener, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:register_event_listener/2"><code class="inline">Nebulex.Cache.register_event_listener/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="register_event_listener/3">
+
+  <div class="detail-header">
+    <a href="#register_event_listener/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">register_event_listener(dynamic_cache, listener, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:register_event_listener/3"><code class="inline">Nebulex.Cache.register_event_listener/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="register_event_listener!/2">
+
+    <span id="register_event_listener!/1"></span>
+
+  <div class="detail-header">
+    <a href="#register_event_listener!/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">register_event_listener!(listener, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:register_event_listener!/2"><code class="inline">Nebulex.Cache.register_event_listener!/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="register_event_listener!/3">
+
+  <div class="detail-header">
+    <a href="#register_event_listener!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">register_event_listener!(dynamic_cache, listener, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:register_event_listener!/3"><code class="inline">Nebulex.Cache.register_event_listener!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="replace/3">
+
+    <span id="replace/2"></span>
+
+  <div class="detail-header">
+    <a href="#replace/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">replace(key, value, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:replace/3"><code class="inline">Nebulex.Cache.replace/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="replace/4">
+
+  <div class="detail-header">
+    <a href="#replace/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">replace(dynamic_cache, key, value, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:replace/4"><code class="inline">Nebulex.Cache.replace/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="replace!/3">
+
+    <span id="replace!/2"></span>
+
+  <div class="detail-header">
+    <a href="#replace!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">replace!(key, value, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:replace!/3"><code class="inline">Nebulex.Cache.replace!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="replace!/4">
+
+  <div class="detail-header">
+    <a href="#replace!/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">replace!(dynamic_cache, key, value, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:replace!/4"><code class="inline">Nebulex.Cache.replace!/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="reset_gc_interval/0">
+
+  <div class="detail-header">
+    <a href="#reset_gc_interval/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">reset_gc_interval()</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L1" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>A convenience function for reset the GC interval.</p>
+  </section>
+</section>
+<section class="detail" id="stream/2">
+
+    <span id="stream/0"></span>
+
+    <span id="stream/1"></span>
+
+  <div class="detail-header">
+    <a href="#stream/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">stream(query_spec \\ [], opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:stream/2"><code class="inline">Nebulex.Cache.stream/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="stream/3">
+
+  <div class="detail-header">
+    <a href="#stream/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">stream(dynamic_cache, query_spec, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:stream/3"><code class="inline">Nebulex.Cache.stream/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="stream!/2">
+
+    <span id="stream!/0"></span>
+
+    <span id="stream!/1"></span>
+
+  <div class="detail-header">
+    <a href="#stream!/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">stream!(query_spec \\ [], opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:stream!/2"><code class="inline">Nebulex.Cache.stream!/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="stream!/3">
+
+  <div class="detail-header">
+    <a href="#stream!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">stream!(dynamic_cache, query_spec, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:stream!/3"><code class="inline">Nebulex.Cache.stream!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="take/2">
+
+    <span id="take/1"></span>
+
+  <div class="detail-header">
+    <a href="#take/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">take(key, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:take/2"><code class="inline">Nebulex.Cache.take/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="take/3">
+
+  <div class="detail-header">
+    <a href="#take/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">take(dynamic_cache, key, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:take/3"><code class="inline">Nebulex.Cache.take/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="take!/2">
+
+    <span id="take!/1"></span>
+
+  <div class="detail-header">
+    <a href="#take!/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">take!(key, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:take!/2"><code class="inline">Nebulex.Cache.take!/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="take!/3">
+
+  <div class="detail-header">
+    <a href="#take!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">take!(dynamic_cache, key, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:take!/3"><code class="inline">Nebulex.Cache.take!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="touch/2">
+
+    <span id="touch/1"></span>
+
+  <div class="detail-header">
+    <a href="#touch/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">touch(key, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:touch/2"><code class="inline">Nebulex.Cache.touch/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="touch/3">
+
+  <div class="detail-header">
+    <a href="#touch/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">touch(dynamic_cache, key, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:touch/3"><code class="inline">Nebulex.Cache.touch/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="touch!/2">
+
+    <span id="touch!/1"></span>
+
+  <div class="detail-header">
+    <a href="#touch!/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">touch!(key, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:touch!/2"><code class="inline">Nebulex.Cache.touch!/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="touch!/3">
+
+  <div class="detail-header">
+    <a href="#touch!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">touch!(dynamic_cache, key, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:touch!/3"><code class="inline">Nebulex.Cache.touch!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="transaction/2">
+
+    <span id="transaction/1"></span>
+
+  <div class="detail-header">
+    <a href="#transaction/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">transaction(fun, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:transaction/2"><code class="inline">Nebulex.Cache.transaction/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="transaction/3">
+
+  <div class="detail-header">
+    <a href="#transaction/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">transaction(dynamic_cache, fun, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:transaction/3"><code class="inline">Nebulex.Cache.transaction/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="ttl/2">
+
+    <span id="ttl/1"></span>
+
+  <div class="detail-header">
+    <a href="#ttl/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">ttl(key, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:ttl/2"><code class="inline">Nebulex.Cache.ttl/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="ttl/3">
+
+  <div class="detail-header">
+    <a href="#ttl/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">ttl(dynamic_cache, key, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:ttl/3"><code class="inline">Nebulex.Cache.ttl/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="ttl!/2">
+
+    <span id="ttl!/1"></span>
+
+  <div class="detail-header">
+    <a href="#ttl!/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">ttl!(key, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:ttl!/2"><code class="inline">Nebulex.Cache.ttl!/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="ttl!/3">
+
+  <div class="detail-header">
+    <a href="#ttl!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">ttl!(dynamic_cache, key, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:ttl!/3"><code class="inline">Nebulex.Cache.ttl!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="unregister_event_listener/2">
+
+    <span id="unregister_event_listener/1"></span>
+
+  <div class="detail-header">
+    <a href="#unregister_event_listener/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">unregister_event_listener(id, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:unregister_event_listener/2"><code class="inline">Nebulex.Cache.unregister_event_listener/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="unregister_event_listener/3">
+
+  <div class="detail-header">
+    <a href="#unregister_event_listener/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">unregister_event_listener(dynamic_cache, id, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:unregister_event_listener/3"><code class="inline">Nebulex.Cache.unregister_event_listener/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="unregister_event_listener!/2">
+
+    <span id="unregister_event_listener!/1"></span>
+
+  <div class="detail-header">
+    <a href="#unregister_event_listener!/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">unregister_event_listener!(id, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:unregister_event_listener!/2"><code class="inline">Nebulex.Cache.unregister_event_listener!/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="unregister_event_listener!/3">
+
+  <div class="detail-header">
+    <a href="#unregister_event_listener!/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">unregister_event_listener!(dynamic_cache, id, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:unregister_event_listener!/3"><code class="inline">Nebulex.Cache.unregister_event_listener!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="update/4">
+
+    <span id="update/3"></span>
+
+  <div class="detail-header">
+    <a href="#update/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">update(key, initial, fun, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:update/4"><code class="inline">Nebulex.Cache.update/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="update/5">
+
+  <div class="detail-header">
+    <a href="#update/5" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">update(dynamic_cache, key, initial, fun, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:update/5"><code class="inline">Nebulex.Cache.update/5</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="update!/4">
+
+    <span id="update!/3"></span>
+
+  <div class="detail-header">
+    <a href="#update!/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">update!(key, initial, fun, opts \\ [])</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:update!/4"><code class="inline">Nebulex.Cache.update!/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="update!/5">
+
+  <div class="detail-header">
+    <a href="#update!/5" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">update!(dynamic_cache, key, initial, fun, opts)</h1>
+
+
+        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/cache.ex#L9" class="icon-action" rel="help" aria-label="View Source">
+          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+        </a>
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:update!/5"><code class="inline">Nebulex.Cache.update!/5</code></a>.</p>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+
+        <p>
+
+          <span class="line">
+            <button class="a-main footer-button display-quick-switch" title="Go to package docs">
+              Go to package docs
+            </button>
+
+              <a href="game_server.epub" title="ePub version">
+                Download ePub version
+              </a>
+
+          </span>
+        </p>
+
+        <p class="built-using">
+          Built using
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.3) for the
+
+            <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+        </p>
+
+
+    </footer>
+  </div>
+</main>
+</div>
+
+  </body>
+</html>

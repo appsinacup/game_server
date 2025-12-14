@@ -1,6 +1,8 @@
 404.html
 GameServer.Accounts.User.html
 GameServer.Accounts.html
+GameServer.Cache.html
+GameServer.Env.html
 GameServer.Friends.Friendship.html
 GameServer.Friends.html
 GameServer.Hooks.PluginBuilder.html
@@ -23,8 +25,8 @@ dist/lato-latin-700-normal-2XVSBPG4.woff2
 dist/lato-latin-ext-400-normal-N27NCBWW.woff2
 dist/lato-latin-ext-700-normal-Q2L5DVMW.woff2
 dist/remixicon-QPNJX265.woff2
-dist/search_data-324E1F20.js
-dist/sidebar_items-FF9E2FF1.js
+dist/search_data-1DC2D6EE.js
+dist/sidebar_items-1EE144EA.js
 index.html
 readme.html
 search.html
