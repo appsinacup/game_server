@@ -16,7 +16,7 @@ defmodule GameServerWeb.AdminLive.Config do
         <.link navigate={~p"/admin"} class="btn btn-outline mb-4">
           ← Back to Admin
         </.link>
-
+        
     <!-- Current Configuration Status -->
         <div class="card bg-base-100 shadow-xl" data-card-key="config_status">
           <div class="card-body">
@@ -385,6 +385,42 @@ defmodule GameServerWeb.AdminLive.Config do
                     <td class="font-mono text-sm break-all whitespace-normal">{@config.env}</td>
                   </tr>
                   <tr>
+                    <td class="font-semibold">Cache</td>
+                    <td>
+                      <span class={[
+                        "badge",
+                        if(
+                          (@config.cache_enabled_env || "") in ["true", "1", "yes", "on"],
+                          do: "badge-success",
+                          else: "badge-ghost"
+                        )
+                      ]}>
+                        {if((@config.cache_enabled_env || "") in ["true", "1", "yes", "on"],
+                          do: "Enabled",
+                          else: "Default"
+                        )}
+                      </span>
+                    </td>
+                    <td class="text-sm break-words whitespace-normal">
+                      <div class="font-mono text-sm">
+                        CACHE_ENABLED:
+                        <span class="break-all">{@config.cache_enabled_env || "<unset>"}</span>
+                        <br /> bypass_mode:
+                        <span class="break-all">{inspect(@config.cache_bypass_mode)}</span>
+                        <br /> gc_interval:
+                        <span class="break-all">{inspect(@config.cache_gc_interval)}</span>
+                        <br /> max_size:
+                        <span class="break-all">{inspect(@config.cache_max_size)}</span>
+                        <br /> allocated_memory:
+                        <span class="break-all">{inspect(@config.cache_allocated_memory)}</span>
+                        <br /> gc_memory_check_interval:
+                        <span class="break-all">
+                          {inspect(@config.cache_gc_memory_check_interval)}
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
                     <td class="font-semibold">Log Level</td>
                     <td>
                       <span class={[
@@ -402,10 +438,12 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                     <td class="text-sm break-words whitespace-normal">
                       <div class="font-mono text-sm">
-                        LOG_LEVEL: <span class="break-all">{@config.log_level}</span><br />
-                        ACCESS_LOG_LEVEL:
+                        LOG_LEVEL: <span class="break-all">{@config.log_level}</span>
+                        <br /> ACCESS_LOG_LEVEL:
                         <span class="break-all">{@config.access_log_level_env || "<unset>"}</span>
-                        <span class="opacity-70">(effective: {inspect(@config.access_log_level)})</span>
+                        <span class="opacity-70">
+                          (effective: {inspect(@config.access_log_level)})
+                        </span>
                       </div>
                     </td>
                   </tr>
@@ -445,33 +483,44 @@ defmodule GameServerWeb.AdminLive.Config do
                           <div class="font-semibold text-base-content/70">Runtime tuning</div>
                           <div class="mt-1 space-y-1">
                             <div>
-                              POOL_SIZE: <span class="font-mono">{@config.db_pool_size_env || "<unset>"}</span>
+                              POOL_SIZE:
+                              <span class="font-mono">{@config.db_pool_size_env || "<unset>"}</span>
                             </div>
                             <div>
                               DB_POOL_TIMEOUT:
-                              <span class="font-mono">{@config.db_pool_timeout_env || "<unset>"}</span>
+                              <span class="font-mono">
+                                {@config.db_pool_timeout_env || "<unset>"}
+                              </span>
                             </div>
                             <div>
                               DB_QUEUE_TARGET:
-                              <span class="font-mono">{@config.db_queue_target_env || "<unset>"}</span>
+                              <span class="font-mono">
+                                {@config.db_queue_target_env || "<unset>"}
+                              </span>
                             </div>
                             <div>
                               DB_QUEUE_INTERVAL:
-                              <span class="font-mono">{@config.db_queue_interval_env || "<unset>"}</span>
+                              <span class="font-mono">
+                                {@config.db_queue_interval_env || "<unset>"}
+                              </span>
                             </div>
                             <div>
                               DB_QUERY_TIMEOUT:
-                              <span class="font-mono">{@config.db_query_timeout_env || "<unset>"}</span>
+                              <span class="font-mono">
+                                {@config.db_query_timeout_env || "<unset>"}
+                              </span>
                             </div>
                             <div>
                               POSTGRES_PORT:
                               <span class="font-mono">{@config.postgres_port_env || "<unset>"}</span>
                             </div>
                             <div>
-                              ECTO_IPV6: <span class="font-mono">{@config.ecto_ipv6_env || "<unset>"}</span>
+                              ECTO_IPV6:
+                              <span class="font-mono">{@config.ecto_ipv6_env || "<unset>"}</span>
                             </div>
                             <div>
-                              PHX_SERVER: <span class="font-mono">{@config.phx_server_env || "<unset>"}</span>
+                              PHX_SERVER:
+                              <span class="font-mono">{@config.phx_server_env || "<unset>"}</span>
                             </div>
                           </div>
                         </div>
@@ -627,7 +676,7 @@ defmodule GameServerWeb.AdminLive.Config do
                             <div class="text-xs text-muted">No test yet</div>
                           <% end %>
                         </div>
-
+                        
     <!-- Full docs modal / pane -->
                         <%= if @hooks_full_doc do %>
                           <div class="mt-2 p-3 border rounded bg-base-100">
@@ -654,7 +703,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-
+        
     <!-- Admin Tools -->
         <div class="card bg-base-100 shadow-xl" data-card-key="admin_tools">
           <div class="card-body">
@@ -711,7 +760,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-
+        
     <!-- Scheduled Jobs -->
         <div class="card bg-base-100 shadow-xl" data-card-key="scheduled_jobs">
           <div class="card-body">

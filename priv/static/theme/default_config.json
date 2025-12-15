@@ -19,12 +19,13 @@
     { "title": "Users", "description": "User registration, login, password reset, email verification, profile management.", "icon": "hero-users" },
     { "title": "Lobbies", "description": "Create and manage game lobbies with customizable settings and real-time updates.", "icon": "hero-home" },
     { "title": "Leaderboards", "description": "Server-authoritative leaderboards with configurable scoring, rankings, and time-based seasons.", "icon": "hero-trophy" },
-    { "title": "User Data (WIP)", "description": "Store and retrieve custom user data key-value pairs.", "icon": "hero-paper-clip" },
+    { "title": "Key Value Storage", "description": "Store and retrieve custom user data key-value pairs.", "icon": "hero-paper-clip" },
     { "title": "Server Scripting", "description": "Write custom game server logic using Elixir scripts.", "icon": "hero-computer-desktop" },
     { "title": "Server Scheduling", "description": "Schedule and cron tasks for automated server operations.", "icon": "hero-clock" },
     { "title": "Admin & Monitoring", "description": "Admin portal for managing users, lobbies, Sentry integration and monitoring server metrics.", "icon": "hero-shield-check" },
     { "title": "UI & Theming", "description": "Built-in web UI for authentication, lobby management, and admin portal.", "icon": "hero-sparkles" },
     { "title": "Persistence & Updates", "description": "Flexible storage options: SQLite (in memory) and PostgreSQL; and real-time data updates.", "icon": "hero-server-stack" },
+    { "title": "Caching & Performance", "description": "In-memory caching for improved performance and reduced database load.", "icon": "hero-forward" },
     { "title": "Integrations", "description": "Easily integrate with popular services: Discord, Apple, Google, Facebook, Steam.", "icon": "hero-puzzle-piece" }
   ]
 }

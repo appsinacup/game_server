@@ -4,6 +4,7 @@ defmodule GameServerWeb.AdminLive.Index do
   alias GameServer.Accounts
   alias GameServer.Accounts.User
   alias GameServer.Accounts.UserToken
+  alias GameServer.KV
   alias GameServer.Leaderboards.Leaderboard
   alias GameServer.Lobbies.Lobby
   alias GameServer.Repo
@@ -25,7 +26,7 @@ defmodule GameServerWeb.AdminLive.Index do
             Configuration
           </.link>
           <.link navigate={~p"/admin/kv"} class="btn btn-primary">
-            KV
+            KV ({@kv_count})
           </.link>
           <.link navigate={~p"/admin/users"} class="btn btn-primary">
             Users ({@users_count})
@@ -113,6 +114,7 @@ defmodule GameServerWeb.AdminLive.Index do
     sessions_count = Repo.aggregate(UserToken, :count)
     lobbies_count = Repo.aggregate(Lobby, :count)
     leaderboards_count = Repo.aggregate(Leaderboard, :count)
+    kv_count = KV.count_entries()
 
     # finer-grained stats
     users_google = Accounts.count_users_with_provider(:google_id)
@@ -144,6 +146,7 @@ defmodule GameServerWeb.AdminLive.Index do
        sessions_count: sessions_count,
        lobbies_count: lobbies_count,
        leaderboards_count: leaderboards_count,
+       kv_count: kv_count,
        users_google: users_google,
        users_facebook: users_facebook,
        users_discord: users_discord,

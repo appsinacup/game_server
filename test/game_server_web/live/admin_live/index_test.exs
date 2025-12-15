@@ -3,6 +3,7 @@ defmodule GameServerWeb.AdminLive.IndexTest do
   import Phoenix.LiveViewTest
   alias GameServer.Accounts.User
   alias GameServer.AccountsFixtures
+  alias GameServer.KV
   alias GameServer.Repo
 
   test "admin dashboard shows lobbies count in the quick links", %{conn: conn} do
@@ -60,5 +61,21 @@ defmodule GameServerWeb.AdminLive.IndexTest do
     assert html =~ "With password: 1"
     assert html =~ "Leaderboards"
     assert html =~ "Scores total: 2"
+  end
+
+  test "admin dashboard shows kv count in the quick links", %{conn: conn} do
+    admin = AccountsFixtures.user_fixture()
+
+    {:ok, admin} =
+      admin
+      |> User.admin_changeset(%{"is_admin" => true})
+      |> Repo.update()
+
+    {:ok, _} = KV.put("dash-kv-1", %{v: 1}, %{"m" => "a"})
+    {:ok, _} = KV.put("dash-kv-2", %{v: 2}, %{"m" => "b"})
+
+    {:ok, _view, html} = conn |> log_in_user(admin) |> live(~p"/admin")
+
+    assert html =~ "KV (2)"
   end
 end
