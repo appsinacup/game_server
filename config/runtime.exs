@@ -35,8 +35,8 @@ if config_env() == :prod do
     gc_interval: :timer.hours(12),
     # Max 1M entries
     max_size: 1_000_000,
-    # Max 2GB of memory
-    allocated_memory: 2_000_000_000,
+    # Max 500MB of memory
+    allocated_memory: 500_000_000,
     # Run size and memory checks every 10 seconds
     gc_memory_check_interval: :timer.seconds(10)
 
