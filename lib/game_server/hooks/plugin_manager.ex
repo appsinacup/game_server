@@ -139,6 +139,10 @@ defmodule GameServer.Hooks.PluginManager do
 
   def handle_call(:reload, _from, state) do
     state = do_reload(state)
+
+    # Best-effort: run after_startup for newly loaded plugins after a reload.
+    _ = do_after_startup(state)
+
     {:reply, state_to_list(state), state}
   end
 
@@ -255,6 +259,10 @@ defmodule GameServer.Hooks.PluginManager do
          {:ok, modules} <- app_modules(app),
          {:ok, hooks_mod} <- app_hooks_module(app),
          :ok <- safe_ensure_started(app) do
+      Logger.info(
+        "plugin=#{plugin_name} loaded vsn=#{inspect(vsn)} hooks_module=#{inspect(hooks_mod)} modules=#{length(modules)}"
+      )
+
       %Plugin{plugin | vsn: vsn, modules: modules, hooks_module: hooks_mod, status: :ok}
     else
       {:error, reason} ->
@@ -367,10 +375,20 @@ defmodule GameServer.Hooks.PluginManager do
     |> Enum.reduce(%{}, fn
       %Plugin{name: name, hooks_module: mod, status: :ok}, acc ->
         res =
-          if function_exported?(mod, :after_startup, 0) do
-            safe_apply(mod, :after_startup, [])
-          else
-            :not_exported
+          case Code.ensure_loaded(mod) do
+            {:module, _} ->
+              if function_exported?(mod, :after_startup, 0) do
+                safe_apply(mod, :after_startup, [])
+              else
+                :not_exported
+              end
+
+            other ->
+              Logger.error(
+                "plugin=#{name} failed to load module=#{inspect(mod)}: #{inspect(other)}"
+              )
+
+              {:error, {:module_not_loaded, other}}
           end
 
         Map.put(acc, name, res)
@@ -385,11 +403,21 @@ defmodule GameServer.Hooks.PluginManager do
 
   defp safe_call_before_stop(%Plugin{hooks_module: mod, status: :ok, name: name})
        when is_atom(mod) do
-    if function_exported?(mod, :before_stop, 0) do
-      safe_apply(mod, :before_stop, [])
-    else
-      Logger.debug("plugin #{name} has no before_stop/0")
-      :not_exported
+    case Code.ensure_loaded(mod) do
+      {:module, _} ->
+        if function_exported?(mod, :before_stop, 0) do
+          safe_apply(mod, :before_stop, [])
+        else
+          Logger.debug("plugin #{name} has no before_stop/0")
+          :not_exported
+        end
+
+      other ->
+        Logger.error(
+          "plugin=#{name} failed to load before_stop module=#{inspect(mod)}: #{inspect(other)}"
+        )
+
+        {:error, {:module_not_loaded, other}}
     end
   end
 

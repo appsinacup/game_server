@@ -13,9 +13,12 @@ defmodule GameServer.Modules.ExampleHook do
   """
 
   @behaviour GameServer.Hooks
+  require Logger
+
 
   @impl true
   def after_startup do
+    Logger.info("[ExampleHook] after_startup called")
     :ok
   end
 
