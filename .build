@@ -8,6 +8,7 @@ GameServer.Friends.html
 GameServer.Hooks.PluginBuilder.html
 GameServer.Hooks.PluginManager.html
 GameServer.Hooks.html
+GameServer.KV.html
 GameServer.Leaderboards.Leaderboard.html
 GameServer.Leaderboards.Record.html
 GameServer.Leaderboards.html
@@ -25,8 +26,8 @@ dist/lato-latin-700-normal-2XVSBPG4.woff2
 dist/lato-latin-ext-400-normal-N27NCBWW.woff2
 dist/lato-latin-ext-700-normal-Q2L5DVMW.woff2
 dist/remixicon-QPNJX265.woff2
-dist/search_data-37D2EC5D.js
-dist/sidebar_items-0FB2861C.js
+dist/search_data-D0C4D1B2.js
+dist/sidebar_items-8B0F1891.js
 index.html
 readme.html
 search.html
