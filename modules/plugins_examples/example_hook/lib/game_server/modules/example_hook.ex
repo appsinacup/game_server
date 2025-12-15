@@ -73,7 +73,7 @@ defmodule GameServer.Modules.ExampleHook do
   @doc "Say hi to a user"
   def hello(name) when is_binary(name) do
     # Exercise an external dependency so the bundle task can prove it ships deps.
-    Bunt.ANSI.format(["Hello, ", name, "!"], false)
+    Bunt.ANSI.format(["Hello1, ", name, "!"], false)
   end
 
   @doc "Return an updated metadata map for the current caller"
