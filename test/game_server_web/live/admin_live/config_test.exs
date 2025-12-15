@@ -25,6 +25,8 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     assert html =~ "Configuration"
     assert html =~ "data-action=\"toggle-card\""
     assert html =~ "data-card-key=\"config_status\""
+    assert html =~ "CACHE_ENABLED"
+    assert html =~ "ACCESS_LOG_LEVEL"
     # default collapsed state
     assert html =~ "collapsed"
     assert html =~ "aria-expanded=\"false\""

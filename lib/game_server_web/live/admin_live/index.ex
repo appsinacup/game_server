@@ -24,6 +24,9 @@ defmodule GameServerWeb.AdminLive.Index do
           <.link navigate={~p"/admin/config"} class="btn btn-primary">
             Configuration
           </.link>
+          <.link navigate={~p"/admin/kv"} class="btn btn-primary">
+            KV
+          </.link>
           <.link navigate={~p"/admin/users"} class="btn btn-primary">
             Users ({@users_count})
           </.link>

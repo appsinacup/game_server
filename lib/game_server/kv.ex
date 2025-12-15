@@ -99,6 +99,35 @@ defmodule GameServer.KV do
     :ok
   end
 
+  @spec list_entries(keyword()) :: [Entry.t()]
+  def list_entries(opts \\ []) when is_list(opts) do
+    page = Keyword.get(opts, :page, 1)
+    page_size = Keyword.get(opts, :page_size, 50)
+    user_id = Keyword.get(opts, :user_id)
+
+    query =
+      from(e in Entry,
+        order_by: [desc: e.updated_at, desc: e.id]
+      )
+      |> maybe_filter_user(user_id)
+
+    Repo.all(
+      from(e in query,
+        offset: ^((page - 1) * page_size),
+        limit: ^page_size
+      )
+    )
+  end
+
+  @spec count_entries(keyword()) :: non_neg_integer()
+  def count_entries(opts \\ []) when is_list(opts) do
+    user_id = Keyword.get(opts, :user_id)
+
+    Entry
+    |> maybe_filter_user(user_id)
+    |> Repo.aggregate(:count)
+  end
+
   defp cache_key(key, nil), do: {:kv, :global, key}
   defp cache_key(key, user_id), do: {:kv, user_id, key}
 
@@ -134,6 +163,9 @@ defmodule GameServer.KV do
   defp entry_query(key, user_id) do
     from(e in Entry, where: e.key == ^key and e.user_id == ^user_id)
   end
+
+  defp maybe_filter_user(query, nil), do: query
+  defp maybe_filter_user(query, user_id), do: from(e in query, where: e.user_id == ^user_id)
 
   defp unique_constraint_error?(%Ecto.Changeset{errors: errors}) do
     Enum.any?(errors, fn {_field, {_msg, meta}} -> meta[:constraint] == :unique end)

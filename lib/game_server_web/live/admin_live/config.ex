@@ -16,7 +16,7 @@ defmodule GameServerWeb.AdminLive.Config do
         <.link navigate={~p"/admin"} class="btn btn-outline mb-4">
           ← Back to Admin
         </.link>
-        
+
     <!-- Current Configuration Status -->
         <div class="card bg-base-100 shadow-xl" data-card-key="config_status">
           <div class="card-body">
@@ -401,7 +401,12 @@ defmodule GameServerWeb.AdminLive.Config do
                       </span>
                     </td>
                     <td class="text-sm break-words whitespace-normal">
-                      LOG_LEVEL: <span class="font-mono break-all">{@config.log_level}</span>
+                      <div class="font-mono text-sm">
+                        LOG_LEVEL: <span class="break-all">{@config.log_level}</span><br />
+                        ACCESS_LOG_LEVEL:
+                        <span class="break-all">{@config.access_log_level_env || "<unset>"}</span>
+                        <span class="opacity-70">(effective: {inspect(@config.access_log_level)})</span>
+                      </div>
                     </td>
                   </tr>
                   <tr>
@@ -434,6 +439,41 @@ defmodule GameServerWeb.AdminLive.Config do
                         <div>
                           POSTGRES_PASSWORD:
                           <span class="font-mono">{mask_secret(@config.pg_password)}</span>
+                        </div>
+
+                        <div class="mt-3 pt-2 border-t border-base-300/60 text-xs">
+                          <div class="font-semibold text-base-content/70">Runtime tuning</div>
+                          <div class="mt-1 space-y-1">
+                            <div>
+                              POOL_SIZE: <span class="font-mono">{@config.db_pool_size_env || "<unset>"}</span>
+                            </div>
+                            <div>
+                              DB_POOL_TIMEOUT:
+                              <span class="font-mono">{@config.db_pool_timeout_env || "<unset>"}</span>
+                            </div>
+                            <div>
+                              DB_QUEUE_TARGET:
+                              <span class="font-mono">{@config.db_queue_target_env || "<unset>"}</span>
+                            </div>
+                            <div>
+                              DB_QUEUE_INTERVAL:
+                              <span class="font-mono">{@config.db_queue_interval_env || "<unset>"}</span>
+                            </div>
+                            <div>
+                              DB_QUERY_TIMEOUT:
+                              <span class="font-mono">{@config.db_query_timeout_env || "<unset>"}</span>
+                            </div>
+                            <div>
+                              POSTGRES_PORT:
+                              <span class="font-mono">{@config.postgres_port_env || "<unset>"}</span>
+                            </div>
+                            <div>
+                              ECTO_IPV6: <span class="font-mono">{@config.ecto_ipv6_env || "<unset>"}</span>
+                            </div>
+                            <div>
+                              PHX_SERVER: <span class="font-mono">{@config.phx_server_env || "<unset>"}</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -587,7 +627,7 @@ defmodule GameServerWeb.AdminLive.Config do
                             <div class="text-xs text-muted">No test yet</div>
                           <% end %>
                         </div>
-                        
+
     <!-- Full docs modal / pane -->
                         <%= if @hooks_full_doc do %>
                           <div class="mt-2 p-3 border rounded bg-base-100">
@@ -614,7 +654,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Admin Tools -->
         <div class="card bg-base-100 shadow-xl" data-card-key="admin_tools">
           <div class="card-body">
@@ -671,7 +711,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Scheduled Jobs -->
         <div class="card bg-base-100 shadow-xl" data-card-key="scheduled_jobs">
           <div class="card-body">
@@ -742,6 +782,8 @@ defmodule GameServerWeb.AdminLive.Config do
 
   @impl true
   def mount(_params, _session, socket) do
+    cache_conf = Application.get_env(:game_server, GameServer.Cache) || []
+
     config = %{
       discord_client_id:
         Application.get_env(:ueberauth, Ueberauth.Strategy.Discord.OAuth)[:client_id] ||
@@ -803,6 +845,22 @@ defmodule GameServerWeb.AdminLive.Config do
       live_reload: Application.get_env(:game_server, GameServerWeb.Endpoint)[:live_reload] != nil,
       log_level: Logger.level(),
       log_level_env: System.get_env("LOG_LEVEL"),
+      access_log_level: GameServerWeb.Endpoint.access_log_level(nil),
+      access_log_level_env: System.get_env("ACCESS_LOG_LEVEL"),
+      cache_enabled_env: System.get_env("CACHE_ENABLED"),
+      cache_bypass_mode: Keyword.get(cache_conf, :bypass_mode),
+      cache_gc_interval: Keyword.get(cache_conf, :gc_interval),
+      cache_max_size: Keyword.get(cache_conf, :max_size),
+      cache_allocated_memory: Keyword.get(cache_conf, :allocated_memory),
+      cache_gc_memory_check_interval: Keyword.get(cache_conf, :gc_memory_check_interval),
+      db_pool_size_env: System.get_env("POOL_SIZE"),
+      db_pool_timeout_env: System.get_env("DB_POOL_TIMEOUT"),
+      db_queue_target_env: System.get_env("DB_QUEUE_TARGET"),
+      db_queue_interval_env: System.get_env("DB_QUEUE_INTERVAL"),
+      db_query_timeout_env: System.get_env("DB_QUERY_TIMEOUT"),
+      postgres_port_env: System.get_env("POSTGRES_PORT"),
+      ecto_ipv6_env: System.get_env("ECTO_IPV6"),
+      phx_server_env: System.get_env("PHX_SERVER"),
       # Hooks plugin diagnostics
       hooks_exported_functions: exported_plugin_functions(),
       hooks_test_result: nil,
