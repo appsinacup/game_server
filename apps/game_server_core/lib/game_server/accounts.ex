@@ -800,7 +800,7 @@ defmodule GameServer.Accounts do
   """
   @spec device_auth_enabled?() :: boolean()
   def device_auth_enabled? do
-    case Application.get_env(:game_server, :device_auth_enabled) do
+    case Application.get_env(:game_server_core, :device_auth_enabled) do
       nil ->
         case System.get_env("DEVICE_AUTH_ENABLED") do
           v when v in ["1", "true", "TRUE", "True"] -> true
@@ -1501,7 +1501,14 @@ defmodule GameServer.Accounts do
       has_password: has_password?(user)
     }
 
-    GameServerWeb.Endpoint.broadcast("user:#{user.id}", "updated", payload)
+    topic = "user:#{user.id}"
+
+    Phoenix.PubSub.broadcast(
+      GameServer.PubSub,
+      topic,
+      %Phoenix.Socket.Broadcast{topic: topic, event: "updated", payload: payload}
+    )
+
     :ok
   end
 

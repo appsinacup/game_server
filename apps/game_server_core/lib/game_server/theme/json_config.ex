@@ -117,7 +117,7 @@ defmodule GameServer.Theme.JSONConfig do
     # Attempt to load the packaged default. If it's missing or invalid we
     # return :error (don't invent a fake title) — callers should handle an
     # empty/default-less case explicitly.
-    read_json(Path.join(:code.priv_dir(:game_server), @default_path))
+    read_json(Path.join(:code.priv_dir(:game_server_web), @default_path))
   end
 
   @doc """
@@ -139,7 +139,7 @@ defmodule GameServer.Theme.JSONConfig do
     candidates = [
       path,
       Path.join(File.cwd!(), path),
-      Path.join(:code.priv_dir(:game_server), path)
+      Path.join(:code.priv_dir(:game_server_web), path)
     ]
 
     Enum.find_value(candidates, :error, fn p ->

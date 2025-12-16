@@ -247,7 +247,7 @@ defmodule GameServer.OAuth.Exchanger do
 
   # Helper to allow injecting a test HTTP client in tests. Defaults to Req.
   defp http_client do
-    Application.get_env(:game_server, :oauth_exchanger_client, Req)
+    Application.get_env(:game_server_core, :oauth_exchanger_client, Req)
   end
 
   @spec exchange_steam_code(String.t()) :: {:ok, map()} | {:error, term()}

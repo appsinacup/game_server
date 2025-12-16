@@ -1,0 +1,9 @@
+:root {
+  --color-primary: #e90ecc;
+  --color-accent: #22b83b;
+}
+
+[data-theme="dark"] {
+  --color-primary: #e90ecc;
+  --color-accent: #22b83b;
+}

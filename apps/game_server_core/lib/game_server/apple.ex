@@ -33,14 +33,15 @@ defmodule GameServer.Apple do
         |> String.replace("\\n", "\n")
         |> format_pem_key()
 
-      secret =
-        UeberauthApple.generate_client_secret(%{
-          client_id: System.get_env("APPLE_CLIENT_ID"),
-          expires_in: @expiration_sec,
-          key_id: System.get_env("APPLE_KEY_ID"),
-          team_id: System.get_env("APPLE_TEAM_ID"),
-          private_key: private_key
-        })
+      secret_attrs = %{
+        client_id: System.get_env("APPLE_CLIENT_ID"),
+        expires_in: @expiration_sec,
+        key_id: System.get_env("APPLE_KEY_ID"),
+        team_id: System.get_env("APPLE_TEAM_ID"),
+        private_key: private_key
+      }
+
+      secret = UeberauthApple.generate_client_secret(secret_attrs)
 
       put_client_secret_in_cache(secret, @expiration_sec)
       secret

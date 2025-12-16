@@ -135,8 +135,14 @@ defmodule GameServer.Friends do
           status: f.status
         }
 
-        # broadcast event name as string, payload as simple map
-        GameServerWeb.Endpoint.broadcast("user:#{user_id}", Atom.to_string(name), payload)
+        # Broadcast to the user channel without depending on the web app.
+        topic = "user:#{user_id}"
+
+        Phoenix.PubSub.broadcast(
+          GameServer.PubSub,
+          topic,
+          %Phoenix.Socket.Broadcast{topic: topic, event: Atom.to_string(name), payload: payload}
+        )
 
       _ ->
         :ok

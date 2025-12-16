@@ -26,6 +26,11 @@ RUN echo -n "${APP_VERSION}" > /app/VERSION
 
 COPY mix.exs mix.lock ./
 
+# Umbrella apps: include their mix.exs files so deps can be resolved in a cached layer
+COPY apps/game_server_web/mix.exs apps/game_server_web/mix.exs
+COPY apps/game_server_core/mix.exs apps/game_server_core/mix.exs
+COPY apps/game_server_host/mix.exs apps/game_server_host/mix.exs
+
 # Install dependencies
 RUN mix deps.get
 
@@ -45,14 +50,14 @@ RUN if [ -d "${GAME_SERVER_PLUGINS_DIR}" ]; then \
     fi
 
 # Compile the application FIRST (generates phoenix-colocated hooks)
-RUN mix compile
+RUN mix do --app game_server_web compile
 
 # Build and digest static assets for production (creates priv/static/cache_manifest.json)
 # This now runs AFTER compile, so phoenix-colocated hooks exist
-RUN mix assets.deploy
+RUN mix do --app game_server_web assets.deploy
 
 # Expose port
 EXPOSE 4000
 
 # Default command - run migrations and start server
-CMD ["sh", "-c", "mix ecto.migrate && mix phx.server"]
+CMD ["sh", "-c", "mix do --app game_server_web ecto.migrate && mix do --app game_server_web phx.server"]

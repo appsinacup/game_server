@@ -7,6 +7,6 @@ defmodule GameServer.Cache do
   """
 
   use Nebulex.Cache,
-    otp_app: :game_server,
+    otp_app: :game_server_core,
     adapter: Nebulex.Adapters.Local
 end

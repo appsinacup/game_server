@@ -12,12 +12,12 @@ import Config
 # If you use `mix release`, you need to explicitly enable the server
 # by passing the PHX_SERVER=true when you start it:
 #
-#     PHX_SERVER=true bin/game_server start
+#     PHX_SERVER=true bin/game_server_web start
 #
 # Alternatively, you can use `mix phx.gen.release` to generate a `bin/server`
 # script that automatically sets the env var above.
 if System.get_env("PHX_SERVER") do
-  config :game_server, GameServerWeb.Endpoint, server: true
+  config :game_server_web, GameServerWeb.Endpoint, server: true
 end
 
 # Configure log level from environment variable (defaults to :info in prod, :debug in dev)
@@ -29,7 +29,7 @@ end
 if config_env() == :prod do
   cache_enabled = GameServer.Env.bool("CACHE_ENABLED", true)
 
-  config :game_server, GameServer.Cache,
+  config :game_server_core, GameServer.Cache,
     bypass_mode: not cache_enabled,
     # Create new generation every 12 hours
     gc_interval: :timer.hours(12),
@@ -42,7 +42,7 @@ if config_env() == :prod do
 
   access_log_level = GameServer.Env.log_level("ACCESS_LOG_LEVEL", :debug)
 
-  config :game_server, GameServerWeb.Endpoint, access_log: access_log_level
+  config :game_server_web, GameServerWeb.Endpoint, access_log: access_log_level
 
   # Check if PostgreSQL environment variables are set
   has_postgres_config =
@@ -75,7 +75,7 @@ if config_env() == :prod do
 
     maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
-    config :game_server, GameServer.Repo,
+    config :game_server_core, GameServer.Repo,
       url: database_url,
       adapter: Ecto.Adapters.Postgres,
       pool_size: repo_pool_size,
@@ -108,7 +108,7 @@ if config_env() == :prod do
     sqlite_busy_timeout_ms = GameServer.Env.integer("SQLITE_BUSY_TIMEOUT", 10_000)
     sqlite_wal_autocheckpoint = GameServer.Env.integer("SQLITE_WAL_AUTOCHECKPOINT", 2000)
 
-    config :game_server, GameServer.Repo,
+    config :game_server_core, GameServer.Repo,
       database: db_path,
       adapter: Ecto.Adapters.SQLite3,
       pool_size: repo_pool_size,
@@ -143,7 +143,7 @@ if config_env() == :prod do
   guardian_secret_key =
     System.get_env("GUARDIAN_SECRET_KEY") || secret_key_base
 
-  config :game_server, GameServerWeb.Auth.Guardian,
+  config :game_server_web, GameServerWeb.Auth.Guardian,
     issuer: "game_server",
     secret_key: guardian_secret_key,
     ttl: {15, :minutes}
@@ -151,7 +151,7 @@ if config_env() == :prod do
   host = System.get_env("PHX_HOST") || "localhost"
   port = GameServer.Env.integer("PORT", 4000)
 
-  config :game_server, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
+  config :game_server_web, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
   # Configure Apple OAuth with proper redirect URI for production
   config :ueberauth, Ueberauth.Strategy.Apple.OAuth,
@@ -159,7 +159,7 @@ if config_env() == :prod do
     client_secret: {GameServer.Apple, :client_secret},
     redirect_uri: "https://#{host}/auth/apple/callback"
 
-  config :game_server, GameServerWeb.Endpoint,
+  config :game_server_web, GameServerWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],
     http: [
       # Enable IPv6 and bind on all interfaces.
@@ -226,7 +226,7 @@ if config_env() == :prod do
         nil
       end
 
-    config :game_server, GameServer.Mailer,
+    config :game_server_core, GameServer.Mailer,
       adapter: Swoosh.Adapters.SMTP,
       relay: System.get_env("SMTP_RELAY"),
       username: System.get_env("SMTP_USERNAME"),
@@ -252,7 +252,7 @@ if config_env() == :prod do
     config :swoosh, :api_client, Swoosh.ApiClient.Req
   else
     # Use local adapter when SMTP is not configured - emails go to mailbox
-    config :game_server, GameServer.Mailer, adapter: Swoosh.Adapters.Local
+    config :game_server_core, GameServer.Mailer, adapter: Swoosh.Adapters.Local
 
     # Disable swoosh api client for local adapter
     config :swoosh, :api_client, false

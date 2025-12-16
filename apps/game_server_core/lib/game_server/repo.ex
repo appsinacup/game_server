@@ -6,10 +6,10 @@ defmodule GameServer.Repo do
 
   # Use compile-time access so the adapter selection is fixed at compile time
   # and picked up from the config files.
-  repo_conf = Application.compile_env(:game_server, __MODULE__, []) || []
+  repo_conf = Application.compile_env(:game_server_core, __MODULE__, []) || []
   @adapter Keyword.get(repo_conf, :adapter, Ecto.Adapters.SQLite3)
 
   use Ecto.Repo,
-    otp_app: :game_server,
+    otp_app: :game_server_core,
     adapter: @adapter
 end

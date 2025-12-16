@@ -6,5 +6,5 @@ defmodule GameServer.Schedule.Scheduler do
   the underlying cron-like scheduling infrastructure for `GameServer.Schedule`.
   """
 
-  use Quantum, otp_app: :game_server
+  use Quantum, otp_app: :game_server_core
 end

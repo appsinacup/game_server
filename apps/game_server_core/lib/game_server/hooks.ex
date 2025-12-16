@@ -51,7 +51,7 @@ defmodule GameServer.Hooks do
 
   @doc "Return the configured module that implements the hooks behaviour."
   def module do
-    case Application.get_env(:game_server, :hooks_module, Default) do
+    case Application.get_env(:game_server_core, :hooks_module, Default) do
       nil -> Default
       mod -> mod
     end
@@ -99,7 +99,7 @@ defmodule GameServer.Hooks do
           Keyword.get(
             opts,
             :timeout_ms,
-            Application.get_env(:game_server, :hooks_call_timeout, 5_000)
+            Application.get_env(:game_server_core, :hooks_call_timeout, 5_000)
           )
 
         task =
@@ -145,7 +145,7 @@ defmodule GameServer.Hooks do
       Keyword.get(
         opts,
         :timeout_ms,
-        Application.get_env(:game_server, :hooks_call_timeout, 5_000)
+        Application.get_env(:game_server_core, :hooks_call_timeout, 5_000)
       )
 
     arity = length(args)
