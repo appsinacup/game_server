@@ -5,6 +5,7 @@ defmodule GameServerUmbrella.MixProject do
     [
       apps_path: "apps",
       start_permanent: Mix.env() == :prod,
+      listeners: [Phoenix.CodeReloader],
       aliases: aliases()
     ]
   end
@@ -28,9 +29,9 @@ defmodule GameServerUmbrella.MixProject do
       "ecto.reset": ["do --app game_server_web ecto.reset"],
       "ecto.migrate": ["do --app game_server_web ecto.migrate"],
       "ecto.rollback": ["do --app game_server_web ecto.rollback"],
-      "phx.server": ["do --app game_server_web phx.server"],
-      "phx.routes": ["do --app game_server_web phx.routes"],
-      "phx.gen.secret": ["do --app game_server_web phx.gen.secret"]
+      "phx.server": ["do --app game_server_host phx.server"],
+      "phx.routes": ["do --app game_server_host phx.routes"],
+      "phx.gen.secret": ["do --app game_server_host phx.gen.secret"]
     ]
   end
 end

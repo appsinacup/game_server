@@ -11,8 +11,8 @@ if [ -f .env ]; then
   set +a
 fi
 
-# Ensure the project is compiled (so adapter configuration loaded from .env/config files)
-MIX_ENV=dev mix do --app game_server_web compile
+# Ensure the runnable host is compiled (so adapter configuration loaded from .env/config files)
+MIX_ENV=dev mix do --app game_server_host compile
 
-# Create and migrate the database (start.sh boots the app with the DB ready)
-MIX_ENV=dev mix do --app game_server_web phx.server
+# Boot the runnable host Phoenix app
+MIX_ENV=dev mix do --app game_server_host phx.server

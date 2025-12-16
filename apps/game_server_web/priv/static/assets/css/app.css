@@ -1750,6 +1750,17 @@
   .col-span-2 {
     grid-column: span 2 / span 2;
   }
+  .hero {
+    display: grid;
+    width: 100%;
+    place-items: center;
+    background-size: cover;
+    background-position: center;
+    & > * {
+      grid-column-start: 1;
+      grid-row-start: 1;
+    }
+  }
   .modal-box {
     grid-column-start: 1;
     grid-row-start: 1;

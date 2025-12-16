@@ -67,7 +67,18 @@ defmodule GameServerWeb.Endpoint do
     allow_headers: ["content-type", "authorization"],
     allow_methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
 
-  plug GameServerWeb.Router
+  plug :dispatch_router
+
+  defp dispatch_router(conn, _opts) do
+    router = Application.get_env(:game_server_web, :router, GameServerWeb.Router)
+
+    if Code.ensure_loaded?(router) and function_exported?(router, :call, 2) and
+         function_exported?(router, :init, 1) do
+      router.call(conn, router.init([]))
+    else
+      GameServerWeb.Router.call(conn, GameServerWeb.Router.init([]))
+    end
+  end
 
   # Used by Plug.Telemetry (Phoenix.Logger) to decide access logging.
   # We keep it global (no per-route logic). Set ACCESS_LOG_LEVEL=false to disable.

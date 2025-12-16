@@ -8,6 +8,7 @@ defmodule GameServerWeb.MixProject do
       elixir: "~> 1.19",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
+      listeners: [Phoenix.CodeReloader],
       aliases: aliases(),
       deps: deps(),
       # Share build artifacts and config with the umbrella root.
@@ -21,10 +22,8 @@ defmodule GameServerWeb.MixProject do
 
   def application do
     [
-      mod: {GameServerWeb.Application, []},
       extra_applications:
-        [:logger, :runtime_tools, :swoosh, :sentry] ++
-          if(Mix.env() == :prod, do: [:os_mon], else: [])
+        [:logger]
     ]
   end
 

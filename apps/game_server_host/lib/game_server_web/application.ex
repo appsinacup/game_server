@@ -7,24 +7,23 @@ defmodule GameServerWeb.Application do
   def start(_type, _args) do
     Application.start(:os_mon)
 
-    # OAuth session data is now DB backed (oauth_sessions table) - no ETS table.
+    Application.put_env(:game_server_web, :router, GameServerHost.Router, persistent: true)
 
     # Initialize ETS table for Schedule callbacks (before Scheduler starts)
     GameServer.Schedule.start_link()
 
-    children =
-      [
-        GameServerWeb.Telemetry,
-        GameServer.Repo,
-        {GameServer.Cache, []},
-        {DNSCluster, query: Application.get_env(:game_server_web, :dns_cluster_query) || :ignore},
-        {Phoenix.PubSub, name: GameServer.PubSub},
-        GameServerWeb.Endpoint,
-        # Load hook plugins (OTP apps) shipped under modules/plugins/*
-        GameServer.Hooks.PluginManager,
-        # Quantum scheduler for cron-like jobs
-        GameServer.Schedule.Scheduler
-      ]
+    children = [
+      GameServerWeb.Telemetry,
+      GameServer.Repo,
+      {GameServer.Cache, []},
+      {DNSCluster, query: Application.get_env(:game_server_web, :dns_cluster_query) || :ignore},
+      {Phoenix.PubSub, name: GameServer.PubSub},
+      GameServerWeb.Endpoint,
+      # Load hook plugins (OTP apps) shipped under modules/plugins/*
+      GameServer.Hooks.PluginManager,
+      # Quantum scheduler for cron-like jobs
+      GameServer.Schedule.Scheduler
+    ]
 
     opts = [strategy: :one_for_one, name: GameServerWeb.Supervisor]
 
