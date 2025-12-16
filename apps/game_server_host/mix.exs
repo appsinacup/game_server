@@ -82,7 +82,7 @@ defmodule GameServerHost.MixProject do
       "assets.deploy": [
         "tailwind game_server_web --minify",
         "esbuild game_server_web --minify",
-        "phx.digest --input apps/game_server_web/priv/static --output apps/game_server_web/priv/static"
+        "do --app game_server_web cmd mix phx.digest"
       ],
       lint: ["format --check-formatted", "credo --strict"],
       precommit: [
