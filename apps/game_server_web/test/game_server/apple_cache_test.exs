@@ -22,17 +22,20 @@ defmodule GameServer.AppleCacheTest do
     assert secret == GameServer.Apple.client_secret(client_id: client_id)
   end
 
-  test "client_secret raises when env var missing and cache empty" do
+  test "client_secret raises when private key missing and cache empty" do
     # ensure no cache and no APPLE_PRIVATE_KEY env var
     case :ets.info(:apple_oauth_cache) do
       :undefined -> :ok
       _ -> :ets.delete(:apple_oauth_cache)
     end
 
+    System.put_env("APPLE_WEB_CLIENT_ID", "com.example.web")
+
     old = System.get_env("APPLE_PRIVATE_KEY")
     System.delete_env("APPLE_PRIVATE_KEY")
 
     on_exit(fn ->
+      System.delete_env("APPLE_WEB_CLIENT_ID")
       if old, do: System.put_env("APPLE_PRIVATE_KEY", old)
     end)
 

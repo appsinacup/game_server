@@ -224,17 +224,16 @@ defmodule GameServerWeb.AdminLive.Config do
                   <tr>
                     <td class="font-semibold">Apple Sign In</td>
                     <td>
-                      <%= if (@config.apple_web_client_id || @config.apple_ios_client_id || @config.apple_client_id) && @config.apple_team_id && @config.apple_key_id && @config.apple_private_key do %>
+                      <%= if (@config.apple_web_client_id || @config.apple_ios_client_id) && @config.apple_team_id && @config.apple_key_id && @config.apple_private_key do %>
                         <span class="badge badge-success">Configured</span>
                       <% else %>
                         <span class="badge badge-error">Disabled</span>
                       <% end %>
                     </td>
                     <td class="font-mono text-sm break-all whitespace-normal">
-                      <%= if @config.apple_web_client_id || @config.apple_ios_client_id || @config.apple_client_id do %>
+                      <%= if @config.apple_web_client_id || @config.apple_ios_client_id do %>
                         APPLE_WEB_CLIENT_ID: {mask_secret(@config.apple_web_client_id || "")}<br />
                         APPLE_IOS_CLIENT_ID: {mask_secret(@config.apple_ios_client_id || "")}<br />
-                        APPLE_CLIENT_ID (legacy): {mask_secret(@config.apple_client_id || "")}<br />
                         APPLE_TEAM_ID: {mask_secret(@config.apple_team_id || "")}<br />
                         APPLE_KEY_ID: {mask_secret(@config.apple_key_id || "")}<br />
                         APPLE_PRIVATE_KEY: {mask_secret(@config.apple_private_key)}
@@ -844,7 +843,6 @@ defmodule GameServerWeb.AdminLive.Config do
           System.get_env("DISCORD_CLIENT_SECRET"),
       apple_web_client_id: System.get_env("APPLE_WEB_CLIENT_ID"),
       apple_ios_client_id: System.get_env("APPLE_IOS_CLIENT_ID"),
-      apple_client_id: System.get_env("APPLE_CLIENT_ID"),
       apple_team_id: System.get_env("APPLE_TEAM_ID"),
       apple_key_id: System.get_env("APPLE_KEY_ID"),
       apple_private_key: System.get_env("APPLE_PRIVATE_KEY"),

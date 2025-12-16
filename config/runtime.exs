@@ -155,7 +155,7 @@ if config_env() == :prod do
 
   # Configure Apple OAuth with proper redirect URI for production
   config :ueberauth, Ueberauth.Strategy.Apple.OAuth,
-    client_id: System.get_env("APPLE_WEB_CLIENT_ID") || System.get_env("APPLE_CLIENT_ID"),
+    client_id: System.get_env("APPLE_WEB_CLIENT_ID"),
     client_secret: {GameServer.Apple, :client_secret},
     redirect_uri: "https://#{host}/auth/apple/callback"
 

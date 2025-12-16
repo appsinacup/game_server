@@ -291,6 +291,12 @@ defmodule GameServerWeb.AuthControllerApiTest do
     test "POST /api/v1/auth/apple/callback skips profile lookup when user already has profile", %{
       conn: conn
     } do
+      System.put_env("APPLE_WEB_CLIENT_ID", "com.example.web")
+
+      on_exit(fn ->
+        System.delete_env("APPLE_WEB_CLIENT_ID")
+      end)
+
       {:ok, _user} =
         GameServer.Accounts.find_or_create_from_apple(%{
           apple_id: "a1",
@@ -329,6 +335,12 @@ defmodule GameServerWeb.AuthControllerApiTest do
     end
 
     test "POST /api/v1/auth/apple/callback fetches profile when missing fields", %{conn: conn} do
+      System.put_env("APPLE_WEB_CLIENT_ID", "com.example.web")
+
+      on_exit(fn ->
+        System.delete_env("APPLE_WEB_CLIENT_ID")
+      end)
+
       {:ok, user} =
         GameServer.Accounts.find_or_create_from_apple(%{apple_id: "a2", display_name: nil})
 

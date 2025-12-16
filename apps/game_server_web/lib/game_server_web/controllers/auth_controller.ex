@@ -281,8 +281,7 @@ defmodule GameServerWeb.AuthController do
     cfg = Application.get_env(:ueberauth, Ueberauth.Strategy.Apple.OAuth, [])
 
     client_id =
-      cfg[:client_id] || System.get_env("APPLE_WEB_CLIENT_ID") ||
-        System.get_env("APPLE_CLIENT_ID")
+      cfg[:client_id] || System.get_env("APPLE_WEB_CLIENT_ID")
 
     base = GameServerWeb.Endpoint.url()
     redirect_uri = cfg[:redirect_uri] || "#{base}/auth/apple/callback"
@@ -809,7 +808,7 @@ defmodule GameServerWeb.AuthController do
     session_id = create_api_oauth_session(conn, "apple")
 
     # Generate the Apple OAuth URL
-    client_id = System.get_env("APPLE_WEB_CLIENT_ID") || System.get_env("APPLE_CLIENT_ID")
+    client_id = System.get_env("APPLE_WEB_CLIENT_ID")
     base = GameServerWeb.Endpoint.url()
     redirect_uri = "#{base}/auth/apple/callback"
     scope = "name email"
@@ -1237,11 +1236,29 @@ defmodule GameServerWeb.AuthController do
     description:
       "Exchanges a native iOS Sign in with Apple authorization code using APPLE_IOS_CLIENT_ID.",
     tags: ["Authentication"],
-    request_body: {"Apple callback params", "application/json", OAuthCallbackParams},
+    request_body: {
+      "Apple callback params",
+      "application/json",
+      %OpenApiSpex.Schema{
+        type: :object,
+        required: [:code],
+        properties: %{
+          code: %OpenApiSpex.Schema{
+            type: :string,
+            description: "Apple authorization code from the native Sign in with Apple flow"
+          }
+        }
+      }
+    },
     responses: [
-      ok: {"Auth tokens", "application/json", AuthResponse},
-      bad_request: {"Bad request", "application/json", ErrorResponse},
-      unauthorized: {"Unauthorized", "application/json", ErrorResponse}
+      ok:
+        {"OAuth tokens", "application/json",
+         %OpenApiSpex.Schema{
+           type: :object,
+           properties: %{data: OAuthSessionData}
+         }},
+      bad_request: {"Bad request", "application/json", GameServerWeb.Schemas.ErrorResponse},
+      unauthorized: {"Unauthorized", "application/json", GameServerWeb.Schemas.ErrorResponse}
     ]
   )
 
@@ -1298,11 +1315,13 @@ defmodule GameServerWeb.AuthController do
   end
 
   defp apple_web_client_id do
-    System.get_env("APPLE_WEB_CLIENT_ID") || System.get_env("APPLE_CLIENT_ID")
+    System.get_env("APPLE_WEB_CLIENT_ID") ||
+      raise "APPLE_WEB_CLIENT_ID environment variable is not set"
   end
 
   defp apple_ios_client_id do
-    System.get_env("APPLE_IOS_CLIENT_ID") || System.get_env("APPLE_CLIENT_ID")
+    System.get_env("APPLE_IOS_CLIENT_ID") ||
+      raise "APPLE_IOS_CLIENT_ID environment variable is not set"
   end
 
   operation(:api_session_status,

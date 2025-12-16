@@ -60,17 +60,16 @@ defmodule GameServer.Apple do
         Keyword.get(opts, :client_id)
 
       Keyword.get(opts, :client) == :web ->
-        System.get_env("APPLE_WEB_CLIENT_ID") || System.get_env("APPLE_CLIENT_ID") ||
-          raise "APPLE_WEB_CLIENT_ID (or legacy APPLE_CLIENT_ID) environment variable is not set"
+        System.get_env("APPLE_WEB_CLIENT_ID") ||
+          raise "APPLE_WEB_CLIENT_ID environment variable is not set"
 
       Keyword.get(opts, :client) == :ios ->
-        System.get_env("APPLE_IOS_CLIENT_ID") || System.get_env("APPLE_CLIENT_ID") ||
-          raise "APPLE_IOS_CLIENT_ID (or legacy APPLE_CLIENT_ID) environment variable is not set"
+        System.get_env("APPLE_IOS_CLIENT_ID") ||
+          raise "APPLE_IOS_CLIENT_ID environment variable is not set"
 
       true ->
         System.get_env("APPLE_WEB_CLIENT_ID") || System.get_env("APPLE_IOS_CLIENT_ID") ||
-          System.get_env("APPLE_CLIENT_ID") ||
-          raise "APPLE_WEB_CLIENT_ID / APPLE_IOS_CLIENT_ID (or legacy APPLE_CLIENT_ID) environment variable is not set"
+          raise "APPLE_WEB_CLIENT_ID / APPLE_IOS_CLIENT_ID environment variable is not set"
     end
   end
 
