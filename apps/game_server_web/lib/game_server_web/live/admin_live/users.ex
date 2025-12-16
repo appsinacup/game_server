@@ -121,6 +121,7 @@ defmodule GameServerWeb.AdminLive.Users do
                 <thead>
                   <tr>
                     <th>ID</th>
+                    <th>Lobby ID</th>
                     <th>Email</th>
                     <th>Display Name</th>
                     <th>Discord ID</th>
@@ -141,6 +142,13 @@ defmodule GameServerWeb.AdminLive.Users do
                 <tbody>
                   <tr :for={user <- @recent_users} id={"user-#{user.id}"}>
                     <td>{user.id}</td>
+                    <td class="font-mono text-sm">
+                      <%= if user.lobby_id do %>
+                        {user.lobby_id}
+                      <% else %>
+                        <span class="text-gray-500">-</span>
+                      <% end %>
+                    </td>
                     <td class="font-mono text-sm">{user.email}</td>
                     <td class="text-sm">
                       <%= if user.display_name && user.display_name != "" do %>

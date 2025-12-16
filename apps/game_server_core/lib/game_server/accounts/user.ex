@@ -13,7 +13,8 @@ defmodule GameServer.Accounts.User do
           hashed_password: String.t() | nil,
           confirmed_at: DateTime.t() | nil,
           display_name: String.t() | nil,
-          metadata: map()
+          metadata: map(),
+          lobby_id: integer() | nil
         }
   use Ecto.Schema
   import Ecto.Changeset

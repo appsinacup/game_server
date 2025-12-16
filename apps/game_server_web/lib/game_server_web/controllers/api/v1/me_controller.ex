@@ -23,6 +23,11 @@ defmodule GameServerWeb.Api.V1.MeController do
             profile_url: %Schema{type: :string},
             display_name: %Schema{type: :string},
             metadata: %Schema{type: :object},
+            lobby_id: %Schema{
+              type: :integer,
+              nullable: true,
+              description: "Lobby ID when user is currently in a lobby"
+            },
             linked_providers: %Schema{
               type: :object,
               description: "Shows which OAuth providers are linked to this account",
@@ -57,6 +62,7 @@ defmodule GameServerWeb.Api.V1.MeController do
           profile_url: user.profile_url || "",
           metadata: user.metadata || %{},
           display_name: user.display_name || "",
+          lobby_id: user.lobby_id,
           linked_providers: GameServer.Accounts.get_linked_providers(user),
           has_password: GameServer.Accounts.has_password?(user)
         })

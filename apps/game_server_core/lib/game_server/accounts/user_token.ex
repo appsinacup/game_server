@@ -38,7 +38,7 @@ defmodule GameServer.Accounts.UserToken do
           authenticated_at: DateTime.t() | nil,
           user_id: integer() | nil,
           user: GameServer.Accounts.User.t() | Ecto.Association.NotLoaded.t() | nil,
-          inserted_at: DateTime.t() | nil,
+          inserted_at: DateTime.t() | nil
         }
 
   @doc """

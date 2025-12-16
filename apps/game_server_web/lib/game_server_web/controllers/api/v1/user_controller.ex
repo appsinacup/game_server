@@ -62,7 +62,8 @@ defmodule GameServerWeb.Api.V1.UserController do
              id: %Schema{type: :integer},
              email: %Schema{type: :string},
              display_name: %Schema{type: :string},
-             profile_url: %Schema{type: :string}
+             profile_url: %Schema{type: :string},
+             lobby_id: %Schema{type: :integer, nullable: true}
            }
          }},
       not_found: {"Not found", "application/json", nil}
@@ -108,7 +109,8 @@ defmodule GameServerWeb.Api.V1.UserController do
       id: user.id,
       email: user.email || "",
       display_name: user.display_name || "",
-      profile_url: user.profile_url || ""
+      profile_url: user.profile_url || "",
+      lobby_id: user.lobby_id
     }
   end
 end
