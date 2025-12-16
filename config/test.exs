@@ -12,15 +12,19 @@ if System.get_env("DATABASE_URL") ||
     System.get_env("DATABASE_URL") ||
       "ecto://#{System.get_env("POSTGRES_USER")}:#{System.get_env("POSTGRES_PASSWORD")}@#{System.get_env("POSTGRES_HOST")}:#{System.get_env("POSTGRES_PORT", "5432")}/#{System.get_env("POSTGRES_DB", "game_server_test")}"
 
-  config :game_server, GameServer.Repo,
+  config :game_server_core, GameServer.Repo,
     url: database_url,
     adapter: Ecto.Adapters.Postgres,
     pool: Ecto.Adapters.SQL.Sandbox,
     pool_size: System.schedulers_online() * 2
 else
   # Fallback to SQLite when no PostgreSQL config
-  config :game_server, GameServer.Repo,
-    database: "db/game_server_test#{System.get_env("MIX_TEST_PARTITION")}.db",
+  config :game_server_core, GameServer.Repo,
+    database:
+      Path.expand(
+        "../db/game_server_test#{System.get_env("MIX_TEST_PARTITION")}.db",
+        __DIR__
+      ),
     adapter: Ecto.Adapters.SQLite3,
     pool: Ecto.Adapters.SQL.Sandbox,
     pool_size: 1
@@ -28,13 +32,13 @@ end
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
-config :game_server, GameServerWeb.Endpoint,
+config :game_server_web, GameServerWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   secret_key_base: "dJoNJZBOt08JlBREyPV5xvuOdwgHPORxK9WHp/k3Cs+g0R9ctyheJ8/CMeg/AdI1",
   server: false
 
 # In test we don't send emails
-config :game_server, GameServer.Mailer, adapter: Swoosh.Adapters.Test
+config :game_server_core, GameServer.Mailer, adapter: Swoosh.Adapters.Test
 
 # Disable swoosh api client as it is only required for production adapters
 config :swoosh, :api_client, false
@@ -47,7 +51,7 @@ config :sentry,
 config :logger, level: :warning
 
 # Disable app-level caching in tests to avoid stale reads across assertions.
-config :game_server, GameServer.Cache, bypass_mode: true
+config :game_server_core, GameServer.Cache, bypass_mode: true
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
@@ -57,7 +61,7 @@ config :phoenix_live_view,
   enable_expensive_runtime_checks: true
 
 # Configure Guardian for testing
-config :game_server, GameServerWeb.Auth.Guardian,
+config :game_server_web, GameServerWeb.Auth.Guardian,
   issuer: "game_server",
   secret_key: "dJoNJZBOt08JlBREyPV5xvuOdwgHPORxK9WHp/k3Cs+g0R9ctyheJ8/CMeg/AdI1",
   ttl: {15, :minutes}

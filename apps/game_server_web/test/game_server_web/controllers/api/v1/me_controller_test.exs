@@ -1,0 +1,140 @@
+defmodule GameServerWeb.Api.V1.MeControllerTest do
+  use GameServerWeb.ConnCase
+
+  alias GameServerWeb.Auth.Guardian
+
+  describe "GET /api/v1/me" do
+    test "returns 401 when not authenticated", %{conn: conn} do
+      conn = get(conn, "/api/v1/me")
+      assert json_response(conn, 401)
+    end
+
+    test "returns user info when authenticated", %{conn: conn} do
+      user = GameServer.AccountsFixtures.user_fixture()
+
+      {:ok, token, _claims} = Guardian.encode_and_sign(user)
+
+      conn = conn |> put_req_header("authorization", "Bearer " <> token) |> get("/api/v1/me")
+
+      body = json_response(conn, 200)
+      assert body["id"] == user.id
+      assert body["email"] == user.email
+      assert Map.has_key?(body, "display_name")
+      refute Map.has_key?(body, "is_admin")
+      assert Map.has_key?(body, "metadata")
+      assert Map.has_key?(body, "lobby_id")
+      assert is_nil(body["lobby_id"])
+
+      # Verify linked_providers and has_password fields
+      assert Map.has_key?(body, "linked_providers")
+      assert body["linked_providers"]["google"] == false
+      assert body["linked_providers"]["facebook"] == false
+      assert body["linked_providers"]["discord"] == false
+      assert body["linked_providers"]["apple"] == false
+      assert body["linked_providers"]["steam"] == false
+      assert body["linked_providers"]["device"] == false
+      # user_fixture creates user via magic link, so no password
+      assert body["has_password"] == false
+    end
+  end
+
+  describe "PATCH /api/v1/me/display_name" do
+    test "updates the authenticated user's display_name", %{conn: conn} do
+      user = GameServer.AccountsFixtures.user_fixture()
+      {:ok, token, _} = Guardian.encode_and_sign(user)
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer " <> token)
+        |> patch("/api/v1/me/display_name", %{display_name: "API Name"})
+
+      assert json_response(conn, 200)["display_name"] == "API Name"
+
+      reloaded = GameServer.Repo.get(GameServer.Accounts.User, user.id)
+      assert reloaded.display_name == "API Name"
+    end
+
+    test "empty display_name returns bad request", %{conn: conn} do
+      user = GameServer.AccountsFixtures.user_fixture()
+      {:ok, token, _} = Guardian.encode_and_sign(user)
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer " <> token)
+        |> patch("/api/v1/me/display_name", %{display_name: ""})
+
+      assert conn.status == 400
+      body = json_response(conn, 400)
+      assert Map.has_key?(body, "errors")
+      assert Map.has_key?(body["errors"], "display_name")
+    end
+  end
+
+  describe "PATCH /api/v1/me/password" do
+    test "updates password for authenticated user", %{conn: conn} do
+      user = GameServer.AccountsFixtures.user_fixture()
+      {:ok, token, _} = Guardian.encode_and_sign(user)
+
+      new_password = GameServer.AccountsFixtures.valid_user_password()
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer " <> token)
+        |> patch("/api/v1/me/password", %{password: new_password})
+
+      assert json_response(conn, 200)
+
+      # reloaded and verify password works
+      reloaded = GameServer.Repo.get(GameServer.Accounts.User, user.id)
+      assert GameServer.Accounts.get_user_by_email_and_password(reloaded.email, new_password)
+    end
+
+    test "empty password returns bad request", %{conn: conn} do
+      user = GameServer.AccountsFixtures.user_fixture()
+      {:ok, token, _} = Guardian.encode_and_sign(user)
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer " <> token)
+        |> patch("/api/v1/me/password", %{password: ""})
+
+      assert conn.status == 400
+      body = json_response(conn, 400)
+      assert Map.has_key?(body, "errors")
+      assert Map.has_key?(body["errors"], "password")
+    end
+  end
+
+  describe "password auth should not work for oauth-only account without password" do
+    test "get_user_by_email_and_password returns nil for empty password", %{conn: _conn} do
+      user = GameServer.AccountsFixtures.user_fixture(%{discord_id: "d123"})
+
+      # user has no password, attempt to login with empty string should fail
+      refute GameServer.Accounts.get_user_by_email_and_password(user.email, "")
+      # and with any random string should also fail
+      refute GameServer.Accounts.get_user_by_email_and_password(user.email, "pw")
+    end
+  end
+
+  describe "DELETE /api/v1/me" do
+    test "deletes the authenticated user's account", %{conn: conn} do
+      user = GameServer.AccountsFixtures.user_fixture()
+      {:ok, token, _} = Guardian.encode_and_sign(user)
+
+      conn =
+        conn
+        |> put_req_header("authorization", "Bearer " <> token)
+        |> delete("/api/v1/me")
+
+      assert conn.status == 200
+
+      # Ensure user was deleted
+      assert GameServer.Repo.get(GameServer.Accounts.User, user.id) == nil
+    end
+
+    test "returns 401 when not authenticated", %{conn: conn} do
+      conn = delete(conn, "/api/v1/me")
+      assert json_response(conn, 401)
+    end
+  end
+end

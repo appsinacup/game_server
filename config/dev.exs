@@ -9,7 +9,7 @@ if System.get_env("DATABASE_URL") ||
     System.get_env("DATABASE_URL") ||
       "ecto://#{System.get_env("POSTGRES_USER")}:#{System.get_env("POSTGRES_PASSWORD")}@#{System.get_env("POSTGRES_HOST")}:#{System.get_env("POSTGRES_PORT", "5432")}/#{System.get_env("POSTGRES_DB", "game_server_dev")}"
 
-  config :game_server, GameServer.Repo,
+  config :game_server_core, GameServer.Repo,
     url: database_url,
     adapter: Ecto.Adapters.Postgres,
     stacktrace: true,
@@ -17,7 +17,7 @@ if System.get_env("DATABASE_URL") ||
     pool_size: 10
 else
   # Fallback to SQLite when no PostgreSQL config
-  config :game_server, GameServer.Repo,
+  config :game_server_core, GameServer.Repo,
     database: "db/game_server_dev.db",
     adapter: Ecto.Adapters.SQLite3,
     stacktrace: true,
@@ -31,7 +31,7 @@ end
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we can use it
 # to bundle .js and .css sources.
-config :game_server, GameServerWeb.Endpoint,
+config :game_server_web, GameServerWeb.Endpoint,
   # Binding to all interfaces to allow access from Docker host and other machines.
   # In Docker containers, bind to 0.0.0.0 to accept external connections.
   http: [ip: {0, 0, 0, 0}, port: String.to_integer(System.get_env("PORT") || "4000")],
@@ -40,8 +40,8 @@ config :game_server, GameServerWeb.Endpoint,
   debug_errors: true,
   secret_key_base: "l/tTJZ4KUNjIfiUsNQDQLWOTgFlyiOz8RQ2EgSRa7mopMzPLJuu7/8s5pA7iiSgO",
   watchers: [
-    esbuild: {Esbuild, :install_and_run, [:game_server, ~w(--sourcemap=inline --watch)]},
-    tailwind: {Tailwind, :install_and_run, [:game_server, ~w(--watch)]}
+    esbuild: {Esbuild, :install_and_run, [:game_server_web, ~w(--sourcemap=inline --watch)]},
+    tailwind: {Tailwind, :install_and_run, [:game_server_web, ~w(--watch)]}
   ]
 
 # ## SSL Support
@@ -68,18 +68,18 @@ config :game_server, GameServerWeb.Endpoint,
 # different ports.
 
 # Watch static and templates for browser reloading.
-config :game_server, GameServerWeb.Endpoint,
+config :game_server_web, GameServerWeb.Endpoint,
   live_reload: [
     web_console_logger: true,
     patterns: [
-      ~r"priv/static/(?!uploads/).*(js|css|png|jpeg|jpg|gif|svg)$",
-      ~r"priv/gettext/.*(po)$",
-      ~r"lib/game_server_web/(?:controllers|live|components|router)/?.*\.(ex|heex)$"
+      ~r"(?:apps/game_server_web/)?priv/static/(?!uploads/).*(js|css|png|jpeg|jpg|gif|svg)$",
+      ~r"(?:apps/game_server_web/)?priv/gettext/.*(po)$",
+      ~r"(?:apps/game_server_web/)?lib/game_server_web/(?:controllers|live|components|router)/?.*\.(ex|heex)$"
     ]
   ]
 
 # Enable dev routes for dashboard and mailbox
-config :game_server, dev_routes: true
+config :game_server_web, dev_routes: true
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :default_formatter, format: "[$level] $message\n"
@@ -102,7 +102,7 @@ config :phoenix_live_view,
 # Enable SMTP in development when SMTP_PASSWORD is present, otherwise
 # keep the default Local adapter and disable Swoosh's API client.
 if System.get_env("SMTP_PASSWORD") do
-  config :game_server, GameServer.Mailer,
+  config :game_server_core, GameServer.Mailer,
     adapter: Swoosh.Adapters.SMTP,
     relay: System.get_env("SMTP_RELAY"),
     username: System.get_env("SMTP_USERNAME"),
@@ -134,7 +134,7 @@ else
 end
 
 # Configure Guardian for development
-config :game_server, GameServerWeb.Auth.Guardian,
+config :game_server_web, GameServerWeb.Auth.Guardian,
   issuer: "game_server",
   secret_key: "l/tTJZ4KUNjIfiUsNQDQLWOTgFlyiOz8RQ2EgSRa7mopMzPLJuu7/8s5pA7iiSgO",
   ttl: {15, :minutes}

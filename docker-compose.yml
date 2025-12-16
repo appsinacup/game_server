@@ -33,22 +33,12 @@ services:
     depends_on:
       database:
         condition: service_healthy
+    command: >
+      sh -c "mix deps.get && MIX_ENV=dev mix do --app game_server_host ecto.migrate && MIX_ENV=dev mix do --app game_server_host phx.server"
     volumes:
       - .:/app
       - /app/_build
       - /app/deps
 
-  redis:
-    image: redis:7.4-alpine
-    restart: always
-    shm_size: 128mb
-    volumes:
-      - "./redis:/data"
-    healthcheck:
-      test: redis-cli ping
-      interval: 5s
-      timeout: 5s
-
 volumes:
   postgres_data:
-  redis_data:

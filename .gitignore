@@ -31,6 +31,10 @@ game_server-*.tar
 # Ignore digested assets cache.
 /priv/static/cache_manifest.json
 
+# Umbrella layout: ignore generated/digested static assets in the web app
+/apps/game_server_web/priv/static/
+/apps/game_server_web/apps/game_server_web/priv/static/
+
 # In case you use Node.js/npm, you want to ignore these.
 npm-debug.log
 /assets/node_modules/
@@ -51,3 +55,6 @@ godot_addons/addons/gamend/
 stress/results/
 clients/gamend/
 sdk_tools/doc/
+apps/game_server_web/apps/game_server_web/priv/static/cache_manifest.json
+apps/game_server_web/apps/game_server_web/priv/static/favicon-0793a89617220e350e9e66698d2d4fa8.ico
+apps/game_server_web/apps/game_server_web/priv/static/favicon.ico

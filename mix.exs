@@ -1,76 +1,18 @@
-defmodule GameServer.MixProject do
+defmodule GameServerUmbrella.MixProject do
   use Mix.Project
 
   def project do
     [
       app: :game_server,
+      name: "GameServer",
       version: System.get_env("APP_VERSION") || "1.0.0",
       elixir: "~> 1.19",
-      elixirc_paths: elixirc_paths(Mix.env()),
+      apps_path: "apps",
       start_permanent: Mix.env() == :prod,
-      aliases: aliases(),
-      deps: deps(),
-      compilers: [:phoenix_live_view] ++ Mix.compilers(),
       listeners: [Phoenix.CodeReloader],
-      # ExDoc configuration used to build HTML docs locally or in CI
-      docs: [
-        main: "readme",
-        extras: ["README.md"],
-        source_url: "https://github.com/appsinacup/game_server",
-        source_ref: "main",
-        homepage_url: "https://github.com/appsinacup/game_server",
-        # Hide Web layer and internal modules - only show public API for hooks
-        filter_modules: fn mod, _meta ->
-          mod_name = Atom.to_string(mod)
-          # Only include GameServer.* modules (not GameServerWeb.*)
-          # Internal implementation modules
-          String.starts_with?(mod_name, "Elixir.GameServer.") and
-            not String.starts_with?(mod_name, "Elixir.GameServerWeb") and
-            not String.contains?(mod_name, ".Repo") and
-            not String.contains?(mod_name, ".Application") and
-            not String.contains?(mod_name, ".Mailer") and
-            not String.contains?(mod_name, ".UserNotifier") and
-            not String.contains?(mod_name, ".UserToken") and
-            not String.contains?(mod_name, ".Gettext") and
-            not String.contains?(mod_name, ".DataCase") and
-            not String.contains?(mod_name, ".ConnCase") and
-            not String.contains?(mod_name, "Fixtures") and
-            not String.contains?(mod_name, ".Apple") and
-            not String.contains?(mod_name, ".OAuth") and
-            not String.contains?(mod_name, ".Theme") and
-            not String.contains?(mod_name, ".Hooks.Default") and
-            not String.contains?(mod_name, ".Scope")
-        end,
-        groups_for_modules: [
-          "Public API (for Hooks)": [
-            GameServer.Accounts,
-            GameServer.Leaderboards,
-            GameServer.Lobbies,
-            GameServer.Friends,
-            GameServer.Hooks
-          ],
-          Schemas: [
-            GameServer.Accounts.User,
-            GameServer.Leaderboards.Leaderboard,
-            GameServer.Leaderboards.Record,
-            GameServer.Lobbies.Lobby,
-            GameServer.Friends.Friendship
-          ]
-        ]
-      ]
-    ]
-  end
-
-  # Configuration for the OTP application.
-  #
-  # Type `mix help compile.app` for more information.
-  def application do
-    [
-      mod: {GameServer.Application, []},
-      # Start the OS monitoring tools in production only.
-      extra_applications:
-        [:logger, :runtime_tools, :swoosh, :sentry] ++
-          if(Mix.env() == :prod, do: [:os_mon], else: [])
+      docs: docs(),
+      aliases: aliases(),
+      deps: deps()
     ]
   end
 
@@ -80,88 +22,11 @@ defmodule GameServer.MixProject do
     ]
   end
 
-  # Specifies which paths to compile per environment.
-  defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_), do: ["lib"]
-
-  # Specifies your project dependencies.
-  #
-  # Type `mix help deps` for examples and options.
-  defp deps do
-    [
-      {:bcrypt_elixir, "~> 3.0"},
-      {:nebulex, "~> 3.0.0-rc.2"},
-      {:nebulex_local, "~> 3.0.0-rc.2"},
-      {:decorator, "~> 1.4"},
-      {:phoenix, "~> 1.8.3"},
-      {:phoenix_ecto, "~> 4.5"},
-      {:ecto_sql, "~> 3.13.3"},
-      {:ecto_sqlite3, "~> 0.12"},
-      {:postgrex, ">= 0.0.0"},
-      {:phoenix_html, "~> 4.1"},
-      {:phoenix_live_reload, "~> 1.6.2", only: :dev},
-      {:phoenix_live_view, "~> 1.1.19"},
-      {:lazy_html, ">= 0.1.0", only: :test},
-      {:phoenix_live_dashboard, "~> 0.8.3"},
-      {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
-      {:tailwind, "~> 0.3", runtime: Mix.env() == :dev},
-      {:heroicons,
-       github: "tailwindlabs/heroicons",
-       tag: "v2.2.0",
-       sparse: "optimized",
-       app: false,
-       compile: false,
-       depth: 1},
-      {:swoosh, "~> 1.19.9"},
-      # SMTP transport used by Swoosh.Adapters.SMTP
-      {:gen_smtp, "~> 1.0"},
-      {:req, "~> 0.5"},
-      {:sentry, "~> 11.0"},
-      {:hackney, "~> 1.18"},
-      {:telemetry_metrics, "~> 1.0"},
-      {:telemetry_poller, "~> 1.0"},
-      {:gettext, "~> 1.0"},
-      {:jason, "~> 1.2"},
-      {:dns_cluster, "~> 0.2.0"},
-      {:ueberauth_discord, "~> 0.7"},
-      {:ueberauth_apple, "~> 0.2"},
-      {:ueberauth_google, "~> 0.12"},
-      {:ueberauth_facebook, "~> 0.10"},
-      {:bandit, "~> 1.9"},
-      {:ueberauth, "~> 0.10"},
-      {:open_api_spex, "~> 3.22"},
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.39.3", only: :dev, runtime: false},
-      {:guardian, "~> 2.3"},
-      {:ueberauth_steam, github: "appsinacup/ueberauth_steam", branch: "master"},
-      {:quantum, "~> 3.5"},
-      {:corsica, "~> 2.0"}
-    ]
-  end
-
-  # Aliases are shortcuts or tasks specific to the current project.
-  # For example, to install project dependencies and perform other setup tasks, run:
-  #
-  #     $ mix setup
-  #
-  # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
-      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
-      "ecto.reset": ["ecto.drop", "ecto.setup"],
+      setup: ["do --app game_server_host setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
-      "assets.build": ["compile", "tailwind game_server", "esbuild game_server"],
-      "assets.deploy": [
-        "tailwind game_server --minify",
-        "esbuild game_server --minify",
-        "phx.digest"
-      ],
-      lint: [
-        "format --check-formatted",
-        "credo --strict"
-      ],
+      lint: ["format --check-formatted", "credo --strict"],
       precommit: [
         "compile --warning-as-errors",
         "deps.unlock --unused",
@@ -169,7 +34,29 @@ defmodule GameServer.MixProject do
         "gen.sdk",
         "test",
         "credo --strict"
-      ]
+      ],
+      "assets.setup": ["do --app game_server_host assets.setup"],
+      "assets.build": ["do --app game_server_host assets.build"],
+      "assets.deploy": ["do --app game_server_host assets.deploy"],
+      "ecto.setup": ["do --app game_server_host ecto.setup"],
+      "ecto.reset": ["do --app game_server_host ecto.reset"],
+      "ecto.migrate": ["do --app game_server_host ecto.migrate"],
+      "ecto.rollback": ["do --app game_server_host ecto.rollback"],
+      "phx.server": ["do --app game_server_host phx.server"],
+      "phx.routes": ["do --app game_server_host phx.routes"],
+      "phx.gen.secret": ["do --app game_server_host phx.gen.secret"]
+    ]
+  end
+
+  defp deps do
+    [
+      {:ex_doc, "~> 0.39.3", only: :dev, runtime: false}
+    ]
+  end
+
+  defp docs do
+    [
+      ignore_apps: [:game_server_web, :game_server_host]
     ]
   end
 end
