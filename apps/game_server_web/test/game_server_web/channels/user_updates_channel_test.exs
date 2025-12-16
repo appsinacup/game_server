@@ -13,6 +13,45 @@ defmodule GameServerWeb.UserChannelTest do
 
   @endpoint GameServerWeb.Endpoint
 
+  test "user channel receives updated event when lobby_id changes" do
+    user = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+    {:ok, token, _claims} = Guardian.encode_and_sign(user)
+
+    {:ok, socket} = connect(GameServerWeb.UserSocket, %{"token" => token})
+    {:ok, _, _socket} = subscribe_and_join(socket, "user:#{user.id}", %{})
+
+    {:ok, lobby} = GameServer.Lobbies.create_lobby(%{title: "user-updates-room", hostless: true})
+
+    assert {:ok, _updated_user} = GameServer.Lobbies.join_lobby(user, lobby.id)
+
+    assert_push "updated", payload
+    assert payload.id == user.id
+    assert payload.lobby_id == lobby.id
+  end
+
+  test "user channel receives updated event when leaving clears lobby_id" do
+    user = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+    {:ok, token, _claims} = Guardian.encode_and_sign(user)
+
+    {:ok, socket} = connect(GameServerWeb.UserSocket, %{"token" => token})
+    {:ok, _, _socket} = subscribe_and_join(socket, "user:#{user.id}", %{})
+
+    {:ok, lobby} =
+      GameServer.Lobbies.create_lobby(%{title: "user-updates-leave-room", hostless: true})
+
+    assert {:ok, joined_user} = GameServer.Lobbies.join_lobby(user, lobby.id)
+
+    assert_push "updated", joined_payload
+    assert joined_payload.id == user.id
+    assert joined_payload.lobby_id == lobby.id
+
+    assert {:ok, _} = GameServer.Lobbies.leave_lobby(joined_user)
+
+    assert_push "updated", left_payload
+    assert left_payload.id == user.id
+    assert is_nil(left_payload.lobby_id)
+  end
+
   test "join allowed for owner and receives broadcasts" do
     user = AccountsFixtures.user_fixture()
     {:ok, token, _claims} = Guardian.encode_and_sign(user)

@@ -672,6 +672,7 @@ defmodule GameServer.Lobbies do
       |> case do
         {:ok, updated} = ok ->
           _ = invalidate_accounts_user_cache(updated.id)
+          _ = Accounts.broadcast_user_update(updated)
           ok
 
         other ->
@@ -690,6 +691,7 @@ defmodule GameServer.Lobbies do
       |> case do
         {:ok, updated} = ok ->
           _ = invalidate_accounts_user_cache(updated.id)
+          _ = Accounts.broadcast_user_update(updated)
           ok
 
         other ->
@@ -805,6 +807,7 @@ defmodule GameServer.Lobbies do
         case result do
           {:ok, updated_user} ->
             _ = invalidate_accounts_user_cache(updated_user.id)
+            _ = Accounts.broadcast_user_update(updated_user)
             broadcast_lobby(lobby_id, {:user_joined, lobby_id, user_id})
             broadcast_lobbies({:lobby_membership_changed, lobby_id})
 
@@ -834,6 +837,7 @@ defmodule GameServer.Lobbies do
     |> case do
       {:ok, updated} = ok ->
         _ = invalidate_accounts_user_cache(updated.id)
+        _ = Accounts.broadcast_user_update(updated)
         ok
 
       other ->
@@ -904,6 +908,7 @@ defmodule GameServer.Lobbies do
         _ = invalidate_accounts_user_cache(user_id)
         _ = invalidate_public_lobbies_cache()
         _ = invalidate_lobby_cache(lobby_id)
+        maybe_broadcast_user_updated(user_id)
         broadcast_lobbies({:lobby_deleted, lobby_id})
         result
 
@@ -911,6 +916,7 @@ defmodule GameServer.Lobbies do
         _ = invalidate_accounts_user_cache(user_id)
         _ = invalidate_public_lobbies_cache()
         _ = invalidate_lobby_cache(lobby_id)
+        maybe_broadcast_user_updated(user_id)
         broadcast_lobby(lobby_id, {:user_left, lobby_id, user_id})
         broadcast_lobby(lobby_id, {:host_changed, lobby_id, new_host_id})
         broadcast_lobbies({:lobby_membership_changed, lobby_id})
@@ -920,12 +926,25 @@ defmodule GameServer.Lobbies do
         _ = invalidate_accounts_user_cache(user_id)
         _ = invalidate_public_lobbies_cache()
         _ = invalidate_lobby_cache(lobby_id)
+        maybe_broadcast_user_updated(user_id)
         broadcast_lobby(lobby_id, {:user_left, lobby_id, user_id})
         broadcast_lobbies({:lobby_membership_changed, lobby_id})
         result
 
       _ ->
         result
+    end
+  end
+
+  defp maybe_broadcast_user_updated(user_id) when is_integer(user_id) do
+    # `invalidate_accounts_user_cache/1` above ensures this refetch isn't stale.
+    case Accounts.get_user(user_id) do
+      %User{} = user ->
+        _ = Accounts.broadcast_user_update(user)
+        :ok
+
+      _ ->
+        :ok
     end
   end
 
@@ -970,8 +989,9 @@ defmodule GameServer.Lobbies do
         result = Repo.update(Ecto.Changeset.change(membership, %{lobby_id: nil}))
 
         case result do
-          {:ok, _} ->
+          {:ok, updated} ->
             _ = invalidate_accounts_user_cache(membership.id)
+            _ = Accounts.broadcast_user_update(updated)
 
             Task.start(fn ->
               GameServer.Hooks.internal_call(:after_user_kicked, [
