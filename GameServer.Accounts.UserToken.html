@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.3">
-    <meta name="project" content="GameServer v1.0.430">
+    <meta name="project" content="GameServer v1.0.433">
 
 
-    <title>GameServer.Accounts.UserToken — GameServer v1.0.430</title>
+    <title>GameServer.Accounts.UserToken — GameServer v1.0.433</title>
 
     <link rel="stylesheet" href="dist/html-elixir-VYWJUHZE.css" />
 
-    <script defer src="dist/sidebar_items-AB36864C.js"></script>
+    <script defer src="dist/sidebar_items-EB164120.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-XBCM4BHM.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.430
+          v1.0.433
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.Accounts.UserToken</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.430)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.433)</small>
 
     </h1>
 
@@ -117,6 +117,20 @@ queries for verification and convenient builders used throughout the app.</p>
       </a>
       <span class="text">Summary</span>
     </h1>
+<div class="summary-types summary">
+  <h2>
+    <a href="#types">Types</a>
+  </h2>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:t/0" data-no-tooltip="" translate="no">t()</a>
+
+      </div>
+
+    </div>
+
+</div>
 <div class="summary-functions summary">
   <h2>
     <a href="#functions">Functions</a>
@@ -178,6 +192,53 @@ tokens do not need to be hashed.</p></div>
 
   </section>
 
+
+  <section id="types" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#types">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Types</span>
+    </h1>
+
+    <div class="types-list">
+<section class="detail" id="t:t/0">
+
+  <div class="detail-header">
+    <a href="#t:t/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">t()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> t() :: %GameServer.Accounts.UserToken{
+  __meta__: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  authenticated_at: <a href="https://hexdocs.pm/elixir/DateTime.html#t:t/0">DateTime.t</a>() | nil,
+  context: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil,
+  id: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>() | nil,
+  inserted_at: <a href="https://hexdocs.pm/elixir/DateTime.html#t:t/0">DateTime.t</a>() | nil,
+  sent_to: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil,
+  token: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">binary</a>() | nil,
+  user: <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>() | <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.Association.NotLoaded.html#t:t/0">Ecto.Association.NotLoaded.t</a>() | nil,
+  user_id: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>() | nil
+}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
 
   <section id="functions" class="details-list">
     <h1 class="section-heading">
