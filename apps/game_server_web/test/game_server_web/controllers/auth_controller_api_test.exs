@@ -4,12 +4,19 @@ defmodule GameServerWeb.AuthControllerApiTest do
   setup do
     # allow tests to inject a mock exchanger
     orig = Application.get_env(:game_server_web, :oauth_exchanger)
+    orig_tokeninfo = Application.get_env(:game_server_core, :google_tokeninfo_client)
 
     on_exit(fn ->
       if is_nil(orig) do
         Application.delete_env(:game_server_web, :oauth_exchanger)
       else
         Application.put_env(:game_server_web, :oauth_exchanger, orig)
+      end
+
+      if is_nil(orig_tokeninfo) do
+        Application.delete_env(:game_server_core, :google_tokeninfo_client)
+      else
+        Application.put_env(:game_server_core, :google_tokeninfo_client, orig_tokeninfo)
       end
     end)
 
@@ -438,5 +445,90 @@ defmodule GameServerWeb.AuthControllerApiTest do
     end
 
     # Note: API now expects 'code' to be a Steam auth ticket. Supplying a steam id is not allowed.
+  end
+
+  describe "POST /api/v1/auth/google/id_token" do
+    test "returns tokens for valid id_token", %{conn: conn} do
+      defmodule MockGoogleTokeninfoOk do
+        def get(_url, opts) do
+          params = Keyword.get(opts, :params, %{})
+          token = Map.get(params, :id_token) || Map.get(params, "id_token")
+
+          if token == "good" do
+            {:ok,
+             %{
+               status: 200,
+               body: %{
+                 "sub" => "gsub_1",
+                 "aud" => "webcid",
+                 "iss" => "https://accounts.google.com",
+                 "email" => "g@example.com",
+                 "name" => "G User",
+                 "picture" => "https://pic",
+                 "expires_in" => "3600"
+               }
+             }}
+          else
+            {:ok, %{status: 400, body: %{"error" => "invalid_token"}}}
+          end
+        end
+      end
+
+      Application.put_env(:game_server_core, :google_tokeninfo_client, MockGoogleTokeninfoOk)
+
+      System.put_env("GOOGLE_WEB_CLIENT_ID", "webcid")
+
+      on_exit(fn ->
+        System.delete_env("GOOGLE_WEB_CLIENT_ID")
+      end)
+
+      conn = post(conn, "/api/v1/auth/google/id_token", %{id_token: "good"})
+      assert conn.status == 200
+      body = json_response(conn, 200)
+
+      assert is_binary(body["data"]["access_token"])
+      assert is_binary(body["data"]["refresh_token"])
+      assert is_integer(body["data"]["expires_in"])
+      assert is_integer(body["data"]["user_id"])
+
+      user = GameServer.Repo.get(GameServer.Accounts.User, body["data"]["user_id"])
+      assert user != nil
+      assert user.google_id == "gsub_1"
+    end
+
+    test "returns 400 when aud does not match", %{conn: conn} do
+      defmodule MockGoogleTokeninfoBadAud do
+        def get(_url, _opts) do
+          {:ok,
+           %{
+             status: 200,
+             body: %{
+               "sub" => "gsub_2",
+               "aud" => "some_other_client",
+               "iss" => "https://accounts.google.com",
+               "expires_in" => "3600"
+             }
+           }}
+        end
+      end
+
+      Application.put_env(:game_server_core, :google_tokeninfo_client, MockGoogleTokeninfoBadAud)
+
+      System.put_env("GOOGLE_WEB_CLIENT_ID", "webcid")
+
+      on_exit(fn ->
+        System.delete_env("GOOGLE_WEB_CLIENT_ID")
+      end)
+
+      conn = post(conn, "/api/v1/auth/google/id_token", %{id_token: "good"})
+      assert conn.status == 400
+      assert json_response(conn, 400)["error"] == "invalid_token"
+    end
+
+    test "returns 400 when id_token missing", %{conn: conn} do
+      conn = post(conn, "/api/v1/auth/google/id_token", %{})
+      assert conn.status == 400
+      assert json_response(conn, 400)["error"] == "missing_param"
+    end
   end
 end

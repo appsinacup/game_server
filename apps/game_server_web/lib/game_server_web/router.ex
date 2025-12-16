@@ -116,6 +116,7 @@ defmodule GameServerWeb.Router do
 
     get "/:provider", AuthController, :api_request
     post "/:provider/callback", AuthController, :api_callback
+    post "/google/id_token", AuthController, :api_google_id_token
     get "/session/:session_id", AuthController, :api_session_status
   end
 

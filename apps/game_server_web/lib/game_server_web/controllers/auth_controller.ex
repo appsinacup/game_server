@@ -6,8 +6,10 @@ defmodule GameServerWeb.AuthController do
 
   alias GameServer.Accounts
   alias GameServer.Accounts.User
+  alias GameServer.OAuth.GoogleIDToken
   alias GameServer.OAuthSessions
   alias GameServerWeb.Auth.Guardian
+  alias GameServerWeb.Schemas.OAuthSessionData
   alias GameServerWeb.UserAuth
 
   # Optionally extract current user from JWT in Authorization header.
@@ -776,7 +778,7 @@ defmodule GameServerWeb.AuthController do
         {"OAuth tokens", "application/json",
          %OpenApiSpex.Schema{
            type: :object,
-           properties: %{data: GameServerWeb.Schemas.OAuthSessionData}
+           properties: %{data: OAuthSessionData}
          }},
       bad_request: {"Bad request", "application/json", %OpenApiSpex.Schema{type: :object}}
     ]
@@ -874,6 +876,101 @@ defmodule GameServerWeb.AuthController do
   # API clients can POST a code (or steam_id) to the callback endpoint and receive
   # tokens directly. Supports discord, google, facebook, apple and steam (steam via steam_id).
   # If a valid JWT is provided in Authorization header, links the provider instead of login.
+  operation(:api_google_id_token,
+    operation_id: "oauth_google_id_token",
+    summary: "Google ID token login (native/mobile)",
+    description:
+      "Verify a Google OpenID Connect id_token (eg. from Android Credential Manager) and return JWT tokens.",
+    tags: ["Authentication"],
+    request_body: {
+      "Google ID token",
+      "application/json",
+      %OpenApiSpex.Schema{
+        type: :object,
+        required: [:id_token],
+        properties: %{
+          id_token: %OpenApiSpex.Schema{
+            type: :string,
+            description:
+              "Google OpenID Connect id_token JWT. Audience must match GOOGLE_WEB_CLIENT_ID or GOOGLE_CLIENT_ID."
+          }
+        }
+      }
+    },
+    responses: [
+      ok:
+        {"OAuth tokens", "application/json",
+         %OpenApiSpex.Schema{
+           type: :object,
+           properties: %{data: GameServerWeb.Schemas.OAuthSessionData}
+         }},
+      bad_request: {"Bad request", "application/json", %OpenApiSpex.Schema{type: :object}},
+      internal_server_error:
+        {"Server misconfigured", "application/json", %OpenApiSpex.Schema{type: :object}}
+    ]
+  )
+
+  def api_google_id_token(conn, %{"id_token" => id_token}) when is_binary(id_token) do
+    case GoogleIDToken.verify(id_token) do
+      {:ok, claims} ->
+        user_params = %{
+          google_id: Map.get(claims, "sub"),
+          email: Map.get(claims, "email"),
+          display_name: Map.get(claims, "name"),
+          profile_url: Map.get(claims, "picture")
+        }
+
+        # Check if user is authenticated (linking) or not (login)
+        case maybe_load_user_from_jwt(conn) do
+          {:ok, %User{} = current_user} ->
+            handle_api_link(
+              conn,
+              current_user,
+              user_params,
+              :google_id,
+              &User.google_oauth_changeset/2
+            )
+
+          {:ok, nil} ->
+            handle_api_login(conn, &Accounts.find_or_create_from_google/1, user_params)
+        end
+
+      {:error, :missing_google_client_id} ->
+        conn
+        |> put_status(:internal_server_error)
+        |> json(%{
+          error: "server_misconfigured",
+          message: "Missing GOOGLE_WEB_CLIENT_ID/GOOGLE_CLIENT_ID"
+        })
+
+      {:error, :invalid_audience} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "invalid_token", message: "Invalid audience"})
+
+      {:error, :invalid_issuer} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "invalid_token", message: "Invalid issuer"})
+
+      {:error, :expired} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "invalid_token", message: "Token expired"})
+
+      {:error, err} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "invalid_token", details: inspect(err)})
+    end
+  end
+
+  def api_google_id_token(conn, _params) do
+    conn
+    |> put_status(:bad_request)
+    |> json(%{error: "missing_param", message: "id_token is required"})
+  end
+
   def api_callback(conn, %{"provider" => "discord", "code" => code}) do
     exchanger =
       Application.get_env(:game_server_web, :oauth_exchanger, GameServer.OAuth.Exchanger)
