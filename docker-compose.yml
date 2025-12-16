@@ -40,17 +40,5 @@ services:
       - /app/_build
       - /app/deps
 
-  redis:
-    image: redis:7.4-alpine
-    restart: always
-    shm_size: 128mb
-    volumes:
-      - "./redis:/data"
-    healthcheck:
-      test: redis-cli ping
-      interval: 5s
-      timeout: 5s
-
 volumes:
   postgres_data:
-  redis_data:

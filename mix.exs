@@ -18,17 +18,24 @@ defmodule GameServerUmbrella.MixProject do
 
   defp aliases do
     [
-      setup: ["do --app game_server_web setup"],
-      test: ["do --app game_server_web test"],
-      lint: ["do --app game_server_web lint"],
-      precommit: ["do --app game_server_web precommit"],
-      "assets.setup": ["do --app game_server_web assets.setup"],
-      "assets.build": ["do --app game_server_web assets.build"],
-      "assets.deploy": ["do --app game_server_web assets.deploy"],
-      "ecto.setup": ["do --app game_server_web ecto.setup"],
-      "ecto.reset": ["do --app game_server_web ecto.reset"],
-      "ecto.migrate": ["do --app game_server_web ecto.migrate"],
-      "ecto.rollback": ["do --app game_server_web ecto.rollback"],
+      setup: ["do --app game_server_host setup"],
+      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
+      lint: ["format --check-formatted", "credo --strict"],
+      precommit: [
+        "compile --warning-as-errors",
+        "deps.unlock --unused",
+        "format",
+        "gen.sdk",
+        "test",
+        "credo --strict"
+      ],
+      "assets.setup": ["do --app game_server_host assets.setup"],
+      "assets.build": ["do --app game_server_host assets.build"],
+      "assets.deploy": ["do --app game_server_host assets.deploy"],
+      "ecto.setup": ["do --app game_server_host ecto.setup"],
+      "ecto.reset": ["do --app game_server_host ecto.reset"],
+      "ecto.migrate": ["do --app game_server_host ecto.migrate"],
+      "ecto.rollback": ["do --app game_server_host ecto.rollback"],
       "phx.server": ["do --app game_server_host phx.server"],
       "phx.routes": ["do --app game_server_host phx.routes"],
       "phx.gen.secret": ["do --app game_server_host phx.gen.secret"]

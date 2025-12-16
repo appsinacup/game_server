@@ -7,4 +7,4 @@ export POSTGRES_USER=postgres
 export POSTGRES_PASSWORD=postgres
 export POSTGRES_DB=game_server_dev
 
-mix do --app game_server_web ecto.migrate
+mix do --app game_server_host ecto.migrate
