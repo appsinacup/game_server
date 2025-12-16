@@ -50,14 +50,14 @@ RUN if [ -d "${GAME_SERVER_PLUGINS_DIR}" ]; then \
     fi
 
 # Compile the application FIRST (generates phoenix-colocated hooks)
-RUN mix do --app game_server_web compile
+RUN mix do --app game_server_host compile
 
 # Build and digest static assets for production (creates priv/static/cache_manifest.json)
 # This now runs AFTER compile, so phoenix-colocated hooks exist
-RUN mix do --app game_server_web assets.deploy
+RUN mix do --app game_server_host assets.deploy
 
 # Expose port
 EXPOSE 4000
 
 # Default command - run migrations and start server
-CMD ["sh", "-c", "mix do --app game_server_web ecto.migrate && mix do --app game_server_web phx.server"]
+CMD ["sh", "-c", "mix do --app game_server_host ecto.migrate && mix do --app game_server_host phx.server"]

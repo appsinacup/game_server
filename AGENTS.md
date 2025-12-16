@@ -25,7 +25,7 @@ Routing is host-controlled without making `game_server_web` depend on `game_serv
 - Host router: `GameServerHost.Router` (in `apps/game_server_host`). By default it delegates to the upstream router via `forward "/", GameServerWeb.Router`.
 - Endpoint dispatch: `GameServerWeb.Endpoint` uses a small dispatch plug that reads `Application.get_env(:game_server_web, :router, GameServerWeb.Router)` and calls that module.
   - This avoids warnings like “`GameServerHost.Router.call/2 is undefined`” when compiling `game_server_web` in isolation.
-- Host boot-time config: `apps/game_server_host` sets `Application.put_env(:game_server_web, :router, GameServerHost.Router, persistent: true)` before starting the endpoint.
+- Host boot-time config: `GameServerHost.Application` sets `Application.put_env(:game_server_web, :router, GameServerHost.Router, persistent: true)` before starting the endpoint.
 
 Fork guidance:
 

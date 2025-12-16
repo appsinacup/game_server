@@ -9,6 +9,8 @@ services:
       SECRET_KEY_BASE: your_secret
       MIX_ENV: dev
       PHX_SERVER: true
+    command: >
+      sh -c "mix deps.get && MIX_ENV=dev mix do --app game_server_host ecto.migrate && MIX_ENV=dev mix do --app game_server_host phx.server"
     volumes:
       - .:/app
       - /app/_build

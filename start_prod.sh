@@ -13,8 +13,8 @@ fi
 
 # Generate SECRET_KEY_BASE if not set
 if [ -z "$SECRET_KEY_BASE" ]; then
-  export SECRET_KEY_BASE=$(mix do --app game_server_web phx.gen.secret)
+  export SECRET_KEY_BASE=$(mix do --app game_server_host phx.gen.secret)
   echo "Generated SECRET_KEY_BASE: $SECRET_KEY_BASE"
 fi
 
-MIX_ENV=prod mix do --app game_server_web phx.server
+MIX_ENV=prod mix do --app game_server_host phx.server

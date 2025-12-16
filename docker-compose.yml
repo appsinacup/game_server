@@ -33,6 +33,8 @@ services:
     depends_on:
       database:
         condition: service_healthy
+    command: >
+      sh -c "mix deps.get && MIX_ENV=dev mix do --app game_server_host ecto.migrate && MIX_ENV=dev mix do --app game_server_host phx.server"
     volumes:
       - .:/app
       - /app/_build
