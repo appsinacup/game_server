@@ -8,7 +8,7 @@
     <meta name="project" content="GameServer v1.0.430">
 
 
-    <title>GameServer.Friends.Friendship — GameServer v1.0.430</title>
+    <title>GameServer.Theme.JSONConfig — GameServer v1.0.430</title>
 
     <link rel="stylesheet" href="dist/html-elixir-VYWJUHZE.css" />
 
@@ -93,7 +93,7 @@ GameServer
 <div id="top-content">
   <div class="heading-with-actions top-heading">
     <h1>
-      <span translate="no">GameServer.Friends.Friendship</span> 
+      <span translate="no">GameServer.Theme.JSONConfig</span> 
       <small class="app-vsn" translate="no">(GameServer v1.0.430)</small>
 
     </h1>
@@ -102,9 +102,12 @@ GameServer
 
 
     <section id="moduledoc">
-<p>Ecto schema representing a friendship/request between two users.</p><p>The friendship object stores the requester and the target user together with
-a status field which can be &quot;pending&quot;, &quot;accepted&quot;, &quot;rejected&quot; or
-&quot;blocked&quot;.</p>
+<p>JSON-backed Theme provider. Reads a JSON file specified by the THEME_CONFIG
+environment variable (single canonical runtime source) — e.g. THEME_CONFIG=theme/custom.json</p><p>The path may be relative to the project root (eg. &quot;theme/default_config.json&quot;)
+or an absolute path. When the file is missing we fall back to the built-in
+default at <code class="inline">priv/static/theme/default_config.json</code>.</p><p>This implementation keeps things simple: every call will parse the JSON file
+and return a map. There's also a <code class="inline">reload/0</code> API for callers who want to
+force a re-read (not required for normal usage).</p>
     </section>
 
 </div>
@@ -116,18 +119,31 @@ a status field which can be &quot;pending&quot;, &quot;accepted&quot;, &quot;rej
       </a>
       <span class="text">Summary</span>
     </h1>
-<div class="summary-types summary">
+<div class="summary-functions summary">
   <h2>
-    <a href="#types">Types</a>
+    <a href="#functions">Functions</a>
   </h2>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#t:t/0" data-no-tooltip="" translate="no">t()</a>
+        <a href="#packaged_default/0" data-no-tooltip="" translate="no">packaged_default()</a>
 
       </div>
 
-        <div class="summary-synopsis"><p>A friendship/request record between two users.</p></div>
+        <div class="summary-synopsis"><p>Return the packaged default theme config found under priv/static/theme/default_config.json
+as a map (or an empty map when missing/invalid). This is a convenience wrapper so other
+modules can rely on a single source of truth for the packaged defaults.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#runtime_path/0" data-no-tooltip="" translate="no">runtime_path()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns the runtime THEME_CONFIG path if present and non-blank, otherwise nil.
+This function intentionally treats blank env values as unset.</p></div>
 
     </div>
 
@@ -136,23 +152,23 @@ a status field which can be &quot;pending&quot;, &quot;accepted&quot;, &quot;rej
   </section>
 
 
-  <section id="types" class="details-list">
+  <section id="functions" class="details-list">
     <h1 class="section-heading">
-      <a class="hover-link" href="#types">
+      <a class="hover-link" href="#functions">
         <i class="ri-link-m" aria-hidden="true"></i>
       </a>
-      <span class="text">Types</span>
+      <span class="text">Functions</span>
     </h1>
 
-    <div class="types-list">
-<section class="detail" id="t:t/0">
+    <div class="functions-list">
+<section class="detail" id="packaged_default/0">
 
   <div class="detail-header">
-    <a href="#t:t/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+    <a href="#packaged_default/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">t()</h1>
+      <h1 class="signature" translate="no">packaged_default()</h1>
 
 
     </div>
@@ -160,23 +176,28 @@ a status field which can be &quot;pending&quot;, &quot;accepted&quot;, &quot;rej
 
   <section class="docstring">
 
-      <div class="specs">
+<p>Return the packaged default theme config found under priv/static/theme/default_config.json
+as a map (or an empty map when missing/invalid). This is a convenience wrapper so other
+modules can rely on a single source of truth for the packaged defaults.</p>
+  </section>
+</section>
+<section class="detail" id="runtime_path/0">
 
-          <pre translate="no"><span class="attribute">@type</span> t() :: %GameServer.Friends.Friendship{
-  __meta__: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  id: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>() | nil,
-  inserted_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  requester: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  requester_id: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>() | nil,
-  status: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
-  target: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  target_id: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>() | nil,
-  updated_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()
-}</pre>
+  <div class="detail-header">
+    <a href="#runtime_path/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">runtime_path()</h1>
 
-      </div>
 
-<p>A friendship/request record between two users.</p>
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Returns the runtime THEME_CONFIG path if present and non-blank, otherwise nil.
+This function intentionally treats blank env values as unset.</p>
   </section>
 </section>
 

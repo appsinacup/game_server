@@ -8,7 +8,7 @@
     <meta name="project" content="GameServer v1.0.430">
 
 
-    <title>GameServer.Friends.Friendship — GameServer v1.0.430</title>
+    <title>GameServer.OAuthSession — GameServer v1.0.430</title>
 
     <link rel="stylesheet" href="dist/html-elixir-VYWJUHZE.css" />
 
@@ -93,7 +93,7 @@ GameServer
 <div id="top-content">
   <div class="heading-with-actions top-heading">
     <h1>
-      <span translate="no">GameServer.Friends.Friendship</span> 
+      <span translate="no">GameServer.OAuthSession</span> 
       <small class="app-vsn" translate="no">(GameServer v1.0.430)</small>
 
     </h1>
@@ -102,9 +102,9 @@ GameServer
 
 
     <section id="moduledoc">
-<p>Ecto schema representing a friendship/request between two users.</p><p>The friendship object stores the requester and the target user together with
-a status field which can be &quot;pending&quot;, &quot;accepted&quot;, &quot;rejected&quot; or
-&quot;blocked&quot;.</p>
+<p>Simple Ecto schema for OAuth session polling used by client SDKs.</p><p>OAuth sessions allow multi-step auth flows (popup or mobile) where the SDK
+polls for completion status (pending/completed/failed). The schema stores
+provider-specific data in the <code class="inline">data</code> field for debugging and eventing.</p>
     </section>
 
 </div>
@@ -127,7 +127,7 @@ a status field which can be &quot;pending&quot;, &quot;accepted&quot;, &quot;rej
 
       </div>
 
-        <div class="summary-synopsis"><p>A friendship/request record between two users.</p></div>
+        <div class="summary-synopsis"><p>A short-lived OAuth session used for polling by SDKs.</p></div>
 
     </div>
 
@@ -162,21 +162,20 @@ a status field which can be &quot;pending&quot;, &quot;accepted&quot;, &quot;rej
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> t() :: %GameServer.Friends.Friendship{
+          <pre translate="no"><span class="attribute">@type</span> t() :: %GameServer.OAuthSession{
   __meta__: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  data: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(),
   id: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>() | nil,
   inserted_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  requester: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  requester_id: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>() | nil,
+  provider: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  session_id: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
   status: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
-  target: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  target_id: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>() | nil,
   updated_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()
 }</pre>
 
       </div>
 
-<p>A friendship/request record between two users.</p>
+<p>A short-lived OAuth session used for polling by SDKs.</p>
   </section>
 </section>
 

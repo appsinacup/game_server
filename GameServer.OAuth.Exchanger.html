@@ -8,7 +8,7 @@
     <meta name="project" content="GameServer v1.0.430">
 
 
-    <title>GameServer.KV — GameServer v1.0.430</title>
+    <title>GameServer.OAuth.Exchanger — GameServer v1.0.430</title>
 
     <link rel="stylesheet" href="dist/html-elixir-VYWJUHZE.css" />
 
@@ -93,7 +93,7 @@ GameServer
 <div id="top-content">
   <div class="heading-with-actions top-heading">
     <h1>
-      <span translate="no">GameServer.KV</span> 
+      <span translate="no">GameServer.OAuth.Exchanger</span> 
       <small class="app-vsn" translate="no">(GameServer v1.0.430)</small>
 
     </h1>
@@ -102,9 +102,8 @@ GameServer
 
 
     <section id="moduledoc">
-<p>Generic key/value storage.</p><p>This is intentionally minimal and un-opinionated.</p><p>If you want namespacing, encode it in <code class="inline">key</code> (e.g. <code class="inline">&quot;polyglot_pirates:key1&quot;</code>).
-If you want per-user values, pass <code class="inline">user_id: ...</code> to <a href="#get/2"><code class="inline">get/2</code></a>, <a href="#put/4"><code class="inline">put/4</code></a>, and <a href="#delete/2"><code class="inline">delete/2</code></a>.</p><p>This module uses the app cache (<a href="GameServer.Cache.html"><code class="inline">GameServer.Cache</code></a>) as a best-effort read cache.
-Writes update the cache and deletes evict it.</p>
+<p>Default implementation for exchanging OAuth codes with providers.</p><p>This module is intentionally small and works with the Req library.
+Tests may replace the exchanger via application config for easier stubbing.</p>
     </section>
 
 </div>
@@ -123,7 +122,7 @@ Writes update the cache and deletes evict it.</p>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#count_entries/1" data-no-tooltip="" translate="no">count_entries(opts \\ [])</a>
+        <a href="#exchange_apple_code/5" data-no-tooltip="" translate="no">exchange_apple_code(code, client_id, client_secret, redirect_uri, opts \\ [])</a>
 
       </div>
 
@@ -131,7 +130,7 @@ Writes update the cache and deletes evict it.</p>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#create_entry/1" data-no-tooltip="" translate="no">create_entry(attrs)</a>
+        <a href="#exchange_discord_code/5" data-no-tooltip="" translate="no">exchange_discord_code(code, client_id, client_secret, redirect_uri, opts \\ [])</a>
 
       </div>
 
@@ -139,7 +138,7 @@ Writes update the cache and deletes evict it.</p>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#delete/2" data-no-tooltip="" translate="no">delete(key, opts \\ [])</a>
+        <a href="#exchange_facebook_code/5" data-no-tooltip="" translate="no">exchange_facebook_code(code, client_id, client_secret, redirect_uri, opts \\ [])</a>
 
       </div>
 
@@ -147,7 +146,7 @@ Writes update the cache and deletes evict it.</p>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#delete_entry/1" data-no-tooltip="" translate="no">delete_entry(id)</a>
+        <a href="#exchange_google_code/5" data-no-tooltip="" translate="no">exchange_google_code(code, client_id, client_secret, redirect_uri, opts \\ [])</a>
 
       </div>
 
@@ -155,7 +154,7 @@ Writes update the cache and deletes evict it.</p>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#get/2" data-no-tooltip="" translate="no">get(key, opts \\ [])</a>
+        <a href="#exchange_steam_code/1" data-no-tooltip="" translate="no">exchange_steam_code(code)</a>
 
       </div>
 
@@ -163,41 +162,22 @@ Writes update the cache and deletes evict it.</p>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#get_entry/1" data-no-tooltip="" translate="no">get_entry(id)</a>
+        <a href="#exchange_steam_ticket/2" data-no-tooltip="" translate="no">exchange_steam_ticket(ticket, opts \\ [])</a>
 
       </div>
+
+        <div class="summary-synopsis"><p>Verify a Steam auth ticket using ISteamUserAuth/AuthenticateUserTicket/v1</p></div>
 
     </div>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#list_entries/1" data-no-tooltip="" translate="no">list_entries(opts \\ [])</a>
+        <a href="#get_player_profile/1" data-no-tooltip="" translate="no">get_player_profile(steamid)</a>
 
       </div>
 
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#put/3" data-no-tooltip="" translate="no">put(key, value, metadata \\ %{})</a>
-
-      </div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#put/4" data-no-tooltip="" translate="no">put(key, value, metadata, opts)</a>
-
-      </div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#update_entry/2" data-no-tooltip="" translate="no">update_entry(id, attrs)</a>
-
-      </div>
+        <div class="summary-synopsis"><p>Fetch a public Steam profile for a given steamid using GetPlayerSummaries.
+Returns {:ok, map} or {:error, reason}.</p></div>
 
     </div>
 
@@ -215,16 +195,16 @@ Writes update the cache and deletes evict it.</p>
     </h1>
 
     <div class="functions-list">
-<section class="detail" id="count_entries/1">
+<section class="detail" id="exchange_apple_code/5">
 
-    <span id="count_entries/0"></span>
+    <span id="exchange_apple_code/4"></span>
 
   <div class="detail-header">
-    <a href="#count_entries/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#exchange_apple_code/5" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">count_entries(opts \\ [])</h1>
+      <h1 class="signature" translate="no">exchange_apple_code(code, client_id, client_secret, redirect_uri, opts \\ [])</h1>
 
 
     </div>
@@ -234,21 +214,24 @@ Writes update the cache and deletes evict it.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_entries(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> exchange_apple_code(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
+  {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
 
   </section>
 </section>
-<section class="detail" id="create_entry/1">
+<section class="detail" id="exchange_discord_code/5">
+
+    <span id="exchange_discord_code/4"></span>
 
   <div class="detail-header">
-    <a href="#create_entry/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#exchange_discord_code/5" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">create_entry(attrs)</h1>
+      <h1 class="signature" translate="no">exchange_discord_code(code, client_id, client_secret, redirect_uri, opts \\ [])</h1>
 
 
     </div>
@@ -258,24 +241,24 @@ Writes update the cache and deletes evict it.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> create_entry(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
-  {:ok, GameServer.KV.Entry.t()} | {:error, <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> exchange_discord_code(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
+  {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
 
   </section>
 </section>
-<section class="detail" id="delete/2">
+<section class="detail" id="exchange_facebook_code/5">
 
-    <span id="delete/1"></span>
+    <span id="exchange_facebook_code/4"></span>
 
   <div class="detail-header">
-    <a href="#delete/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#exchange_facebook_code/5" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">delete(key, opts \\ [])</h1>
+      <h1 class="signature" translate="no">exchange_facebook_code(code, client_id, client_secret, redirect_uri, opts \\ [])</h1>
 
 
     </div>
@@ -285,24 +268,30 @@ Writes update the cache and deletes evict it.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> delete(
+          <pre translate="no"><span class="attribute">@spec</span> exchange_facebook_code(
+  <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
   <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
   <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: :ok</pre>
+) ::
+  {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
 
   </section>
 </section>
-<section class="detail" id="delete_entry/1">
+<section class="detail" id="exchange_google_code/5">
+
+    <span id="exchange_google_code/4"></span>
 
   <div class="detail-header">
-    <a href="#delete_entry/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#exchange_google_code/5" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">delete_entry(id)</h1>
+      <h1 class="signature" translate="no">exchange_google_code(code, client_id, client_secret, redirect_uri, opts \\ [])</h1>
 
 
     </div>
@@ -312,23 +301,22 @@ Writes update the cache and deletes evict it.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> delete_entry(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()) :: :ok</pre>
+          <pre translate="no"><span class="attribute">@spec</span> exchange_google_code(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
+  {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
 
   </section>
 </section>
-<section class="detail" id="get/2">
-
-    <span id="get/1"></span>
+<section class="detail" id="exchange_steam_code/1">
 
   <div class="detail-header">
-    <a href="#get/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#exchange_steam_code/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">get(key, opts \\ [])</h1>
+      <h1 class="signature" translate="no">exchange_steam_code(code)</h1>
 
 
     </div>
@@ -338,24 +326,51 @@ Writes update the cache and deletes evict it.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> get(
+          <pre translate="no"><span class="attribute">@spec</span> exchange_steam_code(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="exchange_steam_ticket/2">
+
+    <span id="exchange_steam_ticket/1"></span>
+
+  <div class="detail-header">
+    <a href="#exchange_steam_ticket/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">exchange_steam_ticket(ticket, opts \\ [])</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> exchange_steam_ticket(
   <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
   <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: {:ok, %{value: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(), metadata: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()}} | :error</pre>
+) :: {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
 
       </div>
 
-
+<p>Verify a Steam auth ticket using ISteamUserAuth/AuthenticateUserTicket/v1</p><p>Expects a ticket (binary blob) returned by the Steamworks client SDK. Returns
+{:ok, user_info} on successful verification or {:error, reason} on failure.</p>
   </section>
 </section>
-<section class="detail" id="get_entry/1">
+<section class="detail" id="get_player_profile/1">
 
   <div class="detail-header">
-    <a href="#get_entry/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#get_player_profile/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">get_entry(id)</h1>
+      <h1 class="signature" translate="no">get_player_profile(steamid)</h1>
 
 
     </div>
@@ -363,118 +378,8 @@ Writes update the cache and deletes evict it.</p>
 
   <section class="docstring">
 
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> get_entry(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>()) :: GameServer.KV.Entry.t() | nil</pre>
-
-      </div>
-
-
-  </section>
-</section>
-<section class="detail" id="list_entries/1">
-
-    <span id="list_entries/0"></span>
-
-  <div class="detail-header">
-    <a href="#list_entries/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">list_entries(opts \\ [])</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> list_entries(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [GameServer.KV.Entry.t()]</pre>
-
-      </div>
-
-
-  </section>
-</section>
-<section class="detail" id="put/3">
-
-    <span id="put/2"></span>
-
-  <div class="detail-header">
-    <a href="#put/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">put(key, value, metadata \\ %{})</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> put(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
-  {:ok, GameServer.KV.Entry.t()} | {:error, <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
-
-      </div>
-
-
-  </section>
-</section>
-<section class="detail" id="put/4">
-
-  <div class="detail-header">
-    <a href="#put/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">put(key, value, metadata, opts)</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> put(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
-  {:ok, GameServer.KV.Entry.t()} | {:error, <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
-
-      </div>
-
-
-  </section>
-</section>
-<section class="detail" id="update_entry/2">
-
-  <div class="detail-header">
-    <a href="#update_entry/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">update_entry(id, attrs)</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> update_entry(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
-  {:ok, GameServer.KV.Entry.t()}
-  | {:error, :not_found}
-  | {:error, <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
-
-      </div>
-
-
+<p>Fetch a public Steam profile for a given steamid using GetPlayerSummaries.
+Returns {:ok, map} or {:error, reason}.</p>
   </section>
 </section>
 

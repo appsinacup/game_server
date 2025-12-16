@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.3">
-    <meta name="project" content="game_server v1.0.420">
+    <meta name="project" content="GameServer v1.0.430">
 
 
-    <title>GameServer.Types — game_server v1.0.420</title>
+    <title>GameServer.Types — GameServer v1.0.430</title>
 
     <link rel="stylesheet" href="dist/html-elixir-VYWJUHZE.css" />
 
-    <script defer src="dist/sidebar_items-8B0F1891.js"></script>
+    <script defer src="dist/sidebar_items-AB36864C.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-XBCM4BHM.js"></script>
 
@@ -33,11 +33,11 @@
     <div class="sidebar-projectInfo">
 
       <div>
-        <a href="https://github.com/appsinacup/game_server" class="sidebar-projectName" translate="no">
-game_server
+        <a href="api-reference.html" class="sidebar-projectName" translate="no">
+GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.420
+          v1.0.430
         </div>
       </div>
     </div>
@@ -53,7 +53,7 @@ game_server
       <div class="search-settings">
         <form class="search-bar" action="search.html">
           <label class="search-label">
-            <span class="sr-only">Search documentation of game_server</span>
+            <span class="sr-only">Search documentation of GameServer</span>
             <div class="search-input-wrapper">
               <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
               <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
@@ -94,14 +94,9 @@ game_server
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.Types</span> 
-      <small class="app-vsn" translate="no">(game_server v1.0.420)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.430)</small>
 
     </h1>
-
-      <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/types.ex#L1" title="View Source" class="icon-action" rel="help">
-        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        <span class="sr-only">View Source</span>
-      </a>
 
   </div>
 
@@ -229,10 +224,6 @@ patterns like pagination options and entity attributes.</p>
       <h1 class="signature" translate="no">leaderboard_create_attrs()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/types.ex#L144" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
     </div>
   </div>
 
@@ -253,13 +244,13 @@ patterns like pagination options and entity attributes.</p>
 
       </div>
 
-<p>Attributes for creating a new leaderboard.</p><h2 id="t:leaderboard_create_attrs/0-fields" class="section-heading"><a href="#t:leaderboard_create_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:slug</code> - Human-readable identifier (required, 1-100 chars, lowercase alphanumeric with underscores)</li><li><code class="inline">:title</code> - Display title (required, 1-255 chars)</li><li><code class="inline">:description</code> - Optional description</li><li><code class="inline">:sort_order</code> - <code class="inline">:desc</code> (higher is better) or <code class="inline">:asc</code> (lower is better). Default: <code class="inline">:desc</code></li><li><code class="inline">:operator</code> - How scores are combined:<ul><li><code class="inline">:set</code> - Always replace with new score</li><li><code class="inline">:best</code> - Only update if new score is better (default)</li><li><code class="inline">:incr</code> - Add to existing score</li><li><code class="inline">:decr</code> - Subtract from existing score</li></ul></li><li><code class="inline">:starts_at</code> - Optional start time (UTC)</li><li><code class="inline">:ends_at</code> - Optional end time (UTC)</li><li><code class="inline">:metadata</code> - Arbitrary key-value data</li></ul><h2 id="t:leaderboard_create_attrs/0-example" class="section-heading"><a href="#t:leaderboard_create_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">create_leaderboard</span><span class="p" data-group-id="1133999448-1">(</span><span class="p" data-group-id="1133999448-2">%{</span><span class="w">
+<p>Attributes for creating a new leaderboard.</p><h2 id="t:leaderboard_create_attrs/0-fields" class="section-heading"><a href="#t:leaderboard_create_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:slug</code> - Human-readable identifier (required, 1-100 chars, lowercase alphanumeric with underscores)</li><li><code class="inline">:title</code> - Display title (required, 1-255 chars)</li><li><code class="inline">:description</code> - Optional description</li><li><code class="inline">:sort_order</code> - <code class="inline">:desc</code> (higher is better) or <code class="inline">:asc</code> (lower is better). Default: <code class="inline">:desc</code></li><li><code class="inline">:operator</code> - How scores are combined:<ul><li><code class="inline">:set</code> - Always replace with new score</li><li><code class="inline">:best</code> - Only update if new score is better (default)</li><li><code class="inline">:incr</code> - Add to existing score</li><li><code class="inline">:decr</code> - Subtract from existing score</li></ul></li><li><code class="inline">:starts_at</code> - Optional start time (UTC)</li><li><code class="inline">:ends_at</code> - Optional end time (UTC)</li><li><code class="inline">:metadata</code> - Arbitrary key-value data</li></ul><h2 id="t:leaderboard_create_attrs/0-example" class="section-heading"><a href="#t:leaderboard_create_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">create_leaderboard</span><span class="p" data-group-id="5016342211-1">(</span><span class="p" data-group-id="5016342211-2">%{</span><span class="w">
   </span><span class="ss">slug</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;weekly_kills&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Weekly Kills&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">sort_order</span><span class="p">:</span><span class="w"> </span><span class="ss">:desc</span><span class="p">,</span><span class="w">
   </span><span class="ss">operator</span><span class="p">:</span><span class="w"> </span><span class="ss">:incr</span><span class="p">,</span><span class="w">
   </span><span class="ss">ends_at</span><span class="p">:</span><span class="w"> </span><span class="ld">~U[2024-12-08 00:00:00Z]</span><span class="w">
-</span><span class="p" data-group-id="1133999448-2">}</span><span class="p" data-group-id="1133999448-1">)</span></code></pre><p>Note: The same slug can be used for multiple leaderboards (seasons).
+</span><span class="p" data-group-id="5016342211-2">}</span><span class="p" data-group-id="5016342211-1">)</span></code></pre><p>Note: The same slug can be used for multiple leaderboards (seasons).
 When querying by slug, the active leaderboard is returned.</p>
   </section>
 </section>
@@ -272,10 +263,6 @@ When querying by slug, the active leaderboard is returned.</p>
     <div class="heading-with-actions">
       <h1 class="signature" translate="no">leaderboard_update_attrs()</h1>
 
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/types.ex#L176" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
 
     </div>
   </div>
@@ -294,10 +281,10 @@ When querying by slug, the active leaderboard is returned.</p>
 
       </div>
 
-<p>Attributes for updating an existing leaderboard.</p><p>Note: <code class="inline">slug</code>, <code class="inline">sort_order</code>, and <code class="inline">operator</code> cannot be changed after creation.</p><h2 id="t:leaderboard_update_attrs/0-fields" class="section-heading"><a href="#t:leaderboard_update_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:title</code> - Display title (1-255 chars)</li><li><code class="inline">:description</code> - Description text</li><li><code class="inline">:starts_at</code> - Start time (UTC)</li><li><code class="inline">:ends_at</code> - End time (UTC)</li><li><code class="inline">:metadata</code> - Arbitrary key-value data</li></ul><h2 id="t:leaderboard_update_attrs/0-example" class="section-heading"><a href="#t:leaderboard_update_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">update_leaderboard</span><span class="p" data-group-id="2261063117-1">(</span><span class="n">leaderboard</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="2261063117-2">%{</span><span class="w">
+<p>Attributes for updating an existing leaderboard.</p><p>Note: <code class="inline">slug</code>, <code class="inline">sort_order</code>, and <code class="inline">operator</code> cannot be changed after creation.</p><h2 id="t:leaderboard_update_attrs/0-fields" class="section-heading"><a href="#t:leaderboard_update_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:title</code> - Display title (1-255 chars)</li><li><code class="inline">:description</code> - Description text</li><li><code class="inline">:starts_at</code> - Start time (UTC)</li><li><code class="inline">:ends_at</code> - End time (UTC)</li><li><code class="inline">:metadata</code> - Arbitrary key-value data</li></ul><h2 id="t:leaderboard_update_attrs/0-example" class="section-heading"><a href="#t:leaderboard_update_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">update_leaderboard</span><span class="p" data-group-id="9087060243-1">(</span><span class="n">leaderboard</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9087060243-2">%{</span><span class="w">
   </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Updated Title&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">ends_at</span><span class="p">:</span><span class="w"> </span><span class="ld">~U[2024-12-15 00:00:00Z]</span><span class="w">
-</span><span class="p" data-group-id="2261063117-2">}</span><span class="p" data-group-id="2261063117-1">)</span></code></pre>
+</span><span class="p" data-group-id="9087060243-2">}</span><span class="p" data-group-id="9087060243-1">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="t:lobby_create_attrs/0">
@@ -309,10 +296,6 @@ When querying by slug, the active leaderboard is returned.</p>
     <div class="heading-with-actions">
       <h1 class="signature" translate="no">lobby_create_attrs()</h1>
 
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/types.ex#L212" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
 
     </div>
   </div>
@@ -334,12 +317,12 @@ When querying by slug, the active leaderboard is returned.</p>
 
       </div>
 
-<p>Attributes for creating a new lobby.</p><h2 id="t:lobby_create_attrs/0-fields" class="section-heading"><a href="#t:lobby_create_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:name</code> - Unique identifier/slug (required)</li><li><code class="inline">:title</code> - Display title (required)</li><li><code class="inline">:max_users</code> - Maximum number of users allowed (default: 10)</li><li><code class="inline">:is_hidden</code> - Whether lobby is hidden from public lists (default: false)</li><li><code class="inline">:is_locked</code> - Whether lobby is locked from new joins (default: false)</li><li><code class="inline">:password</code> - Optional password for protected lobbies</li><li><code class="inline">:hostless</code> - Whether lobby can exist without a host (default: false)</li><li><code class="inline">:metadata</code> - Arbitrary key-value data</li></ul><h2 id="t:lobby_create_attrs/0-example" class="section-heading"><a href="#t:lobby_create_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">create_lobby</span><span class="p" data-group-id="8992380474-1">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="8992380474-2">%{</span><span class="w">
+<p>Attributes for creating a new lobby.</p><h2 id="t:lobby_create_attrs/0-fields" class="section-heading"><a href="#t:lobby_create_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:name</code> - Unique identifier/slug (required)</li><li><code class="inline">:title</code> - Display title (required)</li><li><code class="inline">:max_users</code> - Maximum number of users allowed (default: 10)</li><li><code class="inline">:is_hidden</code> - Whether lobby is hidden from public lists (default: false)</li><li><code class="inline">:is_locked</code> - Whether lobby is locked from new joins (default: false)</li><li><code class="inline">:password</code> - Optional password for protected lobbies</li><li><code class="inline">:hostless</code> - Whether lobby can exist without a host (default: false)</li><li><code class="inline">:metadata</code> - Arbitrary key-value data</li></ul><h2 id="t:lobby_create_attrs/0-example" class="section-heading"><a href="#t:lobby_create_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">create_lobby</span><span class="p" data-group-id="2835023530-1">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="2835023530-2">%{</span><span class="w">
   </span><span class="ss">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;my-game-room&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;My Game Room&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">max_users</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">
   </span><span class="ss">password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;secret&quot;</span><span class="w">
-</span><span class="p" data-group-id="8992380474-2">}</span><span class="p" data-group-id="8992380474-1">)</span></code></pre>
+</span><span class="p" data-group-id="2835023530-2">}</span><span class="p" data-group-id="2835023530-1">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="t:lobby_list_opts/0">
@@ -351,10 +334,6 @@ When querying by slug, the active leaderboard is returned.</p>
     <div class="heading-with-actions">
       <h1 class="signature" translate="no">lobby_list_opts()</h1>
 
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/types.ex#L50" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
 
     </div>
   </div>
@@ -372,10 +351,10 @@ When querying by slug, the active leaderboard is returned.</p>
       </div>
 
 <p>Lobby listing options for filtering and pagination.</p><h2 id="t:lobby_list_opts/0-options" class="section-heading"><a href="#t:lobby_list_opts/0-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:page</code> - The page number (1-indexed). Defaults to <code class="inline">nil</code> (returns all).</li><li><code class="inline">:page_size</code> - Number of items per page. Defaults to <code class="inline">25</code>.</li><li><code class="inline">:include_hidden</code> - Include hidden lobbies in results. Defaults to <code class="inline">false</code>.</li></ul><h2 id="t:lobby_list_opts/0-example" class="section-heading"><a href="#t:lobby_list_opts/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># List all visible lobbies</span><span class="w">
-</span><span class="n">list_lobbies</span><span class="p" data-group-id="4090327754-1">(</span><span class="p" data-group-id="4090327754-2">[</span><span class="p" data-group-id="4090327754-2">]</span><span class="p" data-group-id="4090327754-1">)</span><span class="w">
+</span><span class="n">list_lobbies</span><span class="p" data-group-id="2574935724-1">(</span><span class="p" data-group-id="2574935724-2">[</span><span class="p" data-group-id="2574935724-2">]</span><span class="p" data-group-id="2574935724-1">)</span><span class="w">
 
 </span><span class="c1"># List page 1 including hidden lobbies</span><span class="w">
-</span><span class="n">list_lobbies</span><span class="p" data-group-id="4090327754-3">(</span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">include_hidden</span><span class="p">:</span><span class="w"> </span><span class="no">true</span><span class="p" data-group-id="4090327754-3">)</span></code></pre>
+</span><span class="n">list_lobbies</span><span class="p" data-group-id="2574935724-3">(</span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">include_hidden</span><span class="p">:</span><span class="w"> </span><span class="no">true</span><span class="p" data-group-id="2574935724-3">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="t:lobby_update_attrs/0">
@@ -387,10 +366,6 @@ When querying by slug, the active leaderboard is returned.</p>
     <div class="heading-with-actions">
       <h1 class="signature" translate="no">lobby_update_attrs()</h1>
 
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/types.ex#L243" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
 
     </div>
   </div>
@@ -410,10 +385,10 @@ When querying by slug, the active leaderboard is returned.</p>
 
       </div>
 
-<p>Attributes for updating an existing lobby.</p><h2 id="t:lobby_update_attrs/0-fields" class="section-heading"><a href="#t:lobby_update_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:title</code> - Display title</li><li><code class="inline">:max_users</code> - Maximum number of users allowed</li><li><code class="inline">:is_hidden</code> - Whether lobby is hidden from public lists</li><li><code class="inline">:is_locked</code> - Whether lobby is locked from new joins</li><li><code class="inline">:password</code> - Password for protected lobbies (set to nil to remove)</li><li><code class="inline">:metadata</code> - Arbitrary key-value data</li></ul><h2 id="t:lobby_update_attrs/0-example" class="section-heading"><a href="#t:lobby_update_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">update_lobby</span><span class="p" data-group-id="9047160424-1">(</span><span class="n">lobby</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9047160424-2">%{</span><span class="w">
+<p>Attributes for updating an existing lobby.</p><h2 id="t:lobby_update_attrs/0-fields" class="section-heading"><a href="#t:lobby_update_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:title</code> - Display title</li><li><code class="inline">:max_users</code> - Maximum number of users allowed</li><li><code class="inline">:is_hidden</code> - Whether lobby is hidden from public lists</li><li><code class="inline">:is_locked</code> - Whether lobby is locked from new joins</li><li><code class="inline">:password</code> - Password for protected lobbies (set to nil to remove)</li><li><code class="inline">:metadata</code> - Arbitrary key-value data</li></ul><h2 id="t:lobby_update_attrs/0-example" class="section-heading"><a href="#t:lobby_update_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">update_lobby</span><span class="p" data-group-id="3232519056-1">(</span><span class="n">lobby</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3232519056-2">%{</span><span class="w">
   </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;New Title&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">is_locked</span><span class="p">:</span><span class="w"> </span><span class="no">true</span><span class="w">
-</span><span class="p" data-group-id="9047160424-2">}</span><span class="p" data-group-id="9047160424-1">)</span></code></pre>
+</span><span class="p" data-group-id="3232519056-2">}</span><span class="p" data-group-id="3232519056-1">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="t:pagination_opts/0">
@@ -425,10 +400,6 @@ When querying by slug, the active leaderboard is returned.</p>
     <div class="heading-with-actions">
       <h1 class="signature" translate="no">pagination_opts()</h1>
 
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/types.ex#L30" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
 
     </div>
   </div>
@@ -442,10 +413,10 @@ When querying by slug, the active leaderboard is returned.</p>
       </div>
 
 <p>Pagination options for list queries.</p><h2 id="t:pagination_opts/0-options" class="section-heading"><a href="#t:pagination_opts/0-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:page</code> - The page number (1-indexed). Defaults to <code class="inline">1</code>.</li><li><code class="inline">:page_size</code> - Number of items per page. Defaults to <code class="inline">25</code>.</li></ul><h2 id="t:pagination_opts/0-example" class="section-heading"><a href="#t:pagination_opts/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># Get the first page with default size</span><span class="w">
-</span><span class="n">list_users</span><span class="p" data-group-id="9480908689-1">(</span><span class="p" data-group-id="9480908689-2">[</span><span class="p" data-group-id="9480908689-2">]</span><span class="p" data-group-id="9480908689-1">)</span><span class="w">
+</span><span class="n">list_users</span><span class="p" data-group-id="1680957491-1">(</span><span class="p" data-group-id="1680957491-2">[</span><span class="p" data-group-id="1680957491-2">]</span><span class="p" data-group-id="1680957491-1">)</span><span class="w">
 
 </span><span class="c1"># Get page 2 with 50 items per page</span><span class="w">
-</span><span class="n">list_users</span><span class="p" data-group-id="9480908689-3">(</span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p" data-group-id="9480908689-3">)</span></code></pre>
+</span><span class="n">list_users</span><span class="p" data-group-id="1680957491-3">(</span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p" data-group-id="1680957491-3">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="t:user_registration_attrs/0">
@@ -457,10 +428,6 @@ When querying by slug, the active leaderboard is returned.</p>
     <div class="heading-with-actions">
       <h1 class="signature" translate="no">user_registration_attrs()</h1>
 
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/types.ex#L79" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
 
     </div>
   </div>
@@ -478,11 +445,11 @@ When querying by slug, the active leaderboard is returned.</p>
 
       </div>
 
-<p>Attributes for registering a new user.</p><h2 id="t:user_registration_attrs/0-fields" class="section-heading"><a href="#t:user_registration_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:email</code> - User's email address (required for email registration)</li><li><code class="inline">:password</code> - User's password (required for email registration, min 8 chars)</li><li><code class="inline">:display_name</code> - Optional display name</li><li><code class="inline">:device_id</code> - Optional device ID for anonymous auth</li></ul><h2 id="t:user_registration_attrs/0-example" class="section-heading"><a href="#t:user_registration_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">register_user</span><span class="p" data-group-id="6922539226-1">(</span><span class="p" data-group-id="6922539226-2">%{</span><span class="w">
+<p>Attributes for registering a new user.</p><h2 id="t:user_registration_attrs/0-fields" class="section-heading"><a href="#t:user_registration_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:email</code> - User's email address (required for email registration)</li><li><code class="inline">:password</code> - User's password (required for email registration, min 8 chars)</li><li><code class="inline">:display_name</code> - Optional display name</li><li><code class="inline">:device_id</code> - Optional device ID for anonymous auth</li></ul><h2 id="t:user_registration_attrs/0-example" class="section-heading"><a href="#t:user_registration_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">register_user</span><span class="p" data-group-id="0118569439-1">(</span><span class="p" data-group-id="0118569439-2">%{</span><span class="w">
   </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;secret123&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">display_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Player One&quot;</span><span class="w">
-</span><span class="p" data-group-id="6922539226-2">}</span><span class="p" data-group-id="6922539226-1">)</span></code></pre>
+</span><span class="p" data-group-id="0118569439-2">}</span><span class="p" data-group-id="0118569439-1">)</span></code></pre>
   </section>
 </section>
 <section class="detail" id="t:user_update_attrs/0">
@@ -494,10 +461,6 @@ When querying by slug, the active leaderboard is returned.</p>
     <div class="heading-with-actions">
       <h1 class="signature" translate="no">user_update_attrs()</h1>
 
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/types.ex#L103" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
 
     </div>
   </div>
@@ -514,10 +477,10 @@ When querying by slug, the active leaderboard is returned.</p>
 
       </div>
 
-<p>Attributes for updating an existing user.</p><h2 id="t:user_update_attrs/0-fields" class="section-heading"><a href="#t:user_update_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:display_name</code> - User's display name</li><li><code class="inline">:metadata</code> - Arbitrary key-value data stored with the user</li><li><code class="inline">:is_admin</code> - Whether the user has admin privileges</li></ul><h2 id="t:user_update_attrs/0-example" class="section-heading"><a href="#t:user_update_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">update_user</span><span class="p" data-group-id="6328544525-1">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6328544525-2">%{</span><span class="w">
+<p>Attributes for updating an existing user.</p><h2 id="t:user_update_attrs/0-fields" class="section-heading"><a href="#t:user_update_attrs/0-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">:display_name</code> - User's display name</li><li><code class="inline">:metadata</code> - Arbitrary key-value data stored with the user</li><li><code class="inline">:is_admin</code> - Whether the user has admin privileges</li></ul><h2 id="t:user_update_attrs/0-example" class="section-heading"><a href="#t:user_update_attrs/0-example" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Example</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">update_user</span><span class="p" data-group-id="5486526273-1">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5486526273-2">%{</span><span class="w">
   </span><span class="ss">display_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;New Name&quot;</span><span class="p">,</span><span class="w">
-  </span><span class="ss">metadata</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="6328544525-3">%{</span><span class="ss">level</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">xp</span><span class="p">:</span><span class="w"> </span><span class="mi">1200</span><span class="p" data-group-id="6328544525-3">}</span><span class="w">
-</span><span class="p" data-group-id="6328544525-2">}</span><span class="p" data-group-id="6328544525-1">)</span></code></pre>
+  </span><span class="ss">metadata</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="5486526273-3">%{</span><span class="ss">level</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="ss">xp</span><span class="p">:</span><span class="w"> </span><span class="mi">1200</span><span class="p" data-group-id="5486526273-3">}</span><span class="w">
+</span><span class="p" data-group-id="5486526273-2">}</span><span class="p" data-group-id="5486526273-1">)</span></code></pre>
   </section>
 </section>
 
@@ -533,7 +496,7 @@ When querying by slug, the active leaderboard is returned.</p>
               Go to package docs
             </button>
 
-              <a href="game_server.epub" title="ePub version">
+              <a href="GameServer.epub" title="ePub version">
                 Download ePub version
               </a>
 

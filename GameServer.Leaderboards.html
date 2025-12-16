@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.3">
-    <meta name="project" content="game_server v1.0.420">
+    <meta name="project" content="GameServer v1.0.430">
 
 
-    <title>GameServer.Leaderboards — game_server v1.0.420</title>
+    <title>GameServer.Leaderboards — GameServer v1.0.430</title>
 
     <link rel="stylesheet" href="dist/html-elixir-VYWJUHZE.css" />
 
-    <script defer src="dist/sidebar_items-8B0F1891.js"></script>
+    <script defer src="dist/sidebar_items-AB36864C.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-XBCM4BHM.js"></script>
 
@@ -33,11 +33,11 @@
     <div class="sidebar-projectInfo">
 
       <div>
-        <a href="https://github.com/appsinacup/game_server" class="sidebar-projectName" translate="no">
-game_server
+        <a href="api-reference.html" class="sidebar-projectName" translate="no">
+GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.420
+          v1.0.430
         </div>
       </div>
     </div>
@@ -53,7 +53,7 @@ game_server
       <div class="search-settings">
         <form class="search-bar" action="search.html">
           <label class="search-label">
-            <span class="sr-only">Search documentation of game_server</span>
+            <span class="sr-only">Search documentation of GameServer</span>
             <div class="search-input-wrapper">
               <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
               <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
@@ -94,14 +94,9 @@ game_server
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.Leaderboards</span> 
-      <small class="app-vsn" translate="no">(game_server v1.0.420)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.430)</small>
 
     </h1>
-
-      <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L1" title="View Source" class="icon-action" rel="help">
-        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        <span class="sr-only">View Source</span>
-      </a>
 
   </div>
 
@@ -109,22 +104,22 @@ game_server
     <section id="moduledoc">
 <p>The Leaderboards context.</p><p>Provides server-authoritative leaderboard management. Scores can only be
 submitted via server-side code — there is no public API for score submission.</p><h2 id="module-usage" class="section-heading"><a href="#module-usage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># Create a leaderboard</span><span class="w">
-</span><span class="p" data-group-id="4353139233-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">lb</span><span class="p" data-group-id="4353139233-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Leaderboards</span><span class="o">.</span><span class="n">create_leaderboard</span><span class="p" data-group-id="4353139233-2">(</span><span class="p" data-group-id="4353139233-3">%{</span><span class="w">
+</span><span class="p" data-group-id="0400159699-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">lb</span><span class="p" data-group-id="0400159699-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Leaderboards</span><span class="o">.</span><span class="n">create_leaderboard</span><span class="p" data-group-id="0400159699-2">(</span><span class="p" data-group-id="0400159699-3">%{</span><span class="w">
   </span><span class="ss">slug</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;weekly_kills&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Weekly Kills&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">sort_order</span><span class="p">:</span><span class="w"> </span><span class="ss">:desc</span><span class="p">,</span><span class="w">
   </span><span class="ss">operator</span><span class="p">:</span><span class="w"> </span><span class="ss">:incr</span><span class="w">
-</span><span class="p" data-group-id="4353139233-3">}</span><span class="p" data-group-id="4353139233-2">)</span><span class="w">
+</span><span class="p" data-group-id="0400159699-3">}</span><span class="p" data-group-id="0400159699-2">)</span><span class="w">
 
 </span><span class="c1"># Submit score (server-only): resolve the active leaderboard first and submit by integer ID</span><span class="w">
-</span><span class="n">leaderboard</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Leaderboards</span><span class="o">.</span><span class="n">get_active_leaderboard_by_slug</span><span class="p" data-group-id="4353139233-4">(</span><span class="s">&quot;weekly_kills&quot;</span><span class="p" data-group-id="4353139233-4">)</span><span class="w">
-</span><span class="p" data-group-id="4353139233-5">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">record</span><span class="p" data-group-id="4353139233-5">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Leaderboards</span><span class="o">.</span><span class="n">submit_score</span><span class="p" data-group-id="4353139233-6">(</span><span class="n">leaderboard</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p" data-group-id="4353139233-6">)</span><span class="w">
+</span><span class="n">leaderboard</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Leaderboards</span><span class="o">.</span><span class="n">get_active_leaderboard_by_slug</span><span class="p" data-group-id="0400159699-4">(</span><span class="s">&quot;weekly_kills&quot;</span><span class="p" data-group-id="0400159699-4">)</span><span class="w">
+</span><span class="p" data-group-id="0400159699-5">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">record</span><span class="p" data-group-id="0400159699-5">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Leaderboards</span><span class="o">.</span><span class="n">submit_score</span><span class="p" data-group-id="0400159699-6">(</span><span class="n">leaderboard</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p" data-group-id="0400159699-6">)</span><span class="w">
 
 </span><span class="c1"># List records with rank (use integer leaderboard id)</span><span class="w">
-</span><span class="n">records</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Leaderboards</span><span class="o">.</span><span class="n">list_records</span><span class="p" data-group-id="4353139233-7">(</span><span class="n">leaderboard</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p" data-group-id="4353139233-7">)</span><span class="w">
+</span><span class="n">records</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Leaderboards</span><span class="o">.</span><span class="n">list_records</span><span class="p" data-group-id="0400159699-7">(</span><span class="n">leaderboard</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">limit</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p" data-group-id="0400159699-7">)</span><span class="w">
 
 </span><span class="c1"># Get user&#39;s record (use integer leaderboard id)</span><span class="w">
-</span><span class="p" data-group-id="4353139233-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">record</span><span class="p" data-group-id="4353139233-8">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Leaderboards</span><span class="o">.</span><span class="n">get_user_record</span><span class="p" data-group-id="4353139233-9">(</span><span class="n">leaderboard</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">user_id</span><span class="p" data-group-id="4353139233-9">)</span></code></pre>
+</span><span class="p" data-group-id="0400159699-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">record</span><span class="p" data-group-id="0400159699-8">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Leaderboards</span><span class="o">.</span><span class="n">get_user_record</span><span class="p" data-group-id="0400159699-9">(</span><span class="n">leaderboard</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">user_id</span><span class="p" data-group-id="0400159699-9">)</span></code></pre>
     </section>
 
 </div>
@@ -420,10 +415,6 @@ Returns <code class="inline">{:ok, record_with_rank}</code> or <code class="inli
       <h1 class="signature" translate="no">change_leaderboard(leaderboard, attrs \\ %{})</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L496" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
     </div>
   </div>
 
@@ -451,10 +442,6 @@ Returns <code class="inline">{:ok, record_with_rank}</code> or <code class="inli
       <h1 class="signature" translate="no">change_record(record, attrs \\ %{})</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L922" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
     </div>
   </div>
 
@@ -479,10 +466,6 @@ Returns <code class="inline">{:ok, record_with_rank}</code> or <code class="inli
       <h1 class="signature" translate="no">count_all_records()</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L792" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
     </div>
   </div>
 
@@ -506,10 +489,6 @@ Returns <code class="inline">{:ok, record_with_rank}</code> or <code class="inli
     <div class="heading-with-actions">
       <h1 class="signature" translate="no">count_leaderboard_groups()</h1>
 
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L308" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
 
     </div>
   </div>
@@ -537,10 +516,6 @@ Returns <code class="inline">{:ok, record_with_rank}</code> or <code class="inli
       <h1 class="signature" translate="no">count_leaderboards(opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L395" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
     </div>
   </div>
 
@@ -564,10 +539,6 @@ Returns <code class="inline">{:ok, record_with_rank}</code> or <code class="inli
     <div class="heading-with-actions">
       <h1 class="signature" translate="no">count_records(leaderboard_id)</h1>
 
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L773" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
 
     </div>
   </div>
@@ -593,10 +564,6 @@ Returns <code class="inline">{:ok, record_with_rank}</code> or <code class="inli
       <h1 class="signature" translate="no">create_leaderboard(attrs)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L91" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
     </div>
   </div>
 
@@ -609,11 +576,11 @@ Returns <code class="inline">{:ok, record_with_rank}</code> or <code class="inli
 
       </div>
 
-<p>Creates a new leaderboard.</p><h2 id="create_leaderboard/1-attributes" class="section-heading"><a href="#create_leaderboard/1-attributes" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Attributes</span></h2><p>See <a href="GameServer.Types.html#t:leaderboard_create_attrs/0"><code class="inline">GameServer.Types.leaderboard_create_attrs/0</code></a> for available fields.</p><h2 id="create_leaderboard/1-examples" class="section-heading"><a href="#create_leaderboard/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">create_leaderboard</span><span class="p" data-group-id="0022492826-1">(</span><span class="p" data-group-id="0022492826-2">%{</span><span class="ss">slug</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;my_lb&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;My Leaderboard&quot;</span><span class="p" data-group-id="0022492826-2">}</span><span class="p" data-group-id="0022492826-1">)</span><span class="w">
-</span><span class="p" data-group-id="0022492826-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="0022492826-4">%</span><span class="nc" data-group-id="0022492826-4">Leaderboard</span><span class="p" data-group-id="0022492826-4">{</span><span class="p" data-group-id="0022492826-4">}</span><span class="p" data-group-id="0022492826-3">}</span><span class="w">
+<p>Creates a new leaderboard.</p><h2 id="create_leaderboard/1-attributes" class="section-heading"><a href="#create_leaderboard/1-attributes" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Attributes</span></h2><p>See <a href="GameServer.Types.html#t:leaderboard_create_attrs/0"><code class="inline">GameServer.Types.leaderboard_create_attrs/0</code></a> for available fields.</p><h2 id="create_leaderboard/1-examples" class="section-heading"><a href="#create_leaderboard/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">create_leaderboard</span><span class="p" data-group-id="9916492955-1">(</span><span class="p" data-group-id="9916492955-2">%{</span><span class="ss">slug</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;my_lb&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;My Leaderboard&quot;</span><span class="p" data-group-id="9916492955-2">}</span><span class="p" data-group-id="9916492955-1">)</span><span class="w">
+</span><span class="p" data-group-id="9916492955-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9916492955-4">%</span><span class="nc" data-group-id="9916492955-4">Leaderboard</span><span class="p" data-group-id="9916492955-4">{</span><span class="p" data-group-id="9916492955-4">}</span><span class="p" data-group-id="9916492955-3">}</span><span class="w">
 
-</span><span class="gp unselectable">iex&gt; </span><span class="n">create_leaderboard</span><span class="p" data-group-id="0022492826-5">(</span><span class="p" data-group-id="0022492826-6">%{</span><span class="ss">slug</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p" data-group-id="0022492826-6">}</span><span class="p" data-group-id="0022492826-5">)</span><span class="w">
-</span><span class="p" data-group-id="0022492826-7">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="0022492826-8">%</span><span class="nc" data-group-id="0022492826-8">Ecto.Changeset</span><span class="p" data-group-id="0022492826-8">{</span><span class="p" data-group-id="0022492826-8">}</span><span class="p" data-group-id="0022492826-7">}</span></code></pre>
+</span><span class="gp unselectable">iex&gt; </span><span class="n">create_leaderboard</span><span class="p" data-group-id="9916492955-5">(</span><span class="p" data-group-id="9916492955-6">%{</span><span class="ss">slug</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p" data-group-id="9916492955-6">}</span><span class="p" data-group-id="9916492955-5">)</span><span class="w">
+</span><span class="p" data-group-id="9916492955-7">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9916492955-8">%</span><span class="nc" data-group-id="9916492955-8">Ecto.Changeset</span><span class="p" data-group-id="9916492955-8">{</span><span class="p" data-group-id="9916492955-8">}</span><span class="p" data-group-id="9916492955-7">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="delete_leaderboard/1">
@@ -625,10 +592,6 @@ Returns <code class="inline">{:ok, record_with_rank}</code> or <code class="inli
     <div class="heading-with-actions">
       <h1 class="signature" translate="no">delete_leaderboard(leaderboard)</h1>
 
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L136" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
 
     </div>
   </div>
@@ -655,10 +618,6 @@ Returns <code class="inline">{:ok, record_with_rank}</code> or <code class="inli
       <h1 class="signature" translate="no">delete_record(record)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L869" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
     </div>
   </div>
 
@@ -683,10 +642,6 @@ Returns <code class="inline">{:ok, record_with_rank}</code> or <code class="inli
     <div class="heading-with-actions">
       <h1 class="signature" translate="no">delete_user_record(id_or_slug, user_id)</h1>
 
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L887" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
 
     </div>
   </div>
@@ -713,10 +668,6 @@ Accepts either leaderboard ID (integer) or slug (string).</p>
     <div class="heading-with-actions">
       <h1 class="signature" translate="no">end_leaderboard(leaderboard)</h1>
 
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L474" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
 
     </div>
   </div>
@@ -748,10 +699,6 @@ Accepts either leaderboard ID (integer) or slug (string).</p>
       <h1 class="signature" translate="no">get_active_leaderboard_by_slug(slug)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L200" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
     </div>
   </div>
 
@@ -779,10 +726,6 @@ returns the most recently created one.</p>
       <h1 class="signature" translate="no">get_leaderboard(id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L161" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
     </div>
   </div>
 
@@ -795,10 +738,10 @@ returns the most recently created one.</p>
 
       </div>
 
-<p>Gets a leaderboard by its integer ID.</p><h2 id="get_leaderboard/1-examples" class="section-heading"><a href="#get_leaderboard/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">get_leaderboard</span><span class="p" data-group-id="7314119846-1">(</span><span class="mi">123</span><span class="p" data-group-id="7314119846-1">)</span><span class="w">
-</span><span class="p" data-group-id="7314119846-2">%</span><span class="nc" data-group-id="7314119846-2">Leaderboard</span><span class="p" data-group-id="7314119846-2">{</span><span class="ss">id</span><span class="p">:</span><span class="w"> </span><span class="mi">123</span><span class="p" data-group-id="7314119846-2">}</span><span class="w">
+<p>Gets a leaderboard by its integer ID.</p><h2 id="get_leaderboard/1-examples" class="section-heading"><a href="#get_leaderboard/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">get_leaderboard</span><span class="p" data-group-id="2318078369-1">(</span><span class="mi">123</span><span class="p" data-group-id="2318078369-1">)</span><span class="w">
+</span><span class="p" data-group-id="2318078369-2">%</span><span class="nc" data-group-id="2318078369-2">Leaderboard</span><span class="p" data-group-id="2318078369-2">{</span><span class="ss">id</span><span class="p">:</span><span class="w"> </span><span class="mi">123</span><span class="p" data-group-id="2318078369-2">}</span><span class="w">
 
-</span><span class="gp unselectable">iex&gt; </span><span class="n">get_leaderboard</span><span class="p" data-group-id="7314119846-3">(</span><span class="mi">999</span><span class="p" data-group-id="7314119846-3">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">get_leaderboard</span><span class="p" data-group-id="2318078369-3">(</span><span class="mi">999</span><span class="p" data-group-id="2318078369-3">)</span><span class="w">
 </span><span class="no">nil</span></code></pre>
   </section>
 </section>
@@ -811,10 +754,6 @@ returns the most recently created one.</p>
     <div class="heading-with-actions">
       <h1 class="signature" translate="no">get_leaderboard!(id)</h1>
 
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L173" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
 
     </div>
   </div>
@@ -840,10 +779,6 @@ returns the most recently created one.</p>
       <h1 class="signature" translate="no">get_record(leaderboard_id, user_id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L650" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
     </div>
   </div>
 
@@ -868,10 +803,6 @@ returns the most recently created one.</p>
       <h1 class="signature" translate="no">get_record!(id)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L1" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
     </div>
   </div>
 
@@ -895,10 +826,6 @@ returns the most recently created one.</p>
     <div class="heading-with-actions">
       <h1 class="signature" translate="no">get_user_record(leaderboard_id, user_id)</h1>
 
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L664" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
 
     </div>
   </div>
@@ -928,10 +855,6 @@ Returns <code class="inline">{:ok, record_with_rank}</code> or <code class="inli
       <h1 class="signature" translate="no">list_leaderboard_groups(opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L235" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
     </div>
   </div>
 
@@ -958,10 +881,6 @@ Returns <code class="inline">{:ok, record_with_rank}</code> or <code class="inli
       <h1 class="signature" translate="no">list_leaderboards(opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L363" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
     </div>
   </div>
 
@@ -973,14 +892,14 @@ Returns <code class="inline">{:ok, record_with_rank}</code> or <code class="inli
 
       </div>
 
-<p>Lists leaderboards with optional filters.</p><h2 id="list_leaderboards/1-options" class="section-heading"><a href="#list_leaderboards/1-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:slug</code> - Filter by slug (returns all seasons of that leaderboard)</li><li><code class="inline">:active</code> - If <code class="inline">true</code>, only active leaderboards. If <code class="inline">false</code>, only ended.</li><li><code class="inline">:order_by</code> - Order by field: <code class="inline">:ends_at</code> or <code class="inline">:inserted_at</code> (default)</li><li><code class="inline">:starts_after</code> - Only leaderboards that started after this DateTime</li><li><code class="inline">:starts_before</code> - Only leaderboards that started before this DateTime</li><li><code class="inline">:ends_after</code> - Only leaderboards that end after this DateTime</li><li><code class="inline">:ends_before</code> - Only leaderboards that end before this DateTime</li><li><code class="inline">:page</code> - Page number (default 1)</li><li><code class="inline">:page_size</code> - Page size (default 25)</li></ul><h2 id="list_leaderboards/1-examples" class="section-heading"><a href="#list_leaderboards/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">list_leaderboards</span><span class="p" data-group-id="5038239935-1">(</span><span class="ss">active</span><span class="p">:</span><span class="w"> </span><span class="no">true</span><span class="p" data-group-id="5038239935-1">)</span><span class="w">
-</span><span class="p" data-group-id="5038239935-2">[</span><span class="p" data-group-id="5038239935-3">%</span><span class="nc" data-group-id="5038239935-3">Leaderboard</span><span class="p" data-group-id="5038239935-3">{</span><span class="p" data-group-id="5038239935-3">}</span><span class="p">,</span><span class="w"> </span><span class="n">...</span><span class="p" data-group-id="5038239935-2">]</span><span class="w">
+<p>Lists leaderboards with optional filters.</p><h2 id="list_leaderboards/1-options" class="section-heading"><a href="#list_leaderboards/1-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:slug</code> - Filter by slug (returns all seasons of that leaderboard)</li><li><code class="inline">:active</code> - If <code class="inline">true</code>, only active leaderboards. If <code class="inline">false</code>, only ended.</li><li><code class="inline">:order_by</code> - Order by field: <code class="inline">:ends_at</code> or <code class="inline">:inserted_at</code> (default)</li><li><code class="inline">:starts_after</code> - Only leaderboards that started after this DateTime</li><li><code class="inline">:starts_before</code> - Only leaderboards that started before this DateTime</li><li><code class="inline">:ends_after</code> - Only leaderboards that end after this DateTime</li><li><code class="inline">:ends_before</code> - Only leaderboards that end before this DateTime</li><li><code class="inline">:page</code> - Page number (default 1)</li><li><code class="inline">:page_size</code> - Page size (default 25)</li></ul><h2 id="list_leaderboards/1-examples" class="section-heading"><a href="#list_leaderboards/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">list_leaderboards</span><span class="p" data-group-id="7880776894-1">(</span><span class="ss">active</span><span class="p">:</span><span class="w"> </span><span class="no">true</span><span class="p" data-group-id="7880776894-1">)</span><span class="w">
+</span><span class="p" data-group-id="7880776894-2">[</span><span class="p" data-group-id="7880776894-3">%</span><span class="nc" data-group-id="7880776894-3">Leaderboard</span><span class="p" data-group-id="7880776894-3">{</span><span class="p" data-group-id="7880776894-3">}</span><span class="p">,</span><span class="w"> </span><span class="n">...</span><span class="p" data-group-id="7880776894-2">]</span><span class="w">
 
-</span><span class="gp unselectable">iex&gt; </span><span class="n">list_leaderboards</span><span class="p" data-group-id="5038239935-4">(</span><span class="ss">slug</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;weekly_kills&quot;</span><span class="p" data-group-id="5038239935-4">)</span><span class="w">
-</span><span class="p" data-group-id="5038239935-5">[</span><span class="p" data-group-id="5038239935-6">%</span><span class="nc" data-group-id="5038239935-6">Leaderboard</span><span class="p" data-group-id="5038239935-6">{</span><span class="p" data-group-id="5038239935-6">}</span><span class="p">,</span><span class="w"> </span><span class="n">...</span><span class="p" data-group-id="5038239935-5">]</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">list_leaderboards</span><span class="p" data-group-id="7880776894-4">(</span><span class="ss">slug</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;weekly_kills&quot;</span><span class="p" data-group-id="7880776894-4">)</span><span class="w">
+</span><span class="p" data-group-id="7880776894-5">[</span><span class="p" data-group-id="7880776894-6">%</span><span class="nc" data-group-id="7880776894-6">Leaderboard</span><span class="p" data-group-id="7880776894-6">{</span><span class="p" data-group-id="7880776894-6">}</span><span class="p">,</span><span class="w"> </span><span class="n">...</span><span class="p" data-group-id="7880776894-5">]</span><span class="w">
 
-</span><span class="gp unselectable">iex&gt; </span><span class="n">list_leaderboards</span><span class="p" data-group-id="5038239935-7">(</span><span class="ss">starts_after</span><span class="p">:</span><span class="w"> </span><span class="ld">~U[2025-01-01 00:00:00Z]</span><span class="p" data-group-id="5038239935-7">)</span><span class="w">
-</span><span class="p" data-group-id="5038239935-8">[</span><span class="p" data-group-id="5038239935-9">%</span><span class="nc" data-group-id="5038239935-9">Leaderboard</span><span class="p" data-group-id="5038239935-9">{</span><span class="p" data-group-id="5038239935-9">}</span><span class="p">,</span><span class="w"> </span><span class="n">...</span><span class="p" data-group-id="5038239935-8">]</span></code></pre>
+</span><span class="gp unselectable">iex&gt; </span><span class="n">list_leaderboards</span><span class="p" data-group-id="7880776894-7">(</span><span class="ss">starts_after</span><span class="p">:</span><span class="w"> </span><span class="ld">~U[2025-01-01 00:00:00Z]</span><span class="p" data-group-id="7880776894-7">)</span><span class="w">
+</span><span class="p" data-group-id="7880776894-8">[</span><span class="p" data-group-id="7880776894-9">%</span><span class="nc" data-group-id="7880776894-9">Leaderboard</span><span class="p" data-group-id="7880776894-9">{</span><span class="p" data-group-id="7880776894-9">}</span><span class="p">,</span><span class="w"> </span><span class="n">...</span><span class="p" data-group-id="7880776894-8">]</span></code></pre>
   </section>
 </section>
 <section class="detail" id="list_leaderboards_by_slug/2">
@@ -994,10 +913,6 @@ Returns <code class="inline">{:ok, record_with_rank}</code> or <code class="inli
     <div class="heading-with-actions">
       <h1 class="signature" translate="no">list_leaderboards_by_slug(slug, opts \\ [])</h1>
 
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L328" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
 
     </div>
   </div>
@@ -1028,10 +943,6 @@ Returns <code class="inline">{:ok, record_with_rank}</code> or <code class="inli
       <h1 class="signature" translate="no">list_records(leaderboard_id, opts \\ [])</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L724" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
     </div>
   </div>
 
@@ -1059,10 +970,6 @@ Returns <code class="inline">{:ok, record_with_rank}</code> or <code class="inli
     <div class="heading-with-actions">
       <h1 class="signature" translate="no">list_records_around_user(leaderboard_id, user_id, opts \\ [])</h1>
 
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L808" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
 
     </div>
   </div>
@@ -1092,10 +999,6 @@ Returns <code class="inline">{:ok, record_with_rank}</code> or <code class="inli
       <h1 class="signature" translate="no">submit_score(leaderboard_id, user_id, score, metadata \\ %{})</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L531" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
     </div>
   </div>
 
@@ -1109,12 +1012,12 @@ Returns <code class="inline">{:ok, record_with_rank}</code> or <code class="inli
       </div>
 
 <p>Submits a score for a user on a leaderboard.</p><p>This is a server-only function — there is no public API for score submission.
-The score is processed according to the leaderboard's operator:</p><ul><li><code class="inline">:set</code> — Always replace with new score</li><li><code class="inline">:best</code> — Only update if new score is better (respects sort_order)</li><li><code class="inline">:incr</code> — Add to existing score</li><li><code class="inline">:decr</code> — Subtract from existing score</li></ul><p>To submit to a leaderboard by slug, first get the active leaderboard ID:</p><pre><code class="makeup elixir" translate="no"><span class="n">leaderboard</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Leaderboards</span><span class="o">.</span><span class="n">get_active_leaderboard_by_slug</span><span class="p" data-group-id="9106016759-1">(</span><span class="s">&quot;weekly_kills&quot;</span><span class="p" data-group-id="9106016759-1">)</span><span class="w">
-</span><span class="nc">Leaderboards</span><span class="o">.</span><span class="n">submit_score</span><span class="p" data-group-id="9106016759-2">(</span><span class="n">leaderboard</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p" data-group-id="9106016759-2">)</span></code></pre><h2 id="submit_score/4-examples" class="section-heading"><a href="#submit_score/4-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">submit_score</span><span class="p" data-group-id="3154374568-1">(</span><span class="mi">123</span><span class="p">,</span><span class="w"> </span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p" data-group-id="3154374568-1">)</span><span class="w">
-</span><span class="p" data-group-id="3154374568-2">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3154374568-3">%</span><span class="nc" data-group-id="3154374568-3">Record</span><span class="p" data-group-id="3154374568-3">{</span><span class="ss">score</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p" data-group-id="3154374568-3">}</span><span class="p" data-group-id="3154374568-2">}</span><span class="w">
+The score is processed according to the leaderboard's operator:</p><ul><li><code class="inline">:set</code> — Always replace with new score</li><li><code class="inline">:best</code> — Only update if new score is better (respects sort_order)</li><li><code class="inline">:incr</code> — Add to existing score</li><li><code class="inline">:decr</code> — Subtract from existing score</li></ul><p>To submit to a leaderboard by slug, first get the active leaderboard ID:</p><pre><code class="makeup elixir" translate="no"><span class="n">leaderboard</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Leaderboards</span><span class="o">.</span><span class="n">get_active_leaderboard_by_slug</span><span class="p" data-group-id="1358467906-1">(</span><span class="s">&quot;weekly_kills&quot;</span><span class="p" data-group-id="1358467906-1">)</span><span class="w">
+</span><span class="nc">Leaderboards</span><span class="o">.</span><span class="n">submit_score</span><span class="p" data-group-id="1358467906-2">(</span><span class="n">leaderboard</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p" data-group-id="1358467906-2">)</span></code></pre><h2 id="submit_score/4-examples" class="section-heading"><a href="#submit_score/4-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">submit_score</span><span class="p" data-group-id="5513933409-1">(</span><span class="mi">123</span><span class="p">,</span><span class="w"> </span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p" data-group-id="5513933409-1">)</span><span class="w">
+</span><span class="p" data-group-id="5513933409-2">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5513933409-3">%</span><span class="nc" data-group-id="5513933409-3">Record</span><span class="p" data-group-id="5513933409-3">{</span><span class="ss">score</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p" data-group-id="5513933409-3">}</span><span class="p" data-group-id="5513933409-2">}</span><span class="w">
 
-</span><span class="gp unselectable">iex&gt; </span><span class="n">submit_score</span><span class="p" data-group-id="3154374568-4">(</span><span class="mi">123</span><span class="p">,</span><span class="w"> </span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3154374568-5">%{</span><span class="ss">weapon</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sword&quot;</span><span class="p" data-group-id="3154374568-5">}</span><span class="p" data-group-id="3154374568-4">)</span><span class="w">
-</span><span class="p" data-group-id="3154374568-6">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3154374568-7">%</span><span class="nc" data-group-id="3154374568-7">Record</span><span class="p" data-group-id="3154374568-7">{</span><span class="ss">score</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="ss">metadata</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="3154374568-8">%{</span><span class="ss">weapon</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sword&quot;</span><span class="p" data-group-id="3154374568-8">}</span><span class="p" data-group-id="3154374568-7">}</span><span class="p" data-group-id="3154374568-6">}</span></code></pre>
+</span><span class="gp unselectable">iex&gt; </span><span class="n">submit_score</span><span class="p" data-group-id="5513933409-4">(</span><span class="mi">123</span><span class="p">,</span><span class="w"> </span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5513933409-5">%{</span><span class="ss">weapon</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sword&quot;</span><span class="p" data-group-id="5513933409-5">}</span><span class="p" data-group-id="5513933409-4">)</span><span class="w">
+</span><span class="p" data-group-id="5513933409-6">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5513933409-7">%</span><span class="nc" data-group-id="5513933409-7">Record</span><span class="p" data-group-id="5513933409-7">{</span><span class="ss">score</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="ss">metadata</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="5513933409-8">%{</span><span class="ss">weapon</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sword&quot;</span><span class="p" data-group-id="5513933409-8">}</span><span class="p" data-group-id="5513933409-7">}</span><span class="p" data-group-id="5513933409-6">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="update_leaderboard/2">
@@ -1126,10 +1029,6 @@ The score is processed according to the leaderboard's operator:</p><ul><li><code
     <div class="heading-with-actions">
       <h1 class="signature" translate="no">update_leaderboard(leaderboard, attrs)</h1>
 
-
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L116" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
 
     </div>
   </div>
@@ -1159,10 +1058,6 @@ The score is processed according to the leaderboard's operator:</p><ul><li><code
       <h1 class="signature" translate="no">update_record(record, attrs)</h1>
 
 
-        <a href="https://github.com/appsinacup/game_server/blob/main/lib/game_server/leaderboards.ex#L631" class="icon-action" rel="help" aria-label="View Source">
-          <i class="ri-code-s-slash-line" aria-hidden="true"></i>
-        </a>
-
     </div>
   </div>
 
@@ -1191,7 +1086,7 @@ The score is processed according to the leaderboard's operator:</p><ul><li><code
               Go to package docs
             </button>
 
-              <a href="game_server.epub" title="ePub version">
+              <a href="GameServer.epub" title="ePub version">
                 Download ePub version
               </a>
 
