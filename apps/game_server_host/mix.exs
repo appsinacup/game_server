@@ -21,7 +21,7 @@ defmodule GameServerHost.MixProject do
 
   def application do
     [
-      mod: {GameServerWeb.Application, []},
+      mod: {GameServerHost.Application, []},
       extra_applications:
         [:logger, :runtime_tools, :swoosh, :sentry] ++
           if(Mix.env() == :prod, do: [:os_mon], else: [])

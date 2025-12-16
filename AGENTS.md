@@ -5,6 +5,33 @@ This is a web application written using the Phoenix web framework.
 - Use `mix precommit` alias when you are done with all changes and fix any pending issues
 - Use the already included and available `:req` (`Req`) library for HTTP requests, **avoid** `:httpoison`, `:tesla`, and `:httpc`. Req is included by default and is the preferred HTTP client for Phoenix apps
 
+## Umbrella architecture (core/web/host)
+
+This repo uses an umbrella-style split to make `game_server_web` reusable and keep the runnable app (and extension points) in `game_server_host`.
+
+- `apps/game_server_core`: domain code, contexts, schema, migrations, shared business logic.
+- `apps/game_server_web`: reusable web/UI library (controllers, LiveViews, components, templates) and static assets under `apps/game_server_web/priv/static`.
+- `apps/game_server_host`: runnable host that starts the supervision tree and is the intended extension point for forks (routing, boot-time config).
+
+### Running the app
+
+- Dev entrypoint is the host: `./start.sh` starts `--app game_server_host`.
+- The Phoenix endpoint module is still `GameServerWeb.Endpoint` for compatibility (static paths, existing modules, UI library), but it is started by the host OTP application.
+
+### Routing ownership / extension point
+
+Routing is host-controlled without making `game_server_web` depend on `game_server_host` at compile time:
+
+- Host router: `GameServerHost.Router` (in `apps/game_server_host`). By default it delegates to the upstream router via `forward "/", GameServerWeb.Router`.
+- Endpoint dispatch: `GameServerWeb.Endpoint` uses a small dispatch plug that reads `Application.get_env(:game_server_web, :router, GameServerWeb.Router)` and calls that module.
+  - This avoids warnings like “`GameServerHost.Router.call/2 is undefined`” when compiling `game_server_web` in isolation.
+- Host boot-time config: `apps/game_server_host` sets `Application.put_env(:game_server_web, :router, GameServerHost.Router, persistent: true)` before starting the endpoint.
+
+Fork guidance:
+
+- Add/remove routes by editing `apps/game_server_host/lib/game_server_host/router.ex`.
+- If you *remove* upstream routes but the upstream UI still uses route helpers (`~p"..."`) pointing at `GameServerWeb.Router`, you can end up generating links for routes that the host no longer serves. If you want strict route removal, forks should adjust the UI accordingly (or provide replacement routes that match the UI’s expectations).
+
 ### Phoenix v1.8 guidelines
 
 - **Always** begin your LiveView templates with `<Layouts.app flash={@flash} ...>` which wraps all inner content
@@ -26,7 +53,8 @@ custom classes must fully style the input
       @import "tailwindcss" source(none);
       @source "../css";
       @source "../js";
-      @source "../../lib/my_app_web";
+      # NOTE: in this repo (umbrella split), web UI code lives under apps/game_server_web
+      @source "../../apps/game_server_web/lib";
 
 - **Always use and maintain this import syntax** in the app.css file for projects generated with `phx.new`
 - **Never** use `@apply` when writing raw css
