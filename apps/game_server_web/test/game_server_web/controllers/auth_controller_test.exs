@@ -257,6 +257,8 @@ defmodule GameServerWeb.AuthControllerTest do
   test "callback (apple) success browser and api flows", %{conn: conn} do
     orig = Application.get_env(:game_server_web, :oauth_exchanger)
 
+    System.put_env("APPLE_WEB_CLIENT_ID", "com.example.web")
+
     defmodule TestExchanger.SuccessApple do
       def exchange_apple_code(_code, _client_id, _secret, _redirect) do
         {:ok, %{"sub" => "apple123", "email" => "apple@example.com"}}
@@ -272,10 +274,15 @@ defmodule GameServerWeb.AuthControllerTest do
     end
 
     expires_at = System.system_time(:second) + 10_000
-    :ets.insert(:apple_oauth_cache, {:client_secret, "test-secret", expires_at})
+
+    :ets.insert(
+      :apple_oauth_cache,
+      {{:client_secret, "com.example.web"}, "test-secret", expires_at}
+    )
 
     on_exit(fn ->
       Application.put_env(:game_server_web, :oauth_exchanger, orig)
+      System.delete_env("APPLE_WEB_CLIENT_ID")
       # Only delete if table exists
       case :ets.info(:apple_oauth_cache) do
         :undefined -> :ok
@@ -301,6 +308,8 @@ defmodule GameServerWeb.AuthControllerTest do
   test "callback (apple) error creates session with error status", %{conn: conn} do
     orig = Application.get_env(:game_server_web, :oauth_exchanger)
 
+    System.put_env("APPLE_WEB_CLIENT_ID", "com.example.web")
+
     defmodule TestExchanger.ErrorApple do
       def exchange_apple_code(_code, _client_id, _secret, _redirect), do: {:error, :failed}
     end
@@ -314,10 +323,15 @@ defmodule GameServerWeb.AuthControllerTest do
     end
 
     expires_at = System.system_time(:second) + 10_000
-    :ets.insert(:apple_oauth_cache, {:client_secret, "test-secret", expires_at})
+
+    :ets.insert(
+      :apple_oauth_cache,
+      {{:client_secret, "com.example.web"}, "test-secret", expires_at}
+    )
 
     on_exit(fn ->
       Application.put_env(:game_server_web, :oauth_exchanger, orig)
+      System.delete_env("APPLE_WEB_CLIENT_ID")
       # Only delete if table exists
       case :ets.info(:apple_oauth_cache) do
         :undefined -> :ok
