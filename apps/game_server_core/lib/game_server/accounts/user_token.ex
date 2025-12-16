@@ -30,6 +30,17 @@ defmodule GameServer.Accounts.UserToken do
     timestamps(type: :utc_datetime, updated_at: false)
   end
 
+  @type t :: %__MODULE__{
+          id: integer() | nil,
+          token: binary() | nil,
+          context: String.t() | nil,
+          sent_to: String.t() | nil,
+          authenticated_at: DateTime.t() | nil,
+          user_id: integer() | nil,
+          user: GameServer.Accounts.User.t() | Ecto.Association.NotLoaded.t() | nil,
+          inserted_at: DateTime.t() | nil,
+        }
+
   @doc """
   Generates a token that will be stored in a signed place,
   such as session or cookie. As they are signed, those

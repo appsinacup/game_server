@@ -29,7 +29,12 @@ defmodule GameServer.Hooks.PluginManager do
   @timeout_ms 5_000
 
   defmodule Plugin do
-    @moduledoc false
+    @moduledoc """
+    A loaded plugin descriptor.
+
+    This is a runtime struct used by `GameServer.Hooks.PluginManager` to report which
+    plugins were discovered and whether they successfully loaded and started.
+    """
 
     @type t :: %__MODULE__{
             name: String.t(),
