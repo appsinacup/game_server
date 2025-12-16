@@ -178,7 +178,12 @@
           <p>Set these environment variables:</p>
           <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
             <div class="space-y-2">
-              <div>APPLE_CLIENT_ID="com.yourcompany.gameserver.web"</div>
+              <div>APPLE_WEB_CLIENT_ID="com.yourcompany.gameserver.web"</div>
+              <div>APPLE_IOS_CLIENT_ID="com.yourcompany.gameserver.ios"</div>
+              <div>
+                APPLE_CLIENT_ID="com.yourcompany.gameserver.web"
+                <span class="text-base-content/60">(legacy fallback)</span>
+              </div>
               <div>APPLE_TEAM_ID="A1B2C3D4E5"</div>
               <div>APPLE_KEY_ID="ABC123XYZ"</div>
               <div>APPLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----</div>

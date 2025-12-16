@@ -16,35 +16,61 @@ defmodule GameServer.Apple do
   Returns the client secret string, either from cache or newly generated.
   """
   @spec client_secret(keyword) :: String.t()
-  def client_secret(_config \\ []) do
-    with {:error, :not_found} <- get_client_secret_from_cache() do
-      # Get the private key and convert escaped newlines to actual newlines
-      private_key_raw = System.get_env("APPLE_PRIVATE_KEY")
+  def client_secret(opts \\ []) do
+    client_id = resolve_client_id!(opts)
 
-      if is_nil(private_key_raw) do
-        raise "APPLE_PRIVATE_KEY environment variable is not set"
-      end
+    case get_client_secret_from_cache(client_id) do
+      {:ok, secret} ->
+        secret
 
-      # Handle different formats:
-      # 1. Replace escaped newlines with actual newlines (\n -> newline)
-      # 2. If key is in single-line format with spaces, reconstruct with newlines
-      private_key =
-        private_key_raw
-        |> String.replace("\\n", "\n")
-        |> format_pem_key()
+      {:error, :not_found} ->
+        # Get the private key and convert escaped newlines to actual newlines
+        private_key_raw = System.get_env("APPLE_PRIVATE_KEY")
 
-      secret_attrs = %{
-        client_id: System.get_env("APPLE_CLIENT_ID"),
-        expires_in: @expiration_sec,
-        key_id: System.get_env("APPLE_KEY_ID"),
-        team_id: System.get_env("APPLE_TEAM_ID"),
-        private_key: private_key
-      }
+        if is_nil(private_key_raw) do
+          raise "APPLE_PRIVATE_KEY environment variable is not set"
+        end
 
-      secret = UeberauthApple.generate_client_secret(secret_attrs)
+        # Handle different formats:
+        # 1. Replace escaped newlines with actual newlines (\n -> newline)
+        # 2. If key is in single-line format with spaces, reconstruct with newlines
+        private_key =
+          private_key_raw
+          |> String.replace("\\n", "\n")
+          |> format_pem_key()
 
-      put_client_secret_in_cache(secret, @expiration_sec)
-      secret
+        secret_attrs = %{
+          client_id: client_id,
+          expires_in: @expiration_sec,
+          key_id: System.get_env("APPLE_KEY_ID"),
+          team_id: System.get_env("APPLE_TEAM_ID"),
+          private_key: private_key
+        }
+
+        secret = UeberauthApple.generate_client_secret(secret_attrs)
+
+        put_client_secret_in_cache(client_id, secret, @expiration_sec)
+        secret
+    end
+  end
+
+  defp resolve_client_id!(opts) do
+    cond do
+      is_binary(Keyword.get(opts, :client_id)) ->
+        Keyword.get(opts, :client_id)
+
+      Keyword.get(opts, :client) == :web ->
+        System.get_env("APPLE_WEB_CLIENT_ID") || System.get_env("APPLE_CLIENT_ID") ||
+          raise "APPLE_WEB_CLIENT_ID (or legacy APPLE_CLIENT_ID) environment variable is not set"
+
+      Keyword.get(opts, :client) == :ios ->
+        System.get_env("APPLE_IOS_CLIENT_ID") || System.get_env("APPLE_CLIENT_ID") ||
+          raise "APPLE_IOS_CLIENT_ID (or legacy APPLE_CLIENT_ID) environment variable is not set"
+
+      true ->
+        System.get_env("APPLE_WEB_CLIENT_ID") || System.get_env("APPLE_IOS_CLIENT_ID") ||
+          System.get_env("APPLE_CLIENT_ID") ||
+          raise "APPLE_WEB_CLIENT_ID / APPLE_IOS_CLIENT_ID (or legacy APPLE_CLIENT_ID) environment variable is not set"
     end
   end
 
@@ -80,9 +106,11 @@ defmodule GameServer.Apple do
   end
 
   # Simple cache implementation using ETS
-  defp get_client_secret_from_cache do
-    case :ets.lookup(:apple_oauth_cache, :client_secret) do
-      [{:client_secret, secret, expires_at}] ->
+  defp get_client_secret_from_cache(client_id) do
+    cache_key = {:client_secret, client_id}
+
+    case :ets.lookup(:apple_oauth_cache, cache_key) do
+      [{^cache_key, secret, expires_at}] ->
         if expires_at > System.system_time(:second) do
           {:ok, secret}
         else
@@ -96,7 +124,7 @@ defmodule GameServer.Apple do
     _ -> {:error, :not_found}
   end
 
-  defp put_client_secret_in_cache(secret, ttl_seconds) do
+  defp put_client_secret_in_cache(client_id, secret, ttl_seconds) do
     # Ensure ETS table exists
     case :ets.info(:apple_oauth_cache) do
       :undefined ->
@@ -107,6 +135,8 @@ defmodule GameServer.Apple do
     end
 
     expires_at = System.system_time(:second) + ttl_seconds
-    :ets.insert(:apple_oauth_cache, {:client_secret, secret, expires_at})
+
+    cache_key = {:client_secret, client_id}
+    :ets.insert(:apple_oauth_cache, {cache_key, secret, expires_at})
   end
 end

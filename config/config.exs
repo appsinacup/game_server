@@ -106,7 +106,7 @@ config :ueberauth, Ueberauth.Strategy.Discord.OAuth,
   client_secret: System.get_env("DISCORD_CLIENT_SECRET")
 
 config :ueberauth, Ueberauth.Strategy.Apple.OAuth,
-  client_id: System.get_env("APPLE_CLIENT_ID"),
+  client_id: System.get_env("APPLE_WEB_CLIENT_ID") || System.get_env("APPLE_CLIENT_ID"),
   client_secret: {GameServer.Apple, :client_secret}
 
 config :ueberauth, Ueberauth.Strategy.Google.OAuth,

@@ -279,7 +279,11 @@ defmodule GameServerWeb.AuthController do
 
   def request(conn, %{"provider" => "apple"}) do
     cfg = Application.get_env(:ueberauth, Ueberauth.Strategy.Apple.OAuth, [])
-    client_id = cfg[:client_id] || System.get_env("APPLE_CLIENT_ID")
+
+    client_id =
+      cfg[:client_id] || System.get_env("APPLE_WEB_CLIENT_ID") ||
+        System.get_env("APPLE_CLIENT_ID")
+
     base = GameServerWeb.Endpoint.url()
     redirect_uri = cfg[:redirect_uri] || "#{base}/auth/apple/callback"
     scope = "name email"
@@ -554,11 +558,11 @@ defmodule GameServerWeb.AuthController do
     exchanger =
       Application.get_env(:game_server_web, :oauth_exchanger, GameServer.OAuth.Exchanger)
 
-    client_id = System.get_env("APPLE_CLIENT_ID")
+    client_id = apple_web_client_id()
 
     client_secret =
       try do
-        GameServer.Apple.client_secret()
+        GameServer.Apple.client_secret(client_id: client_id)
       rescue
         _ ->
           # In tests the APPLE_PRIVATE_KEY may be invalid, avoid blowing up the
@@ -805,7 +809,7 @@ defmodule GameServerWeb.AuthController do
     session_id = create_api_oauth_session(conn, "apple")
 
     # Generate the Apple OAuth URL
-    client_id = System.get_env("APPLE_CLIENT_ID")
+    client_id = System.get_env("APPLE_WEB_CLIENT_ID") || System.get_env("APPLE_CLIENT_ID")
     base = GameServerWeb.Endpoint.url()
     redirect_uri = "#{base}/auth/apple/callback"
     scope = "name email"
@@ -1117,11 +1121,11 @@ defmodule GameServerWeb.AuthController do
     exchanger =
       Application.get_env(:game_server_web, :oauth_exchanger, GameServer.OAuth.Exchanger)
 
-    client_id = System.get_env("APPLE_CLIENT_ID")
+    client_id = apple_web_client_id()
 
     client_secret =
       try do
-        GameServer.Apple.client_secret()
+        GameServer.Apple.client_secret(client_id: client_id)
       rescue
         _ ->
           nil
@@ -1225,6 +1229,80 @@ defmodule GameServerWeb.AuthController do
       error: "missing_or_unsupported",
       message: "provider or required params are missing/unsupported"
     })
+  end
+
+  operation(:api_apple_ios_callback,
+    operation_id: "oauth_callback_api_apple_ios",
+    summary: "Apple callback (native iOS)",
+    description:
+      "Exchanges a native iOS Sign in with Apple authorization code using APPLE_IOS_CLIENT_ID.",
+    tags: ["Authentication"],
+    request_body: {"Apple callback params", "application/json", OAuthCallbackParams},
+    responses: [
+      ok: {"Auth tokens", "application/json", AuthResponse},
+      bad_request: {"Bad request", "application/json", ErrorResponse},
+      unauthorized: {"Unauthorized", "application/json", ErrorResponse}
+    ]
+  )
+
+  def api_apple_ios_callback(conn, %{"code" => code}) do
+    exchanger =
+      Application.get_env(:game_server_web, :oauth_exchanger, GameServer.OAuth.Exchanger)
+
+    client_id = apple_ios_client_id()
+
+    client_secret =
+      try do
+        GameServer.Apple.client_secret(client_id: client_id)
+      rescue
+        _ ->
+          nil
+      end
+
+    base = GameServerWeb.Endpoint.url()
+    redirect_uri = "#{base}/auth/apple/callback"
+
+    case exchanger.exchange_apple_code(code, client_id, client_secret, redirect_uri) do
+      {:ok, %{"sub" => apple_id} = user_info} ->
+        email = user_info["email"]
+        name = Map.get(user_info, "name")
+
+        user_params = %{email: email, apple_id: apple_id, display_name: name}
+
+        # Check if user is authenticated (linking) or not (login)
+        case maybe_load_user_from_jwt(conn) do
+          {:ok, %User{} = current_user} ->
+            handle_api_link(
+              conn,
+              current_user,
+              user_params,
+              :apple_id,
+              &User.apple_oauth_changeset/2
+            )
+
+          {:ok, nil} ->
+            handle_api_login(conn, &Accounts.find_or_create_from_apple/1, user_params)
+        end
+
+      {:error, err} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "exchange_failed", details: inspect(err)})
+    end
+  end
+
+  def api_apple_ios_callback(conn, _params) do
+    conn
+    |> put_status(:bad_request)
+    |> json(%{error: "missing_code"})
+  end
+
+  defp apple_web_client_id do
+    System.get_env("APPLE_WEB_CLIENT_ID") || System.get_env("APPLE_CLIENT_ID")
+  end
+
+  defp apple_ios_client_id do
+    System.get_env("APPLE_IOS_CLIENT_ID") || System.get_env("APPLE_CLIENT_ID")
   end
 
   operation(:api_session_status,

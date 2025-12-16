@@ -364,6 +364,62 @@ defmodule GameServerWeb.AuthControllerApiTest do
       assert reloaded.display_name == "FetchedA"
     end
 
+    test "POST /api/v1/auth/apple/callback uses APPLE_WEB_CLIENT_ID when set", %{conn: conn} do
+      System.put_env("APPLE_WEB_CLIENT_ID", "com.example.web")
+      System.put_env("APPLE_IOS_CLIENT_ID", "com.example.ios")
+
+      on_exit(fn ->
+        System.delete_env("APPLE_WEB_CLIENT_ID")
+        System.delete_env("APPLE_IOS_CLIENT_ID")
+      end)
+
+      defmodule MockExchangerAppleClientId do
+        def exchange_apple_code("valid_ticket", cid, _secret, _redirect) do
+          send(self(), {:apple_client_id, cid})
+          {:ok, %{"sub" => "a_web"}}
+        end
+
+        def exchange_apple_code("valid_ticket", cid, _secret, _redirect, _opts) do
+          send(self(), {:apple_client_id, cid})
+          {:ok, %{"sub" => "a_web"}}
+        end
+      end
+
+      Application.put_env(:game_server_web, :oauth_exchanger, MockExchangerAppleClientId)
+
+      conn = post(conn, "/api/v1/auth/apple/callback", %{code: "valid_ticket"})
+      assert conn.status == 200
+      assert_received {:apple_client_id, "com.example.web"}
+    end
+
+    test "POST /api/v1/auth/apple/ios/callback uses APPLE_IOS_CLIENT_ID when set", %{conn: conn} do
+      System.put_env("APPLE_WEB_CLIENT_ID", "com.example.web")
+      System.put_env("APPLE_IOS_CLIENT_ID", "com.example.ios")
+
+      on_exit(fn ->
+        System.delete_env("APPLE_WEB_CLIENT_ID")
+        System.delete_env("APPLE_IOS_CLIENT_ID")
+      end)
+
+      defmodule MockExchangerAppleIosClientId do
+        def exchange_apple_code("valid_ticket", cid, _secret, _redirect) do
+          send(self(), {:apple_ios_client_id, cid})
+          {:ok, %{"sub" => "a_ios"}}
+        end
+
+        def exchange_apple_code("valid_ticket", cid, _secret, _redirect, _opts) do
+          send(self(), {:apple_ios_client_id, cid})
+          {:ok, %{"sub" => "a_ios"}}
+        end
+      end
+
+      Application.put_env(:game_server_web, :oauth_exchanger, MockExchangerAppleIosClientId)
+
+      conn = post(conn, "/api/v1/auth/apple/ios/callback", %{code: "valid_ticket"})
+      assert conn.status == 200
+      assert_received {:apple_ios_client_id, "com.example.ios"}
+    end
+
     test "POST /api/v1/auth/steam/callback skips profile lookup when user already has profile", %{
       conn: conn
     } do
