@@ -1,3 +1,9 @@
+repo_config = Application.get_env(:game_server_core, GameServer.Repo, [])
+
+if repo_config[:adapter] == Ecto.Adapters.SQLite3 do
+  ExUnit.configure(max_cases: 1)
+end
+
 ExUnit.start()
 Ecto.Adapters.SQL.Sandbox.mode(GameServer.Repo, :manual)
 

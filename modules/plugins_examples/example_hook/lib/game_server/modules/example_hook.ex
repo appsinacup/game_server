@@ -15,6 +15,9 @@ defmodule GameServer.Modules.ExampleHook do
   @behaviour GameServer.Hooks
   require Logger
 
+  alias GameServer.Accounts
+  alias GameServer.Hooks
+
 
   @impl true
   def after_startup do
@@ -78,16 +81,16 @@ defmodule GameServer.Modules.ExampleHook do
 
   @doc "Return an updated metadata map for the current caller"
   def set_current_user_meta(key, value) when is_binary(key) do
-    caller = Process.get(:game_server_hook_caller)
+    do_set_user_meta(Hooks.caller_user(), key, value)
+  end
 
-    meta =
-      case caller do
-        %{metadata: m} when is_map(m) -> m
-        _ -> %{}
-      end
+  defp do_set_user_meta(user, key, value) do
+    meta = user.metadata || %{}
+    meta = Map.put(meta, key, value)
 
-    # This example intentionally does NOT write to the database.
-    # In a real hook you can call server context modules to persist changes.
-    {:ok, Map.put(meta, key, value)}
+    case Accounts.update_user(user, %{metadata: meta}) do
+      {:ok, updated_user} -> updated_user
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 end

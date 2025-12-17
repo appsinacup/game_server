@@ -16,7 +16,11 @@ if System.get_env("DATABASE_URL") ||
     url: database_url,
     adapter: Ecto.Adapters.Postgres,
     pool: Ecto.Adapters.SQL.Sandbox,
-    pool_size: System.schedulers_online() * 2
+    pool_size: System.schedulers_online() * 2,
+    pool_timeout: 10_000,
+    queue_target: 10_000,
+    queue_interval: 1_000,
+    timeout: 15_000
 else
   # Fallback to SQLite when no PostgreSQL config
   config :game_server_core, GameServer.Repo,
@@ -27,7 +31,18 @@ else
       ),
     adapter: Ecto.Adapters.SQLite3,
     pool: Ecto.Adapters.SQL.Sandbox,
-    pool_size: 1
+    pool_size: 1,
+    pool_timeout: 10_000,
+    queue_target: 10_000,
+    queue_interval: 1_000,
+    timeout: 15_000,
+    pragmas: [
+      foreign_keys: :on,
+      journal_mode: :wal,
+      synchronous: :normal,
+      temp_store: :memory,
+      busy_timeout: 10_000
+    ]
 end
 
 # We don't run a server during test. If one is required,
