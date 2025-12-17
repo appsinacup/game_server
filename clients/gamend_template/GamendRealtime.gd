@@ -7,7 +7,7 @@ signal socket_errored()
 signal socket_closed()
 
 var socket : PhoenixSocket
-var enable_logs := false
+var enable_logs := true
 var _token: String
 
 # Called when the node enters the scene tree for the first time.
