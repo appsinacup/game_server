@@ -29,13 +29,13 @@ defmodule GameServerWeb.Api.V1.UserController do
                    id: %Schema{type: :integer},
                    email: %Schema{type: :string},
                    display_name: %Schema{type: :string},
-                  profile_url: %Schema{type: :string},
-                  lobby_id: %Schema{
-                    type: :integer,
-                    nullable: false,
-                    description:
-                      "Lobby ID when user is currently in a lobby. -1 means not currently in a lobby."
-                  }
+                   profile_url: %Schema{type: :string},
+                   lobby_id: %Schema{
+                     type: :integer,
+                     nullable: false,
+                     description:
+                       "Lobby ID when user is currently in a lobby. -1 means not currently in a lobby."
+                   }
                  }
                }
              },
@@ -72,7 +72,8 @@ defmodule GameServerWeb.Api.V1.UserController do
              lobby_id: %Schema{
                type: :integer,
                nullable: false,
-               description: "Lobby ID when user is currently in a lobby. -1 means not currently in a lobby."
+               description:
+                 "Lobby ID when user is currently in a lobby. -1 means not currently in a lobby."
              }
            }
          }},

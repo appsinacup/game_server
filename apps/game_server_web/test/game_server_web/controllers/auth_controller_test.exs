@@ -282,7 +282,6 @@ defmodule GameServerWeb.AuthControllerTest do
 
     on_exit(fn ->
       Application.put_env(:game_server_web, :oauth_exchanger, orig)
-      System.delete_env("APPLE_WEB_CLIENT_ID")
       # Only delete if table exists
       case :ets.info(:apple_oauth_cache) do
         :undefined -> :ok
@@ -331,7 +330,6 @@ defmodule GameServerWeb.AuthControllerTest do
 
     on_exit(fn ->
       Application.put_env(:game_server_web, :oauth_exchanger, orig)
-      System.delete_env("APPLE_WEB_CLIENT_ID")
       # Only delete if table exists
       case :ets.info(:apple_oauth_cache) do
         :undefined -> :ok

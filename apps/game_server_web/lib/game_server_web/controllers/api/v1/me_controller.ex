@@ -26,7 +26,8 @@ defmodule GameServerWeb.Api.V1.MeController do
             lobby_id: %Schema{
               type: :integer,
               nullable: false,
-              description: "Lobby ID when user is currently in a lobby. -1 means not currently in a lobby."
+              description:
+                "Lobby ID when user is currently in a lobby. -1 means not currently in a lobby."
             },
             linked_providers: %Schema{
               type: :object,
