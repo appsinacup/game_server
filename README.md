@@ -25,7 +25,7 @@ This application supports two authentication methods:
 Traditional session-based authentication for browser flows:
 - Email/password registration and login
 - Discord OAuth
-- Apple Sing In
+- Apple Sign In
 - Google OAuth
 - Steam OpenID
 - Facebook OAuth
