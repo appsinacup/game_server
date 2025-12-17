@@ -499,4 +499,44 @@ defmodule GameServerWeb.AuthControllerTest do
     assert redirected_to(conn) =~ "/"
     assert OAuthSessions.get_session(session_id) == nil
   end
+
+  test "GET /api/v1/auth/session/:session_id returns status, message, data at top level", %{
+    conn: conn
+  } do
+    session_id = "sid-#{System.unique_integer([:positive])}"
+
+    OAuthSessions.create_session(session_id, %{provider: "google", status: "completed"})
+    OAuthSessions.update_session(session_id, %{data: %{access_token: "tok", message: "done"}})
+
+    conn = get(conn, "/api/v1/auth/session/#{session_id}")
+    body = json_response(conn, 200)
+
+    assert body["status"] == "completed"
+    assert body["message"] == "done"
+    assert is_map(body["data"])
+    assert body["data"]["access_token"] == "tok"
+    refute Map.has_key?(body["data"], "message")
+  end
+
+  test "GET /api/v1/auth/session/:session_id returns empty message and {} data when session has no data",
+       %{conn: conn} do
+    session_id = "sid-#{System.unique_integer([:positive])}"
+
+    OAuthSessions.create_session(session_id, %{provider: "google", status: "pending"})
+
+    conn = get(conn, "/api/v1/auth/session/#{session_id}")
+    body = json_response(conn, 200)
+
+    assert body["status"] == "pending"
+    assert body["message"] == ""
+    assert body["data"] == %{}
+  end
+
+  test "GET /api/v1/auth/session/:session_id returns 404 error object when missing", %{conn: conn} do
+    conn = get(conn, "/api/v1/auth/session/does-not-exist")
+    body = json_response(conn, 404)
+
+    assert body["error"] == "session_not_found"
+    assert is_binary(body["message"])
+  end
 end

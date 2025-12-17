@@ -1340,22 +1340,53 @@ defmodule GameServerWeb.AuthController do
     ],
     responses: [
       ok: {"Session status", "application/json", GameServerWeb.Schemas.OAuthSessionStatus},
-      not_found: {"Session not found", "application/json", nil}
+      not_found: {
+        "Session not found",
+        "application/json",
+        %OpenApiSpex.Schema{
+          type: :object,
+          properties: %{
+            error: %OpenApiSpex.Schema{type: :string},
+            message: %OpenApiSpex.Schema{type: :string}
+          },
+          required: [:error, :message]
+        }
+      }
     ]
   )
 
   def api_session_status(conn, %{"session_id" => session_id}) do
     case GameServer.OAuthSessions.get_session(session_id) do
       %GameServer.OAuthSession{status: status, data: data} ->
-        # Return a shape that matches the OpenAPI spec and the generated
-        # JavaScript SDK: { status: string, data: { ... } }
-        json(conn, %{status: status, data: data || %{}})
+        {message, normalized_data} = pop_session_message(data)
+
+        json(conn, %{
+          status: status,
+          message: message,
+          data: normalized_data
+        })
 
       nil ->
         conn
         |> put_status(:not_found)
         |> json(%{error: "session_not_found", message: "OAuth session not found"})
     end
+  end
+
+  defp pop_session_message(data) do
+    data = if is_map(data), do: data, else: %{}
+
+    message =
+      Map.get(data, "message") ||
+        Map.get(data, :message) ||
+        ""
+
+    cleaned =
+      data
+      |> Map.delete("message")
+      |> Map.delete(:message)
+
+    {message, cleaned}
   end
 
   defp handle_browser_google_callback(conn, user_params) do

@@ -22,6 +22,6 @@ defmodule GameServerWeb.Schemas.OAuthSessionStatus do
         description: "Optional human-readable message describing the current status"
       }
     },
-    required: [:status]
+    required: [:status, :message, :data]
   })
 end
