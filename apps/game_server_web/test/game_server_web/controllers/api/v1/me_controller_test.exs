@@ -23,7 +23,7 @@ defmodule GameServerWeb.Api.V1.MeControllerTest do
       refute Map.has_key?(body, "is_admin")
       assert Map.has_key?(body, "metadata")
       assert Map.has_key?(body, "lobby_id")
-      assert is_nil(body["lobby_id"])
+      assert body["lobby_id"] == -1
 
       # Verify linked_providers and has_password fields
       assert Map.has_key?(body, "linked_providers")

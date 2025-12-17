@@ -48,7 +48,7 @@ defmodule GameServerWeb.Api.V1.UserControllerTest do
     assert resp["id"] == u.id
     assert resp["email"] == u.email
     assert Map.has_key?(resp, "lobby_id")
-    assert is_nil(resp["lobby_id"])
+    assert resp["lobby_id"] == -1
   end
 
   test "GET /api/v1/users/:id returns 404 if not found", %{conn: conn} do

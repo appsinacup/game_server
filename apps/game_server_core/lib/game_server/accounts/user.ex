@@ -346,7 +346,7 @@ defimpl Jason.Encoder, for: GameServer.Accounts.User do
       display_name: user.display_name || "",
       profile_url: user.profile_url || "",
       metadata: user.metadata || %{},
-      lobby_id: user.lobby_id,
+      lobby_id: user.lobby_id || -1,
       inserted_at: user.inserted_at,
       updated_at: user.updated_at
     }

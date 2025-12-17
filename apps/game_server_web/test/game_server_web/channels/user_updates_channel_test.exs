@@ -29,7 +29,7 @@ defmodule GameServerWeb.UserChannelTest do
     assert payload.lobby_id == lobby.id
   end
 
-  test "user channel receives updated event when leaving clears lobby_id" do
+  test "user channel receives updated event when leaving sets lobby_id to -1" do
     user = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
     {:ok, token, _claims} = Guardian.encode_and_sign(user)
 
@@ -49,7 +49,7 @@ defmodule GameServerWeb.UserChannelTest do
 
     assert_push "updated", left_payload
     assert left_payload.id == user.id
-    assert is_nil(left_payload.lobby_id)
+    assert left_payload.lobby_id == -1
   end
 
   test "join allowed for owner and receives broadcasts" do

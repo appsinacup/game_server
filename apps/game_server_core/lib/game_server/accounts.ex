@@ -1497,7 +1497,7 @@ defmodule GameServer.Accounts do
       profile_url: user.profile_url || "",
       metadata: user.metadata || %{},
       display_name: user.display_name || "",
-      lobby_id: user.lobby_id,
+      lobby_id: user.lobby_id || -1,
       linked_providers: get_linked_providers(user),
       has_password: has_password?(user)
     }
