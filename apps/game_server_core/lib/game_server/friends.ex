@@ -535,6 +535,12 @@ defmodule GameServer.Friends do
     list_friends_with_friendship_cached(user_id, page, page_size)
   end
 
+  @decorate cacheable(
+              key:
+                {:friends, :list_friends, friends_cache_version(user_id), user_id, page,
+                 page_size},
+              opts: [ttl: @friends_cache_ttl_ms]
+            )
   defp list_friends_with_friendship_cached(user_id, page, page_size) do
     offset = (page - 1) * page_size
 
