@@ -4,6 +4,8 @@ defmodule GameServerWeb.Api.V1.MetadataController do
 
   alias OpenApiSpex.Schema
 
+  @error_schema %Schema{type: :object, properties: %{error: %Schema{type: :string}}}
+
   tags(["Users"])
 
   operation(:show,
@@ -22,7 +24,7 @@ defmodule GameServerWeb.Api.V1.MetadataController do
     ],
     responses: [
       ok: {"User metadata", "application/json", %Schema{type: :object}},
-      unauthorized: {"Not authenticated", "application/json", nil}
+      unauthorized: {"Not authenticated", "application/json", @error_schema}
     ]
   )
 

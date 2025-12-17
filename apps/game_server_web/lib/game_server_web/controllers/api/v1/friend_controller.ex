@@ -5,6 +5,14 @@ defmodule GameServerWeb.Api.V1.FriendController do
   alias GameServer.Friends
   alias OpenApiSpex.Schema
 
+  @ok_schema %Schema{type: :object}
+  @error_schema %Schema{type: :object, properties: %{error: %Schema{type: :string}}}
+
+  @validation_error_schema %Schema{
+    type: :object,
+    properties: %{error: %Schema{type: :string}, errors: %Schema{type: :object}}
+  }
+
   tags(["Friends"])
 
   operation(:create,
@@ -26,9 +34,11 @@ defmodule GameServerWeb.Api.V1.FriendController do
       }
     },
     responses: [
-      created: {"Request created", "application/json", nil},
-      conflict: {"Already friends or requested", "application/json", %Schema{type: :object}},
-      unauthorized: {"Not authenticated", "application/json", nil}
+      created: {"Request created", "application/json", @ok_schema},
+      bad_request: {"Bad request", "application/json", @error_schema},
+      conflict: {"Already friends or requested", "application/json", @error_schema},
+      unprocessable_entity: {"Validation failed", "application/json", @validation_error_schema},
+      unauthorized: {"Not authenticated", "application/json", @error_schema}
     ]
   )
 
@@ -191,8 +201,8 @@ defmodule GameServerWeb.Api.V1.FriendController do
     ],
     responses: [
       ok: {"Accepted", "application/json", %Schema{type: :object}},
-      unauthorized: {"Not authenticated", "application/json", nil},
-      forbidden: {"Not authorized", "application/json", nil}
+      unauthorized: {"Not authenticated", "application/json", @error_schema},
+      forbidden: {"Not authorized", "application/json", @error_schema}
     ]
   )
 
@@ -211,8 +221,8 @@ defmodule GameServerWeb.Api.V1.FriendController do
     ],
     responses: [
       ok: {"Rejected", "application/json", %Schema{type: :object}},
-      unauthorized: {"Not authenticated", "application/json", nil},
-      forbidden: {"Not authorized", "application/json", nil}
+      unauthorized: {"Not authenticated", "application/json", @error_schema},
+      forbidden: {"Not authorized", "application/json", @error_schema}
     ]
   )
 
@@ -231,8 +241,8 @@ defmodule GameServerWeb.Api.V1.FriendController do
     ],
     responses: [
       ok: {"Blocked", "application/json", %Schema{type: :object}},
-      unauthorized: {"Not authenticated", "application/json", nil},
-      forbidden: {"Not authorized", "application/json", nil}
+      unauthorized: {"Not authenticated", "application/json", @error_schema},
+      forbidden: {"Not authorized", "application/json", @error_schema}
     ]
   )
 
@@ -310,9 +320,9 @@ defmodule GameServerWeb.Api.V1.FriendController do
     ],
     responses: [
       ok: {"Unblocked", "application/json", %Schema{type: :object}},
-      unauthorized: {"Not authenticated", "application/json", nil},
-      forbidden: {"Not authorized", "application/json", nil},
-      not_found: {"Not found", "application/json", nil}
+      unauthorized: {"Not authenticated", "application/json", @error_schema},
+      forbidden: {"Not authorized", "application/json", @error_schema},
+      not_found: {"Not found", "application/json", @error_schema}
     ]
   )
 
@@ -323,8 +333,8 @@ defmodule GameServerWeb.Api.V1.FriendController do
     parameters: [id: [in: :path, schema: %Schema{type: :integer}, required: true]],
     responses: [
       ok: {"Success", "application/json", %Schema{type: :object}},
-      unauthorized: {"Not authenticated", "application/json", nil},
-      forbidden: {"Not authorized", "application/json", nil}
+      unauthorized: {"Not authenticated", "application/json", @error_schema},
+      forbidden: {"Not authorized", "application/json", @error_schema}
     ]
   )
 
@@ -338,7 +348,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
 
         case Friends.create_request(user.id, target_id) do
           {:ok, _f} ->
-            conn |> put_status(:created) |> send_resp(:created, "")
+            conn |> put_status(:created) |> json(%{})
 
           {:error, :cannot_friend_self} ->
             conn |> put_status(:bad_request) |> json(%{error: "cannot_friend_self"})
@@ -352,7 +362,10 @@ defmodule GameServerWeb.Api.V1.FriendController do
           {:error, %Ecto.Changeset{} = cs} ->
             conn
             |> put_status(:unprocessable_entity)
-            |> json(%{errors: Ecto.Changeset.traverse_errors(cs, & &1)})
+            |> json(%{
+              error: "validation_failed",
+              errors: Ecto.Changeset.traverse_errors(cs, & &1)
+            })
 
           {:error, reason} ->
             conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})

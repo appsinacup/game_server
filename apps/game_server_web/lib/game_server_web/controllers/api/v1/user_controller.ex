@@ -5,6 +5,8 @@ defmodule GameServerWeb.Api.V1.UserController do
   alias GameServer.Accounts
   alias OpenApiSpex.Schema
 
+  @error_schema %Schema{type: :object, properties: %{error: %Schema{type: :string}}}
+
   tags(["Users"])
 
   operation(:index,
@@ -77,7 +79,7 @@ defmodule GameServerWeb.Api.V1.UserController do
              }
            }
          }},
-      not_found: {"Not found", "application/json", nil}
+      not_found: {"Not found", "application/json", @error_schema}
     ]
   )
 

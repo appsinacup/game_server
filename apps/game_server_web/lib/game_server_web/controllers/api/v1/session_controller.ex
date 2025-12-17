@@ -6,6 +6,8 @@ defmodule GameServerWeb.Api.V1.SessionController do
   alias GameServerWeb.Auth.Guardian
   alias OpenApiSpex.Schema
 
+  @error_schema %Schema{type: :object, properties: %{error: %Schema{type: :string}}}
+
   tags(["Authentication"])
 
   operation(:create,
@@ -58,7 +60,7 @@ defmodule GameServerWeb.Api.V1.SessionController do
           }
         }
       },
-      unauthorized: {"Invalid credentials", "application/json", nil}
+      unauthorized: {"Invalid credentials", "application/json", @error_schema}
     ]
   )
 
@@ -121,7 +123,8 @@ defmodule GameServerWeb.Api.V1.SessionController do
       ok:
         {"Login successful", "application/json",
          %Schema{type: :object, properties: %{data: GameServerWeb.Schemas.OAuthSessionData}}},
-      bad_request: {"Unable to create device user", "application/json", nil}
+      bad_request: {"Unable to create device user", "application/json", @error_schema},
+      forbidden: {"Device auth disabled", "application/json", @error_schema}
     ]
   )
 
@@ -225,7 +228,8 @@ defmodule GameServerWeb.Api.V1.SessionController do
           }
         }
       },
-      unauthorized: {"Invalid or expired refresh token", "application/json", nil}
+      unauthorized: {"Invalid or expired refresh token", "application/json", @error_schema},
+      bad_request: {"Bad request", "application/json", @error_schema}
     ]
   )
 

@@ -4,6 +4,13 @@ defmodule GameServerWeb.Api.V1.MeController do
 
   alias OpenApiSpex.Schema
 
+  @error_schema %Schema{type: :object, properties: %{error: %Schema{type: :string}}}
+
+  @validation_error_schema %Schema{
+    type: :object,
+    properties: %{error: %Schema{type: :string}, errors: %Schema{type: :object}}
+  }
+
   tags(["Users"])
 
   operation(:show,
@@ -48,7 +55,7 @@ defmodule GameServerWeb.Api.V1.MeController do
           }
         }
       },
-      unauthorized: {"Not authenticated", "application/json", nil}
+      unauthorized: {"Not authenticated", "application/json", @error_schema}
     ]
   )
 
@@ -91,9 +98,9 @@ defmodule GameServerWeb.Api.V1.MeController do
     },
     security: [%{"authorization" => []}],
     responses: [
-      ok: {"Password updated", "application/json", nil},
-      bad_request: {"Invalid data", "application/json", nil},
-      unauthorized: {"Not authenticated", "application/json", nil}
+      ok: {"Password updated", "application/json", %Schema{type: :object}},
+      bad_request: {"Invalid data", "application/json", @validation_error_schema},
+      unauthorized: {"Not authenticated", "application/json", @error_schema}
     ]
   )
 
@@ -107,7 +114,10 @@ defmodule GameServerWeb.Api.V1.MeController do
       {:error, changeset} ->
         conn
         |> put_status(:bad_request)
-        |> json(%{errors: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)})
+        |> json(%{
+          error: "invalid_data",
+          errors: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
+        })
     end
   end
 
@@ -127,9 +137,9 @@ defmodule GameServerWeb.Api.V1.MeController do
     },
     security: [%{"authorization" => []}],
     responses: [
-      ok: {"Display name updated", "application/json", nil},
-      bad_request: {"Invalid data", "application/json", nil},
-      unauthorized: {"Not authenticated", "application/json", nil}
+      ok: {"Display name updated", "application/json", %Schema{type: :object}},
+      bad_request: {"Invalid data", "application/json", @validation_error_schema},
+      unauthorized: {"Not authenticated", "application/json", @error_schema}
     ]
   )
 
@@ -143,7 +153,10 @@ defmodule GameServerWeb.Api.V1.MeController do
       {:error, changeset} ->
         conn
         |> put_status(:bad_request)
-        |> json(%{errors: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)})
+        |> json(%{
+          error: "invalid_data",
+          errors: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
+        })
     end
   end
 
@@ -154,8 +167,8 @@ defmodule GameServerWeb.Api.V1.MeController do
     security: [%{"authorization" => []}],
     responses: [
       ok: {"Account deleted", "application/json", %Schema{type: :object}},
-      bad_request: {"Failed to delete account", "application/json", nil},
-      unauthorized: {"Not authenticated", "application/json", nil}
+      bad_request: {"Failed to delete account", "application/json", @error_schema},
+      unauthorized: {"Not authenticated", "application/json", @error_schema}
     ]
   )
 
