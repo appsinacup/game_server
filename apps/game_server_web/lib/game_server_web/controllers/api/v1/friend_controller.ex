@@ -72,6 +72,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
                  type: :object,
                  properties: %{
                    id: %Schema{type: :integer},
+                   friendship_id: %Schema{type: :integer},
                    email: %Schema{type: :string},
                    display_name: %Schema{type: :string},
                    profile_url: %Schema{type: :string}
@@ -424,8 +425,9 @@ defmodule GameServerWeb.Api.V1.FriendController do
       %{user: user} when user != nil ->
         {page, page_size} = parse_page_params(params)
 
-        friends = Friends.list_friends_for_user(user, page: page, page_size: page_size)
-        serialized = Enum.map(friends, &serialize_user/1)
+        # include the friendship row id so clients can call delete/accept/reject by id
+        friends = Friends.list_friends_with_friendship(user, page: page, page_size: page_size)
+        serialized = Enum.map(friends, &serialize_friend/1)
         count = length(serialized)
         total_count = Friends.count_friends_for_user(user)
 
@@ -608,6 +610,16 @@ defmodule GameServerWeb.Api.V1.FriendController do
   defp serialize_user(user) do
     %{
       id: user.id,
+      email: user.email || "",
+      display_name: user.display_name || "",
+      profile_url: user.profile_url || ""
+    }
+  end
+
+  defp serialize_friend(%{friendship_id: fid, user: user}) do
+    %{
+      id: user.id,
+      friendship_id: fid,
       email: user.email || "",
       display_name: user.display_name || "",
       profile_url: user.profile_url || ""

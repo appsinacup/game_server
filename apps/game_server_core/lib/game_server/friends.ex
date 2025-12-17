@@ -512,6 +512,49 @@ defmodule GameServer.Friends do
     Repo.all(from u in User, where: u.id in ^ids)
   end
 
+  @doc """
+  List accepted friendships for a user along with the other user and friendship id.
+
+  Returns a list of maps: %{friendship_id: integer(), user: %User{}}
+  """
+  @spec list_friends_with_friendship(integer() | User.t()) :: [
+          %{friendship_id: integer(), user: User.t()}
+        ]
+  @spec list_friends_with_friendship(integer() | User.t(), Types.pagination_opts()) :: [
+          %{friendship_id: integer(), user: User.t()}
+        ]
+  def list_friends_with_friendship(user_id, opts \\ [])
+
+  def list_friends_with_friendship(%User{id: id}, opts),
+    do: list_friends_with_friendship(id, opts)
+
+  def list_friends_with_friendship(user_id, opts) when is_integer(user_id) do
+    page = Keyword.get(opts, :page, 1)
+    page_size = Keyword.get(opts, :page_size, 25)
+
+    list_friends_with_friendship_cached(user_id, page, page_size)
+  end
+
+  defp list_friends_with_friendship_cached(user_id, page, page_size) do
+    offset = (page - 1) * page_size
+
+    friendships =
+      Repo.all(
+        from f in Friendship,
+          where:
+            f.status == "accepted" and
+              (f.requester_id == ^user_id or f.target_id == ^user_id),
+          preload: [:requester, :target],
+          limit: ^page_size,
+          offset: ^offset
+      )
+
+    Enum.map(friendships, fn f ->
+      other = if f.requester_id == user_id, do: f.target, else: f.requester
+      %{friendship_id: f.id, user: other}
+    end)
+  end
+
   @doc "Count accepted friends for a given user (distinct other user ids)."
   @spec count_friends_for_user(user_id() | User.t()) :: non_neg_integer()
   def count_friends_for_user(%User{id: id}), do: count_friends_for_user(id)

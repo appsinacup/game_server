@@ -45,10 +45,15 @@ defmodule GameServerWeb.Api.V1.FriendControllerTest do
     # accept returns 200 with empty object now
     assert conn_b.status == 200
 
-    # a's friends list should include b
+    # a's friends list should include b and provide the friendship id
     conn_a2 = conn |> put_req_header("authorization", "Bearer " <> token_a)
     resp = get(conn_a2, "/api/v1/me/friends") |> json_response(200)
     assert Enum.any?(resp["data"], fn r -> r["id"] == b.id end)
+    entry = Enum.find(resp["data"], fn r -> r["id"] == b.id end)
+    assert is_integer(entry["friendship_id"])
+    # verify the returned friendship_id can be used to delete the friendship
+    del = delete(conn_a2, "/api/v1/friends/#{entry["friendship_id"]}")
+    assert del.status == 200
   end
 
   test "requests endpoint returns incoming and outgoing", %{conn: conn} do

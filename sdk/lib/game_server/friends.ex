@@ -310,6 +310,47 @@ defmodule GameServer.Friends do
 
 
   @doc ~S"""
+    List accepted friendships for a user along with the other user and friendship id.
+    
+    Returns a list of maps: %{friendship_id: integer(), user: %User{}}
+    
+  """
+  @spec list_friends_with_friendship(integer() | GameServer.Accounts.User.t()) :: [
+  %{friendship_id: integer(), user: GameServer.Accounts.User.t()}
+]
+  def list_friends_with_friendship(_user_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Friends.list_friends_with_friendship/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    List accepted friendships for a user along with the other user and friendship id.
+    
+    Returns a list of maps: %{friendship_id: integer(), user: %User{}}
+    
+  """
+  @spec list_friends_with_friendship(
+  integer() | GameServer.Accounts.User.t(),
+  GameServer.Types.pagination_opts()
+) :: [%{friendship_id: integer(), user: GameServer.Accounts.User.t()}]
+  def list_friends_with_friendship(_user_id, _opts) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Friends.list_friends_with_friendship/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     List incoming pending friend requests for a user (Friendship structs).
     
     ## Options
