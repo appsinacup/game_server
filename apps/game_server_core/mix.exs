@@ -1,10 +1,13 @@
 defmodule GameServerCore.MixProject do
   use Mix.Project
 
+  @version "1.0.5"
+  @source_url "https://github.com/appsinacup/game_server"
+
   def project do
     [
       app: :game_server_core,
-      version: System.get_env("APP_VERSION") || "1.0.0",
+      version: System.get_env("APP_VERSION") || @version,
       elixir: "~> 1.19",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -12,7 +15,10 @@ defmodule GameServerCore.MixProject do
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
-      lockfile: "../../mix.lock"
+      lockfile: "../../mix.lock",
+      description: description(),
+      package: package(),
+      docs: docs(),
     ]
   end
 
@@ -48,10 +54,37 @@ defmodule GameServerCore.MixProject do
       {:ueberauth_apple, "~> 0.2"},
       {:ueberauth_google, "~> 0.12"},
       {:ueberauth_facebook, "~> 0.10"},
-      {:ueberauth_steam, github: "appsinacup/ueberauth_steam", branch: "master"},
+      {:ueberauth_steam_strategy, "~> 0.1"},
       {:guardian, "~> 2.3"},
       {:quantum, "~> 3.5"},
-      {:corsica, "~> 2.0"}
+      {:corsica, "~> 2.0"},
+      {:ex_doc, "~> 0.34", only: :dev, runtime: false}
+    ]
+  end
+
+  defp description do
+    """
+    Core functionality for Gamend GameServer, including user management, authentication, friends, matchmaking, and more.
+    """
+  end
+
+  defp package do
+    [
+      name: "game_server_core",
+      licenses: ["MIT"],
+      links: %{
+        "GitHub" => @source_url,
+        "Changelog" => "#{@source_url}/blob/main/CHANGELOG.md"
+      },
+      files: ~w(lib .formatter.exs mix.exs README.md LICENSE)
+    ]
+  end
+
+  defp docs do
+    [
+      main: "readme",
+      source_ref: "v#{@version}",
+      extras: ["README.md"]
     ]
   end
 end

@@ -110,6 +110,8 @@ find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/li
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/333/16/g" -i
 # Replace get_current_user_200_response_linked_providers with GetCurrentUser200ResponseLinkedProviders
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/get_current_user_200_response_linked_providers/GetCurrentUser200ResponseLinkedProviders/g" -i
+# Replace search_users_200_response_data_inner with SearchUsers200ResponseDataInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/search_users_200_response_data_inner/SearchUsers200ResponseDataInner/g" -i
 # headers_for_godot, body_serialized
 # with 
 # headers_for_godot, "" if body_serialized == "null" else body_serialized
