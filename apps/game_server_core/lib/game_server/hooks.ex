@@ -47,6 +47,11 @@ defmodule GameServer.Hooks do
               hook_result({User.t(), User.t(), term()})
   @callback after_user_kicked(User.t(), User.t(), term()) :: any()
 
+  # KV access hook: called before a KV get. Plugins may return :public or :private
+  # to signal whether the key should be publicly readable. By default the hook
+  # implementation returns :public (see GameServer.Hooks.Default).
+  @callback before_kv_get(String.t(), map() | keyword()) :: hook_result(:public | :private)
+
   @callback after_lobby_host_change(term(), term()) :: any()
 
   @doc "Return the configured module that implements the hooks behaviour."
@@ -747,4 +752,7 @@ defmodule GameServer.Hooks.Default do
 
   @impl true
   def after_lobby_host_change(_lobby, _new_host_id), do: :ok
+
+  @impl true
+  def before_kv_get(_key, _opts), do: :public
 end

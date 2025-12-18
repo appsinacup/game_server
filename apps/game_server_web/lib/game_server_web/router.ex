@@ -76,6 +76,13 @@ defmodule GameServerWeb.Router do
     get "/leaderboards/:id/records/around/:user_id", LeaderboardController, :around
   end
 
+  # Key/value retrieval (authenticated only, hooks still control public/private semantics)
+  scope "/api/v1", GameServerWeb.Api.V1, as: :api_v1 do
+    pipe_through [:api, :api_auth]
+
+    get "/kv/:key", KvController, :show
+  end
+
   # Protected API routes - require JWT authentication
   scope "/api/v1", GameServerWeb.Api.V1, as: :api_v1 do
     pipe_through [:api, :api_auth]
