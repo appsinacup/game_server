@@ -25,7 +25,7 @@ defmodule GameServerWeb.Api.V1.KvControllerTest do
     conn_auth = put_req_header(conn, "authorization", "Bearer " <> token)
 
     resp = get(conn_auth, "/api/v1/kv/global_foo") |> json_response(200)
-    assert resp["value"] == %{"a" => 1}
+    assert resp["data"] == %{"a" => 1}
   end
 
   test "private global kv is forbidden for anonymous and allowed for admin", %{conn: conn} do
@@ -58,7 +58,7 @@ defmodule GameServerWeb.Api.V1.KvControllerTest do
     {:ok, token, _} = GameServerWeb.Auth.Guardian.encode_and_sign(admin)
     conn_admin = put_req_header(conn, "authorization", "Bearer " <> token)
     resp = get(conn_admin, "/api/v1/kv/secret") |> json_response(200)
-    assert resp["value"] == %{"x" => 1}
+    assert resp["data"] == %{"x" => 1}
   end
 
   test "private per-user kv readable only by owner", %{conn: conn} do
@@ -81,7 +81,7 @@ defmodule GameServerWeb.Api.V1.KvControllerTest do
     {:ok, token, _} = GameServerWeb.Auth.Guardian.encode_and_sign(owner)
     conn_owner = put_req_header(conn, "authorization", "Bearer " <> token)
     resp = get(conn_owner, "/api/v1/kv/user_key?user_id=#{owner.id}") |> json_response(200)
-    assert resp["value"] == %{"v" => 2}
+    assert resp["data"] == %{"v" => 2}
 
     # another user cannot
     other = AccountsFixtures.user_fixture()

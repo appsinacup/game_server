@@ -9,7 +9,7 @@ defmodule GameServerWeb.Api.V1.KvController do
 
   @kv_schema %Schema{
     type: :object,
-    properties: %{value: %Schema{type: :object}, metadata: %Schema{type: :object}}
+    properties: %{data: %Schema{type: :object}, metadata: %Schema{type: :object}}
   }
   @error_schema %Schema{type: :object, properties: %{error: %Schema{type: :string}}}
 
@@ -81,7 +81,7 @@ defmodule GameServerWeb.Api.V1.KvController do
   defp do_get(conn, key, user_id) do
     case KV.get(key, user_id: user_id) do
       {:ok, %{value: value, metadata: metadata}} ->
-        json(conn, %{value: value, metadata: metadata})
+        json(conn, %{data: value, metadata: metadata})
 
       :error ->
         conn |> put_status(:not_found) |> json(%{error: "not_found"})
