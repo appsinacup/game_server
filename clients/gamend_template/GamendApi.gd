@@ -310,3 +310,7 @@ func leaderboards_get_my_record(id: int) -> GamendResult:
 ## List records around a user
 func leaderboards_list_records_around_user(id: int, user_id: int, limit = 11) -> GamendResult:
 	return await _call_api(LeaderboardsApi.new(_config), "list_records_around_user", [id, user_id, limit])
+
+## KV
+func kv_get_kv(key: String, user_id = null) -> GamendResult:
+	return await _call_api(KVApi.new(_config), "get_kv", [key, user_id])
