@@ -19,10 +19,16 @@ defmodule GameServerWeb.Api.V1.HookController do
     json(conn, %{data: functions})
   end
 
+  @json_schema %OpenApiSpex.Schema{
+    description: "JSON object with arbitrary properties",
+    type: :object,
+    additionalProperties: true
+  }
+
   @call_ok_schema %OpenApiSpex.Schema{
     type: :object,
     properties: %{
-      data: %OpenApiSpex.Schema{type: :any}
+      data: @json_schema
     }
   }
 
@@ -38,7 +44,7 @@ defmodule GameServerWeb.Api.V1.HookController do
          properties: %{
            plugin: %OpenApiSpex.Schema{type: :string},
            fn: %OpenApiSpex.Schema{type: :string},
-           args: %OpenApiSpex.Schema{type: :array, items: %OpenApiSpex.Schema{type: :any}}
+           args: %OpenApiSpex.Schema{type: :array, items: @json_schema}
          },
          required: [:plugin, :fn]
        }},
