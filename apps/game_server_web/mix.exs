@@ -1,10 +1,13 @@
 defmodule GameServerWeb.MixProject do
   use Mix.Project
 
+  @version "1.0.5"
+  @source_url "https://github.com/appsinacup/game_server"
+
   def project do
     [
       app: :game_server_web,
-      version: System.get_env("APP_VERSION") || "1.0.0",
+      version: System.get_env("APP_VERSION") || @version,
       elixir: "~> 1.19",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -16,7 +19,10 @@ defmodule GameServerWeb.MixProject do
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
-      compilers: [:phoenix_live_view] ++ Mix.compilers()
+      compilers: [:phoenix_live_view] ++ Mix.compilers(),
+      description: description(),
+      package: package(),
+      docs: docs(),
     ]
   end
 
@@ -75,7 +81,7 @@ defmodule GameServerWeb.MixProject do
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.39.3", only: :dev, runtime: false},
       {:guardian, "~> 2.3"},
-      {:ueberauth_steam, github: "appsinacup/ueberauth_steam", branch: "master"},
+      {:ueberauth_steam_strategy, "~> 0.1"},
       {:quantum, "~> 3.5"},
       {:corsica, "~> 2.0"}
     ]
@@ -103,6 +109,32 @@ defmodule GameServerWeb.MixProject do
         "test",
         "credo --strict"
       ]
+    ]
+  end
+
+  defp description do
+    """
+    Web interface for Gamend GameServer, built with Phoenix Framework. Provides APIs, authentication, and real-time features.
+    """
+  end
+
+  defp package do
+    [
+      name: "game_server_web",
+      licenses: ["MIT"],
+      links: %{
+        "GitHub" => @source_url,
+        "Changelog" => "#{@source_url}/blob/main/CHANGELOG.md"
+      },
+      files: ~w(lib .formatter.exs mix.exs README.md LICENSE)
+    ]
+  end
+
+  defp docs do
+    [
+      main: "readme",
+      source_ref: "v#{@version}",
+      extras: ["README.md"]
     ]
   end
 end
