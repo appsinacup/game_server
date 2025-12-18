@@ -65,7 +65,7 @@ defmodule GameServerHost.MixProject do
       {:open_api_spex, "~> 3.22"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:guardian, "~> 2.3"},
-      {:ueberauth_steam, github: "appsinacup/ueberauth_steam", branch: "master"},
+      {:ueberauth_steam_strategy, "~> 0.1"},
       {:quantum, "~> 3.5"},
       {:corsica, "~> 2.0"}
     ]
