@@ -87,11 +87,11 @@ defmodule GameServerWeb.Api.V1.HookControllerTest do
 
     body = %{"plugin" => plugin_name, "fn" => "echo", "args" => [[1, 2, 3]]}
     conn = post(conn, "/api/v1/hooks/call", body)
-    assert %{"ok" => true, "result" => [1, 2, 3]} = json_response(conn, 200)
+    assert %{"data" => [1, 2, 3]} = json_response(conn, 200)
 
     body2 = %{"plugin" => plugin_name, "fn" => "greet", "args" => []}
     conn2 = post(conn, "/api/v1/hooks/call", body2)
     id = user.id
-    assert %{"ok" => true, "result" => %{"greeted" => ^id}} = json_response(conn2, 200)
+    assert %{"data" => %{"greeted" => ^id}} = json_response(conn2, 200)
   end
 end

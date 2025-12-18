@@ -19,6 +19,13 @@ defmodule GameServerWeb.Api.V1.HookController do
     json(conn, %{data: functions})
   end
 
+  @call_ok_schema %OpenApiSpex.Schema{
+    type: :object,
+    properties: %{
+      data: %OpenApiSpex.Schema{type: :any}
+    }
+  }
+
   operation(:invoke,
     operation_id: "call_hook",
     summary: "Invoke a hook function",
@@ -36,9 +43,19 @@ defmodule GameServerWeb.Api.V1.HookController do
          required: [:plugin, :fn]
        }},
     responses: [
-      ok: {"OK", "application/json", %OpenApiSpex.Schema{type: :object}},
-      bad_request: {"Bad Request", "application/json", %OpenApiSpex.Schema{type: :object}},
-      unauthorized: {"Unauthorized", "application/json", %OpenApiSpex.Schema{type: :object}}
+      ok: {"OK", "application/json", @call_ok_schema},
+      bad_request:
+        {"Bad Request", "application/json",
+         %OpenApiSpex.Schema{
+           type: :object,
+           properties: %{error: %OpenApiSpex.Schema{type: :string}}
+         }},
+      unauthorized:
+        {"Unauthorized", "application/json",
+         %OpenApiSpex.Schema{
+           type: :object,
+           properties: %{error: %OpenApiSpex.Schema{type: :string}}
+         }}
     ]
   )
 
@@ -63,7 +80,7 @@ defmodule GameServerWeb.Api.V1.HookController do
       true ->
         case PluginManager.call_rpc(plugin, fn_name, args, caller: user) do
           {:ok, res} ->
-            json(conn, %{ok: true, result: res})
+            json(conn, %{data: res})
 
           {:error, :not_implemented} ->
             conn |> put_status(:bad_request) |> json(%{error: :not_implemented})
