@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.3">
-    <meta name="project" content="GameServer v1.0.451">
+    <meta name="project" content="GameServer v1.0.452">
 
 
-    <title>GameServer.Hooks — GameServer v1.0.451</title>
+    <title>GameServer.Hooks — GameServer v1.0.452</title>
 
     <link rel="stylesheet" href="dist/html-elixir-VYWJUHZE.css" />
 
-    <script defer src="dist/sidebar_items-005291CE.js"></script>
+    <script defer src="dist/sidebar_items-657602F1.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-XBCM4BHM.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.451
+          v1.0.452
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.Hooks</span> <small>behaviour</small>
-      <small class="app-vsn" translate="no">(GameServer v1.0.451)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.452)</small>
 
     </h1>
 
@@ -209,6 +209,14 @@ GameServer
     <div class="summary-row">
       <div class="summary-signature">
         <a href="#c:after_user_register/1" data-no-tooltip="" translate="no">after_user_register(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_kv_get/2" data-no-tooltip="" translate="no">before_kv_get(t, arg2)</a>
 
       </div>
 
@@ -652,6 +660,30 @@ when the value is a user struct or map containing <code class="inline">:id</code
       <div class="specs">
 
           <pre translate="no"><span class="attribute">@callback</span> after_user_register(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:before_kv_get/2">
+
+  <div class="detail-header">
+    <a href="#c:before_kv_get/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_kv_get(t, arg2)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_kv_get(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: <a href="#t:hook_result/1">hook_result</a>(:public | :private)</pre>
 
       </div>
 
