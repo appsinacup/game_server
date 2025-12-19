@@ -20,17 +20,21 @@ defmodule GameServer.HooksTest do
   defmodule TestHooksRegister do
     @behaviour GameServer.Hooks
 
+    @impl true
     def after_startup, do: :ok
 
+    @impl true
     def before_stop, do: :ok
 
     # After-register hook - mutate the user record in DB so tests can observe it
     # Use metadata to avoid interfering with email-based token logic.
+    @impl true
     def after_user_register(user) do
       meta = Map.put(user.metadata || %{}, "registered_hook", true)
       Repo.update!(Ecto.Changeset.change(user, metadata: meta))
     end
 
+    @impl true
     def after_user_login(user) do
       # mark metadata to signal the hook ran
       meta = Map.put(user.metadata || %{}, "hooked", true)
@@ -38,19 +42,47 @@ defmodule GameServer.HooksTest do
     end
 
     # Lobby hooks - no-op implementations for test
+    @impl true
     def before_lobby_create(attrs), do: {:ok, attrs}
+
+    @impl true
     def after_lobby_create(_lobby), do: :ok
+
+    @impl true
     def before_lobby_join(user, lobby, opts), do: {:ok, {user, lobby, opts}}
+
+    @impl true
     def after_lobby_join(_user, _lobby), do: :ok
+
+    @impl true
     def before_lobby_leave(user, lobby), do: {:ok, {user, lobby}}
+
+    @impl true
     def after_lobby_leave(_user, _lobby), do: :ok
+
+    @impl true
     def before_lobby_update(_lobby, attrs), do: {:ok, attrs}
+
+    @impl true
     def after_lobby_update(_lobby), do: :ok
+
+    @impl true
     def before_lobby_delete(lobby), do: {:ok, lobby}
+
+    @impl true
     def after_lobby_delete(_lobby), do: :ok
+
+    @impl true
     def before_user_kicked(host, target, lobby), do: {:ok, {host, target, lobby}}
+
+    @impl true
     def after_user_kicked(_host, _target, _lobby), do: :ok
+
+    @impl true
     def after_lobby_host_change(_lobby, _new_host_id), do: :ok
+
+    @impl true
+    def before_kv_get(_key, _opts), do: :public
   end
 
   test "after_user_register hook runs and can modify the created user" do
@@ -105,33 +137,67 @@ defmodule GameServer.HooksTest do
       @behaviour GameServer.Hooks
       alias GameServer.Schedule
 
+      @impl true
       def after_startup do
         # Register a scheduled callback
         Schedule.every_minutes(60, :my_scheduled_job)
         :ok
       end
 
+      @impl true
       def before_stop, do: :ok
 
       # This is a public scheduled callback - protected from RPC
       def my_scheduled_job(_context), do: :ok
 
       # Required callbacks
+      @impl true
       def after_user_register(_user), do: :ok
+
+      @impl true
       def after_user_login(_user), do: :ok
+
+      @impl true
       def before_lobby_create(attrs), do: {:ok, attrs}
+
+      @impl true
       def after_lobby_create(_lobby), do: :ok
+
+      @impl true
       def before_lobby_join(user, lobby, opts), do: {:ok, {user, lobby, opts}}
+
+      @impl true
       def after_lobby_join(_user, _lobby), do: :ok
+
+      @impl true
       def before_lobby_leave(user, lobby), do: {:ok, {user, lobby}}
+
+      @impl true
       def after_lobby_leave(_user, _lobby), do: :ok
+
+      @impl true
       def before_lobby_update(_lobby, attrs), do: {:ok, attrs}
+
+      @impl true
       def after_lobby_update(_lobby), do: :ok
+
+      @impl true
       def before_lobby_delete(lobby), do: {:ok, lobby}
+
+      @impl true
       def after_lobby_delete(_lobby), do: :ok
+
+      @impl true
       def before_user_kicked(host, target, lobby), do: {:ok, {host, target, lobby}}
+
+      @impl true
       def after_user_kicked(_host, _target, _lobby), do: :ok
+
+      @impl true
       def after_lobby_host_change(_lobby, _new_host_id), do: :ok
+
+      @impl true
+      def before_kv_get(_key, _opts), do: :public
     end
 
     alias GameServer.Hooks

@@ -71,6 +71,9 @@ defmodule GameServer.Modules.ExampleHook do
   def after_user_kicked(_host, _target, _lobby), do: :ok
 
   @impl true
+  def before_kv_get(_key, _opts), do: :public
+
+  @impl true
   def after_lobby_host_change(_lobby, _new_host_id), do: :ok
 
   @doc "Say hi to a user"

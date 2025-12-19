@@ -32,30 +32,62 @@ defmodule GameServerWeb.UserAuthTest do
 
       alias GameServer.Repo
 
+      @impl true
       def after_startup, do: :ok
 
+      @impl true
       def before_stop, do: :ok
 
+      @impl true
       def after_user_register(_user), do: :ok
 
+      @impl true
       def after_user_login(user) do
         meta = Map.put(user.metadata || %{}, "hooked_from_log_in", true)
         Repo.update!(Ecto.Changeset.change(user, metadata: meta))
       end
 
+      @impl true
       def before_lobby_create(attrs), do: {:ok, attrs}
+
+      @impl true
       def after_lobby_create(_lobby), do: :ok
+
+      @impl true
       def before_lobby_join(user, lobby, opts), do: {:ok, {user, lobby, opts}}
+
+      @impl true
       def after_lobby_join(_user, _lobby), do: :ok
+
+      @impl true
       def before_lobby_leave(user, lobby), do: {:ok, {user, lobby}}
+
+      @impl true
       def after_lobby_leave(_user, _lobby), do: :ok
+
+      @impl true
       def before_lobby_update(_lobby, attrs), do: {:ok, attrs}
+
+      @impl true
       def after_lobby_update(_lobby), do: :ok
+
+      @impl true
       def before_lobby_delete(lobby), do: {:ok, lobby}
+
+      @impl true
       def after_lobby_delete(_lobby), do: :ok
+
+      @impl true
       def before_user_kicked(host, target, lobby), do: {:ok, {host, target, lobby}}
+
+      @impl true
       def after_user_kicked(_host, _target, _lobby), do: :ok
+
+      @impl true
       def after_lobby_host_change(_lobby, _new_host_id), do: :ok
+
+      @impl true
+      def before_kv_get(_key, _opts), do: :public
     end
 
     test "stores the user token in the session", %{conn: conn, user: user} do

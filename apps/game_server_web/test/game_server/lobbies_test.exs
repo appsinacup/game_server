@@ -65,6 +65,9 @@ defmodule GameServer.LobbiesTest do
 
       @impl true
       def after_lobby_host_change(_lobby, _new_host_id), do: :ok
+
+      @impl true
+      def before_kv_get(_key, _opts), do: :public
     end
 
     setup do

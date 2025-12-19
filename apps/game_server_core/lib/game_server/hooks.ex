@@ -214,7 +214,8 @@ defmodule GameServer.Hooks do
       :after_lobby_delete,
       :before_user_kicked,
       :after_user_kicked,
-      :after_lobby_host_change
+      :after_lobby_host_change,
+      :before_kv_get
     ])
   end
 
