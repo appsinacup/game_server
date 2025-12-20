@@ -3,6 +3,7 @@ defmodule GameServerWeb.UserLive.Settings do
 
   alias GameServer.Accounts
   alias GameServer.Friends
+  alias GameServer.KV
   # Repo / Ecto.Query not needed in settings LiveView
 
   @impl true
@@ -344,6 +345,91 @@ defmodule GameServerWeb.UserLive.Settings do
         </div>
       </div>
 
+      <div class="card bg-base-200 p-4 rounded-lg mt-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="font-semibold text-lg">Data</div>
+            <div class="text-sm text-base-content/70">View your User Data</div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <.form
+            for={@kv_filter_form}
+            id="kv-filters"
+            phx-change="kv_filters_change"
+            phx-submit="kv_filters_apply"
+          >
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <.input
+                field={@kv_filter_form[:key]}
+                type="text"
+                label="Key contains"
+                phx-debounce="300"
+              />
+            </div>
+            <div class="flex gap-2 mt-2">
+              <button type="submit" class="btn btn-sm btn-outline">Apply</button>
+              <button type="button" phx-click="kv_filters_clear" class="btn btn-sm btn-ghost">
+                Clear
+              </button>
+            </div>
+          </.form>
+        </div>
+
+        <div class="overflow-x-auto mt-4">
+          <table id="user-kv-table" class="table table-zebra w-full table-fixed">
+            <colgroup>
+              <col class="w-16" />
+              <col class="w-[40%]" />
+              <col class="w-40" />
+              <col class="w-[20%]" />
+              <col class="w-[20%]" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th class="w-16">ID</th>
+                <th class="font-mono text-sm break-all">Key</th>
+                <th class="w-40">Updated</th>
+                <th>Value</th>
+                <th>Metadata</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr :for={e <- @kv_entries} id={"user-kv-" <> to_string(e.id)}>
+                <td class="font-mono text-sm w-16">{e.id}</td>
+                <td class="font-mono text-sm break-all">{e.key}</td>
+                <td class="text-sm w-40">
+                  <span class="font-mono text-xs">
+                    {if e.updated_at, do: DateTime.to_iso8601(e.updated_at), else: "-"}
+                  </span>
+                </td>
+                <td class="text-sm">
+                  <pre class="text-xs font-mono whitespace-pre-wrap max-h-24 overflow-auto bg-base-100/60 rounded p-2">{json_preview(e.value)}</pre>
+                </td>
+                <td class="text-sm">
+                  <pre class="text-xs font-mono whitespace-pre-wrap max-h-24 overflow-auto bg-base-100/60 rounded p-2">{json_preview(e.metadata)}</pre>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-4 flex gap-2 items-center">
+          <button phx-click="kv_prev" class="btn btn-xs" disabled={@kv_page <= 1}>Prev</button>
+          <div class="text-xs text-base-content/70">
+            page {@kv_page} / {@kv_total_pages} ({@kv_count} total)
+          </div>
+          <button
+            phx-click="kv_next"
+            class="btn btn-xs"
+            disabled={@kv_page >= @kv_total_pages || @kv_total_pages == 0}
+          >
+            Next
+          </button>
+        </div>
+      </div>
+
       <div class="card bg-base-200 p-4 rounded-lg">
         <div class="font-semibold">Linked Accounts</div>
         <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -580,6 +666,15 @@ defmodule GameServerWeb.UserLive.Settings do
       |> assign(:search_page_size, 25)
       |> assign(:search_total, 0)
       |> assign(:search_total_pages, 0)
+      |> assign(:kv_page, 1)
+      |> assign(:kv_page_size, 50)
+      |> assign(:kv_key_filter, nil)
+      |> assign(:kv_filter_form, to_form(%{"key" => ""}, as: :filters))
+      |> assign(:kv_entries, [])
+      |> assign(:kv_count, 0)
+      |> assign(:kv_total_pages, 0)
+
+    socket = reload_kv_entries(socket)
 
     if connected?(socket) do
       Friends.subscribe_user(user.id)
@@ -686,6 +781,40 @@ defmodule GameServerWeb.UserLive.Settings do
            search_total: total,
            search_total_pages: total_pages
          )}
+
+      {"kv_prev", _} ->
+        page = max(1, (socket.assigns.kv_page || 1) - 1)
+
+        {:noreply, socket |> assign(:kv_page, page) |> reload_kv_entries()}
+
+      {"kv_next", _} ->
+        page = (socket.assigns.kv_page || 1) + 1
+
+        {:noreply, socket |> assign(:kv_page, page) |> reload_kv_entries()}
+
+      {"kv_filters_change", %{"filters" => params}} ->
+        socket = assign(socket, :kv_filter_form, to_form(params, as: :filters))
+        key = (Map.get(params, "key") || "") |> String.trim()
+        key = if key == "", do: nil, else: String.downcase(key)
+
+        {:noreply,
+         socket |> assign(:kv_key_filter, key) |> assign(:kv_page, 1) |> reload_kv_entries()}
+
+      {"kv_filters_apply", %{"filters" => params}} ->
+        socket = assign(socket, :kv_filter_form, to_form(params, as: :filters))
+        key = (Map.get(params, "key") || "") |> String.trim()
+        key = if key == "", do: nil, else: String.downcase(key)
+
+        {:noreply,
+         socket |> assign(:kv_key_filter, key) |> assign(:kv_page, 1) |> reload_kv_entries()}
+
+      {"kv_filters_clear", _} ->
+        {:noreply,
+         socket
+         |> assign(:kv_key_filter, nil)
+         |> assign(:kv_filter_form, to_form(%{"key" => ""}, as: :filters))
+         |> assign(:kv_page, 1)
+         |> reload_kv_entries()}
 
       {"accept_friend", %{"id" => id}} ->
         id = if is_binary(id), do: String.to_integer(id), else: id
@@ -967,6 +1096,47 @@ defmodule GameServerWeb.UserLive.Settings do
       blocked_total_pages: blocked_total_pages
     )
   end
+
+  defp reload_kv_entries(socket) do
+    page = socket.assigns.kv_page || 1
+    page_size = socket.assigns.kv_page_size || 50
+    key = socket.assigns.kv_key_filter
+    user = socket.assigns.user
+
+    entries = KV.list_entries(page: page, page_size: page_size, key: key, user_id: user.id)
+    count = KV.count_entries(key: key, user_id: user.id)
+    total_pages = if page_size > 0, do: div(count + page_size - 1, page_size), else: 0
+
+    socket
+    |> assign(:kv_entries, entries)
+    |> assign(:kv_count, count)
+    |> assign(:kv_total_pages, total_pages)
+    |> clamp_kv_page()
+  end
+
+  defp clamp_kv_page(socket) do
+    page = socket.assigns.kv_page
+    total_pages = socket.assigns.kv_total_pages
+
+    page =
+      cond do
+        total_pages == 0 -> 1
+        page < 1 -> 1
+        page > total_pages -> total_pages
+        true -> page
+      end
+
+    assign(socket, :kv_page, page)
+  end
+
+  defp json_preview(nil), do: ""
+
+  defp json_preview(map) when is_map(map) do
+    Jason.encode!(map)
+    |> String.slice(0, 2048)
+  end
+
+  defp json_preview(_), do: ""
 
   defp get_user_from_scope(%{current_scope: %{user: user}}), do: user
   defp get_user_from_scope(_), do: nil

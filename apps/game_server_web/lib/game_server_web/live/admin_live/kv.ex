@@ -109,24 +109,33 @@ defmodule GameServerWeb.AdminLive.KV do
             </div>
 
             <div class="overflow-x-auto mt-4">
-              <table id="admin-kv-table" class="table table-zebra w-full">
+              <table id="admin-kv-table" class="table table-zebra w-full table-fixed">
+                <colgroup>
+                  <col class="w-16" />
+                  <col class="w-[40%]" />
+                  <col class="w-20" />
+                  <col class="w-40" />
+                  <col class="w-[20%]" />
+                  <col class="w-[20%]" />
+                  <col class="w-32" />
+                </colgroup>
                 <thead>
                   <tr>
-                    <th>ID</th>
-                    <th>Key</th>
-                    <th>User</th>
-                    <th>Updated</th>
+                    <th class="w-16">ID</th>
+                    <th class="font-mono text-sm break-all">Key</th>
+                    <th class="w-20">User</th>
+                    <th class="w-40">Updated</th>
                     <th>Value</th>
                     <th>Metadata</th>
-                    <th>Actions</th>
+                    <th class="w-32">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr :for={e <- @entries} id={"admin-kv-" <> to_string(e.id)}>
-                    <td class="font-mono text-sm">{e.id}</td>
+                    <td class="font-mono text-sm w-16">{e.id}</td>
                     <td class="font-mono text-sm break-all">{e.key}</td>
-                    <td class="font-mono text-sm">{e.user_id || ""}</td>
-                    <td class="text-sm">
+                    <td class="font-mono text-sm w-20">{e.user_id || ""}</td>
+                    <td class="text-sm w-40">
                       <span class="font-mono text-xs">
                         {if e.updated_at, do: DateTime.to_iso8601(e.updated_at), else: "-"}
                       </span>
@@ -137,7 +146,7 @@ defmodule GameServerWeb.AdminLive.KV do
                     <td class="text-sm">
                       <pre class="text-xs font-mono whitespace-pre-wrap max-h-24 overflow-auto bg-base-100/60 rounded p-2">{json_preview(e.metadata)}</pre>
                     </td>
-                    <td class="text-sm whitespace-nowrap">
+                    <td class="text-sm whitespace-nowrap w-32">
                       <button
                         type="button"
                         phx-click="edit_entry"
