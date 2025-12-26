@@ -19,6 +19,14 @@ defmodule GameServer.Hooks do
 
   @type hook_result(attrs_or_user) :: {:ok, attrs_or_user} | {:error, term()}
 
+  @typedoc """
+  Options passed to hooks that accept an options map/keyword list.
+
+  Common keys include `:user_id` (pos_integer) and other domain-specific
+  options. Hooks may accept either a map or keyword list for convenience.
+  """
+  @type kv_opts :: map() | keyword()
+
   @callback after_startup() :: any()
 
   @callback before_stop() :: any()
@@ -47,10 +55,15 @@ defmodule GameServer.Hooks do
               hook_result({User.t(), User.t(), term()})
   @callback after_user_kicked(User.t(), User.t(), term()) :: any()
 
-  # KV access hook: called before a KV get. Plugins may return :public or :private
-  # to signal whether the key should be publicly readable. By default the hook
-  # implementation returns :public (see GameServer.Hooks.Default).
-  @callback before_kv_get(String.t(), map() | keyword()) :: hook_result(:public | :private)
+  @doc """
+  Called before a KV `get/2` is performed. Implementations should return
+  `:public` if the key may be read publicly, or `:private` to restrict access.
+
+  Receives the `key` and an `opts` map/keyword (see `t:kv_opts/0`). Return
+  either the bare atom (e.g. `:public`) or `{:ok, :public}`; return `{:error, reason}`
+  to block the read.
+  """
+  @callback before_kv_get(String.t(), kv_opts()) :: hook_result(:public | :private)
 
   @callback after_lobby_host_change(term(), term()) :: any()
 
@@ -755,5 +768,8 @@ defmodule GameServer.Hooks.Default do
   def after_lobby_host_change(_lobby, _new_host_id), do: :ok
 
   @impl true
+  @doc """
+  Default implementation for `before_kv_get/2` — always allow public reads.
+  """
   def before_kv_get(_key, _opts), do: :public
 end

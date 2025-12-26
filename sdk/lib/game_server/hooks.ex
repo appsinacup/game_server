@@ -118,6 +118,7 @@ defmodule GameServer.Hooks do
   - `before_user_kicked/3` - Before user is kicked from lobby
   - `after_user_kicked/3` - After user is kicked from lobby
   - `after_lobby_host_change/2` - After lobby host changes
+  - `before_kv_get/2` - Called before a KV `get` to determine whether a key should be publicly readable (`:public`) or restricted (`:private`)
 
   ## Custom RPC Functions
 
@@ -147,6 +148,14 @@ defmodule GameServer.Hooks do
   @typedoc "Result type for before hooks"
   @type hook_result(t) :: {:ok, t} | {:error, term()}
 
+  @typedoc """
+  Options passed to hooks that accept an options map/keyword list.
+
+  Common keys include `:user_id` (pos_integer) and other domain-specific
+  options. Hooks may accept either a map or keyword list for convenience.
+  """
+  @type kv_opts :: map() | keyword()
+
   # Startup/shutdown callbacks
   @callback after_startup() :: any()
   @callback before_stop() :: any()
@@ -175,6 +184,16 @@ defmodule GameServer.Hooks do
   @callback before_user_kicked(host :: user(), target :: user(), lobby()) ::
               hook_result({user(), user(), lobby()})
   @callback after_user_kicked(host :: user(), target :: user(), lobby()) :: any()
+
+  @doc """
+  Called before a KV `get/2` is performed. Implementations should return
+  `:public` if the key may be read publicly, or `:private` to restrict access.
+
+  Receives the `key` and an `opts` map/keyword (see `t:kv_opts/0`). Return
+  either the bare atom (e.g. `:public`) or `{:ok, :public}`; return `{:error, reason}`
+  to block the read.
+  """
+  @callback before_kv_get(String.t(), kv_opts()) :: hook_result(:public | :private)
 
   @callback after_lobby_host_change(lobby(), new_host_id :: integer()) :: any()
 
@@ -250,6 +269,9 @@ defmodule GameServer.Hooks do
       @impl true
       def after_lobby_host_change(_lobby, _new_host_id), do: :ok
 
+      @impl true
+      def before_kv_get(_key, _opts), do: :public
+
       defoverridable after_user_register: 1,
                      after_user_login: 1,
                      before_lobby_create: 1,
@@ -264,7 +286,8 @@ defmodule GameServer.Hooks do
                      after_lobby_delete: 1,
                      before_user_kicked: 3,
                      after_user_kicked: 3,
-                     after_lobby_host_change: 2
+                     after_lobby_host_change: 2,
+                     before_kv_get: 2
     end
   end
 
