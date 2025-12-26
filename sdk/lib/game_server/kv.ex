@@ -15,9 +15,28 @@ defmodule GameServer.KV do
   The actual implementation runs on the GameServer.
   """
 
+  @type list_opts() :: [
+  page: pos_integer(),
+  page_size: pos_integer(),
+  user_id: pos_integer(),
+  key: String.t()
+]
+  @type attrs() :: %{
+  :key => String.t(),
+  optional(:user_id) => pos_integer(),
+  :value => value(),
+  optional(:metadata) => metadata()
+}
+  @type payload() :: %{value: value(), metadata: metadata()}
+  @type metadata() :: map()
+  @type value() :: map()
 
-
-  @doc false
+  @doc ~S"""
+    Count the number of entries that match the optional filter.
+    
+    Accepts the same options as `list_entries/1` (see `t:list_opts/0`). Returns a non-negative integer.
+    
+  """
   @spec count_entries() :: non_neg_integer()
   def count_entries() do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -30,8 +49,13 @@ defmodule GameServer.KV do
   end
 
 
-  @doc false
-  @spec count_entries(keyword()) :: non_neg_integer()
+  @doc ~S"""
+    Count the number of entries that match the optional filter.
+    
+    Accepts the same options as `list_entries/1` (see `t:list_opts/0`). Returns a non-negative integer.
+    
+  """
+  @spec count_entries(list_opts()) :: non_neg_integer()
   def count_entries(_opts) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -43,8 +67,12 @@ defmodule GameServer.KV do
   end
 
 
-  @doc false
-  @spec create_entry(map()) :: {:ok, GameServer.KV.Entry.t()} | {:error, Ecto.Changeset.t()}
+  @doc ~S"""
+    Create a new `Entry` from `attrs` (expecting `key`, optional `user_id`, `value`, `metadata`).
+    Returns `{:ok, entry}` or `{:error, changeset}`.
+    
+  """
+  @spec create_entry(attrs()) :: {:ok, GameServer.KV.Entry.t()} | {:error, Ecto.Changeset.t()}
   def create_entry(_attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -56,7 +84,12 @@ defmodule GameServer.KV do
   end
 
 
-  @doc false
+  @doc ~S"""
+    Delete the entry at `key`.
+    
+    Pass `user_id: id` in `opts` to delete a per-user key. Returns `:ok`.
+    
+  """
   @spec delete(String.t()) :: :ok
   def delete(_key) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -69,7 +102,12 @@ defmodule GameServer.KV do
   end
 
 
-  @doc false
+  @doc ~S"""
+    Delete the entry at `key`.
+    
+    Pass `user_id: id` in `opts` to delete a per-user key. Returns `:ok`.
+    
+  """
   @spec delete(
   String.t(),
   keyword()
@@ -85,7 +123,12 @@ defmodule GameServer.KV do
   end
 
 
-  @doc false
+  @doc ~S"""
+    Delete an entry by its `id`.
+    
+    Returns `:ok` whether or not the entry existed.
+    
+  """
   @spec delete_entry(pos_integer()) :: :ok
   def delete_entry(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -98,8 +141,14 @@ defmodule GameServer.KV do
   end
 
 
-  @doc false
-  @spec get(String.t()) :: {:ok, %{value: map(), metadata: map()}} | :error
+  @doc ~S"""
+    Retrieve the value and metadata stored for `key`.
+    
+    Pass `user_id: id` in `opts` to scope the lookup to a specific user.
+    Returns `{:ok, %{value: map(), metadata: map()}}` when found, or `:error` when not present.
+    
+  """
+  @spec get(String.t()) :: {:ok, payload()} | :error
   def get(_key) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -111,11 +160,17 @@ defmodule GameServer.KV do
   end
 
 
-  @doc false
+  @doc ~S"""
+    Retrieve the value and metadata stored for `key`.
+    
+    Pass `user_id: id` in `opts` to scope the lookup to a specific user.
+    Returns `{:ok, %{value: map(), metadata: map()}}` when found, or `:error` when not present.
+    
+  """
   @spec get(
   String.t(),
   keyword()
-) :: {:ok, %{value: map(), metadata: map()}} | :error
+) :: {:ok, payload()} | :error
   def get(_key, _opts) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -127,7 +182,11 @@ defmodule GameServer.KV do
   end
 
 
-  @doc false
+  @doc ~S"""
+    Fetch an `Entry` by its numeric `id`.
+    Returns the `Entry` struct or `nil` if not found.
+    
+  """
   @spec get_entry(pos_integer()) :: GameServer.KV.Entry.t() | nil
   def get_entry(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -140,7 +199,14 @@ defmodule GameServer.KV do
   end
 
 
-  @doc false
+  @doc ~S"""
+    List key/value entries with optional pagination and filtering.
+    
+    Supported options: `:page`, `:page_size`, `:user_id`, and `:key` (substring filter).
+    See `t:list_opts/0` for the expected option types.
+    Returns a list of `Entry` structs ordered by most recently updated.
+    
+  """
   @spec list_entries() :: [GameServer.KV.Entry.t()]
   def list_entries() do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -153,8 +219,15 @@ defmodule GameServer.KV do
   end
 
 
-  @doc false
-  @spec list_entries(keyword()) :: [GameServer.KV.Entry.t()]
+  @doc ~S"""
+    List key/value entries with optional pagination and filtering.
+    
+    Supported options: `:page`, `:page_size`, `:user_id`, and `:key` (substring filter).
+    See `t:list_opts/0` for the expected option types.
+    Returns a list of `Entry` structs ordered by most recently updated.
+    
+  """
+  @spec list_entries(list_opts()) :: [GameServer.KV.Entry.t()]
   def list_entries(_opts) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -166,8 +239,14 @@ defmodule GameServer.KV do
   end
 
 
-  @doc false
-  @spec put(String.t(), map()) :: {:ok, GameServer.KV.Entry.t()} | {:error, Ecto.Changeset.t()}
+  @doc ~S"""
+    Store `value` with optional `metadata` at `key`.
+    
+    When using the 4-arity, supported options include `user_id: id` to scope the entry to a user.
+    Returns `{:ok, entry}` on success or `{:error, changeset}` on validation failure.
+    
+  """
+  @spec put(String.t(), value()) :: {:ok, GameServer.KV.Entry.t()} | {:error, Ecto.Changeset.t()}
   def put(_key, _value) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -180,7 +259,8 @@ defmodule GameServer.KV do
 
 
   @doc false
-  @spec put(String.t(), map(), map()) :: {:ok, GameServer.KV.Entry.t()} | {:error, Ecto.Changeset.t()}
+  @spec put(String.t(), value(), metadata()) ::
+  {:ok, GameServer.KV.Entry.t()} | {:error, Ecto.Changeset.t()}
   def put(_key, _value, _metadata) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -192,8 +272,14 @@ defmodule GameServer.KV do
   end
 
 
-  @doc false
-  @spec put(String.t(), map(), map(), keyword()) ::
+  @doc ~S"""
+    Store `value` with optional `metadata` at `key`.
+    
+    When using the 4-arity, supported options include `user_id: id` to scope the entry to a user.
+    Returns `{:ok, entry}` on success or `{:error, changeset}` on validation failure.
+    
+  """
+  @spec put(String.t(), value(), metadata(), list_opts()) ::
   {:ok, GameServer.KV.Entry.t()} | {:error, Ecto.Changeset.t()}
   def put(_key, _value, _metadata, _opts) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -206,8 +292,12 @@ defmodule GameServer.KV do
   end
 
 
-  @doc false
-  @spec update_entry(pos_integer(), map()) ::
+  @doc ~S"""
+    Update an existing entry by `id` with `attrs`.
+    Returns `{:ok, entry}`, `{:error, :not_found}` if missing, or `{:error, changeset}` on validation error.
+    
+  """
+  @spec update_entry(pos_integer(), attrs()) ::
   {:ok, GameServer.KV.Entry.t()} | {:error, :not_found} | {:error, Ecto.Changeset.t()}
   def update_entry(_id, _attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do

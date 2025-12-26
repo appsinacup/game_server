@@ -16,6 +16,53 @@ defmodule GameServer.KV do
   alias GameServer.KV.Entry
   alias GameServer.Repo
 
+  @typedoc """
+  Value stored for a key. This is an arbitrary map and should contain JSON-serializable data.
+  """
+  @type value :: map()
+
+  @typedoc """
+  Metadata stored alongside a value. Typically a small map with auxiliary fields.
+  """
+  @type metadata :: map()
+
+  @typedoc """
+  Payload returned by `get/1` and `get/2`.
+  """
+  @type payload :: %{value: value(), metadata: metadata()}
+
+  @typedoc """
+  Attributes used when creating or updating entries.
+
+  Expected keys (atom keys recommended):
+  - `:key` — the entry key (`String.t()`)
+  - `:user_id` — optional user id (`pos_integer()`)
+  - `:value` — the stored value (`value()`)
+  - `:metadata` — optional metadata (`metadata()`)
+  """
+  @type attrs :: %{
+          required(:key) => String.t(),
+          optional(:user_id) => pos_integer(),
+          required(:value) => value(),
+          optional(:metadata) => metadata()
+        }
+
+  @typedoc """
+  Options accepted by `list_entries/1` and `count_entries/1`.
+
+  Keys (all optional):
+  - `:page` — page number (`pos_integer()`, defaults to `1`)
+  - `:page_size` — page size (`pos_integer()`, defaults to `50`)
+  - `:user_id` — filter by user id (`pos_integer()`)
+  - `:key` — substring filter (`String.t()`)
+  """
+  @type list_opts :: [
+          page: pos_integer(),
+          page_size: pos_integer(),
+          user_id: pos_integer(),
+          key: String.t()
+        ]
+
   @kv_cache_ttl_ms 60_000
 
   defp entries_cache_version(:all) do
@@ -36,8 +83,14 @@ defmodule GameServer.KV do
     _ = GameServer.Cache.incr({:kv, :entries_version, user_id}, 1, default: 1)
     :ok
   end
-  @spec get(String.t()) :: {:ok, %{value: map(), metadata: map()}} | :error
-  @spec get(String.t(), keyword()) :: {:ok, %{value: map(), metadata: map()}} | :error
+  @doc """
+  Retrieve the value and metadata stored for `key`.
+
+  Pass `user_id: id` in `opts` to scope the lookup to a specific user.
+  Returns `{:ok, %{value: map(), metadata: map()}}` when found, or `:error` when not present.
+  """
+  @spec get(String.t()) :: {:ok, payload()} | :error
+  @spec get(String.t(), keyword()) :: {:ok, payload()} | :error
   def get(key, opts \\ []) when is_binary(key) and is_list(opts) do
     user_id = Keyword.get(opts, :user_id)
 
@@ -58,14 +111,20 @@ defmodule GameServer.KV do
     end
   end
 
-  @spec put(String.t(), map()) :: {:ok, Entry.t()} | {:error, Ecto.Changeset.t()}
-  @spec put(String.t(), map(), map()) :: {:ok, Entry.t()} | {:error, Ecto.Changeset.t()}
+  @spec put(String.t(), value()) :: {:ok, Entry.t()} | {:error, Ecto.Changeset.t()}
+  @spec put(String.t(), value(), metadata()) :: {:ok, Entry.t()} | {:error, Ecto.Changeset.t()}
   def put(key, value, metadata \\ %{})
       when is_binary(key) and is_map(value) and is_map(metadata) do
     put(key, value, metadata, [])
   end
 
-  @spec put(String.t(), map(), map(), keyword()) ::
+  @doc """
+  Store `value` with optional `metadata` at `key`.
+
+  When using the 4-arity, supported options include `user_id: id` to scope the entry to a user.
+  Returns `{:ok, entry}` on success or `{:error, changeset}` on validation failure.
+  """
+  @spec put(String.t(), value(), metadata(), list_opts()) ::
           {:ok, Entry.t()} | {:error, Ecto.Changeset.t()}
   def put(key, value, metadata, opts)
       when is_binary(key) and is_map(value) and is_map(metadata) and is_list(opts) do
@@ -118,6 +177,11 @@ defmodule GameServer.KV do
         end
     end
   end
+  @doc """
+  Delete the entry at `key`.
+
+  Pass `user_id: id` in `opts` to delete a per-user key. Returns `:ok`.
+  """
   @spec delete(String.t()) :: :ok
   @spec delete(String.t(), keyword()) :: :ok
   def delete(key, opts \\ []) when is_binary(key) and is_list(opts) do
@@ -127,8 +191,15 @@ defmodule GameServer.KV do
     _ = invalidate_entries_cache(user_id)
     :ok
   end
+  @doc """
+  List key/value entries with optional pagination and filtering.
+
+  Supported options: `:page`, `:page_size`, `:user_id`, and `:key` (substring filter).
+  See `t:list_opts/0` for the expected option types.
+  Returns a list of `Entry` structs ordered by most recently updated.
+  """
   @spec list_entries() :: [Entry.t()]
-  @spec list_entries(keyword()) :: [Entry.t()]
+  @spec list_entries(list_opts()) :: [Entry.t()]
   def list_entries(opts \\ []) when is_list(opts) do
     page = Keyword.get(opts, :page, 1)
     page_size = Keyword.get(opts, :page_size, 50)
@@ -166,8 +237,13 @@ defmodule GameServer.KV do
         entries
     end
   end
+  @doc """
+  Count the number of entries that match the optional filter.
+
+  Accepts the same options as `list_entries/1` (see `t:list_opts/0`). Returns a non-negative integer.
+  """
   @spec count_entries() :: non_neg_integer()
-  @spec count_entries(keyword()) :: non_neg_integer()
+  @spec count_entries(list_opts()) :: non_neg_integer()
   def count_entries(opts \\ []) when is_list(opts) do
     user_id = Keyword.get(opts, :user_id)
     key_filter = normalize_key_filter(Keyword.get(opts, :key))
@@ -195,12 +271,20 @@ defmodule GameServer.KV do
     end
   end
 
+  @doc """
+  Fetch an `Entry` by its numeric `id`.
+  Returns the `Entry` struct or `nil` if not found.
+  """
   @spec get_entry(pos_integer()) :: Entry.t() | nil
   def get_entry(id) when is_integer(id) and id > 0 do
     Repo.get(Entry, id)
   end
 
-  @spec create_entry(map()) :: {:ok, Entry.t()} | {:error, Ecto.Changeset.t()}
+  @doc """
+  Create a new `Entry` from `attrs` (expecting `key`, optional `user_id`, `value`, `metadata`).
+  Returns `{:ok, entry}` or `{:error, changeset}`.
+  """
+  @spec create_entry(attrs()) :: {:ok, Entry.t()} | {:error, Ecto.Changeset.t()}
   def create_entry(attrs) when is_map(attrs) do
     changeset = Entry.changeset(%Entry{}, attrs)
 
@@ -229,7 +313,11 @@ defmodule GameServer.KV do
     end
   end
 
-  @spec update_entry(pos_integer(), map()) ::
+  @doc """
+  Update an existing entry by `id` with `attrs`.
+  Returns `{:ok, entry}`, `{:error, :not_found}` if missing, or `{:error, changeset}` on validation error.
+  """
+  @spec update_entry(pos_integer(), attrs()) ::
           {:ok, Entry.t()} | {:error, :not_found} | {:error, Ecto.Changeset.t()}
   def update_entry(id, attrs) when is_integer(id) and id > 0 and is_map(attrs) do
     case Repo.get(Entry, id) do
@@ -272,6 +360,11 @@ defmodule GameServer.KV do
     end
   end
 
+  @doc """
+  Delete an entry by its `id`.
+
+  Returns `:ok` whether or not the entry existed.
+  """
   @spec delete_entry(pos_integer()) :: :ok
   def delete_entry(id) when is_integer(id) and id > 0 do
     case Repo.get(Entry, id) do
