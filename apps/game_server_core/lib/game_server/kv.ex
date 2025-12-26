@@ -83,6 +83,7 @@ defmodule GameServer.KV do
     _ = GameServer.Cache.incr({:kv, :entries_version, user_id}, 1, default: 1)
     :ok
   end
+
   @doc """
   Retrieve the value and metadata stored for `key`.
 
@@ -177,6 +178,7 @@ defmodule GameServer.KV do
         end
     end
   end
+
   @doc """
   Delete the entry at `key`.
 
@@ -191,6 +193,7 @@ defmodule GameServer.KV do
     _ = invalidate_entries_cache(user_id)
     :ok
   end
+
   @doc """
   List key/value entries with optional pagination and filtering.
 
@@ -237,6 +240,7 @@ defmodule GameServer.KV do
         entries
     end
   end
+
   @doc """
   Count the number of entries that match the optional filter.
 
