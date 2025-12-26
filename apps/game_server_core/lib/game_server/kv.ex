@@ -36,7 +36,7 @@ defmodule GameServer.KV do
     _ = GameServer.Cache.incr({:kv, :entries_version, user_id}, 1, default: 1)
     :ok
   end
-
+  @spec get(String.t()) :: {:ok, %{value: map(), metadata: map()}} | :error
   @spec get(String.t(), keyword()) :: {:ok, %{value: map(), metadata: map()}} | :error
   def get(key, opts \\ []) when is_binary(key) and is_list(opts) do
     user_id = Keyword.get(opts, :user_id)
@@ -58,6 +58,7 @@ defmodule GameServer.KV do
     end
   end
 
+  @spec put(String.t(), map()) :: {:ok, Entry.t()} | {:error, Ecto.Changeset.t()}
   @spec put(String.t(), map(), map()) :: {:ok, Entry.t()} | {:error, Ecto.Changeset.t()}
   def put(key, value, metadata \\ %{})
       when is_binary(key) and is_map(value) and is_map(metadata) do
@@ -117,7 +118,7 @@ defmodule GameServer.KV do
         end
     end
   end
-
+  @spec delete(String.t()) :: :ok
   @spec delete(String.t(), keyword()) :: :ok
   def delete(key, opts \\ []) when is_binary(key) and is_list(opts) do
     user_id = Keyword.get(opts, :user_id)
@@ -126,7 +127,7 @@ defmodule GameServer.KV do
     _ = invalidate_entries_cache(user_id)
     :ok
   end
-
+  @spec list_entries() :: [Entry.t()]
   @spec list_entries(keyword()) :: [Entry.t()]
   def list_entries(opts \\ []) when is_list(opts) do
     page = Keyword.get(opts, :page, 1)
@@ -165,7 +166,7 @@ defmodule GameServer.KV do
         entries
     end
   end
-
+  @spec count_entries() :: non_neg_integer()
   @spec count_entries(keyword()) :: non_neg_integer()
   def count_entries(opts \\ []) when is_list(opts) do
     user_id = Keyword.get(opts, :user_id)

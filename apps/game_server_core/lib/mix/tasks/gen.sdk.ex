@@ -20,7 +20,8 @@ defmodule Mix.Tasks.Gen.Sdk do
     {GameServer.Lobbies, "lobbies.ex"},
     {GameServer.Leaderboards, "leaderboards.ex"},
     {GameServer.Friends, "friends.ex"},
-    {GameServer.Schedule, "schedule.ex"}
+    {GameServer.Schedule, "schedule.ex"},
+    {GameServer.KV, "kv.ex"}
   ]
 
   @impl Mix.Task
