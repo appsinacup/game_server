@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.3">
-    <meta name="project" content="GameServer v1.0.460">
+    <meta name="project" content="GameServer v1.0.464">
 
 
-    <title>GameServer.KV — GameServer v1.0.460</title>
+    <title>GameServer.KV — GameServer v1.0.464</title>
 
     <link rel="stylesheet" href="dist/html-elixir-VYWJUHZE.css" />
 
-    <script defer src="dist/sidebar_items-657602F1.js"></script>
+    <script defer src="dist/sidebar_items-66CF14A9.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-XBCM4BHM.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.460
+          v1.0.464
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.KV</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.460)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.464)</small>
 
     </h1>
 
@@ -116,6 +116,62 @@ Writes update the cache and deletes evict it.</p>
       </a>
       <span class="text">Summary</span>
     </h1>
+<div class="summary-types summary">
+  <h2>
+    <a href="#types">Types</a>
+  </h2>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:attrs/0" data-no-tooltip="" translate="no">attrs()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Attributes used when creating or updating entries.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:list_opts/0" data-no-tooltip="" translate="no">list_opts()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Options accepted by <a href="#list_entries/1"><code class="inline">list_entries/1</code></a> and <a href="#count_entries/1"><code class="inline">count_entries/1</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:metadata/0" data-no-tooltip="" translate="no">metadata()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Metadata stored alongside a value. Typically a small map with auxiliary fields.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:payload/0" data-no-tooltip="" translate="no">payload()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Payload returned by <a href="#get/1"><code class="inline">get/1</code></a> and <a href="#get/2"><code class="inline">get/2</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:value/0" data-no-tooltip="" translate="no">value()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Value stored for a key. This is an arbitrary map and should contain JSON-serializable data.</p></div>
+
+    </div>
+
+</div>
 <div class="summary-functions summary">
   <h2>
     <a href="#functions">Functions</a>
@@ -127,6 +183,8 @@ Writes update the cache and deletes evict it.</p>
 
       </div>
 
+        <div class="summary-synopsis"><p>Count the number of entries that match the optional filter.</p></div>
+
     </div>
 
     <div class="summary-row">
@@ -134,6 +192,9 @@ Writes update the cache and deletes evict it.</p>
         <a href="#create_entry/1" data-no-tooltip="" translate="no">create_entry(attrs)</a>
 
       </div>
+
+        <div class="summary-synopsis"><p>Create a new <code class="inline">Entry</code> from <code class="inline">attrs</code> (expecting <code class="inline">key</code>, optional <code class="inline">user_id</code>, <code class="inline">value</code>, <code class="inline">metadata</code>).
+Returns <code class="inline">{:ok, entry}</code> or <code class="inline">{:error, changeset}</code>.</p></div>
 
     </div>
 
@@ -143,6 +204,8 @@ Writes update the cache and deletes evict it.</p>
 
       </div>
 
+        <div class="summary-synopsis"><p>Delete the entry at <code class="inline">key</code>.</p></div>
+
     </div>
 
     <div class="summary-row">
@@ -150,6 +213,8 @@ Writes update the cache and deletes evict it.</p>
         <a href="#delete_entry/1" data-no-tooltip="" translate="no">delete_entry(id)</a>
 
       </div>
+
+        <div class="summary-synopsis"><p>Delete an entry by its <code class="inline">id</code>.</p></div>
 
     </div>
 
@@ -159,6 +224,8 @@ Writes update the cache and deletes evict it.</p>
 
       </div>
 
+        <div class="summary-synopsis"><p>Retrieve the value and metadata stored for <code class="inline">key</code>.</p></div>
+
     </div>
 
     <div class="summary-row">
@@ -167,6 +234,9 @@ Writes update the cache and deletes evict it.</p>
 
       </div>
 
+        <div class="summary-synopsis"><p>Fetch an <code class="inline">Entry</code> by its numeric <code class="inline">id</code>.
+Returns the <code class="inline">Entry</code> struct or <code class="inline">nil</code> if not found.</p></div>
+
     </div>
 
     <div class="summary-row">
@@ -174,6 +244,8 @@ Writes update the cache and deletes evict it.</p>
         <a href="#list_entries/1" data-no-tooltip="" translate="no">list_entries(opts \\ [])</a>
 
       </div>
+
+        <div class="summary-synopsis"><p>List key/value entries with optional pagination and filtering.</p></div>
 
     </div>
 
@@ -191,6 +263,8 @@ Writes update the cache and deletes evict it.</p>
 
       </div>
 
+        <div class="summary-synopsis"><p>Store <code class="inline">value</code> with optional <code class="inline">metadata</code> at <code class="inline">key</code>.</p></div>
+
     </div>
 
     <div class="summary-row">
@@ -199,12 +273,158 @@ Writes update the cache and deletes evict it.</p>
 
       </div>
 
+        <div class="summary-synopsis"><p>Update an existing entry by <code class="inline">id</code> with <code class="inline">attrs</code>.
+Returns <code class="inline">{:ok, entry}</code>, <code class="inline">{:error, :not_found}</code> if missing, or <code class="inline">{:error, changeset}</code> on validation error.</p></div>
+
     </div>
 
 </div>
 
   </section>
 
+
+  <section id="types" class="details-list">
+    <h1 class="section-heading">
+      <a class="hover-link" href="#types">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Types</span>
+    </h1>
+
+    <div class="types-list">
+<section class="detail" id="t:attrs/0">
+
+  <div class="detail-header">
+    <a href="#t:attrs/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">attrs()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> attrs() :: %{
+  :key =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  optional(:user_id) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(),
+  :value =&gt; <a href="#t:value/0">value</a>(),
+  optional(:metadata) =&gt; <a href="#t:metadata/0">metadata</a>()
+}</pre>
+
+      </div>
+
+<p>Attributes used when creating or updating entries.</p><p>Expected keys (atom keys recommended):</p><ul><li><code class="inline">:key</code> — the entry key (<code class="inline">String.t()</code>)</li><li><code class="inline">:user_id</code> — optional user id (<code class="inline">pos_integer()</code>)</li><li><code class="inline">:value</code> — the stored value (<code class="inline">value()</code>)</li><li><code class="inline">:metadata</code> — optional metadata (<code class="inline">metadata()</code>)</li></ul>
+  </section>
+</section>
+<section class="detail" id="t:list_opts/0">
+
+  <div class="detail-header">
+    <a href="#t:list_opts/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_opts()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> list_opts() :: [
+  page: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(),
+  page_size: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(),
+  user_id: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(),
+  key: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()
+]</pre>
+
+      </div>
+
+<p>Options accepted by <a href="#list_entries/1"><code class="inline">list_entries/1</code></a> and <a href="#count_entries/1"><code class="inline">count_entries/1</code></a>.</p><p>Keys (all optional):</p><ul><li><code class="inline">:page</code> — page number (<code class="inline">pos_integer()</code>, defaults to <code class="inline">1</code>)</li><li><code class="inline">:page_size</code> — page size (<code class="inline">pos_integer()</code>, defaults to <code class="inline">50</code>)</li><li><code class="inline">:user_id</code> — filter by user id (<code class="inline">pos_integer()</code>)</li><li><code class="inline">:key</code> — substring filter (<code class="inline">String.t()</code>)</li></ul>
+  </section>
+</section>
+<section class="detail" id="t:metadata/0">
+
+  <div class="detail-header">
+    <a href="#t:metadata/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">metadata()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> metadata() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()</pre>
+
+      </div>
+
+<p>Metadata stored alongside a value. Typically a small map with auxiliary fields.</p>
+  </section>
+</section>
+<section class="detail" id="t:payload/0">
+
+  <div class="detail-header">
+    <a href="#t:payload/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">payload()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> payload() :: %{value: <a href="#t:value/0">value</a>(), metadata: <a href="#t:metadata/0">metadata</a>()}</pre>
+
+      </div>
+
+<p>Payload returned by <a href="#get/1"><code class="inline">get/1</code></a> and <a href="#get/2"><code class="inline">get/2</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="t:value/0">
+
+  <div class="detail-header">
+    <a href="#t:value/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">value()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> value() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()</pre>
+
+      </div>
+
+<p>Value stored for a key. This is an arbitrary map and should contain JSON-serializable data.</p>
+  </section>
+</section>
+
+    </div>
+  </section>
 
   <section id="functions" class="details-list">
     <h1 class="section-heading">
@@ -234,11 +454,11 @@ Writes update the cache and deletes evict it.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> count_entries(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count_entries(<a href="#t:list_opts/0">list_opts</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
 
-
+<p>Count the number of entries that match the optional filter.</p><p>Accepts the same options as <a href="#list_entries/1"><code class="inline">list_entries/1</code></a> (see <a href="#t:list_opts/0"><code class="inline">list_opts/0</code></a>). Returns a non-negative integer.</p>
   </section>
 </section>
 <section class="detail" id="create_entry/1">
@@ -258,12 +478,13 @@ Writes update the cache and deletes evict it.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> create_entry(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+          <pre translate="no"><span class="attribute">@spec</span> create_entry(<a href="#t:attrs/0">attrs</a>()) ::
   {:ok, GameServer.KV.Entry.t()} | {:error, <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
 
       </div>
 
-
+<p>Create a new <code class="inline">Entry</code> from <code class="inline">attrs</code> (expecting <code class="inline">key</code>, optional <code class="inline">user_id</code>, <code class="inline">value</code>, <code class="inline">metadata</code>).
+Returns <code class="inline">{:ok, entry}</code> or <code class="inline">{:error, changeset}</code>.</p>
   </section>
 </section>
 <section class="detail" id="delete/2">
@@ -292,7 +513,7 @@ Writes update the cache and deletes evict it.</p>
 
       </div>
 
-
+<p>Delete the entry at <code class="inline">key</code>.</p><p>Pass <code class="inline">user_id: id</code> in <code class="inline">opts</code> to delete a per-user key. Returns <code class="inline">:ok</code>.</p>
   </section>
 </section>
 <section class="detail" id="delete_entry/1">
@@ -316,7 +537,7 @@ Writes update the cache and deletes evict it.</p>
 
       </div>
 
-
+<p>Delete an entry by its <code class="inline">id</code>.</p><p>Returns <code class="inline">:ok</code> whether or not the entry existed.</p>
   </section>
 </section>
 <section class="detail" id="get/2">
@@ -341,11 +562,12 @@ Writes update the cache and deletes evict it.</p>
           <pre translate="no"><span class="attribute">@spec</span> get(
   <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
   <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: {:ok, %{value: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(), metadata: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()}} | :error</pre>
+) :: {:ok, <a href="#t:payload/0">payload</a>()} | :error</pre>
 
       </div>
 
-
+<p>Retrieve the value and metadata stored for <code class="inline">key</code>.</p><p>Pass <code class="inline">user_id: id</code> in <code class="inline">opts</code> to scope the lookup to a specific user.
+Returns <code class="inline">{:ok, %{value: map(), metadata: map()}}</code> when found, or <code class="inline">:error</code> when not present.</p>
   </section>
 </section>
 <section class="detail" id="get_entry/1">
@@ -369,7 +591,8 @@ Writes update the cache and deletes evict it.</p>
 
       </div>
 
-
+<p>Fetch an <code class="inline">Entry</code> by its numeric <code class="inline">id</code>.
+Returns the <code class="inline">Entry</code> struct or <code class="inline">nil</code> if not found.</p>
   </section>
 </section>
 <section class="detail" id="list_entries/1">
@@ -391,11 +614,13 @@ Writes update the cache and deletes evict it.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> list_entries(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [GameServer.KV.Entry.t()]</pre>
+          <pre translate="no"><span class="attribute">@spec</span> list_entries(<a href="#t:list_opts/0">list_opts</a>()) :: [GameServer.KV.Entry.t()]</pre>
 
       </div>
 
-
+<p>List key/value entries with optional pagination and filtering.</p><p>Supported options: <code class="inline">:page</code>, <code class="inline">:page_size</code>, <code class="inline">:user_id</code>, and <code class="inline">:key</code> (substring filter).
+See <a href="#t:list_opts/0"><code class="inline">list_opts/0</code></a> for the expected option types.
+Returns a list of <code class="inline">Entry</code> structs ordered by most recently updated.</p>
   </section>
 </section>
 <section class="detail" id="put/3">
@@ -417,7 +642,7 @@ Writes update the cache and deletes evict it.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> put(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+          <pre translate="no"><span class="attribute">@spec</span> put(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="#t:value/0">value</a>(), <a href="#t:metadata/0">metadata</a>()) ::
   {:ok, GameServer.KV.Entry.t()} | {:error, <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
 
       </div>
@@ -442,12 +667,13 @@ Writes update the cache and deletes evict it.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> put(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
+          <pre translate="no"><span class="attribute">@spec</span> put(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="#t:value/0">value</a>(), <a href="#t:metadata/0">metadata</a>(), <a href="#t:list_opts/0">list_opts</a>()) ::
   {:ok, GameServer.KV.Entry.t()} | {:error, <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
 
       </div>
 
-
+<p>Store <code class="inline">value</code> with optional <code class="inline">metadata</code> at <code class="inline">key</code>.</p><p>When using the 4-arity, supported options include <code class="inline">user_id: id</code> to scope the entry to a user.
+Returns <code class="inline">{:ok, entry}</code> on success or <code class="inline">{:error, changeset}</code> on validation failure.</p>
   </section>
 </section>
 <section class="detail" id="update_entry/2">
@@ -467,14 +693,15 @@ Writes update the cache and deletes evict it.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> update_entry(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+          <pre translate="no"><span class="attribute">@spec</span> update_entry(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(), <a href="#t:attrs/0">attrs</a>()) ::
   {:ok, GameServer.KV.Entry.t()}
   | {:error, :not_found}
   | {:error, <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
 
       </div>
 
-
+<p>Update an existing entry by <code class="inline">id</code> with <code class="inline">attrs</code>.
+Returns <code class="inline">{:ok, entry}</code>, <code class="inline">{:error, :not_found}</code> if missing, or <code class="inline">{:error, changeset}</code> on validation error.</p>
   </section>
 </section>
 

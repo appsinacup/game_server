@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.3">
-    <meta name="project" content="GameServer v1.0.460">
+    <meta name="project" content="GameServer v1.0.464">
 
 
-    <title>GameServer.Hooks — GameServer v1.0.460</title>
+    <title>GameServer.Hooks — GameServer v1.0.464</title>
 
     <link rel="stylesheet" href="dist/html-elixir-VYWJUHZE.css" />
 
-    <script defer src="dist/sidebar_items-657602F1.js"></script>
+    <script defer src="dist/sidebar_items-66CF14A9.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-XBCM4BHM.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.460
+          v1.0.464
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.Hooks</span> <small>behaviour</small>
-      <small class="app-vsn" translate="no">(GameServer v1.0.460)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.464)</small>
 
     </h1>
 
@@ -125,6 +125,16 @@ GameServer
         <a href="#t:hook_result/1" data-no-tooltip="" translate="no">hook_result(attrs_or_user)</a>
 
       </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:kv_opts/0" data-no-tooltip="" translate="no">kv_opts()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Options passed to hooks that accept an options map/keyword list.</p></div>
 
     </div>
 
@@ -216,9 +226,12 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:before_kv_get/2" data-no-tooltip="" translate="no">before_kv_get(t, arg2)</a>
+        <a href="#c:before_kv_get/2" data-no-tooltip="" translate="no">before_kv_get(t, kv_opts)</a>
 
       </div>
+
+        <div class="summary-synopsis"><p>Called before a KV <code class="inline">get/2</code> is performed. Implementations should return
+<code class="inline">:public</code> if the key may be read publicly, or <code class="inline">:private</code> to restrict access.</p></div>
 
     </div>
 
@@ -407,6 +420,31 @@ when the value is a user struct or map containing <code class="inline">:id</code
       </div>
 
 
+  </section>
+</section>
+<section class="detail" id="t:kv_opts/0">
+
+  <div class="detail-header">
+    <a href="#t:kv_opts/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">kv_opts()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> kv_opts() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()</pre>
+
+      </div>
+
+<p>Options passed to hooks that accept an options map/keyword list.</p><p>Common keys include <code class="inline">:user_id</code> (pos_integer) and other domain-specific
+options. Hooks may accept either a map or keyword list for convenience.</p>
   </section>
 </section>
 
@@ -673,7 +711,7 @@ when the value is a user struct or map containing <code class="inline">:id</code
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">before_kv_get(t, arg2)</h1>
+      <h1 class="signature" translate="no">before_kv_get(t, kv_opts)</h1>
 
 
     </div>
@@ -683,11 +721,14 @@ when the value is a user struct or map containing <code class="inline">:id</code
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> before_kv_get(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: <a href="#t:hook_result/1">hook_result</a>(:public | :private)</pre>
+          <pre translate="no"><span class="attribute">@callback</span> before_kv_get(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="#t:kv_opts/0">kv_opts</a>()) :: <a href="#t:hook_result/1">hook_result</a>(:public | :private)</pre>
 
       </div>
 
-
+<p>Called before a KV <code class="inline">get/2</code> is performed. Implementations should return
+<code class="inline">:public</code> if the key may be read publicly, or <code class="inline">:private</code> to restrict access.</p><p>Receives the <code class="inline">key</code> and an <code class="inline">opts</code> map/keyword (see <a href="#t:kv_opts/0"><code class="inline">kv_opts/0</code></a>). Return
+either the bare atom (e.g. <code class="inline">:public</code>) or <code class="inline">{:ok, :public}</code>; return <code class="inline">{:error, reason}</code>
+to block the read.</p>
   </section>
 </section>
 <section class="detail" id="c:before_lobby_create/1">
