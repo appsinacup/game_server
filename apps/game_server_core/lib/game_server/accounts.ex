@@ -171,6 +171,12 @@ defmodule GameServer.Accounts do
     Repo.aggregate(User, :count, :id) == 0
   end
 
+  defp maybe_make_first_user_admin(changeset, true) do
+    Ecto.Changeset.put_change(changeset, :is_admin, true)
+  end
+
+  defp maybe_make_first_user_admin(changeset, false), do: changeset
+
   @doc """
   Count users with non-empty provider id for a given provider field (e.g. :google_id)
   """
@@ -393,11 +399,11 @@ defmodule GameServer.Accounts do
 
     # Check if this is the first user and make them admin
     is_first_user = first_user?()
-    attrs = if is_first_user, do: Map.put(attrs, "is_admin", true), else: attrs
 
     case %User{}
          |> User.email_changeset(attrs)
          |> maybe_attach_device(attrs)
+         |> maybe_make_first_user_admin(is_first_user)
          |> Repo.insert() do
       {:ok, user} = ok ->
         invalidate_users_count_cache()
@@ -436,13 +442,13 @@ defmodule GameServer.Accounts do
 
     # Check if this is the first user and make them admin
     is_first_user = first_user?()
-    attrs = if is_first_user, do: Map.put(attrs, "is_admin", true), else: attrs
 
     transaction_fun = fn ->
       changeset =
         %User{}
         |> User.email_changeset(attrs)
         |> maybe_attach_device(attrs)
+        |> maybe_make_first_user_admin(is_first_user)
 
       case Repo.insert(changeset) do
         {:ok, %User{} = user} ->
@@ -737,8 +743,11 @@ defmodule GameServer.Accounts do
         # specify optional display_name/metadata via attrs.
         attrs = Map.put_new(attrs, :display_name, nil)
 
+        is_first_user = first_user?()
+
         case %User{}
              |> User.device_changeset(attrs)
+             |> maybe_make_first_user_admin(is_first_user)
              |> User.attach_device_changeset(%{device_id: device_id})
              |> Repo.insert() do
           {:ok, user} = ok ->

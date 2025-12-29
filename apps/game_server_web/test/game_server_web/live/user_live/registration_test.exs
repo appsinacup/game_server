@@ -36,7 +36,22 @@ defmodule GameServerWeb.UserLive.RegistrationTest do
   end
 
   describe "register user" do
-    test "creates account but does not log in", %{conn: conn} do
+    test "first user is auto-confirmed and redirected to tokenized login", %{conn: conn} do
+      {:ok, lv, _html} = live(conn, ~p"/users/register")
+
+      email = unique_user_email()
+      form = form(lv, "#registration_form", user: valid_user_attributes(email: email))
+
+      {:ok, _lv, html} = render_submit(form) |> follow_redirect(conn)
+
+      assert html =~ "Log in"
+      assert html =~ "Account created successfully! Logging you in..."
+    end
+
+    test "creates account and redirects to login (non-first user)", %{conn: conn} do
+      # ensure this is not the first user so email delivery is attempted
+      _existing = user_fixture()
+
       {:ok, lv, _html} = live(conn, ~p"/users/register")
 
       email = unique_user_email()

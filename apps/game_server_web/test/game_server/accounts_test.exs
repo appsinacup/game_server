@@ -81,6 +81,7 @@ defmodule GameServer.AccountsTest do
       email = unique_user_email()
       {:ok, user} = Accounts.register_user(valid_user_attributes(email: email))
       assert user.email == email
+      assert user.is_admin
       assert is_nil(user.hashed_password)
       assert is_nil(user.confirmed_at)
       assert is_nil(user.password)
@@ -133,6 +134,23 @@ defmodule GameServer.AccountsTest do
                )
 
       refute Repo.get_by(Accounts.User, email: email)
+    end
+  end
+
+  describe "find_or_create_from_device/2" do
+    test "makes the first device user admin" do
+      device_id = "test-device-#{System.unique_integer([:positive])}"
+
+      assert {:ok, user} = Accounts.find_or_create_from_device(device_id)
+      assert user.is_admin
+    end
+
+    test "does not make later device users admin" do
+      _existing = user_fixture()
+      device_id = "test-device-#{System.unique_integer([:positive])}"
+
+      assert {:ok, user} = Accounts.find_or_create_from_device(device_id)
+      refute user.is_admin
     end
   end
 
