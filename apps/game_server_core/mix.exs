@@ -41,7 +41,7 @@ defmodule GameServerCore.MixProject do
       {:ecto_sql, "~> 3.13.3"},
       {:ecto_sqlite3, "~> 0.12"},
       {:postgrex, ">= 0.0.0"},
-      {:swoosh, "~> 1.19.9"},
+      {:swoosh, "~> 1.20"},
       {:gen_smtp, "~> 1.0"},
       {:req, "~> 0.5"},
       {:sentry, "~> 11.0"},
