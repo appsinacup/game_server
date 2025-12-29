@@ -37,7 +37,7 @@ RUN mix deps.get
 
 COPY . .
 
-# Build any plugins that ship with the repository
+# Build any plugins that ship with the repository. Copy paste this to your own Dockerfile
 RUN if [ -d "${GAME_SERVER_PLUGINS_DIR}" ]; then \
         for plugin_path in ${GAME_SERVER_PLUGINS_DIR}/*; do \
             if [ -d "${plugin_path}" ] && [ -f "${plugin_path}/mix.exs" ]; then \

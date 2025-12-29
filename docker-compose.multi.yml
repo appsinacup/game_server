@@ -1,0 +1,67 @@
+services:
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+
+  db:
+    image: postgres:18
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=game_server_dev
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d game_server_dev"]
+    networks:
+      - web
+
+  app:
+    build: .
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: game_server_dev
+      CACHE_MODE: multi
+      CACHE_L2: redis
+      CACHE_REDIS_URL: redis://redis:6379/0
+    volumes:
+      - ./modules:/app/modules
+      - ./priv/static/images:/app/priv/static/images
+      - ./priv/static/assets/css/theme:/app/priv/static/assets/css/theme
+    depends_on:
+      - db
+    networks:
+      - web
+    # NOTE: we don't map host ports directly here so we can safely scale multiple replicas.
+    # Expose the internal port so the nginx proxy can talk to the instances.
+    expose:
+      - "4000"
+
+  nginx:
+    image: nginx:stable-alpine
+    ports:
+      - "4000:80" # Expose to host at port 4000
+    depends_on:
+      - app
+    volumes:
+      - ./nginx/proxy.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - web
+
+volumes:
+  pgdata:
+
+networks:
+  web:
+    driver: bridge

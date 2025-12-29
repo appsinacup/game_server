@@ -1,57 +1,25 @@
 services:
-  database:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: game_server_dev
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d game_server_dev"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  redis:
-    image: redis:7
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-
   app:
     build: .
     ports:
       - "4000:4000"
-    env_file:
-      - .env
+    #env_file:
+    #  - .env
     environment:
+      # Run mix phx.gen.secret
+      SECRET_KEY_BASE: 1DdaMAX56nUh1tvXniEEuQNsGNvgADndawxrJ3YFZlLXc9EOahC/NFDgowCDUFwb
+      # Path to server module plugins
+      GAME_SERVER_PLUGINS_DIR: modules/plugins_examples
+      # Enable device authentication
+      # Easy to get started locally
+      DEVICE_AUTH_ENABLED: true
+      # Host base
+      PHX_HOST: localhost
+      # When testing in localhost, the following enables local email.
+      # Without this, creating an email requires OAuth or an SMTP server.
       MIX_ENV: dev
-      POSTGRES_HOST: database
-      POSTGRES_PORT: 5432
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: game_server_dev
-      SECRET_KEY_BASE: your_secret_key_here  # Replace with a secure key
-      PHX_SERVER: true
-    depends_on:
-      database:
-        condition: service_healthy
-    command: >
-      sh -c "mix deps.get && MIX_ENV=dev mix do --app game_server_host ecto.migrate && MIX_ENV=dev mix do --app game_server_host phx.server"
     volumes:
-      - .:/app
-      - /app/_build
-      - /app/deps
-
-volumes:
-  postgres_data:
-  redis_data:
+      - ./modules:/app/modules
+      - ./priv/static/images:/app/priv/static/images
+      - ./priv/static/assets/css/theme:/app/priv/static/assets/css/theme
+      - ./db:/app/db
