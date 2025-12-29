@@ -209,29 +209,6 @@ defmodule GameServer.Friends do
 
 
   @doc ~S"""
-    Best-effort cache invalidation for user deletion.
-    
-    Friendships are defined with `on_delete: :delete_all` foreign keys, so deleting
-    a user cascades and removes friendship rows at the DB layer. Because those
-    deletes do not go through the Friends context, we need an explicit invalidation
-    hook to avoid serving stale cached friend lists / friendship lookups.
-    
-    Call this *before* deleting the user.
-    
-  """
-  @spec invalidate_for_user_deletion(user_id()) :: :ok
-  def invalidate_for_user_deletion(_user_id) do
-    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
-      :placeholder ->
-        :ok
-
-      _ ->
-        raise "GameServer.Friends.invalidate_for_user_deletion/1 is a stub - only available at runtime on GameServer"
-    end
-  end
-
-
-  @doc ~S"""
     List blocked friendships for a user (Friendship structs where the user is the blocker / target).
   """
   @spec list_blocked_for_user(user_id() | GameServer.Accounts.User.t()) :: [

@@ -64,12 +64,7 @@ defmodule GameServer.Lobbies do
   # PubSub topic names
   @lobbies_topic "lobbies"
 
-  @public_list_cache_ttl_ms 60_000
   @lobby_cache_ttl_ms 60_000
-
-  defp public_lobbies_cache_version do
-    GameServer.Cache.get({:lobbies, :public_list_version}) || 1
-  end
 
   defp lobby_cache_version(lobby_id) when is_integer(lobby_id) do
     GameServer.Cache.get({:lobbies, :lobby_version, lobby_id}) || 1
@@ -136,14 +131,10 @@ defmodule GameServer.Lobbies do
   @spec list_lobbies(map()) :: [Lobby.t()]
   @spec list_lobbies(map(), Types.lobby_list_opts()) :: [Lobby.t()]
   def list_lobbies(filters \\ %{}, opts \\ []) do
-    list_lobbies_cached(filters, opts)
+    list_lobbies_uncached(filters, opts)
   end
 
-  @decorate cacheable(
-              key: {:lobbies, :list, public_lobbies_cache_version(), filters, opts},
-              opts: [ttl: @public_list_cache_ttl_ms]
-            )
-  defp list_lobbies_cached(filters, opts) do
+  defp list_lobbies_uncached(filters, opts) do
     q = from(l in Lobby)
 
     q =
@@ -213,14 +204,6 @@ defmodule GameServer.Lobbies do
   @spec count_list_lobbies() :: non_neg_integer()
   @spec count_list_lobbies(map()) :: non_neg_integer()
   def count_list_lobbies(filters \\ %{}) do
-    count_list_lobbies_cached(filters)
-  end
-
-  @decorate cacheable(
-              key: {:lobbies, :count_list, public_lobbies_cache_version(), filters},
-              opts: [ttl: @public_list_cache_ttl_ms]
-            )
-  defp count_list_lobbies_cached(filters) do
     count_list_lobbies_uncached(filters)
   end
 
@@ -250,11 +233,6 @@ defmodule GameServer.Lobbies do
     end
   end
 
-  defp invalidate_public_lobbies_cache do
-    _ = GameServer.Cache.incr({:lobbies, :public_list_version}, 1, default: 1)
-    :ok
-  end
-
   @doc """
   List ALL lobbies including hidden ones. For admin use only.
   Accepts filters: %{
@@ -274,7 +252,7 @@ defmodule GameServer.Lobbies do
     page_size = Keyword.get(opts, :page_size, nil)
 
     if page && page_size do
-      list_all_lobbies_paged_cached(filters, page, page_size)
+      list_all_lobbies_paged_uncached(filters, page, page_size)
     else
       q = from(l in Lobby)
       q = apply_admin_filters(q, filters)
@@ -282,12 +260,7 @@ defmodule GameServer.Lobbies do
     end
   end
 
-  @decorate cacheable(
-              key:
-                {:lobbies, :admin_list, public_lobbies_cache_version(), filters, page, page_size},
-              opts: [ttl: @public_list_cache_ttl_ms]
-            )
-  defp list_all_lobbies_paged_cached(filters, page, page_size)
+  defp list_all_lobbies_paged_uncached(filters, page, page_size)
        when is_map(filters) and is_integer(page) and is_integer(page_size) do
     q = from(l in Lobby)
     q = apply_admin_filters(q, filters)
@@ -302,14 +275,10 @@ defmodule GameServer.Lobbies do
   @spec count_list_all_lobbies() :: non_neg_integer()
   @spec count_list_all_lobbies(map()) :: non_neg_integer()
   def count_list_all_lobbies(filters \\ %{}) do
-    count_list_all_lobbies_cached(filters)
+    count_list_all_lobbies_uncached(filters)
   end
 
-  @decorate cacheable(
-              key: {:lobbies, :admin_count, public_lobbies_cache_version(), filters},
-              opts: [ttl: @public_list_cache_ttl_ms]
-            )
-  defp count_list_all_lobbies_cached(filters) when is_map(filters) do
+  defp count_list_all_lobbies_uncached(filters) when is_map(filters) do
     q = from(l in Lobby)
     q = apply_admin_filters(q, filters)
     Repo.aggregate(q, :count, :id)
@@ -650,7 +619,6 @@ defmodule GameServer.Lobbies do
       {:ok, %{lobby: lobby}} ->
         Task.start(fn -> GameServer.Hooks.internal_call(:after_lobby_create, [lobby]) end)
         _ = invalidate_lobby_cache(lobby.id)
-        invalidate_public_lobbies_cache()
         broadcast_lobbies({:lobby_created, lobby})
         {:ok, lobby}
 
@@ -746,8 +714,6 @@ defmodule GameServer.Lobbies do
 
             _ = invalidate_lobby_cache(updated.id)
 
-            invalidate_public_lobbies_cache()
-
             # broadcast updates so any UI/channel subscribers get the change
             broadcast_lobby(updated.id, {:lobby_updated, updated})
             broadcast_lobbies({:lobby_updated, updated})
@@ -770,7 +736,6 @@ defmodule GameServer.Lobbies do
           {:ok, deleted} ->
             Task.start(fn -> GameServer.Hooks.internal_call(:after_lobby_delete, [deleted]) end)
             _ = invalidate_lobby_cache(deleted.id)
-            invalidate_public_lobbies_cache()
             broadcast_lobbies({:lobby_deleted, deleted.id})
             {:ok, deleted}
 
@@ -906,7 +871,6 @@ defmodule GameServer.Lobbies do
     case result do
       {:ok, :lobby_deleted} ->
         _ = invalidate_accounts_user_cache(user_id)
-        _ = invalidate_public_lobbies_cache()
         _ = invalidate_lobby_cache(lobby_id)
         maybe_broadcast_user_updated(user_id)
         broadcast_lobbies({:lobby_deleted, lobby_id})
@@ -914,7 +878,6 @@ defmodule GameServer.Lobbies do
 
       {:ok, {:host_changed, new_host_id}} ->
         _ = invalidate_accounts_user_cache(user_id)
-        _ = invalidate_public_lobbies_cache()
         _ = invalidate_lobby_cache(lobby_id)
         maybe_broadcast_user_updated(user_id)
         broadcast_lobby(lobby_id, {:user_left, lobby_id, user_id})
@@ -924,7 +887,6 @@ defmodule GameServer.Lobbies do
 
       {:ok, _} ->
         _ = invalidate_accounts_user_cache(user_id)
-        _ = invalidate_public_lobbies_cache()
         _ = invalidate_lobby_cache(lobby_id)
         maybe_broadcast_user_updated(user_id)
         broadcast_lobby(lobby_id, {:user_left, lobby_id, user_id})

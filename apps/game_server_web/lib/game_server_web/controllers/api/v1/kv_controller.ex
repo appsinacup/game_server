@@ -2,9 +2,9 @@ defmodule GameServerWeb.Api.V1.KvController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
-  alias GameServer.KV
-  alias GameServer.Hooks
   alias GameServer.Accounts.Scope
+  alias GameServer.Hooks
+  alias GameServer.KV
   alias OpenApiSpex.Schema
 
   @kv_schema %Schema{

@@ -24,21 +24,11 @@ defmodule GameServer.Accounts do
 
   alias GameServer.Accounts.{User, UserNotifier, UserToken}
 
-  @search_cache_ttl_ms 60_000
   @stats_cache_ttl_ms 60_000
   @users_count_cache_ttl_ms 60_000
 
-  defp users_search_cache_version do
-    GameServer.Cache.get({:accounts, :users_search_version}) || 1
-  end
-
   defp users_stats_cache_version do
     GameServer.Cache.get({:accounts, :users_stats_version}) || 1
-  end
-
-  defp invalidate_users_search_cache do
-    _ = GameServer.Cache.incr({:accounts, :users_search_version}, 1, default: 1)
-    :ok
   end
 
   defp invalidate_users_stats_cache do
@@ -97,25 +87,19 @@ defmodule GameServer.Accounts do
         case get_user(id) do
           nil ->
             normalized_q = String.downcase(q)
-            search_users_by_text_cached(normalized_q, q, page, page_size)
+            search_users_by_text(normalized_q, q, page, page_size)
 
           user ->
             [user]
         end
       else
         normalized_q = String.downcase(q)
-        search_users_by_text_cached(normalized_q, q, page, page_size)
+        search_users_by_text(normalized_q, q, page, page_size)
       end
     end
   end
 
-  @decorate cacheable(
-              key:
-                {:accounts, :search_users, users_search_cache_version(), normalized_q, page,
-                 page_size},
-              opts: [ttl: @search_cache_ttl_ms]
-            )
-  defp search_users_by_text_cached(normalized_q, q, page, page_size) do
+  defp search_users_by_text(normalized_q, q, page, page_size) do
     _ = q
     pattern = "#{normalized_q}%"
     offset = (page - 1) * page_size
@@ -146,23 +130,19 @@ defmodule GameServer.Accounts do
         case get_user(id) do
           nil ->
             normalized_q = String.downcase(q)
-            count_search_users_by_text_cached(normalized_q, q)
+            count_search_users_by_text(normalized_q, q)
 
           _ ->
             1
         end
       else
         normalized_q = String.downcase(q)
-        count_search_users_by_text_cached(normalized_q, q)
+        count_search_users_by_text(normalized_q, q)
       end
     end
   end
 
-  @decorate cacheable(
-              key: {:accounts, :count_search_users, users_search_cache_version(), normalized_q},
-              opts: [ttl: @search_cache_ttl_ms]
-            )
-  defp count_search_users_by_text_cached(normalized_q, q) do
+  defp count_search_users_by_text(normalized_q, q) do
     _ = q
     pattern = "#{normalized_q}%"
 
@@ -982,7 +962,6 @@ defmodule GameServer.Accounts do
       {:ok, %User{} = updated_user} ->
         invalidate_user_cache(user)
         invalidate_user_cache(updated_user)
-        invalidate_users_search_cache()
         invalidate_users_stats_cache()
         # Broadcast user update to user channel
         broadcast_user_update(updated_user)
@@ -1028,7 +1007,6 @@ defmodule GameServer.Accounts do
       {:ok, %User{} = updated_user} ->
         invalidate_user_cache(user)
         invalidate_user_cache(updated_user)
-        invalidate_users_search_cache()
         invalidate_users_stats_cache()
         # Broadcast user update to user channel
         broadcast_user_update(updated_user)
@@ -1075,7 +1053,6 @@ defmodule GameServer.Accounts do
           {:ok, %User{} = updated_user} ->
             invalidate_user_cache(user)
             invalidate_user_cache(updated_user)
-            invalidate_users_search_cache()
             invalidate_users_stats_cache()
             # Broadcast user update to user channel
             broadcast_user_update(updated_user)
@@ -1137,7 +1114,6 @@ defmodule GameServer.Accounts do
         {:ok, updated_user} ->
           invalidate_user_cache(user)
           invalidate_user_cache(updated_user)
-          invalidate_users_search_cache()
           invalidate_users_stats_cache()
           # Broadcast user update to user channel
           broadcast_user_update(updated_user)
@@ -1405,7 +1381,7 @@ defmodule GameServer.Accounts do
   @decorate cacheable(
               key: {:accounts, :user_token, id},
               match: &cache_match/1,
-              opts: [ttl: 5_000]
+              opts: [ttl: 60_000]
             )
   def get_user_token(id) when is_integer(id) do
     Repo.get(UserToken, id)
@@ -1438,7 +1414,6 @@ defmodule GameServer.Accounts do
 
   Returns `{:ok, user}` on success or `{:error, changeset}` on failure.
   """
-  alias GameServer.Friends
   alias GameServer.Lobbies
 
   @spec delete_user(User.t()) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
@@ -1450,10 +1425,6 @@ defmodule GameServer.Accounts do
     rescue
       _ -> :ok
     end
-
-    # Friendships are deleted via DB cascade; invalidate cached friend lists / lookups
-    # before deleting so we can still query affected rows.
-    _ = Friends.invalidate_for_user_deletion(user.id)
 
     case Repo.delete(user) do
       {:ok, _user} = ok ->
@@ -1564,7 +1535,6 @@ defmodule GameServer.Accounts do
       {:ok, updated} = ok ->
         invalidate_user_cache(user)
         invalidate_user_cache(updated)
-        invalidate_users_search_cache()
         broadcast_user_update(updated)
         ok
 
@@ -1600,7 +1570,6 @@ defmodule GameServer.Accounts do
       {:ok, updated} = ok ->
         invalidate_user_cache(user)
         invalidate_user_cache(updated)
-        invalidate_users_search_cache()
         invalidate_users_stats_cache()
         # Broadcast updates so realtime clients can react
         broadcast_user_update(updated)

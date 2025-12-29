@@ -1,9 +1,11 @@
 defmodule GameServerWeb.Api.V1.KvControllerTest do
   use GameServerWeb.ConnCase
 
+  alias GameServer.Accounts.User
   alias GameServer.AccountsFixtures
   alias GameServer.KV
   alias GameServer.Repo
+  alias GameServerWeb.Auth.Guardian
 
   setup do
     # Ensure default hooks module
@@ -21,7 +23,7 @@ defmodule GameServerWeb.Api.V1.KvControllerTest do
 
     # authenticated non-admin user can retrieve public kv
     user = AccountsFixtures.user_fixture()
-    {:ok, token, _} = GameServerWeb.Auth.Guardian.encode_and_sign(user)
+    {:ok, token, _} = Guardian.encode_and_sign(user)
     conn_auth = put_req_header(conn, "authorization", "Bearer " <> token)
 
     resp = get(conn_auth, "/api/v1/kv/global_foo") |> json_response(200)
@@ -53,9 +55,9 @@ defmodule GameServerWeb.Api.V1.KvControllerTest do
     admin = AccountsFixtures.user_fixture()
 
     {:ok, admin} =
-      GameServer.Accounts.User.admin_changeset(admin, %{"is_admin" => true}) |> Repo.update()
+      User.admin_changeset(admin, %{"is_admin" => true}) |> Repo.update()
 
-    {:ok, token, _} = GameServerWeb.Auth.Guardian.encode_and_sign(admin)
+    {:ok, token, _} = Guardian.encode_and_sign(admin)
     conn_admin = put_req_header(conn, "authorization", "Bearer " <> token)
     resp = get(conn_admin, "/api/v1/kv/secret") |> json_response(200)
     assert resp["data"] == %{"x" => 1}
@@ -78,14 +80,14 @@ defmodule GameServerWeb.Api.V1.KvControllerTest do
     {:ok, _entry} = KV.put("user_key", %{"v" => 2}, %{}, user_id: owner.id)
 
     # owner can get
-    {:ok, token, _} = GameServerWeb.Auth.Guardian.encode_and_sign(owner)
+    {:ok, token, _} = Guardian.encode_and_sign(owner)
     conn_owner = put_req_header(conn, "authorization", "Bearer " <> token)
     resp = get(conn_owner, "/api/v1/kv/user_key?user_id=#{owner.id}") |> json_response(200)
     assert resp["data"] == %{"v" => 2}
 
     # another user cannot
     other = AccountsFixtures.user_fixture()
-    {:ok, token2, _} = GameServerWeb.Auth.Guardian.encode_and_sign(other)
+    {:ok, token2, _} = Guardian.encode_and_sign(other)
     conn_other = put_req_header(conn, "authorization", "Bearer " <> token2)
     r = get(conn_other, "/api/v1/kv/user_key?user_id=#{owner.id}")
     assert r.status == 403
