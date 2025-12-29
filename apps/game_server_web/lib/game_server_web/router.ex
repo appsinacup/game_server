@@ -36,6 +36,10 @@ defmodule GameServerWeb.Router do
     plug GameServerWeb.Plugs.SentryContext
   end
 
+  pipeline :mailbox_preview_enabled do
+    plug GameServerWeb.Plugs.MailboxPreviewEnabled
+  end
+
   scope "/", GameServerWeb do
     pipe_through :browser
 
@@ -128,15 +132,13 @@ defmodule GameServerWeb.Router do
     get "/session/:session_id", AuthController, :api_session_status
   end
 
-  # Enable LiveDashboard and Swoosh mailbox preview for admins (dev only)
+  # Enable LiveDashboard and Swoosh mailbox preview
   import Phoenix.LiveDashboard.Router
 
   scope "/" do
-    pipe_through [:browser]
-    # Mailbox preview enabled in dev or if MAILBOX_PREVIEW_ENABLED is set
-    if Mix.env() == :dev or System.get_env("MAILBOX_PREVIEW_ENABLED") in ["1", "true", "TRUE"] do
-      forward "/dev/mailbox", Plug.Swoosh.MailboxPreview
-    end
+    pipe_through [:browser, :mailbox_preview_enabled]
+
+    forward "/dev/mailbox", Plug.Swoosh.MailboxPreview
   end
 
   scope "/" do

@@ -2,6 +2,7 @@ defmodule GameServerWeb.UserLive.Login do
   use GameServerWeb, :live_view
 
   alias GameServer.Accounts
+  alias GameServer.Env
 
   @impl true
   def render(assigns) do
@@ -205,7 +206,12 @@ defmodule GameServerWeb.UserLive.Login do
   # In production we may use Swoosh.Local when no SMTP is configured, but we
   # don't want the UI to advertise that to end users.
   defp local_mail_adapter? do
-    Mix.env() == :dev and
+    adapter_is_local? =
       Application.get_env(:game_server_core, GameServer.Mailer)[:adapter] == Swoosh.Adapters.Local
+
+    mailbox_preview_enabled? =
+      Env.bool("MAILBOX_PREVIEW_ENABLED", false)
+
+    adapter_is_local? and (Mix.env() == :dev or mailbox_preview_enabled?)
   end
 end

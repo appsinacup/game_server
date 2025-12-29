@@ -332,6 +332,10 @@ if config_env() == :prod do
     # Use local adapter when SMTP is not configured - emails go to mailbox
     config :game_server_core, GameServer.Mailer, adapter: Swoosh.Adapters.Local
 
+    # Enable Swoosh Local in-memory mailbox storage so the mailbox preview works.
+    # In real production deployments you should configure SMTP instead.
+    config :swoosh, local: true
+
     # Disable swoosh api client for local adapter
     config :swoosh, :api_client, false
   end

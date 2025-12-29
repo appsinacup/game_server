@@ -152,21 +152,6 @@ This flow is simpler since there's no browser redirect or polling. It's ideal fo
 
 Real-time features use Phoenix PubSub for broadcasting events. Domain modules (Lobbies, Friends, Accounts) publish to topic-based channels. WebSocket channels and LiveViews subscribe to relevant topics to receive instant updates. This enables features like live lobby member lists or friend request notifications.
 
-## 3.1 In-memory Caching (Nebulex)
-
-For production deployments using SQLite, the app can enable a **single-node, in-memory** cache to reduce repeated DB reads (notably the per-request user lookup during JWT authentication).
-
-- Cache implementation: `Nebulex` (local in-memory adapter) via [lib/game_server/cache.ex](lib/game_server/cache.ex)
-- Scope: **one instance only** (no cross-node invalidation). If you run multiple Fly machines, cached reads can become stale unless you add a distributed invalidation strategy.
-- Write behavior: key write paths invalidate affected cache entries (e.g. updating a user invalidates that user's cached record; lobby create/update/delete invalidates cached public lobby lists).
-
-**Production env vars**
-- `CACHE_ENABLED`: `true`/`false` (default `true`)
-
-When `CACHE_ENABLED=false`, the cache runs in `bypass_mode` (adapter switches to a no-op adapter), which effectively disables caching while keeping the same API.
-
-This is primarily a stopgap to reduce lock contention/queueing pressure when running on SQLite under high read load. For sustained high concurrency and write-heavy workloads, Postgres is the recommended production database.
-
 ```mermaid
 flowchart LR
     subgraph Publishers
@@ -196,6 +181,51 @@ flowchart LR
     LobbiesTopic --> LobbiesChannel & LiveViews
     UserTopic --> UserChannel
 ```
+
+## 3.1 Cache
+
+The server uses `Nebulex` for application-level caching.
+
+The current design supports either:
+
+- **Single-level cache** (default): L1 local in-memory cache only.
+- **Multi-level cache** (optional): L1 local in-memory + L2 shared cache.
+
+**Implementation**
+
+- Top-level cache: `GameServer.Cache` (multilevel adapter)
+- L1: `GameServer.Cache.L1` (local, in-memory)
+- L2 (when enabled):
+    - `GameServer.Cache.L2.Redis` (Redis-backed shared cache), or
+    - `GameServer.Cache.L2.Partitioned` (BEAM cluster sharded cache)
+
+**Why multi-level?**
+
+- L1 is the fastest and reduces repeated reads within a single node.
+- L2 enables horizontal scaling without each node having totally independent cache state.
+
+**Runtime configuration (prod)**
+
+Cache behavior is controlled via environment variables and is configured in `config/runtime.exs` for production builds.
+
+- `CACHE_ENABLED`: `true|false` (default: `true`)
+- `CACHE_MODE`: `single|multi` (default: `single`)
+- `CACHE_L2`: `redis|partitioned` (default: `partitioned` when `CACHE_MODE=multi`)
+- Redis (when `CACHE_L2=redis`):
+    - `CACHE_REDIS_URL` (or `REDIS_URL`)
+    - `CACHE_REDIS_POOL_SIZE` (default: `10`)
+
+When `CACHE_ENABLED=false`, the cache runs in `bypass_mode`, effectively disabling caching while keeping the same API surface.
+
+**Clustering requirements**
+
+- Redis L2 does **not** require Erlang distribution / clustering (it’s an external shared cache).
+- Partitioned L2 **does** require Erlang distribution and node discovery (because it shards keys across the BEAM cluster).
+
+**Operational notes**
+
+- Caching is intentionally kept conservative. High-cardinality list caching is avoided to prevent memory blowups and invalidation complexity.
+- Write paths invalidate relevant keys (e.g. user updates invalidate user caches).
 
 ## 4. Hooks System
 
