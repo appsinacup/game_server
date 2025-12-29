@@ -13,6 +13,7 @@ services:
       GAME_SERVER_PLUGINS_DIR: modules/plugins_examples
       DEVICE_AUTH_ENABLED: true
       PHX_HOST: localhost
+      # Disable this in prod
       MAILBOX_PREVIEW_ENABLED: true
     volumes:
       - ./modules:/app/modules
