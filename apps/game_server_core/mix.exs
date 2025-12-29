@@ -33,6 +33,8 @@ defmodule GameServerCore.MixProject do
       {:bcrypt_elixir, "~> 3.0"},
       {:nebulex, "~> 3.0.0-rc.2"},
       {:nebulex_local, "~> 3.0.0-rc.2"},
+      {:nebulex_distributed, "~> 3.0.0-rc.2"},
+      {:nebulex_redis_adapter, "~> 3.0.0-rc.2"},
       {:decorator, "~> 1.4"},
       {:phoenix, "~> 1.8.3"},
       {:phoenix_ecto, "~> 4.5"},

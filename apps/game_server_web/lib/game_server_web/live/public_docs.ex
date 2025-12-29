@@ -31,6 +31,8 @@ defmodule GameServerWeb.PublicDocs do
         {GameServerWeb.PublicDocsTemplates.facebook_oauth(assigns)}
         {GameServerWeb.PublicDocsTemplates.email_setup(assigns)}
         {GameServerWeb.PublicDocsTemplates.sentry_setup(assigns)}
+        {GameServerWeb.PublicDocsTemplates.cache_setup(assigns)}
+        {GameServerWeb.PublicDocsTemplates.scaling(assigns)}
         {GameServerWeb.PublicDocsTemplates.postgresql_setup(assigns)}
       </div>
     </Layouts.app>

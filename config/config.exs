@@ -48,6 +48,14 @@ config :game_server_web, GameServerWeb.Endpoint,
 # at the `config/runtime.exs`.
 config :game_server_core, GameServer.Mailer, adapter: Swoosh.Adapters.Local
 
+# Cache defaults (can be overridden in env-specific configs).
+# Default to a single-level local cache for dev simplicity.
+config :game_server_core, GameServer.Cache,
+  inclusion_policy: :inclusive,
+  levels: [
+    {GameServer.Cache.L1, []}
+  ]
+
 # Configure esbuild (the version is required)
 config :esbuild,
   version: "0.25.4",

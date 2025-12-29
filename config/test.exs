@@ -66,7 +66,13 @@ config :sentry,
 config :logger, level: :warning
 
 # Disable app-level caching in tests to avoid stale reads across assertions.
-config :game_server_core, GameServer.Cache, bypass_mode: true
+# Still provide the multilevel configuration so the cache can start.
+config :game_server_core, GameServer.Cache,
+  bypass_mode: true,
+  inclusion_policy: :inclusive,
+  levels: [
+    {GameServer.Cache.L1, []}
+  ]
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime

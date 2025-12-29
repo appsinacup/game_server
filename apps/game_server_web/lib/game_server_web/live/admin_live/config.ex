@@ -386,38 +386,165 @@ defmodule GameServerWeb.AdminLive.Config do
                     <td class="font-mono text-sm break-all whitespace-normal">{@config.env}</td>
                   </tr>
                   <tr>
+                    <td class="font-semibold">Clustering</td>
+                    <td>
+                      <span class={[
+                        "badge",
+                        if(@config.release_distribution_enabled?,
+                          do: "badge-success",
+                          else: "badge-ghost"
+                        )
+                      ]}>
+                        {if(@config.release_distribution_enabled?, do: "Enabled", else: "Off")}
+                      </span>
+                    </td>
+                    <td class="text-sm break-words whitespace-normal">
+                      <div class="font-mono text-sm">
+                        RELEASE_DISTRIBUTION:
+                        <span class="break-all">
+                          {env_with_recommended(
+                            @config.release_distribution_env,
+                            @config.release_distribution_recommended
+                          )}
+                        </span>
+                        <br /> RELEASE_NODE:
+                        <span class="break-all">
+                          {env_with_recommended(
+                            @config.release_node_env,
+                            @config.release_node_recommended
+                          )}
+                        </span>
+                        <br /> RELEASE_COOKIE:
+                        <span class="break-all">{mask_secret(@config.release_cookie_env)}</span>
+                        <br /> DNS_CLUSTER_QUERY:
+                        <span class="break-all">
+                          {env_with_recommended(
+                            @config.dns_cluster_query_env,
+                            @config.dns_cluster_query_recommended
+                          )}
+                        </span>
+
+                        <br /> ERL_AFLAGS:
+                        <span class="break-all">
+                          {env_with_recommended(
+                            @config.erl_aflags_env,
+                            @config.erl_aflags_recommended
+                          )}
+                        </span>
+                        <br /> ECTO_IPV6:
+                        <span class="break-all">
+                          {env_with_recommended(
+                            @config.ecto_ipv6_env,
+                            @config.ecto_ipv6_recommended
+                          )}
+                        </span>
+
+                        <br /><br />
+                        <span class="opacity-70">runtime:</span>
+                        <br /> node(): <span class="break-all">{inspect(@config.node_name)}</span>
+                        <br /> Node.alive?():
+                        <span class="break-all">{inspect(@config.node_alive?)}</span>
+
+                        <%= if @config.fly_app_name_env || @config.fly_private_ip_env do %>
+                          <br /><br />
+                          <span class="opacity-70">fly.io:</span>
+                          <br /> FLY_APP_NAME:
+                          <span class="break-all">{@config.fly_app_name_env || "<unset>"}</span>
+                          <br /> FLY_PRIVATE_IP:
+                          <span class="break-all">{@config.fly_private_ip_env || "<unset>"}</span>
+                          <br /> FLY_REGION:
+                          <span class="break-all">{@config.fly_region_env || "<unset>"}</span>
+                        <% end %>
+                      </div>
+
+                      <div class="mt-2 text-xs text-base-content/60">
+                        Partitioned L2 caching requires Erlang distribution + clustering.
+                        For Redis L2, you do not need node clustering.
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
                     <td class="font-semibold">Cache</td>
                     <td>
                       <span class={[
                         "badge",
                         if(
-                          (@config.cache_enabled_env || "") in ["true", "1", "yes", "on"],
+                          @config.cache_enabled_effective?,
                           do: "badge-success",
                           else: "badge-ghost"
                         )
                       ]}>
-                        {if((@config.cache_enabled_env || "") in ["true", "1", "yes", "on"],
-                          do: "Enabled",
-                          else: "Default"
-                        )}
+                        {if(@config.cache_enabled_effective?, do: "Enabled", else: "Bypassed")}
                       </span>
                     </td>
                     <td class="text-sm break-words whitespace-normal">
                       <div class="font-mono text-sm">
                         CACHE_ENABLED:
-                        <span class="break-all">{@config.cache_enabled_env || "<unset>"}</span>
-                        <br /> bypass_mode:
-                        <span class="break-all">{inspect(@config.cache_bypass_mode)}</span>
-                        <br /> gc_interval:
-                        <span class="break-all">{inspect(@config.cache_gc_interval)}</span>
-                        <br /> max_size:
-                        <span class="break-all">{inspect(@config.cache_max_size)}</span>
-                        <br /> allocated_memory:
-                        <span class="break-all">{inspect(@config.cache_allocated_memory)}</span>
-                        <br /> gc_memory_check_interval:
                         <span class="break-all">
-                          {inspect(@config.cache_gc_memory_check_interval)}
+                          {env_with_default(@config.cache_enabled_env, @config.cache_enabled_default)}
                         </span>
+                        <br /> CACHE_MODE:
+                        <span class="break-all">
+                          {env_with_default(@config.cache_mode_env, @config.cache_mode_default)}
+                        </span>
+                        <br /> CACHE_L2:
+                        <span class="break-all">
+                          {env_with_default(@config.cache_l2_env, @config.cache_l2_default)}
+                        </span>
+                        <br /> CACHE_REDIS_URL / REDIS_URL:
+                        <span class="break-all">
+                          <%= if @config.cache_redis_url_env do %>
+                            {mask_secret(@config.cache_redis_url_env)}
+                          <% else %>
+                            <span class="opacity-70">
+                              &lt;unset (required when CACHE_L2=redis)&gt;
+                            </span>
+                          <% end %>
+                        </span>
+                        <br /> CACHE_REDIS_POOL_SIZE:
+                        <span class="break-all">
+                          {env_with_default(
+                            @config.cache_redis_pool_size_env,
+                            @config.cache_redis_pool_size_default
+                          )}
+                        </span>
+
+                        <br /><br />
+                        <span class="opacity-70">effective:</span>
+                        <br /> bypass_mode (true disables caching):
+                        <span class="break-all">{inspect(@config.cache_bypass_mode_effective)}</span>
+                        <br /> mode: <span class="break-all">{@config.cache_mode_effective}</span>
+                        <br /> L1: <span class="break-all">local</span>
+                        <br /> L2: <span class="break-all">{@config.cache_l2_effective}</span>
+
+                        <br /><br />
+                        <span class="opacity-70">details:</span>
+                        <br /> inclusion_policy:
+                        <span class="break-all">{inspect(@config.cache_inclusion_policy)}</span>
+                        <br /> levels: <span class="break-all">{inspect(@config.cache_levels)}</span>
+                        <br /> L1 opts:
+                        <span class="break-all">{inspect(@config.cache_l1_opts)}</span>
+                        <br /> L2 module:
+                        <span class="break-all">{inspect(@config.cache_l2_module)}</span>
+                        <br /> L2 opts:
+                        <span class="break-all">{inspect(@config.cache_l2_opts)}</span>
+                      </div>
+
+                      <div class="mt-2 text-xs text-base-content/60">
+                        <p class="mb-1">
+                          This app supports single-level (L1 local) or two-level (L1 + L2).
+                        </p>
+                        <p>
+                          Use <code class="font-mono">CACHE_MODE=single</code>
+                          for a single-instance deployment
+                          (local cache only).
+                        </p>
+                        <p class="mt-1">
+                          Use <code class="font-mono">CACHE_MODE=multi</code>
+                          to enable L2, then choose <code class="font-mono">CACHE_L2=redis</code>
+                          (shared) or <code class="font-mono">CACHE_L2=partitioned</code>
+                          (Erlang-cluster sharding).
+                        </p>
                       </div>
                     </td>
                   </tr>
@@ -832,7 +959,8 @@ defmodule GameServerWeb.AdminLive.Config do
 
   @impl true
   def mount(_params, _session, socket) do
-    cache_conf = Application.get_env(:game_server_core, GameServer.Cache) || []
+    cache = cache_diagnostics()
+    clustering = clustering_diagnostics()
 
     config = %{
       discord_client_id:
@@ -899,12 +1027,37 @@ defmodule GameServerWeb.AdminLive.Config do
       log_level_env: System.get_env("LOG_LEVEL"),
       access_log_level: GameServerWeb.Endpoint.access_log_level(nil),
       access_log_level_env: System.get_env("ACCESS_LOG_LEVEL"),
+      release_distribution_env: System.get_env("RELEASE_DISTRIBUTION"),
+      release_node_env: System.get_env("RELEASE_NODE"),
+      release_cookie_env: System.get_env("RELEASE_COOKIE"),
+      dns_cluster_query_env: System.get_env("DNS_CLUSTER_QUERY"),
+      release_distribution_recommended: "name",
+      release_node_recommended: clustering.release_node_recommended,
+      dns_cluster_query_recommended: clustering.dns_cluster_query_recommended,
+      erl_aflags_env: System.get_env("ERL_AFLAGS"),
+      erl_aflags_recommended: clustering.erl_aflags_recommended,
+      node_name: node(),
+      node_alive?: Node.alive?(),
+      release_distribution_enabled?: Node.alive?(),
       cache_enabled_env: System.get_env("CACHE_ENABLED"),
-      cache_bypass_mode: Keyword.get(cache_conf, :bypass_mode),
-      cache_gc_interval: Keyword.get(cache_conf, :gc_interval),
-      cache_max_size: Keyword.get(cache_conf, :max_size),
-      cache_allocated_memory: Keyword.get(cache_conf, :allocated_memory),
-      cache_gc_memory_check_interval: Keyword.get(cache_conf, :gc_memory_check_interval),
+      cache_mode_env: System.get_env("CACHE_MODE"),
+      cache_l2_env: System.get_env("CACHE_L2"),
+      cache_redis_url_env: System.get_env("CACHE_REDIS_URL") || System.get_env("REDIS_URL"),
+      cache_redis_pool_size_env: System.get_env("CACHE_REDIS_POOL_SIZE"),
+      cache_enabled_default: "true",
+      cache_mode_default: "single",
+      cache_l2_default: "partitioned",
+      cache_redis_pool_size_default: "10",
+      cache_enabled_effective?: not cache.cache_bypass_mode_effective,
+      cache_bypass_mode: cache.cache_bypass_mode,
+      cache_bypass_mode_effective: cache.cache_bypass_mode_effective,
+      cache_inclusion_policy: cache.cache_inclusion_policy,
+      cache_mode_effective: cache.cache_mode_effective,
+      cache_l2_effective: cache.cache_l2_effective,
+      cache_levels: cache.cache_levels,
+      cache_l1_opts: cache.cache_l1_opts,
+      cache_l2_module: cache.cache_l2_module,
+      cache_l2_opts: cache.cache_l2_opts,
       db_pool_size_env: System.get_env("POOL_SIZE"),
       db_pool_timeout_env: System.get_env("DB_POOL_TIMEOUT"),
       db_queue_target_env: System.get_env("DB_QUEUE_TARGET"),
@@ -912,7 +1065,11 @@ defmodule GameServerWeb.AdminLive.Config do
       db_query_timeout_env: System.get_env("DB_QUERY_TIMEOUT"),
       postgres_port_env: System.get_env("POSTGRES_PORT"),
       ecto_ipv6_env: System.get_env("ECTO_IPV6"),
+      ecto_ipv6_recommended: clustering.ecto_ipv6_recommended,
       phx_server_env: System.get_env("PHX_SERVER"),
+      fly_app_name_env: clustering.fly_app_name_env,
+      fly_private_ip_env: clustering.fly_private_ip_env,
+      fly_region_env: clustering.fly_region_env,
       # Hooks plugin diagnostics
       hooks_exported_functions: exported_plugin_functions(),
       hooks_test_result: nil,
@@ -951,6 +1108,84 @@ defmodule GameServerWeb.AdminLive.Config do
          to_form(%{"name" => default_plugin_build_selection()}, as: :plugin_build)
      )}
   end
+
+  defp cache_diagnostics do
+    cache_conf = Application.get_env(:game_server_core, GameServer.Cache) || []
+    cache_levels = Keyword.get(cache_conf, :levels, [])
+
+    {_l1_mod, l1_opts} =
+      Enum.find(cache_levels, {nil, []}, fn
+        {GameServer.Cache.L1, _opts} -> true
+        _ -> false
+      end)
+
+    {l2_module, l2_opts} =
+      Enum.find(cache_levels, {nil, []}, fn
+        {GameServer.Cache.L2.Partitioned, _opts} -> true
+        {GameServer.Cache.L2.Redis, _opts} -> true
+        _ -> false
+      end)
+
+    bypass_mode_effective = Keyword.get(cache_conf, :bypass_mode, false)
+    mode_effective = cache_mode_from_levels(cache_levels)
+
+    %{
+      cache_bypass_mode: Keyword.get(cache_conf, :bypass_mode),
+      cache_bypass_mode_effective: bypass_mode_effective,
+      cache_inclusion_policy: Keyword.get(cache_conf, :inclusion_policy),
+      cache_mode_effective: mode_effective,
+      cache_l2_effective: cache_l2_label(l2_module),
+      cache_levels: cache_levels,
+      cache_l1_opts: l1_opts,
+      cache_l2_module: l2_module,
+      cache_l2_opts: l2_opts
+    }
+  end
+
+  defp cache_mode_from_levels(levels) when is_list(levels) do
+    case length(levels) do
+      1 -> "single"
+      2 -> "multi"
+      _ -> "custom"
+    end
+  end
+
+  defp cache_l2_label(GameServer.Cache.L2.Redis), do: "redis"
+  defp cache_l2_label(GameServer.Cache.L2.Partitioned), do: "partitioned"
+  defp cache_l2_label(nil), do: "none"
+  defp cache_l2_label(other), do: inspect(other)
+
+  defp clustering_diagnostics do
+    fly_app_name_env = System.get_env("FLY_APP_NAME")
+    fly_private_ip_env = System.get_env("FLY_PRIVATE_IP")
+    fly_region_env = System.get_env("FLY_REGION")
+
+    fly? = fly_app_name_env != nil
+
+    %{
+      fly_app_name_env: fly_app_name_env,
+      fly_private_ip_env: fly_private_ip_env,
+      fly_region_env: fly_region_env,
+      release_node_recommended: release_node_recommended(fly?),
+      dns_cluster_query_recommended: dns_cluster_query_recommended(fly?),
+      erl_aflags_recommended: erl_aflags_recommended(fly?),
+      ecto_ipv6_recommended: ecto_ipv6_recommended(fly?)
+    }
+  end
+
+  defp release_node_recommended(true),
+    do: "${FLY_APP_NAME}-${FLY_IMAGE_REF##*-}@${FLY_PRIVATE_IP}"
+
+  defp release_node_recommended(false), do: "myapp@fully-qualified-ip"
+
+  defp dns_cluster_query_recommended(true), do: "${FLY_APP_NAME}.internal"
+  defp dns_cluster_query_recommended(false), do: "a DNS name that resolves to all peer nodes"
+
+  defp erl_aflags_recommended(true), do: "-proto_dist inet6_tcp"
+  defp erl_aflags_recommended(false), do: ""
+
+  defp ecto_ipv6_recommended(true), do: "true"
+  defp ecto_ipv6_recommended(false), do: ""
 
   @impl true
   def handle_event("reload_plugins", _params, socket) do
@@ -1266,4 +1501,10 @@ defmodule GameServerWeb.AdminLive.Config do
       "#{first}...#{last}"
     end
   end
+
+  defp env_with_default(v, _default) when is_binary(v) and v != "", do: v
+  defp env_with_default(_v, default), do: "<unset (default: #{default})>"
+
+  defp env_with_recommended(v, _recommended) when is_binary(v) and v != "", do: v
+  defp env_with_recommended(_v, recommended), do: "<unset (recommended: #{recommended})>"
 end

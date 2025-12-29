@@ -29,8 +29,49 @@ end
 if config_env() == :prod do
   cache_enabled = GameServer.Env.bool("CACHE_ENABLED", true)
 
-  config :game_server_core, GameServer.Cache,
-    bypass_mode: not cache_enabled,
+  cache_mode = System.get_env("CACHE_MODE") || "single"
+
+  cache_l2 = System.get_env("CACHE_L2") || "partitioned"
+
+  redis_conn_opts =
+    case System.get_env("CACHE_REDIS_URL") || System.get_env("REDIS_URL") do
+      nil ->
+        []
+
+      url ->
+        uri = URI.parse(url)
+
+        host = uri.host || "127.0.0.1"
+        port = uri.port || 6379
+
+        password =
+          case uri.userinfo do
+            nil -> nil
+            userinfo -> userinfo |> String.split(":", parts: 2) |> List.last()
+          end
+
+        database =
+          case uri.path do
+            "/" <> db_str when db_str != "" ->
+              case Integer.parse(db_str) do
+                {db, _} -> db
+                :error -> nil
+              end
+
+            _ ->
+              nil
+          end
+
+        [host: host, port: port]
+        |> then(fn opts ->
+          if password, do: Keyword.put(opts, :password, password), else: opts
+        end)
+        |> then(fn opts ->
+          if database != nil, do: Keyword.put(opts, :database, database), else: opts
+        end)
+    end
+
+  l1_opts = [
     # Create new generation every 12 hours
     gc_interval: :timer.hours(12),
     # Max 1M entries
@@ -39,6 +80,43 @@ if config_env() == :prod do
     allocated_memory: 500_000_000,
     # Run size and memory checks every 10 seconds
     gc_memory_check_interval: :timer.seconds(10)
+  ]
+
+  levels =
+    case cache_mode do
+      "single" ->
+        [{GameServer.Cache.L1, l1_opts}]
+
+      _ ->
+        l2_level =
+          case cache_l2 do
+            "redis" ->
+              pool_size = GameServer.Env.integer("CACHE_REDIS_POOL_SIZE", 10)
+
+              if redis_conn_opts == [] do
+                raise "CACHE_MODE=multi with CACHE_L2=redis requires CACHE_REDIS_URL or REDIS_URL"
+              end
+
+              {GameServer.Cache.L2.Redis, pool_size: pool_size, conn_opts: redis_conn_opts}
+
+            _ ->
+              {GameServer.Cache.L2.Partitioned,
+               primary: [
+                 # Partitioned uses a local primary storage on each node.
+                 gc_interval: :timer.hours(12),
+                 max_size: 1_000_000,
+                 allocated_memory: 500_000_000,
+                 gc_memory_check_interval: :timer.seconds(10)
+               ]}
+          end
+
+        [{GameServer.Cache.L1, l1_opts}, l2_level]
+    end
+
+  config :game_server_core, GameServer.Cache,
+    bypass_mode: not cache_enabled,
+    inclusion_policy: :inclusive,
+    levels: levels
 
   access_log_level = GameServer.Env.log_level("ACCESS_LOG_LEVEL", :debug)
 

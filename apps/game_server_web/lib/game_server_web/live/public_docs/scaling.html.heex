@@ -1,0 +1,86 @@
+<!-- Scaling & Clustering -->
+<div class="card bg-base-100 shadow-xl collapsed" data-card-key="scaling">
+  <div class="card-body">
+    <h2 class="card-title text-2xl mb-4 flex items-center gap-3">
+      <svg
+        class="w-12 h-8 text-indigo-600"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 10h4v10H4V10zm6-6h4v16h-4V4zm6 10h4v6h-4v-6z"
+        />
+      </svg>
+      Scaling
+      <a href="/admin/config" class="btn btn-outline ml-auto">
+        Verify Runtime
+        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+          />
+        </svg>
+      </a>
+      <button
+        type="button"
+        data-action="toggle-card"
+        data-card-key="scaling"
+        aria-expanded="false"
+        class="btn btn-ghost btn-sm"
+        title="Collapse/Expand"
+      >
+        <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 8l4 4 4-4" />
+        </svg>
+      </button>
+    </h2>
+
+    <div class="space-y-6">
+      <div class="step">
+        <h3 class="text-lg font-semibold mb-3">1 instance vs multiple instances</h3>
+        <div class="ml-8 space-y-3">
+          <p>
+            <strong>Single instance</strong> is the simplest and the default.
+            When you scale out to multiple instances, you typically need:
+          </p>
+          <ul class="list-disc ml-5 text-sm text-base-content/80 space-y-1">
+            <li>A shared database (PostgreSQL recommended)</li>
+            <li>A shared cache (Redis recommended since L2 doesn't require Erlang distribution)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step">
+        <h3 class="text-lg font-semibold mb-3">Docker Compose (local / self-host)</h3>
+        <div class="ml-8 space-y-3">
+          <p>
+            Docker Compose is a simple way to run the app with PostgreSQL and Redis.
+          </p>
+
+          <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
+            <div class="space-y-2">
+              <div># Start deps (Postgres + Redis):</div>
+              <div>docker compose -f docker-compose.deps.yml up</div>
+              <div></div>
+              <div># In your app env:</div>
+              <div>CACHE_MODE=multi</div>
+              <div>CACHE_L2=redis</div>
+              <div>CACHE_REDIS_URL="redis://redis:6379/0"</div>
+            </div>
+          </div>
+
+          <p class="text-sm text-base-content/70">
+            If you want to use <code>CACHE_L2=partitioned</code> under Compose,
+            you also need to configure Erlang distribution + node discovery for your app containers.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
