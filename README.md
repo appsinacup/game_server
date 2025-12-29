@@ -108,7 +108,7 @@ To regenerate SDK stubs from the main project:
 mix gen.sdk
 ```
 
-## How to deploy [Starter Template](https://github.com/appsinacup/gamend_starter)
+## How to deploy ([Starter Template](https://github.com/appsinacup/gamend_starter))
 
 1. Fork this repo (or create a Dockerfile like this):
 
@@ -118,12 +118,56 @@ FROM ghcr.io/appsinacup/game_server:latest
 WORKDIR /app
 
 COPY modules/ ./modules/
+COPY apps/game_server_web/priv/static/assets/css/theme/ ./apps/game_server_web/priv/static/assets/css/theme/
+COPY apps/game_server_web/priv/static/images/ ./apps/game_server_web/priv/static/images/
+
+# Build any plugins shipped in this repo (overlay) so they're available at runtime.
+ARG GAME_SERVER_PLUGINS_DIR=modules/plugins
+ENV GAME_SERVER_PLUGINS_DIR=${GAME_SERVER_PLUGINS_DIR}
+
+RUN if [ -d "${GAME_SERVER_PLUGINS_DIR}" ]; then \
+		for plugin_path in ${GAME_SERVER_PLUGINS_DIR}/*; do \
+			if [ -d "${plugin_path}" ] && [ -f "${plugin_path}/mix.exs" ]; then \
+				echo "Building plugin ${plugin_path}"; \
+				(cd "${plugin_path}" && mix deps.get && mix compile && mix plugin.bundle); \
+			fi; \
+		done; \
+	else \
+		echo "Plugin sources dir ${GAME_SERVER_PLUGINS_DIR} missing, skipping plugin builds"; \
+	fi
 ```
 
 2. Go to fly.io and deploy (select the forked repo).
 3. Set secrets all values in `.env.example`. Run locally `fly secrets sync` and `fly secrets deploy` (in case secrets don't deploy/update).
 4. Configure all things from [Guides](https://gamend.appsinacup.com/docs/setup) page.
 5. Monthly cost (without Postgres) will be about 5$.
+
+## Run locally
+
+To run locally using Elixir:
+
+1. Configure the `.env` file (copy `.env.example` to `.env`).
+
+
+2. Then run:
+
+```sh
+./start.sh
+```
+
+## Run locally (Docker Compose)
+
+To run with single instance, run:
+
+```sh
+docker compose up
+```
+
+To run multi instance with 2 instances, nginx load balancer, PostgreSQL database, Redis cache, run:
+
+```sh
+docker compose -f docker-compose.multi.yml up --scale app=2
+```
 
 ## Git hooks
 

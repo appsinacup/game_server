@@ -133,8 +133,8 @@ defmodule GameServerWeb.Router do
 
   scope "/" do
     pipe_through [:browser]
-    # Mailbox preview only in development
-    if Mix.env() == :dev do
+    # Mailbox preview enabled in dev or if MAILBOX_PREVIEW_ENABLED is set
+    if Mix.env() == :dev or System.get_env("MAILBOX_PREVIEW_ENABLED") in ["1", "true", "TRUE"] do
       forward "/dev/mailbox", Plug.Swoosh.MailboxPreview
     end
   end

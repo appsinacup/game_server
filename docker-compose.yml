@@ -3,6 +3,7 @@ services:
     build: .
     ports:
       - "4000:4000"
+    # Enable this to set custom env values
     #env_file:
     #  - .env
     environment:
@@ -10,14 +11,9 @@ services:
       SECRET_KEY_BASE: 1DdaMAX56nUh1tvXniEEuQNsGNvgADndawxrJ3YFZlLXc9EOahC/NFDgowCDUFwb
       # Path to server module plugins
       GAME_SERVER_PLUGINS_DIR: modules/plugins_examples
-      # Enable device authentication
-      # Easy to get started locally
       DEVICE_AUTH_ENABLED: true
-      # Host base
       PHX_HOST: localhost
-      # When testing in localhost, the following enables local email.
-      # Without this, creating an email requires OAuth or an SMTP server.
-      MIX_ENV: dev
+      MAILBOX_PREVIEW_ENABLED: true
     volumes:
       - ./modules:/app/modules
       - ./priv/static/images:/app/priv/static/images

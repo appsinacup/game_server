@@ -7,6 +7,8 @@ services:
       - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
+    networks:
+      - web
 
   db:
     image: postgres:18
@@ -19,19 +21,31 @@ services:
       - pgdata:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d game_server_dev"]
+    ports:
+      - "5432:5432"
     networks:
       - web
 
   app:
     build: .
-    env_file:
-      - .env
+    # Enable this to set custom env values
+    #env_file:
+    #  - .env
     environment:
+      # Run mix phx.gen.secret
+      SECRET_KEY_BASE: 1DdaMAX56nUh1tvXniEEuQNsGNvgADndawxrJ3YFZlLXc9EOahC/NFDgowCDUFwb
+      # Path to server module plugins
+      GAME_SERVER_PLUGINS_DIR: modules/plugins_examples
+      DEVICE_AUTH_ENABLED: true
+      PHX_HOST: localhost
+      MAILBOX_PREVIEW_ENABLED: true
+      # Postgres
       POSTGRES_HOST: db
       POSTGRES_PORT: 5432
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: game_server_dev
+      # Cache
       CACHE_MODE: multi
       CACHE_L2: redis
       CACHE_REDIS_URL: redis://redis:6379/0
@@ -41,6 +55,7 @@ services:
       - ./priv/static/assets/css/theme:/app/priv/static/assets/css/theme
     depends_on:
       - db
+      - redis
     networks:
       - web
     # NOTE: we don't map host ports directly here so we can safely scale multiple replicas.
@@ -61,6 +76,7 @@ services:
 
 volumes:
   pgdata:
+  redis_data:
 
 networks:
   web:
