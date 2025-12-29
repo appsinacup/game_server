@@ -47,6 +47,7 @@ defmodule GameServerHost.MixProject do
       {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.3", runtime: Mix.env() == :dev},
       {:swoosh, "~> 1.20"},
+      {:castore, "~> 1.0"},
       {:gen_smtp, "~> 1.0"},
       {:req, "~> 0.5"},
       {:sentry, "~> 11.0"},

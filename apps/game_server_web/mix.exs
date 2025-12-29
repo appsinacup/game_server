@@ -62,6 +62,7 @@ defmodule GameServerWeb.MixProject do
        compile: false,
        depth: 1},
       {:swoosh, "~> 1.20"},
+      {:castore, "~> 1.0"},
       {:gen_smtp, "~> 1.0"},
       {:req, "~> 0.5"},
       {:sentry, "~> 11.0"},
