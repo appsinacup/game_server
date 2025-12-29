@@ -8,7 +8,7 @@
     <meta name="project" content="GameServer v1.0.469">
 
 
-    <title>GameServer.Cache — GameServer v1.0.469</title>
+    <title>GameServer.Cache.L1 — GameServer v1.0.469</title>
 
     <link rel="stylesheet" href="dist/html-elixir-VYWJUHZE.css" />
 
@@ -93,7 +93,7 @@ GameServer
 <div id="top-content">
   <div class="heading-with-actions top-heading">
     <h1>
-      <span translate="no">GameServer.Cache</span> 
+      <span translate="no">GameServer.Cache.L1</span> 
       <small class="app-vsn" translate="no">(GameServer v1.0.469)</small>
 
     </h1>
@@ -102,9 +102,7 @@ GameServer
 
 
     <section id="moduledoc">
-<p>Application cache backed by Nebulex.</p><p>This cache uses a 2-level (near-cache) topology via
-<a href="https://hexdocs.pm/nebulex_distributed/3.0.0-rc.2/Nebulex.Adapters.Multilevel.html"><code class="inline">Nebulex.Adapters.Multilevel</code></a>:</p><ul><li>L1: local in-memory cache (<a href="GameServer.Cache.L1.html"><code class="inline">GameServer.Cache.L1</code></a>)</li><li>L2: either Redis (<a href="GameServer.Cache.L2.Redis.html"><code class="inline">GameServer.Cache.L2.Redis</code></a>) or a partitioned topology
-(<a href="GameServer.Cache.L2.Partitioned.html"><code class="inline">GameServer.Cache.L2.Partitioned</code></a>), selected via runtime config.</li></ul>
+<p>L1 cache (local, in-memory).</p><p>This cache is the fastest level in the multi-level cache hierarchy.</p>
     </section>
 
 </div>
@@ -403,6 +401,16 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
+        <a href="#generations/0" data-no-tooltip="" translate="no">generations()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>A convenience function for retrieving the current generations.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
         <a href="#get/3" data-no-tooltip="" translate="no">get(key, default \\ nil, opts \\ [])</a>
 
       </div>
@@ -603,16 +611,6 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#inclusion_policy/1" data-no-tooltip="" translate="no">inclusion_policy(name \\ __MODULE__)</a>
-
-      </div>
-
-        <div class="summary-synopsis"><p>A convenience function to get the cache inclusion policy.</p></div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
         <a href="#incr/3" data-no-tooltip="" translate="no">incr(key, amount \\ 1, opts \\ [])</a>
 
       </div>
@@ -688,6 +686,26 @@ GameServer
       </div>
 
         <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:info!/3"><code class="inline">Nebulex.Cache.info!/3</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#new_generation/1" data-no-tooltip="" translate="no">new_generation(opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>A convenience function for creating new generations.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#newer_generation/0" data-no-tooltip="" translate="no">newer_generation()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>A convenience function for retrieving the newer generation.</p></div>
 
     </div>
 
@@ -928,6 +946,16 @@ GameServer
       </div>
 
         <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:replace!/4"><code class="inline">Nebulex.Cache.replace!/4</code></a>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#reset_gc_interval/0" data-no-tooltip="" translate="no">reset_gc_interval()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>A convenience function for reset the GC interval.</p></div>
 
     </div>
 
@@ -1749,6 +1777,24 @@ GameServer
 <p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:fetch_or_store!/4"><code class="inline">Nebulex.Cache.fetch_or_store!/4</code></a>.</p>
   </section>
 </section>
+<section class="detail" id="generations/0">
+
+  <div class="detail-header">
+    <a href="#generations/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">generations()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>A convenience function for retrieving the current generations.</p>
+  </section>
+</section>
 <section class="detail" id="get/3">
 
     <span id="get/1"></span>
@@ -2137,26 +2183,6 @@ GameServer
 <p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:in_transaction?/2"><code class="inline">Nebulex.Cache.in_transaction?/2</code></a>.</p>
   </section>
 </section>
-<section class="detail" id="inclusion_policy/1">
-
-    <span id="inclusion_policy/0"></span>
-
-  <div class="detail-header">
-    <a href="#inclusion_policy/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">inclusion_policy(name \\ __MODULE__)</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-<p>A convenience function to get the cache inclusion policy.</p>
-  </section>
-</section>
 <section class="detail" id="incr/3">
 
     <span id="incr/1"></span>
@@ -2315,6 +2341,44 @@ GameServer
   <section class="docstring">
 
 <p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:info!/3"><code class="inline">Nebulex.Cache.info!/3</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="new_generation/1">
+
+    <span id="new_generation/0"></span>
+
+  <div class="detail-header">
+    <a href="#new_generation/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">new_generation(opts \\ [])</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>A convenience function for creating new generations.</p>
+  </section>
+</section>
+<section class="detail" id="newer_generation/0">
+
+  <div class="detail-header">
+    <a href="#newer_generation/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">newer_generation()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>A convenience function for retrieving the newer generation.</p>
   </section>
 </section>
 <section class="detail" id="put/3">
@@ -2771,6 +2835,24 @@ GameServer
   <section class="docstring">
 
 <p>Callback implementation for <a href="https://hexdocs.pm/nebulex/3.0.0-rc.2/Nebulex.Cache.html#c:replace!/4"><code class="inline">Nebulex.Cache.replace!/4</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="reset_gc_interval/0">
+
+  <div class="detail-header">
+    <a href="#reset_gc_interval/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">reset_gc_interval()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>A convenience function for reset the GC interval.</p>
   </section>
 </section>
 <section class="detail" id="stream/2">

@@ -5,6 +5,10 @@ GameServer.Accounts.UserNotifier.html
 GameServer.Accounts.UserToken.html
 GameServer.Accounts.html
 GameServer.Apple.html
+GameServer.Cache.L1.html
+GameServer.Cache.L2.Partitioned.Primary.html
+GameServer.Cache.L2.Partitioned.html
+GameServer.Cache.L2.Redis.html
 GameServer.Cache.html
 GameServer.Env.html
 GameServer.Friends.Friendship.html
@@ -42,7 +46,7 @@ dist/lato-latin-700-normal-2XVSBPG4.woff2
 dist/lato-latin-ext-400-normal-N27NCBWW.woff2
 dist/lato-latin-ext-700-normal-Q2L5DVMW.woff2
 dist/remixicon-QPNJX265.woff2
-dist/search_data-B1EF4BCC.js
-dist/sidebar_items-66CF14A9.js
+dist/search_data-902F648D.js
+dist/sidebar_items-5220A3B0.js
 index.html
 search.html
