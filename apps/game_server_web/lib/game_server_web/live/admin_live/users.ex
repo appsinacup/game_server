@@ -22,6 +22,15 @@ defmodule GameServerWeb.AdminLive.Users do
               <h2 class="card-title">Users ({@users_count})</h2>
 
               <div class="flex gap-2">
+                <button
+                  type="button"
+                  phx-click="bulk_delete"
+                  data-confirm={"Delete #{MapSet.size(@selected_ids)} selected users?"}
+                  class="btn btn-sm btn-outline btn-error"
+                  disabled={MapSet.size(@selected_ids) == 0}
+                >
+                  Delete selected ({MapSet.size(@selected_ids)})
+                </button>
                 <form
                   id="admin-user-search-form"
                   phx-change="search_users"
@@ -120,6 +129,16 @@ defmodule GameServerWeb.AdminLive.Users do
               <table class="table table-zebra">
                 <thead>
                   <tr>
+                    <th class="w-10">
+                      <input
+                        type="checkbox"
+                        class="checkbox checkbox-sm"
+                        phx-click="toggle_select_all"
+                        checked={
+                          @recent_users != [] && MapSet.size(@selected_ids) == length(@recent_users)
+                        }
+                      />
+                    </th>
                     <th>ID</th>
                     <th>Lobby ID</th>
                     <th>Email</th>
@@ -141,6 +160,15 @@ defmodule GameServerWeb.AdminLive.Users do
                 </thead>
                 <tbody>
                   <tr :for={user <- @recent_users} id={"user-#{user.id}"}>
+                    <td class="w-10">
+                      <input
+                        type="checkbox"
+                        class="checkbox checkbox-sm"
+                        phx-click="toggle_select"
+                        phx-value-id={user.id}
+                        checked={MapSet.member?(@selected_ids, user.id)}
+                      />
+                    </td>
                     <td>{user.id}</td>
                     <td class="font-mono text-sm">
                       <%= if user.lobby_id do %>
@@ -340,7 +368,8 @@ defmodule GameServerWeb.AdminLive.Users do
      |> assign(:selected_user, nil)
      |> assign(:form, nil)
      |> assign(:search_query, "")
-     |> assign(:filters, [])}
+     |> assign(:filters, [])
+     |> assign(:selected_ids, MapSet.new())}
   end
 
   @impl true
@@ -368,7 +397,8 @@ defmodule GameServerWeb.AdminLive.Users do
      |> assign(:users_page, page)
      |> assign(:recent_users, users)
      |> assign(:users_count, total_count)
-     |> assign(:users_total_pages, total_pages)}
+     |> assign(:users_total_pages, total_pages)
+     |> sync_selected_ids(user_ids(users))}
   end
 
   def handle_event("clear_search", _params, socket) do
@@ -384,7 +414,8 @@ defmodule GameServerWeb.AdminLive.Users do
      |> assign(:users_page, page)
      |> assign(:recent_users, users)
      |> assign(:users_count, total_count)
-     |> assign(:users_total_pages, total_pages)}
+     |> assign(:users_total_pages, total_pages)
+     |> sync_selected_ids(user_ids(users))}
   end
 
   def handle_event("toggle_provider", %{"provider" => provider}, socket) do
@@ -409,7 +440,8 @@ defmodule GameServerWeb.AdminLive.Users do
      |> assign(:users_page, page)
      |> assign(:recent_users, users)
      |> assign(:users_count, total_count)
-     |> assign(:users_total_pages, total_pages)}
+     |> assign(:users_total_pages, total_pages)
+     |> sync_selected_ids(user_ids(users))}
   end
 
   def handle_event("cancel_edit", _, socket) do
@@ -457,7 +489,8 @@ defmodule GameServerWeb.AdminLive.Users do
          |> assign(:users_count, total_count)
          |> assign(:users_total_pages, total_pages)
          |> assign(:selected_user, nil)
-         |> assign(:form, nil)}
+         |> assign(:form, nil)
+         |> sync_selected_ids(user_ids(users))}
 
       {:error, changeset} ->
         {:noreply, assign(socket, :form, to_form(changeset, as: "user"))}
@@ -481,15 +514,28 @@ defmodule GameServerWeb.AdminLive.Users do
           )
 
         # ensure current page is within range (if we deleted the last item on last page)
-        page = max(1, min(page, total_pages || 1))
+        page2 = max(1, min(page, total_pages || 1))
+
+        {users, total_count, total_pages} =
+          if page2 != page do
+            load_users(
+              page2,
+              page_size,
+              socket.assigns[:search_query] || "",
+              socket.assigns[:filters] || []
+            )
+          else
+            {users, total_count, total_pages}
+          end
 
         {:noreply,
          socket
          |> put_flash(:info, "User deleted successfully")
          |> assign(:users_count, total_count)
          |> assign(:recent_users, users)
-         |> assign(:users_page, page)
-         |> assign(:users_total_pages, total_pages)}
+         |> assign(:users_page, page2)
+         |> assign(:users_total_pages, total_pages)
+         |> sync_selected_ids(user_ids(users))}
 
       {:error, _} ->
         {:noreply, put_flash(socket, :error, "Failed to delete user")}
@@ -514,7 +560,8 @@ defmodule GameServerWeb.AdminLive.Users do
      |> assign(:users_page, page)
      |> assign(:recent_users, users)
      |> assign(:users_count, total_count)
-     |> assign(:users_total_pages, total_pages)}
+     |> assign(:users_total_pages, total_pages)
+     |> sync_selected_ids(user_ids(users))}
   end
 
   def handle_event("admin_users_next", _params, socket) do
@@ -534,7 +581,90 @@ defmodule GameServerWeb.AdminLive.Users do
      |> assign(:users_page, page)
      |> assign(:recent_users, users)
      |> assign(:users_count, total_count)
-     |> assign(:users_total_pages, total_pages)}
+     |> assign(:users_total_pages, total_pages)
+     |> sync_selected_ids(user_ids(users))}
+  end
+
+  @impl true
+  def handle_event("toggle_select", %{"id" => id}, socket) do
+    id = String.to_integer(to_string(id))
+    selected = socket.assigns[:selected_ids] || MapSet.new()
+
+    selected =
+      if MapSet.member?(selected, id) do
+        MapSet.delete(selected, id)
+      else
+        MapSet.put(selected, id)
+      end
+
+    {:noreply,
+     assign(socket, :selected_ids, selected)
+     |> sync_selected_ids(user_ids(socket.assigns.recent_users))}
+  end
+
+  @impl true
+  def handle_event("toggle_select_all", _params, socket) do
+    users = socket.assigns.recent_users || []
+    ids = user_ids(users)
+
+    selected = socket.assigns[:selected_ids] || MapSet.new()
+
+    selected =
+      if ids != [] and MapSet.size(selected) == length(ids) do
+        MapSet.new()
+      else
+        MapSet.new(ids)
+      end
+
+    {:noreply, assign(socket, :selected_ids, selected)}
+  end
+
+  @impl true
+  def handle_event("bulk_delete", _params, socket) do
+    ids = socket.assigns[:selected_ids] || MapSet.new()
+    ids = MapSet.to_list(ids)
+
+    {deleted, failed} =
+      Enum.reduce(ids, {0, 0}, fn id, {d, f} ->
+        user = Accounts.get_user!(id)
+
+        case Accounts.delete_user(user) do
+          {:ok, _} -> {d + 1, f}
+          {:error, _} -> {d, f + 1}
+        end
+      end)
+
+    page = socket.assigns[:users_page] || 1
+    page_size = socket.assigns[:users_page_size] || 25
+    q = socket.assigns[:search_query] || ""
+    filters = socket.assigns[:filters] || []
+
+    {users, total_count, total_pages} = load_users(page, page_size, q, filters)
+    page2 = max(1, min(page, total_pages || 1))
+
+    {users, total_count, total_pages} =
+      if page2 != page do
+        load_users(page2, page_size, q, filters)
+      else
+        {users, total_count, total_pages}
+      end
+
+    socket = assign(socket, :selected_ids, MapSet.new())
+
+    socket =
+      cond do
+        failed == 0 -> put_flash(socket, :info, "Deleted #{deleted} users")
+        deleted == 0 -> put_flash(socket, :error, "Failed to delete selected users")
+        true -> put_flash(socket, :error, "Deleted #{deleted} users; failed #{failed}")
+      end
+
+    {:noreply,
+     socket
+     |> assign(:users_count, total_count)
+     |> assign(:recent_users, users)
+     |> assign(:users_page, page2)
+     |> assign(:users_total_pages, total_pages)
+     |> sync_selected_ids(user_ids(users))}
   end
 
   # Helper to load users with search + provider filters
@@ -636,5 +766,13 @@ defmodule GameServerWeb.AdminLive.Users do
       combined = Enum.reduce(conds, fn c, acc -> dynamic([u], ^acc or ^c) end)
       from u in base, where: ^combined
     end
+  end
+
+  defp user_ids(users) when is_list(users), do: Enum.map(users, & &1.id)
+
+  defp sync_selected_ids(socket, ids) when is_list(ids) do
+    selected = socket.assigns[:selected_ids] || MapSet.new()
+    allowed = MapSet.new(ids)
+    assign(socket, :selected_ids, MapSet.intersection(selected, allowed))
   end
 end

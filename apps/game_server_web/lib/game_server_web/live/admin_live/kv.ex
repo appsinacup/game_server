@@ -16,60 +16,28 @@ defmodule GameServerWeb.AdminLive.KV do
           <div class="card-body">
             <div class="flex items-center justify-between gap-4">
               <h2 class="card-title">KV Entries ({@count})</h2>
-              <div class="text-xs text-base-content/60">
-                page {@page} / {@total_pages}
+              <div class="flex items-center gap-2">
+                <button
+                  id="admin-kv-new-entry"
+                  type="button"
+                  phx-click="new_entry"
+                  class="btn btn-sm btn-primary"
+                >
+                  + New Entry
+                </button>
+                <button
+                  type="button"
+                  phx-click="bulk_delete"
+                  data-confirm={"Delete #{MapSet.size(@selected_ids)} selected KV entries?"}
+                  class="btn btn-sm btn-outline btn-error"
+                  disabled={MapSet.size(@selected_ids) == 0}
+                >
+                  Delete selected ({MapSet.size(@selected_ids)})
+                </button>
+                <div class="text-xs text-base-content/60">
+                  page {@page} / {@total_pages}
+                </div>
               </div>
-            </div>
-
-            <div class="mt-4">
-              <h3 class="font-semibold text-sm mb-2">
-                {if(@editing?, do: "Edit entry", else: "New entry")}
-              </h3>
-
-              <.form for={@form} id="admin-kv-form" phx-submit="save_entry" class="space-y-3">
-                <input
-                  type="hidden"
-                  id={@form[:id].id}
-                  name={@form[:id].name}
-                  value={@form[:id].value}
-                />
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <.input field={@form[:key]} type="text" label="Key" required />
-                  <.input
-                    field={@form[:user_id]}
-                    type="number"
-                    label="User ID (optional)"
-                    inputmode="numeric"
-                  />
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                  <.input
-                    field={@form[:value_json]}
-                    type="textarea"
-                    label="Value (JSON object)"
-                    class="w-full textarea font-mono text-xs min-h-32"
-                    required
-                  />
-                  <.input
-                    field={@form[:metadata_json]}
-                    type="textarea"
-                    label="Metadata (JSON object)"
-                    class="w-full textarea font-mono text-xs min-h-32"
-                    required
-                  />
-                </div>
-
-                <div class="flex gap-2">
-                  <button id="admin-kv-save" type="submit" class="btn btn-primary btn-sm">
-                    {if(@editing?, do: "Save changes", else: "Create")}
-                  </button>
-                  <button type="button" phx-click="new_entry" class="btn btn-sm btn-ghost">
-                    Clear
-                  </button>
-                </div>
-              </.form>
             </div>
 
             <div class="mt-6">
@@ -79,7 +47,6 @@ defmodule GameServerWeb.AdminLive.KV do
                 for={@filter_form}
                 id="admin-kv-filters"
                 phx-change="filters_change"
-                phx-submit="filters_apply"
                 class="space-y-3"
               >
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -95,12 +62,14 @@ defmodule GameServerWeb.AdminLive.KV do
                     label="User ID"
                     inputmode="numeric"
                   />
+                  <.input
+                    field={@filter_form[:global_only]}
+                    type="checkbox"
+                    label="Global only"
+                  />
                 </div>
 
                 <div class="flex gap-2">
-                  <button type="submit" class="btn btn-sm btn-outline">
-                    Apply
-                  </button>
                   <button type="button" phx-click="filters_clear" class="btn btn-sm btn-ghost">
                     Clear
                   </button>
@@ -111,6 +80,7 @@ defmodule GameServerWeb.AdminLive.KV do
             <div class="overflow-x-auto mt-4">
               <table id="admin-kv-table" class="table table-zebra w-full table-fixed">
                 <colgroup>
+                  <col class="w-10" />
                   <col class="w-16" />
                   <col class="w-[40%]" />
                   <col class="w-20" />
@@ -121,6 +91,14 @@ defmodule GameServerWeb.AdminLive.KV do
                 </colgroup>
                 <thead>
                   <tr>
+                    <th class="w-10">
+                      <input
+                        type="checkbox"
+                        class="checkbox checkbox-sm"
+                        phx-click="toggle_select_all"
+                        checked={@entries != [] && MapSet.size(@selected_ids) == length(@entries)}
+                      />
+                    </th>
                     <th class="w-16">ID</th>
                     <th class="font-mono text-sm break-all">Key</th>
                     <th class="w-20">User</th>
@@ -132,6 +110,15 @@ defmodule GameServerWeb.AdminLive.KV do
                 </thead>
                 <tbody>
                   <tr :for={e <- @entries} id={"admin-kv-" <> to_string(e.id)}>
+                    <td class="w-10">
+                      <input
+                        type="checkbox"
+                        class="checkbox checkbox-sm"
+                        phx-click="toggle_select"
+                        phx-value-id={e.id}
+                        checked={MapSet.member?(@selected_ids, e.id)}
+                      />
+                    </td>
                     <td class="font-mono text-sm w-16">{e.id}</td>
                     <td class="font-mono text-sm break-all">{e.key}</td>
                     <td class="font-mono text-sm w-20">{e.user_id || ""}</td>
@@ -189,6 +176,61 @@ defmodule GameServerWeb.AdminLive.KV do
         </div>
       </div>
     </Layouts.app>
+
+    <%= if @show_form_modal do %>
+      <div class="modal modal-open">
+        <div class="modal-box max-w-4xl">
+          <h3 class="font-bold text-lg">
+            {if(@editing?, do: "Edit KV entry", else: "New KV entry")}
+          </h3>
+
+          <.form for={@form} id="admin-kv-form" phx-submit="save_entry" class="space-y-3 mt-4">
+            <input
+              type="hidden"
+              id={@form[:id].id}
+              name={@form[:id].name}
+              value={@form[:id].value}
+            />
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <.input field={@form[:key]} type="text" label="Key" required />
+              <.input
+                field={@form[:user_id]}
+                type="number"
+                label="User ID (optional)"
+                inputmode="numeric"
+              />
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              <.input
+                field={@form[:value_json]}
+                type="textarea"
+                label="Value (JSON object)"
+                class="w-full textarea font-mono text-xs min-h-32"
+                required
+              />
+              <.input
+                field={@form[:metadata_json]}
+                type="textarea"
+                label="Metadata (JSON object)"
+                class="w-full textarea font-mono text-xs min-h-32"
+                required
+              />
+            </div>
+
+            <div class="modal-action">
+              <button type="button" phx-click="close_entry_modal" class="btn">
+                Cancel
+              </button>
+              <button id="admin-kv-save" type="submit" class="btn btn-primary">
+                {if(@editing?, do: "Save changes", else: "Create")}
+              </button>
+            </div>
+          </.form>
+        </div>
+      </div>
+    <% end %>
     """
   end
 
@@ -203,7 +245,13 @@ defmodule GameServerWeb.AdminLive.KV do
      |> assign(:page_size, page_size)
      |> assign(:filter_key, nil)
      |> assign(:filter_user_id, nil)
-     |> assign(:filter_form, to_form(%{"key" => "", "user_id" => ""}, as: :filters))
+     |> assign(:filter_global_only, false)
+     |> assign(
+       :filter_form,
+       to_form(%{"key" => "", "user_id" => "", "global_only" => "false"}, as: :filters)
+     )
+     |> assign(:selected_ids, MapSet.new())
+     |> assign(:show_form_modal, false)
      |> assign_form_new()
      |> reload_entries()}
   end
@@ -219,15 +267,83 @@ defmodule GameServerWeb.AdminLive.KV do
   end
 
   @impl true
+  def handle_event("toggle_select", %{"id" => id}, socket) do
+    id = parse_int(id)
+    selected = socket.assigns[:selected_ids] || MapSet.new()
+
+    selected =
+      if id && MapSet.member?(selected, id) do
+        MapSet.delete(selected, id)
+      else
+        if id, do: MapSet.put(selected, id), else: selected
+      end
+
+    {:noreply,
+     socket
+     |> assign(:selected_ids, selected)
+     |> sync_selected_ids(entry_ids(socket.assigns.entries))}
+  end
+
+  @impl true
+  def handle_event("toggle_select_all", _params, socket) do
+    entries = socket.assigns.entries || []
+    ids = entry_ids(entries)
+
+    selected = socket.assigns[:selected_ids] || MapSet.new()
+
+    selected =
+      if ids != [] and MapSet.size(selected) == length(ids) do
+        MapSet.new()
+      else
+        MapSet.new(ids)
+      end
+
+    {:noreply, assign(socket, :selected_ids, selected)}
+  end
+
+  @impl true
+  def handle_event("bulk_delete", _params, socket) do
+    ids = socket.assigns[:selected_ids] || MapSet.new()
+    ids = MapSet.to_list(ids)
+
+    {deleted, failed} =
+      Enum.reduce(ids, {0, 0}, fn id, {d, f} ->
+        try do
+          :ok = KV.delete_entry(id)
+          {d + 1, f}
+        rescue
+          _ -> {d, f + 1}
+        end
+      end)
+
+    socket = assign(socket, :selected_ids, MapSet.new())
+
+    socket =
+      cond do
+        failed == 0 -> put_flash(socket, :info, "Deleted #{deleted} entries")
+        deleted == 0 -> put_flash(socket, :error, "Failed to delete selected entries")
+        true -> put_flash(socket, :error, "Deleted #{deleted} entries; failed #{failed}")
+      end
+
+    {:noreply, socket |> reload_entries()}
+  end
+
+  @impl true
   def handle_event("filters_change", %{"filters" => params}, socket) when is_map(params) do
     socket = assign(socket, :filter_form, to_form(params, as: :filters))
 
     case filters_from_params(params) do
-      {:ok, %{filter_key: filter_key, filter_user_id: filter_user_id}} ->
+      {:ok,
+       %{
+         filter_key: filter_key,
+         filter_user_id: filter_user_id,
+         filter_global_only: filter_global_only
+       }} ->
         {:noreply,
          socket
          |> assign(:filter_key, filter_key)
          |> assign(:filter_user_id, filter_user_id)
+         |> assign(:filter_global_only, filter_global_only)
          |> assign(:page, 1)
          |> reload_entries()}
 
@@ -237,37 +353,26 @@ defmodule GameServerWeb.AdminLive.KV do
   end
 
   @impl true
-  def handle_event("filters_apply", %{"filters" => params}, socket) when is_map(params) do
-    socket = assign(socket, :filter_form, to_form(params, as: :filters))
-
-    case filters_from_params(params) do
-      {:ok, %{filter_key: filter_key, filter_user_id: filter_user_id}} ->
-        {:noreply,
-         socket
-         |> assign(:filter_key, filter_key)
-         |> assign(:filter_user_id, filter_user_id)
-         |> assign(:page, 1)
-         |> reload_entries()}
-
-      {:error, msg} ->
-        {:noreply, socket |> put_flash(:error, msg)}
-    end
-  end
-
-  @impl true
   def handle_event("filters_clear", _params, socket) do
     {:noreply,
      socket
      |> assign(:filter_key, nil)
      |> assign(:filter_user_id, nil)
-     |> assign(:filter_form, to_form(%{"key" => "", "user_id" => ""}, as: :filters))
+     |> assign(:filter_global_only, false)
+     |> assign(
+       :filter_form,
+       to_form(%{"key" => "", "user_id" => "", "global_only" => "false"}, as: :filters)
+     )
      |> assign(:page, 1)
      |> reload_entries()}
   end
 
   @impl true
   def handle_event("new_entry", _params, socket) do
-    {:noreply, socket |> assign_form_new()}
+    {:noreply,
+     socket
+     |> assign_form_new()
+     |> assign(:show_form_modal, true)}
   end
 
   @impl true
@@ -279,8 +384,19 @@ defmodule GameServerWeb.AdminLive.KV do
         {:noreply, socket |> put_flash(:error, "Entry not found")}
 
       entry ->
-        {:noreply, socket |> assign_form_edit(entry)}
+        {:noreply,
+         socket
+         |> assign_form_edit(entry)
+         |> assign(:show_form_modal, true)}
     end
+  end
+
+  @impl true
+  def handle_event("close_entry_modal", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:show_form_modal, false)
+     |> assign_form_new()}
   end
 
   @impl true
@@ -309,6 +425,7 @@ defmodule GameServerWeb.AdminLive.KV do
              socket
              |> put_flash(:info, "Entry created")
              |> assign_form_new()
+             |> assign(:show_form_modal, false)
              |> reload_entries()}
 
           {:error, %Ecto.Changeset{} = changeset} ->
@@ -323,6 +440,7 @@ defmodule GameServerWeb.AdminLive.KV do
              socket
              |> put_flash(:info, "Entry updated")
              |> assign_form_new()
+             |> assign(:show_form_modal, false)
              |> reload_entries()}
 
           {:error, :not_found} ->
@@ -341,9 +459,18 @@ defmodule GameServerWeb.AdminLive.KV do
 
     key = socket.assigns.filter_key
     user_id = socket.assigns.filter_user_id
+    global_only = socket.assigns.filter_global_only
 
-    entries = KV.list_entries(page: page, page_size: page_size, key: key, user_id: user_id)
-    count = KV.count_entries(key: key, user_id: user_id)
+    entries =
+      KV.list_entries(
+        page: page,
+        page_size: page_size,
+        key: key,
+        user_id: user_id,
+        global_only: global_only
+      )
+
+    count = KV.count_entries(key: key, user_id: user_id, global_only: global_only)
     total_pages = if page_size > 0, do: div(count + page_size - 1, page_size), else: 0
 
     socket
@@ -351,6 +478,7 @@ defmodule GameServerWeb.AdminLive.KV do
     |> assign(:count, count)
     |> assign(:total_pages, total_pages)
     |> clamp_page()
+    |> sync_selected_ids(entry_ids(entries))
   end
 
   defp clamp_page(socket) do
@@ -417,6 +545,14 @@ defmodule GameServerWeb.AdminLive.KV do
   end
 
   defp pretty_json(_), do: "{}"
+
+  defp entry_ids(entries) when is_list(entries), do: Enum.map(entries, & &1.id)
+
+  defp sync_selected_ids(socket, ids) when is_list(ids) do
+    selected = socket.assigns[:selected_ids] || MapSet.new()
+    allowed = MapSet.new(ids)
+    assign(socket, :selected_ids, MapSet.intersection(selected, allowed))
+  end
 
   defp attrs_from_form_params(params) when is_map(params) do
     id = parse_int(Map.get(params, "id"))
@@ -488,12 +624,20 @@ defmodule GameServerWeb.AdminLive.KV do
     key = (Map.get(params, "key") || "") |> String.trim()
     key = if key == "", do: nil, else: key
 
+    global_only = parse_bool(Map.get(params, "global_only"))
+
     case parse_optional_int(Map.get(params, "user_id")) do
       {:ok, user_id} ->
-        {:ok, %{filter_key: key, filter_user_id: user_id}}
+        user_id = if(global_only, do: nil, else: user_id)
+        {:ok, %{filter_key: key, filter_user_id: user_id, filter_global_only: global_only}}
 
       {:error, msg} ->
         {:error, msg}
     end
   end
+
+  defp parse_bool(true), do: true
+  defp parse_bool("true"), do: true
+  defp parse_bool("on"), do: true
+  defp parse_bool(_), do: false
 end

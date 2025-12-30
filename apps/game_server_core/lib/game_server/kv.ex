@@ -54,12 +54,14 @@ defmodule GameServer.KV do
   - `:page` — page number (`pos_integer()`, defaults to `1`)
   - `:page_size` — page size (`pos_integer()`, defaults to `50`)
   - `:user_id` — filter by user id (`pos_integer()`)
+  - `:global_only` — when true, only return global entries (where `user_id` is `nil`) (`boolean()`)
   - `:key` — substring filter (`String.t()`)
   """
   @type list_opts :: [
           page: pos_integer(),
           page_size: pos_integer(),
           user_id: pos_integer(),
+          global_only: boolean(),
           key: String.t()
         ]
 
@@ -197,7 +199,7 @@ defmodule GameServer.KV do
   @doc """
   List key/value entries with optional pagination and filtering.
 
-  Supported options: `:page`, `:page_size`, `:user_id`, and `:key` (substring filter).
+  Supported options: `:page`, `:page_size`, `:user_id`, `:global_only`, and `:key` (substring filter).
   See `t:list_opts/0` for the expected option types.
   Returns a list of `Entry` structs ordered by most recently updated.
   """
@@ -206,7 +208,8 @@ defmodule GameServer.KV do
   def list_entries(opts \\ []) when is_list(opts) do
     page = Keyword.get(opts, :page, 1)
     page_size = Keyword.get(opts, :page_size, 50)
-    user_id = Keyword.get(opts, :user_id)
+    global_only = Keyword.get(opts, :global_only, false)
+    user_id = if(global_only, do: nil, else: Keyword.get(opts, :user_id))
     key_filter = normalize_key_filter(Keyword.get(opts, :key))
 
     version =
@@ -214,7 +217,7 @@ defmodule GameServer.KV do
         do: entries_cache_version(user_id),
         else: entries_cache_version(:all)
 
-    cache_key = {:kv, :list_entries, version, user_id, key_filter, page, page_size}
+    cache_key = {:kv, :list_entries, version, user_id, global_only, key_filter, page, page_size}
 
     case GameServer.Cache.get(cache_key) do
       entries when is_list(entries) ->
@@ -226,6 +229,7 @@ defmodule GameServer.KV do
             order_by: [desc: e.updated_at, desc: e.id]
           )
           |> maybe_filter_user(user_id)
+          |> maybe_filter_global_only(global_only)
           |> maybe_filter_key(key_filter)
 
         entries =
@@ -249,7 +253,8 @@ defmodule GameServer.KV do
   @spec count_entries() :: non_neg_integer()
   @spec count_entries(list_opts()) :: non_neg_integer()
   def count_entries(opts \\ []) when is_list(opts) do
-    user_id = Keyword.get(opts, :user_id)
+    global_only = Keyword.get(opts, :global_only, false)
+    user_id = if(global_only, do: nil, else: Keyword.get(opts, :user_id))
     key_filter = normalize_key_filter(Keyword.get(opts, :key))
 
     version =
@@ -257,7 +262,7 @@ defmodule GameServer.KV do
         do: entries_cache_version(user_id),
         else: entries_cache_version(:all)
 
-    cache_key = {:kv, :count_entries, version, user_id, key_filter}
+    cache_key = {:kv, :count_entries, version, user_id, global_only, key_filter}
 
     case GameServer.Cache.get(cache_key) do
       count when is_integer(count) ->
@@ -267,6 +272,7 @@ defmodule GameServer.KV do
         count =
           Entry
           |> maybe_filter_user(user_id)
+          |> maybe_filter_global_only(global_only)
           |> maybe_filter_key(key_filter)
           |> Repo.aggregate(:count)
 
@@ -421,6 +427,9 @@ defmodule GameServer.KV do
 
   defp maybe_filter_user(query, nil), do: query
   defp maybe_filter_user(query, user_id), do: from(e in query, where: e.user_id == ^user_id)
+
+  defp maybe_filter_global_only(query, true), do: from(e in query, where: is_nil(e.user_id))
+  defp maybe_filter_global_only(query, _false), do: query
 
   defp maybe_filter_key(query, nil), do: query
 

@@ -16,6 +16,7 @@ defmodule GameServerWeb.AdminLive.Lobbies do
       |> assign(:filters, %{})
       |> assign(:selected_lobby, nil)
       |> assign(:form, nil)
+      |> assign(:selected_ids, MapSet.new())
       |> reload_lobbies()
 
     {:ok, socket}
@@ -30,13 +31,32 @@ defmodule GameServerWeb.AdminLive.Lobbies do
 
         <div class="card bg-base-200">
           <div class="card-body">
-            <h2 class="card-title">Lobbies ({@count})</h2>
+            <div class="flex items-center justify-between gap-3">
+              <h2 class="card-title">Lobbies ({@count})</h2>
+              <button
+                type="button"
+                phx-click="bulk_delete"
+                data-confirm={"Delete #{MapSet.size(@selected_ids)} selected lobbies?"}
+                class="btn btn-sm btn-outline btn-error"
+                disabled={MapSet.size(@selected_ids) == 0}
+              >
+                Delete selected ({MapSet.size(@selected_ids)})
+              </button>
+            </div>
 
             <form phx-change="filter">
               <div class="overflow-x-auto mt-4">
                 <table class="table table-zebra w-full">
                   <thead>
                     <tr>
+                      <th class="w-10">
+                        <input
+                          type="checkbox"
+                          class="checkbox checkbox-sm"
+                          phx-click="toggle_select_all"
+                          checked={@lobbies != [] && MapSet.size(@selected_ids) == length(@lobbies)}
+                        />
+                      </th>
                       <th>ID</th>
                       <th>Title</th>
                       <th>Host ID</th>
@@ -49,6 +69,7 @@ defmodule GameServerWeb.AdminLive.Lobbies do
                       <th>Actions</th>
                     </tr>
                     <tr>
+                      <th></th>
                       <th></th>
                       <th>
                         <input
@@ -117,6 +138,15 @@ defmodule GameServerWeb.AdminLive.Lobbies do
                   </thead>
                   <tbody>
                     <tr :for={l <- @lobbies} id={"admin-lobby-" <> to_string(l.id)}>
+                      <td class="w-10">
+                        <input
+                          type="checkbox"
+                          class="checkbox checkbox-sm"
+                          phx-click="toggle_select"
+                          phx-value-id={l.id}
+                          checked={MapSet.member?(@selected_ids, l.id)}
+                        />
+                      </td>
                       <td class="font-mono text-sm">{l.id}</td>
                       <td class="text-sm">{l.title || "-"}</td>
                       <td class="font-mono text-sm">{l.host_id}</td>
@@ -249,6 +279,67 @@ defmodule GameServerWeb.AdminLive.Lobbies do
      |> reload_lobbies()}
   end
 
+  @impl true
+  def handle_event("toggle_select", %{"id" => id}, socket) do
+    {id, ""} = Integer.parse(to_string(id))
+    selected = socket.assigns[:selected_ids] || MapSet.new()
+
+    selected =
+      if MapSet.member?(selected, id) do
+        MapSet.delete(selected, id)
+      else
+        MapSet.put(selected, id)
+      end
+
+    {:noreply,
+     socket
+     |> assign(:selected_ids, selected)
+     |> sync_selected_ids(lobby_ids(socket.assigns.lobbies))}
+  end
+
+  @impl true
+  def handle_event("toggle_select_all", _params, socket) do
+    lobbies = socket.assigns.lobbies || []
+    ids = lobby_ids(lobbies)
+    selected = socket.assigns[:selected_ids] || MapSet.new()
+
+    selected =
+      if ids != [] and MapSet.size(selected) == length(ids) do
+        MapSet.new()
+      else
+        MapSet.new(ids)
+      end
+
+    {:noreply, assign(socket, :selected_ids, selected)}
+  end
+
+  @impl true
+  def handle_event("bulk_delete", _params, socket) do
+    ids = socket.assigns[:selected_ids] || MapSet.new()
+    ids = MapSet.to_list(ids)
+
+    {deleted, failed} =
+      Enum.reduce(ids, {0, 0}, fn id, {d, f} ->
+        lobby = Lobbies.get_lobby!(id)
+
+        case Lobbies.delete_lobby(lobby) do
+          {:ok, _} -> {d + 1, f}
+          {:error, _} -> {d, f + 1}
+        end
+      end)
+
+    socket = assign(socket, :selected_ids, MapSet.new())
+
+    socket =
+      cond do
+        failed == 0 -> put_flash(socket, :info, "Deleted #{deleted} lobbies")
+        deleted == 0 -> put_flash(socket, :error, "Failed to delete selected lobbies")
+        true -> put_flash(socket, :error, "Deleted #{deleted} lobbies; failed #{failed}")
+      end
+
+    {:noreply, socket |> reload_lobbies()}
+  end
+
   def handle_event("edit_lobby", %{"id" => id}, socket) do
     {lobby_id, ""} = Integer.parse(to_string(id))
     lobby = Lobbies.get_lobby!(lobby_id)
@@ -363,5 +454,14 @@ defmodule GameServerWeb.AdminLive.Lobbies do
     |> assign(:count, total_count)
     |> assign(:lobbies_total_pages, total_pages)
     |> assign(:lobbies_page, page)
+    |> sync_selected_ids(lobby_ids(lobbies))
+  end
+
+  defp lobby_ids(lobbies) when is_list(lobbies), do: Enum.map(lobbies, & &1.id)
+
+  defp sync_selected_ids(socket, ids) when is_list(ids) do
+    selected = socket.assigns[:selected_ids] || MapSet.new()
+    allowed = MapSet.new(ids)
+    assign(socket, :selected_ids, MapSet.intersection(selected, allowed))
   end
 end

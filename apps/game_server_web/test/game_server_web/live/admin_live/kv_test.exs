@@ -80,6 +80,8 @@ defmodule GameServerWeb.AdminLive.KVTest do
       |> log_in_user(admin)
       |> live(~p"/admin/kv")
 
+    lv |> element("#admin-kv-new-entry") |> render_click()
+
     params = %{
       "id" => "",
       "key" => "admin-kv:duplicate-key",
@@ -94,6 +96,8 @@ defmodule GameServerWeb.AdminLive.KVTest do
       |> render_submit()
 
     assert KV.count_entries(key: "admin-kv:duplicate-key") == 1
+
+    lv |> element("#admin-kv-new-entry") |> render_click()
 
     html =
       lv

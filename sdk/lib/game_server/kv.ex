@@ -19,6 +19,7 @@ defmodule GameServer.KV do
   page: pos_integer(),
   page_size: pos_integer(),
   user_id: pos_integer(),
+  global_only: boolean(),
   key: String.t()
 ]
   @type attrs() :: %{
@@ -202,7 +203,7 @@ defmodule GameServer.KV do
   @doc ~S"""
     List key/value entries with optional pagination and filtering.
     
-    Supported options: `:page`, `:page_size`, `:user_id`, and `:key` (substring filter).
+    Supported options: `:page`, `:page_size`, `:user_id`, `:global_only`, and `:key` (substring filter).
     See `t:list_opts/0` for the expected option types.
     Returns a list of `Entry` structs ordered by most recently updated.
     
@@ -222,7 +223,7 @@ defmodule GameServer.KV do
   @doc ~S"""
     List key/value entries with optional pagination and filtering.
     
-    Supported options: `:page`, `:page_size`, `:user_id`, and `:key` (substring filter).
+    Supported options: `:page`, `:page_size`, `:user_id`, `:global_only`, and `:key` (substring filter).
     See `t:list_opts/0` for the expected option types.
     Returns a list of `Entry` structs ordered by most recently updated.
     

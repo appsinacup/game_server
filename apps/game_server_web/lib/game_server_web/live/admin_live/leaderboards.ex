@@ -18,6 +18,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
       |> assign(:form, nil)
       |> assign(:record_form, nil)
       |> assign(:editing_record, nil)
+      |> assign(:selected_ids, MapSet.new())
       |> reload_leaderboards()
 
     {:ok, socket}
@@ -34,9 +35,20 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
           <div class="card-body">
             <div class="flex items-center justify-between">
               <h2 class="card-title">Leaderboards ({@count})</h2>
-              <button phx-click="new_leaderboard" class="btn btn-primary btn-sm">
-                + Create Leaderboard
-              </button>
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  phx-click="bulk_delete"
+                  data-confirm={"Delete #{MapSet.size(@selected_ids)} selected leaderboards and all their records?"}
+                  class="btn btn-sm btn-outline btn-error"
+                  disabled={MapSet.size(@selected_ids) == 0}
+                >
+                  Delete selected ({MapSet.size(@selected_ids)})
+                </button>
+                <button phx-click="new_leaderboard" class="btn btn-primary btn-sm">
+                  + Create Leaderboard
+                </button>
+              </div>
             </div>
 
             <div class="flex gap-2 mt-4">
@@ -67,6 +79,16 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
               <table class="table table-zebra w-full">
                 <thead>
                   <tr>
+                    <th class="w-10">
+                      <input
+                        type="checkbox"
+                        class="checkbox checkbox-sm"
+                        phx-click="toggle_select_all"
+                        checked={
+                          @leaderboards != [] && MapSet.size(@selected_ids) == length(@leaderboards)
+                        }
+                      />
+                    </th>
                     <th>ID</th>
                     <th>Slug</th>
                     <th>Title</th>
@@ -80,6 +102,15 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
                 </thead>
                 <tbody>
                   <tr :for={lb <- @leaderboards} id={"admin-lb-#{lb.id}"}>
+                    <td class="w-10">
+                      <input
+                        type="checkbox"
+                        class="checkbox checkbox-sm"
+                        phx-click="toggle_select"
+                        phx-value-id={lb.id}
+                        checked={MapSet.member?(@selected_ids, lb.id)}
+                      />
+                    </td>
                     <td class="font-mono text-sm">{lb.id}</td>
                     <td class="font-mono text-sm">{lb.slug}</td>
                     <td class="text-sm">{lb.title}</td>
@@ -387,6 +418,67 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
      |> reload_leaderboards()}
   end
 
+  @impl true
+  def handle_event("toggle_select", %{"id" => id}, socket) do
+    id = String.to_integer(to_string(id))
+    selected = socket.assigns[:selected_ids] || MapSet.new()
+
+    selected =
+      if MapSet.member?(selected, id) do
+        MapSet.delete(selected, id)
+      else
+        MapSet.put(selected, id)
+      end
+
+    {:noreply,
+     socket
+     |> assign(:selected_ids, selected)
+     |> sync_selected_ids(leaderboard_ids(socket.assigns.leaderboards))}
+  end
+
+  @impl true
+  def handle_event("toggle_select_all", _params, socket) do
+    leaderboards = socket.assigns.leaderboards || []
+    ids = leaderboard_ids(leaderboards)
+    selected = socket.assigns[:selected_ids] || MapSet.new()
+
+    selected =
+      if ids != [] and MapSet.size(selected) == length(ids) do
+        MapSet.new()
+      else
+        MapSet.new(ids)
+      end
+
+    {:noreply, assign(socket, :selected_ids, selected)}
+  end
+
+  @impl true
+  def handle_event("bulk_delete", _params, socket) do
+    ids = socket.assigns[:selected_ids] || MapSet.new()
+    ids = MapSet.to_list(ids)
+
+    {deleted, failed} =
+      Enum.reduce(ids, {0, 0}, fn id, {d, f} ->
+        lb = Leaderboards.get_leaderboard!(id)
+
+        case Leaderboards.delete_leaderboard(lb) do
+          {:ok, _} -> {d + 1, f}
+          {:error, _} -> {d, f + 1}
+        end
+      end)
+
+    socket = assign(socket, :selected_ids, MapSet.new())
+
+    socket =
+      cond do
+        failed == 0 -> put_flash(socket, :info, "Deleted #{deleted} leaderboards")
+        deleted == 0 -> put_flash(socket, :error, "Failed to delete selected leaderboards")
+        true -> put_flash(socket, :error, "Deleted #{deleted} leaderboards; failed #{failed}")
+      end
+
+    {:noreply, socket |> reload_leaderboards()}
+  end
+
   def handle_event("prev_page", _, socket) do
     {:noreply,
      socket
@@ -649,6 +741,16 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
     |> assign(:leaderboards, leaderboards)
     |> assign(:count, count)
     |> assign(:total_pages, total_pages)
+    |> sync_selected_ids(leaderboard_ids(leaderboards))
+  end
+
+  defp leaderboard_ids(leaderboards) when is_list(leaderboards),
+    do: Enum.map(leaderboards, & &1.id)
+
+  defp sync_selected_ids(socket, ids) when is_list(ids) do
+    selected = socket.assigns[:selected_ids] || MapSet.new()
+    allowed = MapSet.new(ids)
+    assign(socket, :selected_ids, MapSet.intersection(selected, allowed))
   end
 
   defp maybe_add_filter(opts, "active"), do: Keyword.put(opts, :active, true)
