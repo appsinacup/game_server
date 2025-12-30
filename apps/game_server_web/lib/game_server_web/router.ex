@@ -36,6 +36,10 @@ defmodule GameServerWeb.Router do
     plug GameServerWeb.Plugs.SentryContext
   end
 
+  pipeline :api_admin do
+    plug GameServerWeb.Plugs.RequireAdminApi
+  end
+
   pipeline :mailbox_preview_enabled do
     plug GameServerWeb.Plugs.MailboxPreviewEnabled
   end
@@ -119,6 +123,48 @@ defmodule GameServerWeb.Router do
     post "/hooks/call", HookController, :invoke
     # Leaderboards (authenticated)
     get "/leaderboards/:id/records/me", LeaderboardController, :me
+  end
+
+  # Admin API routes - require JWT authentication + admin role
+  scope "/api/v1/admin", GameServerWeb.Api.V1.Admin, as: :api_v1_admin do
+    pipe_through [:api, :api_auth, :api_admin]
+
+    # KV
+    get "/kv/entries", KvEntryController, :index
+    post "/kv/entries", KvEntryController, :create
+    patch "/kv/entries/:id", KvEntryController, :update
+    delete "/kv/entries/:id", KvEntryController, :delete
+    put "/kv", KvController, :upsert
+    delete "/kv", KvController, :delete
+
+    # Leaderboards
+    post "/leaderboards", LeaderboardController, :create
+    patch "/leaderboards/:id", LeaderboardController, :update
+    post "/leaderboards/:id/end", LeaderboardController, :end_leaderboard
+    delete "/leaderboards/:id", LeaderboardController, :delete
+    post "/leaderboards/:id/records", LeaderboardRecordController, :create
+    patch "/leaderboards/:id/records/:record_id", LeaderboardRecordController, :update
+    delete "/leaderboards/:id/records/:record_id", LeaderboardRecordController, :delete
+    delete "/leaderboards/:id/records/user/:user_id", LeaderboardRecordController, :delete_user
+
+    # Lobbies
+    get "/lobbies", LobbyController, :index
+    patch "/lobbies/:id", LobbyController, :update
+    delete "/lobbies/:id", LobbyController, :delete
+
+    # Users
+    patch "/users/:id", UserController, :update
+    delete "/users/:id", UserController, :delete
+
+    # Sessions
+    get "/sessions", SessionController, :index
+    delete "/sessions/:id", SessionController, :delete
+    delete "/users/:id/sessions", SessionController, :delete_user_sessions
+
+    # Plugins
+    post "/plugins/reload", PluginController, :reload
+    get "/plugins/buildable", PluginController, :buildable
+    post "/plugins/build", PluginController, :build
   end
 
   # API OAuth routes

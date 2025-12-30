@@ -1,0 +1,271 @@
+defmodule GameServerWeb.Api.V1.Admin.LobbyController do
+  use GameServerWeb, :controller
+  use OpenApiSpex.ControllerSpecs
+
+  alias GameServer.Lobbies
+  alias GameServerWeb.Pagination
+  alias OpenApiSpex.Schema
+
+  tags(["Admin Lobbies"])
+
+  @error_schema %Schema{type: :object, properties: %{error: %Schema{type: :string}}}
+
+  @lobby_schema %Schema{
+    type: :object,
+    properties: %{
+      id: %Schema{type: :integer},
+      title: %Schema{type: :string},
+      host_id: %Schema{type: :integer, nullable: true},
+      hostless: %Schema{type: :boolean},
+      max_users: %Schema{type: :integer},
+      is_hidden: %Schema{type: :boolean},
+      is_locked: %Schema{type: :boolean},
+      is_passworded: %Schema{type: :boolean},
+      metadata: %Schema{type: :object}
+    }
+  }
+
+  @meta_schema %Schema{
+    type: :object,
+    properties: %{
+      page: %Schema{type: :integer},
+      page_size: %Schema{type: :integer},
+      count: %Schema{type: :integer},
+      total_count: %Schema{type: :integer},
+      total_pages: %Schema{type: :integer},
+      has_more: %Schema{type: :boolean}
+    }
+  }
+
+  operation(:index,
+    operation_id: "admin_list_lobbies",
+    summary: "List all lobbies (admin)",
+    security: [%{"authorization" => []}],
+    parameters: [
+      title: [in: :query, schema: %Schema{type: :string}, required: false],
+      is_hidden: [
+        in: :query,
+        schema: %Schema{type: :string, enum: ["true", "false"]},
+        required: false
+      ],
+      is_locked: [
+        in: :query,
+        schema: %Schema{type: :string, enum: ["true", "false"]},
+        required: false
+      ],
+      has_password: [
+        in: :query,
+        schema: %Schema{type: :string, enum: ["true", "false"]},
+        required: false
+      ],
+      min_users: [in: :query, schema: %Schema{type: :integer}, required: false],
+      max_users: [in: :query, schema: %Schema{type: :integer}, required: false],
+      page: [in: :query, schema: %Schema{type: :integer}, required: false],
+      page_size: [in: :query, schema: %Schema{type: :integer}, required: false]
+    ],
+    responses: [
+      ok:
+        {"Lobbies (paginated)", "application/json",
+         %Schema{
+           type: :object,
+           properties: %{data: %Schema{type: :array, items: @lobby_schema}, meta: @meta_schema}
+         }},
+      unauthorized: {"Not authenticated", "application/json", @error_schema},
+      forbidden: {"Admin required", "application/json", @error_schema}
+    ]
+  )
+
+  def index(conn, params) do
+    {page, page_size} = parse_page_params(params)
+
+    filters =
+      %{}
+      |> maybe_put_string_filter(:title, params["title"])
+      |> maybe_put_bool_filter(:is_hidden, params["is_hidden"])
+      |> maybe_put_bool_filter(:is_locked, params["is_locked"])
+      |> maybe_put_bool_filter(:has_password, params["has_password"])
+      |> maybe_put_int_filter(:min_users, params["min_users"])
+      |> maybe_put_int_filter(:max_users, params["max_users"])
+
+    lobbies = Lobbies.list_all_lobbies(filters, page: page, page_size: page_size)
+    total_count = Lobbies.count_list_all_lobbies(filters)
+
+    json(conn, %{
+      data: Enum.map(lobbies, &serialize_lobby/1),
+      meta: Pagination.meta(page, page_size, length(lobbies), total_count)
+    })
+  end
+
+  operation(:update,
+    operation_id: "admin_update_lobby",
+    summary: "Update lobby by id (admin)",
+    security: [%{"authorization" => []}],
+    parameters: [
+      id: [in: :path, schema: %Schema{type: :integer}, required: true]
+    ],
+    request_body: {
+      "Lobby patch",
+      "application/json",
+      %Schema{
+        type: :object,
+        properties: %{
+          title: %Schema{type: :string},
+          max_users: %Schema{type: :integer},
+          is_hidden: %Schema{type: :boolean},
+          is_locked: %Schema{type: :boolean},
+          password: %Schema{type: :string},
+          metadata: %Schema{type: :object}
+        }
+      }
+    },
+    responses: [
+      ok:
+        {"Lobby", "application/json", %Schema{type: :object, properties: %{data: @lobby_schema}}},
+      unauthorized: {"Not authenticated", "application/json", @error_schema},
+      forbidden: {"Admin required", "application/json", @error_schema},
+      not_found: {"Not found", "application/json", @error_schema},
+      unprocessable_entity: {"Validation failed", "application/json", %Schema{type: :object}},
+      bad_request: {"Bad request", "application/json", @error_schema}
+    ]
+  )
+
+  def update(conn, %{"id" => id} = params) do
+    id = String.to_integer(to_string(id))
+
+    case Lobbies.get_lobby(id) do
+      nil ->
+        conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+      lobby ->
+        attrs = Map.delete(params, "id")
+
+        case Lobbies.update_lobby(lobby, attrs) do
+          {:ok, updated} ->
+            json(conn, %{data: serialize_lobby(updated)})
+
+          {:error, %Ecto.Changeset{} = cs} ->
+            conn
+            |> put_status(:unprocessable_entity)
+            |> json(%{
+              error: "validation_failed",
+              errors: Ecto.Changeset.traverse_errors(cs, & &1)
+            })
+
+          {:error, {:hook_rejected, _}} ->
+            conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
+
+          {:error, reason} ->
+            conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
+        end
+    end
+  end
+
+  operation(:delete,
+    operation_id: "admin_delete_lobby",
+    summary: "Delete lobby by id (admin)",
+    security: [%{"authorization" => []}],
+    parameters: [
+      id: [in: :path, schema: %Schema{type: :integer}, required: true]
+    ],
+    responses: [
+      ok: {"Deleted", "application/json", %Schema{type: :object}},
+      unauthorized: {"Not authenticated", "application/json", @error_schema},
+      forbidden: {"Admin required", "application/json", @error_schema},
+      not_found: {"Not found", "application/json", @error_schema}
+    ]
+  )
+
+  def delete(conn, %{"id" => id}) do
+    id = String.to_integer(to_string(id))
+
+    case Lobbies.get_lobby(id) do
+      nil ->
+        conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+      lobby ->
+        case Lobbies.delete_lobby(lobby) do
+          {:ok, _} ->
+            json(conn, %{})
+
+          {:error, {:hook_rejected, _}} ->
+            conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
+
+          {:error, %Ecto.Changeset{} = cs} ->
+            conn
+            |> put_status(:unprocessable_entity)
+            |> json(%{
+              error: "validation_failed",
+              errors: Ecto.Changeset.traverse_errors(cs, & &1)
+            })
+
+          {:error, reason} ->
+            conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
+        end
+    end
+  end
+
+  defp serialize_lobby(lobby) do
+    %{
+      id: lobby.id,
+      title: lobby.title,
+      host_id: lobby.host_id,
+      hostless: lobby.hostless,
+      max_users: lobby.max_users,
+      is_hidden: lobby.is_hidden,
+      is_locked: lobby.is_locked,
+      is_passworded: not is_nil(lobby.password_hash),
+      metadata: lobby.metadata || %{}
+    }
+  end
+
+  defp parse_page_params(params) do
+    page = params["page"] || params[:page]
+    page_size = params["page_size"] || params[:page_size]
+
+    page =
+      case page do
+        p when is_binary(p) -> String.to_integer(p)
+        p when is_integer(p) -> p
+        _ -> 1
+      end
+
+    page_size =
+      case page_size do
+        p when is_binary(p) -> String.to_integer(p)
+        p when is_integer(p) -> p
+        _ -> 25
+      end
+
+    {page, page_size}
+  end
+
+  defp maybe_put_string_filter(filters, _key, nil), do: filters
+  defp maybe_put_string_filter(filters, _key, ""), do: filters
+  defp maybe_put_string_filter(filters, key, v) when is_binary(v), do: Map.put(filters, key, v)
+  defp maybe_put_string_filter(filters, _key, _v), do: filters
+
+  defp maybe_put_bool_filter(filters, _key, nil), do: filters
+
+  defp maybe_put_bool_filter(filters, key, v) when is_binary(v) do
+    case String.downcase(v) do
+      "true" -> Map.put(filters, key, true)
+      "false" -> Map.put(filters, key, false)
+      _ -> filters
+    end
+  end
+
+  defp maybe_put_bool_filter(filters, key, v) when is_boolean(v), do: Map.put(filters, key, v)
+  defp maybe_put_bool_filter(filters, _key, _v), do: filters
+
+  defp maybe_put_int_filter(filters, _key, nil), do: filters
+
+  defp maybe_put_int_filter(filters, key, v) when is_binary(v) do
+    case Integer.parse(v) do
+      {i, _} -> Map.put(filters, key, i)
+      _ -> filters
+    end
+  end
+
+  defp maybe_put_int_filter(filters, key, v) when is_integer(v), do: Map.put(filters, key, v)
+  defp maybe_put_int_filter(filters, _key, _v), do: filters
+end
