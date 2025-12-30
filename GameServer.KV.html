@@ -5,10 +5,10 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.3">
-    <meta name="project" content="GameServer v1.0.478">
+    <meta name="project" content="GameServer v1.0.479">
 
 
-    <title>GameServer.KV — GameServer v1.0.478</title>
+    <title>GameServer.KV — GameServer v1.0.479</title>
 
     <link rel="stylesheet" href="dist/html-elixir-VYWJUHZE.css" />
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.478
+          v1.0.479
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.KV</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.478)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.479)</small>
 
     </h1>
 
@@ -342,12 +342,13 @@ Returns <code class="inline">{:ok, entry}</code>, <code class="inline">{:error, 
   page: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(),
   page_size: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(),
   user_id: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(),
+  global_only: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>(),
   key: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()
 ]</pre>
 
       </div>
 
-<p>Options accepted by <a href="#list_entries/1"><code class="inline">list_entries/1</code></a> and <a href="#count_entries/1"><code class="inline">count_entries/1</code></a>.</p><p>Keys (all optional):</p><ul><li><code class="inline">:page</code> — page number (<code class="inline">pos_integer()</code>, defaults to <code class="inline">1</code>)</li><li><code class="inline">:page_size</code> — page size (<code class="inline">pos_integer()</code>, defaults to <code class="inline">50</code>)</li><li><code class="inline">:user_id</code> — filter by user id (<code class="inline">pos_integer()</code>)</li><li><code class="inline">:key</code> — substring filter (<code class="inline">String.t()</code>)</li></ul>
+<p>Options accepted by <a href="#list_entries/1"><code class="inline">list_entries/1</code></a> and <a href="#count_entries/1"><code class="inline">count_entries/1</code></a>.</p><p>Keys (all optional):</p><ul><li><code class="inline">:page</code> — page number (<code class="inline">pos_integer()</code>, defaults to <code class="inline">1</code>)</li><li><code class="inline">:page_size</code> — page size (<code class="inline">pos_integer()</code>, defaults to <code class="inline">50</code>)</li><li><code class="inline">:user_id</code> — filter by user id (<code class="inline">pos_integer()</code>)</li><li><code class="inline">:global_only</code> — when true, only return global entries (where <code class="inline">user_id</code> is <code class="inline">nil</code>) (<code class="inline">boolean()</code>)</li><li><code class="inline">:key</code> — substring filter (<code class="inline">String.t()</code>)</li></ul>
   </section>
 </section>
 <section class="detail" id="t:metadata/0">
@@ -618,7 +619,7 @@ Returns the <code class="inline">Entry</code> struct or <code class="inline">nil
 
       </div>
 
-<p>List key/value entries with optional pagination and filtering.</p><p>Supported options: <code class="inline">:page</code>, <code class="inline">:page_size</code>, <code class="inline">:user_id</code>, and <code class="inline">:key</code> (substring filter).
+<p>List key/value entries with optional pagination and filtering.</p><p>Supported options: <code class="inline">:page</code>, <code class="inline">:page_size</code>, <code class="inline">:user_id</code>, <code class="inline">:global_only</code>, and <code class="inline">:key</code> (substring filter).
 See <a href="#t:list_opts/0"><code class="inline">list_opts/0</code></a> for the expected option types.
 Returns a list of <code class="inline">Entry</code> structs ordered by most recently updated.</p>
   </section>
