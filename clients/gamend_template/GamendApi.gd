@@ -312,5 +312,105 @@ func leaderboards_list_records_around_user(id: int, user_id: int, limit = 11) ->
 	return await _call_api(LeaderboardsApi.new(_config), "list_records_around_user", [id, user_id, limit])
 
 ## KV
+
+## Get a key/value entry 
 func kv_get_kv(key: String, user_id = null) -> GamendResult:
 	return await _call_api(KVApi.new(_config), "get_kv", [key, user_id])
+
+## ADMIN SESSIONS
+
+# Delete session token by id (admin)
+func admin_sessions_admin_delete_session(id: int) -> GamendResult:
+	return await _call_api(AdminSessionsApi.new(_config), "admin_delete_session", [id])
+
+## List sessions (admin)
+func admin_sessions_admin_list_sessions(page = 1, page_size = 25) -> GamendResult:
+	return await _call_api(AdminSessionsApi.new(_config), "admin_list_sessions", [page, page_size])
+
+## Delete all session tokens for a user (admin)
+func admin_sessions_admin_delete_user_sessions(user_id) -> GamendResult:
+	return await _call_api(AdminSessionsApi.new(_config), "admin_delete_user_sessions", [user_id])
+
+## ADMIN USERS
+
+# Delete user (admin)
+func admin_users_admin_delete_user(id: int) -> GamendResult:
+	return await _call_api(AdminUsersApi.new(_config), "admin_delete_user", [id])
+	
+# Update user (admin)
+func admin_users_admin_update_user(id: int, admin_update_user_request: AdminUpdateUserRequest) -> GamendResult:
+	return await _call_api(AdminUsersApi.new(_config), "admin_update_user", [id, admin_update_user_request])
+
+## ADMIN LOBBIES
+
+# List all lobbies (admin)
+func admin_lobbies_admin_list_lobbies(title = "", isHidden = "", isLocked = "", hasPassword = "", minUsers = null, maxUsers = null, page = 1, page_size = 25) -> GamendResult:
+	return await _call_api(AdminLobbiesApi.new(_config), "admin_list_lobbies", [title, isHidden, isLocked, hasPassword, minUsers, maxUsers, page, page_size])
+
+# Delete lobby (admin)
+func admin_lobbies_admin_delete_lobby(id: int) -> GamendResult:
+	return await _call_api(AdminLobbiesApi.new(_config), "admin_delete_lobby", [id])
+
+# Update lobby (admin)
+func admin_lobbies_admin_update_lobby(id: int, adminUpdateLobbyRequest: AdminUpdateLobbyRequest) -> GamendResult:
+	return await _call_api(AdminLobbiesApi.new(_config), "admin_lobbies_admin_update_lobby", [id, adminUpdateLobbyRequest])
+
+## ADMIN LEADERBOARDS
+
+## End leaderboard (admin)
+func admin_leaderboards_admin_end_leaderboard(id: int) -> GamendResult:
+	return await _call_api(AdminLeaderboardsApi.new(_config), "admin_end_leaderboard", [id])
+
+## Submit score (admin)
+func admin_leaderboards_admin_submit_leaderboard_score(id: int, adminSubmitLeaderboardScoreRequest: AdminSubmitLeaderboardScoreRequest) -> GamendResult:
+	return await _call_api(AdminLeaderboardsApi.new(_config), "admin_submit_leaderboard_score", [id, adminSubmitLeaderboardScoreRequest])
+
+## Delete leaderboard record (admin)
+func admin_leaderboards_admin_delete_leaderboard_record(id: int, recordId: int) -> GamendResult:
+	return await _call_api(AdminLeaderboardsApi.new(_config), "admin_delete_leaderboard_record", [id, recordId])
+
+## Update leaderboard record (admin)
+func admin_leaderboards_admin_update_leaderboard_record(id: int, recordId: int, adminUpdateLeaderboardRecordRequest: AdminUpdateLeaderboardRecordRequest) -> GamendResult:
+	return await _call_api(AdminLeaderboardsApi.new(_config), "admin_update_leaderboard_record", [id, recordId, adminUpdateLeaderboardRecordRequest])
+
+## Create leaderboard (admin)
+func admin_leaderboards_admin_create_leaderboard(adminCreateLeaderboardRequest: AdminCreateLeaderboardRequest) -> GamendResult:
+	return await _call_api(AdminLeaderboardsApi.new(_config), "admin_create_leaderboard", [adminCreateLeaderboardRequest])
+
+## Delete a user's record (admin)
+func admin_leaderboards_admin_delete_leaderboard_user_record(id: int, userId: int) -> GamendResult:
+	return await _call_api(AdminLeaderboardsApi.new(_config), "admin_delete_leaderboard_user_record", [id, userId])
+	
+## Delete leaderboard (admin)
+func admin_leaderboards_admin_delete_leaderboard(id: int) -> GamendResult:
+	return await _call_api(AdminLeaderboardsApi.new(_config), "admin_delete_leaderboard", [id])
+
+## Update leaderboard (admin)
+func admin_leaderboards_admin_update_leaderboard(id: int, adminUpdateLeaderboardRequest: AdminUpdateLeaderboardRequest) -> GamendResult:
+	return await _call_api(AdminLeaderboardsApi.new(_config), "admin_update_leaderboard", [id, adminUpdateLeaderboardRequest])
+
+## ADMIN KV
+
+## List KV entries (admin)
+func admin_kv_admin_list_kv_entries(page = 1, page_size = 25, key = "", userId = null, globalOnly = "") -> GamendResult:
+	return await _call_api(AdminKVApi.new(_config), "admin_list_kv_entries", [page, page_size, key, userId, globalOnly])
+
+## Create KV entry (admin)
+func admin_kv_admin_create_kv_entry(adminCreateKvEntryRequest: AdminCreateKvEntryRequest) -> GamendResult:
+	return await _call_api(AdminKVApi.new(_config), "admin_create_kv_entry", [adminCreateKvEntryRequest])
+
+## Delete KV entry by id (admin)
+func admin_kv_admin_delete_kv_entry(id: int) -> GamendResult:
+	return await _call_api(AdminKVApi.new(_config), "admin_delete_kv_entry", [id])
+
+## Update KV entry by id (admin)
+func admin_kv_admin_update_kv_entry(id: int, adminUpdateKvEntryRequest: AdminUpdateKvEntryRequest) -> GamendResult:
+	return await _call_api(AdminKVApi.new(_config), "admin_update_kv_entry", [id, adminUpdateKvEntryRequest])
+
+## Delete KV by key (admin)
+func admin_kv_admin_delete_kv(key: String, userId = null) -> GamendResult:
+	return await _call_api(AdminKVApi.new(_config), "admin_delete_kv", [key, userId])
+
+## Upsert KV by key (admin)
+func admin_kv_admin_upsert_kv(adminCreateKvEntryRequest: AdminCreateKvEntryRequest) -> GamendResult:
+	return await _call_api(AdminKVApi.new(_config), "admin_upsert_kv", [adminCreateKvEntryRequest])

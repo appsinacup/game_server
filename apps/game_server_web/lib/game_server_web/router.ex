@@ -160,11 +160,6 @@ defmodule GameServerWeb.Router do
     get "/sessions", SessionController, :index
     delete "/sessions/:id", SessionController, :delete
     delete "/users/:id/sessions", SessionController, :delete_user_sessions
-
-    # Plugins
-    post "/plugins/reload", PluginController, :reload
-    get "/plugins/buildable", PluginController, :buildable
-    post "/plugins/build", PluginController, :build
   end
 
   # API OAuth routes
