@@ -120,11 +120,17 @@ defmodule GameServer.Hooks do
   - `after_lobby_host_change/2` - After lobby host changes
   - `before_kv_get/2` - Called before a KV `get` to determine whether a key should be publicly readable (`:public`) or restricted (`:private`)
 
-  ## Custom RPC Functions
+    ## Custom RPC Functions
 
-  Any public function in your hooks module (other than the callbacks above)
-  can be called from game clients via the RPC channel. The function receives
-  its arguments plus a keyword list with `:caller` containing the authenticated user.
+    Game clients can call RPCs exposed by your hooks module in two ways:
+
+    1. **Exported functions**: any exported function in your hooks module (other
+      than the callbacks above) can be called from game clients.
+
+    2. **Dynamic functions (custom hooks)**: your `after_startup/0` callback may
+      return a list of dynamic exports describing additional callable function
+      names that do **not** need to exist as exported Elixir functions.
+      These dynamic calls are dispatched to `on_custom_hook/2`.
 
       # Client calls: rpc("give_coins", {amount: 50})
       def give_coins(amount, opts) do
@@ -149,6 +155,25 @@ defmodule GameServer.Hooks do
   @type hook_result(t) :: {:ok, t} | {:error, term()}
 
   @typedoc """
+  A dynamic RPC export returned by `after_startup/0`.
+
+  The minimal shape is:
+
+      %{hook: "custom_hello"}
+
+  Optionally, provide `:meta` for tooling / UI hints:
+
+      %{hook: "custom_hello", meta: %{description: "...", args: [...], example_args: [...]}}
+
+  Note: the runtime also accepts string keys (e.g. `%{"hook" => ...}`), but
+  this type focuses on the atom-keyed form.
+  """
+  @type rpc_export :: %{
+          required(:hook) => String.t(),
+          optional(:meta) => map()
+        }
+
+  @typedoc """
   Options passed to hooks that accept an options map/keyword list.
 
   Common keys include `:user_id` (pos_integer) and other domain-specific
@@ -157,8 +182,18 @@ defmodule GameServer.Hooks do
   @type kv_opts :: map() | keyword()
 
   # Startup/shutdown callbacks
-  @callback after_startup() :: any()
+  @callback after_startup() :: :ok | [rpc_export()]
   @callback before_stop() :: any()
+
+  @doc """
+  Handle a dynamically-exported RPC function.
+
+  This callback is invoked when a client calls a function name that was
+  registered at runtime from `after_startup/0`.
+
+  Receives the function name and the argument list.
+  """
+  @callback on_custom_hook(String.t(), list()) :: any()
 
   # User lifecycle callbacks
   @callback after_user_register(user()) :: any()
@@ -225,6 +260,9 @@ defmodule GameServer.Hooks do
       def before_stop, do: :ok
 
       @impl true
+      def on_custom_hook(_hook, _args), do: {:error, :not_implemented}
+
+      @impl true
       def after_user_register(_user), do: :ok
 
       @impl true
@@ -274,6 +312,7 @@ defmodule GameServer.Hooks do
 
       defoverridable after_user_register: 1,
                      after_user_login: 1,
+                     on_custom_hook: 2,
                      before_lobby_create: 1,
                      after_lobby_create: 1,
                      before_lobby_join: 3,
