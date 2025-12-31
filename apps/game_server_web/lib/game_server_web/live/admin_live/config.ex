@@ -1450,21 +1450,26 @@ defmodule GameServerWeb.AdminLive.Config do
     |> Enum.sort_by(fn f -> {f.plugin, f.name} end)
   end
 
-  defp dynamic_signature(%{meta: meta}) when is_map(meta) do
+  defp dynamic_signature(%{meta: meta} = export) when is_map(meta) do
+    hook_name = Map.get(export, :hook) || Map.get(export, "hook") || Map.get(export, :name)
     doc = Map.get(meta, :description) || Map.get(meta, "description")
     args = Map.get(meta, :args) || Map.get(meta, "args")
 
+    args_list = List.wrap(args)
+
+    names =
+      Enum.map(args_list, fn a ->
+        Map.get(a, :name) || Map.get(a, "name") || "arg"
+      end)
+
+    arity = length(names)
+
     signature =
-      case List.wrap(args) do
-        [] ->
-          nil
+      case hook_name do
+        n when is_binary(n) and n != "" ->
+          n <> "(" <> Enum.join(names, ", ") <> ")"
 
-        args_list ->
-          names =
-            Enum.map(args_list, fn a ->
-              Map.get(a, :name) || Map.get(a, "name") || "arg"
-            end)
-
+        _ ->
           "(" <> Enum.join(names, ", ") <> ")"
       end
 
@@ -1473,7 +1478,7 @@ defmodule GameServerWeb.AdminLive.Config do
     example_args_text =
       case example_args do
         nil ->
-          nil
+          Jason.encode!(names)
 
         list when is_list(list) ->
           Jason.encode!(list)
@@ -1482,7 +1487,7 @@ defmodule GameServerWeb.AdminLive.Config do
           Jason.encode!([other])
       end
 
-    %{arity: :custom, signature: signature, doc: doc, example_args: example_args_text}
+    %{arity: arity, signature: signature, doc: doc, example_args: example_args_text}
   end
 
   defp dynamic_signature(_export), do: %{arity: :custom, signature: nil, doc: nil}

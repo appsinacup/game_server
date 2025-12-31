@@ -32,11 +32,36 @@ defmodule GameServerWeb.Api.V1.HookController do
       DynamicRpcs.list_all()
       |> Enum.flat_map(fn {plugin_name, exports} ->
         Enum.map(exports, fn export ->
+          args = Map.get(export.meta || %{}, :args) || Map.get(export.meta || %{}, "args")
+          args_list = List.wrap(args)
+
+          arg_names =
+            Enum.map(args_list, fn a ->
+              Map.get(a, :name) || Map.get(a, "name") || "arg"
+            end)
+
+          arity = length(arg_names)
+
+          doc =
+            Map.get(export.meta || %{}, :description) ||
+              Map.get(export.meta || %{}, "description")
+
+          signature = to_string(export.hook) <> "(" <> Enum.join(arg_names, ", ") <> ")"
+
           %{
             plugin: plugin_name,
             name: export.hook,
             dynamic: true,
-            meta: export.meta
+            meta: export.meta,
+            arities: [arity],
+            signatures: [
+              %{
+                arity: arity,
+                signature: signature,
+                doc: doc,
+                example_args: Jason.encode!(arg_names)
+              }
+            ]
           }
         end)
       end)
