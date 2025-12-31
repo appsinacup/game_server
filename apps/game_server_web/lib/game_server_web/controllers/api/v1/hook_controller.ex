@@ -2,6 +2,7 @@ defmodule GameServerWeb.Api.V1.HookController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
+  alias GameServer.Hooks.DynamicRpcs
   alias GameServer.Hooks.PluginManager
 
   operation(:index,
@@ -15,7 +16,36 @@ defmodule GameServerWeb.Api.V1.HookController do
   )
 
   def index(conn, _params) do
-    functions = GameServer.Hooks.exported_functions()
+    static_functions =
+      PluginManager.hook_modules()
+      |> Enum.flat_map(fn {plugin_name, mod} ->
+        GameServer.Hooks.exported_functions(mod)
+        |> Enum.map(&Map.merge(&1, %{plugin: plugin_name, dynamic: false}))
+      end)
+
+    static_keys =
+      static_functions
+      |> Enum.map(&{Map.get(&1, :plugin), Map.get(&1, :name)})
+      |> MapSet.new()
+
+    dynamic_functions =
+      DynamicRpcs.list_all()
+      |> Enum.flat_map(fn {plugin_name, exports} ->
+        Enum.map(exports, fn export ->
+          %{
+            plugin: plugin_name,
+            name: export.hook,
+            dynamic: true,
+            meta: export.meta
+          }
+        end)
+      end)
+      |> Enum.reject(fn f -> MapSet.member?(static_keys, {f.plugin, f.name}) end)
+
+    functions =
+      (static_functions ++ dynamic_functions)
+      |> Enum.sort_by(&{&1.plugin, &1.name})
+
     json(conn, %{data: functions})
   end
 

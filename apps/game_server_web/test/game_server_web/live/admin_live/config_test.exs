@@ -181,7 +181,11 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     defmodule #{inspect(hook_mod)} do
       @behaviour GameServer.Hooks
 
-      def after_startup, do: :ok
+      def after_startup do
+        [
+          %{hook: "custom_hello"}
+        ]
+      end
       def before_stop, do: :ok
 
       def after_user_register(_user), do: :ok
@@ -200,6 +204,11 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
       def before_user_kicked(host, target, lobby), do: {:ok, {host, target, lobby}}
       def after_user_kicked(_host, _target, _lobby), do: :ok
       def after_lobby_host_change(_lobby, _new_host_id), do: :ok
+
+      def before_kv_get(_key, _opts), do: :public
+
+      def on_custom_hook("custom_hello", _args), do: "hello"
+      def on_custom_hook(_hook, _args), do: {:error, :not_implemented}
 
       @doc "Say hi with two names"
       def hello2(name, name2), do: "Hello2, \#{name} \#{name2}!"

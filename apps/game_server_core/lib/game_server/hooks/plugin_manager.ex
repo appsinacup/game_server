@@ -21,6 +21,8 @@ defmodule GameServer.Hooks.PluginManager do
 
   require Logger
 
+  alias GameServer.Hooks.DynamicRpcs
+
   @type plugin_name :: String.t()
   @type plugin_app :: atom()
 
@@ -102,15 +104,35 @@ defmodule GameServer.Hooks.PluginManager do
   @spec call_rpc(plugin_name(), String.t(), list(), keyword()) :: {:ok, any()} | {:error, term()}
   def call_rpc(plugin, fn_name, args, opts \\ [])
       when is_binary(plugin) and is_binary(fn_name) and is_list(args) and is_list(opts) do
-    with {:ok, %Plugin{status: :ok, hooks_module: mod}} <- lookup(plugin),
-         {:ok, fun_atom} <- resolve_function_atom(mod, fn_name, length(args)) do
-      timeout = Keyword.get(opts, :timeout_ms, @timeout_ms)
-      safe_apply_with_caller(mod, fun_atom, args, opts, timeout)
-    else
-      {:ok, %Plugin{status: {:error, reason}}} -> {:error, reason}
-      {:ok, %Plugin{hooks_module: nil}} -> {:error, :missing_hooks_module}
-      {:error, _} = err -> err
-      other -> {:error, other}
+    case lookup(plugin) do
+      {:ok, %Plugin{status: :ok, hooks_module: mod}} when is_atom(mod) ->
+        timeout = Keyword.get(opts, :timeout_ms, @timeout_ms)
+
+        case resolve_function_atom(mod, fn_name, length(args)) do
+          {:ok, fun_atom} ->
+            safe_apply_with_caller(mod, fun_atom, args, opts, timeout)
+
+          {:error, :not_implemented} ->
+            call_dynamic_rpc(plugin, mod, fn_name, args, opts, timeout)
+
+          {:error, _} = err ->
+            err
+
+          other ->
+            {:error, other}
+        end
+
+      {:ok, %Plugin{status: {:error, reason}}} ->
+        {:error, reason}
+
+      {:ok, %Plugin{hooks_module: nil}} ->
+        {:error, :missing_hooks_module}
+
+      {:error, _} = err ->
+        err
+
+      other ->
+        {:error, other}
     end
   end
 
@@ -166,6 +188,10 @@ defmodule GameServer.Hooks.PluginManager do
   end
 
   defp do_reload(prev_state) when is_map(prev_state) do
+    # Dynamic RPC exports are derived from the currently loaded plugins.
+    # Rebuild the registry on each reload.
+    _ = DynamicRpcs.reset_all()
+
     # Stop/unload previous apps and purge their modules first.
     prev_state
     |> Map.values()
@@ -396,6 +422,18 @@ defmodule GameServer.Hooks.PluginManager do
               {:error, {:module_not_loaded, other}}
           end
 
+        _ =
+          case res do
+            {:ok, exports} when is_list(exports) ->
+              DynamicRpcs.register_exports(name, exports)
+
+            {:ok, _other} ->
+              :ok
+
+            _ ->
+              :ok
+          end
+
         Map.put(acc, name, res)
 
       %Plugin{name: name, status: {:error, reason}}, acc ->
@@ -404,6 +442,34 @@ defmodule GameServer.Hooks.PluginManager do
       %Plugin{name: name}, acc ->
         Map.put(acc, name, :skipped)
     end)
+  end
+
+  defp call_dynamic_rpc(plugin, mod, fn_name, args, opts, timeout)
+       when is_binary(plugin) and is_atom(mod) and is_binary(fn_name) and is_list(args) and
+              is_list(opts) and is_integer(timeout) do
+    if DynamicRpcs.allowed?(plugin, fn_name) do
+      cond do
+        function_exported?(mod, :on_custom_hook, 2) ->
+          safe_apply_with_caller(mod, :on_custom_hook, [fn_name, args], opts, timeout)
+
+        function_exported?(mod, :rpc, 2) ->
+          safe_apply_with_caller(mod, :rpc, [fn_name, args], opts, timeout)
+
+        function_exported?(mod, :rpc, 3) ->
+          safe_apply_with_caller(
+            mod,
+            :rpc,
+            [fn_name, args, Keyword.get(opts, :caller)],
+            opts,
+            timeout
+          )
+
+        true ->
+          {:error, :not_implemented}
+      end
+    else
+      {:error, :not_implemented}
+    end
   end
 
   defp safe_call_before_stop(%Plugin{hooks_module: mod, status: :ok, name: name})

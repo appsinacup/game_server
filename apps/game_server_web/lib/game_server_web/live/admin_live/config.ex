@@ -3,6 +3,7 @@ defmodule GameServerWeb.AdminLive.Config do
 
   alias GameServer.Accounts.UserNotifier
   alias GameServer.Hooks
+  alias GameServer.Hooks.DynamicRpcs
   alias GameServer.Hooks.PluginBuilder
   alias GameServer.Hooks.PluginManager
   alias GameServer.Schedule
@@ -1418,13 +1419,73 @@ defmodule GameServerWeb.AdminLive.Config do
   defp parse_hook_args(_), do: []
 
   defp exported_plugin_functions do
-    PluginManager.hook_modules()
-    |> Enum.flat_map(fn {plugin, mod} ->
-      Hooks.exported_functions(mod)
-      |> Enum.map(&Map.put(&1, :plugin, plugin))
-    end)
+    plugins = PluginManager.hook_modules()
+
+    static =
+      plugins
+      |> Enum.flat_map(fn {plugin, mod} ->
+        Hooks.exported_functions(mod)
+        |> Enum.map(&Map.put(&1, :plugin, plugin))
+      end)
+
+    dynamic_by_plugin = DynamicRpcs.list_all()
+
+    dynamic =
+      plugins
+      |> Enum.flat_map(fn {plugin, _mod} ->
+        dynamic_by_plugin
+        |> Map.get(plugin, [])
+        |> Enum.map(fn export ->
+          %{
+            name: export.hook,
+            arities: [],
+            signatures: [dynamic_signature(export)],
+            plugin: plugin
+          }
+        end)
+      end)
+
+    (static ++ dynamic)
+    |> Enum.uniq_by(fn f -> {f.plugin, f.name} end)
     |> Enum.sort_by(fn f -> {f.plugin, f.name} end)
   end
+
+  defp dynamic_signature(%{meta: meta}) when is_map(meta) do
+    doc = Map.get(meta, :description) || Map.get(meta, "description")
+    args = Map.get(meta, :args) || Map.get(meta, "args")
+
+    signature =
+      case List.wrap(args) do
+        [] ->
+          nil
+
+        args_list ->
+          names =
+            Enum.map(args_list, fn a ->
+              Map.get(a, :name) || Map.get(a, "name") || "arg"
+            end)
+
+          "(" <> Enum.join(names, ", ") <> ")"
+      end
+
+    example_args = Map.get(meta, :example_args) || Map.get(meta, "example_args")
+
+    example_args_text =
+      case example_args do
+        nil ->
+          nil
+
+        list when is_list(list) ->
+          Jason.encode!(list)
+
+        other ->
+          Jason.encode!([other])
+      end
+
+    %{arity: :custom, signature: signature, doc: doc, example_args: example_args_text}
+  end
+
+  defp dynamic_signature(_export), do: %{arity: :custom, signature: nil, doc: nil}
 
   defp detect_db_adapter do
     repo_conf = Application.get_env(:game_server_core, GameServer.Repo) || %{}

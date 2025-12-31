@@ -22,7 +22,17 @@ defmodule GameServer.Modules.ExampleHook do
   @impl true
   def after_startup do
     Logger.info("[ExampleHook] after_startup called")
-    :ok
+
+    [
+      %{
+        hook: "custom_hello",
+        meta: %{
+          description: "Example dynamic hook that returns hello",
+          args: [%{name: "name", type: "string"}],
+          example_args: ["Dragos"]
+        }
+      }
+    ]
   end
 
   @impl true
@@ -75,6 +85,14 @@ defmodule GameServer.Modules.ExampleHook do
 
   @impl true
   def after_lobby_host_change(_lobby, _new_host_id), do: :ok
+
+  @impl true
+  def on_custom_hook("custom_hello", [name]) when is_binary(name), do: "hello #{name}"
+
+  def on_custom_hook("custom_hello", _args), do: "hello"
+
+  @impl true
+  def on_custom_hook(_hook, _args), do: {:error, :not_implemented}
 
   @doc "Say hi to a user"
   def hello(name) when is_binary(name) do

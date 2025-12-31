@@ -48,6 +48,9 @@ defmodule GameServerWeb.UserAuthTest do
       end
 
       @impl true
+      def on_custom_hook(_hook, _args), do: {:error, :not_implemented}
+
+      @impl true
       def before_lobby_create(attrs), do: {:ok, attrs}
 
       @impl true

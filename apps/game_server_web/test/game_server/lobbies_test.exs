@@ -68,6 +68,9 @@ defmodule GameServer.LobbiesTest do
 
       @impl true
       def before_kv_get(_key, _opts), do: :public
+
+      @impl true
+      def on_custom_hook(_hook, _args), do: {:error, :not_implemented}
     end
 
     setup do

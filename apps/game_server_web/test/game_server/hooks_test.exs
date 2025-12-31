@@ -83,6 +83,9 @@ defmodule GameServer.HooksTest do
 
     @impl true
     def before_kv_get(_key, _opts), do: :public
+
+    @impl true
+    def on_custom_hook(_hook, _args), do: {:error, :not_implemented}
   end
 
   test "after_user_register hook runs and can modify the created user" do
@@ -156,6 +159,9 @@ defmodule GameServer.HooksTest do
 
       @impl true
       def after_user_login(_user), do: :ok
+
+      @impl true
+      def on_custom_hook(_hook, _args), do: {:error, :not_implemented}
 
       @impl true
       def before_lobby_create(attrs), do: {:ok, attrs}

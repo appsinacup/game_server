@@ -35,6 +35,17 @@ defmodule GameServer.Hooks do
 
   @callback after_user_login(User.t()) :: any()
 
+  @doc """
+  Handle a dynamically-exported RPC function.
+
+  This callback is used for function names that were registered at runtime (eg.
+  via a plugin's `after_startup/0` return value) and therefore may not exist as
+  exported Elixir functions on the hooks module.
+
+  Receives the function name and the argument list.
+  """
+  @callback on_custom_hook(String.t(), list()) :: any()
+
   # Lobby lifecycle hooks
   @callback before_lobby_create(map()) :: hook_result(map())
   @callback after_lobby_create(term()) :: any()
@@ -772,4 +783,7 @@ defmodule GameServer.Hooks.Default do
   Default implementation for `before_kv_get/2` — always allow public reads.
   """
   def before_kv_get(_key, _opts), do: :public
+
+  @impl true
+  def on_custom_hook(_hook, _args), do: {:error, :not_implemented}
 end

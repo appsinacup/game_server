@@ -202,10 +202,8 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardRecordController do
   end
 
   defp get_record(id) do
-    try do
-      Leaderboards.get_record!(id)
-    rescue
-      Ecto.NoResultsError -> nil
-    end
+    Leaderboards.get_record!(id)
+  rescue
+    Ecto.NoResultsError -> nil
   end
 end
