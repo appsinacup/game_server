@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.3">
-    <meta name="project" content="GameServer v1.0.480">
+    <meta name="project" content="GameServer v1.0.481">
 
 
-    <title>GameServer.Hooks — GameServer v1.0.480</title>
+    <title>GameServer.Hooks — GameServer v1.0.481</title>
 
     <link rel="stylesheet" href="dist/html-elixir-VYWJUHZE.css" />
 
-    <script defer src="dist/sidebar_items-5220A3B0.js"></script>
+    <script defer src="dist/sidebar_items-C61852C3.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-XBCM4BHM.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.480
+          v1.0.481
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.Hooks</span> <small>behaviour</small>
-      <small class="app-vsn" translate="no">(GameServer v1.0.480)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.481)</small>
 
     </h1>
 
@@ -288,6 +288,16 @@ GameServer
         <a href="#c:before_user_kicked/3" data-no-tooltip="" translate="no">before_user_kicked(t, t, term)</a>
 
       </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:on_custom_hook/2" data-no-tooltip="" translate="no">on_custom_hook(t, list)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Handle a dynamically-exported RPC function.</p></div>
 
     </div>
 
@@ -906,6 +916,32 @@ to block the read.</p>
       </div>
 
 
+  </section>
+</section>
+<section class="detail" id="c:on_custom_hook/2">
+
+  <div class="detail-header">
+    <a href="#c:on_custom_hook/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">on_custom_hook(t, list)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> on_custom_hook(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">list</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+<p>Handle a dynamically-exported RPC function.</p><p>This callback is used for function names that were registered at runtime (eg.
+via a plugin's <code class="inline">after_startup/0</code> return value) and therefore may not exist as
+exported Elixir functions on the hooks module.</p><p>Receives the function name and the argument list.</p>
   </section>
 </section>
 

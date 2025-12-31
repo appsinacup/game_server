@@ -8,7 +8,7 @@
     <meta name="project" content="GameServer v1.0.481">
 
 
-    <title>GameServer.Leaderboards.Leaderboard — GameServer v1.0.481</title>
+    <title>GameServer.Hooks.DynamicRpcs — GameServer v1.0.481</title>
 
     <link rel="stylesheet" href="dist/html-elixir-VYWJUHZE.css" />
 
@@ -93,7 +93,7 @@ GameServer
 <div id="top-content">
   <div class="heading-with-actions top-heading">
     <h1>
-      <span translate="no">GameServer.Leaderboards.Leaderboard</span> 
+      <span translate="no">GameServer.Hooks.DynamicRpcs</span> 
       <small class="app-vsn" translate="no">(GameServer v1.0.481)</small>
 
     </h1>
@@ -102,10 +102,13 @@ GameServer
 
 
     <section id="moduledoc">
-<p>Ecto schema for the <code class="inline">leaderboards</code> table.</p><p>A leaderboard is a self-contained scoreboard that can be permanent or time-limited.
-Each leaderboard has its own settings for sort order and score operator.</p><h2 id="module-slug" class="section-heading"><a href="#module-slug" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Slug</span></h2><p>The <code class="inline">slug</code> is a human-readable identifier (e.g., &quot;weekly_kills&quot;) that can be reused
-across multiple leaderboard instances (seasons). Use the slug to always target the
-currently active leaderboard, or use the integer <code class="inline">id</code> for a specific instance.</p><h2 id="module-sort-order" class="section-heading"><a href="#module-sort-order" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Sort Order</span></h2><ul><li><code class="inline">:desc</code> — Higher scores rank first (default)</li><li><code class="inline">:asc</code> — Lower scores rank first (e.g., fastest time)</li></ul><h2 id="module-operators" class="section-heading"><a href="#module-operators" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Operators</span></h2><ul><li><code class="inline">:set</code> — Always replace with new score</li><li><code class="inline">:best</code> — Only update if new score is better (default)</li><li><code class="inline">:incr</code> — Add to existing score</li><li><code class="inline">:decr</code> — Subtract from existing score</li></ul>
+<p>Runtime registry for <em>dynamic</em> RPC function names exported by hook plugins.</p><h2 id="module-goal" class="section-heading"><a href="#module-goal" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Goal</span></h2><p>Allow hook plugins to expose additional callable function names without
+defining them as exported Elixir functions (eg. without <code class="inline">def my_fn/1</code>).</p><p>The intended pattern is:</p><ul><li>Plugin implements <code class="inline">after_startup/0</code> and returns a list of maps describing
+which dynamic RPC names should be callable.</li><li>Plugin implements <code class="inline">rpc/2</code> (or <code class="inline">rpc/3</code>) to handle these names at runtime.</li><li><a href="GameServer.Hooks.PluginManager.html#call_rpc/4"><code class="inline">GameServer.Hooks.PluginManager.call_rpc/4</code></a> falls back to the registry when
+the requested function is not exported.</li></ul><h2 id="module-export-format" class="section-heading"><a href="#module-export-format" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Export format</span></h2><p><code class="inline">after_startup/0</code> may return a list like:</p><pre><code class="makeup elixir" translate="no"><span class="p" data-group-id="5022087698-1">[</span><span class="w">
+  </span><span class="p" data-group-id="5022087698-2">%{</span><span class="ss">hook</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;my_dynamic_fn&quot;</span><span class="p" data-group-id="5022087698-2">}</span><span class="p">,</span><span class="w">
+  </span><span class="p" data-group-id="5022087698-3">%{</span><span class="s">&quot;hook&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;other_fn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;meta&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p" data-group-id="5022087698-4">%{</span><span class="n">...</span><span class="p" data-group-id="5022087698-4">}</span><span class="p" data-group-id="5022087698-3">}</span><span class="w">
+</span><span class="p" data-group-id="5022087698-1">]</span></code></pre><p>Required:</p><ul><li><code class="inline">hook</code> (string): the callable function name.</li></ul><p>Optional:</p><ul><li><code class="inline">meta</code> (map): arbitrary metadata.</li></ul><p>Names are validated to contain only letters, digits, and underscores.</p><p>Note: this registry is in-memory and is rebuilt on plugin reload.</p>
     </section>
 
 </div>
@@ -124,7 +127,7 @@ currently active leaderboard, or use the integer <code class="inline">id</code> 
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#t:operator/0" data-no-tooltip="" translate="no">operator()</a>
+        <a href="#t:export/0" data-no-tooltip="" translate="no">export()</a>
 
       </div>
 
@@ -132,7 +135,7 @@ currently active leaderboard, or use the integer <code class="inline">id</code> 
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#t:sort_order/0" data-no-tooltip="" translate="no">sort_order()</a>
+        <a href="#t:hook_name/0" data-no-tooltip="" translate="no">hook_name()</a>
 
       </div>
 
@@ -140,7 +143,7 @@ currently active leaderboard, or use the integer <code class="inline">id</code> 
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#t:t/0" data-no-tooltip="" translate="no">t()</a>
+        <a href="#t:plugin_name/0" data-no-tooltip="" translate="no">plugin_name()</a>
 
       </div>
 
@@ -154,42 +157,49 @@ currently active leaderboard, or use the integer <code class="inline">id</code> 
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#active?/1" data-no-tooltip="" translate="no">active?(leaderboard)</a>
+        <a href="#allowed?/2" data-no-tooltip="" translate="no">allowed?(plugin_name, hook_name)</a>
 
       </div>
-
-        <div class="summary-synopsis"><p>Returns true if the leaderboard is currently active (not ended).</p></div>
 
     </div>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#changeset/2" data-no-tooltip="" translate="no">changeset(leaderboard, attrs)</a>
+        <a href="#ensure_table!/0" data-no-tooltip="" translate="no">ensure_table!()</a>
 
       </div>
-
-        <div class="summary-synopsis"><p>Changeset for creating a new leaderboard.</p></div>
 
     </div>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#ended?/1" data-no-tooltip="" translate="no">ended?(lb)</a>
+        <a href="#list_all/0" data-no-tooltip="" translate="no">list_all()</a>
 
       </div>
-
-        <div class="summary-synopsis"><p>Returns true if the leaderboard has ended.</p></div>
 
     </div>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#update_changeset/2" data-no-tooltip="" translate="no">update_changeset(leaderboard, attrs)</a>
+        <a href="#lookup/2" data-no-tooltip="" translate="no">lookup(plugin_name, hook_name)</a>
 
       </div>
 
-        <div class="summary-synopsis"><p>Changeset for updating an existing leaderboard.
-Does not allow changing slug, sort_order, or operator after creation.</p></div>
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#register_exports/2" data-no-tooltip="" translate="no">register_exports(plugin_name, raw)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#reset_all/0" data-no-tooltip="" translate="no">reset_all()</a>
+
+      </div>
 
     </div>
 
@@ -207,14 +217,14 @@ Does not allow changing slug, sort_order, or operator after creation.</p></div>
     </h1>
 
     <div class="types-list">
-<section class="detail" id="t:operator/0">
+<section class="detail" id="t:export/0">
 
   <div class="detail-header">
-    <a href="#t:operator/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+    <a href="#t:export/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">operator()</h1>
+      <h1 class="signature" translate="no">export()</h1>
 
 
     </div>
@@ -224,21 +234,21 @@ Does not allow changing slug, sort_order, or operator after creation.</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> operator() :: :set | :best | :incr | :decr</pre>
+          <pre translate="no"><span class="attribute">@type</span> export() :: %{hook: <a href="#t:hook_name/0">hook_name</a>(), meta: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()}</pre>
 
       </div>
 
 
   </section>
 </section>
-<section class="detail" id="t:sort_order/0">
+<section class="detail" id="t:hook_name/0">
 
   <div class="detail-header">
-    <a href="#t:sort_order/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+    <a href="#t:hook_name/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">sort_order()</h1>
+      <h1 class="signature" translate="no">hook_name()</h1>
 
 
     </div>
@@ -248,21 +258,21 @@ Does not allow changing slug, sort_order, or operator after creation.</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> sort_order() :: :desc | :asc</pre>
+          <pre translate="no"><span class="attribute">@type</span> hook_name() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
 
       </div>
 
 
   </section>
 </section>
-<section class="detail" id="t:t/0">
+<section class="detail" id="t:plugin_name/0">
 
   <div class="detail-header">
-    <a href="#t:t/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+    <a href="#t:plugin_name/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">t()</h1>
+      <h1 class="signature" translate="no">plugin_name()</h1>
 
 
     </div>
@@ -272,21 +282,7 @@ Does not allow changing slug, sort_order, or operator after creation.</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> t() :: %GameServer.Leaderboards.Leaderboard{
-  __meta__: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  description: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  ends_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  inserted_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  metadata: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  operator: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  records: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  slug: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  sort_order: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  starts_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  title: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  updated_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()
-}</pre>
+          <pre translate="no"><span class="attribute">@type</span> plugin_name() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
 
       </div>
 
@@ -306,14 +302,14 @@ Does not allow changing slug, sort_order, or operator after creation.</p></div>
     </h1>
 
     <div class="functions-list">
-<section class="detail" id="active?/1">
+<section class="detail" id="allowed?/2">
 
   <div class="detail-header">
-    <a href="#active?/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#allowed?/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">active?(leaderboard)</h1>
+      <h1 class="signature" translate="no">allowed?(plugin_name, hook_name)</h1>
 
 
     </div>
@@ -321,17 +317,23 @@ Does not allow changing slug, sort_order, or operator after creation.</p></div>
 
   <section class="docstring">
 
-<p>Returns true if the leaderboard is currently active (not ended).</p>
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> allowed?(<a href="#t:plugin_name/0">plugin_name</a>(), <a href="#t:hook_name/0">hook_name</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+
+      </div>
+
+
   </section>
 </section>
-<section class="detail" id="changeset/2">
+<section class="detail" id="ensure_table!/0">
 
   <div class="detail-header">
-    <a href="#changeset/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#ensure_table!/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">changeset(leaderboard, attrs)</h1>
+      <h1 class="signature" translate="no">ensure_table!()</h1>
 
 
     </div>
@@ -339,17 +341,23 @@ Does not allow changing slug, sort_order, or operator after creation.</p></div>
 
   <section class="docstring">
 
-<p>Changeset for creating a new leaderboard.</p>
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> ensure_table!() :: :ok</pre>
+
+      </div>
+
+
   </section>
 </section>
-<section class="detail" id="ended?/1">
+<section class="detail" id="list_all/0">
 
   <div class="detail-header">
-    <a href="#ended?/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#list_all/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">ended?(lb)</h1>
+      <h1 class="signature" translate="no">list_all()</h1>
 
 
     </div>
@@ -357,17 +365,23 @@ Does not allow changing slug, sort_order, or operator after creation.</p></div>
 
   <section class="docstring">
 
-<p>Returns true if the leaderboard has ended.</p>
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_all() :: %{optional(<a href="#t:plugin_name/0">plugin_name</a>()) =&gt; [<a href="#t:export/0">export</a>()]}</pre>
+
+      </div>
+
+
   </section>
 </section>
-<section class="detail" id="update_changeset/2">
+<section class="detail" id="lookup/2">
 
   <div class="detail-header">
-    <a href="#update_changeset/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#lookup/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">update_changeset(leaderboard, attrs)</h1>
+      <h1 class="signature" translate="no">lookup(plugin_name, hook_name)</h1>
 
 
     </div>
@@ -375,8 +389,62 @@ Does not allow changing slug, sort_order, or operator after creation.</p></div>
 
   <section class="docstring">
 
-<p>Changeset for updating an existing leaderboard.
-Does not allow changing slug, sort_order, or operator after creation.</p>
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> lookup(<a href="#t:plugin_name/0">plugin_name</a>(), <a href="#t:hook_name/0">hook_name</a>()) :: {:ok, <a href="#t:export/0">export</a>()} | {:error, :not_found}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="register_exports/2">
+
+  <div class="detail-header">
+    <a href="#register_exports/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">register_exports(plugin_name, raw)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> register_exports(<a href="#t:plugin_name/0">plugin_name</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()) ::
+  {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="reset_all/0">
+
+  <div class="detail-header">
+    <a href="#reset_all/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">reset_all()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> reset_all() :: :ok</pre>
+
+      </div>
+
+
   </section>
 </section>
 
