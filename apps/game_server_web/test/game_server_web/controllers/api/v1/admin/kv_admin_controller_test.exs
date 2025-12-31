@@ -21,7 +21,7 @@ defmodule GameServerWeb.Api.V1.Admin.KvAdminControllerTest do
     conn = conn |> bearer_conn(admin)
 
     conn = put(conn, "/api/v1/admin/kv", %{"key" => "test:key", "value" => %{"a" => 1}})
-    assert %{"data" => %{"key" => "test:key", "value" => %{"a" => 1}}} = json_response(conn, 200)
+    assert %{"data" => %{"key" => "test:key", "data" => %{"a" => 1}}} = json_response(conn, 200)
 
     # ensure it exists
     assert {:ok, %{value: %{"a" => 1}}} = KV.get("test:key")

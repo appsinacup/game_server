@@ -15,7 +15,7 @@ defmodule GameServerWeb.Api.V1.Admin.KvController do
       id: %Schema{type: :integer},
       key: %Schema{type: :string},
       user_id: %Schema{type: :integer, nullable: true},
-      value: %Schema{type: :object},
+      data: %Schema{type: :object},
       metadata: %Schema{type: :object},
       inserted_at: %Schema{type: :string, format: "date-time"},
       updated_at: %Schema{type: :string, format: "date-time"}
@@ -34,10 +34,10 @@ defmodule GameServerWeb.Api.V1.Admin.KvController do
         properties: %{
           key: %Schema{type: :string},
           user_id: %Schema{type: :integer, nullable: true},
-          value: %Schema{type: :object},
+          data: %Schema{type: :object},
           metadata: %Schema{type: :object}
         },
-        required: [:key, :value]
+        required: [:key, :data]
       }
     },
     responses: [
@@ -50,38 +50,46 @@ defmodule GameServerWeb.Api.V1.Admin.KvController do
     ]
   )
 
-  def upsert(conn, %{"key" => key, "value" => value} = params) do
-    metadata = Map.get(params, "metadata") || %{}
+  def upsert(conn, %{"key" => key} = params) do
+    data = Map.get(params, "data") || Map.get(params, "value")
 
-    user_id =
-      case Map.get(params, "user_id") do
-        nil ->
-          nil
+    if is_nil(data) do
+      conn
+      |> put_status(:unprocessable_entity)
+      |> json(%{error: "validation_failed", errors: %{data: ["can't be blank"]}})
+    else
+      metadata = Map.get(params, "metadata") || %{}
 
-        "" ->
-          nil
+      user_id =
+        case Map.get(params, "user_id") do
+          nil ->
+            nil
 
-        v when is_integer(v) ->
-          v
+          "" ->
+            nil
 
-        v when is_binary(v) ->
-          case Integer.parse(v) do
-            {i, _} -> i
-            _ -> nil
-          end
+          v when is_integer(v) ->
+            v
 
-        _ ->
-          nil
+          v when is_binary(v) ->
+            case Integer.parse(v) do
+              {i, _} -> i
+              _ -> nil
+            end
+
+          _ ->
+            nil
+        end
+
+      case KV.put(key, data, metadata, user_id: user_id) do
+        {:ok, entry} ->
+          json(conn, %{data: serialize_entry(entry)})
+
+        {:error, %Ecto.Changeset{} = cs} ->
+          conn
+          |> put_status(:unprocessable_entity)
+          |> json(%{error: "validation_failed", errors: Ecto.Changeset.traverse_errors(cs, & &1)})
       end
-
-    case KV.put(key, value, metadata, user_id: user_id) do
-      {:ok, entry} ->
-        json(conn, %{data: serialize_entry(entry)})
-
-      {:error, %Ecto.Changeset{} = cs} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> json(%{error: "validation_failed", errors: Ecto.Changeset.traverse_errors(cs, & &1)})
     end
   end
 
@@ -131,7 +139,7 @@ defmodule GameServerWeb.Api.V1.Admin.KvController do
       id: entry.id,
       key: entry.key,
       user_id: entry.user_id,
-      value: entry.value,
+      data: entry.value,
       metadata: entry.metadata,
       inserted_at: entry.inserted_at,
       updated_at: entry.updated_at

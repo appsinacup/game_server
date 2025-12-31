@@ -16,7 +16,7 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
       id: %Schema{type: :integer},
       key: %Schema{type: :string},
       user_id: %Schema{type: :integer, nullable: true},
-      value: %Schema{type: :object},
+      data: %Schema{type: :object},
       metadata: %Schema{type: :object},
       inserted_at: %Schema{type: :string, format: "date-time"},
       updated_at: %Schema{type: :string, format: "date-time"}
@@ -97,10 +97,10 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
         properties: %{
           key: %Schema{type: :string},
           user_id: %Schema{type: :integer, nullable: true},
-          value: %Schema{type: :object},
+          data: %Schema{type: :object},
           metadata: %Schema{type: :object}
         },
-        required: [:key, :value]
+        required: [:key, :data]
       }
     },
     responses: [
@@ -142,7 +142,7 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
         properties: %{
           key: %Schema{type: :string},
           user_id: %Schema{type: :integer, nullable: true},
-          value: %Schema{type: :object},
+          data: %Schema{type: :object},
           metadata: %Schema{type: :object}
         }
       }
@@ -201,7 +201,7 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
       id: entry.id,
       key: entry.key,
       user_id: entry.user_id,
-      value: entry.value,
+      data: entry.value,
       metadata: entry.metadata,
       inserted_at: entry.inserted_at,
       updated_at: entry.updated_at
@@ -262,8 +262,40 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
 
   defp normalize_entry_attrs(params) when is_map(params) do
     params
-    |> Map.take(["key", "user_id", "value", "metadata", :key, :user_id, :value, :metadata])
+    |> Map.take([
+      "key",
+      "user_id",
+      "data",
+      "value",
+      "metadata",
+      :key,
+      :user_id,
+      :data,
+      :value,
+      :metadata
+    ])
+    |> normalize_data_field()
     |> normalize_user_id()
+  end
+
+  defp normalize_data_field(attrs) do
+    data = Map.get(attrs, "data") || Map.get(attrs, :data)
+
+    cond do
+      is_nil(data) ->
+        attrs
+
+      Map.has_key?(attrs, "value") or Map.has_key?(attrs, :value) ->
+        attrs
+        |> Map.delete("data")
+        |> Map.delete(:data)
+
+      true ->
+        attrs
+        |> Map.delete("data")
+        |> Map.delete(:data)
+        |> Map.put("value", data)
+    end
   end
 
   defp normalize_user_id(attrs) do
