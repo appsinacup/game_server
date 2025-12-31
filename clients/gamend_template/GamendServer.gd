@@ -58,7 +58,7 @@ func _after_lobby_host_change(_lobby: Dictionary, _new_host_id: String) -> void:
 var websocket_server: WebSocketServer
 
 # Called when the node enters the scene tree for the first time.
-func _ready() -> void:
+func _init() -> void:
 	websocket_server = WebSocketServer.new()
 	add_child(websocket_server)
 	websocket_server.message_received.connect(_message_received)
@@ -102,38 +102,38 @@ func _message_received(peer_id: int, message: String):
 		"after_user_login":
 			_after_user_login.callv(args)
 		"before_lobby_create":
-			_send_result(peer_id, request_id, _before_lobby_create.callv(args))
+			_send_result(peer_id, request_id, await _before_lobby_create.callv(args))
 		"after_lobby_create":
 			_after_lobby_create.callv(args)
 		"before_lobby_join":
-			_send_result(peer_id, request_id, _before_lobby_join.callv(args))
+			_send_result(peer_id, request_id, await _before_lobby_join.callv(args))
 		"after_lobby_join":
 			_after_lobby_join.callv(args)
 		"before_lobby_leave":
-			_send_result(peer_id, request_id, _before_lobby_leave.callv(args))
+			_send_result(peer_id, request_id, await _before_lobby_leave.callv(args))
 		"after_lobby_leave":
 			_after_lobby_leave.callv(args)
 		"before_lobby_update":
-			_send_result(peer_id, request_id, _before_lobby_update.callv(args))
+			_send_result(peer_id, request_id, await _before_lobby_update.callv(args))
 		"after_lobby_update":
 			_after_lobby_update.callv(args)
 		"before_lobby_delete":
-			_send_result(peer_id, request_id, _before_lobby_delete.callv(args))
+			_send_result(peer_id, request_id, await _before_lobby_delete.callv(args))
 		"after_lobby_delete":
 			_after_lobby_delete.callv(args)
 		"before_user_kicked":
-			_send_result(peer_id, request_id, _before_user_kicked.callv(args))
+			_send_result(peer_id, request_id, await _before_user_kicked.callv(args))
 		"after_user_kicked":
 			_after_user_kicked.callv(args)
 		"before_kv_get":
-			_send_result(peer_id, request_id, _before_kv_get.callv(args))
+			_send_result(peer_id, request_id, await _before_kv_get.callv(args))
 		"after_lobby_host_change":
 			_after_lobby_host_change.callv(args)
 		"on_custom_hook":
 			var hook_name = args[0]
 			var params = args[1]
 			if has_method(hook_name):
-				var result = callv(hook_name, params)
+				var result = await callv(hook_name, params)
 				var result_with_request_id = {
 					"request_id": request_id, "result": result
 				}
@@ -161,22 +161,29 @@ func _get_custom_hooks():
 			hook_name.begins_with("_"):
 			continue
 		var args: Array[Dictionary] = []
-		
+		var example_args: Array[String] = []
+ 		
 		for arg in method["args"]:
 			var arg_type = ""
 			match arg["type"]:
 				TYPE_STRING:
 					arg_type = "string"
+					example_args.append("String")
 				TYPE_BOOL:
 					arg_type = "bool"
+					example_args.append(false)
 				TYPE_DICTIONARY:
 					arg_type = "object"
+					example_args.append({})
 				TYPE_ARRAY:
 					arg_type = "array"
+					example_args.append([])
 				TYPE_FLOAT:
 					arg_type = "number"
+					example_args.append(1.23)
 				TYPE_INT:
 					arg_type = "integer"
+					example_args.append(34)
 			args.append({
 				"name": arg["name"],
 				"type": arg_type
