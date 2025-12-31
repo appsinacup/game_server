@@ -116,6 +116,16 @@ find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/se
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/\@export var data: Dictionary/var data/g" -i
 # Replace admin_list_kv_entries_200_response_data_inner with AdminListKvEntries200ResponseDataInner
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/admin_list_kv_entries_200_response_data_inner/AdminListKvEntries200ResponseDataInner/g" -i
+# Replace admin_list_sessions_200_response_data_inner with AdminListSessions200ResponseDataInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/admin_list_sessions_200_response_data_inner/AdminListSessions200ResponseDataInner/g" -i
+# Replace admin_submit_leaderboard_score_200_response_data with AdminSubmitLeaderboardScore200ResponseData
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/admin_submit_leaderboard_score_200_response_data/AdminSubmitLeaderboardScore200ResponseData/g" -i
+# Replace admin_update_user_200_response_data with AdminUpdateUser200ResponseData
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/admin_update_user_200_response_data/AdminUpdateUser200ResponseData/g" -i
+# Replace admin_ListLobbies200ResponseDataInner with AdminListLobbies200ResponseDataInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/admin_ListLobbies200ResponseDataInner/AdminListLobbies200ResponseDataInner/g" -i
+# Replace admin_end_leaderboard_200_response_data with AdminEndLeaderboard200ResponseData
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/admin_end_leaderboard_200_response_data/AdminEndLeaderboard200ResponseData/g" -i
 # headers_for_godot, body_serialized
 # with 
 # headers_for_godot, "" if body_serialized == "null" else body_serialized
