@@ -114,6 +114,8 @@ find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/ge
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/search_users_200_response_data_inner/SearchUsers200ResponseDataInner/g" -i
 # Replace @export var data: Dictionary with var data
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/@export var data: Dictionary/var data/g" -i
+# Replace admin_list_kv_entries_200_response_data_inner with AdminListKvEntries200ResponseDataInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/admin_list_kv_entries_200_response_data_inner/AdminListKvEntries200ResponseDataInner/g" -i
 # headers_for_godot, body_serialized
 # with 
 # headers_for_godot, "" if body_serialized == "null" else body_serialized
