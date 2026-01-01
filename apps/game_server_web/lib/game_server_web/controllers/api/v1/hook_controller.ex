@@ -183,7 +183,9 @@ defmodule GameServerWeb.Api.V1.HookController do
       "after_lobby_delete",
       "before_user_kicked",
       "after_user_kicked",
-      "after_lobby_host_change"
+      "after_lobby_host_change",
+      "on_custom_hook",
+      "before_kv_get"
     ]
   end
 end

@@ -28,7 +28,7 @@ defmodule GameServer.Hooks.PluginManager do
 
   @default_plugins_dir Path.expand("modules/plugins")
 
-  @timeout_ms 5_000
+  @timeout_ms 60_000
 
   defmodule Plugin do
     @moduledoc """
@@ -409,7 +409,7 @@ defmodule GameServer.Hooks.PluginManager do
           case Code.ensure_loaded(mod) do
             {:module, _} ->
               if function_exported?(mod, :after_startup, 0) do
-                safe_apply(mod, :after_startup, [])
+                safe_apply(mod, :after_startup, [], @timeout_ms)
               else
                 :not_exported
               end
@@ -494,7 +494,8 @@ defmodule GameServer.Hooks.PluginManager do
 
   defp safe_call_before_stop(_), do: :ok
 
-  defp safe_apply(mod, fun, args) when is_atom(mod) and is_atom(fun) and is_list(args) do
+  defp safe_apply(mod, fun, args, timeout \\ @timeout_ms)
+       when is_atom(mod) and is_atom(fun) and is_list(args) and is_integer(timeout) do
     task =
       Task.async(fn ->
         try do
@@ -507,7 +508,7 @@ defmodule GameServer.Hooks.PluginManager do
         end
       end)
 
-    case Task.yield(task, @timeout_ms) || Task.shutdown(task, :brutal_kill) do
+    case Task.yield(task, timeout) || Task.shutdown(task, :brutal_kill) do
       {:ok, {:error, _} = err} -> err
       {:ok, res} -> {:ok, res}
       nil -> {:error, :timeout}

@@ -128,7 +128,7 @@ defmodule GameServer.Hooks do
           Keyword.get(
             opts,
             :timeout_ms,
-            Application.get_env(:game_server_core, :hooks_call_timeout, 5_000)
+            Application.get_env(:game_server_core, :hooks_call_timeout, 60_000)
           )
 
         task =
@@ -174,7 +174,7 @@ defmodule GameServer.Hooks do
       Keyword.get(
         opts,
         :timeout_ms,
-        Application.get_env(:game_server_core, :hooks_call_timeout, 5_000)
+        Application.get_env(:game_server_core, :hooks_call_timeout, 60_000)
       )
 
     arity = length(args)
@@ -239,6 +239,7 @@ defmodule GameServer.Hooks do
       :before_user_kicked,
       :after_user_kicked,
       :after_lobby_host_change,
+      :on_custom_hook,
       :before_kv_get
     ])
   end
