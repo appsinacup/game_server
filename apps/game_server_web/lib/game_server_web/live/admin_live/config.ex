@@ -1195,6 +1195,47 @@ defmodule GameServerWeb.AdminLive.Config do
      )}
   end
 
+  @impl true
+  def handle_info({:admin_log, entry}, socket) do
+    filter = socket.assigns.admin_logs_module_filter
+
+    should_include? =
+      case String.trim(filter) do
+        "" ->
+          true
+
+        f ->
+          entry_mod = entry.module && Atom.to_string(entry.module)
+          entry_mod && String.contains?(entry_mod, f)
+      end
+
+    socket =
+      if should_include? do
+        assign(socket, :admin_logs, [entry | socket.assigns.admin_logs] |> Enum.take(100))
+      else
+        socket
+      end
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:plugin_build_finished, _name, {:ok, build_result}}, socket) do
+    {:noreply,
+     socket
+     |> assign(:plugin_build_running?, false)
+     |> assign(:plugin_build_result, build_result)
+     |> put_flash(:info, "Plugin build finished")}
+  end
+
+  @impl true
+  def handle_info({:plugin_build_finished, _name, {:error, reason}}, socket) do
+    {:noreply,
+     socket
+     |> assign(:plugin_build_running?, false)
+     |> put_flash(:error, "Plugin build failed: #{inspect(reason)}")}
+  end
+
   defp cache_diagnostics do
     cache_conf = Application.get_env(:game_server_core, GameServer.Cache) || []
     cache_levels = Keyword.get(cache_conf, :levels, [])
@@ -1474,47 +1515,6 @@ defmodule GameServerWeb.AdminLive.Config do
 
   def handle_event("close_docs", _params, socket),
     do: {:noreply, assign(socket, hooks_full_doc: nil, hooks_full_name: nil)}
-
-  @impl true
-  def handle_info({:admin_log, entry}, socket) do
-    filter = socket.assigns.admin_logs_module_filter
-
-    should_include? =
-      case String.trim(filter) do
-        "" ->
-          true
-
-        f ->
-          entry_mod = entry.module && Atom.to_string(entry.module)
-          entry_mod && String.contains?(entry_mod, f)
-      end
-
-    socket =
-      if should_include? do
-        assign(socket, :admin_logs, [entry | socket.assigns.admin_logs] |> Enum.take(100))
-      else
-        socket
-      end
-
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_info({:plugin_build_finished, _name, {:ok, build_result}}, socket) do
-    {:noreply,
-     socket
-     |> assign(:plugin_build_running?, false)
-     |> assign(:plugin_build_result, build_result)
-     |> put_flash(:info, "Plugin build finished")}
-  end
-
-  @impl true
-  def handle_info({:plugin_build_finished, _name, {:error, reason}}, socket) do
-    {:noreply,
-     socket
-     |> assign(:plugin_build_running?, false)
-     |> put_flash(:error, "Plugin build failed: #{inspect(reason)}")}
-  end
 
   defp format_duration_us(us) when is_integer(us) and us >= 0 do
     cond do
