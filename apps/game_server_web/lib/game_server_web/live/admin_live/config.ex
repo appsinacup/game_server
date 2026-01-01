@@ -1330,7 +1330,7 @@ defmodule GameServerWeb.AdminLive.Config do
   @impl true
   def handle_event("set_log_filter", %{"module" => module_filter}, socket)
       when is_binary(module_filter) do
-    logs = GameServerWeb.AdminLogBuffer.list(module: module_filter, limit: 1000)
+    logs = GameServerWeb.AdminLogBuffer.list(module: module_filter, limit: 100)
 
     {:noreply,
      assign(socket,
@@ -1340,30 +1340,6 @@ defmodule GameServerWeb.AdminLive.Config do
   end
 
   def handle_event("set_log_filter", _params, socket), do: {:noreply, socket}
-
-  @impl true
-  def handle_info({:admin_log, entry}, socket) do
-    filter = socket.assigns.admin_logs_module_filter
-
-    should_include? =
-      case String.trim(filter) do
-        "" ->
-          true
-
-        f ->
-          entry_mod = entry.module && Atom.to_string(entry.module)
-          entry_mod && String.contains?(entry_mod, f)
-      end
-
-    socket =
-      if should_include? do
-        assign(socket, :admin_logs, [entry | socket.assigns.admin_logs] |> Enum.take(1000))
-      else
-        socket
-      end
-
-    {:noreply, socket}
-  end
 
   def handle_event("send_test_email", _params, socket) do
     user = socket.assigns.current_scope && socket.assigns.current_scope.user
@@ -1465,6 +1441,56 @@ defmodule GameServerWeb.AdminLive.Config do
     {:noreply, assign(socket, :hooks_args_prefill, %{value: args_text, seq: seq})}
   end
 
+  def handle_event("show_docs", %{"doc" => doc, "name" => name, "arity" => arity}, socket) do
+    # arity may arrive as string; keep it as-is for display
+    full_name = "#{name}/#{arity}"
+    {:noreply, assign(socket, hooks_full_doc: doc, hooks_full_name: full_name)}
+  end
+
+  def handle_event("close_docs", _params, socket),
+    do: {:noreply, assign(socket, hooks_full_doc: nil, hooks_full_name: nil)}
+
+  @impl true
+  def handle_info({:admin_log, entry}, socket) do
+    filter = socket.assigns.admin_logs_module_filter
+
+    should_include? =
+      case String.trim(filter) do
+        "" ->
+          true
+
+        f ->
+          entry_mod = entry.module && Atom.to_string(entry.module)
+          entry_mod && String.contains?(entry_mod, f)
+      end
+
+    socket =
+      if should_include? do
+        assign(socket, :admin_logs, [entry | socket.assigns.admin_logs] |> Enum.take(100))
+      else
+        socket
+      end
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:plugin_build_finished, _name, {:ok, build_result}}, socket) do
+    {:noreply,
+     socket
+     |> assign(:plugin_build_running?, false)
+     |> assign(:plugin_build_result, build_result)
+     |> put_flash(:info, "Plugin build finished")}
+  end
+
+  @impl true
+  def handle_info({:plugin_build_finished, _name, {:error, reason}}, socket) do
+    {:noreply,
+     socket
+     |> assign(:plugin_build_running?, false)
+     |> put_flash(:error, "Plugin build failed: #{inspect(reason)}")}
+  end
+
   defp format_duration_us(us) when is_integer(us) and us >= 0 do
     cond do
       us < 1_000 ->
@@ -1487,32 +1513,6 @@ defmodule GameServerWeb.AdminLive.Config do
   end
 
   defp format_log_ts(_), do: ""
-
-  def handle_event("show_docs", %{"doc" => doc, "name" => name, "arity" => arity}, socket) do
-    # arity may arrive as string; keep it as-is for display
-    full_name = "#{name}/#{arity}"
-    {:noreply, assign(socket, hooks_full_doc: doc, hooks_full_name: full_name)}
-  end
-
-  def handle_event("close_docs", _params, socket),
-    do: {:noreply, assign(socket, hooks_full_doc: nil, hooks_full_name: nil)}
-
-  @impl true
-  def handle_info({:plugin_build_finished, _name, {:ok, build_result}}, socket) do
-    {:noreply,
-     socket
-     |> assign(:plugin_build_running?, false)
-     |> assign(:plugin_build_result, build_result)
-     |> put_flash(:info, "Plugin build finished")}
-  end
-
-  @impl true
-  def handle_info({:plugin_build_finished, _name, {:error, reason}}, socket) do
-    {:noreply,
-     socket
-     |> assign(:plugin_build_running?, false)
-     |> put_flash(:error, "Plugin build failed: #{inspect(reason)}")}
-  end
 
   defp plugin_build_options do
     PluginBuilder.list_buildable_plugins()
