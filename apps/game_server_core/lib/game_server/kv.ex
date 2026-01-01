@@ -81,8 +81,12 @@ defmodule GameServer.KV do
   end
 
   defp invalidate_entries_cache(user_id) when is_integer(user_id) do
-    _ = GameServer.Cache.incr({:kv, :entries_version, :all}, 1, default: 1)
-    _ = GameServer.Cache.incr({:kv, :entries_version, user_id}, 1, default: 1)
+    GameServer.Async.run(fn ->
+      _ = GameServer.Cache.incr({:kv, :entries_version, :all}, 1, default: 1)
+      _ = GameServer.Cache.incr({:kv, :entries_version, user_id}, 1, default: 1)
+      :ok
+    end)
+
     :ok
   end
 
@@ -108,7 +112,12 @@ defmodule GameServer.KV do
 
         %Entry{value: value, metadata: metadata} ->
           payload = %{value: value, metadata: metadata}
-          _ = GameServer.Cache.put(cache_key(key, user_id), payload, ttl: @kv_cache_ttl_ms)
+
+          GameServer.Async.run(fn ->
+            _ = GameServer.Cache.put(cache_key(key, user_id), payload, ttl: @kv_cache_ttl_ms)
+            :ok
+          end)
+
           {:ok, payload}
       end
     end
@@ -190,7 +199,12 @@ defmodule GameServer.KV do
   @spec delete(String.t(), keyword()) :: :ok
   def delete(key, opts \\ []) when is_binary(key) and is_list(opts) do
     user_id = Keyword.get(opts, :user_id)
-    _ = GameServer.Cache.delete(cache_key(key, user_id))
+
+    GameServer.Async.run(fn ->
+      _ = GameServer.Cache.delete(cache_key(key, user_id))
+      :ok
+    end)
+
     _ = Repo.delete_all(entry_query(key, user_id))
     _ = invalidate_entries_cache(user_id)
     :ok
@@ -240,7 +254,11 @@ defmodule GameServer.KV do
             )
           )
 
-        _ = GameServer.Cache.put(cache_key, entries, ttl: @kv_cache_ttl_ms)
+        GameServer.Async.run(fn ->
+          _ = GameServer.Cache.put(cache_key, entries, ttl: @kv_cache_ttl_ms)
+          :ok
+        end)
+
         entries
     end
   end
@@ -276,7 +294,11 @@ defmodule GameServer.KV do
           |> maybe_filter_key(key_filter)
           |> Repo.aggregate(:count)
 
-        _ = GameServer.Cache.put(cache_key, count, ttl: @kv_cache_ttl_ms)
+        GameServer.Async.run(fn ->
+          _ = GameServer.Cache.put(cache_key, count, ttl: @kv_cache_ttl_ms)
+          :ok
+        end)
+
         count
     end
   end
@@ -343,7 +365,10 @@ defmodule GameServer.KV do
           case Repo.update(changeset) do
             {:ok, updated} ->
               if cache_key(updated.key, updated.user_id) != old_cache_key do
-                _ = GameServer.Cache.delete(old_cache_key)
+                GameServer.Async.run(fn ->
+                  _ = GameServer.Cache.delete(old_cache_key)
+                  :ok
+                end)
               end
 
               _ = cache_put(updated.key, updated.user_id, updated)
@@ -382,7 +407,11 @@ defmodule GameServer.KV do
         :ok
 
       %Entry{} = entry ->
-        _ = GameServer.Cache.delete(cache_key(entry.key, entry.user_id))
+        GameServer.Async.run(fn ->
+          _ = GameServer.Cache.delete(cache_key(entry.key, entry.user_id))
+          :ok
+        end)
+
         _ = Repo.delete(entry)
         _ = invalidate_entries_cache(entry.user_id)
         :ok
@@ -393,11 +422,16 @@ defmodule GameServer.KV do
   defp cache_key(key, user_id), do: {:kv, user_id, key}
 
   defp cache_put(key, user_id, %Entry{} = entry) do
-    GameServer.Cache.put(
-      cache_key(key, user_id),
-      %{value: entry.value, metadata: entry.metadata},
-      ttl: @kv_cache_ttl_ms
-    )
+    GameServer.Async.run(fn ->
+      _ =
+        GameServer.Cache.put(
+          cache_key(key, user_id),
+          %{value: entry.value, metadata: entry.metadata},
+          ttl: @kv_cache_ttl_ms
+        )
+
+      :ok
+    end)
   end
 
   defp update_existing(key, user_id, value, metadata) do

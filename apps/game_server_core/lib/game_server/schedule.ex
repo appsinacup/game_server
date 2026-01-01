@@ -320,7 +320,7 @@ defmodule GameServer.Schedule do
   defp maybe_cleanup_old_locks do
     # 1 in 1440 chance (once per day if jobs run every minute)
     if :rand.uniform(1440) == 1 do
-      Task.start(fn -> cleanup_old_locks() end)
+      GameServer.Async.run(fn -> cleanup_old_locks() end)
     end
   end
 

@@ -57,7 +57,11 @@ defmodule GameServer.Lobbies do
   defp invalidate_accounts_user_cache(user_id) when is_integer(user_id) do
     # Accounts.get_user/1 is cached; lobbies updates users.lobby_id directly,
     # so we must invalidate the cached user to avoid stale lobby_id.
-    _ = GameServer.Cache.delete({:accounts, :user, user_id})
+    GameServer.Async.run(fn ->
+      _ = GameServer.Cache.delete({:accounts, :user, user_id})
+      :ok
+    end)
+
     :ok
   end
 
@@ -71,7 +75,11 @@ defmodule GameServer.Lobbies do
   end
 
   defp invalidate_lobby_cache(lobby_id) when is_integer(lobby_id) do
-    _ = GameServer.Cache.incr({:lobbies, :lobby_version, lobby_id}, 1, default: 1)
+    GameServer.Async.run(fn ->
+      _ = GameServer.Cache.incr({:lobbies, :lobby_version, lobby_id}, 1, default: 1)
+      :ok
+    end)
+
     :ok
   end
 
@@ -617,7 +625,10 @@ defmodule GameServer.Lobbies do
     end
     |> case do
       {:ok, %{lobby: lobby}} ->
-        Task.start(fn -> GameServer.Hooks.internal_call(:after_lobby_create, [lobby]) end)
+        GameServer.Async.run(fn ->
+          GameServer.Hooks.internal_call(:after_lobby_create, [lobby])
+        end)
+
         _ = invalidate_lobby_cache(lobby.id)
         broadcast_lobbies({:lobby_created, lobby})
         {:ok, lobby}
@@ -710,7 +721,9 @@ defmodule GameServer.Lobbies do
 
         case result do
           {:ok, updated} ->
-            Task.start(fn -> GameServer.Hooks.internal_call(:after_lobby_update, [updated]) end)
+            GameServer.Async.run(fn ->
+              GameServer.Hooks.internal_call(:after_lobby_update, [updated])
+            end)
 
             _ = invalidate_lobby_cache(updated.id)
 
@@ -734,7 +747,10 @@ defmodule GameServer.Lobbies do
       {:ok, _} ->
         case Repo.delete(lobby) do
           {:ok, deleted} ->
-            Task.start(fn -> GameServer.Hooks.internal_call(:after_lobby_delete, [deleted]) end)
+            GameServer.Async.run(fn ->
+              GameServer.Hooks.internal_call(:after_lobby_delete, [deleted])
+            end)
+
             _ = invalidate_lobby_cache(deleted.id)
             broadcast_lobbies({:lobby_deleted, deleted.id})
             {:ok, deleted}
@@ -782,7 +798,7 @@ defmodule GameServer.Lobbies do
             # shouldn't crash because of a background DB lookup).
             lobby = get_lobby(lobby_id)
 
-            Task.start(fn ->
+            GameServer.Async.run(fn ->
               GameServer.Hooks.internal_call(:after_lobby_join, [updated_user, lobby])
             end)
 
@@ -955,7 +971,7 @@ defmodule GameServer.Lobbies do
             _ = invalidate_accounts_user_cache(membership.id)
             _ = Accounts.broadcast_user_update(updated)
 
-            Task.start(fn ->
+            GameServer.Async.run(fn ->
               GameServer.Hooks.internal_call(:after_user_kicked, [
                 %GameServer.Accounts.User{id: host_id},
                 membership,

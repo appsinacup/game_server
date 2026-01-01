@@ -1222,7 +1222,7 @@ defmodule GameServerWeb.AdminLive.Config do
       true ->
         parent = self()
 
-        Task.start(fn ->
+        GameServer.Async.run(fn ->
           result = PluginBuilder.build(name)
           send(parent, {:plugin_build_finished, name, result})
         end)

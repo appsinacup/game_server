@@ -47,7 +47,11 @@ defmodule GameServer.Friends do
   end
 
   defp invalidate_friends_cache(user_id) when is_integer(user_id) do
-    _ = GameServer.Cache.incr({:friends, :version, user_id}, 1, default: 1)
+    GameServer.Async.run(fn ->
+      _ = GameServer.Cache.incr({:friends, :version, user_id}, 1, default: 1)
+      :ok
+    end)
+
     :ok
   end
 
@@ -62,7 +66,11 @@ defmodule GameServer.Friends do
   end
 
   defp invalidate_friendship_cache(friendship_id) when is_integer(friendship_id) do
-    _ = GameServer.Cache.incr({:friends, :friendship_version, friendship_id}, 1, default: 1)
+    GameServer.Async.run(fn ->
+      _ = GameServer.Cache.incr({:friends, :friendship_version, friendship_id}, 1, default: 1)
+      :ok
+    end)
+
     :ok
   end
 

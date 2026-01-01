@@ -32,7 +32,11 @@ defmodule GameServer.Accounts do
   end
 
   defp invalidate_users_stats_cache do
-    _ = GameServer.Cache.incr({:accounts, :users_stats_version}, 1, default: 1)
+    GameServer.Async.run(fn ->
+      _ = GameServer.Cache.incr({:accounts, :users_stats_version}, 1, default: 1)
+      :ok
+    end)
+
     :ok
   end
 
@@ -163,7 +167,11 @@ defmodule GameServer.Accounts do
   def count_users, do: Repo.aggregate(User, :count, :id)
 
   defp invalidate_users_count_cache do
-    _ = GameServer.Cache.delete({:accounts, :users_count})
+    GameServer.Async.run(fn ->
+      _ = GameServer.Cache.delete({:accounts, :users_count})
+      :ok
+    end)
+
     :ok
   end
 
@@ -362,12 +370,16 @@ defmodule GameServer.Accounts do
   end
 
   defp invalidate_user_cache(%User{id: id} = user) do
-    _ = GameServer.Cache.delete({:accounts, :user, id})
+    GameServer.Async.run(fn ->
+      _ = GameServer.Cache.delete({:accounts, :user, id})
 
-    user
-    |> user_index_keys()
-    |> Enum.each(fn key ->
-      _ = GameServer.Cache.delete(key)
+      user
+      |> user_index_keys()
+      |> Enum.each(fn key ->
+        _ = GameServer.Cache.delete(key)
+      end)
+
+      :ok
     end)
 
     :ok
@@ -407,7 +419,11 @@ defmodule GameServer.Accounts do
          |> Repo.insert() do
       {:ok, user} = ok ->
         invalidate_users_count_cache()
-        Task.start(fn -> GameServer.Hooks.internal_call(:after_user_register, [user]) end)
+
+        GameServer.Async.run(fn ->
+          GameServer.Hooks.internal_call(:after_user_register, [user])
+        end)
+
         ok
 
       err ->
@@ -752,7 +768,11 @@ defmodule GameServer.Accounts do
              |> Repo.insert() do
           {:ok, user} = ok ->
             invalidate_users_count_cache()
-            Task.start(fn -> GameServer.Hooks.internal_call(:after_user_register, [user]) end)
+
+            GameServer.Async.run(fn ->
+              GameServer.Hooks.internal_call(:after_user_register, [user])
+            end)
+
             ok
 
           err ->
@@ -909,7 +929,11 @@ defmodule GameServer.Accounts do
     case %User{} |> changeset_fn.(attrs) |> Repo.insert() do
       {:ok, user} = ok ->
         invalidate_users_count_cache()
-        Task.start(fn -> GameServer.Hooks.internal_call(:after_user_register, [user]) end)
+
+        GameServer.Async.run(fn ->
+          GameServer.Hooks.internal_call(:after_user_register, [user])
+        end)
+
         ok
 
       err ->
@@ -1318,7 +1342,7 @@ defmodule GameServer.Accounts do
 
       {user, token} ->
         Repo.delete!(token)
-        Task.start(fn -> GameServer.Hooks.internal_call(:after_user_login, [user]) end)
+        GameServer.Async.run(fn -> GameServer.Hooks.internal_call(:after_user_login, [user]) end)
         {:ok, {user, []}}
 
       nil ->
@@ -1334,7 +1358,7 @@ defmodule GameServer.Accounts do
 
     case result do
       {:ok, {user, _tokens}} = ok ->
-        Task.start(fn -> GameServer.Hooks.internal_call(:after_user_login, [user]) end)
+        GameServer.Async.run(fn -> GameServer.Hooks.internal_call(:after_user_login, [user]) end)
         ok
 
       other ->
