@@ -1162,6 +1162,15 @@ defmodule GameServerWeb.AdminLive.Config do
       if connected?(socket) do
         Phoenix.PubSub.subscribe(GameServer.PubSub, GameServerWeb.AdminLogBuffer.topic())
 
+        # The LiveView is rendered once over HTTP (disconnected) and then
+        # mounts again after the websocket connects. In production, it is
+        # also possible for the endpoint to accept traffic briefly before
+        # hook plugins finish initializing (e.g. after a node restart).
+        #
+        # Refresh once shortly after connect so the Hooks Plugins section and
+        # exported hooks list are consistent without manual page refreshes.
+        Process.send_after(self(), :refresh_hooks_plugins, 250)
+
         assign(socket,
           admin_logs: GameServerWeb.AdminLogBuffer.list(module: "", limit: 1000)
         )
@@ -1170,6 +1179,20 @@ defmodule GameServerWeb.AdminLive.Config do
       end
 
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_info(:refresh_hooks_plugins, socket) do
+    plugins = PluginManager.list()
+
+    {:noreply,
+     socket
+     |> assign(:plugins, plugins)
+     |> assign(:plugins_counts, plugin_counts(plugins))
+     |> assign(
+       :config,
+       Map.put(socket.assigns.config, :hooks_exported_functions, exported_plugin_functions())
+     )}
   end
 
   defp cache_diagnostics do
@@ -1262,7 +1285,9 @@ defmodule GameServerWeb.AdminLive.Config do
        plugins: plugins,
        plugins_counts: plugin_counts(plugins),
        plugins_last_reloaded_at: now,
-       plugins_reload_result: res
+       plugins_reload_result: res,
+       config:
+         Map.put(socket.assigns.config, :hooks_exported_functions, exported_plugin_functions())
      )}
   end
 
