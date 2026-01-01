@@ -800,10 +800,56 @@ defmodule GameServerWeb.AdminLive.Config do
 
                         <div class="font-mono text-sm">
                           <%= if @config.hooks_test_result do %>
-                            <div>Result: {@config.hooks_test_result}</div>
+                            <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                              <div>Result: {@config.hooks_test_result}</div>
+                              <%= if Map.get(@config, :hooks_test_duration_us) do %>
+                                <div class="text-xs text-muted">
+                                  (took {format_duration_us(@config.hooks_test_duration_us)})
+                                </div>
+                              <% end %>
+                            </div>
                           <% else %>
                             <div class="text-xs text-muted">No test yet</div>
                           <% end %>
+                        </div>
+
+                        <div class="mt-4">
+                          <div class="text-sm font-semibold mb-2">Logs (realtime)</div>
+
+                          <.form for={%{}} id="admin-logs-filter" phx-change="set_log_filter">
+                            <div class="flex flex-col md:flex-row gap-2 md:items-center">
+                              <input
+                                id="admin-logs-module-input"
+                                name="module"
+                                value={@admin_logs_module_filter}
+                                placeholder="Filter by module (eg Elixir.GameServer.Hooks)"
+                                class="input input-sm w-full md:flex-1"
+                              />
+                              <div class="text-xs text-muted md:whitespace-nowrap">
+                                showing last {length(@admin_logs)}
+                              </div>
+                            </div>
+                          </.form>
+
+                          <div
+                            id="admin-logs-panel"
+                            class="mt-2 p-3 border rounded bg-base-100 font-mono text-xs max-h-64 overflow-auto"
+                          >
+                            <%= if @admin_logs == [] do %>
+                              <div class="text-muted">No logs yet</div>
+                            <% else %>
+                              <%= for entry <- @admin_logs do %>
+                                <div>
+                                  <span class="text-muted">{format_log_ts(entry.timestamp)}</span>
+                                  <span class="text-muted">[{entry.level}]</span>
+                                  <%= if entry.module do %>
+                                    <span class="text-muted">{entry.module}</span>
+                                  <% end %>
+                                  <span>{entry.message}</span>
+                                </div>
+                              <% end %>
+                            <% end %>
+                          </div>
                         </div>
                         
     <!-- Full docs modal / pane -->
@@ -1074,6 +1120,7 @@ defmodule GameServerWeb.AdminLive.Config do
       # Hooks plugin diagnostics
       hooks_exported_functions: exported_plugin_functions(),
       hooks_test_result: nil,
+      hooks_test_duration_us: nil,
       # Theme configuration diagnostics: reuse the existing Theme provider
       # implementation so behavior is consistent across the app. We expose three
       # keys used by the template:
@@ -1089,25 +1136,40 @@ defmodule GameServerWeb.AdminLive.Config do
       device_auth_enabled_env: System.get_env("DEVICE_AUTH_ENABLED")
     }
 
-    {:ok,
-     assign(socket,
-       config: config,
-       scheduled_jobs: Schedule.list(),
-       hooks_plugin_prefill: %{value: "", seq: 0},
-       hooks_prefill: %{value: "", seq: 0},
-       hooks_args_prefill: %{value: "", seq: 0},
-       hooks_full_doc: nil,
-       hooks_full_name: nil,
-       plugins: PluginManager.list(),
-       plugins_counts: plugin_counts(PluginManager.list()),
-       plugins_last_reloaded_at: nil,
-       plugins_reload_result: nil,
-       plugin_build_options: plugin_build_options(),
-       plugin_build_running?: false,
-       plugin_build_result: nil,
-       plugin_build_form:
-         to_form(%{"name" => default_plugin_build_selection()}, as: :plugin_build)
-     )}
+    socket =
+      assign(socket,
+        config: config,
+        scheduled_jobs: Schedule.list(),
+        hooks_plugin_prefill: %{value: "", seq: 0},
+        hooks_prefill: %{value: "", seq: 0},
+        hooks_args_prefill: %{value: "", seq: 0},
+        hooks_full_doc: nil,
+        hooks_full_name: nil,
+        admin_logs_module_filter: "",
+        admin_logs: [],
+        plugins: PluginManager.list(),
+        plugins_counts: plugin_counts(PluginManager.list()),
+        plugins_last_reloaded_at: nil,
+        plugins_reload_result: nil,
+        plugin_build_options: plugin_build_options(),
+        plugin_build_running?: false,
+        plugin_build_result: nil,
+        plugin_build_form:
+          to_form(%{"name" => default_plugin_build_selection()}, as: :plugin_build)
+      )
+
+    socket =
+      if connected?(socket) do
+        Phoenix.PubSub.subscribe(GameServer.PubSub, GameServerWeb.AdminLogBuffer.topic())
+
+        assign(socket,
+          admin_logs: GameServerWeb.AdminLogBuffer.list(module: "", limit: 1000)
+        )
+      else
+        socket
+      end
+
+    {:ok, socket}
   end
 
   defp cache_diagnostics do
@@ -1246,18 +1308,61 @@ defmodule GameServerWeb.AdminLive.Config do
 
     caller = socket.assigns.current_scope && socket.assigns.current_scope.user
 
-    result =
-      case PluginManager.call_rpc(plugin, fn_name, args, caller: caller) do
-        {:ok, res} ->
-          inspect(res)
+    {duration_us, result} =
+      :timer.tc(fn ->
+        case PluginManager.call_rpc(plugin, fn_name, args, caller: caller) do
+          {:ok, res} ->
+            inspect(res)
 
-        {:error, reason} ->
-          "error: #{inspect(reason)}"
-      end
+          {:error, reason} ->
+            "error: #{inspect(reason)}"
+        end
+      end)
 
-    config = Map.put(socket.assigns.config, :hooks_test_result, result)
+    config =
+      socket.assigns.config
+      |> Map.put(:hooks_test_result, result)
+      |> Map.put(:hooks_test_duration_us, duration_us)
 
     {:noreply, assign(socket, :config, config)}
+  end
+
+  @impl true
+  def handle_event("set_log_filter", %{"module" => module_filter}, socket)
+      when is_binary(module_filter) do
+    logs = GameServerWeb.AdminLogBuffer.list(module: module_filter, limit: 1000)
+
+    {:noreply,
+     assign(socket,
+       admin_logs_module_filter: module_filter,
+       admin_logs: logs
+     )}
+  end
+
+  def handle_event("set_log_filter", _params, socket), do: {:noreply, socket}
+
+  @impl true
+  def handle_info({:admin_log, entry}, socket) do
+    filter = socket.assigns.admin_logs_module_filter
+
+    should_include? =
+      case String.trim(filter) do
+        "" ->
+          true
+
+        f ->
+          entry_mod = entry.module && Atom.to_string(entry.module)
+          entry_mod && String.contains?(entry_mod, f)
+      end
+
+    socket =
+      if should_include? do
+        assign(socket, :admin_logs, [entry | socket.assigns.admin_logs] |> Enum.take(1000))
+      else
+        socket
+      end
+
+    {:noreply, socket}
   end
 
   def handle_event("send_test_email", _params, socket) do
@@ -1359,6 +1464,29 @@ defmodule GameServerWeb.AdminLive.Config do
     seq = System.unique_integer([:positive])
     {:noreply, assign(socket, :hooks_args_prefill, %{value: args_text, seq: seq})}
   end
+
+  defp format_duration_us(us) when is_integer(us) and us >= 0 do
+    cond do
+      us < 1_000 ->
+        "#{us}µs"
+
+      us < 1_000_000 ->
+        ms = us / 1_000
+        "#{Float.round(ms, 2)}ms"
+
+      true ->
+        s = us / 1_000_000
+        "#{Float.round(s, 2)}s"
+    end
+  end
+
+  defp format_log_ts(%DateTime{} = dt) do
+    dt
+    |> DateTime.truncate(:second)
+    |> DateTime.to_iso8601()
+  end
+
+  defp format_log_ts(_), do: ""
 
   def handle_event("show_docs", %{"doc" => doc, "name" => name, "arity" => arity}, socket) do
     # arity may arrive as string; keep it as-is for display
