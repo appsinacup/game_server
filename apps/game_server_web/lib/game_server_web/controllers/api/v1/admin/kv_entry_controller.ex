@@ -15,7 +15,13 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
     properties: %{
       id: %Schema{type: :integer},
       key: %Schema{type: :string},
-      user_id: %Schema{type: :integer, nullable: true},
+      user_id: %Schema{
+        type: :integer,
+        nullable: false,
+        description: "Owner user id; -1 means global/unowned",
+        example: -1,
+        minimum: -1
+      },
       data: %Schema{type: :object},
       metadata: %Schema{type: :object},
       inserted_at: %Schema{type: :string, format: "date-time"},
@@ -200,7 +206,7 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
     %{
       id: entry.id,
       key: entry.key,
-      user_id: entry.user_id,
+      user_id: entry.user_id || -1,
       data: entry.value,
       metadata: entry.metadata,
       inserted_at: entry.inserted_at,
