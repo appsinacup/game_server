@@ -247,6 +247,12 @@ defmodule Mix.Tasks.Gen.Sdk do
 
   defp placeholder_expr_for_named_types(return_type) when is_binary(return_type) do
     rules = [
+      # GameServer.KV.get/* returns `{:ok, payload()} | :error` where payload is a map with
+      # required `:value` and `:metadata` keys. Returning `{:ok, nil}` in the stub causes
+      # downstream code that pattern-matches on the payload shape to trigger "clause will never match"
+      # typing warnings. Generate a placeholder that exercises both branches.
+      {fn rt -> String.contains?(rt, "{:ok, payload()}") and String.contains?(rt, ":error") end,
+       "if :erlang.phash2(make_ref(), 2) == 0, do: :error, else: {:ok, %{value: %{}, metadata: %{}}}"},
       {fn rt -> String.contains?(rt, "{:ok, GameServer.Accounts.User.t()}") end,
        "{:ok, #{user_placeholder_expr()}}"},
       {fn rt -> String.contains?(rt, "{:ok, GameServer.Lobbies.Lobby.t()}") end,
