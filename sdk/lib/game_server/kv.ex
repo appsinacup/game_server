@@ -153,7 +153,7 @@ defmodule GameServer.KV do
   def get(_key) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, nil}
+        if :erlang.phash2(make_ref(), 2) == 0, do: :error, else: {:ok, %{value: %{}, metadata: %{}}}
 
       _ ->
         raise "GameServer.KV.get/1 is a stub - only available at runtime on GameServer"
@@ -175,7 +175,7 @@ defmodule GameServer.KV do
   def get(_key, _opts) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, nil}
+        if :erlang.phash2(make_ref(), 2) == 0, do: :error, else: {:ok, %{value: %{}, metadata: %{}}}
 
       _ ->
         raise "GameServer.KV.get/2 is a stub - only available at runtime on GameServer"

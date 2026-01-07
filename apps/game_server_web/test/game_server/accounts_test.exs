@@ -152,6 +152,26 @@ defmodule GameServer.AccountsTest do
       assert {:ok, user} = Accounts.find_or_create_from_device(device_id)
       refute user.is_admin
     end
+
+    test "delete_user clears device_id cache (delete then login recreates user)" do
+      _existing = user_fixture()
+      device_id = "test-device-#{System.unique_integer([:positive])}"
+
+      assert {:ok, user1} = Accounts.find_or_create_from_device(device_id)
+
+      # Second call hits the lookup path and populates the device_id cache.
+      assert {:ok, ^user1} = Accounts.find_or_create_from_device(device_id)
+
+      assert {:ok, _} = Accounts.delete_user(user1)
+      refute Repo.get(User, user1.id)
+
+      # If the cache wasn't cleared synchronously, this can return a stale user struct
+      # that no longer exists in the DB.
+      assert {:ok, user2} = Accounts.find_or_create_from_device(device_id)
+      assert Repo.get(User, user2.id)
+      assert user2.id != user1.id
+      assert user2.device_id == device_id
+    end
   end
 
   describe "sudo_mode?/2" do

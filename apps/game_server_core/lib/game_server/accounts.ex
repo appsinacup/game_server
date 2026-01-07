@@ -385,6 +385,18 @@ defmodule GameServer.Accounts do
     :ok
   end
 
+  defp invalidate_user_cache_sync(%User{id: id} = user) do
+    _ = GameServer.Cache.delete({:accounts, :user, id})
+
+    user
+    |> user_index_keys()
+    |> Enum.each(fn key ->
+      _ = GameServer.Cache.delete(key)
+    end)
+
+    :ok
+  end
+
   ## User registration
 
   @doc """
@@ -484,6 +496,11 @@ defmodule GameServer.Accounts do
     case Repo.transaction(transaction_fun) do
       {:ok, %User{} = user} ->
         invalidate_users_count_cache()
+
+        GameServer.Async.run(fn ->
+          GameServer.Hooks.internal_call(:after_user_register, [user])
+        end)
+
         {:ok, user}
 
       {:error, reason} ->
@@ -1462,7 +1479,11 @@ defmodule GameServer.Accounts do
     case Repo.delete(user) do
       {:ok, _user} = ok ->
         invalidate_users_count_cache()
-        invalidate_user_cache(user)
+
+        # Deleting cache entries asynchronously can cause a short-lived race where
+        # a delete followed immediately by a device login sees a stale cached user
+        # for the same device_id/email and skips the "create" code path.
+        invalidate_user_cache_sync(user)
         ok
 
       err ->
