@@ -91,6 +91,17 @@ defmodule GameServer.LobbiesTest do
       assert is_nil(service_lobby.host_id)
     end
 
+    test "hostless lobby creation clears host_id but keeps membership", %{host: host} do
+      {:ok, lobby} =
+        Lobbies.create_lobby(%{title: "hostless-with-host", host_id: host.id, hostless: true})
+
+      assert lobby.hostless
+      assert is_nil(lobby.host_id)
+
+      members = Lobbies.get_lobby_members(lobby)
+      assert Enum.any?(members, fn u -> u.id == host.id end)
+    end
+
     test "join and capacity rules", %{host: host, other: other} do
       {:ok, lobby} = Lobbies.create_lobby(%{title: "join-room", host_id: host.id, max_users: 2})
       # lobby should be persisted and host membership will be created automatically
