@@ -376,7 +376,14 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
       ]
     ],
     responses: [
-      ok: {"User's record with rank", "application/json", @record_schema},
+      ok:
+        {"User's record with rank", "application/json",
+         %Schema{
+           type: :object,
+           properties: %{
+             data: @record_schema
+           }
+         }},
       not_found: {"Leaderboard or record not found", "application/json", %Schema{type: :object}}
     ],
     security: [%{"bearer" => []}]
