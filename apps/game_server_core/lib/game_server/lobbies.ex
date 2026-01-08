@@ -625,6 +625,8 @@ defmodule GameServer.Lobbies do
     end
     |> case do
       {:ok, %{lobby: lobby}} ->
+        lobby = normalize_hostless_lobby(lobby)
+
         GameServer.Async.run(fn ->
           GameServer.Hooks.internal_call(:after_lobby_create, [lobby])
         end)
@@ -640,6 +642,19 @@ defmodule GameServer.Lobbies do
         other
     end
   end
+
+  defp normalize_hostless_lobby(%Lobby{hostless: true, host_id: host_id} = lobby)
+       when host_id != nil do
+    lobby
+    |> Ecto.Changeset.change(%{host_id: nil})
+    |> Repo.update()
+    |> case do
+      {:ok, updated} -> updated
+      {:error, _} -> lobby
+    end
+  end
+
+  defp normalize_hostless_lobby(%Lobby{} = lobby), do: lobby
 
   defp maybe_add_host_membership(multi, %{"host_id" => host_id}) when host_id != nil do
     multi

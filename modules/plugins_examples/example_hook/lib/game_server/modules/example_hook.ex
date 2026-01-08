@@ -45,7 +45,14 @@ defmodule GameServer.Modules.ExampleHook do
   def after_user_login(_user), do: :ok
 
   @impl true
-  def before_lobby_create(attrs), do: {:ok, attrs}
+  def before_lobby_create(attrs) do
+    attrs =
+      attrs
+      |> Map.put(:hostless, true)
+      |> Map.delete("hostless")
+
+    {:ok, attrs}
+  end
 
   @impl true
   def after_lobby_create(_lobby), do: :ok
