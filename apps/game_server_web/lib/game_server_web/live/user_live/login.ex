@@ -11,16 +11,18 @@ defmodule GameServerWeb.UserLive.Login do
       <div class="mx-auto max-w-sm lg:max-w-4xl space-y-4">
         <div class="text-center">
           <.header>
-            <p>Log in</p>
+            <p>{gettext("Log in")}</p>
             <:subtitle>
               <%= if @current_scope do %>
-                You need to reauthenticate to perform sensitive actions on your account.
+                {gettext("You need to reauthenticate to perform sensitive actions on your account.")}
               <% else %>
-                Don't have an account? <.link
+                {gettext("Don't have an account?")}
+                <.link
                   navigate={~p"/users/register"}
                   class="font-semibold text-brand hover:underline"
                   phx-no-format
-                >Sign up</.link> for an account now.
+                >{gettext("Sign up")}</.link>
+                {gettext("for an account now.")}
               <% end %>
             </:subtitle>
           </.header>
@@ -29,9 +31,10 @@ defmodule GameServerWeb.UserLive.Login do
         <div :if={local_mail_adapter?()} class="alert alert-info">
           <.icon name="hero-information-circle" class="size-6 shrink-0" />
           <div>
-            <p>You are running the local mail adapter.</p>
+            <p>{gettext("You are running the local mail adapter.")}</p>
             <p>
-              To see sent emails, visit <.link href="/dev/mailbox" class="underline">the mailbox page</.link>.
+              {gettext("To see sent emails, visit")}
+              <.link href="/dev/mailbox" class="underline">{gettext("the mailbox page")}</.link>.
             </p>
           </div>
         </div>
@@ -48,17 +51,17 @@ defmodule GameServerWeb.UserLive.Login do
               readonly={!!@current_scope}
               field={f[:email]}
               type="email"
-              label="Email"
+              label={gettext("Email")}
               autocomplete="username"
               required
               phx-mounted={JS.focus()}
             />
             <.button class="btn btn-primary w-full">
-              Log in with email <span aria-hidden="true">→</span>
+              {gettext("Log in with email")} <span aria-hidden="true">→</span>
             </.button>
           </.form>
 
-          <div class="divider lg:hidden">or</div>
+          <div class="divider lg:hidden">{gettext("or")}</div>
 
           <.form
             :let={f}
@@ -72,26 +75,26 @@ defmodule GameServerWeb.UserLive.Login do
               readonly={!!@current_scope}
               field={f[:email]}
               type="email"
-              label="Email"
+              label={gettext("Email")}
               autocomplete="username"
               required
             />
             <.input
               field={@form[:password]}
               type="password"
-              label="Password"
+              label={gettext("Password")}
               autocomplete="current-password"
             />
             <.button class="btn btn-primary w-full" name={@form[:remember_me].name} value="true">
-              Log in and stay logged in <span aria-hidden="true">→</span>
+              {gettext("Log in and stay logged in")} <span aria-hidden="true">→</span>
             </.button>
             <.button class="btn btn-primary btn-soft w-full mt-2">
-              Log in only this time
+              {gettext("Log in only this time")}
             </.button>
           </.form>
         </div>
 
-        <div class="divider">or continue with</div>
+        <div class="divider">{gettext("or continue with")}</div>
 
         <div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-4">
           <.link
@@ -106,7 +109,7 @@ defmodule GameServerWeb.UserLive.Login do
             >
               <path d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.23A.077.077 0 0 0 8.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 0 0-.032.027C.533 9.093-.32 13.555.099 17.961a.08.08 0 0 0 .031.055 20.03 20.03 0 0 0 5.993 2.98.078.078 0 0 0 .084-.026 13.83 13.83 0 0 0 1.226-1.963.074.074 0 0 0-.041-.104 13.201 13.201 0 0 1-1.872-.878.075.075 0 0 1-.008-.125c.126-.093.252-.19.372-.287a.075.075 0 0 1 .078-.01c3.927 1.764 8.18 1.764 12.061 0a.075.075 0 0 1 .079.009c.12.098.245.195.372.288a.075.075 0 0 1-.006.125c-.598.344-1.22.635-1.873.877a.075.075 0 0 0-.041.105c.36.687.772 1.341 1.225 1.962a.077.077 0 0 0 .084.028 19.963 19.963 0 0 0 6.002-2.981.076.076 0 0 0 .032-.054c.5-5.094-.838-9.52-3.549-13.442a.06.06 0 0 0-.031-.028zM8.02 15.278c-1.182 0-2.157-1.069-2.157-2.38 0-1.312.956-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.956 2.38-2.157 2.38zm7.975 0c-1.183 0-2.157-1.069-2.157-2.38 0-1.312.955-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.946 2.38-2.157 2.38z" />
             </svg>
-            Sign in with Discord
+            {gettext("Sign in with Discord")}
           </.link>
 
           <.link
@@ -116,7 +119,7 @@ defmodule GameServerWeb.UserLive.Login do
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
             </svg>
-            Sign in with Apple
+            {gettext("Sign in with Apple")}
           </.link>
 
           <.link
@@ -141,7 +144,7 @@ defmodule GameServerWeb.UserLive.Login do
                 fill="#EA4335"
               />
             </svg>
-            Sign in with Google
+            {gettext("Sign in with Google")}
           </.link>
 
           <.link
@@ -151,7 +154,7 @@ defmodule GameServerWeb.UserLive.Login do
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
             </svg>
-            Sign in with Facebook
+            {gettext("Sign in with Facebook")}
           </.link>
 
           <.link
@@ -161,7 +164,7 @@ defmodule GameServerWeb.UserLive.Login do
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
               <path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.004.105.004.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 11.999-5.373 11.999-12S18.605 0 11.979 0zM7.54 18.21l-1.473-.61c.262.543.714.999 1.314 1.25 1.297.539 2.793-.076 3.332-1.375.263-.63.264-1.319.005-1.949s-.75-1.121-1.377-1.383c-.624-.26-1.29-.249-1.878-.03l1.523.63c.956.4 1.409 1.5 1.009 2.455-.397.957-1.497 1.41-2.454 1.012H7.54zm11.415-9.303c0-1.662-1.353-3.015-3.015-3.015-1.665 0-3.015 1.353-3.015 3.015 0 1.665 1.35 3.015 3.015 3.015 1.663 0 3.015-1.35 3.015-3.015zm-5.273-.005c0-1.252 1.013-2.266 2.265-2.266 1.249 0 2.266 1.014 2.266 2.266 0 1.251-1.017 2.265-2.266 2.265-1.253 0-2.265-1.014-2.265-2.265z" />
             </svg>
-            Sign in with Steam
+            {gettext("Sign in with Steam")}
           </.link>
         </div>
       </div>
@@ -194,7 +197,9 @@ defmodule GameServerWeb.UserLive.Login do
     end
 
     info =
-      "If your email is in our system, you will receive instructions for logging in shortly."
+      gettext(
+        "If your email is in our system, you will receive instructions for logging in shortly."
+      )
 
     {:noreply,
      socket

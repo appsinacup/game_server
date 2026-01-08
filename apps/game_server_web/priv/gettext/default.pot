@@ -1,0 +1,3007 @@
+## This file is a PO Template file.
+##
+## "msgid"s here are often extracted from source code.
+## Add new messages manually only if they're dynamic
+## messages that can't be statically extracted.
+##
+## Run "mix gettext.extract" to bring this file up to
+## date. Leave "msgstr"s empty as changing them here has no
+## effect: edit them in PO (.po) files instead.
+#
+msgid ""
+msgstr ""
+
+#: lib/game_server_web/components/core_components.ex:345
+#, elixir-autogen, elixir-format
+msgid "Actions"
+msgstr ""
+
+#: lib/game_server_web/components/layouts.ex:283
+#: lib/game_server_web/components/layouts.ex:295
+#, elixir-autogen, elixir-format
+msgid "Attempting to reconnect"
+msgstr ""
+
+#: lib/game_server_web/components/layouts.ex:290
+#, elixir-autogen, elixir-format
+msgid "Something went wrong!"
+msgstr ""
+
+#: lib/game_server_web/components/layouts.ex:278
+#, elixir-autogen, elixir-format
+msgid "We can't find the internet"
+msgstr ""
+
+#: lib/game_server_web/components/core_components.ex:77
+#, elixir-autogen, elixir-format
+msgid "close"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/config.ex:1432
+#, elixir-autogen, elixir-format
+msgid " (details: %{details})"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:59
+#, elixir-autogen, elixir-format
+msgid "($99/year)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:140
+#, elixir-autogen, elixir-format
+msgid "(achievements, levels, etc.)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:57
+#, elixir-autogen, elixir-format
+msgid "(add),"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:50
+#, elixir-autogen, elixir-format
+msgid "(highest first) or"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:51
+#, elixir-autogen, elixir-format
+msgid "(lowest first)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:56
+#, elixir-autogen, elixir-format
+msgid "(only if better),"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:55
+#, elixir-autogen, elixir-format
+msgid "(replace),"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:58
+#, elixir-autogen, elixir-format
+msgid "(subtract)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/email_setup.html.heex:129
+#, elixir-autogen, elixir-format
+msgid ") and verify that domain with your provider."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:160
+#, elixir-autogen, elixir-format
+msgid ") should run serially"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:170
+#, elixir-autogen, elixir-format
+msgid ") so changes are validated and broadcast consistently."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:80
+#, elixir-autogen, elixir-format
+msgid ", enter your domain (e.g.,"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:142
+#, elixir-autogen, elixir-format
+msgid "- you can only download this once!"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/scaling.html.heex:46
+#, elixir-autogen, elixir-format
+msgid "1 instance vs multiple instances"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:931
+#, elixir-autogen, elixir-format
+msgid "A link to confirm your email change has been sent to the new address."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/scaling.html.heex:57
+#, elixir-autogen, elixir-format
+msgid "A shared cache (Redis recommended since L2 doesn't require Erlang distribution)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/scaling.html.heex:55
+#, elixir-autogen, elixir-format
+msgid "A shared database (PostgreSQL recommended)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:14
+#, elixir-autogen, elixir-format
+msgid "API Docs"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:28
+#, elixir-autogen, elixir-format
+msgid "API Request:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:145
+#, elixir-autogen, elixir-format
+msgid "API Usage Examples"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:60
+#, elixir-autogen, elixir-format
+msgid "API key"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/terms.html.heex:15
+#, elixir-autogen, elixir-format
+msgid "Acceptance of Terms"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/privacy.html.heex:18
+#, elixir-autogen, elixir-format
+msgid "Account details (email, provider IDs) - stored when you sign up or sign in with OAuth providers like Discord, Google or Facebook."
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:1023
+#, elixir-autogen, elixir-format
+msgid "Account not found."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:141
+#, elixir-autogen, elixir-format
+msgid "Accounts created only via OAuth commonly have no"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:85
+#, elixir-autogen, elixir-format
+msgid "Add Facebook Login Product"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:151
+#, elixir-autogen, elixir-format
+msgid "Add a Privacy Policy URL"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:152
+#, elixir-autogen, elixir-format
+msgid "Add a Terms of Service URL (optional)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:53
+#, elixir-autogen, elixir-format
+msgid "Add a lifecycle callback"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:111
+#, elixir-autogen, elixir-format
+msgid "Add authorized domains (e.g., example.com)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:133
+#, elixir-autogen, elixir-format
+msgid "Add authorized redirect URIs:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:112
+#, elixir-autogen, elixir-format
+msgid "Add developer contact email"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:114
+#, elixir-autogen, elixir-format
+msgid "Add scopes: email, profile"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:116
+#, elixir-autogen, elixir-format
+msgid "Add test users if needed (optional for development)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:108
+#, elixir-autogen, elixir-format
+msgid "Add these Valid OAuth Redirect URIs:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:112
+#, elixir-autogen, elixir-format
+msgid "Add these domains and redirect URLs:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:110
+#, elixir-autogen, elixir-format
+msgid "Add your email as user support email"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/email_setup.html.heex:136
+#, elixir-autogen, elixir-format
+msgid "Admin • Configuration"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:112
+#, elixir-autogen, elixir-format
+msgid "After configuring the API key:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:76
+#, elixir-autogen, elixir-format
+msgid "After creating the project, copy the DSN from the settings:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:111
+#, elixir-autogen, elixir-format
+msgid "After deploying with the DSN:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:203
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:146
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:181
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:167
+#, elixir-autogen, elixir-format
+msgid "After deploying with the secrets:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/godot_sdk.html.heex:145
+#, elixir-autogen, elixir-format
+msgid "After logging in, you can now call any RPC or other protected functions."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/cache_setup.html.heex:136
+#, elixir-autogen, elixir-format
+msgid "All nodes must share the same"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:40
+#, elixir-autogen, elixir-format
+msgid "Any user-generated content or metadata"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:136
+#, elixir-autogen, elixir-format
+msgid "App ID"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:137
+#, elixir-autogen, elixir-format
+msgid "App Secret"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:47
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:57
+#, elixir-autogen, elixir-format
+msgid "Apple Developer Account"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:14
+#, elixir-autogen, elixir-format
+msgid "Apple Developer Portal"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:8
+#, elixir-autogen, elixir-format
+msgid "Apple Sign In Setup"
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1525
+#, elixir-autogen, elixir-format
+msgid "Apple is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:595
+#, elixir-autogen, elixir-format
+msgid "Are you sure you want to delete your account? This action cannot be undone."
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/terms.html.heex:40
+#, elixir-autogen, elixir-format
+msgid "Attempt to decompile or reverse engineer any software contained in the service"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/godot_sdk.html.heex:102
+#, elixir-autogen, elixir-format
+msgid "Authenticate using the same JWT-based API flow as other SDKs (get token from server login / OAuth)."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/godot_sdk.html.heex:98
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:91
+#, elixir-autogen, elixir-format
+msgid "Authentication"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:150
+#, elixir-autogen, elixir-format
+msgid "Authorize the application on Discord"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:207
+#, elixir-autogen, elixir-format
+msgid "Authorize the application with your Apple ID"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:185
+#, elixir-autogen, elixir-format
+msgid "Authorize the application with your Facebook account"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:116
+#, elixir-autogen, elixir-format
+msgid "Authorize with your Steam account"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:98
+#, elixir-autogen, elixir-format
+msgid "Back in Certificates, Identifiers & Profiles:"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:51
+#, elixir-autogen, elixir-format
+msgid "Backup data that may be retained for a limited time for recovery purposes"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:165
+#, elixir-autogen, elixir-format
+msgid "Be careful modifying user or lobby data from hooks — reuse high-level domain functions (eg."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:117
+#, elixir-autogen, elixir-format
+msgid "Best Practices"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:131
+#, elixir-autogen, elixir-format
+msgid "Best practices & pitfalls"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:10
+#, elixir-autogen, elixir-format
+msgid "Browse Leaderboards"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/config.ex:1362
+#, elixir-autogen, elixir-format
+msgid "Building plugin bundle for %{name}…"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/terms.html.heex:17
+#, elixir-autogen, elixir-format
+msgid "By accessing and using this service, you accept and agree to be bound by the terms and provision of this agreement."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/cache_setup.html.heex:54
+#, elixir-autogen, elixir-format
+msgid "By default, production runs a single-level local cache (fastest for a single instance)."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/cache_setup.html.heex:18
+#, elixir-autogen, elixir-format
+msgid "Cache Setup"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/godot_sdk.html.heex:141
+#, elixir-autogen, elixir-format
+msgid "Call Authenticated APIs"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:987
+#, elixir-autogen, elixir-format
+msgid "Cannot unlink the last linked social provider (you must have at least one social login connected)."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:77
+#, elixir-autogen, elixir-format
+msgid "Certificates, Identifiers & Profiles"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:108
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:136
+#, elixir-autogen, elixir-format
+msgid "Check \"Sign in with Apple\""
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:115
+#, elixir-autogen, elixir-format
+msgid "Check the admin config page - Sentry should show as \"Configured\""
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:121
+#, elixir-autogen, elixir-format
+msgid "Check your Sentry dashboard for the test event"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/email_setup.html.heex:55
+#, elixir-autogen, elixir-format
+msgid "Choose an Email Provider"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:171
+#, elixir-autogen, elixir-format
+msgid "Choose your Google account"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:134
+#, elixir-autogen, elixir-format
+msgid "Click \"+\" to create a new key"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:100
+#, elixir-autogen, elixir-format
+msgid "Click \"+\" to create new identifier"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:109
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:137
+#, elixir-autogen, elixir-format
+msgid "Click \"Configure\" next to Sign in with Apple"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:62
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:77
+#, elixir-autogen, elixir-format
+msgid "Click \"Create App\""
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:129
+#, elixir-autogen, elixir-format
+msgid "Click \"Create Credentials\" → \"OAuth client ID\""
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:79
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:108
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:139
+#, elixir-autogen, elixir-format
+msgid "Click \"Create\""
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:61
+#, elixir-autogen, elixir-format
+msgid "Click \"My Apps\" in the top right"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:61
+#, elixir-autogen, elixir-format
+msgid "Click \"New Application\" in the top right"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:77
+#, elixir-autogen, elixir-format
+msgid "Click \"New Project\""
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:68
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:74
+#, elixir-autogen, elixir-format
+msgid "Click \"Next\""
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:115
+#, elixir-autogen, elixir-format
+msgid "Click \"Reset Secret\" to generate"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:114
+#, elixir-autogen, elixir-format
+msgid "Click \"Save Changes\""
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:113
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:115
+#, elixir-autogen, elixir-format
+msgid "Click \"Save and Continue\""
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:94
+#, elixir-autogen, elixir-format
+msgid "Click \"Save\" and continue"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:76
+#, elixir-autogen, elixir-format
+msgid "Click \"Select a project\" at the top"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:91
+#, elixir-autogen, elixir-format
+msgid "Click \"Set Up\""
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:129
+#, elixir-autogen, elixir-format
+msgid "Click \"Show\" next to \"App Secret\" and copy it (this is your Client Secret)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:206
+#, elixir-autogen, elixir-format
+msgid "Click \"Sign in with Apple\""
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:149
+#, elixir-autogen, elixir-format
+msgid "Click \"Sign in with Discord\""
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:184
+#, elixir-autogen, elixir-format
+msgid "Click \"Sign in with Facebook\""
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:170
+#, elixir-autogen, elixir-format
+msgid "Click \"Sign in with Google\""
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:115
+#, elixir-autogen, elixir-format
+msgid "Click \"Sign in with Steam\""
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:87
+#, elixir-autogen, elixir-format
+msgid "Click Continue and Register"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:140
+#, elixir-autogen, elixir-format
+msgid "Click Register"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:139
+#, elixir-autogen, elixir-format
+msgid "Click Save, then Continue"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:118
+#, elixir-autogen, elixir-format
+msgid "Click Save, then Continue, then Register"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:94
+#, elixir-autogen, elixir-format
+msgid "Click on it and click \"Enable\""
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:81
+#, elixir-autogen, elixir-format
+msgid "Click the \"+\" button to create a new identifier"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:104
+#, elixir-autogen, elixir-format
+msgid "Client ID"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:113
+#, elixir-autogen, elixir-format
+msgid "Client Secret"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:30
+#: lib/game_server_web/live/public_docs/cache_setup.html.heex:36
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:30
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:30
+#: lib/game_server_web/live/public_docs/email_setup.html.heex:40
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:30
+#: lib/game_server_web/live/public_docs/godot_sdk.html.heex:46
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:45
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:29
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:26
+#: lib/game_server_web/live/public_docs/postgresql_setup.html.heex:40
+#: lib/game_server_web/live/public_docs/scaling.html.heex:36
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:31
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:30
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:30
+#: lib/game_server_web/live/public_docs/theme.heex:24
+#, elixir-autogen, elixir-format
+msgid "Collapse/Expand"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:150
+#, elixir-autogen, elixir-format
+msgid "Complete all required fields in \"Settings\" → \"Basic\""
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:128
+#, elixir-autogen, elixir-format
+msgid "Configure Application Secrets"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/email_setup.html.heex:93
+#, elixir-autogen, elixir-format
+msgid "Configure Email Secrets"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:179
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:162
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:148
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:96
+#, elixir-autogen, elixir-format
+msgid "Configure Environment Variables"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:102
+#, elixir-autogen, elixir-format
+msgid "Configure OAuth Consent Screen"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:102
+#, elixir-autogen, elixir-format
+msgid "Configure OAuth Redirect URIs"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:68
+#, elixir-autogen, elixir-format
+msgid "Configure Redirect Domain"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:71
+#, elixir-autogen, elixir-format
+msgid "Configure Redirect URIs"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/theme.heex:17
+#, elixir-autogen, elixir-format
+msgid "Configure Theme"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/theme.heex:72
+#, elixir-autogen, elixir-format
+msgid "Configure the app to use it"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/theme.heex:50
+#, elixir-autogen, elixir-format
+msgid "Configure theming JSON"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/confirmation.ex:37
+#, elixir-autogen, elixir-format
+msgid "Confirm and log in only this time"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/confirmation.ex:31
+#, elixir-autogen, elixir-format
+msgid "Confirm and stay logged in"
+msgstr ""
+
+#: lib/game_server_web/controllers/user_session_controller.ex:79
+#, elixir-autogen, elixir-format
+msgid "Confirmation link is invalid or it has expired."
+msgstr ""
+
+#: lib/game_server_web/live/user_live/confirmation.ex:28
+#: lib/game_server_web/live/user_live/confirmation.ex:34
+#, elixir-autogen, elixir-format
+msgid "Confirming..."
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/privacy.html.heex:65
+#, elixir-autogen, elixir-format
+msgid "Contact"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:66
+#: lib/game_server_web/controllers/page_html/terms.html.heex:96
+#, elixir-autogen, elixir-format
+msgid "Contact Information"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:24
+#, elixir-autogen, elixir-format
+msgid "Contact Support:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:127
+#, elixir-autogen, elixir-format
+msgid "Copy the \"App ID\" (this is your Client ID)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:140
+#, elixir-autogen, elixir-format
+msgid "Copy the Client ID and Client Secret"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:79
+#, elixir-autogen, elixir-format
+msgid "Copy the DSN value"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:853
+#, elixir-autogen, elixir-format
+msgid "Could not accept: %{reason}"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:771
+#, elixir-autogen, elixir-format
+msgid "Could not block: %{reason}"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:885
+#, elixir-autogen, elixir-format
+msgid "Could not cancel: %{reason}"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:408
+#: lib/game_server_web/live/lobby_live/index.ex:455
+#, elixir-autogen, elixir-format
+msgid "Could not join: %{reason}"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:316
+#, elixir-autogen, elixir-format
+msgid "Could not kick: %{reason}"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:119
+#, elixir-autogen, elixir-format
+msgid "Could not leave: %{reason}"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:869
+#, elixir-autogen, elixir-format
+msgid "Could not reject: %{reason}"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:901
+#, elixir-autogen, elixir-format
+msgid "Could not remove: %{reason}"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:747
+#: lib/game_server_web/live/user_live/settings.ex:755
+#, elixir-autogen, elixir-format
+msgid "Could not send request: %{reason}"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:917
+#, elixir-autogen, elixir-format
+msgid "Could not unblock: %{reason}"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:280
+#, elixir-autogen, elixir-format
+msgid "Could not update: %{reason}"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:67
+#, elixir-autogen, elixir-format
+msgid "Create App ID"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:47
+#, elixir-autogen, elixir-format
+msgid "Create Discord Application"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:47
+#, elixir-autogen, elixir-format
+msgid "Create Facebook App"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:62
+#, elixir-autogen, elixir-format
+msgid "Create Google Cloud Project"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:124
+#, elixir-autogen, elixir-format
+msgid "Create OAuth Credentials"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:129
+#, elixir-autogen, elixir-format
+msgid "Create Private Key"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:48
+#, elixir-autogen, elixir-format
+msgid "Create Sentry Project"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:95
+#, elixir-autogen, elixir-format
+msgid "Create Service ID (Client ID)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:224
+#, elixir-autogen, elixir-format
+msgid "Create a Lobby"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:63
+#, elixir-autogen, elixir-format
+msgid "Create a new project"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/kv.ex:448
+#, elixir-autogen, elixir-format
+msgid "Create failed: %{reason}"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:142
+#, elixir-autogen, elixir-format
+msgid "Create new leaderboards for new seasons instead of resetting"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:82
+#, elixir-autogen, elixir-format
+msgid "DSN Format"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:4
+#, elixir-autogen, elixir-format
+msgid "Data Deletion Instructions"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:587
+#, elixir-autogen, elixir-format
+msgid "Data Deletion Policy"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/privacy.html.heex:47
+#, elixir-autogen, elixir-format
+msgid "Data Retention & Security"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:8
+#, elixir-autogen, elixir-format
+msgid "Data Schema"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:49
+#, elixir-autogen, elixir-format
+msgid "Data already anonymized in analytics systems"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:59
+#, elixir-autogen, elixir-format
+msgid "Data deletion requests are typically processed within 30 days. You will receive confirmation once the deletion is complete."
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:48
+#, elixir-autogen, elixir-format
+msgid "Data required for legal compliance or regulatory purposes"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/postgresql_setup.html.heex:55
+#, elixir-autogen, elixir-format
+msgid "Database URL Configuration"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/cache_setup.html.heex:51
+#, elixir-autogen, elixir-format
+msgid "Defaults"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:598
+#, elixir-autogen, elixir-format
+msgid "Delete Account"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/kv.ex:324
+#, elixir-autogen, elixir-format
+msgid "Deleted %{deleted} entries"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/kv.ex:333
+#, elixir-autogen, elixir-format
+msgid "Deleted %{deleted} entries; failed %{failed}"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/leaderboards.ex:475
+#, elixir-autogen, elixir-format
+msgid "Deleted %{deleted} leaderboards"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/leaderboards.ex:484
+#, elixir-autogen, elixir-format
+msgid "Deleted %{deleted} leaderboards; failed %{failed}"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/lobbies.ex:336
+#, elixir-autogen, elixir-format
+msgid "Deleted %{deleted} lobbies"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/lobbies.ex:345
+#, elixir-autogen, elixir-format
+msgid "Deleted %{deleted} lobbies; failed %{failed}"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/sessions.ex:216
+#, elixir-autogen, elixir-format
+msgid "Deleted %{deleted} sessions"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/sessions.ex:225
+#, elixir-autogen, elixir-format
+msgid "Deleted %{deleted} sessions; failed %{failed}"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/users.ex:657
+#, elixir-autogen, elixir-format
+msgid "Deleted %{deleted} users"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/users.ex:666
+#, elixir-autogen, elixir-format
+msgid "Deleted %{deleted} users; failed %{failed}"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:108
+#, elixir-autogen, elixir-format
+msgid "Deploy and Test"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:113
+#, elixir-autogen, elixir-format
+msgid "Deploy your application"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/postgresql_setup.html.heex:94
+#, elixir-autogen, elixir-format
+msgid "Deployment Considerations"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:78
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:87
+#, elixir-autogen, elixir-format
+msgid "Development:"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/terms.html.heex:78
+#, elixir-autogen, elixir-format
+msgid "Disclaimer"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:14
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:57
+#, elixir-autogen, elixir-format
+msgid "Discord Developer Portal"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:8
+#, elixir-autogen, elixir-format
+msgid "Discord OAuth Setup"
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1637
+#, elixir-autogen, elixir-format
+msgid "Discord is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:943
+#, elixir-autogen, elixir-format
+msgid "Display name updated."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:147
+#, elixir-autogen, elixir-format
+msgid "Display name:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:153
+#, elixir-autogen, elixir-format
+msgid "Do not return structs as hook results intended to be used as params — always return plain maps when you intend to pass modified params into changesets."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/scaling.html.heex:67
+#, elixir-autogen, elixir-format
+msgid "Docker Compose (local / self-host)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/scaling.html.heex:71
+#, elixir-autogen, elixir-format
+msgid "Docker Compose is a simple way to run the app with PostgreSQL and Redis."
+msgstr ""
+
+#: lib/game_server_web/live/user_live/login.ex:19
+#, elixir-autogen, elixir-format
+msgid "Don't have an account?"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/postgresql_setup.html.heex:24
+#, elixir-autogen, elixir-format
+msgid "Download PostgreSQL"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:142
+#, elixir-autogen, elixir-format
+msgid "Download the .p8 file"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/godot_sdk.html.heex:61
+#, elixir-autogen, elixir-format
+msgid "Download the Godot asset from the Asset Library (in Godot look for the \"Gamend - Game Server\" addon):"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:62
+#, elixir-autogen, elixir-format
+msgid "Each leaderboard is a season. Set"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:89
+#, elixir-autogen, elixir-format
+msgid "Each plugin is an OTP app directory with an"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:79
+#, elixir-autogen, elixir-format
+msgid "Elixir Context Functions"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/login.ex:54
+#: lib/game_server_web/live/user_live/login.ex:78
+#, elixir-autogen, elixir-format
+msgid "Email"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/email_setup.html.heex:24
+#, elixir-autogen, elixir-format
+msgid "Email Implementation Docs"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/email_setup.html.heex:18
+#, elixir-autogen, elixir-format
+msgid "Email Setup"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:614
+#, elixir-autogen, elixir-format
+msgid "Email change link is invalid or it has expired."
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:611
+#, elixir-autogen, elixir-format
+msgid "Email changed successfully."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:96
+#, elixir-autogen, elixir-format
+msgid "Email/Password Login:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:87
+#, elixir-autogen, elixir-format
+msgid "Enable Google+ API"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/cache_setup.html.heex:94
+#, elixir-autogen, elixir-format
+msgid "Enable a two-level cache: L1 local + L2 shared/sharded."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:85
+#, elixir-autogen, elixir-format
+msgid "Enter a Bundle ID (e.g., com.yourcompany.gameserver)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:84
+#, elixir-autogen, elixir-format
+msgid "Enter a description (e.g., \"Game Server\")"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:135
+#, elixir-autogen, elixir-format
+msgid "Enter a name (e.g., \"Game Server Sign in with Apple Key\")"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:131
+#, elixir-autogen, elixir-format
+msgid "Enter a name (e.g., \"Game Server Web\")"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:78
+#, elixir-autogen, elixir-format
+msgid "Enter a project name (e.g., \"Game Server\")"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:75
+#, elixir-autogen, elixir-format
+msgid "Enter app name (e.g., \"Game Server\")"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:76
+#, elixir-autogen, elixir-format
+msgid "Enter contact email"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:102
+#, elixir-autogen, elixir-format
+msgid "Enter description (e.g., \"Game Server Web\")"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:104
+#, elixir-autogen, elixir-format
+msgid "Enter identifier (e.g., com.yourcompany.gameserver.web) - This is your CLIENT_ID"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:93
+#, elixir-autogen, elixir-format
+msgid "Enter your site URL (e.g., https://example.com)"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/kv.ex:438
+#, elixir-autogen, elixir-format
+msgid "Entry created"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/kv.ex:422
+#, elixir-autogen, elixir-format
+msgid "Entry deleted"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/kv.ex:396
+#: lib/game_server_web/live/admin_live/kv.ex:465
+#, elixir-autogen, elixir-format
+msgid "Entry not found"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/kv.ex:459
+#, elixir-autogen, elixir-format
+msgid "Entry updated"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:177
+#, elixir-autogen, elixir-format
+msgid "Error Handling"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:105
+#, elixir-autogen, elixir-format
+msgid "Exposing an RPC function"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:14
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:57
+#, elixir-autogen, elixir-format
+msgid "Facebook Developers Portal"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:8
+#, elixir-autogen, elixir-format
+msgid "Facebook OAuth Setup"
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1469
+#, elixir-autogen, elixir-format
+msgid "Facebook is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:695
+#, elixir-autogen, elixir-format
+msgid "Failed to authenticate."
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1442
+#: lib/game_server_web/controllers/auth_controller.ex:1498
+#: lib/game_server_web/controllers/auth_controller.ex:1554
+#: lib/game_server_web/controllers/auth_controller.ex:1610
+#: lib/game_server_web/controllers/auth_controller.ex:1666
+#, elixir-autogen, elixir-format
+msgid "Failed to create or update user account."
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:1006
+#, elixir-autogen, elixir-format
+msgid "Failed to delete account. Please try again."
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/leaderboards.ex:616
+#, elixir-autogen, elixir-format
+msgid "Failed to delete leaderboard"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/lobbies.ex:438
+#, elixir-autogen, elixir-format
+msgid "Failed to delete lobby"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/leaderboards.ex:732
+#, elixir-autogen, elixir-format
+msgid "Failed to delete record"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/kv.ex:327
+#, elixir-autogen, elixir-format
+msgid "Failed to delete selected entries"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/leaderboards.ex:478
+#, elixir-autogen, elixir-format
+msgid "Failed to delete selected leaderboards"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/lobbies.ex:339
+#, elixir-autogen, elixir-format
+msgid "Failed to delete selected lobbies"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/sessions.ex:219
+#, elixir-autogen, elixir-format
+msgid "Failed to delete selected sessions"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/users.ex:660
+#, elixir-autogen, elixir-format
+msgid "Failed to delete selected users"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:1299
+#, elixir-autogen, elixir-format
+msgid "Failed to delete the conflicting account."
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/sessions.ex:273
+#, elixir-autogen, elixir-format
+msgid "Failed to delete token"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/users.ex:541
+#: lib/game_server_web/live/admin_live/users/index.ex:268
+#, elixir-autogen, elixir-format
+msgid "Failed to delete user"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/leaderboards.ex:601
+#, elixir-autogen, elixir-format
+msgid "Failed to end leaderboard"
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1538
+#, elixir-autogen, elixir-format
+msgid "Failed to link Apple account."
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1650
+#, elixir-autogen, elixir-format
+msgid "Failed to link Discord account."
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1482
+#, elixir-autogen, elixir-format
+msgid "Failed to link Facebook account."
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1426
+#, elixir-autogen, elixir-format
+msgid "Failed to link Google account."
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1594
+#, elixir-autogen, elixir-format
+msgid "Failed to link Steam account."
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/config.ex:1443
+#, elixir-autogen, elixir-format
+msgid "Failed to send test email — check mailer logs and configuration"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:993
+#, elixir-autogen, elixir-format
+msgid "Failed to unlink provider."
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/home.html.heex:59
+#, elixir-autogen, elixir-format
+msgid "Features"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:109
+#, elixir-autogen, elixir-format
+msgid "Fill in app name (e.g., \"Game Server\")"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:90
+#, elixir-autogen, elixir-format
+msgid "Find \"Facebook Login\" in the product list"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:159
+#, elixir-autogen, elixir-format
+msgid "Find your Team ID:"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:7
+#, elixir-autogen, elixir-format
+msgid "Follow these instructions to request deletion of your personal data from our service."
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:581
+#, elixir-autogen, elixir-format
+msgid "For information about what data is deleted and how to request deletion, see our"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:121
+#, elixir-autogen, elixir-format
+msgid "For linking Steam to an existing account, go to"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/email_setup.html.heex:142
+#, elixir-autogen, elixir-format
+msgid "For other providers, adjust the SMTP settings accordingly. The app will automatically detect when email is configured."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:148
+#, elixir-autogen, elixir-format
+msgid "For production use, switch to live mode:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:106
+#, elixir-autogen, elixir-format
+msgid "Found at the top of OAuth2 General"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/postgresql_setup.html.heex:102
+#, elixir-autogen, elixir-format
+msgid "Free tier available"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:739
+#, elixir-autogen, elixir-format
+msgid "Friend request sent"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:78
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:263
+#, elixir-autogen, elixir-format
+msgid "Friends"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:101
+#, elixir-autogen, elixir-format
+msgid "From the OAuth2 General tab, copy these values:"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/home.html.heex:7
+#, elixir-autogen, elixir-format
+msgid "Game Server Banner"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:122
+#, elixir-autogen, elixir-format
+msgid "Get App Credentials"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:98
+#, elixir-autogen, elixir-format
+msgid "Get Application Credentials"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/email_setup.html.heex:63
+#: lib/game_server_web/live/public_docs/email_setup.html.heex:74
+#: lib/game_server_web/live/public_docs/email_setup.html.heex:85
+#: lib/game_server_web/live/public_docs/postgresql_setup.html.heex:108
+#: lib/game_server_web/live/public_docs/postgresql_setup.html.heex:115
+#, elixir-autogen, elixir-format
+msgid "Get Started"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:148
+#, elixir-autogen, elixir-format
+msgid "Get User Profile:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:73
+#, elixir-autogen, elixir-format
+msgid "Get Your DSN"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:156
+#, elixir-autogen, elixir-format
+msgid "Get Your Team ID"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:47
+#, elixir-autogen, elixir-format
+msgid "Get a Steam Web API Key"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/godot_sdk.html.heex:57
+#, elixir-autogen, elixir-format
+msgid "Get the Asset"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:62
+#, elixir-autogen, elixir-format
+msgid "Give your app a name (e.g., \"Game Server\")"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:71
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:162
+#, elixir-autogen, elixir-format
+msgid "Go to"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:127
+#, elixir-autogen, elixir-format
+msgid "Go to \"APIs & Services\" → \"Credentials\":"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:92
+#, elixir-autogen, elixir-format
+msgid "Go to \"APIs & Services\" → \"Library\""
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:105
+#, elixir-autogen, elixir-format
+msgid "Go to \"APIs & Services\" → \"OAuth consent screen\":"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:105
+#, elixir-autogen, elixir-format
+msgid "Go to \"Facebook Login\" → \"Settings\":"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:125
+#, elixir-autogen, elixir-format
+msgid "Go to \"Settings\" → \"Basic\":"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:78
+#, elixir-autogen, elixir-format
+msgid "Go to Project Settings → Client Keys (DSN)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:51
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:51
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:66
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:52
+#, elixir-autogen, elixir-format
+msgid "Go to the"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:63
+#, elixir-autogen, elixir-format
+msgid "Go to the \"OAuth2\" → \"General\" tab"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:205
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:148
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:183
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:169
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:114
+#, elixir-autogen, elixir-format
+msgid "Go to your app's login page"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/godot_sdk.html.heex:24
+#, elixir-autogen, elixir-format
+msgid "Godot Client SDK"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:29
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:72
+#, elixir-autogen, elixir-format
+msgid "Google Cloud Console"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:23
+#, elixir-autogen, elixir-format
+msgid "Google OAuth Setup"
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1413
+#, elixir-autogen, elixir-format
+msgid "Google is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:180
+#, elixir-autogen, elixir-format
+msgid "Handle common errors appropriately:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:75
+#, elixir-autogen, elixir-format
+msgid "Health Check"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:80
+#, elixir-autogen, elixir-format
+msgid "Hooks are loaded from OTP plugin applications under"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:108
+#, elixir-autogen, elixir-format
+msgid "Hooks modules can also export arbitrary functions:"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/privacy.html.heex:27
+#, elixir-autogen, elixir-format
+msgid "How We Use Your Information"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:15
+#, elixir-autogen, elixir-format
+msgid "How to Request Data Deletion"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/terms.html.heex:98
+#, elixir-autogen, elixir-format
+msgid "If you have any questions about these Terms and Conditions, please contact us through the project's support channels."
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/privacy.html.heex:67
+#, elixir-autogen, elixir-format
+msgid "If you have any questions about this Privacy Policy, please contact us via the project's contact channels."
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:68
+#, elixir-autogen, elixir-format
+msgid "If you have questions about the data deletion process or need assistance, please contact us through the project's support channels."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/cache_setup.html.heex:120
+#: lib/game_server_web/live/public_docs/cache_setup.html.heex:138
+#, elixir-autogen, elixir-format
+msgid "If you use"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/scaling.html.heex:87
+#, elixir-autogen, elixir-format
+msgid "If you want to use"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/email_setup.html.heex:125
+#, elixir-autogen, elixir-format
+msgid "If you're not sure what to use, set"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:29
+#, elixir-autogen, elixir-format
+msgid "If you're using our API, you can delete your account programmatically"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/login.ex:200
+#, elixir-autogen, elixir-format
+msgid "If your email is in our system, you will receive instructions for logging in shortly."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:56
+#, elixir-autogen, elixir-format
+msgid "Implement the behaviour in a hooks module:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:62
+#, elixir-autogen, elixir-format
+msgid "Import and configure the API client:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/email_setup.html.heex:112
+#, elixir-autogen, elixir-format
+msgid "Important — From address & domain verification"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:132
+#, elixir-autogen, elixir-format
+msgid "In Certificates, Identifiers & Profiles, go to Keys:"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/terms.html.heex:89
+#, elixir-autogen, elixir-format
+msgid "In no event shall we or our suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the service."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:142
+#, elixir-autogen, elixir-format
+msgid "In that case password-based login does not work (we treat oauth-only accounts as passwordless unless a password is explicitly set by the user)."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:74
+#, elixir-autogen, elixir-format
+msgid "In the OAuth2 General settings, add these redirect URIs:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:88
+#, elixir-autogen, elixir-format
+msgid "In your Facebook App dashboard:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:90
+#, elixir-autogen, elixir-format
+msgid "In your Google Cloud project:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/postgresql_setup.html.heex:77
+#, elixir-autogen, elixir-format
+msgid "Individual Environment Variables (Alternative)"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/privacy.html.heex:15
+#, elixir-autogen, elixir-format
+msgid "Information We Collect"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:59
+#, elixir-autogen, elixir-format
+msgid "Initialize the Client"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:45
+#, elixir-autogen, elixir-format
+msgid "Install the SDK"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:48
+#, elixir-autogen, elixir-format
+msgid "Install the package via npm:"
+msgstr ""
+
+#: lib/game_server_web/controllers/user_session_controller.ex:43
+#, elixir-autogen, elixir-format
+msgid "Invalid email or password"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:222
+#, elixir-autogen, elixir-format
+msgid "JWT tokens (access + refresh)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:7
+#, elixir-autogen, elixir-format
+msgid "JavaScript Client SDK"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:237
+#, elixir-autogen, elixir-format
+msgid "Join / Leave"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:135
+#, elixir-autogen, elixir-format
+msgid "Keep hooks fast and resilient — avoid long blocking work in the main request path. Use"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/confirmation.ex:62
+#, elixir-autogen, elixir-format
+msgid "Keep me logged in on this device"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:46
+#, elixir-autogen, elixir-format
+msgid "Key Concepts"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:75
+#: lib/game_server_web/controllers/page_html/privacy.html.heex:74
+#: lib/game_server_web/controllers/page_html/terms.html.heex:105
+#, elixir-autogen, elixir-format
+msgid "Last updated: November 2025"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/leaderboards.ex:612
+#, elixir-autogen, elixir-format
+msgid "Leaderboard deleted"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/leaderboards.ex:597
+#, elixir-autogen, elixir-format
+msgid "Leaderboard ended"
+msgstr ""
+
+#: lib/game_server_web/live/leaderboards_live.ex:36
+#: lib/game_server_web/live/leaderboards_live.ex:68
+#, elixir-autogen, elixir-format
+msgid "Leaderboard not found"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/leaderboards.ex:582
+#, elixir-autogen, elixir-format
+msgid "Leaderboard saved"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:110
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:361
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:8
+#, elixir-autogen, elixir-format
+msgid "Leaderboards"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:41
+#, elixir-autogen, elixir-format
+msgid "Leaderboards allow you to rank players based on scores. Scores are submitted server-side only (authoritative mode) ensuring fair competition. Each leaderboard acts as a season with optional start/end dates."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/postgresql_setup.html.heex:126
+#, elixir-autogen, elixir-format
+msgid "Learn More"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/terms.html.heex:87
+#, elixir-autogen, elixir-format
+msgid "Limitations"
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1515
+#, elixir-autogen, elixir-format
+msgid "Linked Apple to your account."
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1627
+#, elixir-autogen, elixir-format
+msgid "Linked Discord to your account."
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1459
+#, elixir-autogen, elixir-format
+msgid "Linked Facebook to your account."
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1403
+#, elixir-autogen, elixir-format
+msgid "Linked Google to your account."
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1571
+#, elixir-autogen, elixir-format
+msgid "Linked Steam to your account."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:210
+#, elixir-autogen, elixir-format
+msgid "List Available Lobbies"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:77
+#, elixir-autogen, elixir-format
+msgid "Loading hooks via OTP plugins"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:92
+#, elixir-autogen, elixir-format
+msgid "Lobbies"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:205
+#, elixir-autogen, elixir-format
+msgid "Lobby Management"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/lobbies.ex:434
+#, elixir-autogen, elixir-format
+msgid "Lobby deleted"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:162
+#, elixir-autogen, elixir-format
+msgid "Lobby is locked"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:139
+#: lib/game_server_web/live/lobby_live/index.ex:159
+#: lib/game_server_web/live/lobby_live/index.ex:174
+#, elixir-autogen, elixir-format
+msgid "Lobby not found"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/lobbies.ex:416
+#: lib/game_server_web/live/lobby_live/index.ex:267
+#, elixir-autogen, elixir-format
+msgid "Lobby updated"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/confirmation.ex:53
+#: lib/game_server_web/live/user_live/login.ex:14
+#, elixir-autogen, elixir-format
+msgid "Log in"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/login.ex:89
+#, elixir-autogen, elixir-format
+msgid "Log in and stay logged in"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/login.ex:92
+#, elixir-autogen, elixir-format
+msgid "Log in only this time"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:21
+#, elixir-autogen, elixir-format
+msgid "Log in to your account and go to Settings → Account → Delete Account"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/login.ex:60
+#, elixir-autogen, elixir-format
+msgid "Log in with email"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/confirmation.ex:68
+#, elixir-autogen, elixir-format
+msgid "Log me in only this time"
+msgstr ""
+
+#: lib/game_server_web/controllers/user_session_controller.ex:64
+#, elixir-autogen, elixir-format
+msgid "Logged out successfully."
+msgstr ""
+
+#: lib/game_server_web/live/user_live/confirmation.ex:52
+#: lib/game_server_web/live/user_live/confirmation.ex:59
+#: lib/game_server_web/live/user_live/confirmation.ex:65
+#, elixir-autogen, elixir-format
+msgid "Logging in..."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:167
+#, elixir-autogen, elixir-format
+msgid "Logout:"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/confirmation.ex:91
+#, elixir-autogen, elixir-format
+msgid "Magic link is invalid or it has expired."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:145
+#, elixir-autogen, elixir-format
+msgid "Make App Public (Production)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/postgresql_setup.html.heex:120
+#, elixir-autogen, elixir-format
+msgid "Managed PostgreSQL"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/email_setup.html.heex:114
+#, elixir-autogen, elixir-format
+msgid "Many email providers require that the \"From\" address or sending domain be verified in your SMTP provider dashboard before they'll accept or relay mail (you may see errors like \"450 domain not verified\"). Configure"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:168
+#, elixir-autogen, elixir-format
+msgid "Membership Details"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:161
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:67
+#, elixir-autogen, elixir-format
+msgid "Metadata:"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/terms.html.heex:37
+#, elixir-autogen, elixir-format
+msgid "Modify or copy the service"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/cache_setup.html.heex:91
+#, elixir-autogen, elixir-format
+msgid "Multiple Instances (near-cache)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:65
+#, elixir-autogen, elixir-format
+msgid "Name your project (e.g., \"Game Server\")"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/config.ex:1347
+#, elixir-autogen, elixir-format
+msgid "No buildable plugins found under %{dir}"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/config.ex:1416
+#, elixir-autogen, elixir-format
+msgid "No email address available for current admin"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:147
+#, elixir-autogen, elixir-format
+msgid "Note the Key ID (e.g., ABC123XYZ) shown on the confirmation page"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:120
+#, elixir-autogen, elixir-format
+msgid "Note:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:137
+#, elixir-autogen, elixir-format
+msgid "Notes / behavior"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/cache_setup.html.heex:134
+#, elixir-autogen, elixir-format
+msgid "Notes:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:110
+#, elixir-autogen, elixir-format
+msgid "OAuth Flow (Discord, Google, Facebook):"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:39
+#, elixir-autogen, elixir-format
+msgid "OAuth provider connections and associated data"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:205
+#, elixir-autogen, elixir-format
+msgid "OAuth sessions (oauth_sessions)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:54
+#, elixir-autogen, elixir-format
+msgid "Operators:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/cache_setup.html.heex:116
+#, elixir-autogen, elixir-format
+msgid "Partitioned Cache Setup (Erlang cluster for partitioned L2)"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/login.ex:85
+#, elixir-autogen, elixir-format
+msgid "Password"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:140
+#, elixir-autogen, elixir-format
+msgid "Password auth:"
+msgstr ""
+
+#: lib/game_server_web/controllers/user_session_controller.ex:59
+#, elixir-autogen, elixir-format
+msgid "Password updated successfully!"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/terms.html.heex:27
+#, elixir-autogen, elixir-format
+msgid "Permission is granted to temporarily use this service for personal, non-commercial transitory viewing only."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:170
+#, elixir-autogen, elixir-format
+msgid "Persisted data and tables"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/theme.heex:53
+#, elixir-autogen, elixir-format
+msgid "Place a JSON file somewhere in your project, for example:"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/config.ex:1236
+#, elixir-autogen, elixir-format
+msgid "Plugin build failed: %{reason}"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/config.ex:1228
+#, elixir-autogen, elixir-format
+msgid "Plugin build finished"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/theme.heex:75
+#, elixir-autogen, elixir-format
+msgid "Point the runtime configuration at the JSON file:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/postgresql_setup.html.heex:97
+#, elixir-autogen, elixir-format
+msgid "Popular PostgreSQL hosting options:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/postgresql_setup.html.heex:18
+#, elixir-autogen, elixir-format
+msgid "PostgreSQL Setup"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/terms.html.heex:69
+#, elixir-autogen, elixir-format
+msgid "Privacy"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/privacy.html.heex:4
+#, elixir-autogen, elixir-format
+msgid "Privacy Policy"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:57
+#, elixir-autogen, elixir-format
+msgid "Processing Time"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:82
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:88
+#, elixir-autogen, elixir-format
+msgid "Production:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:154
+#, elixir-autogen, elixir-format
+msgid "Profile image:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/godot_sdk.html.heex:73
+#, elixir-autogen, elixir-format
+msgid "Quick integration"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/email_setup.html.heex:57
+#, elixir-autogen, elixir-format
+msgid "Recommended providers:"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/leaderboards.ex:728
+#, elixir-autogen, elixir-format
+msgid "Record deleted"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/leaderboards.ex:711
+#, elixir-autogen, elixir-format
+msgid "Record saved"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/cache_setup.html.heex:107
+#, elixir-autogen, elixir-format
+msgid "Redis is shared across nodes. Partitioned requires Erlang clustering between nodes."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:156
+#, elixir-autogen, elixir-format
+msgid "Refresh Token:"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/terms.html.heex:44
+#, elixir-autogen, elixir-format
+msgid "Remove any copyright or other proprietary notations"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/theme.heex:38
+#, elixir-autogen, elixir-format
+msgid "Runtime theming (JSON)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/scaling.html.heex:18
+#, elixir-autogen, elixir-format
+msgid "Scaling"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:74
+#, elixir-autogen, elixir-format
+msgid "Scores are submitted server-side only to prevent cheating. Call the context functions directly from your game logic:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:14
+#, elixir-autogen, elixir-format
+msgid "Scripting Interface"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:86
+#, elixir-autogen, elixir-format
+msgid "Scroll down and check \"Sign in with Apple\""
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:93
+#, elixir-autogen, elixir-format
+msgid "Search for \"Google+ API\""
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:61
+#, elixir-autogen, elixir-format
+msgid "Seasons:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:82
+#, elixir-autogen, elixir-format
+msgid "Select \"App IDs\" and click Continue"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:83
+#, elixir-autogen, elixir-format
+msgid "Select \"App\" type and click Continue"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:107
+#, elixir-autogen, elixir-format
+msgid "Select \"External\" user type"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:64
+#, elixir-autogen, elixir-format
+msgid "Select \"Phoenix\" or \"Elixir\" as the platform"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:101
+#, elixir-autogen, elixir-format
+msgid "Select \"Services IDs\" and click Continue"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:130
+#, elixir-autogen, elixir-format
+msgid "Select \"Web application\""
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:92
+#, elixir-autogen, elixir-format
+msgid "Select \"Web\" as the platform"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:153
+#, elixir-autogen, elixir-format
+msgid "Select a category for your app"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:70
+#, elixir-autogen, elixir-format
+msgid "Select app type (usually \"Business\" for most web apps, or \"None\" if available)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:64
+#, elixir-autogen, elixir-format
+msgid "Select the use case that fits your needs (often \"Other\" or \"Authenticate and request data from users with Facebook Login\")"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:110
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:138
+#, elixir-autogen, elixir-format
+msgid "Select your App ID as the Primary App ID"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:25
+#, elixir-autogen, elixir-format
+msgid "Send an email to our support team requesting data deletion"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:15
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:58
+#, elixir-autogen, elixir-format
+msgid "Sentry Dashboard"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:9
+#, elixir-autogen, elixir-format
+msgid "Sentry Setup"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:72
+#, elixir-autogen, elixir-format
+msgid "Server-Side Score Submission (Elixir)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:8
+#, elixir-autogen, elixir-format
+msgid "Server-side scripting & hooks"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/postgresql_setup.html.heex:113
+#, elixir-autogen, elixir-format
+msgid "Serverless PostgreSQL"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:126
+#, elixir-autogen, elixir-format
+msgid "Set"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:93
+#, elixir-autogen, elixir-format
+msgid "Set Environment Variable"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/postgresql_setup.html.heex:57
+#, elixir-autogen, elixir-format
+msgid "Set the DATABASE_URL environment variable:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:96
+#, elixir-autogen, elixir-format
+msgid "Set the SENTRY_DSN environment variable:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:99
+#, elixir-autogen, elixir-format
+msgid "Set the following environment variable:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/email_setup.html.heex:95
+#, elixir-autogen, elixir-format
+msgid "Set these environment variables based on your provider:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:182
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:131
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:165
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:151
+#, elixir-autogen, elixir-format
+msgid "Set these environment variables:"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/login.ex:122
+#, elixir-autogen, elixir-format
+msgid "Sign in with Apple"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/login.ex:112
+#, elixir-autogen, elixir-format
+msgid "Sign in with Discord"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/login.ex:157
+#, elixir-autogen, elixir-format
+msgid "Sign in with Facebook"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/login.ex:147
+#, elixir-autogen, elixir-format
+msgid "Sign in with Google"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/login.ex:167
+#, elixir-autogen, elixir-format
+msgid "Sign in with Steam"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/login.ex:24
+#, elixir-autogen, elixir-format
+msgid "Sign up"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:62
+#, elixir-autogen, elixir-format
+msgid "Sign up or log in to Sentry"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/cache_setup.html.heex:77
+#, elixir-autogen, elixir-format
+msgid "Single Instance (recommended default)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/scaling.html.heex:49
+#, elixir-autogen, elixir-format
+msgid "Single instance"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:49
+#, elixir-autogen, elixir-format
+msgid "Sort Order:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:14
+#, elixir-autogen, elixir-format
+msgid "Steam Dev Portal"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:8
+#, elixir-autogen, elixir-format
+msgid "Steam OpenID Setup"
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1581
+#, elixir-autogen, elixir-format
+msgid "Steam is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:72
+#, elixir-autogen, elixir-format
+msgid "Steam uses OpenID for sign-in. When registering your domain at"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:68
+#, elixir-autogen, elixir-format
+msgid "Store additional JSON data on leaderboards and individual records"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:138
+#, elixir-autogen, elixir-format
+msgid "Store extra context in"
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1546
+#, elixir-autogen, elixir-format
+msgid "Successfully authenticated with Apple."
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1658
+#, elixir-autogen, elixir-format
+msgid "Successfully authenticated with Discord."
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1490
+#, elixir-autogen, elixir-format
+msgid "Successfully authenticated with Facebook."
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1434
+#, elixir-autogen, elixir-format
+msgid "Successfully authenticated with Google."
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1602
+#, elixir-autogen, elixir-format
+msgid "Successfully authenticated with Steam."
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:976
+#, elixir-autogen, elixir-format
+msgid "Successfully unlinked %{provider}."
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/terms.html.heex:4
+#, elixir-autogen, elixir-format
+msgid "Terms and Conditions"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:200
+#, elixir-autogen, elixir-format
+msgid "Test Apple Sign In"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:143
+#, elixir-autogen, elixir-format
+msgid "Test Discord Login"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:178
+#, elixir-autogen, elixir-format
+msgid "Test Facebook Login"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:164
+#, elixir-autogen, elixir-format
+msgid "Test Google Login"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:109
+#, elixir-autogen, elixir-format
+msgid "Test Steam Login"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/config.ex:1422
+#, elixir-autogen, elixir-format
+msgid "Test email sent to %{email}"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/sentry_setup.html.heex:118
+#, elixir-autogen, elixir-format
+msgid "Test error reporting by running:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:78
+#, elixir-autogen, elixir-format
+msgid "Test your connection with a health check:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:158
+#, elixir-autogen, elixir-format
+msgid "Tests that modify global plugin configuration (eg."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:94
+#, elixir-autogen, elixir-format
+msgid "The API uses JWT tokens. Here's how to authenticate:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/postgresql_setup.html.heex:68
+#, elixir-autogen, elixir-format
+msgid "The app will automatically detect PostgreSQL when DATABASE_URL is set and contains \"postgresql://\"."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:45
+#, elixir-autogen, elixir-format
+msgid "The application exposes a lightweight server-side scripting surface via the"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/terms.html.heex:80
+#, elixir-autogen, elixir-format
+msgid "The information on this service is provided on an 'as is' basis. To the fullest extent permitted by law, we exclude all representations, warranties, conditions and terms whether express or implied."
+msgstr ""
+
+#: lib/game_server_web/controllers/user_session_controller.ex:27
+#, elixir-autogen, elixir-format
+msgid "The link is invalid or it has expired."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:173
+#, elixir-autogen, elixir-format
+msgid "The platform stores several tables worth of data that client integrations may need to be aware of."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:88
+#, elixir-autogen, elixir-format
+msgid "These are the URLs Discord will redirect users back to after authorization."
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/terms.html.heex:7
+#, elixir-autogen, elixir-format
+msgid "These terms and conditions outline the rules and regulations for the use of our service."
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/privacy.html.heex:38
+#, elixir-autogen, elixir-format
+msgid "Third-Party Services"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/terms.html.heex:32
+#, elixir-autogen, elixir-format
+msgid "This is the grant of a license, not a transfer of title, and under this license you may not:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:45
+#, elixir-autogen, elixir-format
+msgid "This section describes the main database table shapes used by the platform - starting with the"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/cache_setup.html.heex:67
+#, elixir-autogen, elixir-format
+msgid "Tip:"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/confirmation.ex:74
+#, elixir-autogen, elixir-format
+msgid "Tip: If you prefer passwords, you can enable them in the user settings."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/email_setup.html.heex:132
+#, elixir-autogen, elixir-format
+msgid "Tip: you can review and test the current runtime SMTP settings in the admin"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/privacy.html.heex:29
+#, elixir-autogen, elixir-format
+msgid "To authenticate and identify you when you log in."
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/privacy.html.heex:32
+#, elixir-autogen, elixir-format
+msgid "To communicate with you about changes, updates, support, and security."
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/privacy.html.heex:30
+#, elixir-autogen, elixir-format
+msgid "To provide, operate and maintain our services."
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:17
+#, elixir-autogen, elixir-format
+msgid "To request deletion of your personal data, you can:"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/login.ex:36
+#, elixir-autogen, elixir-format
+msgid "To see sent emails, visit"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:154
+#, elixir-autogen, elixir-format
+msgid "Toggle the switch at the top from \"Development\" to \"Live\""
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/sessions.ex:265
+#, elixir-autogen, elixir-format
+msgid "Token deleted successfully"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/godot_sdk.html.heex:76
+#, elixir-autogen, elixir-format
+msgid "Typical usage inside Godot GDScript (pseudocode / example):"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:250
+#, elixir-autogen, elixir-format
+msgid "Update & Kick (host only)"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/kv.ex:472
+#, elixir-autogen, elixir-format
+msgid "Update failed: %{reason}"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:41
+#, elixir-autogen, elixir-format
+msgid "Usage analytics and session data"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/privacy.html.heex:22
+#, elixir-autogen, elixir-format
+msgid "Usage data for improving our service and for analytics."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:131
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:144
+#, elixir-autogen, elixir-format
+msgid "Use"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/terms.html.heex:24
+#, elixir-autogen, elixir-format
+msgid "Use License"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/cache_setup.html.heex:80
+#, elixir-autogen, elixir-format
+msgid "Use a single local cache level:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:120
+#, elixir-autogen, elixir-format
+msgid "Use descriptive IDs like"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/terms.html.heex:38
+#, elixir-autogen, elixir-format
+msgid "Use the service for any commercial purpose"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/home.html.heex:38
+#, elixir-autogen, elixir-format
+msgid "Useful Links"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/terms.html.heex:50
+#, elixir-autogen, elixir-format
+msgid "User Accounts"
+msgstr ""
+
+#: lib/game_server_web/controllers/user_session_controller.ex:8
+#: lib/game_server_web/controllers/user_session_controller.ex:74
+#, elixir-autogen, elixir-format
+msgid "User confirmed successfully."
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/users.ex:533
+#: lib/game_server_web/live/admin_live/users/index.ex:262
+#, elixir-autogen, elixir-format
+msgid "User deleted successfully"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:188
+#, elixir-autogen, elixir-format
+msgid "User tokens (users_tokens)"
+msgstr ""
+
+#: lib/game_server_web/live/admin_live/users.ex:487
+#: lib/game_server_web/live/admin_live/users/index.ex:228
+#, elixir-autogen, elixir-format
+msgid "User updated successfully"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:178
+#, elixir-autogen, elixir-format
+msgid "Users"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:52
+#, elixir-autogen, elixir-format
+msgid "Users table"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:133
+#, elixir-autogen, elixir-format
+msgid "Using Access Tokens:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/scaling.html.heex:20
+#, elixir-autogen, elixir-format
+msgid "Verify Runtime"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:20
+#, elixir-autogen, elixir-format
+msgid "Via the Application:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/cache_setup.html.heex:20
+#, elixir-autogen, elixir-format
+msgid "View Effective Config"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/godot_sdk.html.heex:30
+#, elixir-autogen, elixir-format
+msgid "View on Godot Asset Library"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:13
+#, elixir-autogen, elixir-format
+msgid "View on NPM"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:51
+#, elixir-autogen, elixir-format
+msgid "Visit the Steam Web API page at"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/privacy.html.heex:49
+#, elixir-autogen, elixir-format
+msgid "We keep personal data as long as necessary for service operation and to comply with legal obligations. We use reasonable safeguards to protect your data."
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/privacy.html.heex:40
+#, elixir-autogen, elixir-format
+msgid "We may use third-party services (like OAuth providers and Sentry) that collect or process personal data. Please review those providers' privacy policies for details."
+msgstr ""
+
+#: lib/game_server_web/live/user_live/confirmation.ex:12
+#, elixir-autogen, elixir-format
+msgid "Welcome %{email}"
+msgstr ""
+
+#: lib/game_server_web/controllers/user_session_controller.ex:12
+#, elixir-autogen, elixir-format
+msgid "Welcome back!"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:46
+#, elixir-autogen, elixir-format
+msgid "What Data Cannot Be Deleted"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:36
+#, elixir-autogen, elixir-format
+msgid "What Data Will Be Deleted"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:142
+#, elixir-autogen, elixir-format
+msgid "When returning values from lifecycle hooks, prefer a"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/theme.heex:57
+#, elixir-autogen, elixir-format
+msgid "With the following:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:208
+#, elixir-autogen, elixir-format
+msgid "Work with lobbies for multiplayer matchmaking:"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/terms.html.heex:58
+#, elixir-autogen, elixir-format
+msgid "You agree to accept responsibility for all activities that occur under your account"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:76
+#: lib/game_server_web/live/lobby_live/index.ex:367
+#, elixir-autogen, elixir-format
+msgid "You are already in a lobby and cannot create another"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:423
+#, elixir-autogen, elixir-format
+msgid "You are already in this lobby"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/terms.html.heex:53
+#, elixir-autogen, elixir-format
+msgid "You are responsible for maintaining the confidentiality of your account credentials"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/login.ex:34
+#, elixir-autogen, elixir-format
+msgid "You are running the local mail adapter."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/postgresql_setup.html.heex:80
+#, elixir-autogen, elixir-format
+msgid "You can also set individual database connection variables:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:120
+#, elixir-autogen, elixir-format
+msgid "You can now call this function via the API (or better yet from the client SDK's), eg:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:81
+#, elixir-autogen, elixir-format
+msgid "You can override the plugins directory using:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/theme.heex:40
+#, elixir-autogen, elixir-format
+msgid "You can provide simple runtime theming configuration using a JSON file. This lets you customize basic branding (title, tagline) and reference an external stylesheet (css) plus assets (logo, banner)."
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:523
+#, elixir-autogen, elixir-format
+msgid "You have been kicked from the lobby"
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:701
+#, elixir-autogen, elixir-format
+msgid "You have been logged out!"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/privacy.html.heex:58
+#, elixir-autogen, elixir-format
+msgid "You may request access, correction, or deletion of your personal data by contacting us through the app or support channels."
+msgstr ""
+
+#: lib/game_server_web/user_auth.ex:266
+#: lib/game_server_web/user_auth.ex:335
+#, elixir-autogen, elixir-format
+msgid "You must be an admin to access this page."
+msgstr ""
+
+#: lib/game_server_web/user_auth.ex:248
+#: lib/game_server_web/user_auth.ex:319
+#, elixir-autogen, elixir-format
+msgid "You must log in to access this page."
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/terms.html.heex:63
+#, elixir-autogen, elixir-format
+msgid "You must notify us immediately of any unauthorized use of your account"
+msgstr ""
+
+#: lib/game_server_web/user_auth.ex:284
+#, elixir-autogen, elixir-format
+msgid "You must re-authenticate to access this page."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:51
+#, elixir-autogen, elixir-format
+msgid "You need an"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/login.ex:17
+#, elixir-autogen, elixir-format
+msgid "You need to reauthenticate to perform sensitive actions on your account."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:208
+#: lib/game_server_web/live/public_docs/discord_oauth.html.heex:151
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:186
+#: lib/game_server_web/live/public_docs/google_oauth.html.heex:172
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:117
+#, elixir-autogen, elixir-format
+msgid "You should be redirected back and logged in"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/facebook_oauth.html.heex:135
+#, elixir-autogen, elixir-format
+msgid "Your Credentials"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/privacy.html.heex:56
+#, elixir-autogen, elixir-format
+msgid "Your Rights"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/apple_sign_in.html.heex:171
+#, elixir-autogen, elixir-format
+msgid "Your Team ID is listed there (10 characters, e.g., A1B2C3D4E5)"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:1001
+#, elixir-autogen, elixir-format
+msgid "Your account has been deleted successfully."
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/data_deletion.html.heex:38
+#, elixir-autogen, elixir-format
+msgid "Your account information (email, username, profile data)"
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/terms.html.heex:71
+#, elixir-autogen, elixir-format
+msgid "Your privacy is important to us. Please review our Privacy Policy, which also governs your use of the service, to understand our practices."
+msgstr ""
+
+#: lib/game_server_web/controllers/page_html/privacy.html.heex:7
+#, elixir-autogen, elixir-format
+msgid "Your privacy is important to us. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our application and use our services."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/email_setup.html.heex:118
+#, elixir-autogen, elixir-format
+msgid "and"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:123
+#, elixir-autogen, elixir-format
+msgid "and click \"Link Steam\"."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/cache_setup.html.heex:137
+#, elixir-autogen, elixir-format
+msgid "and each node must have a unique"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:59
+#, elixir-autogen, elixir-format
+msgid "and register your domain to get an"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:47
+#, elixir-autogen, elixir-format
+msgid "behaviour. Hooks let you run custom code on lifecycle events (eg. user register/login, lobby create/update) and optionally expose RPC functions."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:99
+#, elixir-autogen, elixir-format
+msgid "entry pointing at the module name."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:97
+#, elixir-autogen, elixir-format
+msgid "env must include a"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:163
+#, elixir-autogen, elixir-format
+msgid "field is for arbitrary application data (e.g. display preferences). It's returned by the public API at"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:93
+#, elixir-autogen, elixir-format
+msgid "file and compiled"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:91
+#, elixir-autogen, elixir-format
+msgid "folder containing a"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/login.ex:25
+#, elixir-autogen, elixir-format
+msgid "for an account now."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:139
+#, elixir-autogen, elixir-format
+msgid "for background processing."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:135
+#, elixir-autogen, elixir-format
+msgid "for cumulative"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:84
+#, elixir-autogen, elixir-format
+msgid "for development)."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:133
+#, elixir-autogen, elixir-format
+msgid "for high score boards,"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/steam_openid.html.heex:82
+#, elixir-autogen, elixir-format
+msgid "for production or"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:128
+#, elixir-autogen, elixir-format
+msgid "for scheduled leaderboards"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:149
+#, elixir-autogen, elixir-format
+msgid "is a human-friendly name and may be populated from OAuth providers (when available). The app avoids overwriting a user-provided display name when linking providers."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/scaling.html.heex:50
+#, elixir-autogen, elixir-format
+msgid "is the simplest and the default. When you scale out to multiple instances, you typically need:"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:156
+#, elixir-autogen, elixir-format
+msgid "is used for avatars and may be populated from provider responses (Google picture, Facebook picture.data.url, Discord CDN)."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:95
+#, elixir-autogen, elixir-format
+msgid "modules. The plugin's"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/cache_setup.html.heex:121
+#, elixir-autogen, elixir-format
+msgid "nodes must be able to connect to each other via Erlang distribution."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/cache_setup.html.heex:69
+#, elixir-autogen, elixir-format
+msgid "only matters when"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:122
+#: lib/game_server_web/live/user_live/login.ex:64
+#, elixir-autogen, elixir-format
+msgid "or"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/login.ex:97
+#, elixir-autogen, elixir-format
+msgid "or continue with"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/email_setup.html.heex:138
+#, elixir-autogen, elixir-format
+msgid "page."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:144
+#, elixir-autogen, elixir-format
+msgid "shape for \"before\" hooks that may modify attrs. Return"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/email_setup.html.heex:120
+#, elixir-autogen, elixir-format
+msgid "so that your messages use a verified sender and avoid delivery rejections."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/data_schema.html.heex:49
+#, elixir-autogen, elixir-format
+msgid "table and the important fields you may rely on."
+msgstr ""
+
+#: lib/game_server_web/live/user_live/login.ex:37
+#, elixir-autogen, elixir-format
+msgid "the mailbox page"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/email_setup.html.heex:127
+#, elixir-autogen, elixir-format
+msgid "to an address in a domain you control (eg."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:162
+#, elixir-autogen, elixir-format
+msgid "to avoid cross-test races."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:64
+#, elixir-autogen, elixir-format
+msgid "to mark as ended"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/server_scripting.html.heex:146
+#, elixir-autogen, elixir-format
+msgid "to reject flows; domain code will convert to"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/leaderboards.html.heex:146
+#, elixir-autogen, elixir-format
+msgid "to show player context in the rankings"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/scaling.html.heex:89
+#, elixir-autogen, elixir-format
+msgid "under Compose, you also need to configure Erlang distribution + node discovery for your app containers."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/cache_setup.html.heex:139
+#, elixir-autogen, elixir-format
+msgid "you typically do not need Erlang clustering."
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:365
+#, elixir-autogen, elixir-format
+msgid "Display leaderboards and player rankings (read-only from client, scores are submitted server-side):"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:383
+#, elixir-autogen, elixir-format
+msgid "Get Leaderboard Records"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:400
+#, elixir-autogen, elixir-format
+msgid "Get My Record (requires auth)"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:370
+#, elixir-autogen, elixir-format
+msgid "List Leaderboards"
+msgstr ""
+
+#: lib/game_server_web/live/public_docs/js_sdk.html.heex:284
+#, elixir-autogen, elixir-format
+msgid "Realtime / subscribing to events"
+msgstr ""

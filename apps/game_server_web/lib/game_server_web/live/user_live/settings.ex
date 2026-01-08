@@ -578,19 +578,24 @@ defmodule GameServerWeb.UserLive.Settings do
         <div class="text-sm mt-2 text-base-content/80">
           <p>Once you delete your account, there is no going back. Please be certain.</p>
           <p class="mt-2">
-            For information about what data is deleted and how to request deletion, see our <.link
+            {gettext(
+              "For information about what data is deleted and how to request deletion, see our"
+            )}
+            <.link
               href={~p"/data-deletion"}
               class="link link-primary"
-            >Data Deletion Policy</.link>.
+            >{gettext("Data Deletion Policy")}</.link>.
           </p>
         </div>
         <div class="mt-4">
           <button
             phx-click="delete_user"
             class="btn btn-error"
-            data-confirm="Are you sure you want to delete your account? This action cannot be undone."
+            data-confirm={
+              gettext("Are you sure you want to delete your account? This action cannot be undone.")
+            }
           >
-            Delete Account
+            {gettext("Delete Account")}
           </button>
         </div>
       </div>
@@ -603,10 +608,10 @@ defmodule GameServerWeb.UserLive.Settings do
     socket =
       case Accounts.update_user_email(socket.assigns.current_scope.user, token) do
         {:ok, _user} ->
-          put_flash(socket, :info, "Email changed successfully.")
+          put_flash(socket, :info, gettext("Email changed successfully."))
 
         {:error, _} ->
-          put_flash(socket, :error, "Email change link is invalid or it has expired.")
+          put_flash(socket, :error, gettext("Email change link is invalid or it has expired."))
       end
 
     {:ok, push_navigate(socket, to: ~p"/users/settings")}
@@ -730,13 +735,25 @@ defmodule GameServerWeb.UserLive.Settings do
         case Friends.create_request(user.id, target_id) do
           {:ok, _} ->
             {:noreply,
-             socket |> put_flash(:info, "Friend request sent") |> refresh_friend_lists(user)}
+             socket
+             |> put_flash(:info, gettext("Friend request sent"))
+             |> refresh_friend_lists(user)}
 
           {:error, %Ecto.Changeset{} = cs} ->
-            {:noreply, put_flash(socket, :error, "Could not send request: #{inspect(cs.errors)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               gettext("Could not send request: %{reason}", reason: inspect(cs.errors))
+             )}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Could not send request: #{inspect(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               gettext("Could not send request: %{reason}", reason: inspect(reason))
+             )}
         end
 
       {"block_friend", %{"id" => id}} ->
@@ -747,7 +764,12 @@ defmodule GameServerWeb.UserLive.Settings do
             {:noreply, refresh_friend_lists(socket, user)}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Could not block: #{inspect(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               gettext("Could not block: %{reason}", reason: inspect(reason))
+             )}
         end
 
       {"search_prev", _} ->
@@ -824,7 +846,12 @@ defmodule GameServerWeb.UserLive.Settings do
             {:noreply, refresh_friend_lists(socket, user)}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Could not accept: #{inspect(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               gettext("Could not accept: %{reason}", reason: inspect(reason))
+             )}
         end
 
       {"reject_friend", %{"id" => id}} ->
@@ -835,7 +862,12 @@ defmodule GameServerWeb.UserLive.Settings do
             {:noreply, refresh_friend_lists(socket, user)}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Could not reject: #{inspect(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               gettext("Could not reject: %{reason}", reason: inspect(reason))
+             )}
         end
 
       {"cancel_friend", %{"id" => id}} ->
@@ -846,7 +878,12 @@ defmodule GameServerWeb.UserLive.Settings do
             {:noreply, refresh_friend_lists(socket, user)}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Could not cancel: #{inspect(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               gettext("Could not cancel: %{reason}", reason: inspect(reason))
+             )}
         end
 
       {"remove_friend", %{"friend_id" => fid}} ->
@@ -857,7 +894,12 @@ defmodule GameServerWeb.UserLive.Settings do
             {:noreply, refresh_friend_lists(socket, user)}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Could not remove: #{inspect(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               gettext("Could not remove: %{reason}", reason: inspect(reason))
+             )}
         end
 
       {"unblock_friend", %{"id" => id}} ->
@@ -868,7 +910,12 @@ defmodule GameServerWeb.UserLive.Settings do
             {:noreply, refresh_friend_lists(socket, user)}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Could not unblock: #{inspect(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               gettext("Could not unblock: %{reason}", reason: inspect(reason))
+             )}
         end
 
       {"update_email", %{"user" => user_params}} ->
@@ -880,7 +927,9 @@ defmodule GameServerWeb.UserLive.Settings do
               &url(~p"/users/settings/confirm-email/#{&1}")
             )
 
-            info = "A link to confirm your email change has been sent to the new address."
+            info =
+              gettext("A link to confirm your email change has been sent to the new address.")
+
             {:noreply, socket |> put_flash(:info, info)}
 
           changeset ->
@@ -890,7 +939,8 @@ defmodule GameServerWeb.UserLive.Settings do
       {"update_display_name", %{"user" => user_params}} ->
         case Accounts.update_user_display_name(user, user_params) do
           {:ok, user} ->
-            {:noreply, socket |> put_flash(:info, "Display name updated.") |> assign(:user, user)}
+            {:noreply,
+             socket |> put_flash(:info, gettext("Display name updated.")) |> assign(:user, user)}
 
           {:error, changeset} ->
             {:noreply, assign(socket, display_form: to_form(changeset, action: :insert))}
@@ -921,7 +971,12 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, user} ->
             {:noreply,
              socket
-             |> put_flash(:info, "Successfully unlinked #{String.capitalize(provider)}.")
+             |> put_flash(
+               :info,
+               gettext("Successfully unlinked %{provider}.",
+                 provider: String.capitalize(provider)
+               )
+             )
              |> assign(:user, user)}
 
           {:error, :last_provider} ->
@@ -929,11 +984,13 @@ defmodule GameServerWeb.UserLive.Settings do
              socket
              |> put_flash(
                :error,
-               "Cannot unlink the last linked social provider (you must have at least one social login connected)."
+               gettext(
+                 "Cannot unlink the last linked social provider (you must have at least one social login connected)."
+               )
              )}
 
           {:error, _} ->
-            {:noreply, socket |> put_flash(:error, "Failed to unlink provider.")}
+            {:noreply, socket |> put_flash(:error, gettext("Failed to unlink provider."))}
         end
 
       {"delete_user", _} ->
@@ -941,11 +998,12 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _deleted_user} ->
             {:noreply,
              socket
-             |> put_flash(:info, "Your account has been deleted successfully.")
+             |> put_flash(:info, gettext("Your account has been deleted successfully."))
              |> redirect(to: ~p"/")}
 
           {:error, _changeset} ->
-            {:noreply, put_flash(socket, :error, "Failed to delete account. Please try again.")}
+            {:noreply,
+             put_flash(socket, :error, gettext("Failed to delete account. Please try again."))}
         end
 
       {"delete_conflicting_account", %{"id" => id}} ->
@@ -962,7 +1020,7 @@ defmodule GameServerWeb.UserLive.Settings do
             handle_delete_conflicting_account(socket, current, other_user)
 
           _ ->
-            {:noreply, put_flash(socket, :error, "Account not found.")}
+            {:noreply, put_flash(socket, :error, gettext("Account not found."))}
         end
 
       {"incoming_prev", _} ->
@@ -1237,7 +1295,8 @@ defmodule GameServerWeb.UserLive.Settings do
          |> assign(:conflict_user, nil)}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, "Failed to delete the conflicting account.")}
+        {:noreply,
+         put_flash(socket, :error, gettext("Failed to delete the conflicting account."))}
     end
   end
 end

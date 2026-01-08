@@ -8,6 +8,8 @@ defmodule GameServerWeb.UserAuth do
   """
   use GameServerWeb, :verified_routes
 
+  use Gettext, backend: GameServerWeb.Gettext
+
   import Plug.Conn
   import Phoenix.Controller
 
@@ -243,7 +245,7 @@ defmodule GameServerWeb.UserAuth do
     else
       socket =
         socket
-        |> Phoenix.LiveView.put_flash(:error, "You must log in to access this page.")
+        |> Phoenix.LiveView.put_flash(:error, gettext("You must log in to access this page."))
         |> Phoenix.LiveView.redirect(to: ~p"/users/log-in")
 
       {:halt, socket}
@@ -259,7 +261,10 @@ defmodule GameServerWeb.UserAuth do
     else
       socket =
         socket
-        |> Phoenix.LiveView.put_flash(:error, "You must be an admin to access this page.")
+        |> Phoenix.LiveView.put_flash(
+          :error,
+          gettext("You must be an admin to access this page.")
+        )
         |> Phoenix.LiveView.redirect(to: ~p"/")
 
       {:halt, socket}
@@ -274,7 +279,10 @@ defmodule GameServerWeb.UserAuth do
     else
       socket =
         socket
-        |> Phoenix.LiveView.put_flash(:error, "You must re-authenticate to access this page.")
+        |> Phoenix.LiveView.put_flash(
+          :error,
+          gettext("You must re-authenticate to access this page.")
+        )
         |> Phoenix.LiveView.redirect(to: ~p"/users/log-in")
 
       {:halt, socket}
@@ -308,7 +316,7 @@ defmodule GameServerWeb.UserAuth do
       conn
     else
       conn
-      |> put_flash(:error, "You must log in to access this page.")
+      |> put_flash(:error, gettext("You must log in to access this page."))
       |> maybe_store_return_to()
       |> redirect(to: ~p"/users/log-in")
       |> halt()
@@ -324,7 +332,7 @@ defmodule GameServerWeb.UserAuth do
       conn
     else
       conn
-      |> put_flash(:error, "You must be an admin to access this page.")
+      |> put_flash(:error, gettext("You must be an admin to access this page."))
       |> redirect(to: ~p"/")
       |> halt()
     end

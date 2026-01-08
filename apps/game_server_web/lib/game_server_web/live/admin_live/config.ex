@@ -1225,7 +1225,7 @@ defmodule GameServerWeb.AdminLive.Config do
      socket
      |> assign(:plugin_build_running?, false)
      |> assign(:plugin_build_result, build_result)
-     |> put_flash(:info, "Plugin build finished")}
+     |> put_flash(:info, gettext("Plugin build finished"))}
   end
 
   @impl true
@@ -1233,7 +1233,7 @@ defmodule GameServerWeb.AdminLive.Config do
     {:noreply,
      socket
      |> assign(:plugin_build_running?, false)
-     |> put_flash(:error, "Plugin build failed: #{inspect(reason)}")}
+     |> put_flash(:error, gettext("Plugin build failed: %{reason}", reason: inspect(reason)))}
   end
 
   defp cache_diagnostics do
@@ -1344,7 +1344,7 @@ defmodule GameServerWeb.AdminLive.Config do
          put_flash(
            socket,
            :error,
-           "No buildable plugins found under #{PluginBuilder.sources_dir()}"
+           gettext("No buildable plugins found under %{dir}", dir: PluginBuilder.sources_dir())
          )}
 
       true ->
@@ -1359,7 +1359,7 @@ defmodule GameServerWeb.AdminLive.Config do
          socket
          |> assign(:plugin_build_running?, true)
          |> assign(:plugin_build_result, nil)
-         |> put_flash(:info, "Building plugin bundle for #{name}…")}
+         |> put_flash(:info, gettext("Building plugin bundle for %{name}…", name: name))}
     end
   end
 
@@ -1412,12 +1412,14 @@ defmodule GameServerWeb.AdminLive.Config do
 
     case user && user.email do
       nil ->
-        {:noreply, put_flash(socket, :error, "No email address available for current admin")}
+        {:noreply,
+         put_flash(socket, :error, gettext("No email address available for current admin"))}
 
       email when is_binary(email) ->
         case UserNotifier.deliver_test_email(email) do
           {:ok, _} ->
-            {:noreply, put_flash(socket, :info, "Test email sent to #{email}")}
+            {:noreply,
+             put_flash(socket, :info, gettext("Test email sent to %{email}", email: email))}
 
           other ->
             # Log full details for diagnostic purposes
@@ -1427,7 +1429,9 @@ defmodule GameServerWeb.AdminLive.Config do
             # Surface useful error detail in development so admins can debug
             debug_msg =
               if socket.assigns.config && socket.assigns.config.env == "dev" do
-                " (details: #{inspect(other) |> to_string() |> String.slice(0, 512)})"
+                gettext(" (details: %{details})",
+                  details: inspect(other) |> to_string() |> String.slice(0, 512)
+                )
               else
                 ""
               end
@@ -1436,7 +1440,8 @@ defmodule GameServerWeb.AdminLive.Config do
              put_flash(
                socket,
                :error,
-               "Failed to send test email — check mailer logs and configuration" <> debug_msg
+               gettext("Failed to send test email — check mailer logs and configuration") <>
+                 debug_msg
              )}
         end
     end

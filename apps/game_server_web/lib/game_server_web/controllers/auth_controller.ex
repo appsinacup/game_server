@@ -692,13 +692,13 @@ defmodule GameServerWeb.AuthController do
     )
 
     conn
-    |> put_flash(:error, "Failed to authenticate.")
+    |> put_flash(:error, gettext("Failed to authenticate."))
     |> redirect(to: ~p"/users/log-in")
   end
 
   def delete(conn, _params) do
     conn
-    |> put_flash(:info, "You have been logged out!")
+    |> put_flash(:info, gettext("You have been logged out!"))
     |> UserAuth.log_out_user()
   end
 
@@ -1400,7 +1400,7 @@ defmodule GameServerWeb.AuthController do
              ) do
           {:ok, _user} ->
             conn
-            |> put_flash(:info, "Linked Google to your account.")
+            |> put_flash(:info, gettext("Linked Google to your account."))
             |> redirect(to: ~p"/users/settings")
 
           {:error, {:conflict, other_user}} ->
@@ -1410,7 +1410,9 @@ defmodule GameServerWeb.AuthController do
             conn
             |> put_flash(
               :error,
-              "Google is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+              gettext(
+                "Google is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+              )
             )
             |> redirect(
               to: ~p"/users/settings?conflict_provider=google&conflict_user_id=#{other_user.id}"
@@ -1421,7 +1423,7 @@ defmodule GameServerWeb.AuthController do
             Logger.error("Failed to link Google: #{inspect(changeset.errors)}")
 
             conn
-            |> put_flash(:error, "Failed to link Google account.")
+            |> put_flash(:error, gettext("Failed to link Google account."))
             |> redirect(to: ~p"/users/settings")
         end
 
@@ -1429,7 +1431,7 @@ defmodule GameServerWeb.AuthController do
         case Accounts.find_or_create_from_google(user_params) do
           {:ok, user} ->
             conn
-            |> put_flash(:info, "Successfully authenticated with Google.")
+            |> put_flash(:info, gettext("Successfully authenticated with Google."))
             |> UserAuth.log_in_user(user)
 
           {:error, changeset} ->
@@ -1437,7 +1439,7 @@ defmodule GameServerWeb.AuthController do
             Logger.error("Failed to create user from Google: #{inspect(changeset.errors)}")
 
             conn
-            |> put_flash(:error, "Failed to create or update user account.")
+            |> put_flash(:error, gettext("Failed to create or update user account."))
             |> redirect(to: ~p"/users/log-in")
         end
     end
@@ -1454,7 +1456,7 @@ defmodule GameServerWeb.AuthController do
              ) do
           {:ok, _user} ->
             conn
-            |> put_flash(:info, "Linked Facebook to your account.")
+            |> put_flash(:info, gettext("Linked Facebook to your account."))
             |> redirect(to: ~p"/users/settings")
 
           {:error, {:conflict, other_user}} ->
@@ -1464,7 +1466,9 @@ defmodule GameServerWeb.AuthController do
             conn
             |> put_flash(
               :error,
-              "Facebook is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+              gettext(
+                "Facebook is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+              )
             )
             |> redirect(
               to: ~p"/users/settings?conflict_provider=facebook&conflict_user_id=#{other_user.id}"
@@ -1475,7 +1479,7 @@ defmodule GameServerWeb.AuthController do
             Logger.error("Failed to link Facebook: #{inspect(changeset.errors)}")
 
             conn
-            |> put_flash(:error, "Failed to link Facebook account.")
+            |> put_flash(:error, gettext("Failed to link Facebook account."))
             |> redirect(to: ~p"/users/settings")
         end
 
@@ -1483,7 +1487,7 @@ defmodule GameServerWeb.AuthController do
         case Accounts.find_or_create_from_facebook(user_params) do
           {:ok, user} ->
             conn
-            |> put_flash(:info, "Successfully authenticated with Facebook.")
+            |> put_flash(:info, gettext("Successfully authenticated with Facebook."))
             |> UserAuth.log_in_user(user)
 
           {:error, changeset} ->
@@ -1491,7 +1495,7 @@ defmodule GameServerWeb.AuthController do
             Logger.error("Failed to create user from Facebook: #{inspect(changeset.errors)}")
 
             conn
-            |> put_flash(:error, "Failed to create or update user account.")
+            |> put_flash(:error, gettext("Failed to create or update user account."))
             |> redirect(to: ~p"/users/log-in")
         end
     end
@@ -1508,7 +1512,7 @@ defmodule GameServerWeb.AuthController do
              ) do
           {:ok, _user} ->
             conn
-            |> put_flash(:info, "Linked Apple to your account.")
+            |> put_flash(:info, gettext("Linked Apple to your account."))
             |> redirect(to: ~p"/users/settings")
 
           {:error, {:conflict, other_user}} ->
@@ -1518,7 +1522,9 @@ defmodule GameServerWeb.AuthController do
             conn
             |> put_flash(
               :error,
-              "Apple is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+              gettext(
+                "Apple is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+              )
             )
             |> redirect(
               to: ~p"/users/settings?conflict_provider=apple&conflict_user_id=#{other_user.id}"
@@ -1529,7 +1535,7 @@ defmodule GameServerWeb.AuthController do
             Logger.error("Failed to link Apple: #{inspect(changeset.errors)}")
 
             conn
-            |> put_flash(:error, "Failed to link Apple account.")
+            |> put_flash(:error, gettext("Failed to link Apple account."))
             |> redirect(to: ~p"/users/settings")
         end
 
@@ -1537,7 +1543,7 @@ defmodule GameServerWeb.AuthController do
         case Accounts.find_or_create_from_apple(user_params) do
           {:ok, user} ->
             conn
-            |> put_flash(:info, "Successfully authenticated with Apple.")
+            |> put_flash(:info, gettext("Successfully authenticated with Apple."))
             |> UserAuth.log_in_user(user)
 
           {:error, changeset} ->
@@ -1545,7 +1551,7 @@ defmodule GameServerWeb.AuthController do
             Logger.error("Failed to create user from Apple: #{inspect(changeset.errors)}")
 
             conn
-            |> put_flash(:error, "Failed to create or update user account.")
+            |> put_flash(:error, gettext("Failed to create or update user account."))
             |> redirect(to: ~p"/users/log-in")
         end
     end
@@ -1562,7 +1568,7 @@ defmodule GameServerWeb.AuthController do
              ) do
           {:ok, _user} ->
             conn
-            |> put_flash(:info, "Linked Steam to your account.")
+            |> put_flash(:info, gettext("Linked Steam to your account."))
             |> redirect(to: ~p"/users/settings")
 
           {:error, {:conflict, other_user}} ->
@@ -1572,7 +1578,9 @@ defmodule GameServerWeb.AuthController do
             conn
             |> put_flash(
               :error,
-              "Steam is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+              gettext(
+                "Steam is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+              )
             )
             |> redirect(
               to: ~p"/users/settings?conflict_provider=steam&conflict_user_id=#{other_user.id}"
@@ -1583,7 +1591,7 @@ defmodule GameServerWeb.AuthController do
             Logger.error("Failed to link Steam: #{inspect(changeset.errors)}")
 
             conn
-            |> put_flash(:error, "Failed to link Steam account.")
+            |> put_flash(:error, gettext("Failed to link Steam account."))
             |> redirect(to: ~p"/users/settings")
         end
 
@@ -1591,7 +1599,7 @@ defmodule GameServerWeb.AuthController do
         case Accounts.find_or_create_from_steam(user_params) do
           {:ok, user} ->
             conn
-            |> put_flash(:info, "Successfully authenticated with Steam.")
+            |> put_flash(:info, gettext("Successfully authenticated with Steam."))
             |> UserAuth.log_in_user(user)
 
           {:error, changeset} ->
@@ -1599,7 +1607,7 @@ defmodule GameServerWeb.AuthController do
             Logger.error("Failed to create user from Steam: #{inspect(changeset.errors)}")
 
             conn
-            |> put_flash(:error, "Failed to create or update user account.")
+            |> put_flash(:error, gettext("Failed to create or update user account."))
             |> redirect(to: ~p"/users/log-in")
         end
     end
@@ -1616,7 +1624,7 @@ defmodule GameServerWeb.AuthController do
              ) do
           {:ok, _user} ->
             conn
-            |> put_flash(:info, "Linked Discord to your account.")
+            |> put_flash(:info, gettext("Linked Discord to your account."))
             |> redirect(to: ~p"/users/settings")
 
           {:error, {:conflict, other_user}} ->
@@ -1626,7 +1634,9 @@ defmodule GameServerWeb.AuthController do
             conn
             |> put_flash(
               :error,
-              "Discord is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+              gettext(
+                "Discord is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
+              )
             )
             |> redirect(
               to: ~p"/users/settings?conflict_provider=discord&conflict_user_id=#{other_user.id}"
@@ -1637,7 +1647,7 @@ defmodule GameServerWeb.AuthController do
             Logger.error("Failed to link Discord: #{inspect(changeset.errors)}")
 
             conn
-            |> put_flash(:error, "Failed to link Discord account.")
+            |> put_flash(:error, gettext("Failed to link Discord account."))
             |> redirect(to: ~p"/users/settings")
         end
 
@@ -1645,7 +1655,7 @@ defmodule GameServerWeb.AuthController do
         case Accounts.find_or_create_from_discord(user_params) do
           {:ok, user} ->
             conn
-            |> put_flash(:info, "Successfully authenticated with Discord.")
+            |> put_flash(:info, gettext("Successfully authenticated with Discord."))
             |> UserAuth.log_in_user(user)
 
           {:error, changeset} ->
@@ -1653,7 +1663,7 @@ defmodule GameServerWeb.AuthController do
             Logger.error("Failed to create user from Discord: #{inspect(changeset.errors)}")
 
             conn
-            |> put_flash(:error, "Failed to create or update user account.")
+            |> put_flash(:error, gettext("Failed to create or update user account."))
             |> redirect(to: ~p"/users/log-in")
         end
     end

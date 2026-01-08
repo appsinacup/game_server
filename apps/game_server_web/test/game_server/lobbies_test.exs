@@ -91,6 +91,14 @@ defmodule GameServer.LobbiesTest do
       assert is_nil(service_lobby.host_id)
     end
 
+    test "create_lobby generates title for blank string-keyed params", %{host: host} do
+      # Simulate browser form params: string keys, title present but blank.
+      assert {:ok, lobby} = Lobbies.create_lobby(%{"title" => "", "host_id" => host.id})
+
+      assert lobby.title |> to_string() |> String.trim() != ""
+      assert lobby.host_id == host.id
+    end
+
     test "hostless lobby creation clears host_id but keeps membership", %{host: host} do
       {:ok, lobby} =
         Lobbies.create_lobby(%{title: "hostless-with-host", host_id: host.id, hostless: true})

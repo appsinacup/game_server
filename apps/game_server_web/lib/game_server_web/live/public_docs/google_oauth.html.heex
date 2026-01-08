@@ -20,13 +20,13 @@
           fill="#EA4335"
         />
       </svg>
-      Google OAuth Setup
+      {gettext("Google OAuth Setup")}
       <a
         href="https://console.cloud.google.com/"
         target="_blank"
         class="btn btn-outline ml-auto"
       >
-        Google Cloud Console
+        {gettext("Google Cloud Console")}
         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
@@ -42,7 +42,7 @@
         data-card-key="google_oauth"
         aria-expanded="false"
         class="btn btn-ghost btn-sm"
-        title="Collapse/Expand"
+        title={gettext("Collapse/Expand")}
       >
         <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
           <path
@@ -59,24 +59,24 @@
       <!-- Step 1: Create Google Cloud Project -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">1</span> Create Google Cloud Project
+          <span class="badge badge-primary">1</span> {gettext("Create Google Cloud Project")}
         </h3>
         <div class="ml-8 space-y-3">
           <p>
-            Go to the
+            {gettext("Go to the")}
             <a
               href="https://console.cloud.google.com/"
               target="_blank"
               class="link link-primary"
             >
-              Google Cloud Console
+              {gettext("Google Cloud Console")}
             </a>
           </p>
           <ol class="list-decimal list-inside space-y-2 text-sm">
-            <li>Click "Select a project" at the top</li>
-            <li>Click "New Project"</li>
-            <li>Enter a project name (e.g., "Game Server")</li>
-            <li>Click "Create"</li>
+            <li>{gettext("Click \"Select a project\" at the top")}</li>
+            <li>{gettext("Click \"New Project\"")}</li>
+            <li>{gettext("Enter a project name (e.g., \"Game Server\")")}</li>
+            <li>{gettext("Click \"Create\"")}</li>
           </ol>
         </div>
       </div>
@@ -84,14 +84,14 @@
 <!-- Step 2: Enable Google+ API -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">2</span> Enable Google+ API
+          <span class="badge badge-primary">2</span> {gettext("Enable Google+ API")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>In your Google Cloud project:</p>
+          <p>{gettext("In your Google Cloud project:")}</p>
           <ol class="list-decimal list-inside space-y-2 text-sm">
-            <li>Go to "APIs & Services" → "Library"</li>
-            <li>Search for "Google+ API"</li>
-            <li>Click on it and click "Enable"</li>
+            <li>{gettext("Go to \"APIs & Services\" → \"Library\"")}</li>
+            <li>{gettext("Search for \"Google+ API\"")}</li>
+            <li>{gettext("Click on it and click \"Enable\"")}</li>
           </ol>
         </div>
       </div>
@@ -99,21 +99,21 @@
 <!-- Step 3: Configure OAuth Consent Screen -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">3</span> Configure OAuth Consent Screen
+          <span class="badge badge-primary">3</span> {gettext("Configure OAuth Consent Screen")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>Go to "APIs & Services" → "OAuth consent screen":</p>
+          <p>{gettext("Go to \"APIs & Services\" → \"OAuth consent screen\":")}</p>
           <ol class="list-decimal list-inside space-y-2 text-sm">
-            <li>Select "External" user type</li>
-            <li>Click "Create"</li>
-            <li>Fill in app name (e.g., "Game Server")</li>
-            <li>Add your email as user support email</li>
-            <li>Add authorized domains (e.g., example.com)</li>
-            <li>Add developer contact email</li>
-            <li>Click "Save and Continue"</li>
-            <li>Add scopes: email, profile</li>
-            <li>Click "Save and Continue"</li>
-            <li>Add test users if needed (optional for development)</li>
+            <li>{gettext("Select \"External\" user type")}</li>
+            <li>{gettext("Click \"Create\"")}</li>
+            <li>{gettext("Fill in app name (e.g., \"Game Server\")")}</li>
+            <li>{gettext("Add your email as user support email")}</li>
+            <li>{gettext("Add authorized domains (e.g., example.com)")}</li>
+            <li>{gettext("Add developer contact email")}</li>
+            <li>{gettext("Click \"Save and Continue\"")}</li>
+            <li>{gettext("Add scopes: email, profile")}</li>
+            <li>{gettext("Click \"Save and Continue\"")}</li>
+            <li>{gettext("Add test users if needed (optional for development)")}</li>
           </ol>
         </div>
       </div>
@@ -121,23 +121,23 @@
 <!-- Step 4: Create OAuth Credentials -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">4</span> Create OAuth Credentials
+          <span class="badge badge-primary">4</span> {gettext("Create OAuth Credentials")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>Go to "APIs & Services" → "Credentials":</p>
+          <p>{gettext("Go to \"APIs & Services\" → \"Credentials\":")}</p>
           <ol class="list-decimal list-inside space-y-2 text-sm">
-            <li>Click "Create Credentials" → "OAuth client ID"</li>
-            <li>Select "Web application"</li>
-            <li>Enter a name (e.g., "Game Server Web")</li>
+            <li>{gettext("Click \"Create Credentials\" → \"OAuth client ID\"")}</li>
+            <li>{gettext("Select \"Web application\"")}</li>
+            <li>{gettext("Enter a name (e.g., \"Game Server Web\")")}</li>
             <li>
-              Add authorized redirect URIs:<br />
+              {gettext("Add authorized redirect URIs:")}<br />
               <div class="bg-base-200 p-2 rounded mt-2 font-mono text-xs">
                 <div>Development: http://localhost:4000/auth/google/callback</div>
                 <div>Production: https://example.com/auth/google/callback</div>
               </div>
             </li>
-            <li>Click "Create"</li>
-            <li>Copy the Client ID and Client Secret</li>
+            <li>{gettext("Click \"Create\"")}</li>
+            <li>{gettext("Copy the Client ID and Client Secret")}</li>
           </ol>
         </div>
       </div>
@@ -145,10 +145,10 @@
 <!-- Step 5: Configure Environment Variables -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">5</span> Configure Environment Variables
+          <span class="badge badge-primary">5</span> {gettext("Configure Environment Variables")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>Set these environment variables:</p>
+          <p>{gettext("Set these environment variables:")}</p>
           <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
             <div class="space-y-2">
               <div>GOOGLE_CLIENT_ID="your_client_id.apps.googleusercontent.com"</div>
@@ -161,15 +161,15 @@
 <!-- Step 6: Test -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">6</span> Test Google Login
+          <span class="badge badge-primary">6</span> {gettext("Test Google Login")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>After deploying with the secrets:</p>
+          <p>{gettext("After deploying with the secrets:")}</p>
           <ol class="list-decimal list-inside space-y-2 text-sm">
-            <li>Go to your app's login page</li>
-            <li>Click "Sign in with Google"</li>
-            <li>Choose your Google account</li>
-            <li>You should be redirected back and logged in</li>
+            <li>{gettext("Go to your app's login page")}</li>
+            <li>{gettext("Click \"Sign in with Google\"")}</li>
+            <li>{gettext("Choose your Google account")}</li>
+            <li>{gettext("You should be redirected back and logged in")}</li>
           </ol>
         </div>
       </div>

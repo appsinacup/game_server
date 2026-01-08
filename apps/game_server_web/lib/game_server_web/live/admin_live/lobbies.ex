@@ -332,9 +332,21 @@ defmodule GameServerWeb.AdminLive.Lobbies do
 
     socket =
       cond do
-        failed == 0 -> put_flash(socket, :info, "Deleted #{deleted} lobbies")
-        deleted == 0 -> put_flash(socket, :error, "Failed to delete selected lobbies")
-        true -> put_flash(socket, :error, "Deleted #{deleted} lobbies; failed #{failed}")
+        failed == 0 ->
+          put_flash(socket, :info, gettext("Deleted %{deleted} lobbies", deleted: deleted))
+
+        deleted == 0 ->
+          put_flash(socket, :error, gettext("Failed to delete selected lobbies"))
+
+        true ->
+          put_flash(
+            socket,
+            :error,
+            gettext("Deleted %{deleted} lobbies; failed %{failed}",
+              deleted: deleted,
+              failed: failed
+            )
+          )
       end
 
     {:noreply, socket |> reload_lobbies()}
@@ -401,7 +413,7 @@ defmodule GameServerWeb.AdminLive.Lobbies do
       {:ok, _} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Lobby updated")
+         |> put_flash(:info, gettext("Lobby updated"))
          |> assign(:selected_lobby, nil)
          |> assign(:form, nil)
          |> reload_lobbies()}
@@ -419,11 +431,11 @@ defmodule GameServerWeb.AdminLive.Lobbies do
       {:ok, _} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Lobby deleted")
+         |> put_flash(:info, gettext("Lobby deleted"))
          |> reload_lobbies()}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, "Failed to delete lobby")}
+        {:noreply, put_flash(socket, :error, gettext("Failed to delete lobby"))}
     end
   end
 

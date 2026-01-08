@@ -68,7 +68,7 @@ defmodule GameServerWeb.Layouts do
                   <%= if @current_scope.user.profile_url && @current_scope.user.profile_url != "" do %>
                     <img
                       src={@current_scope.user.profile_url}
-                      alt="avatar"
+                      alt={gettext("avatar")}
                       class="w-8 h-8 rounded-full"
                     />
                   <% else %>
@@ -81,35 +81,42 @@ defmodule GameServerWeb.Layouts do
               {profile_display_name(@current_scope.user)}
             </li>
             <li>
-              <.link href={~p"/users/settings"} class="btn btn-outline">Settings</.link>
+              <.link href={~p"/users/settings"} class="btn btn-outline">{gettext("Settings")}</.link>
             </li>
             <li>
-              <.link href={~p"/leaderboards"} class="btn btn-outline">Leaderboards</.link>
+              <.link href={~p"/leaderboards"} class="btn btn-outline">
+                {gettext("Leaderboards")}
+              </.link>
             </li>
             <%= if @current_scope && @current_scope.user.is_admin do %>
               <li>
-                <.link href={~p"/admin"} class="btn btn-outline">Admin</.link>
+                <.link href={~p"/admin"} class="btn btn-outline">{gettext("Admin")}</.link>
               </li>
               <li>
-                <.link href={~p"/lobbies"} class="btn btn-outline">Lobbies</.link>
+                <.link href={~p"/lobbies"} class="btn btn-outline">{gettext("Lobbies")}</.link>
               </li>
             <% end %>
             <li>
               <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline">
-                Log out
+                {gettext("Log out")}
               </.link>
             </li>
           <% else %>
             <li>
-              <.link href={~p"/users/log-in"} class="btn btn-primary">Log in</.link>
+              <.link href={~p"/users/log-in"} class="btn btn-primary">{gettext("Log in")}</.link>
             </li>
             <li>
-              <.link href={~p"/users/register"} class="btn btn-accent">Register</.link>
+              <.link href={~p"/users/register"} class="btn btn-accent">{gettext("Register")}</.link>
             </li>
             <li>
-              <.link href={~p"/leaderboards"} class="btn btn-outline">Leaderboards</.link>
+              <.link href={~p"/leaderboards"} class="btn btn-outline">
+                {gettext("Leaderboards")}
+              </.link>
             </li>
           <% end %>
+          <li>
+            <.language_dropdown />
+          </li>
           <li>
             <.theme_toggle />
           </li>
@@ -143,27 +150,40 @@ defmodule GameServerWeb.Layouts do
                     </span>
                   </div>
                 </li>
-                <li><a href={~p"/users/settings"} class="btn btn-outline">Settings</a></li>
-                <li><a href={~p"/leaderboards"} class="btn btn-outline">Leaderboards</a></li>
+                <li>
+                  <a href={~p"/users/settings"} class="btn btn-outline">{gettext("Settings")}</a>
+                </li>
+                <li>
+                  <a href={~p"/leaderboards"} class="btn btn-outline">{gettext("Leaderboards")}</a>
+                </li>
                 <%= if @current_scope && @current_scope.user.is_admin do %>
-                  <li><a href={~p"/lobbies"} class="btn btn-outline">Lobbies</a></li>
-                  <li><a href={~p"/admin"} class="btn btn-outline">Admin</a></li>
+                  <li><a href={~p"/lobbies"} class="btn btn-outline">{gettext("Lobbies")}</a></li>
+                  <li><a href={~p"/admin"} class="btn btn-outline">{gettext("Admin")}</a></li>
                 <% end %>
                 <li>
                   <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline">
-                    Log out
+                    {gettext("Log out")}
                   </.link>
                 </li>
               <% else %>
-                <li><a href={~p"/users/log-in"} class="btn btn-outline">Log in</a></li>
-                <li><a href={~p"/users/register"} class="btn btn-outline">Register</a></li>
-                <li><a href={~p"/leaderboards"} class="btn btn-outline">Leaderboards</a></li>
+                <li><a href={~p"/users/log-in"} class="btn btn-outline">{gettext("Log in")}</a></li>
+                <li>
+                  <a href={~p"/users/register"} class="btn btn-outline">{gettext("Register")}</a>
+                </li>
+                <li>
+                  <a href={~p"/leaderboards"} class="btn btn-outline">{gettext("Leaderboards")}</a>
+                </li>
                 <li class="menu-title">
                   <div class="flex justify-end items-center w-full pr-2">
                     <span class="text-xs opacity-60">v{app_version()}</span>
                   </div>
                 </li>
               <% end %>
+              <li class="mt-2">
+                <div class="flex justify-center">
+                  <.language_dropdown />
+                </div>
+              </li>
               <li class="mt-2">
                 <div class="flex justify-center">
                   <.theme_toggle />
@@ -184,15 +204,15 @@ defmodule GameServerWeb.Layouts do
     <.flash_group flash={@flash} />
     <footer class="px-4 py-6 sm:px-6 lg:px-8 text-center text-sm text-base-content/70">
       <div class="mx-auto max-w-2xl lg:max-w-4xl xl:max-w-6xl">
-        <a href={~p"/privacy"} class="hover:underline mr-4">Privacy Policy</a>
-        <a href={~p"/terms"} class="hover:underline mr-4">Terms and Conditions</a>
-        <a href={~p"/docs/setup"} class="hover:underline mr-4">Guides</a>
+        <a href={~p"/privacy"} class="hover:underline mr-4">{gettext("Privacy Policy")}</a>
+        <a href={~p"/terms"} class="hover:underline mr-4">{gettext("Terms and Conditions")}</a>
+        <a href={~p"/docs/setup"} class="hover:underline mr-4">{gettext("Guides")}</a>
         <a
           href={~p"/api/docs"}
           rel="noopener noreferrer"
           class="hover:underline mr-4"
         >
-          API Docs
+          {gettext("API Docs")}
         </a>
         <a
           href="https://appsinacup.github.io/game_server/"
@@ -200,11 +220,48 @@ defmodule GameServerWeb.Layouts do
           rel="noopener noreferrer"
           class="hover:underline mr-4"
         >
-          Elixir Docs
+          {gettext("Elixir Docs")}
         </a>
         <span class="text-xs opacity-60">v{app_version()}</span>
       </div>
     </footer>
+    """
+  end
+
+  defp language_dropdown(assigns) do
+    locale = Gettext.get_locale(GameServerWeb.Gettext) || "en"
+
+    assigns =
+      assign(assigns,
+        locale: locale,
+        label:
+          case locale do
+            "es" -> "Español"
+            _ -> "English"
+          end
+      )
+
+    ~H"""
+    <div class="dropdown dropdown-end">
+      <a href="#" tabindex="0" class="btn btn-outline">
+        {@label}
+      </a>
+      <ul
+        tabindex="0"
+        class="menu menu-sm dropdown-content mt-2 z-[1] p-2 shadow bg-base-100 rounded-box"
+      >
+        <li>
+          <a href={~p"/locale/en"} class={["whitespace-nowrap", @locale == "en" && "active"]}>
+            English
+          </a>
+        </li>
+        <li>
+          <a href={~p"/locale/es"} class={["whitespace-nowrap", @locale == "es" && "active"]}>
+            Español
+          </a>
+        </li>
+      </ul>
+    </div>
     """
   end
 

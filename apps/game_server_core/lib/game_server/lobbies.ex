@@ -610,7 +610,14 @@ defmodule GameServer.Lobbies do
         attrs
       else
         # No title provided: generate a unique candidate using default base.
-        Map.put(attrs, :title, unique_title_candidate("lobby"))
+        title_key =
+          cond do
+            Map.has_key?(attrs, "title") -> "title"
+            Map.has_key?(attrs, :title) -> :title
+            true -> :title
+          end
+
+        Map.put(attrs, title_key, unique_title_candidate("lobby"))
       end
 
     case GameServer.Hooks.internal_call(:before_lobby_create, [attrs]) do

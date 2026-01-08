@@ -12,6 +12,8 @@ msgid "can't be blank"
 msgstr ""
 
 ## From Ecto.Changeset.unique_constraint/3
+#: lib/game_server_web/i18n/errors_catalog.ex:21
+#, elixir-autogen
 msgid "has already been taken"
 msgstr ""
 
@@ -106,4 +108,34 @@ msgid "must be greater than or equal to %{number}"
 msgstr ""
 
 msgid "must be equal to %{number}"
+msgstr ""
+
+#: lib/game_server_web/i18n/errors_catalog.ex:18
+#, elixir-autogen, elixir-format
+msgid "cannot friend yourself"
+msgstr ""
+
+#: lib/game_server_web/i18n/errors_catalog.ex:19
+#, elixir-autogen, elixir-format
+msgid "did not change"
+msgstr ""
+
+#: lib/game_server_web/i18n/errors_catalog.ex:20
+#, elixir-autogen, elixir-format
+msgid "does not exist"
+msgstr ""
+
+#: lib/game_server_web/i18n/errors_catalog.ex:24
+#, elixir-autogen, elixir-format
+msgid "does not match password"
+msgstr ""
+
+#: lib/game_server_web/i18n/errors_catalog.ex:22
+#, elixir-autogen, elixir-format
+msgid "must be lowercase alphanumeric with underscores"
+msgstr ""
+
+#: lib/game_server_web/i18n/errors_catalog.ex:23
+#, elixir-autogen, elixir-format
+msgid "must have the @ sign and no spaces"
 msgstr ""

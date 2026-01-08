@@ -5,13 +5,13 @@
       <svg class="w-12 h-8" viewBox="0 0 24 24" fill="currentColor">
         <path d="M3 3h18v4H3V3zm0 7h18v11H3V10z" />
       </svg>
-      Server-side scripting & hooks
+      {gettext("Server-side scripting & hooks")}
       <a
         href="https://appsinacup.com/game_server/GameServer.Hooks.html"
         target="_blank"
         class="btn btn-outline ml-auto"
       >
-        Scrpting Interface
+        {gettext("Scripting Interface")}
         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
@@ -27,7 +27,7 @@
         data-card-key="server_scripting"
         aria-expanded="false"
         class="btn btn-ghost btn-sm"
-        title="Collapse/Expand"
+        title={gettext("Collapse/Expand")}
       >
         <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
           <path
@@ -42,18 +42,18 @@
 
     <div class="space-y-4">
       <p class="text-sm text-base-content/80">
-        The application exposes a lightweight server-side scripting surface via the
+        {gettext("The application exposes a lightweight server-side scripting surface via the")}
         <code class="font-mono">GameServer.Hooks</code>
-        behaviour. Hooks let you run
-        custom code on lifecycle events (eg. user register/login, lobby create/update)
-        and optionally expose RPC functions.
+        {gettext(
+          "behaviour. Hooks let you run custom code on lifecycle events (eg. user register/login, lobby create/update) and optionally expose RPC functions."
+        )}
       </p>
 
       <div class="step">
-        <h4 class="font-semibold">Add a lifecycle callback</h4>
+        <h4 class="font-semibold">{gettext("Add a lifecycle callback")}</h4>
         <div class="ml-6 mt-2 space-y-2">
           <p>
-            Implement the behaviour in a hooks module:
+            {gettext("Implement the behaviour in a hooks module:")}
           </p>
           <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
             <pre><code class="language-elixir" phx-no-curly-interpolation># your_hook_module.ex
@@ -74,32 +74,38 @@ end
       </div>
 
       <div class="step">
-        <h4 class="font-semibold">Loading hooks via OTP plugins</h4>
+        <h4 class="font-semibold">{gettext("Loading hooks via OTP plugins")}</h4>
         <div class="ml-6 mt-2 space-y-2">
           <p>
-            Hooks are loaded from OTP plugin applications under <code class="font-mono">modules/plugins/*</code>.
-            You can override the plugins directory using:
+            {gettext("Hooks are loaded from OTP plugin applications under")}
+            <code class="font-mono">modules/plugins/*</code>. {gettext(
+              "You can override the plugins directory using:"
+            )}
           </p>
           <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
             <pre><code class="language-elixir" phx-no-curly-interpolation>GAME_SERVER_PLUGINS_DIR=modules/plugins</code></pre>
           </div>
           <p>
-            Each plugin is an OTP app directory with an <code class="font-mono">ebin</code>
-            folder containing a <code class="font-mono">.app</code>
-            file and compiled <code class="font-mono">.beam</code>
-            modules.
-            The plugin's <code class="font-mono">.app</code>
-            env must include a <code class="font-mono">hooks_module</code>
-            entry pointing at the module name.
+            {gettext("Each plugin is an OTP app directory with an")}
+            <code class="font-mono">ebin</code>
+            {gettext("folder containing a")}
+            <code class="font-mono">.app</code>
+            {gettext("file and compiled")}
+            <code class="font-mono">.beam</code>
+            {gettext("modules. The plugin's")}
+            <code class="font-mono">.app</code>
+            {gettext("env must include a")}
+            <code class="font-mono">hooks_module</code>
+            {gettext("entry pointing at the module name.")}
           </p>
         </div>
       </div>
 
       <div class="step">
-        <h4 class="font-semibold">Exposing an RPC function</h4>
+        <h4 class="font-semibold">{gettext("Exposing an RPC function")}</h4>
         <div class="ml-6 mt-2 space-y-2">
           <p>
-            Hooks modules can also export arbitrary functions:
+            {gettext("Hooks modules can also export arbitrary functions:")}
           </p>
 
           <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
@@ -111,7 +117,9 @@ end
   end
 end</code></pre>
           </div>
-          You can now call this function via the API (or better yet from the client SDK's), eg:
+          {gettext(
+            "You can now call this function via the API (or better yet from the client SDK's), eg:"
+          )}
           <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
             <pre><code class="language-elixir" phx-no-curly-interpolation>curl -X POST https://your-game-server.com/api/v1/hooks/call \
 -d '{"plugin":"polyglot_hook","fn":"hello_world","args":["Alice"]}'</code></pre>
@@ -120,35 +128,46 @@ end</code></pre>
       </div>
 
       <div class="step">
-        <h4 class="font-semibold">Best practices & pitfalls</h4>
+        <h4 class="font-semibold">{gettext("Best practices & pitfalls")}</h4>
         <div class="ml-6 mt-2 space-y-2 text-sm text-base-content/80">
           <ul class="list-disc pl-5">
             <li>
-              Keep hooks fast and resilient — avoid long blocking work in the main request path. Use
+              {gettext(
+                "Keep hooks fast and resilient — avoid long blocking work in the main request path. Use"
+              )}
               <code class="font-mono">Task.start</code>
-              for background processing.
+              {gettext("for background processing.")}
             </li>
             <li>
-              When returning values from lifecycle hooks, prefer a
+              {gettext("When returning values from lifecycle hooks, prefer a")}
               <code class="font-mono" phx-no-curly-interpolation>{:ok, map}</code>
-              shape for "before" hooks that may modify attrs. Return
+              {gettext("shape for \"before\" hooks that may modify attrs. Return")}
               <code class="font-mono" phx-no-curly-interpolation>{:error, reason}</code>
-              to reject flows; domain code will convert to <code
+              {gettext("to reject flows; domain code will convert to")}
+              <code
                 class="font-mono"
                 phx-no-curly-interpolation
               >{:hook_rejected, reason}</code>.
             </li>
             <li>
-              Do not return structs as hook results intended to be used as params — always return plain maps when you intend to pass modified params into changesets.
+              {gettext(
+                "Do not return structs as hook results intended to be used as params — always return plain maps when you intend to pass modified params into changesets."
+              )}
             </li>
             <li>
-              Tests that modify global plugin configuration (eg. <code class="font-mono">GAME_SERVER_PLUGINS_DIR</code>) should run serially
-              (<code class="font-mono">async: false</code>) and restore env via
+              {gettext("Tests that modify global plugin configuration (eg.")}
+              <code class="font-mono">GAME_SERVER_PLUGINS_DIR</code>
+              {gettext(") should run serially")} (<code class="font-mono">async: false</code>) and restore env via
               <code class="font-mono">on_exit</code>
-              to avoid cross-test races.
+              {gettext("to avoid cross-test races.")}
             </li>
             <li>
-              Be careful modifying user or lobby data from hooks — reuse high-level domain functions (eg. <code class="font-mono">GameServer.Accounts.update_user/2</code>, <code class="font-mono">GameServer.Lobbies.update_lobby/2</code>) so changes are validated and broadcast consistently.
+              {gettext(
+                "Be careful modifying user or lobby data from hooks — reuse high-level domain functions (eg."
+              )}
+              <code class="font-mono">GameServer.Accounts.update_user/2</code>,
+              <code class="font-mono">GameServer.Lobbies.update_lobby/2</code>
+              {gettext(") so changes are validated and broadcast consistently.")}
             </li>
           </ul>
         </div>

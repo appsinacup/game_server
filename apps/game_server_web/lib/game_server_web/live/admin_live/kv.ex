@@ -320,9 +320,21 @@ defmodule GameServerWeb.AdminLive.KV do
 
     socket =
       cond do
-        failed == 0 -> put_flash(socket, :info, "Deleted #{deleted} entries")
-        deleted == 0 -> put_flash(socket, :error, "Failed to delete selected entries")
-        true -> put_flash(socket, :error, "Deleted #{deleted} entries; failed #{failed}")
+        failed == 0 ->
+          put_flash(socket, :info, gettext("Deleted %{deleted} entries", deleted: deleted))
+
+        deleted == 0 ->
+          put_flash(socket, :error, gettext("Failed to delete selected entries"))
+
+        true ->
+          put_flash(
+            socket,
+            :error,
+            gettext("Deleted %{deleted} entries; failed %{failed}",
+              deleted: deleted,
+              failed: failed
+            )
+          )
       end
 
     {:noreply, socket |> reload_entries()}
@@ -381,7 +393,7 @@ defmodule GameServerWeb.AdminLive.KV do
 
     case id && KV.get_entry(id) do
       nil ->
-        {:noreply, socket |> put_flash(:error, "Entry not found")}
+        {:noreply, socket |> put_flash(:error, gettext("Entry not found"))}
 
       entry ->
         {:noreply,
@@ -407,7 +419,7 @@ defmodule GameServerWeb.AdminLive.KV do
       :ok = KV.delete_entry(id)
     end
 
-    {:noreply, socket |> put_flash(:info, "Entry deleted") |> reload_entries()}
+    {:noreply, socket |> put_flash(:info, gettext("Entry deleted")) |> reload_entries()}
   end
 
   @impl true
@@ -423,14 +435,20 @@ defmodule GameServerWeb.AdminLive.KV do
           {:ok, _entry} ->
             {:noreply,
              socket
-             |> put_flash(:info, "Entry created")
+             |> put_flash(:info, gettext("Entry created"))
              |> assign_form_new()
              |> assign(:show_form_modal, false)
              |> reload_entries()}
 
           {:error, %Ecto.Changeset{} = changeset} ->
             {:noreply,
-             socket |> put_flash(:error, "Create failed: #{changeset_error_summary(changeset)}")}
+             socket
+             |> put_flash(
+               :error,
+               gettext("Create failed: %{reason}",
+                 reason: changeset_error_summary(changeset)
+               )
+             )}
         end
 
       {:ok, %{id: id, attrs: attrs}} ->
@@ -438,17 +456,23 @@ defmodule GameServerWeb.AdminLive.KV do
           {:ok, _entry} ->
             {:noreply,
              socket
-             |> put_flash(:info, "Entry updated")
+             |> put_flash(:info, gettext("Entry updated"))
              |> assign_form_new()
              |> assign(:show_form_modal, false)
              |> reload_entries()}
 
           {:error, :not_found} ->
-            {:noreply, socket |> put_flash(:error, "Entry not found")}
+            {:noreply, socket |> put_flash(:error, gettext("Entry not found"))}
 
           {:error, %Ecto.Changeset{} = changeset} ->
             {:noreply,
-             socket |> put_flash(:error, "Update failed: #{changeset_error_summary(changeset)}")}
+             socket
+             |> put_flash(
+               :error,
+               gettext("Update failed: %{reason}",
+                 reason: changeset_error_summary(changeset)
+               )
+             )}
         end
     end
   end

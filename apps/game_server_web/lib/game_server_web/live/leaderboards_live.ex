@@ -33,7 +33,7 @@ defmodule GameServerWeb.LeaderboardsLive do
       nil ->
         {:noreply,
          socket
-         |> put_flash(:error, "Leaderboard not found")
+         |> put_flash(:error, gettext("Leaderboard not found"))
          |> push_navigate(to: ~p"/leaderboards")}
 
       leaderboard ->
@@ -65,7 +65,7 @@ defmodule GameServerWeb.LeaderboardsLive do
           [] ->
             {:noreply,
              socket
-             |> put_flash(:error, "Leaderboard not found")
+             |> put_flash(:error, gettext("Leaderboard not found"))
              |> push_navigate(to: ~p"/leaderboards")}
         end
 

@@ -4,7 +4,7 @@
   <div class="mt-8 flex justify-center">
     <img
       src={Map.get(provider_theme, "banner")}
-      alt="Game Server Banner"
+      alt={gettext("Game Server Banner")}
       class="max-w-full h-auto rounded-lg shadow-lg"
     />
   </div>
@@ -35,7 +35,7 @@
 
   <div class="flex justify-center">
     <div class="w-full">
-      <h2 class="text-lg font-semibold mb-4 text-center">Useful Links</h2>
+      <h2 class="text-lg font-semibold mb-4 text-center">{gettext("Useful Links")}</h2>
       <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
         <%= for link <- Map.get(provider_theme, "useful_links", []) do %>
           <a
@@ -56,7 +56,7 @@
       
 <!-- Features overview -->
       <div class="mt-12">
-        <h2 class="text-lg font-semibold mb-4 text-center">Features</h2>
+        <h2 class="text-lg font-semibold mb-4 text-center">{gettext("Features")}</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <%= for feature <- Map.get(provider_theme, "features", []) do %>
             <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">

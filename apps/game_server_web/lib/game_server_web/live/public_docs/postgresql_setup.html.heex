@@ -15,13 +15,13 @@
           d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"
         />
       </svg>
-      PostgreSQL Setup
+      {gettext("PostgreSQL Setup")}
       <a
         href="https://www.postgresql.org"
         target="_blank"
         class="btn btn-outline ml-auto"
       >
-        Download PostgreSQL
+        {gettext("Download PostgreSQL")}
         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
@@ -37,7 +37,7 @@
         data-card-key="postgres_config"
         aria-expanded="false"
         class="btn btn-ghost btn-sm"
-        title="Collapse/Expand"
+        title={gettext("Collapse/Expand")}
       >
         <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
           <path
@@ -52,9 +52,9 @@
 
     <div class="space-y-6">
       <div class="step">
-        <h3 class="text-lg font-semibold mb-3">Database URL Configuration</h3>
+        <h3 class="text-lg font-semibold mb-3">{gettext("Database URL Configuration")}</h3>
         <div class="ml-8 space-y-3">
-          <p>Set the DATABASE_URL environment variable:</p>
+          <p>{gettext("Set the DATABASE_URL environment variable:")}</p>
           <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
             <div class="space-y-2">
               <div>DATABASE_URL="postgresql://username:password@host:port/database"</div>
@@ -65,17 +65,19 @@
             </div>
           </div>
           <p class="text-sm text-base-content/70">
-            The app will automatically detect PostgreSQL when DATABASE_URL is set and contains "postgresql://".
+            {gettext(
+              "The app will automatically detect PostgreSQL when DATABASE_URL is set and contains \"postgresql://\"."
+            )}
           </p>
         </div>
       </div>
 
       <div class="step">
         <h3 class="text-lg font-semibold mb-3">
-          Individual Environment Variables (Alternative)
+          {gettext("Individual Environment Variables (Alternative)")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>You can also set individual database connection variables:</p>
+          <p>{gettext("You can also set individual database connection variables:")}</p>
           <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
             <div class="space-y-2">
               <div>POSTGRES_HOST="your-postgres-host"</div>
@@ -89,39 +91,39 @@
       </div>
 
       <div class="step">
-        <h3 class="text-lg font-semibold mb-3">Deployment Considerations</h3>
+        <h3 class="text-lg font-semibold mb-3">{gettext("Deployment Considerations")}</h3>
         <div class="ml-8 space-y-3">
           <p class="text-sm">
-            Popular PostgreSQL hosting options:
+            {gettext("Popular PostgreSQL hosting options:")}
           </p>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
             <div class="bg-base-200 p-4 rounded-lg text-center">
               <div class="font-semibold">Supabase</div>
-              <div class="text-sm text-base-content/70">Free tier available</div>
+              <div class="text-sm text-base-content/70">{gettext("Free tier available")}</div>
               <a
                 href="https://supabase.com"
                 target="_blank"
                 class="btn btn-sm btn-outline mt-2"
               >
-                Get Started
+                {gettext("Get Started")}
               </a>
             </div>
             <div class="bg-base-200 p-4 rounded-lg text-center">
               <div class="font-semibold">Neon</div>
-              <div class="text-sm text-base-content/70">Serverless PostgreSQL</div>
+              <div class="text-sm text-base-content/70">{gettext("Serverless PostgreSQL")}</div>
               <a href="https://neon.tech" target="_blank" class="btn btn-sm btn-outline mt-2">
-                Get Started
+                {gettext("Get Started")}
               </a>
             </div>
             <div class="bg-base-200 p-4 rounded-lg text-center">
               <div class="font-semibold">Fly.io Postgres</div>
-              <div class="text-sm text-base-content/70">Managed PostgreSQL</div>
+              <div class="text-sm text-base-content/70">{gettext("Managed PostgreSQL")}</div>
               <a
                 href="https://fly.io/docs/postgres/"
                 target="_blank"
                 class="btn btn-sm btn-outline mt-2"
               >
-                Learn More
+                {gettext("Learn More")}
               </a>
             </div>
           </div>

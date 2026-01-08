@@ -14,14 +14,14 @@
           stroke-width="1.5"
         />
       </svg>
-      Configure Theme
+      {gettext("Configure Theme")}
       <button
         type="button"
         data-action="toggle-card"
         data-card-key="theme"
         aria-expanded="false"
         class="btn btn-ghost btn-sm ml-auto"
-        title="Collapse/Expand"
+        title={gettext("Collapse/Expand")}
       >
         <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
           <path
@@ -35,11 +35,11 @@
     </h2>
 
     <div class="space-y-4">
-      <div class="text-sm font-semibold">Runtime theming (JSON)</div>
+      <div class="text-sm font-semibold">{gettext("Runtime theming (JSON)")}</div>
       <p class="text-sm text-base-content/80">
-        You can provide simple runtime theming configuration using a JSON file.
-        This lets you customize basic branding (title, tagline) and reference
-        an external stylesheet (css) plus assets (logo, banner).
+        {gettext(
+          "You can provide simple runtime theming configuration using a JSON file. This lets you customize basic branding (title, tagline) and reference an external stylesheet (css) plus assets (logo, banner)."
+        )}
       </p>
     </div>
 
@@ -47,14 +47,14 @@
       <!-- Step 1: Configure theming JSON -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">2</span> Configure theming JSON
+          <span class="badge badge-primary">2</span> {gettext("Configure theming JSON")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>Place a JSON file somewhere in your project, for example:</p>
+          <p>{gettext("Place a JSON file somewhere in your project, for example:")}</p>
           <div class="bg-base-200 p-4 rounded-lg">
             <pre class="text-sm text-wrap"><code phx-no-curly-interpolation>theme/default_config.json</code></pre>
           </div>
-          <p>With the following:</p>
+          <p>{gettext("With the following:")}</p>
           <pre phx-no-curly-interpolation class="rounded bg-base-200 p-3 text-xs overflow-auto">{
   "title": "My Game",
   "tagline": "Play together",
@@ -69,10 +69,10 @@
 <!-- Step 2: Configure the app to use it -->
     <div class="step">
       <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-        <span class="badge badge-primary">2</span> Configure the app to use it
+        <span class="badge badge-primary">2</span> {gettext("Configure the app to use it")}
       </h3>
       <div class="ml-8 space-y-3">
-        <p>Point the runtime configuration at the JSON file:</p>
+        <p>{gettext("Point the runtime configuration at the JSON file:")}</p>
         <div class="bg-base-200 p-4 rounded-lg">
           <pre class="text-sm text-wrap"><code phx-no-curly-interpolation>THEME_CONFIG=theme/default_config.json</code></pre>
         </div>

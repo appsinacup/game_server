@@ -5,13 +5,13 @@
       <svg class="w-12 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
         <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
       </svg>
-      Facebook OAuth Setup
+      {gettext("Facebook OAuth Setup")}
       <a
         href="https://developers.facebook.com/"
         target="_blank"
         class="btn btn-outline ml-auto"
       >
-        Facebook Developers Portal
+        {gettext("Facebook Developers Portal")}
         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
@@ -27,7 +27,7 @@
         data-card-key="facebook_oauth"
         aria-expanded="false"
         class="btn btn-ghost btn-sm"
-        title="Collapse/Expand"
+        title={gettext("Collapse/Expand")}
       >
         <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
           <path
@@ -44,33 +44,37 @@
       <!-- Step 1: Create Facebook App -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">1</span> Create Facebook App
+          <span class="badge badge-primary">1</span> {gettext("Create Facebook App")}
         </h3>
         <div class="ml-8 space-y-3">
           <p>
-            Go to the
+            {gettext("Go to the")}
             <a
               href="https://developers.facebook.com/"
               target="_blank"
               class="link link-primary"
             >
-              Facebook Developers Portal
+              {gettext("Facebook Developers Portal")}
             </a>
           </p>
           <ol class="list-decimal list-inside space-y-2 text-sm">
-            <li>Click "My Apps" in the top right</li>
-            <li>Click "Create App"</li>
+            <li>{gettext("Click \"My Apps\" in the top right")}</li>
+            <li>{gettext("Click \"Create App\"")}</li>
             <li>
-              Select the use case that fits your needs (often "Other" or "Authenticate and request data from users with Facebook Login")
+              {gettext(
+                "Select the use case that fits your needs (often \"Other\" or \"Authenticate and request data from users with Facebook Login\")"
+              )}
             </li>
-            <li>Click "Next"</li>
+            <li>{gettext("Click \"Next\"")}</li>
             <li>
-              Select app type (usually "Business" for most web apps, or "None" if available)
+              {gettext(
+                "Select app type (usually \"Business\" for most web apps, or \"None\" if available)"
+              )}
             </li>
-            <li>Click "Next"</li>
-            <li>Enter app name (e.g., "Game Server")</li>
-            <li>Enter contact email</li>
-            <li>Click "Create App"</li>
+            <li>{gettext("Click \"Next\"")}</li>
+            <li>{gettext("Enter app name (e.g., \"Game Server\")")}</li>
+            <li>{gettext("Enter contact email")}</li>
+            <li>{gettext("Click \"Create App\"")}</li>
           </ol>
         </div>
       </div>
@@ -78,16 +82,16 @@
 <!-- Step 2: Add Facebook Login Product -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">2</span> Add Facebook Login Product
+          <span class="badge badge-primary">2</span> {gettext("Add Facebook Login Product")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>In your Facebook App dashboard:</p>
+          <p>{gettext("In your Facebook App dashboard:")}</p>
           <ol class="list-decimal list-inside space-y-2 text-sm">
-            <li>Find "Facebook Login" in the product list</li>
-            <li>Click "Set Up"</li>
-            <li>Select "Web" as the platform</li>
-            <li>Enter your site URL (e.g., https://example.com)</li>
-            <li>Click "Save" and continue</li>
+            <li>{gettext("Find \"Facebook Login\" in the product list")}</li>
+            <li>{gettext("Click \"Set Up\"")}</li>
+            <li>{gettext("Select \"Web\" as the platform")}</li>
+            <li>{gettext("Enter your site URL (e.g., https://example.com)")}</li>
+            <li>{gettext("Click \"Save\" and continue")}</li>
           </ol>
         </div>
       </div>
@@ -95,19 +99,19 @@
 <!-- Step 3: Configure OAuth Redirect URIs -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">3</span> Configure OAuth Redirect URIs
+          <span class="badge badge-primary">3</span> {gettext("Configure OAuth Redirect URIs")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>Go to "Facebook Login" → "Settings":</p>
+          <p>{gettext("Go to \"Facebook Login\" → \"Settings\":")}</p>
           <ol class="list-decimal list-inside space-y-2 text-sm">
             <li>
-              Add these Valid OAuth Redirect URIs:<br />
+              {gettext("Add these Valid OAuth Redirect URIs:")}<br />
               <div class="bg-base-200 p-2 rounded mt-2 font-mono text-xs">
                 <div>Development: http://localhost:4000/auth/facebook/callback</div>
                 <div>Production: https://example.com/auth/facebook/callback</div>
               </div>
             </li>
-            <li>Click "Save Changes"</li>
+            <li>{gettext("Click \"Save Changes\"")}</li>
           </ol>
         </div>
       </div>
@@ -115,20 +119,22 @@
 <!-- Step 4: Get App Credentials -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">4</span> Get App Credentials
+          <span class="badge badge-primary">4</span> {gettext("Get App Credentials")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>Go to "Settings" → "Basic":</p>
+          <p>{gettext("Go to \"Settings\" → \"Basic\":")}</p>
           <ol class="list-decimal list-inside space-y-2 text-sm">
-            <li>Copy the "App ID" (this is your Client ID)</li>
+            <li>{gettext("Copy the \"App ID\" (this is your Client ID)")}</li>
             <li>
-              Click "Show" next to "App Secret" and copy it (this is your Client Secret)
+              {gettext(
+                "Click \"Show\" next to \"App Secret\" and copy it (this is your Client Secret)"
+              )}
             </li>
           </ol>
           <div class="bg-base-200 p-4 rounded-lg mt-4">
-            <div class="font-semibold mb-2">Your Credentials</div>
-            <div>App ID: 1234567890123456</div>
-            <div>App Secret: abcdef1234567890abcdef1234567890</div>
+            <div class="font-semibold mb-2">{gettext("Your Credentials")}</div>
+            <div>{gettext("App ID")}: 1234567890123456</div>
+            <div>{gettext("App Secret")}: abcdef1234567890abcdef1234567890</div>
           </div>
         </div>
       </div>
@@ -136,16 +142,16 @@
 <!-- Step 5: Make App Public -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">5</span> Make App Public (Production)
+          <span class="badge badge-primary">5</span> {gettext("Make App Public (Production)")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>For production use, switch to live mode:</p>
+          <p>{gettext("For production use, switch to live mode:")}</p>
           <ol class="list-decimal list-inside space-y-2 text-sm">
-            <li>Complete all required fields in "Settings" → "Basic"</li>
-            <li>Add a Privacy Policy URL</li>
-            <li>Add a Terms of Service URL (optional)</li>
-            <li>Select a category for your app</li>
-            <li>Toggle the switch at the top from "Development" to "Live"</li>
+            <li>{gettext("Complete all required fields in \"Settings\" → \"Basic\"")}</li>
+            <li>{gettext("Add a Privacy Policy URL")}</li>
+            <li>{gettext("Add a Terms of Service URL (optional)")}</li>
+            <li>{gettext("Select a category for your app")}</li>
+            <li>{gettext("Toggle the switch at the top from \"Development\" to \"Live\"")}</li>
           </ol>
         </div>
       </div>
@@ -153,10 +159,10 @@
 <!-- Step 6: Configure Environment Variables -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">6</span> Configure Environment Variables
+          <span class="badge badge-primary">6</span> {gettext("Configure Environment Variables")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>Set these environment variables:</p>
+          <p>{gettext("Set these environment variables:")}</p>
           <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
             <div class="space-y-2">
               <div>FACEBOOK_CLIENT_ID="your_app_id"</div>
@@ -169,15 +175,15 @@
 <!-- Step 7: Test -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">7</span> Test Facebook Login
+          <span class="badge badge-primary">7</span> {gettext("Test Facebook Login")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>After deploying with the secrets:</p>
+          <p>{gettext("After deploying with the secrets:")}</p>
           <ol class="list-decimal list-inside space-y-2 text-sm">
-            <li>Go to your app's login page</li>
-            <li>Click "Sign in with Facebook"</li>
-            <li>Authorize the application with your Facebook account</li>
-            <li>You should be redirected back and logged in</li>
+            <li>{gettext("Go to your app's login page")}</li>
+            <li>{gettext("Click \"Sign in with Facebook\"")}</li>
+            <li>{gettext("Authorize the application with your Facebook account")}</li>
+            <li>{gettext("You should be redirected back and logged in")}</li>
           </ol>
         </div>
       </div>

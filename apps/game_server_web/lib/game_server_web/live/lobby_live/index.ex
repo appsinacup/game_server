@@ -70,7 +70,11 @@ defmodule GameServerWeb.LobbyLive.Index do
         case Accounts.get_user(id) do
           %GameServer.Accounts.User{lobby_id: existing} when existing != nil ->
             {:noreply,
-             put_flash(socket, :error, "You are already in a lobby and cannot create another")}
+             put_flash(
+               socket,
+               :error,
+               gettext("You are already in a lobby and cannot create another")
+             )}
 
           _ ->
             create_lobby_for_user(socket, attrs, id)
@@ -108,7 +112,12 @@ defmodule GameServerWeb.LobbyLive.Index do
              )}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Could not leave: #{inspect(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               gettext("Could not leave: %{reason}", reason: inspect(reason))
+             )}
         end
 
       _ ->
@@ -127,7 +136,7 @@ defmodule GameServerWeb.LobbyLive.Index do
         end
 
       nil ->
-        {:noreply, put_flash(socket, :error, "Lobby not found")}
+        {:noreply, put_flash(socket, :error, gettext("Lobby not found"))}
     end
   end
 
@@ -147,10 +156,10 @@ defmodule GameServerWeb.LobbyLive.Index do
       {:ok, lobby_id} ->
         case Lobbies.get_lobby(lobby_id) do
           nil ->
-            {:noreply, put_flash(socket, :error, "Lobby not found")}
+            {:noreply, put_flash(socket, :error, gettext("Lobby not found"))}
 
           %{} = l when l.is_locked ->
-            {:noreply, put_flash(socket, :error, "Lobby is locked")}
+            {:noreply, put_flash(socket, :error, gettext("Lobby is locked"))}
 
           %{} = l when l.password_hash != nil ->
             {:noreply, assign(socket, joining_lobby_id: l.id, join_password: "")}
@@ -162,7 +171,7 @@ defmodule GameServerWeb.LobbyLive.Index do
         end
 
       :error ->
-        {:noreply, put_flash(socket, :error, "Lobby not found")}
+        {:noreply, put_flash(socket, :error, gettext("Lobby not found"))}
     end
   end
 
@@ -255,7 +264,7 @@ defmodule GameServerWeb.LobbyLive.Index do
 
             {:noreply,
              socket
-             |> put_flash(:info, "Lobby updated")
+             |> put_flash(:info, gettext("Lobby updated"))
              |> assign(
                lobbies: lobbies,
                memberships_map: memberships_map,
@@ -264,7 +273,12 @@ defmodule GameServerWeb.LobbyLive.Index do
              )}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Could not update: #{inspect(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               gettext("Could not update: %{reason}", reason: inspect(reason))
+             )}
         end
 
       _ ->
@@ -295,7 +309,12 @@ defmodule GameServerWeb.LobbyLive.Index do
             {:noreply, assign(socket, lobbies: lobbies, memberships_map: memberships_map)}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Could not kick: #{inspect(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               gettext("Could not kick: %{reason}", reason: inspect(reason))
+             )}
         end
 
       _ ->
@@ -342,7 +361,11 @@ defmodule GameServerWeb.LobbyLive.Index do
 
       {:error, :already_in_lobby} ->
         {:noreply,
-         put_flash(socket, :error, "You are already in a lobby and cannot create another")}
+         put_flash(
+           socket,
+           :error,
+           gettext("You are already in a lobby and cannot create another")
+         )}
 
       {:error, _} ->
         {:noreply, socket}
@@ -381,7 +404,8 @@ defmodule GameServerWeb.LobbyLive.Index do
          )}
 
       {:error, reason} ->
-        {:noreply, put_flash(socket, :error, "Could not join: #{inspect(reason)}")}
+        {:noreply,
+         put_flash(socket, :error, gettext("Could not join: %{reason}", reason: inspect(reason)))}
     end
   end
 
@@ -396,7 +420,7 @@ defmodule GameServerWeb.LobbyLive.Index do
 
   defp handle_start_join_for_user(socket, lobby, user) do
     if user.lobby_id == lobby.id do
-      {:noreply, put_flash(socket, :info, "You are already in this lobby")}
+      {:noreply, put_flash(socket, :info, gettext("You are already in this lobby"))}
     else
       case Lobbies.join_lobby(user, lobby.id) do
         {:ok, _member} ->
@@ -424,7 +448,12 @@ defmodule GameServerWeb.LobbyLive.Index do
            )}
 
         {:error, reason} ->
-          {:noreply, put_flash(socket, :error, "Could not join: #{inspect(reason)}")}
+          {:noreply,
+           put_flash(
+             socket,
+             :error,
+             gettext("Could not join: %{reason}", reason: inspect(reason))
+           )}
       end
     end
   end
@@ -491,7 +520,7 @@ defmodule GameServerWeb.LobbyLive.Index do
         {:noreply,
          socket
          |> assign(current_scope: updated_scope, subscribed_lobby_id: nil, editing_lobby_id: nil)
-         |> put_flash(:error, "You have been kicked from the lobby")}
+         |> put_flash(:error, gettext("You have been kicked from the lobby"))}
 
       _ ->
         {:noreply, socket}

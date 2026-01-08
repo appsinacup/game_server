@@ -484,7 +484,7 @@ defmodule GameServerWeb.AdminLive.Users do
 
         {:noreply,
          socket
-         |> put_flash(:info, "User updated successfully")
+         |> put_flash(:info, gettext("User updated successfully"))
          |> assign(:recent_users, users)
          |> assign(:users_count, total_count)
          |> assign(:users_total_pages, total_pages)
@@ -530,7 +530,7 @@ defmodule GameServerWeb.AdminLive.Users do
 
         {:noreply,
          socket
-         |> put_flash(:info, "User deleted successfully")
+         |> put_flash(:info, gettext("User deleted successfully"))
          |> assign(:users_count, total_count)
          |> assign(:recent_users, users)
          |> assign(:users_page, page2)
@@ -538,7 +538,7 @@ defmodule GameServerWeb.AdminLive.Users do
          |> sync_selected_ids(user_ids(users))}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, "Failed to delete user")}
+        {:noreply, put_flash(socket, :error, gettext("Failed to delete user"))}
     end
   end
 
@@ -653,9 +653,21 @@ defmodule GameServerWeb.AdminLive.Users do
 
     socket =
       cond do
-        failed == 0 -> put_flash(socket, :info, "Deleted #{deleted} users")
-        deleted == 0 -> put_flash(socket, :error, "Failed to delete selected users")
-        true -> put_flash(socket, :error, "Deleted #{deleted} users; failed #{failed}")
+        failed == 0 ->
+          put_flash(socket, :info, gettext("Deleted %{deleted} users", deleted: deleted))
+
+        deleted == 0 ->
+          put_flash(socket, :error, gettext("Failed to delete selected users"))
+
+        true ->
+          put_flash(
+            socket,
+            :error,
+            gettext("Deleted %{deleted} users; failed %{failed}",
+              deleted: deleted,
+              failed: failed
+            )
+          )
       end
 
     {:noreply,

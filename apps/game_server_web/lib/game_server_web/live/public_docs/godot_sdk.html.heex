@@ -21,13 +21,13 @@
         <circle cx="15" cy="10" r="1" fill="currentColor" />
         <path d="M8 16h8" stroke="currentColor" stroke-width="1.5" />
       </svg>
-      Godot Client SDK
+      {gettext("Godot Client SDK")}
       <a
         href="https://godotengine.org/asset-library/asset/4510"
         target="_blank"
         class="btn btn-outline ml-auto"
       >
-        View on Godot Asset Library
+        {gettext("View on Godot Asset Library")}
         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
@@ -43,7 +43,7 @@
         data-card-key="godot_client"
         aria-expanded="false"
         class="btn btn-ghost btn-sm"
-        title="Collapse/Expand"
+        title={gettext("Collapse/Expand")}
       >
         <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 8l4 4 4-4" />
@@ -54,11 +54,13 @@
     <div class="space-y-6">
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">1</span> Get the Asset
+          <span class="badge badge-primary">1</span> {gettext("Get the Asset")}
         </h3>
         <div class="ml-8 space-y-3">
           <p>
-            Download the Godot asset from the Asset Library (in Godot look for the "Gamend - Game Server" addon):
+            {gettext(
+              "Download the Godot asset from the Asset Library (in Godot look for the \"Gamend - Game Server\" addon):"
+            )}
           </p>
           <div class="bg-base-200 p-4 rounded-lg font-mono text-sm flex items-center gap-4">
             <div>https://godotengine.org/asset-library/asset/4510</div>
@@ -68,10 +70,10 @@
 
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">2</span> Quick integration
+          <span class="badge badge-primary">2</span> {gettext("Quick integration")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>Typical usage inside Godot GDScript (pseudocode / example):</p>
+          <p>{gettext("Typical usage inside Godot GDScript (pseudocode / example):")}</p>
           <div class="bg-base-200 p-4 rounded-lg">
             <pre class="text-sm text-wrap"><code class="language-gd" phx-no-curly-interpolation>var gamend_api:= GamendApi.new()
 var access_token := ""
@@ -93,11 +95,13 @@ func _ready() -> void:
 
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">3</span> Authentication
+          <span class="badge badge-primary">3</span> {gettext("Authentication")}
         </h3>
         <div class="ml-8 space-y-3">
           <p>
-            Authenticate using the same JWT-based API flow as other SDKs (get token from server login / OAuth).
+            {gettext(
+              "Authenticate using the same JWT-based API flow as other SDKs (get token from server login / OAuth)."
+            )}
           </p>
           <div class="bg-base-200 p-4 rounded-lg">
             <pre class="text-sm text-wrap"><code class="language-gd" phx-no-curly-interpolation>var gamend_api:= GamendApi.new()
@@ -134,11 +138,11 @@ func do_discord_auth():
 
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">4</span> Call Authenticated APIs
+          <span class="badge badge-primary">4</span> {gettext("Call Authenticated APIs")}
         </h3>
         <div class="ml-8 space-y-3">
           <p>
-            After logging in, you can now call any RPC or other protected functions.
+            {gettext("After logging in, you can now call any RPC or other protected functions.")}
           </p>
           <div class="bg-base-200 p-4 rounded-lg">
             <pre class="text-sm text-wrap"><code class="language-gd" phx-no-curly-interpolation>var gamend_api:= GamendApi.new()

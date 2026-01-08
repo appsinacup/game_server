@@ -62,6 +62,8 @@ defmodule GameServerWeb.Endpoint do
   plug Plug.Head
   plug Plug.Session, @session_options
 
+  plug GameServerWeb.Plugs.LocalePath
+
   plug Corsica,
     origins: "*",
     allow_headers: ["content-type", "authorization"],
