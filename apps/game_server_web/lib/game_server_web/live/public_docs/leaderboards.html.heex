@@ -5,9 +5,9 @@
       <svg class="w-12 h-8" viewBox="0 0 24 24" fill="currentColor">
         <path d="M5 3h4v18H5V3zm5 6h4v12h-4V9zm5-3h4v15h-4V6z" />
       </svg>
-      {gettext("Leaderboards")}
+      {doc_text("Leaderboards")}
       <a href={~p"/leaderboards"} target="_blank" class="btn btn-outline ml-auto">
-        {gettext("Browse Leaderboards")}
+        {doc_text("Browse Leaderboards")}
         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
@@ -23,7 +23,7 @@
         data-card-key="leaderboards"
         aria-expanded="false"
         class="btn btn-ghost btn-sm"
-        title={gettext("Collapse/Expand")}
+        title={doc_text("Collapse/Expand")}
       >
         <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
           <path
@@ -38,45 +38,45 @@
 
     <div class="space-y-4">
       <p class="text-sm text-base-content/80">
-        {gettext(
+        {doc_text(
           "Leaderboards allow you to rank players based on scores. Scores are submitted server-side only (authoritative mode) ensuring fair competition. Each leaderboard acts as a season with optional start/end dates."
         )}
       </p>
 
-      <h3 class="font-semibold">{gettext("Key Concepts")}</h3>
+      <h3 class="font-semibold">{doc_text("Key Concepts")}</h3>
       <ul class="list-disc list-inside text-sm text-base-content/80 space-y-1">
         <li>
-          <strong>{gettext("Sort Order:")}</strong> <code class="font-mono">desc</code>
-          {gettext("(highest first) or")} <code class="font-mono">asc</code>
-          {gettext("(lowest first)")}
+          <strong>{doc_text("Sort Order:")}</strong> <code class="font-mono">desc</code>
+          {doc_text("(highest first) or")} <code class="font-mono">asc</code>
+          {doc_text("(lowest first)")}
         </li>
         <li>
-          <strong>{gettext("Operators:")}</strong> <code class="font-mono">set</code>
-          {gettext("(replace),")} <code class="font-mono">best</code>
-          {gettext("(only if better),")} <code class="font-mono">incr</code>
-          {gettext("(add),")} <code class="font-mono">decr</code>
-          {gettext("(subtract)")}
+          <strong>{doc_text("Operators:")}</strong> <code class="font-mono">set</code>
+          {doc_text("(replace),")} <code class="font-mono">best</code>
+          {doc_text("(only if better),")} <code class="font-mono">incr</code>
+          {doc_text("(add),")} <code class="font-mono">decr</code>
+          {doc_text("(subtract)")}
         </li>
         <li>
-          <strong>{gettext("Seasons:")}</strong>
-          {gettext("Each leaderboard is a season. Set")}
+          <strong>{doc_text("Seasons:")}</strong>
+          {doc_text("Each leaderboard is a season. Set")}
           <code class="font-mono">ends_at</code>
-          {gettext("to mark as ended")}
+          {doc_text("to mark as ended")}
         </li>
         <li>
-          <strong>{gettext("Metadata:")}</strong>
-          {gettext("Store additional JSON data on leaderboards and individual records")}
+          <strong>{doc_text("Metadata:")}</strong>
+          {doc_text("Store additional JSON data on leaderboards and individual records")}
         </li>
       </ul>
 
-      <h3 class="font-semibold">{gettext("Server-Side Score Submission (Elixir)")}</h3>
+      <h3 class="font-semibold">{doc_text("Server-Side Score Submission (Elixir)")}</h3>
       <p class="text-sm text-base-content/80">
-        {gettext(
+        {doc_text(
           "Scores are submitted server-side only to prevent cheating. Call the context functions directly from your game logic:"
         )}
       </p>
 
-      <h3 class="font-semibold">{gettext("Elixir Context Functions")}</h3>
+      <h3 class="font-semibold">{doc_text("Elixir Context Functions")}</h3>
       <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
         <pre phx-no-curly-interpolation>
 # Create a new leaderboard (admin)
@@ -114,36 +114,36 @@ GameServer.Leaderboards.list_records_around_user(leaderboard.id, user_id, limit:
 GameServer.Leaderboards.end_leaderboard(leaderboard)</pre>
       </div>
 
-      <h3 class="font-semibold">{gettext("Best Practices")}</h3>
+      <h3 class="font-semibold">{doc_text("Best Practices")}</h3>
       <ul class="list-disc list-inside text-sm text-base-content/80 space-y-1">
         <li>
-          {gettext("Use descriptive IDs like")}
+          {doc_text("Use descriptive IDs like")}
           <code class="font-mono">weekly_score_2024_w48</code>
-          {gettext("or")}
+          {doc_text("or")}
           <code class="font-mono">season_3_pvp</code>
         </li>
         <li>
-          {gettext("Set")}
+          {doc_text("Set")}
           <code class="font-mono">starts_at</code>
-          {gettext("for scheduled leaderboards")}
+          {doc_text("for scheduled leaderboards")}
         </li>
         <li>
-          {gettext("Use")}
+          {doc_text("Use")}
           <code class="font-mono">operator: :best</code>
-          {gettext("for high score boards,")}
+          {doc_text("for high score boards,")}
           <code class="font-mono">:incr</code>
-          {gettext("for cumulative")}
+          {doc_text("for cumulative")}
         </li>
         <li>
-          {gettext("Store extra context in")}
+          {doc_text("Store extra context in")}
           <code class="font-mono">metadata</code>
-          {gettext("(achievements, levels, etc.)")}
+          {doc_text("(achievements, levels, etc.)")}
         </li>
-        <li>{gettext("Create new leaderboards for new seasons instead of resetting")}</li>
+        <li>{doc_text("Create new leaderboards for new seasons instead of resetting")}</li>
         <li>
-          {gettext("Use")}
+          {doc_text("Use")}
           <code class="font-mono">/records/around/:user_id</code>
-          {gettext("to show player context in the rankings")}
+          {doc_text("to show player context in the rankings")}
         </li>
       </ul>
     </div>

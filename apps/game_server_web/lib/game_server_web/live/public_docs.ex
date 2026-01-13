@@ -12,9 +12,9 @@ defmodule GameServerWeb.PublicDocs do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="py-8 px-6 max-w-5xl mx-auto space-y-6">
         <.header>
-          {gettext("Setup & Guides")}
+          {"Setup & Guides"}
           <:subtitle>
-            {gettext("Platform setup, OAuth providers, email, error monitoring, and server hooks")}
+            {"Platform setup, OAuth providers, email, error monitoring, and server hooks"}
           </:subtitle>
         </.header>
 

@@ -18,7 +18,9 @@ defmodule GameServerWeb.Plugs.LoadTheme do
     require Logger
     theme_mod = Application.get_env(:game_server_web, :theme_module, GameServer.Theme.JSONConfig)
 
-    provider_map = fetch_theme(theme_mod)
+    locale = Map.get(conn.assigns, :locale) || Gettext.get_locale(GameServerWeb.Gettext)
+
+    provider_map = fetch_theme(theme_mod, locale)
 
     theme_map =
       if provider_map == %{} do
@@ -50,8 +52,12 @@ defmodule GameServerWeb.Plugs.LoadTheme do
     assign(conn, :theme, theme)
   end
 
-  defp fetch_theme(mod) do
-    mod.get_theme() || %{}
+  defp fetch_theme(mod, locale) do
+    if is_binary(locale) and function_exported?(mod, :get_theme, 1) do
+      mod.get_theme(locale) || %{}
+    else
+      mod.get_theme() || %{}
+    end
   rescue
     _ -> %{}
   end

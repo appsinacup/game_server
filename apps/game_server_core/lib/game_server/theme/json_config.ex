@@ -19,7 +19,19 @@ defmodule GameServer.Theme.JSONConfig do
 
   @impl true
   def get_theme do
-    path = config_path()
+    get_theme(nil)
+  end
+
+  @doc """
+  Variant of `get_theme/0` that prefers a locale-specific THEME_CONFIG file when present.
+
+  Given a base config like `modules/example_config.json` and locale `"en"`, we will
+  try `modules/example_config.en.json` first (and fall back to the base file).
+  """
+  @spec get_theme(String.t() | nil) :: map()
+  def get_theme(locale) when is_binary(locale) or is_nil(locale) do
+    base_path = config_path()
+    path_candidates = runtime_path_candidates(base_path, locale)
 
     # Load packaged defaults first (read_default always returns {:ok, map}
     # including a baked-in fallback). If the runtime THEME_CONFIG path points
@@ -31,7 +43,12 @@ defmodule GameServer.Theme.JSONConfig do
         _ -> %{}
       end
 
-    case read_json(path) do
+    runtime_json =
+      Enum.find_value(path_candidates, :error, fn p ->
+        read_json(p)
+      end)
+
+    case runtime_json do
       {:ok, map} when is_map(map) ->
         # Ignore runtime-provided empty strings/nil values so packaged defaults
         # are not accidentally overwritten by blank values.
@@ -110,6 +127,51 @@ defmodule GameServer.Theme.JSONConfig do
 
       _ ->
         nil
+    end
+  end
+
+  defp runtime_path_candidates(nil, _locale), do: [nil]
+
+  defp runtime_path_candidates(base_path, locale) when is_binary(base_path) do
+    locale_variants = locale_variants(locale)
+
+    localized =
+      Enum.map(locale_variants, fn loc ->
+        localized_config_path(base_path, loc)
+      end)
+
+    Enum.reverse([base_path | Enum.reverse(localized)])
+  end
+
+  defp locale_variants(nil), do: []
+
+  defp locale_variants(locale) when is_binary(locale) do
+    normalized = locale |> String.trim() |> String.downcase()
+
+    primary =
+      normalized
+      |> String.split(~r/[-_]/, parts: 2)
+      |> List.first()
+
+    variants =
+      [normalized, primary]
+      |> Enum.reject(&is_nil/1)
+      |> Enum.map(&String.trim/1)
+      |> Enum.reject(&(&1 == ""))
+      |> Enum.map(&Regex.replace(~r/[^a-z0-9]/, &1, "_"))
+      |> Enum.uniq()
+
+    variants
+  end
+
+  defp localized_config_path(base_path, locale) when is_binary(base_path) and is_binary(locale) do
+    ext = Path.extname(base_path)
+
+    if ext == "" do
+      base_path <> "." <> locale
+    else
+      root = String.trim_trailing(base_path, ext)
+      root <> "." <> locale <> ext
     end
   end
 

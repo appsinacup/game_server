@@ -9,6 +9,7 @@ msgstr "no puede estar en blanco"
 
 ## From Ecto.Changeset.unique_constraint/3
 #: lib/game_server_web/i18n/errors_catalog.ex:21
+#: lib/game_server_web/i18n/errors_catalog.ex:21
 #, elixir-autogen
 msgid "has already been taken"
 msgstr "ya ha sido tomado"
@@ -107,30 +108,36 @@ msgid "must be equal to %{number}"
 msgstr "debe ser igual a %{number}"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:18
+#: lib/game_server_web/i18n/errors_catalog.ex:18
 #, elixir-autogen, elixir-format
 msgid "cannot friend yourself"
 msgstr "no puedes agregarte como amigo a ti mismo"
 
+#: lib/game_server_web/i18n/errors_catalog.ex:19
 #: lib/game_server_web/i18n/errors_catalog.ex:19
 #, elixir-autogen, elixir-format
 msgid "did not change"
 msgstr "no cambió"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:20
+#: lib/game_server_web/i18n/errors_catalog.ex:20
 #, elixir-autogen, elixir-format
 msgid "does not exist"
 msgstr "no existe"
 
+#: lib/game_server_web/i18n/errors_catalog.ex:24
 #: lib/game_server_web/i18n/errors_catalog.ex:24
 #, elixir-autogen, elixir-format
 msgid "does not match password"
 msgstr "no coincide con la contraseña"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:22
+#: lib/game_server_web/i18n/errors_catalog.ex:22
 #, elixir-autogen, elixir-format
 msgid "must be lowercase alphanumeric with underscores"
 msgstr "debe ser alfanumérico en minúsculas con guiones bajos"
 
+#: lib/game_server_web/i18n/errors_catalog.ex:23
 #: lib/game_server_web/i18n/errors_catalog.ex:23
 #, elixir-autogen, elixir-format
 msgid "must have the @ sign and no spaces"

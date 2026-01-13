@@ -27,6 +27,28 @@ defmodule GameServer.Theme.JSONConfigTest do
     assert Map.has_key?(theme, "css")
   end
 
+  test "prefers locale-specific config when present" do
+    base =
+      Path.join(System.tmp_dir!(), "theme_test_base_#{System.unique_integer([:positive])}.json")
+
+    localized = String.trim_trailing(base, ".json") <> ".es.json"
+
+    File.write!(base, Jason.encode!(%{"title" => "Base Title", "logo" => "/base.png"}))
+    File.write!(localized, Jason.encode!(%{"title" => "Titulo ES", "logo" => "/es.png"}))
+
+    orig = System.get_env("THEME_CONFIG")
+    System.put_env("THEME_CONFIG", base)
+
+    on_exit(fn ->
+      if orig, do: System.put_env("THEME_CONFIG", orig), else: System.delete_env("THEME_CONFIG")
+      File.rm(base)
+      File.rm(localized)
+    end)
+
+    assert %{"title" => "Titulo ES", "logo" => "/es.png"} = JSONConfig.get_theme("es")
+    assert %{"title" => "Base Title", "logo" => "/base.png"} = JSONConfig.get_theme()
+  end
+
   test "falls back to default when file missing" do
     System.put_env("THEME_CONFIG", "nonexistent.json")
 

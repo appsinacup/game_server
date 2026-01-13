@@ -20,13 +20,13 @@
           fill="#EA4335"
         />
       </svg>
-      {gettext("Google OAuth Setup")}
+      {doc_text("Google OAuth Setup")}
       <a
         href="https://console.cloud.google.com/"
         target="_blank"
         class="btn btn-outline ml-auto"
       >
-        {gettext("Google Cloud Console")}
+        {doc_text("Google Cloud Console")}
         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
@@ -42,7 +42,7 @@
         data-card-key="google_oauth"
         aria-expanded="false"
         class="btn btn-ghost btn-sm"
-        title={gettext("Collapse/Expand")}
+        title={doc_text("Collapse/Expand")}
       >
         <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
           <path
@@ -59,24 +59,24 @@
       <!-- Step 1: Create Google Cloud Project -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">1</span> {gettext("Create Google Cloud Project")}
+          <span class="badge badge-primary">1</span> {doc_text("Create Google Cloud Project")}
         </h3>
         <div class="ml-8 space-y-3">
           <p>
-            {gettext("Go to the")}
+            {doc_text("Go to the")}
             <a
               href="https://console.cloud.google.com/"
               target="_blank"
               class="link link-primary"
             >
-              {gettext("Google Cloud Console")}
+              {doc_text("Google Cloud Console")}
             </a>
           </p>
           <ol class="list-decimal list-inside space-y-2 text-sm">
-            <li>{gettext("Click \"Select a project\" at the top")}</li>
-            <li>{gettext("Click \"New Project\"")}</li>
-            <li>{gettext("Enter a project name (e.g., \"Game Server\")")}</li>
-            <li>{gettext("Click \"Create\"")}</li>
+            <li>{doc_text("Click \"Select a project\" at the top")}</li>
+            <li>{doc_text("Click \"New Project\"")}</li>
+            <li>{doc_text("Enter a project name (e.g., \"Game Server\")")}</li>
+            <li>{doc_text("Click \"Create\"")}</li>
           </ol>
         </div>
       </div>
@@ -84,14 +84,14 @@
 <!-- Step 2: Enable Google+ API -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">2</span> {gettext("Enable Google+ API")}
+          <span class="badge badge-primary">2</span> {doc_text("Enable Google+ API")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>{gettext("In your Google Cloud project:")}</p>
+          <p>{doc_text("In your Google Cloud project:")}</p>
           <ol class="list-decimal list-inside space-y-2 text-sm">
-            <li>{gettext("Go to \"APIs & Services\" → \"Library\"")}</li>
-            <li>{gettext("Search for \"Google+ API\"")}</li>
-            <li>{gettext("Click on it and click \"Enable\"")}</li>
+            <li>{doc_text("Go to \"APIs & Services\" → \"Library\"")}</li>
+            <li>{doc_text("Search for \"Google+ API\"")}</li>
+            <li>{doc_text("Click on it and click \"Enable\"")}</li>
           </ol>
         </div>
       </div>
@@ -99,21 +99,21 @@
 <!-- Step 3: Configure OAuth Consent Screen -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">3</span> {gettext("Configure OAuth Consent Screen")}
+          <span class="badge badge-primary">3</span> {doc_text("Configure OAuth Consent Screen")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>{gettext("Go to \"APIs & Services\" → \"OAuth consent screen\":")}</p>
+          <p>{doc_text("Go to \"APIs & Services\" → \"OAuth consent screen\":")}</p>
           <ol class="list-decimal list-inside space-y-2 text-sm">
-            <li>{gettext("Select \"External\" user type")}</li>
-            <li>{gettext("Click \"Create\"")}</li>
-            <li>{gettext("Fill in app name (e.g., \"Game Server\")")}</li>
-            <li>{gettext("Add your email as user support email")}</li>
-            <li>{gettext("Add authorized domains (e.g., example.com)")}</li>
-            <li>{gettext("Add developer contact email")}</li>
-            <li>{gettext("Click \"Save and Continue\"")}</li>
-            <li>{gettext("Add scopes: email, profile")}</li>
-            <li>{gettext("Click \"Save and Continue\"")}</li>
-            <li>{gettext("Add test users if needed (optional for development)")}</li>
+            <li>{doc_text("Select \"External\" user type")}</li>
+            <li>{doc_text("Click \"Create\"")}</li>
+            <li>{doc_text("Fill in app name (e.g., \"Game Server\")")}</li>
+            <li>{doc_text("Add your email as user support email")}</li>
+            <li>{doc_text("Add authorized domains (e.g., example.com)")}</li>
+            <li>{doc_text("Add developer contact email")}</li>
+            <li>{doc_text("Click \"Save and Continue\"")}</li>
+            <li>{doc_text("Add scopes: email, profile")}</li>
+            <li>{doc_text("Click \"Save and Continue\"")}</li>
+            <li>{doc_text("Add test users if needed (optional for development)")}</li>
           </ol>
         </div>
       </div>
@@ -121,23 +121,23 @@
 <!-- Step 4: Create OAuth Credentials -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">4</span> {gettext("Create OAuth Credentials")}
+          <span class="badge badge-primary">4</span> {doc_text("Create OAuth Credentials")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>{gettext("Go to \"APIs & Services\" → \"Credentials\":")}</p>
+          <p>{doc_text("Go to \"APIs & Services\" → \"Credentials\":")}</p>
           <ol class="list-decimal list-inside space-y-2 text-sm">
-            <li>{gettext("Click \"Create Credentials\" → \"OAuth client ID\"")}</li>
-            <li>{gettext("Select \"Web application\"")}</li>
-            <li>{gettext("Enter a name (e.g., \"Game Server Web\")")}</li>
+            <li>{doc_text("Click \"Create Credentials\" → \"OAuth client ID\"")}</li>
+            <li>{doc_text("Select \"Web application\"")}</li>
+            <li>{doc_text("Enter a name (e.g., \"Game Server Web\")")}</li>
             <li>
-              {gettext("Add authorized redirect URIs:")}<br />
+              {doc_text("Add authorized redirect URIs:")}<br />
               <div class="bg-base-200 p-2 rounded mt-2 font-mono text-xs">
                 <div>Development: http://localhost:4000/auth/google/callback</div>
                 <div>Production: https://example.com/auth/google/callback</div>
               </div>
             </li>
-            <li>{gettext("Click \"Create\"")}</li>
-            <li>{gettext("Copy the Client ID and Client Secret")}</li>
+            <li>{doc_text("Click \"Create\"")}</li>
+            <li>{doc_text("Copy the Client ID and Client Secret")}</li>
           </ol>
         </div>
       </div>
@@ -145,10 +145,10 @@
 <!-- Step 5: Configure Environment Variables -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">5</span> {gettext("Configure Environment Variables")}
+          <span class="badge badge-primary">5</span> {doc_text("Configure Environment Variables")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>{gettext("Set these environment variables:")}</p>
+          <p>{doc_text("Set these environment variables:")}</p>
           <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
             <div class="space-y-2">
               <div>GOOGLE_CLIENT_ID="your_client_id.apps.googleusercontent.com"</div>
@@ -161,15 +161,15 @@
 <!-- Step 6: Test -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">6</span> {gettext("Test Google Login")}
+          <span class="badge badge-primary">6</span> {doc_text("Test Google Login")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>{gettext("After deploying with the secrets:")}</p>
+          <p>{doc_text("After deploying with the secrets:")}</p>
           <ol class="list-decimal list-inside space-y-2 text-sm">
-            <li>{gettext("Go to your app's login page")}</li>
-            <li>{gettext("Click \"Sign in with Google\"")}</li>
-            <li>{gettext("Choose your Google account")}</li>
-            <li>{gettext("You should be redirected back and logged in")}</li>
+            <li>{doc_text("Go to your app's login page")}</li>
+            <li>{doc_text("Click \"Sign in with Google\"")}</li>
+            <li>{doc_text("Choose your Google account")}</li>
+            <li>{doc_text("You should be redirected back and logged in")}</li>
           </ol>
         </div>
       </div>

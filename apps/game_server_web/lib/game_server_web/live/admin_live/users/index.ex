@@ -225,7 +225,7 @@ defmodule GameServerWeb.AdminLive.Users.Index do
 
         {:noreply,
          socket
-         |> put_flash(:info, gettext("User updated successfully"))
+         |> put_flash(:info, "User updated successfully")
          |> assign(:users, users)
          |> assign(:users_total_pages, total_pages)
          |> assign(:selected_user, nil)
@@ -259,13 +259,13 @@ defmodule GameServerWeb.AdminLive.Users.Index do
 
         {:noreply,
          socket
-         |> put_flash(:info, gettext("User deleted successfully"))
+         |> put_flash(:info, "User deleted successfully")
          |> assign(:users, users)
          |> assign(:users_page, page)
          |> assign(:users_total_pages, total_pages)}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, gettext("Failed to delete user"))}
+        {:noreply, put_flash(socket, :error, "Failed to delete user")}
     end
   end
 

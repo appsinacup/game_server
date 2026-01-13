@@ -48,4 +48,28 @@ defmodule GameServerWeb.Plugs.LoadThemeTest do
       do: Application.put_env(:game_server, :theme_module, orig_mod),
       else: Application.delete_env(:game_server, :theme_module)
   end
+
+  test "prefers locale-specific THEME_CONFIG when locale is assigned", %{conn: conn} do
+    base =
+      Path.join(System.tmp_dir!(), "theme_test_plug_#{System.unique_integer([:positive])}.json")
+
+    localized = String.trim_trailing(base, ".json") <> ".es.json"
+
+    File.write!(base, Jason.encode!(%{"title" => "Base Title", "tagline" => "Base"}))
+    File.write!(localized, Jason.encode!(%{"title" => "Titulo ES", "tagline" => "ES"}))
+
+    orig = System.get_env("THEME_CONFIG")
+    System.put_env("THEME_CONFIG", base)
+
+    on_exit(fn ->
+      if orig, do: System.put_env("THEME_CONFIG", orig), else: System.delete_env("THEME_CONFIG")
+      File.rm(base)
+      File.rm(localized)
+    end)
+
+    conn = conn |> Plug.Conn.assign(:locale, "es") |> LoadTheme.call([])
+
+    assert conn.assigns[:theme]["title"] == "Titulo ES"
+    assert conn.assigns[:theme]["tagline"] == "ES"
+  end
 end

@@ -5,13 +5,13 @@
       <svg class="w-12 h-8" viewBox="0 0 24 24" fill="currentColor">
         <path d="M3 3h18v4H3V3zm0 7h18v11H3V10z" />
       </svg>
-      {gettext("Server-side scripting & hooks")}
+      {doc_text("Server-side scripting & hooks")}
       <a
         href="https://appsinacup.com/game_server/GameServer.Hooks.html"
         target="_blank"
         class="btn btn-outline ml-auto"
       >
-        {gettext("Scripting Interface")}
+        {doc_text("Scripting Interface")}
         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
@@ -27,7 +27,7 @@
         data-card-key="server_scripting"
         aria-expanded="false"
         class="btn btn-ghost btn-sm"
-        title={gettext("Collapse/Expand")}
+        title={doc_text("Collapse/Expand")}
       >
         <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
           <path
@@ -42,18 +42,18 @@
 
     <div class="space-y-4">
       <p class="text-sm text-base-content/80">
-        {gettext("The application exposes a lightweight server-side scripting surface via the")}
+        {doc_text("The application exposes a lightweight server-side scripting surface via the")}
         <code class="font-mono">GameServer.Hooks</code>
-        {gettext(
+        {doc_text(
           "behaviour. Hooks let you run custom code on lifecycle events (eg. user register/login, lobby create/update) and optionally expose RPC functions."
         )}
       </p>
 
       <div class="step">
-        <h4 class="font-semibold">{gettext("Add a lifecycle callback")}</h4>
+        <h4 class="font-semibold">{doc_text("Add a lifecycle callback")}</h4>
         <div class="ml-6 mt-2 space-y-2">
           <p>
-            {gettext("Implement the behaviour in a hooks module:")}
+            {doc_text("Implement the behaviour in a hooks module:")}
           </p>
           <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
             <pre><code class="language-elixir" phx-no-curly-interpolation># your_hook_module.ex
@@ -74,11 +74,11 @@ end
       </div>
 
       <div class="step">
-        <h4 class="font-semibold">{gettext("Loading hooks via OTP plugins")}</h4>
+        <h4 class="font-semibold">{doc_text("Loading hooks via OTP plugins")}</h4>
         <div class="ml-6 mt-2 space-y-2">
           <p>
-            {gettext("Hooks are loaded from OTP plugin applications under")}
-            <code class="font-mono">modules/plugins/*</code>. {gettext(
+            {doc_text("Hooks are loaded from OTP plugin applications under")}
+            <code class="font-mono">modules/plugins/*</code>. {doc_text(
               "You can override the plugins directory using:"
             )}
           </p>
@@ -86,26 +86,26 @@ end
             <pre><code class="language-elixir" phx-no-curly-interpolation>GAME_SERVER_PLUGINS_DIR=modules/plugins</code></pre>
           </div>
           <p>
-            {gettext("Each plugin is an OTP app directory with an")}
+            {doc_text("Each plugin is an OTP app directory with an")}
             <code class="font-mono">ebin</code>
-            {gettext("folder containing a")}
+            {doc_text("folder containing a")}
             <code class="font-mono">.app</code>
-            {gettext("file and compiled")}
+            {doc_text("file and compiled")}
             <code class="font-mono">.beam</code>
-            {gettext("modules. The plugin's")}
+            {doc_text("modules. The plugin's")}
             <code class="font-mono">.app</code>
-            {gettext("env must include a")}
+            {doc_text("env must include a")}
             <code class="font-mono">hooks_module</code>
-            {gettext("entry pointing at the module name.")}
+            {doc_text("entry pointing at the module name.")}
           </p>
         </div>
       </div>
 
       <div class="step">
-        <h4 class="font-semibold">{gettext("Exposing an RPC function")}</h4>
+        <h4 class="font-semibold">{doc_text("Exposing an RPC function")}</h4>
         <div class="ml-6 mt-2 space-y-2">
           <p>
-            {gettext("Hooks modules can also export arbitrary functions:")}
+            {doc_text("Hooks modules can also export arbitrary functions:")}
           </p>
 
           <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
@@ -117,7 +117,7 @@ end
   end
 end</code></pre>
           </div>
-          {gettext(
+          {doc_text(
             "You can now call this function via the API (or better yet from the client SDK's), eg:"
           )}
           <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
@@ -128,46 +128,46 @@ end</code></pre>
       </div>
 
       <div class="step">
-        <h4 class="font-semibold">{gettext("Best practices & pitfalls")}</h4>
+        <h4 class="font-semibold">{doc_text("Best practices & pitfalls")}</h4>
         <div class="ml-6 mt-2 space-y-2 text-sm text-base-content/80">
           <ul class="list-disc pl-5">
             <li>
-              {gettext(
+              {doc_text(
                 "Keep hooks fast and resilient — avoid long blocking work in the main request path. Use"
               )}
               <code class="font-mono">Task.start</code>
-              {gettext("for background processing.")}
+              {doc_text("for background processing.")}
             </li>
             <li>
-              {gettext("When returning values from lifecycle hooks, prefer a")}
+              {doc_text("When returning values from lifecycle hooks, prefer a")}
               <code class="font-mono" phx-no-curly-interpolation>{:ok, map}</code>
-              {gettext("shape for \"before\" hooks that may modify attrs. Return")}
+              {doc_text("shape for \"before\" hooks that may modify attrs. Return")}
               <code class="font-mono" phx-no-curly-interpolation>{:error, reason}</code>
-              {gettext("to reject flows; domain code will convert to")}
+              {doc_text("to reject flows; domain code will convert to")}
               <code
                 class="font-mono"
                 phx-no-curly-interpolation
               >{:hook_rejected, reason}</code>.
             </li>
             <li>
-              {gettext(
+              {doc_text(
                 "Do not return structs as hook results intended to be used as params — always return plain maps when you intend to pass modified params into changesets."
               )}
             </li>
             <li>
-              {gettext("Tests that modify global plugin configuration (eg.")}
+              {doc_text("Tests that modify global plugin configuration (eg.")}
               <code class="font-mono">GAME_SERVER_PLUGINS_DIR</code>
-              {gettext(") should run serially")} (<code class="font-mono">async: false</code>) and restore env via
+              {doc_text(") should run serially")} (<code class="font-mono">async: false</code>) and restore env via
               <code class="font-mono">on_exit</code>
-              {gettext("to avoid cross-test races.")}
+              {doc_text("to avoid cross-test races.")}
             </li>
             <li>
-              {gettext(
+              {doc_text(
                 "Be careful modifying user or lobby data from hooks — reuse high-level domain functions (eg."
               )}
               <code class="font-mono">GameServer.Accounts.update_user/2</code>,
               <code class="font-mono">GameServer.Lobbies.update_lobby/2</code>
-              {gettext(") so changes are validated and broadcast consistently.")}
+              {doc_text(") so changes are validated and broadcast consistently.")}
             </li>
           </ul>
         </div>

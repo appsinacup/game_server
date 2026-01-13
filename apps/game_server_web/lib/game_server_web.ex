@@ -86,6 +86,8 @@ defmodule GameServerWeb do
       # Translation
       use Gettext, backend: GameServerWeb.Gettext
 
+      import GameServerWeb.DocText, only: [doc_text: 1, doc_text: 2]
+
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components

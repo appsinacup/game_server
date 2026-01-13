@@ -213,19 +213,16 @@ defmodule GameServerWeb.AdminLive.Sessions do
     socket =
       cond do
         failed == 0 ->
-          put_flash(socket, :info, gettext("Deleted %{deleted} sessions", deleted: deleted))
+          put_flash(socket, :info, "Deleted #{deleted} sessions")
 
         deleted == 0 ->
-          put_flash(socket, :error, gettext("Failed to delete selected sessions"))
+          put_flash(socket, :error, "Failed to delete selected sessions")
 
         true ->
           put_flash(
             socket,
             :error,
-            gettext("Deleted %{deleted} sessions; failed %{failed}",
-              deleted: deleted,
-              failed: failed
-            )
+            "Deleted #{deleted} sessions; failed #{failed}"
           )
       end
 
@@ -262,7 +259,7 @@ defmodule GameServerWeb.AdminLive.Sessions do
 
         {:noreply,
          socket
-         |> put_flash(:info, gettext("Token deleted successfully"))
+         |> put_flash(:info, "Token deleted successfully")
          |> assign(:sessions_count, sessions_count)
          |> assign(:recent_sessions, recent_sessions)
          |> assign(:sessions_page, page)
@@ -270,7 +267,7 @@ defmodule GameServerWeb.AdminLive.Sessions do
          |> sync_selected_ids(session_ids(recent_sessions))}
 
       {:error, _changeset} ->
-        {:noreply, put_flash(socket, :error, gettext("Failed to delete token"))}
+        {:noreply, put_flash(socket, :error, "Failed to delete token")}
     end
   end
 

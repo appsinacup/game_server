@@ -472,19 +472,16 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
     socket =
       cond do
         failed == 0 ->
-          put_flash(socket, :info, gettext("Deleted %{deleted} leaderboards", deleted: deleted))
+          put_flash(socket, :info, "Deleted #{deleted} leaderboards")
 
         deleted == 0 ->
-          put_flash(socket, :error, gettext("Failed to delete selected leaderboards"))
+          put_flash(socket, :error, "Failed to delete selected leaderboards")
 
         true ->
           put_flash(
             socket,
             :error,
-            gettext("Deleted %{deleted} leaderboards; failed %{failed}",
-              deleted: deleted,
-              failed: failed
-            )
+            "Deleted #{deleted} leaderboards; failed #{failed}"
           )
       end
 
@@ -579,7 +576,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
       {:ok, _lb} ->
         {:noreply,
          socket
-         |> put_flash(:info, gettext("Leaderboard saved"))
+         |> put_flash(:info, "Leaderboard saved")
          |> assign(:selected_leaderboard, nil)
          |> assign(:form, nil)
          |> reload_leaderboards()}
@@ -594,11 +591,11 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
       {:ok, _lb} ->
         {:noreply,
          socket
-         |> put_flash(:info, gettext("Leaderboard ended"))
+         |> put_flash(:info, "Leaderboard ended")
          |> reload_leaderboards()}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, gettext("Failed to end leaderboard"))}
+        {:noreply, put_flash(socket, :error, "Failed to end leaderboard")}
     end
   end
 
@@ -609,11 +606,11 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
       {:ok, _} ->
         {:noreply,
          socket
-         |> put_flash(:info, gettext("Leaderboard deleted"))
+         |> put_flash(:info, "Leaderboard deleted")
          |> reload_leaderboards()}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, gettext("Failed to delete leaderboard"))}
+        {:noreply, put_flash(socket, :error, "Failed to delete leaderboard")}
     end
   end
 
@@ -708,7 +705,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
       {:ok, _} ->
         {:noreply,
          socket
-         |> put_flash(:info, gettext("Record saved"))
+         |> put_flash(:info, "Record saved")
          |> assign(:editing_record, nil)
          |> assign(:record_form, nil)
          |> reload_records()}
@@ -725,11 +722,11 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
       {:ok, _} ->
         {:noreply,
          socket
-         |> put_flash(:info, gettext("Record deleted"))
+         |> put_flash(:info, "Record deleted")
          |> reload_records()}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, gettext("Failed to delete record"))}
+        {:noreply, put_flash(socket, :error, "Failed to delete record")}
     end
   end
 

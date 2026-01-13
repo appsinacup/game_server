@@ -15,9 +15,9 @@
           d="M4 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM4 14a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2z"
         />
       </svg>
-      {gettext("Cache Setup")}
+      {"Cache Setup"}
       <a href="/admin/config" class="btn btn-outline ml-auto">
-        {gettext("View Effective Config")}
+        {"View Effective Config"}
         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
@@ -33,7 +33,7 @@
         data-card-key="cache_config"
         aria-expanded="false"
         class="btn btn-ghost btn-sm"
-        title={gettext("Collapse/Expand")}
+        title="Collapse/Expand"
       >
         <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
           <path
@@ -48,12 +48,10 @@
 
     <div class="space-y-6">
       <div class="step">
-        <h3 class="text-lg font-semibold mb-3">{gettext("Defaults")}</h3>
+        <h3 class="text-lg font-semibold mb-3">{"Defaults"}</h3>
         <div class="ml-8 space-y-3">
           <p>
-            {gettext(
-              "By default, production runs a single-level local cache (fastest for a single instance)."
-            )}
+            {"By default, production runs a single-level local cache (fastest for a single instance)."}
           </p>
           <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
             <div class="space-y-2">
@@ -64,9 +62,9 @@
             </div>
           </div>
           <p class="text-sm text-base-content/70">
-            {gettext("Tip:")}
+            {"Tip:"}
             <code>CACHE_L2</code>
-            {gettext("only matters when")}
+            {"only matters when"}
             <code>CACHE_MODE=multi</code>.
           </p>
         </div>
@@ -74,10 +72,10 @@
 
       <div class="step">
         <h3 class="text-lg font-semibold mb-3">
-          {gettext("Single Instance (recommended default)")}
+          {"Single Instance (recommended default)"}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>{gettext("Use a single local cache level:")}</p>
+          <p>{"Use a single local cache level:"}</p>
           <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
             <div class="space-y-2">
               <div>CACHE_MODE=single</div>
@@ -88,11 +86,9 @@
       </div>
 
       <div class="step">
-        <h3 class="text-lg font-semibold mb-3">{gettext("Multiple Instances (near-cache)")}</h3>
+        <h3 class="text-lg font-semibold mb-3">{"Multiple Instances (near-cache)"}</h3>
         <div class="ml-8 space-y-3">
-          <p>
-            {gettext("Enable a two-level cache: L1 local + L2 shared/sharded.")}
-          </p>
+          <p>{"Enable a two-level cache: L1 local + L2 shared/sharded."}</p>
           <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
             <div class="space-y-2">
               <div>CACHE_MODE=multi</div>
@@ -104,23 +100,19 @@
             </div>
           </div>
           <p class="text-sm text-base-content/70">
-            {gettext(
-              "Redis is shared across nodes. Partitioned requires Erlang clustering between nodes."
-            )}
+            {"Redis is shared across nodes. Partitioned requires Erlang clustering between nodes."}
           </p>
         </div>
       </div>
 
       <div class="step">
         <h3 class="text-lg font-semibold mb-3">
-          {gettext("Partitioned Cache Setup (Erlang cluster for partitioned L2)")}
+          {"Partitioned Cache Setup (Erlang cluster for partitioned L2)"}
         </h3>
         <div class="ml-8 space-y-3">
           <p>
-            {gettext("If you use")}
-            <code>CACHE_L2=partitioned</code>, {gettext(
-              "nodes must be able to connect to each other via Erlang distribution."
-            )}
+            {"If you use"}
+            <code>CACHE_L2=partitioned</code>, {"nodes must be able to connect to each other via Erlang distribution."}
           </p>
           <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
             <div class="space-y-2">
@@ -131,14 +123,12 @@
             </div>
           </div>
           <p class="text-sm text-base-content/70">
-            <strong>{gettext("Notes:")}</strong>
+            <strong>{"Notes:"}</strong>
             <span class="ml-1">
-              {gettext("All nodes must share the same")}
-              <code>RELEASE_COOKIE</code>, {gettext("and each node must have a unique")}
-              <code>RELEASE_NODE</code>. {gettext("If you use")}
-              <code>CACHE_L2=redis</code>, {gettext(
-                "you typically do not need Erlang clustering."
-              )}
+              {"All nodes must share the same"}
+              <code>RELEASE_COOKIE</code>, {"and each node must have a unique"}
+              <code>RELEASE_NODE</code>. {"If you use"}
+              <code>CACHE_L2=redis</code>, {"you typically do not need Erlang clustering."}
             </span>
           </p>
         </div>

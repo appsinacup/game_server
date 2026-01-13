@@ -15,9 +15,9 @@
           d="M4 10h4v10H4V10zm6-6h4v16h-4V4zm6 10h4v6h-4v-6z"
         />
       </svg>
-      {gettext("Scaling")}
+      {doc_text("Scaling")}
       <a href="/admin/config" class="btn btn-outline ml-auto">
-        {gettext("Verify Runtime")}
+        {doc_text("Verify Runtime")}
         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
@@ -33,7 +33,7 @@
         data-card-key="scaling"
         aria-expanded="false"
         class="btn btn-ghost btn-sm"
-        title={gettext("Collapse/Expand")}
+        title={doc_text("Collapse/Expand")}
       >
         <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 8l4 4 4-4" />
@@ -43,18 +43,18 @@
 
     <div class="space-y-6">
       <div class="step">
-        <h3 class="text-lg font-semibold mb-3">{gettext("1 instance vs multiple instances")}</h3>
+        <h3 class="text-lg font-semibold mb-3">{doc_text("1 instance vs multiple instances")}</h3>
         <div class="ml-8 space-y-3">
           <p>
-            <strong>{gettext("Single instance")}</strong>
-            {gettext(
+            <strong>{doc_text("Single instance")}</strong>
+            {doc_text(
               "is the simplest and the default. When you scale out to multiple instances, you typically need:"
             )}
           </p>
           <ul class="list-disc ml-5 text-sm text-base-content/80 space-y-1">
-            <li>{gettext("A shared database (PostgreSQL recommended)")}</li>
+            <li>{doc_text("A shared database (PostgreSQL recommended)")}</li>
             <li>
-              {gettext(
+              {doc_text(
                 "A shared cache (Redis recommended since L2 doesn't require Erlang distribution)"
               )}
             </li>
@@ -64,11 +64,11 @@
 
       <div class="step">
         <h3 class="text-lg font-semibold mb-3">
-          {gettext("Docker Compose (local / self-host)")}
+          {doc_text("Docker Compose (local / self-host)")}
         </h3>
         <div class="ml-8 space-y-3">
           <p>
-            {gettext("Docker Compose is a simple way to run the app with PostgreSQL and Redis.")}
+            {doc_text("Docker Compose is a simple way to run the app with PostgreSQL and Redis.")}
           </p>
 
           <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
@@ -84,9 +84,9 @@
           </div>
 
           <p class="text-sm text-base-content/70">
-            {gettext("If you want to use")}
+            {doc_text("If you want to use")}
             <code>CACHE_L2=partitioned</code>
-            {gettext(
+            {doc_text(
               "under Compose, you also need to configure Erlang distribution + node discovery for your app containers."
             )}
           </p>

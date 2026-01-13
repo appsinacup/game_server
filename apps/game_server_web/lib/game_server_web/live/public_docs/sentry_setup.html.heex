@@ -6,13 +6,13 @@
         <path d="M13.632 2.286c.176.08.293.245.293.438v1.34c1.725.447 3.013 1.816 3.013 3.482 0 1.946-1.58 3.527-3.526 3.527-.948 0-1.814-.386-2.446-1.01-.632.624-1.498 1.01-2.446 1.01C6.58 11.073 5 9.492 5 7.546c0-1.666 1.288-3.035 3.013-3.482V2.724c0-.193.117-.358.293-.438L9.6 1.2c.176-.08.39-.08.566 0l1.466.666z" />
         <path d="M12 14.5c-1.38 0-2.5 1.12-2.5 2.5v7c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5v-7c0-1.38-1.12-2.5-2.5-2.5z" />
       </svg>
-      {gettext("Sentry Setup")}
+      {doc_text("Sentry Setup")}
       <a
         href="https://sentry.io"
         target="_blank"
         class="btn btn-outline ml-auto"
       >
-        {gettext("Sentry Dashboard")}
+        {doc_text("Sentry Dashboard")}
         <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
@@ -28,7 +28,7 @@
         data-card-key="sentry_setup"
         aria-expanded="false"
         class="btn btn-ghost btn-sm"
-        title={gettext("Collapse/Expand")}
+        title={doc_text("Collapse/Expand")}
       >
         <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
           <path
@@ -45,24 +45,24 @@
       <!-- Step 1: Create Sentry Project -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">1</span> {gettext("Create Sentry Project")}
+          <span class="badge badge-primary">1</span> {doc_text("Create Sentry Project")}
         </h3>
         <div class="ml-8 space-y-3">
           <p>
-            {gettext("Go to the")}
+            {doc_text("Go to the")}
             <a
               href="https://sentry.io"
               target="_blank"
               class="link link-primary"
             >
-              {gettext("Sentry Dashboard")}
+              {doc_text("Sentry Dashboard")}
             </a>
           </p>
           <ol class="list-decimal list-inside space-y-2 text-sm">
-            <li>{gettext("Sign up or log in to Sentry")}</li>
-            <li>{gettext("Create a new project")}</li>
-            <li>{gettext("Select \"Phoenix\" or \"Elixir\" as the platform")}</li>
-            <li>{gettext("Name your project (e.g., \"Game Server\")")}</li>
+            <li>{doc_text("Sign up or log in to Sentry")}</li>
+            <li>{doc_text("Create a new project")}</li>
+            <li>{doc_text("Select \"Phoenix\" or \"Elixir\" as the platform")}</li>
+            <li>{doc_text("Name your project (e.g., \"Game Server\")")}</li>
           </ol>
         </div>
       </div>
@@ -70,16 +70,16 @@
 <!-- Step 2: Get DSN -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">2</span> {gettext("Get Your DSN")}
+          <span class="badge badge-primary">2</span> {doc_text("Get Your DSN")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>{gettext("After creating the project, copy the DSN from the settings:")}</p>
+          <p>{doc_text("After creating the project, copy the DSN from the settings:")}</p>
           <ol class="list-decimal list-inside space-y-2 text-sm">
-            <li>{gettext("Go to Project Settings → Client Keys (DSN)")}</li>
-            <li>{gettext("Copy the DSN value")}</li>
+            <li>{doc_text("Go to Project Settings → Client Keys (DSN)")}</li>
+            <li>{doc_text("Copy the DSN value")}</li>
           </ol>
           <div class="bg-base-200 p-4 rounded-lg">
-            <div class="font-semibold mb-2">{gettext("DSN Format")}</div>
+            <div class="font-semibold mb-2">{doc_text("DSN Format")}</div>
             <div class="font-mono text-xs bg-base-300 p-2 rounded">
               https://your-dsn@sentry.io/project-id
             </div>
@@ -90,10 +90,10 @@
 <!-- Step 3: Configure Environment Variable -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">3</span> {gettext("Set Environment Variable")}
+          <span class="badge badge-primary">3</span> {doc_text("Set Environment Variable")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>{gettext("Set the SENTRY_DSN environment variable:")}</p>
+          <p>{doc_text("Set the SENTRY_DSN environment variable:")}</p>
           <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
             <div class="space-y-2">
               <div>SENTRY_DSN="https://your-dsn@sentry.io/project-id"</div>
@@ -105,20 +105,20 @@
 <!-- Step 4: Deploy and Test -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">4</span> {gettext("Deploy and Test")}
+          <span class="badge badge-primary">4</span> {doc_text("Deploy and Test")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>{gettext("After deploying with the DSN:")}</p>
+          <p>{doc_text("After deploying with the DSN:")}</p>
           <ol class="list-decimal list-inside space-y-2 text-sm">
-            <li>{gettext("Deploy your application")}</li>
+            <li>{doc_text("Deploy your application")}</li>
             <li>
-              {gettext("Check the admin config page - Sentry should show as \"Configured\"")}
+              {doc_text("Check the admin config page - Sentry should show as \"Configured\"")}
             </li>
             <li>
-              {gettext("Test error reporting by running:")}
+              {doc_text("Test error reporting by running:")}
               <code>mix sentry.send_test_event</code>
             </li>
-            <li>{gettext("Check your Sentry dashboard for the test event")}</li>
+            <li>{doc_text("Check your Sentry dashboard for the test event")}</li>
           </ol>
         </div>
       </div>

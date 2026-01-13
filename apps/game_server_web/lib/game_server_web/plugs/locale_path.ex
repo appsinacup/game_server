@@ -10,21 +10,6 @@ defmodule GameServerWeb.Plugs.LocalePath do
   # If you add locales, add them here too.
   @known_locales ["en", "es"]
 
-  @excluded_prefixes [
-    "assets",
-    "api",
-    "auth",
-    "dev",
-    "live",
-    "socket",
-    "locale",
-    "phoenix"
-  ]
-
-  @excluded_paths [
-    ["admin", "dashboard"]
-  ]
-
   def init(opts), do: opts
 
   def call(conn, _opts) do
@@ -48,7 +33,7 @@ defmodule GameServerWeb.Plugs.LocalePath do
   defp maybe_extract_locale_prefix(%Plug.Conn{path_info: [first | rest]} = conn)
        when first in @known_locales do
     # Extract locale from URL, rewrite path, store in session
-    script_name = conn.script_name ++ [first]
+    script_name = conn.script_name |> :lists.reverse() |> then(&[first | &1]) |> :lists.reverse()
 
     conn = %{conn | script_name: script_name, path_info: rest}
     {conn, first}
