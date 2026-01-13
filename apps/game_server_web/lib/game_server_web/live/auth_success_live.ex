@@ -36,7 +36,7 @@ defmodule GameServerWeb.AuthSuccessLive do
              session_id: session_id,
              session_data: %{
                status: "completed",
-               message: "Authentication completed - you can close this window."
+               message: gettext("Authentication completed - you can close this window.")
              }
            )}
         else
@@ -56,15 +56,15 @@ defmodule GameServerWeb.AuthSuccessLive do
               <h2 class="mt-6 text-center text-3xl font-extrabold">
                 <%= case @session_data.status do %>
                   <% "completed" -> %>
-                    🎉 Authentication Successful!
+                    {"🎉 " <> gettext("Authentication Successful!")}
                   <% "conflict" -> %>
-                    ⚠️ Account Conflict
+                    {"⚠️ " <> gettext("Account Conflict")}
                   <% "error" -> %>
-                    ❌ Authentication Failed
+                    {"❌ " <> gettext("Authentication Failed")}
                   <% "not_found" -> %>
-                    ❓ Session Not Found
+                    {"❓ " <> gettext("Session Not Found")}
                   <% _ -> %>
-                    🔄 Processing...
+                    {"🔄 " <> gettext("Processing...")}
                 <% end %>
               </h2>
 
@@ -84,22 +84,26 @@ defmodule GameServerWeb.AuthSuccessLive do
                         </div>
                         <div class="ml-3">
                           <h3 class="text-sm font-medium text-green-800">
-                            OAuth authentication completed successfully!
+                            {gettext("OAuth authentication completed successfully!")}
                           </h3>
                           <div class="mt-2 text-sm text-green-700">
-                            <p>You can now close this window and return to your application.</p>
+                            <p>
+                              {gettext(
+                                "You can now close this window and return to your application."
+                              )}
+                            </p>
                             <p
                               id="auto-close"
                               phx-hook="AutoClose"
                               phx-update="ignore"
                               class="mt-1 text-xs text-green-600"
                             >
-                              This window will close in 3s...
+                              {gettext("This window will close in 3s...")}
                             </p>
                             <% message =
                               Map.get(@session_data, "message") || Map.get(@session_data, :message) %>
                             <%= if message do %>
-                              <p class="mt-1"><strong>Message:</strong> {message}</p>
+                              <p class="mt-1"><strong>{gettext("Message:")}</strong> {message}</p>
                             <% end %>
                           </div>
                         </div>
@@ -119,12 +123,18 @@ defmodule GameServerWeb.AuthSuccessLive do
                         </div>
                         <div class="ml-3">
                           <h3 class="text-sm font-medium text-yellow-800">
-                            Account already linked to another user
+                            {gettext("Account already linked to another user")}
                           </h3>
                           <div class="mt-2 text-sm text-yellow-700">
-                            <p>This OAuth account is already linked to another user account.</p>
+                            <p>
+                              {gettext(
+                                "This OAuth account is already linked to another user account."
+                              )}
+                            </p>
                             <p class="mt-1">
-                              Please contact support or try logging in with a different method.
+                              {gettext(
+                                "Please contact support or try logging in with a different method."
+                              )}
                             </p>
                           </div>
                         </div>
@@ -144,15 +154,15 @@ defmodule GameServerWeb.AuthSuccessLive do
                         </div>
                         <div class="ml-3">
                           <h3 class="text-sm font-medium text-red-800">
-                            Authentication failed
+                            {gettext("Authentication failed")}
                           </h3>
                           <div class="mt-2 text-sm text-red-700">
-                            <p>There was an error during authentication.</p>
+                            <p>{gettext("There was an error during authentication.")}</p>
                             <% details =
                               Map.get(@session_data, "details") || Map.get(@session_data, :details) %>
                             <%= if details do %>
                               <p class="mt-1">
-                                <strong>Details:</strong> {inspect(details)}
+                                <strong>{gettext("Details:")}</strong> {inspect(details)}
                               </p>
                             <% end %>
                           </div>
@@ -173,12 +183,12 @@ defmodule GameServerWeb.AuthSuccessLive do
                         </div>
                         <div class="ml-3">
                           <h3 class="text-sm font-medium text-gray-800">
-                            Session not found
+                            {gettext("Session not found")}
                           </h3>
                           <div class="mt-2 text-sm text-gray-700">
-                            <p>The authentication session could not be found.</p>
+                            <p>{gettext("The authentication session could not be found.")}</p>
                             <p class="mt-1">
-                              This may be due to an expired session or an invalid link.
+                              {gettext("This may be due to an expired session or an invalid link.")}
                             </p>
                           </div>
                         </div>
@@ -189,10 +199,10 @@ defmodule GameServerWeb.AuthSuccessLive do
                       <div class="flex">
                         <div class="ml-3">
                           <h3 class="text-sm font-medium text-blue-800">
-                            Processing authentication...
+                            {gettext("Processing authentication...")}
                           </h3>
                           <div class="mt-2 text-sm text-blue-700">
-                            <p>Please wait while we complete your authentication.</p>
+                            <p>{gettext("Please wait while we complete your authentication.")}</p>
                           </div>
                         </div>
                       </div>

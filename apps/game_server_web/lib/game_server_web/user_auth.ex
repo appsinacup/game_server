@@ -246,7 +246,11 @@ defmodule GameServerWeb.UserAuth do
       socket =
         socket
         |> Phoenix.LiveView.put_flash(:error, gettext("You must log in to access this page."))
-        |> Phoenix.LiveView.redirect(to: ~p"/users/log-in")
+        # This on_mount runs under the :require_authenticated_user live_session,
+        # while the log-in LiveView lives under the :current_user live_session.
+        # Forcing an external redirect avoids the client-side "unauthorized live_redirect"
+        # warning and performs a clean full page navigation.
+        |> Phoenix.LiveView.redirect(external: ~p"/users/log-in")
 
       {:halt, socket}
     end
@@ -265,7 +269,7 @@ defmodule GameServerWeb.UserAuth do
           :error,
           gettext("You must be an admin to access this page.")
         )
-        |> Phoenix.LiveView.redirect(to: ~p"/")
+        |> Phoenix.LiveView.redirect(external: ~p"/")
 
       {:halt, socket}
     end
@@ -283,7 +287,8 @@ defmodule GameServerWeb.UserAuth do
           :error,
           gettext("You must re-authenticate to access this page.")
         )
-        |> Phoenix.LiveView.redirect(to: ~p"/users/log-in")
+        # See :require_authenticated above for why this must be an external redirect.
+        |> Phoenix.LiveView.redirect(external: ~p"/users/log-in")
 
       {:halt, socket}
     end

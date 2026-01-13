@@ -248,9 +248,9 @@ defmodule GameServer.Hooks.PluginManager do
   defp load_plugins_from_disk do
     dir = plugins_dir()
 
-    if File.dir?(dir) do
-      dir
-      |> File.ls!()
+    with true <- File.dir?(dir),
+         {:ok, entries} <- File.ls(dir) do
+      entries
       |> Enum.map(&Path.join(dir, &1))
       |> Enum.filter(&File.dir?/1)
       |> Enum.map(&Path.basename/1)
@@ -260,7 +260,7 @@ defmodule GameServer.Hooks.PluginManager do
         Map.put(acc, plugin_name, plugin)
       end)
     else
-      %{}
+      _ -> %{}
     end
   end
 

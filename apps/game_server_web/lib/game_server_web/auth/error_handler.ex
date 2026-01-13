@@ -16,8 +16,14 @@ defmodule GameServerWeb.Auth.ErrorHandler do
     |> send_resp(401, body)
   end
 
-  defp error_message(:invalid_token), do: "Invalid authentication token"
-  defp error_message(:token_expired), do: "Authentication token expired"
-  defp error_message(:unauthenticated), do: "Authentication required"
-  defp error_message(_), do: "Authentication failed"
+  defp error_message(:invalid_token),
+    do: Gettext.gettext(GameServerWeb.Gettext, "Invalid authentication token")
+
+  defp error_message(:token_expired),
+    do: Gettext.gettext(GameServerWeb.Gettext, "Authentication token expired")
+
+  defp error_message(:unauthenticated),
+    do: Gettext.gettext(GameServerWeb.Gettext, "Authentication required")
+
+  defp error_message(_), do: Gettext.gettext(GameServerWeb.Gettext, "Authentication failed")
 end

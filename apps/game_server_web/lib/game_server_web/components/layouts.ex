@@ -34,6 +34,12 @@ defmodule GameServerWeb.Layouts do
   slot :inner_block, required: true
 
   def app(assigns) do
+    # Extract current path for locale switcher
+    conn = Map.get(assigns, :conn)
+    current_path = if conn, do: conn.request_path, else: "/"
+    current_query = if conn, do: conn.query_string, else: ""
+    assigns = assign(assigns, current_path: current_path, current_query: current_query)
+
     ~H"""
     <header class="navbar px-4 sm:px-6 lg:px-8">
       <% provider_theme = GameServer.Theme.JSONConfig.get_theme() || %{} %>
@@ -48,7 +54,7 @@ defmodule GameServerWeb.Layouts do
       <% title = Map.get(theme, "title") %>
       <% tagline = Map.get(theme, "tagline") %>
       <div class="flex-1">
-        <a href="/" class="flex-1 flex w-fit items-center gap-2">
+        <a href={~p"/"} class="flex-1 flex w-fit items-center gap-2">
           <img src={Map.get(theme, "logo")} width="36" alt={title} />
           <span class="text-sm font-semibold">{title}</span>
           <%= if tagline && tagline != "" do %>
@@ -230,10 +236,24 @@ defmodule GameServerWeb.Layouts do
 
   defp language_dropdown(assigns) do
     locale = Gettext.get_locale(GameServerWeb.Gettext) || "en"
+    current_path = Map.get(assigns, :current_path, "/")
+    current_query = Map.get(assigns, :current_query, "")
+
+    base_path = strip_locale_prefix(current_path)
+
+    query_suffix =
+      if is_binary(current_query) and current_query != "", do: "?" <> current_query, else: ""
+
+    english_href = base_path <> query_suffix
+
+    spanish_href =
+      if(base_path == "/", do: "/es", else: "/es" <> base_path) <> query_suffix
 
     assigns =
       assign(assigns,
         locale: locale,
+        english_href: english_href,
+        spanish_href: spanish_href,
         label:
           case locale do
             "es" -> "Español"
@@ -251,12 +271,18 @@ defmodule GameServerWeb.Layouts do
         class="menu menu-sm dropdown-content mt-2 z-[1] p-2 shadow bg-base-100 rounded-box"
       >
         <li>
-          <a href={~p"/locale/en"} class={["whitespace-nowrap", @locale == "en" && "active"]}>
+          <a
+            href={@english_href}
+            class={["whitespace-nowrap", @locale == "en" && "active"]}
+          >
             English
           </a>
         </li>
         <li>
-          <a href={~p"/locale/es"} class={["whitespace-nowrap", @locale == "es" && "active"]}>
+          <a
+            href={@spanish_href}
+            class={["whitespace-nowrap", @locale == "es" && "active"]}
+          >
             Español
           </a>
         </li>
@@ -264,6 +290,23 @@ defmodule GameServerWeb.Layouts do
     </div>
     """
   end
+
+  defp strip_locale_prefix(path) when is_binary(path) do
+    segments = String.split(path, "/", trim: true)
+
+    case segments do
+      [first | rest] when first in ["en", "es"] ->
+        case rest do
+          [] -> "/"
+          _ -> "/" <> Enum.join(rest, "/")
+        end
+
+      _ ->
+        if String.starts_with?(path, "/"), do: path, else: "/"
+    end
+  end
+
+  defp strip_locale_prefix(_), do: "/"
 
   defp app_version do
     # Prefer CI-injected APP_VERSION when present, otherwise fall back to the

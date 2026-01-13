@@ -28,19 +28,23 @@ defmodule GameServer.Hooks.PluginBuilder do
 
   @spec list_buildable_plugins() :: [String.t()]
   def list_buildable_plugins do
-    dir = sources_dir()
+    case sources_dir() do
+      dir when is_binary(dir) ->
+        with true <- File.dir?(dir),
+             {:ok, entries} <- File.ls(dir) do
+          entries
+          |> Enum.map(&Path.join(dir, &1))
+          |> Enum.filter(fn p ->
+            File.dir?(p) and File.exists?(Path.join(p, "mix.exs"))
+          end)
+          |> Enum.map(&Path.basename/1)
+          |> Enum.sort()
+        else
+          _ -> []
+        end
 
-    if dir && File.dir?(dir) do
-      dir
-      |> File.ls!()
-      |> Enum.map(&Path.join(dir, &1))
-      |> Enum.filter(fn p ->
-        File.dir?(p) and File.exists?(Path.join(p, "mix.exs"))
-      end)
-      |> Enum.map(&Path.basename/1)
-      |> Enum.sort()
-    else
-      []
+      _ ->
+        []
     end
   end
 

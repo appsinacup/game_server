@@ -999,7 +999,7 @@ defmodule GameServerWeb.UserLive.Settings do
             {:noreply,
              socket
              |> put_flash(:info, gettext("Your account has been deleted successfully."))
-             |> redirect(to: ~p"/")}
+             |> Phoenix.LiveView.redirect(external: ~p"/")}
 
           {:error, _changeset} ->
             {:noreply,

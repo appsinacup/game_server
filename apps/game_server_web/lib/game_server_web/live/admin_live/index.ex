@@ -17,87 +17,93 @@ defmodule GameServerWeb.AdminLive.Index do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="space-y-6">
         <.header>
-          Admin Dashboard
-          <:subtitle>System administration</:subtitle>
+          {gettext("Admin Dashboard")}
+          <:subtitle>{gettext("System administration")}</:subtitle>
         </.header>
 
         <div class="flex gap-4 flex-wrap">
           <.link navigate={~p"/admin/config"} class="btn btn-primary">
-            Configuration
+            {gettext("Configuration")}
           </.link>
           <.link navigate={~p"/admin/kv"} class="btn btn-primary">
-            KV ({@kv_count})
+            {gettext("KV")} ({@kv_count})
           </.link>
           <.link navigate={~p"/admin/users"} class="btn btn-primary">
-            Users ({@users_count})
+            {gettext("Users")} ({@users_count})
           </.link>
           <.link navigate={~p"/admin/lobbies"} class="btn btn-primary">
-            Lobbies ({@lobbies_count})
+            {gettext("Lobbies")} ({@lobbies_count})
           </.link>
           <.link navigate={~p"/admin/leaderboards"} class="btn btn-primary">
-            Leaderboards ({@leaderboards_count})
+            {gettext("Leaderboards")} ({@leaderboards_count})
           </.link>
           <.link navigate={~p"/admin/sessions"} class="btn btn-primary">
-            Tokens ({@sessions_count})
+            {gettext("Tokens")} ({@sessions_count})
           </.link>
         </div>
 
         <div class="card bg-base-200">
           <div class="card-body">
-            <h2 class="card-title">Overview</h2>
+            <h2 class="card-title">{gettext("Overview")}</h2>
             <p>
-              Welcome to the admin dashboard. Use the buttons above to navigate to different sections.
+              {gettext(
+                "Welcome to the admin dashboard. Use the buttons above to navigate to different sections."
+              )}
             </p>
 
             <div class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
               <div class="card bg-base-100 p-4">
-                <div class="text-sm font-semibold mb-2">Users</div>
+                <div class="text-sm font-semibold mb-2">{gettext("Users")}</div>
                 <div class="text-2xl font-bold">{@users_count}</div>
                 <div class="text-xs text-base-content/60 mt-2 space-y-1">
-                  <div>With password: {@users_password}</div>
-                  <div>Google: {@users_google}</div>
-                  <div>Facebook: {@users_facebook}</div>
-                  <div>Discord: {@users_discord}</div>
-                  <div>Apple: {@users_apple}</div>
-                  <div>Steam: {@users_steam}</div>
-                  <div>Device-linked: {@users_device}</div>
+                  <div>{gettext("With password:")} {@users_password}</div>
+                  <div>{gettext("Google:")} {@users_google}</div>
+                  <div>{gettext("Facebook:")} {@users_facebook}</div>
+                  <div>{gettext("Discord:")} {@users_discord}</div>
+                  <div>{gettext("Apple:")} {@users_apple}</div>
+                  <div>{gettext("Steam:")} {@users_steam}</div>
+                  <div>{gettext("Device-linked:")} {@users_device}</div>
                 </div>
               </div>
 
               <div class="card bg-base-100 p-4">
-                <div class="text-sm font-semibold mb-2">Lobbies</div>
+                <div class="text-sm font-semibold mb-2">{gettext("Lobbies")}</div>
                 <div class="text-2xl font-bold">{@lobbies_count}</div>
                 <div class="text-xs text-base-content/60 mt-2 space-y-1">
-                  <div>Hostless: {@lobbies_hostless}</div>
-                  <div>Hidden: {@lobbies_hidden}</div>
-                  <div>Locked: {@lobbies_locked}</div>
-                  <div>With password: {@lobbies_passworded}</div>
+                  <div>{gettext("Hostless:")} {@lobbies_hostless}</div>
+                  <div>{gettext("Hidden:")} {@lobbies_hidden}</div>
+                  <div>{gettext("Locked:")} {@lobbies_locked}</div>
+                  <div>{gettext("With password:")} {@lobbies_passworded}</div>
                 </div>
               </div>
 
               <div class="card bg-base-100 p-4">
-                <div class="text-sm font-semibold mb-2">Leaderboards</div>
+                <div class="text-sm font-semibold mb-2">{gettext("Leaderboards")}</div>
                 <div class="text-2xl font-bold">{@leaderboards_count}</div>
                 <div class="text-xs text-base-content/60 mt-2 space-y-1">
-                  <div>Scores total: {@leaderboard_records}</div>
+                  <div>{gettext("Scores total:")} {@leaderboard_records}</div>
                 </div>
               </div>
 
               <div class="card bg-base-100 p-4">
-                <div class="text-sm font-semibold mb-2">Registration</div>
+                <div class="text-sm font-semibold mb-2">{gettext("Registration")}</div>
                 <div class="text-xs text-base-content/60 mt-2 space-y-1">
-                  <div class="font-semibold">Last 24 hours: {@users_registered_1d}</div>
-                  <div class="font-semibold mt-2">Last 7 days: {@users_registered_7d}</div>
-                  <div class="font-semibold mt-2">Last 30 days: {@users_registered_30d}</div>
+                  <div class="font-semibold">{gettext("Last 24 hours:")} {@users_registered_1d}</div>
+                  <div class="font-semibold mt-2">
+                    {gettext("Last 7 days:")} {@users_registered_7d}
+                  </div>
+                  <div class="font-semibold mt-2">
+                    {gettext("Last 30 days:")} {@users_registered_30d}
+                  </div>
                 </div>
               </div>
 
               <div class="card bg-base-100 p-4">
-                <div class="text-sm font-semibold mb-2">Activity</div>
+                <div class="text-sm font-semibold mb-2">{gettext("Activity")}</div>
                 <div class="text-xs text-base-content/60 mt-2 space-y-1">
-                  <div class="font-semibold">Last 24 hours: {@users_active_1d}</div>
-                  <div class="font-semibold mt-2">Last 7 days: {@users_active_7d}</div>
-                  <div class="font-semibold mt-2">Last 30 days: {@users_active_30d}</div>
+                  <div class="font-semibold">{gettext("Last 24 hours:")} {@users_active_1d}</div>
+                  <div class="font-semibold mt-2">{gettext("Last 7 days:")} {@users_active_7d}</div>
+                  <div class="font-semibold mt-2">{gettext("Last 30 days:")} {@users_active_30d}</div>
                 </div>
               </div>
             </div>

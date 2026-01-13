@@ -195,6 +195,7 @@ defmodule GameServerWeb.Router do
 
     live_session :require_admin,
       on_mount: [
+        {GameServerWeb.OnMount.Locale, :default},
         {GameServerWeb.UserAuth, :require_admin},
         {GameServerWeb.OnMount.Theme, :mount_theme}
       ] do
@@ -214,6 +215,7 @@ defmodule GameServerWeb.Router do
 
     live_session :require_authenticated_user,
       on_mount: [
+        {GameServerWeb.OnMount.Locale, :default},
         {GameServerWeb.UserAuth, :require_authenticated},
         {GameServerWeb.OnMount.Theme, :mount_theme}
       ] do
@@ -229,6 +231,7 @@ defmodule GameServerWeb.Router do
 
     live_session :current_user,
       on_mount: [
+        {GameServerWeb.OnMount.Locale, :default},
         {GameServerWeb.UserAuth, :mount_current_scope},
         {GameServerWeb.OnMount.Theme, :mount_theme}
       ] do
