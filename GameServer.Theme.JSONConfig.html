@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.3">
-    <meta name="project" content="GameServer v1.0.503">
+    <meta name="project" content="GameServer v1.0.507">
 
 
-    <title>GameServer.Theme.JSONConfig — GameServer v1.0.503</title>
+    <title>GameServer.Theme.JSONConfig — GameServer v1.0.507</title>
 
     <link rel="stylesheet" href="dist/html-elixir-VYWJUHZE.css" />
 
-    <script defer src="dist/sidebar_items-3AD2E108.js"></script>
+    <script defer src="dist/sidebar_items-DD55806E.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-XBCM4BHM.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.503
+          v1.0.507
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.Theme.JSONConfig</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.503)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.507)</small>
 
     </h1>
 
@@ -123,6 +123,16 @@ force a re-read (not required for normal usage).</p>
   <h2>
     <a href="#functions">Functions</a>
   </h2>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_theme/1" data-no-tooltip="" translate="no">get_theme(locale)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Variant of <code class="inline">get_theme/0</code> that prefers a locale-specific THEME_CONFIG file when present.</p></div>
+
+    </div>
 
     <div class="summary-row">
       <div class="summary-signature">
@@ -161,6 +171,31 @@ This function intentionally treats blank env values as unset.</p></div>
     </h1>
 
     <div class="functions-list">
+<section class="detail" id="get_theme/1">
+
+  <div class="detail-header">
+    <a href="#get_theme/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_theme(locale)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_theme(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()</pre>
+
+      </div>
+
+<p>Variant of <code class="inline">get_theme/0</code> that prefers a locale-specific THEME_CONFIG file when present.</p><p>Given a base config like <code class="inline">modules/example_config.json</code> and locale <code class="inline">&quot;en&quot;</code>, we will
+try <code class="inline">modules/example_config.en.json</code> first (and fall back to the base file).</p>
+  </section>
+</section>
 <section class="detail" id="packaged_default/0">
 
   <div class="detail-header">
