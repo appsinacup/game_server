@@ -43,8 +43,8 @@ msgstr ""
 msgid "close"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:929
-#: lib/game_server_web/live/user_live/settings.ex:929
+#: lib/game_server_web/live/user_live/settings.ex:928
+#: lib/game_server_web/live/user_live/settings.ex:928
 #, elixir-autogen, elixir-format
 msgid "A link to confirm your email change has been sent to the new address."
 msgstr ""
@@ -55,8 +55,8 @@ msgstr ""
 msgid "API Docs"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1021
-#: lib/game_server_web/live/user_live/settings.ex:1021
+#: lib/game_server_web/live/user_live/settings.ex:1020
+#: lib/game_server_web/live/user_live/settings.ex:1020
 #, elixir-autogen, elixir-format
 msgid "Account not found."
 msgstr ""
@@ -67,14 +67,14 @@ msgstr ""
 msgid "Apple is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:593
-#: lib/game_server_web/live/user_live/settings.ex:593
+#: lib/game_server_web/live/user_live/settings.ex:592
+#: lib/game_server_web/live/user_live/settings.ex:592
 #, elixir-autogen, elixir-format
 msgid "Are you sure you want to delete your account? This action cannot be undone."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:985
-#: lib/game_server_web/live/user_live/settings.ex:985
+#: lib/game_server_web/live/user_live/settings.ex:984
+#: lib/game_server_web/live/user_live/settings.ex:984
 #, elixir-autogen, elixir-format
 msgid "Cannot unlink the last linked social provider (you must have at least one social login connected)."
 msgstr ""
@@ -105,20 +105,20 @@ msgstr ""
 msgid "Confirming..."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:851
-#: lib/game_server_web/live/user_live/settings.ex:851
+#: lib/game_server_web/live/user_live/settings.ex:850
+#: lib/game_server_web/live/user_live/settings.ex:850
 #, elixir-autogen, elixir-format
 msgid "Could not accept: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:769
-#: lib/game_server_web/live/user_live/settings.ex:769
+#: lib/game_server_web/live/user_live/settings.ex:768
+#: lib/game_server_web/live/user_live/settings.ex:768
 #, elixir-autogen, elixir-format
 msgid "Could not block: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:883
-#: lib/game_server_web/live/user_live/settings.ex:883
+#: lib/game_server_web/live/user_live/settings.ex:882
+#: lib/game_server_web/live/user_live/settings.ex:882
 #, elixir-autogen, elixir-format
 msgid "Could not cancel: %{reason}"
 msgstr ""
@@ -143,28 +143,28 @@ msgstr ""
 msgid "Could not leave: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:867
-#: lib/game_server_web/live/user_live/settings.ex:867
+#: lib/game_server_web/live/user_live/settings.ex:866
+#: lib/game_server_web/live/user_live/settings.ex:866
 #, elixir-autogen, elixir-format
 msgid "Could not reject: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:899
-#: lib/game_server_web/live/user_live/settings.ex:899
+#: lib/game_server_web/live/user_live/settings.ex:898
+#: lib/game_server_web/live/user_live/settings.ex:898
 #, elixir-autogen, elixir-format
 msgid "Could not remove: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:745
-#: lib/game_server_web/live/user_live/settings.ex:745
-#: lib/game_server_web/live/user_live/settings.ex:753
-#: lib/game_server_web/live/user_live/settings.ex:753
+#: lib/game_server_web/live/user_live/settings.ex:744
+#: lib/game_server_web/live/user_live/settings.ex:744
+#: lib/game_server_web/live/user_live/settings.ex:752
+#: lib/game_server_web/live/user_live/settings.ex:752
 #, elixir-autogen, elixir-format
 msgid "Could not send request: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:915
-#: lib/game_server_web/live/user_live/settings.ex:915
+#: lib/game_server_web/live/user_live/settings.ex:914
+#: lib/game_server_web/live/user_live/settings.ex:914
 #, elixir-autogen, elixir-format
 msgid "Could not unblock: %{reason}"
 msgstr ""
@@ -175,8 +175,8 @@ msgstr ""
 msgid "Could not update: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:596
-#: lib/game_server_web/live/user_live/settings.ex:596
+#: lib/game_server_web/live/user_live/settings.ex:595
+#: lib/game_server_web/live/user_live/settings.ex:595
 #, elixir-autogen, elixir-format
 msgid "Delete Account"
 msgstr ""
@@ -187,8 +187,8 @@ msgstr ""
 msgid "Discord is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:941
-#: lib/game_server_web/live/user_live/settings.ex:941
+#: lib/game_server_web/live/user_live/settings.ex:940
+#: lib/game_server_web/live/user_live/settings.ex:940
 #, elixir-autogen, elixir-format
 msgid "Display name updated."
 msgstr ""
@@ -209,14 +209,14 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:612
-#: lib/game_server_web/live/user_live/settings.ex:612
+#: lib/game_server_web/live/user_live/settings.ex:611
+#: lib/game_server_web/live/user_live/settings.ex:611
 #, elixir-autogen, elixir-format
 msgid "Email change link is invalid or it has expired."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:609
-#: lib/game_server_web/live/user_live/settings.ex:609
+#: lib/game_server_web/live/user_live/settings.ex:608
+#: lib/game_server_web/live/user_live/settings.ex:608
 #, elixir-autogen, elixir-format
 msgid "Email changed successfully."
 msgstr ""
@@ -247,14 +247,14 @@ msgstr ""
 msgid "Failed to create or update user account."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1004
-#: lib/game_server_web/live/user_live/settings.ex:1004
+#: lib/game_server_web/live/user_live/settings.ex:1003
+#: lib/game_server_web/live/user_live/settings.ex:1003
 #, elixir-autogen, elixir-format
 msgid "Failed to delete account. Please try again."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1297
-#: lib/game_server_web/live/user_live/settings.ex:1297
+#: lib/game_server_web/live/user_live/settings.ex:1296
+#: lib/game_server_web/live/user_live/settings.ex:1296
 #, elixir-autogen, elixir-format
 msgid "Failed to delete the conflicting account."
 msgstr ""
@@ -289,8 +289,8 @@ msgstr ""
 msgid "Failed to link Steam account."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:991
-#: lib/game_server_web/live/user_live/settings.ex:991
+#: lib/game_server_web/live/user_live/settings.ex:990
+#: lib/game_server_web/live/user_live/settings.ex:990
 #, elixir-autogen, elixir-format
 msgid "Failed to unlink provider."
 msgstr ""
@@ -301,8 +301,8 @@ msgstr ""
 msgid "Features"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:737
-#: lib/game_server_web/live/user_live/settings.ex:737
+#: lib/game_server_web/live/user_live/settings.ex:736
+#: lib/game_server_web/live/user_live/settings.ex:736
 #, elixir-autogen, elixir-format
 msgid "Friend request sent"
 msgstr ""
@@ -561,8 +561,8 @@ msgstr ""
 msgid "Successfully authenticated with Steam."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:974
-#: lib/game_server_web/live/user_live/settings.ex:974
+#: lib/game_server_web/live/user_live/settings.ex:973
+#: lib/game_server_web/live/user_live/settings.ex:973
 #, elixir-autogen, elixir-format
 msgid "Successfully unlinked %{provider}."
 msgstr ""
@@ -671,8 +671,8 @@ msgstr ""
 msgid "You need to reauthenticate to perform sensitive actions on your account."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:999
-#: lib/game_server_web/live/user_live/settings.ex:999
+#: lib/game_server_web/live/user_live/settings.ex:998
+#: lib/game_server_web/live/user_live/settings.ex:998
 #, elixir-autogen, elixir-format
 msgid "Your account has been deleted successfully."
 msgstr ""
