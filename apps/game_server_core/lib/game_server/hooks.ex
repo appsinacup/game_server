@@ -7,7 +7,7 @@ defmodule GameServer.Hooks do
 
   A module implementing this behaviour can be configured with
 
-      config :game_server, :hooks_module, MyApp.HooksImpl
+      config :game_server_core, :hooks_module, MyApp.HooksImpl
 
   The default implementation is a no-op.
   """
@@ -80,7 +80,11 @@ defmodule GameServer.Hooks do
 
   @doc "Return the configured module that implements the hooks behaviour."
   def module do
-    case Application.get_env(:game_server_core, :hooks_module, Default) do
+    # Primary config lives under :game_server_core.
+    # We also support :game_server as a backward-compatible fallback because
+    # older docs and apps may have set it there.
+    case Application.get_env(:game_server_core, :hooks_module) ||
+           Application.get_env(:game_server, :hooks_module) do
       nil -> Default
       mod -> mod
     end
@@ -363,37 +367,87 @@ defmodule GameServer.Hooks do
   defp run_fanout(mods, name, args, opts, timeout) do
     arity = length(args)
 
-    if Enum.any?(mods, &function_exported?(&1, name, arity)) do
-      mods
-      |> Enum.reduce(nil, fn mod, first_res ->
-        fanout_first_result(mod, name, args, opts, timeout, arity, first_res)
-      end)
+    exporting_mods = Enum.filter(mods, &function_exported?(&1, name, arity))
+
+    case exporting_mods do
+      [] ->
+        defaults_for_missing_callback(name, args)
+
+      _ when name == :before_kv_get and arity == 2 ->
+        run_before_kv_get(exporting_mods, args, opts, timeout)
+
+      [first_mod | rest] ->
+        first_res = safe_apply_raw(first_mod, name, args, opts, timeout)
+
+        rest
+        |> Enum.each(fn mod ->
+          mod
+          |> safe_apply_raw(name, args, opts, timeout)
+          |> log_non_primary_hook_failure(mod, name)
+        end)
+
+        case first_res do
+          {:ok, {:ok, res}} -> {:ok, res}
+          {:ok, {:error, err}} -> {:error, err}
+          {:ok, res} -> {:ok, res}
+          {:error, reason} -> {:error, reason}
+          other -> {:error, other}
+        end
+    end
+  end
+
+  defp run_before_kv_get(mods, args, opts, timeout) when is_list(mods) do
+    # Security-sensitive hook: default to :public, but any :private wins.
+    # If any hook errors (timeout/exception), fail closed.
+    mods
+    |> Enum.reduce_while(:public, fn mod, decision ->
+      mod
+      |> safe_apply_raw(:before_kv_get, args, opts, timeout)
+      |> normalize_before_kv_get_result()
       |> case do
-        {:ok, {:ok, res}} -> {:ok, res}
-        {:ok, {:error, err}} -> {:error, err}
-        {:ok, res} -> {:ok, res}
-        {:error, reason} -> {:error, reason}
-        nil -> defaults_for_missing_callback(name, args)
+        {:ok, :public} ->
+          {:cont, decision}
+
+        {:ok, :private} ->
+          {:cont, :private}
+
+        {:error, reason} ->
+          Logger.warning("Hooks.before_kv_get failed mod=#{inspect(mod)}: #{inspect(reason)}")
+
+          {:halt, {:error, reason}}
       end
-    else
-      defaults_for_missing_callback(name, args)
+    end)
+    |> case do
+      {:error, _} = err -> err
+      decision -> {:ok, decision}
     end
   end
 
-  defp fanout_first_result(mod, name, args, opts, timeout, arity, first_res)
-       when is_atom(mod) and is_atom(name) and is_list(args) and is_list(opts) and
-              is_integer(timeout) and is_integer(arity) do
-    cond do
-      not is_nil(first_res) ->
-        first_res
+  defp normalize_before_kv_get_result({:error, reason}), do: {:error, reason}
+  defp normalize_before_kv_get_result({:ok, {:error, reason}}), do: {:error, reason}
 
-      function_exported?(mod, name, arity) ->
-        safe_apply_raw(mod, name, args, opts, timeout)
+  defp normalize_before_kv_get_result({:ok, {:ok, decision}})
+       when decision in [:public, :private],
+       do: {:ok, decision}
 
-      true ->
-        nil
-    end
+  defp normalize_before_kv_get_result({:ok, decision}) when decision in [:public, :private],
+    do: {:ok, decision}
+
+  defp normalize_before_kv_get_result({:ok, other}), do: {:error, {:invalid_return, other}}
+
+  defp log_non_primary_hook_failure({:error, reason}, mod, name) do
+    Logger.warning(
+      "Hooks callback failed mod=#{inspect(mod)} name=#{inspect(name)}: #{inspect(reason)}"
+    )
   end
+
+  defp log_non_primary_hook_failure({:ok, {:error, reason}}, mod, name) do
+    Logger.warning(
+      "Hooks callback failed mod=#{inspect(mod)} name=#{inspect(name)}: #{inspect(reason)}"
+    )
+  end
+
+  defp log_non_primary_hook_failure(_ok, _mod, _name), do: :ok
 
   defp safe_apply_raw(mod, name, args, opts, timeout)
        when is_atom(mod) and is_atom(name) and is_list(args) and is_list(opts) do

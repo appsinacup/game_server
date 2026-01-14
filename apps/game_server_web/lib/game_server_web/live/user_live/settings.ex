@@ -124,7 +124,7 @@ defmodule GameServerWeb.UserLive.Settings do
           </.form>
         </div>
       </div>
-
+      
     <!-- Friends panel (embedded) -->
       <div class="card bg-base-200 p-4 rounded-lg mt-6">
         <div class="flex items-center justify-between">
@@ -305,7 +305,7 @@ defmodule GameServerWeb.UserLive.Settings do
           </div>
           <div :if={length(@search_results) > 0} class="mt-3">
             <div class="text-xs text-base-content/70 mb-2">Search results</div>
-
+            
     <!-- Render search results as a responsive grid so multiple items show side-by-side -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
               <div :for={s <- @search_results} id={"search-" <> Integer.to_string(s.id)}>
