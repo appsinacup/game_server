@@ -5,10 +5,10 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.3">
-    <meta name="project" content="GameServer v1.0.507">
+    <meta name="project" content="GameServer v1.0.508">
 
 
-    <title>GameServer.Hooks — GameServer v1.0.507</title>
+    <title>GameServer.Hooks — GameServer v1.0.508</title>
 
     <link rel="stylesheet" href="dist/html-elixir-VYWJUHZE.css" />
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.507
+          v1.0.508
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.Hooks</span> <small>behaviour</small>
-      <small class="app-vsn" translate="no">(GameServer v1.0.507)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.508)</small>
 
     </h1>
 
@@ -103,7 +103,7 @@ GameServer
 
     <section id="moduledoc">
 <p>Behaviour for application-level hooks / callbacks.</p><p>Implement this behaviour to receive lifecycle events from core flows
-(registration, login, provider linking, deletion) and run custom logic.</p><p>A module implementing this behaviour can be configured with</p><pre><code class="makeup elixir" translate="no"><span class="n">config</span><span class="w"> </span><span class="ss">:game_server</span><span class="p">,</span><span class="w"> </span><span class="ss">:hooks_module</span><span class="p">,</span><span class="w"> </span><span class="nc">MyApp.HooksImpl</span></code></pre><p>The default implementation is a no-op.</p>
+(registration, login, provider linking, deletion) and run custom logic.</p><p>A module implementing this behaviour can be configured with</p><pre><code class="makeup elixir" translate="no"><span class="n">config</span><span class="w"> </span><span class="ss">:game_server_core</span><span class="p">,</span><span class="w"> </span><span class="ss">:hooks_module</span><span class="p">,</span><span class="w"> </span><span class="nc">MyApp.HooksImpl</span></code></pre><p>The default implementation is a no-op.</p>
     </section>
 
 </div>
