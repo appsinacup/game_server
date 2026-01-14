@@ -14,6 +14,9 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     host = AccountsFixtures.user_fixture()
     {:ok, lobby1} = Lobbies.create_lobby(%{title: "visible-room", host_id: host.id})
 
+    {:ok, hostless_visible} =
+      Lobbies.create_lobby(%{title: "visible-hostless-room", hostless: true})
+
     {:ok, _hidden} =
       Lobbies.create_lobby(%{title: "hidden-room", hostless: true, is_hidden: true})
 
@@ -21,11 +24,12 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     resp = json_response(conn, 200)
     lobbies = resp["data"]
     assert Enum.any?(lobbies, fn l -> l["id"] == lobby1.id end)
+    assert Enum.any?(lobbies, fn l -> l["id"] == hostless_visible.id and l["host_id"] == -1 end)
     # ensure serializer includes is_passworded flag
     assert Enum.any?(lobbies, fn l -> l["id"] == lobby1.id and l["is_passworded"] == false end)
     refute Enum.any?(lobbies, fn l -> l["id"] == _hidden.id end)
     # meta should include totals
-    assert resp["meta"]["total_count"] == 1
+    assert resp["meta"]["total_count"] == 2
     assert resp["meta"]["total_pages"] == 1
   end
 

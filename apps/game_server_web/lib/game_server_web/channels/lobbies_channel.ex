@@ -47,10 +47,12 @@ defmodule GameServerWeb.LobbiesChannel do
   def handle_info(_msg, socket), do: {:noreply, socket}
 
   defp serialize_lobby(lobby) do
+    host_id = if is_nil(lobby.host_id), do: -1, else: lobby.host_id
+
     %{
       id: lobby.id,
       title: lobby.title,
-      host_id: lobby.host_id,
+      host_id: host_id,
       hostless: lobby.hostless,
       max_users: lobby.max_users,
       is_hidden: lobby.is_hidden,
