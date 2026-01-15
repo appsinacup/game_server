@@ -53,11 +53,49 @@ defmodule GameServerWeb.Plugs.LoadTheme do
   end
 
   defp fetch_theme(mod, locale) do
+    # Prefer locale-aware API when available, but fall back to the 0-arity
+    # provider when the locale-specific call returns an empty map or nil.
     if is_binary(locale) and function_exported?(mod, :get_theme, 1) do
-      mod.get_theme(locale) || %{}
+      res = safe_get_theme_1(mod, locale)
+
+      if is_map(res) and map_size(res) > 0 do
+        res
+      else
+        try_primary_or_fallback(mod, locale)
+      end
     else
-      mod.get_theme() || %{}
+      safe_get_theme_0(mod)
     end
+  rescue
+    _ -> %{}
+  end
+
+  defp try_primary_or_fallback(mod, locale) do
+    primary =
+      locale
+      |> String.trim()
+      |> String.downcase()
+      |> String.split(~r/[-_]/, parts: 2)
+      |> List.first()
+
+    if is_binary(primary) and primary != locale and function_exported?(mod, :get_theme, 1) do
+      case safe_get_theme_1(mod, primary) do
+        m when is_map(m) and map_size(m) > 0 -> m
+        _ -> safe_get_theme_0(mod)
+      end
+    else
+      safe_get_theme_0(mod)
+    end
+  end
+
+  defp safe_get_theme_1(mod, arg) do
+    mod.get_theme(arg) || %{}
+  rescue
+    _ -> %{}
+  end
+
+  defp safe_get_theme_0(mod) do
+    if function_exported?(mod, :get_theme, 0), do: mod.get_theme() || %{}, else: %{}
   rescue
     _ -> %{}
   end
