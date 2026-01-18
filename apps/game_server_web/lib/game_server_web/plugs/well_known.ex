@@ -31,5 +31,21 @@ defmodule GameServerWeb.Plugs.WellKnown do
     end
   end
 
+  def call(%Plug.Conn{request_path: "/.well-known/assetlinks.json"} = conn, _opts) do
+    path = Path.join(:code.priv_dir(:game_server_web), "static/.well-known/assetlinks.json")
+
+    case File.read(path) do
+      {:ok, body} when is_binary(body) ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> put_resp_header("content-length", Integer.to_string(byte_size(body)))
+        |> send_resp(200, body)
+        |> halt()
+
+      _ ->
+        conn
+    end
+  end
+
   def call(conn, _opts), do: conn
 end

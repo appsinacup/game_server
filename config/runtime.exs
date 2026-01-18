@@ -237,17 +237,50 @@ if config_env() == :prod do
     client_secret: {GameServer.Apple, :client_secret},
     redirect_uri: "https://#{host}/auth/apple/callback"
 
-  config :game_server_web, GameServerWeb.Endpoint,
-    url: [host: host, port: 443, scheme: "https"],
-    http: [
-      # Enable IPv6 and bind on all interfaces.
-      # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
-      # See the documentation on https://hexdocs.pm/bandit/Bandit.html#t:options/0
-      # for details about using IPv6 vs IPv4 and loopback vs public addresses.
-      ip: {0, 0, 0, 0, 0, 0, 0, 0},
-      port: port
-    ],
-    secret_key_base: secret_key_base
+  # Allow runtime configuration of allowed WebSocket origins via PHX_ALLOWED_ORIGINS.
+  # Format: comma-separated values. Prefix with "regex:" for regex entries, e.g.
+  #   PHX_ALLOWED_ORIGINS="//polyglotpirates.com,regex:^https:\/\/(.+\.)?itch\.io(:\d+)?$"
+  allowed_origins = System.get_env("PHX_ALLOWED_ORIGINS", "") |> String.trim()
+
+  check_origin =
+    if allowed_origins == "" do
+      nil
+    else
+      allowed_origins
+      |> String.split(",", trim: true)
+      |> Enum.map(fn entry ->
+        entry = String.trim(entry)
+
+        case entry do
+          <<"regex:", rest::binary>> -> Regex.compile!(rest)
+          other ->
+            if String.starts_with?(other, "//") or String.starts_with?(other, "http") do
+              other
+            else
+              "//" <> other
+            end
+        end
+      end)
+    end
+
+  endpoint_config =
+    [
+      url: [host: host, port: 443, scheme: "https"],
+      http: [
+        # Enable IPv6 and bind on all interfaces.
+        # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
+        # See the documentation on https://hexdocs.pm/bandit/Bandit.html#t:options/0
+        # for details about using IPv6 vs IPv4 and loopback vs public addresses.
+        ip: {0, 0, 0, 0, 0, 0, 0, 0},
+        port: port
+      ],
+      secret_key_base: secret_key_base
+    ]
+    |> then(fn cfg ->
+      if check_origin == nil, do: cfg, else: Keyword.put(cfg, :check_origin, check_origin)
+    end)
+
+  config :game_server_web, GameServerWeb.Endpoint, endpoint_config
 
   # ## SSL Support
   #

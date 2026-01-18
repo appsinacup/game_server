@@ -8,9 +8,15 @@ defmodule GameServerWeb.WellKnownPlugTest do
     :ok = File.mkdir_p!(Path.dirname(@aasa_path))
     File.write!(@aasa_path, "{\"applinks\":{\"apps\":[],\"details\":[]}}")
 
+    # create both known files
+    assetlinks = Path.join(Path.dirname(@aasa_path), "assetlinks.json")
+
+    File.write!(assetlinks, "[{\"f\":1}]")
+
     on_exit(fn ->
       # cleanup
       File.rm(@aasa_path)
+      File.rm(assetlinks)
     end)
 
     :ok
@@ -27,5 +33,13 @@ defmodule GameServerWeb.WellKnownPlugTest do
 
     # must NOT include content-encoding header
     assert get_resp_header(conn, "content-encoding") == []
+  end
+
+  test "serves assetlinks.json with application/json", %{conn: conn} do
+    conn = get(conn, "/.well-known/assetlinks.json")
+
+    assert conn.status == 200
+    assert [ct | _] = get_resp_header(conn, "content-type")
+    assert String.starts_with?(ct, "application/json")
   end
 end
