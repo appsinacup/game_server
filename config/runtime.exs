@@ -265,6 +265,37 @@ if config_env() == :prod do
       end)
     end
 
+  # Build the Corsica origins list. When explicit origins are configured we prefer
+  # using those for HTTP CORS as well. If no PHX_ALLOWED_ORIGINS is set we fall
+  # back to "*" which allows all origins for simple CORS requests.
+  cors_allowed_origins =
+    if allowed_origins == "" do
+      "*"
+    else
+      allowed_origins
+      |> String.split(",", trim: true)
+      |> Enum.map(fn entry ->
+        entry = String.trim(entry)
+
+        case entry do
+          <<"regex:", rest::binary>> ->
+            # Corsica accepts compiled regex
+            Regex.compile!(rest)
+
+          other ->
+            # Normalize bare host -> protocol-agnostic //host, allow http/https as appropriate
+            if String.starts_with?(other, "//") or String.starts_with?(other, "http") do
+              other
+            else
+              "//" <> other
+            end
+        end
+      end)
+    end
+
+  # Expose these choices via application config so endpoint/plug can pick them up
+  config :game_server_web, :cors_allowed_origins, cors_allowed_origins
+
   endpoint_config =
     [
       url: [host: host, port: 443, scheme: "https"],

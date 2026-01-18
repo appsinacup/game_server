@@ -64,10 +64,7 @@ defmodule GameServerWeb.Endpoint do
 
   plug GameServerWeb.Plugs.LocalePath
 
-  plug Corsica,
-    origins: "*",
-    allow_headers: ["content-type", "authorization"],
-    allow_methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+  plug GameServerWeb.Plugs.DynamicCors
 
   plug :dispatch_router
 

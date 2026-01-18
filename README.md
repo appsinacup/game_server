@@ -140,13 +140,7 @@ RUN if [ -d "${GAME_SERVER_PLUGINS_DIR}" ]; then \
 2. Go to fly.io and deploy (select the forked repo).
 3. Set secrets all values in `.env.example`. Run locally `fly secrets sync` and `fly secrets deploy` (in case secrets don't deploy/update).
 
-4. Optionally configure `PHX_ALLOWED_ORIGINS` to allow additional WebSocket/embedding origins (comma-separated). Prefix an entry with `regex:` to pass a regex. Example:
-
-    PHX_ALLOWED_ORIGINS="//polyglotpirates.com,regex:^https:\/\/(.+\.)?itch\.io(:\d+)?$"
-
-   Restart the server after changing this environment variable.
-
-5. Configure all things from [Guides](https://gamend.appsinacup.com/docs/setup) page.
+4. Configure all things from [Guides](https://gamend.appsinacup.com/docs/setup) page.
 5. Monthly cost (without Postgres) will be about 5$.
 
 ## Run locally
