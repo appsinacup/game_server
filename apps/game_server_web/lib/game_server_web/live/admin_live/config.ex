@@ -261,6 +261,21 @@ defmodule GameServerWeb.AdminLive.Config do
                       <% end %>
                     </td>
                   </tr>
+
+                  <tr>
+                    <td class="font-semibold">CORS / Allowed Origins</td>
+                    <td>
+                      <%= if @config.phx_allowed_origins_env do %>
+                        <span class="badge badge-success">Configured</span>
+                      <% else %>
+                        <span class="badge badge-ghost">Default</span>
+                      <% end %>
+                    </td>
+                    <td class="font-mono text-sm break-all whitespace-normal">
+                      PHX_ALLOWED_ORIGINS: {@config.phx_allowed_origins_env || "<unset>"}<br />
+                      Effective CORS origins: {inspect(@config.cors_allowed_origins)}<br />
+                    </td>
+                  </tr>
                   <tr>
                     <td class="font-semibold">Facebook OAuth</td>
                     <td>
@@ -1133,7 +1148,11 @@ defmodule GameServerWeb.AdminLive.Config do
       # here.
       theme_config: JSONConfig.runtime_path(),
       device_auth_enabled_app: Application.get_env(:game_server_core, :device_auth_enabled),
-      device_auth_enabled_env: System.get_env("DEVICE_AUTH_ENABLED")
+      device_auth_enabled_env: System.get_env("DEVICE_AUTH_ENABLED"),
+
+      # PHX/CORS runtime configuration (set via PHX_ALLOWED_ORIGINS)
+      phx_allowed_origins_env: System.get_env("PHX_ALLOWED_ORIGINS"),
+      cors_allowed_origins: Application.get_env(:game_server_web, :cors_allowed_origins, "*")
     }
 
     socket =
