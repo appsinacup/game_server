@@ -252,7 +252,9 @@ if config_env() == :prod do
         entry = String.trim(entry)
 
         case entry do
-          <<"regex:", rest::binary>> -> Regex.compile!(rest)
+          <<"regex:", rest::binary>> ->
+            Regex.compile!(rest)
+
           other ->
             if String.starts_with?(other, "//") or String.starts_with?(other, "http") do
               other
