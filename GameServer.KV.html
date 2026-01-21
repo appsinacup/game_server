@@ -5,10 +5,10 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.39.3">
-    <meta name="project" content="GameServer v1.0.518">
+    <meta name="project" content="GameServer v1.0.519">
 
 
-    <title>GameServer.KV — GameServer v1.0.518</title>
+    <title>GameServer.KV — GameServer v1.0.519</title>
 
     <link rel="stylesheet" href="dist/html-elixir-VYWJUHZE.css" />
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.518
+          v1.0.519
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.KV</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.518)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.519)</small>
 
     </h1>
 
@@ -103,7 +103,9 @@ GameServer
 
     <section id="moduledoc">
 <p>Generic key/value storage.</p><p>This is intentionally minimal and un-opinionated.</p><p>If you want namespacing, encode it in <code class="inline">key</code> (e.g. <code class="inline">&quot;polyglot_pirates:key1&quot;</code>).
-If you want per-user values, pass <code class="inline">user_id: ...</code> to <a href="#get/2"><code class="inline">get/2</code></a>, <a href="#put/4"><code class="inline">put/4</code></a>, and <a href="#delete/2"><code class="inline">delete/2</code></a>.</p><p>This module uses the app cache (<a href="GameServer.Cache.html"><code class="inline">GameServer.Cache</code></a>) as a best-effort read cache.
+If you want per-user values, pass <code class="inline">user_id: ...</code> to <a href="#get/2"><code class="inline">get/2</code></a>, <a href="#put/4"><code class="inline">put/4</code></a>, and <a href="#delete/2"><code class="inline">delete/2</code></a>.
+If you want per-lobby values, pass <code class="inline">lobby_id: ...</code> to the same functions.
+You can also pass both to scope a key to a user within a lobby.</p><p>This module uses the app cache (<a href="GameServer.Cache.html"><code class="inline">GameServer.Cache</code></a>) as a best-effort read cache.
 Writes update the cache and deletes evict it.</p>
     </section>
 
@@ -193,7 +195,8 @@ Writes update the cache and deletes evict it.</p>
 
       </div>
 
-        <div class="summary-synopsis"><p>Create a new <code class="inline">Entry</code> from <code class="inline">attrs</code> (expecting <code class="inline">key</code>, optional <code class="inline">user_id</code>, <code class="inline">value</code>, <code class="inline">metadata</code>).
+        <div class="summary-synopsis"><p>Create a new <code class="inline">Entry</code> from <code class="inline">attrs</code> (expecting <code class="inline">key</code>, optional <code class="inline">user_id</code>/<code class="inline">lobby_id</code>,
+<code class="inline">value</code>, <code class="inline">metadata</code>).
 Returns <code class="inline">{:ok, entry}</code> or <code class="inline">{:error, changeset}</code>.</p></div>
 
     </div>
@@ -312,13 +315,14 @@ Returns <code class="inline">{:ok, entry}</code>, <code class="inline">{:error, 
           <pre translate="no"><span class="attribute">@type</span> attrs() :: %{
   :key =&gt; <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
   optional(:user_id) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(),
+  optional(:lobby_id) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(),
   :value =&gt; <a href="#t:value/0">value</a>(),
   optional(:metadata) =&gt; <a href="#t:metadata/0">metadata</a>()
 }</pre>
 
       </div>
 
-<p>Attributes used when creating or updating entries.</p><p>Expected keys (atom keys recommended):</p><ul><li><code class="inline">:key</code> — the entry key (<code class="inline">String.t()</code>)</li><li><code class="inline">:user_id</code> — optional user id (<code class="inline">pos_integer()</code>)</li><li><code class="inline">:value</code> — the stored value (<code class="inline">value()</code>)</li><li><code class="inline">:metadata</code> — optional metadata (<code class="inline">metadata()</code>)</li></ul>
+<p>Attributes used when creating or updating entries.</p><p>Expected keys (atom keys recommended):</p><ul><li><code class="inline">:key</code> — the entry key (<code class="inline">String.t()</code>)<ul><li><code class="inline">:user_id</code> — optional user id (<code class="inline">pos_integer()</code>)</li><li><code class="inline">:lobby_id</code> — optional lobby id (<code class="inline">pos_integer()</code>)</li></ul></li><li><code class="inline">:value</code> — the stored value (<code class="inline">value()</code>)</li><li><code class="inline">:metadata</code> — optional metadata (<code class="inline">metadata()</code>)</li></ul>
   </section>
 </section>
 <section class="detail" id="t:list_opts/0">
@@ -342,13 +346,14 @@ Returns <code class="inline">{:ok, entry}</code>, <code class="inline">{:error, 
   page: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(),
   page_size: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(),
   user_id: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(),
+  lobby_id: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">pos_integer</a>(),
   global_only: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>(),
   key: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()
 ]</pre>
 
       </div>
 
-<p>Options accepted by <a href="#list_entries/1"><code class="inline">list_entries/1</code></a> and <a href="#count_entries/1"><code class="inline">count_entries/1</code></a>.</p><p>Keys (all optional):</p><ul><li><code class="inline">:page</code> — page number (<code class="inline">pos_integer()</code>, defaults to <code class="inline">1</code>)</li><li><code class="inline">:page_size</code> — page size (<code class="inline">pos_integer()</code>, defaults to <code class="inline">50</code>)</li><li><code class="inline">:user_id</code> — filter by user id (<code class="inline">pos_integer()</code>)</li><li><code class="inline">:global_only</code> — when true, only return global entries (where <code class="inline">user_id</code> is <code class="inline">nil</code>) (<code class="inline">boolean()</code>)</li><li><code class="inline">:key</code> — substring filter (<code class="inline">String.t()</code>)</li></ul>
+<p>Options accepted by <a href="#list_entries/1"><code class="inline">list_entries/1</code></a> and <a href="#count_entries/1"><code class="inline">count_entries/1</code></a>.</p><p>Keys (all optional):</p><ul><li><code class="inline">:page</code> — page number (<code class="inline">pos_integer()</code>, defaults to <code class="inline">1</code>)</li><li><code class="inline">:page_size</code> — page size (<code class="inline">pos_integer()</code>, defaults to <code class="inline">50</code>)</li><li><code class="inline">:user_id</code> — filter by user id (<code class="inline">pos_integer()</code>)</li><li><code class="inline">:lobby_id</code> — filter by lobby id (<code class="inline">pos_integer()</code>)</li><li><code class="inline">:global_only</code> — when true, only return global entries (where <code class="inline">user_id</code> and <code class="inline">lobby_id</code> are <code class="inline">nil</code>) (<code class="inline">boolean()</code>)</li><li><code class="inline">:key</code> — substring filter (<code class="inline">String.t()</code>)</li></ul>
   </section>
 </section>
 <section class="detail" id="t:metadata/0">
@@ -484,7 +489,8 @@ Returns <code class="inline">{:ok, entry}</code>, <code class="inline">{:error, 
 
       </div>
 
-<p>Create a new <code class="inline">Entry</code> from <code class="inline">attrs</code> (expecting <code class="inline">key</code>, optional <code class="inline">user_id</code>, <code class="inline">value</code>, <code class="inline">metadata</code>).
+<p>Create a new <code class="inline">Entry</code> from <code class="inline">attrs</code> (expecting <code class="inline">key</code>, optional <code class="inline">user_id</code>/<code class="inline">lobby_id</code>,
+<code class="inline">value</code>, <code class="inline">metadata</code>).
 Returns <code class="inline">{:ok, entry}</code> or <code class="inline">{:error, changeset}</code>.</p>
   </section>
 </section>
@@ -514,7 +520,7 @@ Returns <code class="inline">{:ok, entry}</code> or <code class="inline">{:error
 
       </div>
 
-<p>Delete the entry at <code class="inline">key</code>.</p><p>Pass <code class="inline">user_id: id</code> in <code class="inline">opts</code> to delete a per-user key. Returns <code class="inline">:ok</code>.</p>
+<p>Delete the entry at <code class="inline">key</code>.</p><p>Pass <code class="inline">user_id: id</code> or <code class="inline">lobby_id: id</code> in <code class="inline">opts</code> to delete a scoped key. Returns <code class="inline">:ok</code>.</p>
   </section>
 </section>
 <section class="detail" id="delete_entry/1">
@@ -567,7 +573,7 @@ Returns <code class="inline">{:ok, entry}</code> or <code class="inline">{:error
 
       </div>
 
-<p>Retrieve the value and metadata stored for <code class="inline">key</code>.</p><p>Pass <code class="inline">user_id: id</code> in <code class="inline">opts</code> to scope the lookup to a specific user.
+<p>Retrieve the value and metadata stored for <code class="inline">key</code>.</p><p>Pass <code class="inline">user_id: id</code> or <code class="inline">lobby_id: id</code> in <code class="inline">opts</code> to scope the lookup.
 Returns <code class="inline">{:ok, %{value: map(), metadata: map()}}</code> when found, or <code class="inline">:error</code> when not present.</p>
   </section>
 </section>
@@ -619,7 +625,8 @@ Returns the <code class="inline">Entry</code> struct or <code class="inline">nil
 
       </div>
 
-<p>List key/value entries with optional pagination and filtering.</p><p>Supported options: <code class="inline">:page</code>, <code class="inline">:page_size</code>, <code class="inline">:user_id</code>, <code class="inline">:global_only</code>, and <code class="inline">:key</code> (substring filter).
+<p>List key/value entries with optional pagination and filtering.</p><p>Supported options: <code class="inline">:page</code>, <code class="inline">:page_size</code>, <code class="inline">:user_id</code>, <code class="inline">:lobby_id</code>, <code class="inline">:global_only</code>,
+and <code class="inline">:key</code> (substring filter).
 See <a href="#t:list_opts/0"><code class="inline">list_opts/0</code></a> for the expected option types.
 Returns a list of <code class="inline">Entry</code> structs ordered by most recently updated.</p>
   </section>
@@ -673,7 +680,8 @@ Returns a list of <code class="inline">Entry</code> structs ordered by most rece
 
       </div>
 
-<p>Store <code class="inline">value</code> with optional <code class="inline">metadata</code> at <code class="inline">key</code>.</p><p>When using the 4-arity, supported options include <code class="inline">user_id: id</code> to scope the entry to a user.
+<p>Store <code class="inline">value</code> with optional <code class="inline">metadata</code> at <code class="inline">key</code>.</p><p>When using the 4-arity, supported options include <code class="inline">user_id: id</code> or <code class="inline">lobby_id: id</code> to scope
+the entry.
 Returns <code class="inline">{:ok, entry}</code> on success or <code class="inline">{:error, changeset}</code> on validation failure.</p>
   </section>
 </section>
