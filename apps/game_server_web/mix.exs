@@ -80,7 +80,7 @@ defmodule GameServerWeb.MixProject do
       {:ueberauth, "~> 0.10"},
       {:open_api_spex, "~> 3.22"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.39.3", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.40", only: :dev, runtime: false},
       {:guardian, "~> 2.3"},
       {:ueberauth_steam_strategy, "~> 0.1"},
       {:quantum, "~> 3.5"},
