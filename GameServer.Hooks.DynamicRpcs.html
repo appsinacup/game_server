@@ -4,21 +4,40 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="generator" content="ExDoc v0.39.3">
-    <meta name="project" content="GameServer v1.0.520">
+    <meta name="generator" content="ExDoc v0.40.0">
+    <meta name="project" content="GameServer v1.0.522">
 
 
-    <title>GameServer.Hooks.DynamicRpcs — GameServer v1.0.520</title>
+    <title>GameServer.Hooks.DynamicRpcs — GameServer v1.0.522</title>
 
-    <link rel="stylesheet" href="dist/html-elixir-VYWJUHZE.css" />
+    <link rel="stylesheet" href="dist/html-elixir-PEPNOX6A.css" />
 
     <script defer src="dist/sidebar_items-DD55806E.js"></script>
     <script defer src="docs_config.js"></script>
-    <script defer src="dist/html-XBCM4BHM.js"></script>
+    <script defer src="dist/html-E23W6NAF.js"></script>
 
   </head>
   <body>
-    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+    <script>(() => {
+  // js/constants.js
+  var t = "ex_doc:settings", e = "dark";
+  var o = "dark", s = "light";
+
+  // js/sidebar/constants.js
+  var E = "sidebar_state", n = "closed";
+  var r = "sidebar_width";
+  var a = "sidebar-open";
+
+  // js/entry/inline_html.js
+  var i = new URLSearchParams(window.location.search), S = i.get("theme") || JSON.parse(localStorage.getItem(t) || "{}").theme;
+  (S === o || S !== s && window.matchMedia("(prefers-color-scheme: dark)").matches) && document.body.classList.add(e);
+  var d = sessionStorage.getItem(E), A = d !== n && !window.matchMedia(`screen and (max-width: ${768}px)`).matches;
+  document.body.classList.toggle(a, A);
+  var c = sessionStorage.getItem(r);
+  c && document.body.style.setProperty("--sidebarWidth", `${c}px`);
+  var p = /(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);
+  document.documentElement.classList.toggle("apple-os", p);
+})();
 </script>
 
 <div class="body-wrapper">
@@ -37,11 +56,11 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.520
+          v1.0.522
         </div>
       </div>
     </div>
-    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras=""></ul>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras="Pages"></ul>
   </div>
 </nav>
 
@@ -94,9 +113,16 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.Hooks.DynamicRpcs</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.520)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.522)</small>
 
     </h1>
+
+<a href="GameServer.Hooks.DynamicRpcs.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
+  <i class="ri-markdown-line" aria-hidden="true"></i>
+  <span class="sr-only">Copy Markdown</span>
+</a>
+
+
 
   </div>
 
@@ -105,10 +131,10 @@ GameServer
 <p>Runtime registry for <em>dynamic</em> RPC function names exported by hook plugins.</p><h2 id="module-goal" class="section-heading"><a href="#module-goal" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Goal</span></h2><p>Allow hook plugins to expose additional callable function names without
 defining them as exported Elixir functions (eg. without <code class="inline">def my_fn/1</code>).</p><p>The intended pattern is:</p><ul><li>Plugin implements <code class="inline">after_startup/0</code> and returns a list of maps describing
 which dynamic RPC names should be callable.</li><li>Plugin implements <code class="inline">rpc/2</code> (or <code class="inline">rpc/3</code>) to handle these names at runtime.</li><li><a href="GameServer.Hooks.PluginManager.html#call_rpc/4"><code class="inline">GameServer.Hooks.PluginManager.call_rpc/4</code></a> falls back to the registry when
-the requested function is not exported.</li></ul><h2 id="module-export-format" class="section-heading"><a href="#module-export-format" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Export format</span></h2><p><code class="inline">after_startup/0</code> may return a list like:</p><pre><code class="makeup elixir" translate="no"><span class="p" data-group-id="1135347209-1">[</span><span class="w">
-  </span><span class="p" data-group-id="1135347209-2">%{</span><span class="ss">hook</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;my_dynamic_fn&quot;</span><span class="p" data-group-id="1135347209-2">}</span><span class="p">,</span><span class="w">
-  </span><span class="p" data-group-id="1135347209-3">%{</span><span class="s">&quot;hook&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;other_fn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;meta&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p" data-group-id="1135347209-4">%{</span><span class="n">...</span><span class="p" data-group-id="1135347209-4">}</span><span class="p" data-group-id="1135347209-3">}</span><span class="w">
-</span><span class="p" data-group-id="1135347209-1">]</span></code></pre><p>Required:</p><ul><li><code class="inline">hook</code> (string): the callable function name.</li></ul><p>Optional:</p><ul><li><code class="inline">meta</code> (map): arbitrary metadata.</li></ul><p>Names are validated to contain only letters, digits, and underscores.</p><p>Note: this registry is in-memory and is rebuilt on plugin reload.</p>
+the requested function is not exported.</li></ul><h2 id="module-export-format" class="section-heading"><a href="#module-export-format" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Export format</span></h2><p><code class="inline">after_startup/0</code> may return a list like:</p><pre><code class="makeup elixir" translate="no"><span class="p" data-group-id="6173662952-1">[</span><span class="w">
+  </span><span class="p" data-group-id="6173662952-2">%{</span><span class="ss">hook</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;my_dynamic_fn&quot;</span><span class="p" data-group-id="6173662952-2">}</span><span class="p">,</span><span class="w">
+  </span><span class="p" data-group-id="6173662952-3">%{</span><span class="s">&quot;hook&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;other_fn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;meta&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p" data-group-id="6173662952-4">%{</span><span class="n">...</span><span class="p" data-group-id="6173662952-4">}</span><span class="p" data-group-id="6173662952-3">}</span><span class="w">
+</span><span class="p" data-group-id="6173662952-1">]</span></code></pre><p>Required:</p><ul><li><code class="inline">hook</code> (string): the callable function name.</li></ul><p>Optional:</p><ul><li><code class="inline">meta</code> (map): arbitrary metadata.</li></ul><p>Names are validated to contain only letters, digits, and underscores.</p><p>Note: this registry is in-memory and is rebuilt on plugin reload.</p>
     </section>
 
 </div>
@@ -460,7 +486,12 @@ the requested function is not exported.</li></ul><h2 id="module-export-format" c
               Go to package docs
             </button>
 
-              <a href="GameServer.epub" title="ePub version">
+              <a href="llms.txt" target="_blank">
+                View llms.txt
+              </a>
+
+
+              <a href="GameServer.epub">
                 Download ePub version
               </a>
 
@@ -469,7 +500,7 @@ the requested function is not exported.</li></ul><h2 id="module-export-format" c
 
         <p class="built-using">
           Built using
-          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.39.3) for the
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.0) for the
 
             <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
 

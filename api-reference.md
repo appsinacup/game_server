@@ -1,0 +1,56 @@
+# GameServer v1.0.522 - API Reference
+
+## Modules
+
+- [GameServer](GameServer.md): GameServer keeps the contexts that define your domain
+and business logic.
+- [GameServer.Accounts](GameServer.Accounts.md): The Accounts context.
+- [GameServer.Accounts.Scope](GameServer.Accounts.Scope.md): Defines the scope of the caller to be used throughout the app.
+- [GameServer.Accounts.User](GameServer.Accounts.User.md): The User schema and associated changeset functions used across the
+application (registration, OAuth, and admin changes).
+- [GameServer.Accounts.UserNotifier](GameServer.Accounts.UserNotifier.md): Small helpers used to deliver transactional emails for the Accounts flow
+(confirmation, magic link, and email change instructions).
+- [GameServer.Accounts.UserToken](GameServer.Accounts.UserToken.md): Functions and schema for persistent user tokens used by sessions, magic links,
+and email-change workflows.
+- [GameServer.Apple](GameServer.Apple.md): Apple OAuth client secret generation for Ueberauth.
+- [GameServer.Async](GameServer.Async.md): Utilities for running best-effort background work.
+- [GameServer.Cache](GameServer.Cache.md): Application cache backed by Nebulex.
+- [GameServer.Cache.L1](GameServer.Cache.L1.md): L1 cache (local, in-memory).
+- [GameServer.Cache.L2.Partitioned](GameServer.Cache.L2.Partitioned.md): L2 cache (partitioned topology).
+- [GameServer.Cache.L2.Partitioned.Primary](GameServer.Cache.L2.Partitioned.Primary.md): This is the cache for the primary storage.
+
+- [GameServer.Cache.L2.Redis](GameServer.Cache.L2.Redis.md): L2 cache backed by Redis.
+- [GameServer.Env](GameServer.Env.md): Helpers for reading and parsing environment variables.
+- [GameServer.Friends](GameServer.Friends.md): Friends context - handles friend requests and relationships.
+- [GameServer.Friends.Friendship](GameServer.Friends.Friendship.md): Ecto schema representing a friendship/request between two users.
+- [GameServer.Hooks](GameServer.Hooks.md): Behaviour for application-level hooks / callbacks.
+- [GameServer.Hooks.Default](GameServer.Hooks.Default.md): Default no-op implementation for GameServer.Hooks
+- [GameServer.Hooks.DynamicRpcs](GameServer.Hooks.DynamicRpcs.md): Runtime registry for *dynamic* RPC function names exported by hook plugins.
+- [GameServer.Hooks.PluginBuilder](GameServer.Hooks.PluginBuilder.md): Builds an OTP plugin bundle from plugin source code on disk.
+- [GameServer.Hooks.PluginManager](GameServer.Hooks.PluginManager.md): Loads and manages hook plugins shipped as OTP applications under `modules/plugins/*`.
+- [GameServer.Hooks.PluginManager.Plugin](GameServer.Hooks.PluginManager.Plugin.md): A loaded plugin descriptor.
+- [GameServer.KV](GameServer.KV.md): Generic key/value storage.
+- [GameServer.Leaderboards](GameServer.Leaderboards.md): The Leaderboards context.
+- [GameServer.Leaderboards.Leaderboard](GameServer.Leaderboards.Leaderboard.md): Ecto schema for the `leaderboards` table.
+- [GameServer.Leaderboards.Record](GameServer.Leaderboards.Record.md): Ecto schema for the `leaderboard_records` table.
+- [GameServer.Lobbies](GameServer.Lobbies.md): Context module for lobby management: creating, updating, listing and searching lobbies.
+- [GameServer.Lobbies.Lobby](GameServer.Lobbies.Lobby.md): Ecto schema for the `lobbies` table and changeset helpers.
+- [GameServer.Mailer](GameServer.Mailer.md)
+- [GameServer.OAuth.Exchanger](GameServer.OAuth.Exchanger.md): Default implementation for exchanging OAuth codes with providers.
+- [GameServer.OAuth.GoogleIDToken](GameServer.OAuth.GoogleIDToken.md): Verifies Google OpenID Connect `id_token`s for native/mobile sign-in flows.
+- [GameServer.OAuthSession](GameServer.OAuthSession.md): Simple Ecto schema for OAuth session polling used by client SDKs.
+- [GameServer.OAuthSessions](GameServer.OAuthSessions.md): Helpers for creating and retrieving short-lived OAuth sessions.
+
+- [GameServer.Repo](GameServer.Repo.md)
+- [GameServer.Schedule](GameServer.Schedule.md): Dynamic cron-like job scheduling for hooks.
+- [GameServer.Schedule.Lock](GameServer.Schedule.Lock.md): Schema for schedule job locks.
+- [GameServer.Schedule.Scheduler](GameServer.Schedule.Scheduler.md): Defines a quantum Scheduler.
+- [GameServer.Theme](GameServer.Theme.md): Behaviour for pluggable site theming providers.
+- [GameServer.Theme.JSONConfig](GameServer.Theme.JSONConfig.md): JSON-backed Theme provider. Reads a JSON file specified by the THEME_CONFIG
+environment variable (single canonical runtime source) — e.g. THEME_CONFIG=theme/custom.json
+- [GameServer.Types](GameServer.Types.md): Shared types used across GameServer contexts.
+
+## Mix Tasks
+
+- [mix gen.sdk](Mix.Tasks.Gen.Sdk.md): Generates SDK stub modules from the real GameServer modules.
+
