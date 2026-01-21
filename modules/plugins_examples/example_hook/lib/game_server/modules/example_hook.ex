@@ -46,11 +46,6 @@ defmodule GameServer.Modules.ExampleHook do
 
   @impl true
   def before_lobby_create(attrs) do
-    attrs =
-      attrs
-      |> Map.put(:hostless, true)
-      |> Map.delete("hostless")
-
     {:ok, attrs}
   end
 
