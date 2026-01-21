@@ -6,6 +6,8 @@ defmodule GameServer.KV do
   
   If you want namespacing, encode it in `key` (e.g. `"polyglot_pirates:key1"`).
   If you want per-user values, pass `user_id: ...` to `get/2`, `put/4`, and `delete/2`.
+  If you want per-lobby values, pass `lobby_id: ...` to the same functions.
+  You can also pass both to scope a key to a user within a lobby.
   
   This module uses the app cache (`GameServer.Cache`) as a best-effort read cache.
   Writes update the cache and deletes evict it.
@@ -19,12 +21,14 @@ defmodule GameServer.KV do
   page: pos_integer(),
   page_size: pos_integer(),
   user_id: pos_integer(),
+  lobby_id: pos_integer(),
   global_only: boolean(),
   key: String.t()
 ]
   @type attrs() :: %{
   :key => String.t(),
   optional(:user_id) => pos_integer(),
+  optional(:lobby_id) => pos_integer(),
   :value => value(),
   optional(:metadata) => metadata()
 }
@@ -69,7 +73,8 @@ defmodule GameServer.KV do
 
 
   @doc ~S"""
-    Create a new `Entry` from `attrs` (expecting `key`, optional `user_id`, `value`, `metadata`).
+    Create a new `Entry` from `attrs` (expecting `key`, optional `user_id`/`lobby_id`,
+    `value`, `metadata`).
     Returns `{:ok, entry}` or `{:error, changeset}`.
     
   """
@@ -88,7 +93,7 @@ defmodule GameServer.KV do
   @doc ~S"""
     Delete the entry at `key`.
     
-    Pass `user_id: id` in `opts` to delete a per-user key. Returns `:ok`.
+    Pass `user_id: id` or `lobby_id: id` in `opts` to delete a scoped key. Returns `:ok`.
     
   """
   @spec delete(String.t()) :: :ok
@@ -106,7 +111,7 @@ defmodule GameServer.KV do
   @doc ~S"""
     Delete the entry at `key`.
     
-    Pass `user_id: id` in `opts` to delete a per-user key. Returns `:ok`.
+    Pass `user_id: id` or `lobby_id: id` in `opts` to delete a scoped key. Returns `:ok`.
     
   """
   @spec delete(
@@ -145,7 +150,7 @@ defmodule GameServer.KV do
   @doc ~S"""
     Retrieve the value and metadata stored for `key`.
     
-    Pass `user_id: id` in `opts` to scope the lookup to a specific user.
+    Pass `user_id: id` or `lobby_id: id` in `opts` to scope the lookup.
     Returns `{:ok, %{value: map(), metadata: map()}}` when found, or `:error` when not present.
     
   """
@@ -164,7 +169,7 @@ defmodule GameServer.KV do
   @doc ~S"""
     Retrieve the value and metadata stored for `key`.
     
-    Pass `user_id: id` in `opts` to scope the lookup to a specific user.
+    Pass `user_id: id` or `lobby_id: id` in `opts` to scope the lookup.
     Returns `{:ok, %{value: map(), metadata: map()}}` when found, or `:error` when not present.
     
   """
@@ -203,7 +208,8 @@ defmodule GameServer.KV do
   @doc ~S"""
     List key/value entries with optional pagination and filtering.
     
-    Supported options: `:page`, `:page_size`, `:user_id`, `:global_only`, and `:key` (substring filter).
+    Supported options: `:page`, `:page_size`, `:user_id`, `:lobby_id`, `:global_only`,
+    and `:key` (substring filter).
     See `t:list_opts/0` for the expected option types.
     Returns a list of `Entry` structs ordered by most recently updated.
     
@@ -223,7 +229,8 @@ defmodule GameServer.KV do
   @doc ~S"""
     List key/value entries with optional pagination and filtering.
     
-    Supported options: `:page`, `:page_size`, `:user_id`, `:global_only`, and `:key` (substring filter).
+    Supported options: `:page`, `:page_size`, `:user_id`, `:lobby_id`, `:global_only`,
+    and `:key` (substring filter).
     See `t:list_opts/0` for the expected option types.
     Returns a list of `Entry` structs ordered by most recently updated.
     
@@ -243,7 +250,8 @@ defmodule GameServer.KV do
   @doc ~S"""
     Store `value` with optional `metadata` at `key`.
     
-    When using the 4-arity, supported options include `user_id: id` to scope the entry to a user.
+    When using the 4-arity, supported options include `user_id: id` or `lobby_id: id` to scope
+    the entry.
     Returns `{:ok, entry}` on success or `{:error, changeset}` on validation failure.
     
   """
@@ -276,7 +284,8 @@ defmodule GameServer.KV do
   @doc ~S"""
     Store `value` with optional `metadata` at `key`.
     
-    When using the 4-arity, supported options include `user_id: id` to scope the entry to a user.
+    When using the 4-arity, supported options include `user_id: id` or `lobby_id: id` to scope
+    the entry.
     Returns `{:ok, entry}` on success or `{:error, changeset}` on validation failure.
     
   """

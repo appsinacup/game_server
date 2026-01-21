@@ -26,6 +26,12 @@ defmodule GameServerWeb.Api.V1.KvController do
         schema: %Schema{type: :integer},
         description: "Optional owner user id",
         required: false
+      ],
+      lobby_id: [
+        in: :query,
+        schema: %Schema{type: :integer},
+        description: "Optional owner lobby id",
+        required: false
       ]
     ],
     responses: [
@@ -55,31 +61,59 @@ defmodule GameServerWeb.Api.V1.KvController do
           nil
       end
 
+    lobby_id =
+      case params["lobby_id"] do
+        nil ->
+          nil
+
+        s when is_binary(s) ->
+          case Integer.parse(s) do
+            {i, _} -> i
+            _ -> nil
+          end
+
+        i when is_integer(i) ->
+          i
+
+        _ ->
+          nil
+      end
+
     # Use caller scope assigned by plugs (route is authenticated via :api_auth)
     caller = Map.get(conn.assigns, :current_scope)
 
-    case Hooks.internal_call(:before_kv_get, [key, %{user_id: user_id}], caller: caller) do
+    case Hooks.internal_call(:before_kv_get, [key, %{user_id: user_id, lobby_id: lobby_id}],
+           caller: caller
+         ) do
       {:ok, :public} ->
-        do_get(conn, key, user_id)
+        do_get(conn, key, user_id, lobby_id)
 
       {:ok, :private} ->
         # Use the resolved caller (from assigns or token) to decide permissions.
-        case caller do
-          %Scope{user: %{id: ^user_id}} -> do_get(conn, key, user_id)
-          %Scope{user: %{is_admin: true}} -> do_get(conn, key, user_id)
-          _ -> conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
+        cond do
+          match?(%Scope{user: %{id: ^user_id}}, caller) ->
+            do_get(conn, key, user_id, lobby_id)
+
+          is_integer(lobby_id) and match?(%Scope{user: %{lobby_id: ^lobby_id}}, caller) ->
+            do_get(conn, key, user_id, lobby_id)
+
+          match?(%Scope{user: %{is_admin: true}}, caller) ->
+            do_get(conn, key, user_id, lobby_id)
+
+          true ->
+            conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
         end
 
       {:error, _reason} ->
         conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
 
       _ ->
-        do_get(conn, key, user_id)
+        do_get(conn, key, user_id, lobby_id)
     end
   end
 
-  defp do_get(conn, key, user_id) do
-    case KV.get(key, user_id: user_id) do
+  defp do_get(conn, key, user_id, lobby_id) do
+    case KV.get(key, user_id: user_id, lobby_id: lobby_id) do
       {:ok, %{value: value, metadata: metadata}} ->
         json(conn, %{data: value, metadata: metadata})
 

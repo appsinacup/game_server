@@ -21,6 +21,13 @@ defmodule GameServerWeb.Api.V1.Admin.KvController do
         example: -1,
         minimum: -1
       },
+      lobby_id: %Schema{
+        type: :integer,
+        nullable: true,
+        description: "Owner lobby id; -1 means global/unowned",
+        example: -1,
+        minimum: -1
+      },
       data: %Schema{type: :object},
       metadata: %Schema{type: :object},
       inserted_at: %Schema{type: :string, format: "date-time"},
@@ -40,6 +47,7 @@ defmodule GameServerWeb.Api.V1.Admin.KvController do
         properties: %{
           key: %Schema{type: :string},
           user_id: %Schema{type: :integer, nullable: true},
+          lobby_id: %Schema{type: :integer, nullable: true},
           data: %Schema{type: :object},
           metadata: %Schema{type: :object}
         },
@@ -87,7 +95,28 @@ defmodule GameServerWeb.Api.V1.Admin.KvController do
             nil
         end
 
-      case KV.put(key, data, metadata, user_id: user_id) do
+      lobby_id =
+        case Map.get(params, "lobby_id") do
+          nil ->
+            nil
+
+          "" ->
+            nil
+
+          v when is_integer(v) ->
+            v
+
+          v when is_binary(v) ->
+            case Integer.parse(v) do
+              {i, _} -> i
+              _ -> nil
+            end
+
+          _ ->
+            nil
+        end
+
+      case KV.put(key, data, metadata, user_id: user_id, lobby_id: lobby_id) do
         {:ok, entry} ->
           json(conn, %{data: serialize_entry(entry)})
 
@@ -105,7 +134,8 @@ defmodule GameServerWeb.Api.V1.Admin.KvController do
     security: [%{"authorization" => []}],
     parameters: [
       key: [in: :query, schema: %Schema{type: :string}, required: true],
-      user_id: [in: :query, schema: %Schema{type: :integer}, required: false]
+      user_id: [in: :query, schema: %Schema{type: :integer}, required: false],
+      lobby_id: [in: :query, schema: %Schema{type: :integer}, required: false]
     ],
     responses: [
       ok: {"Deleted", "application/json", %Schema{type: :object}},
@@ -136,7 +166,28 @@ defmodule GameServerWeb.Api.V1.Admin.KvController do
           nil
       end
 
-    :ok = KV.delete(key, user_id: user_id)
+    lobby_id =
+      case Map.get(params, "lobby_id") do
+        nil ->
+          nil
+
+        "" ->
+          nil
+
+        v when is_integer(v) ->
+          v
+
+        v when is_binary(v) ->
+          case Integer.parse(v) do
+            {i, _} -> i
+            _ -> nil
+          end
+
+        _ ->
+          nil
+      end
+
+    :ok = KV.delete(key, user_id: user_id, lobby_id: lobby_id)
     json(conn, %{})
   end
 
@@ -145,6 +196,7 @@ defmodule GameServerWeb.Api.V1.Admin.KvController do
       id: entry.id,
       key: entry.key,
       user_id: entry.user_id || -1,
+      lobby_id: entry.lobby_id || -1,
       data: entry.value,
       metadata: entry.metadata,
       inserted_at: entry.inserted_at,

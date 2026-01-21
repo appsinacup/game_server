@@ -63,6 +63,12 @@ defmodule GameServerWeb.AdminLive.KV do
                     inputmode="numeric"
                   />
                   <.input
+                    field={@filter_form[:lobby_id]}
+                    type="number"
+                    label="Lobby ID"
+                    inputmode="numeric"
+                  />
+                  <.input
                     field={@filter_form[:global_only]}
                     type="checkbox"
                     label="Global only"
@@ -82,7 +88,8 @@ defmodule GameServerWeb.AdminLive.KV do
                 <colgroup>
                   <col class="w-10" />
                   <col class="w-16" />
-                  <col class="w-[40%]" />
+                  <col class="w-[35%]" />
+                  <col class="w-20" />
                   <col class="w-20" />
                   <col class="w-40" />
                   <col class="w-[20%]" />
@@ -102,6 +109,7 @@ defmodule GameServerWeb.AdminLive.KV do
                     <th class="w-16">ID</th>
                     <th class="font-mono text-sm break-all">Key</th>
                     <th class="w-20">User</th>
+                    <th class="w-20">Lobby</th>
                     <th class="w-40">Updated</th>
                     <th>Value</th>
                     <th>Metadata</th>
@@ -122,6 +130,7 @@ defmodule GameServerWeb.AdminLive.KV do
                     <td class="font-mono text-sm w-16">{e.id}</td>
                     <td class="font-mono text-sm break-all">{e.key}</td>
                     <td class="font-mono text-sm w-20">{e.user_id || ""}</td>
+                    <td class="font-mono text-sm w-20">{e.lobby_id || ""}</td>
                     <td class="text-sm w-40">
                       <span class="font-mono text-xs">
                         {if e.updated_at, do: DateTime.to_iso8601(e.updated_at), else: "-"}
@@ -200,6 +209,12 @@ defmodule GameServerWeb.AdminLive.KV do
                 label="User ID (optional)"
                 inputmode="numeric"
               />
+              <.input
+                field={@form[:lobby_id]}
+                type="number"
+                label="Lobby ID (optional)"
+                inputmode="numeric"
+              />
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
@@ -245,10 +260,13 @@ defmodule GameServerWeb.AdminLive.KV do
      |> assign(:page_size, page_size)
      |> assign(:filter_key, nil)
      |> assign(:filter_user_id, nil)
+     |> assign(:filter_lobby_id, nil)
      |> assign(:filter_global_only, false)
      |> assign(
        :filter_form,
-       to_form(%{"key" => "", "user_id" => "", "global_only" => "false"}, as: :filters)
+       to_form(%{"key" => "", "user_id" => "", "lobby_id" => "", "global_only" => "false"},
+         as: :filters
+       )
      )
      |> assign(:selected_ids, MapSet.new())
      |> assign(:show_form_modal, false)
@@ -346,12 +364,14 @@ defmodule GameServerWeb.AdminLive.KV do
        %{
          filter_key: filter_key,
          filter_user_id: filter_user_id,
+         filter_lobby_id: filter_lobby_id,
          filter_global_only: filter_global_only
        }} ->
         {:noreply,
          socket
          |> assign(:filter_key, filter_key)
          |> assign(:filter_user_id, filter_user_id)
+         |> assign(:filter_lobby_id, filter_lobby_id)
          |> assign(:filter_global_only, filter_global_only)
          |> assign(:page, 1)
          |> reload_entries()}
@@ -367,10 +387,13 @@ defmodule GameServerWeb.AdminLive.KV do
      socket
      |> assign(:filter_key, nil)
      |> assign(:filter_user_id, nil)
+     |> assign(:filter_lobby_id, nil)
      |> assign(:filter_global_only, false)
      |> assign(
        :filter_form,
-       to_form(%{"key" => "", "user_id" => "", "global_only" => "false"}, as: :filters)
+       to_form(%{"key" => "", "user_id" => "", "lobby_id" => "", "global_only" => "false"},
+         as: :filters
+       )
      )
      |> assign(:page, 1)
      |> reload_entries()}
@@ -476,6 +499,7 @@ defmodule GameServerWeb.AdminLive.KV do
 
     key = socket.assigns.filter_key
     user_id = socket.assigns.filter_user_id
+    lobby_id = socket.assigns.filter_lobby_id
     global_only = socket.assigns.filter_global_only
 
     entries =
@@ -484,10 +508,13 @@ defmodule GameServerWeb.AdminLive.KV do
         page_size: page_size,
         key: key,
         user_id: user_id,
+        lobby_id: lobby_id,
         global_only: global_only
       )
 
-    count = KV.count_entries(key: key, user_id: user_id, global_only: global_only)
+    count =
+      KV.count_entries(key: key, user_id: user_id, lobby_id: lobby_id, global_only: global_only)
+
     total_pages = if page_size > 0, do: div(count + page_size - 1, page_size), else: 0
 
     socket
@@ -527,6 +554,7 @@ defmodule GameServerWeb.AdminLive.KV do
       "id" => "",
       "key" => "",
       "user_id" => "",
+      "lobby_id" => "",
       "value_json" => "{}",
       "metadata_json" => "{}"
     }
@@ -541,6 +569,7 @@ defmodule GameServerWeb.AdminLive.KV do
       "id" => to_string(entry.id),
       "key" => entry.key,
       "user_id" => if(entry.user_id, do: to_string(entry.user_id), else: ""),
+      "lobby_id" => if(entry.lobby_id, do: to_string(entry.lobby_id), else: ""),
       "value_json" => pretty_json(entry.value),
       "metadata_json" => pretty_json(entry.metadata)
     }
@@ -577,9 +606,10 @@ defmodule GameServerWeb.AdminLive.KV do
 
     with true <- key != "" || {:error, "Key is required"},
          {:ok, user_id} <- parse_optional_int(Map.get(params, "user_id")),
+         {:ok, lobby_id} <- parse_optional_int(Map.get(params, "lobby_id")),
          {:ok, value} <- decode_json_object(Map.get(params, "value_json"), "Value"),
          {:ok, metadata} <- decode_json_object(Map.get(params, "metadata_json"), "Metadata") do
-      attrs = %{key: key, user_id: user_id, value: value, metadata: metadata}
+      attrs = %{key: key, user_id: user_id, lobby_id: lobby_id, value: value, metadata: metadata}
       {:ok, %{id: id, attrs: attrs}}
     else
       {:error, msg} -> {:error, msg}
@@ -643,11 +673,19 @@ defmodule GameServerWeb.AdminLive.KV do
 
     global_only = parse_bool(Map.get(params, "global_only"))
 
-    case parse_optional_int(Map.get(params, "user_id")) do
-      {:ok, user_id} ->
-        user_id = if(global_only, do: nil, else: user_id)
-        {:ok, %{filter_key: key, filter_user_id: user_id, filter_global_only: global_only}}
+    with {:ok, user_id} <- parse_optional_int(Map.get(params, "user_id")),
+         {:ok, lobby_id} <- parse_optional_int(Map.get(params, "lobby_id")) do
+      user_id = if(global_only, do: nil, else: user_id)
+      lobby_id = if(global_only, do: nil, else: lobby_id)
 
+      {:ok,
+       %{
+         filter_key: key,
+         filter_user_id: user_id,
+         filter_lobby_id: lobby_id,
+         filter_global_only: global_only
+       }}
+    else
       {:error, msg} ->
         {:error, msg}
     end

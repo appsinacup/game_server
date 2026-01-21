@@ -22,6 +22,13 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
         example: -1,
         minimum: -1
       },
+      lobby_id: %Schema{
+        type: :integer,
+        nullable: true,
+        description: "Owner lobby id; -1 means global/unowned",
+        example: -1,
+        minimum: -1
+      },
       data: %Schema{type: :object},
       metadata: %Schema{type: :object},
       inserted_at: %Schema{type: :string, format: "date-time"},
@@ -50,6 +57,7 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
       page_size: [in: :query, schema: %Schema{type: :integer}, required: false],
       key: [in: :query, schema: %Schema{type: :string}, required: false],
       user_id: [in: :query, schema: %Schema{type: :integer}, required: false],
+      lobby_id: [in: :query, schema: %Schema{type: :integer}, required: false],
       global_only: [
         in: :query,
         schema: %Schema{type: :string, enum: ["true", "false"]},
@@ -79,6 +87,7 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
       |> Keyword.put(:page, page)
       |> Keyword.put(:page_size, page_size)
       |> maybe_put_int_opt(:user_id, params["user_id"])
+      |> maybe_put_int_opt(:lobby_id, params["lobby_id"])
       |> maybe_put_string_opt(:key, params["key"])
       |> maybe_put_bool_opt(:global_only, params["global_only"])
 
@@ -103,6 +112,7 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
         properties: %{
           key: %Schema{type: :string},
           user_id: %Schema{type: :integer, nullable: true},
+          lobby_id: %Schema{type: :integer, nullable: true},
           data: %Schema{type: :object},
           metadata: %Schema{type: :object}
         },
@@ -148,6 +158,7 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
         properties: %{
           key: %Schema{type: :string},
           user_id: %Schema{type: :integer, nullable: true},
+          lobby_id: %Schema{type: :integer, nullable: true},
           data: %Schema{type: :object},
           metadata: %Schema{type: :object}
         }
@@ -207,6 +218,7 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
       id: entry.id,
       key: entry.key,
       user_id: entry.user_id || -1,
+      lobby_id: entry.lobby_id || -1,
       data: entry.value,
       metadata: entry.metadata,
       inserted_at: entry.inserted_at,
@@ -271,17 +283,20 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
     |> Map.take([
       "key",
       "user_id",
+      "lobby_id",
       "data",
       "value",
       "metadata",
       :key,
       :user_id,
+      :lobby_id,
       :data,
       :value,
       :metadata
     ])
     |> normalize_data_field()
     |> normalize_user_id()
+    |> normalize_lobby_id()
   end
 
   defp normalize_data_field(attrs) do
@@ -333,6 +348,38 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
       Map.has_key?(attrs, "user_id") -> Map.put(attrs, "user_id", normalized)
       Map.has_key?(attrs, :user_id) -> Map.put(attrs, :user_id, normalized)
       true -> Map.put(attrs, :user_id, normalized)
+    end
+  end
+
+  defp normalize_lobby_id(attrs) do
+    lobby_id = Map.get(attrs, "lobby_id") || Map.get(attrs, :lobby_id)
+
+    normalized =
+      case lobby_id do
+        nil ->
+          :no_change
+
+        "" ->
+          nil
+
+        v when is_integer(v) ->
+          v
+
+        v when is_binary(v) ->
+          case Integer.parse(v) do
+            {i, _} -> i
+            _ -> :no_change
+          end
+
+        _ ->
+          :no_change
+      end
+
+    cond do
+      normalized == :no_change -> attrs
+      Map.has_key?(attrs, "lobby_id") -> Map.put(attrs, "lobby_id", normalized)
+      Map.has_key?(attrs, :lobby_id) -> Map.put(attrs, :lobby_id, normalized)
+      true -> Map.put(attrs, :lobby_id, normalized)
     end
   end
 end
