@@ -114,14 +114,16 @@ jobs:
           echo "Checking for outdated dependencies..."
           mix hex.outdated
           
-          # Check if the output contains "Update not possible" which indicates major version updates
-          if mix hex.outdated | grep -q "Update not possible"; then
-            echo "❌ FAILURE: Some dependencies have major version updates available!"
-            echo "You must update these dependencies before merging."
-            echo "Run 'mix deps.update --all' and test thoroughly."
+          # Fail only if there are actionable updates ("Update possible"). Warn if there are "Update not possible" entries.
+          if mix hex.outdated | grep -q "Update possible"; then
+            echo "❌ FAILURE: Some dependencies have available updates. Please update and test thoroughly before merging."
             exit 1
           else
-            echo "✅ All dependencies are up to date or have compatible updates."
+            if mix hex.outdated | grep -q "Update not possible"; then
+              echo "⚠️ Some dependencies have major-version updates that are blocked by constraints (Update not possible). Please plan major upgrades separately."
+            else
+              echo "✅ All dependencies are up to date or have compatible updates."
+            fi
           fi
           
           # Add to GitHub step summary for better visibility
