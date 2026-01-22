@@ -123,8 +123,8 @@ defmodule GameServer.OAuth.Exchanger do
         user_url = "https://graph.facebook.com/v18.0/me"
 
         user_params = %{
-          # request picture from facebook so we can map an avatar url
-          fields: "id,email,picture",
+          # request picture and name from facebook so we can map display_name and avatar url
+          fields: "id,email,name,picture",
           access_token: access_token
         }
 
