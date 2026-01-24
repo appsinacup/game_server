@@ -7,6 +7,7 @@ on:
 permissions:
   contents: write
   packages: write
+  id-token: write
 
 env:
   IMAGE: ghcr.io/${{ github.repository }}
@@ -253,7 +254,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
           # repository uses JS packages under the `clients` subfolder. When caching
           # npm dependencies we need to point setup-node at the lockfile location
@@ -281,23 +281,21 @@ jobs:
           cp LICENSE clients/javascript/LICENSE
           jq '.license = "MIT"' clients/javascript/package.json > clients/javascript/package.json.tmp && mv clients/javascript/package.json.tmp clients/javascript/package.json
 
-      - name: Configure npm auth
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Update package.json with repository field (https://github.com/ughuuu/game_server.git)
         run: |
-          if [ -z "${NPM_TOKEN}" ]; then echo "No NPM_TOKEN provided in secrets"; exit 1; fi
-          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+          REPO_FIELD='"repository": { "type": "git", "url": "https://github.com/ughuuu/game_server.git" },'
+          jq ". + { $REPO_FIELD }" clients/javascript/package.json > clients/javascript/package.json.tmp && mv clients/javascript/package.json.tmp clients/javascript/package.json
 
       - name: Apply version and publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           cd clients/javascript
           echo "Publishing package with version=${{ steps.version.outputs.version }}"
           # Make sure package.json version is set to the computed version
           npm version ${{ steps.version.outputs.version }} --no-git-tag-version
           # Ensure we have the token configured (already done above), then publish
-          npm publish --access public
+          npm publish --access public --provenance
 
   build-godot-sdk:
     runs-on: ubuntu-latest
