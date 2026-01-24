@@ -928,6 +928,14 @@ defmodule GameServer.Lobbies do
         broadcast_lobby(lobby_id, {:user_left, lobby_id, user_id})
         broadcast_lobby(lobby_id, {:host_changed, lobby_id, new_host_id})
         broadcast_lobbies({:lobby_membership_changed, lobby_id})
+        updated_lobby = get_lobby(lobby_id)
+
+        if updated_lobby do
+          GameServer.Async.run(fn ->
+            GameServer.Hooks.internal_call(:after_lobby_host_change, [updated_lobby, new_host_id])
+          end)
+        end
+
         result
 
       {:ok, _} ->
