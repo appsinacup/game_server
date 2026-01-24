@@ -51,13 +51,13 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       ],
       is_passworded: [
         in: :query,
-        schema: %Schema{type: :string, enum: ["true", "false"]},
-        description: "Filter by passworded lobbies - 'true' or 'false' (omit for any)"
+        schema: %Schema{type: :boolean},
+        description: "Filter by passworded lobbies (omit for any)"
       ],
       is_locked: [
         in: :query,
-        schema: %Schema{type: :string, enum: ["true", "false"]},
-        description: "Filter by locked status - 'true' or 'false' (omit for any)"
+        schema: %Schema{type: :boolean},
+        description: "Filter by locked status (omit for any)"
       ],
       min_users: [
         in: :query,
@@ -313,17 +313,26 @@ defmodule GameServerWeb.Api.V1.LobbyController do
   )
 
   def index(conn, params) do
+    params = params || %{}
+
     filters =
-      Map.take(params || %{}, [
-        "title",
-        "metadata_key",
-        "metadata_value",
-        "is_passworded",
-        "is_locked",
-        "min_users",
-        "max_users"
-      ])
-      |> Enum.into(%{})
+      %{}
+      |> maybe_put_string_filter(:title, param_value(params, "title", :title))
+      |> maybe_put_bool_filter(
+        :is_passworded,
+        param_value(params, "is_passworded", :is_passworded)
+      )
+      |> maybe_put_bool_filter(:is_locked, param_value(params, "is_locked", :is_locked))
+      |> maybe_put_int_filter(:min_users, param_value(params, "min_users", :min_users))
+      |> maybe_put_int_filter(:max_users, param_value(params, "max_users", :max_users))
+      |> maybe_put_string_filter(
+        :metadata_key,
+        param_value(params, "metadata_key", :metadata_key)
+      )
+      |> maybe_put_string_filter(
+        :metadata_value,
+        param_value(params, "metadata_value", :metadata_value)
+      )
 
     page =
       case params["page"] || params[:page] do
@@ -602,4 +611,38 @@ defmodule GameServerWeb.Api.V1.LobbyController do
         conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
     end
   end
+
+  defp param_value(params, string_key, atom_key) when is_map(params) do
+    Map.get(params, string_key) || Map.get(params, atom_key)
+  end
+
+  defp maybe_put_string_filter(filters, _key, nil), do: filters
+  defp maybe_put_string_filter(filters, _key, ""), do: filters
+  defp maybe_put_string_filter(filters, key, v) when is_binary(v), do: Map.put(filters, key, v)
+  defp maybe_put_string_filter(filters, _key, _v), do: filters
+
+  defp maybe_put_int_filter(filters, _key, nil), do: filters
+
+  defp maybe_put_int_filter(filters, key, v) when is_binary(v) do
+    case Integer.parse(v) do
+      {i, _} -> Map.put(filters, key, i)
+      _ -> filters
+    end
+  end
+
+  defp maybe_put_int_filter(filters, key, v) when is_integer(v), do: Map.put(filters, key, v)
+  defp maybe_put_int_filter(filters, _key, _v), do: filters
+
+  defp maybe_put_bool_filter(filters, _key, nil), do: filters
+
+  defp maybe_put_bool_filter(filters, key, v) when is_binary(v) do
+    case String.downcase(v) do
+      "true" -> Map.put(filters, key, true)
+      "false" -> Map.put(filters, key, false)
+      _ -> filters
+    end
+  end
+
+  defp maybe_put_bool_filter(filters, key, v) when is_boolean(v), do: Map.put(filters, key, v)
+  defp maybe_put_bool_filter(filters, _key, _v), do: filters
 end

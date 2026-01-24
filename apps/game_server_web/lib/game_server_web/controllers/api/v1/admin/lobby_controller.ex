@@ -45,17 +45,17 @@ defmodule GameServerWeb.Api.V1.Admin.LobbyController do
       title: [in: :query, schema: %Schema{type: :string}, required: false],
       is_hidden: [
         in: :query,
-        schema: %Schema{type: :string, enum: ["true", "false"]},
+        schema: %Schema{type: :boolean},
         required: false
       ],
       is_locked: [
         in: :query,
-        schema: %Schema{type: :string, enum: ["true", "false"]},
+        schema: %Schema{type: :boolean},
         required: false
       ],
       has_password: [
         in: :query,
-        schema: %Schema{type: :string, enum: ["true", "false"]},
+        schema: %Schema{type: :boolean},
         required: false
       ],
       min_users: [in: :query, schema: %Schema{type: :integer}, required: false],

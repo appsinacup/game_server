@@ -60,7 +60,7 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
       lobby_id: [in: :query, schema: %Schema{type: :integer}, required: false],
       global_only: [
         in: :query,
-        schema: %Schema{type: :string, enum: ["true", "false"]},
+        schema: %Schema{type: :boolean},
         required: false
       ]
     ],

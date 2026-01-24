@@ -263,11 +263,15 @@ func friends_list_friends(page = 1, page_size = 25) -> GamendResult:
 ## List lobbies
 func lobbies_list_lobbies(
 	query = "",
+	is_passworded = null,
+	is_locked = null,
+	min_users = null,
+	max_users = null,
 	page = null,
 	page_size = null,
 	metadata_key = "",
 	metadata_value = "") -> GamendResult:
-	return await _call_api(LobbiesApi.new(_config), "list_lobbies", [query, page, page_size, metadata_key, metadata_value])
+	return await _call_api(LobbiesApi.new(_config), "list_lobbies", [query, is_passworded, is_locked, min_users, max_users, page, page_size, metadata_key, metadata_value])
 
 ## Update lobby (host only)
 func lobbies_update_lobby(update_request: UpdateLobbyRequest) -> GamendResult:
@@ -314,8 +318,8 @@ func leaderboards_list_records_around_user(id: int, user_id: int, limit = 11) ->
 ## KV
 
 ## Get a key/value entry 
-func kv_get_kv(key: String, user_id = null) -> GamendResult:
-	return await _call_api(KVApi.new(_config), "get_kv", [key, user_id])
+func kv_get_kv(key: String, user_id = null, lobby_id = null) -> GamendResult:
+	return await _call_api(KVApi.new(_config), "get_kv", [key, user_id, lobby_id])
 
 ## ADMIN SESSIONS
 
@@ -392,8 +396,8 @@ func admin_leaderboards_admin_update_leaderboard(id: int, adminUpdateLeaderboard
 ## ADMIN KV
 
 ## List KV entries (admin)
-func admin_kv_admin_list_kv_entries(page = 1, page_size = 25, key = "", userId = null, globalOnly = "") -> GamendResult:
-	return await _call_api(AdminKVApi.new(_config), "admin_list_kv_entries", [page, page_size, key, userId, globalOnly])
+func admin_kv_admin_list_kv_entries(page = 1, page_size = 25, key = "", userId = null, lobby_id = null, globalOnly = null) -> GamendResult:
+	return await _call_api(AdminKVApi.new(_config), "admin_list_kv_entries", [page, page_size, key, userId, lobby_id, globalOnly])
 
 ## Create KV entry (admin)
 func admin_kv_admin_create_kv_entry(adminCreateKvEntryRequest: AdminCreateKvEntryRequest) -> GamendResult:
@@ -408,8 +412,8 @@ func admin_kv_admin_update_kv_entry(id: int, adminUpdateKvEntryRequest: AdminUpd
 	return await _call_api(AdminKVApi.new(_config), "admin_update_kv_entry", [id, adminUpdateKvEntryRequest])
 
 ## Delete KV by key (admin)
-func admin_kv_admin_delete_kv(key: String, userId = null) -> GamendResult:
-	return await _call_api(AdminKVApi.new(_config), "admin_delete_kv", [key, userId])
+func admin_kv_admin_delete_kv(key: String, user_id = null, lobby_id = null) -> GamendResult:
+	return await _call_api(AdminKVApi.new(_config), "admin_delete_kv", [key, user_id, lobby_id])
 
 ## Upsert KV by key (admin)
 func admin_kv_admin_upsert_kv(adminCreateKvEntryRequest: AdminCreateKvEntryRequest) -> GamendResult:

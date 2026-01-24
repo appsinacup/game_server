@@ -109,8 +109,8 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
       ],
       active: [
         in: :query,
-        schema: %Schema{type: :string, enum: ["true", "false"]},
-        description: "Filter by active status - 'true' or 'false' (omit for all)"
+        schema: %Schema{type: :boolean},
+        description: "Filter by active status (omit for all)"
       ],
       order_by: [
         in: :query,
@@ -459,6 +459,8 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
   defp maybe_add_slug_filter(opts, ""), do: opts
   defp maybe_add_slug_filter(opts, slug), do: Keyword.put(opts, :slug, slug)
 
+  defp maybe_add_active_filter(opts, true), do: Keyword.put(opts, :active, true)
+  defp maybe_add_active_filter(opts, false), do: Keyword.put(opts, :active, false)
   defp maybe_add_active_filter(opts, "true"), do: Keyword.put(opts, :active, true)
   defp maybe_add_active_filter(opts, "false"), do: Keyword.put(opts, :active, false)
   defp maybe_add_active_filter(opts, _), do: opts
