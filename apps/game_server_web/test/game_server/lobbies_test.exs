@@ -1,6 +1,7 @@
 defmodule GameServer.LobbiesTest do
   use GameServer.DataCase
 
+  alias GameServer.Accounts
   alias GameServer.AccountsFixtures
   alias GameServer.Lobbies
 
@@ -132,6 +133,23 @@ defmodule GameServer.LobbiesTest do
       assert {:error, :password_required} = Lobbies.join_lobby(other, lobby)
       assert {:error, :invalid_password} = Lobbies.join_lobby(other, lobby, password: "nope")
       assert {:ok, _} = Lobbies.join_lobby(other, lobby, password: pw)
+    end
+
+    test "list_lobbies_for_user does not return deleted lobby after cache warm", %{host: host} do
+      {:ok, lobby} =
+        Lobbies.create_lobby(%{title: "hidden-room", host_id: host.id, is_hidden: true})
+
+      host = Accounts.get_user!(host.id)
+      lobbies_before = Lobbies.list_lobbies_for_user(host)
+      assert Enum.any?(lobbies_before, &(&1.id == lobby.id))
+
+      # Warm the lobby cache explicitly
+      _ = Lobbies.get_lobby(lobby.id)
+
+      assert {:ok, _} = Accounts.delete_user(host)
+
+      lobbies_after = Lobbies.list_lobbies_for_user(host)
+      refute Enum.any?(lobbies_after, &(&1.id == lobby.id))
     end
 
     test "search by metadata", %{host: host} do

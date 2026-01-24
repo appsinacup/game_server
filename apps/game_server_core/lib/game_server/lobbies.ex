@@ -421,7 +421,7 @@ defmodule GameServer.Lobbies do
   @spec list_lobbies_for_user(User.t() | nil, map(), Types.lobby_list_opts()) :: [Lobby.t()]
   def list_lobbies_for_user(user, filters \\ %{}, opts \\ [])
 
-  def list_lobbies_for_user(%User{lobby_id: user_lobby_id}, filters, opts) do
+  def list_lobbies_for_user(%User{id: user_id, lobby_id: user_lobby_id}, filters, opts) do
     public_lobbies = list_lobbies(filters, opts)
 
     if is_nil(user_lobby_id) do
@@ -430,11 +430,16 @@ defmodule GameServer.Lobbies do
       # Check if user's lobby is hidden and needs to be included
       user_lobby = get_lobby(user_lobby_id)
 
-      if user_lobby && user_lobby.is_hidden &&
-           !Enum.any?(public_lobbies, &(&1.id == user_lobby_id)) do
-        [user_lobby | public_lobbies]
-      else
+      if is_nil(user_lobby) do
+        _ = invalidate_accounts_user_cache(user_id)
         public_lobbies
+      else
+        if user_lobby.is_hidden &&
+             !Enum.any?(public_lobbies, &(&1.id == user_lobby_id)) do
+          [user_lobby | public_lobbies]
+        else
+          public_lobbies
+        end
       end
     end
   end
