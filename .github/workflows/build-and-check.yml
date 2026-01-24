@@ -281,7 +281,7 @@ jobs:
 
       - name: Update package.json with repository field (https://github.com/ughuuu/game_server.git)
         run: |
-          REPO_FIELD='"repository": { "type": "git", "url": "https://github.com/ughuuu/game_server.git" },'
+          REPO_FIELD='"repository": { "type": "git", "url": "git+https://github.com/ughuuu/game_server.git" },'
           jq ". + { $REPO_FIELD }" clients/javascript/package.json > clients/javascript/package.json.tmp && mv clients/javascript/package.json.tmp clients/javascript/package.json
 
       - name: Add publishing config with provenance true
@@ -295,7 +295,7 @@ jobs:
           # Make sure package.json version is set to the computed version
           npm version ${{ steps.version.outputs.version }} --no-git-tag-version
           # Ensure we have the token configured (already done above), then publish
-          npm publish --access public --provenance
+          npm publish --access public --provenance --verbose
 
   build-godot-sdk:
     runs-on: ubuntu-latest
