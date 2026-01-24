@@ -874,7 +874,9 @@ defmodule GameServer.Lobbies do
                 handle_host_transfer(lobby, user_id, membership.id)
               end)
 
-            broadcast_leave_result(result, lobby_id, user_id)
+            result
+            |> broadcast_leave_result(lobby_id, user_id)
+            |> maybe_run_after_lobby_leave(user_id, lobby)
 
           {:error, reason} ->
             {:error, {:hook_rejected, reason}}
@@ -950,6 +952,22 @@ defmodule GameServer.Lobbies do
 
       _ ->
         :ok
+    end
+  end
+
+  defp maybe_run_after_lobby_leave(result, user_id, lobby) do
+    case result do
+      {:ok, _} ->
+        updated_user = Accounts.get_user(user_id)
+
+        GameServer.Async.run(fn ->
+          GameServer.Hooks.internal_call(:after_lobby_leave, [updated_user, lobby])
+        end)
+
+        result
+
+      _ ->
+        result
     end
   end
 
