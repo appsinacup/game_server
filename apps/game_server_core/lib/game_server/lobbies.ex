@@ -592,6 +592,7 @@ defmodule GameServer.Lobbies do
   @spec create_lobby(Types.lobby_create_attrs()) ::
           {:ok, Lobby.t()} | {:error, Ecto.Changeset.t() | term()}
   def create_lobby(attrs \\ %{}) do
+    attrs = normalize_changeset_params(attrs)
     attrs = maybe_hash_password(attrs)
     # if host_id is provided, prevent a user who is already a member of a lobby
     # from creating an additional lobby
@@ -619,7 +620,7 @@ defmodule GameServer.Lobbies do
           cond do
             Map.has_key?(attrs, "title") -> "title"
             Map.has_key?(attrs, :title) -> :title
-            true -> :title
+            true -> if(prefer_string_keys?(attrs), do: "title", else: :title)
           end
 
         Map.put(attrs, title_key, unique_title_candidate("lobby"))
@@ -1149,6 +1150,10 @@ defmodule GameServer.Lobbies do
   end
 
   defp normalize_changeset_params(other), do: other
+
+  defp prefer_string_keys?(attrs) when is_map(attrs) do
+    Enum.any?(Map.keys(attrs), &is_binary/1)
+  end
 
   @spec list_memberships_for_lobby(integer() | String.t()) :: [User.t()]
   def list_memberships_for_lobby(lobby_id) do
