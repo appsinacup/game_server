@@ -627,6 +627,8 @@ defmodule GameServer.Lobbies do
 
     case GameServer.Hooks.internal_call(:before_lobby_create, [attrs]) do
       {:ok, attrs} ->
+        attrs = normalize_changeset_params(attrs)
+
         Multi.new()
         |> Multi.insert(:lobby, Lobby.changeset(%Lobby{}, attrs))
         |> maybe_add_host_membership(attrs)
@@ -740,6 +742,8 @@ defmodule GameServer.Lobbies do
 
             attrs
           end
+
+        attrs_to_use = normalize_changeset_params(attrs_to_use)
 
         result =
           lobby
@@ -1129,6 +1133,22 @@ defmodule GameServer.Lobbies do
   end
 
   defp maybe_hash_password(other), do: other
+
+  defp normalize_changeset_params(attrs) when is_map(attrs) do
+    keys = Map.keys(attrs)
+    has_string = Enum.any?(keys, &is_binary/1)
+    has_atom = Enum.any?(keys, &is_atom/1)
+
+    if has_string and has_atom do
+      Map.new(attrs, fn {k, v} ->
+        if is_atom(k), do: {Atom.to_string(k), v}, else: {k, v}
+      end)
+    else
+      attrs
+    end
+  end
+
+  defp normalize_changeset_params(other), do: other
 
   @spec list_memberships_for_lobby(integer() | String.t()) :: [User.t()]
   def list_memberships_for_lobby(lobby_id) do
