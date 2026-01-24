@@ -262,16 +262,16 @@ func friends_list_friends(page = 1, page_size = 25) -> GamendResult:
 
 ## List lobbies
 func lobbies_list_lobbies(
-	query = "",
-	is_passworded = null,
-	is_locked = null,
-	min_users = null,
-	max_users = null,
+	title = "",
+	isPassworded = null,
+	isLocked = null,
+	minUsers = null,
+	maxUsers = null,
 	page = null,
-	page_size = null,
-	metadata_key = "",
-	metadata_value = "") -> GamendResult:
-	return await _call_api(LobbiesApi.new(_config), "list_lobbies", [query, is_passworded, is_locked, min_users, max_users, page, page_size, metadata_key, metadata_value])
+	pageSize = null,
+	metadataKey = "",
+	metadataValue = "") -> GamendResult:
+	return await _call_api(LobbiesApi.new(_config), "list_lobbies", [title, isPassworded, isLocked, minUsers, maxUsers, page, pageSize, metadataKey, metadataValue])
 
 ## Update lobby (host only)
 func lobbies_update_lobby(update_request: UpdateLobbyRequest) -> GamendResult:
@@ -304,8 +304,8 @@ func leaderboards_list_leaderboard_records(id: int, page = 1, page_size = 25) ->
 	return await _call_api(LeaderboardsApi.new(_config), "list_leaderboard_records", [id, page, page_size])
 
 ## List leaderboards
-func leaderboards_list_leaderboards(slug = "", active = null, order_by = "ends_at", starts_after = null, starts_before = null, ends_after = null, ends_before = null, page = 1, page_size = 25) -> GamendResult:
-	return await _call_api(LeaderboardsApi.new(_config), "list_leaderboards", [slug, active, order_by, starts_after, starts_before, ends_after, ends_before, page, page_size])
+func leaderboards_list_leaderboards(slug = "", active = null, orderBy = "ends_at", startsAfter = null, startsBefore = null, endsAfter = null, endsBefore = null, page = 1, pageSize = 25) -> GamendResult:
+	return await _call_api(LeaderboardsApi.new(_config), "list_leaderboards", [slug, active, orderBy, startsAfter, startsBefore, endsAfter, endsBefore, page, pageSize])
 
 ## Get current user's record
 func leaderboards_get_my_record(id: int) -> GamendResult:
@@ -348,8 +348,8 @@ func admin_users_admin_update_user(id: int, admin_update_user_request: AdminUpda
 ## ADMIN LOBBIES
 
 # List all lobbies (admin)
-func admin_lobbies_admin_list_lobbies(title = "", isHidden = null, isLocked = null, hasPassword = null, minUsers = null, maxUsers = null, page = 1, page_size = 25) -> GamendResult:
-	return await _call_api(AdminLobbiesApi.new(_config), "admin_list_lobbies", [title, isHidden, isLocked, hasPassword, minUsers, maxUsers, page, page_size])
+func admin_lobbies_admin_list_lobbies(title = "", isHidden = null, isLocked = null, hasPassword = null, minUsers = null, maxUsers = null, page = 1, pageSize = 25) -> GamendResult:
+	return await _call_api(AdminLobbiesApi.new(_config), "admin_list_lobbies", [title, isHidden, isLocked, hasPassword, minUsers, maxUsers, page, pageSize])
 
 # Delete lobby (admin)
 func admin_lobbies_admin_delete_lobby(id: int) -> GamendResult:
@@ -357,7 +357,7 @@ func admin_lobbies_admin_delete_lobby(id: int) -> GamendResult:
 
 # Update lobby (admin)
 func admin_lobbies_admin_update_lobby(id: int, adminUpdateLobbyRequest: AdminUpdateLobbyRequest) -> GamendResult:
-	return await _call_api(AdminLobbiesApi.new(_config), "admin_lobbies_admin_update_lobby", [id, adminUpdateLobbyRequest])
+	return await _call_api(AdminLobbiesApi.new(_config), "admin_update_lobby", [id, adminUpdateLobbyRequest])
 
 ## ADMIN LEADERBOARDS
 
@@ -396,8 +396,8 @@ func admin_leaderboards_admin_update_leaderboard(id: int, adminUpdateLeaderboard
 ## ADMIN KV
 
 ## List KV entries (admin)
-func admin_kv_admin_list_kv_entries(page = 1, page_size = 25, key = "", userId = null, lobby_id = null, globalOnly = null) -> GamendResult:
-	return await _call_api(AdminKVApi.new(_config), "admin_list_kv_entries", [page, page_size, key, userId, lobby_id, globalOnly])
+func admin_kv_admin_list_kv_entries(page = 1, pageSize = 25, key = "", userId = null, lobbyId = null, globalOnly = null) -> GamendResult:
+	return await _call_api(AdminKVApi.new(_config), "admin_list_kv_entries", [page, pageSize, key, userId, lobbyId, globalOnly])
 
 ## Create KV entry (admin)
 func admin_kv_admin_create_kv_entry(adminCreateKvEntryRequest: AdminCreateKvEntryRequest) -> GamendResult:
