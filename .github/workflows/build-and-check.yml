@@ -214,8 +214,6 @@ jobs:
   publish-js-sdk:
     name: Publish JS SDK
     runs-on: ubuntu-latest
-    env:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     # if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
 
     steps:
@@ -287,8 +285,6 @@ jobs:
           jq ". + { $REPO_FIELD }" clients/javascript/package.json > clients/javascript/package.json.tmp && mv clients/javascript/package.json.tmp clients/javascript/package.json
 
       - name: Apply version and publish
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           cd clients/javascript
           echo "Publishing package with version=${{ steps.version.outputs.version }}"
