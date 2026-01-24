@@ -304,7 +304,7 @@ func leaderboards_list_leaderboard_records(id: int, page = 1, page_size = 25) ->
 	return await _call_api(LeaderboardsApi.new(_config), "list_leaderboard_records", [id, page, page_size])
 
 ## List leaderboards
-func leaderboards_list_leaderboards(slug = "", active = "", order_by = "ends_at", starts_after = null, starts_before = null, ends_after = null, ends_before = null, page = 1, page_size = 25) -> GamendResult:
+func leaderboards_list_leaderboards(slug = "", active = null, order_by = "ends_at", starts_after = null, starts_before = null, ends_after = null, ends_before = null, page = 1, page_size = 25) -> GamendResult:
 	return await _call_api(LeaderboardsApi.new(_config), "list_leaderboards", [slug, active, order_by, starts_after, starts_before, ends_after, ends_before, page, page_size])
 
 ## Get current user's record
@@ -348,7 +348,7 @@ func admin_users_admin_update_user(id: int, admin_update_user_request: AdminUpda
 ## ADMIN LOBBIES
 
 # List all lobbies (admin)
-func admin_lobbies_admin_list_lobbies(title = "", isHidden = "", isLocked = "", hasPassword = "", minUsers = null, maxUsers = null, page = 1, page_size = 25) -> GamendResult:
+func admin_lobbies_admin_list_lobbies(title = "", isHidden = null, isLocked = null, hasPassword = null, minUsers = null, maxUsers = null, page = 1, page_size = 25) -> GamendResult:
 	return await _call_api(AdminLobbiesApi.new(_config), "admin_list_lobbies", [title, isHidden, isLocked, hasPassword, minUsers, maxUsers, page, page_size])
 
 # Delete lobby (admin)
