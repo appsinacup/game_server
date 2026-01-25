@@ -596,6 +596,14 @@ Returns a list of User structs.
 
 See `t:GameServer.Types.pagination_opts/0` for available options.
 
+# `serialize_user_payload`
+
+```elixir
+@spec serialize_user_payload(GameServer.Accounts.User.t()) :: map()
+```
+
+Serialize a user into the compact payload used by realtime updates.
+
 # `sudo_mode?`
 
 ```elixir
