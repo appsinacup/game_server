@@ -1078,7 +1078,7 @@ defmodule GameServer.Lobbies do
       new_max = Map.get(attrs, "max_users") || Map.get(attrs, :max_users)
 
       if is_nil(new_max) do
-        broadcast_update_result(update_lobby(lobby, attrs), lobby.id)
+        update_lobby(lobby, attrs)
       else
         validate_and_update_max_users(lobby, attrs, new_max)
       end
@@ -1102,19 +1102,7 @@ defmodule GameServer.Lobbies do
     if new_max < current_count do
       {:error, :too_small}
     else
-      broadcast_update_result(update_lobby(lobby, attrs), lobby.id)
-    end
-  end
-
-  defp broadcast_update_result(result, lobby_id) do
-    case result do
-      {:ok, updated_lobby} ->
-        broadcast_lobby(lobby_id, {:lobby_updated, updated_lobby})
-        broadcast_lobbies({:lobby_updated, updated_lobby})
-        result
-
-      _ ->
-        result
+      update_lobby(lobby, attrs)
     end
   end
 
