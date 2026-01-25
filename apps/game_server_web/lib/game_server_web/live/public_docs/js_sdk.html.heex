@@ -311,7 +311,7 @@ await lobbyChannel.join();
 // - 'user_joined'  => { user_id }
 // - 'user_left'    => { user_id }
 // - 'user_kicked'  => { user_id }
-// - 'lobby_updated' => lobby object (full lobby payload, contains fields like title, max_users, metadata, etc.)
+// - 'updated' => lobby object (full lobby payload, contains fields like title, max_users, metadata, etc.)
 // - 'host_changed' => { new_host_id }
 
 lobbyChannel.on('user_joined', ({ user_id }) => {
@@ -326,11 +326,11 @@ lobbyChannel.on('user_kicked', ({ user_id }) => {
   console.warn('User kicked from lobby', user_id)
 })
 
-// lobby_updated contains the full, serialized lobby object. To detect specific
+// updated contains the full, serialized lobby object. To detect specific
 // field changes (title changed, max_users changed, etc.) compare with the
 // previous lobby state you have stored in the client.
 let currentLobbyState = null
-lobbyChannel.on('lobby_updated', (lobby) => {
+lobbyChannel.on('updated', (lobby) => {
   console.log('Lobby updated', lobby)
 
   if (currentLobbyState) {
@@ -352,7 +352,7 @@ lobbyChannel.on('user_kicked', ({ user_id }) => console.warn('You were kicked', 
 lobbyChannel.on('host_changed', ({ new_host_id }) => {
   console.log('Lobby host changed ->', new_host_id)
 })
-lobbyChannel.on('lobby_updated', (lobby) => console.log('Lobby updated', lobby));
+lobbyChannel.on('updated', (lobby) => console.log('Lobby updated', lobby));
 lobbyChannel.on('host_changed', ({ new_host_id }) => console.log('Host changed', new_host_id));</code></pre>
           </div>
         </div>

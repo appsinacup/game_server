@@ -53,6 +53,10 @@ defmodule GameServerWeb.Plugs.LoadTheme do
   end
 
   defp fetch_theme(mod, locale) do
+    # Ensure the module is loaded before checking exports to avoid false
+    # negatives that skip the locale-aware API.
+    _ = Code.ensure_loaded?(mod)
+
     # Prefer locale-aware API when available, but fall back to the 0-arity
     # provider when the locale-specific call returns an empty map or nil.
     if is_binary(locale) and function_exported?(mod, :get_theme, 1) do

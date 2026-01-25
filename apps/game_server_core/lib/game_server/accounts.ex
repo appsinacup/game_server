@@ -1516,17 +1516,7 @@ defmodule GameServer.Accounts do
   """
   @spec broadcast_user_update(User.t()) :: :ok
   def broadcast_user_update(%User{} = user) do
-    payload = %{
-      id: user.id,
-      email: user.email || "",
-      profile_url: user.profile_url || "",
-      metadata: user.metadata || %{},
-      display_name: user.display_name || "",
-      lobby_id: user.lobby_id || -1,
-      linked_providers: get_linked_providers(user),
-      has_password: has_password?(user)
-    }
-
+    payload = serialize_user_payload(user)
     topic = "user:#{user.id}"
 
     Phoenix.PubSub.broadcast(
@@ -1536,6 +1526,23 @@ defmodule GameServer.Accounts do
     )
 
     :ok
+  end
+
+  @doc """
+  Serialize a user into the compact payload used by realtime updates.
+  """
+  @spec serialize_user_payload(User.t()) :: map()
+  def serialize_user_payload(%User{} = user) do
+    %{
+      id: user.id,
+      email: user.email || "",
+      profile_url: user.profile_url || "",
+      metadata: user.metadata || %{},
+      display_name: user.display_name || "",
+      lobby_id: user.lobby_id || -1,
+      linked_providers: get_linked_providers(user),
+      has_password: has_password?(user)
+    }
   end
 
   @doc """

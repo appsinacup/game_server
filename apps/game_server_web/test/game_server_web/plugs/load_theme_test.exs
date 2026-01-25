@@ -1,5 +1,5 @@
 defmodule GameServerWeb.Plugs.LoadThemeTest do
-  use GameServerWeb.ConnCase, async: true
+  use GameServerWeb.ConnCase, async: false
 
   alias GameServerWeb.Plugs.LoadTheme
 
@@ -27,8 +27,8 @@ defmodule GameServerWeb.Plugs.LoadThemeTest do
 
   test "falls back to packaged defaults when provider returns empty map", %{conn: conn} do
     # Simulate a provider module that returns an empty map
-    orig_mod = Application.get_env(:game_server, :theme_module)
-    Application.put_env(:game_server, :theme_module, __MODULE__.EmptyThemeMock)
+    orig_mod = Application.get_env(:game_server_web, :theme_module)
+    Application.put_env(:game_server_web, :theme_module, __MODULE__.EmptyThemeMock)
 
     defmodule __MODULE__.EmptyThemeMock do
       def get_theme, do: %{}
@@ -45,8 +45,8 @@ defmodule GameServerWeb.Plugs.LoadThemeTest do
 
     # restore app env
     if orig_mod,
-      do: Application.put_env(:game_server, :theme_module, orig_mod),
-      else: Application.delete_env(:game_server, :theme_module)
+      do: Application.put_env(:game_server_web, :theme_module, orig_mod),
+      else: Application.delete_env(:game_server_web, :theme_module)
   end
 
   test "prefers locale-specific THEME_CONFIG when locale is assigned", %{conn: conn} do

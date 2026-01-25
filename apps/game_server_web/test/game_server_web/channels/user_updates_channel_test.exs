@@ -20,6 +20,10 @@ defmodule GameServerWeb.UserChannelTest do
     {:ok, socket} = connect(GameServerWeb.UserSocket, %{"token" => token})
     {:ok, _, _socket} = subscribe_and_join(socket, "user:#{user.id}", %{})
 
+    assert_push "updated", initial_payload
+    assert initial_payload.id == user.id
+    assert initial_payload.lobby_id == -1
+
     {:ok, lobby} = GameServer.Lobbies.create_lobby(%{title: "user-updates-room", hostless: true})
 
     assert {:ok, _updated_user} = GameServer.Lobbies.join_lobby(user, lobby.id)
@@ -35,6 +39,10 @@ defmodule GameServerWeb.UserChannelTest do
 
     {:ok, socket} = connect(GameServerWeb.UserSocket, %{"token" => token})
     {:ok, _, _socket} = subscribe_and_join(socket, "user:#{user.id}", %{})
+
+    assert_push "updated", initial_payload
+    assert initial_payload.id == user.id
+    assert initial_payload.lobby_id == -1
 
     {:ok, lobby} =
       GameServer.Lobbies.create_lobby(%{title: "user-updates-leave-room", hostless: true})

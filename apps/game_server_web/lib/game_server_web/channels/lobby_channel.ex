@@ -11,7 +11,7 @@ defmodule GameServerWeb.LobbyChannel do
   - `"user_joined"` - A user joined the lobby. Payload: `%{user_id: integer}`
   - `"user_left"` - A user left the lobby. Payload: `%{user_id: integer}`
   - `"user_kicked"` - A user was kicked from the lobby. Payload: `%{user_id: integer}`
-  - `"lobby_updated"` - The lobby settings were updated. Payload: lobby object
+  - `"updated"` - The lobby settings were updated. Payload: lobby object
   - `"host_changed"` - The host changed. Payload: `%{new_host_id: integer}`
   """
 
@@ -29,11 +29,12 @@ defmodule GameServerWeb.LobbyChannel do
 
     with {lobby_id, ""} <- Integer.parse(lobby_id_str),
          %Scope{user: %{id: user_id}} <- current_scope,
-         %GameServer.Lobbies.Lobby{} <- Lobbies.get_lobby(lobby_id) do
+         %GameServer.Lobbies.Lobby{} = lobby <- Lobbies.get_lobby(lobby_id) do
       case Accounts.get_user(user_id) do
         %User{lobby_id: ^lobby_id} ->
           # Subscribe to lobby PubSub events to forward to WebSocket clients
           Lobbies.subscribe_lobby(lobby_id)
+          send(self(), {:after_join, lobby})
           {:ok, assign(socket, :lobby_id, lobby_id)}
 
         _ ->
@@ -71,13 +72,19 @@ defmodule GameServerWeb.LobbyChannel do
 
   @impl true
   def handle_info({:lobby_updated, lobby}, socket) do
-    push(socket, "lobby_updated", serialize_lobby(lobby))
+    push(socket, "updated", serialize_lobby(lobby))
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:host_changed, _lobby_id, new_host_id}, socket) do
     push(socket, "host_changed", %{new_host_id: new_host_id})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:after_join, lobby}, socket) do
+    push(socket, "updated", serialize_lobby(lobby))
     {:noreply, socket}
   end
 

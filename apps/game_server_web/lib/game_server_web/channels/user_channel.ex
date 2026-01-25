@@ -9,7 +9,9 @@ defmodule GameServerWeb.UserChannel do
   use Phoenix.Channel
   require Logger
 
+  alias GameServer.Accounts
   alias GameServer.Accounts.Scope
+  alias GameServer.Accounts.User
 
   @impl true
   def join("user:" <> user_id_str, _payload, socket) do
@@ -19,8 +21,10 @@ defmodule GameServerWeb.UserChannel do
     case Integer.parse(user_id_str) do
       {user_id, ""} ->
         case current_scope do
-          %Scope{user: %{id: ^user_id}} = _scope ->
-            {:ok, socket}
+          %Scope{user: %User{id: ^user_id} = scoped_user} ->
+            user = Accounts.get_user(user_id) || scoped_user
+            send(self(), {:after_join, user})
+            {:ok, assign(socket, :user_id, user_id)}
 
           _ ->
             Logger.warning("UserChannel: unauthorized join attempt for user=#{user_id}")
@@ -35,6 +39,12 @@ defmodule GameServerWeb.UserChannel do
   @impl true
   def handle_out(event, payload, socket) do
     push(socket, event, payload)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:after_join, %User{} = user}, socket) do
+    push(socket, "updated", Accounts.serialize_user_payload(user))
     {:noreply, socket}
   end
 end

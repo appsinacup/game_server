@@ -78,7 +78,7 @@ export function joinLobbyChannel(lobbyId, handlers = {}) {
   if (handlers.onUserJoined) channel.on('user_joined', handlers.onUserJoined)
   if (handlers.onUserLeft) channel.on('user_left', handlers.onUserLeft)
   if (handlers.onUserKicked) channel.on('user_kicked', handlers.onUserKicked)
-  if (handlers.onLobbyUpdated) channel.on('lobby_updated', handlers.onLobbyUpdated)
+  if (handlers.onLobbyUpdated) channel.on('updated', handlers.onLobbyUpdated)
   if (handlers.onHostChanged) channel.on('host_changed', handlers.onHostChanged)
 
   // fallback generic handler

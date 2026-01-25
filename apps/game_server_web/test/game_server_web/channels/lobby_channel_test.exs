@@ -68,7 +68,7 @@ defmodule GameServerWeb.LobbyChannelTest do
     assert kicked_id == member.id
   end
 
-  test "channel receives lobby_updated event when lobby is updated" do
+  test "channel receives updated event when lobby is updated" do
     host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
 
     {:ok, lobby} = Lobbies.create_lobby(%{title: "update-channel-room", host_id: host.id})
@@ -81,6 +81,6 @@ defmodule GameServerWeb.LobbyChannelTest do
     {:ok, _} = Lobbies.update_lobby_by_host(host, lobby, %{"title" => "New Title"})
 
     # allow a slightly longer window for the broadcast -> push to arrive in tests
-    assert_push "lobby_updated", %{title: "New Title"}, 500
+    assert_push "updated", %{title: "New Title"}, 500
   end
 end

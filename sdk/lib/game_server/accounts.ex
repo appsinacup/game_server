@@ -1197,6 +1197,22 @@ defmodule GameServer.Accounts do
 
 
   @doc ~S"""
+    Serialize a user into the compact payload used by realtime updates.
+    
+  """
+  @spec serialize_user_payload(GameServer.Accounts.User.t()) :: map()
+  def serialize_user_payload(_user) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        %{}
+
+      _ ->
+        raise "GameServer.Accounts.serialize_user_payload/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Checks whether the user is in sudo mode.
     
     The user is in sudo mode when the last authentication was done no further

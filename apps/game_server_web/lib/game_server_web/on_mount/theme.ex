@@ -7,6 +7,7 @@ defmodule GameServerWeb.OnMount.Theme do
 
   def on_mount(:mount_theme, _params, _session, socket) do
     theme_mod = Application.get_env(:game_server_web, :theme_module, GameServer.Theme.JSONConfig)
+    _ = Code.ensure_loaded?(theme_mod)
     locale = Gettext.get_locale(GameServerWeb.Gettext)
 
     theme_map =
