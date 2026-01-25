@@ -5,6 +5,8 @@ defmodule GameServerWeb.Layouts do
   """
   use GameServerWeb, :html
 
+  alias GameServer.Theme.JSONConfig
+
   # Embed all files in layouts/* within this module.
   # The default root.html.heex file contains the HTML
   # skeleton of your application, namely HTML headers
@@ -38,24 +40,33 @@ defmodule GameServerWeb.Layouts do
     conn = Map.get(assigns, :conn)
     current_path = if conn, do: conn.request_path, else: "/"
     current_query = if conn, do: conn.query_string, else: ""
-    assigns = assign(assigns, current_path: current_path, current_query: current_query)
+    locale = Gettext.get_locale(GameServerWeb.Gettext)
+
+    provider_theme =
+      Map.get(assigns, :theme) || JSONConfig.get_theme(locale) || %{}
+
+    theme = %{
+      "title" => Map.get(provider_theme, "title"),
+      "tagline" => Map.get(provider_theme, "tagline"),
+      "logo" => Map.get(provider_theme, "logo"),
+      "banner" => Map.get(provider_theme, "banner"),
+      "css" => Map.get(provider_theme, "css")
+    }
+
+    assigns =
+      assign(assigns,
+        current_path: current_path,
+        current_query: current_query,
+        theme: theme
+      )
 
     ~H"""
     <header class="navbar px-4 sm:px-6 lg:px-8">
-      <% provider_theme = GameServer.Theme.JSONConfig.get_theme() || %{} %>
-
-      <% theme = %{
-        "title" => Map.get(provider_theme, "title"),
-        "tagline" => Map.get(provider_theme, "tagline"),
-        "logo" => Map.get(provider_theme, "logo"),
-        "banner" => Map.get(provider_theme, "banner"),
-        "css" => Map.get(provider_theme, "css")
-      } %>
-      <% title = Map.get(theme, "title") %>
-      <% tagline = Map.get(theme, "tagline") %>
+      <% title = Map.get(@theme, "title") %>
+      <% tagline = Map.get(@theme, "tagline") %>
       <div class="flex-1">
         <a href={~p"/"} class="flex-1 flex w-fit items-center gap-2">
-          <img src={Map.get(theme, "logo")} width="36" alt={title} />
+          <img src={Map.get(@theme, "logo")} width="36" alt={title} />
           <span class="text-sm font-semibold">{title}</span>
           <%= if tagline && tagline != "" do %>
             <span class="text-xs opacity-60 ml-2">: {tagline}</span>
@@ -375,24 +386,28 @@ defmodule GameServerWeb.Layouts do
       <.flash
         id="client-error"
         kind={:error}
-        title={gettext("We can't find the internet")}
-        phx-disconnected={show(".phx-client-error #client-error") |> JS.remove_attribute("hidden")}
-        phx-connected={hide("#client-error") |> JS.set_attribute({"hidden", ""})}
+        title={gettext("Reconnecting…")}
+        phx-disconnected={JS.dispatch("gs:lv-disconnected")}
+        phx-connected={JS.dispatch("gs:lv-connected")}
+        phx-hook="ReconnectNotice"
+        data-delay-ms="5000"
         hidden
       >
-        {gettext("Attempting to reconnect")}
+        {gettext("Trying to reconnect")}
         <.icon name="hero-arrow-path" class="ml-1 size-3 motion-safe:animate-spin" />
       </.flash>
 
       <.flash
         id="server-error"
         kind={:error}
-        title={gettext("Something went wrong!")}
-        phx-disconnected={show(".phx-server-error #server-error") |> JS.remove_attribute("hidden")}
-        phx-connected={hide("#server-error") |> JS.set_attribute({"hidden", ""})}
+        title={gettext("Reconnecting…")}
+        phx-disconnected={JS.dispatch("gs:lv-disconnected")}
+        phx-connected={JS.dispatch("gs:lv-connected")}
+        phx-hook="ReconnectNotice"
+        data-delay-ms="5000"
         hidden
       >
-        {gettext("Attempting to reconnect")}
+        {gettext("Trying to reconnect")}
         <.icon name="hero-arrow-path" class="ml-1 size-3 motion-safe:animate-spin" />
       </.flash>
     </div>

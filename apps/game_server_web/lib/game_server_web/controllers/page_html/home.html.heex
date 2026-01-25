@@ -1,5 +1,6 @@
 <Layouts.app flash={@flash} current_scope={@current_scope}>
-  <% provider_theme = GameServer.Theme.JSONConfig.get_theme() || %{} %>
+  <% locale = Gettext.get_locale(GameServerWeb.Gettext) %>
+  <% provider_theme = GameServer.Theme.JSONConfig.get_theme(locale) || %{} %>
 
   <div class="mt-8 flex justify-center">
     <img

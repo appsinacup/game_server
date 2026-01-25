@@ -47,6 +47,43 @@ const Hooks = {
     destroyed() {
       if (this.interval) clearInterval(this.interval)
     }
+  },
+  ReconnectNotice: {
+    mounted() {
+      this.delayMs = parseInt(this.el.dataset.delayMs || "5000", 10)
+      this.timer = null
+      this.hide()
+
+      this.onDisconnected = () => {
+        this.clearTimer()
+        this.timer = setTimeout(() => this.show(), this.delayMs)
+      }
+
+      this.onConnected = () => {
+        this.clearTimer()
+        this.hide()
+      }
+
+      this.el.addEventListener("gs:lv-disconnected", this.onDisconnected)
+      this.el.addEventListener("gs:lv-connected", this.onConnected)
+    },
+    destroyed() {
+      this.clearTimer()
+      this.el.removeEventListener("gs:lv-disconnected", this.onDisconnected)
+      this.el.removeEventListener("gs:lv-connected", this.onConnected)
+    },
+    clearTimer() {
+      if (this.timer) {
+        clearTimeout(this.timer)
+        this.timer = null
+      }
+    },
+    show() {
+      this.el.removeAttribute("hidden")
+    },
+    hide() {
+      this.el.setAttribute("hidden", "")
+    }
   }
 }
 

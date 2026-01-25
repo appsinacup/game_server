@@ -1,0 +1,31 @@
+{
+  "title": "Gamend",
+  "tagline": "Juego + Backend",
+  "description": "Servidor de juegos de código abierto con autenticación, usuarios, salas, scripting del servidor y portal de administración",
+  "css": "",
+  "logo": "/images/logo.png",
+  "banner": "/images/banner.png",
+  "favicon": "/favicon.ico",
+  "useful_links": [
+    { "title": "Discord", "url": "https://discord.com/invite/56dMud8HYn", "icon": "hero-chat-bubble-left-ellipsis" },
+    { "title": "Código fuente", "url": "https://github.com/appsinacup/game_server", "icon": "hero-book-open" },
+    { "title": "Guías", "url": "/docs/setup", "icon": "hero-academic-cap" },
+    { "title": "Documentación de la API", "url": "/api/docs", "icon": "hero-book-open" },
+    { "title": "SDK de JS", "url": "https://www.npmjs.com/package/@ughuuu/game_server", "icon": "hero-puzzle-piece" },
+    { "title": "SDK de Godot", "url": "https://godotengine.org/asset-library/asset/4510", "icon": "hero-cube" }
+  ],
+  "features": [
+    { "title": "Autenticación", "description": "Admite múltiples métodos de autenticación: correo, enlace mágico, OAuth, JWT y sesión.", "icon": "hero-lock-closed" },
+    { "title": "Usuarios", "description": "Registro de usuarios, inicio de sesión, restablecimiento de contraseña, verificación de correo y gestión de perfil.", "icon": "hero-users" },
+    { "title": "Salas", "description": "Crea y administra salas de juego con ajustes personalizables y actualizaciones en tiempo real.", "icon": "hero-home" },
+    { "title": "Clasificaciones", "description": "Clasificaciones con autoridad del servidor y puntuación configurable, rankings y temporadas basadas en tiempo.", "icon": "hero-trophy" },
+    { "title": "Almacenamiento clave-valor", "description": "Guarda y recupera datos personalizados de usuario en pares clave-valor.", "icon": "hero-paper-clip" },
+    { "title": "Scripting del servidor", "description": "Escribe lógica personalizada del servidor de juego usando scripts en Elixir.", "icon": "hero-computer-desktop" },
+    { "title": "Programación del servidor", "description": "Programa tareas y cron para operaciones automatizadas del servidor.", "icon": "hero-clock" },
+    { "title": "Administración y monitoreo", "description": "Portal de administración para gestionar usuarios, salas, integración con Sentry y métricas del servidor.", "icon": "hero-shield-check" },
+    { "title": "UI y tematización", "description": "UI web integrada para autenticación, gestión de salas y portal de administración.", "icon": "hero-sparkles" },
+    { "title": "Persistencia y actualizaciones", "description": "Opciones de almacenamiento flexibles: SQLite (en memoria) y PostgreSQL; y actualizaciones en tiempo real.", "icon": "hero-server-stack" },
+    { "title": "Caché y rendimiento", "description": "Caché en memoria para mejorar el rendimiento y reducir la carga de la base de datos.", "icon": "hero-forward" },
+    { "title": "Integraciones", "description": "Integra fácilmente servicios populares: Discord, Apple, Google, Facebook, Steam.", "icon": "hero-puzzle-piece" }
+  ]
+}

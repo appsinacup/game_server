@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
     <!-- Open Graph / Twitter meta defaults -->
-    <% provider_theme = GameServer.Theme.JSONConfig.get_theme() || %{} %>
+    <% locale = Gettext.get_locale(GameServerWeb.Gettext) %>
+    <% provider_theme = GameServer.Theme.JSONConfig.get_theme(locale) || %{} %>
     <% title = assigns[:page_title] || Map.get(provider_theme, "title") %>
     <% description = assigns[:meta_description] || Map.get(provider_theme, "tagline") %>
     <% image_path = Map.get(provider_theme, "banner") %>

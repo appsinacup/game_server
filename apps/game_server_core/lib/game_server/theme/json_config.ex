@@ -30,7 +30,7 @@ defmodule GameServer.Theme.JSONConfig do
   """
   @spec get_theme(String.t() | nil) :: map()
   def get_theme(locale) when is_binary(locale) or is_nil(locale) do
-    base_path = config_path()
+    base_path = config_path() || @default_path
     path_candidates = runtime_path_candidates(base_path, locale)
 
     # Load packaged defaults first (read_default always returns {:ok, map}
