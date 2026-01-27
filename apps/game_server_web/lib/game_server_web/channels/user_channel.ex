@@ -9,6 +9,8 @@ defmodule GameServerWeb.UserChannel do
   use Phoenix.Channel
   require Logger
 
+  intercept ["updated"]
+
   alias GameServer.Accounts
   alias GameServer.Accounts.Scope
   alias GameServer.Accounts.User
@@ -37,6 +39,18 @@ defmodule GameServerWeb.UserChannel do
   end
 
   @impl true
+  def handle_out("updated", payload, socket) do
+    last_payload = Map.get(socket.assigns, :last_user_payload)
+
+    if last_payload == payload do
+      {:noreply, socket}
+    else
+      push(socket, "updated", payload)
+      {:noreply, assign(socket, :last_user_payload, payload)}
+    end
+  end
+
+  @impl true
   def handle_out(event, payload, socket) do
     push(socket, event, payload)
     {:noreply, socket}
@@ -44,7 +58,8 @@ defmodule GameServerWeb.UserChannel do
 
   @impl true
   def handle_info({:after_join, %User{} = user}, socket) do
-    push(socket, "updated", Accounts.serialize_user_payload(user))
-    {:noreply, socket}
+    payload = Accounts.serialize_user_payload(user)
+    push(socket, "updated", payload)
+    {:noreply, assign(socket, :last_user_payload, payload)}
   end
 end

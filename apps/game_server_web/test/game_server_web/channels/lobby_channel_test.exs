@@ -83,4 +83,22 @@ defmodule GameServerWeb.LobbyChannelTest do
     # allow a slightly longer window for the broadcast -> push to arrive in tests
     assert_push "updated", %{title: "New Title"}, 500
   end
+
+  test "channel emits a single updated event per lobby update" do
+    host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "single-update-room", host_id: host.id})
+
+    {:ok, token_host, _} = Guardian.encode_and_sign(host)
+    {:ok, socket_host} = connect(GameServerWeb.UserSocket, %{"token" => token_host})
+    {:ok, _, _socket} = subscribe_and_join(socket_host, "lobby:#{lobby.id}", %{})
+
+    # consume the initial after_join payload
+    assert_push "updated", %{title: "single-update-room"}, 500
+
+    {:ok, _} = Lobbies.update_lobby_by_host(host, lobby, %{"title" => "Single Update"})
+
+    assert_push "updated", %{title: "Single Update"}, 500
+    refute_push "updated", _payload, 200
+  end
 end

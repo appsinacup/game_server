@@ -735,12 +735,6 @@ defmodule GameServer.Lobbies do
           if is_map(returned) and not is_struct(returned) do
             returned
           else
-            require Logger
-
-            Logger.warning(
-              "Hooks.before_lobby_update returned unexpected value; using original params"
-            )
-
             attrs
           end
 

@@ -33,9 +33,17 @@ defmodule GameServerWeb.LobbyChannel do
       case Accounts.get_user(user_id) do
         %User{lobby_id: ^lobby_id} ->
           # Subscribe to lobby PubSub events to forward to WebSocket clients
-          Lobbies.subscribe_lobby(lobby_id)
+          socket =
+            if Map.get(socket.assigns, :subscribed_lobby, false) do
+              socket
+            else
+              _ = Lobbies.unsubscribe_lobby(lobby_id)
+              Lobbies.subscribe_lobby(lobby_id)
+              assign(socket, :subscribed_lobby, true)
+            end
+
           send(self(), {:after_join, lobby})
-          {:ok, assign(socket, :lobby_id, lobby_id)}
+          {:ok, socket |> assign(:lobby_id, lobby_id)}
 
         _ ->
           Logger.info(
@@ -72,8 +80,15 @@ defmodule GameServerWeb.LobbyChannel do
 
   @impl true
   def handle_info({:lobby_updated, lobby}, socket) do
-    push(socket, "updated", serialize_lobby(lobby))
-    {:noreply, socket}
+    payload = serialize_lobby(lobby)
+    last_payload = Map.get(socket.assigns, :last_lobby_payload)
+
+    if last_payload == payload do
+      {:noreply, socket}
+    else
+      push(socket, "updated", payload)
+      {:noreply, assign(socket, :last_lobby_payload, payload)}
+    end
   end
 
   @impl true
@@ -84,14 +99,27 @@ defmodule GameServerWeb.LobbyChannel do
 
   @impl true
   def handle_info({:after_join, lobby}, socket) do
-    push(socket, "updated", serialize_lobby(lobby))
-    {:noreply, socket}
+    payload = serialize_lobby(lobby)
+    push(socket, "updated", payload)
+    {:noreply, assign(socket, :last_lobby_payload, payload)}
   end
 
   # Ignore other messages
   @impl true
   def handle_info(_msg, socket) do
     {:noreply, socket}
+  end
+
+  @impl true
+  def terminate(_reason, socket) do
+    case socket.assigns do
+      %{lobby_id: lobby_id} when is_integer(lobby_id) ->
+        _ = Lobbies.unsubscribe_lobby(lobby_id)
+        :ok
+
+      _ ->
+        :ok
+    end
   end
 
   defp serialize_lobby(lobby) do

@@ -9,6 +9,7 @@ signal socket_closed()
 var socket : PhoenixSocket
 var enable_logs := true
 var _token: String
+var _channels := {}
 
 # Called when the node enters the scene tree for the first time.
 func _init(token: String, endpoint: String = PhoenixSocket.DEFAULT_BASE_ENDPOINT) -> void:
@@ -24,12 +25,16 @@ func _init(token: String, endpoint: String = PhoenixSocket.DEFAULT_BASE_ENDPOINT
 	socket.connect_socket()
 
 func add_channel(topic: String):
+	if _channels.has(topic):
+		return _channels[topic]
 	var channel = socket.channel(topic, {"token": _token})
+	_channels[topic] = channel
 	channel.on_close.connect(_channel_on_close.bind(channel.get_topic()))
 	channel.on_event.connect(_channel_on_event.bind(channel.get_topic()))
 	channel.on_error.connect(_channel_on_error.bind(channel.get_topic()))
 	channel.on_join_result.connect(_channel_on_join_result.bind(channel.get_topic()))
 	channel.join()
+	return channel
 
 func _socket_on_open(params):
 	if enable_logs:
@@ -60,3 +65,5 @@ func _channel_on_error(error, topic):
 func _channel_on_close(params, topic):
 	if enable_logs:
 		print("Channel on close ", topic, " ", params)
+	if _channels.has(topic):
+		_channels.erase(topic)
