@@ -5,6 +5,7 @@ class_name GamendApi
 extends Node
 
 signal user_updated(user: Dictionary)
+signal lobby_updated(lobby: Dictionary)
 
 var _config := ApiApiConfigClient.new()
 var _realtime: GamendRealtime
@@ -22,6 +23,7 @@ var _access_token := ""
 var _refresh_token := ""
 var _expires_at_ms := -1
 var _user_id = -1
+var _lobby_id = -1
 var _refreshing_token = false
 
 func _init(host: String = "127.0.0.1", port: int = 4000, enable_ssl := false):
@@ -102,6 +104,7 @@ func realtime_start():
 	_realtime.socket_opened.connect(func (): if result: result.finished.emit())
 	_realtime.socket_closed.connect(func (): if result: result.finished.emit())
 	_realtime.socket_errored.connect(func (): if result: result.finished.emit())
+	_realtime.channel_event.connect(_on_channel_event)
 	add_child(_realtime)
 	return await result.finished
 
@@ -112,12 +115,21 @@ func realtime_stop():
 
 func listen_to_user():
 	_realtime.add_channel("user:" + str(int(_user_id)))
-	_realtime.channel_event.connect(_on_channel_event)
 
+func liste_to_lobby():
+	_realtime.add_channel("lobby:" + str(int(_lobby_id)))
 
 func _on_channel_event(event: String, payload: Dictionary, status, topic: String):
 	if topic.begins_with("user") && event == "updated":
+		var lobby_id = payload.get("lobby_id")
+		# Listen to the lobby
+		if _lobby_id != lobby_id && lobby_id != -1:
+			_lobby_id = lobby_id
+			liste_to_lobby()
+		_lobby_id = lobby_id
 		user_updated.emit(payload)
+	if topic.begins_with("lobby") && event == "updated":
+		lobby_updated.emit(payload)
 
 ## Authorize with access token
 func authorize():
@@ -261,6 +273,7 @@ func friends_list_friends(page = 1, page_size = 25) -> GamendResult:
 ### LOBBIES
 
 ## List lobbies
+
 func lobbies_list_lobbies(
 	title = "",
 	isPassworded = null,
