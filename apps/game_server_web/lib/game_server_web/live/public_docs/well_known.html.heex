@@ -26,12 +26,18 @@
           <span class="badge badge-primary">1</span> {doc_text("Where to put the files")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>{doc_text("Place them under the web app's static folder so they are served at the web root:")}</p>
+          <p>
+            {doc_text(
+              "Place them under the web app's static folder so they are served at the web root:"
+            )}
+          </p>
           <div class="bg-base-200 p-3 rounded mt-2 font-mono text-sm">
             <div>apps/game_server_web/priv/static/.well-known/assetlinks.json</div>
             <div>apps/game_server_web/priv/static/.well-known/apple-app-site-association</div>
           </div>
-          <p class="text-sm text-muted">{doc_text("Example files are included in the repo with a .example suffix.")}</p>
+          <p class="text-sm text-muted">
+            {doc_text("Example files are included in the repo with a .example suffix.")}
+          </p>
         </div>
       </div>
 
@@ -41,12 +47,19 @@
         </h3>
         <div class="ml-8 space-y-3">
           <ul class="list-disc list-inside text-sm space-y-2">
-            <li>{doc_text("Served at: https://your-domain/.well-known/assetlinks.json and https://your-domain/.well-known/apple-app-site-association")}</li>
-            <li>{doc_text("After adding or updating these files, restart or redeploy so they are included in the release")}</li>
+            <li>
+              {doc_text(
+                "Served at: https://your-domain/.well-known/assetlinks.json and https://your-domain/.well-known/apple-app-site-association"
+              )}
+            </li>
+            <li>
+              {doc_text(
+                "After adding or updating these files, restart or redeploy so they are included in the release"
+              )}
+            </li>
           </ul>
         </div>
       </div>
-
     </div>
   </div>
 </div>
