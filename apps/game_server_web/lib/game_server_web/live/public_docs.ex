@@ -25,6 +25,7 @@ defmodule GameServerWeb.PublicDocs do
         {GameServerWeb.PublicDocsTemplates.theme(assigns)}
         {GameServerWeb.PublicDocsTemplates.data_schema(assigns)}
         {GameServerWeb.PublicDocsTemplates.apple_sign_in(assigns)}
+        {GameServerWeb.PublicDocsTemplates.well_known(assigns)}
         {GameServerWeb.PublicDocsTemplates.steam_openid(assigns)}
         {GameServerWeb.PublicDocsTemplates.discord_oauth(assigns)}
         {GameServerWeb.PublicDocsTemplates.google_oauth(assigns)}
