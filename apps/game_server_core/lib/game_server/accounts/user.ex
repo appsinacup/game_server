@@ -313,12 +313,13 @@ defmodule GameServer.Accounts.User do
 
   @doc """
   A simple changeset for updating a user's display name.
+
+  Allows empty string so users can set an empty display name if desired.
   """
   def display_name_changeset(user, attrs) do
     user
     |> cast(attrs, [:display_name])
-    |> validate_required([:display_name])
-    |> validate_length(:display_name, min: 1, max: 80)
+    |> validate_length(:display_name, max: 80)
   end
 
   @doc """

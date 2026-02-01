@@ -54,7 +54,7 @@ defmodule GameServerWeb.Api.V1.MeControllerTest do
       assert reloaded.display_name == "API Name"
     end
 
-    test "empty display_name returns bad request", %{conn: conn} do
+    test "empty display_name does not return bad request", %{conn: conn} do
       user = GameServer.AccountsFixtures.user_fixture()
       {:ok, token, _} = Guardian.encode_and_sign(user)
 
@@ -63,10 +63,8 @@ defmodule GameServerWeb.Api.V1.MeControllerTest do
         |> put_req_header("authorization", "Bearer " <> token)
         |> patch("/api/v1/me/display_name", %{display_name: ""})
 
-      assert conn.status == 400
-      body = json_response(conn, 400)
-      assert Map.has_key?(body, "errors")
-      assert Map.has_key?(body["errors"], "display_name")
+      assert conn.status == 200
+      _body = json_response(conn, 200)
     end
   end
 

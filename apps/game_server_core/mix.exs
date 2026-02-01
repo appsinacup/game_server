@@ -61,7 +61,7 @@ defmodule GameServerCore.MixProject do
       {:guardian, "~> 2.3"},
       {:quantum, "~> 3.5"},
       {:corsica, "~> 2.0"},
-      {:ex_doc, "~> 0.34", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.40", only: :dev, runtime: false}
     ]
   end
 
