@@ -73,6 +73,8 @@ It accepts email and Discord fields.
 
 A simple changeset for updating a user's display name.
 
+Allows empty string so users can set an empty display name if desired.
+
 # `email_changeset`
 
 A user changeset for registering or changing the email.
