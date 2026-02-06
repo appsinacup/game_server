@@ -17,6 +17,7 @@ defmodule GameServerWeb.Plugs.DynamicCors do
       origins: origins,
       allow_headers: @default_allow_headers,
       allow_methods: @default_allow_methods,
+      expose_headers: ["x-request-time"],
       allow_credentials: true
     ]
 
