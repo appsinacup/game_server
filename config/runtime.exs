@@ -228,6 +228,7 @@ if config_env() == :prod do
 
   host = System.get_env("PHX_HOST") || "localhost"
   port = GameServer.Env.integer("PORT", 4000)
+
   scheme =
     System.get_env("PHX_SCHEME") ||
       if host in ["localhost", "127.0.0.1"], do: "http", else: "https"
