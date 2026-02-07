@@ -228,6 +228,9 @@ if config_env() == :prod do
 
   host = System.get_env("PHX_HOST") || "localhost"
   port = GameServer.Env.integer("PORT", 4000)
+  scheme =
+    System.get_env("PHX_SCHEME") ||
+      if host in ["localhost", "127.0.0.1"], do: "http", else: "https"
 
   config :game_server_web, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
@@ -235,7 +238,7 @@ if config_env() == :prod do
   config :ueberauth, Ueberauth.Strategy.Apple.OAuth,
     client_id: System.get_env("APPLE_WEB_CLIENT_ID"),
     client_secret: {GameServer.Apple, :client_secret},
-    redirect_uri: "https://#{host}/auth/apple/callback"
+    redirect_uri: "#{scheme}://#{host}/auth/apple/callback"
 
   # Allow runtime configuration of allowed WebSocket origins via PHX_ALLOWED_ORIGINS.
   # Format: comma-separated values. Prefix with "regex:" for regex entries, e.g.
@@ -298,7 +301,7 @@ if config_env() == :prod do
 
   endpoint_config =
     [
-      url: [host: host, port: 443, scheme: "https"],
+      url: [host: host, port: if(scheme == "https", do: 443, else: port), scheme: scheme],
       http: [
         # Enable IPv6 and bind on all interfaces.
         # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
