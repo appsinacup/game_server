@@ -862,23 +862,28 @@ defmodule GameServer.Lobbies do
         {:error, :not_in_lobby}
 
       %GameServer.Accounts.User{} = membership ->
-        lobby = get_lobby!(membership.lobby_id)
-        lobby_id = lobby.id
+        case get_lobby(membership.lobby_id) do
+          nil ->
+            delete_membership(membership)
 
-        case GameServer.Hooks.internal_call(:before_lobby_leave, [membership, lobby]) do
-          {:ok, _} ->
-            result =
-              Repo.transaction(fn ->
-                Repo.update!(Ecto.Changeset.change(membership, %{lobby_id: nil}))
-                handle_host_transfer(lobby, user_id, membership.id)
-              end)
+          lobby ->
+            lobby_id = lobby.id
 
-            result
-            |> broadcast_leave_result(lobby_id, user_id)
-            |> maybe_run_after_lobby_leave(user_id, lobby)
+            case GameServer.Hooks.internal_call(:before_lobby_leave, [membership, lobby]) do
+              {:ok, _} ->
+                result =
+                  Repo.transaction(fn ->
+                    Repo.update!(Ecto.Changeset.change(membership, %{lobby_id: nil}))
+                    handle_host_transfer(lobby, user_id, membership.id)
+                  end)
 
-          {:error, reason} ->
-            {:error, {:hook_rejected, reason}}
+                result
+                |> broadcast_leave_result(lobby_id, user_id)
+                |> maybe_run_after_lobby_leave(user_id, lobby)
+
+              {:error, reason} ->
+                {:error, {:hook_rejected, reason}}
+            end
         end
     end
   end
