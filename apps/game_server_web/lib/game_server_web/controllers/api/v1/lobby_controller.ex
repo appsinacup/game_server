@@ -590,14 +590,14 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       %{user: user} when is_map(user) ->
         # Use the authenticated user's lobby (ignore path id)
         if is_nil(user.lobby_id) do
-          conn |> put_status(:bad_request) |> json(%{error: "not_in_lobby"})
+          json(conn, %{})
         else
           case Lobbies.leave_lobby(user) do
             {:ok, _} ->
               json(conn, %{})
 
             {:error, :not_in_lobby} ->
-              conn |> put_status(:bad_request) |> json(%{error: "not_in_lobby"})
+              json(conn, %{})
 
             {:error, {:hook_rejected, _}} ->
               conn |> put_status(:forbidden) |> json(%{error: "rejected"})
