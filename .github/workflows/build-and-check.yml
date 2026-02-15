@@ -96,12 +96,18 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}
+
     container:
       image: elixir:1.19.3-otp-28
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Set up Elixir helpers
         run: |
@@ -113,6 +119,17 @@ jobs:
 
       - name: Check for outdated dependencies
         run: |
+          cd "$GITHUB_WORKSPACE"
+
+          if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+            echo "❌ Git workspace not found at $GITHUB_WORKSPACE"
+            exit 1
+          fi
+
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           echo "Checking for outdated dependencies..."
           # Capture output to a file to avoid failing the step if `mix hex.outdated` returns non-zero
           OUT_FILE=outdated.txt
@@ -127,8 +144,6 @@ jobs:
             mix deps.update --all
             mix deps.get
 
-            git config user.name "github-actions[bot]"
-
             if ! git diff --quiet; then
               git add -A
               git commit -m "chore(deps): auto-update compatible Hex dependencies"
@@ -137,7 +152,6 @@ jobs:
             else
               echo "ℹ️ No dependency file changes after update command."
             fi
-            exit 1
           else
             if grep -q "Update not possible" "$OUT_FILE"; then
               echo "⚠️ Some dependencies have major-version updates that are blocked by constraints (Update not possible). Please plan major upgrades separately."
