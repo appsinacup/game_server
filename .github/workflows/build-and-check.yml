@@ -93,6 +93,7 @@ jobs:
 
   check-outdated:
     name: Check for outdated dependencies
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     container:
@@ -119,9 +120,23 @@ jobs:
 
           cat "$OUT_FILE"
 
-          # Fail only if there are actionable updates ("Update possible"). Warn if there are "Update not possible" entries.
+          # Auto-update and commit if there are actionable updates ("Update possible").
           if grep -q "Update possible" "$OUT_FILE"; then
-            echo "❌ FAILURE: Some dependencies have available updates. Please update and test thoroughly before merging."
+            echo "🔄 Compatible dependency updates found. Updating and committing to main..."
+
+            mix deps.update --all
+            mix deps.get
+
+            git config user.name "github-actions[bot]"
+
+            if ! git diff --quiet; then
+              git add -A
+              git commit -m "chore(deps): auto-update compatible Hex dependencies"
+              git push origin HEAD:main
+              echo "✅ Dependency updates committed and pushed to main."
+            else
+              echo "ℹ️ No dependency file changes after update command."
+            fi
             exit 1
           else
             if grep -q "Update not possible" "$OUT_FILE"; then
