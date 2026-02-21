@@ -114,6 +114,17 @@ Create a friend request from requester -> target.
   Returns {:ok, friendship} on success or {:error, reason}.
   
 
+# `friend_ids`
+
+```elixir
+@spec friend_ids(user_id()) :: [user_id()]
+```
+
+Return a list of user IDs that are accepted friends of the given user.
+
+This is used internally (e.g. for broadcasting online-status changes)
+and does *not* paginate – it returns all friend IDs.
+
 # `get_by_pair`
 
 ```elixir

@@ -24,6 +24,8 @@ validations so other domains can reuse them safely.
   id: Ecto.UUID.t() | integer() | nil,
   inserted_at: term(),
   is_admin: term(),
+  is_online: boolean(),
+  last_seen_at: DateTime.t() | nil,
   lobby: term(),
   lobby_id: integer() | nil,
   metadata: map(),

@@ -604,6 +604,26 @@ See `t:GameServer.Types.pagination_opts/0` for available options.
 
 Serialize a user into the compact payload used by realtime updates.
 
+# `set_user_offline`
+
+```elixir
+@spec set_user_offline(GameServer.Accounts.User.t() | integer()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, term()}
+```
+
+Mark a user as offline and update last_seen_at.
+Returns {:ok, user} on success.
+
+# `set_user_online`
+
+```elixir
+@spec set_user_online(GameServer.Accounts.User.t() | integer()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, term()}
+```
+
+Mark a user as online and update last_seen_at.
+Returns {:ok, user} on success.
+
 # `sudo_mode?`
 
 ```elixir
