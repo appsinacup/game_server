@@ -101,6 +101,14 @@ A user changeset for Google OAuth registration.
 
 It accepts email and Google ID.
 
+# `last_seen_at_or_fallback`
+
+```elixir
+@spec last_seen_at_or_fallback(t()) :: DateTime.t()
+```
+
+Returns `last_seen_at` when present, otherwise a stable fallback timestamp.
+
 # `password_changeset`
 
 A user changeset for changing the password.
