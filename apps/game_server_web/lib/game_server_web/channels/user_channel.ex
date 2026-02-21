@@ -4,6 +4,13 @@ defmodule GameServerWeb.UserChannel do
 
   Topic: "user:<user_id>"
   Clients must authenticate the socket connection (JWT) and may only join topics belonging to their own user id.
+
+  ## Online presence
+
+  When a user joins the channel their `is_online` flag is set to `true` in the
+  database and a `"friend_online"` event is pushed to every accepted friend's
+  channel.  When the last channel process for a user terminates the flag is
+  reset and a `"friend_offline"` event is pushed.
   """
 
   use Phoenix.Channel
@@ -14,6 +21,7 @@ defmodule GameServerWeb.UserChannel do
   alias GameServer.Accounts
   alias GameServer.Accounts.Scope
   alias GameServer.Accounts.User
+  alias GameServer.Friends
 
   @impl true
   def join("user:" <> user_id_str, _payload, socket) do
@@ -58,8 +66,57 @@ defmodule GameServerWeb.UserChannel do
 
   @impl true
   def handle_info({:after_join, %User{} = user}, socket) do
-    payload = Accounts.serialize_user_payload(user)
-    push(socket, "updated", payload)
-    {:noreply, assign(socket, :last_user_payload, payload)}
+    # Mark user online in DB
+    case Accounts.set_user_online(user) do
+      {:ok, updated_user} ->
+        payload = Accounts.serialize_user_payload(updated_user)
+        push(socket, "updated", payload)
+        broadcast_online_status(updated_user.id, true)
+        {:noreply, assign(socket, :last_user_payload, payload)}
+
+      _ ->
+        payload = Accounts.serialize_user_payload(user)
+        push(socket, "updated", payload)
+        {:noreply, assign(socket, :last_user_payload, payload)}
+    end
+  end
+
+  @impl true
+  def terminate(_reason, socket) do
+    user_id = Map.get(socket.assigns, :user_id)
+
+    if user_id do
+      case Accounts.set_user_offline(user_id) do
+        {:ok, _} ->
+          broadcast_online_status(user_id, false)
+
+        _ ->
+          :ok
+      end
+    end
+
+    :ok
+  end
+
+  # Broadcast online/offline status change to all accepted friends' user channels.
+  defp broadcast_online_status(user_id, online?) do
+    event = if online?, do: "friend_online", else: "friend_offline"
+
+    payload = %{
+      user_id: user_id,
+      is_online: online?
+    }
+
+    friend_ids = Friends.friend_ids(user_id)
+
+    Enum.each(friend_ids, fn friend_id ->
+      topic = "user:#{friend_id}"
+
+      Phoenix.PubSub.broadcast(
+        GameServer.PubSub,
+        topic,
+        %Phoenix.Socket.Broadcast{topic: topic, event: event, payload: payload}
+      )
+    end)
   end
 end

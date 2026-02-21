@@ -1476,6 +1476,20 @@ defmodule GameServer.Accounts do
       _ -> :ok
     end
 
+    # Mark the user offline and notify friends before deleting the row.
+    # Re-fetch to get current is_online state (the passed struct may be stale).
+    fresh_user = Repo.get(User, user.id)
+
+    if fresh_user && fresh_user.is_online do
+      case set_user_offline(fresh_user) do
+        {:ok, _} ->
+          broadcast_friend_offline(user.id)
+
+        _ ->
+          :ok
+      end
+    end
+
     case Repo.delete(user) do
       {:ok, _user} = ok ->
         invalidate_users_count_cache()
@@ -1491,6 +1505,30 @@ defmodule GameServer.Accounts do
     end
 
     # end delete_user
+  end
+
+  @doc false
+  # Broadcast a friend_offline event to all accepted friends of the given user.
+  # Used during account deletion to let friends know the user went away.
+  @spec broadcast_friend_offline(integer()) :: :ok
+  def broadcast_friend_offline(user_id) when is_integer(user_id) do
+    alias GameServer.Friends
+
+    friend_ids = Friends.friend_ids(user_id)
+
+    Enum.each(friend_ids, fn friend_id ->
+      topic = "user:#{friend_id}"
+
+      Phoenix.PubSub.broadcast(
+        GameServer.PubSub,
+        topic,
+        %Phoenix.Socket.Broadcast{
+          topic: topic,
+          event: "friend_offline",
+          payload: %{user_id: user_id, is_online: false}
+        }
+      )
+    end)
   end
 
   ## Token helper
@@ -1540,6 +1578,8 @@ defmodule GameServer.Accounts do
       metadata: user.metadata || %{},
       display_name: user.display_name || "",
       lobby_id: user.lobby_id || -1,
+      is_online: user.is_online || false,
+      last_seen_at: user.last_seen_at,
       linked_providers: get_linked_providers(user),
       has_password: has_password?(user)
     }
@@ -1661,6 +1701,64 @@ defmodule GameServer.Accounts do
         user,
         confirmation_url_fun.(encoded_token)
       )
+    end
+  end
+
+  @doc """
+  Mark a user as online and update last_seen_at.
+  Returns {:ok, user} on success.
+  """
+  @spec set_user_online(User.t() | integer()) :: {:ok, User.t()} | {:error, term()}
+  def set_user_online(%User{} = user), do: set_user_online(user.id)
+
+  def set_user_online(user_id) when is_integer(user_id) do
+    now = DateTime.utc_now(:second)
+
+    case Repo.get(User, user_id) do
+      nil ->
+        {:error, :not_found}
+
+      user ->
+        user
+        |> Ecto.Changeset.change(is_online: true, last_seen_at: now)
+        |> Repo.update()
+        |> case do
+          {:ok, updated} = ok ->
+            invalidate_user_cache(updated)
+            ok
+
+          err ->
+            err
+        end
+    end
+  end
+
+  @doc """
+  Mark a user as offline and update last_seen_at.
+  Returns {:ok, user} on success.
+  """
+  @spec set_user_offline(User.t() | integer()) :: {:ok, User.t()} | {:error, term()}
+  def set_user_offline(%User{} = user), do: set_user_offline(user.id)
+
+  def set_user_offline(user_id) when is_integer(user_id) do
+    now = DateTime.utc_now(:second)
+
+    case Repo.get(User, user_id) do
+      nil ->
+        {:error, :not_found}
+
+      user ->
+        user
+        |> Ecto.Changeset.change(is_online: false, last_seen_at: now)
+        |> Repo.update()
+        |> case do
+          {:ok, updated} = ok ->
+            invalidate_user_cache(updated)
+            ok
+
+          err ->
+            err
+        end
     end
   end
 end

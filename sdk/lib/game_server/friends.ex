@@ -164,6 +164,25 @@ defmodule GameServer.Friends do
 
 
   @doc ~S"""
+    Return a list of user IDs that are accepted friends of the given user.
+    
+    This is used internally (e.g. for broadcasting online-status changes)
+    and does *not* paginate – it returns all friend IDs.
+    
+  """
+  @spec friend_ids(user_id()) :: [user_id()]
+  def friend_ids(_user_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Friends.friend_ids/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Get friendship between two users (ordered requester->target) if exists
   """
   @spec get_by_pair(user_id(), user_id()) :: GameServer.Friends.Friendship.t() | nil

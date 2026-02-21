@@ -657,4 +657,28 @@ defmodule GameServer.Friends do
   def get_by_pair(requester_id, target_id) do
     get_by_pair_cached(requester_id, target_id)
   end
+
+  @doc """
+  Return a list of user IDs that are accepted friends of the given user.
+
+  This is used internally (e.g. for broadcasting online-status changes)
+  and does *not* paginate – it returns all friend IDs.
+  """
+  @spec friend_ids(user_id()) :: [user_id()]
+  def friend_ids(user_id) when is_integer(user_id) do
+    q1 =
+      from f in Friendship,
+        where: f.status == "accepted" and f.requester_id == ^user_id,
+        select: f.target_id
+
+    q2 =
+      from f in Friendship,
+        where: f.status == "accepted" and f.target_id == ^user_id,
+        select: f.requester_id
+
+    ids_a = Repo.all(q1)
+    ids_b = Repo.all(q2)
+
+    Enum.uniq(ids_a ++ ids_b)
+  end
 end

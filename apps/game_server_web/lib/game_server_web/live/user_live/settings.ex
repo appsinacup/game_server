@@ -224,9 +224,16 @@ defmodule GameServerWeb.UserLive.Settings do
               class="p-2 border rounded mt-2"
             >
               <div class="flex justify-between items-center gap-2">
-                <div class="text-sm">
+                <div class="text-sm flex items-center gap-2">
+                  <span
+                    class={[
+                      "inline-block w-2 h-2 rounded-full shrink-0",
+                      if(u.is_online, do: "bg-green-500", else: "bg-gray-400")
+                    ]}
+                    title={if(u.is_online, do: "Online", else: "Offline")}
+                  />
                   {u.display_name || u.email}
-                  <span class="text-xs text-base-content/60 ml-2">(id: {u.id})</span>
+                  <span class="text-xs text-base-content/60">(id: {u.id})</span>
                 </div>
                 <button
                   phx-click="remove_friend"
@@ -680,6 +687,7 @@ defmodule GameServerWeb.UserLive.Settings do
 
     if connected?(socket) do
       Friends.subscribe_user(user.id)
+      Phoenix.PubSub.subscribe(GameServer.PubSub, "user:#{user.id}")
     end
 
     {:ok, socket}
@@ -1228,6 +1236,18 @@ defmodule GameServerWeb.UserLive.Settings do
       {:noreply,
        refresh_friend_lists(socket, get_user_from_scope(socket.assigns))
        |> assign(:blocked, Friends.list_blocked_for_user(get_user_from_scope(socket.assigns)))}
+
+  # Online status change broadcast from UserChannel (via PubSub on "user:<id>")
+  def handle_info(
+        %Phoenix.Socket.Broadcast{event: event},
+        socket
+      )
+      when event in ["friend_online", "friend_offline"] do
+    {:noreply, refresh_friend_lists(socket, get_user_from_scope(socket.assigns))}
+  end
+
+  # Ignore other broadcasts on the user topic (e.g. "updated" events from channel)
+  def handle_info(%Phoenix.Socket.Broadcast{}, socket), do: {:noreply, socket}
 
   ## handle_params is implemented after event handlers to keep handle_event/3
   ## clauses grouped together (avoid compile warnings about grouping clauses).

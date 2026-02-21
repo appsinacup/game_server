@@ -75,7 +75,17 @@ defmodule GameServerWeb.Api.V1.FriendController do
                    friendship_id: %Schema{type: :integer},
                    email: %Schema{type: :string},
                    display_name: %Schema{type: :string},
-                   profile_url: %Schema{type: :string}
+                   profile_url: %Schema{type: :string},
+                   is_online: %Schema{
+                     type: :boolean,
+                     description: "Whether the friend is currently connected"
+                   },
+                   last_seen_at: %Schema{
+                     type: :string,
+                     format: "date-time",
+                     nullable: true,
+                     description: "Last time the friend connected or disconnected"
+                   }
                  }
                }
              },
@@ -612,7 +622,9 @@ defmodule GameServerWeb.Api.V1.FriendController do
       id: user.id,
       email: user.email || "",
       display_name: user.display_name || "",
-      profile_url: user.profile_url || ""
+      profile_url: user.profile_url || "",
+      is_online: user.is_online || false,
+      last_seen_at: user.last_seen_at
     }
   end
 
@@ -622,7 +634,9 @@ defmodule GameServerWeb.Api.V1.FriendController do
       friendship_id: fid,
       email: user.email || "",
       display_name: user.display_name || "",
-      profile_url: user.profile_url || ""
+      profile_url: user.profile_url || "",
+      is_online: user.is_online || false,
+      last_seen_at: user.last_seen_at
     }
   end
 

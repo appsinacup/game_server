@@ -51,6 +51,51 @@ defmodule GameServerWeb.AdminLive.Users do
             </div>
 
             <div class="mt-2 flex items-center gap-4">
+              <div class="text-sm">Sort by:</div>
+              <div class="flex items-center gap-2">
+                <button
+                  phx-click="sort_users"
+                  phx-value-field="inserted_at"
+                  class={[
+                    "btn btn-xs",
+                    if(@sort_field == "inserted_at", do: "btn-primary", else: "btn-outline")
+                  ]}
+                >
+                  Created
+                  <%= if @sort_field == "inserted_at" do %>
+                    {if(@sort_dir == "desc", do: "\u25BC", else: "\u25B2")}
+                  <% end %>
+                </button>
+                <button
+                  phx-click="sort_users"
+                  phx-value-field="updated_at"
+                  class={[
+                    "btn btn-xs",
+                    if(@sort_field == "updated_at", do: "btn-primary", else: "btn-outline")
+                  ]}
+                >
+                  Updated
+                  <%= if @sort_field == "updated_at" do %>
+                    {if(@sort_dir == "desc", do: "\u25BC", else: "\u25B2")}
+                  <% end %>
+                </button>
+                <button
+                  phx-click="sort_users"
+                  phx-value-field="last_seen_at"
+                  class={[
+                    "btn btn-xs",
+                    if(@sort_field == "last_seen_at", do: "btn-primary", else: "btn-outline")
+                  ]}
+                >
+                  Last Seen
+                  <%= if @sort_field == "last_seen_at" do %>
+                    {if(@sort_dir == "desc", do: "\u25BC", else: "\u25B2")}
+                  <% end %>
+                </button>
+              </div>
+            </div>
+
+            <div class="mt-2 flex items-center gap-4">
               <div class="text-sm">Filter by auth provider:</div>
               <div class="flex items-center gap-3">
                 <label class="label cursor-pointer">
@@ -123,6 +168,17 @@ defmodule GameServerWeb.AdminLive.Users do
                   />
                   <span class="label-text ml-2">Email (password)</span>
                 </label>
+                <span class="text-base-content/30">|</span>
+                <label class="label cursor-pointer">
+                  <input
+                    type="checkbox"
+                    phx-click="toggle_provider"
+                    phx-value-provider="online"
+                    checked={"online" in @filters}
+                    class="checkbox"
+                  />
+                  <span class="label-text ml-2">Online</span>
+                </label>
               </div>
             </div>
             <div class="overflow-x-auto">
@@ -140,6 +196,7 @@ defmodule GameServerWeb.AdminLive.Users do
                       />
                     </th>
                     <th>ID</th>
+                    <th>Online</th>
                     <th>Lobby ID</th>
                     <th>Email</th>
                     <th>Display Name</th>
@@ -153,6 +210,7 @@ defmodule GameServerWeb.AdminLive.Users do
                     <th>Admin</th>
                     <th>Metadata</th>
                     <th>Confirmed</th>
+                    <th>Last Seen</th>
                     <th>Created</th>
                     <th>Updated</th>
                     <th>Actions</th>
@@ -170,6 +228,13 @@ defmodule GameServerWeb.AdminLive.Users do
                       />
                     </td>
                     <td>{user.id}</td>
+                    <td>
+                      <%= if user.is_online do %>
+                        <span class="badge badge-success badge-sm">Online</span>
+                      <% else %>
+                        <span class="badge badge-ghost badge-sm">Offline</span>
+                      <% end %>
+                    </td>
                     <td class="font-mono text-sm">
                       <%= if user.lobby_id do %>
                         {user.lobby_id}
@@ -256,6 +321,13 @@ defmodule GameServerWeb.AdminLive.Users do
                         <span class="badge badge-success badge-sm">Yes</span>
                       <% else %>
                         <span class="badge badge-warning badge-sm">No</span>
+                      <% end %>
+                    </td>
+                    <td class="text-sm">
+                      <%= if user.last_seen_at do %>
+                        {Calendar.strftime(user.last_seen_at, "%Y-%m-%d %H:%M")}
+                      <% else %>
+                        <span class="text-gray-500">-</span>
                       <% end %>
                     </td>
                     <td class="text-sm">
@@ -349,13 +421,17 @@ defmodule GameServerWeb.AdminLive.Users do
     # paginated admin users view (admins can see all users)
     page = 1
     page_size = 25
+    sort_field = "inserted_at"
+    sort_dir = "desc"
 
     {users, total_count, total_pages} =
       load_users(
         page,
         page_size,
         socket.assigns[:search_query] || "",
-        socket.assigns[:filters] || []
+        socket.assigns[:filters] || [],
+        sort_field,
+        sort_dir
       )
 
     {:ok,
@@ -369,6 +445,8 @@ defmodule GameServerWeb.AdminLive.Users do
      |> assign(:form, nil)
      |> assign(:search_query, "")
      |> assign(:filters, [])
+     |> assign(:sort_field, sort_field)
+     |> assign(:sort_dir, sort_dir)
      |> assign(:selected_ids, MapSet.new())}
   end
 
@@ -437,6 +515,36 @@ defmodule GameServerWeb.AdminLive.Users do
     {:noreply,
      socket
      |> assign(:filters, filters)
+     |> assign(:users_page, page)
+     |> assign(:recent_users, users)
+     |> assign(:users_count, total_count)
+     |> assign(:users_total_pages, total_pages)
+     |> sync_selected_ids(user_ids(users))}
+  end
+
+  def handle_event("sort_users", %{"field" => field}, socket) do
+    current_field = socket.assigns[:sort_field] || "inserted_at"
+    current_dir = socket.assigns[:sort_dir] || "desc"
+
+    # Toggle direction if same field, otherwise default to desc
+    sort_dir =
+      if field == current_field do
+        if current_dir == "desc", do: "asc", else: "desc"
+      else
+        "desc"
+      end
+
+    page = 1
+    page_size = socket.assigns[:users_page_size] || 25
+    q = socket.assigns[:search_query] || ""
+    filters = socket.assigns[:filters] || []
+
+    {users, total_count, total_pages} = load_users(page, page_size, q, filters, field, sort_dir)
+
+    {:noreply,
+     socket
+     |> assign(:sort_field, field)
+     |> assign(:sort_dir, sort_dir)
      |> assign(:users_page, page)
      |> assign(:recent_users, users)
      |> assign(:users_count, total_count)
@@ -676,8 +784,15 @@ defmodule GameServerWeb.AdminLive.Users do
      |> sync_selected_ids(user_ids(users))}
   end
 
-  # Helper to load users with search + provider filters
-  defp load_users(page, page_size, search, filters) do
+  # Helper to load users with search + provider filters + sort
+  defp load_users(
+         page,
+         page_size,
+         search,
+         filters,
+         sort_field \\ "inserted_at",
+         sort_dir \\ "desc"
+       ) do
     base = from(u in User)
 
     search_term = String.trim(search || "")
@@ -688,15 +803,27 @@ defmodule GameServerWeb.AdminLive.Users do
     total_count = Repo.one(from u in base, select: count(u.id)) || 0
     total_pages = if page_size > 0, do: div(total_count + page_size - 1, page_size), else: 0
 
+    order = build_sort_order(sort_field, sort_dir)
+
     users =
       Repo.all(
         from u in base,
-          order_by: [desc: u.inserted_at],
+          order_by: ^order,
           offset: ^((page - 1) * page_size),
           limit: ^page_size
       )
 
     {users, total_count, total_pages}
+  end
+
+  defp build_sort_order(field, dir) do
+    direction = if dir == "asc", do: :asc, else: :desc
+
+    case field do
+      "updated_at" -> [{direction, :updated_at}]
+      "last_seen_at" -> [{direction, :last_seen_at}]
+      _ -> [{direction, :inserted_at}]
+    end
   end
 
   defp apply_search(base, search_term) do
@@ -757,8 +884,19 @@ defmodule GameServerWeb.AdminLive.Users do
   end
 
   defp apply_provider_filters(base, filters) do
+    # Separate the "online" filter from provider filters since online
+    # is a boolean column rather than a non-null string check.
+    {online_filters, provider_filters} = Enum.split_with(filters, &(&1 == "online"))
+
+    base =
+      if online_filters != [] do
+        from u in base, where: u.is_online == true
+      else
+        base
+      end
+
     conds =
-      filters
+      provider_filters
       |> Enum.map(fn
         "discord" -> dynamic([u], not is_nil(u.discord_id) and u.discord_id != "")
         "google" -> dynamic([u], not is_nil(u.google_id) and u.google_id != "")

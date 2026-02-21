@@ -41,6 +41,19 @@ defmodule GameServer.Accounts do
   end
 
 
+  @doc false
+  @spec broadcast_friend_offline(integer()) :: :ok
+  def broadcast_friend_offline(_user_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        :ok
+
+      _ ->
+        raise "GameServer.Accounts.broadcast_friend_offline/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
   @doc ~S"""
     Broadcast that the given user has been updated.
     
@@ -1208,6 +1221,42 @@ defmodule GameServer.Accounts do
 
       _ ->
         raise "GameServer.Accounts.serialize_user_payload/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Mark a user as offline and update last_seen_at.
+    Returns {:ok, user} on success.
+    
+  """
+  @spec set_user_offline(GameServer.Accounts.User.t() | integer()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, term()}
+  def set_user_offline(_user) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Accounts.set_user_offline/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Mark a user as online and update last_seen_at.
+    Returns {:ok, user} on success.
+    
+  """
+  @spec set_user_online(GameServer.Accounts.User.t() | integer()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, term()}
+  def set_user_online(_user) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Accounts.set_user_online/1 is a stub - only available at runtime on GameServer"
     end
   end
 

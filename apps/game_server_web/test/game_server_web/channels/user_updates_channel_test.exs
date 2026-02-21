@@ -284,4 +284,69 @@ defmodule GameServerWeb.UserChannelTest do
     assert_push "updated", payload
     assert payload.id == updated_user.id
   end
+
+  test "user channel sets is_online on join and broadcasts friend_online to friends" do
+    a = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+    b = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+
+    # Make a and b friends
+    {:ok, f} = GameServer.Friends.create_request(a.id, b.id)
+    {:ok, _} = GameServer.Friends.accept_friend_request(f.id, b)
+
+    # User b joins their channel first (to listen for friend_online from a)
+    {:ok, token_b, _} = Guardian.encode_and_sign(b)
+    {:ok, socket_b} = connect(GameServerWeb.UserSocket, %{"token" => token_b})
+    {:ok, _, _socket_b} = subscribe_and_join(socket_b, "user:#{b.id}", %{})
+
+    # Drain b's initial "updated" push
+    assert_push "updated", _b_initial
+
+    # User a joins — triggers set_user_online + friend_online broadcast
+    {:ok, token_a, _} = Guardian.encode_and_sign(a)
+    {:ok, socket_a} = connect(GameServerWeb.UserSocket, %{"token" => token_a})
+    {:ok, _, _socket_a} = subscribe_and_join(socket_a, "user:#{a.id}", %{})
+
+    # a should receive their own "updated" with is_online: true
+    assert_push "updated", a_payload
+    assert a_payload.id == a.id
+    assert a_payload.is_online == true
+
+    # b should receive a "friend_online" event about a
+    assert_push "friend_online", friend_online_payload
+    assert friend_online_payload.user_id == a.id
+    assert friend_online_payload.is_online == true
+
+    # Verify DB state
+    refreshed_a = GameServer.Accounts.get_user!(a.id)
+    assert refreshed_a.is_online == true
+    assert refreshed_a.last_seen_at != nil
+  end
+
+  test "deleting a user who is online sends friend_offline to friends" do
+    a = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+    b = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+
+    # Make a and b friends
+    {:ok, f} = GameServer.Friends.create_request(a.id, b.id)
+    {:ok, _} = GameServer.Friends.accept_friend_request(f.id, b)
+
+    # Mark a as online
+    {:ok, _} = GameServer.Accounts.set_user_online(a)
+
+    # b joins their channel to listen for friend_offline
+    {:ok, token_b, _} = Guardian.encode_and_sign(b)
+    {:ok, socket_b} = connect(GameServerWeb.UserSocket, %{"token" => token_b})
+    {:ok, _, _socket_b} = subscribe_and_join(socket_b, "user:#{b.id}", %{})
+
+    # Drain b's initial "updated" push
+    assert_push "updated", _b_initial
+
+    # Delete user a
+    {:ok, _} = GameServer.Accounts.delete_user(a)
+
+    # b should receive a "friend_offline" event about a
+    assert_push "friend_offline", friend_offline_payload, 1000
+    assert friend_offline_payload.user_id == a.id
+    assert friend_offline_payload.is_online == false
+  end
 end

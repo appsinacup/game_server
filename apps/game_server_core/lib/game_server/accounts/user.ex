@@ -14,7 +14,9 @@ defmodule GameServer.Accounts.User do
           confirmed_at: DateTime.t() | nil,
           display_name: String.t() | nil,
           metadata: map(),
-          lobby_id: integer() | nil
+          lobby_id: integer() | nil,
+          is_online: boolean(),
+          last_seen_at: DateTime.t() | nil
         }
   use Ecto.Schema
   import Ecto.Changeset
@@ -35,6 +37,8 @@ defmodule GameServer.Accounts.User do
     field :facebook_id, :string
     field :is_admin, :boolean, default: false
     field :metadata, :map, default: %{}
+    field :is_online, :boolean, default: false
+    field :last_seen_at, :utc_datetime
 
     # membership via users.lobby_id (each user can be in one lobby)
     belongs_to :lobby, GameServer.Lobbies.Lobby
@@ -348,6 +352,8 @@ defimpl Jason.Encoder, for: GameServer.Accounts.User do
       profile_url: user.profile_url || "",
       metadata: user.metadata || %{},
       lobby_id: user.lobby_id || -1,
+      is_online: user.is_online || false,
+      last_seen_at: user.last_seen_at,
       inserted_at: user.inserted_at,
       updated_at: user.updated_at
     }
