@@ -140,14 +140,18 @@ defmodule GameServerWeb.Api.V1.FriendController do
                     type: :object,
                     properties: %{
                       id: %Schema{type: :integer},
-                      display_name: %Schema{type: :string}
+                      display_name: %Schema{type: :string},
+                      is_online: %Schema{type: :boolean},
+                      last_seen_at: %Schema{type: :string, format: :date_time, nullable: true}
                     }
                   },
                   target: %Schema{
                     type: :object,
                     properties: %{
                       id: %Schema{type: :integer},
-                      display_name: %Schema{type: :string}
+                      display_name: %Schema{type: :string},
+                      is_online: %Schema{type: :boolean},
+                      last_seen_at: %Schema{type: :string, format: :date_time, nullable: true}
                     }
                   },
                   status: %Schema{type: :string},
@@ -165,14 +169,18 @@ defmodule GameServerWeb.Api.V1.FriendController do
                     type: :object,
                     properties: %{
                       id: %Schema{type: :integer},
-                      display_name: %Schema{type: :string}
+                      display_name: %Schema{type: :string},
+                      is_online: %Schema{type: :boolean},
+                      last_seen_at: %Schema{type: :string, format: :date_time, nullable: true}
                     }
                   },
                   target: %Schema{
                     type: :object,
                     properties: %{
                       id: %Schema{type: :integer},
-                      display_name: %Schema{type: :string}
+                      display_name: %Schema{type: :string},
+                      is_online: %Schema{type: :boolean},
+                      last_seen_at: %Schema{type: :string, format: :date_time, nullable: true}
                     }
                   },
                   status: %Schema{type: :string},
@@ -643,14 +651,30 @@ defmodule GameServerWeb.Api.V1.FriendController do
   defp serialize_request(%Friends.Friendship{} = f) do
     requester =
       case f.requester do
-        %Ecto.Association.NotLoaded{} -> %{id: f.requester_id, display_name: ""}
-        %{} = r -> %{id: r.id, display_name: r.display_name || ""}
+        %Ecto.Association.NotLoaded{} ->
+          %{id: f.requester_id, display_name: "", is_online: false, last_seen_at: nil}
+
+        %{} = r ->
+          %{
+            id: r.id,
+            display_name: r.display_name || "",
+            is_online: r.is_online || false,
+            last_seen_at: r.last_seen_at
+          }
       end
 
     target =
       case f.target do
-        %Ecto.Association.NotLoaded{} -> %{id: f.target_id, display_name: ""}
-        %{} = t -> %{id: t.id, display_name: t.display_name || ""}
+        %Ecto.Association.NotLoaded{} ->
+          %{id: f.target_id, display_name: "", is_online: false, last_seen_at: nil}
+
+        %{} = t ->
+          %{
+            id: t.id,
+            display_name: t.display_name || "",
+            is_online: t.is_online || false,
+            last_seen_at: t.last_seen_at
+          }
       end
 
     %{

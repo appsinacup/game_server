@@ -18,6 +18,8 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
       is_admin: %Schema{type: :boolean},
       metadata: %Schema{type: :object},
       lobby_id: %Schema{type: :integer, nullable: true},
+      is_online: %Schema{type: :boolean},
+      last_seen_at: %Schema{type: :string, format: "date-time", nullable: true},
       inserted_at: %Schema{type: :string, format: "date-time"},
       updated_at: %Schema{type: :string, format: "date-time"}
     }
@@ -133,6 +135,8 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
       is_admin: user.is_admin,
       metadata: user.metadata || %{},
       lobby_id: user.lobby_id,
+      is_online: user.is_online || false,
+      last_seen_at: user.last_seen_at,
       inserted_at: user.inserted_at,
       updated_at: user.updated_at
     }

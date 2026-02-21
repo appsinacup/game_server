@@ -37,7 +37,9 @@ defmodule GameServerWeb.Api.V1.UserController do
                      nullable: false,
                      description:
                        "Lobby ID when user is currently in a lobby. -1 means not currently in a lobby."
-                   }
+                   },
+                   is_online: %Schema{type: :boolean},
+                   last_seen_at: %Schema{type: :string, format: :date_time, nullable: true}
                  }
                }
              },
@@ -76,7 +78,9 @@ defmodule GameServerWeb.Api.V1.UserController do
                nullable: false,
                description:
                  "Lobby ID when user is currently in a lobby. -1 means not currently in a lobby."
-             }
+             },
+             is_online: %Schema{type: :boolean},
+             last_seen_at: %Schema{type: :string, format: :date_time, nullable: true}
            }
          }},
       not_found: {"Not found", "application/json", @error_schema}
@@ -123,7 +127,9 @@ defmodule GameServerWeb.Api.V1.UserController do
       email: user.email || "",
       display_name: user.display_name || "",
       profile_url: user.profile_url || "",
-      lobby_id: user.lobby_id || -1
+      lobby_id: user.lobby_id || -1,
+      is_online: user.is_online || false,
+      last_seen_at: user.last_seen_at
     }
   end
 end
