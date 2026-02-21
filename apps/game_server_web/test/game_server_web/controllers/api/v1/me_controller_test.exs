@@ -24,6 +24,7 @@ defmodule GameServerWeb.Api.V1.MeControllerTest do
       assert Map.has_key?(body, "metadata")
       assert Map.has_key?(body, "lobby_id")
       assert body["lobby_id"] == -1
+      assert body["last_seen_at"] == "1970-01-01T00:00:00Z"
 
       # Verify linked_providers and has_password fields
       assert Map.has_key?(body, "linked_providers")

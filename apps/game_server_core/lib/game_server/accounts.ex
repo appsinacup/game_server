@@ -1579,7 +1579,7 @@ defmodule GameServer.Accounts do
       display_name: user.display_name || "",
       lobby_id: user.lobby_id || -1,
       is_online: user.is_online || false,
-      last_seen_at: user.last_seen_at,
+      last_seen_at: User.last_seen_at_or_fallback(user),
       linked_providers: get_linked_providers(user),
       has_password: has_password?(user)
     }

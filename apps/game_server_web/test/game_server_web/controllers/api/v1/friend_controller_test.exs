@@ -73,6 +73,10 @@ defmodule GameServerWeb.Api.V1.FriendControllerTest do
     assert [_] = resp["incoming"]
     assert [] = resp["outgoing"]
 
+    incoming = hd(resp["incoming"])
+    assert incoming["requester"]["last_seen_at"] == "1970-01-01T00:00:00Z"
+    assert incoming["target"]["last_seen_at"] == "1970-01-01T00:00:00Z"
+
     # meta total counts and pages should be present
     assert resp["meta"]["total_counts"]["incoming"] == 1
     assert resp["meta"]["total_counts"]["outgoing"] == 0

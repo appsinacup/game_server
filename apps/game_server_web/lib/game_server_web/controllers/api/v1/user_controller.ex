@@ -3,6 +3,7 @@ defmodule GameServerWeb.Api.V1.UserController do
   use OpenApiSpex.ControllerSpecs
 
   alias GameServer.Accounts
+  alias GameServer.Accounts.User
   alias OpenApiSpex.Schema
 
   @error_schema %Schema{type: :object, properties: %{error: %Schema{type: :string}}}
@@ -39,7 +40,7 @@ defmodule GameServerWeb.Api.V1.UserController do
                        "Lobby ID when user is currently in a lobby. -1 means not currently in a lobby."
                    },
                    is_online: %Schema{type: :boolean},
-                   last_seen_at: %Schema{type: :string, format: :date_time, nullable: true}
+                   last_seen_at: %Schema{type: :string, format: :date_time, nullable: false}
                  }
                }
              },
@@ -80,7 +81,7 @@ defmodule GameServerWeb.Api.V1.UserController do
                  "Lobby ID when user is currently in a lobby. -1 means not currently in a lobby."
              },
              is_online: %Schema{type: :boolean},
-             last_seen_at: %Schema{type: :string, format: :date_time, nullable: true}
+             last_seen_at: %Schema{type: :string, format: :date_time, nullable: false}
            }
          }},
       not_found: {"Not found", "application/json", @error_schema}
@@ -129,7 +130,7 @@ defmodule GameServerWeb.Api.V1.UserController do
       profile_url: user.profile_url || "",
       lobby_id: user.lobby_id || -1,
       is_online: user.is_online || false,
-      last_seen_at: user.last_seen_at
+      last_seen_at: User.last_seen_at_or_fallback(user)
     }
   end
 end

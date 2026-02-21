@@ -2,6 +2,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
+  alias GameServer.Accounts.User
   alias GameServer.Friends
   alias OpenApiSpex.Schema
 
@@ -83,7 +84,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
                    last_seen_at: %Schema{
                      type: :string,
                      format: "date-time",
-                     nullable: true,
+                     nullable: false,
                      description: "Last time the friend connected or disconnected"
                    }
                  }
@@ -142,7 +143,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
                       id: %Schema{type: :integer},
                       display_name: %Schema{type: :string},
                       is_online: %Schema{type: :boolean},
-                      last_seen_at: %Schema{type: :string, format: :date_time, nullable: true}
+                      last_seen_at: %Schema{type: :string, format: :date_time, nullable: false}
                     }
                   },
                   target: %Schema{
@@ -151,7 +152,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
                       id: %Schema{type: :integer},
                       display_name: %Schema{type: :string},
                       is_online: %Schema{type: :boolean},
-                      last_seen_at: %Schema{type: :string, format: :date_time, nullable: true}
+                      last_seen_at: %Schema{type: :string, format: :date_time, nullable: false}
                     }
                   },
                   status: %Schema{type: :string},
@@ -171,7 +172,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
                       id: %Schema{type: :integer},
                       display_name: %Schema{type: :string},
                       is_online: %Schema{type: :boolean},
-                      last_seen_at: %Schema{type: :string, format: :date_time, nullable: true}
+                      last_seen_at: %Schema{type: :string, format: :date_time, nullable: false}
                     }
                   },
                   target: %Schema{
@@ -180,7 +181,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
                       id: %Schema{type: :integer},
                       display_name: %Schema{type: :string},
                       is_online: %Schema{type: :boolean},
-                      last_seen_at: %Schema{type: :string, format: :date_time, nullable: true}
+                      last_seen_at: %Schema{type: :string, format: :date_time, nullable: false}
                     }
                   },
                   status: %Schema{type: :string},
@@ -632,7 +633,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
       display_name: user.display_name || "",
       profile_url: user.profile_url || "",
       is_online: user.is_online || false,
-      last_seen_at: user.last_seen_at
+      last_seen_at: User.last_seen_at_or_fallback(user)
     }
   end
 
@@ -644,7 +645,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
       display_name: user.display_name || "",
       profile_url: user.profile_url || "",
       is_online: user.is_online || false,
-      last_seen_at: user.last_seen_at
+      last_seen_at: User.last_seen_at_or_fallback(user)
     }
   end
 
@@ -652,28 +653,38 @@ defmodule GameServerWeb.Api.V1.FriendController do
     requester =
       case f.requester do
         %Ecto.Association.NotLoaded{} ->
-          %{id: f.requester_id, display_name: "", is_online: false, last_seen_at: nil}
+          %{
+            id: f.requester_id,
+            display_name: "",
+            is_online: false,
+            last_seen_at: User.last_seen_at_or_fallback(%User{})
+          }
 
         %{} = r ->
           %{
             id: r.id,
             display_name: r.display_name || "",
             is_online: r.is_online || false,
-            last_seen_at: r.last_seen_at
+            last_seen_at: User.last_seen_at_or_fallback(r)
           }
       end
 
     target =
       case f.target do
         %Ecto.Association.NotLoaded{} ->
-          %{id: f.target_id, display_name: "", is_online: false, last_seen_at: nil}
+          %{
+            id: f.target_id,
+            display_name: "",
+            is_online: false,
+            last_seen_at: User.last_seen_at_or_fallback(%User{})
+          }
 
         %{} = t ->
           %{
             id: t.id,
             display_name: t.display_name || "",
             is_online: t.is_online || false,
-            last_seen_at: t.last_seen_at
+            last_seen_at: User.last_seen_at_or_fallback(t)
           }
       end
 

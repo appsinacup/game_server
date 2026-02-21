@@ -21,6 +21,8 @@ defmodule GameServer.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @last_seen_fallback ~U[1970-01-01 00:00:00Z]
+
   schema "users" do
     field :email, :string
     field :password, :string, virtual: true, redact: true
@@ -341,6 +343,15 @@ defmodule GameServer.Accounts.User do
     Bcrypt.no_user_verify()
     false
   end
+
+  @doc """
+  Returns `last_seen_at` when present, otherwise a stable fallback timestamp.
+  """
+  @spec last_seen_at_or_fallback(t()) :: DateTime.t()
+  def last_seen_at_or_fallback(%__MODULE__{last_seen_at: nil}), do: @last_seen_fallback
+
+  def last_seen_at_or_fallback(%__MODULE__{last_seen_at: %DateTime{} = last_seen_at}),
+    do: last_seen_at
 end
 
 defimpl Jason.Encoder, for: GameServer.Accounts.User do
@@ -353,7 +364,7 @@ defimpl Jason.Encoder, for: GameServer.Accounts.User do
       metadata: user.metadata || %{},
       lobby_id: user.lobby_id || -1,
       is_online: user.is_online || false,
-      last_seen_at: user.last_seen_at,
+      last_seen_at: GameServer.Accounts.User.last_seen_at_or_fallback(user),
       inserted_at: user.inserted_at,
       updated_at: user.updated_at
     }

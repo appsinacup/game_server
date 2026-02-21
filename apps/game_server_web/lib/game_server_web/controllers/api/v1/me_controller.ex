@@ -2,6 +2,7 @@ defmodule GameServerWeb.Api.V1.MeController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
+  alias GameServer.Accounts.User
   alias OpenApiSpex.Schema
 
   @error_schema %Schema{type: :object, properties: %{error: %Schema{type: :string}}}
@@ -37,7 +38,7 @@ defmodule GameServerWeb.Api.V1.MeController do
                 "Lobby ID when user is currently in a lobby. -1 means not currently in a lobby."
             },
             is_online: %Schema{type: :boolean},
-            last_seen_at: %Schema{type: :string, format: :date_time, nullable: true},
+            last_seen_at: %Schema{type: :string, format: :date_time, nullable: false},
             linked_providers: %Schema{
               type: :object,
               description: "Shows which OAuth providers are linked to this account",
@@ -74,7 +75,7 @@ defmodule GameServerWeb.Api.V1.MeController do
           display_name: user.display_name || "",
           lobby_id: user.lobby_id || -1,
           is_online: user.is_online || false,
-          last_seen_at: user.last_seen_at,
+          last_seen_at: User.last_seen_at_or_fallback(user),
           linked_providers: GameServer.Accounts.get_linked_providers(user),
           has_password: GameServer.Accounts.has_password?(user)
         })
