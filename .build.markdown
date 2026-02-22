@@ -26,6 +26,9 @@ GameServer.Leaderboards.md
 GameServer.Lobbies.Lobby.md
 GameServer.Lobbies.md
 GameServer.Mailer.md
+GameServer.Notifications.FriendNotifier.md
+GameServer.Notifications.Notification.md
+GameServer.Notifications.md
 GameServer.OAuth.Exchanger.md
 GameServer.OAuth.GoogleIDToken.md
 GameServer.OAuthSession.md

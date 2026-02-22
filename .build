@@ -27,6 +27,9 @@ GameServer.Leaderboards.html
 GameServer.Lobbies.Lobby.html
 GameServer.Lobbies.html
 GameServer.Mailer.html
+GameServer.Notifications.FriendNotifier.html
+GameServer.Notifications.Notification.html
+GameServer.Notifications.html
 GameServer.OAuth.Exchanger.html
 GameServer.OAuth.GoogleIDToken.html
 GameServer.OAuthSession.html
@@ -48,7 +51,7 @@ dist/lato-latin-700-normal-2XVSBPG4.woff2
 dist/lato-latin-ext-400-normal-N27NCBWW.woff2
 dist/lato-latin-ext-700-normal-Q2L5DVMW.woff2
 dist/remixicon-ZWU5GQ4X.woff2
-dist/search_data-5165BB89.js
-dist/sidebar_items-5958740D.js
+dist/search_data-6D150EA2.js
+dist/sidebar_items-FEDBAE4E.js
 index.html
 search.html

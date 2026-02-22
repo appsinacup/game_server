@@ -8,7 +8,7 @@
     <meta name="project" content="GameServer v1.0.568">
 
 
-    <title>GameServer.OAuthSessions — GameServer v1.0.568</title>
+    <title>GameServer.Notifications.FriendNotifier — GameServer v1.0.568</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
@@ -93,12 +93,12 @@ GameServer
 <div id="top-content">
   <div class="heading-with-actions top-heading">
     <h1>
-      <span translate="no">GameServer.<wbr>OAuthSessions</span> 
+      <span translate="no">GameServer.<wbr>Notifications.<wbr>FriendNotifier</span> 
       <small class="app-vsn" translate="no">(GameServer v1.0.568)</small>
 
     </h1>
 
-<a href="GameServer.OAuthSessions.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
+<a href="GameServer.Notifications.FriendNotifier.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
   <i class="ri-markdown-line" aria-hidden="true"></i>
   <span class="sr-only">Copy Markdown</span>
 </a>
@@ -109,7 +109,10 @@ GameServer
 
 
     <section id="moduledoc">
-<p>Helpers for creating and retrieving short-lived OAuth sessions.</p>
+<p>Subscribes to the global <code class="inline">&quot;friends&quot;</code> PubSub topic and automatically creates
+notifications for key friend events:</p><ul><li><strong>Incoming friend request</strong> → notifies the target user</li><li><strong>Friend request accepted</strong> → notifies the requester</li></ul><p>This GenServer runs as part of the supervision tree and creates persistent
+notifications via <code class="inline">Notifications.admin_create_notification/3</code> so they are
+delivered even when the recipient is offline.</p>
     </section>
 
 </div>
@@ -128,23 +131,17 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#create_session/2" data-no-tooltip="" translate="no">create_session(session_id, attrs \\ %{})</a>
+        <a href="#child_spec/1" data-no-tooltip="" translate="no">child_spec(init_arg)</a>
 
       </div>
+
+        <div class="summary-synopsis"><p>Returns a specification to start this module under a supervisor.</p></div>
 
     </div>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#get_session/1" data-no-tooltip="" translate="no">get_session(session_id)</a>
-
-      </div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#update_session/2" data-no-tooltip="" translate="no">update_session(session_id, attrs)</a>
+        <a href="#start_link/1" data-no-tooltip="" translate="no">start_link(opts \\ [])</a>
 
       </div>
 
@@ -164,16 +161,14 @@ GameServer
     </h2>
 
     <div class="functions-list">
-<section class="detail" id="create_session/2">
-
-    <span id="create_session/1"></span>
+<section class="detail" id="child_spec/1">
 
   <div class="detail-header">
-    <a href="#create_session/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#child_spec/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">create_session(session_id, attrs \\ %{})</h1>
+      <h1 class="signature" translate="no">child_spec(init_arg)</h1>
 
 
     </div>
@@ -181,61 +176,25 @@ GameServer
 
   <section class="docstring">
 
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> create_session(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
-  {:ok, <a href="GameServer.OAuthSession.html#t:t/0">GameServer.OAuthSession.t</a>()} | {:error, <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
-
-      </div>
-
-
+<p>Returns a specification to start this module under a supervisor.</p><p>See <a href="https://hexdocs.pm/elixir/Supervisor.html"><code class="inline">Supervisor</code></a>.</p>
   </section>
 </section>
-<section class="detail" id="get_session/1">
+<section class="detail" id="start_link/1">
+
+    <span id="start_link/0"></span>
 
   <div class="detail-header">
-    <a href="#get_session/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#start_link/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">get_session(session_id)</h1>
+      <h1 class="signature" translate="no">start_link(opts \\ [])</h1>
 
 
     </div>
   </div>
 
   <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> get_session(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="GameServer.OAuthSession.html#t:t/0">GameServer.OAuthSession.t</a>() | nil</pre>
-
-      </div>
-
-
-  </section>
-</section>
-<section class="detail" id="update_session/2">
-
-  <div class="detail-header">
-    <a href="#update_session/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">update_session(session_id, attrs)</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> update_session(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
-  {:ok, <a href="GameServer.OAuthSession.html#t:t/0">GameServer.OAuthSession.t</a>()} | {:error, <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()} | :not_found</pre>
-
-      </div>
 
 
   </section>

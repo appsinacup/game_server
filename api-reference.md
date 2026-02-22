@@ -1,4 +1,4 @@
-# GameServer v1.0.566 - API Reference
+# GameServer v1.0.568 - API Reference
 
 ## Modules
 
@@ -36,6 +36,11 @@ and email-change workflows.
 - [GameServer.Lobbies](GameServer.Lobbies.md): Context module for lobby management: creating, updating, listing and searching lobbies.
 - [GameServer.Lobbies.Lobby](GameServer.Lobbies.Lobby.md): Ecto schema for the `lobbies` table and changeset helpers.
 - [GameServer.Mailer](GameServer.Mailer.md)
+- [GameServer.Notifications](GameServer.Notifications.md): Notifications context – create, list, and delete persisted user-to-user
+notifications.
+- [GameServer.Notifications.FriendNotifier](GameServer.Notifications.FriendNotifier.md): Subscribes to the global `"friends"` PubSub topic and automatically creates
+notifications for key friend events
+- [GameServer.Notifications.Notification](GameServer.Notifications.Notification.md): Ecto schema representing a notification sent from one user to another.
 - [GameServer.OAuth.Exchanger](GameServer.OAuth.Exchanger.md): Default implementation for exchanging OAuth codes with providers.
 - [GameServer.OAuth.GoogleIDToken](GameServer.OAuth.GoogleIDToken.md): Verifies Google OpenID Connect `id_token`s for native/mobile sign-in flows.
 - [GameServer.OAuthSession](GameServer.OAuthSession.md): Simple Ecto schema for OAuth session polling used by client SDKs.
