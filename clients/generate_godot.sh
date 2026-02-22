@@ -126,6 +126,13 @@ find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/ad
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/admin_ListLobbies200ResponseDataInner/AdminListLobbies200ResponseDataInner/g" -i
 # Replace admin_end_leaderboard_200_response_data with AdminEndLeaderboard200ResponseData
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/admin_end_leaderboard_200_response_data/AdminEndLeaderboard200ResponseData/g" -i
+# Replace admin_list_notifications_200_response_meta with AdminListNotifications200ResponseMeta
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/admin_list_notifications_200_response_meta/AdminListNotifications200ResponseMeta/g" -i
+# Replace list_notifications_200_response_data_inner with ListNotifications200ResponseDataInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_notifications_200_response_data_inner/ListNotifications200ResponseDataInner/g" -i
+# Replace admin_ListNotifications200ResponseDataInner with AdminListNotifications200ResponseDataInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/admin_ListNotifications200ResponseDataInner/AdminListNotifications200ResponseDataInner/g" -i
+# Replace admin_list_notifications_200_response_data_inner
 # headers_for_godot, body_serialized
 # with 
 # headers_for_godot, "" if body_serialized == "null" else body_serialized

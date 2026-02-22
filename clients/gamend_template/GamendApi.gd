@@ -12,6 +12,7 @@ var _realtime: GamendRealtime
 var enable_logs := true
 var enable_ssl := false
 var TIME_TO_WAIT_RECONNECT = 5000
+@export var http_client_pool_size := 4
 
 const PROVIDER_DISCORD = "discord"
 const PROVIDER_APPLE = "apple"
@@ -25,12 +26,45 @@ var _expires_at_ms := -1
 var _user_id = -1
 var _lobby_id = -1
 var _refreshing_token = false
+var _http_clients: Array = []
+var _http_clients_in_flight: Array = []
+var _http_client_pool_index := 0
 
 func _init(host: String = "127.0.0.1", port: int = 4000, enable_ssl := false):
 	_config.host = host
 	_config.tls_enabled = enable_ssl
 	_config.log_level = ApiApiConfigClient.LogLevel.INFO
 	_config.port = port
+	_config.polling_interval_ms = 1
+	_config.headers_override["Connection"] = "keep-alive"
+	_ensure_http_client_pool()
+
+func _ensure_http_client_pool() -> void:
+	var desired := max(1, int(http_client_pool_size))
+	if _http_clients.size() != desired:
+		_http_clients.clear()
+		_http_clients_in_flight.clear()
+		for i in range(desired):
+			_http_clients.append(HTTPClient.new())
+			_http_clients_in_flight.append(false)
+		_http_client_pool_index = 0
+
+func _acquire_http_client() -> int:
+	_ensure_http_client_pool()
+	var size := _http_clients.size()
+	while true:
+		for offset in range(size):
+			var idx := (_http_client_pool_index + offset) % size
+			if not _http_clients_in_flight[idx]:
+				_http_clients_in_flight[idx] = true
+				_http_client_pool_index = (idx + 1) % size
+				return idx
+		await get_tree().process_frame
+	return -1
+
+func _release_http_client(idx: int) -> void:
+	if idx >= 0 and idx < _http_clients_in_flight.size():
+		_http_clients_in_flight[idx] = false
 
 func _verify_token_expired():
 	# Only one refreshes at a time
@@ -48,25 +82,33 @@ func _verify_token_expired():
 
 func _call_api(api: ApiApiBeeClient, method_name: String, params: Array = []) -> GamendResult:
 	# Check if it's close to expiring first, if so make a refresh_call if we already have access token
-	
+	var start_request_time = Time.get_ticks_msec()
+	if enable_logs:
+		print("Requesting: ", api._bzz_name, " ", method_name, " ", params)
 	if method_name != "refresh_token":
 		await _verify_token_expired()
+	api._bzz_keep_alive = true
+	var client_idx := await _acquire_http_client()
+	if client_idx >= 0:
+		api._bzz_client = _http_clients[client_idx]
 	var result = GamendResult.new()
 	var callables = [
 		func(response: ApiApiResponseClient):
+			_release_http_client(client_idx)
 			result.response = response
 			_verify_login_result(method_name, response.data)
 			if enable_logs:
-				print(api._bzz_name, " ", method_name, " ", response.body)
+				print(api._bzz_name, " ", method_name, " ", response.body, " t: ", (Time.get_ticks_msec() - start_request_time) / 1000.0)
 			result.finished.emit(result)
 			,
 		func(error):
+			_release_http_client(client_idx)
 			if error.response_code == 401:
 				# Expire the token now.
 				_expires_at_ms = -1
 			result.error = error
 			if enable_logs:
-				print(api._bzz_name, " ", method_name, " ", result.error)
+				print(api._bzz_name, " ", method_name, " ", result.error, " t: ", (Time.get_ticks_msec() - start_request_time) / 1000.0)
 			result.finished.emit(result)]
 	params.append_array(callables)
 	api.callv(method_name, params)
