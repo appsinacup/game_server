@@ -21,7 +21,9 @@ defmodule GameServerWeb.AdminLive.Notifications do
             "title" => "",
             "content" => "",
             "metadata" => ""
-          }, as: :notification)
+          },
+          as: :notification
+        )
       )
       |> reload_notifications()
 
@@ -283,7 +285,9 @@ defmodule GameServerWeb.AdminLive.Notifications do
                  "title" => "",
                  "content" => "",
                  "metadata" => ""
-               }, as: :notification)
+               },
+               as: :notification
+             )
            )
            |> reload_notifications()}
 

@@ -201,6 +201,37 @@ defmodule GameServerWeb.Api.V1.Admin.NotificationControllerTest do
     assert resp["error"] =~ "sender_id"
   end
 
+  test "POST /api/v1/admin/notifications rejects duplicate title for same sender and recipient",
+       %{
+         conn: conn,
+         admin: admin
+       } do
+    sender = AccountsFixtures.user_fixture()
+    recipient = AccountsFixtures.user_fixture()
+
+    conn
+    |> bearer_conn(admin)
+    |> post("/api/v1/admin/notifications", %{
+      sender_id: sender.id,
+      recipient_id: recipient.id,
+      title: "Invited to play"
+    })
+    |> json_response(201)
+
+    resp =
+      conn
+      |> bearer_conn(admin)
+      |> post("/api/v1/admin/notifications", %{
+        sender_id: sender.id,
+        recipient_id: recipient.id,
+        title: "Invited to play"
+      })
+      |> json_response(422)
+
+    assert resp["error"] == "validation_failed"
+    assert get_in(resp, ["errors", "sender_id"]) != nil
+  end
+
   # ── Delete ─────────────────────────────────────────────────────────────────
 
   test "DELETE /api/v1/admin/notifications/:id deletes a notification", %{

@@ -56,5 +56,8 @@ defmodule GameServer.Notifications.Notification do
     |> validate_required([:title])
     |> validate_length(:title, min: 1, max: 255)
     |> validate_length(:content, max: 10_000)
+    |> unique_constraint([:sender_id, :recipient_id, :title],
+      name: :notifications_sender_id_recipient_id_title_index
+    )
   end
 end
