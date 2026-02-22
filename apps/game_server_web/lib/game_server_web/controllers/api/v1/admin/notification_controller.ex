@@ -259,7 +259,7 @@ defmodule GameServerWeb.Api.V1.Admin.NotificationController do
       sender_id: n.sender_id,
       recipient_id: n.recipient_id,
       title: n.title,
-      content: n.content,
+      content: n.content || "",
       metadata: n.metadata || %{},
       inserted_at: n.inserted_at
     }
