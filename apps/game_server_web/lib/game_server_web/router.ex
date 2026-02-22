@@ -118,6 +118,10 @@ defmodule GameServerWeb.Router do
     post "/friends/:id/block", FriendController, :block
     post "/friends/:id/unblock", FriendController, :unblock
     delete "/friends/:id", FriendController, :delete
+    # Notifications API
+    get "/notifications", NotificationController, :index
+    post "/notifications", NotificationController, :create
+    delete "/notifications", NotificationController, :delete
     # Hooks API - list available hook functions and call them
     get "/hooks", HookController, :index
     post "/hooks/call", HookController, :invoke
@@ -155,6 +159,11 @@ defmodule GameServerWeb.Router do
     # Users
     patch "/users/:id", UserController, :update
     delete "/users/:id", UserController, :delete
+
+    # Notifications
+    get "/notifications", NotificationController, :index
+    post "/notifications", NotificationController, :create
+    delete "/notifications/:id", NotificationController, :delete
 
     # Sessions
     get "/sessions", SessionController, :index
@@ -207,6 +216,7 @@ defmodule GameServerWeb.Router do
       live "/admin/leaderboards", AdminLive.Leaderboards, :index
       live "/admin/users", AdminLive.Users, :index
       live "/admin/sessions", AdminLive.Sessions, :index
+      live "/admin/notifications", AdminLive.Notifications, :index
     end
   end
 

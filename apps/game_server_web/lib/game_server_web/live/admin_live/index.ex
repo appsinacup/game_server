@@ -7,6 +7,7 @@ defmodule GameServerWeb.AdminLive.Index do
   alias GameServer.KV
   alias GameServer.Leaderboards.Leaderboard
   alias GameServer.Lobbies.Lobby
+  alias GameServer.Notifications
   alias GameServer.Repo
 
   @dev_routes? Application.compile_env(:game_server_web, :dev_routes, false)
@@ -39,6 +40,9 @@ defmodule GameServerWeb.AdminLive.Index do
           </.link>
           <.link navigate={~p"/admin/sessions"} class="btn btn-primary">
             Tokens ({@sessions_count})
+          </.link>
+          <.link navigate={~p"/admin/notifications"} class="btn btn-primary">
+            Notifications ({@notifications_count})
           </.link>
         </div>
 
@@ -117,6 +121,7 @@ defmodule GameServerWeb.AdminLive.Index do
     users_count = Repo.aggregate(User, :count)
     sessions_count = Repo.aggregate(UserToken, :count)
     lobbies_count = Repo.aggregate(Lobby, :count)
+    notifications_count = Notifications.count_all_notifications()
     leaderboards_count = Repo.aggregate(Leaderboard, :count)
     kv_count = KV.count_entries()
 
@@ -162,6 +167,7 @@ defmodule GameServerWeb.AdminLive.Index do
        lobbies_hidden: lobbies_hidden,
        lobbies_locked: lobbies_locked,
        lobbies_passworded: lobbies_passworded,
+       notifications_count: notifications_count,
        leaderboard_records: leaderboard_records,
        users_registered_1d: users_registered_1d,
        users_registered_7d: users_registered_7d,

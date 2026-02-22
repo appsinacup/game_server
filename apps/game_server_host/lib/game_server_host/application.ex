@@ -25,6 +25,8 @@ defmodule GameServerHost.Application do
       # Load hook plugins (OTP apps) shipped under modules/plugins/*
       GameServer.Hooks.PluginManager,
       GameServerWeb.Endpoint,
+      # Auto-create notifications for friend events (must start after PubSub)
+      GameServer.Notifications.FriendNotifier,
       # Quantum scheduler for cron-like jobs
       GameServer.Schedule.Scheduler
     ]

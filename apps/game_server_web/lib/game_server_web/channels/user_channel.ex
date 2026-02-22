@@ -11,6 +11,12 @@ defmodule GameServerWeb.UserChannel do
   database and a `"friend_online"` event is pushed to every accepted friend's
   channel.  When the last channel process for a user terminates the flag is
   reset and a `"friend_offline"` event is pushed.
+
+  ## Notifications
+
+  On join the channel pushes all undeleted notifications for the user in
+  chronological order (oldest-first) as individual `"notification"` events.
+  New notifications arriving while connected are also pushed as `"notification"`.
   """
 
   use Phoenix.Channel
@@ -22,6 +28,7 @@ defmodule GameServerWeb.UserChannel do
   alias GameServer.Accounts.Scope
   alias GameServer.Accounts.User
   alias GameServer.Friends
+  alias GameServer.Notifications
 
   @impl true
   def join("user:" <> user_id_str, _payload, socket) do
@@ -67,18 +74,41 @@ defmodule GameServerWeb.UserChannel do
   @impl true
   def handle_info({:after_join, %User{} = user}, socket) do
     # Mark user online in DB
-    case Accounts.set_user_online(user) do
-      {:ok, updated_user} ->
-        payload = Accounts.serialize_user_payload(updated_user)
-        push(socket, "updated", payload)
-        broadcast_online_status(updated_user.id, true)
-        {:noreply, assign(socket, :last_user_payload, payload)}
+    socket =
+      case Accounts.set_user_online(user) do
+        {:ok, updated_user} ->
+          payload = Accounts.serialize_user_payload(updated_user)
+          push(socket, "updated", payload)
+          broadcast_online_status(updated_user.id, true)
+          assign(socket, :last_user_payload, payload)
 
-      _ ->
-        payload = Accounts.serialize_user_payload(user)
-        push(socket, "updated", payload)
-        {:noreply, assign(socket, :last_user_payload, payload)}
-    end
+        _ ->
+          payload = Accounts.serialize_user_payload(user)
+          push(socket, "updated", payload)
+          assign(socket, :last_user_payload, payload)
+      end
+
+    # Subscribe to notifications PubSub
+    Notifications.subscribe(user.id)
+
+    # Push all existing (undeleted) notifications in chronological order
+    push_existing_notifications(socket, user.id)
+
+    {:noreply, socket}
+  end
+
+  # ── Notification PubSub events ──────────────────────────────────────────────
+
+  @impl true
+  def handle_info({:new_notification, notification}, socket) do
+    push(socket, "notification", serialize_notification(notification))
+    {:noreply, socket}
+  end
+
+  # Catch-all for unknown messages
+  @impl true
+  def handle_info(_msg, socket) do
+    {:noreply, socket}
   end
 
   @impl true
@@ -86,6 +116,9 @@ defmodule GameServerWeb.UserChannel do
     user_id = Map.get(socket.assigns, :user_id)
 
     if user_id do
+      # Unsubscribe from notifications
+      Notifications.unsubscribe(user_id)
+
       case Accounts.set_user_offline(user_id) do
         {:ok, _} ->
           broadcast_online_status(user_id, false)
@@ -96,6 +129,19 @@ defmodule GameServerWeb.UserChannel do
     end
 
     :ok
+  end
+
+  # ---------------------------------------------------------------------------
+  # Private helpers
+  # ---------------------------------------------------------------------------
+
+  # Push all existing undeleted notifications for the user, ordered oldest-first.
+  defp push_existing_notifications(socket, user_id) do
+    notifications = Notifications.list_notifications(user_id, page: 1, page_size: 1000)
+
+    Enum.each(notifications, fn notification ->
+      push(socket, "notification", serialize_notification(notification))
+    end)
   end
 
   # Broadcast online/offline status change to all accepted friends' user channels.
@@ -118,5 +164,17 @@ defmodule GameServerWeb.UserChannel do
         %Phoenix.Socket.Broadcast{topic: topic, event: event, payload: payload}
       )
     end)
+  end
+
+  defp serialize_notification(notification) do
+    %{
+      id: notification.id,
+      sender_id: notification.sender_id,
+      recipient_id: notification.recipient_id,
+      title: notification.title,
+      content: notification.content,
+      metadata: notification.metadata || %{},
+      inserted_at: notification.inserted_at
+    }
   end
 end

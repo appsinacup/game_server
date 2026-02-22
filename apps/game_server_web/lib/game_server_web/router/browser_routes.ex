@@ -27,6 +27,7 @@ defmodule GameServerWeb.Router.BrowserRoutes do
           live "/admin/leaderboards", AdminLive.Leaderboards, :index
           live "/admin/users", AdminLive.Users, :index
           live "/admin/sessions", AdminLive.Sessions, :index
+          live "/admin/notifications", AdminLive.Notifications, :index
         end
       end
 

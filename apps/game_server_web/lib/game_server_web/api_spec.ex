@@ -68,6 +68,15 @@ defmodule GameServerWeb.ApiSpec do
         - **Membership management**: join, leave, kick users, and automatic host transfer
         - **Controls & protection**: max users, hidden/locked states, and optional password protection
         - **Hidden lobbies** are excluded from public listings; public listing endpoints are paginated
+
+        ## Notifications
+        Persistent user-to-user notifications that survive across sessions:
+
+        - **Send notifications** to accepted friends with a title, optional content, and optional metadata
+        - **List own notifications** with pagination (ordered oldest-first)
+        - **Delete notifications** by ID (single or batch)
+        - **Real-time delivery** via the user WebSocket channel (`"notification"` events)
+        - **Offline delivery**: undeleted notifications are replayed on WebSocket reconnect
         """
       },
       paths: filter_api_paths(Paths.from_router(Router)),

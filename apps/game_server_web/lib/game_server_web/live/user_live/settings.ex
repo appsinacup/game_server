@@ -4,7 +4,7 @@ defmodule GameServerWeb.UserLive.Settings do
   alias GameServer.Accounts
   alias GameServer.Friends
   alias GameServer.KV
-  # Repo / Ecto.Query not needed in settings LiveView
+  alias GameServer.Notifications
 
   @impl true
   def render(assigns) do
@@ -437,6 +437,84 @@ defmodule GameServerWeb.UserLive.Settings do
         </div>
       </div>
 
+      <%!-- Notifications section --%>
+      <div class="card bg-base-200 p-4 rounded-lg mt-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="font-semibold text-lg">Notifications</div>
+            <div class="text-sm text-base-content/70">
+              Your notifications ({@notif_count})
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <%= if @notif_count > 0 do %>
+              <button
+                type="button"
+                phx-click="delete_all_notifications"
+                data-confirm="Delete all notifications?"
+                class="btn btn-sm btn-outline btn-error"
+              >
+                Delete All
+              </button>
+            <% end %>
+          </div>
+        </div>
+
+        <%= if @notif_count == 0 do %>
+          <div class="mt-4 text-sm text-base-content/60">No notifications yet.</div>
+        <% else %>
+          <div class="overflow-x-auto mt-4">
+            <table id="user-notifications-table" class="table table-zebra w-full">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Content</th>
+                  <th>From</th>
+                  <th>Date</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr :for={n <- @notifications} id={"notif-" <> to_string(n.id)}>
+                  <td class="text-sm font-semibold">{n.title}</td>
+                  <td class="text-sm max-w-xs truncate">{n.content || "-"}</td>
+                  <td class="text-sm font-mono">{n.sender_id}</td>
+                  <td class="text-sm whitespace-nowrap">
+                    {Calendar.strftime(n.inserted_at, "%Y-%m-%d %H:%M")}
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      phx-click="delete_notification"
+                      phx-value-id={n.id}
+                      class="btn btn-xs btn-outline btn-error"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div :if={@notif_total_pages > 1} class="mt-4 flex gap-2 items-center">
+            <button phx-click="notif_prev" class="btn btn-xs" disabled={@notif_page <= 1}>
+              Prev
+            </button>
+            <div class="text-xs text-base-content/70">
+              page {@notif_page} / {@notif_total_pages} ({@notif_count} total)
+            </div>
+            <button
+              phx-click="notif_next"
+              class="btn btn-xs"
+              disabled={@notif_page >= @notif_total_pages || @notif_total_pages == 0}
+            >
+              Next
+            </button>
+          </div>
+        <% end %>
+      </div>
+
       <div class="card bg-base-200 p-4 rounded-lg">
         <div class="font-semibold">Linked Accounts</div>
         <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -682,11 +760,18 @@ defmodule GameServerWeb.UserLive.Settings do
       |> assign(:kv_entries, [])
       |> assign(:kv_count, 0)
       |> assign(:kv_total_pages, 0)
+      |> assign(:notif_page, 1)
+      |> assign(:notif_page_size, 25)
+      |> assign(:notifications, [])
+      |> assign(:notif_count, 0)
+      |> assign(:notif_total_pages, 0)
 
     socket = reload_kv_entries(socket)
+    socket = reload_notifications(socket)
 
     if connected?(socket) do
       Friends.subscribe_user(user.id)
+      Notifications.subscribe(user.id)
       Phoenix.PubSub.subscribe(GameServer.PubSub, "user:#{user.id}")
     end
 
@@ -842,6 +927,32 @@ defmodule GameServerWeb.UserLive.Settings do
          |> assign(:kv_filter_form, to_form(%{"key" => ""}, as: :filters))
          |> assign(:kv_page, 1)
          |> reload_kv_entries()}
+
+      {"notif_prev", _} ->
+        page = max(1, socket.assigns.notif_page - 1)
+        {:noreply, socket |> assign(:notif_page, page) |> reload_notifications()}
+
+      {"notif_next", _} ->
+        page = socket.assigns.notif_page + 1
+        {:noreply, socket |> assign(:notif_page, page) |> reload_notifications()}
+
+      {"delete_notification", %{"id" => id}} ->
+        notif_id = if is_binary(id), do: String.to_integer(id), else: id
+        Notifications.delete_notifications(user.id, [notif_id])
+        {:noreply, socket |> put_flash(:info, "Notification deleted") |> reload_notifications()}
+
+      {"delete_all_notifications", _} ->
+        all_ids =
+          Notifications.list_notifications(user.id, page: 1, page_size: 10_000)
+          |> Enum.map(& &1.id)
+
+        Notifications.delete_notifications(user.id, all_ids)
+
+        {:noreply,
+         socket
+         |> put_flash(:info, "All notifications deleted")
+         |> assign(:notif_page, 1)
+         |> reload_notifications()}
 
       {"accept_friend", %{"id" => id}} ->
         id = if is_binary(id), do: String.to_integer(id), else: id
@@ -1204,6 +1315,26 @@ defmodule GameServerWeb.UserLive.Settings do
   defp get_user_from_scope(%{current_scope: %{user: user}}), do: user
   defp get_user_from_scope(_), do: nil
 
+  defp reload_notifications(socket) do
+    user = get_user_from_scope(socket.assigns)
+
+    if user do
+      page = socket.assigns.notif_page
+      page_size = socket.assigns.notif_page_size
+
+      notifications = Notifications.list_notifications(user.id, page: page, page_size: page_size)
+      count = Notifications.count_notifications(user.id)
+      total_pages = if page_size > 0, do: div(count + page_size - 1, page_size), else: 0
+
+      socket
+      |> assign(:notifications, notifications)
+      |> assign(:notif_count, count)
+      |> assign(:notif_total_pages, total_pages)
+    else
+      socket
+    end
+  end
+
   # PubSub handlers
   @impl true
   def handle_info({:incoming_request, _f}, socket) do
@@ -1248,6 +1379,11 @@ defmodule GameServerWeb.UserLive.Settings do
 
   # Ignore other broadcasts on the user topic (e.g. "updated" events from channel)
   def handle_info(%Phoenix.Socket.Broadcast{}, socket), do: {:noreply, socket}
+
+  # Notification PubSub — refresh notification list when a new one arrives
+  def handle_info({:new_notification, _notification}, socket) do
+    {:noreply, reload_notifications(socket)}
+  end
 
   ## handle_params is implemented after event handlers to keep handle_event/3
   ## clauses grouped together (avoid compile warnings about grouping clauses).
