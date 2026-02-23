@@ -30,7 +30,6 @@ defmodule GameServerWeb.Api.V1.Admin.GroupController do
     type: :object,
     properties: %{
       id: %Schema{type: :integer},
-      name: %Schema{type: :string},
       title: %Schema{type: :string},
       description: %Schema{type: :string, nullable: true},
       type: %Schema{type: :string},
@@ -50,7 +49,6 @@ defmodule GameServerWeb.Api.V1.Admin.GroupController do
     security: [%{"authorization" => []}],
     parameters: [
       title: [in: :query, schema: %Schema{type: :string}],
-      name: [in: :query, schema: %Schema{type: :string}],
       type: [
         in: :query,
         schema: %Schema{type: :string, enum: ["public", "private", "hidden"]}
@@ -66,8 +64,8 @@ defmodule GameServerWeb.Api.V1.Admin.GroupController do
             "updated_at_asc",
             "inserted_at",
             "inserted_at_asc",
-            "name",
-            "name_desc",
+            "title",
+            "title_desc",
             "max_members",
             "max_members_asc"
           ]
@@ -137,7 +135,6 @@ defmodule GameServerWeb.Api.V1.Admin.GroupController do
     filters =
       %{}
       |> maybe_put(:title, params)
-      |> maybe_put(:name, params)
       |> maybe_put(:type, params)
       |> maybe_put(:min_members, params)
       |> maybe_put(:max_members, params)
@@ -213,7 +210,6 @@ defmodule GameServerWeb.Api.V1.Admin.GroupController do
 
     %{
       id: group.id,
-      name: group.name,
       title: group.title,
       description: group.description,
       type: group.type,

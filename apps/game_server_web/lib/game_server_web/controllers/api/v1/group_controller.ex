@@ -15,7 +15,6 @@ defmodule GameServerWeb.Api.V1.GroupController do
     type: :object,
     properties: %{
       id: %Schema{type: :integer, description: "Group ID"},
-      name: %Schema{type: :string, description: "Unique slug / identifier"},
       title: %Schema{type: :string, description: "Display title"},
       description: %Schema{type: :string, description: "Description", nullable: true},
       type: %Schema{
@@ -32,7 +31,6 @@ defmodule GameServerWeb.Api.V1.GroupController do
     },
     example: %{
       id: 1,
-      name: "awesome-guild",
       title: "Awesome Guild",
       description: "A group for awesome players",
       type: "public",
@@ -103,17 +101,12 @@ defmodule GameServerWeb.Api.V1.GroupController do
     operation_id: "list_groups",
     summary: "List groups",
     description:
-      "Return all non-hidden groups. Supports filtering by title, name, type, max_members, and metadata.",
+      "Return all non-hidden groups. Supports filtering by title, type, max_members, and metadata.",
     parameters: [
       title: [
         in: :query,
         schema: %Schema{type: :string},
         description: "Search by title (prefix)"
-      ],
-      name: [
-        in: :query,
-        schema: %Schema{type: :string},
-        description: "Search by name (prefix)"
       ],
       type: [
         in: :query,
@@ -177,10 +170,9 @@ defmodule GameServerWeb.Api.V1.GroupController do
       "application/json",
       %Schema{
         type: :object,
-        required: [:name, :title],
+        required: [:title],
         properties: %{
-          name: %Schema{type: :string, description: "Unique identifier / slug"},
-          title: %Schema{type: :string, description: "Display title"},
+          title: %Schema{type: :string, description: "Display title (unique)"},
           description: %Schema{type: :string, description: "Optional description"},
           type: %Schema{
             type: :string,
@@ -190,12 +182,12 @@ defmodule GameServerWeb.Api.V1.GroupController do
           max_members: %Schema{type: :integer, description: "Max members (default: 100)"},
           metadata: %Schema{type: :object, description: "Server metadata"}
         },
-        example: %{name: "my-guild", title: "My Guild", type: "public", max_members: 50}
+        example: %{title: "My Guild", type: "public", max_members: 50}
       }
     },
     responses: [
       created: {"Group created", "application/json", @group_schema},
-      conflict: {"Name taken or validation error", "application/json", @error_schema},
+      conflict: {"Title taken or validation error", "application/json", @error_schema},
       unauthorized: {"Not authenticated", "application/json", @error_schema}
     ]
   )
@@ -231,36 +223,23 @@ defmodule GameServerWeb.Api.V1.GroupController do
     ]
   )
 
-  operation(:delete,
-    operation_id: "delete_group",
-    summary: "Delete an empty group (admin only)",
-    description:
-      "Delete a group permanently. Only group admins can delete, and only if the group " <>
-        "has no members. Groups are auto-deleted when the last member leaves.",
-    security: [%{"authorization" => []}],
-    parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Group ID", required: true]
-    ],
-    responses: [
-      ok: {"Group deleted", "application/json", %Schema{type: :object}},
-      forbidden: {"Not an admin or group has members", "application/json", @error_schema},
-      unauthorized: {"Not authenticated", "application/json", @error_schema}
-    ]
-  )
-
   operation(:join,
     operation_id: "join_group",
-    summary: "Join a public group",
+    summary: "Join a group",
     description:
-      "Join a public group directly. For private groups use the join request endpoint.",
+      "Join a group. For public groups the user is added immediately. " <>
+        "For private groups a join request is created (an admin must approve it). " <>
+        "Hidden groups require an invite and cannot be joined directly.",
     security: [%{"authorization" => []}],
     parameters: [
       id: [in: :path, schema: %Schema{type: :integer}, description: "Group ID", required: true]
     ],
     responses: [
-      ok: {"Joined successfully", "application/json", @member_schema},
+      ok: {"Joined successfully (public group)", "application/json", @member_schema},
+      created: {"Join request created (private group)", "application/json", @join_request_schema},
       forbidden:
-        {"Cannot join (full, not public, already member)", "application/json", @error_schema},
+        {"Cannot join (full, hidden, already member, already requested)", "application/json",
+         @error_schema},
       not_found: {"Group not found", "application/json", @error_schema},
       unauthorized: {"Not authenticated", "application/json", @error_schema}
     ]
@@ -383,23 +362,6 @@ defmodule GameServerWeb.Api.V1.GroupController do
     responses: [
       ok: {"Member demoted", "application/json", @member_schema},
       forbidden: {"Not admin", "application/json", @error_schema},
-      unauthorized: {"Not authenticated", "application/json", @error_schema}
-    ]
-  )
-
-  operation(:request_join,
-    operation_id: "request_join_group",
-    summary: "Request to join a private group",
-    description: "Send a join request for a private group. An admin must approve it.",
-    security: [%{"authorization" => []}],
-    parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Group ID", required: true]
-    ],
-    responses: [
-      created: {"Join request created", "application/json", @join_request_schema},
-      forbidden:
-        {"Cannot request (not private, already member)", "application/json", @error_schema},
-      not_found: {"Group not found", "application/json", @error_schema},
       unauthorized: {"Not authenticated", "application/json", @error_schema}
     ]
   )
@@ -721,7 +683,6 @@ defmodule GameServerWeb.Api.V1.GroupController do
     filters =
       %{}
       |> maybe_put_string_filter(:title, param_value(params, "title", :title))
-      |> maybe_put_string_filter(:name, param_value(params, "name", :name))
       |> maybe_put_string_filter(:type, param_value(params, "type", :type))
       |> maybe_put_int_filter(:min_members, param_value(params, "min_members", :min_members))
       |> maybe_put_int_filter(:max_members, param_value(params, "max_members", :max_members))
@@ -817,35 +778,6 @@ defmodule GameServerWeb.Api.V1.GroupController do
     end)
   end
 
-  def delete(conn, %{"id" => id}) do
-    with_auth(conn, fn user ->
-      case parse_id(id) do
-        nil ->
-          conn |> put_status(:not_found) |> json(%{error: "not_found"})
-
-        group_id ->
-          case Groups.delete_group(user.id, group_id) do
-            {:ok, _} ->
-              json(conn, %{})
-
-            {:error, :not_admin} ->
-              conn |> put_status(:forbidden) |> json(%{error: "not_admin"})
-
-            {:error, :has_members} ->
-              conn
-              |> put_status(:forbidden)
-              |> json(%{
-                error: "has_members",
-                message: "Cannot delete a group that has members. All members must leave first."
-              })
-
-            {:error, reason} ->
-              conn |> put_status(:unprocessable_entity) |> json(%{error: to_string(reason)})
-          end
-      end
-    end)
-  end
-
   def join(conn, %{"id" => id}) do
     with_auth(conn, fn user ->
       case parse_id(id) do
@@ -853,27 +785,45 @@ defmodule GameServerWeb.Api.V1.GroupController do
           conn |> put_status(:not_found) |> json(%{error: "not_found"})
 
         group_id ->
-          case Groups.join_group(user.id, group_id) do
-            {:ok, member} ->
-              json(conn, serialize_member(member))
-
-            {:error, :not_found} ->
-              conn |> put_status(:not_found) |> json(%{error: "not_found"})
-
-            {:error, :not_public} ->
-              conn |> put_status(:forbidden) |> json(%{error: "not_public"})
-
-            {:error, :already_member} ->
-              conn |> put_status(:forbidden) |> json(%{error: "already_member"})
-
-            {:error, :full} ->
-              conn |> put_status(:forbidden) |> json(%{error: "full"})
-
-            {:error, reason} ->
-              conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
-          end
+          group = Groups.get_group(group_id)
+          do_join(conn, user, group, group_id)
       end
     end)
+  end
+
+  defp do_join(conn, _user, nil, _group_id) do
+    conn |> put_status(:not_found) |> json(%{error: "not_found"})
+  end
+
+  defp do_join(conn, user, %{type: "public"} = _group, group_id) do
+    case Groups.join_group(user.id, group_id) do
+      {:ok, member} ->
+        json(conn, serialize_member(member))
+
+      {:error, :not_found} ->
+        conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+      {:error, reason} ->
+        conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
+    end
+  end
+
+  defp do_join(conn, user, %{type: "private"} = _group, group_id) do
+    case Groups.request_join(user.id, group_id) do
+      {:ok, request} ->
+        conn |> put_status(:created) |> json(serialize_join_request(request))
+
+      {:error, :not_found} ->
+        conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+      {:error, reason} ->
+        conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
+    end
+  end
+
+  defp do_join(conn, _user, _group, _group_id) do
+    # hidden groups require an invite
+    conn |> put_status(:forbidden) |> json(%{error: "not_joinable"})
   end
 
   def leave(conn, %{"id" => id}) do
@@ -1019,36 +969,6 @@ defmodule GameServerWeb.Api.V1.GroupController do
 
             {:error, :already_member} ->
               conn |> put_status(:forbidden) |> json(%{error: "already_member"})
-
-            {:error, reason} ->
-              conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
-          end
-      end
-    end)
-  end
-
-  def request_join(conn, %{"id" => id}) do
-    with_auth(conn, fn user ->
-      case parse_id(id) do
-        nil ->
-          conn |> put_status(:not_found) |> json(%{error: "not_found"})
-
-        group_id ->
-          case Groups.request_join(user.id, group_id) do
-            {:ok, request} ->
-              conn |> put_status(:created) |> json(serialize_join_request(request))
-
-            {:error, :not_found} ->
-              conn |> put_status(:not_found) |> json(%{error: "not_found"})
-
-            {:error, :not_private} ->
-              conn |> put_status(:forbidden) |> json(%{error: "not_private"})
-
-            {:error, :already_member} ->
-              conn |> put_status(:forbidden) |> json(%{error: "already_member"})
-
-            {:error, :already_requested} ->
-              conn |> put_status(:forbidden) |> json(%{error: "already_requested"})
 
             {:error, reason} ->
               conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
@@ -1349,7 +1269,6 @@ defmodule GameServerWeb.Api.V1.GroupController do
 
     %{
       id: group.id,
-      name: group.name,
       title: group.title,
       description: group.description,
       type: group.type,

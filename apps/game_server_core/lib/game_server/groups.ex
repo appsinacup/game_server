@@ -13,7 +13,7 @@ defmodule GameServer.Groups do
   ## Usage
 
       # Create a group (creator becomes admin)
-      {:ok, group} = Groups.create_group(user_id, %{"name" => "cool-group", "title" => "Cool Group"})
+      {:ok, group} = Groups.create_group(user_id, %{"title" => "Cool Group"})
 
       # List public/private groups (hidden excluded)
       groups = Groups.list_groups(%{}, page: 1, page_size: 25)
@@ -138,10 +138,10 @@ defmodule GameServer.Groups do
             )
   def get_group!(id) when is_integer(id), do: Repo.get!(Group, id)
 
-  @doc "Get a group by its unique name."
-  @spec get_group_by_name(String.t()) :: Group.t() | nil
-  def get_group_by_name(name) when is_binary(name) do
-    Repo.get_by(Group, name: name)
+  @doc "Get a group by its unique title."
+  @spec get_group_by_title(String.t()) :: Group.t() | nil
+  def get_group_by_title(title) when is_binary(title) do
+    Repo.get_by(Group, title: title)
   end
 
   # ---------------------------------------------------------------------------
@@ -154,7 +154,6 @@ defmodule GameServer.Groups do
   ## Filters
 
     * `:title` – prefix search on title (case-insensitive)
-    * `:name` – prefix search on name (case-insensitive)
     * `:type` – exact match on type (`"public"` or `"private"`)
     * `:min_members` – groups with max_members >= value
     * `:max_members` – groups with max_members <= value
@@ -1010,7 +1009,7 @@ defmodule GameServer.Groups do
         GameServer.Notifications.admin_create_notification(admin_id, target_user_id, %{
           "title" => "group_invite",
           "content" => "You have been invited to join group: #{group.title}",
-          "metadata" => %{"group_id" => group_id, "group_name" => group.name}
+          "metadata" => %{"group_id" => group_id, "group_name" => group.title}
         })
     end
   end
@@ -1197,7 +1196,7 @@ defmodule GameServer.Groups do
           "metadata" =>
             Map.merge(clean_metadata, %{
               "group_id" => group_id,
-              "group_name" => group.name
+              "group_name" => group.title
             })
         }
 
@@ -1257,7 +1256,7 @@ defmodule GameServer.Groups do
             "actor_user_id" => actor_user_id,
             "joining_user_id" => user_id,
             "group_id" => group.id,
-            "group_name" => group.name,
+            "group_name" => group.title,
             "group_type" => group.type,
             "group_metadata" => group.metadata || %{}
           })
@@ -1282,7 +1281,6 @@ defmodule GameServer.Groups do
   defp apply_filters(q, filters) do
     q
     |> filter_by_title(filters)
-    |> filter_by_name(filters)
     |> filter_by_type(filters)
     |> filter_by_min_members(filters)
     |> filter_by_max_members(filters)
@@ -1299,20 +1297,6 @@ defmodule GameServer.Groups do
       term ->
         prefix = String.downcase(String.trim(term)) <> "%"
         from g in q, where: fragment("lower(?) LIKE ?", g.title, ^prefix)
-    end
-  end
-
-  defp filter_by_name(q, filters) do
-    case Map.get(filters, :name) || Map.get(filters, "name") do
-      nil ->
-        q
-
-      "" ->
-        q
-
-      term ->
-        prefix = String.downcase(String.trim(term)) <> "%"
-        from g in q, where: fragment("lower(?) LIKE ?", g.name, ^prefix)
     end
   end
 
@@ -1381,8 +1365,8 @@ defmodule GameServer.Groups do
       "updated_at_asc" -> from g in q, order_by: [asc: g.updated_at]
       "inserted_at" -> from g in q, order_by: [desc: g.inserted_at]
       "inserted_at_asc" -> from g in q, order_by: [asc: g.inserted_at]
-      "name" -> from g in q, order_by: [asc: g.name]
-      "name_desc" -> from g in q, order_by: [desc: g.name]
+      "title" -> from g in q, order_by: [asc: g.title]
+      "title_desc" -> from g in q, order_by: [desc: g.title]
       "max_members" -> from g in q, order_by: [desc: g.max_members]
       "max_members_asc" -> from g in q, order_by: [asc: g.max_members]
       _ -> from g in q, order_by: [desc: g.inserted_at]

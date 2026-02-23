@@ -29,29 +29,29 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
   describe "GET /api/v1/groups" do
     test "lists public groups", %{conn: conn} do
       owner = create_user()
-      {:ok, _} = Groups.create_group(owner.id, %{"name" => "Listed", "type" => "public"})
+      {:ok, _} = Groups.create_group(owner.id, %{"title" => "Listed", "type" => "public"})
 
       conn = get(conn, "/api/v1/groups")
       assert %{"data" => data} = json_response(conn, 200)
-      names = Enum.map(data, & &1["name"])
-      assert "Listed" in names
+      titles = Enum.map(data, & &1["title"])
+      assert "Listed" in titles
     end
 
     test "excludes hidden groups", %{conn: conn} do
       owner = create_user()
-      {:ok, _} = Groups.create_group(owner.id, %{"name" => "Secret", "type" => "hidden"})
+      {:ok, _} = Groups.create_group(owner.id, %{"title" => "Secret", "type" => "hidden"})
 
       conn = get(conn, "/api/v1/groups")
       %{"data" => data} = json_response(conn, 200)
-      names = Enum.map(data, & &1["name"])
-      refute "Secret" in names
+      titles = Enum.map(data, & &1["title"])
+      refute "Secret" in titles
     end
 
     test "supports pagination params", %{conn: conn} do
       owner = create_user()
 
       for i <- 1..3 do
-        {:ok, _} = Groups.create_group(owner.id, %{"name" => "Pg#{i}", "type" => "public"})
+        {:ok, _} = Groups.create_group(owner.id, %{"title" => "Pg#{i}", "type" => "public"})
       end
 
       conn = get(conn, "/api/v1/groups?page=1&page_size=2")
@@ -61,25 +61,25 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
       assert meta["page_size"] == 2
     end
 
-    test "supports name filter", %{conn: conn} do
+    test "supports title filter", %{conn: conn} do
       owner = create_user()
-      {:ok, _} = Groups.create_group(owner.id, %{"name" => "FilterTarget", "type" => "public"})
-      {:ok, _} = Groups.create_group(owner.id, %{"name" => "Other", "type" => "public"})
+      {:ok, _} = Groups.create_group(owner.id, %{"title" => "FilterTarget", "type" => "public"})
+      {:ok, _} = Groups.create_group(owner.id, %{"title" => "Other", "type" => "public"})
 
-      conn = get(conn, "/api/v1/groups?name=FilterTarget")
+      conn = get(conn, "/api/v1/groups?title=FilterTarget")
       assert %{"data" => data} = json_response(conn, 200)
       assert length(data) == 1
-      assert hd(data)["name"] == "FilterTarget"
+      assert hd(data)["title"] == "FilterTarget"
     end
   end
 
   describe "GET /api/v1/groups/:id" do
     test "shows a group", %{conn: conn} do
       owner = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "Shown"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "Shown"})
 
       conn = get(conn, "/api/v1/groups/#{group.id}")
-      assert %{"id" => _, "name" => "Shown"} = json_response(conn, 200)
+      assert %{"id" => _, "title" => "Shown"} = json_response(conn, 200)
     end
 
     test "returns 404 for missing group", %{conn: conn} do
@@ -104,17 +104,17 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
       conn =
         conn
         |> auth_conn(user)
-        |> post("/api/v1/groups", %{name: "Created", type: "public"})
+        |> post("/api/v1/groups", %{title: "Created", type: "public"})
 
-      assert %{"id" => _, "name" => "Created"} = json_response(conn, 201)
+      assert %{"id" => _, "title" => "Created"} = json_response(conn, 201)
     end
 
     test "returns 401 without auth", %{conn: conn} do
-      conn = post(conn, "/api/v1/groups", %{name: "NoAuth"})
+      conn = post(conn, "/api/v1/groups", %{title: "NoAuth"})
       assert conn.status == 401
     end
 
-    test "returns error with missing name", %{conn: conn} do
+    test "returns error with missing title", %{conn: conn} do
       user = create_user()
 
       conn =
@@ -129,62 +129,28 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
   describe "PATCH /api/v1/groups/:id" do
     test "admin can update group", %{conn: conn} do
       user = create_user()
-      {:ok, group} = Groups.create_group(user.id, %{"name" => "Old"})
+      {:ok, group} = Groups.create_group(user.id, %{"title" => "Old"})
 
       conn =
         conn
         |> auth_conn(user)
-        |> patch("/api/v1/groups/#{group.id}", %{name: "New"})
+        # update the title
+        |> patch("/api/v1/groups/#{group.id}", %{title: "New"})
 
-      assert %{"name" => "New"} = json_response(conn, 200)
+      assert %{"title" => "New"} = json_response(conn, 200)
     end
 
     test "non-admin cannot update", %{conn: conn} do
       owner = create_user()
       other = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "Locked"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "Locked"})
 
       conn =
         conn
         |> auth_conn(other)
-        |> patch("/api/v1/groups/#{group.id}", %{name: "Hacked"})
+        |> patch("/api/v1/groups/#{group.id}", %{title: "Hacked"})
 
       assert json_response(conn, 403)
-    end
-  end
-
-  describe "DELETE /api/v1/groups/:id" do
-    test "cannot delete group with members", %{conn: conn} do
-      user = create_user()
-      {:ok, group} = Groups.create_group(user.id, %{"name" => "Del"})
-
-      conn =
-        conn
-        |> auth_conn(user)
-        |> delete("/api/v1/groups/#{group.id}")
-
-      assert json_response(conn, 403)["error"] == "has_members"
-    end
-
-    test "non-admin cannot delete group", %{conn: conn} do
-      owner = create_user()
-      other = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "NoDel"})
-
-      conn =
-        conn
-        |> auth_conn(other)
-        |> delete("/api/v1/groups/#{group.id}")
-
-      assert json_response(conn, 403)
-    end
-
-    test "returns 401 without auth", %{conn: conn} do
-      owner = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "NoAuthDel"})
-
-      conn = delete(conn, "/api/v1/groups/#{group.id}")
-      assert conn.status == 401
     end
   end
 
@@ -196,7 +162,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
     test "user can join public group", %{conn: conn} do
       owner = create_user()
       joiner = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "JoinMe", "type" => "public"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "JoinMe", "type" => "public"})
 
       conn =
         conn
@@ -207,23 +173,37 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
       assert Groups.member?(group.id, joiner.id)
     end
 
-    test "returns 403 when joining non-public group", %{conn: conn} do
+    test "creates join request when joining private group", %{conn: conn} do
       owner = create_user()
       joiner = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "PrvJoin", "type" => "private"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "PrvJoin", "type" => "private"})
 
       conn =
         conn
         |> auth_conn(joiner)
         |> post("/api/v1/groups/#{group.id}/join")
 
-      assert %{"error" => "not_public"} = json_response(conn, 403)
+      assert %{"status" => "pending"} = json_response(conn, 201)
+      refute Groups.member?(group.id, joiner.id)
+    end
+
+    test "returns 403 when joining hidden group", %{conn: conn} do
+      owner = create_user()
+      joiner = create_user()
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "HidJoin", "type" => "hidden"})
+
+      conn =
+        conn
+        |> auth_conn(joiner)
+        |> post("/api/v1/groups/#{group.id}/join")
+
+      assert %{"error" => "not_joinable"} = json_response(conn, 403)
     end
 
     test "returns 403 when already a member", %{conn: conn} do
       owner = create_user()
       joiner = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "AlrJoin", "type" => "public"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "AlrJoin", "type" => "public"})
       {:ok, _} = Groups.join_group(joiner.id, group.id)
 
       conn =
@@ -236,7 +216,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
 
     test "returns 401 without auth", %{conn: conn} do
       owner = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "NoAuthJoin"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "NoAuthJoin"})
 
       conn = post(conn, "/api/v1/groups/#{group.id}/join")
       assert conn.status == 401
@@ -261,7 +241,9 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
 
       owner = create_user()
       joiner = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "JoinBlocked", "type" => "public"})
+
+      {:ok, group} =
+        Groups.create_group(owner.id, %{"title" => "JoinBlocked", "type" => "public"})
 
       conn =
         conn
@@ -277,7 +259,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
     test "member can leave group", %{conn: conn} do
       owner = create_user()
       member = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "LeaveMe", "type" => "public"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "LeaveMe", "type" => "public"})
       {:ok, _} = Groups.join_group(member.id, group.id)
 
       conn =
@@ -292,7 +274,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
     test "returns 400 when not a member", %{conn: conn} do
       owner = create_user()
       other = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "CantLeave", "type" => "public"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "CantLeave", "type" => "public"})
 
       conn =
         conn
@@ -311,7 +293,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
     test "admin can kick a member", %{conn: conn} do
       owner = create_user()
       target = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "KickGrp", "type" => "public"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "KickGrp", "type" => "public"})
       {:ok, _} = Groups.join_group(target.id, group.id)
 
       conn =
@@ -327,7 +309,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
       owner = create_user()
       member = create_user()
       target = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "NoKick", "type" => "public"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "NoKick", "type" => "public"})
       {:ok, _} = Groups.join_group(member.id, group.id)
       {:ok, _} = Groups.join_group(target.id, group.id)
 
@@ -341,7 +323,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
 
     test "returns 401 without auth", %{conn: conn} do
       owner = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "NAKick"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "NAKick"})
 
       conn = post(conn, "/api/v1/groups/#{group.id}/kick", %{target_user_id: 1})
       assert conn.status == 401
@@ -352,7 +334,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
     test "admin can promote member", %{conn: conn} do
       owner = create_user()
       target = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "PromoGrp", "type" => "public"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "PromoGrp", "type" => "public"})
       {:ok, _} = Groups.join_group(target.id, group.id)
 
       conn =
@@ -369,7 +351,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
     test "admin can demote another admin", %{conn: conn} do
       owner = create_user()
       target = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "DemoGrp", "type" => "public"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "DemoGrp", "type" => "public"})
       {:ok, _} = Groups.join_group(target.id, group.id)
       {:ok, _} = Groups.promote_member(owner.id, group.id, target.id)
 
@@ -387,45 +369,32 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
   # Join Requests
   # ---------------------------------------------------------------------------
 
-  describe "POST /api/v1/groups/:id/request_join" do
-    test "user can request to join private group", %{conn: conn} do
+  describe "join request via POST /api/v1/groups/:id/join (private group)" do
+    test "user can request to join private group via join endpoint", %{conn: conn} do
       owner = create_user()
       other = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "PrvReq", "type" => "private"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "PrvReq", "type" => "private"})
 
       conn =
         conn
         |> auth_conn(other)
-        |> post("/api/v1/groups/#{group.id}/request_join")
+        |> post("/api/v1/groups/#{group.id}/join")
 
       assert %{"status" => "pending"} = json_response(conn, 201)
-    end
-
-    test "returns error when requesting to join public group", %{conn: conn} do
-      owner = create_user()
-      other = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "PubReq", "type" => "public"})
-
-      conn =
-        conn
-        |> auth_conn(other)
-        |> post("/api/v1/groups/#{group.id}/request_join")
-
-      assert conn.status in [403, 409]
     end
 
     test "returns error when user already requested", %{conn: conn} do
       owner = create_user()
       other = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "DupReq", "type" => "private"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "DupReq", "type" => "private"})
       {:ok, _} = Groups.request_join(other.id, group.id)
 
       conn =
         conn
         |> auth_conn(other)
-        |> post("/api/v1/groups/#{group.id}/request_join")
+        |> post("/api/v1/groups/#{group.id}/join")
 
-      assert conn.status in [403, 409]
+      assert %{"error" => "already_requested"} = json_response(conn, 403)
     end
   end
 
@@ -433,7 +402,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
     test "admin can list pending requests", %{conn: conn} do
       owner = create_user()
       other = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "ListReq", "type" => "private"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "ListReq", "type" => "private"})
       {:ok, _} = Groups.request_join(other.id, group.id)
 
       conn =
@@ -449,7 +418,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
     test "admin approves join request", %{conn: conn} do
       owner = create_user()
       other = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "ApprReq", "type" => "private"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "ApprReq", "type" => "private"})
       {:ok, request} = Groups.request_join(other.id, group.id)
 
       conn =
@@ -466,7 +435,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
     test "admin rejects join request", %{conn: conn} do
       owner = create_user()
       other = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "RejReq", "type" => "private"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "RejReq", "type" => "private"})
       {:ok, request} = Groups.request_join(other.id, group.id)
 
       conn =
@@ -482,7 +451,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
     test "user can cancel own pending request", %{conn: conn} do
       owner = create_user()
       other = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "CnclReq", "type" => "private"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "CnclReq", "type" => "private"})
       {:ok, request} = Groups.request_join(other.id, group.id)
 
       conn =
@@ -498,7 +467,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
       owner = create_user()
       other = create_user()
       third = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "NoCncl", "type" => "private"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "NoCncl", "type" => "private"})
       {:ok, request} = Groups.request_join(other.id, group.id)
 
       conn =
@@ -517,7 +486,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
   describe "GET /api/v1/groups/:id/members" do
     test "lists group members", %{conn: conn} do
       owner = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "Mems"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "Mems"})
 
       conn = get(conn, "/api/v1/groups/#{group.id}/members")
       assert %{"data" => members} = json_response(conn, 200)
@@ -532,14 +501,14 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
   describe "GET /api/v1/groups/me" do
     test "returns user's groups", %{conn: conn} do
       user = create_user()
-      {:ok, _} = Groups.create_group(user.id, %{"name" => "Mine1"})
+      {:ok, _} = Groups.create_group(user.id, %{"title" => "Mine1"})
 
       conn =
         conn
         |> auth_conn(user)
         |> get("/api/v1/groups/me")
 
-      assert %{"data" => [%{"name" => "Mine1"}]} = json_response(conn, 200)
+      assert %{"data" => [%{"title" => "Mine1"}]} = json_response(conn, 200)
     end
 
     test "returns 401 without auth", %{conn: conn} do
@@ -567,7 +536,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
     test "admin can invite user to group", %{conn: conn} do
       owner = create_user()
       target = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "InvAPI", "type" => "hidden"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "InvAPI", "type" => "hidden"})
 
       conn =
         conn
@@ -581,7 +550,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
       owner = create_user()
       non_admin = create_user()
       target = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "NoInvAPI", "type" => "hidden"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "NoInvAPI", "type" => "hidden"})
 
       conn =
         conn
@@ -596,7 +565,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
     test "user can accept invite and join hidden group", %{conn: conn} do
       owner = create_user()
       target = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "AccInv", "type" => "hidden"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "AccInv", "type" => "hidden"})
       {:ok, _} = Groups.invite_to_group(owner.id, group.id, target.id)
 
       conn =
@@ -611,7 +580,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
     test "returns 403 for non-hidden group", %{conn: conn} do
       owner = create_user()
       target = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "PubAccInv", "type" => "public"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "PubAccInv", "type" => "public"})
 
       conn =
         conn
@@ -630,7 +599,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
     test "lists invitations sent by user", %{conn: conn} do
       owner = create_user()
       target = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "InvGrp", "type" => "hidden"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "InvGrp", "type" => "hidden"})
       {:ok, _} = Groups.invite_to_group(owner.id, group.id, target.id)
 
       conn =
@@ -663,7 +632,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
     test "sender can cancel their own invitation", %{conn: conn} do
       owner = create_user()
       target = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "CnclInv", "type" => "hidden"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "CnclInv", "type" => "hidden"})
       {:ok, _} = Groups.invite_to_group(owner.id, group.id, target.id)
 
       [%{id: inv_id}] = Groups.list_sent_invitations(owner.id)
@@ -681,7 +650,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
       owner = create_user()
       target = create_user()
       third = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "NoCancel", "type" => "hidden"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "NoCancel", "type" => "hidden"})
       {:ok, _} = Groups.invite_to_group(owner.id, group.id, target.id)
 
       [%{id: inv_id}] = Groups.list_sent_invitations(owner.id)
@@ -719,7 +688,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
     test "member can send notification to group", %{conn: conn} do
       owner = create_user()
       member = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "NotifAPI", "type" => "public"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "NotifAPI", "type" => "public"})
       {:ok, _} = Groups.join_group(member.id, group.id)
 
       conn =
@@ -733,7 +702,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
     test "non-member gets 403", %{conn: conn} do
       owner = create_user()
       outsider = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "NoNotifAPI", "type" => "public"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "NoNotifAPI", "type" => "public"})
 
       conn =
         conn
@@ -762,7 +731,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
     test "accepts custom title", %{conn: conn} do
       owner = create_user()
       member = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "TitleAPI", "type" => "public"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "TitleAPI", "type" => "public"})
       {:ok, _} = Groups.join_group(member.id, group.id)
 
       conn =
@@ -784,7 +753,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
   describe "pagination" do
     test "members endpoint returns meta", %{conn: conn} do
       owner = create_user()
-      {:ok, group} = Groups.create_group(owner.id, %{"name" => "PagMem"})
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "PagMem"})
 
       conn = get(conn, "/api/v1/groups/#{group.id}/members")
       body = json_response(conn, 200)
@@ -795,7 +764,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
 
     test "my_groups endpoint returns meta", %{conn: conn} do
       user = create_user()
-      {:ok, _} = Groups.create_group(user.id, %{"name" => "PagMine"})
+      {:ok, _} = Groups.create_group(user.id, %{"title" => "PagMine"})
 
       conn =
         conn

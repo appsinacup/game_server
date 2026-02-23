@@ -64,9 +64,9 @@ defmodule GameServerWeb.AdminLive.Groups do
                   <option value="inserted_at_asc" selected={@sort_by == "inserted_at_asc"}>
                     Created (oldest)
                   </option>
-                  <option value="name" selected={@sort_by == "name"}>Name (A-Z)</option>
-                  <option value="name_desc" selected={@sort_by == "name_desc"}>
-                    Name (Z-A)
+                  <option value="title" selected={@sort_by == "title"}>Title (A-Z)</option>
+                  <option value="title_desc" selected={@sort_by == "title_desc"}>
+                    Title (Z-A)
                   </option>
                   <option value="max_members" selected={@sort_by == "max_members"}>
                     Max members (desc)
@@ -90,7 +90,6 @@ defmodule GameServerWeb.AdminLive.Groups do
                         />
                       </th>
                       <th>ID</th>
-                      <th>Name</th>
                       <th>Title</th>
                       <th>Type</th>
                       <th>Members (Cap)</th>
@@ -102,16 +101,6 @@ defmodule GameServerWeb.AdminLive.Groups do
                     <tr>
                       <th></th>
                       <th></th>
-                      <th>
-                        <input
-                          type="text"
-                          name="name"
-                          value={@filters["name"]}
-                          class="input input-bordered input-xs w-full"
-                          placeholder="Filter..."
-                          phx-debounce="300"
-                        />
-                      </th>
                       <th>
                         <input
                           type="text"
@@ -172,7 +161,6 @@ defmodule GameServerWeb.AdminLive.Groups do
                         />
                       </td>
                       <td class="font-mono text-sm">{g.id}</td>
-                      <td class="text-sm">{g.name}</td>
                       <td class="text-sm">{g.title || "-"}</td>
                       <td class="text-sm">
                         <%= cond do %>
@@ -258,8 +246,7 @@ defmodule GameServerWeb.AdminLive.Groups do
           <h3 class="font-bold text-lg">Edit Group</h3>
 
           <.form for={@form} id="group-edit-form" phx-submit="save_group">
-            <.input field={@form[:name]} type="text" label="Name (unique)" />
-            <.input field={@form[:title]} type="text" label="Title" />
+            <.input field={@form[:title]} type="text" label="Title (unique)" />
             <.input field={@form[:description]} type="text" label="Description" />
             <.input
               field={@form[:type]}
@@ -306,7 +293,7 @@ defmodule GameServerWeb.AdminLive.Groups do
       <div class="modal modal-open">
         <div class="modal-box max-w-2xl">
           <h3 class="font-bold text-lg">
-            Members of "{@selected_group.name}" ({length(@members)})
+            Members of "{@selected_group.title}" ({length(@members)})
           </h3>
 
           <div class="overflow-x-auto mt-4">

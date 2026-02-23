@@ -145,13 +145,11 @@ defmodule GameServerWeb.Router do
     # Groups API (authenticated)
     post "/groups", GroupController, :create
     patch "/groups/:id", GroupController, :update
-    delete "/groups/:id", GroupController, :delete
     post "/groups/:id/join", GroupController, :join
     post "/groups/:id/leave", GroupController, :leave
     post "/groups/:id/kick", GroupController, :kick
     post "/groups/:id/promote", GroupController, :promote
     post "/groups/:id/demote", GroupController, :demote
-    post "/groups/:id/request_join", GroupController, :request_join
     get "/groups/:id/join_requests", GroupController, :join_requests
     post "/groups/:id/join_requests/:request_id/approve", GroupController, :approve_request
     post "/groups/:id/join_requests/:request_id/reject", GroupController, :reject_request

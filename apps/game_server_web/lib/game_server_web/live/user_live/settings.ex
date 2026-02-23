@@ -998,7 +998,7 @@ defmodule GameServerWeb.UserLive.Settings do
                 <table id="my-groups-table" class="table table-zebra w-full">
                   <thead>
                     <tr>
-                      <th>Name</th>
+                      <th>Title</th>
                       <th>Type</th>
                       <th>Max Members</th>
                       <th>Role</th>
@@ -1016,7 +1016,7 @@ defmodule GameServerWeb.UserLive.Settings do
                           phx-value-group_id={group.id}
                           class="link link-primary font-medium"
                         >
-                          {group.name}
+                          {group.title}
                         </button>
                       </td>
                       <td>
@@ -1075,9 +1075,9 @@ defmodule GameServerWeb.UserLive.Settings do
               >
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <.input
-                    field={@browse_groups_form[:name]}
+                    field={@browse_groups_form[:title]}
                     type="text"
-                    label="Name"
+                    label="Title"
                     phx-debounce="300"
                   />
                   <.input
@@ -1099,7 +1099,7 @@ defmodule GameServerWeb.UserLive.Settings do
               <table id="browse-groups-table" class="table table-zebra w-full">
                 <thead>
                   <tr>
-                    <th>Name</th>
+                    <th>Title</th>
                     <th>Type</th>
                     <th>Max Members</th>
                     <th></th>
@@ -1117,7 +1117,7 @@ defmodule GameServerWeb.UserLive.Settings do
                     :for={group <- @browse_groups}
                     id={"browse-group-" <> to_string(group.id)}
                   >
-                    <td class="text-sm font-medium">{group.name}</td>
+                    <td class="text-sm font-medium">{group.title}</td>
                     <td>
                       <span class={[
                         "badge badge-sm",
@@ -1242,7 +1242,7 @@ defmodule GameServerWeb.UserLive.Settings do
                       :for={req <- @group_pending_requests}
                       id={"group-req-" <> to_string(req.id)}
                     >
-                      <td class="text-sm font-mono">{req.group.name}</td>
+                      <td class="text-sm font-mono">{req.group.title}</td>
                       <td>
                         <span class="badge badge-sm badge-warning">{req.status}</span>
                       </td>
@@ -1576,7 +1576,7 @@ defmodule GameServerWeb.UserLive.Settings do
       |> assign(:browse_groups_filters, %{})
       |> assign(
         :browse_groups_form,
-        to_form(%{"name" => "", "title" => "", "type" => ""}, as: :browse_groups)
+        to_form(%{"title" => "", "type" => ""}, as: :browse_groups)
       )
       |> assign(:groups_show_create, false)
       |> assign(:create_group_form, to_form(Groups.change_group(%Group{}), as: :group))
@@ -2197,11 +2197,11 @@ defmodule GameServerWeb.UserLive.Settings do
         end
 
       {"browse_groups_filter", %{"browse_groups" => filter_params}} ->
-        name = String.trim(filter_params["name"] || "")
+        title = String.trim(filter_params["title"] || "")
         type = filter_params["type"] || ""
 
         filters = %{}
-        filters = if name != "", do: Map.put(filters, "name", name), else: filters
+        filters = if title != "", do: Map.put(filters, "title", title), else: filters
         filters = if type != "", do: Map.put(filters, "type", type), else: filters
 
         {:noreply,
@@ -2218,7 +2218,7 @@ defmodule GameServerWeb.UserLive.Settings do
          |> assign(:browse_groups_page, 1)
          |> assign(
            :browse_groups_form,
-           to_form(%{"name" => "", "title" => "", "type" => ""}, as: :browse_groups)
+           to_form(%{"title" => "", "type" => ""}, as: :browse_groups)
          )
          |> reload_browse_groups()}
 

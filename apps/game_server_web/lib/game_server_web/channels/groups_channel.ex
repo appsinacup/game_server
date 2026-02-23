@@ -55,7 +55,6 @@ defmodule GameServerWeb.GroupsChannel do
   defp serialize_group(group) do
     %{
       id: group.id,
-      name: group.name,
       title: group.title,
       description: group.description,
       type: group.type,

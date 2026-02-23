@@ -4,6 +4,7 @@
 class_name GamendApi
 extends Node
 
+signal notification_emitted(content: Dictionary)
 signal user_updated(user: Dictionary)
 signal lobby_updated(lobby: Dictionary)
 
@@ -172,7 +173,9 @@ func _on_channel_event(event: String, payload: Dictionary, status, topic: String
 		user_updated.emit(payload)
 	if topic.begins_with("lobby") && event == "updated":
 		lobby_updated.emit(payload)
-
+	if topic.begins_with("user") && event == "notification":
+		notification_emitted.emit(payload)
+		
 ## Authorize with access token
 func authorize():
 	_config.headers_base["Authorization"] = "Bearer " + _access_token
@@ -376,6 +379,225 @@ func leaderboards_list_records_around_user(id: int, user_id: int, limit = 11) ->
 func kv_get_kv(key: String, user_id = null, lobby_id = null) -> GamendResult:
 	return await _call_api(KVApi.new(_config), "get_kv", [key, user_id, lobby_id])
 
+## NOTIFICATIONS
+
+## Delete notifications by IDs
+func notifications_delete_notifications(deleteNotificationsRequest: DeleteNotificationsRequest) -> GamendResult:
+	return await _call_api(NotificationsApi.new(_config), "delete_notifications", [deleteNotificationsRequest])
+
+## List own notifications
+func notifications_list_notifications(
+	# page: int   Eg: 56
+	# Page number (1-based)
+	page = null,
+	# pageSize: int   Eg: 56
+	# Page size (max results per page)
+	pageSize = null) -> GamendResult:
+	return await _call_api(NotificationsApi.new(_config), "list_notifications", [page, pageSize])
+
+## Send a notification to a friend
+func notifications_send_notification(sendNotificationRequest: SendNotificationRequest) -> GamendResult:
+	return await _call_api(NotificationsApi.new(_config), "send_notification", [sendNotificationRequest])
+
+## GROUPS
+
+## Accept a group invitation
+func groups_accept_group_invite(id: int):
+	return await _call_api(GroupsApi.new(_config), "accept_group_invite", [id])
+
+## Approve a join request (admin only)
+func groups_approve_join_request(
+	# id: int   Eg: 56
+	# Group ID
+	id: int,
+	# requestId: int   Eg: 56
+	# Join request ID
+	requestId: int,):
+	return await _call_api(GroupsApi.new(_config), "approve_join_request", [id, requestId])
+
+## Cancel a sent group invitation
+func groups_cancel_group_invite(inviteId: int):
+	return await _call_api(GroupsApi.new(_config), "cancel_group_invite", [inviteId])
+
+## Cancel your own pending join request
+func groups_cancel_join_request(
+	# id: int   Eg: 56
+	# Group ID
+	id: int,
+	# requestId: int   Eg: 56
+	# Join request ID
+	requestId: int,):
+	return await _call_api(GroupsApi.new(_config), "cancel_join_request", [id, requestId])
+
+## Create a group
+func groups_create_group(createGroupRequest: CreateGroupRequest):
+	return await _call_api(GroupsApi.new(_config), "create_group", [createGroupRequest])
+
+# Demote admin to member
+func groups_demote_group_member(
+	# id: int   Eg: 56
+	# Group ID
+	id: int,
+	# demoteGroupMemberRequest: DemoteGroupMemberRequest
+	# Demote parameters
+	demoteGroupMemberRequest: DemoteGroupMemberRequest,):
+	return await _call_api(GroupsApi.new(_config), "demote_group_member", [id, demoteGroupMemberRequest])
+
+# Get group details
+func groups_get_group(
+	# id: int   Eg: 56
+	# Group ID
+	id: int,):
+	return await _call_api(GroupsApi.new(_config), "get_group", [id])
+
+# Invite a user to a hidden group (admin only)
+func groups_invite_to_group(
+	# id: int   Eg: 56
+	# Group ID
+	id: int,
+	inviteToGroupRequest: InviteToGroupRequest):
+	return await _call_api(GroupsApi.new(_config), "invite_to_group", [id, inviteToGroupRequest])
+
+# Join a group
+func groups_join_group(
+	# id: int   Eg: 56
+	# Group ID
+	id: int,):
+	return await _call_api(GroupsApi.new(_config), "join_group", [id])
+
+# Kick a member (admin only)
+func groups_kick_group_member(
+	# id: int   Eg: 56
+	# Group ID
+	id: int,
+	kickGroupMemberRequest: KickGroupMemberRequest):
+	return await _call_api(GroupsApi.new(_config), "kick_group_member", [id, kickGroupMemberRequest])
+
+# Leave a group
+func groups_leave_group(
+	# id: int   Eg: 56
+	# Group ID
+	id: int,):
+	return await _call_api(GroupsApi.new(_config), "leave_group", [id])
+
+# List my group invitations
+func groups_list_group_invitations(
+	# page: int   Eg: 56
+	# Page number (default: 1)
+	page = null,
+	# pageSize: int   Eg: 56
+	# Items per page (default: 25)
+	pageSize = null,):
+	return await _call_api(GroupsApi.new(_config), "list_group_invitations", [page, pageSize])
+
+# List group members
+func groups_list_group_members(
+	# id: int   Eg: 56
+	# Group ID
+	id: int,
+	# page: int   Eg: 56
+	# Page number (default: 1)
+	page = null,
+	# pageSize: int   Eg: 56
+	# Items per page (default: 25)
+	pageSize = null,):
+	return await _call_api(GroupsApi.new(_config), "list_group_members", [id, page, pageSize])
+
+# List groups
+func groups_list_groups(
+	# title: String = ""   Eg: title_example
+	# Search by title (prefix)
+	title = "",
+	# type: String = ""   Eg: type_example
+	# Filter by group type
+	type = "",
+	# minMembers: int   Eg: 56
+	# Minimum max_members to include
+	minMembers = null,
+	# maxMembers: int   Eg: 56
+	# Maximum max_members to include
+	maxMembers = null,
+	# metadataKey: String = ""   Eg: metadataKey_example
+	# Metadata key to filter by
+	metadataKey = "",
+	# metadataValue: String = ""   Eg: metadataValue_example
+	# Metadata value to match (with metadata_key)
+	metadataValue = "",
+	# page: int   Eg: 56
+	# Page number
+	page = null,
+	# pageSize: int   Eg: 56
+	# Page size
+	pageSize = null,):
+	return await _call_api(GroupsApi.new(_config), "list_groups", [title, type, minMembers, maxMembers, metadataKey, metadataValue, page, pageSize])
+
+# List pending join requests (admin only)
+func groups_list_join_requests(
+	# id: int   Eg: 56
+	# Group ID
+	id: int,
+	# page: int   Eg: 56
+	# Page number
+	page = null,
+	# pageSize: int   Eg: 56
+	# Page size
+	pageSize = null,):
+	return await _call_api(GroupsApi.new(_config), "list_join_requests", [id, page, pageSize])
+
+# List groups I belong to
+func groups_list_my_groups(
+	# page: int   Eg: 56
+	# Page number (default: 1)
+	page = null,
+	# pageSize: int   Eg: 56
+	# Items per page (default: 25)
+	pageSize = null,):
+	return await _call_api(GroupsApi.new(_config), "list_my_groups", [page, pageSize])
+
+# List group invitations I have sent
+func groups_list_sent_invitations(
+	# page: int   Eg: 56
+	# Page number (default: 1)
+	page = null,
+	# pageSize: int   Eg: 56
+	# Items per page (default: 25)
+	pageSize = null,):
+	return await _call_api(GroupsApi.new(_config), "list_sent_invitations", [page, pageSize])
+
+# Send a notification to all group members
+func groups_notify_group(
+	# id: int   Eg: 56
+	# Group ID
+	id: int,
+	notifyGroupRequest: NotifyGroupRequest):
+	return await _call_api(GroupsApi.new(_config), "notify_group", [id, notifyGroupRequest])
+
+# Promote member to admin
+func groups_promote_group_member(
+	# id: int   Eg: 56
+	# Group ID
+	id: int,
+	promoteGroupMemberRequest: PromoteGroupMemberRequest):
+	return await _call_api(GroupsApi.new(_config), "promote_group_member", [id, promoteGroupMemberRequest])
+
+# Reject a join request (admin only)
+func groups_reject_join_request(
+	# id: int   Eg: 56
+	# Group ID
+	id: int,
+	# requestId: int   Eg: 56
+	# Join request ID
+	requestId: int,):
+	return await _call_api(GroupsApi.new(_config), "reject_join_request", [id, requestId])
+
+# Update a group (admin only)
+func groups_update_group(
+	# id: int   Eg: 56
+	# Group ID
+	id: int,
+	updateGroupRequest: UpdateGroupRequest):
+	return await _call_api(GroupsApi.new(_config), "update_group", [id, updateGroupRequest])
+
 ## ADMIN SESSIONS
 
 # Delete session token by id (admin)
@@ -473,3 +695,60 @@ func admin_kv_admin_delete_kv(key: String, user_id = null, lobby_id = null) -> G
 ## Upsert KV by key (admin)
 func admin_kv_admin_upsert_kv(adminCreateKvEntryRequest: AdminCreateKvEntryRequest) -> GamendResult:
 	return await _call_api(AdminKVApi.new(_config), "admin_upsert_kv", [adminCreateKvEntryRequest])
+
+## ADMIN NOTIFICATIONS
+
+## Create a notification (admin)
+func admin_notifications_admin_create_notification(adminCreateNotificationRequest: AdminCreateNotificationRequest) -> GamendResult:
+	return await _call_api(AdminNotificationsApi.new(_config), "admin_create_notification", [adminCreateNotificationRequest])
+
+## Delete a notification (admin)
+func admin_notifications_admin_delete_notification(id: int) -> GamendResult:
+	return await _call_api(AdminNotificationsApi.new(_config), "admin_delete_notification", [id])
+
+## List all notifications (admin)
+func admin_notifications_admin_list_notifications(
+	# userId: int   Eg: 56
+	# Filter by recipient user ID
+	userId = null,
+	# senderId: int   Eg: 56
+	# Filter by sender user ID
+	senderId = null,
+	# title: String = ""   Eg: title_example
+	# Filter by title (partial match)
+	title = "",
+	# page: int   Eg: 56
+	# Page number (1-based)
+	page = null,
+	# pageSize: int   Eg: 56
+	# Page size
+	pageSize = null,) -> GamendResult:
+	return await _call_api(AdminNotificationsApi.new(_config), "admin_list_notifications", [userId, senderId, title, page, pageSize])
+
+## ADMIN GROUPS
+
+## Delete a group (admin)
+func admin_groups_admin_delete_group(id: int) -> GamendResult:
+	return await _call_api(AdminGroupsApi.new(_config), "admin_delete_group", [id])
+
+## Update a group (admin)
+func admin_groups_admin_update_group(id: int, adminUpdateGroupRequest: AdminUpdateGroupRequest) -> GamendResult:
+	return await _call_api(AdminGroupsApi.new(_config), "admin_update_group", [id, adminUpdateGroupRequest])
+
+## List all groups (admin)
+func admin_groups_admin_list_groups(
+	# title: String = ""   Eg: title_example
+	title = "",
+	# type: String = ""   Eg: type_example
+	type = "",
+	# minMembers: int   Eg: 56
+	minMembers = null,
+	# maxMembers: int   Eg: 56
+	maxMembers = null,
+	# sortBy: String = ""   Eg: sortBy_example
+	sortBy = "",
+	# page: int   Eg: 56
+	page = null,
+	# pageSize: int   Eg: 56
+	pageSize = null,) -> GamendResult:
+	return await _call_api(AdminGroupsApi.new(_config), "admin_list_groups", [title, type, minMembers, maxMembers, sortBy, page, pageSize])
