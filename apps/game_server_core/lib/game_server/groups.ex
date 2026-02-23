@@ -557,17 +557,23 @@ defmodule GameServer.Groups do
         {:error, :full}
 
       true ->
-        %GroupMember{}
-        |> GroupMember.changeset(%{group_id: group_id, user_id: user_id, role: "member"})
-        |> Repo.insert()
-        |> case do
-          {:ok, member} ->
-            _ = invalidate_group_cache(group_id)
-            broadcast_group(group_id, {:member_joined, group_id, user_id})
-            {:ok, member}
+        case run_before_group_join_hook(user_id, group, %{"source" => "public_join"}) do
+          :ok ->
+            %GroupMember{}
+            |> GroupMember.changeset(%{group_id: group_id, user_id: user_id, role: "member"})
+            |> Repo.insert()
+            |> case do
+              {:ok, member} ->
+                _ = invalidate_group_cache(group_id)
+                broadcast_group(group_id, {:member_joined, group_id, user_id})
+                {:ok, member}
 
-          error ->
-            error
+              error ->
+                error
+            end
+
+          {:error, reason} ->
+            {:error, reason}
         end
     end
   end
@@ -860,36 +866,56 @@ defmodule GameServer.Groups do
       %GroupJoinRequest{status: status} when status != "pending" ->
         {:error, :not_pending}
 
-      %GroupJoinRequest{group_id: group_id, user_id: user_id} = request ->
+      %GroupJoinRequest{group_id: group_id} = request ->
+        group = get_group!(group_id)
+
         cond do
           not admin?(group_id, admin_id) ->
             {:error, :not_admin}
 
-          count_group_members(group_id) >= get_group!(group_id).max_members ->
+          count_group_members(group_id) >= group.max_members ->
             {:error, :full}
 
           true ->
-            Ecto.Multi.new()
-            |> Ecto.Multi.update(:request, Ecto.Changeset.change(request, %{status: "accepted"}))
-            |> Ecto.Multi.insert(:membership, fn _changes ->
-              GroupMember.changeset(%GroupMember{}, %{
-                group_id: group_id,
-                user_id: user_id,
-                role: "member"
-              })
-            end)
-            |> Repo.transaction()
-            |> case do
-              {:ok, %{membership: member}} ->
-                _ = invalidate_group_cache(group_id)
-                broadcast_group(group_id, {:join_request_approved, group_id, user_id})
-                broadcast_group(group_id, {:member_joined, group_id, user_id})
-                {:ok, member}
-
-              {:error, _op, changeset, _} ->
-                {:error, changeset}
-            end
+            approve_join_request_with_hook(request, group, admin_id, request_id)
         end
+    end
+  end
+
+  defp approve_join_request_with_hook(request, group, admin_id, request_id) do
+    group_id = request.group_id
+    user_id = request.user_id
+
+    case run_before_group_join_hook(user_id, group, %{
+           "source" => "join_request_approval",
+           "request_id" => request_id,
+           "actor_user_id" => admin_id,
+           "admin_id" => admin_id
+         }) do
+      :ok ->
+        Ecto.Multi.new()
+        |> Ecto.Multi.update(:request, Ecto.Changeset.change(request, %{status: "accepted"}))
+        |> Ecto.Multi.insert(:membership, fn _changes ->
+          GroupMember.changeset(%GroupMember{}, %{
+            group_id: group_id,
+            user_id: user_id,
+            role: "member"
+          })
+        end)
+        |> Repo.transaction()
+        |> case do
+          {:ok, %{membership: member}} ->
+            _ = invalidate_group_cache(group_id)
+            broadcast_group(group_id, {:join_request_approved, group_id, user_id})
+            broadcast_group(group_id, {:member_joined, group_id, user_id})
+            {:ok, member}
+
+          {:error, _op, changeset, _} ->
+            {:error, changeset}
+        end
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 
@@ -1013,17 +1039,23 @@ defmodule GameServer.Groups do
         {:error, :full}
 
       true ->
-        %GroupMember{}
-        |> GroupMember.changeset(%{group_id: group_id, user_id: user_id, role: "member"})
-        |> Repo.insert()
-        |> case do
-          {:ok, member} ->
-            _ = invalidate_group_cache(group_id)
-            broadcast_group(group_id, {:member_joined, group_id, user_id})
-            {:ok, member}
+        case run_before_group_join_hook(user_id, group, %{"source" => "invite_accept"}) do
+          :ok ->
+            %GroupMember{}
+            |> GroupMember.changeset(%{group_id: group_id, user_id: user_id, role: "member"})
+            |> Repo.insert()
+            |> case do
+              {:ok, member} ->
+                _ = invalidate_group_cache(group_id)
+                broadcast_group(group_id, {:member_joined, group_id, user_id})
+                {:ok, member}
 
-          error ->
-            error
+              error ->
+                error
+            end
+
+          {:error, reason} ->
+            {:error, reason}
         end
     end
   end
@@ -1208,6 +1240,34 @@ defmodule GameServer.Groups do
 
       error ->
         error
+    end
+  end
+
+  defp run_before_group_join_hook(user_id, %Group{} = group, opts)
+       when is_integer(user_id) and is_map(opts) do
+    case Repo.get(GameServer.Accounts.User, user_id) do
+      nil ->
+        {:error, :not_found}
+
+      user ->
+        actor_user_id = Map.get(opts, "actor_user_id") || Map.get(opts, :actor_user_id) || user_id
+
+        hook_opts =
+          Map.merge(opts, %{
+            "actor_user_id" => actor_user_id,
+            "joining_user_id" => user_id,
+            "group_id" => group.id,
+            "group_name" => group.name,
+            "group_type" => group.type,
+            "group_metadata" => group.metadata || %{}
+          })
+
+        case GameServer.Hooks.internal_call(:before_group_join, [user, group, hook_opts],
+               caller: actor_user_id
+             ) do
+          {:ok, _} -> :ok
+          {:error, reason} -> {:error, reason}
+        end
     end
   end
 

@@ -1,3 +1,15 @@
+defmodule GameServer.GroupsTest.HooksAllowGroupJoin do
+  def before_group_join(user, group, opts), do: {:ok, {user, group, opts}}
+end
+
+defmodule GameServer.GroupsTest.HooksDenyGroupJoin do
+  def before_group_join(_user, _group, _opts), do: {:error, :level_too_low}
+end
+
+defmodule GameServer.GroupsTest.HooksCaptureGroupJoin do
+  def before_group_join(_user, _group, opts), do: {:error, {:captured, opts}}
+end
+
 defmodule GameServer.GroupsTest do
   use GameServer.DataCase
 
@@ -458,6 +470,88 @@ defmodule GameServer.GroupsTest do
 
       {:ok, _} = Groups.invite_to_group(owner.id, group.id, other.id)
       assert {:error, :full} = Groups.accept_invite(other.id, group.id)
+    end
+  end
+
+  describe "before_group_join hook" do
+    setup do
+      original = Application.get_env(:game_server_core, :hooks_module)
+
+      on_exit(fn ->
+        if original do
+          Application.put_env(:game_server_core, :hooks_module, original)
+        else
+          Application.delete_env(:game_server_core, :hooks_module)
+        end
+      end)
+
+      :ok
+    end
+
+    test "can block public join", %{owner: owner, other: other} do
+      Application.put_env(
+        :game_server_core,
+        :hooks_module,
+        GameServer.GroupsTest.HooksDenyGroupJoin
+      )
+
+      {:ok, group} = Groups.create_group(owner.id, %{"name" => "JoinHookPub", "type" => "public"})
+
+      assert {:error, :level_too_low} = Groups.join_group(other.id, group.id)
+      refute Groups.member?(group.id, other.id)
+    end
+
+    test "can block join request approval", %{owner: owner, other: other} do
+      Application.put_env(
+        :game_server_core,
+        :hooks_module,
+        GameServer.GroupsTest.HooksDenyGroupJoin
+      )
+
+      {:ok, group} =
+        Groups.create_group(owner.id, %{"name" => "JoinHookReq", "type" => "private"})
+
+      {:ok, request} = Groups.request_join(other.id, group.id)
+
+      assert {:error, :level_too_low} = Groups.approve_join_request(owner.id, request.id)
+      refute Groups.member?(group.id, other.id)
+    end
+
+    test "can block invite accept", %{owner: owner, other: other} do
+      Application.put_env(
+        :game_server_core,
+        :hooks_module,
+        GameServer.GroupsTest.HooksDenyGroupJoin
+      )
+
+      {:ok, group} = Groups.create_group(owner.id, %{"name" => "JoinHookInv", "type" => "hidden"})
+      {:ok, _} = Groups.invite_to_group(owner.id, group.id, other.id)
+
+      assert {:error, :level_too_low} = Groups.accept_invite(other.id, group.id)
+      refute Groups.member?(group.id, other.id)
+    end
+
+    test "passes source and metadata context to hook", %{owner: owner, other: other} do
+      Application.put_env(
+        :game_server_core,
+        :hooks_module,
+        GameServer.GroupsTest.HooksCaptureGroupJoin
+      )
+
+      {:ok, group} =
+        Groups.create_group(owner.id, %{
+          "name" => "JoinHookCtx",
+          "type" => "public",
+          "metadata" => %{"min_level" => 10}
+        })
+
+      assert {:error, {:captured, opts}} = Groups.join_group(other.id, group.id)
+      assert opts["source"] == "public_join"
+      assert opts["joining_user_id"] == other.id
+      assert opts["actor_user_id"] == other.id
+      assert opts["group_id"] == group.id
+      assert opts["group_type"] == "public"
+      assert opts["group_metadata"]["min_level"] == 10
     end
   end
 

@@ -53,6 +53,9 @@ defmodule GameServer.Hooks do
   @callback before_lobby_join(User.t(), term(), term()) :: hook_result({User.t(), term(), term()})
   @callback after_lobby_join(User.t(), term()) :: any()
 
+  @callback before_group_join(User.t(), term(), map()) ::
+              hook_result({User.t(), term(), map()})
+
   @callback before_lobby_leave(User.t(), term()) :: hook_result({User.t(), term()})
   @callback after_lobby_leave(User.t(), term()) :: any()
 
@@ -77,6 +80,8 @@ defmodule GameServer.Hooks do
   @callback before_kv_get(String.t(), kv_opts()) :: hook_result(:public | :private)
 
   @callback after_lobby_host_change(term(), term()) :: any()
+
+  @optional_callbacks before_group_join: 3
 
   @doc "Return the configured module that implements the hooks behaviour."
   def module do
@@ -234,6 +239,7 @@ defmodule GameServer.Hooks do
       :after_lobby_create,
       :before_lobby_join,
       :after_lobby_join,
+      :before_group_join,
       :before_lobby_leave,
       :after_lobby_leave,
       :before_lobby_update,
@@ -267,6 +273,7 @@ defmodule GameServer.Hooks do
     name in [
       :before_lobby_create,
       :before_lobby_join,
+      :before_group_join,
       :before_lobby_leave,
       :before_lobby_update,
       :before_lobby_delete,
@@ -356,7 +363,12 @@ defmodule GameServer.Hooks do
         single
 
       many
-      when name in [:before_lobby_join, :before_lobby_leave, :before_user_kicked] ->
+      when name in [
+             :before_lobby_join,
+             :before_group_join,
+             :before_lobby_leave,
+             :before_user_kicked
+           ] ->
         List.to_tuple(many)
 
       _other ->
@@ -802,6 +814,9 @@ defmodule GameServer.Hooks.Default do
 
   @impl true
   def before_lobby_join(user, lobby, opts), do: {:ok, {user, lobby, opts}}
+
+  @impl true
+  def before_group_join(user, group, opts), do: {:ok, {user, group, opts}}
 
   @impl true
   def after_lobby_join(_user, _lobby), do: :ok

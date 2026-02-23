@@ -1,3 +1,7 @@
+defmodule GameServerWeb.Api.V1.GroupControllerTest.HooksDenyGroupJoin do
+  def before_group_join(_user, _group, _opts), do: {:error, :level_too_low}
+end
+
 defmodule GameServerWeb.Api.V1.GroupControllerTest do
   use GameServerWeb.ConnCase
 
@@ -236,6 +240,36 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
 
       conn = post(conn, "/api/v1/groups/#{group.id}/join")
       assert conn.status == 401
+    end
+
+    test "returns 403 when blocked by before_group_join hook", %{conn: conn} do
+      original = Application.get_env(:game_server_core, :hooks_module)
+
+      on_exit(fn ->
+        if original do
+          Application.put_env(:game_server_core, :hooks_module, original)
+        else
+          Application.delete_env(:game_server_core, :hooks_module)
+        end
+      end)
+
+      Application.put_env(
+        :game_server_core,
+        :hooks_module,
+        GameServerWeb.Api.V1.GroupControllerTest.HooksDenyGroupJoin
+      )
+
+      owner = create_user()
+      joiner = create_user()
+      {:ok, group} = Groups.create_group(owner.id, %{"name" => "JoinBlocked", "type" => "public"})
+
+      conn =
+        conn
+        |> auth_conn(joiner)
+        |> post("/api/v1/groups/#{group.id}/join")
+
+      assert %{"error" => "level_too_low"} = json_response(conn, 403)
+      refute Groups.member?(group.id, joiner.id)
     end
   end
 
