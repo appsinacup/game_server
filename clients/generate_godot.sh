@@ -132,7 +132,18 @@ find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/ad
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_notifications_200_response_data_inner/ListNotifications200ResponseDataInner/g" -i
 # Replace admin_ListNotifications200ResponseDataInner with AdminListNotifications200ResponseDataInner
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/admin_ListNotifications200ResponseDataInner/AdminListNotifications200ResponseDataInner/g" -i
-# Replace admin_list_notifications_200_response_data_inner
+# Replace list_group_members_200_response_data_inner with ListGroupMembers200ResponseDataInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_group_members_200_response_data_inner/ListGroupMembers200ResponseDataInner/g" -i
+# Replace list_group_invitations_200_response_data_inner with ListGroupInvitations200ResponseDataInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_group_invitations_200_response_data_inner/ListGroupInvitations200ResponseDataInner/g" -i
+# Replace list_my_groups_200_response_data_inner with ListMyGroups200ResponseDataInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_my_groups_200_response_data_inner/ListMyGroups200ResponseDataInner/g" -i
+# Replace cancel_join_request_200_response with CancelJoinRequest200Response
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/cancel_join_request_200_response/CancelJoinRequest200Response/g" -i
+# Replace list_sent_invitations_200_response_data_inner with ListSentInvitations200ResponseDataInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_sent_invitations_200_response_data_inner/ListSentInvitations200ResponseDataInner/g" -i
+# Replace admin_update_group_200_response with AdminUpdateGroup200Response
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/admin_update_group_200_response/AdminUpdateGroup200Response/g" -i
 # headers_for_godot, body_serialized
 # with 
 # headers_for_godot, "" if body_serialized == "null" else body_serialized
