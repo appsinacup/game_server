@@ -13,7 +13,7 @@ three visibility types:
 ## Usage
 
     # Create a group (creator becomes admin)
-    {:ok, group} = Groups.create_group(user_id, %{"name" => "cool-group", "title" => "Cool Group"})
+    {:ok, group} = Groups.create_group(user_id, %{"title" => "Cool Group"})
 
     # List public/private groups (hidden excluded)
     groups = Groups.list_groups(%{}, page: 1, page_size: 25)
@@ -231,13 +231,13 @@ Get a group by ID (cached).
 
 Get a group by ID (raises if not found, cached).
 
-# `get_group_by_name`
+# `get_group_by_title`
 
 ```elixir
-@spec get_group_by_name(String.t()) :: GameServer.Groups.Group.t() | nil
+@spec get_group_by_title(String.t()) :: GameServer.Groups.Group.t() | nil
 ```
 
-Get a group by its unique name.
+Get a group by its unique title.
 
 # `get_group_members`
 
@@ -355,7 +355,6 @@ List groups visible to the public (excludes hidden).
 ## Filters
 
   * `:title` – prefix search on title (case-insensitive)
-  * `:name` – prefix search on name (case-insensitive)
   * `:type` – exact match on type (`"public"` or `"private"`)
   * `:min_members` – groups with max_members >= value
   * `:max_members` – groups with max_members <= value

@@ -8,8 +8,7 @@ join-request workflows, and invitation flows.
 
 ## Fields
 
-- `name` – unique slug / identifier (lowercase, must be unique)
-- `title` – human-readable display title
+- `title` – human-readable display title (unique)
 - `description` – optional longer description
 - `type` – visibility: `"public"`, `"private"`, or `"hidden"`
 - `max_members` – maximum number of members (default 100)
@@ -29,7 +28,6 @@ join-request workflows, and invitation flows.
   max_members: term(),
   members: term(),
   metadata: term(),
-  name: term(),
   title: term(),
   type: term(),
   updated_at: term()
