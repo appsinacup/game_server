@@ -8,7 +8,7 @@
     <meta name="project" content="GameServer v1.0.573">
 
 
-    <title>GameServer — GameServer v1.0.573</title>
+    <title>GameServer.Groups.Group — GameServer v1.0.573</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
@@ -93,12 +93,12 @@ GameServer
 <div id="top-content">
   <div class="heading-with-actions top-heading">
     <h1>
-      <span translate="no">GameServer</span> 
+      <span translate="no">GameServer.<wbr>Groups.<wbr>Group</span> 
       <small class="app-vsn" translate="no">(GameServer v1.0.573)</small>
 
     </h1>
 
-<a href="GameServer.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
+<a href="GameServer.Groups.Group.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
   <i class="ri-markdown-line" aria-hidden="true"></i>
   <span class="sr-only">Copy Markdown</span>
 </a>
@@ -109,13 +109,133 @@ GameServer
 
 
     <section id="moduledoc">
-<p>GameServer keeps the contexts that define your domain
-and business logic.</p><p>Contexts are also responsible for managing your data, regardless
-if it comes from the database, an external API or others.</p>
+<p>Ecto schema for the <code class="inline">groups</code> table.</p><p>A group is a persistent community that users can join. Unlike lobbies (which
+are ephemeral game sessions), groups are long-lived and support admin roles,
+join-request workflows, and invitation flows.</p><h2 id="module-fields" class="section-heading"><a href="#module-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">name</code> – unique slug / identifier (lowercase, must be unique)</li><li><code class="inline">title</code> – human-readable display title</li><li><code class="inline">description</code> – optional longer description</li><li><code class="inline">type</code> – visibility: <code class="inline">&quot;public&quot;</code>, <code class="inline">&quot;private&quot;</code>, or <code class="inline">&quot;hidden&quot;</code></li><li><code class="inline">max_members</code> – maximum number of members (default 100)</li><li><code class="inline">metadata</code> – arbitrary server-managed key/value map</li><li><code class="inline">creator_id</code> – the user who originally created the group</li></ul>
     </section>
 
 </div>
 
+  <section id="summary" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h2>
+<div class="summary-types summary">
+  <h3>
+    <a href="#types">Types</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:t/0" data-no-tooltip="" translate="no">t()</a>
+
+      </div>
+
+    </div>
+
+</div>
+<div class="summary-functions summary">
+  <h3>
+    <a href="#functions">Functions</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#changeset/2" data-no-tooltip="" translate="no">changeset(group, attrs)</a>
+
+      </div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="types" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#types">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Types</span>
+    </h2>
+
+    <div class="types-list">
+<section class="detail" id="t:t/0">
+
+  <div class="detail-header">
+    <a href="#t:t/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">t()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> t() :: %GameServer.Groups.Group{
+  __meta__: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  creator: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  creator_id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  description: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  inserted_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  max_members: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  members: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  metadata: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  name: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  title: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  type: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  updated_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()
+}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
+
+  <section id="functions" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h2>
+
+    <div class="functions-list">
+<section class="detail" id="changeset/2">
+
+  <div class="detail-header">
+    <a href="#changeset/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">changeset(group, attrs)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
 
     <footer class="footer">
 

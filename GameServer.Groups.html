@@ -1,0 +1,1955 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.40.1">
+    <meta name="project" content="GameServer v1.0.573">
+
+
+    <title>GameServer.Groups — GameServer v1.0.573</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
+
+    <script defer src="dist/sidebar_items-1265842E.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-YU4BZFVS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="api-reference.html" class="sidebar-projectName" translate="no">
+GameServer
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v1.0.573
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras="Pages"></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of GameServer</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">GameServer.<wbr>Groups</span> 
+      <small class="app-vsn" translate="no">(GameServer v1.0.573)</small>
+
+    </h1>
+
+<a href="GameServer.Groups.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
+  <i class="ri-markdown-line" aria-hidden="true"></i>
+  <span class="sr-only">Copy Markdown</span>
+</a>
+
+
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Context module for group management: creating, updating, listing, joining,
+leaving, kicking, promoting/demoting members, and handling join requests.</p><p>Groups are persistent communities (unlike ephemeral lobbies). They support
+three visibility types:</p><ul><li><strong>public</strong> – anyone can join directly</li><li><strong>private</strong> – anyone can request to join; an admin must approve</li><li><strong>hidden</strong> – only invited users can join (via notifications / invite API)</li></ul><h2 id="module-usage" class="section-heading"><a href="#module-usage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># Create a group (creator becomes admin)</span><span class="w">
+</span><span class="p" data-group-id="2888338046-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">group</span><span class="p" data-group-id="2888338046-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Groups</span><span class="o">.</span><span class="n">create_group</span><span class="p" data-group-id="2888338046-2">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="2888338046-3">%{</span><span class="s">&quot;name&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;cool-group&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;title&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;Cool Group&quot;</span><span class="p" data-group-id="2888338046-3">}</span><span class="p" data-group-id="2888338046-2">)</span><span class="w">
+
+</span><span class="c1"># List public/private groups (hidden excluded)</span><span class="w">
+</span><span class="n">groups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Groups</span><span class="o">.</span><span class="n">list_groups</span><span class="p" data-group-id="2888338046-4">(</span><span class="p" data-group-id="2888338046-5">%{</span><span class="p" data-group-id="2888338046-5">}</span><span class="p">,</span><span class="w"> </span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p" data-group-id="2888338046-4">)</span><span class="w">
+
+</span><span class="c1"># Join a public group</span><span class="w">
+</span><span class="p" data-group-id="2888338046-6">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">member</span><span class="p" data-group-id="2888338046-6">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Groups</span><span class="o">.</span><span class="n">join_group</span><span class="p" data-group-id="2888338046-7">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="n">group</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="2888338046-7">)</span><span class="w">
+
+</span><span class="c1"># Request to join a private group</span><span class="w">
+</span><span class="p" data-group-id="2888338046-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p" data-group-id="2888338046-8">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Groups</span><span class="o">.</span><span class="n">request_join</span><span class="p" data-group-id="2888338046-9">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="n">group</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="2888338046-9">)</span><span class="w">
+
+</span><span class="c1"># Admin approves a join request</span><span class="w">
+</span><span class="p" data-group-id="2888338046-10">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">member</span><span class="p" data-group-id="2888338046-10">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Groups</span><span class="o">.</span><span class="n">approve_join_request</span><span class="p" data-group-id="2888338046-11">(</span><span class="n">admin_id</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="2888338046-11">)</span></code></pre><h2 id="module-pubsub-events" class="section-heading"><a href="#module-pubsub-events" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">PubSub Events</span></h2><ul><li><p><code class="inline">&quot;groups&quot;</code> topic:</p><ul><li><code class="inline">{:group_created, group}</code></li><li><code class="inline">{:group_updated, group}</code></li><li><code class="inline">{:group_deleted, group_id}</code></li></ul></li><li><p><code class="inline">&quot;group:&lt;group_id&gt;&quot;</code> topic:</p><ul><li><code class="inline">{:member_joined, group_id, user_id}</code></li><li><code class="inline">{:member_left, group_id, user_id}</code></li><li><code class="inline">{:member_kicked, group_id, user_id}</code></li><li><code class="inline">{:member_promoted, group_id, user_id}</code></li><li><code class="inline">{:member_demoted, group_id, user_id}</code></li><li><code class="inline">{:group_updated, group}</code></li><li><code class="inline">{:join_request_created, group_id, user_id}</code></li><li><code class="inline">{:join_request_approved, group_id, user_id}</code></li><li><code class="inline">{:join_request_rejected, group_id, user_id}</code></li><li><code class="inline">{:group_notification, group_id, sender_id}</code></li></ul></li></ul>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h2>
+<div class="summary-functions summary">
+  <h3>
+    <a href="#functions">Functions</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#accept_invite/2" data-no-tooltip="" translate="no">accept_invite(user_id, group_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Accept a group invite (for hidden groups). The user must have a group_invite
+notification containing the group_id.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#admin?/2" data-no-tooltip="" translate="no">admin?(group_id, user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Check if user is an admin of the group.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#admin_delete_group/1" data-no-tooltip="" translate="no">admin_delete_group(group_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Admin-level delete (no membership check, for server admins).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#admin_update_group/2" data-no-tooltip="" translate="no">admin_update_group(group, attrs)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Admin-level update, bypasses membership checks.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#approve_join_request/2" data-no-tooltip="" translate="no">approve_join_request(admin_id, request_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Approve a pending join request. Admin only.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#cancel_invite/2" data-no-tooltip="" translate="no">cancel_invite(user_id, notification_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Cancel (delete) a group invitation that the current user sent.
+Only the sender can cancel their own invitation.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#cancel_join_request/2" data-no-tooltip="" translate="no">cancel_join_request(user_id, request_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Cancel (delete) a pending join request. Only the requesting user can cancel.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#change_group/2" data-no-tooltip="" translate="no">change_group(group, attrs \\ %{})</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Return a changeset for tracking group changes (admin edit forms).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_all_groups/1" data-no-tooltip="" translate="no">count_all_groups(filters \\ %{})</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count ALL groups matching filters (admin).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_all_members/0" data-no-tooltip="" translate="no">count_all_members()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Total member count across all groups.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_group_members/1" data-no-tooltip="" translate="no">count_group_members(group_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count members in a group.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_groups_by_type/1" data-no-tooltip="" translate="no">count_groups_by_type(type)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count groups by type.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_invitations/1" data-no-tooltip="" translate="no">count_invitations(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count pending invitations for a user.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_join_requests/1" data-no-tooltip="" translate="no">count_join_requests(group_id)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_list_groups/1" data-no-tooltip="" translate="no">count_list_groups(filters \\ %{})</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count groups matching public filters (excludes hidden).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_sent_invitations/1" data-no-tooltip="" translate="no">count_sent_invitations(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count group invitations sent by a user.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_user_groups/1" data-no-tooltip="" translate="no">count_user_groups(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count groups the user belongs to.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#create_group/2" data-no-tooltip="" translate="no">create_group(user_id, attrs)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Create a new group. The creating user becomes an admin member automatically.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#delete_group/2" data-no-tooltip="" translate="no">delete_group(user_id, group_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Delete a group. Admin-only. Refuses if the group still has members — groups
+are auto-deleted when the last member leaves.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#demote_member/3" data-no-tooltip="" translate="no">demote_member(admin_id, group_id, target_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Demote an admin to member. Only admins can demote other admins.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_group/1" data-no-tooltip="" translate="no">get_group(id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Get a group by ID (cached).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_group!/1" data-no-tooltip="" translate="no">get_group!(id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Get a group by ID (raises if not found, cached).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_group_by_name/1" data-no-tooltip="" translate="no">get_group_by_name(name)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Get a group by its unique name.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_group_members/1" data-no-tooltip="" translate="no">get_group_members(group_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Get all members of a group.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_group_members_paginated/2" data-no-tooltip="" translate="no">get_group_members_paginated(group_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Get paginated members of a group with user info.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_membership/2" data-no-tooltip="" translate="no">get_membership(group_id, user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Get a specific membership.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#handle_user_deletion/1" data-no-tooltip="" translate="no">handle_user_deletion(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Clean up group memberships before a user is deleted.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#invalidate_group_cache_public/1" data-no-tooltip="" translate="no">invalidate_group_cache_public(group_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Public wrapper for cache invalidation (used by admin controller).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#invite_to_group/3" data-no-tooltip="" translate="no">invite_to_group(admin_id, group_id, target_user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Invite a user to a hidden group by sending a notification with metadata.
+The notification system handles delivery; this creates the notification with
+a special title so the client can recognise it as a group invite.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#join_group/2" data-no-tooltip="" translate="no">join_group(user_id, group_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Join a public group directly. Returns error for private/hidden groups.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#kick_member/3" data-no-tooltip="" translate="no">kick_member(admin_id, group_id, target_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Kick a member from the group. Only admins can kick.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#leave_group/2" data-no-tooltip="" translate="no">leave_group(user_id, group_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Leave a group.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_all_groups/2" data-no-tooltip="" translate="no">list_all_groups(filters \\ %{}, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List ALL groups including hidden (admin only).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_groups/2" data-no-tooltip="" translate="no">list_groups(filters \\ %{}, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List groups visible to the public (excludes hidden).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_invitations/2" data-no-tooltip="" translate="no">list_invitations(user_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List pending group invitations for a user. These are notifications with
+title <code class="inline">&quot;group_invite&quot;</code> and a metadata <code class="inline">group_id</code>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_join_requests/3" data-no-tooltip="" translate="no">list_join_requests(admin_id, group_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List pending join requests for a group (admin only).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_sent_invitations/2" data-no-tooltip="" translate="no">list_sent_invitations(user_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List group invitations sent by a user.
+Returns notifications where the user is the sender and the title is <code class="inline">&quot;group_invite&quot;</code>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_user_groups/2" data-no-tooltip="" translate="no">list_user_groups(user_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List groups the user belongs to.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_user_groups_with_role/1" data-no-tooltip="" translate="no">list_user_groups_with_role(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List groups the user belongs to, together with the membership role.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_user_pending_requests/1" data-no-tooltip="" translate="no">list_user_pending_requests(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List pending join requests sent by a user.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#member?/2" data-no-tooltip="" translate="no">member?(group_id, user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Check if user is a member (any role) of the group.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#notify_group/4" data-no-tooltip="" translate="no">notify_group(sender_id, group_id, content, metadata \\ %{})</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Send a notification to all members of a group (except the sender).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#promote_member/3" data-no-tooltip="" translate="no">promote_member(admin_id, group_id, target_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Promote a member to admin. Only admins can promote.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#reject_join_request/2" data-no-tooltip="" translate="no">reject_join_request(admin_id, request_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Reject a pending join request. Admin only.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#request_join/2" data-no-tooltip="" translate="no">request_join(user_id, group_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Request to join a private group. Creates a pending join request.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#subscribe_group/1" data-no-tooltip="" translate="no">subscribe_group(group_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Subscribe to a specific group's events.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#subscribe_groups/0" data-no-tooltip="" translate="no">subscribe_groups()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Subscribe to global group events.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#unsubscribe_group/1" data-no-tooltip="" translate="no">unsubscribe_group(group_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Unsubscribe from a specific group's events.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#update_group/3" data-no-tooltip="" translate="no">update_group(user_id, group_id, attrs)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Update group settings. Only admins can update.
+Cannot lower max_members below current member count.</p></div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="functions" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h2>
+
+    <div class="functions-list">
+<section class="detail" id="accept_invite/2">
+
+  <div class="detail-header">
+    <a href="#accept_invite/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">accept_invite(user_id, group_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> accept_invite(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  {:ok, <a href="GameServer.Groups.GroupMember.html#t:t/0">GameServer.Groups.GroupMember.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}</pre>
+
+      </div>
+
+<p>Accept a group invite (for hidden groups). The user must have a group_invite
+notification containing the group_id.</p>
+  </section>
+</section>
+<section class="detail" id="admin?/2">
+
+  <div class="detail-header">
+    <a href="#admin?/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">admin?(group_id, user_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> admin?(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+
+      </div>
+
+<p>Check if user is an admin of the group.</p>
+  </section>
+</section>
+<section class="detail" id="admin_delete_group/1">
+
+  <div class="detail-header">
+    <a href="#admin_delete_group/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">admin_delete_group(group_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> admin_delete_group(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  {:ok, <a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Admin-level delete (no membership check, for server admins).</p>
+  </section>
+</section>
+<section class="detail" id="admin_update_group/2">
+
+  <div class="detail-header">
+    <a href="#admin_update_group/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">admin_update_group(group, attrs)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> admin_update_group(<a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok, <a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>()} | {:error, <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+
+      </div>
+
+<p>Admin-level update, bypasses membership checks.</p>
+  </section>
+</section>
+<section class="detail" id="approve_join_request/2">
+
+  <div class="detail-header">
+    <a href="#approve_join_request/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">approve_join_request(admin_id, request_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> approve_join_request(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  {:ok, <a href="GameServer.Groups.GroupMember.html#t:t/0">GameServer.Groups.GroupMember.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}</pre>
+
+      </div>
+
+<p>Approve a pending join request. Admin only.</p>
+  </section>
+</section>
+<section class="detail" id="cancel_invite/2">
+
+  <div class="detail-header">
+    <a href="#cancel_invite/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">cancel_invite(user_id, notification_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> cancel_invite(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}</pre>
+
+      </div>
+
+<p>Cancel (delete) a group invitation that the current user sent.
+Only the sender can cancel their own invitation.</p>
+  </section>
+</section>
+<section class="detail" id="cancel_join_request/2">
+
+  <div class="detail-header">
+    <a href="#cancel_join_request/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">cancel_join_request(user_id, request_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> cancel_join_request(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  {:ok, <a href="GameServer.Groups.GroupJoinRequest.html#t:t/0">GameServer.Groups.GroupJoinRequest.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}</pre>
+
+      </div>
+
+<p>Cancel (delete) a pending join request. Only the requesting user can cancel.</p>
+  </section>
+</section>
+<section class="detail" id="change_group/2">
+
+    <span id="change_group/1"></span>
+
+  <div class="detail-header">
+    <a href="#change_group/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">change_group(group, attrs \\ %{})</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> change_group(<a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()</pre>
+
+      </div>
+
+<p>Return a changeset for tracking group changes (admin edit forms).</p>
+  </section>
+</section>
+<section class="detail" id="count_all_groups/1">
+
+    <span id="count_all_groups/0"></span>
+
+  <div class="detail-header">
+    <a href="#count_all_groups/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_all_groups(filters \\ %{})</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_all_groups(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count ALL groups matching filters (admin).</p>
+  </section>
+</section>
+<section class="detail" id="count_all_members/0">
+
+  <div class="detail-header">
+    <a href="#count_all_members/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_all_members()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_all_members() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Total member count across all groups.</p>
+  </section>
+</section>
+<section class="detail" id="count_group_members/1">
+
+  <div class="detail-header">
+    <a href="#count_group_members/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_group_members(group_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_group_members(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count members in a group.</p>
+  </section>
+</section>
+<section class="detail" id="count_groups_by_type/1">
+
+  <div class="detail-header">
+    <a href="#count_groups_by_type/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_groups_by_type(type)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_groups_by_type(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count groups by type.</p>
+  </section>
+</section>
+<section class="detail" id="count_invitations/1">
+
+  <div class="detail-header">
+    <a href="#count_invitations/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_invitations(user_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_invitations(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count pending invitations for a user.</p>
+  </section>
+</section>
+<section class="detail" id="count_join_requests/1">
+
+  <div class="detail-header">
+    <a href="#count_join_requests/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_join_requests(group_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_join_requests(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="count_list_groups/1">
+
+    <span id="count_list_groups/0"></span>
+
+  <div class="detail-header">
+    <a href="#count_list_groups/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_list_groups(filters \\ %{})</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_list_groups(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count groups matching public filters (excludes hidden).</p>
+  </section>
+</section>
+<section class="detail" id="count_sent_invitations/1">
+
+  <div class="detail-header">
+    <a href="#count_sent_invitations/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_sent_invitations(user_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_sent_invitations(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count group invitations sent by a user.</p>
+  </section>
+</section>
+<section class="detail" id="count_user_groups/1">
+
+  <div class="detail-header">
+    <a href="#count_user_groups/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_user_groups(user_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_user_groups(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count groups the user belongs to.</p>
+  </section>
+</section>
+<section class="detail" id="create_group/2">
+
+  <div class="detail-header">
+    <a href="#create_group/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">create_group(user_id, attrs)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> create_group(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok, <a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>()} | {:error, <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>() | <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Create a new group. The creating user becomes an admin member automatically.</p>
+  </section>
+</section>
+<section class="detail" id="delete_group/2">
+
+  <div class="detail-header">
+    <a href="#delete_group/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">delete_group(user_id, group_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> delete_group(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  {:ok, <a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}</pre>
+
+      </div>
+
+<p>Delete a group. Admin-only. Refuses if the group still has members — groups
+are auto-deleted when the last member leaves.</p>
+  </section>
+</section>
+<section class="detail" id="demote_member/3">
+
+  <div class="detail-header">
+    <a href="#demote_member/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">demote_member(admin_id, group_id, target_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> demote_member(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  {:ok, <a href="GameServer.Groups.GroupMember.html#t:t/0">GameServer.Groups.GroupMember.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}</pre>
+
+      </div>
+
+<p>Demote an admin to member. Only admins can demote other admins.</p>
+  </section>
+</section>
+<section class="detail" id="get_group/1">
+
+  <div class="detail-header">
+    <a href="#get_group/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_group(id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_group(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>() | nil</pre>
+
+      </div>
+
+<p>Get a group by ID (cached).</p>
+  </section>
+</section>
+<section class="detail" id="get_group!/1">
+
+  <div class="detail-header">
+    <a href="#get_group!/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_group!(id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_group!(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>()</pre>
+
+      </div>
+
+<p>Get a group by ID (raises if not found, cached).</p>
+  </section>
+</section>
+<section class="detail" id="get_group_by_name/1">
+
+  <div class="detail-header">
+    <a href="#get_group_by_name/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_group_by_name(name)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_group_by_name(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>() | nil</pre>
+
+      </div>
+
+<p>Get a group by its unique name.</p>
+  </section>
+</section>
+<section class="detail" id="get_group_members/1">
+
+  <div class="detail-header">
+    <a href="#get_group_members/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_group_members(group_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_group_members(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: [<a href="GameServer.Groups.GroupMember.html#t:t/0">GameServer.Groups.GroupMember.t</a>()]</pre>
+
+      </div>
+
+<p>Get all members of a group.</p>
+  </section>
+</section>
+<section class="detail" id="get_group_members_paginated/2">
+
+    <span id="get_group_members_paginated/1"></span>
+
+  <div class="detail-header">
+    <a href="#get_group_members_paginated/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_group_members_paginated(group_id, opts \\ [])</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_group_members_paginated(
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) :: [<a href="GameServer.Groups.GroupMember.html#t:t/0">GameServer.Groups.GroupMember.t</a>()]</pre>
+
+      </div>
+
+<p>Get paginated members of a group with user info.</p>
+  </section>
+</section>
+<section class="detail" id="get_membership/2">
+
+  <div class="detail-header">
+    <a href="#get_membership/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_membership(group_id, user_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_membership(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="GameServer.Groups.GroupMember.html#t:t/0">GameServer.Groups.GroupMember.t</a>() | nil</pre>
+
+      </div>
+
+<p>Get a specific membership.</p>
+  </section>
+</section>
+<section class="detail" id="handle_user_deletion/1">
+
+  <div class="detail-header">
+    <a href="#handle_user_deletion/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">handle_user_deletion(user_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> handle_user_deletion(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: :ok</pre>
+
+      </div>
+
+<p>Clean up group memberships before a user is deleted.</p><p>For each group the user belongs to:</p><ul><li>If the user is the sole admin and other members exist, promotes the oldest
+member to admin before removing the user's membership row.</li><li>Removes the membership row.</li><li>If the group has no members left after removal, deletes the group.</li></ul><p>This must be called <em>before</em> <code class="inline">Repo.delete(user)</code> so that the membership
+rows still exist (the DB cascade would silently delete them otherwise
+without running the admin-transfer / empty-group logic).</p>
+  </section>
+</section>
+<section class="detail" id="invalidate_group_cache_public/1">
+
+  <div class="detail-header">
+    <a href="#invalidate_group_cache_public/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">invalidate_group_cache_public(group_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> invalidate_group_cache_public(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: :ok</pre>
+
+      </div>
+
+<p>Public wrapper for cache invalidation (used by admin controller).</p>
+  </section>
+</section>
+<section class="detail" id="invite_to_group/3">
+
+  <div class="detail-header">
+    <a href="#invite_to_group/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">invite_to_group(admin_id, group_id, target_user_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> invite_to_group(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}</pre>
+
+      </div>
+
+<p>Invite a user to a hidden group by sending a notification with metadata.
+The notification system handles delivery; this creates the notification with
+a special title so the client can recognise it as a group invite.</p>
+  </section>
+</section>
+<section class="detail" id="join_group/2">
+
+  <div class="detail-header">
+    <a href="#join_group/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">join_group(user_id, group_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> join_group(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  {:ok, <a href="GameServer.Groups.GroupMember.html#t:t/0">GameServer.Groups.GroupMember.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}</pre>
+
+      </div>
+
+<p>Join a public group directly. Returns error for private/hidden groups.</p>
+  </section>
+</section>
+<section class="detail" id="kick_member/3">
+
+  <div class="detail-header">
+    <a href="#kick_member/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">kick_member(admin_id, group_id, target_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> kick_member(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  {:ok, <a href="GameServer.Groups.GroupMember.html#t:t/0">GameServer.Groups.GroupMember.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}</pre>
+
+      </div>
+
+<p>Kick a member from the group. Only admins can kick.</p>
+  </section>
+</section>
+<section class="detail" id="leave_group/2">
+
+  <div class="detail-header">
+    <a href="#leave_group/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">leave_group(user_id, group_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> leave_group(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  {:ok, <a href="GameServer.Groups.GroupMember.html#t:t/0">GameServer.Groups.GroupMember.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}</pre>
+
+      </div>
+
+<p>Leave a group.</p>
+  </section>
+</section>
+<section class="detail" id="list_all_groups/2">
+
+    <span id="list_all_groups/0"></span>
+
+    <span id="list_all_groups/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_all_groups/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_all_groups(filters \\ %{}, opts \\ [])</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_all_groups(
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) :: [<a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>()]</pre>
+
+      </div>
+
+<p>List ALL groups including hidden (admin only).</p>
+  </section>
+</section>
+<section class="detail" id="list_groups/2">
+
+    <span id="list_groups/0"></span>
+
+    <span id="list_groups/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_groups/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_groups(filters \\ %{}, opts \\ [])</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_groups(
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) :: [<a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>()]</pre>
+
+      </div>
+
+<p>List groups visible to the public (excludes hidden).</p><h2 id="list_groups/2-filters" class="section-heading"><a href="#list_groups/2-filters" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Filters</span></h2><ul><li><code class="inline">:title</code> – prefix search on title (case-insensitive)</li><li><code class="inline">:name</code> – prefix search on name (case-insensitive)</li><li><code class="inline">:type</code> – exact match on type (<code class="inline">&quot;public&quot;</code> or <code class="inline">&quot;private&quot;</code>)</li><li><code class="inline">:min_members</code> – groups with max_members &gt;= value</li><li><code class="inline">:max_members</code> – groups with max_members &lt;= value</li><li><code class="inline">:metadata_key</code> / <code class="inline">:metadata_value</code> – filter by metadata entry</li></ul><h2 id="list_groups/2-options" class="section-heading"><a href="#list_groups/2-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:page</code> – page number (default 1)</li><li><code class="inline">:page_size</code> – results per page (default 25)</li></ul>
+  </section>
+</section>
+<section class="detail" id="list_invitations/2">
+
+    <span id="list_invitations/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_invitations/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_invitations(user_id, opts \\ [])</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_invitations(
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) :: [<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()]</pre>
+
+      </div>
+
+<p>List pending group invitations for a user. These are notifications with
+title <code class="inline">&quot;group_invite&quot;</code> and a metadata <code class="inline">group_id</code>.</p>
+  </section>
+</section>
+<section class="detail" id="list_join_requests/3">
+
+    <span id="list_join_requests/2"></span>
+
+  <div class="detail-header">
+    <a href="#list_join_requests/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_join_requests(admin_id, group_id, opts \\ [])</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_join_requests(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) ::
+  {:ok, [<a href="GameServer.Groups.GroupJoinRequest.html#t:t/0">GameServer.Groups.GroupJoinRequest.t</a>()]} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}</pre>
+
+      </div>
+
+<p>List pending join requests for a group (admin only).</p>
+  </section>
+</section>
+<section class="detail" id="list_sent_invitations/2">
+
+    <span id="list_sent_invitations/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_sent_invitations/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_sent_invitations(user_id, opts \\ [])</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_sent_invitations(
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) :: [<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()]</pre>
+
+      </div>
+
+<p>List group invitations sent by a user.
+Returns notifications where the user is the sender and the title is <code class="inline">&quot;group_invite&quot;</code>.</p>
+  </section>
+</section>
+<section class="detail" id="list_user_groups/2">
+
+    <span id="list_user_groups/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_user_groups/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_user_groups(user_id, opts \\ [])</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_user_groups(
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) :: [<a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>()]</pre>
+
+      </div>
+
+<p>List groups the user belongs to.</p>
+  </section>
+</section>
+<section class="detail" id="list_user_groups_with_role/1">
+
+  <div class="detail-header">
+    <a href="#list_user_groups_with_role/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_user_groups_with_role(user_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_user_groups_with_role(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: [
+  {<a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()}
+]</pre>
+
+      </div>
+
+<p>List groups the user belongs to, together with the membership role.</p>
+  </section>
+</section>
+<section class="detail" id="list_user_pending_requests/1">
+
+  <div class="detail-header">
+    <a href="#list_user_pending_requests/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_user_pending_requests(user_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_user_pending_requests(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: [
+  <a href="GameServer.Groups.GroupJoinRequest.html#t:t/0">GameServer.Groups.GroupJoinRequest.t</a>()
+]</pre>
+
+      </div>
+
+<p>List pending join requests sent by a user.</p>
+  </section>
+</section>
+<section class="detail" id="member?/2">
+
+  <div class="detail-header">
+    <a href="#member?/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">member?(group_id, user_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> member?(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+
+      </div>
+
+<p>Check if user is a member (any role) of the group.</p>
+  </section>
+</section>
+<section class="detail" id="notify_group/4">
+
+    <span id="notify_group/3"></span>
+
+  <div class="detail-header">
+    <a href="#notify_group/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">notify_group(sender_id, group_id, content, metadata \\ %{})</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> notify_group(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}</pre>
+
+      </div>
+
+<p>Send a notification to all members of a group (except the sender).</p><p>Any group member can send a notification. The notification is created for
+each member using a direct insert (bypassing the friends-only check).
+The <code class="inline">group_id</code> / <code class="inline">group_name</code> are stored in metadata so the client can
+recognise and route it.</p><h2 id="notify_group/4-options" class="section-heading"><a href="#notify_group/4-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">title</code> – notification title string (default: <code class="inline">&quot;group_notification&quot;</code>).
+The title is part of the unique constraint <code class="inline">(sender_id, recipient_id, title)</code>,
+so different titles create separate notification slots.</li></ul><p>Because of the unique constraint on <code class="inline">(sender_id, recipient_id, title)</code>, a
+new notification from the same sender to the same recipient with the same title
+replaces the previous one (upsert). This prevents spam while keeping the latest
+message.</p><p>Returns <code class="inline">{:ok, count}</code> with the number of notifications sent.</p>
+  </section>
+</section>
+<section class="detail" id="promote_member/3">
+
+  <div class="detail-header">
+    <a href="#promote_member/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">promote_member(admin_id, group_id, target_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> promote_member(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  {:ok, <a href="GameServer.Groups.GroupMember.html#t:t/0">GameServer.Groups.GroupMember.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}</pre>
+
+      </div>
+
+<p>Promote a member to admin. Only admins can promote.</p>
+  </section>
+</section>
+<section class="detail" id="reject_join_request/2">
+
+  <div class="detail-header">
+    <a href="#reject_join_request/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">reject_join_request(admin_id, request_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> reject_join_request(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  {:ok, <a href="GameServer.Groups.GroupJoinRequest.html#t:t/0">GameServer.Groups.GroupJoinRequest.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}</pre>
+
+      </div>
+
+<p>Reject a pending join request. Admin only.</p>
+  </section>
+</section>
+<section class="detail" id="request_join/2">
+
+  <div class="detail-header">
+    <a href="#request_join/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">request_join(user_id, group_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> request_join(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  {:ok, <a href="GameServer.Groups.GroupJoinRequest.html#t:t/0">GameServer.Groups.GroupJoinRequest.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}</pre>
+
+      </div>
+
+<p>Request to join a private group. Creates a pending join request.</p>
+  </section>
+</section>
+<section class="detail" id="subscribe_group/1">
+
+  <div class="detail-header">
+    <a href="#subscribe_group/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">subscribe_group(group_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> subscribe_group(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Subscribe to a specific group's events.</p>
+  </section>
+</section>
+<section class="detail" id="subscribe_groups/0">
+
+  <div class="detail-header">
+    <a href="#subscribe_groups/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">subscribe_groups()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> subscribe_groups() :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Subscribe to global group events.</p>
+  </section>
+</section>
+<section class="detail" id="unsubscribe_group/1">
+
+  <div class="detail-header">
+    <a href="#unsubscribe_group/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">unsubscribe_group(group_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> unsubscribe_group(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: :ok</pre>
+
+      </div>
+
+<p>Unsubscribe from a specific group's events.</p>
+  </section>
+</section>
+<section class="detail" id="update_group/3">
+
+  <div class="detail-header">
+    <a href="#update_group/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">update_group(user_id, group_id, attrs)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> update_group(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok, <a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>() | <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+
+      </div>
+
+<p>Update group settings. Only admins can update.
+Cannot lower max_members below current member count.</p>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+
+        <p>
+
+          <span class="line">
+            <button class="a-main footer-button display-quick-switch" title="Go to package docs">
+              Go to package docs
+            </button>
+
+              <a href="llms.txt" target="_blank">
+                View llms.txt
+              </a>
+
+
+              <a href="GameServer.epub">
+                Download ePub version
+              </a>
+
+          </span>
+        </p>
+
+        <p class="built-using">
+          Built using
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.1) for the
+
+            <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+        </p>
+
+
+    </footer>
+  </div>
+</main>
+</div>
+
+  </body>
+</html>

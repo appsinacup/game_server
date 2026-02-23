@@ -14,6 +14,10 @@ GameServer.Cache.html
 GameServer.Env.html
 GameServer.Friends.Friendship.html
 GameServer.Friends.html
+GameServer.Groups.Group.html
+GameServer.Groups.GroupJoinRequest.html
+GameServer.Groups.GroupMember.html
+GameServer.Groups.html
 GameServer.Hooks.Default.html
 GameServer.Hooks.DynamicRpcs.html
 GameServer.Hooks.PluginBuilder.html
@@ -51,7 +55,7 @@ dist/lato-latin-700-normal-2XVSBPG4.woff2
 dist/lato-latin-ext-400-normal-N27NCBWW.woff2
 dist/lato-latin-ext-700-normal-Q2L5DVMW.woff2
 dist/remixicon-ZWU5GQ4X.woff2
-dist/search_data-6D150EA2.js
-dist/sidebar_items-FEDBAE4E.js
+dist/search_data-FE149B02.js
+dist/sidebar_items-1265842E.js
 index.html
 search.html

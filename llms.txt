@@ -1,4 +1,4 @@
-# GameServer v1.0.571 - Table of Contents
+# GameServer v1.0.573 - Table of Contents
 
 ## Modules
 
@@ -23,6 +23,11 @@ and email-change workflows.
 - [GameServer.Env](GameServer.Env.md): Helpers for reading and parsing environment variables.
 - [GameServer.Friends](GameServer.Friends.md): Friends context - handles friend requests and relationships.
 - [GameServer.Friends.Friendship](GameServer.Friends.Friendship.md): Ecto schema representing a friendship/request between two users.
+- [GameServer.Groups](GameServer.Groups.md): Context module for group management: creating, updating, listing, joining,
+leaving, kicking, promoting/demoting members, and handling join requests.
+- [GameServer.Groups.Group](GameServer.Groups.Group.md): Ecto schema for the `groups` table.
+- [GameServer.Groups.GroupJoinRequest](GameServer.Groups.GroupJoinRequest.md): Ecto schema for the `group_join_requests` table.
+- [GameServer.Groups.GroupMember](GameServer.Groups.GroupMember.md): Ecto schema for the `group_members` join table.
 - [GameServer.Hooks](GameServer.Hooks.md): Behaviour for application-level hooks / callbacks.
 - [GameServer.Hooks.Default](GameServer.Hooks.Default.md): Default no-op implementation for GameServer.Hooks
 - [GameServer.Hooks.DynamicRpcs](GameServer.Hooks.DynamicRpcs.md): Runtime registry for *dynamic* RPC function names exported by hook plugins.

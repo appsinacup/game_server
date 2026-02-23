@@ -5,6 +5,69 @@ Shared types used across GameServer contexts.
 These types provide self-documenting function signatures for common
 patterns like pagination options and entity attributes.
 
+# `group_create_attrs`
+
+```elixir
+@type group_create_attrs() :: %{
+  :name =&gt; String.t(),
+  :title =&gt; String.t(),
+  optional(:description) =&gt; String.t(),
+  optional(:type) =&gt; String.t(),
+  optional(:max_members) =&gt; pos_integer(),
+  optional(:metadata) =&gt; map()
+}
+```
+
+Attributes for creating a new group.
+
+## Fields
+
+  * `:name` - Unique slug / identifier (required, 1-80 chars)
+  * `:title` - Display title (required, 1-80 chars)
+  * `:description` - Optional description (max 500 chars)
+  * `:type` - Visibility: `"public"`, `"private"`, or `"hidden"` (default: `"public"`)
+  * `:max_members` - Maximum members allowed (default: 100, max: 10000)
+  * `:metadata` - Server-managed arbitrary key-value data
+
+## Example
+
+    create_group(user_id, %{
+      name: "my-guild",
+      title: "My Guild",
+      type: "public",
+      max_members: 50,
+      metadata: %{"lang_tag" => "en"}
+    })
+
+# `group_update_attrs`
+
+```elixir
+@type group_update_attrs() :: %{
+  optional(:title) =&gt; String.t(),
+  optional(:description) =&gt; String.t(),
+  optional(:type) =&gt; String.t(),
+  optional(:max_members) =&gt; pos_integer(),
+  optional(:metadata) =&gt; map()
+}
+```
+
+Attributes for updating an existing group.
+
+## Fields
+
+  * `:title` - Display title
+  * `:description` - Description
+  * `:type` - Visibility type
+  * `:max_members` - Max members (cannot be less than current member count)
+  * `:metadata` - Server-managed metadata
+
+## Example
+
+    update_group(admin_id, group_id, %{
+      title: "New Title",
+      max_members: 200
+    })
+
 # `leaderboard_create_attrs`
 
 ```elixir

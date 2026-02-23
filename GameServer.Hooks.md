@@ -92,6 +92,14 @@ options. Hooks may accept either a map or keyword list for convenience.
 @callback after_user_register(GameServer.Accounts.User.t()) :: any()
 ```
 
+# `before_group_join`
+*optional* 
+
+```elixir
+@callback before_group_join(GameServer.Accounts.User.t(), term(), map()) ::
+  hook_result({GameServer.Accounts.User.t(), term(), map()})
+```
+
 # `before_kv_get`
 
 ```elixir

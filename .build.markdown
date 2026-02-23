@@ -13,6 +13,10 @@ GameServer.Cache.md
 GameServer.Env.md
 GameServer.Friends.Friendship.md
 GameServer.Friends.md
+GameServer.Groups.Group.md
+GameServer.Groups.GroupJoinRequest.md
+GameServer.Groups.GroupMember.md
+GameServer.Groups.md
 GameServer.Hooks.Default.md
 GameServer.Hooks.DynamicRpcs.md
 GameServer.Hooks.PluginBuilder.md
