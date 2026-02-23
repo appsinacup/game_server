@@ -4,6 +4,7 @@ defmodule GameServerWeb.AdminLive.Index do
   alias GameServer.Accounts
   alias GameServer.Accounts.User
   alias GameServer.Accounts.UserToken
+  alias GameServer.Groups
   alias GameServer.KV
   alias GameServer.Leaderboards.Leaderboard
   alias GameServer.Lobbies.Lobby
@@ -43,6 +44,9 @@ defmodule GameServerWeb.AdminLive.Index do
           </.link>
           <.link navigate={~p"/admin/notifications"} class="btn btn-primary">
             Notifications ({@notifications_count})
+          </.link>
+          <.link navigate={~p"/admin/groups"} class="btn btn-primary">
+            Groups ({@groups_count})
           </.link>
         </div>
 
@@ -108,6 +112,17 @@ defmodule GameServerWeb.AdminLive.Index do
                   <div class="font-semibold mt-2">Last 30 days: {@users_active_30d}</div>
                 </div>
               </div>
+
+              <div class="card bg-base-100 p-4">
+                <div class="text-sm font-semibold mb-2">Groups</div>
+                <div class="text-2xl font-bold">{@groups_count}</div>
+                <div class="text-xs text-base-content/60 mt-2 space-y-1">
+                  <div>Public: {@groups_public}</div>
+                  <div>Private: {@groups_private}</div>
+                  <div>Hidden: {@groups_hidden}</div>
+                  <div>Total members: {@groups_members}</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -141,6 +156,13 @@ defmodule GameServerWeb.AdminLive.Index do
 
     leaderboard_records = GameServer.Leaderboards.count_all_records()
 
+    # group stats
+    groups_count = Groups.count_all_groups()
+    groups_public = Groups.count_groups_by_type("public")
+    groups_private = Groups.count_groups_by_type("private")
+    groups_hidden = Groups.count_groups_by_type("hidden")
+    groups_members = Groups.count_all_members()
+
     # time-based metrics
     users_registered_1d = Accounts.count_users_registered_since(1)
     users_registered_7d = Accounts.count_users_registered_since(7)
@@ -169,6 +191,11 @@ defmodule GameServerWeb.AdminLive.Index do
        lobbies_passworded: lobbies_passworded,
        notifications_count: notifications_count,
        leaderboard_records: leaderboard_records,
+       groups_count: groups_count,
+       groups_public: groups_public,
+       groups_private: groups_private,
+       groups_hidden: groups_hidden,
+       groups_members: groups_members,
        users_registered_1d: users_registered_1d,
        users_registered_7d: users_registered_7d,
        users_registered_30d: users_registered_30d,

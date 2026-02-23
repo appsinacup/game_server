@@ -1,7 +1,7 @@
 {
   "title": "Gamend",
   "tagline": "Juego + Backend",
-  "description": "Servidor de juegos de código abierto con autenticación, usuarios, salas, scripting del servidor y portal de administración",
+  "description": "Servidor de juegos de código abierto con autenticación, usuarios, salas, grupos, amigos, notificaciones, clasificaciones, scripting del servidor y portal de administración",
   "css": "",
   "logo": "/images/logo.png",
   "banner": "/images/banner.png",
@@ -18,6 +18,9 @@
     { "title": "Autenticación", "description": "Admite múltiples métodos de autenticación: correo, enlace mágico, OAuth, JWT y sesión.", "icon": "hero-lock-closed" },
     { "title": "Usuarios", "description": "Registro de usuarios, inicio de sesión, restablecimiento de contraseña, verificación de correo y gestión de perfil.", "icon": "hero-users" },
     { "title": "Salas", "description": "Crea y administra salas de juego con ajustes personalizables y actualizaciones en tiempo real.", "icon": "hero-home" },
+    { "title": "Grupos", "description": "Comunidades persistentes de jugadores con visibilidad pública, privada y oculta. Notificaciones de grupo, invitaciones, solicitudes de unión y gestión de miembros.", "icon": "hero-user-group" },
+    { "title": "Amigos", "description": "Solicitudes de amistad, bloqueo y listas de amigos con presencia en tiempo real y notificaciones.", "icon": "hero-heart" },
+    { "title": "Notificaciones", "description": "Notificaciones push en tiempo real entre amigos y miembros del grupo. Persistentes para entrega sin conexión.", "icon": "hero-bell" },
     { "title": "Clasificaciones", "description": "Clasificaciones con autoridad del servidor y puntuación configurable, rankings y temporadas basadas en tiempo.", "icon": "hero-trophy" },
     { "title": "Almacenamiento clave-valor", "description": "Guarda y recupera datos personalizados de usuario en pares clave-valor.", "icon": "hero-paper-clip" },
     { "title": "Scripting del servidor", "description": "Escribe lógica personalizada del servidor de juego usando scripts en Elixir.", "icon": "hero-computer-desktop" },

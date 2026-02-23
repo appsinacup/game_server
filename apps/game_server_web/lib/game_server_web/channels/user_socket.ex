@@ -20,6 +20,12 @@ defmodule GameServerWeb.UserSocket do
   # Global lobbies channel for list updates and membership-change notifications
   channel "lobbies", GameServerWeb.LobbiesChannel
 
+  # Group channels - per-group events for members
+  channel "group:*", GameServerWeb.GroupChannel
+
+  # Global groups channel for list updates (new/updated/deleted groups)
+  channel "groups", GameServerWeb.GroupsChannel
+
   # Uncomment the following line to define a "room:*" topic
   # pointing to the `GameServerWeb.RoomChannel`:
   #

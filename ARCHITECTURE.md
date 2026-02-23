@@ -19,7 +19,7 @@ flowchart TB
     end
 
     subgraph Core["Business Layer"]
-        Domain["Domain Logic<br/>(Accounts, Lobbies,<br/>Friends, Leaderboards)"] ~~~ Auth["Authentication<br/>(JWT + Sessions)"] ~~~ Hooks["Server Scripting<br/>(Hooks)"]
+        Domain["Domain Logic<br/>(Accounts, Lobbies,<br/>Friends, Leaderboards,<br/>Notifications, Groups)"] ~~~ Auth["Authentication<br/>(JWT + Sessions)"] ~~~ Hooks["Server Scripting<br/>(Hooks)"]
     end
     end
 
@@ -150,7 +150,7 @@ This flow is simpler since there's no browser redirect or polling. It's ideal fo
 
 ## 3. Real-time Updates (PubSub)
 
-Real-time features use Phoenix PubSub for broadcasting events. Domain modules (Lobbies, Friends, Accounts) publish to topic-based channels. WebSocket channels and LiveViews subscribe to relevant topics to receive instant updates. This enables features like live lobby member lists or friend request notifications.
+Real-time features use Phoenix PubSub for broadcasting events. Domain modules (Lobbies, Friends, Accounts, Groups, Notifications) publish to topic-based channels. WebSocket channels and LiveViews subscribe to relevant topics to receive instant updates. This enables features like live lobby member lists, friend request notifications, group membership changes, and real-time notification delivery.
 
 ```mermaid
 flowchart LR
@@ -158,12 +158,16 @@ flowchart LR
         Lobbies["Lobbies Module"]
         Friends["Friends Module"]
         Accounts["Accounts Module"]
+        Groups["Groups Module"]
+        Notifications["Notifications Module"]
     end
 
     subgraph PubSub["Phoenix.PubSub"]
         LobbyTopic["lobby:{id}"]
         LobbiesTopic["lobbies"]
         UserTopic["user:{id}"]
+        GroupTopic["group:{id}"]
+        GroupsTopic["groups"]
     end
 
     subgraph Subscribers
@@ -176,10 +180,14 @@ flowchart LR
     Lobbies -->|broadcast| LobbyTopic & LobbiesTopic
     Friends -->|broadcast| UserTopic
     Accounts -->|broadcast| UserTopic
+    Groups -->|broadcast| GroupTopic & GroupsTopic
+    Notifications -->|broadcast| UserTopic
 
     LobbyTopic --> LobbyChannel
     LobbiesTopic --> LobbiesChannel & LiveViews
     UserTopic --> UserChannel
+    GroupTopic --> LiveViews
+    GroupsTopic --> LiveViews
 ```
 
 ## 3.1 Cache
@@ -233,7 +241,7 @@ The hooks system provides server-side scripting capabilities. Elixir modules pla
 
 ## 5. Database Schema
 
-The database schema supports the core features: users with authentication tokens and OAuth provider IDs, lobbies with membership tracking, friendships with request states, leaderboards with score records, and OAuth sessions for tracking authentication flows. Users can belong to one lobby at a time (via `lobby_id`), and all entities support JSON metadata for extensibility.
+The database schema supports the core features: users with authentication tokens and OAuth provider IDs, lobbies with membership tracking, friendships with request states, leaderboards with score records, notifications for user-to-user messaging, groups with persistent membership and role-based administration, and OAuth sessions for tracking authentication flows. Users can belong to one lobby at a time (via `lobby_id`) and multiple groups simultaneously, and all entities support JSON metadata for extensibility.
 
 ### 5.1 Users
 
@@ -391,7 +399,92 @@ erDiagram
     leaderboards ||--o{ leaderboard_records : "contains"
 ```
 
-### 5.5 OAuth Sessions
+### 5.5 Notifications
+
+User-to-user notifications with persistence and real-time delivery.
+
+**Features:**
+- **Friend-gated sending** - Only accepted friends can send notifications to each other
+- **Persistent storage** - Notifications remain until explicitly deleted by recipient
+- **Real-time delivery** - New notifications broadcast via PubSub to recipient's channel
+- **Admin bypass** - Admin API can create notifications between any users
+- **Metadata** - Arbitrary JSON per notification for app-specific data (e.g., lobby invites, group invites)
+- **Unique constraint** - Prevents duplicate notifications (same sender + recipient + title)
+
+```mermaid
+erDiagram
+    notifications {
+        id bigint PK
+        sender_id bigint FK
+        recipient_id bigint FK
+        title string
+        content string
+        metadata jsonb
+        inserted_at datetime
+    }
+
+    users ||--o{ notifications : "sends"
+    users ||--o{ notifications : "receives"
+```
+
+### 5.6 Groups
+
+Persistent communities with admin roles, join request workflows, and invitation flows.
+
+**Features:**
+- **Three visibility types:**
+  - `public` - Anyone can join directly
+  - `private` - Users request to join; admins approve or reject
+  - `hidden` - Only invited users can join (via notification system)
+- **Admin roles** - Group admins can kick members, rename group, change settings, promote/demote members
+- **Capacity limits** - Configurable max members (1-10,000)
+- **Unique names** - Group names (slugs) must be unique across the system
+- **Join requests** - Private groups support a request/approve/reject workflow
+- **Invitations** - Hidden groups use the notification system for invites
+- **Metadata** - Server-managed arbitrary JSON for game-specific data (e.g., lang_tag, region)
+- **Real-time updates** - Group changes broadcast to all members and global subscribers
+
+```mermaid
+erDiagram
+    groups {
+        id bigint PK
+        name string UK
+        title string
+        description string
+        type string
+        max_members integer
+        metadata jsonb
+        creator_id bigint FK
+        inserted_at datetime
+        updated_at datetime
+    }
+
+    group_members {
+        id bigint PK
+        group_id bigint FK
+        user_id bigint FK
+        role string
+        inserted_at datetime
+        updated_at datetime
+    }
+
+    group_join_requests {
+        id bigint PK
+        group_id bigint FK
+        user_id bigint FK
+        status string
+        inserted_at datetime
+        updated_at datetime
+    }
+
+    groups ||--o{ group_members : "has"
+    users ||--o{ group_members : "belongs to"
+    groups ||--o{ group_join_requests : "has"
+    users ||--o{ group_join_requests : "requests"
+    users ||--o{ groups : "creates"
+```
+
+### 5.7 OAuth Sessions
 
 Temporary sessions for OAuth polling flows used by game clients.
 
@@ -424,9 +517,11 @@ game_server/
 │   ├── game_server/           # Domain logic
 │   │   ├── accounts/          # User management
 │   │   ├── friends/           # Friend system
+│   │   ├── groups/            # Group system
 │   │   ├── hooks/             # Server scripting
 │   │   ├── leaderboards/      # Leaderboard system
 │   │   ├── lobbies/           # Lobby management
+│   │   ├── notifications/     # Notification system
 │   │   ├── oauth/             # OAuth helpers
 │   │   ├── schedule/          # Cron-like scheduling
 │   │   └── theme/             # UI theming

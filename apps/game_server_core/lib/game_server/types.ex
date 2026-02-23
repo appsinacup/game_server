@@ -248,4 +248,67 @@ defmodule GameServer.Types do
           optional(:password) => String.t() | nil,
           optional(:metadata) => map()
         }
+
+  # ---------------------------------------------------------------------------
+  # Group Attributes
+  # ---------------------------------------------------------------------------
+
+  @typedoc """
+  Attributes for creating a new group.
+
+  ## Fields
+
+    * `:name` - Unique slug / identifier (required, 1-80 chars)
+    * `:title` - Display title (required, 1-80 chars)
+    * `:description` - Optional description (max 500 chars)
+    * `:type` - Visibility: `"public"`, `"private"`, or `"hidden"` (default: `"public"`)
+    * `:max_members` - Maximum members allowed (default: 100, max: 10000)
+    * `:metadata` - Server-managed arbitrary key-value data
+
+  ## Example
+
+      create_group(user_id, %{
+        name: "my-guild",
+        title: "My Guild",
+        type: "public",
+        max_members: 50,
+        metadata: %{"lang_tag" => "en"}
+      })
+
+  """
+  @type group_create_attrs :: %{
+          required(:name) => String.t(),
+          required(:title) => String.t(),
+          optional(:description) => String.t(),
+          optional(:type) => String.t(),
+          optional(:max_members) => pos_integer(),
+          optional(:metadata) => map()
+        }
+
+  @typedoc """
+  Attributes for updating an existing group.
+
+  ## Fields
+
+    * `:title` - Display title
+    * `:description` - Description
+    * `:type` - Visibility type
+    * `:max_members` - Max members (cannot be less than current member count)
+    * `:metadata` - Server-managed metadata
+
+  ## Example
+
+      update_group(admin_id, group_id, %{
+        title: "New Title",
+        max_members: 200
+      })
+
+  """
+  @type group_update_attrs :: %{
+          optional(:title) => String.t(),
+          optional(:description) => String.t(),
+          optional(:type) => String.t(),
+          optional(:max_members) => pos_integer(),
+          optional(:metadata) => map()
+        }
 end

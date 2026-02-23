@@ -1,7 +1,7 @@
 {
   "title": "Gamend",
   "tagline": "Game + Backend",
-  "description": "Open source game server with authentication, users, lobbies, server scripting and admin portal",
+  "description": "Open source game server with authentication, users, lobbies, groups, friends, notifications, leaderboards, server scripting and admin portal",
   "css": "",
   "logo": "/images/logo.png",
   "banner": "/images/banner.png",
@@ -18,6 +18,9 @@
     { "title": "Authentication", "description": "Supports multiple authentication methods: Email, Magic-link, Oauth, JWT and Session.", "icon": "hero-lock-closed" },
     { "title": "Users", "description": "User registration, login, password reset, email verification, profile management.", "icon": "hero-users" },
     { "title": "Lobbies", "description": "Create and manage game lobbies with customizable settings and real-time updates.", "icon": "hero-home" },
+    { "title": "Groups", "description": "Persistent player communities with public, private, and hidden visibility. Group notifications, invites, join requests, and member management.", "icon": "hero-user-group" },
+    { "title": "Friends", "description": "Friend requests, blocking, and friend lists with real-time presence and notifications.", "icon": "hero-heart" },
+    { "title": "Notifications", "description": "Real-time push notifications between friends and group members. Persisted for offline delivery.", "icon": "hero-bell" },
     { "title": "Leaderboards", "description": "Server-authoritative leaderboards with configurable scoring, rankings, and time-based seasons.", "icon": "hero-trophy" },
     { "title": "Key Value Storage", "description": "Store and retrieve custom user data key-value pairs.", "icon": "hero-paper-clip" },
     { "title": "Server Scripting", "description": "Write custom game server logic using Elixir scripts.", "icon": "hero-computer-desktop" },

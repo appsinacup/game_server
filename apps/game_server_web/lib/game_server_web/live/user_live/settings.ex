@@ -3,6 +3,8 @@ defmodule GameServerWeb.UserLive.Settings do
 
   alias GameServer.Accounts
   alias GameServer.Friends
+  alias GameServer.Groups
+  alias GameServer.Groups.Group
   alias GameServer.KV
   alias GameServer.Notifications
 
@@ -515,6 +517,801 @@ defmodule GameServerWeb.UserLive.Settings do
         <% end %>
       </div>
 
+      <%!-- Groups section --%>
+      <div class="card bg-base-200 p-4 rounded-lg mt-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="font-semibold text-lg">Groups</div>
+            <div class="text-sm text-base-content/70">
+              Manage your groups, browse and join new ones
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <%= if @group_detail do %>
+              <button phx-click="group_close_detail" class="btn btn-sm btn-ghost">
+                <.icon name="hero-arrow-left" class="w-4 h-4" /> Back
+              </button>
+            <% end %>
+            <button
+              phx-click="groups_toggle_create"
+              class={[
+                "btn btn-sm",
+                if(@groups_show_create, do: "btn-ghost", else: "btn-primary")
+              ]}
+            >
+              <%= if @groups_show_create do %>
+                Cancel
+              <% else %>
+                Create Group
+              <% end %>
+            </button>
+          </div>
+        </div>
+
+        <%!-- Create group form --%>
+        <%= if @groups_show_create do %>
+          <div class="mt-4 border border-base-300 rounded-lg p-4 bg-base-100">
+            <div class="font-semibold text-sm mb-3">New Group</div>
+            <.form
+              for={@create_group_form}
+              id="create-group-form"
+              phx-change="group_validate_create"
+              phx-submit="group_create"
+            >
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <.input
+                  field={@create_group_form[:name]}
+                  type="text"
+                  label="Name"
+                  required
+                />
+                <.input
+                  field={@create_group_form[:description]}
+                  type="text"
+                  label="Description"
+                />
+                <.input
+                  field={@create_group_form[:type]}
+                  type="select"
+                  label="Type"
+                  options={[{"Public", "public"}, {"Private", "private"}, {"Hidden", "hidden"}]}
+                />
+                <.input
+                  field={@create_group_form[:max_members]}
+                  type="number"
+                  label="Max members"
+                />
+              </div>
+              <div class="mt-3">
+                <button type="submit" class="btn btn-sm btn-primary">
+                  Create
+                </button>
+              </div>
+            </.form>
+          </div>
+        <% end %>
+
+        <%!-- Group Detail View --%>
+        <%= if @group_detail && !@groups_show_create do %>
+          <div class="mt-4">
+            <%!-- Edit form (admin only) --%>
+            <%= if @group_editing && @group_detail_role == "admin" do %>
+              <.form
+                for={@group_edit_form}
+                id="group-edit-form"
+                phx-change="group_validate_edit"
+                phx-submit="group_save_edit"
+                class="space-y-3"
+              >
+                <.input field={@group_edit_form[:name]} label="Name" type="text" />
+                <.input field={@group_edit_form[:description]} label="Description" type="textarea" />
+                <.input
+                  field={@group_edit_form[:type]}
+                  label="Type"
+                  type="select"
+                  options={[{"Public", "public"}, {"Private", "private"}, {"Hidden", "hidden"}]}
+                />
+                <.input
+                  field={@group_edit_form[:max_members]}
+                  label="Max Members"
+                  type="number"
+                />
+                <div class="flex gap-2">
+                  <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                  <button
+                    type="button"
+                    phx-click="group_toggle_edit"
+                    class="btn btn-sm btn-ghost"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </.form>
+            <% else %>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-2 text-sm">
+                  <div><strong>Name:</strong> {@group_detail.name}</div>
+                  <div><strong>Description:</strong> {@group_detail.description || "-"}</div>
+                  <div>
+                    <strong>Type:</strong>
+                    <span class={[
+                      "badge badge-sm",
+                      cond do
+                        @group_detail.type == "public" -> "badge-success"
+                        @group_detail.type == "private" -> "badge-warning"
+                        true -> "badge-error"
+                      end
+                    ]}>
+                      {@group_detail.type}
+                    </span>
+                  </div>
+                  <div><strong>Max Members:</strong> {@group_detail.max_members}</div>
+                  <div>
+                    <strong>Created:</strong> {Calendar.strftime(
+                      @group_detail.inserted_at,
+                      "%Y-%m-%d %H:%M"
+                    )}
+                  </div>
+                </div>
+                <div class="space-y-2 text-sm">
+                  <div>
+                    <strong>Your Role:</strong>
+                    <span class={[
+                      "badge badge-sm",
+                      if(@group_detail_role == "admin", do: "badge-info", else: "badge-ghost")
+                    ]}>
+                      {@group_detail_role || "not a member"}
+                    </span>
+                  </div>
+                  <div class="flex gap-2">
+                    <button
+                      :if={@group_detail_role == "admin"}
+                      phx-click="group_toggle_edit"
+                      class="btn btn-xs btn-outline btn-info"
+                    >
+                      Edit Group
+                    </button>
+                    <button
+                      phx-click="group_leave"
+                      phx-value-group_id={@group_detail.id}
+                      class="btn btn-xs btn-outline btn-error"
+                      data-confirm="Leave this group?"
+                    >
+                      Leave Group
+                    </button>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+
+            <%!-- Members list --%>
+            <div class="mt-4">
+              <div class="font-semibold text-sm">Members ({@group_members_total})</div>
+              <div class="overflow-x-auto mt-2">
+                <table id="group-members-table" class="table table-zebra w-full">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Role</th>
+                      <th>Joined</th>
+                      <%= if @group_detail_role == "admin" do %>
+                        <th>Actions</th>
+                      <% end %>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      :for={m <- @group_members}
+                      id={"gm-" <> to_string(m.id)}
+                    >
+                      <td>
+                        <span
+                          class={[
+                            "inline-block w-2 h-2 rounded-full",
+                            if(m.user.is_online, do: "bg-green-500", else: "bg-gray-400")
+                          ]}
+                          title={if(m.user.is_online, do: "Online", else: "Offline")}
+                        />
+                      </td>
+                      <td class="text-sm">{m.user.display_name || "User #{m.user_id}"}</td>
+                      <td class="text-sm text-base-content/70">{m.user.email}</td>
+                      <td>
+                        <span class={[
+                          "badge badge-sm",
+                          if(m.role == "admin", do: "badge-info", else: "badge-ghost")
+                        ]}>
+                          {m.role}
+                        </span>
+                      </td>
+                      <td class="text-sm whitespace-nowrap">
+                        {Calendar.strftime(m.inserted_at, "%Y-%m-%d %H:%M")}
+                      </td>
+                      <%= if @group_detail_role == "admin" do %>
+                        <td class="flex gap-1">
+                          <%= if m.user_id != @user.id do %>
+                            <%= if m.role == "member" do %>
+                              <button
+                                phx-click="group_promote"
+                                phx-value-group_id={@group_detail.id}
+                                phx-value-user_id={m.user_id}
+                                class="btn btn-xs btn-outline btn-primary"
+                              >
+                                Promote
+                              </button>
+                            <% else %>
+                              <button
+                                phx-click="group_demote"
+                                phx-value-group_id={@group_detail.id}
+                                phx-value-user_id={m.user_id}
+                                class="btn btn-xs btn-outline btn-warning"
+                              >
+                                Demote
+                              </button>
+                            <% end %>
+                            <button
+                              phx-click="group_kick"
+                              phx-value-group_id={@group_detail.id}
+                              phx-value-user_id={m.user_id}
+                              class="btn btn-xs btn-outline btn-error"
+                              data-confirm={"Kick #{m.user.display_name || m.user.email}?"}
+                            >
+                              Kick
+                            </button>
+                          <% else %>
+                            <span class="text-xs text-base-content/50">You</span>
+                          <% end %>
+                        </td>
+                      <% end %>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div :if={@group_members_total_pages > 1} class="mt-2 flex gap-2 items-center">
+                <button
+                  phx-click="group_members_prev"
+                  class="btn btn-xs"
+                  disabled={@group_members_page <= 1}
+                >
+                  Prev
+                </button>
+                <div class="text-xs text-base-content/70">
+                  page {@group_members_page} / {@group_members_total_pages} ({@group_members_total} total)
+                </div>
+                <button
+                  phx-click="group_members_next"
+                  class="btn btn-xs"
+                  disabled={
+                    @group_members_page >= @group_members_total_pages ||
+                      @group_members_total_pages == 0
+                  }
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+
+            <%!-- Incoming Join Requests (admin only) --%>
+            <div :if={@group_detail_role == "admin" && @group_join_requests != []} class="mt-6">
+              <h4 class="font-semibold text-base mb-3">
+                Pending Join Requests ({length(@group_join_requests)})
+              </h4>
+              <div class="space-y-2">
+                <div
+                  :for={req <- @group_join_requests}
+                  class="flex items-center justify-between p-2 rounded-lg bg-base-200/60"
+                >
+                  <div class="flex items-center gap-2">
+                    <div class="text-sm font-medium">
+                      {req.user.display_name || req.user.email}
+                    </div>
+                    <span class="text-xs text-base-content/50">
+                      #{req.user_id} &mdash; {Calendar.strftime(req.inserted_at, "%Y-%m-%d %H:%M")}
+                    </span>
+                  </div>
+                  <div class="flex gap-1">
+                    <button
+                      phx-click="group_approve_request"
+                      phx-value-request_id={req.id}
+                      class="btn btn-xs btn-primary"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      phx-click="group_reject_request"
+                      phx-value-request_id={req.id}
+                      class="btn btn-xs btn-outline btn-error"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <%!-- Send Notification to Group (any member) --%>
+            <div class="mt-6">
+              <h4 class="font-semibold text-base mb-3">Send Notification</h4>
+              <.form
+                for={@group_notify_form}
+                id="group-notify-form"
+                phx-submit="group_notify"
+                class="flex flex-col gap-2"
+              >
+                <div class="flex gap-2 items-end">
+                  <div class="w-1/3">
+                    <.input
+                      field={@group_notify_form[:title]}
+                      type="text"
+                      placeholder="Title (optional)"
+                    />
+                  </div>
+                  <div class="flex-1">
+                    <.input
+                      field={@group_notify_form[:content]}
+                      type="text"
+                      placeholder="Type a message to all members..."
+                    />
+                  </div>
+                  <button type="submit" class="btn btn-sm btn-primary">
+                    <.icon name="hero-megaphone-mini" class="w-4 h-4 mr-1" /> Send
+                  </button>
+                </div>
+              </.form>
+            </div>
+
+            <%!-- Invite Members (admin only) --%>
+            <div :if={@group_detail_role == "admin"} class="mt-6">
+              <h4 class="font-semibold text-base mb-3">Invite Members</h4>
+
+              <%!-- Search by name, email, or user ID --%>
+              <div class="form-control mb-3">
+                <label class="label">
+                  <span class="label-text">Search users by name, email, or ID</span>
+                </label>
+                <input
+                  id="invite-search-input"
+                  type="text"
+                  phx-keyup="group_invite_search"
+                  phx-debounce="300"
+                  value={@invite_search_query}
+                  placeholder="Type to search..."
+                  class="input input-bordered input-sm w-full max-w-xs"
+                  autocomplete="off"
+                />
+              </div>
+
+              <%!-- Search results --%>
+              <div :if={@invite_search_results != []} class="mb-4">
+                <div class="text-xs font-medium text-base-content/60 mb-1">Search Results</div>
+                <div class="space-y-1 max-h-48 overflow-y-auto">
+                  <div
+                    :for={u <- @invite_search_results}
+                    class="flex items-center justify-between p-2 rounded-lg bg-base-200/60"
+                  >
+                    <div class="flex items-center gap-2">
+                      <div class={[
+                        "w-2 h-2 rounded-full",
+                        if(Map.get(u, :is_online, false),
+                          do: "bg-success",
+                          else: "bg-base-content/30"
+                        )
+                      ]} />
+                      <div>
+                        <span class="text-sm font-medium">{u.display_name || u.email}</span>
+                        <span class="text-xs text-base-content/50 ml-1">#{u.id}</span>
+                      </div>
+                    </div>
+                    <button
+                      phx-click="group_invite_user"
+                      phx-value-group_id={@group_detail.id}
+                      phx-value-user_id={u.id}
+                      class="btn btn-xs btn-primary"
+                    >
+                      Invite
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                :if={@invite_search_query != "" && @invite_search_results == []}
+                class="mb-4 text-sm text-base-content/50"
+              >
+                No users found matching "{@invite_search_query}"
+              </div>
+
+              <%!-- Quick invite from friends --%>
+              <div :if={@invite_friends != []} class="mt-3">
+                <div class="text-xs font-medium text-base-content/60 mb-1">
+                  Friends not in this group
+                </div>
+                <div class="space-y-1 max-h-48 overflow-y-auto">
+                  <div
+                    :for={f <- @invite_friends}
+                    class="flex items-center justify-between p-2 rounded-lg bg-base-200/40"
+                  >
+                    <div class="flex items-center gap-2">
+                      <div class={[
+                        "w-2 h-2 rounded-full",
+                        if(Map.get(f, :is_online, false),
+                          do: "bg-success",
+                          else: "bg-base-content/30"
+                        )
+                      ]} />
+                      <span class="text-sm">{f.display_name || f.email}</span>
+                    </div>
+                    <button
+                      phx-click="group_invite_user"
+                      phx-value-group_id={@group_detail.id}
+                      phx-value-user_id={f.id}
+                      class="btn btn-xs btn-outline btn-primary"
+                    >
+                      Invite
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div :if={@invite_friends == []} class="mt-3 text-sm text-base-content/40">
+                All your friends are already members of this group.
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <%!-- Tabs (hidden when viewing detail) --%>
+        <%= if !@group_detail && !@groups_show_create do %>
+          <%!-- Sub-tabs --%>
+          <div class="flex gap-2 mt-4 border-b border-base-300 pb-2">
+            <button
+              :for={
+                {tab, label} <- [
+                  {"my_groups", "My Groups (#{@groups_count})"},
+                  {"browse", "Browse Groups"},
+                  {"invitations", "Invitations (#{length(@group_invitations)})"},
+                  {"requests", "My Requests (#{length(@group_pending_requests)})"},
+                  {"sent_invitations", "Sent Invitations (#{length(@group_sent_invitations)})"}
+                ]
+              }
+              phx-click="groups_tab"
+              phx-value-tab={tab}
+              class={[
+                "btn btn-sm",
+                if(@groups_tab == tab, do: "btn-primary", else: "btn-ghost")
+              ]}
+            >
+              {label}
+            </button>
+          </div>
+
+          <%!-- My Groups tab --%>
+          <%= if @groups_tab == "my_groups" do %>
+            <%= if @groups_count == 0 do %>
+              <div class="mt-4 text-sm text-base-content/60">
+                You are not a member of any groups yet.
+              </div>
+            <% else %>
+              <div class="overflow-x-auto mt-4">
+                <table id="my-groups-table" class="table table-zebra w-full">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Max Members</th>
+                      <th>Role</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      :for={{group, role} <- @my_groups}
+                      id={"my-group-" <> to_string(group.id)}
+                    >
+                      <td class="text-sm">
+                        <button
+                          phx-click="group_view_detail"
+                          phx-value-group_id={group.id}
+                          class="link link-primary font-medium"
+                        >
+                          {group.name}
+                        </button>
+                      </td>
+                      <td>
+                        <span class={[
+                          "badge badge-sm",
+                          cond do
+                            group.type == "public" -> "badge-success"
+                            group.type == "private" -> "badge-warning"
+                            true -> "badge-error"
+                          end
+                        ]}>
+                          {group.type}
+                        </span>
+                      </td>
+                      <td class="text-sm">{group.max_members}</td>
+                      <td>
+                        <span class={[
+                          "badge badge-sm",
+                          if(role == "admin", do: "badge-info", else: "badge-ghost")
+                        ]}>
+                          {role}
+                        </span>
+                      </td>
+                      <td class="flex gap-1">
+                        <button
+                          phx-click="group_view_detail"
+                          phx-value-group_id={group.id}
+                          class="btn btn-xs btn-ghost"
+                        >
+                          View
+                        </button>
+                        <button
+                          phx-click="group_leave"
+                          phx-value-group_id={group.id}
+                          class="btn btn-xs btn-outline btn-error"
+                          data-confirm="Leave this group?"
+                        >
+                          Leave
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            <% end %>
+          <% end %>
+
+          <%!-- Browse Groups tab --%>
+          <%= if @groups_tab == "browse" do %>
+            <div class="mt-4">
+              <.form
+                for={@browse_groups_form}
+                id="browse-groups-form"
+                phx-change="browse_groups_filter"
+                phx-submit="browse_groups_filter"
+              >
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <.input
+                    field={@browse_groups_form[:name]}
+                    type="text"
+                    label="Name"
+                    phx-debounce="300"
+                  />
+                  <.input
+                    field={@browse_groups_form[:type]}
+                    type="select"
+                    label="Type"
+                    options={[{"All", ""}, {"Public", "public"}, {"Private", "private"}]}
+                  />
+                  <div class="flex items-end">
+                    <button type="button" phx-click="browse_groups_clear" class="btn btn-sm btn-ghost">
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              </.form>
+            </div>
+
+            <div class="overflow-x-auto mt-4">
+              <table id="browse-groups-table" class="table table-zebra w-full">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Max Members</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <%= if length(@browse_groups) == 0 do %>
+                    <tr>
+                      <td colspan="4" class="text-center text-sm text-base-content/60">
+                        No groups found.
+                      </td>
+                    </tr>
+                  <% end %>
+                  <tr
+                    :for={group <- @browse_groups}
+                    id={"browse-group-" <> to_string(group.id)}
+                  >
+                    <td class="text-sm font-medium">{group.name}</td>
+                    <td>
+                      <span class={[
+                        "badge badge-sm",
+                        if(group.type == "public", do: "badge-success", else: "badge-warning")
+                      ]}>
+                        {group.type}
+                      </span>
+                    </td>
+                    <td class="text-sm">{group.max_members}</td>
+                    <td>
+                      <%= cond do %>
+                        <% Enum.any?(@my_groups, fn {g, _role} -> g.id == group.id end) -> %>
+                          <span class="badge badge-sm badge-ghost">Joined</span>
+                        <% Enum.any?(@group_pending_requests, fn r -> r.group_id == group.id end) -> %>
+                          <span class="badge badge-sm badge-warning">Pending</span>
+                        <% group.type == "public" -> %>
+                          <button
+                            phx-click="group_join"
+                            phx-value-group_id={group.id}
+                            class="btn btn-xs btn-primary"
+                          >
+                            Join
+                          </button>
+                        <% group.type == "private" -> %>
+                          <button
+                            phx-click="group_request_join"
+                            phx-value-group_id={group.id}
+                            class="btn btn-xs btn-outline btn-primary"
+                          >
+                            Request
+                          </button>
+                        <% true -> %>
+                          <span class="text-xs text-base-content/50">-</span>
+                      <% end %>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="mt-4 flex gap-2 items-center">
+              <button
+                phx-click="browse_groups_prev"
+                class="btn btn-xs"
+                disabled={@browse_groups_page <= 1}
+              >
+                Prev
+              </button>
+              <div class="text-xs text-base-content/70">
+                page {@browse_groups_page} / {@browse_groups_total_pages} ({@browse_groups_total} total)
+              </div>
+              <button
+                phx-click="browse_groups_next"
+                class="btn btn-xs"
+                disabled={
+                  @browse_groups_page >= @browse_groups_total_pages || @browse_groups_total_pages == 0
+                }
+              >
+                Next
+              </button>
+            </div>
+          <% end %>
+
+          <%!-- Invitations tab --%>
+          <%= if @groups_tab == "invitations" do %>
+            <%= if length(@group_invitations) == 0 do %>
+              <div class="mt-4 text-sm text-base-content/60">No pending invitations.</div>
+            <% else %>
+              <div class="overflow-x-auto mt-4">
+                <table id="group-invitations-table" class="table table-zebra w-full">
+                  <thead>
+                    <tr>
+                      <th>Group</th>
+                      <th>From</th>
+                      <th>Date</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      :for={inv <- @group_invitations}
+                      id={"group-inv-" <> to_string(inv.id)}
+                    >
+                      <td class="text-sm font-mono">{inv.group_name || "Group ##{inv.group_id}"}</td>
+                      <td class="text-sm font-mono">{inv.sender_id}</td>
+                      <td class="text-sm whitespace-nowrap">
+                        {Calendar.strftime(inv.inserted_at, "%Y-%m-%d %H:%M")}
+                      </td>
+                      <td>
+                        <button
+                          phx-click="group_accept_invite"
+                          phx-value-group_id={inv.group_id}
+                          class="btn btn-xs btn-primary"
+                        >
+                          Accept
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            <% end %>
+          <% end %>
+
+          <%!-- My Pending Requests tab --%>
+          <%= if @groups_tab == "requests" do %>
+            <%= if length(@group_pending_requests) == 0 do %>
+              <div class="mt-4 text-sm text-base-content/60">No pending join requests.</div>
+            <% else %>
+              <div class="overflow-x-auto mt-4">
+                <table id="group-requests-table" class="table table-zebra w-full">
+                  <thead>
+                    <tr>
+                      <th>Group</th>
+                      <th>Status</th>
+                      <th>Requested</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      :for={req <- @group_pending_requests}
+                      id={"group-req-" <> to_string(req.id)}
+                    >
+                      <td class="text-sm font-mono">{req.group.name}</td>
+                      <td>
+                        <span class="badge badge-sm badge-warning">{req.status}</span>
+                      </td>
+                      <td class="text-sm whitespace-nowrap">
+                        {Calendar.strftime(req.inserted_at, "%Y-%m-%d %H:%M")}
+                      </td>
+                      <td>
+                        <button
+                          phx-click="group_cancel_request"
+                          phx-value-request_id={req.id}
+                          class="btn btn-xs btn-outline btn-error"
+                          data-confirm="Cancel this join request?"
+                        >
+                          Cancel
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            <% end %>
+          <% end %>
+
+          <%!-- Sent Invitations tab --%>
+          <%= if @groups_tab == "sent_invitations" do %>
+            <%= if @group_sent_invitations == [] do %>
+              <div class="mt-4 text-sm text-base-content/60">No sent invitations.</div>
+            <% else %>
+              <div class="overflow-x-auto mt-4">
+                <table id="group-sent-invitations-table" class="table table-zebra w-full">
+                  <thead>
+                    <tr>
+                      <th>Group</th>
+                      <th>Invited User</th>
+                      <th>Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      :for={inv <- @group_sent_invitations}
+                      id={"group-sent-inv-" <> to_string(inv.id)}
+                    >
+                      <td class="text-sm font-mono">{inv.group_name || "Group ##{inv.group_id}"}</td>
+                      <td class="text-sm font-mono">
+                        {inv.recipient_name || "User ##{inv.recipient_id}"}
+                      </td>
+                      <td class="text-sm whitespace-nowrap">
+                        {Calendar.strftime(inv.inserted_at, "%Y-%m-%d %H:%M")}
+                      </td>
+                      <td>
+                        <button
+                          phx-click="group_cancel_invite"
+                          phx-value-invite_id={inv.id}
+                          class="btn btn-xs btn-outline btn-error"
+                          data-confirm="Cancel this invitation?"
+                        >
+                          Cancel
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+
       <div class="card bg-base-200 p-4 rounded-lg">
         <div class="font-semibold">Linked Accounts</div>
         <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -765,13 +1562,47 @@ defmodule GameServerWeb.UserLive.Settings do
       |> assign(:notifications, [])
       |> assign(:notif_count, 0)
       |> assign(:notif_total_pages, 0)
+      |> assign(:groups_tab, "my_groups")
+      |> assign(:my_groups, [])
+      |> assign(:groups_count, 0)
+      |> assign(:group_invitations, [])
+      |> assign(:group_pending_requests, [])
+      |> assign(:group_sent_invitations, [])
+      |> assign(:browse_groups, [])
+      |> assign(:browse_groups_page, 1)
+      |> assign(:browse_groups_page_size, 25)
+      |> assign(:browse_groups_total, 0)
+      |> assign(:browse_groups_total_pages, 0)
+      |> assign(:browse_groups_filters, %{})
+      |> assign(
+        :browse_groups_form,
+        to_form(%{"name" => "", "title" => "", "type" => ""}, as: :browse_groups)
+      )
+      |> assign(:groups_show_create, false)
+      |> assign(:create_group_form, to_form(Groups.change_group(%Group{}), as: :group))
+      |> assign(:group_detail, nil)
+      |> assign(:group_detail_role, nil)
+      |> assign(:group_members, [])
+      |> assign(:group_members_page, 1)
+      |> assign(:group_members_page_size, 25)
+      |> assign(:group_members_total, 0)
+      |> assign(:group_members_total_pages, 0)
+      |> assign(:invite_search_query, "")
+      |> assign(:invite_search_results, [])
+      |> assign(:invite_friends, [])
+      |> assign(:group_editing, false)
+      |> assign(:group_edit_form, nil)
+      |> assign(:group_join_requests, [])
+      |> assign(:group_notify_form, to_form(%{"content" => "", "title" => ""}, as: :notify))
 
     socket = reload_kv_entries(socket)
     socket = reload_notifications(socket)
+    socket = reload_groups(socket)
 
     if connected?(socket) do
       Friends.subscribe_user(user.id)
       Notifications.subscribe(user.id)
+      Groups.subscribe_groups()
       Phoenix.PubSub.subscribe(GameServer.PubSub, "user:#{user.id}")
     end
 
@@ -1203,6 +2034,404 @@ defmodule GameServerWeb.UserLive.Settings do
          |> assign(blocked_page: page)
          |> refresh_friend_lists(get_user_from_scope(socket.assigns))}
 
+      # -----------------------------------------------------------------------
+      # Groups events
+      # -----------------------------------------------------------------------
+
+      {"groups_tab", %{"tab" => tab}} ->
+        {:noreply, assign(socket, :groups_tab, tab)}
+
+      {"groups_toggle_create", _} ->
+        show = !socket.assigns.groups_show_create
+
+        form =
+          if show,
+            do: to_form(Groups.change_group(%Group{}), as: :group),
+            else: socket.assigns.create_group_form
+
+        {:noreply, assign(socket, groups_show_create: show, create_group_form: form)}
+
+      {"group_validate_create", %{"group" => group_params}} ->
+        changeset =
+          Groups.change_group(%Group{}, group_params)
+          |> Map.put(:action, :validate)
+
+        {:noreply, assign(socket, create_group_form: to_form(changeset, as: :group))}
+
+      {"group_create", %{"group" => group_params}} ->
+        case Groups.create_group(user.id, group_params) do
+          {:ok, _group} ->
+            {:noreply,
+             socket
+             |> put_flash(:info, "Group created")
+             |> assign(:groups_show_create, false)
+             |> assign(:create_group_form, to_form(Groups.change_group(%Group{}), as: :group))
+             |> assign(:groups_tab, "my_groups")
+             |> reload_groups()}
+
+          {:error, changeset} ->
+            {:noreply, assign(socket, create_group_form: to_form(changeset, as: :group))}
+        end
+
+      {"group_leave", %{"group_id" => gid}} ->
+        gid = if is_binary(gid), do: String.to_integer(gid), else: gid
+
+        case Groups.leave_group(user.id, gid) do
+          {:ok, _} ->
+            {:noreply,
+             socket
+             |> put_flash(:info, "Left group")
+             |> assign(:group_detail, nil)
+             |> assign(:group_detail_role, nil)
+             |> reload_groups()}
+
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, "Could not leave group: #{inspect(reason)}")}
+        end
+
+      {"group_join", %{"group_id" => gid}} ->
+        gid = if is_binary(gid), do: String.to_integer(gid), else: gid
+
+        case Groups.join_group(user.id, gid) do
+          {:ok, _} ->
+            {:noreply,
+             socket
+             |> put_flash(:info, "Joined group")
+             |> reload_groups()}
+
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, "Could not join group: #{inspect(reason)}")}
+        end
+
+      {"group_request_join", %{"group_id" => gid}} ->
+        gid = if is_binary(gid), do: String.to_integer(gid), else: gid
+
+        case Groups.request_join(user.id, gid) do
+          {:ok, _} ->
+            {:noreply,
+             socket
+             |> put_flash(:info, "Join request sent")
+             |> reload_groups()}
+
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, "Could not request to join: #{inspect(reason)}")}
+        end
+
+      {"group_accept_invite", %{"group_id" => gid}} ->
+        gid = if is_binary(gid), do: String.to_integer(gid), else: gid
+
+        case Groups.accept_invite(user.id, gid) do
+          {:ok, _} ->
+            {:noreply,
+             socket
+             |> put_flash(:info, "Invitation accepted")
+             |> reload_groups()}
+
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, "Could not accept invite: #{inspect(reason)}")}
+        end
+
+      {"group_cancel_request", %{"request_id" => rid}} ->
+        rid = if is_binary(rid), do: String.to_integer(rid), else: rid
+
+        case Groups.cancel_join_request(user.id, rid) do
+          {:ok, _} ->
+            {:noreply,
+             socket
+             |> put_flash(:info, "Join request cancelled")
+             |> reload_groups()}
+
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, "Could not cancel request: #{inspect(reason)}")}
+        end
+
+      {"group_cancel_invite", %{"invite_id" => iid}} ->
+        iid = if is_binary(iid), do: String.to_integer(iid), else: iid
+
+        case Groups.cancel_invite(user.id, iid) do
+          :ok ->
+            {:noreply,
+             socket
+             |> put_flash(:info, "Invitation cancelled")
+             |> reload_groups()}
+
+          {:error, reason} ->
+            {:noreply,
+             put_flash(socket, :error, "Could not cancel invitation: #{inspect(reason)}")}
+        end
+
+      {"group_approve_request", %{"request_id" => rid}} ->
+        rid = if is_binary(rid), do: String.to_integer(rid), else: rid
+
+        case Groups.approve_join_request(user.id, rid) do
+          {:ok, _} ->
+            {:noreply,
+             socket
+             |> put_flash(:info, "Request approved")
+             |> assign(
+               :group_join_requests,
+               Enum.reject(socket.assigns.group_join_requests, &(&1.id == rid))
+             )
+             |> reload_group_members()
+             |> reload_groups()}
+
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, "Could not approve: #{inspect(reason)}")}
+        end
+
+      {"group_reject_request", %{"request_id" => rid}} ->
+        rid = if is_binary(rid), do: String.to_integer(rid), else: rid
+
+        case Groups.reject_join_request(user.id, rid) do
+          {:ok, _} ->
+            {:noreply,
+             socket
+             |> put_flash(:info, "Request rejected")
+             |> assign(
+               :group_join_requests,
+               Enum.reject(socket.assigns.group_join_requests, &(&1.id == rid))
+             )}
+
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, "Could not reject: #{inspect(reason)}")}
+        end
+
+      {"browse_groups_filter", %{"browse_groups" => filter_params}} ->
+        name = String.trim(filter_params["name"] || "")
+        type = filter_params["type"] || ""
+
+        filters = %{}
+        filters = if name != "", do: Map.put(filters, "name", name), else: filters
+        filters = if type != "", do: Map.put(filters, "type", type), else: filters
+
+        {:noreply,
+         socket
+         |> assign(:browse_groups_filters, filters)
+         |> assign(:browse_groups_page, 1)
+         |> assign(:browse_groups_form, to_form(filter_params, as: :browse_groups))
+         |> reload_browse_groups()}
+
+      {"browse_groups_clear", _} ->
+        {:noreply,
+         socket
+         |> assign(:browse_groups_filters, %{})
+         |> assign(:browse_groups_page, 1)
+         |> assign(
+           :browse_groups_form,
+           to_form(%{"name" => "", "title" => "", "type" => ""}, as: :browse_groups)
+         )
+         |> reload_browse_groups()}
+
+      {"browse_groups_prev", _} ->
+        page = max(1, socket.assigns.browse_groups_page - 1)
+
+        {:noreply,
+         socket
+         |> assign(:browse_groups_page, page)
+         |> reload_browse_groups()}
+
+      {"browse_groups_next", _} ->
+        page = socket.assigns.browse_groups_page + 1
+
+        {:noreply,
+         socket
+         |> assign(:browse_groups_page, page)
+         |> reload_browse_groups()}
+
+      {"group_view_detail", %{"group_id" => gid}} ->
+        gid = if is_binary(gid), do: String.to_integer(gid), else: gid
+        handle_group_view_detail(socket, gid)
+
+      {"group_close_detail", _} ->
+        {:noreply,
+         socket
+         |> assign(:group_detail, nil)
+         |> assign(:group_detail_role, nil)
+         |> assign(:group_members, [])
+         |> assign(:group_members_total, 0)
+         |> assign(:group_members_total_pages, 0)
+         |> assign(:invite_search_query, "")
+         |> assign(:invite_search_results, [])
+         |> assign(:invite_friends, [])
+         |> assign(:group_editing, false)
+         |> assign(:group_edit_form, nil)
+         |> assign(:group_join_requests, [])}
+
+      {"group_toggle_edit", _} ->
+        editing = !socket.assigns.group_editing
+
+        form =
+          if editing do
+            group = socket.assigns.group_detail
+            to_form(Groups.change_group(group), as: :group)
+          else
+            nil
+          end
+
+        {:noreply, assign(socket, group_editing: editing, group_edit_form: form)}
+
+      {"group_validate_edit", %{"group" => group_params}} ->
+        changeset =
+          Groups.change_group(socket.assigns.group_detail, group_params)
+          |> Map.put(:action, :validate)
+
+        {:noreply, assign(socket, group_edit_form: to_form(changeset, as: :group))}
+
+      {"group_save_edit", %{"group" => group_params}} ->
+        group = socket.assigns.group_detail
+
+        case Groups.update_group(user.id, group.id, group_params) do
+          {:ok, updated} ->
+            {:noreply,
+             socket
+             |> put_flash(:info, "Group updated")
+             |> assign(:group_detail, updated)
+             |> assign(:group_editing, false)
+             |> assign(:group_edit_form, nil)
+             |> reload_groups()}
+
+          {:error, %Ecto.Changeset{} = changeset} ->
+            {:noreply, assign(socket, group_edit_form: to_form(changeset, as: :group))}
+
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, "Could not update: #{inspect(reason)}")}
+        end
+
+      {"group_kick", %{"group_id" => gid, "user_id" => uid}} ->
+        gid = if is_binary(gid), do: String.to_integer(gid), else: gid
+        uid = if is_binary(uid), do: String.to_integer(uid), else: uid
+
+        case Groups.kick_member(user.id, gid, uid) do
+          {:ok, _} ->
+            {:noreply,
+             socket
+             |> put_flash(:info, "Member kicked")
+             |> reload_groups()
+             |> reload_group_members()}
+
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, "Could not kick: #{inspect(reason)}")}
+        end
+
+      {"group_promote", %{"group_id" => gid, "user_id" => uid}} ->
+        gid = if is_binary(gid), do: String.to_integer(gid), else: gid
+        uid = if is_binary(uid), do: String.to_integer(uid), else: uid
+
+        case Groups.promote_member(user.id, gid, uid) do
+          {:ok, _} ->
+            {:noreply,
+             socket
+             |> put_flash(:info, "Member promoted to admin")
+             |> reload_group_members()}
+
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, "Could not promote: #{inspect(reason)}")}
+        end
+
+      {"group_demote", %{"group_id" => gid, "user_id" => uid}} ->
+        gid = if is_binary(gid), do: String.to_integer(gid), else: gid
+        uid = if is_binary(uid), do: String.to_integer(uid), else: uid
+
+        case Groups.demote_member(user.id, gid, uid) do
+          {:ok, _} ->
+            {:noreply,
+             socket
+             |> put_flash(:info, "Member demoted to member")
+             |> reload_group_members()}
+
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, "Could not demote: #{inspect(reason)}")}
+        end
+
+      {"group_members_prev", _} ->
+        page = max(1, socket.assigns.group_members_page - 1)
+
+        {:noreply,
+         socket
+         |> assign(:group_members_page, page)
+         |> reload_group_members()}
+
+      {"group_members_next", _} ->
+        page = socket.assigns.group_members_page + 1
+
+        {:noreply,
+         socket
+         |> assign(:group_members_page, page)
+         |> reload_group_members()}
+
+      {"group_invite_search", %{"value" => query}} ->
+        query = String.trim(query)
+
+        results =
+          if query == "" do
+            []
+          else
+            group_id = socket.assigns.group_detail.id
+
+            all_member_ids =
+              Groups.get_group_members(group_id)
+              |> Enum.map(& &1.user_id)
+              |> MapSet.new()
+
+            Accounts.search_users(query, page: 1, page_size: 10)
+            |> Enum.reject(fn u -> MapSet.member?(all_member_ids, u.id) end)
+          end
+
+        {:noreply,
+         socket
+         |> assign(:invite_search_query, query)
+         |> assign(:invite_search_results, results)}
+
+      {"group_invite_user", %{"group_id" => gid, "user_id" => uid}} ->
+        gid = if is_binary(gid), do: String.to_integer(gid), else: gid
+        uid = if is_binary(uid), do: String.to_integer(uid), else: uid
+
+        case Groups.invite_to_group(user.id, gid, uid) do
+          {:ok, _} ->
+            {:noreply,
+             socket
+             |> put_flash(:info, "Invitation sent")
+             |> assign(
+               :invite_search_results,
+               Enum.reject(socket.assigns.invite_search_results, &(&1.id == uid))
+             )
+             |> assign(
+               :invite_friends,
+               Enum.reject(socket.assigns.invite_friends, &(&1.id == uid))
+             )}
+
+          {:error, :already_member} ->
+            {:noreply, put_flash(socket, :error, "User is already a member")}
+
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, "Could not invite: #{inspect(reason)}")}
+        end
+
+      {"group_notify", %{"notify" => notify_params}} ->
+        group = socket.assigns.group_detail
+        content = String.trim(Map.get(notify_params, "content", ""))
+        title = String.trim(Map.get(notify_params, "title", ""))
+
+        if group && content != "" do
+          metadata = if title != "", do: %{"title" => title}, else: %{}
+
+          case Groups.notify_group(user.id, group.id, content, metadata) do
+            {:ok, sent} ->
+              {:noreply,
+               socket
+               |> put_flash(:info, "Notification sent to #{sent} member(s)")
+               |> assign(
+                 :group_notify_form,
+                 to_form(%{"content" => "", "title" => ""}, as: :notify)
+               )}
+
+            {:error, reason} ->
+              {:noreply, put_flash(socket, :error, "Could not notify: #{inspect(reason)}")}
+          end
+        else
+          {:noreply, put_flash(socket, :error, "Please enter a message")}
+        end
+
       _ ->
         {:noreply, socket}
     end
@@ -1382,7 +2611,24 @@ defmodule GameServerWeb.UserLive.Settings do
 
   # Notification PubSub — refresh notification list when a new one arrives
   def handle_info({:new_notification, _notification}, socket) do
-    {:noreply, reload_notifications(socket)}
+    {:noreply, reload_notifications(socket) |> reload_groups()}
+  end
+
+  # Groups PubSub — refresh groups when something changes
+  def handle_info({event, _payload}, socket)
+      when event in [
+             :group_created,
+             :group_updated,
+             :group_deleted,
+             :member_joined,
+             :member_left,
+             :member_kicked,
+             :member_promoted,
+             :member_demoted,
+             :join_request_approved,
+             :join_request_rejected
+           ] do
+    {:noreply, reload_groups(socket)}
   end
 
   ## handle_params is implemented after event handlers to keep handle_event/3
@@ -1450,6 +2696,112 @@ defmodule GameServerWeb.UserLive.Settings do
       {:error, _} ->
         {:noreply,
          put_flash(socket, :error, gettext("Failed to delete the conflicting account."))}
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # Groups helpers
+  # ---------------------------------------------------------------------------
+
+  defp reload_groups(socket) do
+    user = get_user_from_scope(socket.assigns)
+
+    if user do
+      my_groups = Groups.list_user_groups_with_role(user.id)
+      groups_count = Groups.count_user_groups(user.id)
+      invitations = Groups.list_invitations(user.id)
+      pending_requests = Groups.list_user_pending_requests(user.id)
+      sent_invitations = Groups.list_sent_invitations(user.id)
+
+      socket
+      |> assign(:my_groups, my_groups)
+      |> assign(:groups_count, groups_count)
+      |> assign(:group_invitations, invitations)
+      |> assign(:group_pending_requests, pending_requests)
+      |> assign(:group_sent_invitations, sent_invitations)
+      |> reload_browse_groups()
+    else
+      socket
+    end
+  end
+
+  defp reload_browse_groups(socket) do
+    page = socket.assigns.browse_groups_page
+    page_size = socket.assigns.browse_groups_page_size
+    filters = socket.assigns.browse_groups_filters
+
+    groups = Groups.list_groups(filters, page: page, page_size: page_size)
+    total = Groups.count_list_groups(filters)
+    total_pages = if page_size > 0, do: div(total + page_size - 1, page_size), else: 0
+
+    socket
+    |> assign(:browse_groups, groups)
+    |> assign(:browse_groups_total, total)
+    |> assign(:browse_groups_total_pages, total_pages)
+  end
+
+  defp handle_group_view_detail(socket, gid) do
+    user = socket.assigns.current_scope.user
+
+    case Groups.get_group(gid) do
+      nil ->
+        {:noreply, put_flash(socket, :error, "Group not found")}
+
+      group ->
+        role =
+          case Groups.get_membership(gid, user.id) do
+            %{role: r} -> r
+            _ -> nil
+          end
+
+        member_ids =
+          Groups.get_group_members(gid) |> Enum.map(& &1.user_id) |> MapSet.new()
+
+        friends_not_in_group =
+          Friends.list_friends_for_user(user.id)
+          |> Enum.reject(fn f -> MapSet.member?(member_ids, f.id) end)
+
+        join_requests = load_join_requests(role, user.id, gid)
+
+        {:noreply,
+         socket
+         |> assign(:group_detail, group)
+         |> assign(:group_detail_role, role)
+         |> assign(:group_members_page, 1)
+         |> assign(:invite_search_query, "")
+         |> assign(:invite_search_results, [])
+         |> assign(:invite_friends, friends_not_in_group)
+         |> assign(:group_join_requests, join_requests)
+         |> reload_group_members()}
+    end
+  end
+
+  defp load_join_requests("admin", user_id, group_id) do
+    case Groups.list_join_requests(user_id, group_id) do
+      {:ok, reqs} -> reqs
+      _ -> []
+    end
+  end
+
+  defp load_join_requests(_role, _user_id, _group_id), do: []
+
+  defp reload_group_members(socket) do
+    group = socket.assigns.group_detail
+
+    if group do
+      page = socket.assigns.group_members_page
+      page_size = socket.assigns.group_members_page_size
+
+      members = Groups.get_group_members_paginated(group.id, page: page, page_size: page_size)
+      total = Groups.count_group_members(group.id)
+      total_pages = if page_size > 0, do: div(total + page_size - 1, page_size), else: 0
+
+      socket
+      |> assign(:group_members, members)
+      |> assign(:group_members_total, total)
+      |> assign(:group_members_total_pages, total_pages)
+    else
+      socket
     end
   end
 end

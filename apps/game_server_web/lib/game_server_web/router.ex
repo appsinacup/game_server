@@ -82,6 +82,26 @@ defmodule GameServerWeb.Router do
     get "/leaderboards/:id", LeaderboardController, :show
     get "/leaderboards/:id/records", LeaderboardController, :records
     get "/leaderboards/:id/records/around/:user_id", LeaderboardController, :around
+
+    # Groups (public read)
+    get "/groups", GroupController, :index
+  end
+
+  # Groups - authenticated routes that must be defined before /groups/:id
+  scope "/api/v1", GameServerWeb.Api.V1, as: :api_v1 do
+    pipe_through [:api, :api_auth]
+
+    get "/groups/invitations", GroupController, :invitations
+    get "/groups/me", GroupController, :my_groups
+    get "/groups/sent_invitations", GroupController, :sent_invitations
+    delete "/groups/sent_invitations/:invite_id", GroupController, :cancel_invite
+  end
+
+  scope "/api/v1", GameServerWeb.Api.V1, as: :api_v1 do
+    pipe_through :api
+
+    get "/groups/:id", GroupController, :show
+    get "/groups/:id/members", GroupController, :members
   end
 
   # Key/value retrieval (authenticated only, hooks still control public/private semantics)
@@ -122,6 +142,23 @@ defmodule GameServerWeb.Router do
     get "/notifications", NotificationController, :index
     post "/notifications", NotificationController, :create
     delete "/notifications", NotificationController, :delete
+    # Groups API (authenticated)
+    post "/groups", GroupController, :create
+    patch "/groups/:id", GroupController, :update
+    delete "/groups/:id", GroupController, :delete
+    post "/groups/:id/join", GroupController, :join
+    post "/groups/:id/leave", GroupController, :leave
+    post "/groups/:id/kick", GroupController, :kick
+    post "/groups/:id/promote", GroupController, :promote
+    post "/groups/:id/demote", GroupController, :demote
+    post "/groups/:id/request_join", GroupController, :request_join
+    get "/groups/:id/join_requests", GroupController, :join_requests
+    post "/groups/:id/join_requests/:request_id/approve", GroupController, :approve_request
+    post "/groups/:id/join_requests/:request_id/reject", GroupController, :reject_request
+    delete "/groups/:id/join_requests/:request_id", GroupController, :cancel_request
+    post "/groups/:id/invite", GroupController, :invite
+    post "/groups/:id/accept_invite", GroupController, :accept_invite
+    post "/groups/:id/notify", GroupController, :notify_group
     # Hooks API - list available hook functions and call them
     get "/hooks", HookController, :index
     post "/hooks/call", HookController, :invoke
@@ -164,6 +201,11 @@ defmodule GameServerWeb.Router do
     get "/notifications", NotificationController, :index
     post "/notifications", NotificationController, :create
     delete "/notifications/:id", NotificationController, :delete
+
+    # Groups
+    get "/groups", GroupController, :index
+    patch "/groups/:id", GroupController, :update
+    delete "/groups/:id", GroupController, :delete
 
     # Sessions
     get "/sessions", SessionController, :index
@@ -217,6 +259,7 @@ defmodule GameServerWeb.Router do
       live "/admin/users", AdminLive.Users, :index
       live "/admin/sessions", AdminLive.Sessions, :index
       live "/admin/notifications", AdminLive.Notifications, :index
+      live "/admin/groups", AdminLive.Groups, :index
     end
   end
 

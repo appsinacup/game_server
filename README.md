@@ -2,7 +2,7 @@
 
 -----
 
-**Open source _game server_ with _authentication, users, lobbies, server scripting and an admin portal_.**
+**Open source _game server_ with _authentication, users, lobbies, groups, notifications, server scripting and an admin portal_.**
 
 Game + Backend = Gamend
 
@@ -60,6 +60,31 @@ Matchmaking and lobbies:
 
 - Host-managed behavior, max users, hidden/locked states, and password protection.
 - Public APIs are provided for listing, creating, joining, leaving, updating and kicking.
+
+## Notifications
+
+User-to-user notification system:
+
+- Send notifications between users (sender must be a friend of the recipient).
+- Persistent storage with read/unread tracking.
+- Pagination and filtering support.
+- Admin API for creating server-wide notifications (bypasses friend requirement).
+- Real-time delivery via PubSub to recipient's channel.
+
+## Groups
+
+Persistent communities with role-based administration:
+
+- **Public groups** – anyone can join directly.
+- **Private groups** – users send a join request; group admins approve or reject.
+- **Hidden groups** – invite-only; admins invite users via the notification system.
+- Configurable max members (default 100, 1–10 000).
+- Admin roles: kick members, rename group, change max members, promote/demote.
+- Cannot reduce max members below current member count.
+- Unique group names enforced at the database level.
+- Server-settable JSON metadata (similar to lobbies).
+- Filter/search by name, title, type, metadata (`lang_tag`), and member count range.
+- Cached with version-key invalidation for fast reads.
 
 ## Server scripting (Elixir)
 

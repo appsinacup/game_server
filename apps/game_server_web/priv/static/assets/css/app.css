@@ -54,6 +54,8 @@
     --text-xs--line-height: calc(1 / 0.75);
     --text-sm: 0.875rem;
     --text-sm--line-height: calc(1.25 / 0.875);
+    --text-base: 1rem;
+    --text-base--line-height: calc(1.5 / 1);
     --text-lg: 1.125rem;
     --text-lg--line-height: calc(1.75 / 1.125);
     --text-xl: 1.25rem;
@@ -1960,6 +1962,9 @@
   .mt-12 {
     margin-top: calc(var(--spacing) * 12);
   }
+  .mr-1 {
+    margin-right: calc(var(--spacing) * 1);
+  }
   .mr-2 {
     margin-right: calc(var(--spacing) * 2);
   }
@@ -2109,6 +2114,17 @@
     width: 1.5rem;
     height: 1.5rem;
   }
+  .hero-bell {
+    --hero-bell: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke-width%3D%221.5%22%20stroke%3D%22currentColor%22%20aria-hidden%3D%22true%22%20data-slot%3D%22icon%22%3E%20%20%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M14.857%2017.082a23.848%2023.848%200%200%200%205.454-1.31A8.967%208.967%200%200%201%2018%209.75V9A6%206%200%200%200%206%209v.75a8.967%208.967%200%200%201-2.312%206.022c1.733.64%203.56%201.085%205.455%201.31m5.714%200a24.255%2024.255%200%200%201-5.714%200m5.714%200a3%203%200%201%201-5.714%200%22%2F%3E%3C%2Fsvg%3E');
+    -webkit-mask: var(--hero-bell);
+    mask: var(--hero-bell);
+    mask-repeat: no-repeat;
+    background-color: currentColor;
+    vertical-align: middle;
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
   .hero-book-open {
     --hero-book-open: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke-width%3D%221.5%22%20stroke%3D%22currentColor%22%20aria-hidden%3D%22true%22%20data-slot%3D%22icon%22%3E%20%20%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M12%206.042A8.967%208.967%200%200%200%206%203.75c-1.052%200-2.062.18-3%20.512v14.25A8.987%208.987%200%200%201%206%2018c2.305%200%204.408.867%206%202.292m0-14.25a8.966%208.966%200%200%201%206-2.292c1.052%200%202.062.18%203%20.512v14.25A8.987%208.987%200%200%200%2018%2018a8.967%208.967%200%200%200-6%202.292m0-14.25v14.25%22%2F%3E%3C%2Fsvg%3E');
     -webkit-mask: var(--hero-book-open);
@@ -2197,6 +2213,17 @@
     width: 1.5rem;
     height: 1.5rem;
   }
+  .hero-heart {
+    --hero-heart: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke-width%3D%221.5%22%20stroke%3D%22currentColor%22%20aria-hidden%3D%22true%22%20data-slot%3D%22icon%22%3E%20%20%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M21%208.25c0-2.485-2.099-4.5-4.688-4.5-1.935%200-3.597%201.126-4.312%202.733-.715-1.607-2.377-2.733-4.313-2.733C5.1%203.75%203%205.765%203%208.25c0%207.22%209%2012%209%2012s9-4.78%209-12Z%22%2F%3E%3C%2Fsvg%3E');
+    -webkit-mask: var(--hero-heart);
+    mask: var(--hero-heart);
+    mask-repeat: no-repeat;
+    background-color: currentColor;
+    vertical-align: middle;
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
   .hero-home {
     --hero-home: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke-width%3D%221.5%22%20stroke%3D%22currentColor%22%20aria-hidden%3D%22true%22%20data-slot%3D%22icon%22%3E%20%20%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22m2.25%2012%208.954-8.955c.44-.439%201.152-.439%201.591%200L21.75%2012M4.5%209.75v10.125c0%20.621.504%201.125%201.125%201.125H9.75v-4.875c0-.621.504-1.125%201.125-1.125h2.25c.621%200%201.125.504%201.125%201.125V21h4.125c.621%200%201.125-.504%201.125-1.125V9.75M8.25%2021h8.25%22%2F%3E%3C%2Fsvg%3E');
     -webkit-mask: var(--hero-home);
@@ -2229,6 +2256,17 @@
     display: inline-block;
     width: 1.5rem;
     height: 1.5rem;
+  }
+  .hero-megaphone-mini {
+    --hero-megaphone-mini: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22currentColor%22%20aria-hidden%3D%22true%22%20data-slot%3D%22icon%22%3E%20%20%3Cpath%20d%3D%22M13.92%203.845a19.362%2019.362%200%200%201-6.3%201.98C6.765%205.942%205.89%206%205%206a4%204%200%200%200-.504%207.969%2015.97%2015.97%200%200%200%201.271%203.34c.397.771%201.342%201%202.05.59l.867-.5c.726-.419.94-1.32.588-2.02-.166-.331-.315-.666-.448-1.004%201.8.357%203.511.963%205.096%201.78A17.964%2017.964%200%200%200%2015%2010c0-2.162-.381-4.235-1.08-6.155ZM15.243%203.097A19.456%2019.456%200%200%201%2016.5%2010c0%202.43-.445%204.758-1.257%206.904l-.03.077a.75.75%200%200%200%201.401.537%2020.903%2020.903%200%200%200%201.312-5.745%202%202%200%200%200%200-3.546%2020.902%2020.902%200%200%200-1.312-5.745.75.75%200%200%200-1.4.537l.029.078Z%22%2F%3E%3C%2Fsvg%3E');
+    -webkit-mask: var(--hero-megaphone-mini);
+    mask: var(--hero-megaphone-mini);
+    mask-repeat: no-repeat;
+    background-color: currentColor;
+    vertical-align: middle;
+    display: inline-block;
+    width: 1.25rem;
+    height: 1.25rem;
   }
   .hero-moon-micro {
     --hero-moon-micro: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22currentColor%22%20aria-hidden%3D%22true%22%20data-slot%3D%22icon%22%3E%20%20%3Cpath%20d%3D%22M14.438%2010.148c.19-.425-.321-.787-.748-.601A5.5%205.5%200%200%201%206.453%202.31c.186-.427-.176-.938-.6-.748a6.501%206.501%200%201%200%208.585%208.586Z%22%2F%3E%3C%2Fsvg%3E');
@@ -2333,6 +2371,17 @@
     --hero-trophy: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke-width%3D%221.5%22%20stroke%3D%22currentColor%22%20aria-hidden%3D%22true%22%20data-slot%3D%22icon%22%3E%20%20%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M16.5%2018.75h-9m9%200a3%203%200%200%201%203%203h-15a3%203%200%200%201%203-3m9%200v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5%2018.75v-3.375c0-.621.504-1.125%201.125-1.125h.872m5.007%200H9.497m5.007%200a7.454%207.454%200%200%201-.982-3.172M9.497%2014.25a7.454%207.454%200%200%200%20.981-3.172M5.25%204.236c-.982.143-1.954.317-2.916.52A6.003%206.003%200%200%200%207.73%209.728M5.25%204.236V4.5c0%202.108.966%203.99%202.48%205.228M5.25%204.236V2.721C7.456%202.41%209.71%202.25%2012%202.25c2.291%200%204.545.16%206.75.47v1.516M7.73%209.728a6.726%206.726%200%200%200%202.748%201.35m8.272-6.842V4.5c0%202.108-.966%203.99-2.48%205.228m2.48-5.492a46.32%2046.32%200%200%201%202.916.52%206.003%206.003%200%200%201-5.395%204.972m0%200a6.726%206.726%200%200%201-2.749%201.35m0%200a6.772%206.772%200%200%201-3.044%200%22%2F%3E%3C%2Fsvg%3E');
     -webkit-mask: var(--hero-trophy);
     mask: var(--hero-trophy);
+    mask-repeat: no-repeat;
+    background-color: currentColor;
+    vertical-align: middle;
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .hero-user-group {
+    --hero-user-group: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke-width%3D%221.5%22%20stroke%3D%22currentColor%22%20aria-hidden%3D%22true%22%20data-slot%3D%22icon%22%3E%20%20%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M18%2018.72a9.094%209.094%200%200%200%203.741-.479%203%203%200%200%200-4.682-2.72m.94%203.198.001.031c0%20.225-.012.447-.037.666A11.944%2011.944%200%200%201%2012%2021c-2.17%200-4.207-.576-5.963-1.584A6.062%206.062%200%200%201%206%2018.719m12%200a5.971%205.971%200%200%200-.941-3.197m0%200A5.995%205.995%200%200%200%2012%2012.75a5.995%205.995%200%200%200-5.058%202.772m0%200a3%203%200%200%200-4.681%202.72%208.986%208.986%200%200%200%203.74.477m.94-3.197a5.971%205.971%200%200%200-.94%203.197M15%206.75a3%203%200%201%201-6%200%203%203%200%200%201%206%200Zm6%203a2.25%202.25%200%201%201-4.5%200%202.25%202.25%200%200%201%204.5%200Zm-13.5%200a2.25%202.25%200%201%201-4.5%200%202.25%202.25%200%200%201%204.5%200Z%22%2F%3E%3C%2Fsvg%3E');
+    -webkit-mask: var(--hero-user-group);
+    mask: var(--hero-user-group);
     mask-repeat: no-repeat;
     background-color: currentColor;
     vertical-align: middle;
@@ -2611,6 +2660,9 @@
   }
   .w-1\/2 {
     width: calc(1/2 * 100%);
+  }
+  .w-1\/3 {
+    width: calc(1/3 * 100%);
   }
   .w-2 {
     width: calc(var(--spacing) * 2);
@@ -2898,6 +2950,9 @@
   .overflow-x-auto {
     overflow-x: auto;
   }
+  .overflow-y-auto {
+    overflow-y: auto;
+  }
   .menu-sm {
     :where(li:not(.menu-title) > *:not(ul, details, .menu-title)), :where(li:not(.menu-title) > details > summary:not(.menu-title)) {
       border-radius: var(--radius-field);
@@ -2943,6 +2998,10 @@
   .border-t {
     border-top-style: var(--tw-border-style);
     border-top-width: 1px;
+  }
+  .border-b {
+    border-bottom-style: var(--tw-border-style);
+    border-bottom-width: 1px;
   }
   .badge-ghost {
     border-color: var(--color-base-200);
@@ -3017,6 +3076,12 @@
   .bg-base-200 {
     background-color: var(--color-base-200);
   }
+  .bg-base-200\/40 {
+    background-color: var(--color-base-200);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-base-200) 40%, transparent);
+    }
+  }
   .bg-base-200\/60 {
     background-color: var(--color-base-200);
     @supports (color: color-mix(in lab, red, red)) {
@@ -3025,6 +3090,12 @@
   }
   .bg-base-300 {
     background-color: var(--color-base-300);
+  }
+  .bg-base-content\/30 {
+    background-color: var(--color-base-content);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-base-content) 30%, transparent);
+    }
   }
   .bg-blue-50 {
     background-color: var(--color-blue-50);
@@ -3067,6 +3138,9 @@
   }
   .bg-red-50 {
     background-color: var(--color-red-50);
+  }
+  .bg-success {
+    background-color: var(--color-success);
   }
   .bg-warning\/10 {
     background-color: var(--color-warning);
@@ -3165,6 +3239,9 @@
   .pr-2 {
     padding-right: calc(var(--spacing) * 2);
   }
+  .pb-2 {
+    padding-bottom: calc(var(--spacing) * 2);
+  }
   .pb-4 {
     padding-bottom: calc(var(--spacing) * 4);
   }
@@ -3193,6 +3270,10 @@
   .text-3xl {
     font-size: var(--text-3xl);
     line-height: var(--tw-leading, var(--text-3xl--line-height));
+  }
+  .text-base {
+    font-size: var(--text-base);
+    line-height: var(--tw-leading, var(--text-base--line-height));
   }
   .text-lg {
     font-size: var(--text-lg);
@@ -3297,6 +3378,12 @@
     color: var(--color-base-content);
     @supports (color: color-mix(in lab, red, red)) {
       color: color-mix(in oklab, var(--color-base-content) 30%, transparent);
+    }
+  }
+  .text-base-content\/40 {
+    color: var(--color-base-content);
+    @supports (color: color-mix(in lab, red, red)) {
+      color: color-mix(in oklab, var(--color-base-content) 40%, transparent);
     }
   }
   .text-base-content\/50 {

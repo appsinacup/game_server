@@ -1476,6 +1476,14 @@ defmodule GameServer.Accounts do
       _ -> :ok
     end
 
+    # Clean up group memberships (admin transfer + empty-group deletion)
+    # before the DB cascade silently removes the membership rows.
+    try do
+      _ = GameServer.Groups.handle_user_deletion(user.id)
+    rescue
+      _ -> :ok
+    end
+
     # Mark the user offline and notify friends before deleting the row.
     # Re-fetch to get current is_online state (the passed struct may be stale).
     fresh_user = Repo.get(User, user.id)
