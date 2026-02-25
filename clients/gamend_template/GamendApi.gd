@@ -433,7 +433,7 @@ func groups_cancel_join_request(
 func groups_create_group(createGroupRequest: CreateGroupRequest):
 	return await _call_api(GroupsApi.new(_config), "create_group", [createGroupRequest])
 
-# Demote admin to member
+## Demote admin to member
 func groups_demote_group_member(
 	# id: int   Eg: 56
 	# Group ID
@@ -443,14 +443,14 @@ func groups_demote_group_member(
 	demoteGroupMemberRequest: DemoteGroupMemberRequest,):
 	return await _call_api(GroupsApi.new(_config), "demote_group_member", [id, demoteGroupMemberRequest])
 
-# Get group details
+## Get group details
 func groups_get_group(
 	# id: int   Eg: 56
 	# Group ID
 	id: int,):
 	return await _call_api(GroupsApi.new(_config), "get_group", [id])
 
-# Invite a user to a hidden group (admin only)
+## Invite a user to a hidden group (admin only)
 func groups_invite_to_group(
 	# id: int   Eg: 56
 	# Group ID
@@ -458,14 +458,14 @@ func groups_invite_to_group(
 	inviteToGroupRequest: InviteToGroupRequest):
 	return await _call_api(GroupsApi.new(_config), "invite_to_group", [id, inviteToGroupRequest])
 
-# Join a group
+## Join a group
 func groups_join_group(
 	# id: int   Eg: 56
 	# Group ID
 	id: int,):
 	return await _call_api(GroupsApi.new(_config), "join_group", [id])
 
-# Kick a member (admin only)
+## Kick a member (admin only)
 func groups_kick_group_member(
 	# id: int   Eg: 56
 	# Group ID
@@ -473,14 +473,14 @@ func groups_kick_group_member(
 	kickGroupMemberRequest: KickGroupMemberRequest):
 	return await _call_api(GroupsApi.new(_config), "kick_group_member", [id, kickGroupMemberRequest])
 
-# Leave a group
+## Leave a group
 func groups_leave_group(
 	# id: int   Eg: 56
 	# Group ID
 	id: int,):
 	return await _call_api(GroupsApi.new(_config), "leave_group", [id])
 
-# List my group invitations
+## List my group invitations
 func groups_list_group_invitations(
 	# page: int   Eg: 56
 	# Page number (default: 1)
@@ -490,7 +490,7 @@ func groups_list_group_invitations(
 	pageSize = null,):
 	return await _call_api(GroupsApi.new(_config), "list_group_invitations", [page, pageSize])
 
-# List group members
+## List group members
 func groups_list_group_members(
 	# id: int   Eg: 56
 	# Group ID
@@ -503,7 +503,7 @@ func groups_list_group_members(
 	pageSize = null,):
 	return await _call_api(GroupsApi.new(_config), "list_group_members", [id, page, pageSize])
 
-# List groups
+## List groups
 func groups_list_groups(
 	# title: String = ""   Eg: title_example
 	# Search by title (prefix)
@@ -531,7 +531,7 @@ func groups_list_groups(
 	pageSize = null,):
 	return await _call_api(GroupsApi.new(_config), "list_groups", [title, type, minMembers, maxMembers, metadataKey, metadataValue, page, pageSize])
 
-# List pending join requests (admin only)
+## List pending join requests (admin only)
 func groups_list_join_requests(
 	# id: int   Eg: 56
 	# Group ID
@@ -544,7 +544,7 @@ func groups_list_join_requests(
 	pageSize = null,):
 	return await _call_api(GroupsApi.new(_config), "list_join_requests", [id, page, pageSize])
 
-# List groups I belong to
+## List groups I belong to
 func groups_list_my_groups(
 	# page: int   Eg: 56
 	# Page number (default: 1)
@@ -554,7 +554,7 @@ func groups_list_my_groups(
 	pageSize = null,):
 	return await _call_api(GroupsApi.new(_config), "list_my_groups", [page, pageSize])
 
-# List group invitations I have sent
+## List group invitations I have sent
 func groups_list_sent_invitations(
 	# page: int   Eg: 56
 	# Page number (default: 1)
@@ -564,7 +564,7 @@ func groups_list_sent_invitations(
 	pageSize = null,):
 	return await _call_api(GroupsApi.new(_config), "list_sent_invitations", [page, pageSize])
 
-# Send a notification to all group members
+## Send a notification to all group members
 func groups_notify_group(
 	# id: int   Eg: 56
 	# Group ID
@@ -572,7 +572,7 @@ func groups_notify_group(
 	notifyGroupRequest: NotifyGroupRequest):
 	return await _call_api(GroupsApi.new(_config), "notify_group", [id, notifyGroupRequest])
 
-# Promote member to admin
+## Promote member to admin
 func groups_promote_group_member(
 	# id: int   Eg: 56
 	# Group ID
@@ -580,7 +580,7 @@ func groups_promote_group_member(
 	promoteGroupMemberRequest: PromoteGroupMemberRequest):
 	return await _call_api(GroupsApi.new(_config), "promote_group_member", [id, promoteGroupMemberRequest])
 
-# Reject a join request (admin only)
+## Reject a join request (admin only)
 func groups_reject_join_request(
 	# id: int   Eg: 56
 	# Group ID
@@ -590,7 +590,7 @@ func groups_reject_join_request(
 	requestId: int,):
 	return await _call_api(GroupsApi.new(_config), "reject_join_request", [id, requestId])
 
-# Update a group (admin only)
+## Update a group (admin only)
 func groups_update_group(
 	# id: int   Eg: 56
 	# Group ID
