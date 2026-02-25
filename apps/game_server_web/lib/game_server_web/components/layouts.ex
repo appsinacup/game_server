@@ -105,6 +105,11 @@ defmodule GameServerWeb.Layouts do
                 {gettext("Leaderboards")}
               </.link>
             </li>
+            <li>
+              <.link href={~p"/groups"} class="btn btn-outline">
+                {gettext("Groups")}
+              </.link>
+            </li>
             <%= if @current_scope && @current_scope.user.is_admin do %>
               <li>
                 <.link href={~p"/admin"} class="btn btn-outline">{gettext("Admin")}</.link>
@@ -128,6 +133,11 @@ defmodule GameServerWeb.Layouts do
             <li>
               <.link href={~p"/leaderboards"} class="btn btn-outline">
                 {gettext("Leaderboards")}
+              </.link>
+            </li>
+            <li>
+              <.link href={~p"/groups"} class="btn btn-outline">
+                {gettext("Groups")}
               </.link>
             </li>
           <% end %>
@@ -173,6 +183,9 @@ defmodule GameServerWeb.Layouts do
                 <li>
                   <a href={~p"/leaderboards"} class="btn btn-outline">{gettext("Leaderboards")}</a>
                 </li>
+                <li>
+                  <a href={~p"/groups"} class="btn btn-outline">{gettext("Groups")}</a>
+                </li>
                 <%= if @current_scope && @current_scope.user.is_admin do %>
                   <li><a href={~p"/lobbies"} class="btn btn-outline">{gettext("Lobbies")}</a></li>
                   <li><a href={~p"/admin"} class="btn btn-outline">{gettext("Admin")}</a></li>
@@ -189,6 +202,9 @@ defmodule GameServerWeb.Layouts do
                 </li>
                 <li>
                   <a href={~p"/leaderboards"} class="btn btn-outline">{gettext("Leaderboards")}</a>
+                </li>
+                <li>
+                  <a href={~p"/groups"} class="btn btn-outline">{gettext("Groups")}</a>
                 </li>
                 <li class="menu-title">
                   <div class="flex justify-end items-center w-full pr-2">

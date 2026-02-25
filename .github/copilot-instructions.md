@@ -159,12 +159,53 @@ API routes use JWT tokens via Guardian for stateless authentication:
 - Guardian implementation is in `lib/game_server_web/auth/guardian.ex`
 - Guardian pipeline is in `lib/game_server_web/auth/pipeline.ex`
 
-### Lobbies (new feature)
+### Lobbies
 
 - Lobbies are stored in the `lobbies` table with fields: `id`, `name`, `title`, `host_id`, `hostless`, `max_users`, `is_hidden`, `is_locked`, `password_hash`, `metadata`, `inserted_at`, `updated_at`.
 - Membership is now stored on the `users` table via a nullable `lobby_id` field: a user can be in at most one lobby at a time.
 - Hidden lobbies are never returned from public list APIs. Hostless lobbies are allowed as a server-managed concept.
 - API endpoints live under `/api/v1/lobbies` and require authentication for creating (host becomes owner), joining, leaving, updating, and kicking users. Listing lobbies is public but excludes hidden lobbies.
+
+### Groups
+
+- Groups have three types: `"public"` (anyone can join directly), `"private"` (users request to join, admins approve), `"hidden"` (invite-only, never shown in public listings).
+- Group context: `GameServer.Groups` — key functions: `list_groups/2`, `create_group/2`, `join_group/2` (public), `request_join/2` (private), `invite_to_group/3`, `leave_group/2`, `kick_member/3`, `promote_member/3`, `demote_member/3`, `approve_request/3`, `reject_request/3`.
+- Group membership is stored in the `group_members` table with a `role` field (`"admin"` or `"member"`). The group creator becomes admin automatically.
+- Join requests are stored in the `group_join_requests` table with `status`: `"pending"`, `"approved"`, `"rejected"`.
+- Inviting a blocked user (or a user who blocked you) returns `{:error, :blocked}`.
+- API endpoints live under `/api/v1/groups`. Admin API under `/api/v1/admin/groups`.
+
+### Parties
+
+- Parties are ephemeral groups of users (2-10 members by default). They exist only while members are online and are not persisted long-term.
+- Party context: `GameServer.Parties` — key functions: `create_party/1`, `invite_to_party/2`, `join_party/2`, `leave_party/2`, `kick_member/3`, `promote_leader/3`, `disband_party/2`.
+- A user can only be in **one party at a time**. Creating a new party automatically leaves any existing party.
+- Inviting a blocked user (or a user who blocked you) returns `{:error, :blocked}`.
+- Parties can create/join lobbies as a group: `create_lobby_with_party/2`, `join_lobby_with_party/2`. These check that no party member is already in another lobby.
+- API endpoints live under `/api/v1/parties`.
+
+### Friends & Blocking
+
+- Friend context: `GameServer.Friends` — key functions: `send_request/2`, `accept_request/2`, `decline_request/2`, `remove_friend/2`, `block_user/2`, `unblock_user/2`, `blocked?/2`.
+- `blocked?/2` is a public function that checks if either user has blocked the other (bidirectional). It is used by Parties and Groups to prevent inviting blocked users.
+- Friend requests between blocked users are automatically rejected.
+- API endpoints: `/api/v1/friends`, `/api/v1/friends/block`.
+
+### PubSub & Real-time conventions
+
+- PubSub topics follow the pattern `"resource:<id>"` for instance topics and `"resources"` for collection topics:
+  - `"lobby:<id>"` / `"lobbies"` — lobby events (member join/leave, updates)
+  - `"group:<id>"` / `"groups"` — group events (member join/leave, requests, updates)
+  - `"party:<id>"` / `"parties"` — party events (member join/leave, updates)
+  - `"user:<id>"` — user-specific events (friend requests, notifications, party invites)
+- WebSocket channels mirror PubSub topics: `UserChannel`, `LobbyChannel`, `LobbiesChannel`, `GroupChannel`, `GroupsChannel`.
+- LiveViews subscribe to PubSub topics directly (not via channels) using context `subscribe_*` functions.
+
+### Advisory locks
+
+- Used for atomic join/leave/create operations on lobbies, groups, and parties.
+- Namespace convention: lobby → 1, group → 2, party → 3.
+- Implemented via `GameServer.Repo.advisory_lock/2` wrapping the operation in a transaction.
 
 ### Pagination (repository convention)
 
@@ -488,6 +529,77 @@ And **never** do this:
 <!-- phoenix:liveview-end -->
 
 <!-- usage-rules-end -->
+
+## Feature addition checklist
+
+When adding a new feature or domain resource, evaluate which of the following need updating. Not every feature requires all items — check based on whether the feature needs web UI, API, admin, or docs.
+
+### Always required
+- [ ] **Context module** (`apps/game_server_core/lib/game_server/`): domain logic, Ecto schemas, changesets, queries
+- [ ] **Migrations** (`apps/game_server_core/priv/repo/migrations/`): database schema changes
+- [ ] **Tests**: context tests + controller/LiveView tests. Run `mix precommit` when done
+
+### If the feature has an API
+- [ ] **API controller** (`apps/game_server_web/lib/game_server_web/controllers/api/v1/`): REST endpoints
+- [ ] **OpenApiSpex** (inline `operation/2` macros in the controller): document request/response schemas. The spec is generated at runtime from code — no standalone YAML/JSON file
+- [ ] **API JSON view/serialization**: ensure response shapes follow pagination convention when listing (`data` + `meta`)
+- [ ] **Router** (`apps/game_server_web/lib/game_server_web/router.ex`): add routes in the appropriate scope (`:api` public or `:api_auth` authenticated or `:api_admin` admin)
+
+### If the feature has admin management
+- [ ] **Admin API controller** (`apps/game_server_web/lib/game_server_web/controllers/api/v1/admin/`): admin-only endpoints
+- [ ] **Admin LiveView** (`apps/game_server_web/lib/game_server_web/live/admin_live/`): admin dashboard page for managing the resource
+- [ ] **Admin route** (router, inside `live_session :require_authenticated_admin`): add LiveView route
+
+### If the feature has a public web page
+- [ ] **Public LiveView** (`apps/game_server_web/lib/game_server_web/live/`): public-facing page (e.g., GroupsLive, LeaderboardsLive)
+- [ ] **Nav link** (`apps/game_server_web/lib/game_server_web/components/layouts.ex`): add navigation link in **all 4 locations** (desktop auth, desktop unauth, mobile auth, mobile unauth)
+- [ ] **Route** (router, inside `live_session :current_user` for public or `:require_authenticated_user` for auth-only)
+
+### If the feature has real-time updates
+- [ ] **PubSub** (in the context module): `broadcast/3` calls + `subscribe_*/0` functions. Follow topic naming: `"resource:<id>"` and `"resources"`
+- [ ] **WebSocket channel** (`apps/game_server_web/lib/game_server_web/channels/`): if clients need socket-based real-time updates
+- [ ] **Channel route** (in `user_socket.ex`): register the channel
+
+### If the feature needs documentation
+- [ ] **Public docs guide** (`apps/game_server_web/lib/game_server_web/live/public_docs/`): add a `.html.heex` template — it is auto-discovered via `embed_templates`
+- [ ] **Sidebar entry** (`apps/game_server_web/lib/game_server_web/live/public_docs.ex`): add link in the docs sidebar navigation
+- [ ] **This instructions file** (`.github/copilot-instructions.md`): update domain-specific sections with the new feature's conventions
+
+### Domain conventions to follow
+- Use advisory locks (namespace 1=lobby, 2=group, 3=party) for atomic join/leave operations
+- Add `blocked?/2` checks on invite operations to prevent inviting blocked users
+- Add lightweight `count_*` helpers for paginated list endpoints
+- Context list functions should support keyword options: `:page`, `:page_size`, `:sort_by` and relevant filters
+
+## Project file organization
+
+```
+apps/
+  game_server_core/           # Domain logic (contexts, schemas, migrations)
+    lib/game_server/
+      accounts.ex             # User accounts context
+      friends.ex              # Friends & blocking context
+      groups.ex               # Groups context
+      lobbies.ex              # Lobbies context
+      parties.ex              # Parties context
+      leaderboards.ex         # Leaderboards context
+      notifications.ex        # Notifications context
+      kv.ex                   # Key-value storage context
+      hooks.ex                # Server scripting/hooks context
+  game_server_web/            # Web layer (controllers, LiveViews, channels)
+    lib/game_server_web/
+      controllers/api/v1/     # Public API controllers (14 controllers)
+      controllers/api/v1/admin/ # Admin API controllers (8 controllers)
+      channels/               # WebSocket channels (5 channels)
+      live/                   # LiveViews (public + user auth)
+      live/admin_live/        # Admin dashboard LiveViews (10 modules)
+      live/public_docs/       # Documentation guide templates (20 guides)
+      components/             # Shared components (layouts.ex, core_components.ex)
+      auth/                   # Guardian JWT (guardian.ex, pipeline.ex)
+  game_server_host/           # Runnable host app (router, boot config)
+assets/                       # JS, CSS, vendor deps
+config/                       # Environment configs
+```
 
 # **Always end interactions with confirmation.**
 After completing any work or providing information, use `ask_questions` to confirm the task is complete and ask if anything else is needed. Never finish a turn without this confirmation.

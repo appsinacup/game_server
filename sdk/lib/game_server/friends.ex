@@ -68,6 +68,25 @@ defmodule GameServer.Friends do
 
 
   @doc ~S"""
+    Check if either user has blocked the other.
+    
+    Returns `true` if a friendship row with status `"blocked"` exists in either
+    direction between the two user IDs.
+    
+  """
+  @spec blocked?(user_id(), user_id()) :: boolean()
+  def blocked?(_requester_id, _target_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        false
+
+      _ ->
+        raise "GameServer.Friends.blocked?/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Cancel an outgoing friend request (only the requester may cancel).
   """
   @spec cancel_request(integer(), GameServer.Accounts.User.t()) ::

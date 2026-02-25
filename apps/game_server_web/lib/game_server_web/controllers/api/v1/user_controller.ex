@@ -39,6 +39,12 @@ defmodule GameServerWeb.Api.V1.UserController do
                      description:
                        "Lobby ID when user is currently in a lobby. -1 means not currently in a lobby."
                    },
+                   party_id: %Schema{
+                     type: :integer,
+                     nullable: false,
+                     description:
+                       "Party ID when user is currently in a party. -1 means not currently in a party."
+                   },
                    is_online: %Schema{type: :boolean},
                    last_seen_at: %Schema{type: :string, format: :date_time, nullable: false}
                  }
@@ -79,6 +85,12 @@ defmodule GameServerWeb.Api.V1.UserController do
                nullable: false,
                description:
                  "Lobby ID when user is currently in a lobby. -1 means not currently in a lobby."
+             },
+             party_id: %Schema{
+               type: :integer,
+               nullable: false,
+               description:
+                 "Party ID when user is currently in a party. -1 means not currently in a party."
              },
              is_online: %Schema{type: :boolean},
              last_seen_at: %Schema{type: :string, format: :date_time, nullable: false}
@@ -129,6 +141,7 @@ defmodule GameServerWeb.Api.V1.UserController do
       display_name: user.display_name || "",
       profile_url: user.profile_url || "",
       lobby_id: user.lobby_id || -1,
+      party_id: user.party_id || -1,
       is_online: user.is_online || false,
       last_seen_at: User.last_seen_at_or_fallback(user)
     }

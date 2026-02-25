@@ -162,6 +162,20 @@ defmodule GameServerWeb.Router do
     post "/hooks/call", HookController, :invoke
     # Leaderboards (authenticated)
     get "/leaderboards/:id/records/me", LeaderboardController, :me
+    # Parties API
+    get "/parties/me", PartyController, :show
+    post "/parties", PartyController, :create
+    patch "/parties", PartyController, :update
+    post "/parties/invite", PartyController, :invite
+    get "/parties/invites", PartyController, :invites
+    get "/parties/sent_invites", PartyController, :sent_invites
+    post "/parties/invites/:id/accept", PartyController, :accept_invite
+    post "/parties/invites/:id/decline", PartyController, :decline_invite
+    delete "/parties/invites/:id", PartyController, :cancel_invite
+    post "/parties/leave", PartyController, :leave
+    post "/parties/kick", PartyController, :kick
+    post "/parties/create_lobby", PartyController, :create_lobby
+    post "/parties/join_lobby/:id", PartyController, :join_lobby
   end
 
   # Admin API routes - require JWT authentication + admin role
@@ -258,6 +272,7 @@ defmodule GameServerWeb.Router do
       live "/admin/sessions", AdminLive.Sessions, :index
       live "/admin/notifications", AdminLive.Notifications, :index
       live "/admin/groups", AdminLive.Groups, :index
+      live "/admin/parties", AdminLive.Parties, :index
     end
   end
 
@@ -288,6 +303,8 @@ defmodule GameServerWeb.Router do
       ] do
       live "/users/register", UserLive.Registration, :new
       live "/lobbies", LobbyLive.Index, :index
+      live "/groups", GroupsLive, :index
+      live "/groups/:id", GroupsLive, :show
       live "/leaderboards", LeaderboardsLive, :index
       live "/leaderboards/:slug/:id", LeaderboardsLive, :show
       live "/leaderboards/:slug", LeaderboardsLive, :show_active

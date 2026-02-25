@@ -181,7 +181,14 @@ defmodule GameServer.Friends do
     end
   end
 
-  defp blocked?(requester_id, target_id) do
+  @doc """
+  Check if either user has blocked the other.
+
+  Returns `true` if a friendship row with status `"blocked"` exists in either
+  direction between the two user IDs.
+  """
+  @spec blocked?(user_id(), user_id()) :: boolean()
+  def blocked?(requester_id, target_id) do
     existing_same = get_by_pair(requester_id, target_id)
     existing_reverse = get_by_pair(target_id, requester_id)
 

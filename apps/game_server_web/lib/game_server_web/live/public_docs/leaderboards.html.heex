@@ -81,7 +81,7 @@
         <pre phx-no-curly-interpolation>
 # Create a new leaderboard (admin)
 GameServer.Leaderboards.create_leaderboard(%{
-  id: "weekly_score_2024_w48",
+  slug: "weekly_score_2024_w48",
   title: "Weekly High Scores",
   sort_order: :desc,
   operator: :best,
@@ -117,7 +117,7 @@ GameServer.Leaderboards.end_leaderboard(leaderboard)</pre>
       <h3 class="font-semibold">{doc_text("Best Practices")}</h3>
       <ul class="list-disc list-inside text-sm text-base-content/80 space-y-1">
         <li>
-          {doc_text("Use descriptive IDs like")}
+          {doc_text("Use descriptive slugs like")}
           <code class="font-mono">weekly_score_2024_w48</code>
           {doc_text("or")}
           <code class="font-mono">season_3_pvp</code>

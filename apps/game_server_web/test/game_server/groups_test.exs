@@ -434,6 +434,26 @@ defmodule GameServer.GroupsTest do
     test "cannot invite to non-existent group", %{owner: owner, other: other} do
       assert {:error, :not_found} = Groups.invite_to_group(owner.id, 999_999, other.id)
     end
+
+    test "cannot invite a blocked user", %{owner: owner, other: other} do
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "BlockGrp", "type" => "hidden"})
+
+      # Create a friend request and block it
+      {:ok, f} = GameServer.Friends.create_request(owner.id, other.id)
+      {:ok, _blocked} = GameServer.Friends.block_friend_request(f.id, other)
+
+      assert {:error, :blocked} = Groups.invite_to_group(owner.id, group.id, other.id)
+    end
+
+    test "cannot invite if target has blocked the admin", %{owner: owner, other: other} do
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "BlockGrp2", "type" => "hidden"})
+
+      # Target blocks the admin
+      {:ok, f} = GameServer.Friends.create_request(other.id, owner.id)
+      {:ok, _blocked} = GameServer.Friends.block_friend_request(f.id, owner)
+
+      assert {:error, :blocked} = Groups.invite_to_group(owner.id, group.id, other.id)
+    end
   end
 
   describe "accept_invite/2" do

@@ -1116,6 +1116,9 @@ defmodule GameServerWeb.Api.V1.GroupController do
             {:error, :already_member} ->
               conn |> put_status(:forbidden) |> json(%{error: "already_member"})
 
+            {:error, :blocked} ->
+              conn |> put_status(:forbidden) |> json(%{error: "blocked"})
+
             {:error, reason} ->
               conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
           end

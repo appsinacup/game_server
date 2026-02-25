@@ -1,0 +1,138 @@
+<!-- Real-time Updates -->
+<div class="card bg-base-100 shadow-xl collapsed" data-card-key="realtime">
+  <div class="card-body">
+    <h2 class="card-title text-2xl mb-4 flex items-center gap-3">
+      <svg
+        class="w-12 h-8 text-purple-600"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M13 10V3L4 14h7v7l9-11h-7z"
+        />
+      </svg>
+      {doc_text("Real-time Updates")}
+      <button
+        type="button"
+        data-action="toggle-card"
+        data-card-key="realtime"
+        aria-expanded="false"
+        class="btn btn-ghost btn-sm ml-auto"
+        title={doc_text("Collapse/Expand")}
+      >
+        <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 8l4 4 4-4"
+          />
+        </svg>
+      </button>
+    </h2>
+
+    <div class="space-y-4">
+      <p class="text-sm text-base-content/80">
+        {doc_text(
+          "Real-time features use Phoenix PubSub to broadcast events. Domain modules publish to named topics; WebSocket channels and LiveViews subscribe to receive instant updates."
+        )}
+      </p>
+
+      <h3 class="font-semibold">{doc_text("WebSocket channels")}</h3>
+      <p class="text-sm text-base-content/80">
+        {doc_text(
+          "Clients connect via WebSocket and join channels to receive real-time events. Five channel types are available:"
+        )}
+      </p>
+      <ul class="list-disc pl-6 text-sm space-y-1 text-base-content/80">
+        <li>
+          <strong>UserChannel</strong>
+          (<code class="font-mono" phx-no-curly-interpolation>user:{user_id}</code>) — personal channel: friend online/offline, notifications, user profile updates
+        </li>
+        <li>
+          <strong>LobbyChannel</strong>
+          (<code class="font-mono" phx-no-curly-interpolation>lobby:{lobby_id}</code>) — per-lobby: member join/leave/kick, lobby settings, host changes
+        </li>
+        <li>
+          <strong>LobbiesChannel</strong>
+          (<code class="font-mono">lobbies</code>) — global lobby list: lobby created/updated/deleted/membership changed
+        </li>
+        <li>
+          <strong>GroupChannel</strong>
+          (<code class="font-mono" phx-no-curly-interpolation>group:{group_id}</code>) — per-group: member join/leave/kick, promote/demote, join request decisions
+        </li>
+        <li>
+          <strong>GroupsChannel</strong>
+          (<code class="font-mono">groups</code>) — global group list: group created/updated/deleted (excludes hidden)
+        </li>
+      </ul>
+
+      <h3 class="font-semibold mt-3">{doc_text("PubSub topic map")}</h3>
+      <div
+        class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto"
+        phx-no-curly-interpolation
+      >
+        <pre>
+  Channel              Topic              Client events (push)
+  ───────              ─────              ────────────────────
+  UserChannel       "user:{id}"         updated (profile changes)
+                                        notification (new notification)
+                                        friend_online, friend_offline
+  LobbyChannel      "lobby:{id}"        user_joined, user_left,
+                                        user_kicked, updated,
+                                        host_changed
+  LobbiesChannel    "lobbies"           lobby_created, lobby_updated,
+                                        lobby_deleted,
+                                        lobby_membership_changed
+  GroupChannel      "group:{id}"        member_joined, member_left,
+                                        member_kicked, member_promoted,
+                                        member_demoted, updated,
+                                        join_request_approved,
+                                        join_request_rejected
+  GroupsChannel     "groups"            group_created, group_updated,
+                                        group_deleted</pre>
+      </div>
+
+      <h3 class="font-semibold mt-3">{doc_text("How it works")}</h3>
+      <div
+        class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto"
+        phx-no-curly-interpolation
+      >
+        <pre>
+  Domain module (e.g. Lobbies)
+       │
+       ├── performs DB operation
+       │
+       └── Phoenix.PubSub.broadcast("lobby:42", {:lobby_user_joined, user})
+                │
+                ▼
+         ┌──────────────────┐
+         │  Phoenix PubSub  │  (in-memory, distributed in cluster)
+         └──────┬───────────┘
+                │
+           ┌────┴────┐
+           ▼         ▼
+      LobbyChannel   Admin LiveView
+      (sends JSON    (updates UI
+       to client)     via stream)</pre>
+      </div>
+
+      <h3 class="font-semibold mt-2">{doc_text("Notes")}</h3>
+      <ul class="list-disc pl-6 text-sm space-y-1 text-base-content/80">
+        <li>
+          {doc_text("All broadcasts are fire-and-forget — subscribers don't acknowledge receipt")}
+        </li>
+        <li>
+          {doc_text(
+            "In a cluster, PubSub automatically distributes messages across nodes via pg2/Phoenix.PubSub.PG2"
+          )}
+        </li>
+        <li>{doc_text("WebSocket connections are authenticated via JWT token on join")}</li>
+      </ul>
+    </div>
+  </div>
+</div>

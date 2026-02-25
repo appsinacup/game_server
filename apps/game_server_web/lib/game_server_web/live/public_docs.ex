@@ -23,6 +23,9 @@ defmodule GameServerWeb.PublicDocs do
         {GameServerWeb.PublicDocsTemplates.server_scripting(assigns)}
         {GameServerWeb.PublicDocsTemplates.leaderboards(assigns)}
         {GameServerWeb.PublicDocsTemplates.theme(assigns)}
+        {GameServerWeb.PublicDocsTemplates.architecture(assigns)}
+        {GameServerWeb.PublicDocsTemplates.authentication(assigns)}
+        {GameServerWeb.PublicDocsTemplates.realtime(assigns)}
         {GameServerWeb.PublicDocsTemplates.data_schema(assigns)}
         {GameServerWeb.PublicDocsTemplates.apple_sign_in(assigns)}
         {GameServerWeb.PublicDocsTemplates.well_known(assigns)}

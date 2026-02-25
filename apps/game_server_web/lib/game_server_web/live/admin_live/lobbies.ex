@@ -5,8 +5,6 @@ defmodule GameServerWeb.AdminLive.Lobbies do
 
   @impl true
   def mount(_params, _session, socket) do
-    # Subscribe to lobby pubsub so admin UI updates live when lobbies are
-    # created/updated/deleted by API/quick_join flows.
     Lobbies.subscribe_lobbies()
 
     socket =
@@ -14,9 +12,18 @@ defmodule GameServerWeb.AdminLive.Lobbies do
       |> assign(:lobbies_page, 1)
       |> assign(:lobbies_page_size, 25)
       |> assign(:filters, %{})
+      |> assign(:sort_by, "updated_at")
       |> assign(:selected_lobby, nil)
       |> assign(:form, nil)
       |> assign(:selected_ids, MapSet.new())
+      |> assign(:members, [])
+      |> assign(:show_members, false)
+      |> assign(:show_create, false)
+      |> assign(
+        :create_form,
+        to_form(%{"host_id" => "", "title" => "", "max_users" => "10"}, as: "lobby")
+      )
+      |> assign(:add_member_id, "")
       |> reload_lobbies()
 
     {:ok, socket}
@@ -33,18 +40,56 @@ defmodule GameServerWeb.AdminLive.Lobbies do
           <div class="card-body">
             <div class="flex items-center justify-between gap-3">
               <h2 class="card-title">Lobbies ({@count})</h2>
-              <button
-                type="button"
-                phx-click="bulk_delete"
-                data-confirm={"Delete #{MapSet.size(@selected_ids)} selected lobbies?"}
-                class="btn btn-sm btn-outline btn-error"
-                disabled={MapSet.size(@selected_ids) == 0}
-              >
-                Delete selected ({MapSet.size(@selected_ids)})
-              </button>
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  phx-click="show_create"
+                  class="btn btn-sm btn-outline btn-primary"
+                  id="create-lobby-btn"
+                >
+                  + Create Lobby
+                </button>
+                <button
+                  type="button"
+                  phx-click="bulk_delete"
+                  data-confirm={"Delete #{MapSet.size(@selected_ids)} selected lobbies?"}
+                  class="btn btn-sm btn-outline btn-error"
+                  disabled={MapSet.size(@selected_ids) == 0}
+                >
+                  Delete selected ({MapSet.size(@selected_ids)})
+                </button>
+              </div>
             </div>
 
-            <form phx-change="filter">
+            <form phx-change="filter" id="lobbies-filter-form">
+              <div class="flex items-center gap-3 mt-4">
+                <label class="text-sm text-base-content/70">Sort by:</label>
+                <select
+                  name="sort_by"
+                  class="select select-bordered select-sm"
+                  phx-change="sort"
+                >
+                  <option value="updated_at" selected={@sort_by == "updated_at"}>
+                    Updated (newest)
+                  </option>
+                  <option value="updated_at_asc" selected={@sort_by == "updated_at_asc"}>
+                    Updated (oldest)
+                  </option>
+                  <option value="inserted_at" selected={@sort_by == "inserted_at"}>
+                    Created (newest)
+                  </option>
+                  <option value="inserted_at_asc" selected={@sort_by == "inserted_at_asc"}>
+                    Created (oldest)
+                  </option>
+                  <option value="max_users" selected={@sort_by == "max_users"}>
+                    Max users (desc)
+                  </option>
+                  <option value="max_users_asc" selected={@sort_by == "max_users_asc"}>
+                    Max users (asc)
+                  </option>
+                </select>
+              </div>
+
               <div class="overflow-x-auto mt-4">
                 <table class="table table-zebra w-full">
                   <thead>
@@ -181,9 +226,17 @@ defmodule GameServerWeb.AdminLive.Lobbies do
                       <td class="text-sm">
                         <button
                           type="button"
+                          phx-click="view_members"
+                          phx-value-id={l.id}
+                          class="btn btn-xs btn-outline btn-accent mr-1"
+                        >
+                          Members
+                        </button>
+                        <button
+                          type="button"
                           phx-click="edit_lobby"
                           phx-value-id={l.id}
-                          class="btn btn-xs btn-outline btn-info mr-2"
+                          class="btn btn-xs btn-outline btn-info mr-1"
                         >
                           Edit
                         </button>
@@ -223,7 +276,8 @@ defmodule GameServerWeb.AdminLive.Lobbies do
       </div>
     </Layouts.app>
 
-    <%= if @selected_lobby do %>
+    <%!-- Edit modal --%>
+    <%= if @selected_lobby && @form do %>
       <div class="modal modal-open">
         <div class="modal-box">
           <h3 class="font-bold text-lg">Edit Lobby</h3>
@@ -267,16 +321,263 @@ defmodule GameServerWeb.AdminLive.Lobbies do
         </div>
       </div>
     <% end %>
+
+    <%!-- Members modal --%>
+    <%= if @selected_lobby && @show_members && @form == nil do %>
+      <div class="modal modal-open">
+        <div class="modal-box max-w-2xl">
+          <h3 class="font-bold text-lg">
+            Lobby #{@selected_lobby.id} members ({length(@members)})
+          </h3>
+
+          <div class="flex gap-2 mt-4">
+            <input
+              type="number"
+              placeholder="User ID to add"
+              value={@add_member_id}
+              phx-keyup="update_add_member_id"
+              class="input input-bordered input-sm w-40"
+              id="add-member-input"
+            />
+            <button
+              type="button"
+              phx-click="add_member"
+              class="btn btn-sm btn-outline btn-primary"
+              id="add-member-btn"
+            >
+              Add Member
+            </button>
+          </div>
+
+          <div class="overflow-x-auto mt-4">
+            <table class="table table-zebra w-full">
+              <thead>
+                <tr>
+                  <th>User ID</th>
+                  <th>Name</th>
+                  <th>Role</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr :for={m <- @members} id={"lobby-member-" <> to_string(m.id)}>
+                  <td class="font-mono text-sm">{m.id}</td>
+                  <td class="text-sm">{m.display_name || m.email || "-"}</td>
+                  <td class="text-sm">
+                    <%= if m.id == @selected_lobby.host_id do %>
+                      <span class="badge badge-primary badge-sm">Host</span>
+                    <% else %>
+                      <span class="badge badge-ghost badge-sm">Member</span>
+                    <% end %>
+                  </td>
+                  <td class="text-sm">
+                    <button
+                      type="button"
+                      phx-click="kick_member"
+                      phx-value-lobby-id={@selected_lobby.id}
+                      phx-value-user-id={m.id}
+                      data-confirm={"Remove user #{m.id} from lobby?"}
+                      class="btn btn-xs btn-outline btn-error"
+                    >
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="modal-action">
+            <button type="button" phx-click="close_members" class="btn">Close</button>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <%!-- Create lobby modal --%>
+    <%= if @show_create do %>
+      <div class="modal modal-open">
+        <div class="modal-box">
+          <h3 class="font-bold text-lg">Create Lobby</h3>
+
+          <.form for={@create_form} id="lobby-create-form" phx-submit="create_lobby">
+            <.input
+              field={@create_form[:host_id]}
+              type="number"
+              label="Host User ID (optional)"
+            />
+            <.input
+              field={@create_form[:title]}
+              type="text"
+              label="Title (optional, auto-generated if blank)"
+            />
+            <.input
+              field={@create_form[:max_users]}
+              type="number"
+              label="Max users"
+            />
+
+            <div class="modal-action">
+              <button type="button" phx-click="cancel_create" class="btn">Cancel</button>
+              <button type="submit" class="btn btn-primary">Create</button>
+            </div>
+          </.form>
+        </div>
+      </div>
+    <% end %>
     """
   end
 
   @impl true
   def handle_event("filter", params, socket) do
+    sort_by = Map.get(params, "sort_by", socket.assigns[:sort_by] || "updated_at")
+
     {:noreply,
      socket
-     |> assign(:filters, params)
+     |> assign(:filters, Map.drop(params, ["sort_by"]))
+     |> assign(:sort_by, sort_by)
      |> assign(:lobbies_page, 1)
      |> reload_lobbies()}
+  end
+
+  @impl true
+  def handle_event("sort", %{"sort_by" => sort_by}, socket) do
+    {:noreply,
+     socket
+     |> assign(:sort_by, sort_by)
+     |> assign(:lobbies_page, 1)
+     |> reload_lobbies()}
+  end
+
+  @impl true
+  def handle_event("show_create", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:show_create, true)
+     |> assign(
+       :create_form,
+       to_form(%{"host_id" => "", "title" => "", "max_users" => "10"}, as: "lobby")
+     )}
+  end
+
+  @impl true
+  def handle_event("cancel_create", _params, socket) do
+    {:noreply, assign(socket, :show_create, false)}
+  end
+
+  @impl true
+  def handle_event("create_lobby", %{"lobby" => params}, socket) do
+    attrs = %{
+      title: blank_to_nil(params["title"]),
+      max_users: parse_admin_int(params["max_users"]) || 10
+    }
+
+    host_id = parse_admin_int(params["host_id"])
+
+    attrs = if host_id, do: Map.put(attrs, :host_id, host_id), else: attrs
+
+    case Lobbies.create_lobby(attrs) do
+      {:ok, lobby} ->
+        {:noreply,
+         socket
+         |> assign(:show_create, false)
+         |> put_flash(:info, "Lobby ##{lobby.id} created")
+         |> reload_lobbies()}
+
+      {:error, %Ecto.Changeset{} = cs} ->
+        {:noreply, put_flash(socket, :error, "Create failed: #{inspect(cs.errors)}")}
+
+      {:error, reason} ->
+        {:noreply, put_flash(socket, :error, "Create failed: #{inspect(reason)}")}
+    end
+  end
+
+  @impl true
+  def handle_event("view_members", %{"id" => id}, socket) do
+    {lobby_id, ""} = Integer.parse(to_string(id))
+    lobby = Lobbies.get_lobby!(lobby_id)
+    members = lobby_members(lobby_id)
+
+    {:noreply,
+     socket
+     |> assign(:selected_lobby, lobby)
+     |> assign(:members, members)
+     |> assign(:show_members, true)
+     |> assign(:form, nil)
+     |> assign(:add_member_id, "")}
+  end
+
+  @impl true
+  def handle_event("close_members", _, socket) do
+    {:noreply,
+     socket
+     |> assign(:selected_lobby, nil)
+     |> assign(:members, [])
+     |> assign(:show_members, false)}
+  end
+
+  @impl true
+  def handle_event("update_add_member_id", %{"value" => val}, socket) do
+    {:noreply, assign(socket, :add_member_id, val)}
+  end
+
+  @impl true
+  def handle_event("add_member", _params, socket) do
+    lobby = socket.assigns.selected_lobby
+
+    case parse_admin_int(socket.assigns.add_member_id) do
+      nil ->
+        {:noreply, put_flash(socket, :error, "Enter a valid user ID")}
+
+      user_id ->
+        case GameServer.Accounts.get_user(user_id) do
+          nil ->
+            {:noreply, put_flash(socket, :error, "User #{user_id} not found")}
+
+          user ->
+            case Lobbies.join_lobby(user, lobby.id) do
+              {:ok, _} ->
+                members = lobby_members(lobby.id)
+
+                {:noreply,
+                 socket
+                 |> assign(:members, members)
+                 |> assign(:add_member_id, "")
+                 |> put_flash(:info, "User #{user_id} added to lobby")
+                 |> reload_lobbies()}
+
+              {:error, reason} ->
+                {:noreply, put_flash(socket, :error, "Add failed: #{inspect(reason)}")}
+            end
+        end
+    end
+  end
+
+  @impl true
+  def handle_event("kick_member", %{"lobby-id" => lid, "user-id" => uid}, socket) do
+    {_lobby_id, ""} = Integer.parse(to_string(lid))
+    {user_id, ""} = Integer.parse(to_string(uid))
+
+    lobby = socket.assigns.selected_lobby
+
+    # Admin removal: directly clear the user's lobby_id
+    case GameServer.Accounts.get_user(user_id) do
+      nil ->
+        {:noreply, put_flash(socket, :error, "User not found")}
+
+      user ->
+        user
+        |> Ecto.Changeset.change(%{lobby_id: nil})
+        |> GameServer.Repo.update()
+
+        members = lobby_members(lobby.id)
+
+        {:noreply,
+         socket
+         |> assign(:members, members)
+         |> put_flash(:info, "User #{user_id} removed from lobby")
+         |> reload_lobbies()}
+    end
   end
 
   @impl true
@@ -355,7 +656,12 @@ defmodule GameServerWeb.AdminLive.Lobbies do
     changeset = Lobbies.change_lobby(lobby)
     form = to_form(changeset, as: "lobby")
 
-    {:noreply, socket |> assign(:selected_lobby, lobby) |> assign(:form, form)}
+    {:noreply,
+     socket
+     |> assign(:selected_lobby, lobby)
+     |> assign(:form, form)
+     |> assign(:members, [])
+     |> assign(:show_members, false)}
   end
 
   def handle_event("cancel_edit", _, socket) do
@@ -446,9 +752,12 @@ defmodule GameServerWeb.AdminLive.Lobbies do
     page = socket.assigns[:lobbies_page] || 1
     page_size = socket.assigns[:lobbies_page_size] || 25
     filters = socket.assigns[:filters] || %{}
+    sort_by = socket.assigns[:sort_by] || "updated_at"
+
+    filters_with_sort = Map.put(filters, "sort_by", sort_by)
 
     lobbies =
-      Lobbies.list_all_lobbies(filters, page: page, page_size: page_size)
+      Lobbies.list_all_lobbies(filters_with_sort, page: page, page_size: page_size)
       |> GameServer.Repo.preload(:users)
 
     total_count = Lobbies.count_list_all_lobbies(filters)
@@ -468,9 +777,29 @@ defmodule GameServerWeb.AdminLive.Lobbies do
 
   defp lobby_ids(lobbies) when is_list(lobbies), do: Enum.map(lobbies, & &1.id)
 
+  defp lobby_members(lobby_id) do
+    import Ecto.Query, only: [from: 2]
+    GameServer.Repo.all(from u in GameServer.Accounts.User, where: u.lobby_id == ^lobby_id)
+  end
+
   defp sync_selected_ids(socket, ids) when is_list(ids) do
     selected = socket.assigns[:selected_ids] || MapSet.new()
     allowed = MapSet.new(ids)
     assign(socket, :selected_ids, MapSet.intersection(selected, allowed))
   end
+
+  defp parse_admin_int(val) when is_integer(val), do: val
+
+  defp parse_admin_int(val) when is_binary(val) do
+    case Integer.parse(String.trim(val)) do
+      {n, _} -> n
+      :error -> nil
+    end
+  end
+
+  defp parse_admin_int(_), do: nil
+
+  defp blank_to_nil(nil), do: nil
+  defp blank_to_nil(""), do: nil
+  defp blank_to_nil(s) when is_binary(s), do: s
 end

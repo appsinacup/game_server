@@ -135,6 +135,7 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
       is_admin: user.is_admin,
       metadata: user.metadata || %{},
       lobby_id: user.lobby_id,
+      party_id: user.party_id,
       is_online: user.is_online || false,
       last_seen_at: user.last_seen_at,
       inserted_at: user.inserted_at,

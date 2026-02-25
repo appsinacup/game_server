@@ -37,6 +37,12 @@ defmodule GameServerWeb.Api.V1.MeController do
               description:
                 "Lobby ID when user is currently in a lobby. -1 means not currently in a lobby."
             },
+            party_id: %Schema{
+              type: :integer,
+              nullable: false,
+              description:
+                "Party ID when user is currently in a party. -1 means not currently in a party."
+            },
             is_online: %Schema{type: :boolean},
             last_seen_at: %Schema{type: :string, format: :date_time, nullable: false},
             linked_providers: %Schema{
@@ -74,6 +80,7 @@ defmodule GameServerWeb.Api.V1.MeController do
           metadata: user.metadata || %{},
           display_name: user.display_name || "",
           lobby_id: user.lobby_id || -1,
+          party_id: user.party_id || -1,
           is_online: user.is_online || false,
           last_seen_at: User.last_seen_at_or_fallback(user),
           linked_providers: GameServer.Accounts.get_linked_providers(user),

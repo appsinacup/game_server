@@ -15,6 +15,7 @@ defmodule GameServer.Accounts.User do
           display_name: String.t() | nil,
           metadata: map(),
           lobby_id: integer() | nil,
+          party_id: integer() | nil,
           is_online: boolean(),
           last_seen_at: DateTime.t() | nil
         }
@@ -44,6 +45,9 @@ defmodule GameServer.Accounts.User do
 
     # membership via users.lobby_id (each user can be in one lobby)
     belongs_to :lobby, GameServer.Lobbies.Lobby
+
+    # party membership via users.party_id (each user can be in one party)
+    belongs_to :party, GameServer.Parties.Party
 
     timestamps(type: :utc_datetime)
   end
@@ -363,6 +367,7 @@ defimpl Jason.Encoder, for: GameServer.Accounts.User do
       profile_url: user.profile_url || "",
       metadata: user.metadata || %{},
       lobby_id: user.lobby_id || -1,
+      party_id: user.party_id || -1,
       is_online: user.is_online || false,
       last_seen_at: GameServer.Accounts.User.last_seen_at_or_fallback(user),
       inserted_at: user.inserted_at,

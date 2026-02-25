@@ -1468,6 +1468,14 @@ defmodule GameServer.Accounts do
 
   @spec delete_user(User.t()) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def delete_user(%User{} = user) do
+    # Best-effort: try to remove the user from any party they may belong to.
+    # If they are the leader the party is disbanded (PubSub + cache cleanup).
+    try do
+      _ = GameServer.Parties.leave_party(user)
+    rescue
+      _ -> :ok
+    end
+
     # Best-effort: try to remove the user from any lobby they may belong to,
     # then delete the user regardless of hook checks (hooks for deletion were removed).
     try do
@@ -1586,6 +1594,7 @@ defmodule GameServer.Accounts do
       metadata: user.metadata || %{},
       display_name: user.display_name || "",
       lobby_id: user.lobby_id || -1,
+      party_id: user.party_id || -1,
       is_online: user.is_online || false,
       last_seen_at: User.last_seen_at_or_fallback(user),
       linked_providers: get_linked_providers(user),

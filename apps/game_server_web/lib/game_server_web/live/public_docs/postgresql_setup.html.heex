@@ -66,7 +66,7 @@
           </div>
           <p class="text-sm text-base-content/70">
             {doc_text(
-              "The app will automatically detect PostgreSQL when DATABASE_URL is set and contains \"postgresql://\"."
+              "The app will automatically detect PostgreSQL when DATABASE_URL is set or when POSTGRES_HOST and POSTGRES_USER environment variables are configured."
             )}
           </p>
         </div>
@@ -82,9 +82,9 @@
             <div class="space-y-2">
               <div>POSTGRES_HOST="your-postgres-host"</div>
               <div>POSTGRES_PORT="5432"</div>
-              <div>POSTGRES_USER="your-database-name"</div>
-              <div>POSTGRES_PASSWORD="your-username"</div>
-              <div>POSTGRES_DB="your-password"</div>
+              <div>POSTGRES_USER="your-username"</div>
+              <div>POSTGRES_PASSWORD="your-password"</div>
+              <div>POSTGRES_DB="your-database-name"</div>
             </div>
           </div>
         </div>

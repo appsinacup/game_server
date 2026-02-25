@@ -9,6 +9,7 @@ defmodule GameServerWeb.AdminLive.Index do
   alias GameServer.Leaderboards.Leaderboard
   alias GameServer.Lobbies.Lobby
   alias GameServer.Notifications
+  alias GameServer.Parties
   alias GameServer.Repo
 
   @dev_routes? Application.compile_env(:game_server_web, :dev_routes, false)
@@ -47,6 +48,9 @@ defmodule GameServerWeb.AdminLive.Index do
           </.link>
           <.link navigate={~p"/admin/groups"} class="btn btn-primary">
             Groups ({@groups_count})
+          </.link>
+          <.link navigate={~p"/admin/parties"} class="btn btn-primary">
+            Parties ({@parties_count})
           </.link>
         </div>
 
@@ -123,6 +127,14 @@ defmodule GameServerWeb.AdminLive.Index do
                   <div>Total members: {@groups_members}</div>
                 </div>
               </div>
+
+              <div class="card bg-base-100 p-4">
+                <div class="text-sm font-semibold mb-2">Parties</div>
+                <div class="text-2xl font-bold">{@parties_count}</div>
+                <div class="text-xs text-base-content/60 mt-2 space-y-1">
+                  <div>Total members: {@parties_members}</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -163,6 +175,10 @@ defmodule GameServerWeb.AdminLive.Index do
     groups_hidden = Groups.count_groups_by_type("hidden")
     groups_members = Groups.count_all_members()
 
+    # party stats
+    parties_count = Parties.count_all_parties()
+    parties_members = Parties.count_all_party_members()
+
     # time-based metrics
     users_registered_1d = Accounts.count_users_registered_since(1)
     users_registered_7d = Accounts.count_users_registered_since(7)
@@ -196,6 +212,8 @@ defmodule GameServerWeb.AdminLive.Index do
        groups_private: groups_private,
        groups_hidden: groups_hidden,
        groups_members: groups_members,
+       parties_count: parties_count,
+       parties_members: parties_members,
        users_registered_1d: users_registered_1d,
        users_registered_7d: users_registered_7d,
        users_registered_30d: users_registered_30d,

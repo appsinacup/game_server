@@ -52,10 +52,12 @@ defmodule GameServer.Groups do
 
   require Logger
 
+  alias GameServer.Friends
   alias GameServer.Groups.Group
   alias GameServer.Groups.GroupJoinRequest
   alias GameServer.Groups.GroupMember
   alias GameServer.Repo
+  alias GameServer.Repo.AdvisoryLock
 
   # ---------------------------------------------------------------------------
   # PubSub
@@ -552,28 +554,8 @@ defmodule GameServer.Groups do
       member?(group_id, user_id) ->
         {:error, :already_member}
 
-      count_group_members(group_id) >= group.max_members ->
-        {:error, :full}
-
       true ->
-        case run_before_group_join_hook(user_id, group, %{"source" => "public_join"}) do
-          :ok ->
-            %GroupMember{}
-            |> GroupMember.changeset(%{group_id: group_id, user_id: user_id, role: "member"})
-            |> Repo.insert()
-            |> case do
-              {:ok, member} ->
-                _ = invalidate_group_cache(group_id)
-                broadcast_group(group_id, {:member_joined, group_id, user_id})
-                {:ok, member}
-
-              error ->
-                error
-            end
-
-          {:error, reason} ->
-            {:error, reason}
-        end
+        do_add_group_member(user_id, group_id, group, "public_join")
     end
   end
 
@@ -868,15 +850,10 @@ defmodule GameServer.Groups do
       %GroupJoinRequest{group_id: group_id} = request ->
         group = get_group!(group_id)
 
-        cond do
-          not admin?(group_id, admin_id) ->
-            {:error, :not_admin}
-
-          count_group_members(group_id) >= group.max_members ->
-            {:error, :full}
-
-          true ->
-            approve_join_request_with_hook(request, group, admin_id, request_id)
+        if admin?(group_id, admin_id) do
+          approve_join_request_with_hook(request, group, admin_id, request_id)
+        else
+          {:error, :not_admin}
         end
     end
   end
@@ -893,6 +870,15 @@ defmodule GameServer.Groups do
          }) do
       :ok ->
         Ecto.Multi.new()
+        |> Ecto.Multi.run(:lock_and_check, fn _repo, _changes ->
+          AdvisoryLock.lock(:group, group_id)
+
+          if count_group_members(group_id) >= group.max_members do
+            {:error, :full}
+          else
+            {:ok, :space_available}
+          end
+        end)
         |> Ecto.Multi.update(:request, Ecto.Changeset.change(request, %{status: "accepted"}))
         |> Ecto.Multi.insert(:membership, fn _changes ->
           GroupMember.changeset(%GroupMember{}, %{
@@ -1005,6 +991,9 @@ defmodule GameServer.Groups do
       member?(group_id, target_user_id) ->
         {:error, :already_member}
 
+      Friends.blocked?(admin_id, target_user_id) ->
+        {:error, :blocked}
+
       true ->
         GameServer.Notifications.admin_create_notification(admin_id, target_user_id, %{
           "title" => "group_invite",
@@ -1034,28 +1023,38 @@ defmodule GameServer.Groups do
       member?(group_id, user_id) ->
         {:error, :already_member}
 
-      count_group_members(group_id) >= group.max_members ->
-        {:error, :full}
-
       true ->
-        case run_before_group_join_hook(user_id, group, %{"source" => "invite_accept"}) do
-          :ok ->
-            %GroupMember{}
-            |> GroupMember.changeset(%{group_id: group_id, user_id: user_id, role: "member"})
-            |> Repo.insert()
-            |> case do
-              {:ok, member} ->
-                _ = invalidate_group_cache(group_id)
-                broadcast_group(group_id, {:member_joined, group_id, user_id})
-                {:ok, member}
+        do_add_group_member(user_id, group_id, group, "invite_accept")
+    end
+  end
 
-              error ->
-                error
-            end
+  # Shared helper: acquire advisory lock, check capacity, run hook, insert member.
+  defp do_add_group_member(user_id, group_id, group, source) do
+    Repo.transaction(fn ->
+      AdvisoryLock.lock(:group, group_id)
 
-          {:error, reason} ->
-            {:error, reason}
-        end
+      if count_group_members(group_id) >= group.max_members do
+        Repo.rollback(:full)
+      end
+
+      case run_before_group_join_hook(user_id, group, %{"source" => source}) do
+        :ok -> insert_group_member(group_id, user_id)
+        {:error, reason} -> Repo.rollback(reason)
+      end
+    end)
+  end
+
+  defp insert_group_member(group_id, user_id) do
+    case %GroupMember{}
+         |> GroupMember.changeset(%{group_id: group_id, user_id: user_id, role: "member"})
+         |> Repo.insert() do
+      {:ok, member} ->
+        _ = invalidate_group_cache(group_id)
+        broadcast_group(group_id, {:member_joined, group_id, user_id})
+        member
+
+      {:error, reason} ->
+        Repo.rollback(reason)
     end
   end
 

@@ -52,6 +52,7 @@ defmodule GameServer.Lobbies do
   alias GameServer.Accounts.User
   alias GameServer.Lobbies.Lobby
   alias GameServer.Repo
+  alias GameServer.Repo.AdvisoryLock
   alias GameServer.Types
 
   defp invalidate_accounts_user_cache(user_id) when is_integer(user_id) do
@@ -272,6 +273,8 @@ defmodule GameServer.Lobbies do
        when is_map(filters) and is_integer(page) and is_integer(page_size) do
     q = from(l in Lobby)
     q = apply_admin_filters(q, filters)
+    sort_by = Map.get(filters, "sort_by") || Map.get(filters, :sort_by) || "updated_at"
+    q = apply_admin_sort(q, sort_by)
 
     offset = (page - 1) * page_size
     Repo.all(from l in q, limit: ^page_size, offset: ^offset)
@@ -412,6 +415,14 @@ defmodule GameServer.Lobbies do
     end
   end
 
+  defp apply_admin_sort(q, "updated_at"), do: order_by(q, [l], desc: l.updated_at)
+  defp apply_admin_sort(q, "updated_at_asc"), do: order_by(q, [l], asc: l.updated_at)
+  defp apply_admin_sort(q, "inserted_at"), do: order_by(q, [l], desc: l.inserted_at)
+  defp apply_admin_sort(q, "inserted_at_asc"), do: order_by(q, [l], asc: l.inserted_at)
+  defp apply_admin_sort(q, "max_users"), do: order_by(q, [l], desc: l.max_users)
+  defp apply_admin_sort(q, "max_users_asc"), do: order_by(q, [l], asc: l.max_users)
+  defp apply_admin_sort(q, _), do: order_by(q, [l], desc: l.updated_at)
+
   @doc """
   List lobbies visible to a specific user.
   Includes the user's own lobby even if it's hidden.
@@ -487,28 +498,41 @@ defmodule GameServer.Lobbies do
   defp do_join(user_id, lobby, opts) do
     user = Accounts.get_user(user_id)
 
-    if user && user.lobby_id do
-      {:error, :already_in_lobby}
-    else
+    cond do
+      user && user.lobby_id ->
+        {:error, :already_in_lobby}
+
+      lobby.is_locked ->
+        {:error, :locked}
+
+      true ->
+        do_join_with_lock(user, lobby, opts, user_id)
+    end
+  end
+
+  # Wrap count + join in a transaction with advisory lock to prevent
+  # TOCTOU race conditions on PostgreSQL.
+  defp do_join_with_lock(user, lobby, opts, user_id) do
+    Repo.transaction(fn ->
+      AdvisoryLock.lock(:lobby, lobby.id)
+
       count =
         Repo.one(
-          from(u in GameServer.Accounts.User,
+          from(u in User,
             where: u.lobby_id == ^lobby.id,
             select: count(u.id)
           )
         ) || 0
 
-      cond do
-        count >= lobby.max_users ->
-          {:error, :full}
-
-        lobby.is_locked ->
-          {:error, :locked}
-
-        true ->
-          run_before_join_and_validate(user, lobby, opts, user_id)
+      if count >= lobby.max_users do
+        Repo.rollback(:full)
       end
-    end
+
+      case run_before_join_and_validate(user, lobby, opts, user_id) do
+        {:ok, result} -> result
+        {:error, reason} -> Repo.rollback(reason)
+      end
+    end)
   end
 
   defp run_before_join_and_validate(user, lobby, opts, user_id) do
@@ -594,6 +618,24 @@ defmodule GameServer.Lobbies do
   def create_lobby(attrs \\ %{}) do
     attrs = normalize_changeset_params(attrs)
     attrs = maybe_hash_password(attrs)
+
+    # If host_id is provided, check that the user isn't already in a lobby
+    host_id = Map.get(attrs, "host_id") || Map.get(attrs, :host_id)
+
+    if host_id do
+      host_user = Accounts.get_user(host_id)
+
+      if host_user && host_user.lobby_id do
+        {:error, :already_in_lobby}
+      else
+        do_create_lobby(attrs)
+      end
+    else
+      do_create_lobby(attrs)
+    end
+  end
+
+  defp do_create_lobby(attrs) do
     # if host_id is provided, prevent a user who is already a member of a lobby
     # from creating an additional lobby
     # ensure title is present and always ensure it is unique in the DB.

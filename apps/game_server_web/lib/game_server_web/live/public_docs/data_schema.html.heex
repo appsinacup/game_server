@@ -68,6 +68,7 @@
       is_admin       : boolean
       metadata       : map (JSON/Map for arbitrary user metadata)
       lobby_id       : integer (foreign key to lobbies, nullable)
+      party_id       : integer (foreign key to parties, nullable)
       confirmed_at   : utc_datetime
       inserted_at    : utc_datetime
       updated_at     : utc_datetime
@@ -107,11 +108,25 @@
     )</pre>
       </div>
 
+      <h4 class="font-semibold mt-3">{doc_text("Parties")}</h4>
+      <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+        <pre>
+    parties (
+      id          : integer (primary key)
+      leader_id   : integer (user id of the party leader/creator)
+      max_size    : integer (maximum number of members, default: 4)
+      metadata    : jsonb/map (arbitrary party metadata)
+      inserted_at : utc_datetime
+      updated_at  : utc_datetime
+    )</pre>
+      </div>
+
       <h4 class="font-semibold mt-3">{doc_text("Leaderboards")}</h4>
       <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
         <pre>
     leaderboards (
-      id          : string (primary key, e.g. "weekly_score_2024_w48")
+      id          : integer (primary key)
+      slug        : string (unique identifier, e.g. "weekly_score_2024_w48")
       title       : string (display name)
       description : text (optional)
       sort_order  : enum (asc, desc) - default: desc
@@ -125,12 +140,61 @@
 
     leaderboard_records (
       id             : bigint (primary key)
-      leaderboard_id : string (FK to leaderboards)
+      leaderboard_id : integer (FK to leaderboards)
       user_id        : bigint (FK to users)
       score          : bigint
       metadata       : jsonb (optional)
       inserted_at    : utc_datetime
       updated_at     : utc_datetime
+    )</pre>
+      </div>
+
+      <h4 class="font-semibold mt-3">{doc_text("Notifications")}</h4>
+      <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+        <pre>
+    notifications (
+      id           : integer (primary key)
+      sender_id    : integer (FK to users)
+      recipient_id : integer (FK to users)
+      title        : string (notification type/category)
+      content      : string (message body)
+      metadata     : jsonb/map (optional, e.g. invite data)
+      inserted_at  : utc_datetime
+      updated_at   : utc_datetime
+    )</pre>
+      </div>
+
+      <h4 class="font-semibold mt-3">{doc_text("Groups")}</h4>
+      <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+        <pre>
+    groups (
+      id          : integer (primary key)
+      title       : string (display name, unique)
+      description : string (optional)
+      type        : string ("public" | "private" | "hidden")
+      max_members : integer (default: 100)
+      metadata    : jsonb/map (optional)
+      creator_id  : integer (FK to users)
+      inserted_at : utc_datetime
+      updated_at  : utc_datetime
+    )
+
+    group_members (
+      id          : integer (primary key)
+      group_id    : integer (FK to groups)
+      user_id     : integer (FK to users)
+      role        : string ("admin" | "member")
+      inserted_at : utc_datetime
+      updated_at  : utc_datetime
+    )
+
+    group_join_requests (
+      id          : integer (primary key)
+      group_id    : integer (FK to groups)
+      user_id     : integer (FK to users)
+      status      : string ("pending" | "accepted" | "rejected")
+      inserted_at : utc_datetime
+      updated_at  : utc_datetime
     )</pre>
       </div>
 

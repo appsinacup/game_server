@@ -1,0 +1,189 @@
+<!-- Architecture Overview -->
+<div class="card bg-base-100 shadow-xl collapsed" data-card-key="architecture">
+  <div class="card-body">
+    <h2 class="card-title text-2xl mb-4 flex items-center gap-3">
+      <svg
+        class="w-12 h-8 text-indigo-600"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+        />
+      </svg>
+      {doc_text("Architecture")}
+      <button
+        type="button"
+        data-action="toggle-card"
+        data-card-key="architecture"
+        aria-expanded="false"
+        class="btn btn-ghost btn-sm ml-auto"
+        title={doc_text("Collapse/Expand")}
+      >
+        <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 8l4 4 4-4"
+          />
+        </svg>
+      </button>
+    </h2>
+
+    <div class="space-y-4">
+      <p class="text-sm text-base-content/80">
+        {doc_text(
+          "High-level overview of how the platform is structured — from clients down to the database and external services."
+        )}
+      </p>
+
+      <h3 class="font-semibold">{doc_text("System overview")}</h3>
+      <div
+        class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto"
+        phx-no-curly-interpolation
+      >
+        <pre>
+  ┌─────────────────────────────────────────────────────────────┐
+  │                        CLIENTS                              │
+  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
+  │  │  Godot SDK   │  │   JS SDK     │  │ Web Browser  │       │
+  │  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘       │
+  └─────────┼─────────────────┼─────────────────┼───────────────┘
+            │ REST + WS       │ REST + WS       │ HTTP
+            ▼                 ▼                 ▼
+  ┌─────────────────────────────────────────────────────────────┐
+  │                     GAME SERVER                             │
+  │                                                             │
+  │  ┌───────────────────── Web Layer ───────────────────────┐  │
+  │  │  REST API (/api/v1)  │  WebSocket Channels  │  Admin  │  │
+  │  │  (Controllers +      │  (Lobby, User,       │  UI     │  │
+  │  │   OpenApiSpex)       │   other channels)    │  (Live) │  │
+  │  └──────────┬───────────┴──────────┬───────────┴────┬────┘  │
+  │             │                      │                │       │
+  │  ┌──────── Auth ──────────────────────────────────────────┐ │
+  │  │  Guardian (JWT)  │  Sessions  │  Ueberauth (OAuth)     │ │
+  │  └──────────┬───────┴──────┬─────┴──────────┬─────────────┘ │
+  │             │              │                │               │
+  │  ┌───────── Business Layer (Contexts) ────────────────────┐ │
+  │  │                                                        │ │
+  │  │  Accounts  │  Lobbies  │  Parties  │  Friends          │ │
+  │  │  Groups    │  Leaderboards  │  Notifications           │ │
+  │  │  Hooks (server scripting)  │  KV Storage               │ │
+  │  │                                                        │ │
+  │  └──────────┬─────────────────────┬───────────────────────┘ │
+  │             │                     │                         │
+  │  ┌──────── Infrastructure ────────┴───────────────────────┐ │
+  │  │  PubSub (real-time)  │  Cache (Nebulex)  │  Scheduler  │ │
+  │  └──────────┬───────────┴──────────┬────────┴─────────────┘ │
+  └─────────────┼──────────────────────┼────────────────────────┘
+                │                      │
+  ┌─────────────┼──────────────────────┼───────────────────────┐
+  │             ▼     EXTERNAL         ▼                       │
+  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
+  │  │   Database   │  │    Redis     │  │  OAuth       │      │
+  │  │ SQLite / PG  │  │  (optional)  │  │  Providers   │      │
+  │  └──────────────┘  └──────────────┘  └──────────────┘      │
+  │  ┌──────────────┐  ┌──────────────┐                        │
+  │  │  Email SMTP  │  │   Sentry     │                        │
+  │  └──────────────┘  └──────────────┘                        │
+  └────────────────────────────────────────────────────────────┘</pre>
+      </div>
+
+      <h3 class="font-semibold mt-3">{doc_text("Request flow")}</h3>
+      <div
+        class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto"
+        phx-no-curly-interpolation
+      >
+        <pre>
+  Client ──► Endpoint ──► Router ──► Pipeline (auth) ──► Controller/LiveView
+                                                              │
+                                                              ▼
+                                                        Context module
+                                                       (business logic)
+                                                              │
+                                                              ▼
+                                                        Ecto / Repo
+                                                              │
+                                                              ▼
+                                                          Database</pre>
+      </div>
+
+      <h3 class="font-semibold mt-3">{doc_text("Real-time (PubSub topics)")}</h3>
+      <div
+        class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto"
+        phx-no-curly-interpolation
+      >
+        <pre>
+  Publishers                  Topics               Subscribers
+  ──────────                  ──────               ───────────
+  Lobbies module  ──────►  "lobby:{id}"  ──────►  LobbyChannel
+  Lobbies module  ──────►  "lobbies"     ──────►  LobbiesChannel, LiveViews
+  Parties module  ──────►  "party:{id}"  ──────►  UserChannel
+  Parties module  ──────►  "parties"     ──────►  LiveViews
+  Friends module  ──────►  "user:{id}"   ──────►  UserChannel
+  Accounts module ──────►  "user:{id}"   ──────►  UserChannel
+  Groups module   ──────►  "group:{id}"  ──────►  LiveViews
+  Groups module   ──────►  "groups"      ──────►  LiveViews
+  Notifications   ──────►  "user:{id}"   ──────►  UserChannel</pre>
+      </div>
+
+      <h3 class="font-semibold mt-3">{doc_text("Entity relationships (simplified)")}</h3>
+      <div
+        class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto"
+        phx-no-curly-interpolation
+      >
+        <pre>
+  users ─────┬──── lobby_id ──────────► lobbies
+             │                            │
+             ├──── party_id ──────────► parties
+             │                            │
+             ├──── friendships ◄─────► friendships
+             │
+             ├──── group_members ─────► groups
+             │
+             ├──── leaderboard_records ► leaderboards
+             │
+             ├──── notifications (send / receive)
+             │
+             └──── users_tokens, oauth_sessions</pre>
+      </div>
+
+      <h3 class="font-semibold mt-3">{doc_text("Umbrella structure")}</h3>
+      <div
+        class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto"
+        phx-no-curly-interpolation
+      >
+        <pre>
+  game_server/
+  ├── apps/
+  │   ├── game_server_core/    # Domain: contexts, schemas, migrations
+  │   ├── game_server_web/     # Web: controllers, LiveViews, channels, components
+  │   └── game_server_host/    # Host: supervision tree, routing, boot config
+  ├── assets/                  # JS, CSS, vendor deps
+  ├── config/                  # Env configs (dev, test, prod, runtime)
+  ├── modules/                 # Runtime hook scripts (server scripting)
+  ├── clients/                 # Godot SDK, JS SDK
+  └── sdk/                     # Elixir SDK stubs for hooks</pre>
+      </div>
+
+      <h3 class="font-semibold mt-2">{doc_text("Key technologies")}</h3>
+      <ul class="list-disc pl-6 text-sm space-y-1 text-base-content/80">
+        <li><strong>Framework:</strong> Phoenix 1.8 + LiveView</li>
+        <li><strong>Language:</strong> Elixir 1.19 / Erlang OTP</li>
+        <li><strong>Database:</strong> SQLite3 (default) / PostgreSQL (optional)</li>
+        <li><strong>Real-time:</strong> Phoenix Channels + PubSub</li>
+        <li><strong>Auth:</strong> Guardian (JWT), Ueberauth (OAuth), Sessions</li>
+        <li><strong>Cache:</strong> Nebulex (L1 local, optional L2 Redis/partitioned)</li>
+        <li><strong>Scheduling:</strong> Quantum (cron-like)</li>
+        <li><strong>API docs:</strong> OpenApiSpex (Swagger UI)</li>
+        <li><strong>CSS:</strong> Tailwind CSS 4</li>
+        <li><strong>Monitoring:</strong> Sentry + Telemetry</li>
+      </ul>
+    </div>
+  </div>
+</div>
