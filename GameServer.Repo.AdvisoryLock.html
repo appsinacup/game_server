@@ -8,7 +8,7 @@
     <meta name="project" content="GameServer v1.0.577">
 
 
-    <title>GameServer.Groups.GroupMember — GameServer v1.0.577</title>
+    <title>GameServer.Repo.AdvisoryLock — GameServer v1.0.577</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
@@ -93,12 +93,12 @@ GameServer
 <div id="top-content">
   <div class="heading-with-actions top-heading">
     <h1>
-      <span translate="no">GameServer.<wbr>Groups.<wbr>GroupMember</span> 
+      <span translate="no">GameServer.<wbr>Repo.<wbr>AdvisoryLock</span> 
       <small class="app-vsn" translate="no">(GameServer v1.0.577)</small>
 
     </h1>
 
-<a href="GameServer.Groups.GroupMember.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
+<a href="GameServer.Repo.AdvisoryLock.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
   <i class="ri-markdown-line" aria-hidden="true"></i>
   <span class="sr-only">Copy Markdown</span>
 </a>
@@ -109,8 +109,15 @@ GameServer
 
 
     <section id="moduledoc">
-<p>Ecto schema for the <code class="inline">group_members</code> join table.</p><p>Tracks which users belong to which groups and their role within the group.</p><h2 id="module-roles" class="section-heading"><a href="#module-roles" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Roles</span></h2><ul><li><code class="inline">&quot;admin&quot;</code> – can kick members, rename group, change settings, approve
-join requests, promote/demote members</li><li><code class="inline">&quot;member&quot;</code> – regular participant</li></ul>
+<p>Advisory locking for protecting TOCTOU (Time-of-Check-Time-of-Use) patterns.</p><p>On PostgreSQL, acquires a transaction-scoped advisory lock via
+<code class="inline">pg_advisory_xact_lock(namespace, resource_id)</code>. The lock is automatically
+released when the enclosing <code class="inline">Repo.transaction</code> commits or rolls back.</p><p>On SQLite, this is a no-op — SQLite serializes all writes at the
+database level, so advisory locks are unnecessary.</p><h2 id="module-usage" class="section-heading"><a href="#module-usage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage</span></h2><p>Always call within a <code class="inline">Repo.transaction</code>:</p><pre><code class="makeup elixir" translate="no"><span class="nc">Repo</span><span class="o">.</span><span class="n">transaction</span><span class="p" data-group-id="6496681728-1">(</span><span class="k" data-group-id="6496681728-2">fn</span><span class="w"> </span><span class="o">-&gt;</span><span class="w">
+  </span><span class="nc">AdvisoryLock</span><span class="o">.</span><span class="n">lock</span><span class="p" data-group-id="6496681728-3">(</span><span class="ss">:lobby</span><span class="p">,</span><span class="w"> </span><span class="n">lobby</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="6496681728-3">)</span><span class="w">
+  </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">count_members</span><span class="p" data-group-id="6496681728-4">(</span><span class="n">lobby</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="6496681728-4">)</span><span class="w">
+  </span><span class="k">if</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">lobby</span><span class="o">.</span><span class="n">max_users</span><span class="p">,</span><span class="w"> </span><span class="ss">do</span><span class="p">:</span><span class="w"> </span><span class="nc">Repo</span><span class="o">.</span><span class="n">rollback</span><span class="p" data-group-id="6496681728-5">(</span><span class="ss">:full</span><span class="p" data-group-id="6496681728-5">)</span><span class="w">
+  </span><span class="n">do_join</span><span class="p" data-group-id="6496681728-6">(</span><span class="n">...</span><span class="p" data-group-id="6496681728-6">)</span><span class="w">
+</span><span class="k" data-group-id="6496681728-2">end</span><span class="p" data-group-id="6496681728-1">)</span></code></pre><h2 id="module-namespaces" class="section-heading"><a href="#module-namespaces" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Namespaces</span></h2><p>Each resource type uses a distinct integer namespace to avoid collisions:</p><ul><li><code class="inline">:lobby</code> → 1</li><li><code class="inline">:group</code> → 2</li><li><code class="inline">:party</code> → 3</li></ul>
     </section>
 
 </div>
@@ -122,20 +129,6 @@ join requests, promote/demote members</li><li><code class="inline">&quot;member&
       </a>
       <span class="text">Summary</span>
     </h2>
-<div class="summary-types summary">
-  <h3>
-    <a href="#types">Types</a>
-  </h3>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#t:t/0" data-no-tooltip="" translate="no">t()</a>
-
-      </div>
-
-    </div>
-
-</div>
 <div class="summary-functions summary">
   <h3>
     <a href="#functions">Functions</a>
@@ -143,9 +136,21 @@ join requests, promote/demote members</li><li><code class="inline">&quot;member&
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#changeset/2" data-no-tooltip="" translate="no">changeset(member, attrs)</a>
+        <a href="#lock/2" data-no-tooltip="" translate="no">lock(namespace, resource_id)</a>
 
       </div>
+
+        <div class="summary-synopsis"><p>Acquire a transaction-scoped advisory lock for the given resource.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#postgres?/0" data-no-tooltip="" translate="no">postgres?()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns true if the current Repo adapter is PostgreSQL.</p></div>
 
     </div>
 
@@ -153,53 +158,6 @@ join requests, promote/demote members</li><li><code class="inline">&quot;member&
 
   </section>
 
-
-  <section id="types" class="details-list">
-    <h2 class="section-heading">
-      <a class="hover-link" href="#types">
-        <i class="ri-link-m" aria-hidden="true"></i>
-      </a>
-      <span class="text">Types</span>
-    </h2>
-
-    <div class="types-list">
-<section class="detail" id="t:t/0">
-
-  <div class="detail-header">
-    <a href="#t:t/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">t()</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@type</span> t() :: %GameServer.Groups.GroupMember{
-  __meta__: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  group: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  group_id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  inserted_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  role: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  updated_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  user: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  user_id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()
-}</pre>
-
-      </div>
-
-
-  </section>
-</section>
-
-    </div>
-  </section>
 
   <section id="functions" class="details-list">
     <h2 class="section-heading">
@@ -210,14 +168,14 @@ join requests, promote/demote members</li><li><code class="inline">&quot;member&
     </h2>
 
     <div class="functions-list">
-<section class="detail" id="changeset/2">
+<section class="detail" id="lock/2">
 
   <div class="detail-header">
-    <a href="#changeset/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#lock/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">changeset(member, attrs)</h1>
+      <h1 class="signature" translate="no">lock(namespace, resource_id)</h1>
 
 
     </div>
@@ -225,7 +183,38 @@ join requests, promote/demote members</li><li><code class="inline">&quot;member&
 
   <section class="docstring">
 
+      <div class="specs">
 
+          <pre translate="no"><span class="attribute">@spec</span> lock(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: :ok</pre>
+
+      </div>
+
+<p>Acquire a transaction-scoped advisory lock for the given resource.</p><p>Must be called inside a <code class="inline">Repo.transaction</code>. On PostgreSQL, blocks until
+the lock is available. On SQLite, returns immediately.</p>
+  </section>
+</section>
+<section class="detail" id="postgres?/0">
+
+  <div class="detail-header">
+    <a href="#postgres?/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">postgres?()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> postgres?() :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+
+      </div>
+
+<p>Returns true if the current Repo adapter is PostgreSQL.</p>
   </section>
 </section>
 

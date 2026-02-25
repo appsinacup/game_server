@@ -51,6 +51,17 @@ Accept a friend request (only the target may accept). Returns {:ok, friendship}.
 
 Block an incoming request (only the target may block). Returns {:ok, friendship} with status "blocked".
 
+# `blocked?`
+
+```elixir
+@spec blocked?(user_id(), user_id()) :: boolean()
+```
+
+Check if either user has blocked the other.
+
+Returns `true` if a friendship row with status `"blocked"` exists in either
+direction between the two user IDs.
+
 # `cancel_request`
 
 ```elixir

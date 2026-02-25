@@ -1,4 +1,4 @@
-# GameServer v1.0.576 - Table of Contents
+# GameServer v1.0.577 - Table of Contents
 
 ## Modules
 
@@ -51,7 +51,10 @@ notifications for key friend events
 - [GameServer.OAuthSession](GameServer.OAuthSession.md): Simple Ecto schema for OAuth session polling used by client SDKs.
 - [GameServer.OAuthSessions](GameServer.OAuthSessions.md): Helpers for creating and retrieving short-lived OAuth sessions.
 
+- [GameServer.Parties](GameServer.Parties.md): Context module for party management.
+- [GameServer.Parties.Party](GameServer.Parties.Party.md): Ecto schema for the `parties` table.
 - [GameServer.Repo](GameServer.Repo.md)
+- [GameServer.Repo.AdvisoryLock](GameServer.Repo.AdvisoryLock.md): Advisory locking for protecting TOCTOU (Time-of-Check-Time-of-Use) patterns.
 - [GameServer.Schedule](GameServer.Schedule.md): Dynamic cron-like job scheduling for hooks.
 - [GameServer.Schedule.Lock](GameServer.Schedule.Lock.md): Schema for schedule job locks.
 - [GameServer.Schedule.Scheduler](GameServer.Schedule.Scheduler.md): Defines a quantum Scheduler.

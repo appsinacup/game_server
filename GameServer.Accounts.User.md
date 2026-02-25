@@ -29,6 +29,8 @@ validations so other domains can reuse them safely.
   lobby: term(),
   lobby_id: integer() | nil,
   metadata: map(),
+  party: term(),
+  party_id: integer() | nil,
   password: term(),
   profile_url: term(),
   steam_id: term(),

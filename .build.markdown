@@ -37,6 +37,9 @@ GameServer.OAuth.Exchanger.md
 GameServer.OAuth.GoogleIDToken.md
 GameServer.OAuthSession.md
 GameServer.OAuthSessions.md
+GameServer.Parties.Party.md
+GameServer.Parties.md
+GameServer.Repo.AdvisoryLock.md
 GameServer.Repo.md
 GameServer.Schedule.Lock.md
 GameServer.Schedule.Scheduler.md

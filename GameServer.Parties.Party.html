@@ -8,7 +8,7 @@
     <meta name="project" content="GameServer v1.0.577">
 
 
-    <title>GameServer.Groups.GroupMember — GameServer v1.0.577</title>
+    <title>GameServer.Parties.Party — GameServer v1.0.577</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
@@ -93,12 +93,12 @@ GameServer
 <div id="top-content">
   <div class="heading-with-actions top-heading">
     <h1>
-      <span translate="no">GameServer.<wbr>Groups.<wbr>GroupMember</span> 
+      <span translate="no">GameServer.<wbr>Parties.<wbr>Party</span> 
       <small class="app-vsn" translate="no">(GameServer v1.0.577)</small>
 
     </h1>
 
-<a href="GameServer.Groups.GroupMember.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
+<a href="GameServer.Parties.Party.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
   <i class="ri-markdown-line" aria-hidden="true"></i>
   <span class="sr-only">Copy Markdown</span>
 </a>
@@ -109,8 +109,10 @@ GameServer
 
 
     <section id="moduledoc">
-<p>Ecto schema for the <code class="inline">group_members</code> join table.</p><p>Tracks which users belong to which groups and their role within the group.</p><h2 id="module-roles" class="section-heading"><a href="#module-roles" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Roles</span></h2><ul><li><code class="inline">&quot;admin&quot;</code> – can kick members, rename group, change settings, approve
-join requests, promote/demote members</li><li><code class="inline">&quot;member&quot;</code> – regular participant</li></ul>
+<p>Ecto schema for the <code class="inline">parties</code> table.</p><p>A party is a pre-lobby grouping mechanism. Players form a party before
+creating or joining a lobby together. The party leader controls when the
+party enters a lobby, and all members join atomically.</p><p>Rules:</p><ul><li>A party has a leader (creator) and members.</li><li>Members join via invite (notification-based).</li><li>The leader sets <code class="inline">max_size</code> (capacity).</li><li>If the leader leaves, the party is disbanded (deleted).</li><li>When the leader creates or joins a lobby, all party members join that
+lobby atomically (the lobby must have enough space).</li><li>A user can be in both a party and a lobby simultaneously.</li><li>A user can only be in one party at a time.</li></ul>
     </section>
 
 </div>
@@ -122,20 +124,6 @@ join requests, promote/demote members</li><li><code class="inline">&quot;member&
       </a>
       <span class="text">Summary</span>
     </h2>
-<div class="summary-types summary">
-  <h3>
-    <a href="#types">Types</a>
-  </h3>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#t:t/0" data-no-tooltip="" translate="no">t()</a>
-
-      </div>
-
-    </div>
-
-</div>
 <div class="summary-functions summary">
   <h3>
     <a href="#functions">Functions</a>
@@ -143,7 +131,7 @@ join requests, promote/demote members</li><li><code class="inline">&quot;member&
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#changeset/2" data-no-tooltip="" translate="no">changeset(member, attrs)</a>
+        <a href="#changeset/2" data-no-tooltip="" translate="no">changeset(party, attrs)</a>
 
       </div>
 
@@ -153,53 +141,6 @@ join requests, promote/demote members</li><li><code class="inline">&quot;member&
 
   </section>
 
-
-  <section id="types" class="details-list">
-    <h2 class="section-heading">
-      <a class="hover-link" href="#types">
-        <i class="ri-link-m" aria-hidden="true"></i>
-      </a>
-      <span class="text">Types</span>
-    </h2>
-
-    <div class="types-list">
-<section class="detail" id="t:t/0">
-
-  <div class="detail-header">
-    <a href="#t:t/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">t()</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@type</span> t() :: %GameServer.Groups.GroupMember{
-  __meta__: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  group: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  group_id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  inserted_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  role: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  updated_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  user: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  user_id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()
-}</pre>
-
-      </div>
-
-
-  </section>
-</section>
-
-    </div>
-  </section>
 
   <section id="functions" class="details-list">
     <h2 class="section-heading">
@@ -217,7 +158,7 @@ join requests, promote/demote members</li><li><code class="inline">&quot;member&
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">changeset(member, attrs)</h1>
+      <h1 class="signature" translate="no">changeset(party, attrs)</h1>
 
 
     </div>

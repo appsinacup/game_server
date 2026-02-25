@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.40.1">
+    <meta name="project" content="GameServer v1.0.577">
+
+
+    <title>GameServer.Parties — GameServer v1.0.577</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
+
+    <script defer src="dist/sidebar_items-C2CCDE2C.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-YU4BZFVS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="api-reference.html" class="sidebar-projectName" translate="no">
+GameServer
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v1.0.577
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras="Pages"></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of GameServer</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">GameServer.<wbr>Parties</span> 
+      <small class="app-vsn" translate="no">(GameServer v1.0.577)</small>
+
+    </h1>
+
+<a href="GameServer.Parties.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
+  <i class="ri-markdown-line" aria-hidden="true"></i>
+  <span class="sr-only">Copy Markdown</span>
+</a>
+
+
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Context module for party management.</p><p>A party is a pre-lobby grouping mechanism. Players form a party before
+creating or joining a lobby together.</p><h2 id="module-usage" class="section-heading"><a href="#module-usage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># Create a party (user becomes leader and first member)</span><span class="w">
+</span><span class="p" data-group-id="6665103597-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">party</span><span class="p" data-group-id="6665103597-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">create_party</span><span class="p" data-group-id="6665103597-2">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6665103597-3">%{</span><span class="ss">max_size</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p" data-group-id="6665103597-3">}</span><span class="p" data-group-id="6665103597-2">)</span><span class="w">
+
+</span><span class="c1"># Join a party by ID</span><span class="w">
+</span><span class="p" data-group-id="6665103597-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p" data-group-id="6665103597-4">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">join_party</span><span class="p" data-group-id="6665103597-5">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">party_id</span><span class="p" data-group-id="6665103597-5">)</span><span class="w">
+
+</span><span class="c1"># Leave a party (if leader leaves, party is disbanded)</span><span class="w">
+</span><span class="p" data-group-id="6665103597-6">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="bp">_</span><span class="p" data-group-id="6665103597-6">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">leave_party</span><span class="p" data-group-id="6665103597-7">(</span><span class="n">user</span><span class="p" data-group-id="6665103597-7">)</span><span class="w">
+
+</span><span class="c1"># Party leader creates a lobby — all members join atomically</span><span class="w">
+</span><span class="p" data-group-id="6665103597-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">lobby</span><span class="p" data-group-id="6665103597-8">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">create_lobby_with_party</span><span class="p" data-group-id="6665103597-9">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">lobby_attrs</span><span class="p" data-group-id="6665103597-9">)</span><span class="w">
+
+</span><span class="c1"># Party leader joins an existing lobby — all members join atomically</span><span class="w">
+</span><span class="p" data-group-id="6665103597-10">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">lobby</span><span class="p" data-group-id="6665103597-10">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">join_lobby_with_party</span><span class="p" data-group-id="6665103597-11">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">lobby_id</span><span class="p">,</span><span class="w"> </span><span class="n">opts</span><span class="p" data-group-id="6665103597-11">)</span></code></pre><h2 id="module-pubsub-events" class="section-heading"><a href="#module-pubsub-events" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">PubSub Events</span></h2><p>This module broadcasts the following events:</p><ul><li><code class="inline">&quot;party:&lt;party_id&gt;&quot;</code> topic:<ul><li><code class="inline">{:party_member_joined, party_id, user_id}</code></li><li><code class="inline">{:party_member_left, party_id, user_id}</code></li><li><code class="inline">{:party_disbanded, party_id}</code></li><li><code class="inline">{:party_updated, party}</code></li></ul></li></ul>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h2>
+<div class="summary-functions summary">
+  <h3>
+    <a href="#functions">Functions</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#accept_party_invite/2" data-no-tooltip="" translate="no">accept_party_invite(user, invite_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Accept a party invite. The user joins the party and the invite notification
+is deleted.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#admin_delete_party/1" data-no-tooltip="" translate="no">admin_delete_party(party_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Admin delete of a party. Clears all members' party_id and deletes the party.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#admin_update_party/2" data-no-tooltip="" translate="no">admin_update_party(party, attrs)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Admin update of a party (max_size, metadata).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#cancel_party_invite/2" data-no-tooltip="" translate="no">cancel_party_invite(user, invite_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Cancel a sent party invite (leader only). Deletes the invite notification.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#change_party/1" data-no-tooltip="" translate="no">change_party(party)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Return a changeset for the given party (for edit forms).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_all_parties/1" data-no-tooltip="" translate="no">count_all_parties(filters \\ %{})</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count all parties matching the given filters.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_all_party_members/0" data-no-tooltip="" translate="no">count_all_party_members()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count total members across all parties.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_party_invites/1" data-no-tooltip="" translate="no">count_party_invites(user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count pending party invites for a user.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_party_members/1" data-no-tooltip="" translate="no">count_party_members(party_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count members in a party.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#create_lobby_with_party/2" data-no-tooltip="" translate="no">create_lobby_with_party(user, lobby_attrs \\ %{})</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>The party leader creates a new lobby, and all party members join it
+atomically. The party is kept intact.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#create_party/2" data-no-tooltip="" translate="no">create_party(user, attrs \\ %{})</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Create a new party. The user becomes the leader and first member.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#decline_party_invite/2" data-no-tooltip="" translate="no">decline_party_invite(user, invite_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Decline a party invite. Deletes the invite notification.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_party/1" data-no-tooltip="" translate="no">get_party(id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Get a party by ID. Returns nil if not found.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_party!/1" data-no-tooltip="" translate="no">get_party!(id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Get a party by ID. Raises if not found.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_party_members/1" data-no-tooltip="" translate="no">get_party_members(party_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Get all members of a party.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_user_party/1" data-no-tooltip="" translate="no">get_user_party(user)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Get the party the user is currently in, or nil.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#invite_to_party/2" data-no-tooltip="" translate="no">invite_to_party(leader, target_user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Invite a user to the party. Only the party leader can send invites.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#join_lobby_with_party/3" data-no-tooltip="" translate="no">join_lobby_with_party(user, lobby_id, opts \\ %{})</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>The party leader joins an existing lobby, and all party members join it
+atomically. The party is kept intact.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#join_party/2" data-no-tooltip="" translate="no">join_party(user, party_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Join an existing party by ID.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#kick_member/2" data-no-tooltip="" translate="no">kick_member(leader, target_user_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Kick a member from the party. Only the leader can kick.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#leave_party/1" data-no-tooltip="" translate="no">leave_party(user)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Leave the current party.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_all_parties/2" data-no-tooltip="" translate="no">list_all_parties(filters \\ %{}, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List all parties with optional filters and pagination.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_party_invites/2" data-no-tooltip="" translate="no">list_party_invites(user_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List pending party invites for a user (paginated).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_sent_party_invites/2" data-no-tooltip="" translate="no">list_sent_party_invites(user_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List party invites sent by a user (paginated).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#subscribe_parties/0" data-no-tooltip="" translate="no">subscribe_parties()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Subscribe to all party events (create/delete).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#subscribe_party/1" data-no-tooltip="" translate="no">subscribe_party(party_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Subscribe to events for a specific party.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#unsubscribe_party/1" data-no-tooltip="" translate="no">unsubscribe_party(party_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Unsubscribe from a party's events.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#update_party/2" data-no-tooltip="" translate="no">update_party(user, attrs)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Update party settings. Only the leader can update.</p></div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="functions" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h2>
+
+    <div class="functions-list">
+<section class="detail" id="accept_party_invite/2">
+
+  <div class="detail-header">
+    <a href="#accept_party_invite/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">accept_party_invite(user, invite_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> accept_party_invite(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  {:ok, <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Accept a party invite. The user joins the party and the invite notification
+is deleted.</p><p>The <code class="inline">invite_id</code> is the notification ID.</p>
+  </section>
+</section>
+<section class="detail" id="admin_delete_party/1">
+
+  <div class="detail-header">
+    <a href="#admin_delete_party/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">admin_delete_party(party_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> admin_delete_party(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  {:ok, GameServer.Parties.Party.t()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Admin delete of a party. Clears all members' party_id and deletes the party.</p>
+  </section>
+</section>
+<section class="detail" id="admin_update_party/2">
+
+  <div class="detail-header">
+    <a href="#admin_update_party/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">admin_update_party(party, attrs)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> admin_update_party(GameServer.Parties.Party.t(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok, GameServer.Parties.Party.t()} | {:error, <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+
+      </div>
+
+<p>Admin update of a party (max_size, metadata).</p>
+  </section>
+</section>
+<section class="detail" id="cancel_party_invite/2">
+
+  <div class="detail-header">
+    <a href="#cancel_party_invite/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">cancel_party_invite(user, invite_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> cancel_party_invite(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Cancel a sent party invite (leader only). Deletes the invite notification.</p><p>The <code class="inline">invite_id</code> is the notification ID.</p>
+  </section>
+</section>
+<section class="detail" id="change_party/1">
+
+  <div class="detail-header">
+    <a href="#change_party/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">change_party(party)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> change_party(GameServer.Parties.Party.t()) :: <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()</pre>
+
+      </div>
+
+<p>Return a changeset for the given party (for edit forms).</p>
+  </section>
+</section>
+<section class="detail" id="count_all_parties/1">
+
+    <span id="count_all_parties/0"></span>
+
+  <div class="detail-header">
+    <a href="#count_all_parties/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_all_parties(filters \\ %{})</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_all_parties(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count all parties matching the given filters.</p>
+  </section>
+</section>
+<section class="detail" id="count_all_party_members/0">
+
+  <div class="detail-header">
+    <a href="#count_all_party_members/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_all_party_members()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_all_party_members() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count total members across all parties.</p>
+  </section>
+</section>
+<section class="detail" id="count_party_invites/1">
+
+  <div class="detail-header">
+    <a href="#count_party_invites/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_party_invites(user_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_party_invites(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count pending party invites for a user.</p>
+  </section>
+</section>
+<section class="detail" id="count_party_members/1">
+
+  <div class="detail-header">
+    <a href="#count_party_members/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_party_members(party_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_party_members(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count members in a party.</p>
+  </section>
+</section>
+<section class="detail" id="create_lobby_with_party/2">
+
+    <span id="create_lobby_with_party/1"></span>
+
+  <div class="detail-header">
+    <a href="#create_lobby_with_party/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">create_lobby_with_party(user, lobby_attrs \\ %{})</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> create_lobby_with_party(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>The party leader creates a new lobby, and all party members join it
+atomically. The party is kept intact.</p><p>The lobby's <code class="inline">max_users</code> must be &gt;= party member count.</p>
+  </section>
+</section>
+<section class="detail" id="create_party/2">
+
+    <span id="create_party/1"></span>
+
+  <div class="detail-header">
+    <a href="#create_party/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">create_party(user, attrs \\ %{})</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> create_party(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok, GameServer.Parties.Party.t()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Create a new party. The user becomes the leader and first member.</p><p>Returns <code class="inline">{:error, :already_in_party}</code> if the user is already in a party.</p>
+  </section>
+</section>
+<section class="detail" id="decline_party_invite/2">
+
+  <div class="detail-header">
+    <a href="#decline_party_invite/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">decline_party_invite(user, invite_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> decline_party_invite(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Decline a party invite. Deletes the invite notification.</p><p>The <code class="inline">invite_id</code> is the notification ID.</p>
+  </section>
+</section>
+<section class="detail" id="get_party/1">
+
+  <div class="detail-header">
+    <a href="#get_party/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_party(id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_party(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: GameServer.Parties.Party.t() | nil</pre>
+
+      </div>
+
+<p>Get a party by ID. Returns nil if not found.</p>
+  </section>
+</section>
+<section class="detail" id="get_party!/1">
+
+  <div class="detail-header">
+    <a href="#get_party!/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_party!(id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_party!(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: GameServer.Parties.Party.t()</pre>
+
+      </div>
+
+<p>Get a party by ID. Raises if not found.</p>
+  </section>
+</section>
+<section class="detail" id="get_party_members/1">
+
+  <div class="detail-header">
+    <a href="#get_party_members/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_party_members(party_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_party_members(GameServer.Parties.Party.t() | <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: [
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()
+]</pre>
+
+      </div>
+
+<p>Get all members of a party.</p>
+  </section>
+</section>
+<section class="detail" id="get_user_party/1">
+
+  <div class="detail-header">
+    <a href="#get_user_party/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_user_party(user)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_user_party(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()) ::
+  GameServer.Parties.Party.t() | nil</pre>
+
+      </div>
+
+<p>Get the party the user is currently in, or nil.</p>
+  </section>
+</section>
+<section class="detail" id="invite_to_party/2">
+
+  <div class="detail-header">
+    <a href="#invite_to_party/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">invite_to_party(leader, target_user_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> invite_to_party(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  {:ok, <a href="GameServer.Notifications.Notification.html#t:t/0">GameServer.Notifications.Notification.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Invite a user to the party. Only the party leader can send invites.</p><p>Creates a notification with title <code class="inline">&quot;party_invite&quot;</code> and metadata containing
+the party_id. Uses <code class="inline">admin_create_notification/3</code> to bypass the friends-only
+restriction.</p><p>Returns <code class="inline">{:error, :not_in_party}</code> if the leader is not in a party.
+Returns <code class="inline">{:error, :not_leader}</code> if the user is not the party leader.
+Returns <code class="inline">{:error, :target_in_party}</code> if the target user is already in a party.
+Returns <code class="inline">{:error, :target_in_lobby}</code> if the target user is already in a lobby.
+Returns <code class="inline">{:error, :self_invite}</code> if the leader tries to invite themselves.
+Returns <code class="inline">{:error, :blocked}</code> if either user has blocked the other.</p>
+  </section>
+</section>
+<section class="detail" id="join_lobby_with_party/3">
+
+    <span id="join_lobby_with_party/2"></span>
+
+  <div class="detail-header">
+    <a href="#join_lobby_with_party/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">join_lobby_with_party(user, lobby_id, opts \\ %{})</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> join_lobby_with_party(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>The party leader joins an existing lobby, and all party members join it
+atomically. The party is kept intact.</p><p>The lobby must have enough free slots for the entire party.</p>
+  </section>
+</section>
+<section class="detail" id="join_party/2">
+
+  <div class="detail-header">
+    <a href="#join_party/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">join_party(user, party_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> join_party(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  {:ok, <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Join an existing party by ID.</p><p>Returns <code class="inline">{:error, :already_in_party}</code> if the user is already in a party.
+Returns <code class="inline">{:error, :party_not_found}</code> if the party doesn't exist.
+Returns <code class="inline">{:error, :party_full}</code> if the party is at capacity.</p>
+  </section>
+</section>
+<section class="detail" id="kick_member/2">
+
+  <div class="detail-header">
+    <a href="#kick_member/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">kick_member(leader, target_user_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> kick_member(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  {:ok, <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Kick a member from the party. Only the leader can kick.</p>
+  </section>
+</section>
+<section class="detail" id="leave_party/1">
+
+  <div class="detail-header">
+    <a href="#leave_party/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">leave_party(user)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> leave_party(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()) ::
+  {:ok, :left | :disbanded} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Leave the current party.</p><p>If the user is the party leader, the party is disbanded (all members removed,
+party deleted). Regular members are simply removed.</p>
+  </section>
+</section>
+<section class="detail" id="list_all_parties/2">
+
+    <span id="list_all_parties/0"></span>
+
+    <span id="list_all_parties/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_all_parties/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_all_parties(filters \\ %{}, opts \\ [])</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_all_parties(
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) :: [GameServer.Parties.Party.t()]</pre>
+
+      </div>
+
+<p>List all parties with optional filters and pagination.</p>
+  </section>
+</section>
+<section class="detail" id="list_party_invites/2">
+
+    <span id="list_party_invites/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_party_invites/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_party_invites(user_id, opts \\ [])</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_party_invites(
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) :: [<a href="GameServer.Notifications.Notification.html#t:t/0">GameServer.Notifications.Notification.t</a>()]</pre>
+
+      </div>
+
+<p>List pending party invites for a user (paginated).</p>
+  </section>
+</section>
+<section class="detail" id="list_sent_party_invites/2">
+
+    <span id="list_sent_party_invites/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_sent_party_invites/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_sent_party_invites(user_id, opts \\ [])</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_sent_party_invites(
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) :: [<a href="GameServer.Notifications.Notification.html#t:t/0">GameServer.Notifications.Notification.t</a>()]</pre>
+
+      </div>
+
+<p>List party invites sent by a user (paginated).</p>
+  </section>
+</section>
+<section class="detail" id="subscribe_parties/0">
+
+  <div class="detail-header">
+    <a href="#subscribe_parties/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">subscribe_parties()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> subscribe_parties() :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Subscribe to all party events (create/delete).</p>
+  </section>
+</section>
+<section class="detail" id="subscribe_party/1">
+
+  <div class="detail-header">
+    <a href="#subscribe_party/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">subscribe_party(party_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> subscribe_party(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Subscribe to events for a specific party.</p>
+  </section>
+</section>
+<section class="detail" id="unsubscribe_party/1">
+
+  <div class="detail-header">
+    <a href="#unsubscribe_party/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">unsubscribe_party(party_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> unsubscribe_party(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: :ok</pre>
+
+      </div>
+
+<p>Unsubscribe from a party's events.</p>
+  </section>
+</section>
+<section class="detail" id="update_party/2">
+
+  <div class="detail-header">
+    <a href="#update_party/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">update_party(user, attrs)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> update_party(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok, GameServer.Parties.Party.t()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Update party settings. Only the leader can update.</p>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+
+        <p>
+
+          <span class="line">
+            <button class="a-main footer-button display-quick-switch" title="Go to package docs">
+              Go to package docs
+            </button>
+
+              <a href="llms.txt" target="_blank">
+                View llms.txt
+              </a>
+
+
+              <a href="GameServer.epub">
+                Download ePub version
+              </a>
+
+          </span>
+        </p>
+
+        <p class="built-using">
+          Built using
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.1) for the
+
+            <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+        </p>
+
+
+    </footer>
+  </div>
+</main>
+</div>
+
+  </body>
+</html>
