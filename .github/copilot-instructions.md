@@ -178,16 +178,17 @@ API routes use JWT tokens via Guardian for stateless authentication:
 ### Parties
 
 - Parties are ephemeral groups of users (2-10 members by default). They exist only while members are online and are not persisted long-term.
-- Party context: `GameServer.Parties` — key functions: `create_party/1`, `invite_to_party/2`, `join_party/2`, `leave_party/2`, `kick_member/3`, `promote_leader/3`, `disband_party/2`.
+- Party context: `GameServer.Parties` — key functions: `create_party/1`, `join_party/2`, `join_party_by_code/2`, `leave_party/2`, `kick_member/3`, `promote_leader/3`, `disband_party/2`.
 - A user can only be in **one party at a time**. Creating a new party automatically leaves any existing party.
-- Inviting a blocked user (or a user who blocked you) returns `{:error, :blocked}`.
+- Each party has a unique 6-character alphanumeric `code` (auto-generated on creation). Users join a party by sharing the code and calling `join_party_by_code/2` — this auto-leaves any current party.
+- There is **no invite system** for parties. Joining is exclusively code-based.
 - Parties can create/join lobbies as a group: `create_lobby_with_party/2`, `join_lobby_with_party/2`. These check that no party member is already in another lobby.
 - API endpoints live under `/api/v1/parties`.
 
 ### Friends & Blocking
 
 - Friend context: `GameServer.Friends` — key functions: `send_request/2`, `accept_request/2`, `decline_request/2`, `remove_friend/2`, `block_user/2`, `unblock_user/2`, `blocked?/2`.
-- `blocked?/2` is a public function that checks if either user has blocked the other (bidirectional). It is used by Parties and Groups to prevent inviting blocked users.
+- `blocked?/2` is a public function that checks if either user has blocked the other (bidirectional). It is used by Groups to prevent inviting blocked users.
 - Friend requests between blocked users are automatically rejected.
 - API endpoints: `/api/v1/friends`, `/api/v1/friends/block`.
 
@@ -197,7 +198,7 @@ API routes use JWT tokens via Guardian for stateless authentication:
   - `"lobby:<id>"` / `"lobbies"` — lobby events (member join/leave, updates)
   - `"group:<id>"` / `"groups"` — group events (member join/leave, requests, updates)
   - `"party:<id>"` / `"parties"` — party events (member join/leave, updates)
-  - `"user:<id>"` — user-specific events (friend requests, notifications, party invites)
+  - `"user:<id>"` — user-specific events (friend requests, notifications)
 - WebSocket channels mirror PubSub topics: `UserChannel`, `LobbyChannel`, `LobbiesChannel`, `GroupChannel`, `GroupsChannel`.
 - LiveViews subscribe to PubSub topics directly (not via channels) using context `subscribe_*` functions.
 

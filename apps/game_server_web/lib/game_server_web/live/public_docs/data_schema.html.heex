@@ -115,6 +115,7 @@
       id          : integer (primary key)
       leader_id   : integer (user id of the party leader/creator)
       max_size    : integer (maximum number of members, default: 4)
+      code        : string (unique 6-character join code, auto-generated)
       metadata    : jsonb/map (arbitrary party metadata)
       inserted_at : utc_datetime
       updated_at  : utc_datetime

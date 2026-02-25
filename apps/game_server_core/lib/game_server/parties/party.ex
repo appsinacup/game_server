@@ -26,6 +26,7 @@ defmodule GameServer.Parties.Party do
              :id,
              :leader_id,
              :max_size,
+             :code,
              :metadata,
              :inserted_at,
              :updated_at
@@ -33,6 +34,7 @@ defmodule GameServer.Parties.Party do
 
   schema "parties" do
     field :max_size, :integer, default: 4
+    field :code, :string
     field :metadata, :map, default: %{}
 
     belongs_to :leader, User
@@ -49,6 +51,27 @@ defmodule GameServer.Parties.Party do
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
     |> validate_number(:max_size, greater_than: 1, less_than_or_equal_to: 32)
+    |> put_code()
     |> unique_constraint(:leader_id)
+    |> unique_constraint(:code)
+  end
+
+  defp put_code(changeset) do
+    if get_field(changeset, :code) do
+      changeset
+    else
+      put_change(changeset, :code, generate_code())
+    end
+  end
+
+  @doc """
+  Generates a random 6-character uppercase alphanumeric code.
+  """
+  def generate_code do
+    alphabet = ~c"ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+
+    1..6
+    |> Enum.map(fn _ -> Enum.random(alphabet) end)
+    |> List.to_string()
   end
 end

@@ -76,233 +76,6 @@ defmodule GameServerWeb.Api.V1.PartyControllerTest do
     end
   end
 
-  describe "POST /api/v1/parties/invite" do
-    test "leader can invite a user", %{conn: conn} do
-      leader = AccountsFixtures.user_fixture()
-      target = AccountsFixtures.user_fixture()
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-
-      conn =
-        conn
-        |> auth_conn(leader)
-        |> post("/api/v1/parties/invite", %{target_user_id: target.id})
-
-      body = json_response(conn, 201)
-      assert body["message"] == "invite_sent"
-    end
-
-    test "returns error when not in a party", %{conn: conn} do
-      user = AccountsFixtures.user_fixture()
-      target = AccountsFixtures.user_fixture()
-
-      conn =
-        conn
-        |> auth_conn(user)
-        |> post("/api/v1/parties/invite", %{target_user_id: target.id})
-
-      assert json_response(conn, 400)["error"] == "not_in_party"
-    end
-
-    test "returns error when not leader", %{conn: conn} do
-      leader = AccountsFixtures.user_fixture()
-      member = AccountsFixtures.user_fixture()
-      target = AccountsFixtures.user_fixture()
-      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, _} = Parties.join_party(member, party.id)
-
-      conn =
-        conn
-        |> auth_conn(member)
-        |> post("/api/v1/parties/invite", %{target_user_id: target.id})
-
-      assert json_response(conn, 403)["error"] == "not_leader"
-    end
-
-    test "returns error when inviting self", %{conn: conn} do
-      leader = AccountsFixtures.user_fixture()
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-
-      conn =
-        conn
-        |> auth_conn(leader)
-        |> post("/api/v1/parties/invite", %{target_user_id: leader.id})
-
-      assert json_response(conn, 400)["error"] == "self_invite"
-    end
-
-    test "requires auth", %{conn: conn} do
-      conn = post(conn, "/api/v1/parties/invite", %{target_user_id: 1})
-      assert conn.status == 401
-    end
-  end
-
-  describe "GET /api/v1/parties/invites" do
-    test "lists pending invites", %{conn: conn} do
-      leader = AccountsFixtures.user_fixture()
-      target = AccountsFixtures.user_fixture()
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, _} = Parties.invite_to_party(leader, target.id)
-
-      conn =
-        conn
-        |> auth_conn(target)
-        |> get("/api/v1/parties/invites")
-
-      body = json_response(conn, 200)
-      assert length(body["data"]) == 1
-      assert body["meta"]["total_count"] == 1
-    end
-
-    test "returns empty list when no invites", %{conn: conn} do
-      user = AccountsFixtures.user_fixture()
-
-      conn =
-        conn
-        |> auth_conn(user)
-        |> get("/api/v1/parties/invites")
-
-      body = json_response(conn, 200)
-      assert body["data"] == []
-      assert body["meta"]["total_count"] == 0
-    end
-  end
-
-  describe "GET /api/v1/parties/sent_invites" do
-    test "lists sent invites", %{conn: conn} do
-      leader = AccountsFixtures.user_fixture()
-      target = AccountsFixtures.user_fixture()
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, _} = Parties.invite_to_party(leader, target.id)
-
-      conn =
-        conn
-        |> auth_conn(leader)
-        |> get("/api/v1/parties/sent_invites")
-
-      body = json_response(conn, 200)
-      assert length(body["data"]) == 1
-    end
-  end
-
-  describe "POST /api/v1/parties/invites/:id/accept" do
-    test "user can accept an invite", %{conn: conn} do
-      leader = AccountsFixtures.user_fixture()
-      target = AccountsFixtures.user_fixture()
-      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, notification} = Parties.invite_to_party(leader, target.id)
-
-      conn =
-        conn
-        |> auth_conn(target)
-        |> post("/api/v1/parties/invites/#{notification.id}/accept")
-
-      body = json_response(conn, 200)
-      assert body["id"] == party.id
-      assert length(body["members"]) == 2
-    end
-
-    test "returns 404 for non-existent invite", %{conn: conn} do
-      user = AccountsFixtures.user_fixture()
-
-      conn =
-        conn
-        |> auth_conn(user)
-        |> post("/api/v1/parties/invites/999999/accept")
-
-      assert json_response(conn, 404)["error"] == "invite_not_found"
-    end
-
-    test "returns error when party is full", %{conn: conn} do
-      leader = AccountsFixtures.user_fixture()
-      member = AccountsFixtures.user_fixture()
-      target = AccountsFixtures.user_fixture()
-      {:ok, party} = Parties.create_party(leader, %{max_size: 2})
-      {:ok, notification} = Parties.invite_to_party(leader, target.id)
-
-      # Fill the party
-      {:ok, _} = Parties.join_party(member, party.id)
-
-      conn =
-        conn
-        |> auth_conn(target)
-        |> post("/api/v1/parties/invites/#{notification.id}/accept")
-
-      assert json_response(conn, 403)["error"] == "party_full"
-    end
-  end
-
-  describe "POST /api/v1/parties/invites/:id/decline" do
-    test "user can decline an invite", %{conn: conn} do
-      leader = AccountsFixtures.user_fixture()
-      target = AccountsFixtures.user_fixture()
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, notification} = Parties.invite_to_party(leader, target.id)
-
-      conn =
-        conn
-        |> auth_conn(target)
-        |> post("/api/v1/parties/invites/#{notification.id}/decline")
-
-      body = json_response(conn, 200)
-      assert body["message"] == "invite_declined"
-    end
-
-    test "returns 404 for non-existent invite", %{conn: conn} do
-      user = AccountsFixtures.user_fixture()
-
-      conn =
-        conn
-        |> auth_conn(user)
-        |> post("/api/v1/parties/invites/999999/decline")
-
-      assert json_response(conn, 404)["error"] == "invite_not_found"
-    end
-  end
-
-  describe "DELETE /api/v1/parties/invites/:id" do
-    test "leader can cancel a sent invite", %{conn: conn} do
-      leader = AccountsFixtures.user_fixture()
-      target = AccountsFixtures.user_fixture()
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, notification} = Parties.invite_to_party(leader, target.id)
-
-      conn =
-        conn
-        |> auth_conn(leader)
-        |> delete("/api/v1/parties/invites/#{notification.id}")
-
-      body = json_response(conn, 200)
-      assert body["message"] == "invite_cancelled"
-    end
-
-    test "returns 404 for non-existent invite", %{conn: conn} do
-      leader = AccountsFixtures.user_fixture()
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-
-      conn =
-        conn
-        |> auth_conn(leader)
-        |> delete("/api/v1/parties/invites/999999")
-
-      assert json_response(conn, 404)["error"] == "invite_not_found"
-    end
-
-    test "returns error when not sender", %{conn: conn} do
-      leader = AccountsFixtures.user_fixture()
-      target = AccountsFixtures.user_fixture()
-      other = AccountsFixtures.user_fixture()
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, notification} = Parties.invite_to_party(leader, target.id)
-
-      conn =
-        conn
-        |> auth_conn(other)
-        |> delete("/api/v1/parties/invites/#{notification.id}")
-
-      assert json_response(conn, 403)["error"] == "not_sender"
-    end
-  end
-
   describe "POST /api/v1/parties/leave" do
     test "leaves the party", %{conn: conn} do
       leader = AccountsFixtures.user_fixture()
@@ -458,6 +231,126 @@ defmodule GameServerWeb.Api.V1.PartyControllerTest do
         |> post("/api/v1/parties/join_lobby/#{lobby.id}")
 
       assert json_response(conn, 403)["error"] == "not_enough_space"
+    end
+  end
+
+  describe "POST /api/v1/parties/join (join by code)" do
+    test "joins a party by code", %{conn: conn} do
+      leader = AccountsFixtures.user_fixture()
+      user = AccountsFixtures.user_fixture()
+      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
+
+      conn =
+        conn
+        |> auth_conn(user)
+        |> post("/api/v1/parties/join", %{code: party.code})
+
+      body = json_response(conn, 200)
+      assert body["id"] == party.id
+      assert body["code"] == party.code
+      assert length(body["members"]) == 2
+    end
+
+    test "join by code is case-insensitive", %{conn: conn} do
+      leader = AccountsFixtures.user_fixture()
+      user = AccountsFixtures.user_fixture()
+      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
+
+      conn =
+        conn
+        |> auth_conn(user)
+        |> post("/api/v1/parties/join", %{code: String.downcase(party.code)})
+
+      body = json_response(conn, 200)
+      assert body["id"] == party.id
+    end
+
+    test "returns 404 for invalid code", %{conn: conn} do
+      user = AccountsFixtures.user_fixture()
+
+      conn =
+        conn
+        |> auth_conn(user)
+        |> post("/api/v1/parties/join", %{code: "XXXXXX"})
+
+      assert json_response(conn, 404)["error"] == "party_not_found"
+    end
+
+    test "returns 403 for full party", %{conn: conn} do
+      leader = AccountsFixtures.user_fixture()
+      member = AccountsFixtures.user_fixture()
+      user = AccountsFixtures.user_fixture()
+      {:ok, party} = Parties.create_party(leader, %{max_size: 2})
+      {:ok, _} = Parties.join_party(member, party.id)
+
+      conn =
+        conn
+        |> auth_conn(user)
+        |> post("/api/v1/parties/join", %{code: party.code})
+
+      assert json_response(conn, 403)["error"] == "party_full"
+    end
+
+    test "auto-leaves current party when joining by code", %{conn: conn} do
+      leader = AccountsFixtures.user_fixture()
+      user = AccountsFixtures.user_fixture()
+      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
+      {:ok, old_party} = Parties.create_party(user, %{max_size: 4})
+
+      conn =
+        conn
+        |> auth_conn(user)
+        |> post("/api/v1/parties/join", %{code: party.code})
+
+      body = json_response(conn, 200)
+      assert body["id"] == party.id
+
+      # Old party should be disbanded
+      assert Parties.get_party(old_party.id) == nil
+    end
+
+    test "returns 400 when code is missing", %{conn: conn} do
+      user = AccountsFixtures.user_fixture()
+
+      conn =
+        conn
+        |> auth_conn(user)
+        |> post("/api/v1/parties/join", %{})
+
+      assert json_response(conn, 400)["error"] == "missing_code"
+    end
+
+    test "requires auth", %{conn: conn} do
+      conn = post(conn, "/api/v1/parties/join", %{code: "ABC123"})
+      assert conn.status == 401
+    end
+  end
+
+  describe "party code in responses" do
+    test "create party returns code", %{conn: conn} do
+      user = AccountsFixtures.user_fixture()
+
+      conn =
+        conn
+        |> auth_conn(user)
+        |> post("/api/v1/parties", %{max_size: 4})
+
+      body = json_response(conn, 201)
+      assert is_binary(body["code"])
+      assert String.length(body["code"]) == 6
+    end
+
+    test "show party returns code", %{conn: conn} do
+      user = AccountsFixtures.user_fixture()
+      {:ok, party} = Parties.create_party(user, %{max_size: 4})
+
+      conn =
+        conn
+        |> auth_conn(user)
+        |> get("/api/v1/parties/me")
+
+      body = json_response(conn, 200)
+      assert body["code"] == party.code
     end
   end
 end

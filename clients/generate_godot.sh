@@ -144,6 +144,8 @@ find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/ca
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_sent_invitations_200_response_data_inner/ListSentInvitations200ResponseDataInner/g" -i
 # Replace admin_update_group_200_response with AdminUpdateGroup200Response
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/admin_update_group_200_response/AdminUpdateGroup200Response/g" -i
+# Replace show_party_200_response_members_inner with ShowParty200ResponseMembersInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/show_party_200_response_members_inner/ShowParty200ResponseMembersInner/g" -i
 # headers_for_godot, body_serialized
 # with 
 # headers_for_godot, "" if body_serialized == "null" else body_serialized

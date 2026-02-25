@@ -39,10 +39,7 @@ defmodule GameServer.Parties do
   alias Ecto.Multi
   alias GameServer.Accounts
   alias GameServer.Accounts.User
-  alias GameServer.Friends
   alias GameServer.Lobbies
-  alias GameServer.Notifications
-  alias GameServer.Notifications.Notification
   alias GameServer.Parties.Party
   alias GameServer.Repo
   alias GameServer.Repo.AdvisoryLock
@@ -178,11 +175,50 @@ defmodule GameServer.Parties do
     end
   end
 
+  @doc """
+  Join an existing party by its shareable code.
+
+  If the user is currently in another party, they will automatically leave it
+  first (disbanding it if they are the leader).
+
+  Returns `{:error, :party_not_found}` if no party matches the code.
+  Returns `{:error, :party_full}` if the party is at capacity.
+  """
+  @spec join_party_by_code(User.t(), String.t()) :: {:ok, User.t()} | {:error, term()}
+  def join_party_by_code(%User{} = user, code) when is_binary(code) do
+    user = Accounts.get_user(user.id)
+    code = String.upcase(String.trim(code))
+
+    with {:ok, party} <- fetch_party_by_code(code),
+         {:ok, user} <- maybe_leave_current_party(user),
+         :ok <- check_party_has_space(party) do
+      do_join_party(user, party.id)
+    end
+  end
+
+  defp fetch_party_by_code(code) do
+    case Repo.get_by(Party, code: code) do
+      nil -> {:error, :party_not_found}
+      %Party{} = party -> {:ok, party}
+    end
+  end
+
   defp check_user_available(%User{} = user) do
     if user.party_id != nil do
       {:error, :already_in_party}
     else
       :ok
+    end
+  end
+
+  # Leaves the user's current party (if any) and returns a refreshed user.
+  # Used by join_party_by_code so the user can seamlessly switch parties.
+  defp maybe_leave_current_party(%User{party_id: nil} = user), do: {:ok, user}
+
+  defp maybe_leave_current_party(%User{} = user) do
+    case leave_party(user) do
+      {:ok, _} -> {:ok, Accounts.get_user(user.id)}
+      {:error, reason} -> {:error, reason}
     end
   end
 
@@ -228,200 +264,6 @@ defmodule GameServer.Parties do
         end
       end
     end)
-  end
-
-  # ---------------------------------------------------------------------------
-  # Invites
-  # ---------------------------------------------------------------------------
-
-  @party_invite_title "party_invite"
-
-  @doc """
-  Invite a user to the party. Only the party leader can send invites.
-
-  Creates a notification with title `"party_invite"` and metadata containing
-  the party_id. Uses `admin_create_notification/3` to bypass the friends-only
-  restriction.
-
-  Returns `{:error, :not_in_party}` if the leader is not in a party.
-  Returns `{:error, :not_leader}` if the user is not the party leader.
-  Returns `{:error, :target_in_party}` if the target user is already in a party.
-  Returns `{:error, :target_in_lobby}` if the target user is already in a lobby.
-  Returns `{:error, :self_invite}` if the leader tries to invite themselves.
-  Returns `{:error, :blocked}` if either user has blocked the other.
-  """
-  @spec invite_to_party(User.t(), integer()) ::
-          {:ok, Notification.t()} | {:error, term()}
-  def invite_to_party(%User{} = leader, target_user_id) when is_integer(target_user_id) do
-    leader = Accounts.get_user(leader.id)
-
-    with :ok <- check_is_in_party(leader),
-         {:ok, party} <- fetch_party(leader.party_id),
-         :ok <- check_is_party_leader(leader, party),
-         :ok <- check_not_self_invite(leader.id, target_user_id),
-         :ok <- check_not_blocked(leader.id, target_user_id),
-         :ok <- check_target_available(target_user_id) do
-      Notifications.admin_create_notification(leader.id, target_user_id, %{
-        "title" => @party_invite_title,
-        "content" => "You have been invited to join a party (ID: #{party.id})",
-        "metadata" => %{"party_id" => party.id}
-      })
-    end
-  end
-
-  @doc """
-  Accept a party invite. The user joins the party and the invite notification
-  is deleted.
-
-  The `invite_id` is the notification ID.
-  """
-  @spec accept_party_invite(User.t(), integer()) ::
-          {:ok, User.t()} | {:error, term()}
-  def accept_party_invite(%User{} = user, invite_id) when is_integer(invite_id) do
-    user = Accounts.get_user(user.id)
-
-    with {:ok, notification} <- fetch_party_invite(user.id, invite_id),
-         party_id <- notification.metadata["party_id"],
-         :ok <- check_user_available(user),
-         {:ok, _party} <- fetch_party(party_id),
-         :ok <- check_party_has_space(get_party(party_id)) do
-      result = do_join_party(user, party_id)
-
-      case result do
-        {:ok, _updated_user} ->
-          # Delete the invite notification after successful join
-          Repo.delete(notification)
-          result
-
-        error ->
-          error
-      end
-    end
-  end
-
-  @doc """
-  Decline a party invite. Deletes the invite notification.
-
-  The `invite_id` is the notification ID.
-  """
-  @spec decline_party_invite(User.t(), integer()) :: :ok | {:error, term()}
-  def decline_party_invite(%User{} = user, invite_id) when is_integer(invite_id) do
-    case fetch_party_invite(user.id, invite_id) do
-      {:ok, notification} ->
-        Repo.delete(notification)
-        :ok
-
-      error ->
-        error
-    end
-  end
-
-  @doc """
-  Cancel a sent party invite (leader only). Deletes the invite notification.
-
-  The `invite_id` is the notification ID.
-  """
-  @spec cancel_party_invite(User.t(), integer()) :: :ok | {:error, term()}
-  def cancel_party_invite(%User{} = user, invite_id) when is_integer(invite_id) do
-    case Repo.get(Notification, invite_id) do
-      nil ->
-        {:error, :invite_not_found}
-
-      %Notification{sender_id: sender_id, title: @party_invite_title} = notification
-      when sender_id == user.id ->
-        Repo.delete(notification)
-        :ok
-
-      %Notification{title: @party_invite_title} ->
-        {:error, :not_sender}
-
-      _ ->
-        {:error, :invite_not_found}
-    end
-  end
-
-  @doc "List pending party invites for a user (paginated)."
-  @spec list_party_invites(integer(), keyword()) :: [Notification.t()]
-  def list_party_invites(user_id, opts \\ []) do
-    page = Keyword.get(opts, :page, 1)
-    page_size = Keyword.get(opts, :page_size, 25)
-    offset = (page - 1) * page_size
-
-    from(n in Notification,
-      where: n.recipient_id == ^user_id and n.title == ^@party_invite_title,
-      order_by: [desc: n.inserted_at],
-      limit: ^page_size,
-      offset: ^offset,
-      preload: [:sender]
-    )
-    |> Repo.all()
-  end
-
-  @doc "Count pending party invites for a user."
-  @spec count_party_invites(integer()) :: non_neg_integer()
-  def count_party_invites(user_id) do
-    Repo.one(
-      from(n in Notification,
-        where: n.recipient_id == ^user_id and n.title == ^@party_invite_title,
-        select: count(n.id)
-      )
-    ) || 0
-  end
-
-  @doc "List party invites sent by a user (paginated)."
-  @spec list_sent_party_invites(integer(), keyword()) :: [Notification.t()]
-  def list_sent_party_invites(user_id, opts \\ []) do
-    page = Keyword.get(opts, :page, 1)
-    page_size = Keyword.get(opts, :page_size, 25)
-    offset = (page - 1) * page_size
-
-    from(n in Notification,
-      where: n.sender_id == ^user_id and n.title == ^@party_invite_title,
-      order_by: [desc: n.inserted_at],
-      limit: ^page_size,
-      offset: ^offset,
-      preload: [:recipient]
-    )
-    |> Repo.all()
-  end
-
-  defp check_is_in_party(%User{party_id: nil}), do: {:error, :not_in_party}
-  defp check_is_in_party(%User{}), do: :ok
-
-  defp check_is_party_leader(%User{id: user_id}, %Party{leader_id: leader_id})
-       when user_id == leader_id,
-       do: :ok
-
-  defp check_is_party_leader(_, _), do: {:error, :not_leader}
-
-  defp check_not_self_invite(user_id, target_id) when user_id == target_id,
-    do: {:error, :self_invite}
-
-  defp check_not_self_invite(_, _), do: :ok
-
-  defp check_not_blocked(user_id, target_id) do
-    if Friends.blocked?(user_id, target_id), do: {:error, :blocked}, else: :ok
-  end
-
-  defp check_target_available(target_user_id) do
-    case Accounts.get_user(target_user_id) do
-      nil -> {:error, :user_not_found}
-      %User{party_id: pid} when is_integer(pid) -> {:error, :target_in_party}
-      _ -> :ok
-    end
-  end
-
-  defp fetch_party_invite(user_id, invite_id) do
-    case Repo.get(Notification, invite_id) do
-      nil ->
-        {:error, :invite_not_found}
-
-      %Notification{recipient_id: ^user_id, title: @party_invite_title} = notification ->
-        {:ok, notification}
-
-      _ ->
-        {:error, :invite_not_found}
-    end
   end
 
   # ---------------------------------------------------------------------------

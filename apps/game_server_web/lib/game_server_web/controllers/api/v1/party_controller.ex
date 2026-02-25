@@ -13,6 +13,10 @@ defmodule GameServerWeb.Api.V1.PartyController do
       id: %Schema{type: :integer, description: "Party ID"},
       leader_id: %Schema{type: :integer, description: "User ID of the party leader"},
       max_size: %Schema{type: :integer, description: "Maximum party members allowed"},
+      code: %Schema{
+        type: :string,
+        description: "Unique 6-character code for joining the party"
+      },
       metadata: %Schema{type: :object, description: "Arbitrary metadata"},
       members: %Schema{
         type: :array,
@@ -31,6 +35,7 @@ defmodule GameServerWeb.Api.V1.PartyController do
       id: 1,
       leader_id: 42,
       max_size: 4,
+      code: "A3BK7P",
       metadata: %{},
       members: [
         %{id: 42, display_name: "Player1", email: "player1@example.com"}
@@ -91,176 +96,6 @@ defmodule GameServerWeb.Api.V1.PartyController do
     ]
   )
 
-  operation(:invite,
-    operation_id: "invite_to_party",
-    summary: "Invite a user to the party (leader only)",
-    description:
-      "Send a party invite notification to a user. Only the party leader can send invites. The target user must not be in another party or lobby.",
-    security: [%{"authorization" => []}],
-    request_body: {
-      "Invite parameters",
-      "application/json",
-      %Schema{
-        type: :object,
-        properties: %{
-          target_user_id: %Schema{type: :integer, description: "ID of the user to invite"}
-        },
-        required: [:target_user_id],
-        example: %{target_user_id: 42}
-      }
-    },
-    responses: [
-      created:
-        {"Invite sent", "application/json",
-         %Schema{type: :object, properties: %{message: %Schema{type: :string}}}},
-      conflict:
-        {"Target already in a party/lobby or duplicate invite", "application/json",
-         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
-      forbidden:
-        {"Not the leader", "application/json",
-         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
-      unauthorized:
-        {"Not authenticated", "application/json",
-         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}}
-    ]
-  )
-
-  operation(:invites,
-    operation_id: "list_party_invites",
-    summary: "List pending party invites",
-    description: "List all pending party invitations for the authenticated user.",
-    security: [%{"authorization" => []}],
-    parameters: [
-      page: [in: :query, schema: %Schema{type: :integer}, description: "Page number"],
-      page_size: [in: :query, schema: %Schema{type: :integer}, description: "Items per page"]
-    ],
-    responses: [
-      ok:
-        {"Party invites", "application/json",
-         %Schema{
-           type: :object,
-           properties: %{
-             data: %Schema{type: :array, items: %Schema{type: :object}},
-             meta: %Schema{type: :object}
-           }
-         }},
-      unauthorized:
-        {"Not authenticated", "application/json",
-         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}}
-    ]
-  )
-
-  operation(:sent_invites,
-    operation_id: "list_sent_party_invites",
-    summary: "List sent party invites (leader only)",
-    description: "List all party invitations sent by the authenticated user.",
-    security: [%{"authorization" => []}],
-    parameters: [
-      page: [in: :query, schema: %Schema{type: :integer}, description: "Page number"],
-      page_size: [in: :query, schema: %Schema{type: :integer}, description: "Items per page"]
-    ],
-    responses: [
-      ok:
-        {"Sent party invites", "application/json",
-         %Schema{
-           type: :object,
-           properties: %{
-             data: %Schema{type: :array, items: %Schema{type: :object}},
-             meta: %Schema{type: :object}
-           }
-         }},
-      unauthorized:
-        {"Not authenticated", "application/json",
-         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}}
-    ]
-  )
-
-  operation(:accept_invite,
-    operation_id: "accept_party_invite",
-    summary: "Accept a party invite",
-    description:
-      "Accept a pending party invitation. The user joins the party and the invite is deleted.",
-    security: [%{"authorization" => []}],
-    parameters: [
-      id: [
-        in: :path,
-        schema: %Schema{type: :integer},
-        description: "Invite (notification) ID",
-        required: true
-      ]
-    ],
-    responses: [
-      ok: {"Successfully joined", "application/json", @party_schema},
-      conflict:
-        {"Already in a party or lobby", "application/json",
-         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
-      not_found:
-        {"Invite not found", "application/json",
-         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
-      forbidden:
-        {"Party full", "application/json",
-         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
-      unauthorized:
-        {"Not authenticated", "application/json",
-         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}}
-    ]
-  )
-
-  operation(:decline_invite,
-    operation_id: "decline_party_invite",
-    summary: "Decline a party invite",
-    description: "Decline (delete) a pending party invitation.",
-    security: [%{"authorization" => []}],
-    parameters: [
-      id: [
-        in: :path,
-        schema: %Schema{type: :integer},
-        description: "Invite (notification) ID",
-        required: true
-      ]
-    ],
-    responses: [
-      ok:
-        {"Invite declined", "application/json",
-         %Schema{type: :object, properties: %{message: %Schema{type: :string}}}},
-      not_found:
-        {"Invite not found", "application/json",
-         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
-      unauthorized:
-        {"Not authenticated", "application/json",
-         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}}
-    ]
-  )
-
-  operation(:cancel_invite,
-    operation_id: "cancel_party_invite",
-    summary: "Cancel a sent party invite (leader only)",
-    description: "Cancel (delete) a party invitation that you sent.",
-    security: [%{"authorization" => []}],
-    parameters: [
-      id: [
-        in: :path,
-        schema: %Schema{type: :integer},
-        description: "Invite (notification) ID",
-        required: true
-      ]
-    ],
-    responses: [
-      ok:
-        {"Invite cancelled", "application/json",
-         %Schema{type: :object, properties: %{message: %Schema{type: :string}}}},
-      not_found:
-        {"Invite not found", "application/json",
-         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
-      forbidden:
-        {"Not the sender", "application/json",
-         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
-      unauthorized:
-        {"Not authenticated", "application/json",
-         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}}
-    ]
-  )
-
   operation(:leave,
     operation_id: "leave_party",
     summary: "Leave the current party",
@@ -271,6 +106,45 @@ defmodule GameServerWeb.Api.V1.PartyController do
       ok: {"Success", "application/json", %Schema{type: :object}},
       bad_request:
         {"Not in a party", "application/json",
+         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
+      unauthorized:
+        {"Not authenticated", "application/json",
+         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}}
+    ]
+  )
+
+  operation(:join_by_code,
+    operation_id: "join_party_by_code",
+    summary: "Join a party by code",
+    description:
+      "Join a party using its unique 6-character code. The code is case-insensitive. " <>
+        "If you are already in a party, you will automatically leave it first " <>
+        "(disbanding it if you are the leader).",
+    security: [%{"authorization" => []}],
+    request_body: {
+      "Join parameters",
+      "application/json",
+      %Schema{
+        type: :object,
+        properties: %{
+          code: %Schema{
+            type: :string,
+            description: "The 6-character party code",
+            minLength: 6,
+            maxLength: 6
+          }
+        },
+        required: [:code],
+        example: %{code: "A3BK7P"}
+      }
+    },
+    responses: [
+      ok: {"Party joined", "application/json", @party_schema},
+      not_found:
+        {"Party not found", "application/json",
+         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
+      forbidden:
+        {"Party full", "application/json",
          %Schema{type: :object, properties: %{error: %Schema{type: :string}}}},
       unauthorized:
         {"Not authenticated", "application/json",
@@ -452,213 +326,6 @@ defmodule GameServerWeb.Api.V1.PartyController do
     end
   end
 
-  def invite(conn, %{"target_user_id" => target_user_id}) do
-    case conn.assigns[:current_scope] do
-      %{user: user} when is_map(user) ->
-        target_id =
-          case target_user_id do
-            id when is_integer(id) -> id
-            id when is_binary(id) -> String.to_integer(id)
-          end
-
-        case Parties.invite_to_party(user, target_id) do
-          {:ok, _notification} ->
-            conn |> put_status(:created) |> json(%{message: "invite_sent"})
-
-          {:error, :not_in_party} ->
-            conn |> put_status(:bad_request) |> json(%{error: "not_in_party"})
-
-          {:error, :not_leader} ->
-            conn |> put_status(:forbidden) |> json(%{error: "not_leader"})
-
-          {:error, :self_invite} ->
-            conn |> put_status(:bad_request) |> json(%{error: "self_invite"})
-
-          {:error, :blocked} ->
-            conn |> put_status(:forbidden) |> json(%{error: "blocked"})
-
-          {:error, :target_in_party} ->
-            conn |> put_status(:conflict) |> json(%{error: "target_in_party"})
-
-          {:error, :user_not_found} ->
-            conn |> put_status(:not_found) |> json(%{error: "user_not_found"})
-
-          {:error, %Ecto.Changeset{}} ->
-            conn |> put_status(:conflict) |> json(%{error: "invite_already_sent"})
-
-          other ->
-            conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
-        end
-
-      _ ->
-        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
-    end
-  end
-
-  def invites(conn, params) do
-    case conn.assigns[:current_scope] do
-      %{user: user} when is_map(user) ->
-        page = parse_int(params["page"], 1)
-        page_size = parse_int(params["page_size"], 25)
-        invites = Parties.list_party_invites(user.id, page: page, page_size: page_size)
-        total_count = Parties.count_party_invites(user.id)
-        total_pages = if page_size > 0, do: div(total_count + page_size - 1, page_size), else: 0
-
-        data =
-          Enum.map(invites, fn n ->
-            %{
-              id: n.id,
-              sender_id: n.sender_id,
-              sender_name: (n.sender && (n.sender.display_name || n.sender.email)) || "",
-              party_id: n.metadata["party_id"],
-              content: n.content,
-              inserted_at: n.inserted_at
-            }
-          end)
-
-        json(conn, %{
-          data: data,
-          meta: %{
-            page: page,
-            page_size: page_size,
-            count: length(data),
-            total_count: total_count,
-            total_pages: total_pages,
-            has_more: length(data) == page_size
-          }
-        })
-
-      _ ->
-        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
-    end
-  end
-
-  def sent_invites(conn, params) do
-    case conn.assigns[:current_scope] do
-      %{user: user} when is_map(user) ->
-        page = parse_int(params["page"], 1)
-        page_size = parse_int(params["page_size"], 25)
-        invites = Parties.list_sent_party_invites(user.id, page: page, page_size: page_size)
-
-        data =
-          Enum.map(invites, fn n ->
-            %{
-              id: n.id,
-              recipient_id: n.recipient_id,
-              recipient_name:
-                (n.recipient && (n.recipient.display_name || n.recipient.email)) || "",
-              party_id: n.metadata["party_id"],
-              content: n.content,
-              inserted_at: n.inserted_at
-            }
-          end)
-
-        json(conn, %{data: data})
-
-      _ ->
-        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
-    end
-  end
-
-  def accept_invite(conn, %{"id" => id}) do
-    case conn.assigns[:current_scope] do
-      %{user: user} when is_map(user) ->
-        do_accept_invite(conn, user, id)
-
-      _ ->
-        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
-    end
-  end
-
-  defp do_accept_invite(conn, user, id) do
-    case Integer.parse(to_string(id)) do
-      {invite_id, ""} ->
-        handle_accept_result(conn, user, Parties.accept_party_invite(user, invite_id))
-
-      _ ->
-        conn |> put_status(:not_found) |> json(%{error: "not_found"})
-    end
-  end
-
-  defp handle_accept_result(conn, user, {:ok, _user}) do
-    updated_user = GameServer.Accounts.get_user(user.id)
-
-    if updated_user.party_id do
-      party = Parties.get_party(updated_user.party_id)
-      json(conn, serialize_party(party))
-    else
-      json(conn, %{message: "joined"})
-    end
-  end
-
-  defp handle_accept_result(conn, _user, {:error, :invite_not_found}),
-    do: conn |> put_status(:not_found) |> json(%{error: "invite_not_found"})
-
-  defp handle_accept_result(conn, _user, {:error, :already_in_party}),
-    do: conn |> put_status(:conflict) |> json(%{error: "already_in_party"})
-
-  defp handle_accept_result(conn, _user, {:error, :party_not_found}),
-    do: conn |> put_status(:not_found) |> json(%{error: "party_not_found"})
-
-  defp handle_accept_result(conn, _user, {:error, :party_full}),
-    do: conn |> put_status(:forbidden) |> json(%{error: "party_full"})
-
-  defp handle_accept_result(conn, _user, other),
-    do: conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
-
-  def decline_invite(conn, %{"id" => id}) do
-    case conn.assigns[:current_scope] do
-      %{user: user} when is_map(user) ->
-        case Integer.parse(to_string(id)) do
-          {invite_id, ""} ->
-            case Parties.decline_party_invite(user, invite_id) do
-              :ok ->
-                json(conn, %{message: "invite_declined"})
-
-              {:error, :invite_not_found} ->
-                conn |> put_status(:not_found) |> json(%{error: "invite_not_found"})
-
-              other ->
-                conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
-            end
-
-          _ ->
-            conn |> put_status(:not_found) |> json(%{error: "not_found"})
-        end
-
-      _ ->
-        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
-    end
-  end
-
-  def cancel_invite(conn, %{"id" => id}) do
-    case conn.assigns[:current_scope] do
-      %{user: user} when is_map(user) ->
-        case Integer.parse(to_string(id)) do
-          {invite_id, ""} ->
-            case Parties.cancel_party_invite(user, invite_id) do
-              :ok ->
-                json(conn, %{message: "invite_cancelled"})
-
-              {:error, :invite_not_found} ->
-                conn |> put_status(:not_found) |> json(%{error: "invite_not_found"})
-
-              {:error, :not_sender} ->
-                conn |> put_status(:forbidden) |> json(%{error: "not_sender"})
-
-              other ->
-                conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
-            end
-
-          _ ->
-            conn |> put_status(:not_found) |> json(%{error: "not_found"})
-        end
-
-      _ ->
-        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
-    end
-  end
-
   def leave(conn, _params) do
     case conn.assigns[:current_scope] do
       %{user: user} when is_map(user) ->
@@ -676,6 +343,39 @@ defmodule GameServerWeb.Api.V1.PartyController do
       _ ->
         conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
     end
+  end
+
+  def join_by_code(conn, %{"code" => code}) when is_binary(code) do
+    case conn.assigns[:current_scope] do
+      %{user: user} when is_map(user) ->
+        case Parties.join_party_by_code(user, code) do
+          {:ok, updated_user} ->
+            updated_user = GameServer.Accounts.get_user(updated_user.id)
+
+            if updated_user.party_id do
+              party = Parties.get_party(updated_user.party_id)
+              json(conn, serialize_party(party))
+            else
+              json(conn, %{message: "joined"})
+            end
+
+          {:error, :party_not_found} ->
+            conn |> put_status(:not_found) |> json(%{error: "party_not_found"})
+
+          {:error, :party_full} ->
+            conn |> put_status(:forbidden) |> json(%{error: "party_full"})
+
+          other ->
+            conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
+        end
+
+      _ ->
+        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
+    end
+  end
+
+  def join_by_code(conn, _params) do
+    conn |> put_status(:bad_request) |> json(%{error: "missing_code"})
   end
 
   def kick(conn, %{"target_user_id" => target_user_id}) do
@@ -840,6 +540,7 @@ defmodule GameServerWeb.Api.V1.PartyController do
       id: party.id,
       leader_id: party.leader_id,
       max_size: party.max_size,
+      code: party.code,
       metadata: party.metadata || %{},
       members:
         Enum.map(members, fn m ->
@@ -853,18 +554,6 @@ defmodule GameServerWeb.Api.V1.PartyController do
       updated_at: party.updated_at
     }
   end
-
-  defp parse_int(nil, default), do: default
-  defp parse_int(val, _default) when is_integer(val), do: val
-
-  defp parse_int(val, default) when is_binary(val) do
-    case Integer.parse(val) do
-      {n, _} -> n
-      :error -> default
-    end
-  end
-
-  defp parse_int(_val, default), do: default
 
   defp serialize_lobby(lobby) do
     host_id = if is_nil(lobby.host_id), do: -1, else: lobby.host_id

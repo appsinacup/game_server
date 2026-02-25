@@ -19,6 +19,8 @@ defmodule GameServer.PartiesTest do
       assert {:ok, party} = Parties.create_party(leader, %{max_size: 4})
       assert party.leader_id == leader.id
       assert party.max_size == 4
+      assert is_binary(party.code)
+      assert String.length(party.code) == 6
 
       # Leader should now have party_id set
       updated_leader = Accounts.get_user(leader.id)
@@ -68,6 +70,55 @@ defmodule GameServer.PartiesTest do
       {:ok, _} = Parties.join_party(member1, party.id)
 
       assert {:error, :party_full} = Parties.join_party(member2, party.id)
+    end
+  end
+
+  describe "party code" do
+    test "party is created with a unique code", %{leader: leader} do
+      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
+      assert is_binary(party.code)
+      assert String.length(party.code) == 6
+    end
+
+    test "join_party_by_code/2 allows joining by code", %{leader: leader, member1: member1} do
+      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
+
+      assert {:ok, updated_user} = Parties.join_party_by_code(member1, party.code)
+      assert updated_user.party_id == party.id
+    end
+
+    test "join_party_by_code/2 is case-insensitive", %{leader: leader, member1: member1} do
+      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
+
+      assert {:ok, updated_user} =
+               Parties.join_party_by_code(member1, String.downcase(party.code))
+
+      assert updated_user.party_id == party.id
+    end
+
+    test "join_party_by_code/2 returns error for invalid code", %{member1: member1} do
+      assert {:error, :party_not_found} = Parties.join_party_by_code(member1, "BADCOD")
+    end
+
+    test "join_party_by_code/2 returns error for full party", %{
+      leader: leader,
+      member1: member1,
+      member2: member2
+    } do
+      {:ok, party} = Parties.create_party(leader, %{max_size: 2})
+      {:ok, _} = Parties.join_party(member1, party.id)
+
+      assert {:error, :party_full} = Parties.join_party_by_code(member2, party.code)
+    end
+
+    test "join_party_by_code/2 auto-leaves current party", %{leader: leader, member1: member1} do
+      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
+      {:ok, old_party} = Parties.create_party(member1, %{max_size: 4})
+
+      # member1 is leader of old_party, joining by code should auto-leave (disband)
+      assert {:ok, updated_user} = Parties.join_party_by_code(member1, party.code)
+      assert updated_user.party_id == party.id
+      assert Parties.get_party(old_party.id) == nil
     end
   end
 
@@ -559,251 +610,6 @@ defmodule GameServer.PartiesTest do
       party_id = party.id
       member_id = member1.id
       assert_receive {:party_member_left, ^party_id, ^member_id}, 500
-    end
-  end
-
-  # ---------------------------------------------------------------------------
-  # Invite system
-  # ---------------------------------------------------------------------------
-
-  describe "invite_to_party/2" do
-    test "leader can invite a user", %{leader: leader, member1: member1} do
-      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-
-      assert {:ok, notification} = Parties.invite_to_party(leader, member1.id)
-      assert notification.sender_id == leader.id
-      assert notification.recipient_id == member1.id
-      assert notification.title == "party_invite"
-      assert notification.metadata["party_id"] == party.id
-    end
-
-    test "cannot invite if not in a party", %{member1: member1, member2: member2} do
-      assert {:error, :not_in_party} = Parties.invite_to_party(member1, member2.id)
-    end
-
-    test "cannot invite if not the leader", %{leader: leader, member1: member1, member2: member2} do
-      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, _} = Parties.join_party(member1, party.id)
-
-      assert {:error, :not_leader} = Parties.invite_to_party(member1, member2.id)
-    end
-
-    test "cannot invite self", %{leader: leader} do
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-
-      assert {:error, :self_invite} = Parties.invite_to_party(leader, leader.id)
-    end
-
-    test "cannot invite user already in a party", %{leader: leader, member1: member1} do
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, _party2} = Parties.create_party(member1, %{max_size: 4})
-
-      assert {:error, :target_in_party} = Parties.invite_to_party(leader, member1.id)
-    end
-
-    test "cannot invite non-existent user", %{leader: leader} do
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-
-      assert {:error, :user_not_found} = Parties.invite_to_party(leader, 999_999)
-    end
-
-    test "cannot send duplicate invite", %{leader: leader, member1: member1} do
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, _} = Parties.invite_to_party(leader, member1.id)
-
-      assert {:error, _} = Parties.invite_to_party(leader, member1.id)
-    end
-
-    test "cannot invite a blocked user", %{leader: leader, member1: member1} do
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-
-      # Create a friend request and block it
-      {:ok, f} = GameServer.Friends.create_request(leader.id, member1.id)
-      {:ok, _blocked} = GameServer.Friends.block_friend_request(f.id, member1)
-
-      assert {:error, :blocked} = Parties.invite_to_party(leader, member1.id)
-    end
-
-    test "cannot invite if target has blocked the leader", %{leader: leader, member1: member1} do
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-
-      # Target blocks the leader
-      {:ok, f} = GameServer.Friends.create_request(member1.id, leader.id)
-      {:ok, _blocked} = GameServer.Friends.block_friend_request(f.id, leader)
-
-      assert {:error, :blocked} = Parties.invite_to_party(leader, member1.id)
-    end
-  end
-
-  describe "accept_party_invite/2" do
-    test "user can accept a party invite", %{leader: leader, member1: member1} do
-      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, notification} = Parties.invite_to_party(leader, member1.id)
-
-      assert {:ok, updated_user} = Parties.accept_party_invite(member1, notification.id)
-      assert updated_user.party_id == party.id
-
-      # Notification should be deleted
-      assert Parties.count_party_invites(member1.id) == 0
-    end
-
-    test "cannot accept invite for non-existent notification", %{member1: member1} do
-      assert {:error, :invite_not_found} = Parties.accept_party_invite(member1, 999_999)
-    end
-
-    test "cannot accept someone else's invite", %{
-      leader: leader,
-      member1: member1,
-      member2: member2
-    } do
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, notification} = Parties.invite_to_party(leader, member1.id)
-
-      assert {:error, :invite_not_found} = Parties.accept_party_invite(member2, notification.id)
-    end
-
-    test "cannot accept if already in a party", %{
-      leader: leader,
-      member1: member1,
-      member2: member2
-    } do
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, _party2} = Parties.create_party(member2, %{max_size: 4})
-
-      # Invite member2 - but first they need to not be in a party, so use member1
-      {:ok, notification} = Parties.invite_to_party(leader, member1.id)
-
-      # member1 creates their own party before accepting
-      {:ok, _party3} = Parties.create_party(member1, %{max_size: 4})
-
-      assert {:error, :already_in_party} = Parties.accept_party_invite(member1, notification.id)
-    end
-
-    test "cannot accept if party is full", %{leader: leader, member1: member1, member2: member2} do
-      {:ok, party} = Parties.create_party(leader, %{max_size: 2})
-      {:ok, notification} = Parties.invite_to_party(leader, member1.id)
-
-      # Fill the party with member2
-      {:ok, _} = Parties.join_party(member2, party.id)
-
-      assert {:error, :party_full} = Parties.accept_party_invite(member1, notification.id)
-    end
-
-    test "cannot accept if party has been disbanded", %{leader: leader, member1: member1} do
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, notification} = Parties.invite_to_party(leader, member1.id)
-
-      # Leader leaves, disbanding the party
-      {:ok, :disbanded} = Parties.leave_party(leader)
-
-      assert {:error, :party_not_found} = Parties.accept_party_invite(member1, notification.id)
-    end
-  end
-
-  describe "decline_party_invite/2" do
-    test "user can decline a party invite", %{leader: leader, member1: member1} do
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, notification} = Parties.invite_to_party(leader, member1.id)
-
-      assert :ok = Parties.decline_party_invite(member1, notification.id)
-
-      # Notification should be deleted
-      assert Parties.count_party_invites(member1.id) == 0
-    end
-
-    test "cannot decline non-existent invite", %{member1: member1} do
-      assert {:error, :invite_not_found} = Parties.decline_party_invite(member1, 999_999)
-    end
-
-    test "cannot decline someone else's invite", %{
-      leader: leader,
-      member1: member1,
-      member2: member2
-    } do
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, notification} = Parties.invite_to_party(leader, member1.id)
-
-      assert {:error, :invite_not_found} = Parties.decline_party_invite(member2, notification.id)
-    end
-  end
-
-  describe "cancel_party_invite/2" do
-    test "leader can cancel a sent invite", %{leader: leader, member1: member1} do
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, notification} = Parties.invite_to_party(leader, member1.id)
-
-      assert :ok = Parties.cancel_party_invite(leader, notification.id)
-
-      # Notification should be deleted
-      assert Parties.count_party_invites(member1.id) == 0
-    end
-
-    test "cannot cancel non-existent invite", %{leader: leader} do
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-
-      assert {:error, :invite_not_found} = Parties.cancel_party_invite(leader, 999_999)
-    end
-
-    test "cannot cancel someone else's invite", %{
-      leader: leader,
-      member1: member1,
-      member2: member2
-    } do
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, notification} = Parties.invite_to_party(leader, member1.id)
-
-      assert {:error, :not_sender} = Parties.cancel_party_invite(member2, notification.id)
-    end
-  end
-
-  describe "list_party_invites/2 and count_party_invites/1" do
-    test "lists and counts pending invites for a user", %{leader: leader, member1: member1} do
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, _} = Parties.invite_to_party(leader, member1.id)
-
-      invites = Parties.list_party_invites(member1.id)
-      assert length(invites) == 1
-      assert hd(invites).recipient_id == member1.id
-
-      assert Parties.count_party_invites(member1.id) == 0 or
-               Parties.count_party_invites(member1.id) == 1
-
-      assert Parties.count_party_invites(member1.id) == 1
-    end
-
-    test "returns empty list when no invites", %{member1: member1} do
-      assert Parties.list_party_invites(member1.id) == []
-      assert Parties.count_party_invites(member1.id) == 0
-    end
-
-    test "pagination works", %{leader: leader, member1: member1} do
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-
-      # We can only send one invite per (sender, recipient, title) due to unique constraint
-      # So just verify page_size works
-      {:ok, _} = Parties.invite_to_party(leader, member1.id)
-
-      page1 = Parties.list_party_invites(member1.id, page: 1, page_size: 1)
-      assert length(page1) == 1
-
-      page2 = Parties.list_party_invites(member1.id, page: 2, page_size: 1)
-      assert page2 == []
-    end
-  end
-
-  describe "list_sent_party_invites/2" do
-    test "lists invites sent by a user", %{leader: leader, member1: member1, member2: member2} do
-      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, _} = Parties.invite_to_party(leader, member1.id)
-      {:ok, _} = Parties.invite_to_party(leader, member2.id)
-
-      sent = Parties.list_sent_party_invites(leader.id)
-      assert length(sent) == 2
-      assert Enum.all?(sent, fn n -> n.sender_id == leader.id end)
-    end
-
-    test "returns empty list when no sent invites", %{member1: member1} do
-      assert Parties.list_sent_party_invites(member1.id) == []
     end
   end
 
