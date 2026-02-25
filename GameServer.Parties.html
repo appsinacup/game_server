@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.577">
+    <meta name="project" content="GameServer v1.0.579">
 
 
-    <title>GameServer.Parties — GameServer v1.0.577</title>
+    <title>GameServer.Parties — GameServer v1.0.579</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-C2CCDE2C.js"></script>
+    <script defer src="dist/sidebar_items-02DD511F.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.577
+          v1.0.579
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Parties</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.577)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.579)</small>
 
     </h1>
 
@@ -111,19 +111,19 @@ GameServer
     <section id="moduledoc">
 <p>Context module for party management.</p><p>A party is a pre-lobby grouping mechanism. Players form a party before
 creating or joining a lobby together.</p><h2 id="module-usage" class="section-heading"><a href="#module-usage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># Create a party (user becomes leader and first member)</span><span class="w">
-</span><span class="p" data-group-id="6665103597-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">party</span><span class="p" data-group-id="6665103597-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">create_party</span><span class="p" data-group-id="6665103597-2">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6665103597-3">%{</span><span class="ss">max_size</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p" data-group-id="6665103597-3">}</span><span class="p" data-group-id="6665103597-2">)</span><span class="w">
+</span><span class="p" data-group-id="6924142324-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">party</span><span class="p" data-group-id="6924142324-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">create_party</span><span class="p" data-group-id="6924142324-2">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6924142324-3">%{</span><span class="ss">max_size</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p" data-group-id="6924142324-3">}</span><span class="p" data-group-id="6924142324-2">)</span><span class="w">
 
 </span><span class="c1"># Join a party by ID</span><span class="w">
-</span><span class="p" data-group-id="6665103597-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p" data-group-id="6665103597-4">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">join_party</span><span class="p" data-group-id="6665103597-5">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">party_id</span><span class="p" data-group-id="6665103597-5">)</span><span class="w">
+</span><span class="p" data-group-id="6924142324-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p" data-group-id="6924142324-4">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">join_party</span><span class="p" data-group-id="6924142324-5">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">party_id</span><span class="p" data-group-id="6924142324-5">)</span><span class="w">
 
 </span><span class="c1"># Leave a party (if leader leaves, party is disbanded)</span><span class="w">
-</span><span class="p" data-group-id="6665103597-6">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="bp">_</span><span class="p" data-group-id="6665103597-6">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">leave_party</span><span class="p" data-group-id="6665103597-7">(</span><span class="n">user</span><span class="p" data-group-id="6665103597-7">)</span><span class="w">
+</span><span class="p" data-group-id="6924142324-6">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="bp">_</span><span class="p" data-group-id="6924142324-6">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">leave_party</span><span class="p" data-group-id="6924142324-7">(</span><span class="n">user</span><span class="p" data-group-id="6924142324-7">)</span><span class="w">
 
 </span><span class="c1"># Party leader creates a lobby — all members join atomically</span><span class="w">
-</span><span class="p" data-group-id="6665103597-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">lobby</span><span class="p" data-group-id="6665103597-8">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">create_lobby_with_party</span><span class="p" data-group-id="6665103597-9">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">lobby_attrs</span><span class="p" data-group-id="6665103597-9">)</span><span class="w">
+</span><span class="p" data-group-id="6924142324-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">lobby</span><span class="p" data-group-id="6924142324-8">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">create_lobby_with_party</span><span class="p" data-group-id="6924142324-9">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">lobby_attrs</span><span class="p" data-group-id="6924142324-9">)</span><span class="w">
 
 </span><span class="c1"># Party leader joins an existing lobby — all members join atomically</span><span class="w">
-</span><span class="p" data-group-id="6665103597-10">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">lobby</span><span class="p" data-group-id="6665103597-10">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">join_lobby_with_party</span><span class="p" data-group-id="6665103597-11">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">lobby_id</span><span class="p">,</span><span class="w"> </span><span class="n">opts</span><span class="p" data-group-id="6665103597-11">)</span></code></pre><h2 id="module-pubsub-events" class="section-heading"><a href="#module-pubsub-events" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">PubSub Events</span></h2><p>This module broadcasts the following events:</p><ul><li><code class="inline">&quot;party:&lt;party_id&gt;&quot;</code> topic:<ul><li><code class="inline">{:party_member_joined, party_id, user_id}</code></li><li><code class="inline">{:party_member_left, party_id, user_id}</code></li><li><code class="inline">{:party_disbanded, party_id}</code></li><li><code class="inline">{:party_updated, party}</code></li></ul></li></ul>
+</span><span class="p" data-group-id="6924142324-10">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">lobby</span><span class="p" data-group-id="6924142324-10">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">join_lobby_with_party</span><span class="p" data-group-id="6924142324-11">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">lobby_id</span><span class="p">,</span><span class="w"> </span><span class="n">opts</span><span class="p" data-group-id="6924142324-11">)</span></code></pre><h2 id="module-pubsub-events" class="section-heading"><a href="#module-pubsub-events" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">PubSub Events</span></h2><p>This module broadcasts the following events:</p><ul><li><code class="inline">&quot;party:&lt;party_id&gt;&quot;</code> topic:<ul><li><code class="inline">{:party_member_joined, party_id, user_id}</code></li><li><code class="inline">{:party_member_left, party_id, user_id}</code></li><li><code class="inline">{:party_disbanded, party_id}</code></li><li><code class="inline">{:party_updated, party}</code></li></ul></li></ul>
     </section>
 
 </div>
@@ -142,17 +142,6 @@ creating or joining a lobby together.</p><h2 id="module-usage" class="section-he
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#accept_party_invite/2" data-no-tooltip="" translate="no">accept_party_invite(user, invite_id)</a>
-
-      </div>
-
-        <div class="summary-synopsis"><p>Accept a party invite. The user joins the party and the invite notification
-is deleted.</p></div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
         <a href="#admin_delete_party/1" data-no-tooltip="" translate="no">admin_delete_party(party_id)</a>
 
       </div>
@@ -168,16 +157,6 @@ is deleted.</p></div>
       </div>
 
         <div class="summary-synopsis"><p>Admin update of a party (max_size, metadata).</p></div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#cancel_party_invite/2" data-no-tooltip="" translate="no">cancel_party_invite(user, invite_id)</a>
-
-      </div>
-
-        <div class="summary-synopsis"><p>Cancel a sent party invite (leader only). Deletes the invite notification.</p></div>
 
     </div>
 
@@ -213,16 +192,6 @@ is deleted.</p></div>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#count_party_invites/1" data-no-tooltip="" translate="no">count_party_invites(user_id)</a>
-
-      </div>
-
-        <div class="summary-synopsis"><p>Count pending party invites for a user.</p></div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
         <a href="#count_party_members/1" data-no-tooltip="" translate="no">count_party_members(party_id)</a>
 
       </div>
@@ -249,16 +218,6 @@ atomically. The party is kept intact.</p></div>
       </div>
 
         <div class="summary-synopsis"><p>Create a new party. The user becomes the leader and first member.</p></div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#decline_party_invite/2" data-no-tooltip="" translate="no">decline_party_invite(user, invite_id)</a>
-
-      </div>
-
-        <div class="summary-synopsis"><p>Decline a party invite. Deletes the invite notification.</p></div>
 
     </div>
 
@@ -304,16 +263,6 @@ atomically. The party is kept intact.</p></div>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#invite_to_party/2" data-no-tooltip="" translate="no">invite_to_party(leader, target_user_id)</a>
-
-      </div>
-
-        <div class="summary-synopsis"><p>Invite a user to the party. Only the party leader can send invites.</p></div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
         <a href="#join_lobby_with_party/3" data-no-tooltip="" translate="no">join_lobby_with_party(user, lobby_id, opts \\ %{})</a>
 
       </div>
@@ -330,6 +279,16 @@ atomically. The party is kept intact.</p></div>
       </div>
 
         <div class="summary-synopsis"><p>Join an existing party by ID.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#join_party_by_code/2" data-no-tooltip="" translate="no">join_party_by_code(user, code)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Join an existing party by its shareable code.</p></div>
 
     </div>
 
@@ -360,26 +319,6 @@ atomically. The party is kept intact.</p></div>
       </div>
 
         <div class="summary-synopsis"><p>List all parties with optional filters and pagination.</p></div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#list_party_invites/2" data-no-tooltip="" translate="no">list_party_invites(user_id, opts \\ [])</a>
-
-      </div>
-
-        <div class="summary-synopsis"><p>List pending party invites for a user (paginated).</p></div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#list_sent_party_invites/2" data-no-tooltip="" translate="no">list_sent_party_invites(user_id, opts \\ [])</a>
-
-      </div>
-
-        <div class="summary-synopsis"><p>List party invites sent by a user (paginated).</p></div>
 
     </div>
 
@@ -437,32 +376,6 @@ atomically. The party is kept intact.</p></div>
     </h2>
 
     <div class="functions-list">
-<section class="detail" id="accept_party_invite/2">
-
-  <div class="detail-header">
-    <a href="#accept_party_invite/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">accept_party_invite(user, invite_id)</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> accept_party_invite(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
-  {:ok, <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
-
-      </div>
-
-<p>Accept a party invite. The user joins the party and the invite notification
-is deleted.</p><p>The <code class="inline">invite_id</code> is the notification ID.</p>
-  </section>
-</section>
 <section class="detail" id="admin_delete_party/1">
 
   <div class="detail-header">
@@ -511,31 +424,6 @@ is deleted.</p><p>The <code class="inline">invite_id</code> is the notification 
       </div>
 
 <p>Admin update of a party (max_size, metadata).</p>
-  </section>
-</section>
-<section class="detail" id="cancel_party_invite/2">
-
-  <div class="detail-header">
-    <a href="#cancel_party_invite/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">cancel_party_invite(user, invite_id)</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> cancel_party_invite(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
-  :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
-
-      </div>
-
-<p>Cancel a sent party invite (leader only). Deletes the invite notification.</p><p>The <code class="inline">invite_id</code> is the notification ID.</p>
   </section>
 </section>
 <section class="detail" id="change_party/1">
@@ -610,30 +498,6 @@ is deleted.</p><p>The <code class="inline">invite_id</code> is the notification 
       </div>
 
 <p>Count total members across all parties.</p>
-  </section>
-</section>
-<section class="detail" id="count_party_invites/1">
-
-  <div class="detail-header">
-    <a href="#count_party_invites/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">count_party_invites(user_id)</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> count_party_invites(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
-
-      </div>
-
-<p>Count pending party invites for a user.</p>
   </section>
 </section>
 <section class="detail" id="count_party_members/1">
@@ -713,31 +577,6 @@ atomically. The party is kept intact.</p><p>The lobby's <code class="inline">max
       </div>
 
 <p>Create a new party. The user becomes the leader and first member.</p><p>Returns <code class="inline">{:error, :already_in_party}</code> if the user is already in a party.</p>
-  </section>
-</section>
-<section class="detail" id="decline_party_invite/2">
-
-  <div class="detail-header">
-    <a href="#decline_party_invite/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">decline_party_invite(user, invite_id)</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> decline_party_invite(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
-  :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
-
-      </div>
-
-<p>Decline a party invite. Deletes the invite notification.</p><p>The <code class="inline">invite_id</code> is the notification ID.</p>
   </section>
 </section>
 <section class="detail" id="get_party/1">
@@ -839,38 +678,6 @@ atomically. The party is kept intact.</p><p>The lobby's <code class="inline">max
 <p>Get the party the user is currently in, or nil.</p>
   </section>
 </section>
-<section class="detail" id="invite_to_party/2">
-
-  <div class="detail-header">
-    <a href="#invite_to_party/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">invite_to_party(leader, target_user_id)</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> invite_to_party(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
-  {:ok, <a href="GameServer.Notifications.Notification.html#t:t/0">GameServer.Notifications.Notification.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
-
-      </div>
-
-<p>Invite a user to the party. Only the party leader can send invites.</p><p>Creates a notification with title <code class="inline">&quot;party_invite&quot;</code> and metadata containing
-the party_id. Uses <code class="inline">admin_create_notification/3</code> to bypass the friends-only
-restriction.</p><p>Returns <code class="inline">{:error, :not_in_party}</code> if the leader is not in a party.
-Returns <code class="inline">{:error, :not_leader}</code> if the user is not the party leader.
-Returns <code class="inline">{:error, :target_in_party}</code> if the target user is already in a party.
-Returns <code class="inline">{:error, :target_in_lobby}</code> if the target user is already in a lobby.
-Returns <code class="inline">{:error, :self_invite}</code> if the leader tries to invite themselves.
-Returns <code class="inline">{:error, :blocked}</code> if either user has blocked the other.</p>
-  </section>
-</section>
 <section class="detail" id="join_lobby_with_party/3">
 
     <span id="join_lobby_with_party/2"></span>
@@ -923,6 +730,33 @@ atomically. The party is kept intact.</p><p>The lobby must have enough free slot
 
 <p>Join an existing party by ID.</p><p>Returns <code class="inline">{:error, :already_in_party}</code> if the user is already in a party.
 Returns <code class="inline">{:error, :party_not_found}</code> if the party doesn't exist.
+Returns <code class="inline">{:error, :party_full}</code> if the party is at capacity.</p>
+  </section>
+</section>
+<section class="detail" id="join_party_by_code/2">
+
+  <div class="detail-header">
+    <a href="#join_party_by_code/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">join_party_by_code(user, code)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> join_party_by_code(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) ::
+  {:ok, <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Join an existing party by its shareable code.</p><p>If the user is currently in another party, they will automatically leave it
+first (disbanding it if they are the leader).</p><p>Returns <code class="inline">{:error, :party_not_found}</code> if no party matches the code.
 Returns <code class="inline">{:error, :party_full}</code> if the party is at capacity.</p>
   </section>
 </section>
@@ -1006,64 +840,6 @@ party deleted). Regular members are simply removed.</p>
       </div>
 
 <p>List all parties with optional filters and pagination.</p>
-  </section>
-</section>
-<section class="detail" id="list_party_invites/2">
-
-    <span id="list_party_invites/1"></span>
-
-  <div class="detail-header">
-    <a href="#list_party_invites/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">list_party_invites(user_id, opts \\ [])</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> list_party_invites(
-  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: [<a href="GameServer.Notifications.Notification.html#t:t/0">GameServer.Notifications.Notification.t</a>()]</pre>
-
-      </div>
-
-<p>List pending party invites for a user (paginated).</p>
-  </section>
-</section>
-<section class="detail" id="list_sent_party_invites/2">
-
-    <span id="list_sent_party_invites/1"></span>
-
-  <div class="detail-header">
-    <a href="#list_sent_party_invites/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">list_sent_party_invites(user_id, opts \\ [])</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> list_sent_party_invites(
-  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
-) :: [<a href="GameServer.Notifications.Notification.html#t:t/0">GameServer.Notifications.Notification.t</a>()]</pre>
-
-      </div>
-
-<p>List party invites sent by a user (paginated).</p>
   </section>
 </section>
 <section class="detail" id="subscribe_parties/0">

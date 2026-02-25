@@ -18,6 +18,10 @@ Rules:
 
 # `changeset`
 
+# `generate_code`
+
+Generates a random 6-character uppercase alphanumeric code.
+
 ---
 
 *Consult [api-reference.md](api-reference.md) for complete listing*
