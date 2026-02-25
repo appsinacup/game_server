@@ -26,6 +26,12 @@ defmodule GameServerWeb.UserSocket do
   # Global groups channel for list updates (new/updated/deleted groups)
   channel "groups", GameServerWeb.GroupsChannel
 
+  # Party channels - per-party events for members
+  channel "party:*", GameServerWeb.PartyChannel
+
+  # Global parties channel for list updates (new/updated/deleted parties)
+  channel "parties", GameServerWeb.PartiesChannel
+
   # Uncomment the following line to define a "room:*" topic
   # pointing to the `GameServerWeb.RoomChannel`:
   #

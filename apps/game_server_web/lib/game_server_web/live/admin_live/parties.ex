@@ -100,6 +100,7 @@ defmodule GameServerWeb.AdminLive.Parties do
                         />
                       </th>
                       <th>ID</th>
+                      <th>Code</th>
                       <th>Leader</th>
                       <th>Members (Cap)</th>
                       <th>Metadata</th>
@@ -108,6 +109,7 @@ defmodule GameServerWeb.AdminLive.Parties do
                       <th>Actions</th>
                     </tr>
                     <tr>
+                      <th></th>
                       <th></th>
                       <th></th>
                       <th>
@@ -156,6 +158,7 @@ defmodule GameServerWeb.AdminLive.Parties do
                         />
                       </td>
                       <td class="font-mono text-sm">{p.id}</td>
+                      <td class="font-mono text-sm font-semibold tracking-wider">{p.code}</td>
                       <td class="text-sm">
                         <span class="font-mono">{p.leader_id}</span>
                         <%= if p.leader do %>
@@ -249,6 +252,10 @@ defmodule GameServerWeb.AdminLive.Parties do
 
             <div class="mt-4 text-sm text-base-content/70 space-y-1">
               <div>
+                Code:
+                <span class="font-mono font-semibold tracking-wider">{@selected_party.code}</span>
+              </div>
+              <div>
                 Leader: <span class="font-mono">{@selected_party.leader_id}</span>
               </div>
               <div>
@@ -281,6 +288,9 @@ defmodule GameServerWeb.AdminLive.Parties do
           <h3 class="font-bold text-lg">
             Party #{@selected_party.id} members ({length(@members)})
           </h3>
+          <div class="text-sm text-base-content/70 mt-1">
+            Code: <span class="font-mono font-semibold tracking-wider">{@selected_party.code}</span>
+          </div>
 
           <div class="flex gap-2 mt-4">
             <input

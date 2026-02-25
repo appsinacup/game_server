@@ -598,9 +598,47 @@ func groups_update_group(
 	updateGroupRequest: UpdateGroupRequest):
 	return await _call_api(GroupsApi.new(_config), "update_group", [id, updateGroupRequest])
 
+## PARTIES
+
+## Create a party
+func parties_create_party(createPartyRequest: CreatePartyRequest) -> GamendResult:
+	return await _call_api(PartiesApi.new(_config), "create_party", [createPartyRequest])
+
+## Join a party by code
+func parties_join_party_by_code(joinPartyByCodeRequest: JoinPartyByCodeRequest) -> GamendResult:
+	return await _call_api(PartiesApi.new(_config), "join_party_by_code", [joinPartyByCodeRequest])
+
+## Kick a member from the party (leader only)
+func parties_kick_party_member(kickUserRequest: KickUserRequest) -> GamendResult:
+	return await _call_api(PartiesApi.new(_config), "kick_party_member", [kickUserRequest])
+
+## Leave the current party
+func parties_leave_party() -> GamendResult:
+	return await _call_api(PartiesApi.new(_config), "leave_party", [])
+
+## Create a lobby with the party (leader only)
+func parties_party_create_lobby(partyCreateLobbyRequest: PartyCreateLobbyRequest) -> GamendResult:
+	return await _call_api(PartiesApi.new(_config), "party_create_lobby", [partyCreateLobbyRequest])
+
+## Join a lobby with the party (leader only)
+func parties_party_join_lobby(
+	# id: int   Eg: 56
+	# Lobby ID
+	id: int,
+	partyJoinLobbyRequest: PartyJoinLobbyRequest,) -> GamendResult:
+	return await _call_api(PartiesApi.new(_config), "party_join_lobby", [id, partyJoinLobbyRequest])
+
+## Get current party
+func parties_show_party() -> GamendResult:
+	return await _call_api(PartiesApi.new(_config), "show_party", [])
+
+## Update party settings (leader only)
+func parties_update_party(updatePartyRequest: UpdatePartyRequest) -> GamendResult:
+	return await _call_api(PartiesApi.new(_config), "update_party", [updatePartyRequest])
+
 ## ADMIN SESSIONS
 
-# Delete session token by id (admin)
+## Delete session token by id (admin)
 func admin_sessions_admin_delete_session(id: int) -> GamendResult:
 	return await _call_api(AdminSessionsApi.new(_config), "admin_delete_session", [id])
 

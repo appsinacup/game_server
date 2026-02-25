@@ -45,7 +45,7 @@
       <h3 class="font-semibold">{doc_text("WebSocket channels")}</h3>
       <p class="text-sm text-base-content/80">
         {doc_text(
-          "Clients connect via WebSocket and join channels to receive real-time events. Five channel types are available:"
+          "Clients connect via WebSocket and join channels to receive real-time events. Seven channel types are available:"
         )}
       </p>
       <ul class="list-disc pl-6 text-sm space-y-1 text-base-content/80">
@@ -68,6 +68,14 @@
         <li>
           <strong>GroupsChannel</strong>
           (<code class="font-mono">groups</code>) — global group list: group created/updated/deleted (excludes hidden)
+        </li>
+        <li>
+          <strong>PartyChannel</strong>
+          (<code class="font-mono" phx-no-curly-interpolation>party:{party_id}</code>) — per-party: member join/leave, party settings, disbanded
+        </li>
+        <li>
+          <strong>PartiesChannel</strong>
+          (<code class="font-mono">parties</code>) — global party list: party created/updated/deleted
         </li>
       </ul>
 
@@ -94,7 +102,11 @@
                                         join_request_approved,
                                         join_request_rejected
   GroupsChannel     "groups"            group_created, group_updated,
-                                        group_deleted</pre>
+                                        group_deleted
+  PartyChannel      "party:{id}"        member_joined, member_left,
+                                        updated, disbanded
+  PartiesChannel    "parties"           party_created, party_updated,
+                                        party_deleted</pre>
       </div>
 
       <h3 class="font-semibold mt-3">{doc_text("How it works")}</h3>

@@ -66,6 +66,9 @@ defmodule GameServerWeb.Api.V1.GroupController do
       group_id: %Schema{type: :integer},
       role: %Schema{type: :string, enum: ["admin", "member"]},
       display_name: %Schema{type: :string, nullable: true},
+      profile_url: %Schema{type: :string, nullable: true},
+      is_online: %Schema{type: :boolean},
+      last_seen_at: %Schema{type: :string, format: "date-time", nullable: true},
       inserted_at: %Schema{type: :string, format: :"date-time"}
     }
   }
@@ -1285,12 +1288,12 @@ defmodule GameServerWeb.Api.V1.GroupController do
   end
 
   defp serialize_member(member) do
-    display_name =
-      if Ecto.assoc_loaded?(member.user) and member.user do
-        member.user.display_name
-      else
-        nil
-      end
+    user_loaded? = Ecto.assoc_loaded?(member.user) and member.user != nil
+
+    display_name = if user_loaded?, do: member.user.display_name, else: nil
+    profile_url = if user_loaded?, do: member.user.profile_url, else: nil
+    is_online = if user_loaded?, do: member.user.is_online || false, else: false
+    last_seen_at = if user_loaded?, do: member.user.last_seen_at, else: nil
 
     %{
       id: member.id,
@@ -1298,6 +1301,9 @@ defmodule GameServerWeb.Api.V1.GroupController do
       group_id: member.group_id,
       role: member.role,
       display_name: display_name,
+      profile_url: profile_url || "",
+      is_online: is_online,
+      last_seen_at: last_seen_at,
       inserted_at: member.inserted_at
     }
   end

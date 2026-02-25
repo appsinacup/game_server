@@ -26,7 +26,10 @@ defmodule GameServerWeb.Api.V1.PartyController do
           properties: %{
             id: %Schema{type: :integer},
             display_name: %Schema{type: :string, nullable: true},
-            email: %Schema{type: :string, nullable: true}
+            email: %Schema{type: :string, nullable: true},
+            profile_url: %Schema{type: :string, nullable: true},
+            is_online: %Schema{type: :boolean},
+            last_seen_at: %Schema{type: :string, format: "date-time", nullable: true}
           }
         }
       }
@@ -38,7 +41,14 @@ defmodule GameServerWeb.Api.V1.PartyController do
       code: "A3BK7P",
       metadata: %{},
       members: [
-        %{id: 42, display_name: "Player1", email: "player1@example.com"}
+        %{
+          id: 42,
+          display_name: "Player1",
+          email: "player1@example.com",
+          profile_url: "",
+          is_online: true,
+          last_seen_at: "2025-01-15T10:30:00Z"
+        }
       ]
     }
   }
@@ -547,7 +557,10 @@ defmodule GameServerWeb.Api.V1.PartyController do
           %{
             id: m.id,
             display_name: m.display_name || "",
-            email: m.email || ""
+            email: m.email || "",
+            profile_url: m.profile_url || "",
+            is_online: m.is_online || false,
+            last_seen_at: m.last_seen_at
           }
         end),
       inserted_at: party.inserted_at,
