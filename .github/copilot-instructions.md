@@ -199,7 +199,7 @@ API routes use JWT tokens via Guardian for stateless authentication:
   - `"group:<id>"` / `"groups"` — group events (member join/leave, requests, updates)
   - `"party:<id>"` / `"parties"` — party events (member join/leave, updates)
   - `"user:<id>"` — user-specific events (friend requests, notifications)
-- WebSocket channels mirror PubSub topics: `UserChannel`, `LobbyChannel`, `LobbiesChannel`, `GroupChannel`, `GroupsChannel`, `PartyChannel`, `PartiesChannel`.
+- WebSocket channels mirror PubSub topics: `UserChannel`, `LobbyChannel`, `LobbiesChannel`, `GroupChannel`, `GroupsChannel`, `PartyChannel`.
 - LiveViews subscribe to PubSub topics directly (not via channels) using context `subscribe_*` functions.
 
 ### Advisory locks
@@ -591,7 +591,7 @@ apps/
     lib/game_server_web/
       controllers/api/v1/     # Public API controllers (14 controllers)
       controllers/api/v1/admin/ # Admin API controllers (8 controllers)
-      channels/               # WebSocket channels (7 channels)
+      channels/               # WebSocket channels (6 channels)
       live/                   # LiveViews (public + user auth)
       live/admin_live/        # Admin dashboard LiveViews (10 modules)
       live/public_docs/       # Documentation guide templates (20 guides)
