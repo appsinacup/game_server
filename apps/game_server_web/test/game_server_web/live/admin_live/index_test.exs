@@ -58,7 +58,7 @@ defmodule GameServerWeb.AdminLive.IndexTest do
     assert html =~ "Users"
     assert html =~ "Google: 1"
     assert html =~ "Discord: 1"
-    assert html =~ "With password: 1"
+    assert html =~ "With email: 1"
     assert html =~ "Leaderboards"
     assert html =~ "Scores total: 2"
   end

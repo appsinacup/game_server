@@ -1,8 +1,19 @@
 defmodule GameServerWeb.PageController do
   use GameServerWeb, :controller
 
+  alias GameServer.Accounts
+  alias GameServer.Accounts.User
+  alias GameServer.Repo
+
   def home(conn, _params) do
-    render(conn, :home)
+    stats = %{
+      users_count: Repo.aggregate(User, :count),
+      users_active_1d: Accounts.count_users_active_since(1),
+      users_active_7d: Accounts.count_users_active_since(7),
+      users_active_30d: Accounts.count_users_active_since(30)
+    }
+
+    render(conn, :home, stats: stats)
   end
 
   def privacy(conn, _params) do

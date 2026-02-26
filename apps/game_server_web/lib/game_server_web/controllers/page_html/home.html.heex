@@ -2,12 +2,39 @@
   <% locale = Gettext.get_locale(GameServerWeb.Gettext) %>
   <% provider_theme = GameServer.Theme.JSONConfig.get_theme(locale) || %{} %>
 
-  <div class="mt-8 flex justify-center">
+  <div class="flex justify-center">
     <img
       src={Map.get(provider_theme, "banner")}
       alt={gettext("Game Server Banner")}
       class="max-w-full h-auto rounded-lg shadow-lg"
     />
+  </div>
+<!-- Activity Stats -->
+  <div class="mt-6 mb-8">
+    <div class="rounded-box bg-base-200 p-5">
+      <div class="text-sm font-semibold mb-3 flex items-center justify-center gap-2">
+        <.icon name="hero-clock" class="size-4" />
+        {gettext("Active Users")}
+      </div>
+      <div class="grid grid-cols-4 gap-3 text-center">
+        <div>
+          <div class="text-xl font-bold">{@stats.users_active_1d}</div>
+          <div class="text-xs text-base-content/60">{gettext("Daily")}</div>
+        </div>
+        <div>
+          <div class="text-xl font-bold">{@stats.users_active_7d}</div>
+          <div class="text-xs text-base-content/60">{gettext("Weekly")}</div>
+        </div>
+        <div>
+          <div class="text-xl font-bold">{@stats.users_active_30d}</div>
+          <div class="text-xs text-base-content/60">{gettext("Monthly")}</div>
+        </div>
+        <div>
+          <div class="text-xl font-bold">{@stats.users_count}</div>
+          <div class="text-xs text-base-content/60">{gettext("Total")}</div>
+        </div>
+      </div>
+    </div>
   </div>
   <!-- Hidden static icon references so asset bundlers include them for dynamic usage -->
   <div class="hidden" aria-hidden="true">

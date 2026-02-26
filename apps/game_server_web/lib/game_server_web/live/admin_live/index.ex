@@ -66,7 +66,7 @@ defmodule GameServerWeb.AdminLive.Index do
                 <div class="text-sm font-semibold mb-2">Users</div>
                 <div class="text-2xl font-bold">{@users_count}</div>
                 <div class="text-xs text-base-content/60 mt-2 space-y-1">
-                  <div>With password: {@users_password}</div>
+                  <div>With email: {@users_password}</div>
                   <div>Google: {@users_google}</div>
                   <div>Facebook: {@users_facebook}</div>
                   <div>Discord: {@users_discord}</div>
