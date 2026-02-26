@@ -1,0 +1,142 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: lib/game_server_web/live/lobby_live/index.ex:703
+#: lib/game_server_web/live/lobby_live/index.ex:703
+#, elixir-autogen, elixir-format
+msgid "%{count} / %{max} members"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:857
+#: lib/game_server_web/live/lobby_live/index.ex:857
+#: lib/game_server_web/live/lobby_live/index.ex:895
+#: lib/game_server_web/live/lobby_live/index.ex:895
+#, elixir-autogen, elixir-format
+msgid "(host)"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:649
+#: lib/game_server_web/live/lobby_live/index.ex:649
+#, elixir-autogen, elixir-format
+msgid "Browse and join lobbies"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:411
+#: lib/game_server_web/live/lobby_live/index.ex:411
+#: lib/game_server_web/live/lobby_live/index.ex:459
+#: lib/game_server_web/live/lobby_live/index.ex:459
+#, elixir-autogen, elixir-format
+msgid "Could not join: %{reason}"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:316
+#: lib/game_server_web/live/lobby_live/index.ex:316
+#, elixir-autogen, elixir-format
+msgid "Could not kick: %{reason}"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:119
+#: lib/game_server_web/live/lobby_live/index.ex:119
+#, elixir-autogen, elixir-format
+msgid "Could not leave: %{reason}"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:280
+#: lib/game_server_web/live/lobby_live/index.ex:280
+#, elixir-autogen, elixir-format
+msgid "Could not update: %{reason}"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:654
+#: lib/game_server_web/live/lobby_live/index.ex:654
+#, elixir-autogen, elixir-format
+msgid "Create a Lobby"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:656
+#: lib/game_server_web/live/lobby_live/index.ex:656
+#, elixir-autogen, elixir-format
+msgid "Create a lobby to host a match."
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:828
+#: lib/game_server_web/live/lobby_live/index.ex:828
+#, elixir-autogen, elixir-format
+msgid "Leave empty to clear"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:648
+#: lib/game_server_web/live/lobby_live/index.ex:648
+#, elixir-autogen, elixir-format
+msgid "Lobbies"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:162
+#: lib/game_server_web/live/lobby_live/index.ex:162
+#, elixir-autogen, elixir-format
+msgid "Lobby is locked"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:139
+#: lib/game_server_web/live/lobby_live/index.ex:139
+#: lib/game_server_web/live/lobby_live/index.ex:159
+#: lib/game_server_web/live/lobby_live/index.ex:159
+#: lib/game_server_web/live/lobby_live/index.ex:174
+#: lib/game_server_web/live/lobby_live/index.ex:174
+#, elixir-autogen, elixir-format
+msgid "Lobby not found"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:267
+#: lib/game_server_web/live/lobby_live/index.ex:267
+#, elixir-autogen, elixir-format
+msgid "Lobby updated"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:721
+#: lib/game_server_web/live/lobby_live/index.ex:721
+#, elixir-autogen, elixir-format
+msgid "Manage"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:692
+#: lib/game_server_web/live/lobby_live/index.ex:692
+#, elixir-autogen, elixir-format
+msgid "Open Lobbies"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:684
+#: lib/game_server_web/live/lobby_live/index.ex:684
+#, elixir-autogen, elixir-format
+msgid "You are already in a lobby"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:76
+#: lib/game_server_web/live/lobby_live/index.ex:76
+#: lib/game_server_web/live/lobby_live/index.ex:367
+#: lib/game_server_web/live/lobby_live/index.ex:367
+#, elixir-autogen, elixir-format
+msgid "You are already in a lobby and cannot create another"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:427
+#: lib/game_server_web/live/lobby_live/index.ex:427
+#, elixir-autogen, elixir-format
+msgid "You are already in this lobby"
+msgstr ""
+
+#: lib/game_server_web/live/lobby_live/index.ex:527
+#: lib/game_server_web/live/lobby_live/index.ex:527
+#, elixir-autogen, elixir-format
+msgid "You have been kicked from the lobby"
+msgstr ""

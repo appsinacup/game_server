@@ -14,8 +14,8 @@ defmodule GameServerWeb.UserLive.Settings do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="text-center">
         <.header>
-          Account Settings
-          <:subtitle>Manage your account email address and password settings</:subtitle>
+          {dgettext("settings", "Account Settings")}
+          <:subtitle>{dgettext("settings", "Manage your account settings")}</:subtitle>
         </.header>
 
         <%= if @conflict_user do %>
@@ -24,10 +24,14 @@ defmodule GameServerWeb.UserLive.Settings do
           <div class="card bg-warning/10 border-warning p-4 rounded-lg">
             <div class="flex items-start justify-between">
               <div>
-                <strong>Conflict detected</strong>
+                <strong>{dgettext("settings", "Conflict detected")}</strong>
                 <div class="text-sm text-base-content/70">
-                  The {@conflict_provider} account (ID: {@conflict_user.id}) is already linked to another account.
-                  If this is another account you own (matching email), you may delete it below to free the provider so you can link it to this account.
+                  {dgettext(
+                    "settings",
+                    "The %{provider} account (ID: %{id}) is already linked to another account. If this is another account you own (matching email), you may delete it below to free the provider so you can link it to this account.",
+                    provider: @conflict_provider,
+                    id: @conflict_user.id
+                  )}
                 </div>
               </div>
               <div class="flex items-center gap-2">
@@ -35,9 +39,11 @@ defmodule GameServerWeb.UserLive.Settings do
                   phx-click="delete_conflicting_account"
                   phx-value-id={@conflict_user.id}
                   class="btn btn-error btn-sm"
-                  data-confirm="Delete the conflicting account? This is irreversible."
+                  data-confirm={
+                    dgettext("settings", "Delete the conflicting account? This is irreversible.")
+                  }
                 >
-                  Delete account
+                  {dgettext("settings", "Delete account")}
                 </button>
               </div>
             </div>
@@ -47,10 +53,10 @@ defmodule GameServerWeb.UserLive.Settings do
 
       <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="card bg-base-200 p-4 rounded-lg">
-          <div class="font-semibold">Account details</div>
+          <div class="font-semibold">{dgettext("settings", "Account details")}</div>
           <div class="text-sm mt-2 space-y-1 text-base-content/80">
-            <div><strong>ID:</strong> {@user.id}</div>
-            <div><strong>Email:</strong> {@current_email}</div>
+            <div><strong>{dgettext("settings", "ID:")}</strong> {@user.id}</div>
+            <div><strong>{dgettext("settings", "Email:")}</strong> {@current_email}</div>
 
             <.form
               for={@display_form}
@@ -61,10 +67,12 @@ defmodule GameServerWeb.UserLive.Settings do
               <.input
                 field={@display_form[:display_name]}
                 type="text"
-                label="Display name"
+                label={dgettext("settings", "Display name")}
                 required
               />
-              <.button variant="primary" phx-disable-with="Saving...">Save Display Name</.button>
+              <.button variant="primary" phx-disable-with={gettext("Saving...")}>
+                {dgettext("settings", "Save Display Name")}
+              </.button>
             </.form>
 
             <.form
@@ -76,17 +84,19 @@ defmodule GameServerWeb.UserLive.Settings do
               <.input
                 field={@email_form[:email]}
                 type="email"
-                label="Email"
+                label={gettext("Email")}
                 autocomplete="username"
                 required
               />
-              <.button variant="primary" phx-disable-with="Changing...">Change Email</.button>
+              <.button variant="primary" phx-disable-with={dgettext("settings", "Changing...")}>
+                {dgettext("settings", "Change Email")}
+              </.button>
             </.form>
           </div>
         </div>
 
         <div class="card bg-base-200 p-4 rounded-lg">
-          <div class="font-semibold">Metadata</div>
+          <div class="font-semibold">{dgettext("settings", "Metadata")}</div>
           <div class="text-sm mt-2 font-mono text-xs bg-base-300 p-3 rounded-lg overflow-auto text-base-content/80">
             <pre phx-no-curly-interpolation><%= Jason.encode!(@user.metadata || %{}, pretty: true) %></pre>
           </div>
@@ -110,18 +120,18 @@ defmodule GameServerWeb.UserLive.Settings do
             <.input
               field={@password_form[:password]}
               type="password"
-              label="New password"
+              label={dgettext("settings", "New password")}
               autocomplete="new-password"
               required
             />
             <.input
               field={@password_form[:password_confirmation]}
               type="password"
-              label="Confirm new password"
+              label={dgettext("settings", "Confirm new password")}
               autocomplete="new-password"
             />
-            <.button variant="primary" phx-disable-with="Saving...">
-              Save Password
+            <.button variant="primary" phx-disable-with={gettext("Saving...")}>
+              {dgettext("settings", "Save Password")}
             </.button>
           </.form>
         </div>
@@ -131,16 +141,16 @@ defmodule GameServerWeb.UserLive.Settings do
       <div class="card bg-base-200 p-4 rounded-lg mt-6">
         <div class="flex items-center justify-between">
           <div>
-            <div class="font-semibold text-lg">Friends</div>
+            <div class="font-semibold text-lg">{dgettext("settings", "Friends")}</div>
             <div class="text-sm text-base-content/70">
-              View and manage friend requests and current friends
+              {dgettext("settings", "Manage your friends")}
             </div>
           </div>
         </div>
 
         <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <h4 class="font-semibold">Incoming Requests</h4>
+            <h4 class="font-semibold">{dgettext("settings", "Incoming Requests")}</h4>
             <div
               :for={req <- @incoming}
               id={"request-" <> Integer.to_string(req.id)}
@@ -153,24 +163,24 @@ defmodule GameServerWeb.UserLive.Settings do
               </div>
               <div class="flex gap-2 mt-2">
                 <button phx-click="accept_friend" phx-value-id={req.id} class="btn btn-sm btn-primary">
-                  Accept
+                  {gettext("Accept")}
                 </button>
                 <button phx-click="reject_friend" phx-value-id={req.id} class="btn btn-sm btn-error">
-                  Reject
+                  {gettext("Reject")}
                 </button>
                 <button
                   phx-click="block_friend"
                   phx-value-id={req.id}
                   class="btn btn-sm btn-outline btn-error"
                 >
-                  Block
+                  {gettext("Block")}
                 </button>
               </div>
             </div>
 
             <div :if={@incoming_total_pages > 1} class="mt-2 flex gap-2 items-center">
               <button phx-click="incoming_prev" class="btn btn-xs" disabled={@incoming_page <= 1}>
-                Prev
+                {gettext("Prev")}
               </button>
               <div class="text-xs text-base-content/70">
                 page {@incoming_page} / {@incoming_total_pages} ({@incoming_total} total)
@@ -180,13 +190,13 @@ defmodule GameServerWeb.UserLive.Settings do
                 class="btn btn-xs"
                 disabled={@incoming_page >= @incoming_total_pages || @incoming_total_pages == 0}
               >
-                Next
+                {gettext("Next")}
               </button>
             </div>
           </div>
 
           <div>
-            <h4 class="font-semibold">Outgoing Requests</h4>
+            <h4 class="font-semibold">{dgettext("settings", "Outgoing Requests")}</h4>
             <div
               :for={req <- @outgoing}
               id={"outgoing-" <> Integer.to_string(req.id)}
@@ -197,13 +207,13 @@ defmodule GameServerWeb.UserLive.Settings do
               </div>
               <div class="flex gap-2 mt-2">
                 <button phx-click="cancel_friend" phx-value-id={req.id} class="btn btn-sm btn-error">
-                  Cancel
+                  {gettext("Cancel")}
                 </button>
               </div>
             </div>
             <div :if={@outgoing_total_pages > 1} class="mt-2 flex gap-2 items-center">
               <button phx-click="outgoing_prev" class="btn btn-xs" disabled={@outgoing_page <= 1}>
-                Prev
+                {gettext("Prev")}
               </button>
               <div class="text-xs text-base-content/70">
                 page {@outgoing_page} / {@outgoing_total_pages} ({@outgoing_total} total)
@@ -213,13 +223,13 @@ defmodule GameServerWeb.UserLive.Settings do
                 class="btn btn-xs"
                 disabled={@outgoing_page >= @outgoing_total_pages || @outgoing_total_pages == 0}
               >
-                Next
+                {gettext("Next")}
               </button>
             </div>
           </div>
 
           <div>
-            <h4 class="font-semibold">Friends</h4>
+            <h4 class="font-semibold">{dgettext("settings", "Friends")}</h4>
             <div
               :for={u <- @friends}
               id={"friend-" <> Integer.to_string(u.id)}
@@ -242,13 +252,13 @@ defmodule GameServerWeb.UserLive.Settings do
                   phx-value-friend_id={u.id}
                   class="btn btn-sm btn-error btn-outline"
                 >
-                  Remove
+                  {gettext("Remove")}
                 </button>
               </div>
             </div>
             <div :if={@friends_total_pages > 1} class="mt-2 flex gap-2 items-center">
               <button phx-click="friends_prev" class="btn btn-xs" disabled={@friends_page <= 1}>
-                Prev
+                {gettext("Prev")}
               </button>
               <div class="text-xs text-base-content/70">
                 page {@friends_page} / {@friends_total_pages} ({@friends_total} total)
@@ -258,7 +268,7 @@ defmodule GameServerWeb.UserLive.Settings do
                 class="btn btn-xs"
                 disabled={@friends_page >= @friends_total_pages || @friends_total_pages == 0}
               >
-                Next
+                {gettext("Next")}
               </button>
             </div>
           </div>
@@ -268,7 +278,7 @@ defmodule GameServerWeb.UserLive.Settings do
 
         <div class="mt-2">
           <div :if={length(@blocked) > 0} class="mt-4">
-            <div class="text-xs text-base-content/70">Blocked users</div>
+            <div class="text-xs text-base-content/70">{dgettext("settings", "Blocked users")}</div>
             <div
               :for={b <- @blocked}
               id={"blocked-" <> Integer.to_string(b.id)}
@@ -280,13 +290,13 @@ defmodule GameServerWeb.UserLive.Settings do
               </div>
               <div>
                 <button phx-click="unblock_friend" phx-value-id={b.id} class="btn btn-xs btn-outline">
-                  Unblock
+                  {gettext("Unblock")}
                 </button>
               </div>
             </div>
             <div :if={@blocked_total_pages > 1} class="mt-2 flex gap-2 items-center">
               <button phx-click="blocked_prev" class="btn btn-xs" disabled={@blocked_page <= 1}>
-                Prev
+                {gettext("Prev")}
               </button>
               <div class="text-xs text-base-content/70">
                 page {@blocked_page} / {@blocked_total_pages} ({@blocked_total} total)
@@ -296,7 +306,7 @@ defmodule GameServerWeb.UserLive.Settings do
                 class="btn btn-xs"
                 disabled={@blocked_page >= @blocked_total_pages || @blocked_total_pages == 0}
               >
-                Next
+                {gettext("Next")}
               </button>
             </div>
           </div>
@@ -307,13 +317,15 @@ defmodule GameServerWeb.UserLive.Settings do
                 type="text"
                 name="q"
                 value={@search_query}
-                placeholder="Search by email or display name"
+                placeholder={gettext("Search...")}
                 class="input"
               />
             </form>
           </div>
           <div :if={length(@search_results) > 0} class="mt-3">
-            <div class="text-xs text-base-content/70 mb-2">Search results</div>
+            <div class="text-xs text-base-content/70 mb-2">
+              {dgettext("settings", "Search results")}
+            </div>
             
     <!-- Render search results as a responsive grid so multiple items show side-by-side -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -329,7 +341,7 @@ defmodule GameServerWeb.UserLive.Settings do
                       phx-value-target={s.id}
                       class="btn btn-xs btn-primary"
                     >
-                      Send
+                      {gettext("Send")}
                     </button>
                   </div>
                 </div>
@@ -337,7 +349,7 @@ defmodule GameServerWeb.UserLive.Settings do
             </div>
             <div :if={@search_total_pages > 1} class="mt-2 flex gap-2 items-center">
               <button phx-click="search_prev" class="btn btn-xs" disabled={@search_page <= 1}>
-                Prev
+                {gettext("Prev")}
               </button>
               <div class="text-xs text-base-content/70">
                 page {@search_page} / {@search_total_pages} ({@search_total} total)
@@ -347,7 +359,7 @@ defmodule GameServerWeb.UserLive.Settings do
                 class="btn btn-xs"
                 disabled={@search_page >= @search_total_pages || @search_total_pages == 0}
               >
-                Next
+                {gettext("Next")}
               </button>
             </div>
           </div>
@@ -357,8 +369,10 @@ defmodule GameServerWeb.UserLive.Settings do
       <div class="card bg-base-200 p-4 rounded-lg mt-6">
         <div class="flex items-center justify-between">
           <div>
-            <div class="font-semibold text-lg">Data</div>
-            <div class="text-sm text-base-content/70">View your User Data</div>
+            <div class="font-semibold text-lg">{dgettext("settings", "Data")}</div>
+            <div class="text-sm text-base-content/70">
+              {dgettext("settings", "View stored key-value data")}
+            </div>
           </div>
         </div>
 
@@ -373,14 +387,14 @@ defmodule GameServerWeb.UserLive.Settings do
               <.input
                 field={@kv_filter_form[:key]}
                 type="text"
-                label="Key contains"
+                label={dgettext("settings", "Key contains")}
                 phx-debounce="300"
               />
             </div>
             <div class="flex gap-2 mt-2">
-              <button type="submit" class="btn btn-sm btn-outline">Apply</button>
+              <button type="submit" class="btn btn-sm btn-outline">{gettext("Apply")}</button>
               <button type="button" phx-click="kv_filters_clear" class="btn btn-sm btn-ghost">
-                Clear
+                {gettext("Clear")}
               </button>
             </div>
           </.form>
@@ -397,11 +411,11 @@ defmodule GameServerWeb.UserLive.Settings do
             </colgroup>
             <thead>
               <tr>
-                <th class="w-16">ID</th>
-                <th class="font-mono text-sm break-all">Key</th>
-                <th class="w-40">Updated</th>
-                <th>Value</th>
-                <th>Metadata</th>
+                <th class="w-16">{gettext("ID")}</th>
+                <th class="font-mono text-sm break-all">{dgettext("settings", "Key")}</th>
+                <th class="w-40">{dgettext("settings", "Updated")}</th>
+                <th>{dgettext("settings", "Value")}</th>
+                <th>{dgettext("settings", "Metadata")}</th>
               </tr>
             </thead>
             <tbody>
@@ -425,7 +439,9 @@ defmodule GameServerWeb.UserLive.Settings do
         </div>
 
         <div class="mt-4 flex gap-2 items-center">
-          <button phx-click="kv_prev" class="btn btn-xs" disabled={@kv_page <= 1}>Prev</button>
+          <button phx-click="kv_prev" class="btn btn-xs" disabled={@kv_page <= 1}>
+            {gettext("Prev")}
+          </button>
           <div class="text-xs text-base-content/70">
             page {@kv_page} / {@kv_total_pages} ({@kv_count} total)
           </div>
@@ -434,7 +450,7 @@ defmodule GameServerWeb.UserLive.Settings do
             class="btn btn-xs"
             disabled={@kv_page >= @kv_total_pages || @kv_total_pages == 0}
           >
-            Next
+            {gettext("Next")}
           </button>
         </div>
       </div>
@@ -443,9 +459,9 @@ defmodule GameServerWeb.UserLive.Settings do
       <div class="card bg-base-200 p-4 rounded-lg mt-6">
         <div class="flex items-center justify-between">
           <div>
-            <div class="font-semibold text-lg">Notifications</div>
+            <div class="font-semibold text-lg">{dgettext("settings", "Notifications")}</div>
             <div class="text-sm text-base-content/70">
-              Your notifications ({@notif_count})
+              {dgettext("settings", "Your notifications (%{count})", count: @notif_count)}
             </div>
           </div>
           <div class="flex gap-2">
@@ -453,26 +469,26 @@ defmodule GameServerWeb.UserLive.Settings do
               <button
                 type="button"
                 phx-click="delete_all_notifications"
-                data-confirm="Delete all notifications?"
+                data-confirm={dgettext("settings", "Delete all notifications?")}
                 class="btn btn-sm btn-outline btn-error"
               >
-                Delete All
+                {dgettext("settings", "Delete All")}
               </button>
             <% end %>
           </div>
         </div>
 
         <%= if @notif_count == 0 do %>
-          <div class="mt-4 text-sm text-base-content/60">No notifications yet.</div>
+          <div class="mt-4 text-sm text-base-content/60">{gettext("None yet.")}</div>
         <% else %>
           <div class="overflow-x-auto mt-4">
             <table id="user-notifications-table" class="table table-zebra w-full">
               <thead>
                 <tr>
-                  <th>Title</th>
-                  <th>Content</th>
-                  <th>From</th>
-                  <th>Date</th>
+                  <th>{gettext("Title")}</th>
+                  <th>{gettext("Content")}</th>
+                  <th>{gettext("From")}</th>
+                  <th>{gettext("Date")}</th>
                   <th></th>
                 </tr>
               </thead>
@@ -491,7 +507,7 @@ defmodule GameServerWeb.UserLive.Settings do
                       phx-value-id={n.id}
                       class="btn btn-xs btn-outline btn-error"
                     >
-                      Delete
+                      {gettext("Delete")}
                     </button>
                   </td>
                 </tr>
@@ -501,7 +517,7 @@ defmodule GameServerWeb.UserLive.Settings do
 
           <div :if={@notif_total_pages > 1} class="mt-4 flex gap-2 items-center">
             <button phx-click="notif_prev" class="btn btn-xs" disabled={@notif_page <= 1}>
-              Prev
+              {gettext("Prev")}
             </button>
             <div class="text-xs text-base-content/70">
               page {@notif_page} / {@notif_total_pages} ({@notif_count} total)
@@ -511,7 +527,7 @@ defmodule GameServerWeb.UserLive.Settings do
               class="btn btn-xs"
               disabled={@notif_page >= @notif_total_pages || @notif_total_pages == 0}
             >
-              Next
+              {gettext("Next")}
             </button>
           </div>
         <% end %>
@@ -521,15 +537,15 @@ defmodule GameServerWeb.UserLive.Settings do
       <div class="card bg-base-200 p-4 rounded-lg mt-6">
         <div class="flex items-center justify-between">
           <div>
-            <div class="font-semibold text-lg">Groups</div>
+            <div class="font-semibold text-lg">{dgettext("groups", "Groups")}</div>
             <div class="text-sm text-base-content/70">
-              Manage your groups, browse and join new ones
+              {dgettext("settings", "Manage your groups")}
             </div>
           </div>
           <div class="flex gap-2">
             <%= if @group_detail do %>
               <button phx-click="group_close_detail" class="btn btn-sm btn-ghost">
-                <.icon name="hero-arrow-left" class="w-4 h-4" /> Back
+                <.icon name="hero-arrow-left" class="w-4 h-4" /> {gettext("Back")}
               </button>
             <% end %>
             <button
@@ -540,9 +556,9 @@ defmodule GameServerWeb.UserLive.Settings do
               ]}
             >
               <%= if @groups_show_create do %>
-                Cancel
+                {gettext("Cancel")}
               <% else %>
-                Create Group
+                {dgettext("settings", "Create Group")}
               <% end %>
             </button>
           </div>
@@ -551,7 +567,7 @@ defmodule GameServerWeb.UserLive.Settings do
         <%!-- Create group form --%>
         <%= if @groups_show_create do %>
           <div class="mt-4 border border-base-300 rounded-lg p-4 bg-base-100">
-            <div class="font-semibold text-sm mb-3">New Group</div>
+            <div class="font-semibold text-sm mb-3">{dgettext("settings", "New Group")}</div>
             <.form
               for={@create_group_form}
               id="create-group-form"
@@ -562,29 +578,33 @@ defmodule GameServerWeb.UserLive.Settings do
                 <.input
                   field={@create_group_form[:title]}
                   type="text"
-                  label="Title"
+                  label={gettext("Title")}
                   required
                 />
                 <.input
                   field={@create_group_form[:description]}
                   type="text"
-                  label="Description"
+                  label={gettext("Description")}
                 />
                 <.input
                   field={@create_group_form[:type]}
                   type="select"
-                  label="Type"
-                  options={[{"Public", "public"}, {"Private", "private"}, {"Hidden", "hidden"}]}
+                  label={gettext("Type")}
+                  options={[
+                    {gettext("Public"), "public"},
+                    {gettext("Private"), "private"},
+                    {gettext("Hidden"), "hidden"}
+                  ]}
                 />
                 <.input
                   field={@create_group_form[:max_members]}
                   type="number"
-                  label="Max members"
+                  label={dgettext("settings", "Max members")}
                 />
               </div>
               <div class="mt-3">
                 <button type="submit" class="btn btn-sm btn-primary">
-                  Create
+                  {gettext("Create")}
                 </button>
               </div>
             </.form>
@@ -603,37 +623,48 @@ defmodule GameServerWeb.UserLive.Settings do
                 phx-submit="group_save_edit"
                 class="space-y-3"
               >
-                <.input field={@group_edit_form[:name]} label="Name" type="text" />
-                <.input field={@group_edit_form[:description]} label="Description" type="textarea" />
+                <.input field={@group_edit_form[:name]} label={gettext("Name")} type="text" />
+                <.input
+                  field={@group_edit_form[:description]}
+                  label={gettext("Description")}
+                  type="textarea"
+                />
                 <.input
                   field={@group_edit_form[:type]}
-                  label="Type"
+                  label={gettext("Type")}
                   type="select"
-                  options={[{"Public", "public"}, {"Private", "private"}, {"Hidden", "hidden"}]}
+                  options={[
+                    {gettext("Public"), "public"},
+                    {gettext("Private"), "private"},
+                    {gettext("Hidden"), "hidden"}
+                  ]}
                 />
                 <.input
                   field={@group_edit_form[:max_members]}
-                  label="Max Members"
+                  label={dgettext("settings", "Max Members")}
                   type="number"
                 />
                 <div class="flex gap-2">
-                  <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                  <button type="submit" class="btn btn-sm btn-primary">{gettext("Save")}</button>
                   <button
                     type="button"
                     phx-click="group_toggle_edit"
                     class="btn btn-sm btn-ghost"
                   >
-                    Cancel
+                    {gettext("Cancel")}
                   </button>
                 </div>
               </.form>
             <% else %>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="space-y-2 text-sm">
-                  <div><strong>Name:</strong> {@group_detail.name}</div>
-                  <div><strong>Description:</strong> {@group_detail.description || "-"}</div>
+                  <div><strong>{dgettext("settings", "Name:")}</strong> {@group_detail.name}</div>
                   <div>
-                    <strong>Type:</strong>
+                    <strong>{dgettext("settings", "Description:")}</strong> {@group_detail.description ||
+                      "-"}
+                  </div>
+                  <div>
+                    <strong>{dgettext("settings", "Type:")}</strong>
                     <span class={[
                       "badge badge-sm",
                       cond do
@@ -645,9 +676,11 @@ defmodule GameServerWeb.UserLive.Settings do
                       {@group_detail.type}
                     </span>
                   </div>
-                  <div><strong>Max Members:</strong> {@group_detail.max_members}</div>
                   <div>
-                    <strong>Created:</strong> {Calendar.strftime(
+                    <strong>{dgettext("settings", "Max Members:")}</strong> {@group_detail.max_members}
+                  </div>
+                  <div>
+                    <strong>{dgettext("settings", "Created:")}</strong> {Calendar.strftime(
                       @group_detail.inserted_at,
                       "%Y-%m-%d %H:%M"
                     )}
@@ -655,12 +688,12 @@ defmodule GameServerWeb.UserLive.Settings do
                 </div>
                 <div class="space-y-2 text-sm">
                   <div>
-                    <strong>Your Role:</strong>
+                    <strong>{dgettext("settings", "Your Role:")}</strong>
                     <span class={[
                       "badge badge-sm",
                       if(@group_detail_role == "admin", do: "badge-info", else: "badge-ghost")
                     ]}>
-                      {@group_detail_role || "not a member"}
+                      {@group_detail_role || dgettext("settings", "not a member")}
                     </span>
                   </div>
                   <div class="flex gap-2">
@@ -669,15 +702,15 @@ defmodule GameServerWeb.UserLive.Settings do
                       phx-click="group_toggle_edit"
                       class="btn btn-xs btn-outline btn-info"
                     >
-                      Edit Group
+                      {dgettext("settings", "Edit Group")}
                     </button>
                     <button
                       phx-click="group_leave"
                       phx-value-group_id={@group_detail.id}
                       class="btn btn-xs btn-outline btn-error"
-                      data-confirm="Leave this group?"
+                      data-confirm={dgettext("settings", "Leave this group?")}
                     >
-                      Leave Group
+                      {dgettext("groups", "Leave Group")}
                     </button>
                   </div>
                 </div>
@@ -686,18 +719,18 @@ defmodule GameServerWeb.UserLive.Settings do
 
             <%!-- Members list --%>
             <div class="mt-4">
-              <div class="font-semibold text-sm">Members ({@group_members_total})</div>
+              <div class="font-semibold text-sm">{gettext("Members")} ({@group_members_total})</div>
               <div class="overflow-x-auto mt-2">
                 <table id="group-members-table" class="table table-zebra w-full">
                   <thead>
                     <tr>
                       <th></th>
-                      <th>Name</th>
-                      <th>Email</th>
-                      <th>Role</th>
-                      <th>Joined</th>
+                      <th>{gettext("Name")}</th>
+                      <th>{gettext("Email")}</th>
+                      <th>{gettext("Role")}</th>
+                      <th>{gettext("Joined")}</th>
                       <%= if @group_detail_role == "admin" do %>
-                        <th>Actions</th>
+                        <th>{gettext("Actions")}</th>
                       <% end %>
                     </tr>
                   </thead>
@@ -738,7 +771,7 @@ defmodule GameServerWeb.UserLive.Settings do
                                 phx-value-user_id={m.user_id}
                                 class="btn btn-xs btn-outline btn-primary"
                               >
-                                Promote
+                                {gettext("Promote")}
                               </button>
                             <% else %>
                               <button
@@ -747,7 +780,7 @@ defmodule GameServerWeb.UserLive.Settings do
                                 phx-value-user_id={m.user_id}
                                 class="btn btn-xs btn-outline btn-warning"
                               >
-                                Demote
+                                {gettext("Demote")}
                               </button>
                             <% end %>
                             <button
@@ -755,12 +788,16 @@ defmodule GameServerWeb.UserLive.Settings do
                               phx-value-group_id={@group_detail.id}
                               phx-value-user_id={m.user_id}
                               class="btn btn-xs btn-outline btn-error"
-                              data-confirm={"Kick #{m.user.display_name || m.user.email}?"}
+                              data-confirm={
+                                dgettext("groups", "Kick %{name}?",
+                                  name: m.user.display_name || m.user.email
+                                )
+                              }
                             >
-                              Kick
+                              {gettext("Kick")}
                             </button>
                           <% else %>
-                            <span class="text-xs text-base-content/50">You</span>
+                            <span class="text-xs text-base-content/50">{gettext("You")}</span>
                           <% end %>
                         </td>
                       <% end %>
@@ -775,7 +812,7 @@ defmodule GameServerWeb.UserLive.Settings do
                   class="btn btn-xs"
                   disabled={@group_members_page <= 1}
                 >
-                  Prev
+                  {gettext("Prev")}
                 </button>
                 <div class="text-xs text-base-content/70">
                   page {@group_members_page} / {@group_members_total_pages} ({@group_members_total} total)
@@ -788,7 +825,7 @@ defmodule GameServerWeb.UserLive.Settings do
                       @group_members_total_pages == 0
                   }
                 >
-                  Next
+                  {gettext("Next")}
                 </button>
               </div>
             </div>
@@ -796,7 +833,7 @@ defmodule GameServerWeb.UserLive.Settings do
             <%!-- Incoming Join Requests (admin only) --%>
             <div :if={@group_detail_role == "admin" && @group_join_requests != []} class="mt-6">
               <h4 class="font-semibold text-base mb-3">
-                Pending Join Requests ({length(@group_join_requests)})
+                {dgettext("settings", "Pending Join Requests")} ({length(@group_join_requests)})
               </h4>
               <div class="space-y-2">
                 <div
@@ -817,14 +854,14 @@ defmodule GameServerWeb.UserLive.Settings do
                       phx-value-request_id={req.id}
                       class="btn btn-xs btn-primary"
                     >
-                      Approve
+                      {gettext("Approve")}
                     </button>
                     <button
                       phx-click="group_reject_request"
                       phx-value-request_id={req.id}
                       class="btn btn-xs btn-outline btn-error"
                     >
-                      Reject
+                      {gettext("Reject")}
                     </button>
                   </div>
                 </div>
@@ -833,7 +870,9 @@ defmodule GameServerWeb.UserLive.Settings do
 
             <%!-- Send Notification to Group (any member) --%>
             <div class="mt-6">
-              <h4 class="font-semibold text-base mb-3">Send Notification</h4>
+              <h4 class="font-semibold text-base mb-3">
+                {dgettext("settings", "Send Notification")}
+              </h4>
               <.form
                 for={@group_notify_form}
                 id="group-notify-form"
@@ -845,18 +884,18 @@ defmodule GameServerWeb.UserLive.Settings do
                     <.input
                       field={@group_notify_form[:title]}
                       type="text"
-                      placeholder="Title (optional)"
+                      placeholder={dgettext("settings", "Title (optional)")}
                     />
                   </div>
                   <div class="flex-1">
                     <.input
                       field={@group_notify_form[:content]}
                       type="text"
-                      placeholder="Type a message to all members..."
+                      placeholder={dgettext("settings", "Type a message to all members...")}
                     />
                   </div>
                   <button type="submit" class="btn btn-sm btn-primary">
-                    <.icon name="hero-megaphone-mini" class="w-4 h-4 mr-1" /> Send
+                    <.icon name="hero-megaphone-mini" class="w-4 h-4 mr-1" /> {gettext("Send")}
                   </button>
                 </div>
               </.form>
@@ -864,12 +903,12 @@ defmodule GameServerWeb.UserLive.Settings do
 
             <%!-- Invite Members (admin only) --%>
             <div :if={@group_detail_role == "admin"} class="mt-6">
-              <h4 class="font-semibold text-base mb-3">Invite Members</h4>
+              <h4 class="font-semibold text-base mb-3">{dgettext("settings", "Invite Members")}</h4>
 
               <%!-- Search by name, email, or user ID --%>
               <div class="form-control mb-3">
                 <label class="label">
-                  <span class="label-text">Search users by name, email, or ID</span>
+                  <span class="label-text">{gettext("Search...")}</span>
                 </label>
                 <input
                   id="invite-search-input"
@@ -877,7 +916,7 @@ defmodule GameServerWeb.UserLive.Settings do
                   phx-keyup="group_invite_search"
                   phx-debounce="300"
                   value={@invite_search_query}
-                  placeholder="Type to search..."
+                  placeholder={dgettext("settings", "Type to search...")}
                   class="input input-bordered input-sm w-full max-w-xs"
                   autocomplete="off"
                 />
@@ -885,7 +924,9 @@ defmodule GameServerWeb.UserLive.Settings do
 
               <%!-- Search results --%>
               <div :if={@invite_search_results != []} class="mb-4">
-                <div class="text-xs font-medium text-base-content/60 mb-1">Search Results</div>
+                <div class="text-xs font-medium text-base-content/60 mb-1">
+                  {dgettext("settings", "Search Results")}
+                </div>
                 <div class="space-y-1 max-h-48 overflow-y-auto">
                   <div
                     :for={u <- @invite_search_results}
@@ -910,7 +951,7 @@ defmodule GameServerWeb.UserLive.Settings do
                       phx-value-user_id={u.id}
                       class="btn btn-xs btn-primary"
                     >
-                      Invite
+                      {gettext("Invite")}
                     </button>
                   </div>
                 </div>
@@ -920,13 +961,13 @@ defmodule GameServerWeb.UserLive.Settings do
                 :if={@invite_search_query != "" && @invite_search_results == []}
                 class="mb-4 text-sm text-base-content/50"
               >
-                No users found matching "{@invite_search_query}"
+                {dgettext("settings", "No results for \"%{query}\"", query: @invite_search_query)}
               </div>
 
               <%!-- Quick invite from friends --%>
               <div :if={@invite_friends != []} class="mt-3">
                 <div class="text-xs font-medium text-base-content/60 mb-1">
-                  Friends not in this group
+                  {dgettext("settings", "Friends not in this group")}
                 </div>
                 <div class="space-y-1 max-h-48 overflow-y-auto">
                   <div
@@ -949,14 +990,14 @@ defmodule GameServerWeb.UserLive.Settings do
                       phx-value-user_id={f.id}
                       class="btn btn-xs btn-outline btn-primary"
                     >
-                      Invite
+                      {gettext("Invite")}
                     </button>
                   </div>
                 </div>
               </div>
 
               <div :if={@invite_friends == []} class="mt-3 text-sm text-base-content/40">
-                All your friends are already members of this group.
+                {dgettext("settings", "All friends are already members.")}
               </div>
             </div>
           </div>
@@ -969,11 +1010,14 @@ defmodule GameServerWeb.UserLive.Settings do
             <button
               :for={
                 {tab, label} <- [
-                  {"my_groups", "My Groups (#{@groups_count})"},
-                  {"browse", "Browse Groups"},
-                  {"invitations", "Invitations (#{length(@group_invitations)})"},
-                  {"requests", "My Requests (#{length(@group_pending_requests)})"},
-                  {"sent_invitations", "Sent Invitations (#{length(@group_sent_invitations)})"}
+                  {"my_groups", dgettext("settings", "My Groups") <> " (#{@groups_count})"},
+                  {"browse", dgettext("settings", "Browse Groups")},
+                  {"invitations",
+                   dgettext("settings", "Invitations") <> " (#{length(@group_invitations)})"},
+                  {"requests",
+                   dgettext("settings", "My Requests") <> " (#{length(@group_pending_requests)})"},
+                  {"sent_invitations",
+                   dgettext("settings", "Sent Invitations") <> " (#{length(@group_sent_invitations)})"}
                 ]
               }
               phx-click="groups_tab"
@@ -991,17 +1035,17 @@ defmodule GameServerWeb.UserLive.Settings do
           <%= if @groups_tab == "my_groups" do %>
             <%= if @groups_count == 0 do %>
               <div class="mt-4 text-sm text-base-content/60">
-                You are not a member of any groups yet.
+                {gettext("None yet.")}
               </div>
             <% else %>
               <div class="overflow-x-auto mt-4">
                 <table id="my-groups-table" class="table table-zebra w-full">
                   <thead>
                     <tr>
-                      <th>Title</th>
-                      <th>Type</th>
-                      <th>Max Members</th>
-                      <th>Role</th>
+                      <th>{gettext("Title")}</th>
+                      <th>{gettext("Type")}</th>
+                      <th>{dgettext("settings", "Max Members")}</th>
+                      <th>{gettext("Role")}</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -1046,15 +1090,15 @@ defmodule GameServerWeb.UserLive.Settings do
                           phx-value-group_id={group.id}
                           class="btn btn-xs btn-ghost"
                         >
-                          View
+                          {gettext("View")}
                         </button>
                         <button
                           phx-click="group_leave"
                           phx-value-group_id={group.id}
                           class="btn btn-xs btn-outline btn-error"
-                          data-confirm="Leave this group?"
+                          data-confirm={dgettext("settings", "Leave this group?")}
                         >
-                          Leave
+                          {gettext("Leave")}
                         </button>
                       </td>
                     </tr>
@@ -1077,18 +1121,22 @@ defmodule GameServerWeb.UserLive.Settings do
                   <.input
                     field={@browse_groups_form[:title]}
                     type="text"
-                    label="Title"
+                    label={gettext("Title")}
                     phx-debounce="300"
                   />
                   <.input
                     field={@browse_groups_form[:type]}
                     type="select"
-                    label="Type"
-                    options={[{"All", ""}, {"Public", "public"}, {"Private", "private"}]}
+                    label={gettext("Type")}
+                    options={[
+                      {gettext("All"), ""},
+                      {gettext("Public"), "public"},
+                      {gettext("Private"), "private"}
+                    ]}
                   />
                   <div class="flex items-end">
                     <button type="button" phx-click="browse_groups_clear" class="btn btn-sm btn-ghost">
-                      Clear
+                      {gettext("Clear")}
                     </button>
                   </div>
                 </div>
@@ -1099,9 +1147,9 @@ defmodule GameServerWeb.UserLive.Settings do
               <table id="browse-groups-table" class="table table-zebra w-full">
                 <thead>
                   <tr>
-                    <th>Title</th>
-                    <th>Type</th>
-                    <th>Max Members</th>
+                    <th>{gettext("Title")}</th>
+                    <th>{gettext("Type")}</th>
+                    <th>{dgettext("settings", "Max Members")}</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -1109,7 +1157,7 @@ defmodule GameServerWeb.UserLive.Settings do
                   <%= if length(@browse_groups) == 0 do %>
                     <tr>
                       <td colspan="4" class="text-center text-sm text-base-content/60">
-                        No groups found.
+                        {gettext("None available.")}
                       </td>
                     </tr>
                   <% end %>
@@ -1130,16 +1178,20 @@ defmodule GameServerWeb.UserLive.Settings do
                     <td>
                       <%= cond do %>
                         <% Enum.any?(@my_groups, fn {g, _role} -> g.id == group.id end) -> %>
-                          <span class="badge badge-sm badge-ghost">Joined</span>
+                          <span class="badge badge-sm badge-ghost">
+                            {dgettext("settings", "Joined")}
+                          </span>
                         <% Enum.any?(@group_pending_requests, fn r -> r.group_id == group.id end) -> %>
-                          <span class="badge badge-sm badge-warning">Pending</span>
+                          <span class="badge badge-sm badge-warning">
+                            {dgettext("groups", "Pending")}
+                          </span>
                         <% group.type == "public" -> %>
                           <button
                             phx-click="group_join"
                             phx-value-group_id={group.id}
                             class="btn btn-xs btn-primary"
                           >
-                            Join
+                            {gettext("Join")}
                           </button>
                         <% group.type == "private" -> %>
                           <button
@@ -1147,7 +1199,7 @@ defmodule GameServerWeb.UserLive.Settings do
                             phx-value-group_id={group.id}
                             class="btn btn-xs btn-outline btn-primary"
                           >
-                            Request
+                            {gettext("Request")}
                           </button>
                         <% true -> %>
                           <span class="text-xs text-base-content/50">-</span>
@@ -1164,7 +1216,7 @@ defmodule GameServerWeb.UserLive.Settings do
                 class="btn btn-xs"
                 disabled={@browse_groups_page <= 1}
               >
-                Prev
+                {gettext("Prev")}
               </button>
               <div class="text-xs text-base-content/70">
                 page {@browse_groups_page} / {@browse_groups_total_pages} ({@browse_groups_total} total)
@@ -1176,7 +1228,7 @@ defmodule GameServerWeb.UserLive.Settings do
                   @browse_groups_page >= @browse_groups_total_pages || @browse_groups_total_pages == 0
                 }
               >
-                Next
+                {gettext("Next")}
               </button>
             </div>
           <% end %>
@@ -1184,15 +1236,17 @@ defmodule GameServerWeb.UserLive.Settings do
           <%!-- Invitations tab --%>
           <%= if @groups_tab == "invitations" do %>
             <%= if length(@group_invitations) == 0 do %>
-              <div class="mt-4 text-sm text-base-content/60">No pending invitations.</div>
+              <div class="mt-4 text-sm text-base-content/60">
+                {gettext("None yet.")}
+              </div>
             <% else %>
               <div class="overflow-x-auto mt-4">
                 <table id="group-invitations-table" class="table table-zebra w-full">
                   <thead>
                     <tr>
-                      <th>Group</th>
-                      <th>From</th>
-                      <th>Date</th>
+                      <th>{gettext("Group")}</th>
+                      <th>{gettext("From")}</th>
+                      <th>{gettext("Date")}</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -1212,7 +1266,7 @@ defmodule GameServerWeb.UserLive.Settings do
                           phx-value-group_id={inv.group_id}
                           class="btn btn-xs btn-primary"
                         >
-                          Accept
+                          {gettext("Accept")}
                         </button>
                       </td>
                     </tr>
@@ -1225,16 +1279,18 @@ defmodule GameServerWeb.UserLive.Settings do
           <%!-- My Pending Requests tab --%>
           <%= if @groups_tab == "requests" do %>
             <%= if length(@group_pending_requests) == 0 do %>
-              <div class="mt-4 text-sm text-base-content/60">No pending join requests.</div>
+              <div class="mt-4 text-sm text-base-content/60">
+                {gettext("None yet.")}
+              </div>
             <% else %>
               <div class="overflow-x-auto mt-4">
                 <table id="group-requests-table" class="table table-zebra w-full">
                   <thead>
                     <tr>
-                      <th>Group</th>
-                      <th>Status</th>
-                      <th>Requested</th>
-                      <th>Actions</th>
+                      <th>{gettext("Group")}</th>
+                      <th>{gettext("Status")}</th>
+                      <th>{dgettext("settings", "Requested")}</th>
+                      <th>{gettext("Actions")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1254,9 +1310,9 @@ defmodule GameServerWeb.UserLive.Settings do
                           phx-click="group_cancel_request"
                           phx-value-request_id={req.id}
                           class="btn btn-xs btn-outline btn-error"
-                          data-confirm="Cancel this join request?"
+                          data-confirm={dgettext("groups", "Cancel this join request?")}
                         >
-                          Cancel
+                          {gettext("Cancel")}
                         </button>
                       </td>
                     </tr>
@@ -1269,16 +1325,16 @@ defmodule GameServerWeb.UserLive.Settings do
           <%!-- Sent Invitations tab --%>
           <%= if @groups_tab == "sent_invitations" do %>
             <%= if @group_sent_invitations == [] do %>
-              <div class="mt-4 text-sm text-base-content/60">No sent invitations.</div>
+              <div class="mt-4 text-sm text-base-content/60">{gettext("None yet.")}</div>
             <% else %>
               <div class="overflow-x-auto mt-4">
                 <table id="group-sent-invitations-table" class="table table-zebra w-full">
                   <thead>
                     <tr>
-                      <th>Group</th>
-                      <th>Invited User</th>
-                      <th>Date</th>
-                      <th>Actions</th>
+                      <th>{gettext("Group")}</th>
+                      <th>{dgettext("settings", "Invited User")}</th>
+                      <th>{gettext("Date")}</th>
+                      <th>{gettext("Actions")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1298,9 +1354,9 @@ defmodule GameServerWeb.UserLive.Settings do
                           phx-click="group_cancel_invite"
                           phx-value-invite_id={inv.id}
                           class="btn btn-xs btn-outline btn-error"
-                          data-confirm="Cancel this invitation?"
+                          data-confirm={dgettext("groups", "Cancel this invitation?")}
                         >
-                          Cancel
+                          {gettext("Cancel")}
                         </button>
                       </td>
                     </tr>
@@ -1313,7 +1369,7 @@ defmodule GameServerWeb.UserLive.Settings do
       </div>
 
       <div class="card bg-base-200 p-4 rounded-lg">
-        <div class="font-semibold">Linked Accounts</div>
+        <div class="font-semibold">{dgettext("settings", "Linked Accounts")}</div>
         <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
           <% provider_count =
             Enum.count(
@@ -1325,9 +1381,9 @@ defmodule GameServerWeb.UserLive.Settings do
 
           <div class="flex items-center justify-between">
             <div>
-              <strong>Discord</strong>
+              <strong>{dgettext("settings", "Discord")}</strong>
               <div class="text-sm text-base-content/70">
-                Sign in with Discord and link to your account
+                {dgettext("settings", "Sign in with Discord and link to your account")}
               </div>
             </div>
             <div class="flex items-center gap-2">
@@ -1338,22 +1394,26 @@ defmodule GameServerWeb.UserLive.Settings do
                     phx-value-provider="discord"
                     class="btn btn-outline btn-sm"
                   >
-                    Unlink
+                    {dgettext("settings", "Unlink")}
                   </button>
                 <% else %>
-                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>Unlink</button>
+                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>
+                    {dgettext("settings", "Unlink")}
+                  </button>
                 <% end %>
               <% else %>
-                <.link href={~p"/auth/discord"} class="btn btn-primary btn-sm">Link</.link>
+                <.link href={~p"/auth/discord"} class="btn btn-primary btn-sm">
+                  {dgettext("settings", "Link")}
+                </.link>
               <% end %>
             </div>
           </div>
 
           <div class="flex items-center justify-between">
             <div>
-              <strong>Google</strong>
+              <strong>{dgettext("settings", "Google")}</strong>
               <div class="text-sm text-base-content/70">
-                Sign in with Google and link to your account
+                {dgettext("settings", "Sign in with Google and link to your account")}
               </div>
             </div>
             <div class="flex items-center gap-2">
@@ -1364,22 +1424,26 @@ defmodule GameServerWeb.UserLive.Settings do
                     phx-value-provider="google"
                     class="btn btn-outline btn-sm"
                   >
-                    Unlink
+                    {dgettext("settings", "Unlink")}
                   </button>
                 <% else %>
-                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>Unlink</button>
+                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>
+                    {dgettext("settings", "Unlink")}
+                  </button>
                 <% end %>
               <% else %>
-                <.link href={~p"/auth/google"} class="btn btn-primary btn-sm">Link</.link>
+                <.link href={~p"/auth/google"} class="btn btn-primary btn-sm">
+                  {dgettext("settings", "Link")}
+                </.link>
               <% end %>
             </div>
           </div>
 
           <div class="flex items-center justify-between">
             <div>
-              <strong>Facebook</strong>
+              <strong>{dgettext("settings", "Facebook")}</strong>
               <div class="text-sm text-base-content/70">
-                Sign in with Facebook and link to your account
+                {dgettext("settings", "Sign in with Facebook and link to your account")}
               </div>
             </div>
             <div class="flex items-center gap-2">
@@ -1390,22 +1454,26 @@ defmodule GameServerWeb.UserLive.Settings do
                     phx-value-provider="facebook"
                     class="btn btn-outline btn-sm"
                   >
-                    Unlink
+                    {dgettext("settings", "Unlink")}
                   </button>
                 <% else %>
-                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>Unlink</button>
+                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>
+                    {dgettext("settings", "Unlink")}
+                  </button>
                 <% end %>
               <% else %>
-                <.link href={~p"/auth/facebook"} class="btn btn-primary btn-sm">Link</.link>
+                <.link href={~p"/auth/facebook"} class="btn btn-primary btn-sm">
+                  {dgettext("settings", "Link")}
+                </.link>
               <% end %>
             </div>
           </div>
 
           <div class="flex items-center justify-between">
             <div>
-              <strong>Apple</strong>
+              <strong>{dgettext("settings", "Apple")}</strong>
               <div class="text-sm text-base-content/70">
-                Sign in with Apple and link to your account
+                {dgettext("settings", "Sign in with Apple and link to your account")}
               </div>
             </div>
             <div class="flex items-center gap-2">
@@ -1416,22 +1484,26 @@ defmodule GameServerWeb.UserLive.Settings do
                     phx-value-provider="apple"
                     class="btn btn-outline btn-sm"
                   >
-                    Unlink
+                    {dgettext("settings", "Unlink")}
                   </button>
                 <% else %>
-                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>Unlink</button>
+                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>
+                    {dgettext("settings", "Unlink")}
+                  </button>
                 <% end %>
               <% else %>
-                <.link href={~p"/auth/apple"} class="btn btn-primary btn-sm">Link</.link>
+                <.link href={~p"/auth/apple"} class="btn btn-primary btn-sm">
+                  {dgettext("settings", "Link")}
+                </.link>
               <% end %>
             </div>
           </div>
 
           <div class="flex items-center justify-between">
             <div>
-              <strong>Steam</strong>
+              <strong>{dgettext("settings", "Steam")}</strong>
               <div class="text-sm text-base-content/70">
-                Sign in with Steam and link to your account
+                {dgettext("settings", "Sign in with Steam and link to your account")}
               </div>
             </div>
             <div class="flex items-center gap-2">
@@ -1442,13 +1514,17 @@ defmodule GameServerWeb.UserLive.Settings do
                     phx-value-provider="steam"
                     class="btn btn-outline btn-sm"
                   >
-                    Unlink
+                    {dgettext("settings", "Unlink")}
                   </button>
                 <% else %>
-                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>Unlink</button>
+                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>
+                    {dgettext("settings", "Unlink")}
+                  </button>
                 <% end %>
               <% else %>
-                <.link href={~p"/auth/steam"} class="btn btn-primary btn-sm">Link</.link>
+                <.link href={~p"/auth/steam"} class="btn btn-primary btn-sm">
+                  {dgettext("settings", "Link")}
+                </.link>
               <% end %>
             </div>
           </div>
@@ -1456,14 +1532,22 @@ defmodule GameServerWeb.UserLive.Settings do
       </div>
 
       <div class="card bg-error/10 border-error p-4 rounded-lg">
-        <div class="font-semibold text-error">Danger Zone</div>
+        <div class="font-semibold text-error">{dgettext("settings", "Danger Zone")}</div>
         <div class="text-sm mt-2 text-base-content/80">
-          <p>Once you delete your account, there is no going back. Please be certain.</p>
+          <p>
+            {dgettext(
+              "settings",
+              "Once you delete your account, there is no going back. Please be certain."
+            )}
+          </p>
           <p class="mt-2">
-            For information about what data is deleted and how to request deletion, see our <.link
+            {dgettext(
+              "settings",
+              "For information about what data is deleted and how to request deletion, see our"
+            )} <.link
               href={~p"/data-deletion"}
               class="link link-primary"
-            >Data Deletion Policy</.link>.
+            >{dgettext("settings", "Data Deletion Policy")}</.link>.
           </p>
         </div>
         <div class="mt-4">
@@ -1471,10 +1555,13 @@ defmodule GameServerWeb.UserLive.Settings do
             phx-click="delete_user"
             class="btn btn-error"
             data-confirm={
-              gettext("Are you sure you want to delete your account? This action cannot be undone.")
+              dgettext(
+                "settings",
+                "Are you sure you want to delete your account? This action cannot be undone."
+              )
             }
           >
-            {gettext("Delete Account")}
+            {dgettext("settings", "Delete Account")}
           </button>
         </div>
       </div>
@@ -1487,10 +1574,14 @@ defmodule GameServerWeb.UserLive.Settings do
     socket =
       case Accounts.update_user_email(socket.assigns.current_scope.user, token) do
         {:ok, _user} ->
-          put_flash(socket, :info, gettext("Email changed successfully."))
+          put_flash(socket, :info, dgettext("settings", "Email changed successfully."))
 
         {:error, _} ->
-          put_flash(socket, :error, gettext("Email change link is invalid or it has expired."))
+          put_flash(
+            socket,
+            :error,
+            dgettext("settings", "Email change link is invalid or it has expired.")
+          )
       end
 
     {:ok, push_navigate(socket, to: ~p"/users/settings")}
@@ -1657,7 +1748,7 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _} ->
             {:noreply,
              socket
-             |> put_flash(:info, gettext("Friend request sent"))
+             |> put_flash(:info, dgettext("settings", "Friend request sent"))
              |> refresh_friend_lists(user)}
 
           {:error, %Ecto.Changeset{} = cs} ->
@@ -1665,7 +1756,9 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Could not send request: %{reason}", reason: inspect(cs.errors))
+               dgettext("settings", "Could not send request: %{reason}",
+                 reason: inspect(cs.errors)
+               )
              )}
 
           {:error, reason} ->
@@ -1673,7 +1766,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Could not send request: %{reason}", reason: inspect(reason))
+               dgettext("settings", "Could not send request: %{reason}", reason: inspect(reason))
              )}
         end
 
@@ -1689,7 +1782,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Could not block: %{reason}", reason: inspect(reason))
+               dgettext("settings", "Could not block: %{reason}", reason: inspect(reason))
              )}
         end
 
@@ -1770,7 +1863,11 @@ defmodule GameServerWeb.UserLive.Settings do
       {"delete_notification", %{"id" => id}} ->
         notif_id = if is_binary(id), do: String.to_integer(id), else: id
         Notifications.delete_notifications(user.id, [notif_id])
-        {:noreply, socket |> put_flash(:info, "Notification deleted") |> reload_notifications()}
+
+        {:noreply,
+         socket
+         |> put_flash(:info, dgettext("settings", "Notification deleted"))
+         |> reload_notifications()}
 
       {"delete_all_notifications", _} ->
         all_ids =
@@ -1781,7 +1878,7 @@ defmodule GameServerWeb.UserLive.Settings do
 
         {:noreply,
          socket
-         |> put_flash(:info, "All notifications deleted")
+         |> put_flash(:info, dgettext("settings", "All notifications deleted"))
          |> assign(:notif_page, 1)
          |> reload_notifications()}
 
@@ -1797,7 +1894,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Could not accept: %{reason}", reason: inspect(reason))
+               dgettext("settings", "Could not accept: %{reason}", reason: inspect(reason))
              )}
         end
 
@@ -1813,7 +1910,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Could not reject: %{reason}", reason: inspect(reason))
+               dgettext("settings", "Could not reject: %{reason}", reason: inspect(reason))
              )}
         end
 
@@ -1829,7 +1926,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Could not cancel: %{reason}", reason: inspect(reason))
+               dgettext("settings", "Could not cancel: %{reason}", reason: inspect(reason))
              )}
         end
 
@@ -1845,7 +1942,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Could not remove: %{reason}", reason: inspect(reason))
+               dgettext("settings", "Could not remove: %{reason}", reason: inspect(reason))
              )}
         end
 
@@ -1861,7 +1958,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Could not unblock: %{reason}", reason: inspect(reason))
+               dgettext("settings", "Could not unblock: %{reason}", reason: inspect(reason))
              )}
         end
 
@@ -1875,7 +1972,10 @@ defmodule GameServerWeb.UserLive.Settings do
             )
 
             info =
-              gettext("A link to confirm your email change has been sent to the new address.")
+              dgettext(
+                "settings",
+                "A link to confirm your email change has been sent to the new address."
+              )
 
             {:noreply, socket |> put_flash(:info, info)}
 
@@ -1887,7 +1987,9 @@ defmodule GameServerWeb.UserLive.Settings do
         case Accounts.update_user_display_name(user, user_params) do
           {:ok, user} ->
             {:noreply,
-             socket |> put_flash(:info, gettext("Display name updated.")) |> assign(:user, user)}
+             socket
+             |> put_flash(:info, dgettext("settings", "Display name updated."))
+             |> assign(:user, user)}
 
           {:error, changeset} ->
             {:noreply, assign(socket, display_form: to_form(changeset, action: :insert))}
@@ -1920,7 +2022,7 @@ defmodule GameServerWeb.UserLive.Settings do
              socket
              |> put_flash(
                :info,
-               gettext("Successfully unlinked %{provider}.",
+               dgettext("settings", "Successfully unlinked %{provider}.",
                  provider: String.capitalize(provider)
                )
              )
@@ -1931,13 +2033,15 @@ defmodule GameServerWeb.UserLive.Settings do
              socket
              |> put_flash(
                :error,
-               gettext(
+               dgettext(
+                 "settings",
                  "Cannot unlink the last linked social provider (you must have at least one social login connected)."
                )
              )}
 
           {:error, _} ->
-            {:noreply, socket |> put_flash(:error, gettext("Failed to unlink provider."))}
+            {:noreply,
+             socket |> put_flash(:error, dgettext("settings", "Failed to unlink provider."))}
         end
 
       {"delete_user", _} ->
@@ -1945,12 +2049,19 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _deleted_user} ->
             {:noreply,
              socket
-             |> put_flash(:info, gettext("Your account has been deleted successfully."))
+             |> put_flash(
+               :info,
+               dgettext("settings", "Your account has been deleted successfully.")
+             )
              |> Phoenix.LiveView.redirect(external: ~p"/")}
 
           {:error, _changeset} ->
             {:noreply,
-             put_flash(socket, :error, gettext("Failed to delete account. Please try again."))}
+             put_flash(
+               socket,
+               :error,
+               dgettext("settings", "Failed to delete account. Please try again.")
+             )}
         end
 
       {"delete_conflicting_account", %{"id" => id}} ->
@@ -1967,7 +2078,7 @@ defmodule GameServerWeb.UserLive.Settings do
             handle_delete_conflicting_account(socket, current, other_user)
 
           _ ->
-            {:noreply, put_flash(socket, :error, gettext("Account not found."))}
+            {:noreply, put_flash(socket, :error, dgettext("settings", "Account not found."))}
         end
 
       {"incoming_prev", _} ->
@@ -2063,7 +2174,7 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _group} ->
             {:noreply,
              socket
-             |> put_flash(:info, "Group created")
+             |> put_flash(:info, dgettext("groups", "Group created"))
              |> assign(:groups_show_create, false)
              |> assign(:create_group_form, to_form(Groups.change_group(%Group{}), as: :group))
              |> assign(:groups_tab, "my_groups")
@@ -2074,7 +2185,10 @@ defmodule GameServerWeb.UserLive.Settings do
 
             {:noreply,
              socket
-             |> put_flash(:error, "Could not create group — check the form for errors")
+             |> put_flash(
+               :error,
+               dgettext("groups", "Could not create group — check the form for errors")
+             )
              |> assign(create_group_form: to_form(changeset, as: :group))}
         end
 
@@ -2085,13 +2199,18 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _} ->
             {:noreply,
              socket
-             |> put_flash(:info, "Left group")
+             |> put_flash(:info, dgettext("groups", "Left group"))
              |> assign(:group_detail, nil)
              |> assign(:group_detail_role, nil)
              |> reload_groups()}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Could not leave group: #{inspect(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               dgettext("groups", "Could not leave group: %{reason}", reason: inspect(reason))
+             )}
         end
 
       {"group_join", %{"group_id" => gid}} ->
@@ -2101,11 +2220,16 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _} ->
             {:noreply,
              socket
-             |> put_flash(:info, "Joined group")
+             |> put_flash(:info, dgettext("groups", "Joined group"))
              |> reload_groups()}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Could not join group: #{inspect(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               dgettext("groups", "Could not join group: %{reason}", reason: inspect(reason))
+             )}
         end
 
       {"group_request_join", %{"group_id" => gid}} ->
@@ -2115,11 +2239,16 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _} ->
             {:noreply,
              socket
-             |> put_flash(:info, "Join request sent")
+             |> put_flash(:info, dgettext("groups", "Join request sent"))
              |> reload_groups()}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Could not request to join: #{inspect(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               dgettext("groups", "Could not request to join: %{reason}", reason: inspect(reason))
+             )}
         end
 
       {"group_accept_invite", %{"group_id" => gid}} ->
@@ -2129,11 +2258,16 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _} ->
             {:noreply,
              socket
-             |> put_flash(:info, "Invitation accepted")
+             |> put_flash(:info, dgettext("groups", "Invitation accepted"))
              |> reload_groups()}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Could not accept invite: #{inspect(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               dgettext("groups", "Could not accept invite: %{reason}", reason: inspect(reason))
+             )}
         end
 
       {"group_cancel_request", %{"request_id" => rid}} ->
@@ -2143,11 +2277,16 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _} ->
             {:noreply,
              socket
-             |> put_flash(:info, "Join request cancelled")
+             |> put_flash(:info, dgettext("groups", "Join request cancelled"))
              |> reload_groups()}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Could not cancel request: #{inspect(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               dgettext("groups", "Could not cancel request: %{reason}", reason: inspect(reason))
+             )}
         end
 
       {"group_cancel_invite", %{"invite_id" => iid}} ->
@@ -2157,12 +2296,18 @@ defmodule GameServerWeb.UserLive.Settings do
           :ok ->
             {:noreply,
              socket
-             |> put_flash(:info, "Invitation cancelled")
+             |> put_flash(:info, dgettext("groups", "Invitation cancelled"))
              |> reload_groups()}
 
           {:error, reason} ->
             {:noreply,
-             put_flash(socket, :error, "Could not cancel invitation: #{inspect(reason)}")}
+             put_flash(
+               socket,
+               :error,
+               dgettext("groups", "Could not cancel invitation: %{reason}",
+                 reason: inspect(reason)
+               )
+             )}
         end
 
       {"group_approve_request", %{"request_id" => rid}} ->
@@ -2172,7 +2317,7 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _} ->
             {:noreply,
              socket
-             |> put_flash(:info, "Request approved")
+             |> put_flash(:info, dgettext("groups", "Request approved"))
              |> assign(
                :group_join_requests,
                Enum.reject(socket.assigns.group_join_requests, &(&1.id == rid))
@@ -2181,7 +2326,12 @@ defmodule GameServerWeb.UserLive.Settings do
              |> reload_groups()}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Could not approve: #{inspect(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               dgettext("groups", "Could not approve: %{reason}", reason: inspect(reason))
+             )}
         end
 
       {"group_reject_request", %{"request_id" => rid}} ->
@@ -2191,14 +2341,19 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _} ->
             {:noreply,
              socket
-             |> put_flash(:info, "Request rejected")
+             |> put_flash(:info, dgettext("groups", "Request rejected"))
              |> assign(
                :group_join_requests,
                Enum.reject(socket.assigns.group_join_requests, &(&1.id == rid))
              )}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Could not reject: #{inspect(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               dgettext("groups", "Could not reject: %{reason}", reason: inspect(reason))
+             )}
         end
 
       {"browse_groups_filter", %{"browse_groups" => filter_params}} ->
@@ -2289,7 +2444,7 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, updated} ->
             {:noreply,
              socket
-             |> put_flash(:info, "Group updated")
+             |> put_flash(:info, dgettext("groups", "Group updated"))
              |> assign(:group_detail, updated)
              |> assign(:group_editing, false)
              |> assign(:group_edit_form, nil)
@@ -2299,7 +2454,12 @@ defmodule GameServerWeb.UserLive.Settings do
             {:noreply, assign(socket, group_edit_form: to_form(changeset, as: :group))}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Could not update: #{inspect(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               dgettext("groups", "Could not update: %{reason}", reason: inspect(reason))
+             )}
         end
 
       {"group_kick", %{"group_id" => gid, "user_id" => uid}} ->
@@ -2310,12 +2470,17 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _} ->
             {:noreply,
              socket
-             |> put_flash(:info, "Member kicked")
+             |> put_flash(:info, dgettext("groups", "Member kicked"))
              |> reload_groups()
              |> reload_group_members()}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Could not kick: #{inspect(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               dgettext("groups", "Could not kick: %{reason}", reason: inspect(reason))
+             )}
         end
 
       {"group_promote", %{"group_id" => gid, "user_id" => uid}} ->
@@ -2326,11 +2491,16 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _} ->
             {:noreply,
              socket
-             |> put_flash(:info, "Member promoted to admin")
+             |> put_flash(:info, dgettext("groups", "Member promoted to admin"))
              |> reload_group_members()}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Could not promote: #{inspect(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               dgettext("groups", "Could not promote: %{reason}", reason: inspect(reason))
+             )}
         end
 
       {"group_demote", %{"group_id" => gid, "user_id" => uid}} ->
@@ -2341,11 +2511,16 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _} ->
             {:noreply,
              socket
-             |> put_flash(:info, "Member demoted to member")
+             |> put_flash(:info, dgettext("groups", "Member demoted to member"))
              |> reload_group_members()}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Could not demote: #{inspect(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               dgettext("groups", "Could not demote: %{reason}", reason: inspect(reason))
+             )}
         end
 
       {"group_members_prev", _} ->
@@ -2395,7 +2570,7 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _} ->
             {:noreply,
              socket
-             |> put_flash(:info, "Invitation sent")
+             |> put_flash(:info, dgettext("groups", "Invitation sent"))
              |> assign(
                :invite_search_results,
                Enum.reject(socket.assigns.invite_search_results, &(&1.id == uid))
@@ -2406,10 +2581,15 @@ defmodule GameServerWeb.UserLive.Settings do
              )}
 
           {:error, :already_member} ->
-            {:noreply, put_flash(socket, :error, "User is already a member")}
+            {:noreply, put_flash(socket, :error, dgettext("groups", "User is already a member"))}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Could not invite: #{inspect(reason)}")}
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               dgettext("groups", "Could not invite: %{reason}", reason: inspect(reason))
+             )}
         end
 
       {"group_notify", %{"notify" => notify_params}} ->
@@ -2424,17 +2604,31 @@ defmodule GameServerWeb.UserLive.Settings do
             {:ok, sent} ->
               {:noreply,
                socket
-               |> put_flash(:info, "Notification sent to #{sent} member(s)")
+               |> put_flash(
+                 :info,
+                 dngettext(
+                   "groups",
+                   "Notification sent to %{count} member",
+                   "Notification sent to %{count} members",
+                   sent,
+                   count: sent
+                 )
+               )
                |> assign(
                  :group_notify_form,
                  to_form(%{"content" => "", "title" => ""}, as: :notify)
                )}
 
             {:error, reason} ->
-              {:noreply, put_flash(socket, :error, "Could not notify: #{inspect(reason)}")}
+              {:noreply,
+               put_flash(
+                 socket,
+                 :error,
+                 dgettext("groups", "Could not notify: %{reason}", reason: inspect(reason))
+               )}
           end
         else
-          {:noreply, put_flash(socket, :error, "Please enter a message")}
+          {:noreply, put_flash(socket, :error, dgettext("groups", "Please enter a message"))}
         end
 
       _ ->
@@ -2668,7 +2862,7 @@ defmodule GameServerWeb.UserLive.Settings do
          put_flash(
            socket,
            :error,
-           "You cannot delete your currently logged-in account here."
+           dgettext("settings", "You cannot delete your currently logged-in account here.")
          )}
 
       other_email == current_email and other_email != "" ->
@@ -2682,7 +2876,10 @@ defmodule GameServerWeb.UserLive.Settings do
          put_flash(
            socket,
            :error,
-           "Cannot delete an account you do not own. Log in to the other account directly if you control it."
+           dgettext(
+             "settings",
+             "Cannot delete an account you do not own. Log in to the other account directly if you control it."
+           )
          )}
     end
   end
@@ -2694,13 +2891,20 @@ defmodule GameServerWeb.UserLive.Settings do
          socket
          |> put_flash(
            :info,
-           "Conflicting account deleted. You can now try linking the provider again."
+           dgettext(
+             "settings",
+             "Conflicting account deleted. You can now try linking the provider again."
+           )
          )
          |> assign(:conflict_user, nil)}
 
       {:error, _} ->
         {:noreply,
-         put_flash(socket, :error, gettext("Failed to delete the conflicting account."))}
+         put_flash(
+           socket,
+           :error,
+           dgettext("settings", "Failed to delete the conflicting account.")
+         )}
     end
   end
 
@@ -2750,7 +2954,7 @@ defmodule GameServerWeb.UserLive.Settings do
 
     case Groups.get_group(gid) do
       nil ->
-        {:noreply, put_flash(socket, :error, "Group not found")}
+        {:noreply, put_flash(socket, :error, dgettext("groups", "Group not found"))}
 
       group ->
         role =

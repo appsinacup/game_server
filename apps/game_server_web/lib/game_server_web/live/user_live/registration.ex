@@ -12,13 +12,13 @@ defmodule GameServerWeb.UserLive.Registration do
       <div class="mx-auto max-w-sm lg:max-w-4xl space-y-4">
         <div class="text-center">
           <.header>
-            {gettext("Register for an account")}
+            {dgettext("auth", "Register for an account")}
             <:subtitle>
-              {gettext("Already registered?")}
+              {dgettext("auth", "Already registered?")}
               <.link navigate={~p"/users/log-in"} class="font-semibold text-brand hover:underline">
                 {gettext("Log in")}
               </.link>
-              {gettext("to your account now.")}
+              {dgettext("auth", "to your account now.")}
             </:subtitle>
           </.header>
         </div>
@@ -33,12 +33,15 @@ defmodule GameServerWeb.UserLive.Registration do
             phx-mounted={JS.focus()}
           />
 
-          <.button phx-disable-with={gettext("Creating account...")} class="btn btn-primary w-full">
-            {gettext("Create an account")}
+          <.button
+            phx-disable-with={dgettext("auth", "Creating account...")}
+            class="btn btn-primary w-full"
+          >
+            {dgettext("auth", "Create an account")}
           </.button>
         </.form>
 
-        <div class="divider">{gettext("or sign up with")}</div>
+        <div class="divider">{dgettext("auth", "or sign up with")}</div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
           <.link
@@ -53,7 +56,7 @@ defmodule GameServerWeb.UserLive.Registration do
             >
               <path d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.23A.077.077 0 0 0 8.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 0 0-.032.027C.533 9.093-.32 13.555.099 17.961a.08.08 0 0 0 .031.055 20.03 20.03 0 0 0 5.993 2.98.078.078 0 0 0 .084-.026 13.83 13.83 0 0 0 1.226-1.963.074.074 0 0 0-.041-.104 13.201 13.201 0 0 1-1.872-.878.075.075 0 0 1-.008-.125c.126-.093.252-.19.372-.287a.075.075 0 0 1 .078-.01c3.927 1.764 8.18 1.764 12.061 0a.075.075 0 0 1 .079.009c.12.098.245.195.372.288a.075.075 0 0 1-.006.125c-.598.344-1.22.635-1.873.877a.075.075 0 0 0-.041.105c.36.687.772 1.341 1.225 1.962a.077.077 0 0 0 .084.028 19.963 19.963 0 0 0 6.002-2.981.076.076 0 0 0 .032-.054c.5-5.094-.838-9.52-3.549-13.442a.06.06 0 0 0-.031-.028zM8.02 15.278c-1.182 0-2.157-1.069-2.157-2.38 0-1.312.956-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.956 2.38-2.157 2.38zm7.975 0c-1.183 0-2.157-1.069-2.157-2.38 0-1.312.955-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.946 2.38-2.157 2.38z" />
             </svg>
-            {gettext("Sign up with Discord")}
+            {dgettext("auth", "Sign up with Discord")}
           </.link>
 
           <.link
@@ -63,7 +66,7 @@ defmodule GameServerWeb.UserLive.Registration do
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
             </svg>
-            {gettext("Sign up with Apple")}
+            {dgettext("auth", "Sign up with Apple")}
           </.link>
 
           <.link
@@ -88,7 +91,7 @@ defmodule GameServerWeb.UserLive.Registration do
                 fill="#EA4335"
               />
             </svg>
-            {gettext("Sign up with Google")}
+            {dgettext("auth", "Sign up with Google")}
           </.link>
 
           <.link
@@ -98,7 +101,7 @@ defmodule GameServerWeb.UserLive.Registration do
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
             </svg>
-            {gettext("Sign up with Facebook")}
+            {dgettext("auth", "Sign up with Facebook")}
           </.link>
 
           <.link
@@ -108,7 +111,7 @@ defmodule GameServerWeb.UserLive.Registration do
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
               <path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.004.105.004.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 11.999-5.373 11.999-12S18.605 0 11.979 0zM7.54 18.21l-1.473-.61c.262.543.714.999 1.314 1.25 1.297.539 2.793-.076 3.332-1.375.263-.63.264-1.319.005-1.949s-.75-1.121-1.377-1.383c-.624-.26-1.29-.249-1.878-.03l1.523.63c.956.4 1.409 1.5 1.009 2.455-.397.957-1.497 1.41-2.454 1.012H7.54zm11.415-9.303c0-1.662-1.353-3.015-3.015-3.015-1.665 0-3.015 1.353-3.015 3.015 0 1.665 1.35 3.015 3.015 3.015 1.663 0 3.015-1.35 3.015-3.015zm-5.273-.005c0-1.252 1.013-2.266 2.265-2.266 1.249 0 2.266 1.014 2.266 2.266 0 1.251-1.017 2.265-2.266 2.265-1.253 0-2.265-1.014-2.265-2.265z" />
             </svg>
-            {gettext("Sign up with Steam")}
+            {dgettext("auth", "Sign up with Steam")}
           </.link>
         </div>
       </div>
@@ -157,7 +160,7 @@ defmodule GameServerWeb.UserLive.Registration do
            socket
            |> put_flash(
              :info,
-             gettext("Account created successfully! Logging you in...")
+             dgettext("auth", "Account created successfully! Logging you in...")
            )
            |> push_navigate(to: ~p"/users/log-in/#{token}")}
         else
@@ -167,7 +170,9 @@ defmodule GameServerWeb.UserLive.Registration do
            socket
            |> put_flash(
              :info,
-             gettext("An email was sent to %{email}, please access it to confirm your account",
+             dgettext(
+               "auth",
+               "An email was sent to %{email}, please access it to confirm your account",
                email: user.email
              )
            )
@@ -189,7 +194,8 @@ defmodule GameServerWeb.UserLive.Registration do
          socket
          |> put_flash(
            :error,
-           gettext(
+           dgettext(
+             "auth",
              "We were unable to create your account right now — please try again later or contact support."
            )
          )

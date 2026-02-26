@@ -33,7 +33,7 @@ defmodule GameServerWeb.LeaderboardsLive do
       nil ->
         {:noreply,
          socket
-         |> put_flash(:error, gettext("Leaderboard not found"))
+         |> put_flash(:error, dgettext("leaderboards", "Leaderboard not found"))
          |> push_navigate(to: ~p"/leaderboards")}
 
       leaderboard ->
@@ -65,7 +65,7 @@ defmodule GameServerWeb.LeaderboardsLive do
           [] ->
             {:noreply,
              socket
-             |> put_flash(:error, gettext("Leaderboard not found"))
+             |> put_flash(:error, dgettext("leaderboards", "Leaderboard not found"))
              |> push_navigate(to: ~p"/leaderboards")}
         end
 
@@ -121,8 +121,8 @@ defmodule GameServerWeb.LeaderboardsLive do
   defp render_group_list(assigns) do
     ~H"""
     <.header>
-      Leaderboards
-      <:subtitle>Compete and climb the ranks!</:subtitle>
+      {dgettext("leaderboards", "Leaderboards")}
+      <:subtitle>{dgettext("leaderboards", "Browse leaderboards and rankings")}</:subtitle>
     </.header>
 
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -136,13 +136,17 @@ defmodule GameServerWeb.LeaderboardsLive do
             <h3 class="card-title text-lg">{group.title}</h3>
             <div class="flex flex-col items-end gap-1">
               <%= if group.active_id do %>
-                <span class="badge badge-success">Active</span>
+                <span class="badge badge-success">{dgettext("leaderboards", "Active")}</span>
               <% else %>
-                <span class="badge badge-neutral">Ended</span>
+                <span class="badge badge-neutral">{dgettext("leaderboards", "Ended")}</span>
               <% end %>
               <%= if group.season_count > 1 do %>
                 <span class="badge badge-ghost badge-sm text-nowrap">
-                  {group.season_count} seasons
+                  {dngettext(
+                    "leaderboards",
+                    "%{count} season",
+                    "%{count} seasons",
+                    group.season_count, count: group.season_count)}
                 </span>
               <% end %>
             </div>
@@ -157,20 +161,20 @@ defmodule GameServerWeb.LeaderboardsLive do
 
     <%= if @groups == [] do %>
       <div class="text-center py-12 text-base-content/60">
-        <p>No leaderboards available yet.</p>
+        <p>{gettext("None available.")}</p>
       </div>
     <% end %>
 
     <%= if @page > @total_pages do %>
       <div class="mt-6 flex gap-2 items-center justify-center">
         <button phx-click="prev_page" class="btn btn-sm" disabled={@page <= 1}>
-          ← Previous
+          {gettext("Previous")}
         </button>
         <div class="text-sm text-base-content/70">
-          Page {@page} of {@total_pages}
+          {gettext("Page %{page} of %{total}", page: @page, total: @total_pages)}
         </div>
         <button phx-click="next_page" class="btn btn-sm" disabled={@page >= @total_pages}>
-          Next →
+          {gettext("Next")}
         </button>
       </div>
     <% end %>
@@ -183,24 +187,28 @@ defmodule GameServerWeb.LeaderboardsLive do
       <%!-- Back button and title --%>
       <div class="flex items-center gap-4">
         <.link navigate={~p"/leaderboards"} class="btn btn-outline btn-sm">
-          ← Back
+          {gettext("Back")}
         </.link>
         <div>
           <h1 class="text-2xl font-bold">{@leaderboard.title}</h1>
           <div class="flex items-center gap-2 mt-1">
             <%= if Leaderboard.active?(@leaderboard) do %>
-              <span class="badge badge-success">Active</span>
+              <span class="badge badge-success">{dgettext("leaderboards", "Active")}</span>
             <% else %>
-              <span class="badge badge-neutral">Ended</span>
+              <span class="badge badge-neutral">{dgettext("leaderboards", "Ended")}</span>
             <% end %>
             <span class="text-sm text-base-content/60">
               <%= cond do %>
                 <% @leaderboard.ends_at && Leaderboard.ended?(@leaderboard) -> %>
-                  Ended {Calendar.strftime(@leaderboard.ends_at, "%b %d, %Y")}
+                  {dgettext("leaderboards", "Ended %{date}",
+                    date: Calendar.strftime(@leaderboard.ends_at, "%b %d, %Y")
+                  )}
                 <% @leaderboard.ends_at -> %>
-                  Ends {Calendar.strftime(@leaderboard.ends_at, "%b %d, %Y")}
+                  {dgettext("leaderboards", "Ends %{date}",
+                    date: Calendar.strftime(@leaderboard.ends_at, "%b %d, %Y")
+                  )}
                 <% true -> %>
-                  Permanent
+                  {dgettext("leaderboards", "Permanent")}
               <% end %>
             </span>
           </div>
@@ -215,14 +223,16 @@ defmodule GameServerWeb.LeaderboardsLive do
             class="btn btn-sm btn-ghost"
             disabled={@current_season_index >= length(@slug_leaderboards) - 1}
           >
-            ← Older
+            {dgettext("leaderboards", "Older")}
           </button>
           <div class="text-sm">
             <span class="font-medium">
-              Season {length(@slug_leaderboards) - @current_season_index}
+              {dgettext("leaderboards", "Season %{number}",
+                number: length(@slug_leaderboards) - @current_season_index
+              )}
             </span>
             <span class="text-base-content/60">
-              of {length(@slug_leaderboards)}
+              {dgettext("leaderboards", "of %{total}", total: length(@slug_leaderboards))}
             </span>
           </div>
           <button
@@ -230,7 +240,7 @@ defmodule GameServerWeb.LeaderboardsLive do
             class="btn btn-sm btn-ghost"
             disabled={@current_season_index <= 0}
           >
-            Newer →
+            {dgettext("leaderboards", "Newer")}
           </button>
         </div>
       <% end %>
@@ -245,11 +255,15 @@ defmodule GameServerWeb.LeaderboardsLive do
         <div class="card-body py-4">
           <div class="flex items-center justify-between">
             <div>
-              <span class="text-sm text-base-content/70">Your Rank</span>
+              <span class="text-sm text-base-content/70">
+                {dgettext("leaderboards", "Your Rank")}
+              </span>
               <div class="text-2xl font-bold">#{@user_record.rank}</div>
             </div>
             <div class="text-right">
-              <span class="text-sm text-base-content/70">Your Score</span>
+              <span class="text-sm text-base-content/70">
+                {dgettext("leaderboards", "Your Score")}
+              </span>
               <div class="text-2xl font-bold">{format_score(@user_record.score)}</div>
             </div>
           </div>
@@ -259,15 +273,15 @@ defmodule GameServerWeb.LeaderboardsLive do
 
     <div class="card bg-base-200">
       <div class="card-body">
-        <h2 class="card-title">Rankings</h2>
+        <h2 class="card-title">{dgettext("leaderboards", "Rankings")}</h2>
 
         <div class="overflow-x-auto">
           <table class="table">
             <thead>
               <tr>
-                <th class="w-16">Rank</th>
-                <th>Player</th>
-                <th class="text-right">Score</th>
+                <th class="w-16">{dgettext("leaderboards", "Rank")}</th>
+                <th>{dgettext("leaderboards", "Player")}</th>
+                <th class="text-right">{dgettext("leaderboards", "Score")}</th>
               </tr>
             </thead>
             <tbody>
@@ -295,7 +309,7 @@ defmodule GameServerWeb.LeaderboardsLive do
                       {(record.user && record.user.display_name) || "User #{record.user_id}"}
                     </span>
                     <%= if record.user_id == @current_user_id do %>
-                      <span class="badge badge-primary badge-sm">You</span>
+                      <span class="badge badge-primary badge-sm">{gettext("You")}</span>
                     <% end %>
                   </div>
                 </td>
@@ -309,24 +323,28 @@ defmodule GameServerWeb.LeaderboardsLive do
 
         <%= if @records == [] do %>
           <div class="text-center py-8 text-base-content/60">
-            <p>No scores yet. Be the first!</p>
+            <p>{gettext("None available.")}</p>
           </div>
         <% end %>
 
         <%= if @records_page > @records_total_pages do %>
           <div class="mt-4 flex gap-2 items-center justify-center">
             <button phx-click="records_prev" class="btn btn-sm" disabled={@records_page <= 1}>
-              ← Previous
+              {gettext("Previous")}
             </button>
             <div class="text-sm text-base-content/70">
-              Page {@records_page} of {@records_total_pages} ({@records_count} total)
+              {gettext("Page %{page} of %{total} (%{count} total)",
+                page: @records_page,
+                total: @records_total_pages,
+                count: @records_count
+              )}
             </div>
             <button
               phx-click="records_next"
               class="btn btn-sm"
               disabled={@records_page >= @records_total_pages}
             >
-              Next →
+              {gettext("Next")}
             </button>
           </div>
         <% end %>
