@@ -560,9 +560,9 @@ defmodule GameServerWeb.UserLive.Settings do
             >
               <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <.input
-                  field={@create_group_form[:name]}
+                  field={@create_group_form[:title]}
                   type="text"
-                  label="Name"
+                  label="Title"
                   required
                 />
                 <.input
@@ -2070,7 +2070,12 @@ defmodule GameServerWeb.UserLive.Settings do
              |> reload_groups()}
 
           {:error, changeset} ->
-            {:noreply, assign(socket, create_group_form: to_form(changeset, as: :group))}
+            changeset = Map.put(changeset, :action, :validate)
+
+            {:noreply,
+             socket
+             |> put_flash(:error, "Could not create group — check the form for errors")
+             |> assign(create_group_form: to_form(changeset, as: :group))}
         end
 
       {"group_leave", %{"group_id" => gid}} ->
