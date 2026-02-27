@@ -506,45 +506,6 @@ defmodule GameServerWeb.Layouts do
     end
   end
 
-  defp profile_initials(nil), do: "?"
-
-  defp profile_initials(%{display_name: display_name, metadata: metadata, email: email}) do
-    name =
-      cond do
-        is_binary(display_name) && byte_size(display_name) > 0 ->
-          display_name
-
-        is_map(metadata) and is_binary(Map.get(metadata, "display_name")) and
-            byte_size(Map.get(metadata, "display_name")) > 0 ->
-          Map.get(metadata, "display_name")
-
-        true ->
-          String.split(email || "", "@") |> hd() || "?"
-      end
-
-    name
-    |> String.split(~r/\s+/)
-    |> Enum.map_join(&String.first/1)
-    |> String.slice(0, 2)
-    |> String.upcase()
-  end
-
-  defp profile_display_name(nil), do: "?"
-
-  defp profile_display_name(%{display_name: display_name, metadata: metadata, email: email}) do
-    cond do
-      is_binary(display_name) && byte_size(display_name) > 0 ->
-        display_name
-
-      is_map(metadata) && is_binary(Map.get(metadata, "display_name")) &&
-          byte_size(Map.get(metadata, "display_name")) > 0 ->
-        Map.get(metadata, "display_name")
-
-      true ->
-        email || ""
-    end
-  end
-
   @doc """
   Shows the flash group with standard titles and content.
 
