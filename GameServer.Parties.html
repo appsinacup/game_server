@@ -5,10 +5,10 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.586">
+    <meta name="project" content="GameServer v1.0.587">
 
 
-    <title>GameServer.Parties — GameServer v1.0.586</title>
+    <title>GameServer.Parties — GameServer v1.0.587</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.586
+          v1.0.587
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Parties</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.586)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.587)</small>
 
     </h1>
 
@@ -111,19 +111,19 @@ GameServer
     <section id="moduledoc">
 <p>Context module for party management.</p><p>A party is a pre-lobby grouping mechanism. Players form a party before
 creating or joining a lobby together.</p><h2 id="module-usage" class="section-heading"><a href="#module-usage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># Create a party (user becomes leader and first member)</span><span class="w">
-</span><span class="p" data-group-id="0359540405-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">party</span><span class="p" data-group-id="0359540405-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">create_party</span><span class="p" data-group-id="0359540405-2">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="0359540405-3">%{</span><span class="ss">max_size</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p" data-group-id="0359540405-3">}</span><span class="p" data-group-id="0359540405-2">)</span><span class="w">
+</span><span class="p" data-group-id="0445329036-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">party</span><span class="p" data-group-id="0445329036-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">create_party</span><span class="p" data-group-id="0445329036-2">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="0445329036-3">%{</span><span class="ss">max_size</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p" data-group-id="0445329036-3">}</span><span class="p" data-group-id="0445329036-2">)</span><span class="w">
 
 </span><span class="c1"># Join a party by ID</span><span class="w">
-</span><span class="p" data-group-id="0359540405-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p" data-group-id="0359540405-4">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">join_party</span><span class="p" data-group-id="0359540405-5">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">party_id</span><span class="p" data-group-id="0359540405-5">)</span><span class="w">
+</span><span class="p" data-group-id="0445329036-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p" data-group-id="0445329036-4">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">join_party</span><span class="p" data-group-id="0445329036-5">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">party_id</span><span class="p" data-group-id="0445329036-5">)</span><span class="w">
 
 </span><span class="c1"># Leave a party (if leader leaves, party is disbanded)</span><span class="w">
-</span><span class="p" data-group-id="0359540405-6">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="bp">_</span><span class="p" data-group-id="0359540405-6">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">leave_party</span><span class="p" data-group-id="0359540405-7">(</span><span class="n">user</span><span class="p" data-group-id="0359540405-7">)</span><span class="w">
+</span><span class="p" data-group-id="0445329036-6">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="bp">_</span><span class="p" data-group-id="0445329036-6">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">leave_party</span><span class="p" data-group-id="0445329036-7">(</span><span class="n">user</span><span class="p" data-group-id="0445329036-7">)</span><span class="w">
 
 </span><span class="c1"># Party leader creates a lobby — all members join atomically</span><span class="w">
-</span><span class="p" data-group-id="0359540405-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">lobby</span><span class="p" data-group-id="0359540405-8">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">create_lobby_with_party</span><span class="p" data-group-id="0359540405-9">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">lobby_attrs</span><span class="p" data-group-id="0359540405-9">)</span><span class="w">
+</span><span class="p" data-group-id="0445329036-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">lobby</span><span class="p" data-group-id="0445329036-8">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">create_lobby_with_party</span><span class="p" data-group-id="0445329036-9">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">lobby_attrs</span><span class="p" data-group-id="0445329036-9">)</span><span class="w">
 
 </span><span class="c1"># Party leader joins an existing lobby — all members join atomically</span><span class="w">
-</span><span class="p" data-group-id="0359540405-10">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">lobby</span><span class="p" data-group-id="0359540405-10">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">join_lobby_with_party</span><span class="p" data-group-id="0359540405-11">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">lobby_id</span><span class="p">,</span><span class="w"> </span><span class="n">opts</span><span class="p" data-group-id="0359540405-11">)</span></code></pre><h2 id="module-pubsub-events" class="section-heading"><a href="#module-pubsub-events" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">PubSub Events</span></h2><p>This module broadcasts the following events:</p><ul><li><code class="inline">&quot;party:&lt;party_id&gt;&quot;</code> topic:<ul><li><code class="inline">{:party_member_joined, party_id, user_id}</code></li><li><code class="inline">{:party_member_left, party_id, user_id}</code></li><li><code class="inline">{:party_disbanded, party_id}</code></li><li><code class="inline">{:party_updated, party}</code></li></ul></li></ul>
+</span><span class="p" data-group-id="0445329036-10">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">lobby</span><span class="p" data-group-id="0445329036-10">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Parties</span><span class="o">.</span><span class="n">join_lobby_with_party</span><span class="p" data-group-id="0445329036-11">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">lobby_id</span><span class="p">,</span><span class="w"> </span><span class="n">opts</span><span class="p" data-group-id="0445329036-11">)</span></code></pre><h2 id="module-pubsub-events" class="section-heading"><a href="#module-pubsub-events" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">PubSub Events</span></h2><p>This module broadcasts the following events:</p><ul><li><code class="inline">&quot;party:&lt;party_id&gt;&quot;</code> topic:<ul><li><code class="inline">{:party_member_joined, party_id, user_id}</code></li><li><code class="inline">{:party_member_left, party_id, user_id}</code></li><li><code class="inline">{:party_disbanded, party_id}</code></li><li><code class="inline">{:party_updated, party}</code></li></ul></li></ul>
     </section>
 
 </div>
