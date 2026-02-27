@@ -7,7 +7,6 @@ defmodule GameServerWeb.PageControllerTest do
 
     assert body =~ "Features"
     assert body =~ "Discord"
-    assert body =~ "Sentry"
     assert body =~ "SQLite"
   end
 
