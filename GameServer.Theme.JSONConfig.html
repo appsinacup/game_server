@@ -5,10 +5,10 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.606">
+    <meta name="project" content="GameServer v1.0.607">
 
 
-    <title>GameServer.Theme.JSONConfig — GameServer v1.0.606</title>
+    <title>GameServer.Theme.JSONConfig — GameServer v1.0.607</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.606
+          v1.0.607
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Theme.<wbr>JSONConfig</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.606)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.607)</small>
 
     </h1>
 
@@ -112,9 +112,9 @@ GameServer
 <p>JSON-backed Theme provider. Reads a JSON file specified by the THEME_CONFIG
 environment variable (single canonical runtime source) — e.g. THEME_CONFIG=theme/custom.json</p><p>The path may be relative to the project root (eg. &quot;theme/default_config.json&quot;)
 or an absolute path. When the file is missing we fall back to the built-in
-default at <code class="inline">priv/static/theme/default_config.json</code>.</p><p>This implementation keeps things simple: every call will parse the JSON file
-and return a map. There's also a <code class="inline">reload/0</code> API for callers who want to
-force a re-read (not required for normal usage).</p>
+default at <code class="inline">priv/static/theme/default_config.json</code>.</p><p>Theme configs are cached in <code class="inline">:persistent_term</code> after the first read so
+subsequent requests never hit the filesystem. Call <code class="inline">reload/0</code> to clear the
+cache (e.g. after editing the JSON file at runtime).</p>
     </section>
 
 </div>

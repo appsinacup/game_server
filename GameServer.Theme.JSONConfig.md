@@ -7,9 +7,9 @@ The path may be relative to the project root (eg. "theme/default_config.json")
 or an absolute path. When the file is missing we fall back to the built-in
 default at `priv/static/theme/default_config.json`.
 
-This implementation keeps things simple: every call will parse the JSON file
-and return a map. There's also a `reload/0` API for callers who want to
-force a re-read (not required for normal usage).
+Theme configs are cached in `:persistent_term` after the first read so
+subsequent requests never hit the filesystem. Call `reload/0` to clear the
+cache (e.g. after editing the JSON file at runtime).
 
 # `get_theme`
 
