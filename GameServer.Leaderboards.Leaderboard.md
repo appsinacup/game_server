@@ -64,6 +64,28 @@ Changeset for creating a new leaderboard.
 
 Returns true if the leaderboard has ended.
 
+# `localized_description`
+
+Returns the localized description for the given locale.
+
+Looks up `metadata["descriptions"][locale]`, falling back to `description`.
+Works with both `%Leaderboard{}` structs and plain maps (e.g. group info).
+
+# `localized_title`
+
+Returns the localized title for the given locale.
+
+Looks up `metadata["titles"][locale]`, falling back to `title`.
+Works with both `%Leaderboard{}` structs and plain maps (e.g. group info).
+
+## Examples
+
+    iex> lb = %Leaderboard{title: "Weekly Kills", metadata: %{"titles" => %{"es" => "Muertes Semanales"}}}
+    iex> Leaderboard.localized_title(lb, "es")
+    "Muertes Semanales"
+    iex> Leaderboard.localized_title(lb, "en")
+    "Weekly Kills"
+
 # `update_changeset`
 
 Changeset for updating an existing leaderboard.
