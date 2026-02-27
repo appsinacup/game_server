@@ -7,9 +7,9 @@ defmodule GameServer.Theme.JSONConfig do
   or an absolute path. When the file is missing we fall back to the built-in
   default at `priv/static/theme/default_config.json`.
 
-  This implementation keeps things simple: every call will parse the JSON file
-  and return a map. There's also a `reload/0` API for callers who want to
-  force a re-read (not required for normal usage).
+  Theme configs are cached in `:persistent_term` after the first read so
+  subsequent requests never hit the filesystem. Call `reload/0` to clear the
+  cache (e.g. after editing the JSON file at runtime).
   """
 
   @behaviour GameServer.Theme
@@ -30,6 +30,21 @@ defmodule GameServer.Theme.JSONConfig do
   """
   @spec get_theme(String.t() | nil) :: map()
   def get_theme(locale) when is_binary(locale) or is_nil(locale) do
+    cache = :persistent_term.get({__MODULE__, :theme_cache}, %{})
+
+    case Map.get(cache, locale, :not_cached) do
+      :not_cached ->
+        result = do_get_theme(locale)
+        :persistent_term.put({__MODULE__, :theme_cache}, Map.put(cache, locale, result))
+        result
+
+      cached ->
+        cached
+    end
+  end
+
+  # Performs the actual file-based theme resolution (uncached).
+  defp do_get_theme(locale) do
     base_path = config_path() || @default_path
     path_candidates = runtime_path_candidates(base_path, locale)
 
@@ -99,7 +114,8 @@ defmodule GameServer.Theme.JSONConfig do
 
   @impl true
   def reload do
-    # noop for now — get_theme reads fresh each time, keep reload for API
+    # Reset the theme cache so the next get_theme call re-reads from disk.
+    :persistent_term.put({__MODULE__, :theme_cache}, %{})
     :ok
   end
 

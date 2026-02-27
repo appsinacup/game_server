@@ -1,6 +1,8 @@
 defmodule GameServerWeb.PageControllerTest do
   use GameServerWeb.ConnCase, async: true
 
+  alias GameServer.Theme.JSONConfig
+
   test "home shows features", %{conn: conn} do
     conn = get(conn, "/")
     body = html_response(conn, 200)
@@ -13,9 +15,11 @@ defmodule GameServerWeb.PageControllerTest do
   test "home uses default theme title and tagline when THEME_CONFIG unset", %{conn: conn} do
     orig = System.get_env("THEME_CONFIG")
     System.delete_env("THEME_CONFIG")
+    JSONConfig.reload()
 
     on_exit(fn ->
       if orig, do: System.put_env("THEME_CONFIG", orig), else: System.delete_env("THEME_CONFIG")
+      JSONConfig.reload()
     end)
 
     conn = get(conn, "/")

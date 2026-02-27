@@ -8,6 +8,7 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
   alias GameServer.AccountsFixtures
   alias GameServer.Hooks.PluginManager
   alias GameServer.Repo
+  alias GameServer.Theme.JSONConfig
 
   test "renders config page with collapsible cards for admin", %{conn: conn} do
     user = AccountsFixtures.user_fixture()
@@ -322,9 +323,11 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     File.write!(tmp, json)
 
     System.put_env("THEME_CONFIG", tmp)
+    JSONConfig.reload()
 
     on_exit(fn ->
       if orig, do: System.put_env("THEME_CONFIG", orig), else: System.delete_env("THEME_CONFIG")
+      JSONConfig.reload()
       File.rm_rf(tmp)
     end)
 
@@ -350,9 +353,11 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     orig = System.get_env("THEME_CONFIG")
 
     System.delete_env("THEME_CONFIG")
+    JSONConfig.reload()
 
     on_exit(fn ->
       if orig, do: System.put_env("THEME_CONFIG", orig), else: System.delete_env("THEME_CONFIG")
+      JSONConfig.reload()
     end)
 
     {:ok, user} =
@@ -382,9 +387,11 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
   test "blank THEME_CONFIG is treated as unset and shows defaults", %{conn: conn} do
     orig = System.get_env("THEME_CONFIG")
     System.put_env("THEME_CONFIG", "")
+    JSONConfig.reload()
 
     on_exit(fn ->
       if orig, do: System.put_env("THEME_CONFIG", orig), else: System.delete_env("THEME_CONFIG")
+      JSONConfig.reload()
     end)
 
     {:ok, user} =

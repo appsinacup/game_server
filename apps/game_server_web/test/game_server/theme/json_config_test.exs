@@ -7,8 +7,12 @@ defmodule GameServer.Theme.JSONConfigTest do
     # ensure any global env change is reset after
     orig = System.get_env("THEME_CONFIG")
 
+    # Clear theme cache before each test so env var changes take effect
+    JSONConfig.reload()
+
     on_exit(fn ->
       if orig, do: System.put_env("THEME_CONFIG", orig), else: System.delete_env("THEME_CONFIG")
+      JSONConfig.reload()
     end)
 
     :ok
