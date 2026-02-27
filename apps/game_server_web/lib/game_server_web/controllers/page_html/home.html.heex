@@ -15,28 +15,28 @@
   <!-- Activity Stats -->
   <div class="mt-6 mb-8">
     <div class="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
-      <div class="group relative rounded-box px-6 py-2 text-sm font-semibold leading-6 sm:py-6">
+      <div class="group relative rounded-box px-6 py-2 text-sm font-semibold leading-4 sm:py-3">
         <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
         </span>
         <span class="relative z-10 flex items-center gap-4 sm:flex-col">
-          <span class="text-2xl font-bold">{@stats.users_active_1d}</span>
-          <span class="text-s text-base-content/60 font-normal">{gettext("Daily")}</span>
+          <span class="text-xl font-bold">{@stats.users_active_1d}</span>
+          <span class="text-s text-base-content/80 font-normal">{gettext("Daily")}</span>
         </span>
       </div>
-      <div class="group relative rounded-box px-6 py-2 text-sm font-semibold leading-6 sm:py-6">
+      <div class="group relative rounded-box px-6 py-2 text-sm font-semibold leading-4 sm:py-3">
         <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
         </span>
         <span class="relative z-10 flex items-center gap-4 sm:flex-col">
-          <span class="text-2xl font-bold">{@stats.users_active_7d}</span>
-          <span class="text-s text-base-content/60 font-normal">{gettext("Weekly")}</span>
+          <span class="text-xl font-bold">{@stats.users_active_7d}</span>
+          <span class="text-s text-base-content/80 font-normal">{gettext("Weekly")}</span>
         </span>
       </div>
-      <div class="group relative rounded-box px-6 py-2 text-sm font-semibold leading-6 sm:py-6">
+      <div class="group relative rounded-box px-6 py-2 text-sm font-semibold leading-4 sm:py-3">
         <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
         </span>
         <span class="relative z-10 flex items-center gap-4 sm:flex-col">
-          <span class="text-2xl font-bold">{@stats.users_active_30d}</span>
-          <span class="text-s text-base-content/60 font-normal">{gettext("Monthly")}</span>
+          <span class="text-xl font-bold">{@stats.users_active_30d}</span>
+          <span class="text-s text-base-content/80 font-normal">{gettext("Monthly")}</span>
         </span>
       </div>
     </div>
@@ -75,7 +75,7 @@
           <%= for link <- useful_links do %>
             <a
               href={link["url"]}
-              class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6"
+              class="group relative rounded-box px-6 py-3 text-sm font-semibold leading-6 sm:py-4"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -97,7 +97,7 @@
           <h2 class="text-lg font-semibold mb-4 text-center">{gettext("Features")}</h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
             <%= for feature <- features do %>
-              <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
+              <div class="group relative rounded-box px-6 py-3 text-sm font-semibold leading-6 sm:py-4">
                 <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
                 </span>
                 <span class="relative z-10 flex items-center gap-4 sm:flex-col">
