@@ -89,25 +89,6 @@ defmodule GameServerWeb.Layouts do
         <ul class="hidden lg:flex flex-row px-1 space-x-4 items-center">
           <%= if @current_scope do %>
             <li>
-              <!-- profile icon that links to settings (shows discord avatar or initials) -->
-              <.link href={~p"/users/settings"} class="inline-flex items-center">
-                <div class="w-8 h-8 rounded-full bg-base-300 flex items-center justify-center text-sm font-semibold mr-2 overflow-hidden">
-                  <%= if @current_scope.user.profile_url && @current_scope.user.profile_url != "" do %>
-                    <img
-                      src={@current_scope.user.profile_url}
-                      alt={gettext("avatar")}
-                      class="w-8 h-8 rounded-full"
-                    />
-                  <% else %>
-                    {profile_initials(@current_scope.user)}
-                  <% end %>
-                </div>
-              </.link>
-            </li>
-            <li>
-              {profile_display_name(@current_scope.user)}
-            </li>
-            <li>
               <.link href={~p"/users/settings"} class={["btn", if(String.starts_with?(@current_path, "/users/settings"), do: "btn-primary", else: "btn-outline")]}>{gettext("Settings")}</.link>
             </li>
             <li>
@@ -178,15 +159,6 @@ defmodule GameServerWeb.Layouts do
               class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-80 text-lg"
             >
               <%= if @current_scope do %>
-                <li class="menu-title">
-                  <div class="flex justify-between items-center w-full pr-2">
-                    <span>
-                      {profile_initials(@current_scope.user)} {profile_display_name(
-                        @current_scope.user
-                      )}
-                    </span>
-                  </div>
-                </li>
                 <li>
                   <a href={~p"/users/settings"} class={["btn", if(String.starts_with?(@current_path, "/users/settings"), do: "btn-primary", else: "btn-outline")]}>{gettext("Settings")}</a>
                 </li>

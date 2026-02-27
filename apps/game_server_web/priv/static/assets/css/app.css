@@ -3343,10 +3343,22 @@
   .border-base-300 {
     border-color: var(--color-base-300);
   }
+  .border-base-300\/20 {
+    border-color: var(--color-base-300);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in oklab, var(--color-base-300) 20%, transparent);
+    }
+  }
   .border-base-300\/40 {
     border-color: var(--color-base-300);
     @supports (color: color-mix(in lab, red, red)) {
       border-color: color-mix(in oklab, var(--color-base-300) 40%, transparent);
+    }
+  }
+  .border-base-300\/50 {
+    border-color: var(--color-base-300);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in oklab, var(--color-base-300) 50%, transparent);
     }
   }
   .border-base-300\/60 {
@@ -3354,6 +3366,9 @@
     @supports (color: color-mix(in lab, red, red)) {
       border-color: color-mix(in oklab, var(--color-base-300) 60%, transparent);
     }
+  }
+  .border-base-300\/100 {
+    border-color: var(--color-base-300);
   }
   .border-error {
     border-color: var(--color-error);
@@ -3397,16 +3412,34 @@
   .bg-base-100 {
     background-color: var(--color-base-100);
   }
+  .bg-base-100\/40 {
+    background-color: var(--color-base-100);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-base-100) 40%, transparent);
+    }
+  }
   .bg-base-100\/60 {
     background-color: var(--color-base-100);
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-base-100) 60%, transparent);
     }
   }
+  .bg-base-100\/85 {
+    background-color: var(--color-base-100);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-base-100) 85%, transparent);
+    }
+  }
   .bg-base-100\/90 {
     background-color: var(--color-base-100);
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-base-100) 90%, transparent);
+    }
+  }
+  .bg-base-100\/8405 {
+    background-color: var(--color-base-100);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-base-100) 8405%, transparent);
     }
   }
   .bg-base-200 {
@@ -3540,6 +3573,10 @@
     }
     --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
   }
+  .from-transparent {
+    --tw-gradient-from: transparent;
+    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+  }
   .via-black\/15 {
     --tw-gradient-via: color-mix(in srgb, #000 15%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
@@ -3560,6 +3597,13 @@
     --tw-gradient-via: transparent;
     --tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position);
     --tw-gradient-stops: var(--tw-gradient-via-stops);
+  }
+  .to-black\/5 {
+    --tw-gradient-to: color-mix(in srgb, #000 5%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      --tw-gradient-to: color-mix(in oklab, var(--color-black) 5%, transparent);
+    }
+    --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
   }
   .to-black\/10 {
     --tw-gradient-to: color-mix(in srgb, #000 10%, transparent);
@@ -4313,6 +4357,16 @@
       }
     }
   }
+  .hover\:border-base-300\/70 {
+    &:hover {
+      @media (hover: hover) {
+        border-color: var(--color-base-300);
+        @supports (color: color-mix(in lab, red, red)) {
+          border-color: color-mix(in oklab, var(--color-base-300) 70%, transparent);
+        }
+      }
+    }
+  }
   .hover\:border-primary\/40 {
     &:hover {
       @media (hover: hover) {
@@ -4339,6 +4393,16 @@
         background-color: var(--color-base-100);
         @supports (color: color-mix(in lab, red, red)) {
           background-color: color-mix(in oklab, var(--color-base-100) 80%, transparent);
+        }
+      }
+    }
+  }
+  .hover\:bg-base-100\/95 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--color-base-100);
+        @supports (color: color-mix(in lab, red, red)) {
+          background-color: color-mix(in oklab, var(--color-base-100) 95%, transparent);
         }
       }
     }

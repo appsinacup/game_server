@@ -35,7 +35,7 @@
         />
       <% end %>
       <%!-- Minimal gradient overlay for text readability --%>
-      <div class="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/10"></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/5"></div>
 
       <%!-- Hero content overlay — centered with arrow pinned at bottom --%>
       <div class="relative z-10 flex flex-col items-center h-screen px-6 sm:px-8 lg:px-12">
@@ -69,19 +69,19 @@
           <%!-- Activity Stats --%>
           <div class="w-full max-w-xs sm:max-w-sm">
             <div class="grid grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
-              <div class="flex flex-col items-center rounded-lg bg-base-100/60 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/40 [[data-theme=dark]_&]:border-white/20 px-3 py-1.5 sm:px-4 sm:py-2">
+              <div class="flex flex-col items-center rounded-lg bg-base-100/40 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/100 [[data-theme=dark]_&]:border-white/20 px-3 py-1.5 sm:px-4 sm:py-2">
                 <span class="text-lg sm:text-xl font-bold text-base-content [[data-theme=dark]_&]:text-white">
                   {@stats.users_active_1d}
                 </span>
                 <span class="text-xs text-base-content/70 [[data-theme=dark]_&]:text-white/80">{gettext("Daily")}</span>
               </div>
-              <div class="flex flex-col items-center rounded-lg bg-base-100/60 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/40 [[data-theme=dark]_&]:border-white/20 px-3 py-1.5 sm:px-4 sm:py-2">
+              <div class="flex flex-col items-center rounded-lg bg-base-100/40 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/100 [[data-theme=dark]_&]:border-white/20 px-3 py-1.5 sm:px-4 sm:py-2">
                 <span class="text-lg sm:text-xl font-bold text-base-content [[data-theme=dark]_&]:text-white">
                   {@stats.users_active_7d}
                 </span>
                 <span class="text-xs text-base-content/70 [[data-theme=dark]_&]:text-white/80">{gettext("Weekly")}</span>
               </div>
-              <div class="flex flex-col items-center rounded-lg bg-base-100/60 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/40 [[data-theme=dark]_&]:border-white/20 px-3 py-1.5 sm:px-4 sm:py-2">
+              <div class="flex flex-col items-center rounded-lg bg-base-100/40 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/100 [[data-theme=dark]_&]:border-white/20 px-3 py-1.5 sm:px-4 sm:py-2">
                 <span class="text-lg sm:text-xl font-bold text-base-content [[data-theme=dark]_&]:text-white">
                   {@stats.users_active_30d}
                 </span>
@@ -96,7 +96,7 @@
               <%= for link <- useful_links do %>
                 <a
                   href={link["url"]}
-                  class="group flex items-center gap-3 rounded-lg bg-base-100/60 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/40 [[data-theme=dark]_&]:border-white/20 px-4 py-2 sm:py-4 text-sm font-bold text-base-content [[data-theme=dark]_&]:text-white transition hover:bg-base-100/80 [[data-theme=dark]_&]:hover:bg-white/20 hover:border-base-300/60 [[data-theme=dark]_&]:hover:border-white/30 hover:scale-[1.02]"
+                  class="group flex items-center gap-3 rounded-lg bg-base-100/40 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/100 [[data-theme=dark]_&]:border-white/20 px-4 py-2 sm:py-4 text-sm font-bold text-base-content [[data-theme=dark]_&]:text-white transition hover:bg-base-100/95 [[data-theme=dark]_&]:hover:bg-white/20 hover:border-base-300/70 [[data-theme=dark]_&]:hover:border-white/30 hover:scale-[1.02]"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
