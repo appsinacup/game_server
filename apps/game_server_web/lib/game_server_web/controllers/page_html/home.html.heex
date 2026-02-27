@@ -3,6 +3,17 @@
   <% provider_theme = GameServer.Theme.JSONConfig.get_theme(locale) || %{} %>
   <% useful_links = Map.get(provider_theme, "useful_links", []) %>
   <% features = Map.get(provider_theme, "features", []) %>
+  <%
+    # Compute dark variant paths for hero and banner images
+    static_dir = Application.app_dir(:game_server_web, "priv/static")
+
+    fullscreen_dark_exists? = File.exists?(Path.join(static_dir, "images/fullscreen_dark.png"))
+
+    banner_path = Map.get(provider_theme, "banner", "")
+    banner_dark_path = String.replace(banner_path, ~r/\.(\w+)$/, "_dark.\\1")
+    banner_dark_exists? = banner_dark_path != "" and
+      File.exists?(Path.join(static_dir, String.trim_leading(banner_dark_path, "/")))
+  %>
 
   <%!-- Full-bleed hero section — breaks out of the layout container, extends behind navbar --%>
   <div class="relative w-screen left-1/2 -translate-x-1/2 -mt-20">
@@ -11,10 +22,20 @@
       <img
         src="/images/fullscreen.png"
         alt=""
-        class="absolute inset-0 w-full h-full object-cover"
+        class={[
+          "absolute inset-0 w-full h-full object-cover",
+          fullscreen_dark_exists? && "[[data-theme=dark]_&]:hidden"
+        ]}
       />
-      <%!-- Dark gradient overlay for readability --%>
-      <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70"></div>
+      <%= if fullscreen_dark_exists? do %>
+        <img
+          src="/images/fullscreen_dark.png"
+          alt=""
+          class="absolute inset-0 w-full h-full object-cover hidden [[data-theme=dark]_&]:block"
+        />
+      <% end %>
+      <%!-- Minimal gradient overlay for text readability --%>
+      <div class="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/10"></div>
 
       <%!-- Hero content overlay — centered with arrow pinned at bottom --%>
       <div class="relative z-10 flex flex-col items-center h-screen px-6 sm:px-8 lg:px-12">
@@ -27,34 +48,44 @@
           <img
             src={Map.get(provider_theme, "banner")}
             alt={gettext("Game Server Banner")}
-            class="max-w-[260px] sm:max-w-[340px] lg:max-w-[400px] h-auto drop-shadow-lg"
+            class={[
+              "max-w-[260px] sm:max-w-[340px] lg:max-w-[400px] h-auto drop-shadow-lg",
+              banner_dark_exists? && "[[data-theme=dark]_&]:hidden"
+            ]}
           />
+          <%= if banner_dark_exists? do %>
+            <img
+              src={banner_dark_path}
+              alt={gettext("Game Server Banner")}
+              class="max-w-[260px] sm:max-w-[340px] lg:max-w-[400px] h-auto drop-shadow-lg hidden [[data-theme=dark]_&]:block"
+            />
+          <% end %>
 
           <%!-- Description --%>
-          <p class="max-w-2xl text-center text-white/90 text-sm sm:text-base lg:text-lg leading-relaxed drop-shadow">
+          <p class="max-w-2xl text-center text-base-content [[data-theme=dark]_&]:text-white/90 text-sm sm:text-base lg:text-lg leading-relaxed drop-shadow-sm [[data-theme=dark]_&]:drop-shadow">
             {Map.get(provider_theme, "description")}
           </p>
 
           <%!-- Activity Stats --%>
           <div class="w-full max-w-xs sm:max-w-sm">
             <div class="grid grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
-              <div class="flex flex-col items-center rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 px-3 py-1.5 sm:px-4 sm:py-2">
-                <span class="text-lg sm:text-xl font-bold text-white">
+              <div class="flex flex-col items-center rounded-lg bg-base-100/60 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/40 [[data-theme=dark]_&]:border-white/20 px-3 py-1.5 sm:px-4 sm:py-2">
+                <span class="text-lg sm:text-xl font-bold text-base-content [[data-theme=dark]_&]:text-white">
                   {@stats.users_active_1d}
                 </span>
-                <span class="text-xs text-white/80">{gettext("Daily")}</span>
+                <span class="text-xs text-base-content/70 [[data-theme=dark]_&]:text-white/80">{gettext("Daily")}</span>
               </div>
-              <div class="flex flex-col items-center rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 px-3 py-1.5 sm:px-4 sm:py-2">
-                <span class="text-lg sm:text-xl font-bold text-white">
+              <div class="flex flex-col items-center rounded-lg bg-base-100/60 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/40 [[data-theme=dark]_&]:border-white/20 px-3 py-1.5 sm:px-4 sm:py-2">
+                <span class="text-lg sm:text-xl font-bold text-base-content [[data-theme=dark]_&]:text-white">
                   {@stats.users_active_7d}
                 </span>
-                <span class="text-xs text-white/80">{gettext("Weekly")}</span>
+                <span class="text-xs text-base-content/70 [[data-theme=dark]_&]:text-white/80">{gettext("Weekly")}</span>
               </div>
-              <div class="flex flex-col items-center rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 px-3 py-1.5 sm:px-4 sm:py-2">
-                <span class="text-lg sm:text-xl font-bold text-white">
+              <div class="flex flex-col items-center rounded-lg bg-base-100/60 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/40 [[data-theme=dark]_&]:border-white/20 px-3 py-1.5 sm:px-4 sm:py-2">
+                <span class="text-lg sm:text-xl font-bold text-base-content [[data-theme=dark]_&]:text-white">
                   {@stats.users_active_30d}
                 </span>
-                <span class="text-xs text-white/80">{gettext("Monthly")}</span>
+                <span class="text-xs text-base-content/70 [[data-theme=dark]_&]:text-white/80">{gettext("Monthly")}</span>
               </div>
             </div>
           </div>
@@ -65,11 +96,11 @@
               <%= for link <- useful_links do %>
                 <a
                   href={link["url"]}
-                  class="group flex items-center gap-3 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 sm:py-4 text-sm font-medium text-white transition hover:bg-white/20 hover:border-white/30 hover:scale-[1.02]"
+                  class="group flex items-center gap-3 rounded-lg bg-base-100/60 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/40 [[data-theme=dark]_&]:border-white/20 px-4 py-2 sm:py-4 text-sm font-bold text-base-content [[data-theme=dark]_&]:text-white transition hover:bg-base-100/80 [[data-theme=dark]_&]:hover:bg-white/20 hover:border-base-300/60 [[data-theme=dark]_&]:hover:border-white/30 hover:scale-[1.02]"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <.dynamic_icon name={link["icon"]} class="size-5 text-white/80 shrink-0" />
+                  <.dynamic_icon name={link["icon"]} class="size-5 text-base-content/70 [[data-theme=dark]_&]:text-white/80 shrink-0" />
                   <span class="truncate">{link["title"]}</span>
                 </a>
               <% end %>
@@ -83,7 +114,7 @@
         <%!-- Scroll-down arrow pinned at bottom --%>
         <a
           href="#more-content"
-          class="mb-4 animate-bounce text-white/70 hover:text-white transition"
+          class="mb-4 animate-bounce text-base-content/60 [[data-theme=dark]_&]:text-white/70 hover:text-base-content [[data-theme=dark]_&]:hover:text-white transition"
         >
           <.icon name="hero-chevron-down" class="size-7" />
         </a>

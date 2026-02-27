@@ -34,7 +34,7 @@ defmodule GameServerWeb.SwaggerHTML do
             padding: 6px 14px;
             border-radius: 6px;
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 700;
             font-size: 13px;
             transition: background 0.15s;
           }

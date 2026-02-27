@@ -80,7 +80,7 @@ defmodule GameServerWeb.Layouts do
           <img src={Map.get(@theme, "logo")} width="36" alt={title} />
           <span class="text-lg font-bold">{title}</span>
           <%= if tagline && tagline != "" do %>
-            <span class="text-sm opacity-60 ml-1">: {tagline}</span>
+            <span class="text-sm opacity-80 ml-1">: {tagline}</span>
           <% end %>
         </a>
       </div>

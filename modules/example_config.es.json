@@ -8,11 +8,11 @@
   "favicon": "/favicon.ico",
   "useful_links": [
     { "title": "Discord", "url": "https://discord.com/invite/56dMud8HYn", "icon": "hero-chat-bubble-left-ellipsis" },
+    { "title": "Blog", "url": "/blog", "icon": "hero-newspaper" },
+    { "title": "Notas de versión", "url": "/changelog", "icon": "hero-document-text" },
     { "title": "Código fuente", "url": "https://github.com/appsinacup/game_server", "icon": "hero-book-open" },
     { "title": "Guías", "url": "/docs/setup", "icon": "hero-academic-cap" },
-    { "title": "Documentación API", "url": "/api/docs", "icon": "hero-book-open" },
-    { "title": "Blog", "url": "/blog", "icon": "hero-newspaper" },
-    { "title": "Notas de versión", "url": "/changelog", "icon": "hero-document-text" }
+    { "title": "Documentación API", "url": "/api/docs", "icon": "hero-book-open" }
   ],
   "features": [
     { "title": "Autenticación y usuarios", "description": "Correo, enlace mágico, OAuth, JWT y sesión. Registro, inicio de sesión, recuperación de contraseña y verificación de correo.", "icon": "hero-lock-closed" },
