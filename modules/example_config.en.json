@@ -15,20 +15,11 @@
     { "title": "Godot SDK", "url": "https://godotengine.org/asset-library/asset/4510", "icon": "hero-cube" }
   ],
   "features": [
-    { "title": "Authentication", "description": "Email, Magic-link, OAuth, JWT and Session.", "icon": "hero-lock-closed" },
-    { "title": "Users", "description": "Register, login, reset password and verify email.", "icon": "hero-users" },
-    { "title": "Lobbies", "description": "Customizable settings and real-time updates.", "icon": "hero-home" },
-    { "title": "Groups", "description": "Communities with public, private, and hidden visibility.", "icon": "hero-user-group" },
-    { "title": "Friends", "description": "Request, block, and lists with real-time presence and notifications.", "icon": "hero-heart" },
-    { "title": "Notifications", "description": "Send between friends and group members.", "icon": "hero-bell" },
-    { "title": "Leaderboards", "description": "Server-authoritative leaderboards.", "icon": "hero-trophy" },
-    { "title": "Key Value Storage", "description": "Custom key-value pairs.", "icon": "hero-paper-clip" },
-    { "title": "Server Scripting", "description": "Server logic using Elixir scripts.", "icon": "hero-computer-desktop" },
-    { "title": "Server Scheduling", "description": "Schedule tasks for automated server operations.", "icon": "hero-clock" },
-    { "title": "Admin & Monitoring", "description": "Admin portal for managing data and configuration.", "icon": "hero-shield-check" },
-    { "title": "UI & Theming", "description": "Built-in web UI.", "icon": "hero-sparkles" },
-    { "title": "Persistence & Updates", "description": "SQLite (in memory) and PostgreSQL.", "icon": "hero-server-stack" },
-    { "title": "Caching & Performance", "description": "In-memory or distributed caching.", "icon": "hero-forward" },
-    { "title": "Integrations", "description": "Discord, Apple, Google, Facebook, Steam.", "icon": "hero-puzzle-piece" }
+    { "title": "Authentication & Users", "description": "Email, Magic-link, OAuth, JWT and Session. Register, login, reset password and verify email.", "icon": "hero-lock-closed" },
+    { "title": "Lobbies & Leaderboards", "description": "Customizable settings and real-time updates. Server-authoritative leaderboards.", "icon": "hero-home" },
+    { "title": "Friends & Groups", "description": "Request, block, and lists with real-time presence and notifications. Communities with public, private, and hidden visibility.", "icon": "hero-user-group" },
+    { "title": "Server Scripting & Server Scheduling", "description": "Server logic using Elixir scripts. Schedule tasks for automated server operations.", "icon": "hero-computer-desktop" },
+    { "title": "Persistence & Caching", "description": "SQLite (in memory) and PostgreSQL. In-memory or distributed caching.", "icon": "hero-server-stack" },
+    { "title": "Web & Integrations", "description": "Built-in web UI and admin portal. Supports Discord, Apple, Google, Facebook, Steam.", "icon": "hero-puzzle-piece" }
   ]
 }

@@ -1,47 +1,97 @@
 <Layouts.app flash={@flash} current_scope={@current_scope}>
   <% locale = Gettext.get_locale(GameServerWeb.Gettext) %>
   <% provider_theme = GameServer.Theme.JSONConfig.get_theme(locale) || %{} %>
+  <% useful_links = Map.get(provider_theme, "useful_links", []) %>
+  <% features = Map.get(provider_theme, "features", []) %>
 
-  <div class="flex justify-center">
-    <img
-      src={Map.get(provider_theme, "banner")}
-      alt={gettext("Game Server Banner")}
-      class="max-w-full h-auto rounded-lg shadow-lg"
-    />
-  </div>
-  <p class="mt-4 leading-7 text-base-content/70 text-center">
-    {Map.get(provider_theme, "description")}
-  </p>
-  <!-- Activity Stats -->
-  <div class="mt-6 mb-8">
-    <div class="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
-      <div class="group relative rounded-box px-6 py-2 text-sm font-semibold leading-4 sm:py-3">
-        <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
-        </span>
-        <span class="relative z-10 flex items-center gap-4 sm:flex-col">
-          <span class="text-xl font-bold">{@stats.users_active_1d}</span>
-          <span class="text-s text-base-content/80 font-normal">{gettext("Daily")}</span>
-        </span>
-      </div>
-      <div class="group relative rounded-box px-6 py-2 text-sm font-semibold leading-4 sm:py-3">
-        <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
-        </span>
-        <span class="relative z-10 flex items-center gap-4 sm:flex-col">
-          <span class="text-xl font-bold">{@stats.users_active_7d}</span>
-          <span class="text-s text-base-content/80 font-normal">{gettext("Weekly")}</span>
-        </span>
-      </div>
-      <div class="group relative rounded-box px-6 py-2 text-sm font-semibold leading-4 sm:py-3">
-        <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
-        </span>
-        <span class="relative z-10 flex items-center gap-4 sm:flex-col">
-          <span class="text-xl font-bold">{@stats.users_active_30d}</span>
-          <span class="text-s text-base-content/80 font-normal">{gettext("Monthly")}</span>
-        </span>
+  <%!-- Full-bleed hero section — breaks out of the layout container --%>
+  <div class="relative w-screen left-1/2 -translate-x-1/2 -mt-4">
+    <%!-- Background image — account for sticky navbar height --%>
+    <div class="relative h-[calc(100vh-4rem)] overflow-hidden">
+      <img
+        src="/images/fullscreen.png"
+        alt=""
+        class="absolute inset-0 w-full h-full object-cover"
+      />
+      <%!-- Dark gradient overlay for readability --%>
+      <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70"></div>
+
+      <%!-- Hero content overlay — centered with arrow pinned at bottom --%>
+      <div class="relative z-10 flex flex-col items-center h-[calc(100vh-4rem)] px-6 sm:px-8 lg:px-12">
+        <%!-- Top spacer --%>
+        <div class="flex-1 min-h-4"></div>
+
+        <%!-- Main content block --%>
+        <div class="flex flex-col items-center w-full max-w-2xl lg:max-w-4xl xl:max-w-6xl gap-5 sm:gap-6 lg:gap-8">
+          <%!-- Banner logo --%>
+          <img
+            src={Map.get(provider_theme, "banner")}
+            alt={gettext("Game Server Banner")}
+            class="max-w-[260px] sm:max-w-[340px] lg:max-w-[400px] h-auto drop-shadow-lg"
+          />
+
+          <%!-- Description --%>
+          <p class="max-w-2xl text-center text-white/90 text-sm sm:text-base lg:text-lg leading-relaxed drop-shadow">
+            {Map.get(provider_theme, "description")}
+          </p>
+
+          <%!-- Activity Stats --%>
+          <div class="w-full max-w-xs sm:max-w-sm">
+            <div class="grid grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
+              <div class="flex flex-col items-center rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 px-3 py-1.5 sm:px-4 sm:py-2">
+                <span class="text-lg sm:text-xl font-bold text-white">
+                  {@stats.users_active_1d}
+                </span>
+                <span class="text-xs text-white/80">{gettext("Daily")}</span>
+              </div>
+              <div class="flex flex-col items-center rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 px-3 py-1.5 sm:px-4 sm:py-2">
+                <span class="text-lg sm:text-xl font-bold text-white">
+                  {@stats.users_active_7d}
+                </span>
+                <span class="text-xs text-white/80">{gettext("Weekly")}</span>
+              </div>
+              <div class="flex flex-col items-center rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 px-3 py-1.5 sm:px-4 sm:py-2">
+                <span class="text-lg sm:text-xl font-bold text-white">
+                  {@stats.users_active_30d}
+                </span>
+                <span class="text-xs text-white/80">{gettext("Monthly")}</span>
+              </div>
+            </div>
+          </div>
+
+          <%!-- Useful links --%>
+          <%= if useful_links != [] do %>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 w-full">
+              <%= for link <- useful_links do %>
+                <a
+                  href={link["url"]}
+                  class="group flex items-center gap-3 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 sm:py-4 text-sm font-medium text-white transition hover:bg-white/20 hover:border-white/30 hover:scale-[1.02]"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <.dynamic_icon name={link["icon"]} class="size-5 text-white/80 shrink-0" />
+                  <span class="truncate">{link["title"]}</span>
+                </a>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+
+        <%!-- Bottom spacer --%>
+        <div class="flex-1 min-h-4"></div>
+
+        <%!-- Scroll-down arrow pinned at bottom --%>
+        <a
+          href="#more-content"
+          class="mb-4 animate-bounce text-white/70 hover:text-white transition"
+        >
+          <.icon name="hero-chevron-down" class="size-7" />
+        </a>
       </div>
     </div>
   </div>
-  <!-- Hidden static icon references so asset bundlers include them for dynamic usage -->
+
+  <%!-- Hidden static icon references so asset bundlers include them for dynamic usage --%>
   <div class="hidden" aria-hidden="true">
     <.icon name="hero-chat-bubble-left-ellipsis" />
     <.icon name="hero-github" />
@@ -50,7 +100,6 @@
     <.icon name="hero-puzzle-piece" />
     <.icon name="hero-forward" />
     <.icon name="hero-cube" />
-
     <.icon name="hero-lock-closed" />
     <.icon name="hero-users" />
     <.icon name="hero-home" />
@@ -66,52 +115,28 @@
     <.icon name="hero-server-stack" />
   </div>
 
-  <div class="flex justify-center">
-    <div class="w-full">
-      <% useful_links = Map.get(provider_theme, "useful_links", []) %>
-      <%= if useful_links != [] do %>
-        <h2 class="text-lg font-semibold mb-4 text-center">{gettext("Useful Links")}</h2>
-        <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
-          <%= for link <- useful_links do %>
-            <a
-              href={link["url"]}
-              class="group relative rounded-box px-6 py-3 text-sm font-semibold leading-6 sm:py-4"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
-              </span>
-              <span class="relative z-10 flex items-center gap-4 sm:flex-col">
-                <.dynamic_icon name={link["icon"]} class="size-6 text-base-content/80" />
-                {link["title"]}
-              </span>
-            </a>
-          <% end %>
-        </div>
-      <% end %>
-      
-<!-- Features overview -->
-      <% features = Map.get(provider_theme, "features", []) %>
-      <%= if features != [] do %>
-        <div class="mt-12">
-          <h2 class="text-lg font-semibold mb-4 text-center">{gettext("Features")}</h2>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
-            <%= for feature <- features do %>
-              <div class="group relative rounded-box px-6 py-3 text-sm font-semibold leading-6 sm:py-4">
-                <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
-                </span>
-                <span class="relative z-10 flex items-center gap-4 sm:flex-col">
-                  <.dynamic_icon name={feature["icon"]} class="size-6 text-base-content/80" />
-                  {feature["title"]}
-                </span>
-                <span class="relative z-10 mt-2 text-base-content/70 font-light">
-                  {feature["description"]}
-                </span>
-              </div>
-            <% end %>
+  <%!-- Scroll target --%>
+  <div id="more-content" class="scroll-mt-20"></div>
+
+  <%!-- Features --%>
+  <%= if features != [] do %>
+    <div class="mt-4">
+      <h2 class="text-lg font-semibold mb-4 text-center">{gettext("Features")}</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+        <%= for feature <- features do %>
+          <div class="group relative rounded-box px-6 py-3 text-sm font-semibold leading-6 sm:py-4">
+            <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
+            </span>
+            <span class="relative z-10 flex items-center gap-4 sm:flex-col">
+              <.dynamic_icon name={feature["icon"]} class="size-6 text-base-content/80" />
+              {feature["title"]}
+            </span>
+            <span class="relative z-10 mt-2 text-base-content/70 font-light">
+              {feature["description"]}
+            </span>
           </div>
-        </div>
-      <% end %>
+        <% end %>
+      </div>
     </div>
-  </div>
+  <% end %>
 </Layouts.app>

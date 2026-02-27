@@ -11,6 +11,7 @@ defmodule GameServerWeb.AdminLive.Index do
   alias GameServer.Notifications
   alias GameServer.Parties
   alias GameServer.Repo
+  alias GameServerWeb.Gettext.Stats, as: TranslationStats
 
   @dev_routes? Application.compile_env(:game_server_web, :dev_routes, false)
 
@@ -135,6 +136,33 @@ defmodule GameServerWeb.AdminLive.Index do
                   <div>Total members: {@parties_members}</div>
                 </div>
               </div>
+
+              <div :for={stats <- @translation_stats} class="card bg-base-100 p-4">
+                <div class="text-sm font-semibold mb-2">
+                  Translations ({String.upcase(stats.locale)})
+                </div>
+                <div class="text-2xl font-bold">
+                  {stats.percent}%
+                </div>
+                <div class="mt-2">
+                  <div class="w-full bg-base-300 rounded-full h-2">
+                    <div
+                      class={[
+                        "h-2 rounded-full transition-all",
+                        if(stats.percent == 100.0, do: "bg-success", else: "bg-warning")
+                      ]}
+                      style={"width: #{stats.percent}%"}
+                    >
+                    </div>
+                  </div>
+                </div>
+                <div class="text-xs text-base-content/60 mt-2 space-y-1">
+                  <div>{stats.translated}/{stats.total} strings</div>
+                  <div :for={d <- stats.domains}>
+                    {d.domain}: {d.translated}/{d.total}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -179,6 +207,9 @@ defmodule GameServerWeb.AdminLive.Index do
     parties_count = Parties.count_all_parties()
     parties_members = Parties.count_all_party_members()
 
+    # translation stats
+    translation_stats = TranslationStats.all_completeness()
+
     # time-based metrics
     users_registered_1d = Accounts.count_users_registered_since(1)
     users_registered_7d = Accounts.count_users_registered_since(7)
@@ -214,6 +245,7 @@ defmodule GameServerWeb.AdminLive.Index do
        groups_members: groups_members,
        parties_count: parties_count,
        parties_members: parties_members,
+       translation_stats: translation_stats,
        users_registered_1d: users_registered_1d,
        users_registered_7d: users_registered_7d,
        users_registered_30d: users_registered_30d,

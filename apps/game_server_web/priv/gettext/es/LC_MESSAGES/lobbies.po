@@ -15,7 +15,7 @@ msgstr ""
 #: lib/game_server_web/live/lobby_live/index.ex:696
 #, elixir-autogen, elixir-format
 msgid "%{count} / %{max} members"
-msgstr ""
+msgstr "%{count} / %{max} miembros"
 
 #: lib/game_server_web/live/lobby_live/index.ex:850
 #: lib/game_server_web/live/lobby_live/index.ex:850
@@ -23,7 +23,7 @@ msgstr ""
 #: lib/game_server_web/live/lobby_live/index.ex:888
 #, elixir-autogen, elixir-format
 msgid "(host)"
-msgstr ""
+msgstr "(anfitrión)"
 
 #: lib/game_server_web/live/lobby_live/index.ex:412
 #: lib/game_server_web/live/lobby_live/index.ex:412
@@ -31,49 +31,49 @@ msgstr ""
 #: lib/game_server_web/live/lobby_live/index.ex:460
 #, elixir-autogen, elixir-format
 msgid "Could not join: %{reason}"
-msgstr ""
+msgstr "No se pudo unir: %{reason}"
 
 #: lib/game_server_web/live/lobby_live/index.ex:317
 #: lib/game_server_web/live/lobby_live/index.ex:317
 #, elixir-autogen, elixir-format
 msgid "Could not kick: %{reason}"
-msgstr ""
+msgstr "No se pudo expulsar: %{reason}"
 
 #: lib/game_server_web/live/lobby_live/index.ex:120
 #: lib/game_server_web/live/lobby_live/index.ex:120
 #, elixir-autogen, elixir-format
 msgid "Could not leave: %{reason}"
-msgstr ""
+msgstr "No se pudo salir: %{reason}"
 
 #: lib/game_server_web/live/lobby_live/index.ex:281
 #: lib/game_server_web/live/lobby_live/index.ex:281
 #, elixir-autogen, elixir-format
 msgid "Could not update: %{reason}"
-msgstr ""
+msgstr "No se pudo actualizar: %{reason}"
 
 #: lib/game_server_web/live/lobby_live/index.ex:650
 #: lib/game_server_web/live/lobby_live/index.ex:650
 #, elixir-autogen, elixir-format
 msgid "Create a Lobby"
-msgstr ""
+msgstr "Crear una Sala"
 
 #: lib/game_server_web/live/lobby_live/index.ex:821
 #: lib/game_server_web/live/lobby_live/index.ex:821
 #, elixir-autogen, elixir-format
 msgid "Leave empty to clear"
-msgstr ""
+msgstr "Dejar vacío para limpiar"
 
 #: lib/game_server_web/live/lobby_live/index.ex:45
 #: lib/game_server_web/live/lobby_live/index.ex:45
 #, elixir-autogen, elixir-format
 msgid "Lobbies"
-msgstr ""
+msgstr "Salas"
 
 #: lib/game_server_web/live/lobby_live/index.ex:163
 #: lib/game_server_web/live/lobby_live/index.ex:163
 #, elixir-autogen, elixir-format
 msgid "Lobby is locked"
-msgstr ""
+msgstr "La sala está bloqueada"
 
 #: lib/game_server_web/live/lobby_live/index.ex:140
 #: lib/game_server_web/live/lobby_live/index.ex:140
@@ -83,31 +83,31 @@ msgstr ""
 #: lib/game_server_web/live/lobby_live/index.ex:175
 #, elixir-autogen, elixir-format
 msgid "Lobby not found"
-msgstr ""
+msgstr "Sala no encontrada"
 
 #: lib/game_server_web/live/lobby_live/index.ex:268
 #: lib/game_server_web/live/lobby_live/index.ex:268
 #, elixir-autogen, elixir-format
 msgid "Lobby updated"
-msgstr ""
+msgstr "Sala actualizada"
 
 #: lib/game_server_web/live/lobby_live/index.ex:714
 #: lib/game_server_web/live/lobby_live/index.ex:714
 #, elixir-autogen, elixir-format
 msgid "Manage"
-msgstr ""
+msgstr "Administrar"
 
 #: lib/game_server_web/live/lobby_live/index.ex:685
 #: lib/game_server_web/live/lobby_live/index.ex:685
 #, elixir-autogen, elixir-format
 msgid "Open Lobbies"
-msgstr ""
+msgstr "Salas Abiertas"
 
 #: lib/game_server_web/live/lobby_live/index.ex:677
 #: lib/game_server_web/live/lobby_live/index.ex:677
 #, elixir-autogen, elixir-format
 msgid "You are already in a lobby"
-msgstr ""
+msgstr "Ya estás en una sala"
 
 #: lib/game_server_web/live/lobby_live/index.ex:77
 #: lib/game_server_web/live/lobby_live/index.ex:77
@@ -115,16 +115,16 @@ msgstr ""
 #: lib/game_server_web/live/lobby_live/index.ex:368
 #, elixir-autogen, elixir-format
 msgid "You are already in a lobby and cannot create another"
-msgstr ""
+msgstr "Ya estás en una sala y no puedes crear otra"
 
 #: lib/game_server_web/live/lobby_live/index.ex:428
 #: lib/game_server_web/live/lobby_live/index.ex:428
 #, elixir-autogen, elixir-format
 msgid "You are already in this lobby"
-msgstr ""
+msgstr "Ya estás en esta sala"
 
 #: lib/game_server_web/live/lobby_live/index.ex:528
 #: lib/game_server_web/live/lobby_live/index.ex:528
 #, elixir-autogen, elixir-format
 msgid "You have been kicked from the lobby"
-msgstr ""
+msgstr "Has sido expulsado de la sala"

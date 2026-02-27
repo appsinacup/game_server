@@ -16,8 +16,8 @@ msgstr ""
 #, elixir-autogen, elixir-format
 msgid "%{count} season"
 msgid_plural "%{count} seasons"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%{count} temporada"
+msgstr[1] "%{count} temporadas"
 
 #: lib/game_server_web/live/leaderboards_live.ex:136
 #: lib/game_server_web/live/leaderboards_live.ex:136
@@ -25,7 +25,7 @@ msgstr[1] ""
 #: lib/game_server_web/live/leaderboards_live.ex:196
 #, elixir-autogen, elixir-format
 msgid "Active"
-msgstr ""
+msgstr "Activo"
 
 #: lib/game_server_web/live/leaderboards_live.ex:138
 #: lib/game_server_web/live/leaderboards_live.ex:138
@@ -33,19 +33,19 @@ msgstr ""
 #: lib/game_server_web/live/leaderboards_live.ex:198
 #, elixir-autogen, elixir-format
 msgid "Ended"
-msgstr ""
+msgstr "Finalizado"
 
 #: lib/game_server_web/live/leaderboards_live.ex:203
 #: lib/game_server_web/live/leaderboards_live.ex:203
 #, elixir-autogen, elixir-format
 msgid "Ended %{date}"
-msgstr ""
+msgstr "Finalizado %{date}"
 
 #: lib/game_server_web/live/leaderboards_live.ex:207
 #: lib/game_server_web/live/leaderboards_live.ex:207
 #, elixir-autogen, elixir-format
 msgid "Ends %{date}"
-msgstr ""
+msgstr "Finaliza %{date}"
 
 #: lib/game_server_web/live/leaderboards_live.ex:38
 #: lib/game_server_web/live/leaderboards_live.ex:38
@@ -53,76 +53,76 @@ msgstr ""
 #: lib/game_server_web/live/leaderboards_live.ex:70
 #, elixir-autogen, elixir-format
 msgid "Leaderboard not found"
-msgstr ""
+msgstr "Tabla de clasificación no encontrada"
 
 #: lib/game_server_web/live/leaderboards_live.ex:19
 #: lib/game_server_web/live/leaderboards_live.ex:19
 #, elixir-autogen, elixir-format
 msgid "Leaderboards"
-msgstr ""
+msgstr "Clasificaciones"
 
 #: lib/game_server_web/live/leaderboards_live.ex:243
 #: lib/game_server_web/live/leaderboards_live.ex:243
 #, elixir-autogen, elixir-format
 msgid "Newer"
-msgstr ""
+msgstr "Más reciente"
 
 #: lib/game_server_web/live/leaderboards_live.ex:226
 #: lib/game_server_web/live/leaderboards_live.ex:226
 #, elixir-autogen, elixir-format
 msgid "Older"
-msgstr ""
+msgstr "Más antiguo"
 
 #: lib/game_server_web/live/leaderboards_live.ex:211
 #: lib/game_server_web/live/leaderboards_live.ex:211
 #, elixir-autogen, elixir-format
 msgid "Permanent"
-msgstr ""
+msgstr "Permanente"
 
 #: lib/game_server_web/live/leaderboards_live.ex:284
 #: lib/game_server_web/live/leaderboards_live.ex:284
 #, elixir-autogen, elixir-format
 msgid "Player"
-msgstr ""
+msgstr "Jugador"
 
 #: lib/game_server_web/live/leaderboards_live.ex:283
 #: lib/game_server_web/live/leaderboards_live.ex:283
 #, elixir-autogen, elixir-format
 msgid "Rank"
-msgstr ""
+msgstr "Posición"
 
 #: lib/game_server_web/live/leaderboards_live.ex:277
 #: lib/game_server_web/live/leaderboards_live.ex:277
 #, elixir-autogen, elixir-format
 msgid "Rankings"
-msgstr ""
+msgstr "Clasificación"
 
 #: lib/game_server_web/live/leaderboards_live.ex:285
 #: lib/game_server_web/live/leaderboards_live.ex:285
 #, elixir-autogen, elixir-format
 msgid "Score"
-msgstr ""
+msgstr "Puntuación"
 
 #: lib/game_server_web/live/leaderboards_live.ex:230
 #: lib/game_server_web/live/leaderboards_live.ex:230
 #, elixir-autogen, elixir-format
 msgid "Season %{number}"
-msgstr ""
+msgstr "Temporada %{number}"
 
 #: lib/game_server_web/live/leaderboards_live.ex:260
 #: lib/game_server_web/live/leaderboards_live.ex:260
 #, elixir-autogen, elixir-format
 msgid "Your Rank"
-msgstr ""
+msgstr "Tu Posición"
 
 #: lib/game_server_web/live/leaderboards_live.ex:266
 #: lib/game_server_web/live/leaderboards_live.ex:266
 #, elixir-autogen, elixir-format
 msgid "Your Score"
-msgstr ""
+msgstr "Tu Puntuación"
 
 #: lib/game_server_web/live/leaderboards_live.ex:235
 #: lib/game_server_web/live/leaderboards_live.ex:235
 #, elixir-autogen, elixir-format
 msgid "of %{total}"
-msgstr ""
+msgstr "de %{total}"
