@@ -69,19 +69,19 @@
           <%!-- Activity Stats --%>
           <div class="w-full max-w-xs sm:max-w-sm">
             <div class="grid grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
-              <div class="flex flex-col items-center rounded-lg bg-base-100/40 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/100 [[data-theme=dark]_&]:border-white/20 px-3 py-1.5 sm:px-4 sm:py-2">
+              <div class="flex flex-col items-center rounded-lg bg-base-100/40 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/100 [[data-theme=dark]_&]:border-white/20 px-3 py-1.5 sm:px-4 sm:py-2 transition hover:bg-base-100/60 [[data-theme=dark]_&]:hover:bg-white/20 hover:scale-[1.02]">
                 <span class="text-lg sm:text-xl font-bold text-base-content [[data-theme=dark]_&]:text-white">
                   {@stats.users_active_1d}
                 </span>
                 <span class="text-xs text-base-content/70 [[data-theme=dark]_&]:text-white/80">{gettext("Daily")}</span>
               </div>
-              <div class="flex flex-col items-center rounded-lg bg-base-100/40 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/100 [[data-theme=dark]_&]:border-white/20 px-3 py-1.5 sm:px-4 sm:py-2">
+              <div class="flex flex-col items-center rounded-lg bg-base-100/40 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/100 [[data-theme=dark]_&]:border-white/20 px-3 py-1.5 sm:px-4 sm:py-2 transition hover:bg-base-100/60 [[data-theme=dark]_&]:hover:bg-white/20 hover:scale-[1.02]">
                 <span class="text-lg sm:text-xl font-bold text-base-content [[data-theme=dark]_&]:text-white">
                   {@stats.users_active_7d}
                 </span>
                 <span class="text-xs text-base-content/70 [[data-theme=dark]_&]:text-white/80">{gettext("Weekly")}</span>
               </div>
-              <div class="flex flex-col items-center rounded-lg bg-base-100/40 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/100 [[data-theme=dark]_&]:border-white/20 px-3 py-1.5 sm:px-4 sm:py-2">
+              <div class="flex flex-col items-center rounded-lg bg-base-100/40 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/100 [[data-theme=dark]_&]:border-white/20 px-3 py-1.5 sm:px-4 sm:py-2 transition hover:bg-base-100/60 [[data-theme=dark]_&]:hover:bg-white/20 hover:scale-[1.02]">
                 <span class="text-lg sm:text-xl font-bold text-base-content [[data-theme=dark]_&]:text-white">
                   {@stats.users_active_30d}
                 </span>
@@ -97,8 +97,8 @@
                 <a
                   href={link["url"]}
                   class="group flex items-center gap-3 rounded-lg bg-base-100/40 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/100 [[data-theme=dark]_&]:border-white/20 px-4 py-2 sm:py-4 text-sm font-bold text-base-content [[data-theme=dark]_&]:text-white transition hover:bg-base-100/95 [[data-theme=dark]_&]:hover:bg-white/20 hover:border-base-300/70 [[data-theme=dark]_&]:hover:border-white/30 hover:scale-[1.02]"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  target={if link["external"], do: "_blank"}
+                  rel={if link["external"], do: "noopener noreferrer"}
                 >
                   <.dynamic_icon name={link["icon"]} class="size-5 text-base-content/70 [[data-theme=dark]_&]:text-white/80 shrink-0" />
                   <span class="truncate">{link["title"]}</span>
