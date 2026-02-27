@@ -11,7 +11,7 @@ defmodule GameServerWeb.UserLive.Settings do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.app flash={@flash} current_scope={@current_scope} current_path={assigns[:current_path]}>
       <div class="text-center">
         <%= if @conflict_user do %>
           <div class="divider" />
@@ -46,6 +46,35 @@ defmodule GameServerWeb.UserLive.Settings do
         <% end %>
       </div>
 
+      <%!-- Settings tabs --%>
+      <div class="mt-6 flex gap-1 border-b border-base-300 pb-0 overflow-x-auto">
+        <button
+          :for={
+            {tab, label, icon} <- [
+              {"account", dgettext("settings", "Account"), "hero-user-circle"},
+              {"friends", dgettext("settings", "Friends"), "hero-user-group"},
+              {"data", dgettext("settings", "Data"), "hero-circle-stack"},
+              {"notifications", dgettext("settings", "Notifications"), "hero-bell"},
+              {"groups", dgettext("groups", "Groups"), "hero-users"}
+            ]
+          }
+          phx-click="settings_tab"
+          phx-value-tab={tab}
+          class={[
+            "px-4 py-2.5 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2 whitespace-nowrap",
+            if(@settings_tab == tab,
+              do: "bg-primary text-primary-content shadow-sm",
+              else: "text-base-content/60 hover:text-base-content hover:bg-base-200/50"
+            )
+          ]}
+        >
+          <.icon name={icon} class="w-4 h-4" />
+          {label}
+        </button>
+      </div>
+
+      <%!-- Account tab --%>
+      <div :if={@settings_tab == "account"}>
       <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="card bg-base-200 p-4 rounded-lg">
           <div class="font-semibold">{dgettext("settings", "Account details")}</div>
@@ -131,7 +160,208 @@ defmodule GameServerWeb.UserLive.Settings do
           </.form>
         </div>
       </div>
-      
+
+      <div class="card bg-base-200 p-4 rounded-lg mt-6">
+        <div class="font-semibold">{dgettext("settings", "Linked Accounts")}</div>
+        <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <% provider_count =
+            Enum.count(
+              [@user.discord_id, @user.apple_id, @user.google_id, @user.facebook_id, @user.steam_id],
+              fn v ->
+                v && v != ""
+              end
+            ) %>
+
+          <div class="flex items-center justify-between">
+            <div>
+              <strong>{dgettext("settings", "Discord")}</strong>
+              <div class="text-sm text-base-content/70">
+                {dgettext("settings", "Sign in and link")}
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <%= if @user.discord_id do %>
+                <%= if provider_count > 1 do %>
+                  <button
+                    phx-click="unlink_provider"
+                    phx-value-provider="discord"
+                    class="btn btn-outline btn-sm"
+                  >
+                    {dgettext("settings", "Unlink")}
+                  </button>
+                <% else %>
+                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>
+                    {dgettext("settings", "Unlink")}
+                  </button>
+                <% end %>
+              <% else %>
+                <.link href={~p"/auth/discord"} class="btn btn-primary btn-sm">
+                  {dgettext("settings", "Link")}
+                </.link>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div>
+              <strong>{dgettext("settings", "Google")}</strong>
+              <div class="text-sm text-base-content/70">
+                {dgettext("settings", "Sign in and link")}
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <%= if @user.google_id do %>
+                <%= if provider_count > 1 do %>
+                  <button
+                    phx-click="unlink_provider"
+                    phx-value-provider="google"
+                    class="btn btn-outline btn-sm"
+                  >
+                    {dgettext("settings", "Unlink")}
+                  </button>
+                <% else %>
+                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>
+                    {dgettext("settings", "Unlink")}
+                  </button>
+                <% end %>
+              <% else %>
+                <.link href={~p"/auth/google"} class="btn btn-primary btn-sm">
+                  {dgettext("settings", "Link")}
+                </.link>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div>
+              <strong>{dgettext("settings", "Facebook")}</strong>
+              <div class="text-sm text-base-content/70">
+                {dgettext("settings", "Sign in and link")}
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <%= if @user.facebook_id do %>
+                <%= if provider_count > 1 do %>
+                  <button
+                    phx-click="unlink_provider"
+                    phx-value-provider="facebook"
+                    class="btn btn-outline btn-sm"
+                  >
+                    {dgettext("settings", "Unlink")}
+                  </button>
+                <% else %>
+                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>
+                    {dgettext("settings", "Unlink")}
+                  </button>
+                <% end %>
+              <% else %>
+                <.link href={~p"/auth/facebook"} class="btn btn-primary btn-sm">
+                  {dgettext("settings", "Link")}
+                </.link>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div>
+              <strong>{dgettext("settings", "Apple")}</strong>
+              <div class="text-sm text-base-content/70">
+                {dgettext("settings", "Sign in and link")}
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <%= if @user.apple_id do %>
+                <%= if provider_count > 1 do %>
+                  <button
+                    phx-click="unlink_provider"
+                    phx-value-provider="apple"
+                    class="btn btn-outline btn-sm"
+                  >
+                    {dgettext("settings", "Unlink")}
+                  </button>
+                <% else %>
+                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>
+                    {dgettext("settings", "Unlink")}
+                  </button>
+                <% end %>
+              <% else %>
+                <.link href={~p"/auth/apple"} class="btn btn-primary btn-sm">
+                  {dgettext("settings", "Link")}
+                </.link>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div>
+              <strong>{dgettext("settings", "Steam")}</strong>
+              <div class="text-sm text-base-content/70">
+                {dgettext("settings", "Sign in and link")}
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <%= if @user.steam_id do %>
+                <%= if provider_count > 1 do %>
+                  <button
+                    phx-click="unlink_provider"
+                    phx-value-provider="steam"
+                    class="btn btn-outline btn-sm"
+                  >
+                    {dgettext("settings", "Unlink")}
+                  </button>
+                <% else %>
+                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>
+                    {dgettext("settings", "Unlink")}
+                  </button>
+                <% end %>
+              <% else %>
+                <.link href={~p"/auth/steam"} class="btn btn-primary btn-sm">
+                  {dgettext("settings", "Link")}
+                </.link>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card bg-error/10 border-error p-4 rounded-lg mt-6">
+        <div class="font-semibold text-error">{dgettext("settings", "Danger Zone")}</div>
+        <div class="text-sm mt-2 text-base-content/80">
+          <p>
+            {dgettext(
+              "settings",
+              "Once you delete your account, there is no going back. Please be certain."
+            )}
+          </p>
+          <p class="mt-2">
+            {dgettext(
+              "settings",
+              "For information about what data is deleted and how to request deletion, see our"
+            )} <.link
+              href={~p"/data-deletion"}
+              class="link link-primary"
+            >{dgettext("settings", "Data Deletion Policy")}</.link>.
+          </p>
+        </div>
+        <div class="mt-4">
+          <button
+            phx-click="delete_user"
+            class="btn btn-error"
+            data-confirm={
+              dgettext(
+                "settings",
+                "Are you sure you want to delete your account? This action cannot be undone."
+              )
+            }
+          >
+            {dgettext("settings", "Delete Account")}
+          </button>
+        </div>
+      </div>
+      </div>
+
+      <%!-- Friends tab --%>
+      <div :if={@settings_tab == "friends"}>
     <!-- Friends panel (embedded) -->
       <div class="card bg-base-200 p-4 rounded-lg mt-6">
         <div class="flex items-center justify-between">
@@ -318,7 +548,7 @@ defmodule GameServerWeb.UserLive.Settings do
             <div class="text-xs text-base-content/70 mb-2">
               {dgettext("settings", "Search results")}
             </div>
-            
+
     <!-- Render search results as a responsive grid so multiple items show side-by-side -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
               <div :for={s <- @search_results} id={"search-" <> Integer.to_string(s.id)}>
@@ -357,7 +587,10 @@ defmodule GameServerWeb.UserLive.Settings do
           </div>
         </div>
       </div>
+      </div>
 
+      <%!-- Data tab --%>
+      <div :if={@settings_tab == "data"}>
       <div class="card bg-base-200 p-4 rounded-lg mt-6">
         <div class="flex items-center justify-between">
           <div>
@@ -443,7 +676,10 @@ defmodule GameServerWeb.UserLive.Settings do
           </button>
         </div>
       </div>
+      </div>
 
+      <%!-- Notifications tab --%>
+      <div :if={@settings_tab == "notifications"}>
       <%!-- Notifications section --%>
       <div class="card bg-base-200 p-4 rounded-lg mt-6">
         <div class="flex items-center justify-between">
@@ -521,7 +757,10 @@ defmodule GameServerWeb.UserLive.Settings do
           </div>
         <% end %>
       </div>
+      </div>
 
+      <%!-- Groups tab --%>
+      <div :if={@settings_tab == "groups"}>
       <%!-- Groups section --%>
       <div class="card bg-base-200 p-4 rounded-lg mt-6">
         <div class="flex items-center justify-between">
@@ -609,7 +848,7 @@ defmodule GameServerWeb.UserLive.Settings do
                 phx-submit="group_save_edit"
                 class="space-y-3"
               >
-                <.input field={@group_edit_form[:name]} label={gettext("Name")} type="text" />
+                <.input field={@group_edit_form[:title]} label={gettext("Name")} type="text" />
                 <.input
                   field={@group_edit_form[:description]}
                   label={gettext("Description")}
@@ -644,7 +883,7 @@ defmodule GameServerWeb.UserLive.Settings do
             <% else %>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="space-y-2 text-sm">
-                  <div><strong>{dgettext("settings", "Name:")}</strong> {@group_detail.name}</div>
+                  <div><strong>{dgettext("settings", "Name:")}</strong> {@group_detail.title}</div>
                   <div>
                     <strong>{dgettext("settings", "Description:")}</strong> {@group_detail.description ||
                       "-"}
@@ -1353,203 +1592,6 @@ defmodule GameServerWeb.UserLive.Settings do
           <% end %>
         <% end %>
       </div>
-
-      <div class="card bg-base-200 p-4 rounded-lg">
-        <div class="font-semibold">{dgettext("settings", "Linked Accounts")}</div>
-        <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <% provider_count =
-            Enum.count(
-              [@user.discord_id, @user.apple_id, @user.google_id, @user.facebook_id, @user.steam_id],
-              fn v ->
-                v && v != ""
-              end
-            ) %>
-
-          <div class="flex items-center justify-between">
-            <div>
-              <strong>{dgettext("settings", "Discord")}</strong>
-              <div class="text-sm text-base-content/70">
-                {dgettext("settings", "Sign in and link")}
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <%= if @user.discord_id do %>
-                <%= if provider_count > 1 do %>
-                  <button
-                    phx-click="unlink_provider"
-                    phx-value-provider="discord"
-                    class="btn btn-outline btn-sm"
-                  >
-                    {dgettext("settings", "Unlink")}
-                  </button>
-                <% else %>
-                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>
-                    {dgettext("settings", "Unlink")}
-                  </button>
-                <% end %>
-              <% else %>
-                <.link href={~p"/auth/discord"} class="btn btn-primary btn-sm">
-                  {dgettext("settings", "Link")}
-                </.link>
-              <% end %>
-            </div>
-          </div>
-
-          <div class="flex items-center justify-between">
-            <div>
-              <strong>{dgettext("settings", "Google")}</strong>
-              <div class="text-sm text-base-content/70">
-                {dgettext("settings", "Sign in and link")}
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <%= if @user.google_id do %>
-                <%= if provider_count > 1 do %>
-                  <button
-                    phx-click="unlink_provider"
-                    phx-value-provider="google"
-                    class="btn btn-outline btn-sm"
-                  >
-                    {dgettext("settings", "Unlink")}
-                  </button>
-                <% else %>
-                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>
-                    {dgettext("settings", "Unlink")}
-                  </button>
-                <% end %>
-              <% else %>
-                <.link href={~p"/auth/google"} class="btn btn-primary btn-sm">
-                  {dgettext("settings", "Link")}
-                </.link>
-              <% end %>
-            </div>
-          </div>
-
-          <div class="flex items-center justify-between">
-            <div>
-              <strong>{dgettext("settings", "Facebook")}</strong>
-              <div class="text-sm text-base-content/70">
-                {dgettext("settings", "Sign in and link")}
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <%= if @user.facebook_id do %>
-                <%= if provider_count > 1 do %>
-                  <button
-                    phx-click="unlink_provider"
-                    phx-value-provider="facebook"
-                    class="btn btn-outline btn-sm"
-                  >
-                    {dgettext("settings", "Unlink")}
-                  </button>
-                <% else %>
-                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>
-                    {dgettext("settings", "Unlink")}
-                  </button>
-                <% end %>
-              <% else %>
-                <.link href={~p"/auth/facebook"} class="btn btn-primary btn-sm">
-                  {dgettext("settings", "Link")}
-                </.link>
-              <% end %>
-            </div>
-          </div>
-
-          <div class="flex items-center justify-between">
-            <div>
-              <strong>{dgettext("settings", "Apple")}</strong>
-              <div class="text-sm text-base-content/70">
-                {dgettext("settings", "Sign in and link")}
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <%= if @user.apple_id do %>
-                <%= if provider_count > 1 do %>
-                  <button
-                    phx-click="unlink_provider"
-                    phx-value-provider="apple"
-                    class="btn btn-outline btn-sm"
-                  >
-                    {dgettext("settings", "Unlink")}
-                  </button>
-                <% else %>
-                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>
-                    {dgettext("settings", "Unlink")}
-                  </button>
-                <% end %>
-              <% else %>
-                <.link href={~p"/auth/apple"} class="btn btn-primary btn-sm">
-                  {dgettext("settings", "Link")}
-                </.link>
-              <% end %>
-            </div>
-          </div>
-
-          <div class="flex items-center justify-between">
-            <div>
-              <strong>{dgettext("settings", "Steam")}</strong>
-              <div class="text-sm text-base-content/70">
-                {dgettext("settings", "Sign in and link")}
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <%= if @user.steam_id do %>
-                <%= if provider_count > 1 do %>
-                  <button
-                    phx-click="unlink_provider"
-                    phx-value-provider="steam"
-                    class="btn btn-outline btn-sm"
-                  >
-                    {dgettext("settings", "Unlink")}
-                  </button>
-                <% else %>
-                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>
-                    {dgettext("settings", "Unlink")}
-                  </button>
-                <% end %>
-              <% else %>
-                <.link href={~p"/auth/steam"} class="btn btn-primary btn-sm">
-                  {dgettext("settings", "Link")}
-                </.link>
-              <% end %>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card bg-error/10 border-error p-4 rounded-lg">
-        <div class="font-semibold text-error">{dgettext("settings", "Danger Zone")}</div>
-        <div class="text-sm mt-2 text-base-content/80">
-          <p>
-            {dgettext(
-              "settings",
-              "Once you delete your account, there is no going back. Please be certain."
-            )}
-          </p>
-          <p class="mt-2">
-            {dgettext(
-              "settings",
-              "For information about what data is deleted and how to request deletion, see our"
-            )} <.link
-              href={~p"/data-deletion"}
-              class="link link-primary"
-            >{dgettext("settings", "Data Deletion Policy")}</.link>.
-          </p>
-        </div>
-        <div class="mt-4">
-          <button
-            phx-click="delete_user"
-            class="btn btn-error"
-            data-confirm={
-              dgettext(
-                "settings",
-                "Are you sure you want to delete your account? This action cannot be undone."
-              )
-            }
-          >
-            {dgettext("settings", "Delete Account")}
-          </button>
-        </div>
       </div>
     </Layouts.app>
     """
@@ -1581,6 +1623,7 @@ defmodule GameServerWeb.UserLive.Settings do
     socket =
       socket
       |> assign(:page_title, dgettext("settings", "Settings"))
+      |> assign(:settings_tab, "account")
       |> assign(:current_email, user.email)
       |> assign(:user, user)
       |> assign(:email_form, to_form(email_changeset))
@@ -1693,6 +1736,9 @@ defmodule GameServerWeb.UserLive.Settings do
     user = get_user_from_scope(socket.assigns)
 
     case {event, params} do
+      {"settings_tab", %{"tab" => tab}} when tab in ~w(account friends data notifications groups) ->
+        {:noreply, assign(socket, :settings_tab, tab)}
+
       {"validate_email", %{"user" => user_params}} ->
         email_form =
           user

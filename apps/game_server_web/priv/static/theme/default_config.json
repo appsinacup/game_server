@@ -1,11 +1,13 @@
 {
   "title": "Gamend",
   "tagline": "Game + Backend",
-  "description": "Open source game server with authentication, users, lobbies, server scripting and admin portal",
+  "description": "Open source game server with authentication, users, lobbies, groups, friends, notifications, leaderboards, server scripting and admin portal",
   "css": "",
   "logo": "/images/logo.png",
   "banner": "/images/banner.png",
   "favicon": "/favicon.ico",
+  "changelog": "/CHANGELOG.md",
+  "blog": "/blog",
   "useful_links": [
     { "title": "Discord", "url": "https://discord.com/invite/56dMud8HYn", "icon": "hero-chat-bubble-left-ellipsis" },
     { "title": "Source Code", "url": "https://github.com/appsinacup/game_server", "icon": "hero-book-open" },
@@ -15,17 +17,11 @@
     { "title": "Godot SDK", "url": "https://godotengine.org/asset-library/asset/4510", "icon": "hero-cube" }
   ],
   "features": [
-    { "title": "Authentication", "description": "Supports multiple authentication methods: Email, Magic-link, Oauth, JWT and Session.", "icon": "hero-lock-closed" },
-    { "title": "Users", "description": "User registration, login, password reset, email verification, profile management.", "icon": "hero-users" },
-    { "title": "Lobbies", "description": "Create and manage game lobbies with customizable settings and real-time updates.", "icon": "hero-home" },
-    { "title": "Leaderboards", "description": "Server-authoritative leaderboards with configurable scoring, rankings, and time-based seasons.", "icon": "hero-trophy" },
-    { "title": "Key Value Storage", "description": "Store and retrieve custom user data key-value pairs.", "icon": "hero-paper-clip" },
-    { "title": "Server Scripting", "description": "Write custom game server logic using Elixir scripts.", "icon": "hero-computer-desktop" },
-    { "title": "Server Scheduling", "description": "Schedule and cron tasks for automated server operations.", "icon": "hero-clock" },
-    { "title": "Admin & Monitoring", "description": "Admin portal for managing users, lobbies, Sentry integration and monitoring server metrics.", "icon": "hero-shield-check" },
-    { "title": "UI & Theming", "description": "Built-in web UI for authentication, lobby management, and admin portal.", "icon": "hero-sparkles" },
-    { "title": "Persistence & Updates", "description": "Flexible storage options: SQLite (in memory) and PostgreSQL; and real-time data updates.", "icon": "hero-server-stack" },
-    { "title": "Caching & Performance", "description": "In-memory caching for improved performance and reduced database load.", "icon": "hero-forward" },
-    { "title": "Integrations", "description": "Easily integrate with popular services: Discord, Apple, Google, Facebook, Steam.", "icon": "hero-puzzle-piece" }
+    { "title": "Authentication & Users", "description": "Email, Magic-link, OAuth, JWT and Session. Register, login, reset password and verify email.", "icon": "hero-lock-closed" },
+    { "title": "Lobbies & Leaderboards", "description": "Customizable settings and real-time updates. Server-authoritative leaderboards.", "icon": "hero-home" },
+    { "title": "Friends & Groups", "description": "Request, block, and lists with real-time presence and notifications. Communities with public, private, and hidden visibility.", "icon": "hero-user-group" },
+    { "title": "Server Scripting & Server Scheduling", "description": "Server logic using Elixir scripts. Schedule tasks for automated server operations.", "icon": "hero-computer-desktop" },
+    { "title": "Persistence & Caching", "description": "SQLite (in memory) and PostgreSQL. In-memory or distributed caching.", "icon": "hero-server-stack" },
+    { "title": "Web & Integrations", "description": "Built-in web UI and admin portal. Supports Discord, Apple, Google, Facebook, Steam.", "icon": "hero-puzzle-piece" }
   ]
 }

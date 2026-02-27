@@ -33,12 +33,20 @@ defmodule GameServerWeb.Layouts do
     default: nil,
     doc: "the current [scope](https://hexdocs.pm/phoenix/scopes.html)"
 
+  attr :current_path, :string, default: nil, doc: "current request path for nav active state"
+
   slot :inner_block, required: true
 
   def app(assigns) do
     # Extract current path for locale switcher
+    # For LiveViews, current_path is set via attach_hook in mount_current_scope
+    # For controller-rendered pages, we get it from conn
     conn = Map.get(assigns, :conn)
-    current_path = if conn, do: conn.request_path, else: "/"
+
+    current_path =
+      Map.get(assigns, :current_path) ||
+        if(conn, do: conn.request_path, else: "/")
+
     current_query = if conn, do: conn.query_string, else: ""
     locale = Gettext.get_locale(GameServerWeb.Gettext)
 
@@ -77,12 +85,11 @@ defmodule GameServerWeb.Layouts do
           <%= if tagline && tagline != "" do %>
             <span class="text-sm opacity-60 ml-1">: {tagline}</span>
           <% end %>
-          <span class="text-xs opacity-60 ml-2">v{app_version()}</span>
         </a>
       </div>
       <div class="flex-none">
         <!-- Desktop Navigation -->
-        <ul class="hidden md:flex flex-row px-1 space-x-4 items-center">
+        <ul class="hidden lg:flex flex-row px-1 space-x-4 items-center">
           <%= if @current_scope do %>
             <li>
               <!-- profile icon that links to settings (shows discord avatar or initials) -->
@@ -104,24 +111,24 @@ defmodule GameServerWeb.Layouts do
               {profile_display_name(@current_scope.user)}
             </li>
             <li>
-              <.link href={~p"/users/settings"} class="btn btn-outline">{gettext("Settings")}</.link>
+              <.link href={~p"/users/settings"} class={["btn", if(String.starts_with?(@current_path, "/users/settings"), do: "btn-primary", else: "btn-outline")]}>{gettext("Settings")}</.link>
             </li>
             <li>
-              <.link href={~p"/leaderboards"} class="btn btn-outline">
+              <.link href={~p"/leaderboards"} class={["btn", if(String.starts_with?(@current_path, "/leaderboards"), do: "btn-primary", else: "btn-outline")]}>
                 {gettext("Leaderboards")}
               </.link>
             </li>
             <li>
-              <.link href={~p"/groups"} class="btn btn-outline">
+              <.link href={~p"/groups"} class={["btn", if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")]}>
                 {gettext("Groups")}
               </.link>
             </li>
             <%= if @current_scope && @current_scope.user.is_admin do %>
               <li>
-                <.link href={~p"/admin"} class="btn btn-outline">{gettext("Admin")}</.link>
+                <.link href={~p"/admin"} class={["btn", if(String.starts_with?(@current_path, "/admin"), do: "btn-primary", else: "btn-outline")]}>{gettext("Admin")}</.link>
               </li>
               <li>
-                <.link href={~p"/lobbies"} class="btn btn-outline">{gettext("Lobbies")}</.link>
+                <.link href={~p"/lobbies"} class={["btn", if(String.starts_with?(@current_path, "/lobbies"), do: "btn-primary", else: "btn-outline")]}>{gettext("Lobbies")}</.link>
               </li>
             <% end %>
             <li>
@@ -131,20 +138,20 @@ defmodule GameServerWeb.Layouts do
             </li>
           <% else %>
             <li>
-              <.link href={~p"/leaderboards"} class="btn btn-outline">
+              <.link href={~p"/leaderboards"} class={["btn", if(String.starts_with?(@current_path, "/leaderboards"), do: "btn-primary", else: "btn-outline")]}>
                 {gettext("Leaderboards")}
               </.link>
             </li>
             <li>
-              <.link href={~p"/groups"} class="btn btn-outline">
+              <.link href={~p"/groups"} class={["btn", if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")]}>
                 {gettext("Groups")}
               </.link>
             </li>
             <li>
-              <.link href={~p"/users/log-in"} class="btn btn-primary">{gettext("Log in")}</.link>
+              <.link href={~p"/users/log-in"} class={["btn", if(String.starts_with?(@current_path, "/users/log-in"), do: "btn-primary", else: "btn-outline")]}>{gettext("Log in")}</.link>
             </li>
             <li>
-              <.link href={~p"/users/register"} class="btn btn-accent">{gettext("Register")}</.link>
+              <.link href={~p"/users/register"} class={["btn", if(String.starts_with?(@current_path, "/users/register"), do: "btn-primary", else: "btn-outline")]}>{gettext("Register")}</.link>
             </li>
           <% end %>
           <li>
@@ -154,9 +161,9 @@ defmodule GameServerWeb.Layouts do
             <.theme_toggle />
           </li>
         </ul>
-        
+
     <!-- Mobile Navigation -->
-        <div class="md:hidden">
+        <div class="lg:hidden">
           <div class="dropdown dropdown-end">
             <button tabindex="0" class="btn btn-ghost btn-circle">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -184,17 +191,17 @@ defmodule GameServerWeb.Layouts do
                   </div>
                 </li>
                 <li>
-                  <a href={~p"/users/settings"} class="btn btn-outline">{gettext("Settings")}</a>
+                  <a href={~p"/users/settings"} class={["btn", if(String.starts_with?(@current_path, "/users/settings"), do: "btn-primary", else: "btn-outline")]}>{gettext("Settings")}</a>
                 </li>
                 <li>
-                  <a href={~p"/leaderboards"} class="btn btn-outline">{gettext("Leaderboards")}</a>
+                  <a href={~p"/leaderboards"} class={["btn", if(String.starts_with?(@current_path, "/leaderboards"), do: "btn-primary", else: "btn-outline")]}>{gettext("Leaderboards")}</a>
                 </li>
                 <li>
-                  <a href={~p"/groups"} class="btn btn-outline">{gettext("Groups")}</a>
+                  <a href={~p"/groups"} class={["btn", if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")]}>{gettext("Groups")}</a>
                 </li>
                 <%= if @current_scope && @current_scope.user.is_admin do %>
-                  <li><a href={~p"/lobbies"} class="btn btn-outline">{gettext("Lobbies")}</a></li>
-                  <li><a href={~p"/admin"} class="btn btn-outline">{gettext("Admin")}</a></li>
+                  <li><a href={~p"/lobbies"} class={["btn", if(String.starts_with?(@current_path, "/lobbies"), do: "btn-primary", else: "btn-outline")]}>{gettext("Lobbies")}</a></li>
+                  <li><a href={~p"/admin"} class={["btn", if(String.starts_with?(@current_path, "/admin"), do: "btn-primary", else: "btn-outline")]}>{gettext("Admin")}</a></li>
                 <% end %>
                 <li>
                   <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline">
@@ -202,15 +209,15 @@ defmodule GameServerWeb.Layouts do
                   </.link>
                 </li>
               <% else %>
-                <li><a href={~p"/users/log-in"} class="btn btn-outline">{gettext("Log in")}</a></li>
+                <li><a href={~p"/users/log-in"} class={["btn", if(String.starts_with?(@current_path, "/users/log-in"), do: "btn-primary", else: "btn-outline")]}>{gettext("Log in")}</a></li>
                 <li>
-                  <a href={~p"/users/register"} class="btn btn-outline">{gettext("Register")}</a>
+                  <a href={~p"/users/register"} class={["btn", if(String.starts_with?(@current_path, "/users/register"), do: "btn-primary", else: "btn-outline")]}>{gettext("Register")}</a>
                 </li>
                 <li>
-                  <a href={~p"/leaderboards"} class="btn btn-outline">{gettext("Leaderboards")}</a>
+                  <a href={~p"/leaderboards"} class={["btn", if(String.starts_with?(@current_path, "/leaderboards"), do: "btn-primary", else: "btn-outline")]}>{gettext("Leaderboards")}</a>
                 </li>
                 <li>
-                  <a href={~p"/groups"} class="btn btn-outline">{gettext("Groups")}</a>
+                  <a href={~p"/groups"} class={["btn", if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")]}>{gettext("Groups")}</a>
                 </li>
                 <li class="menu-title">
                   <div class="flex justify-end items-center w-full pr-2">
@@ -242,14 +249,14 @@ defmodule GameServerWeb.Layouts do
 
     <.flash_group flash={@flash} />
     <footer class="px-4 py-6 sm:px-6 lg:px-8 text-center text-sm text-base-content/70">
-      <div class="mx-auto max-w-2xl lg:max-w-4xl xl:max-w-6xl">
-        <a href={~p"/privacy"} class="hover:underline mr-4">{gettext("Privacy Policy")}</a>
-        <a href={~p"/terms"} class="hover:underline mr-4">{gettext("Terms and Conditions")}</a>
-        <a href={~p"/docs/setup"} class="hover:underline mr-4">{gettext("Guides")}</a>
+      <div class="mx-auto max-w-2xl lg:max-w-4xl xl:max-w-6xl flex flex-wrap justify-center gap-x-4 gap-y-1">
+        <a href={~p"/privacy"} class="hover:underline">{gettext("Privacy Policy")}</a>
+        <a href={~p"/terms"} class="hover:underline">{gettext("Terms and Conditions")}</a>
+        <a href={~p"/docs/setup"} class="hover:underline">{gettext("Guides")}</a>
         <a
           href={~p"/api/docs"}
           rel="noopener noreferrer"
-          class="hover:underline mr-4"
+          class="hover:underline"
         >
           {gettext("API Docs")}
         </a>
@@ -257,10 +264,12 @@ defmodule GameServerWeb.Layouts do
           href="https://appsinacup.github.io/game_server/"
           target="_blank"
           rel="noopener noreferrer"
-          class="hover:underline mr-4"
+          class="hover:underline"
         >
           {gettext("Elixir Docs")}
         </a>
+        <a href={~p"/changelog"} class="hover:underline">Changelog</a>
+        <a href={~p"/blog"} class="hover:underline">Blog</a>
         <span class="text-xs opacity-60">v{app_version()}</span>
       </div>
     </footer>

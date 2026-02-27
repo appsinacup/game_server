@@ -6,6 +6,8 @@
   "logo": "/images/logo.png",
   "banner": "/images/banner.png",
   "favicon": "/favicon.ico",
+  "changelog": "/CHANGELOG.md",
+  "blog": "/blog",
   "useful_links": [
     { "title": "Discord", "url": "https://discord.com/invite/56dMud8HYn", "icon": "hero-chat-bubble-left-ellipsis" },
     { "title": "Source Code", "url": "https://github.com/appsinacup/game_server", "icon": "hero-book-open" },

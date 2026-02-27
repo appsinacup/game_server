@@ -84,7 +84,8 @@ defmodule GameServerWeb.MixProject do
       {:guardian, "~> 2.3"},
       {:ueberauth_steam_strategy, "~> 0.1"},
       {:quantum, "~> 3.5"},
-      {:corsica, "~> 2.0"}
+      {:corsica, "~> 2.0"},
+      {:earmark, "~> 1.4"}
     ]
   end
 

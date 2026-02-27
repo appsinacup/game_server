@@ -6,7 +6,7 @@ defmodule GameServerWeb.UserLive.Confirmation do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.app flash={@flash} current_scope={@current_scope} current_path={assigns[:current_path]}>
       <div class="mx-auto max-w-sm">
         <div class="text-center">
           <.header>{dgettext("auth", "Welcome %{email}", email: @user.email)}</.header>

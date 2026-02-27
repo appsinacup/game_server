@@ -51,6 +51,7 @@ defmodule GameServerWeb.Router do
     get "/privacy", PageController, :privacy
     get "/data-deletion", PageController, :data_deletion
     get "/terms", PageController, :terms
+    get "/content/:type/*path", ContentAssetController, :show
   end
 
   scope "/api" do
@@ -307,6 +308,9 @@ defmodule GameServerWeb.Router do
       live "/users/log-in/:token", UserLive.Confirmation, :new
       get "/users/confirm/:token", UserSessionController, :confirm
       live "/docs/setup", PublicDocs, :index
+      live "/changelog", ChangelogLive, :index
+      live "/blog", BlogLive, :index
+      live "/blog/:slug", BlogLive, :show
       live "/auth/success", AuthSuccessLive, :index
     end
 

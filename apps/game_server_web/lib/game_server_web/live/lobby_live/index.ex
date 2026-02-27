@@ -643,7 +643,7 @@ defmodule GameServerWeb.LobbyLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.app flash={@flash} current_scope={@current_scope} current_path={assigns[:current_path]}>
       <div class="p-6">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
           <div class="card bg-base-200 p-4 rounded-lg">

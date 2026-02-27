@@ -1,0 +1,25 @@
+{
+  "title": "Gamend",
+  "tagline": "Juego + Backend",
+  "description": "Servidor de juegos de código abierto con autenticación, usuarios, salas, grupos, amigos, notificaciones, clasificaciones, scripting del servidor y portal de administración",
+  "css": "",
+  "logo": "/images/logo.png",
+  "banner": "/images/banner.png",
+  "favicon": "/favicon.ico",
+  "useful_links": [
+    { "title": "Discord", "url": "https://discord.com/invite/56dMud8HYn", "icon": "hero-chat-bubble-left-ellipsis" },
+    { "title": "Código fuente", "url": "https://github.com/appsinacup/game_server", "icon": "hero-book-open" },
+    { "title": "Guías", "url": "/docs/setup", "icon": "hero-academic-cap" },
+    { "title": "Documentación API", "url": "/api/docs", "icon": "hero-book-open" },
+    { "title": "SDK JS", "url": "https://www.npmjs.com/package/@ughuuu/game_server", "icon": "hero-puzzle-piece" },
+    { "title": "SDK Godot", "url": "https://godotengine.org/asset-library/asset/4510", "icon": "hero-cube" }
+  ],
+  "features": [
+    { "title": "Autenticación y usuarios", "description": "Correo, enlace mágico, OAuth, JWT y sesión. Registro, inicio de sesión, recuperación de contraseña y verificación de correo.", "icon": "hero-lock-closed" },
+    { "title": "Salas y clasificaciones", "description": "Configuraciones personalizables y actualizaciones en tiempo real. Clasificaciones con autoridad del servidor.", "icon": "hero-home" },
+    { "title": "Amigos y grupos", "description": "Solicitudes, bloqueo y listas con presencia en tiempo real y notificaciones. Comunidades con visibilidad pública, privada y oculta.", "icon": "hero-user-group" },
+    { "title": "Scripting y programación del servidor", "description": "Lógica del servidor usando scripts en Elixir. Programa tareas para operaciones automatizadas.", "icon": "hero-computer-desktop" },
+    { "title": "Persistencia y caché", "description": "SQLite (en memoria) y PostgreSQL. Caché en memoria o distribuida.", "icon": "hero-server-stack" },
+    { "title": "Web e integraciones", "description": "UI web integrada y portal de administración. Compatible con Discord, Apple, Google, Facebook, Steam.", "icon": "hero-puzzle-piece" }
+  ]
+}

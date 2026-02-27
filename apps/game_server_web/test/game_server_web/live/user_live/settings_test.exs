@@ -40,8 +40,10 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       logged_conn = conn |> log_in_user(a)
 
-      {:ok, view, html} = live(logged_conn, ~p"/users/settings")
-      assert html =~ "Friends"
+      {:ok, view, _html} = live(logged_conn, ~p"/users/settings")
+
+      # Switch to friends tab
+      view |> element("button[phx-click=\"settings_tab\"][phx-value-tab=\"friends\"]") |> render_click()
 
       # incoming should be present
       assert render(view) =~ "Incoming Requests"
@@ -69,6 +71,9 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       {:ok, view, _html} = live(logged_conn, ~p"/users/settings")
 
+      # Switch to friends tab
+      view |> element("button[phx-click=\"settings_tab\"][phx-value-tab=\"friends\"]") |> render_click()
+
       f =
         Repo.one(
           from fr in Friends.Friendship,
@@ -90,6 +95,9 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       logged_conn = conn |> log_in_user(a)
       {:ok, view, _html} = live(logged_conn, ~p"/users/settings")
+
+      # Switch to friends tab
+      view |> element("button[phx-click=\"settings_tab\"][phx-value-tab=\"friends\"]") |> render_click()
 
       f =
         Repo.one(
@@ -225,6 +233,9 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       {:ok, lv, _html} = live(conn, ~p"/users/settings")
 
+      # Switch to friends tab
+      lv |> element("button[phx-click=\"settings_tab\"][phx-value-tab=\"friends\"]") |> render_click()
+
       # find search form and trigger change
       search_el = element(lv, "form[phx-change=\"search_users\"]")
       render_change(search_el, %{"q" => "friend-search"})
@@ -266,6 +277,9 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       end)
 
       {:ok, lv, _html} = live(conn |> log_in_user(a), ~p"/users/settings")
+
+      # Switch to friends tab
+      lv |> element("button[phx-click=\"settings_tab\"][phx-value-tab=\"friends\"]") |> render_click()
 
       rendered = render(lv)
       # total_count 30 should be displayed and total_pages should be 2 for default page_size 25

@@ -32,7 +32,7 @@ defmodule GameServerWeb.AdminLive.Lobbies do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.app flash={@flash} current_scope={@current_scope} current_path={assigns[:current_path]}>
       <div class="space-y-6">
         <.link navigate={~p"/admin"} class="btn btn-outline mb-4">← Back to Admin</.link>
 

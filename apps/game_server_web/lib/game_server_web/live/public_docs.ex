@@ -9,7 +9,7 @@ defmodule GameServerWeb.PublicDocs do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.app flash={@flash} current_scope={@current_scope} current_path={assigns[:current_path]}>
       <div class="py-8 px-6 max-w-5xl mx-auto space-y-6">
         <.header>
           {"Setup & Guides"}

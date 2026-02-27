@@ -59,7 +59,7 @@ defmodule GameServerWeb.AuthSuccessLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.app flash={@flash} current_scope={@current_scope} current_path={assigns[:current_path]}>
       <div class="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-md w-full">
           <div class="rounded-box bg-base-100 border border-base-200 p-8 shadow-md space-y-8">

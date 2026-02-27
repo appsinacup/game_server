@@ -298,14 +298,27 @@ defmodule GameServerWeb.UserAuth do
   end
 
   defp mount_current_scope(socket, session) do
-    Phoenix.Component.assign_new(socket, :current_scope, fn ->
-      {user, _} =
-        if user_token = session["user_token"] do
-          Accounts.get_user_by_session_token(user_token)
-        end || {nil, nil}
+    socket =
+      Phoenix.Component.assign_new(socket, :current_scope, fn ->
+        {user, _} =
+          if user_token = session["user_token"] do
+            Accounts.get_user_by_session_token(user_token)
+          end || {nil, nil}
 
-      Scope.for_user(user)
-    end)
+        Scope.for_user(user)
+      end)
+
+    # Attach hook to capture current_path for nav active state.
+    # Only works for views mounted via live/3 in the router.
+    try do
+      Phoenix.LiveView.attach_hook(socket, :set_current_path, :handle_params, fn
+        _params, uri, socket ->
+          %URI{path: path} = URI.parse(uri)
+          {:cont, Phoenix.Component.assign(socket, :current_path, path || "/")}
+      end)
+    rescue
+      RuntimeError -> socket
+    end
   end
 
   @doc "Returns the path to redirect to after log in."

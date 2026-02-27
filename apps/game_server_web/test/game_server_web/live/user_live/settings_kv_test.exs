@@ -14,15 +14,19 @@ defmodule GameServerWeb.UserLive.SettingsKVTest do
     {:ok, _} = KV.put("my-kv:other", %{v: 2}, %{"m" => "b"}, user_id: other.id)
     {:ok, _} = KV.put("my-kv:global", %{v: 3}, %{"m" => "g"})
 
-    {:ok, _lv, html} =
+    {:ok, lv, _html} =
       conn
       |> log_in_user(user)
       |> live(~p"/users/settings")
 
-    assert html =~ "Data"
-    assert html =~ "my-kv:own"
-    refute html =~ "my-kv:other"
-    refute html =~ "my-kv:global"
+    # Switch to data tab
+    lv |> element("button[phx-click=\"settings_tab\"][phx-value-tab=\"data\"]") |> render_click()
+
+    rendered = render(lv)
+    assert rendered =~ "Data"
+    assert rendered =~ "my-kv:own"
+    refute rendered =~ "my-kv:other"
+    refute rendered =~ "my-kv:global"
   end
 
   test "user kv filter works", %{conn: conn} do
@@ -35,6 +39,9 @@ defmodule GameServerWeb.UserLive.SettingsKVTest do
       conn
       |> log_in_user(user)
       |> live(~p"/users/settings")
+
+    # Switch to data tab
+    lv |> element("button[phx-click=\"settings_tab\"][phx-value-tab=\"data\"]") |> render_click()
 
     _ = render_change(lv, :kv_filters_change, %{"filters" => %{"key" => ":aaa"}})
 
