@@ -285,6 +285,7 @@ defmodule GameServer.Accounts do
     |> Ecto.Changeset.change(last_seen_at: now)
     |> Repo.update()
 
+    invalidate_users_stats_cache()
     :ok
   end
 
