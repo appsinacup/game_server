@@ -635,6 +635,15 @@ Checks whether the user is in sudo mode.
 The user is in sudo mode when the last authentication was done no further
 than 20 minutes ago. The limit can be given as second argument in minutes.
 
+# `touch_last_seen`
+
+```elixir
+@spec touch_last_seen(GameServer.Accounts.User.t()) :: :ok
+```
+
+Updates `last_seen_at` to now for the given user. Fire-and-forget — errors are ignored.
+Call on login (session or JWT) to track activity.
+
 # `unlink_device_id`
 
 ```elixir
