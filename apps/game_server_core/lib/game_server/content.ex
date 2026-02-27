@@ -178,10 +178,15 @@ defmodule GameServer.Content do
   end
 
   defp resolve_path(path) do
-    expanded = Path.expand(path, File.cwd!())
+    # Strip leading "/" since config paths like "/blog" should be relative
+    # to the project root, not absolute filesystem paths (matching the
+    # convention used for logo/banner which are web URL paths).
+    clean = String.trim_leading(path, "/")
+    expanded = Path.expand(clean, File.cwd!())
 
     cond do
       File.exists?(expanded) -> expanded
+      File.exists?(clean) -> Path.expand(clean)
       File.exists?(path) -> Path.expand(path)
       true -> nil
     end
