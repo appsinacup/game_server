@@ -48,12 +48,26 @@ defmodule GameServerWeb.SwaggerHTML do
       <body>
         <div class="sdk-bar">
           <span>SDKs:</span>
-          <a href="https://www.npmjs.com/package/@ughuuu/game_server" target="_blank" rel="noopener" class="js-sdk">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 0v24h24V0H0zm6.672 20.4H3.6V6.6h3.072v13.8zm6.528 0H10.2V6.6h6.6v10.2h-3.6v3.6zm7.2 0h-3.072V6.6H20.4v13.8zM13.8 9.672v4.128h-3.6V9.672h3.6z"/></svg>
+          <a
+            href="https://www.npmjs.com/package/@ughuuu/game_server"
+            target="_blank"
+            rel="noopener"
+            class="js-sdk"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M0 0v24h24V0H0zm6.672 20.4H3.6V6.6h3.072v13.8zm6.528 0H10.2V6.6h6.6v10.2h-3.6v3.6zm7.2 0h-3.072V6.6H20.4v13.8zM13.8 9.672v4.128h-3.6V9.672h3.6z" />
+            </svg>
             JS SDK
           </a>
-          <a href="https://godotengine.org/asset-library/asset/4510" target="_blank" rel="noopener" class="godot-sdk">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          <a
+            href="https://godotengine.org/asset-library/asset/4510"
+            target="_blank"
+            rel="noopener"
+            class="godot-sdk"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
             Godot SDK
           </a>
         </div>

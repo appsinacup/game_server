@@ -1300,6 +1300,23 @@ defmodule GameServer.Accounts do
 
 
   @doc ~S"""
+    Updates `last_seen_at` to now for the given user. Fire-and-forget — errors are ignored.
+    Call on login (session or JWT) to track activity.
+    
+  """
+  @spec touch_last_seen(GameServer.Accounts.User.t()) :: :ok
+  def touch_last_seen(_user) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        :ok
+
+      _ ->
+        raise "GameServer.Accounts.touch_last_seen/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Unlink the device_id from a user's account.
     
     Returns {:ok, user} when successful or {:error, reason}.

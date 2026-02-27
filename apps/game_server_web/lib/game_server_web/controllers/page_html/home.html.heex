@@ -3,17 +3,17 @@
   <% provider_theme = GameServer.Theme.JSONConfig.get_theme(locale) || %{} %>
   <% useful_links = Map.get(provider_theme, "useful_links", []) %>
   <% features = Map.get(provider_theme, "features", []) %>
-  <%
-    # Compute dark variant paths for hero and banner images
-    static_dir = Application.app_dir(:game_server_web, "priv/static")
+  <% # Compute dark variant paths for hero and banner images
+  static_dir = Application.app_dir(:game_server_web, "priv/static")
 
-    fullscreen_dark_exists? = File.exists?(Path.join(static_dir, "images/fullscreen_dark.png"))
+  fullscreen_dark_exists? = File.exists?(Path.join(static_dir, "images/fullscreen_dark.png"))
 
-    banner_path = Map.get(provider_theme, "banner", "")
-    banner_dark_path = String.replace(banner_path, ~r/\.(\w+)$/, "_dark.\\1")
-    banner_dark_exists? = banner_dark_path != "" and
-      File.exists?(Path.join(static_dir, String.trim_leading(banner_dark_path, "/")))
-  %>
+  banner_path = Map.get(provider_theme, "banner", "")
+  banner_dark_path = String.replace(banner_path, ~r/\.(\w+)$/, "_dark.\\1")
+
+  banner_dark_exists? =
+    banner_dark_path != "" and
+      File.exists?(Path.join(static_dir, String.trim_leading(banner_dark_path, "/"))) %>
 
   <%!-- Full-bleed hero section — breaks out of the layout container, extends behind navbar --%>
   <div class="relative w-screen left-1/2 -translate-x-1/2 -mt-20">
@@ -35,7 +35,8 @@
         />
       <% end %>
       <%!-- Minimal gradient overlay for text readability --%>
-      <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/5"></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/5">
+      </div>
 
       <%!-- Hero content overlay — centered with arrow pinned at bottom --%>
       <div class="relative z-10 flex flex-col items-center h-screen px-6 sm:px-8 lg:px-12">
@@ -73,19 +74,25 @@
                 <span class="text-lg sm:text-xl font-bold text-base-content [[data-theme=dark]_&]:text-white">
                   {@stats.users_active_1d}
                 </span>
-                <span class="text-xs text-base-content/70 [[data-theme=dark]_&]:text-white/80">{gettext("Daily")}</span>
+                <span class="text-xs text-base-content/70 [[data-theme=dark]_&]:text-white/80">
+                  {gettext("Daily")}
+                </span>
               </div>
               <div class="flex flex-col items-center rounded-lg bg-base-100/40 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/100 [[data-theme=dark]_&]:border-white/20 px-3 py-1.5 sm:px-4 sm:py-2 transition hover:bg-base-100/60 [[data-theme=dark]_&]:hover:bg-white/20 hover:scale-[1.02]">
                 <span class="text-lg sm:text-xl font-bold text-base-content [[data-theme=dark]_&]:text-white">
                   {@stats.users_active_7d}
                 </span>
-                <span class="text-xs text-base-content/70 [[data-theme=dark]_&]:text-white/80">{gettext("Weekly")}</span>
+                <span class="text-xs text-base-content/70 [[data-theme=dark]_&]:text-white/80">
+                  {gettext("Weekly")}
+                </span>
               </div>
               <div class="flex flex-col items-center rounded-lg bg-base-100/40 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/100 [[data-theme=dark]_&]:border-white/20 px-3 py-1.5 sm:px-4 sm:py-2 transition hover:bg-base-100/60 [[data-theme=dark]_&]:hover:bg-white/20 hover:scale-[1.02]">
                 <span class="text-lg sm:text-xl font-bold text-base-content [[data-theme=dark]_&]:text-white">
                   {@stats.users_active_30d}
                 </span>
-                <span class="text-xs text-base-content/70 [[data-theme=dark]_&]:text-white/80">{gettext("Monthly")}</span>
+                <span class="text-xs text-base-content/70 [[data-theme=dark]_&]:text-white/80">
+                  {gettext("Monthly")}
+                </span>
               </div>
             </div>
           </div>
@@ -100,7 +107,10 @@
                   target={if link["external"], do: "_blank"}
                   rel={if link["external"], do: "noopener noreferrer"}
                 >
-                  <.dynamic_icon name={link["icon"]} class="size-5 text-base-content/70 [[data-theme=dark]_&]:text-white/80 shrink-0" />
+                  <.dynamic_icon
+                    name={link["icon"]}
+                    class="size-5 text-base-content/70 [[data-theme=dark]_&]:text-white/80 shrink-0"
+                  />
                   <span class="truncate">{link["title"]}</span>
                 </a>
               <% end %>

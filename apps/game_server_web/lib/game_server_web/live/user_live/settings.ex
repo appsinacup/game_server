@@ -75,1523 +75,1547 @@ defmodule GameServerWeb.UserLive.Settings do
 
       <%!-- Account tab --%>
       <div :if={@settings_tab == "account"}>
-      <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="card bg-base-200 p-4 rounded-lg">
-          <div class="font-semibold">{dgettext("settings", "Account details")}</div>
-          <div class="text-sm mt-2 space-y-1 text-base-content/80">
-            <div><strong>{dgettext("settings", "ID:")}</strong> {@user.id}</div>
-            <div><strong>{dgettext("settings", "Email:")}</strong> {@current_email}</div>
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="card bg-base-200 p-4 rounded-lg">
+            <div class="font-semibold">{dgettext("settings", "Account details")}</div>
+            <div class="text-sm mt-2 space-y-1 text-base-content/80">
+              <div><strong>{dgettext("settings", "ID:")}</strong> {@user.id}</div>
+              <div><strong>{dgettext("settings", "Email:")}</strong> {@current_email}</div>
+
+              <.form
+                for={@display_form}
+                id="display_form"
+                phx-change="validate_display_name"
+                phx-submit="update_display_name"
+              >
+                <.input
+                  field={@display_form[:display_name]}
+                  type="text"
+                  label={dgettext("settings", "Display name")}
+                  required
+                />
+                <.button variant="primary" phx-disable-with={gettext("Saving...")}>
+                  {gettext("Save")}
+                </.button>
+              </.form>
+
+              <.form
+                for={@email_form}
+                id="email_form"
+                phx-submit="update_email"
+                phx-change="validate_email"
+              >
+                <.input
+                  field={@email_form[:email]}
+                  type="email"
+                  label={gettext("Email")}
+                  autocomplete="username"
+                  required
+                />
+                <.button variant="primary" phx-disable-with={dgettext("settings", "Changing...")}>
+                  {dgettext("settings", "Change Email")}
+                </.button>
+              </.form>
+            </div>
+          </div>
+
+          <div class="card bg-base-200 p-4 rounded-lg">
+            <div class="font-semibold">{dgettext("settings", "Metadata")}</div>
+            <div class="text-sm mt-2 font-mono text-xs bg-base-300 p-3 rounded-lg overflow-auto text-base-content/80">
+              <pre phx-no-curly-interpolation><%= Jason.encode!(@user.metadata || %{}, pretty: true) %></pre>
+            </div>
 
             <.form
-              for={@display_form}
-              id="display_form"
-              phx-change="validate_display_name"
-              phx-submit="update_display_name"
+              for={@password_form}
+              id="password_form"
+              action={~p"/users/update-password"}
+              method="post"
+              phx-change="validate_password"
+              phx-submit="update_password"
+              phx-trigger-action={@trigger_submit}
             >
+              <input
+                name={@password_form[:email].name}
+                type="hidden"
+                id="hidden_user_email"
+                autocomplete="username"
+                value={@current_email}
+              />
               <.input
-                field={@display_form[:display_name]}
-                type="text"
-                label={dgettext("settings", "Display name")}
+                field={@password_form[:password]}
+                type="password"
+                label={dgettext("settings", "New password")}
+                autocomplete="new-password"
                 required
+              />
+              <.input
+                field={@password_form[:password_confirmation]}
+                type="password"
+                label={dgettext("settings", "Confirm new password")}
+                autocomplete="new-password"
               />
               <.button variant="primary" phx-disable-with={gettext("Saving...")}>
                 {gettext("Save")}
               </.button>
             </.form>
-
-            <.form
-              for={@email_form}
-              id="email_form"
-              phx-submit="update_email"
-              phx-change="validate_email"
-            >
-              <.input
-                field={@email_form[:email]}
-                type="email"
-                label={gettext("Email")}
-                autocomplete="username"
-                required
-              />
-              <.button variant="primary" phx-disable-with={dgettext("settings", "Changing...")}>
-                {dgettext("settings", "Change Email")}
-              </.button>
-            </.form>
           </div>
         </div>
 
-        <div class="card bg-base-200 p-4 rounded-lg">
-          <div class="font-semibold">{dgettext("settings", "Metadata")}</div>
-          <div class="text-sm mt-2 font-mono text-xs bg-base-300 p-3 rounded-lg overflow-auto text-base-content/80">
-            <pre phx-no-curly-interpolation><%= Jason.encode!(@user.metadata || %{}, pretty: true) %></pre>
-          </div>
+        <div class="card bg-base-200 p-4 rounded-lg mt-6">
+          <div class="font-semibold">{dgettext("settings", "Linked Accounts")}</div>
+          <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <% provider_count =
+              Enum.count(
+                [
+                  @user.discord_id,
+                  @user.apple_id,
+                  @user.google_id,
+                  @user.facebook_id,
+                  @user.steam_id
+                ],
+                fn v ->
+                  v && v != ""
+                end
+              ) %>
 
-          <.form
-            for={@password_form}
-            id="password_form"
-            action={~p"/users/update-password"}
-            method="post"
-            phx-change="validate_password"
-            phx-submit="update_password"
-            phx-trigger-action={@trigger_submit}
-          >
-            <input
-              name={@password_form[:email].name}
-              type="hidden"
-              id="hidden_user_email"
-              autocomplete="username"
-              value={@current_email}
-            />
-            <.input
-              field={@password_form[:password]}
-              type="password"
-              label={dgettext("settings", "New password")}
-              autocomplete="new-password"
-              required
-            />
-            <.input
-              field={@password_form[:password_confirmation]}
-              type="password"
-              label={dgettext("settings", "Confirm new password")}
-              autocomplete="new-password"
-            />
-            <.button variant="primary" phx-disable-with={gettext("Saving...")}>
-              {gettext("Save")}
-            </.button>
-          </.form>
-        </div>
-      </div>
-
-      <div class="card bg-base-200 p-4 rounded-lg mt-6">
-        <div class="font-semibold">{dgettext("settings", "Linked Accounts")}</div>
-        <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <% provider_count =
-            Enum.count(
-              [@user.discord_id, @user.apple_id, @user.google_id, @user.facebook_id, @user.steam_id],
-              fn v ->
-                v && v != ""
-              end
-            ) %>
-
-          <div class="flex items-center justify-between">
-            <div>
-              <strong>{dgettext("settings", "Discord")}</strong>
-              <div class="text-sm text-base-content/70">
-                {dgettext("settings", "Sign in and link")}
+            <div class="flex items-center justify-between">
+              <div>
+                <strong>{dgettext("settings", "Discord")}</strong>
+                <div class="text-sm text-base-content/70">
+                  {dgettext("settings", "Sign in and link")}
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <%= if @user.discord_id do %>
+                  <%= if provider_count > 1 do %>
+                    <button
+                      phx-click="unlink_provider"
+                      phx-value-provider="discord"
+                      class="btn btn-outline btn-sm"
+                    >
+                      {dgettext("settings", "Unlink")}
+                    </button>
+                  <% else %>
+                    <button class="btn btn-disabled btn-sm" disabled aria-disabled>
+                      {dgettext("settings", "Unlink")}
+                    </button>
+                  <% end %>
+                <% else %>
+                  <.link href={~p"/auth/discord"} class="btn btn-primary btn-sm">
+                    {dgettext("settings", "Link")}
+                  </.link>
+                <% end %>
               </div>
             </div>
-            <div class="flex items-center gap-2">
-              <%= if @user.discord_id do %>
-                <%= if provider_count > 1 do %>
-                  <button
-                    phx-click="unlink_provider"
-                    phx-value-provider="discord"
-                    class="btn btn-outline btn-sm"
-                  >
-                    {dgettext("settings", "Unlink")}
-                  </button>
-                <% else %>
-                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>
-                    {dgettext("settings", "Unlink")}
-                  </button>
-                <% end %>
-              <% else %>
-                <.link href={~p"/auth/discord"} class="btn btn-primary btn-sm">
-                  {dgettext("settings", "Link")}
-                </.link>
-              <% end %>
-            </div>
-          </div>
 
-          <div class="flex items-center justify-between">
-            <div>
-              <strong>{dgettext("settings", "Google")}</strong>
-              <div class="text-sm text-base-content/70">
-                {dgettext("settings", "Sign in and link")}
+            <div class="flex items-center justify-between">
+              <div>
+                <strong>{dgettext("settings", "Google")}</strong>
+                <div class="text-sm text-base-content/70">
+                  {dgettext("settings", "Sign in and link")}
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <%= if @user.google_id do %>
+                  <%= if provider_count > 1 do %>
+                    <button
+                      phx-click="unlink_provider"
+                      phx-value-provider="google"
+                      class="btn btn-outline btn-sm"
+                    >
+                      {dgettext("settings", "Unlink")}
+                    </button>
+                  <% else %>
+                    <button class="btn btn-disabled btn-sm" disabled aria-disabled>
+                      {dgettext("settings", "Unlink")}
+                    </button>
+                  <% end %>
+                <% else %>
+                  <.link href={~p"/auth/google"} class="btn btn-primary btn-sm">
+                    {dgettext("settings", "Link")}
+                  </.link>
+                <% end %>
               </div>
             </div>
-            <div class="flex items-center gap-2">
-              <%= if @user.google_id do %>
-                <%= if provider_count > 1 do %>
-                  <button
-                    phx-click="unlink_provider"
-                    phx-value-provider="google"
-                    class="btn btn-outline btn-sm"
-                  >
-                    {dgettext("settings", "Unlink")}
-                  </button>
-                <% else %>
-                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>
-                    {dgettext("settings", "Unlink")}
-                  </button>
-                <% end %>
-              <% else %>
-                <.link href={~p"/auth/google"} class="btn btn-primary btn-sm">
-                  {dgettext("settings", "Link")}
-                </.link>
-              <% end %>
-            </div>
-          </div>
 
-          <div class="flex items-center justify-between">
-            <div>
-              <strong>{dgettext("settings", "Facebook")}</strong>
-              <div class="text-sm text-base-content/70">
-                {dgettext("settings", "Sign in and link")}
+            <div class="flex items-center justify-between">
+              <div>
+                <strong>{dgettext("settings", "Facebook")}</strong>
+                <div class="text-sm text-base-content/70">
+                  {dgettext("settings", "Sign in and link")}
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <%= if @user.facebook_id do %>
+                  <%= if provider_count > 1 do %>
+                    <button
+                      phx-click="unlink_provider"
+                      phx-value-provider="facebook"
+                      class="btn btn-outline btn-sm"
+                    >
+                      {dgettext("settings", "Unlink")}
+                    </button>
+                  <% else %>
+                    <button class="btn btn-disabled btn-sm" disabled aria-disabled>
+                      {dgettext("settings", "Unlink")}
+                    </button>
+                  <% end %>
+                <% else %>
+                  <.link href={~p"/auth/facebook"} class="btn btn-primary btn-sm">
+                    {dgettext("settings", "Link")}
+                  </.link>
+                <% end %>
               </div>
             </div>
-            <div class="flex items-center gap-2">
-              <%= if @user.facebook_id do %>
-                <%= if provider_count > 1 do %>
-                  <button
-                    phx-click="unlink_provider"
-                    phx-value-provider="facebook"
-                    class="btn btn-outline btn-sm"
-                  >
-                    {dgettext("settings", "Unlink")}
-                  </button>
-                <% else %>
-                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>
-                    {dgettext("settings", "Unlink")}
-                  </button>
-                <% end %>
-              <% else %>
-                <.link href={~p"/auth/facebook"} class="btn btn-primary btn-sm">
-                  {dgettext("settings", "Link")}
-                </.link>
-              <% end %>
-            </div>
-          </div>
 
-          <div class="flex items-center justify-between">
-            <div>
-              <strong>{dgettext("settings", "Apple")}</strong>
-              <div class="text-sm text-base-content/70">
-                {dgettext("settings", "Sign in and link")}
+            <div class="flex items-center justify-between">
+              <div>
+                <strong>{dgettext("settings", "Apple")}</strong>
+                <div class="text-sm text-base-content/70">
+                  {dgettext("settings", "Sign in and link")}
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <%= if @user.apple_id do %>
+                  <%= if provider_count > 1 do %>
+                    <button
+                      phx-click="unlink_provider"
+                      phx-value-provider="apple"
+                      class="btn btn-outline btn-sm"
+                    >
+                      {dgettext("settings", "Unlink")}
+                    </button>
+                  <% else %>
+                    <button class="btn btn-disabled btn-sm" disabled aria-disabled>
+                      {dgettext("settings", "Unlink")}
+                    </button>
+                  <% end %>
+                <% else %>
+                  <.link href={~p"/auth/apple"} class="btn btn-primary btn-sm">
+                    {dgettext("settings", "Link")}
+                  </.link>
+                <% end %>
               </div>
             </div>
-            <div class="flex items-center gap-2">
-              <%= if @user.apple_id do %>
-                <%= if provider_count > 1 do %>
-                  <button
-                    phx-click="unlink_provider"
-                    phx-value-provider="apple"
-                    class="btn btn-outline btn-sm"
-                  >
-                    {dgettext("settings", "Unlink")}
-                  </button>
-                <% else %>
-                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>
-                    {dgettext("settings", "Unlink")}
-                  </button>
-                <% end %>
-              <% else %>
-                <.link href={~p"/auth/apple"} class="btn btn-primary btn-sm">
-                  {dgettext("settings", "Link")}
-                </.link>
-              <% end %>
-            </div>
-          </div>
 
-          <div class="flex items-center justify-between">
-            <div>
-              <strong>{dgettext("settings", "Steam")}</strong>
-              <div class="text-sm text-base-content/70">
-                {dgettext("settings", "Sign in and link")}
+            <div class="flex items-center justify-between">
+              <div>
+                <strong>{dgettext("settings", "Steam")}</strong>
+                <div class="text-sm text-base-content/70">
+                  {dgettext("settings", "Sign in and link")}
+                </div>
               </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <%= if @user.steam_id do %>
-                <%= if provider_count > 1 do %>
-                  <button
-                    phx-click="unlink_provider"
-                    phx-value-provider="steam"
-                    class="btn btn-outline btn-sm"
-                  >
-                    {dgettext("settings", "Unlink")}
-                  </button>
+              <div class="flex items-center gap-2">
+                <%= if @user.steam_id do %>
+                  <%= if provider_count > 1 do %>
+                    <button
+                      phx-click="unlink_provider"
+                      phx-value-provider="steam"
+                      class="btn btn-outline btn-sm"
+                    >
+                      {dgettext("settings", "Unlink")}
+                    </button>
+                  <% else %>
+                    <button class="btn btn-disabled btn-sm" disabled aria-disabled>
+                      {dgettext("settings", "Unlink")}
+                    </button>
+                  <% end %>
                 <% else %>
-                  <button class="btn btn-disabled btn-sm" disabled aria-disabled>
-                    {dgettext("settings", "Unlink")}
-                  </button>
+                  <.link href={~p"/auth/steam"} class="btn btn-primary btn-sm">
+                    {dgettext("settings", "Link")}
+                  </.link>
                 <% end %>
-              <% else %>
-                <.link href={~p"/auth/steam"} class="btn btn-primary btn-sm">
-                  {dgettext("settings", "Link")}
-                </.link>
-              <% end %>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="card bg-error/10 border-error p-4 rounded-lg mt-6">
-        <div class="font-semibold text-error">{dgettext("settings", "Danger Zone")}</div>
-        <div class="text-sm mt-2 text-base-content/80">
-          <p>
-            {dgettext(
-              "settings",
-              "Once you delete your account, there is no going back. Please be certain."
-            )}
-          </p>
-          <p class="mt-2">
-            {dgettext(
-              "settings",
-              "For information about what data is deleted and how to request deletion, see our"
-            )} <.link
-              href={~p"/data-deletion"}
-              class="link link-primary"
-            >{dgettext("settings", "Data Deletion Policy")}</.link>.
-          </p>
-        </div>
-        <div class="mt-4">
-          <button
-            phx-click="delete_user"
-            class="btn btn-error"
-            data-confirm={
-              dgettext(
+        <div class="card bg-error/10 border-error p-4 rounded-lg mt-6">
+          <div class="font-semibold text-error">{dgettext("settings", "Danger Zone")}</div>
+          <div class="text-sm mt-2 text-base-content/80">
+            <p>
+              {dgettext(
                 "settings",
-                "Are you sure you want to delete your account? This action cannot be undone."
-              )
-            }
-          >
-            {dgettext("settings", "Delete Account")}
-          </button>
+                "Once you delete your account, there is no going back. Please be certain."
+              )}
+            </p>
+            <p class="mt-2">
+              {dgettext(
+                "settings",
+                "For information about what data is deleted and how to request deletion, see our"
+              )} <.link
+                href={~p"/data-deletion"}
+                class="link link-primary"
+              >{dgettext("settings", "Data Deletion Policy")}</.link>.
+            </p>
+          </div>
+          <div class="mt-4">
+            <button
+              phx-click="delete_user"
+              class="btn btn-error"
+              data-confirm={
+                dgettext(
+                  "settings",
+                  "Are you sure you want to delete your account? This action cannot be undone."
+                )
+              }
+            >
+              {dgettext("settings", "Delete Account")}
+            </button>
+          </div>
         </div>
-      </div>
       </div>
 
       <%!-- Friends tab --%>
       <div :if={@settings_tab == "friends"}>
-    <!-- Friends panel (embedded) -->
-      <div class="card bg-base-200 p-4 rounded-lg mt-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <div class="font-semibold text-lg">{dgettext("settings", "Friends")}</div>
-          </div>
-        </div>
-
-        <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <h4 class="font-semibold">{dgettext("settings", "Incoming Requests")}</h4>
-            <div
-              :for={req <- @incoming}
-              id={"request-" <> Integer.to_string(req.id)}
-              class="p-2 border rounded mt-2"
-            >
-              <div class="text-sm">
-                {(req.requester && req.requester.display_name) ||
-                  "User " <> to_string(req.requester_id)}
-                <span class="text-xs text-base-content/60 ml-2">(id: {req.requester_id})</span>
-              </div>
-              <div class="flex gap-2 mt-2">
-                <button phx-click="accept_friend" phx-value-id={req.id} class="btn btn-sm btn-primary">
-                  {gettext("Accept")}
-                </button>
-                <button phx-click="reject_friend" phx-value-id={req.id} class="btn btn-sm btn-error">
-                  {gettext("Reject")}
-                </button>
-                <button
-                  phx-click="block_friend"
-                  phx-value-id={req.id}
-                  class="btn btn-sm btn-outline btn-error"
-                >
-                  {gettext("Block")}
-                </button>
-              </div>
+        <!-- Friends panel (embedded) -->
+        <div class="card bg-base-200 p-4 rounded-lg mt-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="font-semibold text-lg">{dgettext("settings", "Friends")}</div>
             </div>
+          </div>
 
-            <div :if={@incoming_total_pages > 1} class="mt-2 flex gap-2 items-center">
-              <button phx-click="incoming_prev" class="btn btn-xs" disabled={@incoming_page <= 1}>
-                {gettext("Prev")}
-              </button>
-              <div class="text-xs text-base-content/70">
-                page {@incoming_page} / {@incoming_total_pages} ({@incoming_total} total)
-              </div>
-              <button
-                phx-click="incoming_next"
-                class="btn btn-xs"
-                disabled={@incoming_page >= @incoming_total_pages || @incoming_total_pages == 0}
+          <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <h4 class="font-semibold">{dgettext("settings", "Incoming Requests")}</h4>
+              <div
+                :for={req <- @incoming}
+                id={"request-" <> Integer.to_string(req.id)}
+                class="p-2 border rounded mt-2"
               >
-                {gettext("Next")}
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <h4 class="font-semibold">{dgettext("settings", "Outgoing Requests")}</h4>
-            <div
-              :for={req <- @outgoing}
-              id={"outgoing-" <> Integer.to_string(req.id)}
-              class="p-2 border rounded mt-2"
-            >
-              <div class="text-sm">
-                {(req.target && req.target.display_name) || "User " <> to_string(req.target_id)}
-              </div>
-              <div class="flex gap-2 mt-2">
-                <button phx-click="cancel_friend" phx-value-id={req.id} class="btn btn-sm btn-error">
-                  {gettext("Cancel")}
-                </button>
-              </div>
-            </div>
-            <div :if={@outgoing_total_pages > 1} class="mt-2 flex gap-2 items-center">
-              <button phx-click="outgoing_prev" class="btn btn-xs" disabled={@outgoing_page <= 1}>
-                {gettext("Prev")}
-              </button>
-              <div class="text-xs text-base-content/70">
-                page {@outgoing_page} / {@outgoing_total_pages} ({@outgoing_total} total)
-              </div>
-              <button
-                phx-click="outgoing_next"
-                class="btn btn-xs"
-                disabled={@outgoing_page >= @outgoing_total_pages || @outgoing_total_pages == 0}
-              >
-                {gettext("Next")}
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <h4 class="font-semibold">{dgettext("settings", "Friends")}</h4>
-            <div
-              :for={u <- @friends}
-              id={"friend-" <> Integer.to_string(u.id)}
-              class="p-2 border rounded mt-2"
-            >
-              <div class="flex justify-between items-center gap-2">
-                <div class="text-sm flex items-center gap-2">
-                  <span
-                    class={[
-                      "inline-block w-2 h-2 rounded-full shrink-0",
-                      if(u.is_online, do: "bg-green-500", else: "bg-gray-400")
-                    ]}
-                    title={if(u.is_online, do: "Online", else: "Offline")}
-                  />
-                  {u.display_name || u.email}
-                  <span class="text-xs text-base-content/60">(id: {u.id})</span>
+                <div class="text-sm">
+                  {(req.requester && req.requester.display_name) ||
+                    "User " <> to_string(req.requester_id)}
+                  <span class="text-xs text-base-content/60 ml-2">(id: {req.requester_id})</span>
                 </div>
-                <button
-                  phx-click="remove_friend"
-                  phx-value-friend_id={u.id}
-                  class="btn btn-sm btn-error btn-outline"
-                >
-                  {gettext("Remove")}
-                </button>
-              </div>
-            </div>
-            <div :if={@friends_total_pages > 1} class="mt-2 flex gap-2 items-center">
-              <button phx-click="friends_prev" class="btn btn-xs" disabled={@friends_page <= 1}>
-                {gettext("Prev")}
-              </button>
-              <div class="text-xs text-base-content/70">
-                page {@friends_page} / {@friends_total_pages} ({@friends_total} total)
-              </div>
-              <button
-                phx-click="friends_next"
-                class="btn btn-xs"
-                disabled={@friends_page >= @friends_total_pages || @friends_total_pages == 0}
-              >
-                {gettext("Next")}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="divider mt-4" />
-
-        <div class="mt-2">
-          <div :if={length(@blocked) > 0} class="mt-4">
-            <div class="text-xs text-base-content/70">{dgettext("settings", "Blocked users")}</div>
-            <div
-              :for={b <- @blocked}
-              id={"blocked-" <> Integer.to_string(b.id)}
-              class="p-2 border rounded mt-2 flex items-center justify-between"
-            >
-              <div class="text-sm">
-                {(b.requester && b.requester.display_name) || "User " <> to_string(b.requester_id)}
-                <span class="text-xs text-base-content/60 ml-2">(id: {b.requester_id})</span>
-              </div>
-              <div>
-                <button phx-click="unblock_friend" phx-value-id={b.id} class="btn btn-xs btn-outline">
-                  {gettext("Unblock")}
-                </button>
-              </div>
-            </div>
-            <div :if={@blocked_total_pages > 1} class="mt-2 flex gap-2 items-center">
-              <button phx-click="blocked_prev" class="btn btn-xs" disabled={@blocked_page <= 1}>
-                {gettext("Prev")}
-              </button>
-              <div class="text-xs text-base-content/70">
-                page {@blocked_page} / {@blocked_total_pages} ({@blocked_total} total)
-              </div>
-              <button
-                phx-click="blocked_next"
-                class="btn btn-xs"
-                disabled={@blocked_page >= @blocked_total_pages || @blocked_total_pages == 0}
-              >
-                {gettext("Next")}
-              </button>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <form phx-change="search_users" class="w-full">
-              <input
-                type="text"
-                name="q"
-                value={@search_query}
-                placeholder={gettext("Search...")}
-                class="input"
-              />
-            </form>
-          </div>
-          <div :if={length(@search_results) > 0} class="mt-3">
-            <div class="text-xs text-base-content/70 mb-2">
-              {dgettext("settings", "Search results")}
-            </div>
-
-    <!-- Render search results as a responsive grid so multiple items show side-by-side -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-              <div :for={s <- @search_results} id={"search-" <> Integer.to_string(s.id)}>
-                <div class="p-2 border rounded bg-base-100 flex items-center justify-between">
-                  <div class="text-sm">
-                    {s.display_name || s.email}
-                    <span class="text-xs text-base-content/60 ml-2">(id: {s.id})</span>
-                  </div>
-                  <div>
-                    <button
-                      phx-click="send_friend"
-                      phx-value-target={s.id}
-                      class="btn btn-xs btn-primary"
-                    >
-                      {gettext("Send")}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div :if={@search_total_pages > 1} class="mt-2 flex gap-2 items-center">
-              <button phx-click="search_prev" class="btn btn-xs" disabled={@search_page <= 1}>
-                {gettext("Prev")}
-              </button>
-              <div class="text-xs text-base-content/70">
-                page {@search_page} / {@search_total_pages} ({@search_total} total)
-              </div>
-              <button
-                phx-click="search_next"
-                class="btn btn-xs"
-                disabled={@search_page >= @search_total_pages || @search_total_pages == 0}
-              >
-                {gettext("Next")}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      </div>
-
-      <%!-- Data tab --%>
-      <div :if={@settings_tab == "data"}>
-      <div class="card bg-base-200 p-4 rounded-lg mt-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <div class="font-semibold text-lg">{dgettext("settings", "Data")}</div>
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <.form
-            for={@kv_filter_form}
-            id="kv-filters"
-            phx-change="kv_filters_change"
-            phx-submit="kv_filters_apply"
-          >
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <.input
-                field={@kv_filter_form[:key]}
-                type="text"
-                label={dgettext("settings", "Key contains")}
-                phx-debounce="300"
-              />
-            </div>
-            <div class="flex gap-2 mt-2">
-              <button type="submit" class="btn btn-sm btn-outline">{gettext("Apply")}</button>
-              <button type="button" phx-click="kv_filters_clear" class="btn btn-sm btn-ghost">
-                {gettext("Clear")}
-              </button>
-            </div>
-          </.form>
-        </div>
-
-        <div class="overflow-x-auto mt-4">
-          <table id="user-kv-table" class="table table-zebra w-full table-fixed">
-            <colgroup>
-              <col class="w-16" />
-              <col class="w-[40%]" />
-              <col class="w-40" />
-              <col class="w-[20%]" />
-              <col class="w-[20%]" />
-            </colgroup>
-            <thead>
-              <tr>
-                <th class="w-16">{gettext("ID")}</th>
-                <th class="font-mono text-sm break-all">{dgettext("settings", "Key")}</th>
-                <th class="w-40">{dgettext("settings", "Updated")}</th>
-                <th>{dgettext("settings", "Value")}</th>
-                <th>{dgettext("settings", "Metadata")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr :for={e <- @kv_entries} id={"user-kv-" <> to_string(e.id)}>
-                <td class="font-mono text-sm w-16">{e.id}</td>
-                <td class="font-mono text-sm break-all">{e.key}</td>
-                <td class="text-sm w-40">
-                  <span class="font-mono text-xs">
-                    {if e.updated_at, do: DateTime.to_iso8601(e.updated_at), else: "-"}
-                  </span>
-                </td>
-                <td class="text-sm">
-                  <pre class="text-xs font-mono whitespace-pre-wrap max-h-24 overflow-auto bg-base-100/60 rounded p-2">{json_preview(e.value)}</pre>
-                </td>
-                <td class="text-sm">
-                  <pre class="text-xs font-mono whitespace-pre-wrap max-h-24 overflow-auto bg-base-100/60 rounded p-2">{json_preview(e.metadata)}</pre>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="mt-4 flex gap-2 items-center">
-          <button phx-click="kv_prev" class="btn btn-xs" disabled={@kv_page <= 1}>
-            {gettext("Prev")}
-          </button>
-          <div class="text-xs text-base-content/70">
-            page {@kv_page} / {@kv_total_pages} ({@kv_count} total)
-          </div>
-          <button
-            phx-click="kv_next"
-            class="btn btn-xs"
-            disabled={@kv_page >= @kv_total_pages || @kv_total_pages == 0}
-          >
-            {gettext("Next")}
-          </button>
-        </div>
-      </div>
-      </div>
-
-      <%!-- Notifications tab --%>
-      <div :if={@settings_tab == "notifications"}>
-      <%!-- Notifications section --%>
-      <div class="card bg-base-200 p-4 rounded-lg mt-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <div class="font-semibold text-lg">{dgettext("settings", "Notifications")}</div>
-            <div class="text-sm text-base-content/70">
-              {dgettext("settings", "Your notifications (%{count})", count: @notif_count)}
-            </div>
-          </div>
-          <div class="flex gap-2">
-            <%= if @notif_count > 0 do %>
-              <button
-                type="button"
-                phx-click="delete_all_notifications"
-                data-confirm={dgettext("settings", "Delete all notifications?")}
-                class="btn btn-sm btn-outline btn-error"
-              >
-                {dgettext("settings", "Delete All")}
-              </button>
-            <% end %>
-          </div>
-        </div>
-
-        <%= if @notif_count == 0 do %>
-          <div class="mt-4 text-sm text-base-content/60">{gettext("None yet.")}</div>
-        <% else %>
-          <div class="overflow-x-auto mt-4">
-            <table id="user-notifications-table" class="table table-zebra w-full">
-              <thead>
-                <tr>
-                  <th>{gettext("Title")}</th>
-                  <th>{gettext("Content")}</th>
-                  <th>{gettext("From")}</th>
-                  <th>{gettext("Date")}</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr :for={n <- @notifications} id={"notif-" <> to_string(n.id)}>
-                  <td class="text-sm font-semibold">{n.title}</td>
-                  <td class="text-sm max-w-xs truncate">{n.content || "-"}</td>
-                  <td class="text-sm font-mono">{n.sender_id}</td>
-                  <td class="text-sm whitespace-nowrap">
-                    {Calendar.strftime(n.inserted_at, "%Y-%m-%d %H:%M")}
-                  </td>
-                  <td>
-                    <button
-                      type="button"
-                      phx-click="delete_notification"
-                      phx-value-id={n.id}
-                      class="btn btn-xs btn-outline btn-error"
-                    >
-                      {gettext("Delete")}
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div :if={@notif_total_pages > 1} class="mt-4 flex gap-2 items-center">
-            <button phx-click="notif_prev" class="btn btn-xs" disabled={@notif_page <= 1}>
-              {gettext("Prev")}
-            </button>
-            <div class="text-xs text-base-content/70">
-              page {@notif_page} / {@notif_total_pages} ({@notif_count} total)
-            </div>
-            <button
-              phx-click="notif_next"
-              class="btn btn-xs"
-              disabled={@notif_page >= @notif_total_pages || @notif_total_pages == 0}
-            >
-              {gettext("Next")}
-            </button>
-          </div>
-        <% end %>
-      </div>
-      </div>
-
-      <%!-- Groups tab --%>
-      <div :if={@settings_tab == "groups"}>
-      <%!-- Groups section --%>
-      <div class="card bg-base-200 p-4 rounded-lg mt-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <div class="font-semibold text-lg">{dgettext("groups", "Groups")}</div>
-          </div>
-          <div class="flex gap-2">
-            <%= if @group_detail do %>
-              <button phx-click="group_close_detail" class="btn btn-sm btn-ghost">
-                <.icon name="hero-arrow-left" class="w-4 h-4" /> {gettext("Back")}
-              </button>
-            <% end %>
-            <button
-              phx-click="groups_toggle_create"
-              class={[
-                "btn btn-sm",
-                if(@groups_show_create, do: "btn-ghost", else: "btn-primary")
-              ]}
-            >
-              <%= if @groups_show_create do %>
-                {gettext("Cancel")}
-              <% else %>
-                {gettext("Create")}
-              <% end %>
-            </button>
-          </div>
-        </div>
-
-        <%!-- Create group form --%>
-        <%= if @groups_show_create do %>
-          <div class="mt-4 border border-base-300 rounded-lg p-4 bg-base-100">
-            <div class="font-semibold text-sm mb-3">{dgettext("settings", "New Group")}</div>
-            <.form
-              for={@create_group_form}
-              id="create-group-form"
-              phx-change="group_validate_create"
-              phx-submit="group_create"
-            >
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <.input
-                  field={@create_group_form[:title]}
-                  type="text"
-                  label={gettext("Title")}
-                  required
-                />
-                <.input
-                  field={@create_group_form[:description]}
-                  type="text"
-                  label={gettext("Description")}
-                />
-                <.input
-                  field={@create_group_form[:type]}
-                  type="select"
-                  label={gettext("Type")}
-                  options={[
-                    {gettext("Public"), "public"},
-                    {gettext("Private"), "private"},
-                    {gettext("Hidden"), "hidden"}
-                  ]}
-                />
-                <.input
-                  field={@create_group_form[:max_members]}
-                  type="number"
-                  label={dgettext("settings", "Max members")}
-                />
-              </div>
-              <div class="mt-3">
-                <button type="submit" class="btn btn-sm btn-primary">
-                  {gettext("Create")}
-                </button>
-              </div>
-            </.form>
-          </div>
-        <% end %>
-
-        <%!-- Group Detail View --%>
-        <%= if @group_detail && !@groups_show_create do %>
-          <div class="mt-4">
-            <%!-- Edit form (admin only) --%>
-            <%= if @group_editing && @group_detail_role == "admin" do %>
-              <.form
-                for={@group_edit_form}
-                id="group-edit-form"
-                phx-change="group_validate_edit"
-                phx-submit="group_save_edit"
-                class="space-y-3"
-              >
-                <.input field={@group_edit_form[:title]} label={gettext("Name")} type="text" />
-                <.input
-                  field={@group_edit_form[:description]}
-                  label={gettext("Description")}
-                  type="textarea"
-                />
-                <.input
-                  field={@group_edit_form[:type]}
-                  label={gettext("Type")}
-                  type="select"
-                  options={[
-                    {gettext("Public"), "public"},
-                    {gettext("Private"), "private"},
-                    {gettext("Hidden"), "hidden"}
-                  ]}
-                />
-                <.input
-                  field={@group_edit_form[:max_members]}
-                  label={dgettext("settings", "Max Members")}
-                  type="number"
-                />
-                <div class="flex gap-2">
-                  <button type="submit" class="btn btn-sm btn-primary">{gettext("Save")}</button>
+                <div class="flex gap-2 mt-2">
                   <button
-                    type="button"
-                    phx-click="group_toggle_edit"
-                    class="btn btn-sm btn-ghost"
+                    phx-click="accept_friend"
+                    phx-value-id={req.id}
+                    class="btn btn-sm btn-primary"
                   >
-                    {gettext("Cancel")}
+                    {gettext("Accept")}
+                  </button>
+                  <button phx-click="reject_friend" phx-value-id={req.id} class="btn btn-sm btn-error">
+                    {gettext("Reject")}
+                  </button>
+                  <button
+                    phx-click="block_friend"
+                    phx-value-id={req.id}
+                    class="btn btn-sm btn-outline btn-error"
+                  >
+                    {gettext("Block")}
                   </button>
                 </div>
-              </.form>
-            <% else %>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="space-y-2 text-sm">
-                  <div><strong>{dgettext("settings", "Name:")}</strong> {@group_detail.title}</div>
-                  <div>
-                    <strong>{dgettext("settings", "Description:")}</strong> {@group_detail.description ||
-                      "-"}
-                  </div>
-                  <div>
-                    <strong>{dgettext("settings", "Type:")}</strong>
-                    <span class={[
-                      "badge badge-sm",
-                      cond do
-                        @group_detail.type == "public" -> "badge-success"
-                        @group_detail.type == "private" -> "badge-warning"
-                        true -> "badge-error"
-                      end
-                    ]}>
-                      {@group_detail.type}
-                    </span>
-                  </div>
-                  <div>
-                    <strong>{dgettext("settings", "Max Members:")}</strong> {@group_detail.max_members}
-                  </div>
-                  <div>
-                    <strong>{dgettext("settings", "Created:")}</strong> {Calendar.strftime(
-                      @group_detail.inserted_at,
-                      "%Y-%m-%d %H:%M"
-                    )}
-                  </div>
-                </div>
-                <div class="space-y-2 text-sm">
-                  <div>
-                    <strong>{dgettext("settings", "Your Role:")}</strong>
-                    <span class={[
-                      "badge badge-sm",
-                      if(@group_detail_role == "admin", do: "badge-info", else: "badge-ghost")
-                    ]}>
-                      {@group_detail_role || dgettext("settings", "not a member")}
-                    </span>
-                  </div>
-                  <div class="flex gap-2">
-                    <button
-                      :if={@group_detail_role == "admin"}
-                      phx-click="group_toggle_edit"
-                      class="btn btn-xs btn-outline btn-info"
-                    >
-                      {dgettext("settings", "Edit Group")}
-                    </button>
-                    <button
-                      phx-click="group_leave"
-                      phx-value-group_id={@group_detail.id}
-                      class="btn btn-xs btn-outline btn-error"
-                      data-confirm={dgettext("settings", "Leave this group?")}
-                    >
-                      {dgettext("groups", "Leave Group")}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            <% end %>
-
-            <%!-- Members list --%>
-            <div class="mt-4">
-              <div class="font-semibold text-sm">{gettext("Members")} ({@group_members_total})</div>
-              <div class="overflow-x-auto mt-2">
-                <table id="group-members-table" class="table table-zebra w-full">
-                  <thead>
-                    <tr>
-                      <th></th>
-                      <th>{gettext("Name")}</th>
-                      <th>{gettext("Email")}</th>
-                      <th>{gettext("Role")}</th>
-                      <th>{gettext("Joined")}</th>
-                      <%= if @group_detail_role == "admin" do %>
-                        <th>{gettext("Actions")}</th>
-                      <% end %>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr
-                      :for={m <- @group_members}
-                      id={"gm-" <> to_string(m.id)}
-                    >
-                      <td>
-                        <span
-                          class={[
-                            "inline-block w-2 h-2 rounded-full",
-                            if(m.user.is_online, do: "bg-green-500", else: "bg-gray-400")
-                          ]}
-                          title={if(m.user.is_online, do: "Online", else: "Offline")}
-                        />
-                      </td>
-                      <td class="text-sm">{m.user.display_name || "User #{m.user_id}"}</td>
-                      <td class="text-sm text-base-content/70">{m.user.email}</td>
-                      <td>
-                        <span class={[
-                          "badge badge-sm",
-                          if(m.role == "admin", do: "badge-info", else: "badge-ghost")
-                        ]}>
-                          {m.role}
-                        </span>
-                      </td>
-                      <td class="text-sm whitespace-nowrap">
-                        {Calendar.strftime(m.inserted_at, "%Y-%m-%d %H:%M")}
-                      </td>
-                      <%= if @group_detail_role == "admin" do %>
-                        <td class="flex gap-1">
-                          <%= if m.user_id != @user.id do %>
-                            <%= if m.role == "member" do %>
-                              <button
-                                phx-click="group_promote"
-                                phx-value-group_id={@group_detail.id}
-                                phx-value-user_id={m.user_id}
-                                class="btn btn-xs btn-outline btn-primary"
-                              >
-                                {gettext("Promote")}
-                              </button>
-                            <% else %>
-                              <button
-                                phx-click="group_demote"
-                                phx-value-group_id={@group_detail.id}
-                                phx-value-user_id={m.user_id}
-                                class="btn btn-xs btn-outline btn-warning"
-                              >
-                                {gettext("Demote")}
-                              </button>
-                            <% end %>
-                            <button
-                              phx-click="group_kick"
-                              phx-value-group_id={@group_detail.id}
-                              phx-value-user_id={m.user_id}
-                              class="btn btn-xs btn-outline btn-error"
-                              data-confirm={
-                                dgettext("groups", "Kick %{name}?",
-                                  name: m.user.display_name || m.user.email
-                                )
-                              }
-                            >
-                              {gettext("Kick")}
-                            </button>
-                          <% else %>
-                            <span class="text-xs text-base-content/50">{gettext("You")}</span>
-                          <% end %>
-                        </td>
-                      <% end %>
-                    </tr>
-                  </tbody>
-                </table>
               </div>
 
-              <div :if={@group_members_total_pages > 1} class="mt-2 flex gap-2 items-center">
-                <button
-                  phx-click="group_members_prev"
-                  class="btn btn-xs"
-                  disabled={@group_members_page <= 1}
-                >
+              <div :if={@incoming_total_pages > 1} class="mt-2 flex gap-2 items-center">
+                <button phx-click="incoming_prev" class="btn btn-xs" disabled={@incoming_page <= 1}>
                   {gettext("Prev")}
                 </button>
                 <div class="text-xs text-base-content/70">
-                  page {@group_members_page} / {@group_members_total_pages} ({@group_members_total} total)
+                  page {@incoming_page} / {@incoming_total_pages} ({@incoming_total} total)
                 </div>
                 <button
-                  phx-click="group_members_next"
+                  phx-click="incoming_next"
                   class="btn btn-xs"
-                  disabled={
-                    @group_members_page >= @group_members_total_pages ||
-                      @group_members_total_pages == 0
-                  }
+                  disabled={@incoming_page >= @incoming_total_pages || @incoming_total_pages == 0}
                 >
                   {gettext("Next")}
                 </button>
               </div>
             </div>
 
-            <%!-- Incoming Join Requests (admin only) --%>
-            <div :if={@group_detail_role == "admin" && @group_join_requests != []} class="mt-6">
-              <h4 class="font-semibold text-base mb-3">
-                {dgettext("settings", "Pending Join Requests")} ({length(@group_join_requests)})
-              </h4>
-              <div class="space-y-2">
-                <div
-                  :for={req <- @group_join_requests}
-                  class="flex items-center justify-between p-2 rounded-lg bg-base-200/60"
-                >
-                  <div class="flex items-center gap-2">
-                    <div class="text-sm font-medium">
-                      {req.user.display_name || req.user.email}
-                    </div>
-                    <span class="text-xs text-base-content/50">
-                      #{req.user_id} &mdash; {Calendar.strftime(req.inserted_at, "%Y-%m-%d %H:%M")}
-                    </span>
-                  </div>
-                  <div class="flex gap-1">
-                    <button
-                      phx-click="group_approve_request"
-                      phx-value-request_id={req.id}
-                      class="btn btn-xs btn-primary"
-                    >
-                      {gettext("Approve")}
-                    </button>
-                    <button
-                      phx-click="group_reject_request"
-                      phx-value-request_id={req.id}
-                      class="btn btn-xs btn-outline btn-error"
-                    >
-                      {gettext("Reject")}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <%!-- Send Notification to Group (any member) --%>
-            <div class="mt-6">
-              <h4 class="font-semibold text-base mb-3">
-                {dgettext("settings", "Send Notification")}
-              </h4>
-              <.form
-                for={@group_notify_form}
-                id="group-notify-form"
-                phx-submit="group_notify"
-                class="flex flex-col gap-2"
+            <div>
+              <h4 class="font-semibold">{dgettext("settings", "Outgoing Requests")}</h4>
+              <div
+                :for={req <- @outgoing}
+                id={"outgoing-" <> Integer.to_string(req.id)}
+                class="p-2 border rounded mt-2"
               >
-                <div class="flex gap-2 items-end">
-                  <div class="w-1/3">
-                    <.input
-                      field={@group_notify_form[:title]}
-                      type="text"
-                      placeholder={dgettext("settings", "Title (optional)")}
-                    />
-                  </div>
-                  <div class="flex-1">
-                    <.input
-                      field={@group_notify_form[:content]}
-                      type="text"
-                      placeholder={dgettext("settings", "Type a message to all members...")}
-                    />
-                  </div>
-                  <button type="submit" class="btn btn-sm btn-primary">
-                    <.icon name="hero-megaphone-mini" class="w-4 h-4 mr-1" /> {gettext("Send")}
+                <div class="text-sm">
+                  {(req.target && req.target.display_name) || "User " <> to_string(req.target_id)}
+                </div>
+                <div class="flex gap-2 mt-2">
+                  <button phx-click="cancel_friend" phx-value-id={req.id} class="btn btn-sm btn-error">
+                    {gettext("Cancel")}
                   </button>
                 </div>
-              </.form>
+              </div>
+              <div :if={@outgoing_total_pages > 1} class="mt-2 flex gap-2 items-center">
+                <button phx-click="outgoing_prev" class="btn btn-xs" disabled={@outgoing_page <= 1}>
+                  {gettext("Prev")}
+                </button>
+                <div class="text-xs text-base-content/70">
+                  page {@outgoing_page} / {@outgoing_total_pages} ({@outgoing_total} total)
+                </div>
+                <button
+                  phx-click="outgoing_next"
+                  class="btn btn-xs"
+                  disabled={@outgoing_page >= @outgoing_total_pages || @outgoing_total_pages == 0}
+                >
+                  {gettext("Next")}
+                </button>
+              </div>
             </div>
 
-            <%!-- Invite Members (admin only) --%>
-            <div :if={@group_detail_role == "admin"} class="mt-6">
-              <h4 class="font-semibold text-base mb-3">{dgettext("settings", "Invite Members")}</h4>
+            <div>
+              <h4 class="font-semibold">{dgettext("settings", "Friends")}</h4>
+              <div
+                :for={u <- @friends}
+                id={"friend-" <> Integer.to_string(u.id)}
+                class="p-2 border rounded mt-2"
+              >
+                <div class="flex justify-between items-center gap-2">
+                  <div class="text-sm flex items-center gap-2">
+                    <span
+                      class={[
+                        "inline-block w-2 h-2 rounded-full shrink-0",
+                        if(u.is_online, do: "bg-green-500", else: "bg-gray-400")
+                      ]}
+                      title={if(u.is_online, do: "Online", else: "Offline")}
+                    />
+                    {u.display_name || u.email}
+                    <span class="text-xs text-base-content/60">(id: {u.id})</span>
+                  </div>
+                  <button
+                    phx-click="remove_friend"
+                    phx-value-friend_id={u.id}
+                    class="btn btn-sm btn-error btn-outline"
+                  >
+                    {gettext("Remove")}
+                  </button>
+                </div>
+              </div>
+              <div :if={@friends_total_pages > 1} class="mt-2 flex gap-2 items-center">
+                <button phx-click="friends_prev" class="btn btn-xs" disabled={@friends_page <= 1}>
+                  {gettext("Prev")}
+                </button>
+                <div class="text-xs text-base-content/70">
+                  page {@friends_page} / {@friends_total_pages} ({@friends_total} total)
+                </div>
+                <button
+                  phx-click="friends_next"
+                  class="btn btn-xs"
+                  disabled={@friends_page >= @friends_total_pages || @friends_total_pages == 0}
+                >
+                  {gettext("Next")}
+                </button>
+              </div>
+            </div>
+          </div>
 
-              <%!-- Search by name, email, or user ID --%>
-              <div class="form-control mb-3">
-                <label class="label">
-                  <span class="label-text">{gettext("Search...")}</span>
-                </label>
+          <div class="divider mt-4" />
+
+          <div class="mt-2">
+            <div :if={length(@blocked) > 0} class="mt-4">
+              <div class="text-xs text-base-content/70">{dgettext("settings", "Blocked users")}</div>
+              <div
+                :for={b <- @blocked}
+                id={"blocked-" <> Integer.to_string(b.id)}
+                class="p-2 border rounded mt-2 flex items-center justify-between"
+              >
+                <div class="text-sm">
+                  {(b.requester && b.requester.display_name) || "User " <> to_string(b.requester_id)}
+                  <span class="text-xs text-base-content/60 ml-2">(id: {b.requester_id})</span>
+                </div>
+                <div>
+                  <button
+                    phx-click="unblock_friend"
+                    phx-value-id={b.id}
+                    class="btn btn-xs btn-outline"
+                  >
+                    {gettext("Unblock")}
+                  </button>
+                </div>
+              </div>
+              <div :if={@blocked_total_pages > 1} class="mt-2 flex gap-2 items-center">
+                <button phx-click="blocked_prev" class="btn btn-xs" disabled={@blocked_page <= 1}>
+                  {gettext("Prev")}
+                </button>
+                <div class="text-xs text-base-content/70">
+                  page {@blocked_page} / {@blocked_total_pages} ({@blocked_total} total)
+                </div>
+                <button
+                  phx-click="blocked_next"
+                  class="btn btn-xs"
+                  disabled={@blocked_page >= @blocked_total_pages || @blocked_total_pages == 0}
+                >
+                  {gettext("Next")}
+                </button>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <form phx-change="search_users" class="w-full">
                 <input
-                  id="invite-search-input"
                   type="text"
-                  phx-keyup="group_invite_search"
+                  name="q"
+                  value={@search_query}
+                  placeholder={gettext("Search...")}
+                  class="input"
+                />
+              </form>
+            </div>
+            <div :if={length(@search_results) > 0} class="mt-3">
+              <div class="text-xs text-base-content/70 mb-2">
+                {dgettext("settings", "Search results")}
+              </div>
+              
+    <!-- Render search results as a responsive grid so multiple items show side-by-side -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <div :for={s <- @search_results} id={"search-" <> Integer.to_string(s.id)}>
+                  <div class="p-2 border rounded bg-base-100 flex items-center justify-between">
+                    <div class="text-sm">
+                      {s.display_name || s.email}
+                      <span class="text-xs text-base-content/60 ml-2">(id: {s.id})</span>
+                    </div>
+                    <div>
+                      <button
+                        phx-click="send_friend"
+                        phx-value-target={s.id}
+                        class="btn btn-xs btn-primary"
+                      >
+                        {gettext("Send")}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div :if={@search_total_pages > 1} class="mt-2 flex gap-2 items-center">
+                <button phx-click="search_prev" class="btn btn-xs" disabled={@search_page <= 1}>
+                  {gettext("Prev")}
+                </button>
+                <div class="text-xs text-base-content/70">
+                  page {@search_page} / {@search_total_pages} ({@search_total} total)
+                </div>
+                <button
+                  phx-click="search_next"
+                  class="btn btn-xs"
+                  disabled={@search_page >= @search_total_pages || @search_total_pages == 0}
+                >
+                  {gettext("Next")}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <%!-- Data tab --%>
+      <div :if={@settings_tab == "data"}>
+        <div class="card bg-base-200 p-4 rounded-lg mt-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="font-semibold text-lg">{dgettext("settings", "Data")}</div>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <.form
+              for={@kv_filter_form}
+              id="kv-filters"
+              phx-change="kv_filters_change"
+              phx-submit="kv_filters_apply"
+            >
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <.input
+                  field={@kv_filter_form[:key]}
+                  type="text"
+                  label={dgettext("settings", "Key contains")}
                   phx-debounce="300"
-                  value={@invite_search_query}
-                  placeholder={dgettext("settings", "Type to search...")}
-                  class="input input-bordered input-sm w-full max-w-xs"
-                  autocomplete="off"
                 />
               </div>
-
-              <%!-- Search results --%>
-              <div :if={@invite_search_results != []} class="mb-4">
-                <div class="text-xs font-medium text-base-content/60 mb-1">
-                  {dgettext("settings", "Search Results")}
-                </div>
-                <div class="space-y-1 max-h-48 overflow-y-auto">
-                  <div
-                    :for={u <- @invite_search_results}
-                    class="flex items-center justify-between p-2 rounded-lg bg-base-200/60"
-                  >
-                    <div class="flex items-center gap-2">
-                      <div class={[
-                        "w-2 h-2 rounded-full",
-                        if(Map.get(u, :is_online, false),
-                          do: "bg-success",
-                          else: "bg-base-content/30"
-                        )
-                      ]} />
-                      <div>
-                        <span class="text-sm font-medium">{u.display_name || u.email}</span>
-                        <span class="text-xs text-base-content/50 ml-1">#{u.id}</span>
-                      </div>
-                    </div>
-                    <button
-                      phx-click="group_invite_user"
-                      phx-value-group_id={@group_detail.id}
-                      phx-value-user_id={u.id}
-                      class="btn btn-xs btn-primary"
-                    >
-                      {gettext("Invite")}
-                    </button>
-                  </div>
-                </div>
+              <div class="flex gap-2 mt-2">
+                <button type="submit" class="btn btn-sm btn-outline">{gettext("Apply")}</button>
+                <button type="button" phx-click="kv_filters_clear" class="btn btn-sm btn-ghost">
+                  {gettext("Clear")}
+                </button>
               </div>
-
-              <div
-                :if={@invite_search_query != "" && @invite_search_results == []}
-                class="mb-4 text-sm text-base-content/50"
-              >
-                {dgettext("settings", "No results for \"%{query}\"", query: @invite_search_query)}
-              </div>
-
-              <%!-- Quick invite from friends --%>
-              <div :if={@invite_friends != []} class="mt-3">
-                <div class="text-xs font-medium text-base-content/60 mb-1">
-                  {dgettext("settings", "Friends not in this group")}
-                </div>
-                <div class="space-y-1 max-h-48 overflow-y-auto">
-                  <div
-                    :for={f <- @invite_friends}
-                    class="flex items-center justify-between p-2 rounded-lg bg-base-200/40"
-                  >
-                    <div class="flex items-center gap-2">
-                      <div class={[
-                        "w-2 h-2 rounded-full",
-                        if(Map.get(f, :is_online, false),
-                          do: "bg-success",
-                          else: "bg-base-content/30"
-                        )
-                      ]} />
-                      <span class="text-sm">{f.display_name || f.email}</span>
-                    </div>
-                    <button
-                      phx-click="group_invite_user"
-                      phx-value-group_id={@group_detail.id}
-                      phx-value-user_id={f.id}
-                      class="btn btn-xs btn-outline btn-primary"
-                    >
-                      {gettext("Invite")}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div :if={@invite_friends == []} class="mt-3 text-sm text-base-content/40">
-                {dgettext("settings", "All friends are already members.")}
-              </div>
-            </div>
+            </.form>
           </div>
-        <% end %>
 
-        <%!-- Tabs (hidden when viewing detail) --%>
-        <%= if !@group_detail && !@groups_show_create do %>
-          <%!-- Sub-tabs --%>
-          <div class="flex gap-2 mt-4 border-b border-base-300 pb-2">
+          <div class="overflow-x-auto mt-4">
+            <table id="user-kv-table" class="table table-zebra w-full table-fixed">
+              <colgroup>
+                <col class="w-16" />
+                <col class="w-[40%]" />
+                <col class="w-40" />
+                <col class="w-[20%]" />
+                <col class="w-[20%]" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th class="w-16">{gettext("ID")}</th>
+                  <th class="font-mono text-sm break-all">{dgettext("settings", "Key")}</th>
+                  <th class="w-40">{dgettext("settings", "Updated")}</th>
+                  <th>{dgettext("settings", "Value")}</th>
+                  <th>{dgettext("settings", "Metadata")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr :for={e <- @kv_entries} id={"user-kv-" <> to_string(e.id)}>
+                  <td class="font-mono text-sm w-16">{e.id}</td>
+                  <td class="font-mono text-sm break-all">{e.key}</td>
+                  <td class="text-sm w-40">
+                    <span class="font-mono text-xs">
+                      {if e.updated_at, do: DateTime.to_iso8601(e.updated_at), else: "-"}
+                    </span>
+                  </td>
+                  <td class="text-sm">
+                    <pre class="text-xs font-mono whitespace-pre-wrap max-h-24 overflow-auto bg-base-100/60 rounded p-2">{json_preview(e.value)}</pre>
+                  </td>
+                  <td class="text-sm">
+                    <pre class="text-xs font-mono whitespace-pre-wrap max-h-24 overflow-auto bg-base-100/60 rounded p-2">{json_preview(e.metadata)}</pre>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-4 flex gap-2 items-center">
+            <button phx-click="kv_prev" class="btn btn-xs" disabled={@kv_page <= 1}>
+              {gettext("Prev")}
+            </button>
+            <div class="text-xs text-base-content/70">
+              page {@kv_page} / {@kv_total_pages} ({@kv_count} total)
+            </div>
             <button
-              :for={
-                {tab, label} <- [
-                  {"my_groups", dgettext("settings", "My Groups") <> " (#{@groups_count})"},
-                  {"browse", dgettext("settings", "Browse Groups")},
-                  {"invitations",
-                   dgettext("settings", "Invitations") <> " (#{length(@group_invitations)})"},
-                  {"requests",
-                   dgettext("settings", "My Requests") <> " (#{length(@group_pending_requests)})"},
-                  {"sent_invitations",
-                   dgettext("settings", "Sent Invitations") <> " (#{length(@group_sent_invitations)})"}
-                ]
-              }
-              phx-click="groups_tab"
-              phx-value-tab={tab}
-              class={[
-                "btn btn-sm",
-                if(@groups_tab == tab, do: "btn-primary", else: "btn-ghost")
-              ]}
+              phx-click="kv_next"
+              class="btn btn-xs"
+              disabled={@kv_page >= @kv_total_pages || @kv_total_pages == 0}
             >
-              {label}
+              {gettext("Next")}
             </button>
           </div>
+        </div>
+      </div>
 
-          <%!-- My Groups tab --%>
-          <%= if @groups_tab == "my_groups" do %>
-            <%= if @groups_count == 0 do %>
-              <div class="mt-4 text-sm text-base-content/60">
-                {gettext("None yet.")}
+      <%!-- Notifications tab --%>
+      <div :if={@settings_tab == "notifications"}>
+        <%!-- Notifications section --%>
+        <div class="card bg-base-200 p-4 rounded-lg mt-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="font-semibold text-lg">{dgettext("settings", "Notifications")}</div>
+              <div class="text-sm text-base-content/70">
+                {dgettext("settings", "Your notifications (%{count})", count: @notif_count)}
               </div>
-            <% else %>
-              <div class="overflow-x-auto mt-4">
-                <table id="my-groups-table" class="table table-zebra w-full">
-                  <thead>
-                    <tr>
-                      <th>{gettext("Title")}</th>
-                      <th>{gettext("Type")}</th>
-                      <th>{dgettext("settings", "Max Members")}</th>
-                      <th>{gettext("Role")}</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr
-                      :for={{group, role} <- @my_groups}
-                      id={"my-group-" <> to_string(group.id)}
-                    >
-                      <td class="text-sm">
-                        <button
-                          phx-click="group_view_detail"
-                          phx-value-group_id={group.id}
-                          class="link link-primary font-medium"
-                        >
-                          {group.title}
-                        </button>
-                      </td>
-                      <td>
-                        <span class={[
-                          "badge badge-sm",
-                          cond do
-                            group.type == "public" -> "badge-success"
-                            group.type == "private" -> "badge-warning"
-                            true -> "badge-error"
-                          end
-                        ]}>
-                          {group.type}
-                        </span>
-                      </td>
-                      <td class="text-sm">{group.max_members}</td>
-                      <td>
-                        <span class={[
-                          "badge badge-sm",
-                          if(role == "admin", do: "badge-info", else: "badge-ghost")
-                        ]}>
-                          {role}
-                        </span>
-                      </td>
-                      <td class="flex gap-1">
-                        <button
-                          phx-click="group_view_detail"
-                          phx-value-group_id={group.id}
-                          class="btn btn-xs btn-ghost"
-                        >
-                          {gettext("View")}
-                        </button>
-                        <button
-                          phx-click="group_leave"
-                          phx-value-group_id={group.id}
-                          class="btn btn-xs btn-outline btn-error"
-                          data-confirm={dgettext("settings", "Leave this group?")}
-                        >
-                          {gettext("Leave")}
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            <% end %>
-          <% end %>
-
-          <%!-- Browse Groups tab --%>
-          <%= if @groups_tab == "browse" do %>
-            <div class="mt-4">
-              <.form
-                for={@browse_groups_form}
-                id="browse-groups-form"
-                phx-change="browse_groups_filter"
-                phx-submit="browse_groups_filter"
-              >
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <.input
-                    field={@browse_groups_form[:title]}
-                    type="text"
-                    label={gettext("Title")}
-                    phx-debounce="300"
-                  />
-                  <.input
-                    field={@browse_groups_form[:type]}
-                    type="select"
-                    label={gettext("Type")}
-                    options={[
-                      {gettext("All"), ""},
-                      {gettext("Public"), "public"},
-                      {gettext("Private"), "private"}
-                    ]}
-                  />
-                  <div class="flex items-end">
-                    <button type="button" phx-click="browse_groups_clear" class="btn btn-sm btn-ghost">
-                      {gettext("Clear")}
-                    </button>
-                  </div>
-                </div>
-              </.form>
             </div>
+            <div class="flex gap-2">
+              <%= if @notif_count > 0 do %>
+                <button
+                  type="button"
+                  phx-click="delete_all_notifications"
+                  data-confirm={dgettext("settings", "Delete all notifications?")}
+                  class="btn btn-sm btn-outline btn-error"
+                >
+                  {dgettext("settings", "Delete All")}
+                </button>
+              <% end %>
+            </div>
+          </div>
 
+          <%= if @notif_count == 0 do %>
+            <div class="mt-4 text-sm text-base-content/60">{gettext("None yet.")}</div>
+          <% else %>
             <div class="overflow-x-auto mt-4">
-              <table id="browse-groups-table" class="table table-zebra w-full">
+              <table id="user-notifications-table" class="table table-zebra w-full">
                 <thead>
                   <tr>
                     <th>{gettext("Title")}</th>
-                    <th>{gettext("Type")}</th>
-                    <th>{dgettext("settings", "Max Members")}</th>
+                    <th>{gettext("Content")}</th>
+                    <th>{gettext("From")}</th>
+                    <th>{gettext("Date")}</th>
                     <th></th>
                   </tr>
                 </thead>
                 <tbody>
-                  <%= if length(@browse_groups) == 0 do %>
-                    <tr>
-                      <td colspan="4" class="text-center text-sm text-base-content/60">
-                        {gettext("None available.")}
-                      </td>
-                    </tr>
-                  <% end %>
-                  <tr
-                    :for={group <- @browse_groups}
-                    id={"browse-group-" <> to_string(group.id)}
-                  >
-                    <td class="text-sm font-medium">{group.title}</td>
-                    <td>
-                      <span class={[
-                        "badge badge-sm",
-                        if(group.type == "public", do: "badge-success", else: "badge-warning")
-                      ]}>
-                        {group.type}
-                      </span>
+                  <tr :for={n <- @notifications} id={"notif-" <> to_string(n.id)}>
+                    <td class="text-sm font-semibold">{n.title}</td>
+                    <td class="text-sm max-w-xs truncate">{n.content || "-"}</td>
+                    <td class="text-sm font-mono">{n.sender_id}</td>
+                    <td class="text-sm whitespace-nowrap">
+                      {Calendar.strftime(n.inserted_at, "%Y-%m-%d %H:%M")}
                     </td>
-                    <td class="text-sm">{group.max_members}</td>
                     <td>
-                      <%= cond do %>
-                        <% Enum.any?(@my_groups, fn {g, _role} -> g.id == group.id end) -> %>
-                          <span class="badge badge-sm badge-ghost">
-                            {dgettext("settings", "Joined")}
-                          </span>
-                        <% Enum.any?(@group_pending_requests, fn r -> r.group_id == group.id end) -> %>
-                          <span class="badge badge-sm badge-warning">
-                            {dgettext("groups", "Pending")}
-                          </span>
-                        <% group.type == "public" -> %>
-                          <button
-                            phx-click="group_join"
-                            phx-value-group_id={group.id}
-                            class="btn btn-xs btn-primary"
-                          >
-                            {gettext("Join")}
-                          </button>
-                        <% group.type == "private" -> %>
-                          <button
-                            phx-click="group_request_join"
-                            phx-value-group_id={group.id}
-                            class="btn btn-xs btn-outline btn-primary"
-                          >
-                            {gettext("Request")}
-                          </button>
-                        <% true -> %>
-                          <span class="text-xs text-base-content/50">-</span>
-                      <% end %>
+                      <button
+                        type="button"
+                        phx-click="delete_notification"
+                        phx-value-id={n.id}
+                        class="btn btn-xs btn-outline btn-error"
+                      >
+                        {gettext("Delete")}
+                      </button>
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <div class="mt-4 flex gap-2 items-center">
-              <button
-                phx-click="browse_groups_prev"
-                class="btn btn-xs"
-                disabled={@browse_groups_page <= 1}
-              >
+            <div :if={@notif_total_pages > 1} class="mt-4 flex gap-2 items-center">
+              <button phx-click="notif_prev" class="btn btn-xs" disabled={@notif_page <= 1}>
                 {gettext("Prev")}
               </button>
               <div class="text-xs text-base-content/70">
-                page {@browse_groups_page} / {@browse_groups_total_pages} ({@browse_groups_total} total)
+                page {@notif_page} / {@notif_total_pages} ({@notif_count} total)
               </div>
               <button
-                phx-click="browse_groups_next"
+                phx-click="notif_next"
                 class="btn btn-xs"
-                disabled={
-                  @browse_groups_page >= @browse_groups_total_pages || @browse_groups_total_pages == 0
-                }
+                disabled={@notif_page >= @notif_total_pages || @notif_total_pages == 0}
               >
                 {gettext("Next")}
               </button>
             </div>
           <% end %>
+        </div>
+      </div>
 
-          <%!-- Invitations tab --%>
-          <%= if @groups_tab == "invitations" do %>
-            <%= if length(@group_invitations) == 0 do %>
-              <div class="mt-4 text-sm text-base-content/60">
-                {gettext("None yet.")}
+      <%!-- Groups tab --%>
+      <div :if={@settings_tab == "groups"}>
+        <%!-- Groups section --%>
+        <div class="card bg-base-200 p-4 rounded-lg mt-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="font-semibold text-lg">{dgettext("groups", "Groups")}</div>
+            </div>
+            <div class="flex gap-2">
+              <%= if @group_detail do %>
+                <button phx-click="group_close_detail" class="btn btn-sm btn-ghost">
+                  <.icon name="hero-arrow-left" class="w-4 h-4" /> {gettext("Back")}
+                </button>
+              <% end %>
+              <button
+                phx-click="groups_toggle_create"
+                class={[
+                  "btn btn-sm",
+                  if(@groups_show_create, do: "btn-ghost", else: "btn-primary")
+                ]}
+              >
+                <%= if @groups_show_create do %>
+                  {gettext("Cancel")}
+                <% else %>
+                  {gettext("Create")}
+                <% end %>
+              </button>
+            </div>
+          </div>
+
+          <%!-- Create group form --%>
+          <%= if @groups_show_create do %>
+            <div class="mt-4 border border-base-300 rounded-lg p-4 bg-base-100">
+              <div class="font-semibold text-sm mb-3">{dgettext("settings", "New Group")}</div>
+              <.form
+                for={@create_group_form}
+                id="create-group-form"
+                phx-change="group_validate_create"
+                phx-submit="group_create"
+              >
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <.input
+                    field={@create_group_form[:title]}
+                    type="text"
+                    label={gettext("Title")}
+                    required
+                  />
+                  <.input
+                    field={@create_group_form[:description]}
+                    type="text"
+                    label={gettext("Description")}
+                  />
+                  <.input
+                    field={@create_group_form[:type]}
+                    type="select"
+                    label={gettext("Type")}
+                    options={[
+                      {gettext("Public"), "public"},
+                      {gettext("Private"), "private"},
+                      {gettext("Hidden"), "hidden"}
+                    ]}
+                  />
+                  <.input
+                    field={@create_group_form[:max_members]}
+                    type="number"
+                    label={dgettext("settings", "Max members")}
+                  />
+                </div>
+                <div class="mt-3">
+                  <button type="submit" class="btn btn-sm btn-primary">
+                    {gettext("Create")}
+                  </button>
+                </div>
+              </.form>
+            </div>
+          <% end %>
+
+          <%!-- Group Detail View --%>
+          <%= if @group_detail && !@groups_show_create do %>
+            <div class="mt-4">
+              <%!-- Edit form (admin only) --%>
+              <%= if @group_editing && @group_detail_role == "admin" do %>
+                <.form
+                  for={@group_edit_form}
+                  id="group-edit-form"
+                  phx-change="group_validate_edit"
+                  phx-submit="group_save_edit"
+                  class="space-y-3"
+                >
+                  <.input field={@group_edit_form[:title]} label={gettext("Name")} type="text" />
+                  <.input
+                    field={@group_edit_form[:description]}
+                    label={gettext("Description")}
+                    type="textarea"
+                  />
+                  <.input
+                    field={@group_edit_form[:type]}
+                    label={gettext("Type")}
+                    type="select"
+                    options={[
+                      {gettext("Public"), "public"},
+                      {gettext("Private"), "private"},
+                      {gettext("Hidden"), "hidden"}
+                    ]}
+                  />
+                  <.input
+                    field={@group_edit_form[:max_members]}
+                    label={dgettext("settings", "Max Members")}
+                    type="number"
+                  />
+                  <div class="flex gap-2">
+                    <button type="submit" class="btn btn-sm btn-primary">{gettext("Save")}</button>
+                    <button
+                      type="button"
+                      phx-click="group_toggle_edit"
+                      class="btn btn-sm btn-ghost"
+                    >
+                      {gettext("Cancel")}
+                    </button>
+                  </div>
+                </.form>
+              <% else %>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="space-y-2 text-sm">
+                    <div><strong>{dgettext("settings", "Name:")}</strong> {@group_detail.title}</div>
+                    <div>
+                      <strong>{dgettext("settings", "Description:")}</strong> {@group_detail.description ||
+                        "-"}
+                    </div>
+                    <div>
+                      <strong>{dgettext("settings", "Type:")}</strong>
+                      <span class={[
+                        "badge badge-sm",
+                        cond do
+                          @group_detail.type == "public" -> "badge-success"
+                          @group_detail.type == "private" -> "badge-warning"
+                          true -> "badge-error"
+                        end
+                      ]}>
+                        {@group_detail.type}
+                      </span>
+                    </div>
+                    <div>
+                      <strong>{dgettext("settings", "Max Members:")}</strong> {@group_detail.max_members}
+                    </div>
+                    <div>
+                      <strong>{dgettext("settings", "Created:")}</strong> {Calendar.strftime(
+                        @group_detail.inserted_at,
+                        "%Y-%m-%d %H:%M"
+                      )}
+                    </div>
+                  </div>
+                  <div class="space-y-2 text-sm">
+                    <div>
+                      <strong>{dgettext("settings", "Your Role:")}</strong>
+                      <span class={[
+                        "badge badge-sm",
+                        if(@group_detail_role == "admin", do: "badge-info", else: "badge-ghost")
+                      ]}>
+                        {@group_detail_role || dgettext("settings", "not a member")}
+                      </span>
+                    </div>
+                    <div class="flex gap-2">
+                      <button
+                        :if={@group_detail_role == "admin"}
+                        phx-click="group_toggle_edit"
+                        class="btn btn-xs btn-outline btn-info"
+                      >
+                        {dgettext("settings", "Edit Group")}
+                      </button>
+                      <button
+                        phx-click="group_leave"
+                        phx-value-group_id={@group_detail.id}
+                        class="btn btn-xs btn-outline btn-error"
+                        data-confirm={dgettext("settings", "Leave this group?")}
+                      >
+                        {dgettext("groups", "Leave Group")}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+
+              <%!-- Members list --%>
+              <div class="mt-4">
+                <div class="font-semibold text-sm">{gettext("Members")} ({@group_members_total})</div>
+                <div class="overflow-x-auto mt-2">
+                  <table id="group-members-table" class="table table-zebra w-full">
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th>{gettext("Name")}</th>
+                        <th>{gettext("Email")}</th>
+                        <th>{gettext("Role")}</th>
+                        <th>{gettext("Joined")}</th>
+                        <%= if @group_detail_role == "admin" do %>
+                          <th>{gettext("Actions")}</th>
+                        <% end %>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        :for={m <- @group_members}
+                        id={"gm-" <> to_string(m.id)}
+                      >
+                        <td>
+                          <span
+                            class={[
+                              "inline-block w-2 h-2 rounded-full",
+                              if(m.user.is_online, do: "bg-green-500", else: "bg-gray-400")
+                            ]}
+                            title={if(m.user.is_online, do: "Online", else: "Offline")}
+                          />
+                        </td>
+                        <td class="text-sm">{m.user.display_name || "User #{m.user_id}"}</td>
+                        <td class="text-sm text-base-content/70">{m.user.email}</td>
+                        <td>
+                          <span class={[
+                            "badge badge-sm",
+                            if(m.role == "admin", do: "badge-info", else: "badge-ghost")
+                          ]}>
+                            {m.role}
+                          </span>
+                        </td>
+                        <td class="text-sm whitespace-nowrap">
+                          {Calendar.strftime(m.inserted_at, "%Y-%m-%d %H:%M")}
+                        </td>
+                        <%= if @group_detail_role == "admin" do %>
+                          <td class="flex gap-1">
+                            <%= if m.user_id != @user.id do %>
+                              <%= if m.role == "member" do %>
+                                <button
+                                  phx-click="group_promote"
+                                  phx-value-group_id={@group_detail.id}
+                                  phx-value-user_id={m.user_id}
+                                  class="btn btn-xs btn-outline btn-primary"
+                                >
+                                  {gettext("Promote")}
+                                </button>
+                              <% else %>
+                                <button
+                                  phx-click="group_demote"
+                                  phx-value-group_id={@group_detail.id}
+                                  phx-value-user_id={m.user_id}
+                                  class="btn btn-xs btn-outline btn-warning"
+                                >
+                                  {gettext("Demote")}
+                                </button>
+                              <% end %>
+                              <button
+                                phx-click="group_kick"
+                                phx-value-group_id={@group_detail.id}
+                                phx-value-user_id={m.user_id}
+                                class="btn btn-xs btn-outline btn-error"
+                                data-confirm={
+                                  dgettext("groups", "Kick %{name}?",
+                                    name: m.user.display_name || m.user.email
+                                  )
+                                }
+                              >
+                                {gettext("Kick")}
+                              </button>
+                            <% else %>
+                              <span class="text-xs text-base-content/50">{gettext("You")}</span>
+                            <% end %>
+                          </td>
+                        <% end %>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div :if={@group_members_total_pages > 1} class="mt-2 flex gap-2 items-center">
+                  <button
+                    phx-click="group_members_prev"
+                    class="btn btn-xs"
+                    disabled={@group_members_page <= 1}
+                  >
+                    {gettext("Prev")}
+                  </button>
+                  <div class="text-xs text-base-content/70">
+                    page {@group_members_page} / {@group_members_total_pages} ({@group_members_total} total)
+                  </div>
+                  <button
+                    phx-click="group_members_next"
+                    class="btn btn-xs"
+                    disabled={
+                      @group_members_page >= @group_members_total_pages ||
+                        @group_members_total_pages == 0
+                    }
+                  >
+                    {gettext("Next")}
+                  </button>
+                </div>
               </div>
-            <% else %>
+
+              <%!-- Incoming Join Requests (admin only) --%>
+              <div :if={@group_detail_role == "admin" && @group_join_requests != []} class="mt-6">
+                <h4 class="font-semibold text-base mb-3">
+                  {dgettext("settings", "Pending Join Requests")} ({length(@group_join_requests)})
+                </h4>
+                <div class="space-y-2">
+                  <div
+                    :for={req <- @group_join_requests}
+                    class="flex items-center justify-between p-2 rounded-lg bg-base-200/60"
+                  >
+                    <div class="flex items-center gap-2">
+                      <div class="text-sm font-medium">
+                        {req.user.display_name || req.user.email}
+                      </div>
+                      <span class="text-xs text-base-content/50">
+                        #{req.user_id} &mdash; {Calendar.strftime(req.inserted_at, "%Y-%m-%d %H:%M")}
+                      </span>
+                    </div>
+                    <div class="flex gap-1">
+                      <button
+                        phx-click="group_approve_request"
+                        phx-value-request_id={req.id}
+                        class="btn btn-xs btn-primary"
+                      >
+                        {gettext("Approve")}
+                      </button>
+                      <button
+                        phx-click="group_reject_request"
+                        phx-value-request_id={req.id}
+                        class="btn btn-xs btn-outline btn-error"
+                      >
+                        {gettext("Reject")}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <%!-- Send Notification to Group (any member) --%>
+              <div class="mt-6">
+                <h4 class="font-semibold text-base mb-3">
+                  {dgettext("settings", "Send Notification")}
+                </h4>
+                <.form
+                  for={@group_notify_form}
+                  id="group-notify-form"
+                  phx-submit="group_notify"
+                  class="flex flex-col gap-2"
+                >
+                  <div class="flex gap-2 items-end">
+                    <div class="w-1/3">
+                      <.input
+                        field={@group_notify_form[:title]}
+                        type="text"
+                        placeholder={dgettext("settings", "Title (optional)")}
+                      />
+                    </div>
+                    <div class="flex-1">
+                      <.input
+                        field={@group_notify_form[:content]}
+                        type="text"
+                        placeholder={dgettext("settings", "Type a message to all members...")}
+                      />
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary">
+                      <.icon name="hero-megaphone-mini" class="w-4 h-4 mr-1" /> {gettext("Send")}
+                    </button>
+                  </div>
+                </.form>
+              </div>
+
+              <%!-- Invite Members (admin only) --%>
+              <div :if={@group_detail_role == "admin"} class="mt-6">
+                <h4 class="font-semibold text-base mb-3">{dgettext("settings", "Invite Members")}</h4>
+
+                <%!-- Search by name, email, or user ID --%>
+                <div class="form-control mb-3">
+                  <label class="label">
+                    <span class="label-text">{gettext("Search...")}</span>
+                  </label>
+                  <input
+                    id="invite-search-input"
+                    type="text"
+                    phx-keyup="group_invite_search"
+                    phx-debounce="300"
+                    value={@invite_search_query}
+                    placeholder={dgettext("settings", "Type to search...")}
+                    class="input input-bordered input-sm w-full max-w-xs"
+                    autocomplete="off"
+                  />
+                </div>
+
+                <%!-- Search results --%>
+                <div :if={@invite_search_results != []} class="mb-4">
+                  <div class="text-xs font-medium text-base-content/60 mb-1">
+                    {dgettext("settings", "Search Results")}
+                  </div>
+                  <div class="space-y-1 max-h-48 overflow-y-auto">
+                    <div
+                      :for={u <- @invite_search_results}
+                      class="flex items-center justify-between p-2 rounded-lg bg-base-200/60"
+                    >
+                      <div class="flex items-center gap-2">
+                        <div class={[
+                          "w-2 h-2 rounded-full",
+                          if(Map.get(u, :is_online, false),
+                            do: "bg-success",
+                            else: "bg-base-content/30"
+                          )
+                        ]} />
+                        <div>
+                          <span class="text-sm font-medium">{u.display_name || u.email}</span>
+                          <span class="text-xs text-base-content/50 ml-1">#{u.id}</span>
+                        </div>
+                      </div>
+                      <button
+                        phx-click="group_invite_user"
+                        phx-value-group_id={@group_detail.id}
+                        phx-value-user_id={u.id}
+                        class="btn btn-xs btn-primary"
+                      >
+                        {gettext("Invite")}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  :if={@invite_search_query != "" && @invite_search_results == []}
+                  class="mb-4 text-sm text-base-content/50"
+                >
+                  {dgettext("settings", "No results for \"%{query}\"", query: @invite_search_query)}
+                </div>
+
+                <%!-- Quick invite from friends --%>
+                <div :if={@invite_friends != []} class="mt-3">
+                  <div class="text-xs font-medium text-base-content/60 mb-1">
+                    {dgettext("settings", "Friends not in this group")}
+                  </div>
+                  <div class="space-y-1 max-h-48 overflow-y-auto">
+                    <div
+                      :for={f <- @invite_friends}
+                      class="flex items-center justify-between p-2 rounded-lg bg-base-200/40"
+                    >
+                      <div class="flex items-center gap-2">
+                        <div class={[
+                          "w-2 h-2 rounded-full",
+                          if(Map.get(f, :is_online, false),
+                            do: "bg-success",
+                            else: "bg-base-content/30"
+                          )
+                        ]} />
+                        <span class="text-sm">{f.display_name || f.email}</span>
+                      </div>
+                      <button
+                        phx-click="group_invite_user"
+                        phx-value-group_id={@group_detail.id}
+                        phx-value-user_id={f.id}
+                        class="btn btn-xs btn-outline btn-primary"
+                      >
+                        {gettext("Invite")}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div :if={@invite_friends == []} class="mt-3 text-sm text-base-content/40">
+                  {dgettext("settings", "All friends are already members.")}
+                </div>
+              </div>
+            </div>
+          <% end %>
+
+          <%!-- Tabs (hidden when viewing detail) --%>
+          <%= if !@group_detail && !@groups_show_create do %>
+            <%!-- Sub-tabs --%>
+            <div class="flex gap-2 mt-4 border-b border-base-300 pb-2">
+              <button
+                :for={
+                  {tab, label} <- [
+                    {"my_groups", dgettext("settings", "My Groups") <> " (#{@groups_count})"},
+                    {"browse", dgettext("settings", "Browse Groups")},
+                    {"invitations",
+                     dgettext("settings", "Invitations") <> " (#{length(@group_invitations)})"},
+                    {"requests",
+                     dgettext("settings", "My Requests") <> " (#{length(@group_pending_requests)})"},
+                    {"sent_invitations",
+                     dgettext("settings", "Sent Invitations") <>
+                       " (#{length(@group_sent_invitations)})"}
+                  ]
+                }
+                phx-click="groups_tab"
+                phx-value-tab={tab}
+                class={[
+                  "btn btn-sm",
+                  if(@groups_tab == tab, do: "btn-primary", else: "btn-ghost")
+                ]}
+              >
+                {label}
+              </button>
+            </div>
+
+            <%!-- My Groups tab --%>
+            <%= if @groups_tab == "my_groups" do %>
+              <%= if @groups_count == 0 do %>
+                <div class="mt-4 text-sm text-base-content/60">
+                  {gettext("None yet.")}
+                </div>
+              <% else %>
+                <div class="overflow-x-auto mt-4">
+                  <table id="my-groups-table" class="table table-zebra w-full">
+                    <thead>
+                      <tr>
+                        <th>{gettext("Title")}</th>
+                        <th>{gettext("Type")}</th>
+                        <th>{dgettext("settings", "Max Members")}</th>
+                        <th>{gettext("Role")}</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        :for={{group, role} <- @my_groups}
+                        id={"my-group-" <> to_string(group.id)}
+                      >
+                        <td class="text-sm">
+                          <button
+                            phx-click="group_view_detail"
+                            phx-value-group_id={group.id}
+                            class="link link-primary font-medium"
+                          >
+                            {group.title}
+                          </button>
+                        </td>
+                        <td>
+                          <span class={[
+                            "badge badge-sm",
+                            cond do
+                              group.type == "public" -> "badge-success"
+                              group.type == "private" -> "badge-warning"
+                              true -> "badge-error"
+                            end
+                          ]}>
+                            {group.type}
+                          </span>
+                        </td>
+                        <td class="text-sm">{group.max_members}</td>
+                        <td>
+                          <span class={[
+                            "badge badge-sm",
+                            if(role == "admin", do: "badge-info", else: "badge-ghost")
+                          ]}>
+                            {role}
+                          </span>
+                        </td>
+                        <td class="flex gap-1">
+                          <button
+                            phx-click="group_view_detail"
+                            phx-value-group_id={group.id}
+                            class="btn btn-xs btn-ghost"
+                          >
+                            {gettext("View")}
+                          </button>
+                          <button
+                            phx-click="group_leave"
+                            phx-value-group_id={group.id}
+                            class="btn btn-xs btn-outline btn-error"
+                            data-confirm={dgettext("settings", "Leave this group?")}
+                          >
+                            {gettext("Leave")}
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              <% end %>
+            <% end %>
+
+            <%!-- Browse Groups tab --%>
+            <%= if @groups_tab == "browse" do %>
+              <div class="mt-4">
+                <.form
+                  for={@browse_groups_form}
+                  id="browse-groups-form"
+                  phx-change="browse_groups_filter"
+                  phx-submit="browse_groups_filter"
+                >
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <.input
+                      field={@browse_groups_form[:title]}
+                      type="text"
+                      label={gettext("Title")}
+                      phx-debounce="300"
+                    />
+                    <.input
+                      field={@browse_groups_form[:type]}
+                      type="select"
+                      label={gettext("Type")}
+                      options={[
+                        {gettext("All"), ""},
+                        {gettext("Public"), "public"},
+                        {gettext("Private"), "private"}
+                      ]}
+                    />
+                    <div class="flex items-end">
+                      <button
+                        type="button"
+                        phx-click="browse_groups_clear"
+                        class="btn btn-sm btn-ghost"
+                      >
+                        {gettext("Clear")}
+                      </button>
+                    </div>
+                  </div>
+                </.form>
+              </div>
+
               <div class="overflow-x-auto mt-4">
-                <table id="group-invitations-table" class="table table-zebra w-full">
+                <table id="browse-groups-table" class="table table-zebra w-full">
                   <thead>
                     <tr>
-                      <th>{gettext("Group")}</th>
-                      <th>{gettext("From")}</th>
-                      <th>{gettext("Date")}</th>
+                      <th>{gettext("Title")}</th>
+                      <th>{gettext("Type")}</th>
+                      <th>{dgettext("settings", "Max Members")}</th>
                       <th></th>
                     </tr>
                   </thead>
                   <tbody>
+                    <%= if length(@browse_groups) == 0 do %>
+                      <tr>
+                        <td colspan="4" class="text-center text-sm text-base-content/60">
+                          {gettext("None available.")}
+                        </td>
+                      </tr>
+                    <% end %>
                     <tr
-                      :for={inv <- @group_invitations}
-                      id={"group-inv-" <> to_string(inv.id)}
+                      :for={group <- @browse_groups}
+                      id={"browse-group-" <> to_string(group.id)}
                     >
-                      <td class="text-sm font-mono">{inv.group_name || "Group ##{inv.group_id}"}</td>
-                      <td class="text-sm font-mono">{inv.sender_id}</td>
-                      <td class="text-sm whitespace-nowrap">
-                        {Calendar.strftime(inv.inserted_at, "%Y-%m-%d %H:%M")}
-                      </td>
+                      <td class="text-sm font-medium">{group.title}</td>
                       <td>
-                        <button
-                          phx-click="group_accept_invite"
-                          phx-value-group_id={inv.group_id}
-                          class="btn btn-xs btn-primary"
-                        >
-                          {gettext("Accept")}
-                        </button>
+                        <span class={[
+                          "badge badge-sm",
+                          if(group.type == "public", do: "badge-success", else: "badge-warning")
+                        ]}>
+                          {group.type}
+                        </span>
+                      </td>
+                      <td class="text-sm">{group.max_members}</td>
+                      <td>
+                        <%= cond do %>
+                          <% Enum.any?(@my_groups, fn {g, _role} -> g.id == group.id end) -> %>
+                            <span class="badge badge-sm badge-ghost">
+                              {dgettext("settings", "Joined")}
+                            </span>
+                          <% Enum.any?(@group_pending_requests, fn r -> r.group_id == group.id end) -> %>
+                            <span class="badge badge-sm badge-warning">
+                              {dgettext("groups", "Pending")}
+                            </span>
+                          <% group.type == "public" -> %>
+                            <button
+                              phx-click="group_join"
+                              phx-value-group_id={group.id}
+                              class="btn btn-xs btn-primary"
+                            >
+                              {gettext("Join")}
+                            </button>
+                          <% group.type == "private" -> %>
+                            <button
+                              phx-click="group_request_join"
+                              phx-value-group_id={group.id}
+                              class="btn btn-xs btn-outline btn-primary"
+                            >
+                              {gettext("Request")}
+                            </button>
+                          <% true -> %>
+                            <span class="text-xs text-base-content/50">-</span>
+                        <% end %>
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
-            <% end %>
-          <% end %>
 
-          <%!-- My Pending Requests tab --%>
-          <%= if @groups_tab == "requests" do %>
-            <%= if length(@group_pending_requests) == 0 do %>
-              <div class="mt-4 text-sm text-base-content/60">
-                {gettext("None yet.")}
-              </div>
-            <% else %>
-              <div class="overflow-x-auto mt-4">
-                <table id="group-requests-table" class="table table-zebra w-full">
-                  <thead>
-                    <tr>
-                      <th>{gettext("Group")}</th>
-                      <th>{gettext("Status")}</th>
-                      <th>{dgettext("settings", "Requested")}</th>
-                      <th>{gettext("Actions")}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr
-                      :for={req <- @group_pending_requests}
-                      id={"group-req-" <> to_string(req.id)}
-                    >
-                      <td class="text-sm font-mono">{req.group.title}</td>
-                      <td>
-                        <span class="badge badge-sm badge-warning">{req.status}</span>
-                      </td>
-                      <td class="text-sm whitespace-nowrap">
-                        {Calendar.strftime(req.inserted_at, "%Y-%m-%d %H:%M")}
-                      </td>
-                      <td>
-                        <button
-                          phx-click="group_cancel_request"
-                          phx-value-request_id={req.id}
-                          class="btn btn-xs btn-outline btn-error"
-                          data-confirm={dgettext("groups", "Cancel this join request?")}
-                        >
-                          {gettext("Cancel")}
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+              <div class="mt-4 flex gap-2 items-center">
+                <button
+                  phx-click="browse_groups_prev"
+                  class="btn btn-xs"
+                  disabled={@browse_groups_page <= 1}
+                >
+                  {gettext("Prev")}
+                </button>
+                <div class="text-xs text-base-content/70">
+                  page {@browse_groups_page} / {@browse_groups_total_pages} ({@browse_groups_total} total)
+                </div>
+                <button
+                  phx-click="browse_groups_next"
+                  class="btn btn-xs"
+                  disabled={
+                    @browse_groups_page >= @browse_groups_total_pages ||
+                      @browse_groups_total_pages == 0
+                  }
+                >
+                  {gettext("Next")}
+                </button>
               </div>
             <% end %>
-          <% end %>
 
-          <%!-- Sent Invitations tab --%>
-          <%= if @groups_tab == "sent_invitations" do %>
-            <%= if @group_sent_invitations == [] do %>
-              <div class="mt-4 text-sm text-base-content/60">{gettext("None yet.")}</div>
-            <% else %>
-              <div class="overflow-x-auto mt-4">
-                <table id="group-sent-invitations-table" class="table table-zebra w-full">
-                  <thead>
-                    <tr>
-                      <th>{gettext("Group")}</th>
-                      <th>{dgettext("settings", "Invited User")}</th>
-                      <th>{gettext("Date")}</th>
-                      <th>{gettext("Actions")}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr
-                      :for={inv <- @group_sent_invitations}
-                      id={"group-sent-inv-" <> to_string(inv.id)}
-                    >
-                      <td class="text-sm font-mono">{inv.group_name || "Group ##{inv.group_id}"}</td>
-                      <td class="text-sm font-mono">
-                        {inv.recipient_name || "User ##{inv.recipient_id}"}
-                      </td>
-                      <td class="text-sm whitespace-nowrap">
-                        {Calendar.strftime(inv.inserted_at, "%Y-%m-%d %H:%M")}
-                      </td>
-                      <td>
-                        <button
-                          phx-click="group_cancel_invite"
-                          phx-value-invite_id={inv.id}
-                          class="btn btn-xs btn-outline btn-error"
-                          data-confirm={dgettext("groups", "Cancel this invitation?")}
-                        >
-                          {gettext("Cancel")}
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+            <%!-- Invitations tab --%>
+            <%= if @groups_tab == "invitations" do %>
+              <%= if length(@group_invitations) == 0 do %>
+                <div class="mt-4 text-sm text-base-content/60">
+                  {gettext("None yet.")}
+                </div>
+              <% else %>
+                <div class="overflow-x-auto mt-4">
+                  <table id="group-invitations-table" class="table table-zebra w-full">
+                    <thead>
+                      <tr>
+                        <th>{gettext("Group")}</th>
+                        <th>{gettext("From")}</th>
+                        <th>{gettext("Date")}</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        :for={inv <- @group_invitations}
+                        id={"group-inv-" <> to_string(inv.id)}
+                      >
+                        <td class="text-sm font-mono">
+                          {inv.group_name || "Group ##{inv.group_id}"}
+                        </td>
+                        <td class="text-sm font-mono">{inv.sender_id}</td>
+                        <td class="text-sm whitespace-nowrap">
+                          {Calendar.strftime(inv.inserted_at, "%Y-%m-%d %H:%M")}
+                        </td>
+                        <td>
+                          <button
+                            phx-click="group_accept_invite"
+                            phx-value-group_id={inv.group_id}
+                            class="btn btn-xs btn-primary"
+                          >
+                            {gettext("Accept")}
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              <% end %>
+            <% end %>
+
+            <%!-- My Pending Requests tab --%>
+            <%= if @groups_tab == "requests" do %>
+              <%= if length(@group_pending_requests) == 0 do %>
+                <div class="mt-4 text-sm text-base-content/60">
+                  {gettext("None yet.")}
+                </div>
+              <% else %>
+                <div class="overflow-x-auto mt-4">
+                  <table id="group-requests-table" class="table table-zebra w-full">
+                    <thead>
+                      <tr>
+                        <th>{gettext("Group")}</th>
+                        <th>{gettext("Status")}</th>
+                        <th>{dgettext("settings", "Requested")}</th>
+                        <th>{gettext("Actions")}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        :for={req <- @group_pending_requests}
+                        id={"group-req-" <> to_string(req.id)}
+                      >
+                        <td class="text-sm font-mono">{req.group.title}</td>
+                        <td>
+                          <span class="badge badge-sm badge-warning">{req.status}</span>
+                        </td>
+                        <td class="text-sm whitespace-nowrap">
+                          {Calendar.strftime(req.inserted_at, "%Y-%m-%d %H:%M")}
+                        </td>
+                        <td>
+                          <button
+                            phx-click="group_cancel_request"
+                            phx-value-request_id={req.id}
+                            class="btn btn-xs btn-outline btn-error"
+                            data-confirm={dgettext("groups", "Cancel this join request?")}
+                          >
+                            {gettext("Cancel")}
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              <% end %>
+            <% end %>
+
+            <%!-- Sent Invitations tab --%>
+            <%= if @groups_tab == "sent_invitations" do %>
+              <%= if @group_sent_invitations == [] do %>
+                <div class="mt-4 text-sm text-base-content/60">{gettext("None yet.")}</div>
+              <% else %>
+                <div class="overflow-x-auto mt-4">
+                  <table id="group-sent-invitations-table" class="table table-zebra w-full">
+                    <thead>
+                      <tr>
+                        <th>{gettext("Group")}</th>
+                        <th>{dgettext("settings", "Invited User")}</th>
+                        <th>{gettext("Date")}</th>
+                        <th>{gettext("Actions")}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr
+                        :for={inv <- @group_sent_invitations}
+                        id={"group-sent-inv-" <> to_string(inv.id)}
+                      >
+                        <td class="text-sm font-mono">
+                          {inv.group_name || "Group ##{inv.group_id}"}
+                        </td>
+                        <td class="text-sm font-mono">
+                          {inv.recipient_name || "User ##{inv.recipient_id}"}
+                        </td>
+                        <td class="text-sm whitespace-nowrap">
+                          {Calendar.strftime(inv.inserted_at, "%Y-%m-%d %H:%M")}
+                        </td>
+                        <td>
+                          <button
+                            phx-click="group_cancel_invite"
+                            phx-value-invite_id={inv.id}
+                            class="btn btn-xs btn-outline btn-error"
+                            data-confirm={dgettext("groups", "Cancel this invitation?")}
+                          >
+                            {gettext("Cancel")}
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              <% end %>
             <% end %>
           <% end %>
-        <% end %>
-      </div>
+        </div>
       </div>
     </Layouts.app>
     """
@@ -1736,7 +1760,8 @@ defmodule GameServerWeb.UserLive.Settings do
     user = get_user_from_scope(socket.assigns)
 
     case {event, params} do
-      {"settings_tab", %{"tab" => tab}} when tab in ~w(account friends data notifications groups) ->
+      {"settings_tab", %{"tab" => tab}}
+      when tab in ~w(account friends data notifications groups) ->
         {:noreply, assign(socket, :settings_tab, tab)}
 
       {"validate_email", %{"user" => user_params}} ->

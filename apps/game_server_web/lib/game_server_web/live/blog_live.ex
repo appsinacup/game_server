@@ -131,7 +131,10 @@ defmodule GameServerWeb.BlogLive do
                           <h4 class="font-semibold text-base-content group-hover:text-primary transition-colors truncate">
                             {post.title}
                           </h4>
-                          <p :if={post.excerpt != ""} class="text-sm text-base-content/60 mt-1 line-clamp-2">
+                          <p
+                            :if={post.excerpt != ""}
+                            class="text-sm text-base-content/60 mt-1 line-clamp-2"
+                          >
                             {post.excerpt}
                           </p>
                         </div>
@@ -158,9 +161,11 @@ defmodule GameServerWeb.BlogLive do
   defp blog_post(assigns) do
     ~H"""
     <%!-- Back link --%>
-    <.link navigate={~p"/blog"} class="inline-flex items-center gap-1 text-sm text-base-content/60 hover:text-primary mb-6 transition-colors">
-      <.icon name="hero-arrow-left" class="w-4 h-4" />
-      Back to Blog
+    <.link
+      navigate={~p"/blog"}
+      class="inline-flex items-center gap-1 text-sm text-base-content/60 hover:text-primary mb-6 transition-colors"
+    >
+      <.icon name="hero-arrow-left" class="w-4 h-4" /> Back to Blog
     </.link>
 
     <%!-- Post header --%>
