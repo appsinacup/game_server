@@ -10,6 +10,7 @@ GameServer.Cache.L2.Partitioned.Primary.md
 GameServer.Cache.L2.Partitioned.md
 GameServer.Cache.L2.Redis.md
 GameServer.Cache.md
+GameServer.Content.md
 GameServer.Env.md
 GameServer.Friends.Friendship.md
 GameServer.Friends.md

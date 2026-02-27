@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.40.1">
+    <meta name="project" content="GameServer v1.0.594">
+
+
+    <title>GameServer.Content — GameServer v1.0.594</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
+
+    <script defer src="dist/sidebar_items-9368B25D.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-YU4BZFVS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="api-reference.html" class="sidebar-projectName" translate="no">
+GameServer
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v1.0.594
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras="Pages"></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of GameServer</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">GameServer.<wbr>Content</span> 
+      <small class="app-vsn" translate="no">(GameServer v1.0.594)</small>
+
+    </h1>
+
+<a href="GameServer.Content.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
+  <i class="ri-markdown-line" aria-hidden="true"></i>
+  <span class="sr-only">Copy Markdown</span>
+</a>
+
+
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Reads and renders Markdown content from files/directories configured
+in the theme JSON config (<code class="inline">&quot;changelog&quot;</code> and <code class="inline">&quot;blog&quot;</code> keys).</p><p>Paths are resolved relative to the project working directory.</p>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h2>
+<div class="summary-functions summary">
+  <h3>
+    <a href="#functions">Functions</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#blog_dir/0" data-no-tooltip="" translate="no">blog_dir()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns the resolved absolute path to the blog directory, or <code class="inline">nil</code>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#blog_neighbours/1" data-no-tooltip="" translate="no">blog_neighbours(slug)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns <code class="inline">{prev_post, next_post}</code> neighbours for the given slug (newest-first order).
+Either may be <code class="inline">nil</code>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#blog_post_html/1" data-no-tooltip="" translate="no">blog_post_html(slug)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Renders a blog post's markdown to HTML, or <code class="inline">nil</code>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#blog_posts_grouped/0" data-no-tooltip="" translate="no">blog_posts_grouped()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Groups blog posts by <code class="inline">{year, month}</code> (newest first).
+Returns a list of <code class="inline">{year, [{month, [posts]}]}</code>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#changelog_html/0" data-no-tooltip="" translate="no">changelog_html()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns the rendered changelog HTML, or <code class="inline">nil</code> when the changelog path is
+not configured or the file doesn't exist.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#changelog_path/0" data-no-tooltip="" translate="no">changelog_path()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns the resolved absolute path to the changelog file, or <code class="inline">nil</code>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#content_asset_path/2" data-no-tooltip="" translate="no">content_asset_path(arg1, relative)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns the absolute path for a content asset (image etc.) relative to the
+blog or changelog directory. Returns <code class="inline">nil</code> when not found or path traversal
+is attempted.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_blog_post/1" data-no-tooltip="" translate="no">get_blog_post(slug)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns a single blog post map by slug, or <code class="inline">nil</code>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_blog_posts/0" data-no-tooltip="" translate="no">list_blog_posts()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Lists all blog posts sorted newest-first.</p></div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="functions" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h2>
+
+    <div class="functions-list">
+<section class="detail" id="blog_dir/0">
+
+  <div class="detail-header">
+    <a href="#blog_dir/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">blog_dir()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> blog_dir() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil</pre>
+
+      </div>
+
+<p>Returns the resolved absolute path to the blog directory, or <code class="inline">nil</code>.</p>
+  </section>
+</section>
+<section class="detail" id="blog_neighbours/1">
+
+  <div class="detail-header">
+    <a href="#blog_neighbours/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">blog_neighbours(slug)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> blog_neighbours(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: {<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>() | nil, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>() | nil}</pre>
+
+      </div>
+
+<p>Returns <code class="inline">{prev_post, next_post}</code> neighbours for the given slug (newest-first order).
+Either may be <code class="inline">nil</code>.</p>
+  </section>
+</section>
+<section class="detail" id="blog_post_html/1">
+
+  <div class="detail-header">
+    <a href="#blog_post_html/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">blog_post_html(slug)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> blog_post_html(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil</pre>
+
+      </div>
+
+<p>Renders a blog post's markdown to HTML, or <code class="inline">nil</code>.</p>
+  </section>
+</section>
+<section class="detail" id="blog_posts_grouped/0">
+
+  <div class="detail-header">
+    <a href="#blog_posts_grouped/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">blog_posts_grouped()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> blog_posts_grouped() :: [{<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), [{<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), [<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()]}]}]</pre>
+
+      </div>
+
+<p>Groups blog posts by <code class="inline">{year, month}</code> (newest first).
+Returns a list of <code class="inline">{year, [{month, [posts]}]}</code>.</p>
+  </section>
+</section>
+<section class="detail" id="changelog_html/0">
+
+  <div class="detail-header">
+    <a href="#changelog_html/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">changelog_html()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> changelog_html() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil</pre>
+
+      </div>
+
+<p>Returns the rendered changelog HTML, or <code class="inline">nil</code> when the changelog path is
+not configured or the file doesn't exist.</p>
+  </section>
+</section>
+<section class="detail" id="changelog_path/0">
+
+  <div class="detail-header">
+    <a href="#changelog_path/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">changelog_path()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> changelog_path() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil</pre>
+
+      </div>
+
+<p>Returns the resolved absolute path to the changelog file, or <code class="inline">nil</code>.</p>
+  </section>
+</section>
+<section class="detail" id="content_asset_path/2">
+
+  <div class="detail-header">
+    <a href="#content_asset_path/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">content_asset_path(arg1, relative)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> content_asset_path(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil</pre>
+
+      </div>
+
+<p>Returns the absolute path for a content asset (image etc.) relative to the
+blog or changelog directory. Returns <code class="inline">nil</code> when not found or path traversal
+is attempted.</p>
+  </section>
+</section>
+<section class="detail" id="get_blog_post/1">
+
+  <div class="detail-header">
+    <a href="#get_blog_post/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_blog_post(slug)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_blog_post(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>() | nil</pre>
+
+      </div>
+
+<p>Returns a single blog post map by slug, or <code class="inline">nil</code>.</p>
+  </section>
+</section>
+<section class="detail" id="list_blog_posts/0">
+
+  <div class="detail-header">
+    <a href="#list_blog_posts/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_blog_posts()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_blog_posts() :: [<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()]</pre>
+
+      </div>
+
+<p>Lists all blog posts sorted newest-first.</p><p>Each post is a map with keys:</p><ul><li><code class="inline">:slug</code>  – URL-safe identifier derived from the filename</li><li><code class="inline">:title</code> – extracted from the first <code class="inline">#</code> heading (or humanised slug)</li><li><code class="inline">:date</code>  – <code class="inline">Date.t()</code> parsed from filename prefix or file mtime</li><li><code class="inline">:path</code>  – absolute path to the <code class="inline">.md</code> file</li><li><code class="inline">:excerpt</code> – first non-heading paragraph (≤ 200 chars)</li></ul>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+
+        <p>
+
+          <span class="line">
+            <button class="a-main footer-button display-quick-switch" title="Go to package docs">
+              Go to package docs
+            </button>
+
+              <a href="llms.txt" target="_blank">
+                View llms.txt
+              </a>
+
+
+              <a href="GameServer.epub">
+                Download ePub version
+              </a>
+
+          </span>
+        </p>
+
+        <p class="built-using">
+          Built using
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.1) for the
+
+            <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+        </p>
+
+
+    </footer>
+  </div>
+</main>
+</div>
+
+  </body>
+</html>

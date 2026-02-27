@@ -1,4 +1,4 @@
-# GameServer v1.0.592 - API Reference
+# GameServer v1.0.594 - API Reference
 
 ## Modules
 
@@ -20,6 +20,8 @@ and email-change workflows.
 - [GameServer.Cache.L2.Partitioned.Primary](GameServer.Cache.L2.Partitioned.Primary.md): This is the cache for the primary storage.
 
 - [GameServer.Cache.L2.Redis](GameServer.Cache.L2.Redis.md): L2 cache backed by Redis.
+- [GameServer.Content](GameServer.Content.md): Reads and renders Markdown content from files/directories configured
+in the theme JSON config (`"changelog"` and `"blog"` keys).
 - [GameServer.Env](GameServer.Env.md): Helpers for reading and parsing environment variables.
 - [GameServer.Friends](GameServer.Friends.md): Friends context - handles friend requests and relationships.
 - [GameServer.Friends.Friendship](GameServer.Friends.Friendship.md): Ecto schema representing a friendship/request between two users.
