@@ -71,10 +71,7 @@ defmodule GameServerWeb.Layouts do
     ~H"""
     <header class={[
       "navbar px-4 sm:px-6 lg:px-8 sticky top-0 z-50 border-b",
-      if(@current_path == "/",
-        do: "bg-base-100/60 backdrop-blur-lg border-base-200/40",
-        else: "bg-base-100/90 backdrop-blur-md border-base-200"
-      )
+      "bg-transparent backdrop-blur-md border-base-200/20"
     ]}>
       <% title = Map.get(@theme, "title") %>
       <% tagline = Map.get(@theme, "tagline") %>

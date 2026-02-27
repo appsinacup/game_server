@@ -4,10 +4,10 @@
   <% useful_links = Map.get(provider_theme, "useful_links", []) %>
   <% features = Map.get(provider_theme, "features", []) %>
 
-  <%!-- Full-bleed hero section — breaks out of the layout container --%>
-  <div class="relative w-screen left-1/2 -translate-x-1/2 -mt-4">
-    <%!-- Background image — account for sticky navbar height --%>
-    <div class="relative h-[calc(100vh-4rem)] overflow-hidden">
+  <%!-- Full-bleed hero section — breaks out of the layout container, extends behind navbar --%>
+  <div class="relative w-screen left-1/2 -translate-x-1/2 -mt-20">
+    <%!-- Background image — full viewport height --%>
+    <div class="relative h-screen overflow-hidden">
       <img
         src="/images/fullscreen.png"
         alt=""
@@ -17,7 +17,7 @@
       <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70"></div>
 
       <%!-- Hero content overlay — centered with arrow pinned at bottom --%>
-      <div class="relative z-10 flex flex-col items-center h-[calc(100vh-4rem)] px-6 sm:px-8 lg:px-12">
+      <div class="relative z-10 flex flex-col items-center h-screen px-6 sm:px-8 lg:px-12">
         <%!-- Top spacer --%>
         <div class="flex-1 min-h-4"></div>
 
