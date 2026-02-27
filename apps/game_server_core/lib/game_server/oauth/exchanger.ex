@@ -311,19 +311,18 @@ defmodule GameServer.OAuth.Exchanger do
       with {:ok,
             %{status: 200, body: %{"response" => %{"params" => params_map, "result" => result}}}} <-
              http_client().post(url, form: params),
-           true <- result in ["OK", "ok"] do
-        steamid = params_map["ownersteamid"] || params_map["steamid"]
-
-        if is_nil(steamid) do
-          {:error, :no_steamid}
+           true <- result in ["OK", "ok"],
+           steamid when is_binary(steamid) <-
+             params_map["ownersteamid"] || params_map["steamid"] do
+        if Keyword.get(opts, :fetch_profile, true) do
+          steam_profile_for(api_key, steamid)
         else
-          if Keyword.get(opts, :fetch_profile, true) do
-            steam_profile_for(api_key, steamid)
-          else
-            {:ok, %{"id" => to_string(steamid)}}
-          end
+          {:ok, %{"id" => to_string(steamid)}}
         end
       else
+        nil ->
+          {:error, :no_steamid}
+
         {:ok, %{status: 200, body: %{"response" => %{"result" => result}}}} ->
           {:error, {:steam_result, result}}
 

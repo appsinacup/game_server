@@ -44,7 +44,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       # Switch to friends tab
       view
-      |> element("button[phx-click=\"settings_tab\"][phx-value-tab=\"friends\"]")
+      |> element(~s(button[phx-click="settings_tab"][phx-value-tab="friends"]))
       |> render_click()
 
       # incoming should be present
@@ -75,7 +75,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       # Switch to friends tab
       view
-      |> element("button[phx-click=\"settings_tab\"][phx-value-tab=\"friends\"]")
+      |> element(~s(button[phx-click="settings_tab"][phx-value-tab="friends"]))
       |> render_click()
 
       f =
@@ -102,7 +102,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       # Switch to friends tab
       view
-      |> element("button[phx-click=\"settings_tab\"][phx-value-tab=\"friends\"]")
+      |> element(~s(button[phx-click="settings_tab"][phx-value-tab="friends"]))
       |> render_click()
 
       f =
@@ -241,7 +241,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       # Switch to friends tab
       lv
-      |> element("button[phx-click=\"settings_tab\"][phx-value-tab=\"friends\"]")
+      |> element(~s(button[phx-click="settings_tab"][phx-value-tab="friends"]))
       |> render_click()
 
       # find search form and trigger change
@@ -288,7 +288,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       # Switch to friends tab
       lv
-      |> element("button[phx-click=\"settings_tab\"][phx-value-tab=\"friends\"]")
+      |> element(~s(button[phx-click="settings_tab"][phx-value-tab="friends"]))
       |> render_click()
 
       rendered = render(lv)

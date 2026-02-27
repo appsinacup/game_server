@@ -279,7 +279,7 @@ defmodule GameServer.Accounts do
   """
   @spec touch_last_seen(User.t()) :: :ok
   def touch_last_seen(%User{} = user) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
+    now = DateTime.utc_now(:second)
 
     user
     |> Ecto.Changeset.change(last_seen_at: now)

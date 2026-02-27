@@ -20,7 +20,7 @@ defmodule GameServerWeb.UserLive.SettingsKVTest do
       |> live(~p"/users/settings")
 
     # Switch to data tab
-    lv |> element("button[phx-click=\"settings_tab\"][phx-value-tab=\"data\"]") |> render_click()
+    lv |> element(~s(button[phx-click="settings_tab"][phx-value-tab="data"])) |> render_click()
 
     rendered = render(lv)
     assert rendered =~ "Data"
@@ -41,7 +41,7 @@ defmodule GameServerWeb.UserLive.SettingsKVTest do
       |> live(~p"/users/settings")
 
     # Switch to data tab
-    lv |> element("button[phx-click=\"settings_tab\"][phx-value-tab=\"data\"]") |> render_click()
+    lv |> element(~s(button[phx-click="settings_tab"][phx-value-tab="data"])) |> render_click()
 
     _ = render_change(lv, :kv_filters_change, %{"filters" => %{"key" => ":aaa"}})
 
