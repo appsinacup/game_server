@@ -114,6 +114,8 @@ defmodule GameServerWeb.AuthController do
           {:ok, refresh_token, _} =
             Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
 
+          Accounts.touch_last_seen(user)
+
           OAuthSessions.create_session(session_id, %{
             status: "completed",
             data: %{
@@ -174,6 +176,8 @@ defmodule GameServerWeb.AuthController do
 
         {:ok, refresh_token, _} =
           Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+        Accounts.touch_last_seen(user)
 
         json(conn, %{
           data: %{

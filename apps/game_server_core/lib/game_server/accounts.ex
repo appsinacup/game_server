@@ -264,7 +264,28 @@ defmodule GameServer.Accounts do
   defp count_users_active_since_cached(days) do
     cutoff = DateTime.utc_now() |> DateTime.add(-days, :day)
 
-    Repo.one(from u in User, where: u.updated_at >= ^cutoff, select: count(u.id)) || 0
+    Repo.one(
+      from u in User,
+        where:
+          u.updated_at >= ^cutoff or
+            (not is_nil(u.last_seen_at) and u.last_seen_at >= ^cutoff),
+        select: count(u.id)
+    ) || 0
+  end
+
+  @doc """
+  Updates `last_seen_at` to now for the given user. Fire-and-forget — errors are ignored.
+  Call on login (session or JWT) to track activity.
+  """
+  @spec touch_last_seen(User.t()) :: :ok
+  def touch_last_seen(%User{} = user) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    user
+    |> Ecto.Changeset.change(last_seen_at: now)
+    |> Repo.update()
+
+    :ok
   end
 
   @doc """
@@ -1293,6 +1314,7 @@ defmodule GameServer.Accounts do
   def generate_user_session_token(user) do
     {token, user_token} = UserToken.build_session_token(user)
     Repo.insert!(user_token)
+    touch_last_seen(user)
     token
   end
 

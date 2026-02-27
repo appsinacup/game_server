@@ -86,7 +86,8 @@ defmodule GameServerWeb.Api.V1.SessionController do
       {:ok, refresh_token, _refresh_claims} =
         Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
 
-      # Refresh tokens are stateless JWTs; do not persist on server side.
+      # Track login activity
+      Accounts.touch_last_seen(user)
 
       json(conn, %{
         data: %{
@@ -140,6 +141,8 @@ defmodule GameServerWeb.Api.V1.SessionController do
 
           {:ok, refresh_token, _} =
             Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+          Accounts.touch_last_seen(user)
 
           json(conn, %{
             data: %{
