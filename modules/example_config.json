@@ -13,8 +13,8 @@
     { "title": "Source Code", "url": "https://github.com/appsinacup/game_server", "icon": "hero-book-open" },
     { "title": "Guides", "url": "/docs/setup", "icon": "hero-academic-cap" },
     { "title": "API Docs", "url": "/api/docs", "icon": "hero-book-open" },
-    { "title": "JS SDK", "url": "https://www.npmjs.com/package/@ughuuu/game_server", "icon": "hero-puzzle-piece" },
-    { "title": "Godot SDK", "url": "https://godotengine.org/asset-library/asset/4510", "icon": "hero-cube" }
+    { "title": "Blog", "url": "/blog", "icon": "hero-newspaper" },
+    { "title": "Release Notes", "url": "/changelog", "icon": "hero-document-text" }
   ],
   "features": [
     { "title": "Authentication & Users", "description": "Email, Magic-link, OAuth, JWT and Session. Register, login, reset password and verify email.", "icon": "hero-lock-closed" },
