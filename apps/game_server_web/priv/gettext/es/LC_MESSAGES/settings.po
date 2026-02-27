@@ -11,688 +11,630 @@ msgstr ""
 "Language: es\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: lib/game_server_web/live/user_live/settings.ex:1975
-#: lib/game_server_web/live/user_live/settings.ex:1975
-#, elixir-autogen, elixir-format
-msgid "A link to confirm your email change has been sent to the new address."
-msgstr ""
-
-#: lib/game_server_web/live/user_live/settings.ex:17
-#: lib/game_server_web/live/user_live/settings.ex:17
-#, elixir-autogen, elixir-format
-msgid "Account Settings"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/settings.ex:56
-#: lib/game_server_web/live/user_live/settings.ex:56
+#: lib/game_server_web/live/user_live/settings.ex:51
+#: lib/game_server_web/live/user_live/settings.ex:51
 #, elixir-autogen, elixir-format
 msgid "Account details"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2081
-#: lib/game_server_web/live/user_live/settings.ex:2081
+#: lib/game_server_web/live/user_live/settings.ex:2068
+#: lib/game_server_web/live/user_live/settings.ex:2068
 #, elixir-autogen, elixir-format
 msgid "Account not found."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1000
-#: lib/game_server_web/live/user_live/settings.ex:1000
+#: lib/game_server_web/live/user_live/settings.ex:986
+#: lib/game_server_web/live/user_live/settings.ex:986
 #, elixir-autogen, elixir-format
 msgid "All friends are already members."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1881
-#: lib/game_server_web/live/user_live/settings.ex:1881
+#: lib/game_server_web/live/user_live/settings.ex:1868
+#: lib/game_server_web/live/user_live/settings.ex:1868
 #, elixir-autogen, elixir-format
 msgid "All notifications deleted"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1474
-#: lib/game_server_web/live/user_live/settings.ex:1474
+#: lib/game_server_web/live/user_live/settings.ex:1460
+#: lib/game_server_web/live/user_live/settings.ex:1460
 #, elixir-autogen, elixir-format
 msgid "Apple"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1558
-#: lib/game_server_web/live/user_live/settings.ex:1558
+#: lib/game_server_web/live/user_live/settings.ex:1544
+#: lib/game_server_web/live/user_live/settings.ex:1544
 #, elixir-autogen, elixir-format
 msgid "Are you sure you want to delete your account? This action cannot be undone."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:281
-#: lib/game_server_web/live/user_live/settings.ex:281
+#: lib/game_server_web/live/user_live/settings.ex:273
+#: lib/game_server_web/live/user_live/settings.ex:273
 #, elixir-autogen, elixir-format
 msgid "Blocked users"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1014
-#: lib/game_server_web/live/user_live/settings.ex:1014
+#: lib/game_server_web/live/user_live/settings.ex:1000
+#: lib/game_server_web/live/user_live/settings.ex:1000
 #, elixir-autogen, elixir-format
 msgid "Browse Groups"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2879
-#: lib/game_server_web/live/user_live/settings.ex:2879
+#: lib/game_server_web/live/user_live/settings.ex:2866
+#: lib/game_server_web/live/user_live/settings.ex:2866
 #, elixir-autogen, elixir-format
 msgid "Cannot delete an account you do not own. Log in to the other account directly if you control it."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2036
-#: lib/game_server_web/live/user_live/settings.ex:2036
-#, elixir-autogen, elixir-format
-msgid "Cannot unlink the last linked social provider (you must have at least one social login connected)."
-msgstr ""
-
-#: lib/game_server_web/live/user_live/settings.ex:92
-#: lib/game_server_web/live/user_live/settings.ex:92
+#: lib/game_server_web/live/user_live/settings.ex:87
+#: lib/game_server_web/live/user_live/settings.ex:87
 #, elixir-autogen, elixir-format
 msgid "Change Email"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:91
-#: lib/game_server_web/live/user_live/settings.ex:91
+#: lib/game_server_web/live/user_live/settings.ex:86
+#: lib/game_server_web/live/user_live/settings.ex:86
 #, elixir-autogen, elixir-format
 msgid "Changing..."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:130
-#: lib/game_server_web/live/user_live/settings.ex:130
+#: lib/game_server_web/live/user_live/settings.ex:125
+#: lib/game_server_web/live/user_live/settings.ex:125
 #, elixir-autogen, elixir-format
 msgid "Confirm new password"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:27
-#: lib/game_server_web/live/user_live/settings.ex:27
+#: lib/game_server_web/live/user_live/settings.ex:22
+#: lib/game_server_web/live/user_live/settings.ex:22
 #, elixir-autogen, elixir-format
 msgid "Conflict detected"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2894
-#: lib/game_server_web/live/user_live/settings.ex:2894
+#: lib/game_server_web/live/user_live/settings.ex:2881
+#: lib/game_server_web/live/user_live/settings.ex:2881
 #, elixir-autogen, elixir-format
 msgid "Conflicting account deleted. You can now try linking the provider again."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1897
-#: lib/game_server_web/live/user_live/settings.ex:1897
+#: lib/game_server_web/live/user_live/settings.ex:1884
+#: lib/game_server_web/live/user_live/settings.ex:1884
 #, elixir-autogen, elixir-format
 msgid "Could not accept: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1785
-#: lib/game_server_web/live/user_live/settings.ex:1785
+#: lib/game_server_web/live/user_live/settings.ex:1772
+#: lib/game_server_web/live/user_live/settings.ex:1772
 #, elixir-autogen, elixir-format
 msgid "Could not block: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1929
-#: lib/game_server_web/live/user_live/settings.ex:1929
+#: lib/game_server_web/live/user_live/settings.ex:1916
+#: lib/game_server_web/live/user_live/settings.ex:1916
 #, elixir-autogen, elixir-format
 msgid "Could not cancel: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1913
-#: lib/game_server_web/live/user_live/settings.ex:1913
+#: lib/game_server_web/live/user_live/settings.ex:1900
+#: lib/game_server_web/live/user_live/settings.ex:1900
 #, elixir-autogen, elixir-format
 msgid "Could not reject: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1945
-#: lib/game_server_web/live/user_live/settings.ex:1945
+#: lib/game_server_web/live/user_live/settings.ex:1932
+#: lib/game_server_web/live/user_live/settings.ex:1932
 #, elixir-autogen, elixir-format
 msgid "Could not remove: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1759
-#: lib/game_server_web/live/user_live/settings.ex:1759
-#: lib/game_server_web/live/user_live/settings.ex:1769
-#: lib/game_server_web/live/user_live/settings.ex:1769
+#: lib/game_server_web/live/user_live/settings.ex:1746
+#: lib/game_server_web/live/user_live/settings.ex:1746
+#: lib/game_server_web/live/user_live/settings.ex:1756
+#: lib/game_server_web/live/user_live/settings.ex:1756
 #, elixir-autogen, elixir-format
 msgid "Could not send request: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1961
-#: lib/game_server_web/live/user_live/settings.ex:1961
+#: lib/game_server_web/live/user_live/settings.ex:1948
+#: lib/game_server_web/live/user_live/settings.ex:1948
 #, elixir-autogen, elixir-format
 msgid "Could not unblock: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:561
-#: lib/game_server_web/live/user_live/settings.ex:561
-#, elixir-autogen, elixir-format
-msgid "Create Group"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/settings.ex:683
-#: lib/game_server_web/live/user_live/settings.ex:683
+#: lib/game_server_web/live/user_live/settings.ex:669
+#: lib/game_server_web/live/user_live/settings.ex:669
 #, elixir-autogen, elixir-format
 msgid "Created:"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1535
-#: lib/game_server_web/live/user_live/settings.ex:1535
+#: lib/game_server_web/live/user_live/settings.ex:1521
+#: lib/game_server_web/live/user_live/settings.ex:1521
 #, elixir-autogen, elixir-format
 msgid "Danger Zone"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:372
-#: lib/game_server_web/live/user_live/settings.ex:372
+#: lib/game_server_web/live/user_live/settings.ex:364
+#: lib/game_server_web/live/user_live/settings.ex:364
 #, elixir-autogen, elixir-format
 msgid "Data"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1550
-#: lib/game_server_web/live/user_live/settings.ex:1550
+#: lib/game_server_web/live/user_live/settings.ex:1536
+#: lib/game_server_web/live/user_live/settings.ex:1536
 #, elixir-autogen, elixir-format
 msgid "Data Deletion Policy"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1564
-#: lib/game_server_web/live/user_live/settings.ex:1564
+#: lib/game_server_web/live/user_live/settings.ex:1550
+#: lib/game_server_web/live/user_live/settings.ex:1550
 #, elixir-autogen, elixir-format
 msgid "Delete Account"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:475
-#: lib/game_server_web/live/user_live/settings.ex:475
+#: lib/game_server_web/live/user_live/settings.ex:464
+#: lib/game_server_web/live/user_live/settings.ex:464
 #, elixir-autogen, elixir-format
 msgid "Delete All"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:46
-#: lib/game_server_web/live/user_live/settings.ex:46
+#: lib/game_server_web/live/user_live/settings.ex:41
+#: lib/game_server_web/live/user_live/settings.ex:41
 #, elixir-autogen, elixir-format
 msgid "Delete account"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:472
-#: lib/game_server_web/live/user_live/settings.ex:472
+#: lib/game_server_web/live/user_live/settings.ex:461
+#: lib/game_server_web/live/user_live/settings.ex:461
 #, elixir-autogen, elixir-format
 msgid "Delete all notifications?"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:43
-#: lib/game_server_web/live/user_live/settings.ex:43
+#: lib/game_server_web/live/user_live/settings.ex:38
+#: lib/game_server_web/live/user_live/settings.ex:38
 #, elixir-autogen, elixir-format
 msgid "Delete the conflicting account? This is irreversible."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:663
-#: lib/game_server_web/live/user_live/settings.ex:663
+#: lib/game_server_web/live/user_live/settings.ex:649
+#: lib/game_server_web/live/user_live/settings.ex:649
 #, elixir-autogen, elixir-format
 msgid "Description:"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1384
-#: lib/game_server_web/live/user_live/settings.ex:1384
+#: lib/game_server_web/live/user_live/settings.ex:1370
+#: lib/game_server_web/live/user_live/settings.ex:1370
 #, elixir-autogen, elixir-format
 msgid "Discord"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:70
-#: lib/game_server_web/live/user_live/settings.ex:70
+#: lib/game_server_web/live/user_live/settings.ex:65
+#: lib/game_server_web/live/user_live/settings.ex:65
 #, elixir-autogen, elixir-format
 msgid "Display name"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1991
-#: lib/game_server_web/live/user_live/settings.ex:1991
+#: lib/game_server_web/live/user_live/settings.ex:1978
+#: lib/game_server_web/live/user_live/settings.ex:1978
 #, elixir-autogen, elixir-format
 msgid "Display name updated."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:705
-#: lib/game_server_web/live/user_live/settings.ex:705
+#: lib/game_server_web/live/user_live/settings.ex:691
+#: lib/game_server_web/live/user_live/settings.ex:691
 #, elixir-autogen, elixir-format
 msgid "Edit Group"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1583
-#: lib/game_server_web/live/user_live/settings.ex:1583
+#: lib/game_server_web/live/user_live/settings.ex:1569
+#: lib/game_server_web/live/user_live/settings.ex:1569
 #, elixir-autogen, elixir-format
 msgid "Email change link is invalid or it has expired."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1577
-#: lib/game_server_web/live/user_live/settings.ex:1577
+#: lib/game_server_web/live/user_live/settings.ex:1563
+#: lib/game_server_web/live/user_live/settings.ex:1563
 #, elixir-autogen, elixir-format
 msgid "Email changed successfully."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:59
-#: lib/game_server_web/live/user_live/settings.ex:59
+#: lib/game_server_web/live/user_live/settings.ex:54
+#: lib/game_server_web/live/user_live/settings.ex:54
 #, elixir-autogen, elixir-format
 msgid "Email:"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1444
-#: lib/game_server_web/live/user_live/settings.ex:1444
+#: lib/game_server_web/live/user_live/settings.ex:1430
+#: lib/game_server_web/live/user_live/settings.ex:1430
 #, elixir-autogen, elixir-format
 msgid "Facebook"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2063
-#: lib/game_server_web/live/user_live/settings.ex:2063
+#: lib/game_server_web/live/user_live/settings.ex:2050
+#: lib/game_server_web/live/user_live/settings.ex:2050
 #, elixir-autogen, elixir-format
 msgid "Failed to delete account. Please try again."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2906
-#: lib/game_server_web/live/user_live/settings.ex:2906
+#: lib/game_server_web/live/user_live/settings.ex:2893
+#: lib/game_server_web/live/user_live/settings.ex:2893
 #, elixir-autogen, elixir-format
 msgid "Failed to delete the conflicting account."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2044
-#: lib/game_server_web/live/user_live/settings.ex:2044
+#: lib/game_server_web/live/user_live/settings.ex:2031
+#: lib/game_server_web/live/user_live/settings.ex:2031
 #, elixir-autogen, elixir-format
 msgid "Failed to unlink provider."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1544
-#: lib/game_server_web/live/user_live/settings.ex:1544
+#: lib/game_server_web/live/user_live/settings.ex:1530
+#: lib/game_server_web/live/user_live/settings.ex:1530
 #, elixir-autogen, elixir-format
 msgid "For information about what data is deleted and how to request deletion, see our"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1751
-#: lib/game_server_web/live/user_live/settings.ex:1751
+#: lib/game_server_web/live/user_live/settings.ex:1738
+#: lib/game_server_web/live/user_live/settings.ex:1738
 #, elixir-autogen, elixir-format
 msgid "Friend request sent"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:144
-#: lib/game_server_web/live/user_live/settings.ex:144
-#: lib/game_server_web/live/user_live/settings.ex:232
-#: lib/game_server_web/live/user_live/settings.ex:232
+#: lib/game_server_web/live/user_live/settings.ex:139
+#: lib/game_server_web/live/user_live/settings.ex:139
+#: lib/game_server_web/live/user_live/settings.ex:224
+#: lib/game_server_web/live/user_live/settings.ex:224
 #, elixir-autogen, elixir-format
 msgid "Friends"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:970
-#: lib/game_server_web/live/user_live/settings.ex:970
+#: lib/game_server_web/live/user_live/settings.ex:956
+#: lib/game_server_web/live/user_live/settings.ex:956
 #, elixir-autogen, elixir-format
 msgid "Friends not in this group"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1414
-#: lib/game_server_web/live/user_live/settings.ex:1414
+#: lib/game_server_web/live/user_live/settings.ex:1400
+#: lib/game_server_web/live/user_live/settings.ex:1400
 #, elixir-autogen, elixir-format
 msgid "Google"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:58
-#: lib/game_server_web/live/user_live/settings.ex:58
+#: lib/game_server_web/live/user_live/settings.ex:53
+#: lib/game_server_web/live/user_live/settings.ex:53
 #, elixir-autogen, elixir-format
 msgid "ID:"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:153
-#: lib/game_server_web/live/user_live/settings.ex:153
+#: lib/game_server_web/live/user_live/settings.ex:145
+#: lib/game_server_web/live/user_live/settings.ex:145
 #, elixir-autogen, elixir-format
 msgid "Incoming Requests"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1016
-#: lib/game_server_web/live/user_live/settings.ex:1016
+#: lib/game_server_web/live/user_live/settings.ex:1002
+#: lib/game_server_web/live/user_live/settings.ex:1002
 #, elixir-autogen, elixir-format
 msgid "Invitations"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:906
-#: lib/game_server_web/live/user_live/settings.ex:906
+#: lib/game_server_web/live/user_live/settings.ex:892
+#: lib/game_server_web/live/user_live/settings.ex:892
 #, elixir-autogen, elixir-format
 msgid "Invite Members"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1335
-#: lib/game_server_web/live/user_live/settings.ex:1335
+#: lib/game_server_web/live/user_live/settings.ex:1321
+#: lib/game_server_web/live/user_live/settings.ex:1321
 #, elixir-autogen, elixir-format
 msgid "Invited User"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1182
-#: lib/game_server_web/live/user_live/settings.ex:1182
+#: lib/game_server_web/live/user_live/settings.ex:1168
+#: lib/game_server_web/live/user_live/settings.ex:1168
 #, elixir-autogen, elixir-format
 msgid "Joined"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:415
-#: lib/game_server_web/live/user_live/settings.ex:415
+#: lib/game_server_web/live/user_live/settings.ex:404
+#: lib/game_server_web/live/user_live/settings.ex:404
 #, elixir-autogen, elixir-format
 msgid "Key"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:390
-#: lib/game_server_web/live/user_live/settings.ex:390
+#: lib/game_server_web/live/user_live/settings.ex:379
+#: lib/game_server_web/live/user_live/settings.ex:379
 #, elixir-autogen, elixir-format
 msgid "Key contains"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:711
-#: lib/game_server_web/live/user_live/settings.ex:711
-#: lib/game_server_web/live/user_live/settings.ex:1099
-#: lib/game_server_web/live/user_live/settings.ex:1099
+#: lib/game_server_web/live/user_live/settings.ex:697
+#: lib/game_server_web/live/user_live/settings.ex:697
+#: lib/game_server_web/live/user_live/settings.ex:1085
+#: lib/game_server_web/live/user_live/settings.ex:1085
 #, elixir-autogen, elixir-format
 msgid "Leave this group?"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1406
-#: lib/game_server_web/live/user_live/settings.ex:1406
-#: lib/game_server_web/live/user_live/settings.ex:1436
-#: lib/game_server_web/live/user_live/settings.ex:1436
-#: lib/game_server_web/live/user_live/settings.ex:1466
-#: lib/game_server_web/live/user_live/settings.ex:1466
-#: lib/game_server_web/live/user_live/settings.ex:1496
-#: lib/game_server_web/live/user_live/settings.ex:1496
-#: lib/game_server_web/live/user_live/settings.ex:1526
-#: lib/game_server_web/live/user_live/settings.ex:1526
+#: lib/game_server_web/live/user_live/settings.ex:1392
+#: lib/game_server_web/live/user_live/settings.ex:1392
+#: lib/game_server_web/live/user_live/settings.ex:1422
+#: lib/game_server_web/live/user_live/settings.ex:1422
+#: lib/game_server_web/live/user_live/settings.ex:1452
+#: lib/game_server_web/live/user_live/settings.ex:1452
+#: lib/game_server_web/live/user_live/settings.ex:1482
+#: lib/game_server_web/live/user_live/settings.ex:1482
+#: lib/game_server_web/live/user_live/settings.ex:1512
+#: lib/game_server_web/live/user_live/settings.ex:1512
 #, elixir-autogen, elixir-format
 msgid "Link"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1372
-#: lib/game_server_web/live/user_live/settings.ex:1372
+#: lib/game_server_web/live/user_live/settings.ex:1358
+#: lib/game_server_web/live/user_live/settings.ex:1358
 #, elixir-autogen, elixir-format
 msgid "Linked Accounts"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:18
-#: lib/game_server_web/live/user_live/settings.ex:18
-#, elixir-autogen, elixir-format
-msgid "Manage your account settings"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/settings.ex:146
-#: lib/game_server_web/live/user_live/settings.ex:146
-#, elixir-autogen, elixir-format
-msgid "Manage your friends"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/settings.ex:542
-#: lib/game_server_web/live/user_live/settings.ex:542
-#, elixir-autogen, elixir-format
-msgid "Manage your groups"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/settings.ex:644
-#: lib/game_server_web/live/user_live/settings.ex:644
-#: lib/game_server_web/live/user_live/settings.ex:1047
-#: lib/game_server_web/live/user_live/settings.ex:1047
-#: lib/game_server_web/live/user_live/settings.ex:1152
-#: lib/game_server_web/live/user_live/settings.ex:1152
+#: lib/game_server_web/live/user_live/settings.ex:630
+#: lib/game_server_web/live/user_live/settings.ex:630
+#: lib/game_server_web/live/user_live/settings.ex:1033
+#: lib/game_server_web/live/user_live/settings.ex:1033
+#: lib/game_server_web/live/user_live/settings.ex:1138
+#: lib/game_server_web/live/user_live/settings.ex:1138
 #, elixir-autogen, elixir-format
 msgid "Max Members"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:680
-#: lib/game_server_web/live/user_live/settings.ex:680
+#: lib/game_server_web/live/user_live/settings.ex:666
+#: lib/game_server_web/live/user_live/settings.ex:666
 #, elixir-autogen, elixir-format
 msgid "Max Members:"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:602
-#: lib/game_server_web/live/user_live/settings.ex:602
+#: lib/game_server_web/live/user_live/settings.ex:588
+#: lib/game_server_web/live/user_live/settings.ex:588
 #, elixir-autogen, elixir-format
 msgid "Max members"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:99
-#: lib/game_server_web/live/user_live/settings.ex:99
-#: lib/game_server_web/live/user_live/settings.ex:418
-#: lib/game_server_web/live/user_live/settings.ex:418
+#: lib/game_server_web/live/user_live/settings.ex:94
+#: lib/game_server_web/live/user_live/settings.ex:94
+#: lib/game_server_web/live/user_live/settings.ex:407
+#: lib/game_server_web/live/user_live/settings.ex:407
 #, elixir-autogen, elixir-format
 msgid "Metadata"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1013
-#: lib/game_server_web/live/user_live/settings.ex:1013
+#: lib/game_server_web/live/user_live/settings.ex:999
+#: lib/game_server_web/live/user_live/settings.ex:999
 #, elixir-autogen, elixir-format
 msgid "My Groups"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1018
-#: lib/game_server_web/live/user_live/settings.ex:1018
+#: lib/game_server_web/live/user_live/settings.ex:1004
+#: lib/game_server_web/live/user_live/settings.ex:1004
 #, elixir-autogen, elixir-format
 msgid "My Requests"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:661
-#: lib/game_server_web/live/user_live/settings.ex:661
+#: lib/game_server_web/live/user_live/settings.ex:647
+#: lib/game_server_web/live/user_live/settings.ex:647
 #, elixir-autogen, elixir-format
 msgid "Name:"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:570
-#: lib/game_server_web/live/user_live/settings.ex:570
+#: lib/game_server_web/live/user_live/settings.ex:556
+#: lib/game_server_web/live/user_live/settings.ex:556
 #, elixir-autogen, elixir-format
 msgid "New Group"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:123
-#: lib/game_server_web/live/user_live/settings.ex:123
+#: lib/game_server_web/live/user_live/settings.ex:118
+#: lib/game_server_web/live/user_live/settings.ex:118
 #, elixir-autogen, elixir-format
 msgid "New password"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:964
-#: lib/game_server_web/live/user_live/settings.ex:964
+#: lib/game_server_web/live/user_live/settings.ex:950
+#: lib/game_server_web/live/user_live/settings.ex:950
 #, elixir-autogen, elixir-format
 msgid "No results for \"%{query}\""
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1869
-#: lib/game_server_web/live/user_live/settings.ex:1869
+#: lib/game_server_web/live/user_live/settings.ex:1856
+#: lib/game_server_web/live/user_live/settings.ex:1856
 #, elixir-autogen, elixir-format
 msgid "Notification deleted"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:462
-#: lib/game_server_web/live/user_live/settings.ex:462
+#: lib/game_server_web/live/user_live/settings.ex:451
+#: lib/game_server_web/live/user_live/settings.ex:451
 #, elixir-autogen, elixir-format
 msgid "Notifications"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1538
-#: lib/game_server_web/live/user_live/settings.ex:1538
+#: lib/game_server_web/live/user_live/settings.ex:1524
+#: lib/game_server_web/live/user_live/settings.ex:1524
 #, elixir-autogen, elixir-format
 msgid "Once you delete your account, there is no going back. Please be certain."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:199
-#: lib/game_server_web/live/user_live/settings.ex:199
+#: lib/game_server_web/live/user_live/settings.ex:191
+#: lib/game_server_web/live/user_live/settings.ex:191
 #, elixir-autogen, elixir-format
 msgid "Outgoing Requests"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:836
-#: lib/game_server_web/live/user_live/settings.ex:836
+#: lib/game_server_web/live/user_live/settings.ex:822
+#: lib/game_server_web/live/user_live/settings.ex:822
 #, elixir-autogen, elixir-format
 msgid "Pending Join Requests"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1292
-#: lib/game_server_web/live/user_live/settings.ex:1292
+#: lib/game_server_web/live/user_live/settings.ex:1278
+#: lib/game_server_web/live/user_live/settings.ex:1278
 #, elixir-autogen, elixir-format
 msgid "Requested"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:74
-#: lib/game_server_web/live/user_live/settings.ex:74
-#, elixir-autogen, elixir-format
-msgid "Save Display Name"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/settings.ex:134
-#: lib/game_server_web/live/user_live/settings.ex:134
-#, elixir-autogen, elixir-format
-msgid "Save Password"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/settings.ex:928
-#: lib/game_server_web/live/user_live/settings.ex:928
+#: lib/game_server_web/live/user_live/settings.ex:914
+#: lib/game_server_web/live/user_live/settings.ex:914
 #, elixir-autogen, elixir-format
 msgid "Search Results"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:327
-#: lib/game_server_web/live/user_live/settings.ex:327
+#: lib/game_server_web/live/user_live/settings.ex:319
+#: lib/game_server_web/live/user_live/settings.ex:319
 #, elixir-autogen, elixir-format
 msgid "Search results"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:874
-#: lib/game_server_web/live/user_live/settings.ex:874
+#: lib/game_server_web/live/user_live/settings.ex:860
+#: lib/game_server_web/live/user_live/settings.ex:860
 #, elixir-autogen, elixir-format
 msgid "Send Notification"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1020
-#: lib/game_server_web/live/user_live/settings.ex:1020
+#: lib/game_server_web/live/user_live/settings.ex:1006
+#: lib/game_server_web/live/user_live/settings.ex:1006
 #, elixir-autogen, elixir-format
 msgid "Sent Invitations"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1476
-#: lib/game_server_web/live/user_live/settings.ex:1476
-#, elixir-autogen, elixir-format
-msgid "Sign in with Apple and link to your account"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/settings.ex:1386
-#: lib/game_server_web/live/user_live/settings.ex:1386
-#, elixir-autogen, elixir-format
-msgid "Sign in with Discord and link to your account"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/settings.ex:1446
-#: lib/game_server_web/live/user_live/settings.ex:1446
-#, elixir-autogen, elixir-format
-msgid "Sign in with Facebook and link to your account"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/settings.ex:1416
-#: lib/game_server_web/live/user_live/settings.ex:1416
-#, elixir-autogen, elixir-format
-msgid "Sign in with Google and link to your account"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/settings.ex:1506
-#: lib/game_server_web/live/user_live/settings.ex:1506
-#, elixir-autogen, elixir-format
-msgid "Sign in with Steam and link to your account"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/settings.ex:1504
-#: lib/game_server_web/live/user_live/settings.ex:1504
+#: lib/game_server_web/live/user_live/settings.ex:1490
+#: lib/game_server_web/live/user_live/settings.ex:1490
 #, elixir-autogen, elixir-format
 msgid "Steam"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2025
-#: lib/game_server_web/live/user_live/settings.ex:2025
+#: lib/game_server_web/live/user_live/settings.ex:2012
+#: lib/game_server_web/live/user_live/settings.ex:2012
 #, elixir-autogen, elixir-format
 msgid "Successfully unlinked %{provider}."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:29
-#: lib/game_server_web/live/user_live/settings.ex:29
+#: lib/game_server_web/live/user_live/settings.ex:24
+#: lib/game_server_web/live/user_live/settings.ex:24
 #, elixir-autogen, elixir-format
 msgid "The %{provider} account (ID: %{id}) is already linked to another account. If this is another account you own (matching email), you may delete it below to free the provider so you can link it to this account."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:887
-#: lib/game_server_web/live/user_live/settings.ex:887
+#: lib/game_server_web/live/user_live/settings.ex:873
+#: lib/game_server_web/live/user_live/settings.ex:873
 #, elixir-autogen, elixir-format
 msgid "Title (optional)"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:894
-#: lib/game_server_web/live/user_live/settings.ex:894
+#: lib/game_server_web/live/user_live/settings.ex:880
+#: lib/game_server_web/live/user_live/settings.ex:880
 #, elixir-autogen, elixir-format
 msgid "Type a message to all members..."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:919
-#: lib/game_server_web/live/user_live/settings.ex:919
+#: lib/game_server_web/live/user_live/settings.ex:905
+#: lib/game_server_web/live/user_live/settings.ex:905
 #, elixir-autogen, elixir-format
 msgid "Type to search..."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:667
-#: lib/game_server_web/live/user_live/settings.ex:667
+#: lib/game_server_web/live/user_live/settings.ex:653
+#: lib/game_server_web/live/user_live/settings.ex:653
 #, elixir-autogen, elixir-format
 msgid "Type:"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1397
-#: lib/game_server_web/live/user_live/settings.ex:1397
-#: lib/game_server_web/live/user_live/settings.ex:1401
-#: lib/game_server_web/live/user_live/settings.ex:1401
-#: lib/game_server_web/live/user_live/settings.ex:1427
-#: lib/game_server_web/live/user_live/settings.ex:1427
-#: lib/game_server_web/live/user_live/settings.ex:1431
-#: lib/game_server_web/live/user_live/settings.ex:1431
-#: lib/game_server_web/live/user_live/settings.ex:1457
-#: lib/game_server_web/live/user_live/settings.ex:1457
-#: lib/game_server_web/live/user_live/settings.ex:1461
-#: lib/game_server_web/live/user_live/settings.ex:1461
-#: lib/game_server_web/live/user_live/settings.ex:1487
-#: lib/game_server_web/live/user_live/settings.ex:1487
-#: lib/game_server_web/live/user_live/settings.ex:1491
-#: lib/game_server_web/live/user_live/settings.ex:1491
-#: lib/game_server_web/live/user_live/settings.ex:1517
-#: lib/game_server_web/live/user_live/settings.ex:1517
-#: lib/game_server_web/live/user_live/settings.ex:1521
-#: lib/game_server_web/live/user_live/settings.ex:1521
+#: lib/game_server_web/live/user_live/settings.ex:1383
+#: lib/game_server_web/live/user_live/settings.ex:1383
+#: lib/game_server_web/live/user_live/settings.ex:1387
+#: lib/game_server_web/live/user_live/settings.ex:1387
+#: lib/game_server_web/live/user_live/settings.ex:1413
+#: lib/game_server_web/live/user_live/settings.ex:1413
+#: lib/game_server_web/live/user_live/settings.ex:1417
+#: lib/game_server_web/live/user_live/settings.ex:1417
+#: lib/game_server_web/live/user_live/settings.ex:1443
+#: lib/game_server_web/live/user_live/settings.ex:1443
+#: lib/game_server_web/live/user_live/settings.ex:1447
+#: lib/game_server_web/live/user_live/settings.ex:1447
+#: lib/game_server_web/live/user_live/settings.ex:1473
+#: lib/game_server_web/live/user_live/settings.ex:1473
+#: lib/game_server_web/live/user_live/settings.ex:1477
+#: lib/game_server_web/live/user_live/settings.ex:1477
+#: lib/game_server_web/live/user_live/settings.ex:1503
+#: lib/game_server_web/live/user_live/settings.ex:1503
+#: lib/game_server_web/live/user_live/settings.ex:1507
+#: lib/game_server_web/live/user_live/settings.ex:1507
 #, elixir-autogen, elixir-format
 msgid "Unlink"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:416
-#: lib/game_server_web/live/user_live/settings.ex:416
+#: lib/game_server_web/live/user_live/settings.ex:405
+#: lib/game_server_web/live/user_live/settings.ex:405
 #, elixir-autogen, elixir-format
 msgid "Updated"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:417
-#: lib/game_server_web/live/user_live/settings.ex:417
+#: lib/game_server_web/live/user_live/settings.ex:406
+#: lib/game_server_web/live/user_live/settings.ex:406
 #, elixir-autogen, elixir-format
 msgid "Value"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:374
-#: lib/game_server_web/live/user_live/settings.ex:374
-#, elixir-autogen, elixir-format
-msgid "View stored key-value data"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/settings.ex:2865
-#: lib/game_server_web/live/user_live/settings.ex:2865
+#: lib/game_server_web/live/user_live/settings.ex:2852
+#: lib/game_server_web/live/user_live/settings.ex:2852
 #, elixir-autogen, elixir-format
 msgid "You cannot delete your currently logged-in account here."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:691
-#: lib/game_server_web/live/user_live/settings.ex:691
+#: lib/game_server_web/live/user_live/settings.ex:677
+#: lib/game_server_web/live/user_live/settings.ex:677
 #, elixir-autogen, elixir-format
 msgid "Your Role:"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2054
-#: lib/game_server_web/live/user_live/settings.ex:2054
+#: lib/game_server_web/live/user_live/settings.ex:2041
+#: lib/game_server_web/live/user_live/settings.ex:2041
 #, elixir-autogen, elixir-format
 msgid "Your account has been deleted successfully."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:464
-#: lib/game_server_web/live/user_live/settings.ex:464
+#: lib/game_server_web/live/user_live/settings.ex:453
+#: lib/game_server_web/live/user_live/settings.ex:453
 #, elixir-autogen, elixir-format
 msgid "Your notifications (%{count})"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:696
-#: lib/game_server_web/live/user_live/settings.ex:696
+#: lib/game_server_web/live/user_live/settings.ex:682
+#: lib/game_server_web/live/user_live/settings.ex:682
 #, elixir-autogen, elixir-format
 msgid "not a member"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:2023
+#: lib/game_server_web/live/user_live/settings.ex:2023
+#, elixir-autogen, elixir-format
+msgid "At least one login method must remain linked."
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:1962
+#: lib/game_server_web/live/user_live/settings.ex:1962
+#, elixir-autogen, elixir-format
+msgid "Confirmation link sent."
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:1583
+#: lib/game_server_web/live/user_live/settings.ex:1583
+#, elixir-autogen, elixir-format
+msgid "Settings"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:1372
+#: lib/game_server_web/live/user_live/settings.ex:1372
+#: lib/game_server_web/live/user_live/settings.ex:1402
+#: lib/game_server_web/live/user_live/settings.ex:1402
+#: lib/game_server_web/live/user_live/settings.ex:1432
+#: lib/game_server_web/live/user_live/settings.ex:1432
+#: lib/game_server_web/live/user_live/settings.ex:1462
+#: lib/game_server_web/live/user_live/settings.ex:1462
+#: lib/game_server_web/live/user_live/settings.ex:1492
+#: lib/game_server_web/live/user_live/settings.ex:1492
+#, elixir-autogen, elixir-format
+msgid "Sign in and link"
 msgstr ""

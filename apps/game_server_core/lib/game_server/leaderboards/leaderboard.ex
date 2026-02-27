@@ -101,4 +101,37 @@ defmodule GameServer.Leaderboards.Leaderboard do
   Returns true if the leaderboard has ended.
   """
   def ended?(%__MODULE__{} = lb), do: not active?(lb)
+
+  @doc """
+  Returns the localized title for the given locale.
+
+  Looks up `metadata["titles"][locale]`, falling back to `title`.
+  Works with both `%Leaderboard{}` structs and plain maps (e.g. group info).
+
+  ## Examples
+
+      iex> lb = %Leaderboard{title: "Weekly Kills", metadata: %{"titles" => %{"es" => "Muertes Semanales"}}}
+      iex> Leaderboard.localized_title(lb, "es")
+      "Muertes Semanales"
+      iex> Leaderboard.localized_title(lb, "en")
+      "Weekly Kills"
+  """
+  def localized_title(%{metadata: metadata, title: title}, locale) when is_binary(locale) do
+    get_in(metadata || %{}, ["titles", locale]) || title
+  end
+
+  def localized_title(%{title: title}, _locale), do: title
+
+  @doc """
+  Returns the localized description for the given locale.
+
+  Looks up `metadata["descriptions"][locale]`, falling back to `description`.
+  Works with both `%Leaderboard{}` structs and plain maps (e.g. group info).
+  """
+  def localized_description(%{metadata: metadata, description: desc}, locale)
+      when is_binary(locale) do
+    get_in(metadata || %{}, ["descriptions", locale]) || desc
+  end
+
+  def localized_description(%{description: desc}, _locale), do: desc
 end

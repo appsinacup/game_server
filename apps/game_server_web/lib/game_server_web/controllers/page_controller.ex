@@ -13,18 +13,26 @@ defmodule GameServerWeb.PageController do
       users_active_30d: Accounts.count_users_active_since(30)
     }
 
-    render(conn, :home, stats: stats)
+    conn
+    |> assign(:page_title, gettext("Home"))
+    |> render(:home, stats: stats)
   end
 
   def privacy(conn, _params) do
-    render(conn, :privacy)
+    conn
+    |> assign(:page_title, gettext("Privacy Policy"))
+    |> render(:privacy)
   end
 
   def data_deletion(conn, _params) do
-    render(conn, :data_deletion)
+    conn
+    |> assign(:page_title, gettext("Data Deletion"))
+    |> render(:data_deletion)
   end
 
   def terms(conn, _params) do
-    render(conn, :terms)
+    conn
+    |> assign(:page_title, gettext("Terms of Service"))
+    |> render(:terms)
   end
 end

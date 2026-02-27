@@ -67,9 +67,9 @@ defmodule GameServerWeb.Layouts do
       <div class="flex-1">
         <a href={~p"/"} class="flex-1 flex w-fit items-center gap-2">
           <img src={Map.get(@theme, "logo")} width="36" alt={title} />
-          <span class="text-sm font-semibold">{title}</span>
+          <span class="text-lg font-bold">{title}</span>
           <%= if tagline && tagline != "" do %>
-            <span class="text-xs opacity-60 ml-2">: {tagline}</span>
+            <span class="text-sm opacity-60 ml-1">: {tagline}</span>
           <% end %>
           <span class="text-xs opacity-60 ml-2">v{app_version()}</span>
         </a>
@@ -125,12 +125,6 @@ defmodule GameServerWeb.Layouts do
             </li>
           <% else %>
             <li>
-              <.link href={~p"/users/log-in"} class="btn btn-primary">{gettext("Log in")}</.link>
-            </li>
-            <li>
-              <.link href={~p"/users/register"} class="btn btn-accent">{gettext("Register")}</.link>
-            </li>
-            <li>
               <.link href={~p"/leaderboards"} class="btn btn-outline">
                 {gettext("Leaderboards")}
               </.link>
@@ -139,6 +133,12 @@ defmodule GameServerWeb.Layouts do
               <.link href={~p"/groups"} class="btn btn-outline">
                 {gettext("Groups")}
               </.link>
+            </li>
+            <li>
+              <.link href={~p"/users/log-in"} class="btn btn-primary">{gettext("Log in")}</.link>
+            </li>
+            <li>
+              <.link href={~p"/users/register"} class="btn btn-accent">{gettext("Register")}</.link>
             </li>
           <% end %>
           <li>
@@ -228,7 +228,7 @@ defmodule GameServerWeb.Layouts do
       </div>
     </header>
 
-    <main class="px-4 py-20 sm:px-6 lg:px-8">
+    <main class="px-4 py-4 sm:px-6 lg:px-8">
       <div class="mx-auto max-w-2xl lg:max-w-4xl xl:max-w-6xl space-y-4">
         {render_slot(@inner_block)}
       </div>

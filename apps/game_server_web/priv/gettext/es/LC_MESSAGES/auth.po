@@ -17,34 +17,28 @@ msgstr ""
 msgid "Account Conflict"
 msgstr ""
 
-#: lib/game_server_web/live/auth_success_live.ex:126
-#: lib/game_server_web/live/auth_success_live.ex:126
+#: lib/game_server_web/live/auth_success_live.ex:129
+#: lib/game_server_web/live/auth_success_live.ex:129
 #, elixir-autogen, elixir-format
 msgid "Account already linked to another user"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/registration.ex:160
-#: lib/game_server_web/live/user_live/registration.ex:160
+#: lib/game_server_web/live/user_live/registration.ex:163
+#: lib/game_server_web/live/user_live/registration.ex:163
 #, elixir-autogen, elixir-format
 msgid "Account created successfully! Logging you in..."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/registration.ex:17
-#: lib/game_server_web/live/user_live/registration.ex:17
+#: lib/game_server_web/live/user_live/registration.ex:15
+#: lib/game_server_web/live/user_live/registration.ex:15
 #, elixir-autogen, elixir-format
 msgid "Already registered?"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/registration.ex:170
-#: lib/game_server_web/live/user_live/registration.ex:170
+#: lib/game_server_web/live/user_live/registration.ex:173
+#: lib/game_server_web/live/user_live/registration.ex:173
 #, elixir-autogen, elixir-format
 msgid "An email was sent to %{email}, please access it to confirm your account"
-msgstr ""
-
-#: lib/game_server_web/controllers/auth_controller.ex:1525
-#: lib/game_server_web/controllers/auth_controller.ex:1525
-#, elixir-autogen, elixir-format
-msgid "Apple is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
 msgstr ""
 
 #: lib/game_server_web/live/auth_success_live.ex:63
@@ -55,6 +49,8 @@ msgstr ""
 
 #: lib/game_server_web/live/auth_success_live.ex:59
 #: lib/game_server_web/live/auth_success_live.ex:59
+#: lib/game_server_web/live/auth_success_live.ex:87
+#: lib/game_server_web/live/auth_success_live.ex:87
 #, elixir-autogen, elixir-format
 msgid "Authentication Successful!"
 msgstr ""
@@ -65,8 +61,8 @@ msgstr ""
 msgid "Authentication completed - you can close this window."
 msgstr ""
 
-#: lib/game_server_web/live/auth_success_live.ex:157
-#: lib/game_server_web/live/auth_success_live.ex:157
+#: lib/game_server_web/live/auth_success_live.ex:156
+#: lib/game_server_web/live/auth_success_live.ex:156
 #, elixir-autogen, elixir-format
 msgid "Authentication failed"
 msgstr ""
@@ -83,12 +79,6 @@ msgstr ""
 msgid "Confirm and stay logged in"
 msgstr ""
 
-#: lib/game_server_web/controllers/user_session_controller.ex:79
-#: lib/game_server_web/controllers/user_session_controller.ex:79
-#, elixir-autogen, elixir-format
-msgid "Confirmation link is invalid or it has expired."
-msgstr ""
-
 #: lib/game_server_web/live/user_live/confirmation.ex:28
 #: lib/game_server_web/live/user_live/confirmation.ex:28
 #: lib/game_server_web/live/user_live/confirmation.ex:34
@@ -103,34 +93,22 @@ msgstr ""
 msgid "Create an account"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/registration.ex:36
-#: lib/game_server_web/live/user_live/registration.ex:36
+#: lib/game_server_web/live/user_live/registration.ex:34
+#: lib/game_server_web/live/user_live/registration.ex:34
 #, elixir-autogen, elixir-format
 msgid "Creating account..."
 msgstr ""
 
-#: lib/game_server_web/live/auth_success_live.ex:165
-#: lib/game_server_web/live/auth_success_live.ex:165
+#: lib/game_server_web/live/auth_success_live.ex:164
+#: lib/game_server_web/live/auth_success_live.ex:164
 #, elixir-autogen, elixir-format
 msgid "Details:"
 msgstr ""
 
-#: lib/game_server_web/controllers/auth_controller.ex:1637
-#: lib/game_server_web/controllers/auth_controller.ex:1637
-#, elixir-autogen, elixir-format
-msgid "Discord is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
-msgstr ""
-
-#: lib/game_server_web/live/user_live/login.ex:19
-#: lib/game_server_web/live/user_live/login.ex:19
+#: lib/game_server_web/live/user_live/login.ex:20
+#: lib/game_server_web/live/user_live/login.ex:20
 #, elixir-autogen, elixir-format
 msgid "Don't have an account?"
-msgstr ""
-
-#: lib/game_server_web/controllers/auth_controller.ex:1469
-#: lib/game_server_web/controllers/auth_controller.ex:1469
-#, elixir-autogen, elixir-format
-msgid "Facebook is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
 msgstr ""
 
 #: lib/game_server_web/controllers/auth_controller.ex:695
@@ -139,58 +117,22 @@ msgstr ""
 msgid "Failed to authenticate."
 msgstr ""
 
-#: lib/game_server_web/controllers/auth_controller.ex:1442
-#: lib/game_server_web/controllers/auth_controller.ex:1442
-#: lib/game_server_web/controllers/auth_controller.ex:1498
-#: lib/game_server_web/controllers/auth_controller.ex:1498
-#: lib/game_server_web/controllers/auth_controller.ex:1554
-#: lib/game_server_web/controllers/auth_controller.ex:1554
-#: lib/game_server_web/controllers/auth_controller.ex:1610
-#: lib/game_server_web/controllers/auth_controller.ex:1610
-#: lib/game_server_web/controllers/auth_controller.ex:1666
-#: lib/game_server_web/controllers/auth_controller.ex:1666
+#: lib/game_server_web/controllers/auth_controller.ex:1443
+#: lib/game_server_web/controllers/auth_controller.ex:1443
+#: lib/game_server_web/controllers/auth_controller.ex:1500
+#: lib/game_server_web/controllers/auth_controller.ex:1500
+#: lib/game_server_web/controllers/auth_controller.ex:1557
+#: lib/game_server_web/controllers/auth_controller.ex:1557
+#: lib/game_server_web/controllers/auth_controller.ex:1614
+#: lib/game_server_web/controllers/auth_controller.ex:1614
+#: lib/game_server_web/controllers/auth_controller.ex:1671
+#: lib/game_server_web/controllers/auth_controller.ex:1671
 #, elixir-autogen, elixir-format
 msgid "Failed to create or update user account."
 msgstr ""
 
-#: lib/game_server_web/controllers/auth_controller.ex:1538
-#: lib/game_server_web/controllers/auth_controller.ex:1538
-#, elixir-autogen, elixir-format
-msgid "Failed to link Apple account."
-msgstr ""
-
-#: lib/game_server_web/controllers/auth_controller.ex:1650
-#: lib/game_server_web/controllers/auth_controller.ex:1650
-#, elixir-autogen, elixir-format
-msgid "Failed to link Discord account."
-msgstr ""
-
-#: lib/game_server_web/controllers/auth_controller.ex:1482
-#: lib/game_server_web/controllers/auth_controller.ex:1482
-#, elixir-autogen, elixir-format
-msgid "Failed to link Facebook account."
-msgstr ""
-
-#: lib/game_server_web/controllers/auth_controller.ex:1426
-#: lib/game_server_web/controllers/auth_controller.ex:1426
-#, elixir-autogen, elixir-format
-msgid "Failed to link Google account."
-msgstr ""
-
-#: lib/game_server_web/controllers/auth_controller.ex:1594
-#: lib/game_server_web/controllers/auth_controller.ex:1594
-#, elixir-autogen, elixir-format
-msgid "Failed to link Steam account."
-msgstr ""
-
-#: lib/game_server_web/controllers/auth_controller.ex:1413
-#: lib/game_server_web/controllers/auth_controller.ex:1413
-#, elixir-autogen, elixir-format
-msgid "Google is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
-msgstr ""
-
-#: lib/game_server_web/live/user_live/login.ex:200
-#: lib/game_server_web/live/user_live/login.ex:200
+#: lib/game_server_web/live/user_live/login.ex:199
+#: lib/game_server_web/live/user_live/login.ex:199
 #, elixir-autogen, elixir-format
 msgid "If your email is in our system, you will receive instructions for logging in shortly."
 msgstr ""
@@ -201,62 +143,32 @@ msgstr ""
 msgid "Invalid email or password"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/confirmation.ex:62
-#: lib/game_server_web/live/user_live/confirmation.ex:62
+#: lib/game_server_web/live/user_live/confirmation.ex:65
+#: lib/game_server_web/live/user_live/confirmation.ex:65
 #, elixir-autogen, elixir-format
 msgid "Keep me logged in on this device"
 msgstr ""
 
-#: lib/game_server_web/controllers/auth_controller.ex:1515
-#: lib/game_server_web/controllers/auth_controller.ex:1515
-#, elixir-autogen, elixir-format
-msgid "Linked Apple to your account."
-msgstr ""
-
-#: lib/game_server_web/controllers/auth_controller.ex:1627
-#: lib/game_server_web/controllers/auth_controller.ex:1627
-#, elixir-autogen, elixir-format
-msgid "Linked Discord to your account."
-msgstr ""
-
-#: lib/game_server_web/controllers/auth_controller.ex:1459
-#: lib/game_server_web/controllers/auth_controller.ex:1459
-#, elixir-autogen, elixir-format
-msgid "Linked Facebook to your account."
-msgstr ""
-
-#: lib/game_server_web/controllers/auth_controller.ex:1403
-#: lib/game_server_web/controllers/auth_controller.ex:1403
-#, elixir-autogen, elixir-format
-msgid "Linked Google to your account."
-msgstr ""
-
-#: lib/game_server_web/controllers/auth_controller.ex:1571
-#: lib/game_server_web/controllers/auth_controller.ex:1571
-#, elixir-autogen, elixir-format
-msgid "Linked Steam to your account."
-msgstr ""
-
-#: lib/game_server_web/live/user_live/login.ex:89
-#: lib/game_server_web/live/user_live/login.ex:89
+#: lib/game_server_web/live/user_live/login.ex:88
+#: lib/game_server_web/live/user_live/login.ex:88
 #, elixir-autogen, elixir-format
 msgid "Log in and stay logged in"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/login.ex:92
-#: lib/game_server_web/live/user_live/login.ex:92
+#: lib/game_server_web/live/user_live/login.ex:91
+#: lib/game_server_web/live/user_live/login.ex:91
 #, elixir-autogen, elixir-format
 msgid "Log in only this time"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/login.ex:60
-#: lib/game_server_web/live/user_live/login.ex:60
+#: lib/game_server_web/live/user_live/login.ex:59
+#: lib/game_server_web/live/user_live/login.ex:59
 #, elixir-autogen, elixir-format
 msgid "Log in with email"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/confirmation.ex:68
-#: lib/game_server_web/live/user_live/confirmation.ex:68
+#: lib/game_server_web/live/user_live/confirmation.ex:71
+#: lib/game_server_web/live/user_live/confirmation.ex:71
 #, elixir-autogen, elixir-format
 msgid "Log me in only this time"
 msgstr ""
@@ -267,32 +179,26 @@ msgstr ""
 msgid "Logged out successfully."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/confirmation.ex:52
-#: lib/game_server_web/live/user_live/confirmation.ex:52
-#: lib/game_server_web/live/user_live/confirmation.ex:59
-#: lib/game_server_web/live/user_live/confirmation.ex:59
-#: lib/game_server_web/live/user_live/confirmation.ex:65
-#: lib/game_server_web/live/user_live/confirmation.ex:65
+#: lib/game_server_web/live/user_live/confirmation.ex:53
+#: lib/game_server_web/live/user_live/confirmation.ex:53
+#: lib/game_server_web/live/user_live/confirmation.ex:62
+#: lib/game_server_web/live/user_live/confirmation.ex:62
+#: lib/game_server_web/live/user_live/confirmation.ex:68
+#: lib/game_server_web/live/user_live/confirmation.ex:68
 #, elixir-autogen, elixir-format
 msgid "Logging in..."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/confirmation.ex:91
-#: lib/game_server_web/live/user_live/confirmation.ex:91
+#: lib/game_server_web/live/user_live/confirmation.ex:94
+#: lib/game_server_web/live/user_live/confirmation.ex:94
 #, elixir-autogen, elixir-format
 msgid "Magic link is invalid or it has expired."
 msgstr ""
 
-#: lib/game_server_web/live/auth_success_live.ex:106
-#: lib/game_server_web/live/auth_success_live.ex:106
+#: lib/game_server_web/live/auth_success_live.ex:108
+#: lib/game_server_web/live/auth_success_live.ex:108
 #, elixir-autogen, elixir-format
 msgid "Message:"
-msgstr ""
-
-#: lib/game_server_web/live/auth_success_live.ex:87
-#: lib/game_server_web/live/auth_success_live.ex:87
-#, elixir-autogen, elixir-format
-msgid "OAuth authentication completed successfully!"
 msgstr ""
 
 #: lib/game_server_web/controllers/user_session_controller.ex:59
@@ -301,34 +207,12 @@ msgstr ""
 msgid "Password updated successfully!"
 msgstr ""
 
-#: lib/game_server_web/live/auth_success_live.ex:135
-#: lib/game_server_web/live/auth_success_live.ex:135
-#, elixir-autogen, elixir-format
-msgid "Please contact support or try logging in with a different method."
-msgstr ""
-
-#: lib/game_server_web/live/auth_success_live.ex:205
-#: lib/game_server_web/live/auth_success_live.ex:205
-#, elixir-autogen, elixir-format
-msgid "Please wait while we complete your authentication."
-msgstr ""
-
-#: lib/game_server_web/live/auth_success_live.ex:202
-#: lib/game_server_web/live/auth_success_live.ex:202
-#, elixir-autogen, elixir-format
-msgid "Processing authentication..."
-msgstr ""
-
 #: lib/game_server_web/live/auth_success_live.ex:67
 #: lib/game_server_web/live/auth_success_live.ex:67
+#: lib/game_server_web/live/auth_success_live.ex:203
+#: lib/game_server_web/live/auth_success_live.ex:203
 #, elixir-autogen, elixir-format
 msgid "Processing..."
-msgstr ""
-
-#: lib/game_server_web/live/user_live/registration.ex:15
-#: lib/game_server_web/live/user_live/registration.ex:15
-#, elixir-autogen, elixir-format
-msgid "Register for an account"
 msgstr ""
 
 #: lib/game_server_web/live/auth_success_live.ex:65
@@ -337,160 +221,52 @@ msgstr ""
 msgid "Session Not Found"
 msgstr ""
 
-#: lib/game_server_web/live/auth_success_live.ex:186
-#: lib/game_server_web/live/auth_success_live.ex:186
+#: lib/game_server_web/live/auth_success_live.ex:185
+#: lib/game_server_web/live/auth_success_live.ex:185
 #, elixir-autogen, elixir-format
 msgid "Session not found"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/login.ex:122
-#: lib/game_server_web/live/user_live/login.ex:122
-#, elixir-autogen, elixir-format
-msgid "Sign in with Apple"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/login.ex:112
-#: lib/game_server_web/live/user_live/login.ex:112
-#, elixir-autogen, elixir-format
-msgid "Sign in with Discord"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/login.ex:157
-#: lib/game_server_web/live/user_live/login.ex:157
-#, elixir-autogen, elixir-format
-msgid "Sign in with Facebook"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/login.ex:147
-#: lib/game_server_web/live/user_live/login.ex:147
-#, elixir-autogen, elixir-format
-msgid "Sign in with Google"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/login.ex:167
-#: lib/game_server_web/live/user_live/login.ex:167
-#, elixir-autogen, elixir-format
-msgid "Sign in with Steam"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/login.ex:24
-#: lib/game_server_web/live/user_live/login.ex:24
+#: lib/game_server_web/live/user_live/login.ex:25
+#: lib/game_server_web/live/user_live/login.ex:25
+#: lib/game_server_web/live/user_live/registration.ex:56
+#: lib/game_server_web/live/user_live/registration.ex:56
+#: lib/game_server_web/live/user_live/registration.ex:66
+#: lib/game_server_web/live/user_live/registration.ex:66
+#: lib/game_server_web/live/user_live/registration.ex:91
+#: lib/game_server_web/live/user_live/registration.ex:91
+#: lib/game_server_web/live/user_live/registration.ex:101
+#: lib/game_server_web/live/user_live/registration.ex:101
+#: lib/game_server_web/live/user_live/registration.ex:111
+#: lib/game_server_web/live/user_live/registration.ex:111
 #, elixir-autogen, elixir-format
 msgid "Sign up"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/registration.ex:66
-#: lib/game_server_web/live/user_live/registration.ex:66
-#, elixir-autogen, elixir-format
-msgid "Sign up with Apple"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/registration.ex:56
-#: lib/game_server_web/live/user_live/registration.ex:56
-#, elixir-autogen, elixir-format
-msgid "Sign up with Discord"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/registration.ex:101
-#: lib/game_server_web/live/user_live/registration.ex:101
-#, elixir-autogen, elixir-format
-msgid "Sign up with Facebook"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/registration.ex:91
-#: lib/game_server_web/live/user_live/registration.ex:91
-#, elixir-autogen, elixir-format
-msgid "Sign up with Google"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/registration.ex:111
-#: lib/game_server_web/live/user_live/registration.ex:111
-#, elixir-autogen, elixir-format
-msgid "Sign up with Steam"
-msgstr ""
-
-#: lib/game_server_web/controllers/auth_controller.ex:1581
-#: lib/game_server_web/controllers/auth_controller.ex:1581
-#, elixir-autogen, elixir-format
-msgid "Steam is already linked to another account. You can delete the conflicting account on this page if it belongs to you."
-msgstr ""
-
-#: lib/game_server_web/controllers/auth_controller.ex:1546
-#: lib/game_server_web/controllers/auth_controller.ex:1546
-#, elixir-autogen, elixir-format
-msgid "Successfully authenticated with Apple."
-msgstr ""
-
-#: lib/game_server_web/controllers/auth_controller.ex:1658
-#: lib/game_server_web/controllers/auth_controller.ex:1658
-#, elixir-autogen, elixir-format
-msgid "Successfully authenticated with Discord."
-msgstr ""
-
-#: lib/game_server_web/controllers/auth_controller.ex:1490
-#: lib/game_server_web/controllers/auth_controller.ex:1490
-#, elixir-autogen, elixir-format
-msgid "Successfully authenticated with Facebook."
-msgstr ""
-
-#: lib/game_server_web/controllers/auth_controller.ex:1434
-#: lib/game_server_web/controllers/auth_controller.ex:1434
-#, elixir-autogen, elixir-format
-msgid "Successfully authenticated with Google."
-msgstr ""
-
-#: lib/game_server_web/controllers/auth_controller.ex:1602
-#: lib/game_server_web/controllers/auth_controller.ex:1602
-#, elixir-autogen, elixir-format
-msgid "Successfully authenticated with Steam."
-msgstr ""
-
-#: lib/game_server_web/live/auth_success_live.ex:189
-#: lib/game_server_web/live/auth_success_live.ex:189
-#, elixir-autogen, elixir-format
-msgid "The authentication session could not be found."
-msgstr ""
-
 #: lib/game_server_web/controllers/user_session_controller.ex:27
 #: lib/game_server_web/controllers/user_session_controller.ex:27
+#: lib/game_server_web/controllers/user_session_controller.ex:79
+#: lib/game_server_web/controllers/user_session_controller.ex:79
 #, elixir-autogen, elixir-format
 msgid "The link is invalid or it has expired."
 msgstr ""
 
-#: lib/game_server_web/live/auth_success_live.ex:160
-#: lib/game_server_web/live/auth_success_live.ex:160
+#: lib/game_server_web/live/auth_success_live.ex:159
+#: lib/game_server_web/live/auth_success_live.ex:159
 #, elixir-autogen, elixir-format
 msgid "There was an error during authentication."
 msgstr ""
 
-#: lib/game_server_web/live/auth_success_live.ex:130
-#: lib/game_server_web/live/auth_success_live.ex:130
-#, elixir-autogen, elixir-format
-msgid "This OAuth account is already linked to another user account."
-msgstr ""
-
-#: lib/game_server_web/live/auth_success_live.ex:191
-#: lib/game_server_web/live/auth_success_live.ex:191
-#, elixir-autogen, elixir-format
-msgid "This may be due to an expired session or an invalid link."
-msgstr ""
-
-#: lib/game_server_web/live/auth_success_live.ex:101
-#: lib/game_server_web/live/auth_success_live.ex:101
+#: lib/game_server_web/live/auth_success_live.ex:102
+#: lib/game_server_web/live/auth_success_live.ex:102
 #, elixir-autogen, elixir-format
 msgid "This window will close in 3s..."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/confirmation.ex:74
-#: lib/game_server_web/live/user_live/confirmation.ex:74
+#: lib/game_server_web/live/user_live/confirmation.ex:77
+#: lib/game_server_web/live/user_live/confirmation.ex:77
 #, elixir-autogen, elixir-format
 msgid "Tip: If you prefer passwords, you can enable them in the user settings."
-msgstr ""
-
-#: lib/game_server_web/live/user_live/login.ex:36
-#: lib/game_server_web/live/user_live/login.ex:36
-#, elixir-autogen, elixir-format
-msgid "To see sent emails, visit"
 msgstr ""
 
 #: lib/game_server_web/controllers/user_session_controller.ex:8
@@ -501,8 +277,8 @@ msgstr ""
 msgid "User confirmed successfully."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/registration.ex:192
-#: lib/game_server_web/live/user_live/registration.ex:192
+#: lib/game_server_web/live/user_live/registration.ex:197
+#: lib/game_server_web/live/user_live/registration.ex:197
 #, elixir-autogen, elixir-format
 msgid "We were unable to create your account right now — please try again later or contact support."
 msgstr ""
@@ -519,60 +295,48 @@ msgstr ""
 msgid "Welcome back!"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/login.ex:34
-#: lib/game_server_web/live/user_live/login.ex:34
-#, elixir-autogen, elixir-format
-msgid "You are running the local mail adapter."
-msgstr ""
-
-#: lib/game_server_web/live/auth_success_live.ex:91
-#: lib/game_server_web/live/auth_success_live.ex:91
-#, elixir-autogen, elixir-format
-msgid "You can now close this window and return to your application."
-msgstr ""
-
 #: lib/game_server_web/controllers/auth_controller.ex:701
 #: lib/game_server_web/controllers/auth_controller.ex:701
 #, elixir-autogen, elixir-format
 msgid "You have been logged out!"
 msgstr ""
 
-#: lib/game_server_web/user_auth.ex:270
-#: lib/game_server_web/user_auth.ex:270
-#: lib/game_server_web/user_auth.ex:340
-#: lib/game_server_web/user_auth.ex:340
+#: lib/game_server_web/user_auth.ex:273
+#: lib/game_server_web/user_auth.ex:273
+#: lib/game_server_web/user_auth.ex:343
+#: lib/game_server_web/user_auth.ex:343
 #, elixir-autogen, elixir-format
 msgid "You must be an admin to access this page."
 msgstr ""
 
-#: lib/game_server_web/user_auth.ex:248
-#: lib/game_server_web/user_auth.ex:248
-#: lib/game_server_web/user_auth.ex:324
-#: lib/game_server_web/user_auth.ex:324
+#: lib/game_server_web/user_auth.ex:250
+#: lib/game_server_web/user_auth.ex:250
+#: lib/game_server_web/user_auth.ex:327
+#: lib/game_server_web/user_auth.ex:327
 #, elixir-autogen, elixir-format
 msgid "You must log in to access this page."
 msgstr ""
 
-#: lib/game_server_web/user_auth.ex:288
-#: lib/game_server_web/user_auth.ex:288
+#: lib/game_server_web/user_auth.ex:291
+#: lib/game_server_web/user_auth.ex:291
 #, elixir-autogen, elixir-format
 msgid "You must re-authenticate to access this page."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/login.ex:17
-#: lib/game_server_web/live/user_live/login.ex:17
+#: lib/game_server_web/live/user_live/login.ex:15
+#: lib/game_server_web/live/user_live/login.ex:15
 #, elixir-autogen, elixir-format
 msgid "You need to reauthenticate to perform sensitive actions on your account."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/login.ex:25
-#: lib/game_server_web/live/user_live/login.ex:25
+#: lib/game_server_web/live/user_live/login.ex:26
+#: lib/game_server_web/live/user_live/login.ex:26
 #, elixir-autogen, elixir-format
 msgid "for an account now."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/login.ex:97
-#: lib/game_server_web/live/user_live/login.ex:97
+#: lib/game_server_web/live/user_live/login.ex:96
+#: lib/game_server_web/live/user_live/login.ex:96
 #, elixir-autogen, elixir-format
 msgid "or continue with"
 msgstr ""
@@ -583,14 +347,102 @@ msgstr ""
 msgid "or sign up with"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/login.ex:37
-#: lib/game_server_web/live/user_live/login.ex:37
-#, elixir-autogen, elixir-format
-msgid "the mailbox page"
-msgstr ""
-
-#: lib/game_server_web/live/user_live/registration.ex:21
-#: lib/game_server_web/live/user_live/registration.ex:21
+#: lib/game_server_web/live/user_live/registration.ex:19
+#: lib/game_server_web/live/user_live/registration.ex:19
 #, elixir-autogen, elixir-format
 msgid "to your account now."
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1403
+#: lib/game_server_web/controllers/auth_controller.ex:1403
+#: lib/game_server_web/controllers/auth_controller.ex:1460
+#: lib/game_server_web/controllers/auth_controller.ex:1460
+#: lib/game_server_web/controllers/auth_controller.ex:1517
+#: lib/game_server_web/controllers/auth_controller.ex:1517
+#: lib/game_server_web/controllers/auth_controller.ex:1574
+#: lib/game_server_web/controllers/auth_controller.ex:1574
+#: lib/game_server_web/controllers/auth_controller.ex:1631
+#: lib/game_server_web/controllers/auth_controller.ex:1631
+#, elixir-autogen, elixir-format
+msgid "Account linked."
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1413
+#: lib/game_server_web/controllers/auth_controller.ex:1413
+#: lib/game_server_web/controllers/auth_controller.ex:1470
+#: lib/game_server_web/controllers/auth_controller.ex:1470
+#: lib/game_server_web/controllers/auth_controller.ex:1527
+#: lib/game_server_web/controllers/auth_controller.ex:1527
+#: lib/game_server_web/controllers/auth_controller.ex:1584
+#: lib/game_server_web/controllers/auth_controller.ex:1584
+#: lib/game_server_web/controllers/auth_controller.ex:1641
+#: lib/game_server_web/controllers/auth_controller.ex:1641
+#, elixir-autogen, elixir-format
+msgid "Already linked to another account."
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1427
+#: lib/game_server_web/controllers/auth_controller.ex:1427
+#: lib/game_server_web/controllers/auth_controller.ex:1484
+#: lib/game_server_web/controllers/auth_controller.ex:1484
+#: lib/game_server_web/controllers/auth_controller.ex:1541
+#: lib/game_server_web/controllers/auth_controller.ex:1541
+#: lib/game_server_web/controllers/auth_controller.ex:1598
+#: lib/game_server_web/controllers/auth_controller.ex:1598
+#: lib/game_server_web/controllers/auth_controller.ex:1655
+#: lib/game_server_web/controllers/auth_controller.ex:1655
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Failed to link account."
+msgstr ""
+
+#: lib/game_server_web/live/auth_success_live.ex:189
+#: lib/game_server_web/live/auth_success_live.ex:189
+#, elixir-autogen, elixir-format
+msgid "Session expired or invalid link."
+msgstr ""
+
+#: lib/game_server_web/live/user_live/login.ex:111
+#: lib/game_server_web/live/user_live/login.ex:111
+#: lib/game_server_web/live/user_live/login.ex:121
+#: lib/game_server_web/live/user_live/login.ex:121
+#: lib/game_server_web/live/user_live/login.ex:146
+#: lib/game_server_web/live/user_live/login.ex:146
+#: lib/game_server_web/live/user_live/login.ex:156
+#: lib/game_server_web/live/user_live/login.ex:156
+#: lib/game_server_web/live/user_live/login.ex:166
+#: lib/game_server_web/live/user_live/login.ex:166
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Sign in"
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1435
+#: lib/game_server_web/controllers/auth_controller.ex:1435
+#: lib/game_server_web/controllers/auth_controller.ex:1492
+#: lib/game_server_web/controllers/auth_controller.ex:1492
+#: lib/game_server_web/controllers/auth_controller.ex:1549
+#: lib/game_server_web/controllers/auth_controller.ex:1549
+#: lib/game_server_web/controllers/auth_controller.ex:1606
+#: lib/game_server_web/controllers/auth_controller.ex:1606
+#: lib/game_server_web/controllers/auth_controller.ex:1663
+#: lib/game_server_web/controllers/auth_controller.ex:1663
+#, elixir-autogen, elixir-format
+msgid "Signed in."
+msgstr ""
+
+#: lib/game_server_web/live/auth_success_live.ex:133
+#: lib/game_server_web/live/auth_success_live.ex:133
+#, elixir-autogen, elixir-format
+msgid "Try a different login method."
+msgstr ""
+
+#: lib/game_server_web/live/auth_success_live.ex:91
+#: lib/game_server_web/live/auth_success_live.ex:91
+#, elixir-autogen, elixir-format
+msgid "You can close this window."
+msgstr ""
+
+#: lib/game_server_web/live/user_live/registration.ex:132
+#: lib/game_server_web/live/user_live/registration.ex:132
+#, elixir-autogen, elixir-format
+msgid "Register"
 msgstr ""

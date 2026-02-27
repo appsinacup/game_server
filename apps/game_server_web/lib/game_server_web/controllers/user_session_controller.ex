@@ -76,7 +76,7 @@ defmodule GameServerWeb.UserSessionController do
 
       _ ->
         conn
-        |> put_flash(:error, dgettext("auth", "Confirmation link is invalid or it has expired."))
+        |> put_flash(:error, dgettext("auth", "The link is invalid or it has expired."))
         |> redirect(to: ~p"/users/log-in")
     end
   end

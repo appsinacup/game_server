@@ -2,6 +2,8 @@ defmodule GameServerWeb.SwaggerController do
   use GameServerWeb, :controller
 
   def index(conn, _params) do
-    render(conn, :index)
+    conn
+    |> assign(:page_title, "API Documentation")
+    |> render(:index)
   end
 end

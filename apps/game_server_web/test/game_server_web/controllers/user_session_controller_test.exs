@@ -149,7 +149,9 @@ defmodule GameServerWeb.UserSessionControllerTest do
       conn = get(conn, ~p"/users/confirm/invalid-token")
 
       assert redirected_to(conn) == ~p"/users/log-in"
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Confirmation link is invalid"
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
+               "The link is invalid or it has expired."
     end
   end
 

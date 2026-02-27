@@ -295,6 +295,7 @@ defmodule GameServer.Leaderboards do
       slug: slug,
       title: latest.title,
       description: latest.description,
+      metadata: latest.metadata,
       active_id: active && active.id,
       latest_id: latest.id,
       season_count: season_count

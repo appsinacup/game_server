@@ -37,7 +37,7 @@ defmodule GameServerWeb.GroupsLive do
 
     {:ok,
      assign(socket,
-       page_title: "Groups",
+       page_title: dgettext("groups", "Groups"),
        search: "",
        type_filter: "all",
        sort_by: "updated_at",
@@ -91,7 +91,7 @@ defmodule GameServerWeb.GroupsLive do
         end
 
       _ ->
-        {:noreply, assign(socket, selected_group: nil, page_title: "Groups")}
+        {:noreply, assign(socket, selected_group: nil, page_title: dgettext("groups", "Groups"))}
     end
   end
 
@@ -392,11 +392,6 @@ defmodule GameServerWeb.GroupsLive do
 
   defp render_group_list(assigns) do
     ~H"""
-    <.header>
-      {dgettext("groups", "Groups")}
-      <:subtitle>{dgettext("groups", "Browse and join groups")}</:subtitle>
-    </.header>
-
     <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
       <form phx-change="search" phx-submit="search" class="flex-1 w-full" id="groups-search-form">
         <.input

@@ -21,13 +21,13 @@ defmodule GameServerWeb.UserLive.SettingsTest do
         })
         |> Repo.update()
 
-      {:ok, _lv, html} =
+      {:ok, lv, html} =
         conn
         |> log_in_user(user)
         |> live(~p"/users/settings")
 
       assert html =~ "Change Email"
-      assert html =~ "Save Password"
+      assert has_element?(lv, "#password_form")
       assert html =~ "Tester"
     end
 
@@ -140,7 +140,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
         })
         |> render_submit()
 
-      assert result =~ "A link to confirm your email"
+      assert result =~ "Confirmation link sent."
       assert Accounts.get_user_by_email(user.email)
     end
 
@@ -209,7 +209,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
         |> element("#display_form")
         |> render_change(%{"user" => %{"display_name" => long_name}})
 
-      assert result =~ "Save Display Name"
+      assert has_element?(lv, "#display_form")
       assert result =~ "should be at most"
     end
   end
@@ -332,7 +332,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
           }
         })
 
-      assert result =~ "Save Password"
+      assert has_element?(lv, "#password_form")
       assert result =~ "should be at least 12 character(s)"
       assert result =~ "does not match password"
     end
@@ -350,7 +350,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
         })
         |> render_submit()
 
-      assert result =~ "Save Password"
+      assert has_element?(lv, "#password_form")
       assert result =~ "should be at least 12 character(s)"
       assert result =~ "does not match password"
     end

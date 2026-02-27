@@ -17,6 +17,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
       |> assign(:records_page, 1)
       |> assign(:form, nil)
       |> assign(:record_form, nil)
+      |> assign(:translation_values, %{})
       |> assign(:editing_record, nil)
       |> assign(:selected_ids, MapSet.new())
       |> reload_leaderboards()
@@ -230,6 +231,47 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
               <% end %>
               <.input field={@form[:title]} type="text" label="Title" />
               <.input field={@form[:description]} type="textarea" label="Description" />
+
+              <%!-- Per-locale translations --%>
+              <% locales = Gettext.known_locales(GameServerWeb.Gettext) -- ["en"] %>
+              <%= if locales != [] do %>
+                <div class="collapse collapse-arrow bg-base-200 mt-4">
+                  <input type="checkbox" />
+                  <div class="collapse-title font-medium text-sm">
+                    Translations ({Enum.join(locales, ", ")})
+                  </div>
+                  <div class="collapse-content space-y-3">
+                    <%= for locale <- locales do %>
+                      <div class="text-xs font-semibold uppercase text-base-content/50 mt-2">
+                        {locale}
+                      </div>
+                      <div class="fieldset mb-2">
+                        <label>
+                          <span class="label mb-1">Title ({locale})</span>
+                          <input
+                            type="text"
+                            name={"translations[#{locale}][title]"}
+                            value={get_in(@translation_values, [locale, "title"]) || ""}
+                            class="w-full input"
+                            placeholder="Leave empty to use default"
+                          />
+                        </label>
+                      </div>
+                      <div class="fieldset mb-2">
+                        <label>
+                          <span class="label mb-1">Description ({locale})</span>
+                          <textarea
+                            name={"translations[#{locale}][description]"}
+                            class="w-full textarea textarea-bordered"
+                            rows="2"
+                            placeholder="Leave empty to use default"
+                          ><%= get_in(@translation_values, [locale, "description"]) || "" %></textarea>
+                        </label>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
 
               <%= if is_nil(@selected_leaderboard) do %>
                 <div class="form-control">
@@ -509,6 +551,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
     {:noreply,
      socket
      |> assign(:selected_leaderboard, nil)
+     |> assign(:translation_values, %{})
      |> assign(:form, form)}
   end
 
@@ -532,6 +575,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
     {:noreply,
      socket
      |> assign(:selected_leaderboard, nil)
+     |> assign(:translation_values, extract_translation_values(new_leaderboard.metadata))
      |> assign(:form, form)}
   end
 
@@ -543,6 +587,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
     {:noreply,
      socket
      |> assign(:selected_leaderboard, leaderboard)
+     |> assign(:translation_values, extract_translation_values(leaderboard.metadata))
      |> assign(:form, form)}
   end
 
@@ -553,7 +598,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
      |> assign(:form, nil)}
   end
 
-  def handle_event("save_leaderboard", %{"leaderboard" => params}, socket) do
+  def handle_event("save_leaderboard", %{"leaderboard" => params} = all_params, socket) do
     # Parse metadata JSON
     params =
       Map.update(params, "metadata", %{}, fn metadata_str ->
@@ -562,6 +607,9 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
           _ -> %{}
         end
       end)
+
+    # Merge translations into metadata
+    params = merge_translations_into_metadata(params, Map.get(all_params, "translations", %{}))
 
     result =
       case socket.assigns.selected_leaderboard do
@@ -779,5 +827,52 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
     |> assign(:records, records)
     |> assign(:records_count, count)
     |> assign(:records_total_pages, max(total_pages, 1))
+  end
+
+  defp extract_translation_values(nil), do: %{}
+
+  defp extract_translation_values(metadata) when is_map(metadata) do
+    titles = Map.get(metadata, "titles", %{})
+    descriptions = Map.get(metadata, "descriptions", %{})
+
+    locales = MapSet.union(MapSet.new(Map.keys(titles)), MapSet.new(Map.keys(descriptions)))
+
+    Map.new(locales, fn locale ->
+      {locale,
+       %{
+         "title" => Map.get(titles, locale, ""),
+         "description" => Map.get(descriptions, locale, "")
+       }}
+    end)
+  end
+
+  defp merge_translations_into_metadata(params, translations) when translations == %{}, do: params
+
+  defp merge_translations_into_metadata(params, translations) do
+    metadata = Map.get(params, "metadata", %{})
+
+    {titles, descriptions} =
+      Enum.reduce(translations, {%{}, %{}}, fn {locale, fields}, {titles_acc, descs_acc} ->
+        title = String.trim(Map.get(fields, "title", ""))
+        desc = String.trim(Map.get(fields, "description", ""))
+
+        titles_acc = if title != "", do: Map.put(titles_acc, locale, title), else: titles_acc
+        descs_acc = if desc != "", do: Map.put(descs_acc, locale, desc), else: descs_acc
+
+        {titles_acc, descs_acc}
+      end)
+
+    metadata =
+      metadata
+      |> then(fn m ->
+        if titles == %{}, do: Map.delete(m, "titles"), else: Map.put(m, "titles", titles)
+      end)
+      |> then(fn m ->
+        if descriptions == %{},
+          do: Map.delete(m, "descriptions"),
+          else: Map.put(m, "descriptions", descriptions)
+      end)
+
+    Map.put(params, "metadata", metadata)
   end
 end

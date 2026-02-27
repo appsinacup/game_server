@@ -23,7 +23,12 @@ defmodule GameServerWeb.AuthSuccessLive do
         # session data is stored in the `data` map on the schema
         session_data = Map.merge(%{status: s.status}, s.data || %{})
 
-        {:ok, assign(socket, session_id: session_id, session_data: session_data)}
+        {:ok,
+         assign(socket,
+           session_id: session_id,
+           session_data: session_data,
+           page_title: dgettext("auth", "Authentication")
+         )}
 
       nil ->
         # session_id present but DB lookup missing - for SDK/API flows we still want
@@ -34,13 +39,19 @@ defmodule GameServerWeb.AuthSuccessLive do
           {:ok,
            assign(socket,
              session_id: session_id,
+             page_title: dgettext("auth", "Authentication"),
              session_data: %{
                status: "completed",
                message: dgettext("auth", "Authentication completed - you can close this window.")
              }
            )}
         else
-          {:ok, assign(socket, session_id: session_id, session_data: %{status: "not_found"})}
+          {:ok,
+           assign(socket,
+             session_id: session_id,
+             page_title: dgettext("auth", "Authentication"),
+             session_data: %{status: "not_found"}
+           )}
         end
     end
   end
@@ -84,13 +95,13 @@ defmodule GameServerWeb.AuthSuccessLive do
                         </div>
                         <div class="ml-3">
                           <h3 class="text-sm font-medium text-green-800">
-                            {dgettext("auth", "OAuth authentication completed successfully!")}
+                            {dgettext("auth", "Authentication Successful!")}
                           </h3>
                           <div class="mt-2 text-sm text-green-700">
                             <p>
                               {dgettext(
                                 "auth",
-                                "You can now close this window and return to your application."
+                                "You can close this window."
                               )}
                             </p>
                             <p
@@ -132,13 +143,7 @@ defmodule GameServerWeb.AuthSuccessLive do
                             <p>
                               {dgettext(
                                 "auth",
-                                "This OAuth account is already linked to another user account."
-                              )}
-                            </p>
-                            <p class="mt-1">
-                              {dgettext(
-                                "auth",
-                                "Please contact support or try logging in with a different method."
+                                "Try a different login method."
                               )}
                             </p>
                           </div>
@@ -192,12 +197,9 @@ defmodule GameServerWeb.AuthSuccessLive do
                           </h3>
                           <div class="mt-2 text-sm text-gray-700">
                             <p>
-                              {dgettext("auth", "The authentication session could not be found.")}
-                            </p>
-                            <p class="mt-1">
                               {dgettext(
                                 "auth",
-                                "This may be due to an expired session or an invalid link."
+                                "Session expired or invalid link."
                               )}
                             </p>
                           </div>
@@ -209,13 +211,8 @@ defmodule GameServerWeb.AuthSuccessLive do
                       <div class="flex">
                         <div class="ml-3">
                           <h3 class="text-sm font-medium text-blue-800">
-                            {dgettext("auth", "Processing authentication...")}
+                            {dgettext("auth", "Processing...")}
                           </h3>
-                          <div class="mt-2 text-sm text-blue-700">
-                            <p>
-                              {dgettext("auth", "Please wait while we complete your authentication.")}
-                            </p>
-                          </div>
                         </div>
                       </div>
                     </div>

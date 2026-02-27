@@ -9,30 +9,35 @@
       class="max-w-full h-auto rounded-lg shadow-lg"
     />
   </div>
+  <p class="mt-4 leading-7 text-base-content/70 text-center">
+    {Map.get(provider_theme, "description")}
+  </p>
   <!-- Activity Stats -->
   <div class="mt-6 mb-8">
-    <div class="rounded-box bg-base-200 p-5">
-      <div class="text-sm font-semibold mb-3 flex items-center justify-center gap-2">
-        <.icon name="hero-clock" class="size-4" />
-        {gettext("Active Users")}
+    <div class="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
+      <div class="group relative rounded-box px-6 py-2 text-sm font-semibold leading-6 sm:py-6">
+        <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
+        </span>
+        <span class="relative z-10 flex items-center gap-4 sm:flex-col">
+          <span class="text-2xl font-bold">{@stats.users_active_1d}</span>
+          <span class="text-s text-base-content/60 font-normal">{gettext("Daily")}</span>
+        </span>
       </div>
-      <div class="grid grid-cols-4 gap-3 text-center">
-        <div>
-          <div class="text-xl font-bold">{@stats.users_active_1d}</div>
-          <div class="text-xs text-base-content/60">{gettext("Daily")}</div>
-        </div>
-        <div>
-          <div class="text-xl font-bold">{@stats.users_active_7d}</div>
-          <div class="text-xs text-base-content/60">{gettext("Weekly")}</div>
-        </div>
-        <div>
-          <div class="text-xl font-bold">{@stats.users_active_30d}</div>
-          <div class="text-xs text-base-content/60">{gettext("Monthly")}</div>
-        </div>
-        <div>
-          <div class="text-xl font-bold">{@stats.users_count}</div>
-          <div class="text-xs text-base-content/60">{gettext("Total")}</div>
-        </div>
+      <div class="group relative rounded-box px-6 py-2 text-sm font-semibold leading-6 sm:py-6">
+        <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
+        </span>
+        <span class="relative z-10 flex items-center gap-4 sm:flex-col">
+          <span class="text-2xl font-bold">{@stats.users_active_7d}</span>
+          <span class="text-s text-base-content/60 font-normal">{gettext("Weekly")}</span>
+        </span>
+      </div>
+      <div class="group relative rounded-box px-6 py-2 text-sm font-semibold leading-6 sm:py-6">
+        <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
+        </span>
+        <span class="relative z-10 flex items-center gap-4 sm:flex-col">
+          <span class="text-2xl font-bold">{@stats.users_active_30d}</span>
+          <span class="text-s text-base-content/60 font-normal">{gettext("Monthly")}</span>
+        </span>
       </div>
     </div>
   </div>
@@ -60,50 +65,53 @@
     <.icon name="hero-sparkles" />
     <.icon name="hero-server-stack" />
   </div>
-  <p class="mt-4 leading-7 text-base-content/70 text-center">
-    {Map.get(provider_theme, "description")}
-  </p>
 
   <div class="flex justify-center">
     <div class="w-full">
-      <h2 class="text-lg font-semibold mb-4 text-center">{gettext("Useful Links")}</h2>
-      <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
-        <%= for link <- Map.get(provider_theme, "useful_links", []) do %>
-          <a
-            href={link["url"]}
-            class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
-            </span>
-            <span class="relative z-10 flex items-center gap-4 sm:flex-col">
-              <.dynamic_icon name={link["icon"]} class="size-6 text-base-content/80" />
-              {link["title"]}
-            </span>
-          </a>
-        <% end %>
-      </div>
-      
-<!-- Features overview -->
-      <div class="mt-12">
-        <h2 class="text-lg font-semibold mb-4 text-center">{gettext("Features")}</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-          <%= for feature <- Map.get(provider_theme, "features", []) do %>
-            <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
+      <% useful_links = Map.get(provider_theme, "useful_links", []) %>
+      <%= if useful_links != [] do %>
+        <h2 class="text-lg font-semibold mb-4 text-center">{gettext("Useful Links")}</h2>
+        <div class="mt-4 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
+          <%= for link <- useful_links do %>
+            <a
+              href={link["url"]}
+              class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
               </span>
               <span class="relative z-10 flex items-center gap-4 sm:flex-col">
-                <.dynamic_icon name={feature["icon"]} class="size-6 text-base-content/80" />
-                {feature["title"]}
+                <.dynamic_icon name={link["icon"]} class="size-6 text-base-content/80" />
+                {link["title"]}
               </span>
-              <span class="relative z-10 mt-2 text-base-content/70 font-light">
-                {feature["description"]}
-              </span>
-            </div>
+            </a>
           <% end %>
         </div>
-      </div>
+      <% end %>
+      
+<!-- Features overview -->
+      <% features = Map.get(provider_theme, "features", []) %>
+      <%= if features != [] do %>
+        <div class="mt-12">
+          <h2 class="text-lg font-semibold mb-4 text-center">{gettext("Features")}</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+            <%= for feature <- features do %>
+              <div class="group relative rounded-box px-6 py-4 text-sm font-semibold leading-6 sm:py-6">
+                <span class="absolute inset-0 rounded-box bg-base-200 transition group-hover:bg-base-300 sm:group-hover:scale-105">
+                </span>
+                <span class="relative z-10 flex items-center gap-4 sm:flex-col">
+                  <.dynamic_icon name={feature["icon"]} class="size-6 text-base-content/80" />
+                  {feature["title"]}
+                </span>
+                <span class="relative z-10 mt-2 text-base-content/70 font-light">
+                  {feature["description"]}
+                </span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
     </div>
   </div>
 </Layouts.app>

@@ -13,11 +13,6 @@ defmodule GameServerWeb.UserLive.Settings do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="text-center">
-        <.header>
-          {dgettext("settings", "Account Settings")}
-          <:subtitle>{dgettext("settings", "Manage your account settings")}</:subtitle>
-        </.header>
-
         <%= if @conflict_user do %>
           <div class="divider" />
 
@@ -71,7 +66,7 @@ defmodule GameServerWeb.UserLive.Settings do
                 required
               />
               <.button variant="primary" phx-disable-with={gettext("Saving...")}>
-                {dgettext("settings", "Save Display Name")}
+                {gettext("Save")}
               </.button>
             </.form>
 
@@ -131,7 +126,7 @@ defmodule GameServerWeb.UserLive.Settings do
               autocomplete="new-password"
             />
             <.button variant="primary" phx-disable-with={gettext("Saving...")}>
-              {dgettext("settings", "Save Password")}
+              {gettext("Save")}
             </.button>
           </.form>
         </div>
@@ -142,9 +137,6 @@ defmodule GameServerWeb.UserLive.Settings do
         <div class="flex items-center justify-between">
           <div>
             <div class="font-semibold text-lg">{dgettext("settings", "Friends")}</div>
-            <div class="text-sm text-base-content/70">
-              {dgettext("settings", "Manage your friends")}
-            </div>
           </div>
         </div>
 
@@ -370,9 +362,6 @@ defmodule GameServerWeb.UserLive.Settings do
         <div class="flex items-center justify-between">
           <div>
             <div class="font-semibold text-lg">{dgettext("settings", "Data")}</div>
-            <div class="text-sm text-base-content/70">
-              {dgettext("settings", "View stored key-value data")}
-            </div>
           </div>
         </div>
 
@@ -538,9 +527,6 @@ defmodule GameServerWeb.UserLive.Settings do
         <div class="flex items-center justify-between">
           <div>
             <div class="font-semibold text-lg">{dgettext("groups", "Groups")}</div>
-            <div class="text-sm text-base-content/70">
-              {dgettext("settings", "Manage your groups")}
-            </div>
           </div>
           <div class="flex gap-2">
             <%= if @group_detail do %>
@@ -558,7 +544,7 @@ defmodule GameServerWeb.UserLive.Settings do
               <%= if @groups_show_create do %>
                 {gettext("Cancel")}
               <% else %>
-                {dgettext("settings", "Create Group")}
+                {gettext("Create")}
               <% end %>
             </button>
           </div>
@@ -1383,7 +1369,7 @@ defmodule GameServerWeb.UserLive.Settings do
             <div>
               <strong>{dgettext("settings", "Discord")}</strong>
               <div class="text-sm text-base-content/70">
-                {dgettext("settings", "Sign in with Discord and link to your account")}
+                {dgettext("settings", "Sign in and link")}
               </div>
             </div>
             <div class="flex items-center gap-2">
@@ -1413,7 +1399,7 @@ defmodule GameServerWeb.UserLive.Settings do
             <div>
               <strong>{dgettext("settings", "Google")}</strong>
               <div class="text-sm text-base-content/70">
-                {dgettext("settings", "Sign in with Google and link to your account")}
+                {dgettext("settings", "Sign in and link")}
               </div>
             </div>
             <div class="flex items-center gap-2">
@@ -1443,7 +1429,7 @@ defmodule GameServerWeb.UserLive.Settings do
             <div>
               <strong>{dgettext("settings", "Facebook")}</strong>
               <div class="text-sm text-base-content/70">
-                {dgettext("settings", "Sign in with Facebook and link to your account")}
+                {dgettext("settings", "Sign in and link")}
               </div>
             </div>
             <div class="flex items-center gap-2">
@@ -1473,7 +1459,7 @@ defmodule GameServerWeb.UserLive.Settings do
             <div>
               <strong>{dgettext("settings", "Apple")}</strong>
               <div class="text-sm text-base-content/70">
-                {dgettext("settings", "Sign in with Apple and link to your account")}
+                {dgettext("settings", "Sign in and link")}
               </div>
             </div>
             <div class="flex items-center gap-2">
@@ -1503,7 +1489,7 @@ defmodule GameServerWeb.UserLive.Settings do
             <div>
               <strong>{dgettext("settings", "Steam")}</strong>
               <div class="text-sm text-base-content/70">
-                {dgettext("settings", "Sign in with Steam and link to your account")}
+                {dgettext("settings", "Sign in and link")}
               </div>
             </div>
             <div class="flex items-center gap-2">
@@ -1594,6 +1580,7 @@ defmodule GameServerWeb.UserLive.Settings do
 
     socket =
       socket
+      |> assign(:page_title, dgettext("settings", "Settings"))
       |> assign(:current_email, user.email)
       |> assign(:user, user)
       |> assign(:email_form, to_form(email_changeset))
@@ -1974,7 +1961,7 @@ defmodule GameServerWeb.UserLive.Settings do
             info =
               dgettext(
                 "settings",
-                "A link to confirm your email change has been sent to the new address."
+                "Confirmation link sent."
               )
 
             {:noreply, socket |> put_flash(:info, info)}
@@ -2035,7 +2022,7 @@ defmodule GameServerWeb.UserLive.Settings do
                :error,
                dgettext(
                  "settings",
-                 "Cannot unlink the last linked social provider (you must have at least one social login connected)."
+                 "At least one login method must remain linked."
                )
              )}
 

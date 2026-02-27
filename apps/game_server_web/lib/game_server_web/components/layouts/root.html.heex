@@ -20,7 +20,10 @@
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={image_path} />
-    <.live_title default={Map.get(provider_theme, "title")}>
+    <.live_title
+      default={Map.get(provider_theme, "title")}
+      prefix={"#{Map.get(provider_theme, "title")} — "}
+    >
       {assigns[:page_title]}
     </.live_title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />

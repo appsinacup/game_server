@@ -42,6 +42,7 @@ defmodule GameServerWeb.LobbyLive.Index do
 
     {:ok,
      assign(socket,
+       page_title: dgettext("lobbies", "Lobbies"),
        lobbies: lobbies,
        memberships_map: memberships_map,
        lobbies_page: lobbies_page,
@@ -644,17 +645,9 @@ defmodule GameServerWeb.LobbyLive.Index do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="p-6">
-        <.header>
-          {dgettext("lobbies", "Lobbies")}
-          <:subtitle>{dgettext("lobbies", "Browse and join lobbies")}</:subtitle>
-        </.header>
-
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
           <div class="card bg-base-200 p-4 rounded-lg">
             <div class="font-semibold">{dgettext("lobbies", "Create a Lobby")}</div>
-            <div class="text-sm text-base-content/80 mt-2">
-              {dgettext("lobbies", "Create a lobby to host a match.")}
-            </div>
             <div class="mt-2 flex gap-2 items-center">
               <button phx-click="lobbies_prev" class="btn btn-xs" disabled={@lobbies_page <= 1}>
                 {gettext("Prev")}

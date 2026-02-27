@@ -400,7 +400,7 @@ defmodule GameServerWeb.AuthControllerTest do
       |> get("/auth/steam/callback")
 
     assert redirected_to(conn) =~ "/users/settings"
-    assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Linked Steam to your account"
+    assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Account linked."
 
     # Reload user and assert steam_id saved
     reloaded = GameServer.Accounts.get_user!(user.id)

@@ -86,8 +86,13 @@ defmodule GameServerWeb.UserLive.Confirmation do
     if user = Accounts.get_user_by_magic_link_token(token) do
       form = to_form(%{"token" => token}, as: "user")
 
-      {:ok, assign(socket, user: user, form: form, trigger_submit: false),
-       temporary_assigns: [form: nil]}
+      {:ok,
+       assign(socket,
+         user: user,
+         form: form,
+         trigger_submit: false,
+         page_title: dgettext("auth", "Confirm Account")
+       ), temporary_assigns: [form: nil]}
     else
       {:ok,
        socket
