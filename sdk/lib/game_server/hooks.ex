@@ -46,6 +46,17 @@ defmodule GameServer.Hooks do
         end
 
         @impl true
+        def before_group_create(user, attrs) do
+          # Check if user can create a group (e.g., enough coins in metadata)
+          coins = get_in(user.metadata, ["coins"]) || 0
+          if coins >= 50 do
+            {:ok, attrs}
+          else
+            {:error, :not_enough_coins}
+          end
+        end
+
+        @impl true
         def before_group_join(user, group, opts) do
           # Check if user can join group (e.g., level requirements based on metadata)
           {:ok, {user, group, opts}}
@@ -115,6 +126,8 @@ defmodule GameServer.Hooks do
   - `after_lobby_create/1` - After lobby is created
   - `before_lobby_join/3` - Before user joins lobby
   - `after_lobby_join/2` - After user joins lobby
+  - `before_group_create/2` - Before group creation, receives `(user, attrs)`. Return `{:ok, attrs}` to allow or `{:error, reason}` to block
+  - `after_group_create/1` - After group is created (fire-and-forget)
   - `before_group_join/3` - Before user is accepted into a group (public join, invite accept, or request approval)
   - `before_lobby_leave/2` - Before user leaves lobby
   - `after_lobby_leave/2` - After user leaves lobby
@@ -214,6 +227,9 @@ defmodule GameServer.Hooks do
               hook_result({user(), lobby(), keyword()})
   @callback after_lobby_join(user(), lobby()) :: any()
 
+  @callback before_group_create(user(), map()) :: hook_result(map())
+  @callback after_group_create(term()) :: any()
+
   @callback before_group_join(user(), group :: map(), opts :: map()) ::
               hook_result({user(), map(), map()})
 
@@ -230,7 +246,7 @@ defmodule GameServer.Hooks do
               hook_result({user(), user(), lobby()})
   @callback after_user_kicked(host :: user(), target :: user(), lobby()) :: any()
 
-  @optional_callbacks before_group_join: 3
+  @optional_callbacks before_group_create: 2, after_group_create: 1, before_group_join: 3
 
   @doc """
   Called before a KV `get/2` is performed. Implementations should return
@@ -290,6 +306,12 @@ defmodule GameServer.Hooks do
       def before_lobby_join(user, lobby, opts), do: {:ok, {user, lobby, opts}}
 
       @impl true
+      def before_group_create(_user, attrs), do: {:ok, attrs}
+
+      @impl true
+      def after_group_create(_group), do: :ok
+
+      @impl true
       def after_lobby_join(_user, _lobby), do: :ok
 
       @impl true
@@ -327,6 +349,8 @@ defmodule GameServer.Hooks do
                      on_custom_hook: 2,
                      before_lobby_create: 1,
                      after_lobby_create: 1,
+                     before_group_create: 2,
+                     after_group_create: 1,
                      before_lobby_join: 3,
                      after_lobby_join: 2,
                      before_lobby_leave: 2,

@@ -173,6 +173,8 @@ defmodule GameServerWeb.Api.V1.HookController do
       "after_user_login",
       "before_lobby_create",
       "after_lobby_create",
+      "before_group_create",
+      "after_group_create",
       "before_lobby_join",
       "after_lobby_join",
       "before_group_join",

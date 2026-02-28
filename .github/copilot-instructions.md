@@ -173,6 +173,7 @@ API routes use JWT tokens via Guardian for stateless authentication:
 - Group membership is stored in the `group_members` table with a `role` field (`"admin"` or `"member"`). The group creator becomes admin automatically.
 - Join requests are stored in the `group_join_requests` table with `status`: `"pending"`, `"approved"`, `"rejected"`.
 - Inviting a blocked user (or a user who blocked you) returns `{:error, :blocked}`.
+- Group creation runs through the `before_group_create(user, attrs)` hook — return `{:ok, attrs}` to allow or `{:error, reason}` to block. After creation, `after_group_create(group)` fires asynchronously. Group joining runs through the `before_group_join(user, group, opts)` hook.
 - API endpoints live under `/api/v1/groups`. Admin API under `/api/v1/admin/groups`.
 
 ### Parties

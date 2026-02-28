@@ -102,6 +102,39 @@ end
       </div>
 
       <div class="step">
+        <h4 class="font-semibold">{doc_text("Gating resource creation with before hooks")}</h4>
+        <div class="ml-6 mt-2 space-y-2">
+          <p>
+            {doc_text(
+              "\"Before\" hooks let you block operations or modify attributes before they are persisted. For example,"
+            )}
+            <code class="font-mono">before_group_create/2</code>
+            {doc_text(
+              "receives the full user struct and the group attributes map, so you can check metadata (coins, level, etc.) to decide whether the user is allowed to create a group:"
+            )}
+          </p>
+          <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
+            <pre><code class="language-elixir" phx-no-curly-interpolation>@impl true
+def before_group_create(user, attrs) do
+  coins = get_in(user.metadata, ["coins"]) || 0
+
+  if coins >= 50 do
+    {:ok, attrs}
+  else
+    {:error, :not_enough_coins}
+  end
+end</code></pre>
+          </div>
+          <p class="text-sm text-base-content/80">
+            {doc_text("Other \"before\" hooks follow the same pattern:")}
+            <code class="font-mono">before_lobby_create/1</code>, <code class="font-mono">before_lobby_join/3</code>, <code class="font-mono">before_group_join/3</code>. {doc_text(
+              "Return {:ok, attrs} (or the appropriate tuple) to allow, {:error, reason} to reject."
+            )}
+          </p>
+        </div>
+      </div>
+
+      <div class="step">
         <h4 class="font-semibold">{doc_text("Exposing an RPC function")}</h4>
         <div class="ml-6 mt-2 space-y-2">
           <p>

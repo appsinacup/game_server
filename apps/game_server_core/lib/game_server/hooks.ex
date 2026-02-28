@@ -53,6 +53,9 @@ defmodule GameServer.Hooks do
   @callback before_lobby_join(User.t(), term(), term()) :: hook_result({User.t(), term(), term()})
   @callback after_lobby_join(User.t(), term()) :: any()
 
+  @callback before_group_create(User.t(), map()) :: hook_result(map())
+  @callback after_group_create(term()) :: any()
+
   @callback before_group_join(User.t(), term(), map()) ::
               hook_result({User.t(), term(), map()})
 
@@ -80,8 +83,6 @@ defmodule GameServer.Hooks do
   @callback before_kv_get(String.t(), kv_opts()) :: hook_result(:public | :private)
 
   @callback after_lobby_host_change(term(), term()) :: any()
-
-  @optional_callbacks before_group_join: 3
 
   @doc "Return the configured module that implements the hooks behaviour."
   def module do
@@ -237,6 +238,8 @@ defmodule GameServer.Hooks do
       :after_user_login,
       :before_lobby_create,
       :after_lobby_create,
+      :before_group_create,
+      :after_group_create,
       :before_lobby_join,
       :after_lobby_join,
       :before_group_join,
@@ -272,6 +275,7 @@ defmodule GameServer.Hooks do
     # used by domain flows.
     name in [
       :before_lobby_create,
+      :before_group_create,
       :before_lobby_join,
       :before_group_join,
       :before_lobby_leave,
@@ -329,6 +333,14 @@ defmodule GameServer.Hooks do
     handle_pipeline_apply_result({:ok, {:ok, new}}, name, current_args)
   end
 
+  defp normalize_pipeline_args(:before_group_create, value, current_args)
+       when is_list(current_args) and length(current_args) == 2 do
+    case value do
+      tuple when is_tuple(tuple) and tuple_size(tuple) == 2 -> {:ok, Tuple.to_list(tuple)}
+      attrs -> {:ok, [Enum.at(current_args, 0), attrs]}
+    end
+  end
+
   defp normalize_pipeline_args(:before_lobby_update, value, current_args)
        when is_list(current_args) and length(current_args) == 2 do
     case value do
@@ -350,6 +362,11 @@ defmodule GameServer.Hooks do
       true ->
         {:error, {:invalid_arity, arity}}
     end
+  end
+
+  defp finalize_pipeline_value(:before_group_create, args)
+       when is_list(args) and length(args) == 2 do
+    Enum.at(args, 1)
   end
 
   defp finalize_pipeline_value(:before_lobby_update, args)
@@ -814,6 +831,12 @@ defmodule GameServer.Hooks.Default do
 
   @impl true
   def before_lobby_join(user, lobby, opts), do: {:ok, {user, lobby, opts}}
+
+  @impl true
+  def before_group_create(_user, attrs), do: {:ok, attrs}
+
+  @impl true
+  def after_group_create(_group), do: :ok
 
   @impl true
   def before_group_join(user, group, opts), do: {:ok, {user, group, opts}}
