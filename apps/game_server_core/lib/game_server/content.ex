@@ -4,9 +4,54 @@ defmodule GameServer.Content do
   in the theme JSON config (`"changelog"` and `"blog"` keys).
 
   Paths are resolved relative to the project working directory.
+
+  All content is cached in `:persistent_term` after the first read.
+  Call `reload/0` to invalidate everything (e.g. after a config change).
   """
 
   alias GameServer.Theme.JSONConfig
+
+  @cache_key {__MODULE__, :cache}
+
+  # ---------------------------------------------------------------------------
+  # Cache management
+  # ---------------------------------------------------------------------------
+
+  @doc """
+  Clears all cached content so the next call re-reads from disk.
+  """
+  @spec reload() :: :ok
+  def reload do
+    :persistent_term.put(@cache_key, %{})
+    :ok
+  end
+
+  defp get_cache, do: :persistent_term.get(@cache_key, %{})
+
+  # Cache helper that only stores non-nil, non-empty results.
+  # Transient file-read failures therefore cause a cache miss on
+  # the current request but don't poison subsequent ones.
+  defp cached(key, fun) do
+    cache = get_cache()
+
+    case Map.fetch(cache, key) do
+      {:ok, value} ->
+        value
+
+      :error ->
+        value = fun.()
+
+        if cacheable?(value) do
+          :persistent_term.put(@cache_key, Map.put(get_cache(), key, value))
+        end
+
+        value
+    end
+  end
+
+  defp cacheable?(nil), do: false
+  defp cacheable?([]), do: false
+  defp cacheable?(_), do: true
 
   # ---------------------------------------------------------------------------
   # Changelog
@@ -18,16 +63,18 @@ defmodule GameServer.Content do
   """
   @spec changelog_html() :: String.t() | nil
   def changelog_html do
-    case changelog_path() do
-      nil ->
-        nil
+    cached(:changelog_html, fn ->
+      case changelog_path() do
+        nil ->
+          nil
 
-      path ->
-        case render_markdown_file(path, "changelog") do
-          nil -> nil
-          html -> apply_changelog_pills(html)
-        end
-    end
+        path ->
+          case render_markdown_file(path, "changelog") do
+            nil -> nil
+            html -> apply_changelog_pills(html)
+          end
+      end
+    end)
   end
 
   @doc """
@@ -57,17 +104,19 @@ defmodule GameServer.Content do
   """
   @spec list_blog_posts() :: [map()]
   def list_blog_posts do
-    case blog_dir() do
-      nil ->
-        []
+    cached(:blog_posts, fn ->
+      case blog_dir() do
+        nil ->
+          []
 
-      dir ->
-        dir
-        |> Path.join("**/*.md")
-        |> Path.wildcard()
-        |> Enum.map(&parse_blog_post/1)
-        |> Enum.sort_by(& &1.date, {:desc, Date})
-    end
+        dir ->
+          dir
+          |> Path.join("**/*.md")
+          |> Path.wildcard()
+          |> Enum.map(&parse_blog_post/1)
+          |> Enum.sort_by(& &1.date, {:desc, Date})
+      end
+    end)
   end
 
   @doc """
@@ -101,16 +150,18 @@ defmodule GameServer.Content do
   """
   @spec blog_post_html(String.t()) :: String.t() | nil
   def blog_post_html(slug) do
-    case get_blog_post(slug) do
-      nil ->
-        nil
+    cached({:blog_html, slug}, fn ->
+      case get_blog_post(slug) do
+        nil ->
+          nil
 
-      post ->
-        case render_markdown_file(post.path, "blog") do
-          nil -> nil
-          html -> strip_first_h1(html)
-        end
-    end
+        post ->
+          case render_markdown_file(post.path, "blog") do
+            nil -> nil
+            html -> strip_first_h1(html)
+          end
+      end
+    end)
   end
 
   @doc """
@@ -195,6 +246,8 @@ defmodule GameServer.Content do
   defp render_markdown_file(path, content_type) do
     case File.read(path) do
       {:ok, content} ->
+        content = fix_table_separators(content)
+
         case Earmark.as_html(content, smartypants: false) do
           {:ok, html, _warnings} -> rewrite_relative_images(html, content_type)
           {:error, _html, _msgs} -> nil
@@ -205,21 +258,102 @@ defmodule GameServer.Content do
     end
   end
 
-  # Rewrite relative image `src` attributes so that `./img.png` or `img.png`
-  # become `/content/<type>/img.png`, which is served by ContentAssetController.
+  # Earmark requires the separator row column count to match the header row
+  # exactly, otherwise the table is rendered as plain text. This helper
+  # scans for pipe-table patterns and adjusts separator rows to match.
+  defp fix_table_separators(content) do
+    content
+    |> String.split("\n")
+    |> fix_table_lines([])
+    |> Enum.reverse()
+    |> Enum.join("\n")
+  end
+
+  defp fix_table_lines([], acc), do: acc
+
+  defp fix_table_lines([header, sep | rest], acc) do
+    if table_header?(header) and table_separator?(sep) do
+      col_count = count_table_columns(header)
+      fixed_sep = build_separator(col_count)
+      fix_table_lines(rest, [fixed_sep, header | acc])
+    else
+      fix_table_lines([sep | rest], [header | acc])
+    end
+  end
+
+  defp fix_table_lines([line], acc), do: [line | acc]
+
+  defp table_header?(line) do
+    trimmed = String.trim(line)
+    String.starts_with?(trimmed, "|") and String.contains?(trimmed, "|")
+  end
+
+  defp table_separator?(line) do
+    trimmed = String.trim(line)
+    String.starts_with?(trimmed, "|") and Regex.match?(~r/^\|[\s\-:|]+\|$/, trimmed)
+  end
+
+  defp count_table_columns(line) do
+    line
+    |> String.trim()
+    |> String.trim("|")
+    |> String.split("|")
+    |> length()
+  end
+
+  defp build_separator(col_count) do
+    cells = List.duplicate("-", col_count) |> Enum.join("|")
+    "|#{cells}|"
+  end
+
+  # Rewrite image `src` attributes so they point to `/content/<type>/…`,
+  # which is served by ContentAssetController.
+  #
+  # Handles three conventions authors may use:
+  #   1. Relative:     `gamend/auth.png`        → `/content/blog/gamend/auth.png`
+  #   2. Absolute:     `/gamend/auth.png`        → `/content/blog/gamend/auth.png`
+  #   3. Type-prefixed: `/blog/gamend/auth.png`  → `/content/blog/gamend/auth.png`
+  #
+  # Also handles `<image>` tags (non-standard HTML) by converting them to `<img>`.
+  # External URLs (`http…`) and already-rewritten `/content/…` paths are left alone.
   defp rewrite_relative_images(html, content_type) do
+    # First, normalise <image … /> to <img … /> (browsers treat <image> as
+    # synonymous with <img>, but it's non-standard and inconsistent).
+    html = Regex.replace(~r/<image\b/, html, "<img")
+
     Regex.replace(
       ~r/<img([^>]*)\ssrc="([^"]+)"([^>]*)>/,
       html,
       fn full, before, src, after_attr ->
-        if String.starts_with?(src, "http") or String.starts_with?(src, "/") do
-          full
-        else
-          clean = src |> String.trim_leading("./")
-          ~s(<img#{before} src="/content/#{content_type}/#{clean}"#{after_attr}>)
+        cond do
+          String.starts_with?(src, "http") ->
+            full
+
+          String.starts_with?(src, "/content/") ->
+            full
+
+          true ->
+            clean =
+              src
+              |> String.trim_leading("/")
+              |> String.trim_leading("./")
+              # Strip redundant type prefix (e.g. "blog/" from "/blog/gamend/img.png")
+              |> strip_content_type_prefix(content_type)
+
+            ~s(<img#{before} src="/content/#{content_type}/#{clean}"#{after_attr}>)
         end
       end
     )
+  end
+
+  defp strip_content_type_prefix(path, content_type) do
+    prefix = content_type <> "/"
+
+    if String.starts_with?(path, prefix) do
+      String.trim_leading(path, prefix)
+    else
+      path
+    end
   end
 
   defp parse_blog_post(path) do

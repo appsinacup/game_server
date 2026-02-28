@@ -1,6 +1,7 @@
 defmodule GameServerWeb.HomeThemeTest do
   use GameServerWeb.ConnCase, async: true
 
+  alias GameServer.Content
   alias GameServer.Theme.JSONConfig
 
   test "home page shows packaged defaults when runtime theme has empty values", %{conn: conn} do
@@ -14,10 +15,12 @@ defmodule GameServerWeb.HomeThemeTest do
     orig = System.get_env("THEME_CONFIG")
     System.put_env("THEME_CONFIG", tmp)
     JSONConfig.reload()
+    Content.reload()
 
     on_exit(fn ->
       if orig, do: System.put_env("THEME_CONFIG", orig), else: System.delete_env("THEME_CONFIG")
       JSONConfig.reload()
+      Content.reload()
       File.rm(tmp)
     end)
 

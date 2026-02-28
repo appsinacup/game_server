@@ -1,6 +1,7 @@
 defmodule GameServer.Theme.JSONConfigTest do
   use ExUnit.Case, async: false
 
+  alias GameServer.Content
   alias GameServer.Theme.JSONConfig
 
   setup do
@@ -9,10 +10,12 @@ defmodule GameServer.Theme.JSONConfigTest do
 
     # Clear theme cache before each test so env var changes take effect
     JSONConfig.reload()
+    Content.reload()
 
     on_exit(fn ->
       if orig, do: System.put_env("THEME_CONFIG", orig), else: System.delete_env("THEME_CONFIG")
       JSONConfig.reload()
+      Content.reload()
     end)
 
     :ok

@@ -34,6 +34,11 @@ defmodule GameServerWeb.Endpoint do
     gzip: not code_reloading?,
     only: GameServerWeb.static_paths()
 
+  # Serve blog/changelog images early, before the code-reloader
+  # and session/CSRF plugs.  This prevents concurrent image requests
+  # from being serialized in dev mode.
+  plug GameServerWeb.Plugs.ContentStatic
+
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do

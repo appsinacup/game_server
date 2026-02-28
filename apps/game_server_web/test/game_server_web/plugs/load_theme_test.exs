@@ -1,12 +1,19 @@
 defmodule GameServerWeb.Plugs.LoadThemeTest do
   use GameServerWeb.ConnCase, async: false
 
+  alias GameServer.Content
   alias GameServer.Theme.JSONConfig
   alias GameServerWeb.Plugs.LoadTheme
 
   setup do
     JSONConfig.reload()
-    on_exit(fn -> JSONConfig.reload() end)
+    Content.reload()
+
+    on_exit(fn ->
+      JSONConfig.reload()
+      Content.reload()
+    end)
+
     :ok
   end
 
@@ -68,10 +75,12 @@ defmodule GameServerWeb.Plugs.LoadThemeTest do
     orig = System.get_env("THEME_CONFIG")
     System.put_env("THEME_CONFIG", base)
     JSONConfig.reload()
+    Content.reload()
 
     on_exit(fn ->
       if orig, do: System.put_env("THEME_CONFIG", orig), else: System.delete_env("THEME_CONFIG")
       JSONConfig.reload()
+      Content.reload()
       File.rm(base)
       File.rm(localized)
     end)

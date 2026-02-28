@@ -6,6 +6,7 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
   import Phoenix.LiveViewTest
   alias GameServer.Accounts.User
   alias GameServer.AccountsFixtures
+  alias GameServer.Content
   alias GameServer.Hooks.PluginManager
   alias GameServer.Repo
   alias GameServer.Theme.JSONConfig
@@ -324,10 +325,12 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
 
     System.put_env("THEME_CONFIG", tmp)
     JSONConfig.reload()
+    Content.reload()
 
     on_exit(fn ->
       if orig, do: System.put_env("THEME_CONFIG", orig), else: System.delete_env("THEME_CONFIG")
       JSONConfig.reload()
+      Content.reload()
       File.rm_rf(tmp)
     end)
 
@@ -354,10 +357,12 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
 
     System.delete_env("THEME_CONFIG")
     JSONConfig.reload()
+    Content.reload()
 
     on_exit(fn ->
       if orig, do: System.put_env("THEME_CONFIG", orig), else: System.delete_env("THEME_CONFIG")
       JSONConfig.reload()
+      Content.reload()
     end)
 
     {:ok, user} =
@@ -388,10 +393,12 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     orig = System.get_env("THEME_CONFIG")
     System.put_env("THEME_CONFIG", "")
     JSONConfig.reload()
+    Content.reload()
 
     on_exit(fn ->
       if orig, do: System.put_env("THEME_CONFIG", orig), else: System.delete_env("THEME_CONFIG")
       JSONConfig.reload()
+      Content.reload()
     end)
 
     {:ok, user} =

@@ -16,7 +16,8 @@ defmodule GameServerWeb.ChangelogLive do
      socket
      |> assign(:page_title, "Changelog")
      |> assign(:changelog_html, html)
-     |> assign(:changelog_available?, html != nil)}
+     |> assign(:changelog_available?, html != nil)
+     |> assign(:blog_available?, Content.blog_dir() != nil)}
   end
 
   @impl true
@@ -24,7 +25,16 @@ defmodule GameServerWeb.ChangelogLive do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope} current_path={assigns[:current_path]}>
       <div class="py-8 px-4 sm:px-6 max-w-4xl mx-auto">
-        <h1 class="text-3xl font-bold mb-8">Changelog</h1>
+        <div class="flex items-center justify-between mb-8">
+          <h1 class="text-3xl font-bold">Changelog</h1>
+          <.link
+            :if={@blog_available?}
+            navigate={~p"/blog"}
+            class="inline-flex items-center gap-1.5 text-sm text-base-content/60 hover:text-primary transition-colors"
+          >
+            <.icon name="hero-newspaper" class="w-4 h-4" /> Blog
+          </.link>
+        </div>
         <%= if @changelog_available? do %>
           <article class="markdown-content">
             {Phoenix.HTML.raw(@changelog_html)}

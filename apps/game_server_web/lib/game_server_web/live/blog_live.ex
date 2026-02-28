@@ -19,7 +19,8 @@ defmodule GameServerWeb.BlogLive do
     {:ok,
      socket
      |> assign(:page_title, "Blog")
-     |> assign(:blog_available?, Content.blog_dir() != nil)}
+     |> assign(:blog_available?, Content.blog_dir() != nil)
+     |> assign(:changelog_available?, Content.changelog_path() != nil)}
   end
 
   # ---------------------------------------------------------------------------
@@ -85,7 +86,7 @@ defmodule GameServerWeb.BlogLive do
           <%= if @live_action == :show && @post do %>
             <.blog_post post={@post} html={@post_html} prev={@prev_post} next={@next_post} />
           <% else %>
-            <.blog_index grouped_posts={@grouped_posts} />
+            <.blog_index grouped_posts={@grouped_posts} changelog_available={@changelog_available?} />
           <% end %>
         <% end %>
       </div>
@@ -99,7 +100,16 @@ defmodule GameServerWeb.BlogLive do
 
   defp blog_index(assigns) do
     ~H"""
-    <h1 class="text-3xl font-bold mb-8">Blog</h1>
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-3xl font-bold">Blog</h1>
+      <.link
+        :if={@changelog_available}
+        navigate={~p"/changelog"}
+        class="inline-flex items-center gap-1.5 text-sm text-base-content/60 hover:text-primary transition-colors"
+      >
+        <.icon name="hero-document-text" class="w-4 h-4" /> Changelog
+      </.link>
+    </div>
 
     <%= if @grouped_posts == [] do %>
       <div class="text-center py-16">

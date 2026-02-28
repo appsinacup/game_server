@@ -3,6 +3,7 @@ defmodule GameServerWeb.ThemeLiveTest do
 
   import Phoenix.LiveViewTest
 
+  alias GameServer.Content
   alias GameServer.Theme.JSONConfig
 
   test "LiveView pages get theme assigns and show defaults when runtime empty", %{conn: conn} do
@@ -10,10 +11,12 @@ defmodule GameServerWeb.ThemeLiveTest do
     orig = System.get_env("THEME_CONFIG")
     System.delete_env("THEME_CONFIG")
     JSONConfig.reload()
+    Content.reload()
 
     on_exit(fn ->
       if orig, do: System.put_env("THEME_CONFIG", orig), else: System.delete_env("THEME_CONFIG")
       JSONConfig.reload()
+      Content.reload()
     end)
 
     {:ok, _lv, html} = live(conn, ~p"/docs/setup")

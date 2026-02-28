@@ -1,6 +1,7 @@
 defmodule GameServerWeb.PageControllerTest do
   use GameServerWeb.ConnCase, async: true
 
+  alias GameServer.Content
   alias GameServer.Theme.JSONConfig
 
   test "home shows features", %{conn: conn} do
@@ -16,10 +17,12 @@ defmodule GameServerWeb.PageControllerTest do
     orig = System.get_env("THEME_CONFIG")
     System.delete_env("THEME_CONFIG")
     JSONConfig.reload()
+    Content.reload()
 
     on_exit(fn ->
       if orig, do: System.put_env("THEME_CONFIG", orig), else: System.delete_env("THEME_CONFIG")
       JSONConfig.reload()
+      Content.reload()
     end)
 
     conn = get(conn, "/")
