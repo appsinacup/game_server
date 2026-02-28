@@ -358,44 +358,50 @@ defmodule GameServer.Groups do
           {:ok, Group.t()} | {:error, Ecto.Changeset.t() | term()}
   def create_group(user_id, attrs) when is_integer(user_id) and is_map(attrs) do
     attrs = normalize_params(attrs)
-    user = GameServer.Accounts.get_user!(user_id)
 
-    case GameServer.Hooks.internal_call(:before_group_create, [user, attrs]) do
-      {:ok, attrs} ->
-        Ecto.Multi.new()
-        |> Ecto.Multi.insert(:group, fn _changes ->
-          %Group{}
-          |> Group.changeset(attrs)
-          |> Ecto.Changeset.put_change(:creator_id, user_id)
-        end)
-        |> Ecto.Multi.insert(:membership, fn %{group: group} ->
-          GroupMember.changeset(%GroupMember{}, %{
-            group_id: group.id,
-            user_id: user_id,
-            role: "admin"
-          })
-        end)
-        |> Repo.transaction()
-        |> case do
-          {:ok, %{group: group}} ->
-            _ = invalidate_group_cache(group.id)
+    case GameServer.Accounts.get_user(user_id) do
+      nil ->
+        {:error, :user_not_found}
 
-            GameServer.Async.run(fn ->
-              GameServer.Hooks.internal_call(:after_group_create, [group])
-            end)
-
-            broadcast_groups({:group_created, group})
-            {:ok, group}
-
-          {:error, :group, changeset, _} ->
-            {:error, changeset}
-
-          {:error, _op, changeset, _} ->
-            {:error, changeset}
+      user ->
+        case GameServer.Hooks.internal_call(:before_group_create, [user, attrs]) do
+          {:ok, attrs} -> do_create_group(user_id, attrs)
+          {:error, reason} -> {:error, {:hook_rejected, reason}}
         end
+    end
+  end
 
-      {:error, reason} ->
-        {:error, {:hook_rejected, reason}}
+  defp do_create_group(user_id, attrs) do
+    Ecto.Multi.new()
+    |> Ecto.Multi.insert(:group, fn _changes ->
+      %Group{}
+      |> Group.changeset(attrs)
+      |> Ecto.Changeset.put_change(:creator_id, user_id)
+    end)
+    |> Ecto.Multi.insert(:membership, fn %{group: group} ->
+      GroupMember.changeset(%GroupMember{}, %{
+        group_id: group.id,
+        user_id: user_id,
+        role: "admin"
+      })
+    end)
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{group: group}} ->
+        _ = invalidate_group_cache(group.id)
+
+        GameServer.Async.run(fn ->
+          GameServer.Hooks.internal_call(:after_group_create, [group])
+        end)
+
+        broadcast_groups({:group_created, group})
+        {:ok, group}
+
+      {:error, :group, changeset, _} ->
+        {:error, changeset}
+
+      {:error, _op, changeset, _} ->
+        {:error, changeset}
     end
   end
 
