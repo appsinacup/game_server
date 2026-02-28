@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.609">
+    <meta name="project" content="GameServer v1.0.611">
 
 
-    <title>GameServer.Hooks — GameServer v1.0.609</title>
+    <title>GameServer.Hooks — GameServer v1.0.611</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-FE71FEE1.js"></script>
+    <script defer src="dist/sidebar_items-86875D00.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.609
+          v1.0.611
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Hooks</span> <small>behaviour</small>
-      <small class="app-vsn" translate="no">(GameServer v1.0.609)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.611)</small>
 
     </h1>
 
@@ -150,6 +150,14 @@ GameServer
   <h3>
     <a href="#callbacks">Callbacks</a>
   </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_group_create/1" data-no-tooltip="" translate="no">after_group_create(term)</a>
+
+      </div>
+
+    </div>
 
     <div class="summary-row">
       <div class="summary-signature">
@@ -226,6 +234,14 @@ GameServer
     <div class="summary-row">
       <div class="summary-signature">
         <a href="#c:after_user_register/1" data-no-tooltip="" translate="no">after_user_register(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:before_group_create/2" data-no-tooltip="" translate="no">before_group_create(t, map)</a>
 
       </div>
 
@@ -485,6 +501,30 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
     </h2>
 
     <div class="callbacks-list">
+<section class="detail" id="c:after_group_create/1">
+
+  <div class="detail-header">
+    <a href="#c:after_group_create/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_group_create(term)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_group_create(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
 <section class="detail" id="c:after_lobby_create/1">
 
   <div class="detail-header">
@@ -729,6 +769,30 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
 
   </section>
 </section>
+<section class="detail" id="c:before_group_create/2">
+
+  <div class="detail-header">
+    <a href="#c:before_group_create/2" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">before_group_create(t, map)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> before_group_create(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="#t:hook_result/1">hook_result</a>(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>())</pre>
+
+      </div>
+
+
+  </section>
+</section>
 <section class="detail" id="c:before_group_join/3">
 
   <div class="detail-header">
@@ -737,8 +801,6 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
     </a>
     <div class="heading-with-actions">
       <h1 class="signature" translate="no">before_group_join(t, term, map)</h1>
-
-        <span class="note">(optional)</span>
 
 
     </div>
