@@ -1677,6 +1677,7 @@ defmodule GameServer.Accounts do
         invalidate_user_cache(user)
         invalidate_user_cache(updated)
         broadcast_user_update(updated)
+        GameServer.Hooks.internal_call(:after_user_updated, [updated])
         ok
 
       err ->
@@ -1714,6 +1715,7 @@ defmodule GameServer.Accounts do
         invalidate_users_stats_cache()
         # Broadcast updates so realtime clients can react
         broadcast_user_update(updated)
+        GameServer.Hooks.internal_call(:after_user_updated, [updated])
         ok
 
       other ->

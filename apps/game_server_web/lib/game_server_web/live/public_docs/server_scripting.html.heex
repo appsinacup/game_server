@@ -67,6 +67,12 @@ defmodule MyApp.HooksImpl do
         GameServer.Accounts.update_user(user, %{metadata: Map.put(user.metadata || %{}, "from_hook", true)})
     :ok
     end
+
+    @impl true
+    def after_user_updated(user) do
+        # React to any user profile change (metadata, display name, etc.)
+        :ok
+    end
 end
 </code></pre>
           </div>

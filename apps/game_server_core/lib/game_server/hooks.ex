@@ -35,6 +35,8 @@ defmodule GameServer.Hooks do
 
   @callback after_user_login(User.t()) :: any()
 
+  @callback after_user_updated(User.t()) :: any()
+
   @doc """
   Handle a dynamically-exported RPC function.
 
@@ -236,6 +238,7 @@ defmodule GameServer.Hooks do
       :before_stop,
       :after_user_register,
       :after_user_login,
+      :after_user_updated,
       :before_lobby_create,
       :after_lobby_create,
       :before_group_create,
@@ -822,6 +825,9 @@ defmodule GameServer.Hooks.Default do
 
   @impl true
   def after_user_login(_user), do: :ok
+
+  @impl true
+  def after_user_updated(_user), do: :ok
 
   @impl true
   def before_lobby_create(attrs), do: {:ok, attrs}
