@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.611">
+    <meta name="project" content="GameServer v1.0.612">
 
 
-    <title>GameServer.Notifications — GameServer v1.0.611</title>
+    <title>GameServer.Notifications — GameServer v1.0.612</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-86875D00.js"></script>
+    <script defer src="dist/sidebar_items-6FB317E8.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.611
+          v1.0.612
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Notifications</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.611)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.612)</small>
 
     </h1>
 
@@ -114,21 +114,21 @@ notifications.</p><p>Notifications can only be sent to accepted friends. They ar
 database so that recipients receive them even when offline. On WebSocket
 connect the client gets all undeleted notifications (ordered by timestamp).
 New notifications are also pushed in real-time via PubSub.</p><h2 id="module-pubsub-events" class="section-heading"><a href="#module-pubsub-events" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">PubSub Events</span></h2><p>This module broadcasts to the <code class="inline">&quot;notifications:user:&lt;user_id&gt;&quot;</code> topic:</p><ul><li><code class="inline">{:new_notification, notification}</code> – a new notification was created</li></ul><h2 id="module-usage" class="section-heading"><a href="#module-usage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># Send a notification to a friend</span><span class="w">
-</span><span class="p" data-group-id="4607017667-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">notification</span><span class="p" data-group-id="4607017667-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Notifications</span><span class="o">.</span><span class="n">send_notification</span><span class="p" data-group-id="4607017667-2">(</span><span class="n">sender_id</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="4607017667-3">%{</span><span class="w">
+</span><span class="p" data-group-id="8281155776-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">notification</span><span class="p" data-group-id="8281155776-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Notifications</span><span class="o">.</span><span class="n">send_notification</span><span class="p" data-group-id="8281155776-2">(</span><span class="n">sender_id</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="8281155776-3">%{</span><span class="w">
   </span><span class="s">&quot;user_id&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="n">recipient_id</span><span class="p">,</span><span class="w">
   </span><span class="s">&quot;title&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;Game invite&quot;</span><span class="p">,</span><span class="w">
   </span><span class="s">&quot;content&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;Join my lobby!&quot;</span><span class="p">,</span><span class="w">
-  </span><span class="s">&quot;metadata&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p" data-group-id="4607017667-4">%{</span><span class="s">&quot;lobby_id&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="mi">42</span><span class="p" data-group-id="4607017667-4">}</span><span class="w">
-</span><span class="p" data-group-id="4607017667-3">}</span><span class="p" data-group-id="4607017667-2">)</span><span class="w">
+  </span><span class="s">&quot;metadata&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p" data-group-id="8281155776-4">%{</span><span class="s">&quot;lobby_id&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="mi">42</span><span class="p" data-group-id="8281155776-4">}</span><span class="w">
+</span><span class="p" data-group-id="8281155776-3">}</span><span class="p" data-group-id="8281155776-2">)</span><span class="w">
 
 </span><span class="c1"># List all notifications for a user (ordered oldest-first)</span><span class="w">
-</span><span class="n">notifications</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Notifications</span><span class="o">.</span><span class="n">list_notifications</span><span class="p" data-group-id="4607017667-5">(</span><span class="n">user_id</span><span class="p" data-group-id="4607017667-5">)</span><span class="w">
+</span><span class="n">notifications</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Notifications</span><span class="o">.</span><span class="n">list_notifications</span><span class="p" data-group-id="8281155776-5">(</span><span class="n">user_id</span><span class="p" data-group-id="8281155776-5">)</span><span class="w">
 
 </span><span class="c1"># Delete notifications by IDs (only owner can delete)</span><span class="w">
-</span><span class="p" data-group-id="4607017667-6">{</span><span class="n">deleted_count</span><span class="p">,</span><span class="w"> </span><span class="no">nil</span><span class="p" data-group-id="4607017667-6">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Notifications</span><span class="o">.</span><span class="n">delete_notifications</span><span class="p" data-group-id="4607017667-7">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="4607017667-8">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p" data-group-id="4607017667-8">]</span><span class="p" data-group-id="4607017667-7">)</span><span class="w">
+</span><span class="p" data-group-id="8281155776-6">{</span><span class="n">deleted_count</span><span class="p">,</span><span class="w"> </span><span class="no">nil</span><span class="p" data-group-id="8281155776-6">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Notifications</span><span class="o">.</span><span class="n">delete_notifications</span><span class="p" data-group-id="8281155776-7">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="8281155776-8">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p" data-group-id="8281155776-8">]</span><span class="p" data-group-id="8281155776-7">)</span><span class="w">
 
 </span><span class="c1"># Count notifications for a user</span><span class="w">
-</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Notifications</span><span class="o">.</span><span class="n">count_notifications</span><span class="p" data-group-id="4607017667-9">(</span><span class="n">user_id</span><span class="p" data-group-id="4607017667-9">)</span></code></pre>
+</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Notifications</span><span class="o">.</span><span class="n">count_notifications</span><span class="p" data-group-id="8281155776-9">(</span><span class="n">user_id</span><span class="p" data-group-id="8281155776-9">)</span></code></pre>
     </section>
 
 </div>
@@ -226,16 +226,6 @@ New notifications are also pushed in real-time via PubSub.</p><h2 id="module-pub
       </div>
 
         <div class="summary-synopsis"><p>Get a single notification by ID (raises if not found).</p></div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#invalidate_notifications_cache/1" data-no-tooltip="" translate="no">invalidate_notifications_cache(user_id)</a>
-
-      </div>
-
-        <div class="summary-synopsis"><p>Invalidate the notifications cache for a user (async).</p></div>
 
     </div>
 
@@ -513,24 +503,6 @@ Returns <code class="inline">{deleted_count, nil}</code>.</p>
       </div>
 
 <p>Get a single notification by ID (raises if not found).</p>
-  </section>
-</section>
-<section class="detail" id="invalidate_notifications_cache/1">
-
-  <div class="detail-header">
-    <a href="#invalidate_notifications_cache/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">invalidate_notifications_cache(user_id)</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-<p>Invalidate the notifications cache for a user (async).</p>
   </section>
 </section>
 <section class="detail" id="list_all_notifications/2">

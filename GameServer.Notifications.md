@@ -101,10 +101,6 @@ Get a single notification by ID.
 
 Get a single notification by ID (raises if not found).
 
-# `invalidate_notifications_cache`
-
-Invalidate the notifications cache for a user (async).
-
 # `list_all_notifications`
 
 ```elixir
