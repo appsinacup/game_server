@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.612">
+    <meta name="project" content="GameServer v1.0.613">
 
 
-    <title>GameServer.Hooks — GameServer v1.0.612</title>
+    <title>GameServer.Hooks — GameServer v1.0.613</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-6FB317E8.js"></script>
+    <script defer src="dist/sidebar_items-47DFDD47.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.612
+          v1.0.613
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Hooks</span> <small>behaviour</small>
-      <small class="app-vsn" translate="no">(GameServer v1.0.612)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.613)</small>
 
     </h1>
 
@@ -234,6 +234,14 @@ GameServer
     <div class="summary-row">
       <div class="summary-signature">
         <a href="#c:after_user_register/1" data-no-tooltip="" translate="no">after_user_register(t)</a>
+
+      </div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#c:after_user_updated/1" data-no-tooltip="" translate="no">after_user_updated(t)</a>
 
       </div>
 
@@ -763,6 +771,30 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
       <div class="specs">
 
           <pre translate="no"><span class="attribute">@callback</span> after_user_register(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+
+      </div>
+
+
+  </section>
+</section>
+<section class="detail" id="c:after_user_updated/1">
+
+  <div class="detail-header">
+    <a href="#c:after_user_updated/1" class="detail-link" data-no-tooltip="" aria-label="Link to this callback">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">after_user_updated(t)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@callback</span> after_user_updated(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
 
       </div>
 

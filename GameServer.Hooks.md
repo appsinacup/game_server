@@ -98,6 +98,12 @@ options. Hooks may accept either a map or keyword list for convenience.
 @callback after_user_register(GameServer.Accounts.User.t()) :: any()
 ```
 
+# `after_user_updated`
+
+```elixir
+@callback after_user_updated(GameServer.Accounts.User.t()) :: any()
+```
+
 # `before_group_create`
 
 ```elixir
