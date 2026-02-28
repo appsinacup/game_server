@@ -5,6 +5,9 @@ in the theme JSON config (`"changelog"` and `"blog"` keys).
 
 Paths are resolved relative to the project working directory.
 
+All content is cached in `:persistent_term` after the first read.
+Call `reload/0` to invalidate everything (e.g. after a config change).
+
 # `blog_dir`
 
 ```elixir
@@ -88,6 +91,14 @@ Each post is a map with keys:
   * `:date`  – `Date.t()` parsed from filename prefix or file mtime
   * `:path`  – absolute path to the `.md` file
   * `:excerpt` – first non-heading paragraph (≤ 200 chars)
+
+# `reload`
+
+```elixir
+@spec reload() :: :ok
+```
+
+Clears all cached content so the next call re-reads from disk.
 
 ---
 

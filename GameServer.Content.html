@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.608">
+    <meta name="project" content="GameServer v1.0.609">
 
 
-    <title>GameServer.Content — GameServer v1.0.608</title>
+    <title>GameServer.Content — GameServer v1.0.609</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-9368B25D.js"></script>
+    <script defer src="dist/sidebar_items-FE71FEE1.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.608
+          v1.0.609
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Content</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.608)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.609)</small>
 
     </h1>
 
@@ -110,7 +110,8 @@ GameServer
 
     <section id="moduledoc">
 <p>Reads and renders Markdown content from files/directories configured
-in the theme JSON config (<code class="inline">&quot;changelog&quot;</code> and <code class="inline">&quot;blog&quot;</code> keys).</p><p>Paths are resolved relative to the project working directory.</p>
+in the theme JSON config (<code class="inline">&quot;changelog&quot;</code> and <code class="inline">&quot;blog&quot;</code> keys).</p><p>Paths are resolved relative to the project working directory.</p><p>All content is cached in <code class="inline">:persistent_term</code> after the first read.
+Call <a href="#reload/0"><code class="inline">reload/0</code></a> to invalidate everything (e.g. after a config change).</p>
     </section>
 
 </div>
@@ -219,6 +220,16 @@ is attempted.</p></div>
       </div>
 
         <div class="summary-synopsis"><p>Lists all blog posts sorted newest-first.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#reload/0" data-no-tooltip="" translate="no">reload()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Clears all cached content so the next call re-reads from disk.</p></div>
 
     </div>
 
@@ -455,6 +466,30 @@ is attempted.</p>
       </div>
 
 <p>Lists all blog posts sorted newest-first.</p><p>Each post is a map with keys:</p><ul><li><code class="inline">:slug</code>  – URL-safe identifier derived from the filename</li><li><code class="inline">:title</code> – extracted from the first <code class="inline">#</code> heading (or humanised slug)</li><li><code class="inline">:date</code>  – <code class="inline">Date.t()</code> parsed from filename prefix or file mtime</li><li><code class="inline">:path</code>  – absolute path to the <code class="inline">.md</code> file</li><li><code class="inline">:excerpt</code> – first non-heading paragraph (≤ 200 chars)</li></ul>
+  </section>
+</section>
+<section class="detail" id="reload/0">
+
+  <div class="detail-header">
+    <a href="#reload/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">reload()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> reload() :: :ok</pre>
+
+      </div>
+
+<p>Clears all cached content so the next call re-reads from disk.</p>
   </section>
 </section>
 
