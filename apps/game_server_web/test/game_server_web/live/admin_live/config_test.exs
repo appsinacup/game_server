@@ -200,6 +200,8 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
       def after_group_create(_group), do: :ok
       def before_group_join(user, group, opts), do: {:ok, {user, group, opts}}
       def before_lobby_join(user, lobby, opts), do: {:ok, {user, lobby, opts}}
+      def before_chat_message(_user, attrs), do: {:ok, attrs}
+      def after_chat_message(_message), do: :ok
       def after_lobby_join(_user, _lobby), do: :ok
       def before_lobby_leave(user, lobby), do: {:ok, {user, lobby}}
       def after_lobby_leave(_user, _lobby), do: :ok

@@ -68,6 +68,24 @@ defmodule GameServer.LobbiesTest do
       def after_lobby_host_change(_lobby, _new_host_id), do: :ok
 
       @impl true
+      def after_user_updated(_user), do: :ok
+
+      @impl true
+      def before_group_create(_user, attrs), do: {:ok, attrs}
+
+      @impl true
+      def after_group_create(_group), do: :ok
+
+      @impl true
+      def before_group_join(_user, _group, opts), do: {:ok, opts}
+
+      @impl true
+      def before_chat_message(_user, attrs), do: {:ok, attrs}
+
+      @impl true
+      def after_chat_message(_message), do: :ok
+
+      @impl true
       def before_kv_get(_key, _opts), do: :public
 
       @impl true

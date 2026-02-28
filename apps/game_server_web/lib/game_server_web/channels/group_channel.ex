@@ -22,6 +22,7 @@ defmodule GameServerWeb.GroupChannel do
   require Logger
 
   alias GameServer.Accounts.Scope
+  alias GameServer.Chat
   alias GameServer.Groups
 
   @impl true
@@ -34,6 +35,7 @@ defmodule GameServerWeb.GroupChannel do
       # Unsubscribe first to avoid duplicate subscriptions on reconnect
       Groups.unsubscribe_group(group_id)
       Groups.subscribe_group(group_id)
+      Chat.subscribe_group_chat(group_id)
 
       group = Groups.get_group!(group_id)
       send(self(), {:after_join, group})
@@ -110,6 +112,12 @@ defmodule GameServerWeb.GroupChannel do
   end
 
   @impl true
+  def handle_info({:new_chat_message, message}, socket) do
+    push(socket, "new_chat_message", serialize_chat_message(message))
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info(_msg, socket), do: {:noreply, socket}
 
   @impl true
@@ -117,6 +125,7 @@ defmodule GameServerWeb.GroupChannel do
     case socket.assigns do
       %{group_id: group_id} when is_integer(group_id) ->
         Groups.unsubscribe_group(group_id)
+        Chat.unsubscribe_group_chat(group_id)
         :ok
 
       _ ->
@@ -135,6 +144,18 @@ defmodule GameServerWeb.GroupChannel do
       max_members: group.max_members,
       creator_id: group.creator_id,
       metadata: group.metadata || %{}
+    }
+  end
+
+  defp serialize_chat_message(msg) do
+    %{
+      id: msg.id,
+      content: msg.content,
+      metadata: msg.metadata,
+      sender_id: msg.sender_id,
+      chat_type: msg.chat_type,
+      chat_ref_id: msg.chat_ref_id,
+      inserted_at: msg.inserted_at
     }
   end
 end

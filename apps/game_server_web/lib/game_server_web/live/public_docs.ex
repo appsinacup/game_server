@@ -22,6 +22,7 @@ defmodule GameServerWeb.PublicDocs do
         {GameServerWeb.PublicDocsTemplates.godot_sdk(assigns)}
         {GameServerWeb.PublicDocsTemplates.server_scripting(assigns)}
         {GameServerWeb.PublicDocsTemplates.leaderboards(assigns)}
+        {GameServerWeb.PublicDocsTemplates.chat(assigns)}
         {GameServerWeb.PublicDocsTemplates.theme(assigns)}
         {GameServerWeb.PublicDocsTemplates.architecture(assigns)}
         {GameServerWeb.PublicDocsTemplates.authentication(assigns)}

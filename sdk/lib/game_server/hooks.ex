@@ -136,6 +136,8 @@ defmodule GameServer.Hooks do
   - `before_group_create/2` - Before group creation, receives `(user, attrs)`. Return `{:ok, attrs}` to allow or `{:error, reason}` to block
   - `after_group_create/1` - After group is created (fire-and-forget)
   - `before_group_join/3` - Before user is accepted into a group (public join, invite accept, or request approval)
+  - `before_chat_message/2` - Before a chat message is sent, receives `(user, attrs)`. Return `{:ok, attrs}` to allow (and optionally modify), or `{:error, reason}` to block
+  - `after_chat_message/1` - After a chat message is persisted (fire-and-forget)
   - `before_lobby_leave/2` - Before user leaves lobby
   - `after_lobby_leave/2` - After user leaves lobby
   - `before_lobby_update/2` - Before lobby is updated
@@ -241,6 +243,9 @@ defmodule GameServer.Hooks do
   @callback before_group_join(user(), group :: map(), opts :: map()) ::
               hook_result({user(), map(), map()})
 
+  @callback before_chat_message(user(), attrs :: map()) :: hook_result(map())
+  @callback after_chat_message(term()) :: any()
+
   @callback before_lobby_leave(user(), lobby()) :: hook_result({user(), lobby()})
   @callback after_lobby_leave(user(), lobby()) :: any()
 
@@ -254,7 +259,8 @@ defmodule GameServer.Hooks do
               hook_result({user(), user(), lobby()})
   @callback after_user_kicked(host :: user(), target :: user(), lobby()) :: any()
 
-  @optional_callbacks before_group_create: 2, after_group_create: 1, before_group_join: 3
+  @optional_callbacks before_group_create: 2, after_group_create: 1, before_group_join: 3,
+                     before_chat_message: 2, after_chat_message: 1
 
   @doc """
   Called before a KV `get/2` is performed. Implementations should return
@@ -326,6 +332,12 @@ defmodule GameServer.Hooks do
       def after_lobby_join(_user, _lobby), do: :ok
 
       @impl true
+      def before_chat_message(_user, attrs), do: {:ok, attrs}
+
+      @impl true
+      def after_chat_message(_message), do: :ok
+
+      @impl true
       def before_lobby_leave(user, lobby), do: {:ok, {user, lobby}}
 
       @impl true
@@ -365,6 +377,8 @@ defmodule GameServer.Hooks do
                      after_group_create: 1,
                      before_lobby_join: 3,
                      after_lobby_join: 2,
+                     before_chat_message: 2,
+                     after_chat_message: 1,
                      before_lobby_leave: 2,
                      after_lobby_leave: 2,
                      before_lobby_update: 2,

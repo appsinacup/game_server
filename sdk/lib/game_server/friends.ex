@@ -202,6 +202,22 @@ defmodule GameServer.Friends do
 
 
   @doc ~S"""
+    Check whether two users are friends (accepted friendship in either direction).
+    
+  """
+  @spec friends?(user_id(), user_id()) :: boolean()
+  def friends?(_user_a_id, _user_b_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        false
+
+      _ ->
+        raise "GameServer.Friends.friends?/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Get friendship between two users (ordered requester->target) if exists
   """
   @spec get_by_pair(user_id(), user_id()) :: GameServer.Friends.Friendship.t() | nil

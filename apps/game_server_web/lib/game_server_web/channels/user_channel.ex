@@ -105,6 +105,12 @@ defmodule GameServerWeb.UserChannel do
     {:noreply, socket}
   end
 
+  @impl true
+  def handle_info({:new_chat_message, message}, socket) do
+    push(socket, "new_chat_message", serialize_chat_message(message))
+    {:noreply, socket}
+  end
+
   # Catch-all for unknown messages
   @impl true
   def handle_info(_msg, socket) do
@@ -175,6 +181,18 @@ defmodule GameServerWeb.UserChannel do
       content: notification.content,
       metadata: notification.metadata || %{},
       inserted_at: notification.inserted_at
+    }
+  end
+
+  defp serialize_chat_message(msg) do
+    %{
+      id: msg.id,
+      content: msg.content,
+      metadata: msg.metadata,
+      sender_id: msg.sender_id,
+      chat_type: msg.chat_type,
+      chat_ref_id: msg.chat_ref_id,
+      inserted_at: msg.inserted_at
     }
   end
 end

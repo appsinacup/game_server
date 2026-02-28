@@ -21,6 +21,7 @@ defmodule GameServerWeb.LobbyChannel do
   alias GameServer.Accounts
   alias GameServer.Accounts.Scope
   alias GameServer.Accounts.User
+  alias GameServer.Chat
   alias GameServer.Lobbies
 
   @impl true
@@ -39,6 +40,7 @@ defmodule GameServerWeb.LobbyChannel do
             else
               _ = Lobbies.unsubscribe_lobby(lobby_id)
               Lobbies.subscribe_lobby(lobby_id)
+              Chat.subscribe_lobby_chat(lobby_id)
               assign(socket, :subscribed_lobby, true)
             end
 
@@ -104,6 +106,12 @@ defmodule GameServerWeb.LobbyChannel do
     {:noreply, assign(socket, :last_lobby_payload, payload)}
   end
 
+  @impl true
+  def handle_info({:new_chat_message, message}, socket) do
+    push(socket, "new_chat_message", serialize_chat_message(message))
+    {:noreply, socket}
+  end
+
   # Ignore other messages
   @impl true
   def handle_info(_msg, socket) do
@@ -115,6 +123,7 @@ defmodule GameServerWeb.LobbyChannel do
     case socket.assigns do
       %{lobby_id: lobby_id} when is_integer(lobby_id) ->
         _ = Lobbies.unsubscribe_lobby(lobby_id)
+        _ = Chat.unsubscribe_lobby_chat(lobby_id)
         :ok
 
       _ ->
@@ -134,6 +143,18 @@ defmodule GameServerWeb.LobbyChannel do
       is_hidden: lobby.is_hidden,
       is_locked: lobby.is_locked,
       metadata: lobby.metadata || %{}
+    }
+  end
+
+  defp serialize_chat_message(msg) do
+    %{
+      id: msg.id,
+      content: msg.content,
+      metadata: msg.metadata,
+      sender_id: msg.sender_id,
+      chat_type: msg.chat_type,
+      chat_ref_id: msg.chat_ref_id,
+      inserted_at: msg.inserted_at
     }
   end
 end

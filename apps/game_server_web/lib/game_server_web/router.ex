@@ -178,6 +178,11 @@ defmodule GameServerWeb.Router do
     post "/parties/kick", PartyController, :kick
     post "/parties/create_lobby", PartyController, :create_lobby
     post "/parties/join_lobby/:id", PartyController, :join_lobby
+    # Chat API
+    get "/chat/messages", ChatController, :index
+    post "/chat/messages", ChatController, :send
+    post "/chat/read", ChatController, :mark_read
+    get "/chat/unread", ChatController, :unread
   end
 
   # Admin API routes - require JWT authentication + admin role
@@ -225,6 +230,11 @@ defmodule GameServerWeb.Router do
     get "/sessions", SessionController, :index
     delete "/sessions/:id", SessionController, :delete
     delete "/users/:id/sessions", SessionController, :delete_user_sessions
+
+    # Chat
+    get "/chat", ChatController, :index
+    delete "/chat/:id", ChatController, :delete
+    delete "/chat/conversation", ChatController, :delete_conversation
   end
 
   # API OAuth routes
@@ -275,6 +285,7 @@ defmodule GameServerWeb.Router do
       live "/admin/notifications", AdminLive.Notifications, :index
       live "/admin/groups", AdminLive.Groups, :index
       live "/admin/parties", AdminLive.Parties, :index
+      live "/admin/chat", AdminLive.Chat, :index
     end
   end
 

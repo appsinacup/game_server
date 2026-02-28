@@ -188,10 +188,22 @@ API routes use JWT tokens via Guardian for stateless authentication:
 
 ### Friends & Blocking
 
-- Friend context: `GameServer.Friends` — key functions: `send_request/2`, `accept_request/2`, `decline_request/2`, `remove_friend/2`, `block_user/2`, `unblock_user/2`, `blocked?/2`.
-- `blocked?/2` is a public function that checks if either user has blocked the other (bidirectional). It is used by Groups to prevent inviting blocked users.
+- Friend context: `GameServer.Friends` — key functions: `send_request/2`, `accept_request/2`, `decline_request/2`, `remove_friend/2`, `block_user/2`, `unblock_user/2`, `blocked?/2`, `friends?/2`.
+- `blocked?/2` is a public function that checks if either user has blocked the other (bidirectional). It is used by Groups and Chat to prevent inviting/messaging blocked users.
+- `friends?/2` checks whether two users have an accepted friendship.
 - Friend requests between blocked users are automatically rejected.
 - API endpoints: `/api/v1/friends`, `/api/v1/friends/block`.
+
+### Chat
+
+- Chat context: `GameServer.Chat` — key functions: `send_message/2`, `list_messages/3`, `list_friend_messages/3`, `mark_read/4`, `count_unread/3`, `count_unread_friend/2`, `get_message/1`, `delete_messages/2`.
+- Chat types: `"lobby"` (messages within a lobby), `"group"` (messages within a group), `"friend"` (DMs between friends).
+- Messages stored in `chat_messages` table with `sender_id`, `content`, `metadata`, `chat_type`, `chat_ref_id`.
+- Read tracking stored in `chat_read_cursors` table with `user_id`, `chat_type`, `chat_ref_id`, `last_read_message_id`.
+- Access validation: lobby chat requires lobby membership, group chat requires group membership, friend chat requires accepted friendship and no blocking.
+- Hooks: `before_chat_message(user, attrs)` pipeline hook for filtering/moderation — return `{:ok, attrs}` to allow, `{:error, reason}` to block. `after_chat_message(message)` fires asynchronously.
+- Caching: uses Nebulex version-based caching for `list_messages` (60s TTL).
+- API endpoints: `GET /api/v1/chat/messages`, `POST /api/v1/chat/messages`, `POST /api/v1/chat/read`, `GET /api/v1/chat/unread`.
 
 ### PubSub & Real-time conventions
 
@@ -199,7 +211,10 @@ API routes use JWT tokens via Guardian for stateless authentication:
   - `"lobby:<id>"` / `"lobbies"` — lobby events (member join/leave, updates)
   - `"group:<id>"` / `"groups"` — group events (member join/leave, requests, updates)
   - `"party:<id>"` / `"parties"` — party events (member join/leave, updates)
-  - `"user:<id>"` — user-specific events (friend requests, notifications)
+  - `"user:<id>"` — user-specific events (friend requests, notifications, friend DM chat)
+  - `"chat:lobby:<id>"` — lobby chat messages
+  - `"chat:group:<id>"` — group chat messages
+  - `"chat:friend:<low>:<high>"` — friend DM chat (sorted user id pair)
 - WebSocket channels mirror PubSub topics: `UserChannel`, `LobbyChannel`, `LobbiesChannel`, `GroupChannel`, `GroupsChannel`, `PartyChannel`.
 - LiveViews subscribe to PubSub topics directly (not via channels) using context `subscribe_*` functions.
 

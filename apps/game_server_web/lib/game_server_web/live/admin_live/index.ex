@@ -53,6 +53,9 @@ defmodule GameServerWeb.AdminLive.Index do
           <.link navigate={~p"/admin/parties"} class="btn btn-primary">
             Parties ({@parties_count})
           </.link>
+          <.link navigate={~p"/admin/chat"} class="btn btn-primary">
+            Chat ({@chat_count})
+          </.link>
         </div>
 
         <div class="card bg-base-200">
@@ -137,6 +140,11 @@ defmodule GameServerWeb.AdminLive.Index do
                 </div>
               </div>
 
+              <div class="card bg-base-100 p-4">
+                <div class="text-sm font-semibold mb-2">Chat</div>
+                <div class="text-2xl font-bold">{@chat_count}</div>
+              </div>
+
               <div :for={stats <- @translation_stats} class="card bg-base-100 p-4">
                 <div class="text-sm font-semibold mb-2">
                   Translations ({String.upcase(stats.locale)})
@@ -207,6 +215,9 @@ defmodule GameServerWeb.AdminLive.Index do
     parties_count = Parties.count_all_parties()
     parties_members = Parties.count_all_party_members()
 
+    # chat stats
+    chat_count = GameServer.Chat.count_all_messages()
+
     # translation stats
     translation_stats = TranslationStats.all_completeness()
 
@@ -245,6 +256,7 @@ defmodule GameServerWeb.AdminLive.Index do
        groups_members: groups_members,
        parties_count: parties_count,
        parties_members: parties_members,
+       chat_count: chat_count,
        translation_stats: translation_stats,
        users_registered_1d: users_registered_1d,
        users_registered_7d: users_registered_7d,

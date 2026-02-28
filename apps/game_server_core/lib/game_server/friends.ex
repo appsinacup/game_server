@@ -196,6 +196,14 @@ defmodule GameServer.Friends do
       (existing_reverse && existing_reverse.status == "blocked")
   end
 
+  @doc """
+  Check whether two users are friends (accepted friendship in either direction).
+  """
+  @spec friends?(user_id(), user_id()) :: boolean()
+  def friends?(user_a_id, user_b_id) do
+    already_friends?(user_a_id, user_b_id) != nil
+  end
+
   defp already_friends?(requester_id, target_id) do
     case get_by_pair(requester_id, target_id) do
       %Friendship{status: "accepted"} = f ->

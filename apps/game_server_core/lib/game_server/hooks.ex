@@ -61,6 +61,9 @@ defmodule GameServer.Hooks do
   @callback before_group_join(User.t(), term(), map()) ::
               hook_result({User.t(), term(), map()})
 
+  @callback before_chat_message(User.t(), map()) :: hook_result(map())
+  @callback after_chat_message(term()) :: any()
+
   @callback before_lobby_leave(User.t(), term()) :: hook_result({User.t(), term()})
   @callback after_lobby_leave(User.t(), term()) :: any()
 
@@ -246,6 +249,8 @@ defmodule GameServer.Hooks do
       :before_lobby_join,
       :after_lobby_join,
       :before_group_join,
+      :before_chat_message,
+      :after_chat_message,
       :before_lobby_leave,
       :after_lobby_leave,
       :before_lobby_update,
@@ -281,6 +286,7 @@ defmodule GameServer.Hooks do
       :before_group_create,
       :before_lobby_join,
       :before_group_join,
+      :before_chat_message,
       :before_lobby_leave,
       :before_lobby_update,
       :before_lobby_delete,
@@ -344,6 +350,14 @@ defmodule GameServer.Hooks do
     end
   end
 
+  defp normalize_pipeline_args(:before_chat_message, value, current_args)
+       when is_list(current_args) and length(current_args) == 2 do
+    case value do
+      tuple when is_tuple(tuple) and tuple_size(tuple) == 2 -> {:ok, Tuple.to_list(tuple)}
+      attrs -> {:ok, [Enum.at(current_args, 0), attrs]}
+    end
+  end
+
   defp normalize_pipeline_args(:before_lobby_update, value, current_args)
        when is_list(current_args) and length(current_args) == 2 do
     case value do
@@ -368,6 +382,11 @@ defmodule GameServer.Hooks do
   end
 
   defp finalize_pipeline_value(:before_group_create, args)
+       when is_list(args) and length(args) == 2 do
+    Enum.at(args, 1)
+  end
+
+  defp finalize_pipeline_value(:before_chat_message, args)
        when is_list(args) and length(args) == 2 do
     Enum.at(args, 1)
   end
@@ -846,6 +865,12 @@ defmodule GameServer.Hooks.Default do
 
   @impl true
   def before_group_join(user, group, opts), do: {:ok, {user, group, opts}}
+
+  @impl true
+  def before_chat_message(_user, attrs), do: {:ok, attrs}
+
+  @impl true
+  def after_chat_message(_message), do: :ok
 
   @impl true
   def after_lobby_join(_user, _lobby), do: :ok
