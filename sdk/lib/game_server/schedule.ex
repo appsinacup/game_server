@@ -307,19 +307,6 @@ defmodule GameServer.Schedule do
   end
 
 
-  @doc false
-  @spec start_link() :: :ignore
-  def start_link() do
-    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
-      :placeholder ->
-        nil
-
-      _ ->
-        raise "GameServer.Schedule.start_link/0 is a stub - only available at runtime on GameServer"
-    end
-  end
-
-
   @doc ~S"""
     Run a job every week.
     

@@ -41,19 +41,6 @@ defmodule GameServer.Accounts do
   end
 
 
-  @doc false
-  @spec broadcast_friend_offline(integer()) :: :ok
-  def broadcast_friend_offline(_user_id) do
-    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
-      :placeholder ->
-        :ok
-
-      _ ->
-        raise "GameServer.Accounts.broadcast_friend_offline/1 is a stub - only available at runtime on GameServer"
-    end
-  end
-
-
   @doc ~S"""
     Broadcast that the given user has been updated.
     
@@ -449,20 +436,6 @@ defmodule GameServer.Accounts do
 
       _ ->
         raise "GameServer.Accounts.delete_user_session_token/1 is a stub - only available at runtime on GameServer"
-    end
-  end
-
-
-  @doc false
-  @spec delete_user_token(GameServer.Accounts.UserToken.t()) ::
-  {:ok, GameServer.Accounts.UserToken.t()} | {:error, Ecto.Changeset.t()}
-  def delete_user_token(_token) do
-    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
-      :placeholder ->
-        {:ok, nil}
-
-      _ ->
-        raise "GameServer.Accounts.delete_user_token/1 is a stub - only available at runtime on GameServer"
     end
   end
 
@@ -963,32 +936,6 @@ defmodule GameServer.Accounts do
 
       _ ->
         raise "GameServer.Accounts.get_user_by_steam_id/1 is a stub - only available at runtime on GameServer"
-    end
-  end
-
-
-  @doc false
-  @spec get_user_token(integer()) :: GameServer.Accounts.UserToken.t() | nil
-  def get_user_token(_id) do
-    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
-      :placeholder ->
-        nil
-
-      _ ->
-        raise "GameServer.Accounts.get_user_token/1 is a stub - only available at runtime on GameServer"
-    end
-  end
-
-
-  @doc false
-  @spec get_user_token!(integer()) :: GameServer.Accounts.UserToken.t()
-  def get_user_token!(_id) do
-    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
-      :placeholder ->
-        nil
-
-      _ ->
-        raise "GameServer.Accounts.get_user_token!/1 is a stub - only available at runtime on GameServer"
     end
   end
 

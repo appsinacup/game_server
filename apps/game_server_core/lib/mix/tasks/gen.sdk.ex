@@ -20,6 +20,9 @@ defmodule Mix.Tasks.Gen.Sdk do
     {GameServer.Lobbies, "lobbies.ex"},
     {GameServer.Leaderboards, "leaderboards.ex"},
     {GameServer.Friends, "friends.ex"},
+    {GameServer.Groups, "groups.ex"},
+    {GameServer.Parties, "parties.ex"},
+    {GameServer.Notifications, "notifications.ex"},
     {GameServer.Schedule, "schedule.ex"},
     {GameServer.KV, "kv.ex"}
   ]
@@ -107,6 +110,7 @@ defmodule Mix.Tasks.Gen.Sdk do
 
     function_stubs =
       functions
+      |> Enum.reject(&doc_false?(&1, function_docs))
       |> Enum.map(
         &generate_function_stub(
           &1,
@@ -441,12 +445,44 @@ defmodule Mix.Tasks.Gen.Sdk do
   end
 
   defp list_public_functions(module) do
-    module.__info__(:functions)
-    |> Enum.reject(fn {name, _arity} ->
-      name in [:module_info, :behaviour_info] or
-        String.starts_with?(Atom.to_string(name), "__")
+    all_funs =
+      module.__info__(:functions)
+      |> Enum.reject(fn {name, _arity} ->
+        name in [:module_info, :behaviour_info] or
+          String.starts_with?(Atom.to_string(name), "__")
+      end)
+
+    # Group by name to detect default-argument variants.
+    # When a function has default args, Elixir generates multiple arities.
+    # We only keep the highest arity (which has the @spec) and skip lower
+    # arities that are just generated wrappers.
+    specs =
+      case Code.Typespec.fetch_specs(module) do
+        {:ok, s} -> s
+        :error -> []
+      end
+
+    spec_set = MapSet.new(specs, fn {{name, arity}, _} -> {name, arity} end)
+
+    by_name = Enum.group_by(all_funs, fn {name, _} -> name end)
+
+    all_funs
+    |> Enum.reject(fn {name, arity} ->
+      arities = Enum.map(by_name[name], fn {_, a} -> a end)
+      max_arity = Enum.max(arities)
+
+      # Skip lower-arity variants that lack their own @spec
+      arity < max_arity and not MapSet.member?(spec_set, {name, arity})
     end)
     |> Enum.sort_by(fn {name, arity} -> {Atom.to_string(name), arity} end)
+  end
+
+  # Returns true when the function is marked @doc false (hidden) in the source.
+  defp doc_false?({function_name, arity}, function_docs) do
+    Enum.any?(function_docs, fn
+      {{:function, ^function_name, ^arity}, _line, _sigs, :hidden, _meta} -> true
+      _ -> false
+    end)
   end
 
   defp arg_names_from_signature(signatures, arity) when is_list(signatures) do

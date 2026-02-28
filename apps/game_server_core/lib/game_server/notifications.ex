@@ -75,7 +75,8 @@ defmodule GameServer.Notifications do
     GameServer.Cache.get({:notifications, :version, user_id}) || 1
   end
 
-  @doc "Invalidate the notifications cache for a user (async)."
+  @doc false
+  @spec invalidate_notifications_cache(user_id()) :: :ok
   def invalidate_notifications_cache(user_id) when is_integer(user_id) do
     GameServer.Async.run(fn ->
       _ = GameServer.Cache.incr({:notifications, :version, user_id}, 1, default: 1)
