@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.40.1">
+    <meta name="project" content="GameServer v1.0.616">
+
+
+    <title>GameServer.Chat — GameServer v1.0.616</title>
+
+    <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
+
+    <script defer src="dist/sidebar_items-93E0D33C.js"></script>
+    <script defer src="docs_config.js"></script>
+    <script defer src="dist/html-YU4BZFVS.js"></script>
+
+  </head>
+  <body>
+    <script>(()=>{var t="ex_doc:settings",e="dark";var o="dark",s="light";var E="sidebar_state",n="closed";var r="sidebar_width";var a="sidebar-open";var i=new URLSearchParams(window.location.search),S=i.get("theme")||JSON.parse(localStorage.getItem(t)||"{}").theme;(S===o||S!==s&&window.matchMedia("(prefers-color-scheme: dark)").matches)&&document.body.classList.add(e);var d=sessionStorage.getItem(E),A=d!==n&&!window.matchMedia(`screen and (max-width: ${768}px)`).matches;document.body.classList.toggle(a,A);var c=sessionStorage.getItem(r);c&&document.body.style.setProperty("--sidebarWidth",`${c}px`);var p=/(Macintosh|iPhone|iPad|iPod)/.test(window.navigator.userAgent);document.documentElement.classList.toggle("apple-os",p);})();
+</script>
+
+<div class="body-wrapper">
+
+<button id="sidebar-menu" class="sidebar-button sidebar-toggle" aria-label="toggle sidebar" aria-controls="sidebar">
+  <i class="ri-menu-line ri-lg" title="Collapse/expand sidebar"></i>
+</button>
+
+<nav id="sidebar" class="sidebar">
+
+  <div class="sidebar-header">
+    <div class="sidebar-projectInfo">
+
+      <div>
+        <a href="api-reference.html" class="sidebar-projectName" translate="no">
+GameServer
+        </a>
+        <div class="sidebar-projectVersion" translate="no">
+          v1.0.616
+        </div>
+      </div>
+    </div>
+    <ul id="sidebar-list-nav" class="sidebar-list-nav" role="tablist" data-extras="Pages"></ul>
+  </div>
+</nav>
+
+<output role="status" id="toast"></output>
+
+<main class="content page-module" id="main" data-type="modules">
+  <div id="content" class="content-inner">
+    <div class="top-search">
+      <div class="search-settings">
+        <form class="search-bar" action="search.html">
+          <label class="search-label">
+            <span class="sr-only">Search documentation of GameServer</span>
+            <div class="search-input-wrapper">
+              <input name="q" type="text" class="search-input" placeholder="Press / to search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+              <button type="button" tabindex="-1" class="search-close-button" aria-hidden="true">
+                <i class="ri-close-line ri-lg" title="Cancel search"></i>
+              </button>
+            </div>
+          </label>
+        </form>
+        <div class="autocomplete">
+        </div>
+        <div class="engine-selector" data-multiple="false">
+          <button type="button" class="engine-button" aria-label="Select search engine" aria-haspopup="true" aria-expanded="false">
+            <i class="ri-search-2-line" aria-hidden="true"></i>
+            <span class="engine-name">Default</span>
+            <i class="ri-arrow-down-s-line" aria-hidden="true"></i>
+          </button>
+          <div class="engine-dropdown" hidden role="menu">
+
+              <button type="button"
+                      class="engine-option"
+                      data-engine-url="search.html?q="
+                      role="menuitemradio"
+                      aria-checked="true">
+                <span class="name">Default</span>
+                <span class="help">In-browser search</span>
+              </button>
+
+          </div>
+        </div>
+        <button class="icon-settings display-settings">
+          <i class="ri-settings-3-line"></i>
+          <span class="sr-only">Settings</span>
+        </button>
+      </div>
+    </div>
+
+<div id="top-content">
+  <div class="heading-with-actions top-heading">
+    <h1>
+      <span translate="no">GameServer.<wbr>Chat</span> 
+      <small class="app-vsn" translate="no">(GameServer v1.0.616)</small>
+
+    </h1>
+
+<a href="GameServer.Chat.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
+  <i class="ri-markdown-line" aria-hidden="true"></i>
+  <span class="sr-only">Copy Markdown</span>
+</a>
+
+
+
+  </div>
+
+
+    <section id="moduledoc">
+<p>Context for chat messaging across lobbies, groups, and friend DMs.</p><h2 id="module-chat-types" class="section-heading"><a href="#module-chat-types" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Chat types</span></h2><ul><li><code class="inline">&quot;lobby&quot;</code> — messages within a lobby. <code class="inline">chat_ref_id</code> is the lobby id.</li><li><code class="inline">&quot;group&quot;</code> — messages within a group. <code class="inline">chat_ref_id</code> is the group id.</li><li><code class="inline">&quot;friend&quot;</code> — direct messages between two friends. <code class="inline">chat_ref_id</code> is the
+other user's id (each user stores the <em>other</em> user's id so queries work
+symmetrically).</li></ul><h2 id="module-pubsub-topics" class="section-heading"><a href="#module-pubsub-topics" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">PubSub topics</span></h2><ul><li><code class="inline">&quot;chat:lobby:&lt;id&gt;&quot;</code> — lobby chat events</li><li><code class="inline">&quot;chat:group:&lt;id&gt;&quot;</code> — group chat events</li><li><code class="inline">&quot;chat:friend:&lt;low&gt;:&lt;high&gt;&quot;</code> — friend DM events (sorted pair of user ids)</li></ul><h2 id="module-hooks" class="section-heading"><a href="#module-hooks" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Hooks</span></h2><ul><li><p><code class="inline">before_chat_message/2</code> — pipeline hook <code class="inline">(user, attrs)</code> → <code class="inline">{:ok, attrs}</code> | <code class="inline">{:error, reason}</code></p></li><li><code class="inline">after_chat_message/1</code> — fire-and-forget after a message is persisted</li></ul>
+    </section>
+
+</div>
+
+  <section id="summary" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#summary">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Summary</span>
+    </h2>
+<div class="summary-functions summary">
+  <h3>
+    <a href="#functions">Functions</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#admin_delete_message/1" data-no-tooltip="" translate="no">admin_delete_message(id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Admin: delete a single message by id.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_all_messages/1" data-no-tooltip="" translate="no">count_all_messages(filters \\ %{})</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count all messages matching filters (admin).</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_friend_messages/2" data-no-tooltip="" translate="no">count_friend_messages(user_a_id, user_b_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count total friend DM messages between two users.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_messages/2" data-no-tooltip="" translate="no">count_messages(chat_type, chat_ref_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count total messages in a chat conversation.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_unread/3" data-no-tooltip="" translate="no">count_unread(user_id, chat_type, chat_ref_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count unread messages for a user in a specific chat conversation.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_unread_friend/2" data-no-tooltip="" translate="no">count_unread_friend(user_id, friend_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count unread friend DMs between two users for a specific user.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#delete_messages/2" data-no-tooltip="" translate="no">delete_messages(chat_type, chat_ref_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Delete all messages for a given chat conversation.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_message/1" data-no-tooltip="" translate="no">get_message(id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Get a single message by id.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#get_read_cursor/3" data-no-tooltip="" translate="no">get_read_cursor(user_id, chat_type, chat_ref_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Get the read cursor for a user in a chat conversation.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_all_messages/2" data-no-tooltip="" translate="no">list_all_messages(filters \\ %{}, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List all messages (admin). Supports filters: sender_id, chat_type, chat_ref_id, content.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_friend_messages/3" data-no-tooltip="" translate="no">list_friend_messages(user_a_id, user_b_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List friend DM messages between two users.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list_messages/3" data-no-tooltip="" translate="no">list_messages(chat_type, chat_ref_id, opts \\ [])</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List messages for a chat conversation.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#mark_read/4" data-no-tooltip="" translate="no">mark_read(user_id, chat_type, chat_ref_id, message_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Mark a chat conversation as read up to a given message id.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#send_message/2" data-no-tooltip="" translate="no">send_message(map, attrs)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Send a chat message.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#subscribe_friend_chat/2" data-no-tooltip="" translate="no">subscribe_friend_chat(user_a_id, user_b_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Subscribe to chat events for a friend DM conversation.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#subscribe_group_chat/1" data-no-tooltip="" translate="no">subscribe_group_chat(group_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Subscribe to chat events for a group.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#subscribe_lobby_chat/1" data-no-tooltip="" translate="no">subscribe_lobby_chat(lobby_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Subscribe to chat events for a lobby.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#unsubscribe_friend_chat/2" data-no-tooltip="" translate="no">unsubscribe_friend_chat(user_a_id, user_b_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Unsubscribe from friend DM chat events.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#unsubscribe_group_chat/1" data-no-tooltip="" translate="no">unsubscribe_group_chat(group_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Unsubscribe from group chat events.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#unsubscribe_lobby_chat/1" data-no-tooltip="" translate="no">unsubscribe_lobby_chat(lobby_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Unsubscribe from lobby chat events.</p></div>
+
+    </div>
+
+</div>
+
+  </section>
+
+
+  <section id="functions" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h2>
+
+    <div class="functions-list">
+<section class="detail" id="admin_delete_message/1">
+
+  <div class="detail-header">
+    <a href="#admin_delete_message/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">admin_delete_message(id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> admin_delete_message(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  {:ok, <a href="GameServer.Chat.Message.html#t:t/0">GameServer.Chat.Message.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Admin: delete a single message by id.</p>
+  </section>
+</section>
+<section class="detail" id="count_all_messages/1">
+
+    <span id="count_all_messages/0"></span>
+
+  <div class="detail-header">
+    <a href="#count_all_messages/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_all_messages(filters \\ %{})</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_all_messages(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count all messages matching filters (admin).</p>
+  </section>
+</section>
+<section class="detail" id="count_friend_messages/2">
+
+  <div class="detail-header">
+    <a href="#count_friend_messages/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_friend_messages(user_a_id, user_b_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_friend_messages(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count total friend DM messages between two users.</p>
+  </section>
+</section>
+<section class="detail" id="count_messages/2">
+
+  <div class="detail-header">
+    <a href="#count_messages/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_messages(chat_type, chat_ref_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_messages(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count total messages in a chat conversation.</p>
+  </section>
+</section>
+<section class="detail" id="count_unread/3">
+
+  <div class="detail-header">
+    <a href="#count_unread/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_unread(user_id, chat_type, chat_ref_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_unread(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count unread messages for a user in a specific chat conversation.</p><p>Returns 0 if the user has read all messages or has no cursor (all are unread
+in which case <a href="#count_messages/2"><code class="inline">count_messages/2</code></a> should be used instead).</p>
+  </section>
+</section>
+<section class="detail" id="count_unread_friend/2">
+
+  <div class="detail-header">
+    <a href="#count_unread_friend/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_unread_friend(user_id, friend_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_unread_friend(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count unread friend DMs between two users for a specific user.</p>
+  </section>
+</section>
+<section class="detail" id="delete_messages/2">
+
+  <div class="detail-header">
+    <a href="#delete_messages/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">delete_messages(chat_type, chat_ref_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> delete_messages(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: {<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(), nil}</pre>
+
+      </div>
+
+<p>Delete all messages for a given chat conversation.</p>
+  </section>
+</section>
+<section class="detail" id="get_message/1">
+
+  <div class="detail-header">
+    <a href="#get_message/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_message(id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_message(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="GameServer.Chat.Message.html#t:t/0">GameServer.Chat.Message.t</a>() | nil</pre>
+
+      </div>
+
+<p>Get a single message by id.</p>
+  </section>
+</section>
+<section class="detail" id="get_read_cursor/3">
+
+  <div class="detail-header">
+    <a href="#get_read_cursor/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">get_read_cursor(user_id, chat_type, chat_ref_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> get_read_cursor(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  <a href="GameServer.Chat.ReadCursor.html#t:t/0">GameServer.Chat.ReadCursor.t</a>() | nil</pre>
+
+      </div>
+
+<p>Get the read cursor for a user in a chat conversation.</p><p>Returns <code class="inline">nil</code> if the user has never opened this conversation.</p>
+  </section>
+</section>
+<section class="detail" id="list_all_messages/2">
+
+    <span id="list_all_messages/0"></span>
+
+    <span id="list_all_messages/1"></span>
+
+  <div class="detail-header">
+    <a href="#list_all_messages/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_all_messages(filters \\ %{}, opts \\ [])</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_all_messages(
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) :: [<a href="GameServer.Chat.Message.html#t:t/0">GameServer.Chat.Message.t</a>()]</pre>
+
+      </div>
+
+<p>List all messages (admin). Supports filters: sender_id, chat_type, chat_ref_id, content.</p>
+  </section>
+</section>
+<section class="detail" id="list_friend_messages/3">
+
+    <span id="list_friend_messages/2"></span>
+
+  <div class="detail-header">
+    <a href="#list_friend_messages/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_friend_messages(user_a_id, user_b_id, opts \\ [])</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_friend_messages(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [
+  <a href="GameServer.Chat.Message.html#t:t/0">GameServer.Chat.Message.t</a>()
+]</pre>
+
+      </div>
+
+<p>List friend DM messages between two users.</p><p>Convenience wrapper that queries messages in both directions.</p><h2 id="list_friend_messages/3-options" class="section-heading"><a href="#list_friend_messages/3-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:page</code> — page number (default 1)</li><li><code class="inline">:page_size</code> — items per page (default 25)</li></ul>
+  </section>
+</section>
+<section class="detail" id="list_messages/3">
+
+    <span id="list_messages/2"></span>
+
+  <div class="detail-header">
+    <a href="#list_messages/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list_messages(chat_type, chat_ref_id, opts \\ [])</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list_messages(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()) :: [<a href="GameServer.Chat.Message.html#t:t/0">GameServer.Chat.Message.t</a>()]</pre>
+
+      </div>
+
+<p>List messages for a chat conversation.</p><h2 id="list_messages/3-options" class="section-heading"><a href="#list_messages/3-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:page</code> — page number (default 1)</li><li><code class="inline">:page_size</code> — items per page (default 25)</li></ul><p>Returns a list of <code class="inline">%Message{}</code> structs ordered by <code class="inline">inserted_at</code> descending
+(newest first).</p>
+  </section>
+</section>
+<section class="detail" id="mark_read/4">
+
+  <div class="detail-header">
+    <a href="#mark_read/4" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">mark_read(user_id, chat_type, chat_ref_id, message_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> mark_read(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) ::
+  {:ok, <a href="GameServer.Chat.ReadCursor.html#t:t/0">GameServer.Chat.ReadCursor.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Mark a chat conversation as read up to a given message id.</p><p>Uses an upsert to create or update the read cursor.</p>
+  </section>
+</section>
+<section class="detail" id="send_message/2">
+
+  <div class="detail-header">
+    <a href="#send_message/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">send_message(map, attrs)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> send_message(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
+  {:ok, <a href="GameServer.Chat.Message.html#t:t/0">GameServer.Chat.Message.t</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Send a chat message.</p><h2 id="send_message/2-parameters" class="section-heading"><a href="#send_message/2-parameters" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Parameters</span></h2><ul><li><code class="inline">scope</code> — <code class="inline">%{user: %User{}}</code> (current_scope)</li><li><code class="inline">attrs</code> — map with <code class="inline">&quot;chat_type&quot;</code>, <code class="inline">&quot;chat_ref_id&quot;</code>, <code class="inline">&quot;content&quot;</code>, optional <code class="inline">&quot;metadata&quot;</code></li></ul><h2 id="send_message/2-returns" class="section-heading"><a href="#send_message/2-returns" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Returns</span></h2><ul><li><code class="inline">{:ok, %Message{}}</code> on success</li><li><code class="inline">{:error, reason}</code> on failure</li></ul><p>The <code class="inline">before_chat_message</code> hook is called before persistence and can modify
+attrs or reject the message. The <code class="inline">after_chat_message</code> hook fires asynchronously
+after the message is persisted.</p>
+  </section>
+</section>
+<section class="detail" id="subscribe_friend_chat/2">
+
+  <div class="detail-header">
+    <a href="#subscribe_friend_chat/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">subscribe_friend_chat(user_a_id, user_b_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> subscribe_friend_chat(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Subscribe to chat events for a friend DM conversation.</p>
+  </section>
+</section>
+<section class="detail" id="subscribe_group_chat/1">
+
+  <div class="detail-header">
+    <a href="#subscribe_group_chat/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">subscribe_group_chat(group_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> subscribe_group_chat(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Subscribe to chat events for a group.</p>
+  </section>
+</section>
+<section class="detail" id="subscribe_lobby_chat/1">
+
+  <div class="detail-header">
+    <a href="#subscribe_lobby_chat/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">subscribe_lobby_chat(lobby_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> subscribe_lobby_chat(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Subscribe to chat events for a lobby.</p>
+  </section>
+</section>
+<section class="detail" id="unsubscribe_friend_chat/2">
+
+  <div class="detail-header">
+    <a href="#unsubscribe_friend_chat/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">unsubscribe_friend_chat(user_a_id, user_b_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> unsubscribe_friend_chat(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: :ok</pre>
+
+      </div>
+
+<p>Unsubscribe from friend DM chat events.</p>
+  </section>
+</section>
+<section class="detail" id="unsubscribe_group_chat/1">
+
+  <div class="detail-header">
+    <a href="#unsubscribe_group_chat/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">unsubscribe_group_chat(group_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> unsubscribe_group_chat(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: :ok</pre>
+
+      </div>
+
+<p>Unsubscribe from group chat events.</p>
+  </section>
+</section>
+<section class="detail" id="unsubscribe_lobby_chat/1">
+
+  <div class="detail-header">
+    <a href="#unsubscribe_lobby_chat/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">unsubscribe_lobby_chat(lobby_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> unsubscribe_lobby_chat(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: :ok</pre>
+
+      </div>
+
+<p>Unsubscribe from lobby chat events.</p>
+  </section>
+</section>
+
+    </div>
+  </section>
+
+    <footer class="footer">
+
+        <p>
+
+          <span class="line">
+            <button class="a-main footer-button display-quick-switch" title="Go to package docs">
+              Go to package docs
+            </button>
+
+              <a href="llms.txt" target="_blank">
+                View llms.txt
+              </a>
+
+
+              <a href="GameServer.epub">
+                Download ePub version
+              </a>
+
+          </span>
+        </p>
+
+        <p class="built-using">
+          Built using
+          <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" target="_blank" rel="help noopener" translate="no">ExDoc</a> (v0.40.1) for the
+
+            <a href="https://elixir-lang.org" title="Elixir" target="_blank" translate="no">Elixir programming language</a>
+
+        </p>
+
+
+    </footer>
+  </div>
+</main>
+</div>
+
+  </body>
+</html>

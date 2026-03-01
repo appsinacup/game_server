@@ -11,6 +11,9 @@ GameServer.Cache.L2.Partitioned.Primary.html
 GameServer.Cache.L2.Partitioned.html
 GameServer.Cache.L2.Redis.html
 GameServer.Cache.html
+GameServer.Chat.Message.html
+GameServer.Chat.ReadCursor.html
+GameServer.Chat.html
 GameServer.Content.html
 GameServer.Env.html
 GameServer.Friends.Friendship.html
@@ -59,7 +62,7 @@ dist/lato-latin-700-normal-2XVSBPG4.woff2
 dist/lato-latin-ext-400-normal-N27NCBWW.woff2
 dist/lato-latin-ext-700-normal-Q2L5DVMW.woff2
 dist/remixicon-ZWU5GQ4X.woff2
-dist/search_data-9F06AE4B.js
-dist/sidebar_items-47DFDD47.js
+dist/search_data-3CA3E7CD.js
+dist/sidebar_items-93E0D33C.js
 index.html
 search.html

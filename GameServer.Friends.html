@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.614">
+    <meta name="project" content="GameServer v1.0.616">
 
 
-    <title>GameServer.Friends — GameServer v1.0.614</title>
+    <title>GameServer.Friends — GameServer v1.0.616</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-47DFDD47.js"></script>
+    <script defer src="dist/sidebar_items-93E0D33C.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.614
+          v1.0.616
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Friends</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.614)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.616)</small>
 
     </h1>
 
@@ -112,19 +112,19 @@ GameServer
 <p>Friends context - handles friend requests and relationships.</p><p>Basic semantics:</p><ul><li>A single <code class="inline">friendships</code> row represents a directed request from requester -&gt; target.</li><li><p>status: &quot;pending&quot; | &quot;accepted&quot; | &quot;rejected&quot; | &quot;blocked&quot;</p></li><li>When a user accepts a pending incoming request, that request becomes <code class="inline">accepted</code>.
 If a reverse pending request exists, it will be removed to avoid duplicate rows.</li><li>Listing friends returns the other user from rows with status <code class="inline">accepted</code> in either
 direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#module-usage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># Create a friend request (requester -&gt; target)</span><span class="w">
-</span><span class="p" data-group-id="4711782946-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">friendship</span><span class="p" data-group-id="4711782946-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">create_request</span><span class="p" data-group-id="4711782946-2">(</span><span class="n">requester_id</span><span class="p">,</span><span class="w"> </span><span class="n">target_id</span><span class="p" data-group-id="4711782946-2">)</span><span class="w">
+</span><span class="p" data-group-id="6954753421-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">friendship</span><span class="p" data-group-id="6954753421-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">create_request</span><span class="p" data-group-id="6954753421-2">(</span><span class="n">requester_id</span><span class="p">,</span><span class="w"> </span><span class="n">target_id</span><span class="p" data-group-id="6954753421-2">)</span><span class="w">
 
 </span><span class="c1"># Accept a pending incoming request (performed by the target)</span><span class="w">
-</span><span class="p" data-group-id="4711782946-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">accepted</span><span class="p" data-group-id="4711782946-3">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">accept_friend_request</span><span class="p" data-group-id="4711782946-4">(</span><span class="n">friendship</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="4711782946-5">%</span><span class="nc" data-group-id="4711782946-5">GameServer.Accounts.User</span><span class="p" data-group-id="4711782946-5">{</span><span class="ss">id</span><span class="p">:</span><span class="w"> </span><span class="n">target_id</span><span class="p" data-group-id="4711782946-5">}</span><span class="p" data-group-id="4711782946-4">)</span><span class="w">
+</span><span class="p" data-group-id="6954753421-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">accepted</span><span class="p" data-group-id="6954753421-3">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">accept_friend_request</span><span class="p" data-group-id="6954753421-4">(</span><span class="n">friendship</span><span class="o">.</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6954753421-5">%</span><span class="nc" data-group-id="6954753421-5">GameServer.Accounts.User</span><span class="p" data-group-id="6954753421-5">{</span><span class="ss">id</span><span class="p">:</span><span class="w"> </span><span class="n">target_id</span><span class="p" data-group-id="6954753421-5">}</span><span class="p" data-group-id="6954753421-4">)</span><span class="w">
 
 </span><span class="c1"># List accepted friends for a user (paginated)</span><span class="w">
-</span><span class="n">friends</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">list_friends_for_user</span><span class="p" data-group-id="4711782946-6">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p" data-group-id="4711782946-6">)</span><span class="w">
+</span><span class="n">friends</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">list_friends_for_user</span><span class="p" data-group-id="6954753421-6">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p" data-group-id="6954753421-6">)</span><span class="w">
 
 </span><span class="c1"># Count accepted friends for a user</span><span class="w">
-</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">count_friends_for_user</span><span class="p" data-group-id="4711782946-7">(</span><span class="n">user_id</span><span class="p" data-group-id="4711782946-7">)</span><span class="w">
+</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">count_friends_for_user</span><span class="p" data-group-id="6954753421-7">(</span><span class="n">user_id</span><span class="p" data-group-id="6954753421-7">)</span><span class="w">
 
 </span><span class="c1"># Remove a friendship (either direction)</span><span class="w">
-</span><span class="p" data-group-id="4711782946-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="bp">_</span><span class="p" data-group-id="4711782946-8">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">remove_friend</span><span class="p" data-group-id="4711782946-9">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="n">friend_id</span><span class="p" data-group-id="4711782946-9">)</span></code></pre>
+</span><span class="p" data-group-id="6954753421-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="bp">_</span><span class="p" data-group-id="6954753421-8">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Friends</span><span class="o">.</span><span class="n">remove_friend</span><span class="p" data-group-id="6954753421-9">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="n">friend_id</span><span class="p" data-group-id="6954753421-9">)</span></code></pre>
     </section>
 
 </div>
@@ -254,6 +254,16 @@ direction.</li></ul><h2 id="module-usage" class="section-heading"><a href="#modu
       </div>
 
         <div class="summary-synopsis"><p>Return a list of user IDs that are accepted friends of the given user.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#friends?/2" data-no-tooltip="" translate="no">friends?(user_a_id, user_b_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Check whether two users are friends (accepted friendship in either direction).</p></div>
 
     </div>
 
@@ -690,6 +700,30 @@ direction between the two user IDs.</p>
 
 <p>Return a list of user IDs that are accepted friends of the given user.</p><p>This is used internally (e.g. for broadcasting online-status changes)
 and does <em>not</em> paginate – it returns all friend IDs.</p>
+  </section>
+</section>
+<section class="detail" id="friends?/2">
+
+  <div class="detail-header">
+    <a href="#friends?/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">friends?(user_a_id, user_b_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> friends?(<a href="#t:user_id/0">user_id</a>(), <a href="#t:user_id/0">user_id</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+
+      </div>
+
+<p>Check whether two users are friends (accepted friendship in either direction).</p>
   </section>
 </section>
 <section class="detail" id="get_by_pair/2">

@@ -28,6 +28,12 @@ Options passed to hooks that accept an options map/keyword list.
 Common keys include `:user_id` (pos_integer) and other domain-specific
 options. Hooks may accept either a map or keyword list for convenience.
 
+# `after_chat_message`
+
+```elixir
+@callback after_chat_message(term()) :: any()
+```
+
 # `after_group_create`
 
 ```elixir
@@ -102,6 +108,12 @@ options. Hooks may accept either a map or keyword list for convenience.
 
 ```elixir
 @callback after_user_updated(GameServer.Accounts.User.t()) :: any()
+```
+
+# `before_chat_message`
+
+```elixir
+@callback before_chat_message(GameServer.Accounts.User.t(), map()) :: hook_result(map())
 ```
 
 # `before_group_create`

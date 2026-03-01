@@ -8,7 +8,7 @@
     <meta name="project" content="GameServer v1.0.616">
 
 
-    <title>GameServer.Hooks.PluginBuilder — GameServer v1.0.616</title>
+    <title>GameServer.Chat.ReadCursor — GameServer v1.0.616</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
@@ -93,12 +93,12 @@ GameServer
 <div id="top-content">
   <div class="heading-with-actions top-heading">
     <h1>
-      <span translate="no">GameServer.<wbr>Hooks.<wbr>PluginBuilder</span> 
+      <span translate="no">GameServer.<wbr>Chat.<wbr>ReadCursor</span> 
       <small class="app-vsn" translate="no">(GameServer v1.0.616)</small>
 
     </h1>
 
-<a href="GameServer.Hooks.PluginBuilder.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
+<a href="GameServer.Chat.ReadCursor.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
   <i class="ri-markdown-line" aria-hidden="true"></i>
   <span class="sr-only">Copy Markdown</span>
 </a>
@@ -109,8 +109,9 @@ GameServer
 
 
     <section id="moduledoc">
-<p>Builds an OTP plugin bundle from plugin source code on disk.</p><p>This is intended for admin-only workflows in development/self-hosted setups.
-It runs <code class="inline">mix</code> commands on the server host/container.</p>
+<p>Ecto schema for the <code class="inline">chat_read_cursors</code> table.</p><p>Tracks the last message a user has read in a given chat conversation.
+The unique constraint on <code class="inline">[user_id, chat_type, chat_ref_id]</code> ensures
+one cursor per user per conversation.</p>
     </section>
 
 </div>
@@ -129,15 +130,7 @@ It runs <code class="inline">mix</code> commands on the server host/container.</
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#t:build_result/0" data-no-tooltip="" translate="no">build_result()</a>
-
-      </div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#t:step_result/0" data-no-tooltip="" translate="no">step_result()</a>
+        <a href="#t:t/0" data-no-tooltip="" translate="no">t()</a>
 
       </div>
 
@@ -151,25 +144,11 @@ It runs <code class="inline">mix</code> commands on the server host/container.</
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#build/1" data-no-tooltip="" translate="no">build(plugin_name)</a>
+        <a href="#changeset/2" data-no-tooltip="" translate="no">changeset(cursor, attrs)</a>
 
       </div>
 
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#list_buildable_plugins/0" data-no-tooltip="" translate="no">list_buildable_plugins()</a>
-
-      </div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#sources_dir/0" data-no-tooltip="" translate="no">sources_dir()</a>
-
-      </div>
+        <div class="summary-synopsis"><p>Changeset for creating/updating a read cursor.</p></div>
 
     </div>
 
@@ -187,14 +166,14 @@ It runs <code class="inline">mix</code> commands on the server host/container.</
     </h2>
 
     <div class="types-list">
-<section class="detail" id="t:build_result/0">
+<section class="detail" id="t:t/0">
 
   <div class="detail-header">
-    <a href="#t:build_result/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+    <a href="#t:t/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">build_result()</h1>
+      <h1 class="signature" translate="no">t()</h1>
 
 
     </div>
@@ -204,41 +183,17 @@ It runs <code class="inline">mix</code> commands on the server host/container.</
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@type</span> build_result() :: %{
-  ok?: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>(),
-  plugin: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
-  source_dir: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
-  started_at: <a href="https://hexdocs.pm/elixir/DateTime.html#t:t/0">DateTime.t</a>(),
-  finished_at: <a href="https://hexdocs.pm/elixir/DateTime.html#t:t/0">DateTime.t</a>(),
-  steps: [<a href="#t:step_result/0">step_result</a>()]
-}</pre>
-
-      </div>
-
-
-  </section>
-</section>
-<section class="detail" id="t:step_result/0">
-
-  <div class="detail-header">
-    <a href="#t:step_result/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">step_result()</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@type</span> step_result() :: %{
-  cmd: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
-  status: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>(),
-  output: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()
+          <pre translate="no"><span class="attribute">@type</span> t() :: %GameServer.Chat.ReadCursor{
+  __meta__: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  chat_ref_id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  chat_type: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  inserted_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  last_read_message: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  last_read_message_id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  updated_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  user: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  user_id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()
 }</pre>
 
       </div>
@@ -259,14 +214,14 @@ It runs <code class="inline">mix</code> commands on the server host/container.</
     </h2>
 
     <div class="functions-list">
-<section class="detail" id="build/1">
+<section class="detail" id="changeset/2">
 
   <div class="detail-header">
-    <a href="#build/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#changeset/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">build(plugin_name)</h1>
+      <h1 class="signature" translate="no">changeset(cursor, attrs)</h1>
 
 
     </div>
@@ -274,61 +229,7 @@ It runs <code class="inline">mix</code> commands on the server host/container.</
 
   <section class="docstring">
 
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> build(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: {:ok, <a href="#t:build_result/0">build_result</a>()} | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
-
-      </div>
-
-
-  </section>
-</section>
-<section class="detail" id="list_buildable_plugins/0">
-
-  <div class="detail-header">
-    <a href="#list_buildable_plugins/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">list_buildable_plugins()</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> list_buildable_plugins() :: [<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()]</pre>
-
-      </div>
-
-
-  </section>
-</section>
-<section class="detail" id="sources_dir/0">
-
-  <div class="detail-header">
-    <a href="#sources_dir/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">sources_dir()</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> sources_dir() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()</pre>
-
-      </div>
-
-
+<p>Changeset for creating/updating a read cursor.</p>
   </section>
 </section>
 

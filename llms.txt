@@ -1,4 +1,4 @@
-# GameServer v1.0.614 - Table of Contents
+# GameServer v1.0.616 - Table of Contents
 
 ## Modules
 
@@ -20,6 +20,9 @@ and email-change workflows.
 - [GameServer.Cache.L2.Partitioned.Primary](GameServer.Cache.L2.Partitioned.Primary.md): This is the cache for the primary storage.
 
 - [GameServer.Cache.L2.Redis](GameServer.Cache.L2.Redis.md): L2 cache backed by Redis.
+- [GameServer.Chat](GameServer.Chat.md): Context for chat messaging across lobbies, groups, and friend DMs.
+- [GameServer.Chat.Message](GameServer.Chat.Message.md): Ecto schema for the `chat_messages` table.
+- [GameServer.Chat.ReadCursor](GameServer.Chat.ReadCursor.md): Ecto schema for the `chat_read_cursors` table.
 - [GameServer.Content](GameServer.Content.md): Reads and renders Markdown content from files/directories configured
 in the theme JSON config (`"changelog"` and `"blog"` keys).
 - [GameServer.Env](GameServer.Env.md): Helpers for reading and parsing environment variables.
