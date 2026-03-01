@@ -135,6 +135,10 @@ defmodule GameServer.Notifications do
 
   @doc "Count unread notifications for a user."
   @spec count_unread_notifications(user_id()) :: non_neg_integer()
+  @decorate cacheable(
+              key: {:notifications, :count_unread, notifications_version(user_id), user_id},
+              opts: [ttl: @notifications_cache_ttl_ms]
+            )
   def count_unread_notifications(user_id) when is_integer(user_id) do
     Repo.one(
       from(n in Notification,

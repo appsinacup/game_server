@@ -48,7 +48,8 @@ defmodule GameServerWeb.Layouts do
         if(conn, do: conn.request_path, else: "/")
 
     current_query = if conn, do: conn.query_string, else: ""
-    locale = Gettext.get_locale(GameServerWeb.Gettext)
+    # Locale feature temporarily disabled — always use English
+    locale = "en"
 
     provider_theme =
       Map.get(assigns, :theme) || JSONConfig.get_theme(locale) || %{}

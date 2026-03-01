@@ -32,7 +32,9 @@ defmodule GameServerWeb.Endpoint do
     at: "/",
     from: :game_server_web,
     gzip: not code_reloading?,
-    only: GameServerWeb.static_paths()
+    only: GameServerWeb.static_paths(),
+    cache_control_for_etags: "public, max-age=3600",
+    cache_control_for_vsn_requests: "public, max-age=31536000, immutable"
 
   # Serve blog/changelog images early, before the code-reloader
   # and session/CSRF plugs.  This prevents concurrent image requests
@@ -68,7 +70,8 @@ defmodule GameServerWeb.Endpoint do
   plug Plug.Head
   plug Plug.Session, @session_options
 
-  plug GameServerWeb.Plugs.LocalePath
+  # Locale feature temporarily disabled — uncomment when re-enabling
+  # plug GameServerWeb.Plugs.LocalePath
 
   plug GameServerWeb.Plugs.DynamicCors
 
