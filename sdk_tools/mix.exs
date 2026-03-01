@@ -1,7 +1,7 @@
 defmodule GameServerPluginTools.MixProject do
   use Mix.Project
 
-  @version "1.0.13"
+  @version "1.0.14"
   @source_url "https://github.com/appsinacup/game_server"
 
   def project do
