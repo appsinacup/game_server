@@ -442,7 +442,11 @@ defmodule GameServerWeb.Api.V1.LobbyController do
           }
         end)
 
-      json(conn, %{data: serialize_lobby(lobby), members: members, spectator_count: SpectatorTracker.count(lobby.id)})
+      json(conn, %{
+        data: serialize_lobby(lobby),
+        members: members,
+        spectator_count: SpectatorTracker.count(lobby.id)
+      })
     else
       _ ->
         conn
