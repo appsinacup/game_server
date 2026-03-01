@@ -1116,6 +1116,16 @@ defmodule GameServer.Lobbies do
   def can_view_lobby?(nil, %Lobby{is_hidden: false}), do: true
   def can_view_lobby?(nil, _lobby), do: false
 
+  @doc """
+  Check if a lobby can be spectated (watched by non-members).
+
+  A lobby is spectatable if it is not hidden and not locked.
+  """
+  @spec spectatable?(Lobby.t()) :: boolean()
+  def spectatable?(%Lobby{is_hidden: true}), do: false
+  def spectatable?(%Lobby{is_locked: true}), do: false
+  def spectatable?(%Lobby{}), do: true
+
   @spec update_lobby_by_host(User.t(), Lobby.t(), Types.lobby_update_attrs()) ::
           {:ok, Lobby.t()} | {:error, :not_host | :too_small | Ecto.Changeset.t() | term()}
   def update_lobby_by_host(%User{id: host_id}, %Lobby{} = lobby, attrs) do

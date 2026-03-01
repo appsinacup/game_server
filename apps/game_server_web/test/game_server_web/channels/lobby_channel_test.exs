@@ -38,16 +38,64 @@ defmodule GameServerWeb.LobbyChannelTest do
     assert_push "event", ^payload
   end
 
-  test "non-members cannot join a lobby topic" do
+  test "non-members can join a public lobby as spectators" do
+    host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+    spectator = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "spectate-room", host_id: host.id})
+
+    {:ok, token_spectator, _} = Guardian.encode_and_sign(spectator)
+    {:ok, socket_spectator} = connect(GameServerWeb.UserSocket, %{"token" => token_spectator})
+
+    {:ok, _, socket} = subscribe_and_join(socket_spectator, "lobby:#{lobby.id}", %{})
+    assert socket.assigns.spectator == true
+  end
+
+  test "non-members cannot join a hidden lobby" do
     host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
     stranger = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
 
-    {:ok, lobby} = Lobbies.create_lobby(%{title: "reject-room", host_id: host.id})
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "hidden-room", host_id: host.id})
+    {:ok, lobby} = Lobbies.update_lobby(lobby, %{is_hidden: true})
 
     {:ok, token_stranger, _} = Guardian.encode_and_sign(stranger)
     {:ok, socket_stranger} = connect(GameServerWeb.UserSocket, %{"token" => token_stranger})
 
-    assert {:error, _} = subscribe_and_join(socket_stranger, "lobby:#{lobby.id}", %{})
+    assert {:error, %{reason: "not_spectatable"}} =
+             subscribe_and_join(socket_stranger, "lobby:#{lobby.id}", %{})
+  end
+
+  test "non-members cannot join a locked lobby" do
+    host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+    stranger = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "locked-room", host_id: host.id})
+    {:ok, lobby} = Lobbies.update_lobby(lobby, %{is_locked: true})
+
+    {:ok, token_stranger, _} = Guardian.encode_and_sign(stranger)
+    {:ok, socket_stranger} = connect(GameServerWeb.UserSocket, %{"token" => token_stranger})
+
+    assert {:error, %{reason: "not_spectatable"}} =
+             subscribe_and_join(socket_stranger, "lobby:#{lobby.id}", %{})
+  end
+
+  test "user in a different lobby cannot spectate another lobby" do
+    host1 = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+    host2 = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+    member = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+
+    {:ok, lobby1} = Lobbies.create_lobby(%{title: "lobby-1", host_id: host1.id})
+    {:ok, lobby2} = Lobbies.create_lobby(%{title: "lobby-2", host_id: host2.id})
+
+    # member joins lobby1
+    {:ok, _} = Lobbies.join_lobby(member, lobby1)
+
+    {:ok, token_member, _} = Guardian.encode_and_sign(member)
+    {:ok, socket_member} = connect(GameServerWeb.UserSocket, %{"token" => token_member})
+
+    # member tries to spectate lobby2 — should be rejected
+    assert {:error, %{reason: "must_spectate_own_lobby"}} =
+             subscribe_and_join(socket_member, "lobby:#{lobby2.id}", %{})
   end
 
   test "channel receives user_kicked event when member is kicked" do

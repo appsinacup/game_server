@@ -3,6 +3,7 @@ defmodule GameServerWeb.Api.V1.Admin.LobbyController do
   use OpenApiSpex.ControllerSpecs
 
   alias GameServer.Lobbies
+  alias GameServer.Lobbies.SpectatorTracker
   alias GameServerWeb.Pagination
   alias OpenApiSpex.Schema
 
@@ -22,7 +23,8 @@ defmodule GameServerWeb.Api.V1.Admin.LobbyController do
       is_locked: %Schema{type: :boolean},
       is_passworded: %Schema{type: :boolean},
       metadata: %Schema{type: :object},
-      slowdown: %Schema{type: :integer, description: "Chat slowdown in seconds (0 = disabled)"}
+      slowdown: %Schema{type: :integer, description: "Chat slowdown in seconds (0 = disabled)"},
+      spectator_count: %Schema{type: :integer, description: "Number of current spectators"}
     }
   }
 
@@ -222,7 +224,8 @@ defmodule GameServerWeb.Api.V1.Admin.LobbyController do
       is_locked: lobby.is_locked,
       is_passworded: not is_nil(lobby.password_hash),
       metadata: lobby.metadata || %{},
-      slowdown: lobby.slowdown
+      slowdown: lobby.slowdown,
+      spectator_count: SpectatorTracker.count(lobby.id)
     }
   end
 

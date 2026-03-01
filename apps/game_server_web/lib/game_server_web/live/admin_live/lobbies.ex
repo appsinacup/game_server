@@ -2,6 +2,7 @@ defmodule GameServerWeb.AdminLive.Lobbies do
   use GameServerWeb, :live_view
 
   alias GameServer.Lobbies
+  alias GameServer.Lobbies.SpectatorTracker
 
   @impl true
   def mount(_params, _session, socket) do
@@ -106,6 +107,7 @@ defmodule GameServerWeb.AdminLive.Lobbies do
                       <th>Title</th>
                       <th>Host ID</th>
                       <th>Users (Cap)</th>
+                      <th>Spectators</th>
                       <th>Hidden</th>
                       <th>Locked</th>
                       <th>Password</th>
@@ -145,6 +147,7 @@ defmodule GameServerWeb.AdminLive.Lobbies do
                           phx-debounce="300"
                         />
                       </th>
+                      <th></th>
                       <th>
                         <select name="is_hidden" class="select select-bordered select-xs w-full">
                           <option value="" selected={@filters["is_hidden"] == ""}>All</option>
@@ -196,6 +199,7 @@ defmodule GameServerWeb.AdminLive.Lobbies do
                       <td class="text-sm">{l.title || "-"}</td>
                       <td class="font-mono text-sm">{l.host_id}</td>
                       <td class="text-sm">{length(l.users || [])} / {l.max_users}</td>
+                      <td class="text-sm font-mono">{Map.get(@spectator_counts, l.id, 0)}</td>
                       <td class="text-sm">
                         <%= if l.is_hidden do %>
                           <span class="badge badge-info badge-sm">Hidden</span>
@@ -329,6 +333,9 @@ defmodule GameServerWeb.AdminLive.Lobbies do
           <h3 class="font-bold text-lg">
             Lobby #{@selected_lobby.id} members ({length(@members)})
           </h3>
+          <p class="text-sm text-base-content/70 mt-1">
+            Spectators: {Map.get(@spectator_counts, @selected_lobby.id, 0)}
+          </p>
 
           <div class="flex gap-2 mt-4">
             <input
@@ -767,9 +774,15 @@ defmodule GameServerWeb.AdminLive.Lobbies do
         do: div(total_count + page_size - 1, page_size),
         else: 0
 
+    spectator_counts =
+      lobbies
+      |> Enum.map(& &1.id)
+      |> SpectatorTracker.counts()
+
     socket
     |> assign(:lobbies, lobbies)
     |> assign(:count, total_count)
+    |> assign(:spectator_counts, spectator_counts)
     |> assign(:lobbies_total_pages, total_pages)
     |> assign(:lobbies_page, page)
     |> sync_selected_ids(lobby_ids(lobbies))

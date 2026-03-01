@@ -259,9 +259,9 @@ defmodule GameServerWeb.Layouts do
               </.link>
             </li>
           <% end %>
-          <li>
+          <%!-- <li>
             <.language_dropdown />
-          </li>
+          </li> --%>
           <li>
             <.theme_toggle />
           </li>
@@ -454,11 +454,11 @@ defmodule GameServerWeb.Layouts do
                   </div>
                 </li>
               <% end %>
-              <li class="mt-2">
+              <%!-- <li class="mt-2">
                 <div class="flex justify-center">
                   <.language_dropdown />
                 </div>
-              </li>
+              </li> --%>
               <li class="mt-2">
                 <div class="flex justify-center">
                   <.theme_toggle />
@@ -505,79 +505,80 @@ defmodule GameServerWeb.Layouts do
     """
   end
 
-  defp language_dropdown(assigns) do
-    locale = Gettext.get_locale(GameServerWeb.Gettext) || "en"
-    current_path = Map.get(assigns, :current_path, "/")
-    current_query = Map.get(assigns, :current_query, "")
+  # Language dropdown temporarily hidden — uncomment in layouts when re-enabling
+  # defp language_dropdown(assigns) do
+  #   locale = Gettext.get_locale(GameServerWeb.Gettext) || "en"
+  #   current_path = Map.get(assigns, :current_path, "/")
+  #   current_query = Map.get(assigns, :current_query, "")
+  #
+  #   base_path = strip_locale_prefix(current_path)
+  #
+  #   query_suffix =
+  #     if is_binary(current_query) and current_query != "", do: "?" <> current_query, else: ""
+  #
+  #   english_href = base_path <> query_suffix
+  #
+  #   spanish_href =
+  #     if(base_path == "/", do: "/es", else: "/es" <> base_path) <> query_suffix
+  #
+  #   assigns =
+  #     assign(assigns,
+  #       locale: locale,
+  #       english_href: english_href,
+  #       spanish_href: spanish_href,
+  #       label:
+  #         case locale do
+  #           "es" -> "Español"
+  #           _ -> "English"
+  #         end
+  #     )
+  #
+  #   ~H"""
+  #   <div class="dropdown dropdown-end">
+  #     <a href="#" tabindex="0" class="btn btn-outline">
+  #       {@label}
+  #     </a>
+  #     <ul
+  #       tabindex="0"
+  #       class="menu menu-sm dropdown-content mt-2 z-[1] p-2 shadow bg-base-100 rounded-box"
+  #     >
+  #       <li>
+  #         <a
+  #           href={@english_href}
+  #           class={["whitespace-nowrap", @locale == "en" && "active"]}
+  #         >
+  #           English
+  #         </a>
+  #       </li>
+  #       <li>
+  #         <a
+  #           href={@spanish_href}
+  #           class={["whitespace-nowrap", @locale == "es" && "active"]}
+  #         >
+  #           Español
+  #         </a>
+  #       </li>
+  #     </ul>
+  #   </div>
+  #   """
+  # end
 
-    base_path = strip_locale_prefix(current_path)
+  # defp strip_locale_prefix(path) when is_binary(path) do
+  #   segments = String.split(path, "/", trim: true)
+  #
+  #   case segments do
+  #     [first | rest] when first in ["en", "es"] ->
+  #       case rest do
+  #         [] -> "/"
+  #         _ -> "/" <> Enum.join(rest, "/")
+  #       end
+  #
+  #     _ ->
+  #       if String.starts_with?(path, "/"), do: path, else: "/"
+  #   end
+  # end
 
-    query_suffix =
-      if is_binary(current_query) and current_query != "", do: "?" <> current_query, else: ""
-
-    english_href = base_path <> query_suffix
-
-    spanish_href =
-      if(base_path == "/", do: "/es", else: "/es" <> base_path) <> query_suffix
-
-    assigns =
-      assign(assigns,
-        locale: locale,
-        english_href: english_href,
-        spanish_href: spanish_href,
-        label:
-          case locale do
-            "es" -> "Español"
-            _ -> "English"
-          end
-      )
-
-    ~H"""
-    <div class="dropdown dropdown-end">
-      <a href="#" tabindex="0" class="btn btn-outline">
-        {@label}
-      </a>
-      <ul
-        tabindex="0"
-        class="menu menu-sm dropdown-content mt-2 z-[1] p-2 shadow bg-base-100 rounded-box"
-      >
-        <li>
-          <a
-            href={@english_href}
-            class={["whitespace-nowrap", @locale == "en" && "active"]}
-          >
-            English
-          </a>
-        </li>
-        <li>
-          <a
-            href={@spanish_href}
-            class={["whitespace-nowrap", @locale == "es" && "active"]}
-          >
-            Español
-          </a>
-        </li>
-      </ul>
-    </div>
-    """
-  end
-
-  defp strip_locale_prefix(path) when is_binary(path) do
-    segments = String.split(path, "/", trim: true)
-
-    case segments do
-      [first | rest] when first in ["en", "es"] ->
-        case rest do
-          [] -> "/"
-          _ -> "/" <> Enum.join(rest, "/")
-        end
-
-      _ ->
-        if String.starts_with?(path, "/"), do: path, else: "/"
-    end
-  end
-
-  defp strip_locale_prefix(_), do: "/"
+  # defp strip_locale_prefix(_), do: "/"
 
   defp app_version do
     # Prefer CI-injected APP_VERSION when present, otherwise fall back to the

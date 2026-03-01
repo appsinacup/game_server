@@ -3,6 +3,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
   use OpenApiSpex.ControllerSpecs
 
   alias GameServer.Lobbies
+  alias GameServer.Lobbies.SpectatorTracker
   alias OpenApiSpex.Schema
 
   tags(["Lobbies"])
@@ -385,6 +386,69 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       is_passworded: lobby.password_hash != nil,
       slowdown: lobby.slowdown
     }
+  end
+
+  operation(:show,
+    operation_id: "get_lobby",
+    summary: "Get a single lobby",
+    description:
+      "Return details for a single lobby. Non-hidden lobbies can be viewed by anyone. Also returns the current member list.",
+    parameters: [
+      id: [
+        in: :path,
+        schema: %Schema{type: :integer},
+        description: "Lobby ID",
+        required: true
+      ]
+    ],
+    responses: [
+      ok:
+        {"Lobby details", "application/json",
+         %Schema{
+           type: :object,
+           properties: %{
+             data: @lobby_schema,
+             spectator_count: %Schema{type: :integer, description: "Number of current spectators"},
+             members: %Schema{
+               type: :array,
+               items: %Schema{
+                 type: :object,
+                 properties: %{
+                   id: %Schema{type: :integer},
+                   email: %Schema{type: :string},
+                   display_name: %Schema{type: :string, nullable: true}
+                 }
+               }
+             }
+           }
+         }},
+      not_found:
+        {"Not found", "application/json",
+         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}}
+    ]
+  )
+
+  def show(conn, %{"id" => id_str}) do
+    with {lobby_id, ""} <- Integer.parse(id_str),
+         %GameServer.Lobbies.Lobby{} = lobby <- Lobbies.get_lobby(lobby_id),
+         true <- !lobby.is_hidden do
+      members =
+        Lobbies.get_lobby_members(lobby)
+        |> Enum.map(fn user ->
+          %{
+            id: user.id,
+            email: user.email,
+            display_name: user.display_name
+          }
+        end)
+
+      json(conn, %{data: serialize_lobby(lobby), members: members, spectator_count: SpectatorTracker.count(lobby.id)})
+    else
+      _ ->
+        conn
+        |> put_status(:not_found)
+        |> json(%{error: "Lobby not found"})
+    end
   end
 
   ### API actions (create/join/update/leave/kick) ###

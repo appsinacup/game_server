@@ -4,7 +4,12 @@ defmodule GameServerWeb.LobbyChannel do
 
   Topic: "lobby:<lobby_id>"
 
-  Only users who are members of the lobby may join this channel. Membership is managed via the Lobbies context.
+  Users may join this channel either as a **member** (their `lobby_id` matches)
+  or as a **spectator** (the lobby is public: not hidden, not locked).
+
+  Spectators receive all events (membership changes, updates, chat) but cannot
+  perform any write operations.  A user who is already in a lobby can only join
+  their own lobby's channel.
 
   ## Events pushed to clients
 
@@ -13,6 +18,7 @@ defmodule GameServerWeb.LobbyChannel do
   - `"user_kicked"` - A user was kicked from the lobby. Payload: `%{user_id: integer}`
   - `"updated"` - The lobby settings were updated. Payload: lobby object
   - `"host_changed"` - The host changed. Payload: `%{new_host_id: integer}`
+  - `"new_chat_message"` - A new chat message. Payload: chat message object
   """
 
   use Phoenix.Channel
@@ -23,6 +29,7 @@ defmodule GameServerWeb.LobbyChannel do
   alias GameServer.Accounts.User
   alias GameServer.Chat
   alias GameServer.Lobbies
+  alias GameServer.Lobbies.SpectatorTracker
 
   @impl true
   def join("lobby:" <> lobby_id_str, _payload, socket) do
@@ -31,32 +38,44 @@ defmodule GameServerWeb.LobbyChannel do
     with {lobby_id, ""} <- Integer.parse(lobby_id_str),
          %Scope{user: %{id: user_id}} <- current_scope,
          %GameServer.Lobbies.Lobby{} = lobby <- Lobbies.get_lobby(lobby_id) do
-      case Accounts.get_user(user_id) do
-        %User{lobby_id: ^lobby_id} ->
-          # Subscribe to lobby PubSub events to forward to WebSocket clients
-          socket =
-            if Map.get(socket.assigns, :subscribed_lobby, false) do
-              socket
-            else
-              _ = Lobbies.unsubscribe_lobby(lobby_id)
-              Lobbies.subscribe_lobby(lobby_id)
-              Chat.subscribe_lobby_chat(lobby_id)
-              assign(socket, :subscribed_lobby, true)
-            end
+      user = Accounts.get_user(user_id)
 
+      cond do
+        # Case 1: user is a member of this lobby → join as member
+        match?(%User{lobby_id: ^lobby_id}, user) ->
+          socket = subscribe_to_lobby(socket, lobby_id)
           send(self(), {:after_join, lobby})
-          {:ok, socket |> assign(:lobby_id, lobby_id)}
+          {:ok, socket |> assign(:lobby_id, lobby_id) |> assign(:spectator, false)}
 
-        _ ->
-          Logger.info(
-            "LobbyChannel: user #{user_id} attempted to join lobby #{lobby_id} but is not a member"
-          )
+        # Case 2: user is in a *different* lobby → reject (must listen to their own)
+        is_struct(user, User) and is_integer(user.lobby_id) ->
+          {:error, %{reason: "must_spectate_own_lobby"}}
 
-          {:error, %{reason: "not_a_member"}}
+        # Case 3: user is not in any lobby and lobby is spectatable → join as spectator
+        Lobbies.spectatable?(lobby) ->
+          socket = subscribe_to_lobby(socket, lobby_id)
+          SpectatorTracker.track(lobby_id, user_id)
+          send(self(), {:after_join, lobby})
+          {:ok, socket |> assign(:lobby_id, lobby_id) |> assign(:spectator, true)}
+
+        # Case 4: lobby is hidden or locked → reject
+        true ->
+          {:error, %{reason: "not_spectatable"}}
       end
     else
       _ ->
         {:error, %{reason: "invalid_topic_or_unauthenticated"}}
+    end
+  end
+
+  defp subscribe_to_lobby(socket, lobby_id) do
+    if Map.get(socket.assigns, :subscribed_lobby, false) do
+      socket
+    else
+      _ = Lobbies.unsubscribe_lobby(lobby_id)
+      Lobbies.subscribe_lobby(lobby_id)
+      Chat.subscribe_lobby_chat(lobby_id)
+      assign(socket, :subscribed_lobby, true)
     end
   end
 
@@ -101,7 +120,7 @@ defmodule GameServerWeb.LobbyChannel do
 
   @impl true
   def handle_info({:after_join, lobby}, socket) do
-    payload = serialize_lobby(lobby)
+    payload = serialize_lobby(lobby) |> Map.put(:spectator, socket.assigns[:spectator] || false)
     push(socket, "updated", payload)
     {:noreply, assign(socket, :last_lobby_payload, payload)}
   end
@@ -133,6 +152,12 @@ defmodule GameServerWeb.LobbyChannel do
   @impl true
   def terminate(_reason, socket) do
     case socket.assigns do
+      %{lobby_id: lobby_id, spectator: true} when is_integer(lobby_id) ->
+        user_id = socket.assigns.current_scope.user.id
+        SpectatorTracker.untrack(lobby_id, user_id)
+        _ = Lobbies.unsubscribe_lobby(lobby_id)
+        :ok
+
       %{lobby_id: lobby_id} when is_integer(lobby_id) ->
         _ = Lobbies.unsubscribe_lobby(lobby_id)
         _ = Chat.unsubscribe_lobby_chat(lobby_id)

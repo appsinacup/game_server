@@ -764,6 +764,24 @@ defmodule GameServer.Lobbies do
 
 
   @doc ~S"""
+    Check if a lobby can be spectated (watched by non-members).
+    
+    A lobby is spectatable if it is not hidden and not locked.
+    
+  """
+  @spec spectatable?(GameServer.Lobbies.Lobby.t()) :: boolean()
+  def spectatable?(_lobby) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        false
+
+      _ ->
+        raise "GameServer.Lobbies.spectatable?/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Subscribe to global lobby events (lobby created, updated, deleted).
     
   """
