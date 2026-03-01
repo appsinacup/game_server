@@ -76,13 +76,7 @@ defmodule GameServerWeb.Endpoint do
 
   defp dispatch_router(conn, _opts) do
     router = Application.get_env(:game_server_web, :router, GameServerWeb.Router)
-
-    if Code.ensure_loaded?(router) and function_exported?(router, :call, 2) and
-         function_exported?(router, :init, 1) do
-      router.call(conn, router.init([]))
-    else
-      GameServerWeb.Router.call(conn, GameServerWeb.Router.init([]))
-    end
+    router.call(conn, router.init([]))
   end
 
   # Used by Plug.Telemetry (Phoenix.Logger) to decide access logging.

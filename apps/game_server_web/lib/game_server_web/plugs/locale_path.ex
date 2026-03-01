@@ -12,6 +12,12 @@ defmodule GameServerWeb.Plugs.LocalePath do
 
   def init(opts), do: opts
 
+  def call(%Plug.Conn{path_info: ["api" | _]} = conn, _opts) do
+    # API routes never use locale prefixes or sessions — skip entirely
+    Gettext.put_locale(GameServerWeb.Gettext, @default_locale)
+    Plug.Conn.assign(conn, :locale, @default_locale)
+  end
+
   def call(conn, _opts) do
     # Skip locale processing for WebSocket upgrades
     if websocket_request?(conn) do
