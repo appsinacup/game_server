@@ -300,6 +300,16 @@ Signature: quick_join(user, title \ nil, max_users \ nil, metadata \ %{})
 - On successful join or creation returns {:ok, lobby}
 - Propagates errors from join or create flows
 
+# `spectatable?`
+
+```elixir
+@spec spectatable?(GameServer.Lobbies.Lobby.t()) :: boolean()
+```
+
+Check if a lobby can be spectated (watched by non-members).
+
+A lobby is spectatable if it is not hidden and not locked.
+
 # `subscribe_lobbies`
 
 ```elixir

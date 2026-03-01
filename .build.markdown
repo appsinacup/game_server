@@ -32,6 +32,7 @@ GameServer.Leaderboards.Leaderboard.md
 GameServer.Leaderboards.Record.md
 GameServer.Leaderboards.md
 GameServer.Lobbies.Lobby.md
+GameServer.Lobbies.SpectatorTracker.md
 GameServer.Lobbies.md
 GameServer.Lock.md
 GameServer.Mailer.md

@@ -8,7 +8,7 @@
     <meta name="project" content="GameServer v1.0.634">
 
 
-    <title>GameServer.OAuthSessions — GameServer v1.0.634</title>
+    <title>GameServer.Lobbies.SpectatorTracker — GameServer v1.0.634</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
@@ -93,12 +93,12 @@ GameServer
 <div id="top-content">
   <div class="heading-with-actions top-heading">
     <h1>
-      <span translate="no">GameServer.<wbr>OAuthSessions</span> 
+      <span translate="no">GameServer.<wbr>Lobbies.<wbr>SpectatorTracker</span> 
       <small class="app-vsn" translate="no">(GameServer v1.0.634)</small>
 
     </h1>
 
-<a href="GameServer.OAuthSessions.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
+<a href="GameServer.Lobbies.SpectatorTracker.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
   <i class="ri-markdown-line" aria-hidden="true"></i>
   <span class="sr-only">Copy Markdown</span>
 </a>
@@ -109,7 +109,9 @@ GameServer
 
 
     <section id="moduledoc">
-<p>Helpers for creating and retrieving short-lived OAuth sessions.</p>
+<p>Lightweight ETS-based tracker for lobby spectators.</p><p>Spectators are users connected to a lobby channel who are not members.
+This module tracks them in-memory (no persistence) so we can show spectator
+counts in admin panels and API responses.</p>
     </section>
 
 </div>
@@ -128,7 +130,47 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#create_session/2" data-no-tooltip="" translate="no">create_session(session_id, attrs \\ %{})</a>
+        <a href="#child_spec/1" data-no-tooltip="" translate="no">child_spec(init_arg)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns a specification to start this module under a supervisor.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count/1" data-no-tooltip="" translate="no">count(lobby_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count spectators in a lobby.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#counts/1" data-no-tooltip="" translate="no">counts(lobby_ids)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count spectators for multiple lobbies at once. Returns <code class="inline">%{lobby_id =&gt; count}</code>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#list/1" data-no-tooltip="" translate="no">list(lobby_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>List spectator user IDs for a lobby.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#start_link/1" data-no-tooltip="" translate="no">start_link(opts)</a>
 
       </div>
 
@@ -136,17 +178,21 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#get_session/1" data-no-tooltip="" translate="no">get_session(session_id)</a>
+        <a href="#track/2" data-no-tooltip="" translate="no">track(lobby_id, user_id)</a>
 
       </div>
+
+        <div class="summary-synopsis"><p>Track a spectator joining a lobby.</p></div>
 
     </div>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#update_session/2" data-no-tooltip="" translate="no">update_session(session_id, attrs)</a>
+        <a href="#untrack/2" data-no-tooltip="" translate="no">untrack(lobby_id, user_id)</a>
 
       </div>
+
+        <div class="summary-synopsis"><p>Remove a spectator from a lobby.</p></div>
 
     </div>
 
@@ -164,16 +210,32 @@ GameServer
     </h2>
 
     <div class="functions-list">
-<section class="detail" id="create_session/2">
-
-    <span id="create_session/1"></span>
+<section class="detail" id="child_spec/1">
 
   <div class="detail-header">
-    <a href="#create_session/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#child_spec/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">create_session(session_id, attrs \\ %{})</h1>
+      <h1 class="signature" translate="no">child_spec(init_arg)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Returns a specification to start this module under a supervisor.</p><p>See <a href="https://hexdocs.pm/elixir/Supervisor.html"><code class="inline">Supervisor</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="count/1">
+
+  <div class="detail-header">
+    <a href="#count/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count(lobby_id)</h1>
 
 
     </div>
@@ -183,22 +245,87 @@ GameServer
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> create_session(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
-  {:ok, <a href="GameServer.OAuthSession.html#t:t/0">GameServer.OAuthSession.t</a>()} | {:error, <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()}</pre>
+          <pre translate="no"><span class="attribute">@spec</span> count(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
 
       </div>
+
+<p>Count spectators in a lobby.</p>
+  </section>
+</section>
+<section class="detail" id="counts/1">
+
+  <div class="detail-header">
+    <a href="#counts/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">counts(lobby_ids)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> counts([<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()]) :: %{required(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) =&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()}</pre>
+
+      </div>
+
+<p>Count spectators for multiple lobbies at once. Returns <code class="inline">%{lobby_id =&gt; count}</code>.</p>
+  </section>
+</section>
+<section class="detail" id="list/1">
+
+  <div class="detail-header">
+    <a href="#list/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">list(lobby_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> list(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: [<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()]</pre>
+
+      </div>
+
+<p>List spectator user IDs for a lobby.</p>
+  </section>
+</section>
+<section class="detail" id="start_link/1">
+
+  <div class="detail-header">
+    <a href="#start_link/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">start_link(opts)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
 
 
   </section>
 </section>
-<section class="detail" id="get_session/1">
+<section class="detail" id="track/2">
 
   <div class="detail-header">
-    <a href="#get_session/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#track/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">get_session(session_id)</h1>
+      <h1 class="signature" translate="no">track(lobby_id, user_id)</h1>
 
 
     </div>
@@ -208,21 +335,21 @@ GameServer
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> get_session(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="GameServer.OAuthSession.html#t:t/0">GameServer.OAuthSession.t</a>() | nil</pre>
+          <pre translate="no"><span class="attribute">@spec</span> track(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: true</pre>
 
       </div>
 
-
+<p>Track a spectator joining a lobby.</p>
   </section>
 </section>
-<section class="detail" id="update_session/2">
+<section class="detail" id="untrack/2">
 
   <div class="detail-header">
-    <a href="#update_session/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#untrack/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">update_session(session_id, attrs)</h1>
+      <h1 class="signature" translate="no">untrack(lobby_id, user_id)</h1>
 
 
     </div>
@@ -232,12 +359,11 @@ GameServer
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> update_session(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
-  {:ok, <a href="GameServer.OAuthSession.html#t:t/0">GameServer.OAuthSession.t</a>()} | {:error, <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.Changeset.html#t:t/0">Ecto.Changeset.t</a>()} | :not_found</pre>
+          <pre translate="no"><span class="attribute">@spec</span> untrack(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: true</pre>
 
       </div>
 
-
+<p>Remove a spectator from a lobby.</p>
   </section>
 </section>
 
