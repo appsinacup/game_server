@@ -24,6 +24,7 @@ defmodule GameServerWeb.PublicDocs do
         {GameServerWeb.PublicDocsTemplates.leaderboards(assigns)}
         {GameServerWeb.PublicDocsTemplates.theme(assigns)}
         {GameServerWeb.PublicDocsTemplates.architecture(assigns)}
+        {GameServerWeb.PublicDocsTemplates.custom_host(assigns)}
         {GameServerWeb.PublicDocsTemplates.authentication(assigns)}
         {GameServerWeb.PublicDocsTemplates.realtime(assigns)}
         {GameServerWeb.PublicDocsTemplates.data_schema(assigns)}
