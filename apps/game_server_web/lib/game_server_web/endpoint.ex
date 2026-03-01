@@ -68,7 +68,13 @@ defmodule GameServerWeb.Endpoint do
 
   plug Plug.MethodOverride
   plug Plug.Head
-  plug Plug.Session, @session_options
+
+  # Skip session for API requests — they use JWT auth, not cookies
+  @compiled_session_opts Plug.Session.init(@session_options)
+  plug :maybe_session
+
+  defp maybe_session(%{path_info: ["api" | _]} = conn, _opts), do: conn
+  defp maybe_session(conn, _opts), do: Plug.Session.call(conn, @compiled_session_opts)
 
   # Locale feature temporarily disabled — uncomment when re-enabling
   # plug GameServerWeb.Plugs.LocalePath
@@ -77,20 +83,43 @@ defmodule GameServerWeb.Endpoint do
 
   plug :dispatch_router
 
+  # Cache the router + compiled init opts in persistent_term to avoid
+  # calling router.init([]) on every single request.
+  @router_pt_key {__MODULE__, :dispatch_router}
   defp dispatch_router(conn, _opts) do
-    router = Application.get_env(:game_server_web, :router, GameServerWeb.Router)
-    router.call(conn, router.init([]))
+    {router, init_opts} =
+      case :persistent_term.get(@router_pt_key, nil) do
+        nil ->
+          router = Application.get_env(:game_server_web, :router, GameServerWeb.Router)
+          opts = router.init([])
+          :persistent_term.put(@router_pt_key, {router, opts})
+          {router, opts}
+
+        cached ->
+          cached
+      end
+
+    router.call(conn, init_opts)
   end
 
-  # Used by Plug.Telemetry (Phoenix.Logger) to decide access logging.
-  # We keep it global (no per-route logic). Set ACCESS_LOG_LEVEL=false to disable.
-  # By default, logs are at :debug so production can stay at Logger :info
-  # without emitting per-request logs.
+  # Cache the access log level in persistent_term to avoid
+  # Application.get_env on every request.
+  @access_log_pt_key {__MODULE__, :access_log_level}
   def access_log_level(_conn) do
-    case Application.get_env(:game_server_web, __MODULE__)[:access_log] do
-      level when level in [:debug, :info, :warning, :error] -> level
-      false -> false
-      _ -> :debug
+    case :persistent_term.get(@access_log_pt_key, :not_set) do
+      :not_set ->
+        level =
+          case Application.get_env(:game_server_web, __MODULE__)[:access_log] do
+            level when level in [:debug, :info, :warning, :error] -> level
+            false -> false
+            _ -> :debug
+          end
+
+        :persistent_term.put(@access_log_pt_key, level)
+        level
+
+      cached ->
+        cached
     end
   end
 end

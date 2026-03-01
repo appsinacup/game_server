@@ -6,8 +6,7 @@ defmodule GameServerWeb.OnMount.Locale do
   # @session_key_string "preferred_locale"
 
   def on_mount(:default, _params, _session, socket) do
-    # Locale feature temporarily disabled — always use English
-    Gettext.put_locale(GameServerWeb.Gettext, "en")
+    # Locale feature temporarily disabled — no-op pass-through
     {:cont, socket}
   end
 
