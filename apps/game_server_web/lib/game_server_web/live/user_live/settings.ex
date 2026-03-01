@@ -6,7 +6,6 @@ defmodule GameServerWeb.UserLive.Settings do
   alias GameServer.Groups
   alias GameServer.Groups.Group
   alias GameServer.KV
-  alias GameServer.Notifications
 
   @impl true
   def render(assigns) do
@@ -53,9 +52,8 @@ defmodule GameServerWeb.UserLive.Settings do
             {tab, label, icon} <- [
               {"account", dgettext("settings", "Account"), "hero-user-circle"},
               {"friends", dgettext("settings", "Friends"), "hero-user-group"},
-              {"data", dgettext("settings", "Data"), "hero-circle-stack"},
-              {"notifications", dgettext("settings", "Notifications"), "hero-bell"},
-              {"groups", dgettext("groups", "Groups"), "hero-users"}
+              {"groups", dgettext("groups", "Groups"), "hero-users"},
+              {"data", dgettext("settings", "Data"), "hero-circle-stack"}
             ]
           }
           phx-click="settings_tab"
@@ -479,13 +477,15 @@ defmodule GameServerWeb.UserLive.Settings do
                     {u.display_name || u.email}
                     <span class="text-xs text-base-content/60">(id: {u.id})</span>
                   </div>
-                  <button
-                    phx-click="remove_friend"
-                    phx-value-friend_id={u.id}
-                    class="btn btn-sm btn-error btn-outline"
-                  >
-                    {gettext("Remove")}
-                  </button>
+                  <div class="flex gap-1">
+                    <button
+                      phx-click="remove_friend"
+                      phx-value-friend_id={u.id}
+                      class="btn btn-sm btn-error btn-outline"
+                    >
+                      {gettext("Remove")}
+                    </button>
+                  </div>
                 </div>
               </div>
               <div :if={@friends_total_pages > 1} class="mt-2 flex gap-2 items-center">
@@ -689,87 +689,6 @@ defmodule GameServerWeb.UserLive.Settings do
               {gettext("Next")}
             </button>
           </div>
-        </div>
-      </div>
-
-      <%!-- Notifications tab --%>
-      <div :if={@settings_tab == "notifications"}>
-        <%!-- Notifications section --%>
-        <div class="card bg-base-200 p-4 rounded-lg mt-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="font-semibold text-lg">{dgettext("settings", "Notifications")}</div>
-              <div class="text-sm text-base-content/70">
-                {dgettext("settings", "Your notifications (%{count})", count: @notif_count)}
-              </div>
-            </div>
-            <div class="flex gap-2">
-              <%= if @notif_count > 0 do %>
-                <button
-                  type="button"
-                  phx-click="delete_all_notifications"
-                  data-confirm={dgettext("settings", "Delete all notifications?")}
-                  class="btn btn-sm btn-outline btn-error"
-                >
-                  {dgettext("settings", "Delete All")}
-                </button>
-              <% end %>
-            </div>
-          </div>
-
-          <%= if @notif_count == 0 do %>
-            <div class="mt-4 text-sm text-base-content/60">{gettext("None yet.")}</div>
-          <% else %>
-            <div class="overflow-x-auto mt-4">
-              <table id="user-notifications-table" class="table table-zebra w-full">
-                <thead>
-                  <tr>
-                    <th>{gettext("Title")}</th>
-                    <th>{gettext("Content")}</th>
-                    <th>{gettext("From")}</th>
-                    <th>{gettext("Date")}</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr :for={n <- @notifications} id={"notif-" <> to_string(n.id)}>
-                    <td class="text-sm font-semibold">{n.title}</td>
-                    <td class="text-sm max-w-xs truncate">{n.content || "-"}</td>
-                    <td class="text-sm font-mono">{n.sender_id}</td>
-                    <td class="text-sm whitespace-nowrap">
-                      {Calendar.strftime(n.inserted_at, "%Y-%m-%d %H:%M")}
-                    </td>
-                    <td>
-                      <button
-                        type="button"
-                        phx-click="delete_notification"
-                        phx-value-id={n.id}
-                        class="btn btn-xs btn-outline btn-error"
-                      >
-                        {gettext("Delete")}
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div :if={@notif_total_pages > 1} class="mt-4 flex gap-2 items-center">
-              <button phx-click="notif_prev" class="btn btn-xs" disabled={@notif_page <= 1}>
-                {gettext("Prev")}
-              </button>
-              <div class="text-xs text-base-content/70">
-                page {@notif_page} / {@notif_total_pages} ({@notif_count} total)
-              </div>
-              <button
-                phx-click="notif_next"
-                class="btn btn-xs"
-                disabled={@notif_page >= @notif_total_pages || @notif_total_pages == 0}
-              >
-                {gettext("Next")}
-              </button>
-            </div>
-          <% end %>
         </div>
       </div>
 
@@ -1107,39 +1026,6 @@ defmodule GameServerWeb.UserLive.Settings do
                 </div>
               </div>
 
-              <%!-- Send Notification to Group (any member) --%>
-              <div class="mt-6">
-                <h4 class="font-semibold text-base mb-3">
-                  {dgettext("settings", "Send Notification")}
-                </h4>
-                <.form
-                  for={@group_notify_form}
-                  id="group-notify-form"
-                  phx-submit="group_notify"
-                  class="flex flex-col gap-2"
-                >
-                  <div class="flex gap-2 items-end">
-                    <div class="w-1/3">
-                      <.input
-                        field={@group_notify_form[:title]}
-                        type="text"
-                        placeholder={dgettext("settings", "Title (optional)")}
-                      />
-                    </div>
-                    <div class="flex-1">
-                      <.input
-                        field={@group_notify_form[:content]}
-                        type="text"
-                        placeholder={dgettext("settings", "Type a message to all members...")}
-                      />
-                    </div>
-                    <button type="submit" class="btn btn-sm btn-primary">
-                      <.icon name="hero-megaphone-mini" class="w-4 h-4 mr-1" /> {gettext("Send")}
-                    </button>
-                  </div>
-                </.form>
-              </div>
-
               <%!-- Invite Members (admin only) --%>
               <div :if={@group_detail_role == "admin"} class="mt-6">
                 <h4 class="font-semibold text-base mb-3">{dgettext("settings", "Invite Members")}</h4>
@@ -1245,30 +1131,32 @@ defmodule GameServerWeb.UserLive.Settings do
           <%!-- Tabs (hidden when viewing detail) --%>
           <%= if !@group_detail && !@groups_show_create do %>
             <%!-- Sub-tabs --%>
-            <div class="flex gap-2 mt-4 border-b border-base-300 pb-2">
-              <button
-                :for={
-                  {tab, label} <- [
-                    {"my_groups", dgettext("settings", "My Groups") <> " (#{@groups_count})"},
-                    {"browse", dgettext("settings", "Browse Groups")},
-                    {"invitations",
-                     dgettext("settings", "Invitations") <> " (#{length(@group_invitations)})"},
-                    {"requests",
-                     dgettext("settings", "My Requests") <> " (#{length(@group_pending_requests)})"},
-                    {"sent_invitations",
-                     dgettext("settings", "Sent Invitations") <>
-                       " (#{length(@group_sent_invitations)})"}
-                  ]
-                }
-                phx-click="groups_tab"
-                phx-value-tab={tab}
-                class={[
-                  "btn btn-sm",
-                  if(@groups_tab == tab, do: "btn-primary", else: "btn-ghost")
-                ]}
-              >
-                {label}
-              </button>
+            <div class="mt-4 border-b border-base-300 pb-2 overflow-x-auto">
+              <div class="flex gap-2 min-w-max">
+                <button
+                  :for={
+                    {tab, label} <- [
+                      {"my_groups", dgettext("settings", "My Groups") <> " (#{@groups_count})"},
+                      {"browse", dgettext("settings", "Browse Groups")},
+                      {"invitations",
+                       dgettext("settings", "Invitations") <> " (#{length(@group_invitations)})"},
+                      {"requests",
+                       dgettext("settings", "My Requests") <> " (#{length(@group_pending_requests)})"},
+                      {"sent_invitations",
+                       dgettext("settings", "Sent Invitations") <>
+                         " (#{length(@group_sent_invitations)})"}
+                    ]
+                  }
+                  phx-click="groups_tab"
+                  phx-value-tab={tab}
+                  class={[
+                    "btn btn-sm flex-none",
+                    if(@groups_tab == tab, do: "btn-primary", else: "btn-ghost")
+                  ]}
+                >
+                  {label}
+                </button>
+              </div>
             </div>
 
             <%!-- My Groups tab --%>
@@ -1298,7 +1186,7 @@ defmodule GameServerWeb.UserLive.Settings do
                           <button
                             phx-click="group_view_detail"
                             phx-value-group_id={group.id}
-                            class="link link-primary font-medium"
+                            class="link link-primary font-medium inline-flex items-center gap-1"
                           >
                             {group.title}
                           </button>
@@ -1702,11 +1590,6 @@ defmodule GameServerWeb.UserLive.Settings do
       |> assign(:kv_entries, [])
       |> assign(:kv_count, 0)
       |> assign(:kv_total_pages, 0)
-      |> assign(:notif_page, 1)
-      |> assign(:notif_page_size, 25)
-      |> assign(:notifications, [])
-      |> assign(:notif_count, 0)
-      |> assign(:notif_total_pages, 0)
       |> assign(:groups_tab, "my_groups")
       |> assign(:my_groups, [])
       |> assign(:groups_count, 0)
@@ -1741,12 +1624,10 @@ defmodule GameServerWeb.UserLive.Settings do
       |> assign(:group_notify_form, to_form(%{"content" => "", "title" => ""}, as: :notify))
 
     socket = reload_kv_entries(socket)
-    socket = reload_notifications(socket)
     socket = reload_groups(socket)
 
     if connected?(socket) do
       Friends.subscribe_user(user.id)
-      Notifications.subscribe(user.id)
       Groups.subscribe_groups()
       Phoenix.PubSub.subscribe(GameServer.PubSub, "user:#{user.id}")
     end
@@ -1761,8 +1642,8 @@ defmodule GameServerWeb.UserLive.Settings do
 
     case {event, params} do
       {"settings_tab", %{"tab" => tab}}
-      when tab in ~w(account friends data notifications groups) ->
-        {:noreply, assign(socket, :settings_tab, tab)}
+      when tab in ~w(account friends data groups) ->
+        {:noreply, push_patch(socket, to: ~p"/users/settings?tab=#{tab}")}
 
       {"validate_email", %{"user" => user_params}} ->
         email_form =
@@ -1909,36 +1790,6 @@ defmodule GameServerWeb.UserLive.Settings do
          |> assign(:kv_filter_form, to_form(%{"key" => ""}, as: :filters))
          |> assign(:kv_page, 1)
          |> reload_kv_entries()}
-
-      {"notif_prev", _} ->
-        page = max(1, socket.assigns.notif_page - 1)
-        {:noreply, socket |> assign(:notif_page, page) |> reload_notifications()}
-
-      {"notif_next", _} ->
-        page = socket.assigns.notif_page + 1
-        {:noreply, socket |> assign(:notif_page, page) |> reload_notifications()}
-
-      {"delete_notification", %{"id" => id}} ->
-        notif_id = if is_binary(id), do: String.to_integer(id), else: id
-        Notifications.delete_notifications(user.id, [notif_id])
-
-        {:noreply,
-         socket
-         |> put_flash(:info, dgettext("settings", "Notification deleted"))
-         |> reload_notifications()}
-
-      {"delete_all_notifications", _} ->
-        all_ids =
-          Notifications.list_notifications(user.id, page: 1, page_size: 10_000)
-          |> Enum.map(& &1.id)
-
-        Notifications.delete_notifications(user.id, all_ids)
-
-        {:noreply,
-         socket
-         |> put_flash(:info, dgettext("settings", "All notifications deleted"))
-         |> assign(:notif_page, 1)
-         |> reload_notifications()}
 
       {"accept_friend", %{"id" => id}} ->
         id = if is_binary(id), do: String.to_integer(id), else: id
@@ -2753,7 +2604,8 @@ defmodule GameServerWeb.UserLive.Settings do
       incoming_total_pages: incoming_total_pages,
       outgoing_total_pages: outgoing_total_pages,
       friends_total_pages: friends_total_pages,
-      blocked_total_pages: blocked_total_pages
+      blocked_total_pages: blocked_total_pages,
+      friend_unread_counts: %{}
     )
   end
 
@@ -2801,26 +2653,6 @@ defmodule GameServerWeb.UserLive.Settings do
   defp get_user_from_scope(%{current_scope: %{user: user}}), do: user
   defp get_user_from_scope(_), do: nil
 
-  defp reload_notifications(socket) do
-    user = get_user_from_scope(socket.assigns)
-
-    if user do
-      page = socket.assigns.notif_page
-      page_size = socket.assigns.notif_page_size
-
-      notifications = Notifications.list_notifications(user.id, page: page, page_size: page_size)
-      count = Notifications.count_notifications(user.id)
-      total_pages = if page_size > 0, do: div(count + page_size - 1, page_size), else: 0
-
-      socket
-      |> assign(:notifications, notifications)
-      |> assign(:notif_count, count)
-      |> assign(:notif_total_pages, total_pages)
-    else
-      socket
-    end
-  end
-
   # PubSub handlers
   @impl true
   def handle_info({:incoming_request, _f}, socket) do
@@ -2866,11 +2698,6 @@ defmodule GameServerWeb.UserLive.Settings do
   # Ignore other broadcasts on the user topic (e.g. "updated" events from channel)
   def handle_info(%Phoenix.Socket.Broadcast{}, socket), do: {:noreply, socket}
 
-  # Notification PubSub — refresh notification list when a new one arrives
-  def handle_info({:new_notification, _notification}, socket) do
-    {:noreply, reload_notifications(socket) |> reload_groups()}
-  end
-
   # Groups PubSub — refresh groups when something changes
   def handle_info({event, _payload}, socket)
       when event in [
@@ -2907,7 +2734,19 @@ defmodule GameServerWeb.UserLive.Settings do
 
     conflict_provider = Map.get(params, "conflict_provider")
 
-    {:noreply, assign(socket, conflict_user: conflict_user, conflict_provider: conflict_provider)}
+    valid_tabs = ~w(account friends data groups)
+
+    tab =
+      if Map.get(params, "tab") in valid_tabs,
+        do: params["tab"],
+        else: socket.assigns[:settings_tab] || "account"
+
+    {:noreply,
+     assign(socket,
+       conflict_user: conflict_user,
+       conflict_provider: conflict_provider,
+       settings_tab: tab
+     )}
   end
 
   defp handle_delete_conflicting_account(socket, current, other_user) do
@@ -2986,6 +2825,7 @@ defmodule GameServerWeb.UserLive.Settings do
       |> assign(:group_invitations, invitations)
       |> assign(:group_pending_requests, pending_requests)
       |> assign(:group_sent_invitations, sent_invitations)
+      |> assign(:group_unread_counts, %{})
       |> reload_browse_groups()
     else
       socket

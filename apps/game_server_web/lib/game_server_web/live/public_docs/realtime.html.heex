@@ -100,7 +100,19 @@
   GroupsChannel     "groups"            group_created, group_updated,
                                         group_deleted
   PartyChannel      "party:{id}"        member_joined, member_left,
-                                        updated, disbanded</pre>
+                                        updated, disbanded
+
+  Chat-specific topics (broadcast via existing channels):
+  ─────────────────────────────────────────────────────────
+  LobbyChannel      "chat:lobby:{id}"   new_chat_message,
+                                        chat_message_updated,
+                                        chat_message_deleted
+  GroupChannel      "chat:group:{id}"   new_chat_message,
+                                        chat_message_updated,
+                                        chat_message_deleted
+  UserChannel       "chat:friend:{lo}:{hi}"  new_chat_message,
+                    + "user:{recipient_id}"   chat_message_updated,
+                                              chat_message_deleted</pre>
       </div>
 
       <h3 class="font-semibold mt-3">{doc_text("How it works")}</h3>
@@ -138,7 +150,47 @@
           )}
         </li>
         <li>{doc_text("WebSocket connections are authenticated via JWT token on join")}</li>
+        <li>
+          {doc_text(
+            "Friend DMs are broadcast to both the sorted-pair topic and each user's personal topic, so the recipient receives the message even without subscribing to the friend chat topic directly."
+          )}
+        </li>
+        <li>
+          {doc_text(
+            "Clients that cache messages locally can update in-place: on \"chat_message_updated\", match by message ID and replace content/metadata. On \"chat_message_deleted\", remove the message by ID."
+          )}
+        </li>
       </ul>
+
+      <h3 class="font-semibold mt-3">{doc_text("Chat Notifications")}</h3>
+      <p class="text-sm text-base-content/80">
+        {doc_text(
+          "When a new chat message is sent, a notification is automatically created for recipients:"
+        )}
+      </p>
+      <ul class="list-disc pl-6 text-sm space-y-1 text-base-content/80">
+        <li>
+          <strong>{doc_text("Friend DM:")}</strong>
+          {doc_text("One consolidated notification per user: \"New messages from friends\"")}
+        </li>
+        <li>
+          <strong>{doc_text("Group message:")}</strong>
+          {doc_text(
+            "One notification per group: \"New messages from {group_name}\". Sent to all group members except sender."
+          )}
+        </li>
+        <li>
+          <strong>{doc_text("Lobby message:")}</strong>
+          {doc_text(
+            "One notification per lobby: \"New messages from {lobby_name}\". Sent to all lobby members except sender."
+          )}
+        </li>
+      </ul>
+      <p class="text-sm text-base-content/80">
+        {doc_text(
+          "Notifications use upsert semantics — multiple messages update the existing notification with the latest content rather than creating duplicates."
+        )}
+      </p>
     </div>
   </div>
 </div>

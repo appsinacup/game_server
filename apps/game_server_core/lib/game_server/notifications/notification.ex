@@ -24,6 +24,7 @@ defmodule GameServer.Notifications.Notification do
              :title,
              :content,
              :metadata,
+             :read,
              :inserted_at
            ]}
 
@@ -34,6 +35,7 @@ defmodule GameServer.Notifications.Notification do
     field :title, :string
     field :content, :string
     field :metadata, :map, default: %{}
+    field :read, :boolean, default: false
 
     timestamps(type: :utc_datetime)
   end
@@ -46,6 +48,7 @@ defmodule GameServer.Notifications.Notification do
           title: String.t() | nil,
           content: String.t() | nil,
           metadata: map(),
+          read: boolean(),
           inserted_at: DateTime.t() | nil
         }
 

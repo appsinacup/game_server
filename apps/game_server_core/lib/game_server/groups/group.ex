@@ -42,6 +42,7 @@ defmodule GameServer.Groups.Group do
     field :type, :string, default: "public"
     field :max_members, :integer, default: 100
     field :metadata, :map, default: %{}
+    field :slowdown, :integer, default: 0
 
     belongs_to :creator, User
     has_many :members, GroupMember
@@ -50,7 +51,7 @@ defmodule GameServer.Groups.Group do
   end
 
   @required_fields ~w(title)a
-  @optional_fields ~w(description type max_members metadata)a
+  @optional_fields ~w(description type max_members metadata slowdown)a
 
   def changeset(group, attrs) do
     group
@@ -60,6 +61,7 @@ defmodule GameServer.Groups.Group do
     |> validate_length(:description, max: 500)
     |> validate_inclusion(:type, ["public", "private", "hidden"])
     |> validate_number(:max_members, greater_than: 0, less_than_or_equal_to: 10_000)
+    |> validate_number(:slowdown, greater_than_or_equal_to: 0, less_than_or_equal_to: 3600)
     |> unique_constraint(:title)
   end
 end

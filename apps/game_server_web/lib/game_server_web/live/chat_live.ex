@@ -1,0 +1,546 @@
+defmodule GameServerWeb.ChatLive do
+  use GameServerWeb, :live_view
+
+  alias GameServer.Accounts
+  alias GameServer.Chat
+  alias GameServer.Friends
+  alias GameServer.Groups
+
+  @page_size 25
+
+  @impl true
+  def mount(_params, _session, socket) do
+    user = socket.assigns.current_scope.user
+
+    friends = Friends.list_friends_for_user(user.id)
+    my_groups = Groups.list_user_groups_with_role(user.id)
+
+    {:ok,
+     socket
+     |> assign(:user, user)
+     |> assign(:friends, friends)
+     |> assign(:my_groups, my_groups)
+     # active conversation
+     |> assign(:chat_type, nil)
+     |> assign(:chat_target, nil)
+     |> assign(:chat_target_name, nil)
+     # messages
+     |> assign(:messages, [])
+     |> assign(:page, 1)
+     |> assign(:page_size, @page_size)
+     |> assign(:has_more, false)
+     # editing
+     |> assign(:editing_message_id, nil)
+     |> assign(:editing_message_content, "")}
+  end
+
+  @impl true
+  def render(assigns) do
+    ~H"""
+    <Layouts.app flash={@flash} current_scope={@current_scope} current_path={assigns[:current_path]}>
+      <div class="flex gap-4 h-[calc(100vh-10rem)]">
+        <%!-- Sidebar: contacts list --%>
+        <div class={[
+          "w-full md:w-64 flex-shrink-0 overflow-y-auto md:border-r border-base-300 md:pr-4",
+          if(@chat_type, do: "hidden md:block", else: "block")
+        ]}>
+          <h3 class="font-semibold text-sm text-base-content/60 uppercase tracking-wide mb-2">
+            {gettext("Friends")}
+          </h3>
+          <%= if @friends == [] do %>
+            <p class="text-sm text-base-content/40 pl-2">{gettext("No friends yet")}</p>
+          <% end %>
+          <ul class="space-y-1">
+            <li :for={f <- @friends}>
+              <button
+                phx-click="open_friend"
+                phx-value-id={f.id}
+                class={[
+                  "btn btn-sm w-full justify-start gap-2 text-left",
+                  if(@chat_type == "friend" && @chat_target == f.id,
+                    do: "btn-primary",
+                    else: "btn-ghost"
+                  )
+                ]}
+              >
+                <.icon name="hero-user" class="w-4 h-4 flex-shrink-0" />
+                <span class="truncate">{f.display_name || f.email}</span>
+              </button>
+            </li>
+          </ul>
+
+          <div class="divider my-2"></div>
+
+          <h3 class="font-semibold text-sm text-base-content/60 uppercase tracking-wide mb-2">
+            {gettext("Groups")}
+          </h3>
+          <%= if @my_groups == [] do %>
+            <p class="text-sm text-base-content/40 pl-2">{gettext("No groups yet")}</p>
+          <% end %>
+          <ul class="space-y-1">
+            <li :for={{group, _role} <- @my_groups}>
+              <button
+                phx-click="open_group"
+                phx-value-id={group.id}
+                class={[
+                  "btn btn-sm w-full justify-start gap-2 text-left",
+                  if(@chat_type == "group" && @chat_target == group.id,
+                    do: "btn-primary",
+                    else: "btn-ghost"
+                  )
+                ]}
+              >
+                <.icon name="hero-user-group" class="w-4 h-4 flex-shrink-0" />
+                <span class="truncate">{group.title || group.name}</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <%!-- Main conversation area --%>
+        <div class={[
+          "flex-1 flex flex-col min-w-0",
+          if(@chat_type, do: "flex", else: "hidden md:flex")
+        ]}>
+          <%= if @chat_type do %>
+            <%!-- Header --%>
+            <div class="flex items-center gap-2 pb-3 border-b border-base-300 mb-3">
+              <button phx-click="close_chat" class="btn btn-xs btn-ghost md:hidden">
+                <.icon name="hero-arrow-left" class="w-4 h-4" />
+              </button>
+              <.icon
+                name={if(@chat_type == "friend", do: "hero-user", else: "hero-user-group")}
+                class="w-5 h-5"
+              />
+              <h2 class="font-semibold text-lg truncate">{@chat_target_name}</h2>
+            </div>
+
+            <%!-- Messages --%>
+            <div
+              id="chat-messages"
+              phx-hook="ScrollToBottom"
+              class="flex-1 overflow-y-auto space-y-2 pr-2"
+            >
+              <div :if={@has_more} class="text-center py-2">
+                <button phx-click="load_more" class="btn btn-xs btn-ghost">
+                  {gettext("Load older messages")}
+                </button>
+              </div>
+
+              <%= if @messages == [] do %>
+                <div class="text-sm text-base-content/50 text-center py-8">
+                  {gettext("No messages yet. Say hello!")}
+                </div>
+              <% end %>
+
+              <div
+                :for={msg <- @messages}
+                id={"msg-" <> to_string(msg.id)}
+                class={[
+                  "flex flex-col gap-0.5",
+                  if(msg.sender_id == @user.id, do: "items-end", else: "items-start")
+                ]}
+              >
+                <div class="text-xs text-base-content/50">
+                  <%= if msg.sender_id == @user.id do %>
+                    {gettext("You")}
+                  <% else %>
+                    {sender_name(msg)}
+                  <% end %>
+                  <span class="ml-1">{Calendar.strftime(msg.inserted_at, "%H:%M")}</span>
+                  <%= if msg.updated_at && msg.updated_at != msg.inserted_at do %>
+                    <span class="ml-1 italic">{gettext("(edited)")}</span>
+                  <% end %>
+                </div>
+
+                <%= if @editing_message_id == msg.id do %>
+                  <form
+                    phx-submit="chat_edit_save"
+                    id={"edit-" <> to_string(msg.id)}
+                    class="flex gap-1 w-full max-w-[80%]"
+                  >
+                    <input type="hidden" name="message_id" value={msg.id} />
+                    <input
+                      type="text"
+                      name="content"
+                      value={@editing_message_content}
+                      class="input input-bordered input-xs flex-1"
+                      autocomplete="off"
+                      phx-mounted={JS.dispatch("focus")}
+                    />
+                    <button type="submit" class="btn btn-xs btn-primary">
+                      <.icon name="hero-check" class="w-3 h-3" />
+                    </button>
+                    <button type="button" phx-click="chat_edit_cancel" class="btn btn-xs btn-ghost">
+                      <.icon name="hero-x-mark" class="w-3 h-3" />
+                    </button>
+                  </form>
+                <% else %>
+                  <div class={[
+                    "group flex items-end gap-1 w-full",
+                    if(msg.sender_id == @user.id, do: "justify-end", else: "justify-start")
+                  ]}>
+                    <div
+                      :if={msg.sender_id == @user.id}
+                      class="flex-shrink-0 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <button
+                        phx-click="chat_edit_start"
+                        phx-value-id={msg.id}
+                        phx-value-content={msg.content}
+                        class="btn btn-xs btn-ghost px-1"
+                        title={gettext("Edit")}
+                      >
+                        <.icon name="hero-pencil-square-mini" class="w-3 h-3" />
+                      </button>
+                      <button
+                        phx-click="chat_delete"
+                        phx-value-id={msg.id}
+                        data-confirm={gettext("Delete this message?")}
+                        class="btn btn-xs btn-ghost px-1 text-error"
+                        title={gettext("Delete")}
+                      >
+                        <.icon name="hero-trash-mini" class="w-3 h-3" />
+                      </button>
+                    </div>
+                    <div class={[
+                      "px-3 py-1.5 rounded-lg text-sm max-w-[80%] break-words",
+                      if(msg.sender_id == @user.id,
+                        do: "bg-primary text-primary-content",
+                        else: "bg-base-200"
+                      )
+                    ]}>
+                      {msg.content}
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+
+            <%!-- Send form --%>
+            <form
+              phx-submit="send_message"
+              id="chat-send-form"
+              class="flex gap-2 mt-3 pt-3 border-t border-base-300"
+            >
+              <input
+                type="text"
+                name="content"
+                value=""
+                placeholder={gettext("Type a message...")}
+                class="input input-bordered input-sm flex-1"
+                autocomplete="off"
+              />
+              <button type="submit" class="btn btn-sm btn-primary">
+                <.icon name="hero-paper-airplane-mini" class="w-4 h-4" />
+              </button>
+            </form>
+          <% else %>
+            <div class="flex-1 flex items-center justify-center text-base-content/40">
+              <div class="text-center">
+                <.icon name="hero-chat-bubble-left-right" class="w-12 h-12 mx-auto mb-3" />
+                <p class="text-lg">{gettext("Select a conversation")}</p>
+                <p class="text-sm mt-1">{gettext("Choose a friend or group from the sidebar")}</p>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </Layouts.app>
+    """
+  end
+
+  # ---------------------------------------------------------------------------
+  # Events
+  # ---------------------------------------------------------------------------
+
+  @impl true
+  def handle_event("open_friend", %{"id" => id}, socket) do
+    fid = parse_id(id)
+    target = Accounts.get_user(fid)
+
+    if target do
+      user = socket.assigns.user
+      unsubscribe_current(socket)
+
+      Chat.subscribe_friend_chat(user.id, fid)
+      mark_friend_chat_read(user.id, fid)
+
+      {:noreply,
+       socket
+       |> assign(:chat_type, "friend")
+       |> assign(:chat_target, fid)
+       |> assign(:chat_target_name, target.display_name || target.email)
+       |> assign(:page, 1)
+       |> assign(:editing_message_id, nil)
+       |> assign(:editing_message_content, "")
+       |> reload_messages()}
+    else
+      {:noreply, put_flash(socket, :error, gettext("User not found"))}
+    end
+  end
+
+  @impl true
+  def handle_event("open_group", %{"id" => id}, socket) do
+    gid = parse_id(id)
+    group = Groups.get_group(gid)
+
+    if group do
+      user = socket.assigns.user
+      unsubscribe_current(socket)
+
+      Chat.subscribe_group_chat(gid)
+      mark_group_chat_read(user.id, gid)
+
+      {:noreply,
+       socket
+       |> assign(:chat_type, "group")
+       |> assign(:chat_target, gid)
+       |> assign(:chat_target_name, group.title || group.name)
+       |> assign(:page, 1)
+       |> assign(:editing_message_id, nil)
+       |> assign(:editing_message_content, "")
+       |> reload_messages()}
+    else
+      {:noreply, put_flash(socket, :error, gettext("Group not found"))}
+    end
+  end
+
+  @impl true
+  def handle_event("send_message", %{"content" => content}, socket) do
+    content = String.trim(content)
+    user = socket.assigns.user
+    chat_type = socket.assigns.chat_type
+    chat_target = socket.assigns.chat_target
+
+    if chat_type && content != "" do
+      attrs = %{
+        "chat_type" => chat_type,
+        "chat_ref_id" => chat_target,
+        "content" => content
+      }
+
+      case Chat.send_message(%{user: user}, attrs) do
+        {:ok, _msg} ->
+          {:noreply, reload_messages(socket)}
+
+        {:error, :slowdown} ->
+          {:noreply, put_flash(socket, :error, gettext("You are sending messages too quickly"))}
+
+        {:error, reason} ->
+          {:noreply,
+           put_flash(
+             socket,
+             :error,
+             gettext("Could not send: %{reason}", reason: inspect(reason))
+           )}
+      end
+    else
+      {:noreply, socket}
+    end
+  end
+
+  @impl true
+  def handle_event("close_chat", _params, socket) do
+    socket =
+      socket
+      |> unsubscribe_current()
+      |> assign(:chat_type, nil)
+      |> assign(:chat_target, nil)
+      |> assign(:chat_target_name, nil)
+      |> assign(:messages, [])
+      |> assign(:page, 1)
+      |> assign(:has_more, false)
+      |> assign(:editing_message_id, nil)
+      |> assign(:editing_message_content, "")
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("load_more", _params, socket) do
+    page = socket.assigns.page + 1
+    {:noreply, socket |> assign(:page, page) |> reload_messages()}
+  end
+
+  @impl true
+  def handle_event("chat_edit_start", %{"id" => id, "content" => content}, socket) do
+    {:noreply,
+     socket
+     |> assign(:editing_message_id, parse_id(id))
+     |> assign(:editing_message_content, content)}
+  end
+
+  @impl true
+  def handle_event("chat_edit_cancel", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:editing_message_id, nil)
+     |> assign(:editing_message_content, "")}
+  end
+
+  @impl true
+  def handle_event("chat_edit_save", %{"message_id" => id, "content" => content}, socket) do
+    content = String.trim(content)
+
+    if content != "" do
+      case Chat.update_message(socket.assigns.user.id, parse_id(id), %{"content" => content}) do
+        {:ok, _msg} ->
+          {:noreply,
+           socket
+           |> assign(:editing_message_id, nil)
+           |> assign(:editing_message_content, "")
+           |> reload_messages()}
+
+        {:error, reason} ->
+          {:noreply,
+           put_flash(
+             socket,
+             :error,
+             gettext("Could not update: %{reason}", reason: inspect(reason))
+           )}
+      end
+    else
+      {:noreply, put_flash(socket, :error, gettext("Message cannot be empty"))}
+    end
+  end
+
+  @impl true
+  def handle_event("chat_delete", %{"id" => id}, socket) do
+    case Chat.delete_own_message(socket.assigns.user.id, parse_id(id)) do
+      {:ok, _msg} ->
+        {:noreply,
+         socket
+         |> assign(:editing_message_id, nil)
+         |> assign(:editing_message_content, "")
+         |> reload_messages()}
+
+      {:error, reason} ->
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           gettext("Could not delete: %{reason}", reason: inspect(reason))
+         )}
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # PubSub handlers
+  # ---------------------------------------------------------------------------
+
+  @impl true
+  def handle_info({:new_chat_message, msg}, socket) do
+    if matches_current_chat?(socket, msg) do
+      {:noreply, reload_messages(socket)}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  @impl true
+  def handle_info({event, msg}, socket)
+      when event in [:chat_message_updated, :chat_message_deleted] do
+    if matches_current_chat?(socket, msg) do
+      {:noreply, reload_messages(socket)}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  @impl true
+  def handle_info(_msg, socket), do: {:noreply, socket}
+
+  # ---------------------------------------------------------------------------
+  # Private helpers
+  # ---------------------------------------------------------------------------
+
+  defp reload_messages(socket) do
+    chat_type = socket.assigns.chat_type
+    chat_target = socket.assigns.chat_target
+    user = socket.assigns.user
+
+    if chat_type && chat_target do
+      page_size = socket.assigns.page_size
+      page = socket.assigns.page
+      total = page * page_size
+
+      messages =
+        case chat_type do
+          "friend" ->
+            Chat.list_friend_messages(user.id, chat_target, page: 1, page_size: total)
+
+          "group" ->
+            Chat.list_messages("group", chat_target, page: 1, page_size: total)
+        end
+        |> Enum.reverse()
+
+      has_more = length(messages) >= total
+
+      socket
+      |> assign(:messages, messages)
+      |> assign(:has_more, has_more)
+    else
+      socket
+    end
+  end
+
+  defp unsubscribe_current(socket) do
+    user = socket.assigns.user
+
+    _ =
+      case {socket.assigns.chat_type, socket.assigns.chat_target} do
+        {"friend", target_id} when is_integer(target_id) ->
+          Chat.unsubscribe_friend_chat(user.id, target_id)
+
+        {"group", group_id} when is_integer(group_id) ->
+          Chat.unsubscribe_group_chat(group_id)
+
+        _ ->
+          :ok
+      end
+
+    socket
+  end
+
+  defp matches_current_chat?(socket, msg) do
+    chat_type = socket.assigns.chat_type
+    chat_target = socket.assigns.chat_target
+
+    cond do
+      chat_type == "group" && msg.chat_type == "group" && msg.chat_ref_id == chat_target ->
+        true
+
+      chat_type == "friend" && msg.chat_type == "friend" ->
+        true
+
+      true ->
+        false
+    end
+  end
+
+  defp mark_friend_chat_read(user_id, friend_id) do
+    case Chat.list_friend_messages(user_id, friend_id, page: 1, page_size: 1) do
+      [latest | _] -> Chat.mark_read(user_id, "friend", friend_id, latest.id)
+      _ -> :ok
+    end
+  end
+
+  defp mark_group_chat_read(user_id, group_id) do
+    case Chat.list_messages("group", group_id, page: 1, page_size: 1) do
+      [latest | _] -> Chat.mark_read(user_id, "group", group_id, latest.id)
+      _ -> :ok
+    end
+  end
+
+  defp sender_name(msg) do
+    if Ecto.assoc_loaded?(msg.sender) && msg.sender do
+      msg.sender.display_name || msg.sender.email
+    else
+      "User #{msg.sender_id}"
+    end
+  end
+
+  defp parse_id(id) when is_binary(id), do: String.to_integer(id)
+  defp parse_id(id) when is_integer(id), do: id
+end

@@ -23,7 +23,8 @@ defmodule GameServerWeb.Api.V1.ChatController do
         type: :integer,
         description: "Reference ID (lobby_id, group_id, or friend user_id)"
       },
-      inserted_at: %Schema{type: :string, format: "date-time"}
+      inserted_at: %Schema{type: :string, format: "date-time"},
+      updated_at: %Schema{type: :string, format: "date-time"}
     },
     example: %{
       id: 1,
@@ -32,7 +33,8 @@ defmodule GameServerWeb.Api.V1.ChatController do
       sender_id: 42,
       chat_type: "lobby",
       chat_ref_id: 1,
-      inserted_at: "2026-01-01T00:00:00Z"
+      inserted_at: "2026-01-01T00:00:00Z",
+      updated_at: "2026-01-01T00:00:00Z"
     }
   }
 
@@ -99,6 +101,11 @@ defmodule GameServerWeb.Api.V1.ChatController do
       {:error, :blocked} ->
         conn |> put_status(:forbidden) |> json(%{error: "blocked"})
 
+      {:error, :slowdown} ->
+        conn
+        |> put_status(:too_many_requests)
+        |> json(%{error: "slowdown", message: "You are sending messages too quickly"})
+
       {:error, :invalid_chat_type} ->
         conn |> put_status(:bad_request) |> json(%{error: "invalid_chat_type"})
 
@@ -114,6 +121,36 @@ defmodule GameServerWeb.Api.V1.ChatController do
 
       {:error, reason} ->
         conn |> put_status(:unprocessable_entity) |> json(%{error: to_string(reason)})
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # Get single message
+  # ---------------------------------------------------------------------------
+
+  operation(:show,
+    operation_id: "get_chat_message",
+    summary: "Get a single chat message",
+    description:
+      "Retrieve a single chat message by ID. Useful for refreshing a message after an update notification.",
+    parameters: [
+      id: [in: :path, required: true, schema: %Schema{type: :integer}, description: "Message ID"]
+    ],
+    responses: [
+      ok: {"Chat message", "application/json", @message_schema},
+      not_found: {"Message not found", "application/json", %Schema{type: :object}}
+    ]
+  )
+
+  def show(conn, %{"id" => id}) do
+    message_id = parse_int(id)
+
+    case Chat.get_message(message_id) do
+      nil ->
+        conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+      message ->
+        json(conn, serialize_message(message))
     end
   end
 
@@ -283,6 +320,102 @@ defmodule GameServerWeb.Api.V1.ChatController do
   end
 
   # ---------------------------------------------------------------------------
+  # Update own message
+  # ---------------------------------------------------------------------------
+
+  operation(:update,
+    operation_id: "update_chat_message",
+    summary: "Update your own chat message",
+    description:
+      "Edit the content or metadata of a message you sent. Only the sender can update their own message.",
+    parameters: [
+      id: [in: :path, required: true, schema: %Schema{type: :integer}, description: "Message ID"]
+    ],
+    request_body:
+      {"Message update", "application/json",
+       %Schema{
+         type: :object,
+         properties: %{
+           content: %Schema{type: :string, description: "New message text (1-4096 chars)"},
+           metadata: %Schema{type: :object, description: "Optional metadata"}
+         }
+       }},
+    responses: [
+      ok: {"Updated message", "application/json", @message_schema},
+      not_found: {"Message not found", "application/json", %Schema{type: :object}},
+      forbidden: {"Not message sender", "application/json", %Schema{type: :object}},
+      unprocessable_entity: {"Validation error", "application/json", %Schema{type: :object}}
+    ]
+  )
+
+  def update(conn, %{"id" => id} = params) do
+    user_id = conn.assigns[:current_scope].user.id
+    message_id = parse_int(id)
+
+    attrs =
+      params
+      |> Map.take(["content", "metadata"])
+      |> Map.reject(fn {_k, v} -> is_nil(v) end)
+
+    case Chat.update_message(user_id, message_id, attrs) do
+      {:ok, message} ->
+        json(conn, serialize_message(message))
+
+      {:error, :not_found} ->
+        conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+      {:error, :forbidden} ->
+        conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
+
+      {:error, %Ecto.Changeset{} = cs} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{error: "validation_error", details: changeset_errors(cs)})
+
+      {:error, reason} ->
+        conn |> put_status(:unprocessable_entity) |> json(%{error: to_string(reason)})
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # Delete own message
+  # ---------------------------------------------------------------------------
+
+  operation(:delete,
+    operation_id: "delete_chat_message",
+    summary: "Delete your own chat message",
+    description:
+      "Permanently delete a message you sent. Only the sender can delete their own message.",
+    parameters: [
+      id: [in: :path, required: true, schema: %Schema{type: :integer}, description: "Message ID"]
+    ],
+    responses: [
+      ok: {"Deleted", "application/json", %Schema{type: :object}},
+      not_found: {"Message not found", "application/json", %Schema{type: :object}},
+      forbidden: {"Not message sender", "application/json", %Schema{type: :object}}
+    ]
+  )
+
+  def delete(conn, %{"id" => id}) do
+    user_id = conn.assigns[:current_scope].user.id
+    message_id = parse_int(id)
+
+    case Chat.delete_own_message(user_id, message_id) do
+      {:ok, _message} ->
+        json(conn, %{ok: true})
+
+      {:error, :not_found} ->
+        conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+      {:error, :forbidden} ->
+        conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
+
+      {:error, reason} ->
+        conn |> put_status(:unprocessable_entity) |> json(%{error: to_string(reason)})
+    end
+  end
+
+  # ---------------------------------------------------------------------------
   # Helpers
   # ---------------------------------------------------------------------------
 
@@ -294,7 +427,8 @@ defmodule GameServerWeb.Api.V1.ChatController do
       sender_id: msg.sender_id,
       chat_type: msg.chat_type,
       chat_ref_id: msg.chat_ref_id,
-      inserted_at: msg.inserted_at
+      inserted_at: msg.inserted_at,
+      updated_at: msg.updated_at
     }
   end
 

@@ -22,7 +22,8 @@ defmodule GameServerWeb.Api.V1.LobbyController do
         type: :boolean,
         description: "Whether this lobby requires a password to join"
       },
-      metadata: %Schema{type: :object, description: "Arbitrary metadata"}
+      metadata: %Schema{type: :object, description: "Arbitrary metadata"},
+      slowdown: %Schema{type: :integer, description: "Chat slowdown in seconds (0 = disabled)"}
     },
     example: %{
       id: 1,
@@ -34,7 +35,8 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       is_hidden: false,
       is_locked: false,
       is_passworded: false,
-      metadata: %{}
+      metadata: %{},
+      slowdown: 0
     }
   }
 
@@ -143,7 +145,11 @@ defmodule GameServerWeb.Api.V1.LobbyController do
             type: :string,
             description: "Optional password to protect the lobby"
           },
-          metadata: %Schema{type: :object, description: "Arbitrary metadata"}
+          metadata: %Schema{type: :object, description: "Arbitrary metadata"},
+          slowdown: %Schema{
+            type: :integer,
+            description: "Chat slowdown in seconds (0 = disabled, max 3600)"
+          }
         },
         example: %{
           title: "My Game Lobby",
@@ -180,7 +186,11 @@ defmodule GameServerWeb.Api.V1.LobbyController do
           is_hidden: %Schema{type: :boolean, description: "Hide from public listings"},
           is_locked: %Schema{type: :boolean, description: "Lock the lobby"},
           password: %Schema{type: :string, description: "New password (empty string to clear)"},
-          metadata: %Schema{type: :object, description: "New metadata"}
+          metadata: %Schema{type: :object, description: "New metadata"},
+          slowdown: %Schema{
+            type: :integer,
+            description: "Chat slowdown in seconds (0 = disabled, max 3600)"
+          }
         },
         example: %{
           title: "Updated Lobby Name",
@@ -372,7 +382,8 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       is_hidden: lobby.is_hidden,
       is_locked: lobby.is_locked,
       metadata: lobby.metadata || %{},
-      is_passworded: lobby.password_hash != nil
+      is_passworded: lobby.password_hash != nil,
+      slowdown: lobby.slowdown
     }
   end
 

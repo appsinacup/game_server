@@ -56,4 +56,12 @@ defmodule GameServer.Chat.Message do
     |> validate_length(:content, min: 1, max: 4096)
     |> validate_inclusion(:chat_type, @chat_types)
   end
+
+  @doc "Changeset for editing an existing message (content and metadata only)."
+  def update_changeset(message, attrs) do
+    message
+    |> cast(attrs, [:content, :metadata])
+    |> validate_required([:content])
+    |> validate_length(:content, min: 1, max: 4096)
+  end
 end

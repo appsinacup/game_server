@@ -288,6 +288,68 @@
         <p class="pl-4">
           The API issues JSON Web Tokens (JWTs) for API authentication. Access tokens are short-lived and refresh tokens are longer-lived (configurable). The server uses Guardian for signing and verification. Refresh tokens are stateless JWTs (no DB lookup) while session tokens and email tokens are persisted where needed.
         </p>
+
+        <h4 class="font-semibold">{doc_text("Chat messages (chat_messages)")}</h4>
+        <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+          <pre>
+    chat_messages (
+      id           : integer  (primary key)
+      content      : string   (message text, 1-4096 chars)
+      metadata     : map/json (arbitrary JSON: attachments, type, etc.)
+      sender_id    : integer  (FK → users.id)
+      chat_type    : string   ("lobby" | "group" | "friend")
+      chat_ref_id  : integer  (lobby_id, group_id, or friend's user_id)
+      inserted_at  : datetime (created timestamp)
+      updated_at   : datetime (updated timestamp, differs when edited)
+    )</pre>
+        </div>
+        <p class="pl-4 mt-1">
+          Chat messages support three types: <strong>lobby</strong>
+          (requires lobby membership), <strong>group</strong>
+          (requires group membership), and <strong>friend</strong>
+          (requires accepted friendship and no blocks). Edit/delete is restricted to the message sender.
+        </p>
+
+        <h4 class="font-semibold">{doc_text("Chat read cursors (chat_read_cursors)")}</h4>
+        <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+          <pre>
+    chat_read_cursors (
+      id                  : integer  (primary key)
+      user_id             : integer  (FK → users.id)
+      chat_type           : string   ("lobby" | "group" | "friend")
+      chat_ref_id         : integer  (reference ID)
+      last_read_message_id: integer  (last message the user has read)
+      inserted_at         : datetime (created timestamp)
+      updated_at          : datetime (updated timestamp)
+    )</pre>
+        </div>
+        <p class="pl-4 mt-1">
+          Read cursors track which messages a user has already seen in each chat. Used to compute unread counts per chat. Upserted on mark-read operations.
+        </p>
+
+        <h4 class="font-semibold">{doc_text("Chat access rules")}</h4>
+        <ul class="list-disc pl-8 text-sm space-y-1 text-base-content/80">
+          <li>
+            <strong>Lobby chat:</strong>
+            User must currently be in the lobby (user.lobby_id matches)
+          </li>
+          <li>
+            <strong>Group chat:</strong> User must be a member of the group
+          </li>
+          <li>
+            <strong>Friend chat:</strong>
+            Users must have an accepted friendship and neither can have blocked the other
+          </li>
+          <li>
+            Edit/Delete: Only the message sender can modify or delete their own messages (returns 403 otherwise)
+          </li>
+          <li>
+            Messages have a maximum content length of 4096 characters
+          </li>
+          <li>
+            Metadata is optional and stored as a JSON map
+          </li>
+        </ul>
       </div>
     </div>
   </div>

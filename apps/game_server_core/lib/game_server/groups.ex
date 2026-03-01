@@ -492,6 +492,7 @@ defmodule GameServer.Groups do
         case Repo.delete(group) do
           {:ok, deleted} ->
             _ = invalidate_group_cache(deleted.id)
+            GameServer.Chat.cleanup_chat("group", deleted.id)
             broadcast_groups({:group_deleted, deleted.id})
             {:ok, deleted}
 
@@ -509,6 +510,7 @@ defmodule GameServer.Groups do
     case Repo.delete(group) do
       {:ok, deleted} ->
         _ = invalidate_group_cache(deleted.id)
+        GameServer.Chat.cleanup_chat("group", deleted.id)
         broadcast_groups({:group_deleted, deleted.id})
         {:ok, deleted}
 

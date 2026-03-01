@@ -816,6 +816,7 @@ defmodule GameServer.Lobbies do
         case Repo.delete(lobby) do
           {:ok, deleted} ->
             GameServer.Async.run(fn ->
+              GameServer.Chat.cleanup_chat("lobby", deleted.id)
               GameServer.Hooks.internal_call(:after_lobby_delete, [deleted])
             end)
 

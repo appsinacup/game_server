@@ -112,7 +112,8 @@ defmodule GameServer.Notifications do
       where: n.recipient_id == ^user_id,
       order_by: [asc: n.inserted_at, asc: n.id],
       limit: ^page_size,
-      offset: ^offset
+      offset: ^offset,
+      preload: [:sender]
     )
     |> Repo.all()
   end
@@ -130,6 +131,57 @@ defmodule GameServer.Notifications do
         select: count(n.id)
       )
     ) || 0
+  end
+
+  @doc "Count unread notifications for a user."
+  @spec count_unread_notifications(user_id()) :: non_neg_integer()
+  def count_unread_notifications(user_id) when is_integer(user_id) do
+    Repo.one(
+      from(n in Notification,
+        where: n.recipient_id == ^user_id and n.read == false,
+        select: count(n.id)
+      )
+    ) || 0
+  end
+
+  @doc "Mark a single notification as read. Only the recipient can mark it."
+  @spec mark_notification_read(user_id(), integer()) :: {:ok, Notification.t()} | {:error, atom()}
+  def mark_notification_read(user_id, notification_id)
+      when is_integer(user_id) and is_integer(notification_id) do
+    case Repo.one(
+           from(n in Notification,
+             where: n.id == ^notification_id and n.recipient_id == ^user_id
+           )
+         ) do
+      nil ->
+        {:error, :not_found}
+
+      notification ->
+        notification
+        |> Ecto.Changeset.change(read: true)
+        |> Repo.update()
+        |> case do
+          {:ok, updated} ->
+            invalidate_notifications_cache(user_id)
+            {:ok, updated}
+
+          error ->
+            error
+        end
+    end
+  end
+
+  @doc "Mark all notifications as read for a user."
+  @spec mark_all_notifications_read(user_id()) :: {non_neg_integer(), nil}
+  def mark_all_notifications_read(user_id) when is_integer(user_id) do
+    result =
+      from(n in Notification,
+        where: n.recipient_id == ^user_id and n.read == false
+      )
+      |> Repo.update_all(set: [read: true, updated_at: DateTime.utc_now(:second)])
+
+    invalidate_notifications_cache(user_id)
+    result
   end
 
   @doc "Get a single notification by ID."
@@ -340,6 +392,62 @@ defmodule GameServer.Notifications do
   # ---------------------------------------------------------------------------
   # Helpers
   # ---------------------------------------------------------------------------
+
+  @doc """
+  Create a chat notification for a recipient.
+
+  Unlike `send_notification/2`, this does not require friendship — it is
+  intended for system-generated notifications triggered by new chat messages.
+
+  Uses upsert semantics: if a notification with the same
+  `(sender_id, recipient_id, title)` already exists, its content and metadata
+  are updated (so the user sees the latest message preview).
+  """
+  @spec create_chat_notification(user_id(), user_id(), map()) ::
+          {:ok, Notification.t()} | {:error, term()}
+  def create_chat_notification(sender_id, recipient_id, attrs)
+      when is_integer(sender_id) and is_integer(recipient_id) do
+    # Build the initial metadata with message_count = 1
+    base_metadata = Map.get(attrs, "metadata", %{})
+    metadata_with_count = Map.put(base_metadata, "message_count", 1)
+    attrs_with_count = Map.put(attrs, "metadata", metadata_with_count)
+
+    changeset =
+      %Notification{}
+      |> Notification.changeset(attrs_with_count)
+      |> Ecto.Changeset.put_change(:sender_id, sender_id)
+      |> Ecto.Changeset.put_change(:recipient_id, recipient_id)
+
+    changeset
+    |> Repo.insert(
+      on_conflict:
+        from(n in Notification,
+          update: [
+            set: [
+              content: ^Map.get(attrs, "content", ""),
+              metadata:
+                fragment(
+                  "json_set(?, '$.message_count', COALESCE(json_extract(?, '$.message_count'), 0) + 1)",
+                  n.metadata,
+                  n.metadata
+                ),
+              read: false,
+              updated_at: ^DateTime.utc_now(:second)
+            ]
+          ]
+        ),
+      conflict_target: {:unsafe_fragment, "(sender_id, recipient_id, title)"}
+    )
+    |> case do
+      {:ok, notification} ->
+        invalidate_notifications_cache(recipient_id)
+        broadcast_user(recipient_id, {:new_notification, notification})
+        {:ok, notification}
+
+      error ->
+        error
+    end
+  end
 
   defp get_recipient_id(attrs) do
     raw =

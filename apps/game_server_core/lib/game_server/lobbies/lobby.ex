@@ -35,6 +35,7 @@ defmodule GameServer.Lobbies.Lobby do
     field :is_locked, :boolean, default: false
     field :password_hash, :string
     field :metadata, :map, default: %{}
+    field :slowdown, :integer, default: 0
 
     belongs_to :host, User
 
@@ -45,7 +46,7 @@ defmodule GameServer.Lobbies.Lobby do
   end
 
   @required_fields ~w(title)a
-  @optional_fields ~w(host_id hostless max_users is_hidden is_locked password_hash metadata)a
+  @optional_fields ~w(host_id hostless max_users is_hidden is_locked password_hash metadata slowdown)a
 
   def changeset(lobby, attrs) do
     lobby
@@ -53,5 +54,6 @@ defmodule GameServer.Lobbies.Lobby do
     |> validate_required(@required_fields)
     |> validate_length(:title, min: 1, max: 80)
     |> validate_number(:max_users, greater_than: 0, less_than_or_equal_to: 128)
+    |> validate_number(:slowdown, greater_than_or_equal_to: 0, less_than_or_equal_to: 3600)
   end
 end

@@ -268,7 +268,7 @@ defmodule GameServerWeb.AdminLive.Chat do
           put_flash(socket, :error, "Deleted #{deleted} messages; failed #{failed}")
       end
 
-    {:noreply, reload_messages(socket)}
+    {:noreply, socket |> reload_messages()}
   end
 
   @impl true

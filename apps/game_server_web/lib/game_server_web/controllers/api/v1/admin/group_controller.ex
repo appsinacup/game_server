@@ -37,6 +37,7 @@ defmodule GameServerWeb.Api.V1.Admin.GroupController do
       metadata: %Schema{type: :object},
       creator_id: %Schema{type: :integer, nullable: true},
       member_count: %Schema{type: :integer},
+      slowdown: %Schema{type: :integer, description: "Chat slowdown in seconds (0 = disabled)"},
       inserted_at: %Schema{type: :string, format: :"date-time"},
       updated_at: %Schema{type: :string, format: :"date-time"}
     }
@@ -102,7 +103,11 @@ defmodule GameServerWeb.Api.V1.Admin.GroupController do
           description: %Schema{type: :string},
           type: %Schema{type: :string},
           max_members: %Schema{type: :integer},
-          metadata: %Schema{type: :object}
+          metadata: %Schema{type: :object},
+          slowdown: %Schema{
+            type: :integer,
+            description: "Chat slowdown in seconds (0 = disabled, max 3600)"
+          }
         }
       }
     },
@@ -217,6 +222,7 @@ defmodule GameServerWeb.Api.V1.Admin.GroupController do
       metadata: group.metadata || %{},
       creator_id: group.creator_id,
       member_count: member_count,
+      slowdown: group.slowdown,
       inserted_at: group.inserted_at,
       updated_at: group.updated_at
     }

@@ -341,6 +341,9 @@ defmodule GameServer.Friends do
             _ = invalidate_friendship_cache(f.id)
             _ = invalidate_friends_cache_pair(user_id, friend_id)
 
+            # clean up friend chat messages and read cursors
+            GameServer.Chat.cleanup_friend_chat(user_id, friend_id)
+
             # broadcast removal
             broadcast_user(user_id, {:friend_removed, f})
             broadcast_user(friend_id, {:friend_removed, f})

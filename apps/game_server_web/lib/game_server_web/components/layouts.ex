@@ -61,11 +61,19 @@ defmodule GameServerWeb.Layouts do
       "css" => Map.get(provider_theme, "css")
     }
 
+    notif_unread_count =
+      if assigns[:current_scope] do
+        GameServer.Notifications.count_unread_notifications(assigns.current_scope.user.id)
+      else
+        0
+      end
+
     assigns =
       assign(assigns,
         current_path: current_path,
         current_query: current_query,
-        theme: theme
+        theme: theme,
+        notif_unread_count: notif_unread_count
       )
 
     ~H"""
@@ -92,36 +100,78 @@ defmodule GameServerWeb.Layouts do
               <.link
                 href={~p"/users/settings"}
                 class={[
-                  "btn",
+                  "btn gap-1",
                   if(String.starts_with?(@current_path, "/users/settings"),
                     do: "btn-primary",
                     else: "btn-outline"
                   )
                 ]}
               >
-                {gettext("Settings")}
+                <.icon name="hero-user-circle" class="w-4 h-4" />
+                <span class="hidden xl:inline">{gettext("Account")}</span>
               </.link>
             </li>
             <li>
               <.link
                 href={~p"/leaderboards"}
                 class={[
-                  "btn",
+                  "btn gap-1",
                   if(String.starts_with?(@current_path, "/leaderboards"),
                     do: "btn-primary",
                     else: "btn-outline"
                   )
                 ]}
               >
-                {gettext("Leaderboards")}
+                <.icon name="hero-trophy" class="w-4 h-4" />
+                <span class="hidden xl:inline">{gettext("Leaderboards")}</span>
               </.link>
             </li>
             <li>
               <.link
                 href={~p"/groups"}
-                class={["btn", if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")]}
+                class={[
+                  "btn gap-1",
+                  if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")
+                ]}
               >
-                {gettext("Groups")}
+                <.icon name="hero-users" class="w-4 h-4" />
+                <span class="hidden xl:inline">{gettext("Groups")}</span>
+              </.link>
+            </li>
+            <li>
+              <.link
+                href={~p"/notifications"}
+                class={[
+                  "btn gap-1",
+                  if(String.starts_with?(@current_path, "/notifications"),
+                    do: "btn-primary",
+                    else: "btn-outline"
+                  )
+                ]}
+              >
+                <.icon name="hero-bell" class="w-4 h-4" />
+                <span class="hidden xl:inline">{gettext("Notifications")}</span>
+                <span
+                  :if={@notif_unread_count > 0}
+                  class="ml-0.5 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold rounded-full bg-error text-error-content"
+                >
+                  {@notif_unread_count}
+                </span>
+              </.link>
+            </li>
+            <li>
+              <.link
+                href={~p"/chat"}
+                class={[
+                  "btn gap-1",
+                  if(String.starts_with?(@current_path, "/chat"),
+                    do: "btn-primary",
+                    else: "btn-outline"
+                  )
+                ]}
+              >
+                <.icon name="hero-chat-bubble-left-right" class="w-4 h-4" />
+                <span class="hidden xl:inline">{gettext("Chat")}</span>
               </.link>
             </li>
             <%= if @current_scope && @current_scope.user.is_admin do %>
@@ -129,34 +179,37 @@ defmodule GameServerWeb.Layouts do
                 <.link
                   href={~p"/admin"}
                   class={[
-                    "btn",
+                    "btn gap-1",
                     if(String.starts_with?(@current_path, "/admin"),
                       do: "btn-primary",
                       else: "btn-outline"
                     )
                   ]}
                 >
-                  {gettext("Admin")}
+                  <.icon name="hero-cog-6-tooth" class="w-4 h-4" />
+                  <span class="hidden xl:inline">{gettext("Admin")}</span>
                 </.link>
               </li>
               <li>
                 <.link
                   href={~p"/lobbies"}
                   class={[
-                    "btn",
+                    "btn gap-1",
                     if(String.starts_with?(@current_path, "/lobbies"),
                       do: "btn-primary",
                       else: "btn-outline"
                     )
                   ]}
                 >
-                  {gettext("Lobbies")}
+                  <.icon name="hero-square-3-stack-3d" class="w-4 h-4" />
+                  <span class="hidden xl:inline">{gettext("Lobbies")}</span>
                 </.link>
               </li>
             <% end %>
             <li>
-              <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline">
-                {gettext("Log out")}
+              <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline gap-1">
+                <.icon name="hero-arrow-right-on-rectangle" class="w-4 h-4" />
+                <span class="hidden xl:inline">{gettext("Log out")}</span>
               </.link>
             </li>
           <% else %>
@@ -164,50 +217,57 @@ defmodule GameServerWeb.Layouts do
               <.link
                 href={~p"/leaderboards"}
                 class={[
-                  "btn",
+                  "btn gap-1",
                   if(String.starts_with?(@current_path, "/leaderboards"),
                     do: "btn-primary",
                     else: "btn-outline"
                   )
                 ]}
               >
-                {gettext("Leaderboards")}
+                <.icon name="hero-trophy" class="w-4 h-4" />
+                <span class="hidden xl:inline">{gettext("Leaderboards")}</span>
               </.link>
             </li>
             <li>
               <.link
                 href={~p"/groups"}
-                class={["btn", if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")]}
+                class={[
+                  "btn gap-1",
+                  if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")
+                ]}
               >
-                {gettext("Groups")}
+                <.icon name="hero-users" class="w-4 h-4" />
+                <span class="hidden xl:inline">{gettext("Groups")}</span>
               </.link>
             </li>
             <li>
               <.link
                 href={~p"/users/log-in"}
                 class={[
-                  "btn",
+                  "btn gap-1",
                   if(String.starts_with?(@current_path, "/users/log-in"),
                     do: "btn-primary",
                     else: "btn-outline"
                   )
                 ]}
               >
-                {gettext("Log in")}
+                <.icon name="hero-arrow-left-on-rectangle" class="w-4 h-4" />
+                <span class="hidden xl:inline">{gettext("Log in")}</span>
               </.link>
             </li>
             <li>
               <.link
                 href={~p"/users/register"}
                 class={[
-                  "btn",
+                  "btn gap-1",
                   if(String.starts_with?(@current_path, "/users/register"),
                     do: "btn-primary",
                     else: "btn-outline"
                   )
                 ]}
               >
-                {gettext("Register")}
+                <.icon name="hero-user-plus" class="w-4 h-4" />
+                <span class="hidden xl:inline">{gettext("Register")}</span>
               </.link>
             </li>
           <% end %>
@@ -242,27 +302,29 @@ defmodule GameServerWeb.Layouts do
                   <a
                     href={~p"/users/settings"}
                     class={[
-                      "btn",
+                      "btn gap-1",
                       if(String.starts_with?(@current_path, "/users/settings"),
                         do: "btn-primary",
                         else: "btn-outline"
                       )
                     ]}
                   >
-                    {gettext("Settings")}
+                    <.icon name="hero-user-circle" class="w-4 h-4" />
+                    {gettext("Account")}
                   </a>
                 </li>
                 <li>
                   <a
                     href={~p"/leaderboards"}
                     class={[
-                      "btn",
+                      "btn gap-1",
                       if(String.starts_with?(@current_path, "/leaderboards"),
                         do: "btn-primary",
                         else: "btn-outline"
                       )
                     ]}
                   >
+                    <.icon name="hero-trophy" class="w-4 h-4" />
                     {gettext("Leaderboards")}
                   </a>
                 </li>
@@ -270,11 +332,48 @@ defmodule GameServerWeb.Layouts do
                   <a
                     href={~p"/groups"}
                     class={[
-                      "btn",
+                      "btn gap-1",
                       if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")
                     ]}
                   >
+                    <.icon name="hero-users" class="w-4 h-4" />
                     {gettext("Groups")}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href={~p"/notifications"}
+                    class={[
+                      "btn gap-1",
+                      if(String.starts_with?(@current_path, "/notifications"),
+                        do: "btn-primary",
+                        else: "btn-outline"
+                      )
+                    ]}
+                  >
+                    <.icon name="hero-bell" class="w-4 h-4" />
+                    {gettext("Notifications")}
+                    <span
+                      :if={@notif_unread_count > 0}
+                      class="ml-0.5 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold rounded-full bg-error text-error-content"
+                    >
+                      {@notif_unread_count}
+                    </span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href={~p"/chat"}
+                    class={[
+                      "btn gap-1",
+                      if(String.starts_with?(@current_path, "/chat"),
+                        do: "btn-primary",
+                        else: "btn-outline"
+                      )
+                    ]}
+                  >
+                    <.icon name="hero-chat-bubble-left-right" class="w-4 h-4" />
+                    {gettext("Chat")}
                   </a>
                 </li>
                 <%= if @current_scope && @current_scope.user.is_admin do %>
@@ -282,13 +381,14 @@ defmodule GameServerWeb.Layouts do
                     <a
                       href={~p"/lobbies"}
                       class={[
-                        "btn",
+                        "btn gap-1",
                         if(String.starts_with?(@current_path, "/lobbies"),
                           do: "btn-primary",
                           else: "btn-outline"
                         )
                       ]}
                     >
+                      <.icon name="hero-square-3-stack-3d" class="w-4 h-4" />
                       {gettext("Lobbies")}
                     </a>
                   </li>
@@ -296,19 +396,21 @@ defmodule GameServerWeb.Layouts do
                     <a
                       href={~p"/admin"}
                       class={[
-                        "btn",
+                        "btn gap-1",
                         if(String.starts_with?(@current_path, "/admin"),
                           do: "btn-primary",
                           else: "btn-outline"
                         )
                       ]}
                     >
+                      <.icon name="hero-cog-6-tooth" class="w-4 h-4" />
                       {gettext("Admin")}
                     </a>
                   </li>
                 <% end %>
                 <li>
-                  <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline">
+                  <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline gap-1">
+                    <.icon name="hero-arrow-right-on-rectangle" class="w-4 h-4" />
                     {gettext("Log out")}
                   </.link>
                 </li>
@@ -317,13 +419,14 @@ defmodule GameServerWeb.Layouts do
                   <a
                     href={~p"/users/log-in"}
                     class={[
-                      "btn",
+                      "btn gap-1",
                       if(String.starts_with?(@current_path, "/users/log-in"),
                         do: "btn-primary",
                         else: "btn-outline"
                       )
                     ]}
                   >
+                    <.icon name="hero-arrow-left-on-rectangle" class="w-4 h-4" />
                     {gettext("Log in")}
                   </a>
                 </li>
@@ -331,13 +434,14 @@ defmodule GameServerWeb.Layouts do
                   <a
                     href={~p"/users/register"}
                     class={[
-                      "btn",
+                      "btn gap-1",
                       if(String.starts_with?(@current_path, "/users/register"),
                         do: "btn-primary",
                         else: "btn-outline"
                       )
                     ]}
                   >
+                    <.icon name="hero-user-plus" class="w-4 h-4" />
                     {gettext("Register")}
                   </a>
                 </li>
@@ -345,13 +449,14 @@ defmodule GameServerWeb.Layouts do
                   <a
                     href={~p"/leaderboards"}
                     class={[
-                      "btn",
+                      "btn gap-1",
                       if(String.starts_with?(@current_path, "/leaderboards"),
                         do: "btn-primary",
                         else: "btn-outline"
                       )
                     ]}
                   >
+                    <.icon name="hero-trophy" class="w-4 h-4" />
                     {gettext("Leaderboards")}
                   </a>
                 </li>
@@ -359,10 +464,11 @@ defmodule GameServerWeb.Layouts do
                   <a
                     href={~p"/groups"}
                     class={[
-                      "btn",
+                      "btn gap-1",
                       if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")
                     ]}
                   >
+                    <.icon name="hero-users" class="w-4 h-4" />
                     {gettext("Groups")}
                   </a>
                 </li>

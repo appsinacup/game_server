@@ -26,6 +26,7 @@ defmodule GameServerWeb.Api.V1.GroupController do
       metadata: %Schema{type: :object, description: "Server-managed metadata"},
       creator_id: %Schema{type: :integer, description: "User ID of the creator", nullable: true},
       member_count: %Schema{type: :integer, description: "Current member count"},
+      slowdown: %Schema{type: :integer, description: "Chat slowdown in seconds (0 = disabled)"},
       inserted_at: %Schema{type: :string, format: :"date-time"},
       updated_at: %Schema{type: :string, format: :"date-time"}
     },
@@ -37,7 +38,8 @@ defmodule GameServerWeb.Api.V1.GroupController do
       max_members: 100,
       metadata: %{"lang_tag" => "en"},
       creator_id: 42,
-      member_count: 12
+      member_count: 12,
+      slowdown: 0
     }
   }
 
@@ -183,7 +185,11 @@ defmodule GameServerWeb.Api.V1.GroupController do
             default: "public"
           },
           max_members: %Schema{type: :integer, description: "Max members (default: 100)"},
-          metadata: %Schema{type: :object, description: "Server metadata"}
+          metadata: %Schema{type: :object, description: "Server metadata"},
+          slowdown: %Schema{
+            type: :integer,
+            description: "Chat slowdown in seconds (0 = disabled, max 3600)"
+          }
         },
         example: %{title: "My Guild", type: "public", max_members: 50}
       }
@@ -214,7 +220,11 @@ defmodule GameServerWeb.Api.V1.GroupController do
           description: %Schema{type: :string},
           type: %Schema{type: :string, enum: ["public", "private", "hidden"]},
           max_members: %Schema{type: :integer},
-          metadata: %Schema{type: :object}
+          metadata: %Schema{type: :object},
+          slowdown: %Schema{
+            type: :integer,
+            description: "Chat slowdown in seconds (0 = disabled, max 3600)"
+          }
         }
       }
     },
@@ -1282,6 +1292,7 @@ defmodule GameServerWeb.Api.V1.GroupController do
       metadata: group.metadata || %{},
       creator_id: group.creator_id,
       member_count: member_count,
+      slowdown: group.slowdown,
       inserted_at: group.inserted_at,
       updated_at: group.updated_at
     }

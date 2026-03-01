@@ -143,6 +143,13 @@ defmodule GameServerWeb.AdminLive.Index do
               <div class="card bg-base-100 p-4">
                 <div class="text-sm font-semibold mb-2">Chat</div>
                 <div class="text-2xl font-bold">{@chat_count}</div>
+                <div class="text-xs text-base-content/60 mt-2 space-y-1">
+                  <div>Users who wrote: {@chat_senders}</div>
+                  <div>Users who never wrote: {@chat_silent}</div>
+                  <div>In lobbies: {@chat_by_lobby}</div>
+                  <div>In groups: {@chat_by_group}</div>
+                  <div>Friend DMs: {@chat_by_friend}</div>
+                </div>
               </div>
 
               <div :for={stats <- @translation_stats} class="card bg-base-100 p-4">
@@ -217,6 +224,8 @@ defmodule GameServerWeb.AdminLive.Index do
 
     # chat stats
     chat_count = GameServer.Chat.count_all_messages()
+    chat_senders = GameServer.Chat.count_unique_senders()
+    chat_by_type = GameServer.Chat.count_messages_by_type()
 
     # translation stats
     translation_stats = TranslationStats.all_completeness()
@@ -257,6 +266,11 @@ defmodule GameServerWeb.AdminLive.Index do
        parties_count: parties_count,
        parties_members: parties_members,
        chat_count: chat_count,
+       chat_senders: chat_senders,
+       chat_silent: max(users_count - chat_senders, 0),
+       chat_by_lobby: Map.get(chat_by_type, "lobby", 0),
+       chat_by_group: Map.get(chat_by_type, "group", 0),
+       chat_by_friend: Map.get(chat_by_type, "friend", 0),
        translation_stats: translation_stats,
        users_registered_1d: users_registered_1d,
        users_registered_7d: users_registered_7d,

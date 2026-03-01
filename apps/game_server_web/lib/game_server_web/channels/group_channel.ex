@@ -118,6 +118,18 @@ defmodule GameServerWeb.GroupChannel do
   end
 
   @impl true
+  def handle_info({:chat_message_updated, message}, socket) do
+    push(socket, "chat_message_updated", serialize_chat_message(message))
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:chat_message_deleted, message}, socket) do
+    push(socket, "chat_message_deleted", %{id: message.id})
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info(_msg, socket), do: {:noreply, socket}
 
   @impl true

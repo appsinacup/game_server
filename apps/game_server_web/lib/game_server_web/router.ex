@@ -180,7 +180,10 @@ defmodule GameServerWeb.Router do
     post "/parties/join_lobby/:id", PartyController, :join_lobby
     # Chat API
     get "/chat/messages", ChatController, :index
+    get "/chat/messages/:id", ChatController, :show
     post "/chat/messages", ChatController, :send
+    patch "/chat/messages/:id", ChatController, :update
+    delete "/chat/messages/:id", ChatController, :delete
     post "/chat/read", ChatController, :mark_read
     get "/chat/unread", ChatController, :unread
   end
@@ -300,6 +303,8 @@ defmodule GameServerWeb.Router do
       ] do
       live "/users/settings", UserLive.Settings, :edit
       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
+      live "/notifications", NotificationsLive, :index
+      live "/chat", ChatLive, :index
     end
 
     post "/users/update-password", UserSessionController, :update_password

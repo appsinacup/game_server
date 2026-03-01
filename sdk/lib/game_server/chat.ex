@@ -44,6 +44,40 @@ defmodule GameServer.Chat do
 
 
   @doc ~S"""
+    Delete all chat data (messages + read cursors) for a given conversation.
+  """
+  @spec cleanup_chat(String.t(), integer()) :: :ok
+  def cleanup_chat(_chat_type, _chat_ref_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        :ok
+
+      _ ->
+        raise "GameServer.Chat.cleanup_chat/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Delete all friend DM messages and read cursors between two users.
+    
+    Friend messages are stored bidirectionally (each user's messages use
+    the other's id as chat_ref_id), so both directions must be cleaned up.
+    
+  """
+  @spec cleanup_friend_chat(integer(), integer()) :: :ok
+  def cleanup_friend_chat(_user_a_id, _user_b_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        :ok
+
+      _ ->
+        raise "GameServer.Chat.cleanup_friend_chat/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Count all messages matching filters (admin).
   """
   @spec count_all_messages(map()) :: non_neg_integer()
@@ -89,6 +123,39 @@ defmodule GameServer.Chat do
 
 
   @doc ~S"""
+    Count messages grouped by chat_type.
+    
+    Returns a map like `%{"lobby" => 10, "group" => 5, "friend" => 3}`.
+    
+  """
+  @spec count_messages_by_type() :: map()
+  def count_messages_by_type() do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        %{}
+
+      _ ->
+        raise "GameServer.Chat.count_messages_by_type/0 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Count distinct users who have sent at least one chat message.
+  """
+  @spec count_unique_senders() :: non_neg_integer()
+  def count_unique_senders() do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Chat.count_unique_senders/0 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Count unread messages for a user in a specific chat conversation.
     
     Returns 0 if the user has read all messages or has no cursor (all are unread
@@ -124,6 +191,43 @@ defmodule GameServer.Chat do
 
 
   @doc ~S"""
+    Count unread friend DMs for a user across all friends.
+    
+    Returns a map of `%{friend_id => unread_count}` for friends that have
+    at least one unread message.
+    
+  """
+  @spec count_unread_friends_batch(integer(), [integer()]) :: %{required(integer()) => non_neg_integer()}
+  def count_unread_friends_batch(_user_id, _friend_ids) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Chat.count_unread_friends_batch/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Count unread messages for a user in multiple group chats.
+    
+    Returns a map of `%{group_id => unread_count}`.
+    
+  """
+  @spec count_unread_groups_batch(integer(), [integer()]) :: %{required(integer()) => non_neg_integer()}
+  def count_unread_groups_batch(_user_id, _group_ids) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Chat.count_unread_groups_batch/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Delete all messages for a given chat conversation.
   """
   @spec delete_messages(String.t(), integer()) :: {non_neg_integer(), nil}
@@ -134,6 +238,40 @@ defmodule GameServer.Chat do
 
       _ ->
         raise "GameServer.Chat.delete_messages/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Delete a chat message owned by the given user.
+    
+    Returns `{:error, :not_found}` if the message does not exist or
+    `{:error, :forbidden}` if the caller is not the sender.
+    
+  """
+  @spec delete_own_message(integer(), integer()) :: {:ok, GameServer.Chat.Message.t()} | {:error, term()}
+  def delete_own_message(_user_id, _message_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, nil}
+
+      _ ->
+        raise "GameServer.Chat.delete_own_message/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Delete all read cursors for a given chat conversation.
+  """
+  @spec delete_read_cursors(String.t(), integer()) :: {non_neg_integer(), nil}
+  def delete_read_cursors(_chat_type, _chat_ref_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Chat.delete_read_cursors/2 is a stub - only available at runtime on GameServer"
     end
   end
 
@@ -371,6 +509,27 @@ defmodule GameServer.Chat do
 
       _ ->
         raise "GameServer.Chat.unsubscribe_lobby_chat/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Update a chat message owned by the given user.
+    
+    Only the `content` and `metadata` fields can be changed. Returns
+    `{:error, :not_found}` if the message does not exist or
+    `{:error, :forbidden}` if the caller is not the sender.
+    
+  """
+  @spec update_message(integer(), integer(), map()) ::
+  {:ok, GameServer.Chat.Message.t()} | {:error, term()}
+  def update_message(_user_id, _message_id, _attrs) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, nil}
+
+      _ ->
+        raise "GameServer.Chat.update_message/3 is a stub - only available at runtime on GameServer"
     end
   end
 

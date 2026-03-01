@@ -21,7 +21,8 @@ defmodule GameServerWeb.Api.V1.Admin.LobbyController do
       is_hidden: %Schema{type: :boolean},
       is_locked: %Schema{type: :boolean},
       is_passworded: %Schema{type: :boolean},
-      metadata: %Schema{type: :object}
+      metadata: %Schema{type: :object},
+      slowdown: %Schema{type: :integer, description: "Chat slowdown in seconds (0 = disabled)"}
     }
   }
 
@@ -114,7 +115,11 @@ defmodule GameServerWeb.Api.V1.Admin.LobbyController do
           is_hidden: %Schema{type: :boolean},
           is_locked: %Schema{type: :boolean},
           password: %Schema{type: :string},
-          metadata: %Schema{type: :object}
+          metadata: %Schema{type: :object},
+          slowdown: %Schema{
+            type: :integer,
+            description: "Chat slowdown in seconds (0 = disabled)"
+          }
         }
       }
     },
@@ -216,7 +221,8 @@ defmodule GameServerWeb.Api.V1.Admin.LobbyController do
       is_hidden: lobby.is_hidden,
       is_locked: lobby.is_locked,
       is_passworded: not is_nil(lobby.password_hash),
-      metadata: lobby.metadata || %{}
+      metadata: lobby.metadata || %{},
+      slowdown: lobby.slowdown
     }
   end
 

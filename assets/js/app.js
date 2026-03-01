@@ -28,6 +28,14 @@ import topbar from "../vendor/topbar"
 
 // Custom hooks
 const Hooks = {
+  ScrollToBottom: {
+    mounted() {
+      this.el.scrollTop = this.el.scrollHeight
+    },
+    updated() {
+      this.el.scrollTop = this.el.scrollHeight
+    }
+  },
   AutoClose: {
     mounted() {
       let seconds = 3

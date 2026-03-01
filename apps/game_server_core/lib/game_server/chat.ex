@@ -138,6 +138,7 @@ defmodule GameServer.Chat do
           {:ok, Message.t()} | {:error, term()}
   def send_message(%{user: %User{id: sender_id}}, attrs) when is_map(attrs) do
     with :ok <- validate_chat_access(sender_id, attrs),
+         :ok <- check_slowdown(sender_id, attrs),
          {:ok, attrs} <- run_before_hook(sender_id, attrs) do
       do_send_message(sender_id, attrs)
     end
@@ -171,6 +172,7 @@ defmodule GameServer.Chat do
 
         GameServer.Async.run(fn ->
           GameServer.Hooks.internal_call(:after_chat_message, [message])
+          send_chat_notifications(message)
         end)
 
         ok
@@ -178,6 +180,67 @@ defmodule GameServer.Chat do
       {:error, _changeset} = err ->
         err
     end
+  end
+
+  defp send_chat_notifications(message) do
+    alias GameServer.Notifications
+
+    case message.chat_type do
+      "friend" ->
+        # Consolidated: one notification per recipient for ALL friend DMs
+        # Use recipient_id as sender_id so upsert groups all friend messages together
+        recipient_id = message.chat_ref_id
+
+        Notifications.create_chat_notification(recipient_id, recipient_id, %{
+          "title" => "New messages from friends",
+          "content" => "1 new message",
+          "metadata" => %{"chat_type" => "friend"}
+        })
+
+      "group" ->
+        group = GameServer.Groups.get_group(message.chat_ref_id)
+        group_name = (group && group.title) || "Group #{message.chat_ref_id}"
+
+        members = GameServer.Groups.get_group_members(message.chat_ref_id)
+
+        for member <- members, member.user_id != message.sender_id do
+          # Consolidated: one notification per recipient per group
+          # Use recipient's own ID as sender_id so upsert groups all group messages together
+          Notifications.create_chat_notification(member.user_id, member.user_id, %{
+            "title" => "New messages from #{group_name}",
+            "content" => "1 new message",
+            "metadata" => %{
+              "chat_type" => "group",
+              "group_id" => message.chat_ref_id
+            }
+          })
+        end
+
+      "lobby" ->
+        lobby = GameServer.Lobbies.get_lobby(message.chat_ref_id)
+        lobby_name = (lobby && lobby.title) || "Lobby #{message.chat_ref_id}"
+
+        lobby_users = GameServer.Lobbies.get_lobby_members(message.chat_ref_id)
+
+        for user <- lobby_users, user.id != message.sender_id do
+          # Consolidated: one notification per recipient per lobby
+          Notifications.create_chat_notification(user.id, user.id, %{
+            "title" => "New messages from #{lobby_name}",
+            "content" => "1 new message",
+            "metadata" => %{
+              "chat_type" => "lobby",
+              "lobby_id" => message.chat_ref_id
+            }
+          })
+        end
+
+      _ ->
+        :ok
+    end
+  rescue
+    error ->
+      Logger.warning("Chat notification failed: #{inspect(error)}")
+      :ok
   end
 
   # ---------------------------------------------------------------------------
@@ -227,6 +290,56 @@ defmodule GameServer.Chat do
   end
 
   defp validate_chat_access(_sender_id, _attrs), do: {:error, :invalid_chat_type}
+
+  # ---------------------------------------------------------------------------
+  # Slowdown enforcement
+  # ---------------------------------------------------------------------------
+
+  defp check_slowdown(sender_id, %{"chat_type" => "group", "chat_ref_id" => ref_id}) do
+    group_id = if is_binary(ref_id), do: String.to_integer(ref_id), else: ref_id
+
+    case GameServer.Groups.get_group(group_id) do
+      nil -> :ok
+      group -> enforce_slowdown(sender_id, "group", group_id, group.slowdown)
+    end
+  end
+
+  defp check_slowdown(sender_id, %{"chat_type" => "lobby", "chat_ref_id" => ref_id}) do
+    lobby_id = if is_binary(ref_id), do: String.to_integer(ref_id), else: ref_id
+
+    case GameServer.Lobbies.get_lobby(lobby_id) do
+      nil -> :ok
+      lobby -> enforce_slowdown(sender_id, "lobby", lobby_id, lobby.slowdown)
+    end
+  end
+
+  defp check_slowdown(_sender_id, _attrs), do: :ok
+
+  defp enforce_slowdown(_sender_id, _chat_type, _ref_id, slowdown)
+       when is_nil(slowdown) or slowdown <= 0,
+       do: :ok
+
+  defp enforce_slowdown(sender_id, chat_type, ref_id, slowdown) do
+    cutoff = DateTime.add(DateTime.utc_now(), -slowdown, :second)
+
+    last_msg =
+      from(m in Message,
+        where:
+          m.sender_id == ^sender_id and
+            m.chat_type == ^chat_type and
+            m.chat_ref_id == ^ref_id and
+            m.inserted_at > ^cutoff,
+        select: m.id,
+        limit: 1
+      )
+      |> Repo.one()
+
+    if last_msg do
+      {:error, :slowdown}
+    else
+      :ok
+    end
+  end
 
   # ---------------------------------------------------------------------------
   # List messages (paginated, cached)
@@ -352,7 +465,7 @@ defmodule GameServer.Chat do
       on_conflict: [
         set: [last_read_message_id: message_id, updated_at: DateTime.utc_now(:second)]
       ],
-      conflict_target: {:unsafe_fragment, "user_id, chat_type, chat_ref_id"}
+      conflict_target: {:unsafe_fragment, "(user_id, chat_type, chat_ref_id)"}
     )
   end
 
@@ -420,6 +533,95 @@ defmodule GameServer.Chat do
     end
   end
 
+  @doc """
+  Count unread friend DMs for a user across all friends.
+
+  Returns a map of `%{friend_id => unread_count}` for friends that have
+  at least one unread message.
+  """
+  @spec count_unread_friends_batch(integer(), [integer()]) :: %{integer() => non_neg_integer()}
+  def count_unread_friends_batch(_user_id, []), do: %{}
+
+  def count_unread_friends_batch(user_id, friend_ids) do
+    # Get all read cursors for friend chats at once
+    cursors =
+      from(c in ReadCursor,
+        where: c.user_id == ^user_id and c.chat_type == "friend" and c.chat_ref_id in ^friend_ids,
+        select: {c.chat_ref_id, c.last_read_message_id}
+      )
+      |> Repo.all()
+      |> Map.new()
+
+    # Count unread per friend: messages they sent to me after my last read
+    friend_ids
+    |> Enum.map(fn fid ->
+      query =
+        from(m in Message,
+          where: m.chat_type == "friend" and m.sender_id == ^fid and m.chat_ref_id == ^user_id
+        )
+
+      count =
+        case Map.get(cursors, fid) do
+          nil ->
+            Repo.aggregate(query, :count, :id)
+
+          last_id when is_integer(last_id) ->
+            from(m in query, where: m.id > ^last_id)
+            |> Repo.aggregate(:count, :id)
+
+          _ ->
+            Repo.aggregate(query, :count, :id)
+        end
+
+      {fid, count}
+    end)
+    |> Enum.reject(fn {_fid, count} -> count == 0 end)
+    |> Map.new()
+  end
+
+  @doc """
+  Count unread messages for a user in multiple group chats.
+
+  Returns a map of `%{group_id => unread_count}`.
+  """
+  @spec count_unread_groups_batch(integer(), [integer()]) :: %{integer() => non_neg_integer()}
+  def count_unread_groups_batch(_user_id, []), do: %{}
+
+  def count_unread_groups_batch(user_id, group_ids) do
+    cursors =
+      from(c in ReadCursor,
+        where: c.user_id == ^user_id and c.chat_type == "group" and c.chat_ref_id in ^group_ids,
+        select: {c.chat_ref_id, c.last_read_message_id}
+      )
+      |> Repo.all()
+      |> Map.new()
+
+    group_ids
+    |> Enum.map(fn gid ->
+      query =
+        from(m in Message,
+          where: m.chat_type == "group" and m.chat_ref_id == ^gid
+        )
+
+      count =
+        case Map.get(cursors, gid) do
+          nil ->
+            Repo.aggregate(query, :count, :id)
+
+          last_id when is_integer(last_id) ->
+            from(m in query, where: m.id > ^last_id)
+            |> Repo.aggregate(:count, :id)
+
+          _ ->
+            Repo.aggregate(query, :count, :id)
+        end
+
+      {gid, count}
+    end)
+    |> Enum.reject(fn {_gid, count} -> count == 0 end)
+    |> Map.new()
+  end
+
   # ---------------------------------------------------------------------------
   # Delete helpers (for cleanup / admin)
   # ---------------------------------------------------------------------------
@@ -437,10 +639,136 @@ defmodule GameServer.Chat do
     result
   end
 
+  @doc "Delete all read cursors for a given chat conversation."
+  @spec delete_read_cursors(String.t(), integer()) :: {non_neg_integer(), nil}
+  def delete_read_cursors(chat_type, chat_ref_id) do
+    from(c in ReadCursor,
+      where: c.chat_type == ^chat_type and c.chat_ref_id == ^chat_ref_id
+    )
+    |> Repo.delete_all()
+  end
+
+  @doc "Delete all chat data (messages + read cursors) for a given conversation."
+  @spec cleanup_chat(String.t(), integer()) :: :ok
+  def cleanup_chat(chat_type, chat_ref_id) do
+    delete_messages(chat_type, chat_ref_id)
+    delete_read_cursors(chat_type, chat_ref_id)
+    :ok
+  end
+
+  @doc """
+  Delete all friend DM messages and read cursors between two users.
+
+  Friend messages are stored bidirectionally (each user's messages use
+  the other's id as chat_ref_id), so both directions must be cleaned up.
+  """
+  @spec cleanup_friend_chat(integer(), integer()) :: :ok
+  def cleanup_friend_chat(user_a_id, user_b_id) do
+    # Delete messages in both directions
+    from(m in Message,
+      where:
+        (m.chat_type == "friend" and m.sender_id == ^user_a_id and m.chat_ref_id == ^user_b_id) or
+          (m.chat_type == "friend" and m.sender_id == ^user_b_id and m.chat_ref_id == ^user_a_id)
+    )
+    |> Repo.delete_all()
+
+    # Delete read cursors for both users
+    from(c in ReadCursor,
+      where:
+        (c.chat_type == "friend" and c.user_id == ^user_a_id and c.chat_ref_id == ^user_b_id) or
+          (c.chat_type == "friend" and c.user_id == ^user_b_id and c.chat_ref_id == ^user_a_id)
+    )
+    |> Repo.delete_all()
+
+    invalidate_chat_cache("friend", user_a_id)
+    invalidate_chat_cache("friend", user_b_id)
+    :ok
+  end
+
   @doc "Get a single message by id."
   @spec get_message(integer()) :: Message.t() | nil
   def get_message(id) do
     Repo.get(Message, id)
+  end
+
+  # ---------------------------------------------------------------------------
+  # Update / Delete own messages
+  # ---------------------------------------------------------------------------
+
+  @doc """
+  Update a chat message owned by the given user.
+
+  Only the `content` and `metadata` fields can be changed. Returns
+  `{:error, :not_found}` if the message does not exist or
+  `{:error, :forbidden}` if the caller is not the sender.
+  """
+  @spec update_message(integer(), integer(), map()) ::
+          {:ok, Message.t()} | {:error, term()}
+  def update_message(user_id, message_id, attrs) do
+    case Repo.get(Message, message_id) do
+      nil ->
+        {:error, :not_found}
+
+      %Message{sender_id: ^user_id} = message ->
+        message
+        |> Message.update_changeset(attrs)
+        |> Repo.update()
+        |> case do
+          {:ok, updated} ->
+            invalidate_chat_cache(updated.chat_type, updated.chat_ref_id)
+
+            broadcast_chat(
+              updated.chat_type,
+              updated.chat_ref_id,
+              updated.sender_id,
+              {:chat_message_updated, updated}
+            )
+
+            {:ok, updated}
+
+          {:error, _cs} = err ->
+            err
+        end
+
+      %Message{} ->
+        {:error, :forbidden}
+    end
+  end
+
+  @doc """
+  Delete a chat message owned by the given user.
+
+  Returns `{:error, :not_found}` if the message does not exist or
+  `{:error, :forbidden}` if the caller is not the sender.
+  """
+  @spec delete_own_message(integer(), integer()) ::
+          {:ok, Message.t()} | {:error, term()}
+  def delete_own_message(user_id, message_id) do
+    case Repo.get(Message, message_id) do
+      nil ->
+        {:error, :not_found}
+
+      %Message{sender_id: ^user_id} = message ->
+        case Repo.delete(message) do
+          {:ok, deleted} ->
+            invalidate_chat_cache(deleted.chat_type, deleted.chat_ref_id)
+
+            broadcast_chat(
+              deleted.chat_type,
+              deleted.chat_ref_id,
+              deleted.sender_id,
+              {:chat_message_deleted, deleted}
+            )
+
+            {:ok, deleted}
+
+          {:error, _cs} = err ->
+            err
+        end
+
+      %Message{} ->
+        {:error, :forbidden}
+    end
   end
 
   # ---------------------------------------------------------------------------
@@ -467,6 +795,25 @@ defmodule GameServer.Chat do
   @spec count_all_messages(map()) :: non_neg_integer()
   def count_all_messages(filters \\ %{}) do
     base_admin_query(filters) |> Repo.aggregate(:count, :id)
+  end
+
+  @doc "Count distinct users who have sent at least one chat message."
+  @spec count_unique_senders() :: non_neg_integer()
+  def count_unique_senders do
+    from(m in Message, select: count(m.sender_id, :distinct))
+    |> Repo.one()
+  end
+
+  @doc ~S"""
+  Count messages grouped by chat_type.
+
+  Returns a map like `%{"lobby" => 10, "group" => 5, "friend" => 3}`.
+  """
+  @spec count_messages_by_type() :: map()
+  def count_messages_by_type do
+    from(m in Message, group_by: m.chat_type, select: {m.chat_type, count(m.id)})
+    |> Repo.all()
+    |> Map.new()
   end
 
   @doc "Admin: delete a single message by id."

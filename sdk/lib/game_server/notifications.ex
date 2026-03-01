@@ -104,6 +104,45 @@ defmodule GameServer.Notifications do
 
 
   @doc ~S"""
+    Count unread notifications for a user.
+  """
+  @spec count_unread_notifications(user_id()) :: non_neg_integer()
+  def count_unread_notifications(_user_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Notifications.count_unread_notifications/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Create a chat notification for a recipient.
+    
+    Unlike `send_notification/2`, this does not require friendship — it is
+    intended for system-generated notifications triggered by new chat messages.
+    
+    Uses upsert semantics: if a notification with the same
+    `(sender_id, recipient_id, title)` already exists, its content and metadata
+    are updated (so the user sees the latest message preview).
+    
+  """
+  @spec create_chat_notification(user_id(), user_id(), map()) ::
+  {:ok, GameServer.Notifications.Notification.t()} | {:error, term()}
+  def create_chat_notification(_sender_id, _recipient_id, _attrs) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, nil}
+
+      _ ->
+        raise "GameServer.Notifications.create_chat_notification/3 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Delete notifications by IDs, scoped to the recipient (owner).
     
     Only notifications belonging to `user_id` will be deleted.
@@ -200,6 +239,37 @@ defmodule GameServer.Notifications do
 
       _ ->
         raise "GameServer.Notifications.list_notifications/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Mark all notifications as read for a user.
+  """
+  @spec mark_all_notifications_read(user_id()) :: {non_neg_integer(), nil}
+  def mark_all_notifications_read(_user_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Notifications.mark_all_notifications_read/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Mark a single notification as read. Only the recipient can mark it.
+  """
+  @spec mark_notification_read(user_id(), integer()) ::
+  {:ok, GameServer.Notifications.Notification.t()} | {:error, atom()}
+  def mark_notification_read(_user_id, _notification_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, nil}
+
+      _ ->
+        raise "GameServer.Notifications.mark_notification_read/2 is a stub - only available at runtime on GameServer"
     end
   end
 
