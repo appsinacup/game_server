@@ -536,9 +536,15 @@ defmodule GameServer.Hooks do
         other -> {:ok, other}
       end
     else
-      # Extremely defensive fallback in case the Default module ever
-      # changes; default to returning first arg when present.
-      {:ok, Enum.at(args, 0)}
+      # Fallback when the Default module doesn't export the callback.
+      # For pipeline hooks that transform multi-arity args, use
+      # finalize_pipeline_value to return the correct element (e.g. attrs
+      # rather than user for before_group_create/2).
+      if lifecycle_pipeline_hook?(name, arity) and arity > 0 do
+        {:ok, finalize_pipeline_value(name, args)}
+      else
+        {:ok, Enum.at(args, 0)}
+      end
     end
   end
 
