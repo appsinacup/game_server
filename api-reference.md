@@ -1,4 +1,4 @@
-# GameServer v1.0.623 - API Reference
+# GameServer v1.0.625 - API Reference
 
 ## Modules
 
@@ -45,6 +45,7 @@ leaving, kicking, promoting/demoting members, and handling join requests.
 - [GameServer.Leaderboards.Record](GameServer.Leaderboards.Record.md): Ecto schema for the `leaderboard_records` table.
 - [GameServer.Lobbies](GameServer.Lobbies.md): Context module for lobby management: creating, updating, listing and searching lobbies.
 - [GameServer.Lobbies.Lobby](GameServer.Lobbies.Lobby.md): Ecto schema for the `lobbies` table and changeset helpers.
+- [GameServer.Lock](GameServer.Lock.md): Serialized execution using database-level advisory locks.
 - [GameServer.Mailer](GameServer.Mailer.md)
 - [GameServer.Notifications](GameServer.Notifications.md): Notifications context – create, list, and delete persisted user-to-user
 notifications.

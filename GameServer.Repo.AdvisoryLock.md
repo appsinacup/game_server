@@ -28,13 +28,28 @@ Each resource type uses a distinct integer namespace to avoid collisions:
 - `:group` → 2
 - `:party` → 3
 
+You can also pass an arbitrary string as the namespace. The string is
+hashed to a stable 32-bit integer via `:erlang.phash2/2`, so any
+string (e.g. `"word_guessed"`, `"my_rpc"`) works without pre-registration.
+
+## Examples
+
+    # Atom namespace (predefined):
+    AdvisoryLock.lock(:lobby, lobby_id)
+
+    # String namespace (ad-hoc):
+    AdvisoryLock.lock("word_guessed", lobby_id)
+
 # `lock`
 
 ```elixir
-@spec lock(atom(), integer()) :: :ok
+@spec lock(atom() | String.t(), integer()) :: :ok
 ```
 
 Acquire a transaction-scoped advisory lock for the given resource.
+
+`namespace` can be a predefined atom (`:lobby`, `:group`, `:party`) or any
+arbitrary string. `resource_id` must be a non-negative integer.
 
 Must be called inside a `Repo.transaction`. On PostgreSQL, blocks until
 the lock is available. On SQLite, returns immediately.
