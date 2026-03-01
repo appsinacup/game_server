@@ -21,6 +21,7 @@ visibility, lock/password and arbitrary metadata).
   memberships: term(),
   metadata: term(),
   password_hash: term(),
+  slowdown: term(),
   title: term(),
   updated_at: term(),
   users: term()

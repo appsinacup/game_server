@@ -33,6 +33,10 @@ Represents a single chat message in a lobby, group, or friend conversation.
 
 Changeset for creating/updating a chat message.
 
+# `update_changeset`
+
+Changeset for editing an existing message (content and metadata only).
+
 ---
 
 *Consult [api-reference.md](api-reference.md) for complete listing*

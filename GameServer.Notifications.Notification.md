@@ -20,6 +20,7 @@ explicitly deletes them. Fields:
   id: integer() | nil,
   inserted_at: DateTime.t() | nil,
   metadata: map(),
+  read: boolean(),
   recipient: term(),
   recipient_id: integer() | nil,
   sender: term(),

@@ -74,6 +74,30 @@ Count all notifications matching the given filters (admin).
 
 Count total notifications for a user.
 
+# `count_unread_notifications`
+
+```elixir
+@spec count_unread_notifications(user_id()) :: non_neg_integer()
+```
+
+Count unread notifications for a user.
+
+# `create_chat_notification`
+
+```elixir
+@spec create_chat_notification(user_id(), user_id(), map()) ::
+  {:ok, GameServer.Notifications.Notification.t()} | {:error, term()}
+```
+
+Create a chat notification for a recipient.
+
+Unlike `send_notification/2`, this does not require friendship — it is
+intended for system-generated notifications triggered by new chat messages.
+
+Uses upsert semantics: if a notification with the same
+`(sender_id, recipient_id, title)` already exists, its content and metadata
+are updated (so the user sees the latest message preview).
+
 # `delete_notifications`
 
 ```elixir
@@ -136,6 +160,23 @@ List all notifications for a user, ordered oldest-first so the client
 receives them in chronological order.
 
 Supports pagination via `:page` and `:page_size` options.
+
+# `mark_all_notifications_read`
+
+```elixir
+@spec mark_all_notifications_read(user_id()) :: {non_neg_integer(), nil}
+```
+
+Mark all notifications as read for a user.
+
+# `mark_notification_read`
+
+```elixir
+@spec mark_notification_read(user_id(), integer()) ::
+  {:ok, GameServer.Notifications.Notification.t()} | {:error, atom()}
+```
+
+Mark a single notification as read. Only the recipient can mark it.
 
 # `send_notification`
 

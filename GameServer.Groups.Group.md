@@ -28,6 +28,7 @@ join-request workflows, and invitation flows.
   max_members: term(),
   members: term(),
   metadata: term(),
+  slowdown: term(),
   title: term(),
   type: term(),
   updated_at: term()

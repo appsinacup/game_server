@@ -30,6 +30,25 @@ Context for chat messaging across lobbies, groups, and friend DMs.
 
 Admin: delete a single message by id.
 
+# `cleanup_chat`
+
+```elixir
+@spec cleanup_chat(String.t(), integer()) :: :ok
+```
+
+Delete all chat data (messages + read cursors) for a given conversation.
+
+# `cleanup_friend_chat`
+
+```elixir
+@spec cleanup_friend_chat(integer(), integer()) :: :ok
+```
+
+Delete all friend DM messages and read cursors between two users.
+
+Friend messages are stored bidirectionally (each user's messages use
+the other's id as chat_ref_id), so both directions must be cleaned up.
+
 # `count_all_messages`
 
 ```elixir
@@ -54,6 +73,24 @@ Count total friend DM messages between two users.
 
 Count total messages in a chat conversation.
 
+# `count_messages_by_type`
+
+```elixir
+@spec count_messages_by_type() :: map()
+```
+
+Count messages grouped by chat_type.
+
+Returns a map like `%{"lobby" => 10, "group" => 5, "friend" => 3}`.
+
+# `count_unique_senders`
+
+```elixir
+@spec count_unique_senders() :: non_neg_integer()
+```
+
+Count distinct users who have sent at least one chat message.
+
 # `count_unread`
 
 ```elixir
@@ -73,6 +110,31 @@ in which case `count_messages/2` should be used instead).
 
 Count unread friend DMs between two users for a specific user.
 
+# `count_unread_friends_batch`
+
+```elixir
+@spec count_unread_friends_batch(integer(), [integer()]) :: %{
+  required(integer()) =&gt; non_neg_integer()
+}
+```
+
+Count unread friend DMs for a user across all friends.
+
+Returns a map of `%{friend_id => unread_count}` for friends that have
+at least one unread message.
+
+# `count_unread_groups_batch`
+
+```elixir
+@spec count_unread_groups_batch(integer(), [integer()]) :: %{
+  required(integer()) =&gt; non_neg_integer()
+}
+```
+
+Count unread messages for a user in multiple group chats.
+
+Returns a map of `%{group_id => unread_count}`.
+
 # `delete_messages`
 
 ```elixir
@@ -80,6 +142,26 @@ Count unread friend DMs between two users for a specific user.
 ```
 
 Delete all messages for a given chat conversation.
+
+# `delete_own_message`
+
+```elixir
+@spec delete_own_message(integer(), integer()) ::
+  {:ok, GameServer.Chat.Message.t()} | {:error, term()}
+```
+
+Delete a chat message owned by the given user.
+
+Returns `{:error, :not_found}` if the message does not exist or
+`{:error, :forbidden}` if the caller is not the sender.
+
+# `delete_read_cursors`
+
+```elixir
+@spec delete_read_cursors(String.t(), integer()) :: {non_neg_integer(), nil}
+```
+
+Delete all read cursors for a given chat conversation.
 
 # `get_message`
 
@@ -225,6 +307,19 @@ Unsubscribe from group chat events.
 ```
 
 Unsubscribe from lobby chat events.
+
+# `update_message`
+
+```elixir
+@spec update_message(integer(), integer(), map()) ::
+  {:ok, GameServer.Chat.Message.t()} | {:error, term()}
+```
+
+Update a chat message owned by the given user.
+
+Only the `content` and `metadata` fields can be changed. Returns
+`{:error, :not_found}` if the message does not exist or
+`{:error, :forbidden}` if the caller is not the sender.
 
 ---
 
