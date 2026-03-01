@@ -5,10 +5,10 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.617">
+    <meta name="project" content="GameServer v1.0.618">
 
 
-    <title>GameServer.Repo.AdvisoryLock — GameServer v1.0.617</title>
+    <title>GameServer.Repo.AdvisoryLock — GameServer v1.0.618</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.617
+          v1.0.618
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Repo.<wbr>AdvisoryLock</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.617)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.618)</small>
 
     </h1>
 
@@ -112,12 +112,12 @@ GameServer
 <p>Advisory locking for protecting TOCTOU (Time-of-Check-Time-of-Use) patterns.</p><p>On PostgreSQL, acquires a transaction-scoped advisory lock via
 <code class="inline">pg_advisory_xact_lock(namespace, resource_id)</code>. The lock is automatically
 released when the enclosing <code class="inline">Repo.transaction</code> commits or rolls back.</p><p>On SQLite, this is a no-op — SQLite serializes all writes at the
-database level, so advisory locks are unnecessary.</p><h2 id="module-usage" class="section-heading"><a href="#module-usage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage</span></h2><p>Always call within a <code class="inline">Repo.transaction</code>:</p><pre><code class="makeup elixir" translate="no"><span class="nc">Repo</span><span class="o">.</span><span class="n">transaction</span><span class="p" data-group-id="7838747839-1">(</span><span class="k" data-group-id="7838747839-2">fn</span><span class="w"> </span><span class="o">-&gt;</span><span class="w">
-  </span><span class="nc">AdvisoryLock</span><span class="o">.</span><span class="n">lock</span><span class="p" data-group-id="7838747839-3">(</span><span class="ss">:lobby</span><span class="p">,</span><span class="w"> </span><span class="n">lobby</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="7838747839-3">)</span><span class="w">
-  </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">count_members</span><span class="p" data-group-id="7838747839-4">(</span><span class="n">lobby</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="7838747839-4">)</span><span class="w">
-  </span><span class="k">if</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">lobby</span><span class="o">.</span><span class="n">max_users</span><span class="p">,</span><span class="w"> </span><span class="ss">do</span><span class="p">:</span><span class="w"> </span><span class="nc">Repo</span><span class="o">.</span><span class="n">rollback</span><span class="p" data-group-id="7838747839-5">(</span><span class="ss">:full</span><span class="p" data-group-id="7838747839-5">)</span><span class="w">
-  </span><span class="n">do_join</span><span class="p" data-group-id="7838747839-6">(</span><span class="n">...</span><span class="p" data-group-id="7838747839-6">)</span><span class="w">
-</span><span class="k" data-group-id="7838747839-2">end</span><span class="p" data-group-id="7838747839-1">)</span></code></pre><h2 id="module-namespaces" class="section-heading"><a href="#module-namespaces" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Namespaces</span></h2><p>Each resource type uses a distinct integer namespace to avoid collisions:</p><ul><li><code class="inline">:lobby</code> → 1</li><li><code class="inline">:group</code> → 2</li><li><code class="inline">:party</code> → 3</li></ul>
+database level, so advisory locks are unnecessary.</p><h2 id="module-usage" class="section-heading"><a href="#module-usage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage</span></h2><p>Always call within a <code class="inline">Repo.transaction</code>:</p><pre><code class="makeup elixir" translate="no"><span class="nc">Repo</span><span class="o">.</span><span class="n">transaction</span><span class="p" data-group-id="9625828260-1">(</span><span class="k" data-group-id="9625828260-2">fn</span><span class="w"> </span><span class="o">-&gt;</span><span class="w">
+  </span><span class="nc">AdvisoryLock</span><span class="o">.</span><span class="n">lock</span><span class="p" data-group-id="9625828260-3">(</span><span class="ss">:lobby</span><span class="p">,</span><span class="w"> </span><span class="n">lobby</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="9625828260-3">)</span><span class="w">
+  </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">count_members</span><span class="p" data-group-id="9625828260-4">(</span><span class="n">lobby</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="9625828260-4">)</span><span class="w">
+  </span><span class="k">if</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">lobby</span><span class="o">.</span><span class="n">max_users</span><span class="p">,</span><span class="w"> </span><span class="ss">do</span><span class="p">:</span><span class="w"> </span><span class="nc">Repo</span><span class="o">.</span><span class="n">rollback</span><span class="p" data-group-id="9625828260-5">(</span><span class="ss">:full</span><span class="p" data-group-id="9625828260-5">)</span><span class="w">
+  </span><span class="n">do_join</span><span class="p" data-group-id="9625828260-6">(</span><span class="n">...</span><span class="p" data-group-id="9625828260-6">)</span><span class="w">
+</span><span class="k" data-group-id="9625828260-2">end</span><span class="p" data-group-id="9625828260-1">)</span></code></pre><h2 id="module-namespaces" class="section-heading"><a href="#module-namespaces" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Namespaces</span></h2><p>Each resource type uses a distinct integer namespace to avoid collisions:</p><ul><li><code class="inline">:lobby</code> → 1</li><li><code class="inline">:group</code> → 2</li><li><code class="inline">:party</code> → 3</li></ul>
     </section>
 
 </div>
