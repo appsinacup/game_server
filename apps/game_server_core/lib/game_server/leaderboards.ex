@@ -685,26 +685,33 @@ defmodule GameServer.Leaderboards do
             {:error, :not_found}
 
           record ->
-            rank = calculate_rank(leaderboard.id, record.score)
+            rank = calculate_rank(leaderboard.id, record.score, record.inserted_at)
             {:ok, %{record | rank: rank}}
         end
     end
   end
 
-  defp calculate_rank(leaderboard_id, score) when is_integer(leaderboard_id) do
+  defp calculate_rank(leaderboard_id, score, inserted_at)
+       when is_integer(leaderboard_id) do
     leaderboard = get_leaderboard!(leaderboard_id)
 
-    # Count how many records have a better score
+    # Count how many records rank above this one.
+    # For ties (same score) the earlier inserted_at wins a higher rank,
+    # giving every entry a unique sequential position (ROW_NUMBER style).
     query =
       case leaderboard.sort_order do
         :desc ->
           from r in Record,
-            where: r.leaderboard_id == ^leaderboard_id and r.score > ^score,
+            where:
+              r.leaderboard_id == ^leaderboard_id and
+                (r.score > ^score or (r.score == ^score and r.inserted_at < ^inserted_at)),
             select: count(r.id)
 
         :asc ->
           from r in Record,
-            where: r.leaderboard_id == ^leaderboard_id and r.score < ^score,
+            where:
+              r.leaderboard_id == ^leaderboard_id and
+                (r.score < ^score or (r.score == ^score and r.inserted_at < ^inserted_at)),
             select: count(r.id)
       end
 
@@ -747,8 +754,8 @@ defmodule GameServer.Leaderboards do
 
     order_by =
       case sort_order do
-        :desc -> [desc: :score, asc: :updated_at]
-        :asc -> [asc: :score, asc: :updated_at]
+        :desc -> [desc: :score, asc: :inserted_at]
+        :asc -> [asc: :score, asc: :inserted_at]
       end
 
     records =
@@ -842,8 +849,8 @@ defmodule GameServer.Leaderboards do
 
         order_by =
           case sort_order do
-            :desc -> [desc: :score, asc: :updated_at]
-            :asc -> [asc: :score, asc: :updated_at]
+            :desc -> [desc: :score, asc: :inserted_at]
+            :asc -> [asc: :score, asc: :inserted_at]
           end
 
         records =
