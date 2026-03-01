@@ -288,9 +288,9 @@ jobs:
           cp LICENSE clients/javascript/LICENSE
           jq '.license = "MIT"' clients/javascript/package.json > clients/javascript/package.json.tmp && mv clients/javascript/package.json.tmp clients/javascript/package.json
 
-      - name: Update package.json with repository field (https://github.com/ughuuu/game_server.git)
+      - name: Update package.json with repository field (https://github.com/appsinacup/game_server.git)
         run: |
-          REPO_FIELD='"repository": { "type": "git", "url": "git+https://github.com/ughuuu/game_server.git" },'
+          REPO_FIELD='"repository": { "type": "git", "url": "git+https://github.com/appsinacup/game_server.git" },'
           jq ". + { $REPO_FIELD }" clients/javascript/package.json > clients/javascript/package.json.tmp && mv clients/javascript/package.json.tmp clients/javascript/package.json
 
       - name: Add publishing config with provenance true
