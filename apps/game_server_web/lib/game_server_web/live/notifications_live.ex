@@ -14,7 +14,6 @@ defmodule GameServerWeb.NotificationsLive do
           <div class="flex items-center justify-between">
             <div>
               <div class="font-semibold text-lg flex items-center gap-2">
-                <.icon name="hero-bell" class="w-5 h-5" />
                 {dgettext("settings", "Notifications")}
               </div>
               <div class="text-sm text-base-content/70">
@@ -31,7 +30,6 @@ defmodule GameServerWeb.NotificationsLive do
                   phx-click="mark_all_read"
                   class="btn btn-sm btn-outline btn-info"
                 >
-                  <.icon name="hero-check" class="w-4 h-4" />
                   {dgettext("settings", "Read All")}
                 </button>
               <% end %>
@@ -110,7 +108,7 @@ defmodule GameServerWeb.NotificationsLive do
                           class="btn btn-xs btn-outline btn-info"
                           title={gettext("Mark as read")}
                         >
-                          <.icon name="hero-check" class="w-3 h-3" />
+                          {gettext("Read")}
                         </button>
                       <% end %>
                       <button

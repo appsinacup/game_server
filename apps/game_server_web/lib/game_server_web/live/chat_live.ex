@@ -63,7 +63,6 @@ defmodule GameServerWeb.ChatLive do
                   )
                 ]}
               >
-                <.icon name="hero-user" class="w-4 h-4 flex-shrink-0" />
                 <span class="truncate">{f.display_name || f.email}</span>
               </button>
             </li>
@@ -90,7 +89,6 @@ defmodule GameServerWeb.ChatLive do
                   )
                 ]}
               >
-                <.icon name="hero-user-group" class="w-4 h-4 flex-shrink-0" />
                 <span class="truncate">{group.title || group.name}</span>
               </button>
             </li>
@@ -106,12 +104,8 @@ defmodule GameServerWeb.ChatLive do
             <%!-- Header --%>
             <div class="flex items-center gap-2 pb-3 border-b border-base-300 mb-3">
               <button phx-click="close_chat" class="btn btn-xs btn-ghost md:hidden">
-                <.icon name="hero-arrow-left" class="w-4 h-4" />
+                ←
               </button>
-              <.icon
-                name={if(@chat_type == "friend", do: "hero-user", else: "hero-user-group")}
-                class="w-5 h-5"
-              />
               <h2 class="font-semibold text-lg truncate">{@chat_target_name}</h2>
             </div>
 
@@ -169,10 +163,10 @@ defmodule GameServerWeb.ChatLive do
                       phx-mounted={JS.dispatch("focus")}
                     />
                     <button type="submit" class="btn btn-xs btn-primary">
-                      <.icon name="hero-check" class="w-3 h-3" />
+                      {gettext("Save")}
                     </button>
                     <button type="button" phx-click="chat_edit_cancel" class="btn btn-xs btn-ghost">
-                      <.icon name="hero-x-mark" class="w-3 h-3" />
+                      {gettext("Cancel")}
                     </button>
                   </form>
                 <% else %>
@@ -191,7 +185,7 @@ defmodule GameServerWeb.ChatLive do
                         class="btn btn-xs btn-ghost px-1"
                         title={gettext("Edit")}
                       >
-                        <.icon name="hero-pencil-square-mini" class="w-3 h-3" />
+                        {gettext("Edit")}
                       </button>
                       <button
                         phx-click="chat_delete"
@@ -200,7 +194,7 @@ defmodule GameServerWeb.ChatLive do
                         class="btn btn-xs btn-ghost px-1 text-error"
                         title={gettext("Delete")}
                       >
-                        <.icon name="hero-trash-mini" class="w-3 h-3" />
+                        {gettext("Delete")}
                       </button>
                     </div>
                     <div class={[
@@ -232,13 +226,12 @@ defmodule GameServerWeb.ChatLive do
                 autocomplete="off"
               />
               <button type="submit" class="btn btn-sm btn-primary">
-                <.icon name="hero-paper-airplane-mini" class="w-4 h-4" />
+                {gettext("Send")}
               </button>
             </form>
           <% else %>
             <div class="flex-1 flex items-center justify-center text-base-content/40">
               <div class="text-center">
-                <.icon name="hero-chat-bubble-left-right" class="w-12 h-12 mx-auto mb-3" />
                 <p class="text-lg">{gettext("Select a conversation")}</p>
                 <p class="text-sm mt-1">{gettext("Choose a friend or group from the sidebar")}</p>
               </div>

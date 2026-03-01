@@ -49,24 +49,23 @@ defmodule GameServerWeb.UserLive.Settings do
       <div class="mt-6 flex gap-1 border-b border-base-300 pb-0 overflow-x-auto">
         <button
           :for={
-            {tab, label, icon} <- [
-              {"account", dgettext("settings", "Account"), "hero-user-circle"},
-              {"friends", dgettext("settings", "Friends"), "hero-user-group"},
-              {"groups", dgettext("groups", "Groups"), "hero-users"},
-              {"data", dgettext("settings", "Data"), "hero-circle-stack"}
+            {tab, label} <- [
+              {"account", dgettext("settings", "Account")},
+              {"friends", dgettext("settings", "Friends")},
+              {"groups", dgettext("groups", "Groups")},
+              {"data", dgettext("settings", "Data")}
             ]
           }
           phx-click="settings_tab"
           phx-value-tab={tab}
           class={[
-            "px-4 py-2.5 text-sm font-medium rounded-t-lg transition-colors flex items-center gap-2 whitespace-nowrap",
+            "px-4 py-2.5 text-sm font-medium rounded-t-lg transition-colors whitespace-nowrap",
             if(@settings_tab == tab,
               do: "bg-primary text-primary-content shadow-sm",
               else: "text-base-content/60 hover:text-base-content hover:bg-base-200/50"
             )
           ]}
         >
-          <.icon name={icon} class="w-4 h-4" />
           {label}
         </button>
       </div>
@@ -703,7 +702,7 @@ defmodule GameServerWeb.UserLive.Settings do
             <div class="flex gap-2">
               <%= if @group_detail do %>
                 <button phx-click="group_close_detail" class="btn btn-sm btn-ghost">
-                  <.icon name="hero-arrow-left" class="w-4 h-4" /> {gettext("Back")}
+                  {gettext("Back")}
                 </button>
               <% end %>
               <button

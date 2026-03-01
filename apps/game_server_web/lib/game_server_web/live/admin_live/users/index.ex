@@ -22,7 +22,7 @@ defmodule GameServerWeb.AdminLive.Users.Index do
           <:subtitle>Manage all users in the system</:subtitle>
           <:actions>
             <.link navigate={~p"/admin"} class="btn btn-ghost btn-sm">
-              <.icon name="hero-arrow-left" class="w-4 h-4" /> Back to Admin
+              Back to Admin
             </.link>
           </:actions>
         </.header>
@@ -73,7 +73,7 @@ defmodule GameServerWeb.AdminLive.Users.Index do
                           phx-value-id={user.id}
                           class="btn btn-sm btn-ghost"
                         >
-                          <.icon name="hero-pencil" class="w-4 h-4" />
+                          Edit
                         </button>
                         <button
                           phx-click="delete_user"
@@ -81,7 +81,7 @@ defmodule GameServerWeb.AdminLive.Users.Index do
                           data-confirm="Are you sure you want to delete this user?"
                           class="btn btn-sm btn-error btn-ghost"
                         >
-                          <.icon name="hero-trash" class="w-4 h-4" />
+                          Delete
                         </button>
                       </div>
                     </td>

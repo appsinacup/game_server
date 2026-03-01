@@ -31,7 +31,7 @@ defmodule GameServerWeb.AdminLive.Config do
                 class="btn btn-ghost btn-sm ml-auto"
                 title="Collapse/Expand"
               >
-                <.icon name="hero-chevron-down" class="w-4 h-4" />
+                ▾
               </button>
             </h2>
             <div class="overflow-x-auto lg:overflow-x-hidden">
@@ -955,7 +955,7 @@ defmodule GameServerWeb.AdminLive.Config do
         <div class="card bg-base-100 shadow-xl" data-card-key="scheduled_jobs">
           <div class="card-body">
             <h2 class="card-title text-xl mb-4 flex items-center gap-3">
-              <.icon name="hero-clock" class="w-5 h-5" /> Scheduled Jobs
+              Scheduled Jobs
               <button
                 type="button"
                 data-action="toggle-card"
