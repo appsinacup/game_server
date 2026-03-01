@@ -17,8 +17,8 @@
 
   <%!-- Full-bleed hero section — breaks out of the layout container, extends behind navbar --%>
   <div class="relative w-screen left-1/2 -translate-x-1/2 -mt-20">
-    <%!-- Background image — full viewport height --%>
-    <div class="relative h-screen overflow-hidden">
+    <%!-- Background image — fills the hero naturally, min full viewport --%>
+    <div class="relative min-h-screen overflow-hidden">
       <img
         src="/images/fullscreen.png"
         alt=""
@@ -39,7 +39,7 @@
       </div>
 
       <%!-- Hero content overlay — centered with arrow pinned at bottom --%>
-      <div class="relative z-10 flex flex-col items-center h-screen pt-20 px-6 sm:px-8 lg:px-12">
+      <div class="relative z-10 flex flex-col items-center min-h-screen pt-20 px-6 sm:px-8 lg:px-12">
         <%!-- Top spacer --%>
         <div class="flex-1 min-h-4"></div>
 
@@ -50,7 +50,7 @@
             src={Map.get(provider_theme, "banner")}
             alt={gettext("Game Server Banner")}
             class={[
-              "max-w-[260px] sm:max-w-[340px] lg:max-w-[400px] h-auto drop-shadow-lg",
+              "w-full max-w-[90vw] sm:max-w-[380px] md:max-w-[460px] lg:max-w-[540px] xl:max-w-[620px] h-auto drop-shadow-lg",
               banner_dark_exists? && "[[data-theme=dark]_&]:hidden"
             ]}
           />
@@ -58,7 +58,7 @@
             <img
               src={banner_dark_path}
               alt={gettext("Game Server Banner")}
-              class="max-w-[260px] sm:max-w-[340px] lg:max-w-[400px] h-auto drop-shadow-lg hidden [[data-theme=dark]_&]:block"
+              class="w-full max-w-[90vw] sm:max-w-[380px] md:max-w-[460px] lg:max-w-[540px] xl:max-w-[620px] h-auto drop-shadow-lg hidden [[data-theme=dark]_&]:block"
             />
           <% end %>
 
