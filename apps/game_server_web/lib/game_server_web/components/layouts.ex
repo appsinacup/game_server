@@ -62,6 +62,9 @@ defmodule GameServerWeb.Layouts do
       "css" => Map.get(provider_theme, "css")
     }
 
+    # Extra nav links from theme config JSON ("nav_links" key)
+    nav_links = Map.get(provider_theme, "nav_links") || []
+
     notif_unread_count =
       if assigns[:current_scope] do
         GameServer.Notifications.count_unread_notifications(assigns.current_scope.user.id)
@@ -74,6 +77,7 @@ defmodule GameServerWeb.Layouts do
         current_path: current_path,
         current_query: current_query,
         theme: theme,
+        nav_links: nav_links,
         notif_unread_count: notif_unread_count
       )
 
@@ -200,6 +204,24 @@ defmodule GameServerWeb.Layouts do
                 </.link>
               </li>
             <% end %>
+            <%= for link <- filtered_nav_links(@nav_links, if(@current_scope && @current_scope.user.is_admin, do: :admin, else: :authenticated)) do %>
+              <li>
+                <a
+                  href={link["href"]}
+                  target={if(link["external"], do: "_blank", else: nil)}
+                  rel={if(link["external"], do: "noopener noreferrer", else: nil)}
+                  class={[
+                    "btn",
+                    if(String.starts_with?(@current_path, link["href"]),
+                      do: "btn-primary",
+                      else: "btn-outline"
+                    )
+                  ]}
+                >
+                  {link["label"]}
+                </a>
+              </li>
+            <% end %>
             <li>
               <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline">
                 {gettext("Log out")}
@@ -258,6 +280,24 @@ defmodule GameServerWeb.Layouts do
               >
                 {gettext("Register")}
               </.link>
+            </li>
+          <% end %>
+          <%= for link <- filtered_nav_links(@nav_links, if(@current_scope, do: :authenticated, else: :unauthenticated)) do %>
+            <li>
+              <a
+                href={link["href"]}
+                target={if(link["external"], do: "_blank", else: nil)}
+                rel={if(link["external"], do: "noopener noreferrer", else: nil)}
+                class={[
+                  "btn",
+                  if(String.starts_with?(@current_path, link["href"]),
+                    do: "btn-primary",
+                    else: "btn-outline"
+                  )
+                ]}
+              >
+                {link["label"]}
+              </a>
             </li>
           <% end %>
           <%!-- <li>
@@ -390,6 +430,24 @@ defmodule GameServerWeb.Layouts do
                     </a>
                   </li>
                 <% end %>
+                <%= for link <- filtered_nav_links(@nav_links, if(@current_scope && @current_scope.user.is_admin, do: :admin, else: :authenticated)) do %>
+                  <li>
+                    <a
+                      href={link["href"]}
+                      target={if(link["external"], do: "_blank", else: nil)}
+                      rel={if(link["external"], do: "noopener noreferrer", else: nil)}
+                      class={[
+                        "btn",
+                        if(String.starts_with?(@current_path, link["href"]),
+                          do: "btn-primary",
+                          else: "btn-outline"
+                        )
+                      ]}
+                    >
+                      {link["label"]}
+                    </a>
+                  </li>
+                <% end %>
                 <li>
                   <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline">
                     {gettext("Log out")}
@@ -453,6 +511,24 @@ defmodule GameServerWeb.Layouts do
                   <div class="flex justify-end items-center w-full pr-2">
                     <span class="text-xs opacity-60">v{app_version()}</span>
                   </div>
+                </li>
+              <% end %>
+              <%= for link <- filtered_nav_links(@nav_links, if(@current_scope, do: :authenticated, else: :unauthenticated)) do %>
+                <li>
+                  <a
+                    href={link["href"]}
+                    target={if(link["external"], do: "_blank", else: nil)}
+                    rel={if(link["external"], do: "noopener noreferrer", else: nil)}
+                    class={[
+                      "btn",
+                      if(String.starts_with?(@current_path, link["href"]),
+                        do: "btn-primary",
+                        else: "btn-outline"
+                      )
+                    ]}
+                  >
+                    {link["label"]}
+                  </a>
                 </li>
               <% end %>
               <%!-- <li class="mt-2">
@@ -664,5 +740,32 @@ defmodule GameServerWeb.Layouts do
       </button>
     </div>
     """
+  end
+
+  # ---------------------------------------------------------------------------
+  # Extra nav links from theme config JSON
+  # ---------------------------------------------------------------------------
+
+  @doc """
+  Filters nav_links from the theme config by auth level and renders them.
+
+  Each nav link in the JSON is an object with:
+  - `"label"` (required) — display text
+  - `"href"` (required) — URL (internal like "/my-page" or external like "https://...")
+  - `"auth"` (optional) — `"any"` (default), `"authenticated"`, or `"admin"`
+  - `"external"` (optional) — boolean, opens in new tab when true
+  """
+  defp filtered_nav_links(nav_links, auth_level) do
+    Enum.filter(nav_links, fn link ->
+      required = Map.get(link, "auth", "any")
+
+      case {required, auth_level} do
+        {"any", _} -> true
+        {"authenticated", :authenticated} -> true
+        {"authenticated", :admin} -> true
+        {"admin", :admin} -> true
+        _ -> false
+      end
+    end)
   end
 end

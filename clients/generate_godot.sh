@@ -146,6 +146,12 @@ find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/li
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/admin_update_group_200_response/AdminUpdateGroup200Response/g" -i
 # Replace show_party_200_response_members_inner with ShowParty200ResponseMembersInner
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/show_party_200_response_members_inner/ShowParty200ResponseMembersInner/g" -i
+# Replace admin_list_chat_messages_200_response_data_inner with AdminListChatMessages200ResponseDataInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/admin_list_chat_messages_200_response_data_inner/AdminListChatMessages200ResponseDataInner/g" -i
+# Replace get_chat_message_200_response with GetChatMessage200Response
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/get_chat_message_200_response/GetChatMessage200Response/g" -i
+# Replace get_lobby_200_response_members_inner with GetLobby200ResponseMembersInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/get_lobby_200_response_members_inner/GetLobby200ResponseMembersInner/g" -i
 # headers_for_godot, body_serialized
 # with 
 # headers_for_godot, "" if body_serialized == "null" else body_serialized
