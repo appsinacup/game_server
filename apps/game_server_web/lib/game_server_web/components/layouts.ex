@@ -746,15 +746,13 @@ defmodule GameServerWeb.Layouts do
   # Extra nav links from theme config JSON
   # ---------------------------------------------------------------------------
 
-  @doc """
-  Filters nav_links from the theme config by auth level and renders them.
-
-  Each nav link in the JSON is an object with:
-  - `"label"` (required) — display text
-  - `"href"` (required) — URL (internal like "/my-page" or external like "https://...")
-  - `"auth"` (optional) — `"any"` (default), `"authenticated"`, or `"admin"`
-  - `"external"` (optional) — boolean, opens in new tab when true
-  """
+  # Filters nav_links from the theme config by auth level.
+  #
+  # Each nav link in the JSON is an object with:
+  # - `"label"` (required) — display text
+  # - `"href"` (required) — URL (internal like "/my-page" or external like "https://...")
+  # - `"auth"` (optional) — `"any"` (default), `"authenticated"`, or `"admin"`
+  # - `"external"` (optional) — boolean, opens in new tab when true
   defp filtered_nav_links(nav_links, auth_level) do
     Enum.filter(nav_links, fn link ->
       required = Map.get(link, "auth", "any")
