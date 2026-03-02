@@ -284,6 +284,14 @@ Subscribe to chat events for a group.
 
 Subscribe to chat events for a lobby.
 
+# `subscribe_party_chat`
+
+```elixir
+@spec subscribe_party_chat(integer()) :: :ok | {:error, term()}
+```
+
+Subscribe to chat events for a party.
+
 # `unsubscribe_friend_chat`
 
 ```elixir
@@ -307,6 +315,14 @@ Unsubscribe from group chat events.
 ```
 
 Unsubscribe from lobby chat events.
+
+# `unsubscribe_party_chat`
+
+```elixir
+@spec unsubscribe_party_chat(integer()) :: :ok
+```
+
+Unsubscribe from party chat events.
 
 # `update_message`
 

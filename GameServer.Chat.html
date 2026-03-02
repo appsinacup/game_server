@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.640">
+    <meta name="project" content="GameServer v1.0.641">
 
 
-    <title>GameServer.Chat — GameServer v1.0.640</title>
+    <title>GameServer.Chat — GameServer v1.0.641</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-4C996A71.js"></script>
+    <script defer src="dist/sidebar_items-9381EE5C.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.640
+          v1.0.641
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Chat</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.640)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.641)</small>
 
     </h1>
 
@@ -380,6 +380,16 @@ symmetrically).</li></ul><h2 id="module-pubsub-topics" class="section-heading"><
 
     <div class="summary-row">
       <div class="summary-signature">
+        <a href="#subscribe_party_chat/1" data-no-tooltip="" translate="no">subscribe_party_chat(party_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Subscribe to chat events for a party.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
         <a href="#unsubscribe_friend_chat/2" data-no-tooltip="" translate="no">unsubscribe_friend_chat(user_a_id, user_b_id)</a>
 
       </div>
@@ -405,6 +415,16 @@ symmetrically).</li></ul><h2 id="module-pubsub-topics" class="section-heading"><
       </div>
 
         <div class="summary-synopsis"><p>Unsubscribe from lobby chat events.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#unsubscribe_party_chat/1" data-no-tooltip="" translate="no">unsubscribe_party_chat(party_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Unsubscribe from party chat events.</p></div>
 
     </div>
 
@@ -1063,6 +1083,30 @@ after the message is persisted.</p>
 <p>Subscribe to chat events for a lobby.</p>
   </section>
 </section>
+<section class="detail" id="subscribe_party_chat/1">
+
+  <div class="detail-header">
+    <a href="#subscribe_party_chat/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">subscribe_party_chat(party_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> subscribe_party_chat(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}</pre>
+
+      </div>
+
+<p>Subscribe to chat events for a party.</p>
+  </section>
+</section>
 <section class="detail" id="unsubscribe_friend_chat/2">
 
   <div class="detail-header">
@@ -1133,6 +1177,30 @@ after the message is persisted.</p>
       </div>
 
 <p>Unsubscribe from lobby chat events.</p>
+  </section>
+</section>
+<section class="detail" id="unsubscribe_party_chat/1">
+
+  <div class="detail-header">
+    <a href="#unsubscribe_party_chat/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">unsubscribe_party_chat(party_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> unsubscribe_party_chat(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: :ok</pre>
+
+      </div>
+
+<p>Unsubscribe from party chat events.</p>
   </section>
 </section>
 <section class="detail" id="update_message/3">
