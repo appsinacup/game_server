@@ -5,7 +5,7 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardController do
   alias GameServer.Leaderboards
   alias OpenApiSpex.Schema
 
-  tags(["Admin Leaderboards"])
+  tags(["Admin – Leaderboards"])
 
   @error_schema %Schema{type: :object, properties: %{error: %Schema{type: :string}}}
 

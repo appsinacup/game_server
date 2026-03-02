@@ -20,7 +20,7 @@ defmodule GameServer.Chat.Message do
 
   @type t :: %__MODULE__{}
 
-  @chat_types ["lobby", "group", "friend"]
+  @chat_types ["lobby", "group", "friend", "party"]
 
   @derive {Jason.Encoder,
            only: [

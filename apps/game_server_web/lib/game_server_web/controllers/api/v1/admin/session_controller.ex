@@ -10,7 +10,7 @@ defmodule GameServerWeb.Api.V1.Admin.SessionController do
   alias GameServerWeb.Pagination
   alias OpenApiSpex.Schema
 
-  tags(["Admin Sessions"])
+  tags(["Admin – Sessions"])
 
   @error_schema %Schema{type: :object, properties: %{error: %Schema{type: :string}}}
 

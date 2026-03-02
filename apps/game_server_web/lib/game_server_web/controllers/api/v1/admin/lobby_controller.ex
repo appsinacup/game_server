@@ -7,7 +7,7 @@ defmodule GameServerWeb.Api.V1.Admin.LobbyController do
   alias GameServerWeb.Pagination
   alias OpenApiSpex.Schema
 
-  tags(["Admin Lobbies"])
+  tags(["Admin – Lobbies"])
 
   @error_schema %Schema{type: :object, properties: %{error: %Schema{type: :string}}}
 

@@ -5,7 +5,7 @@ defmodule GameServerWeb.Api.V1.Admin.KvController do
   alias GameServer.KV
   alias OpenApiSpex.Schema
 
-  tags(["Admin KV"])
+  tags(["Admin – KV"])
 
   @error_schema %Schema{type: :object, properties: %{error: %Schema{type: :string}}}
 

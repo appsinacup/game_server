@@ -5,7 +5,7 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
   alias GameServer.Accounts
   alias OpenApiSpex.Schema
 
-  tags(["Admin Users"])
+  tags(["Admin – Users"])
 
   @error_schema %Schema{type: :object, properties: %{error: %Schema{type: :string}}}
 

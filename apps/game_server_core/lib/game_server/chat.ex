@@ -91,6 +91,16 @@ defmodule GameServer.Chat do
     Phoenix.PubSub.unsubscribe(GameServer.PubSub, "chat:friend:#{low}:#{high}")
   end
 
+  @doc "Subscribe to chat events for a party."
+  @spec subscribe_party_chat(integer()) :: :ok | {:error, term()}
+  def subscribe_party_chat(party_id),
+    do: Phoenix.PubSub.subscribe(GameServer.PubSub, "chat:party:#{party_id}")
+
+  @doc "Unsubscribe from party chat events."
+  @spec unsubscribe_party_chat(integer()) :: :ok
+  def unsubscribe_party_chat(party_id),
+    do: Phoenix.PubSub.unsubscribe(GameServer.PubSub, "chat:party:#{party_id}")
+
   defp broadcast_chat(chat_type, chat_ref_id, sender_id, event) do
     topic = chat_topic(chat_type, chat_ref_id, sender_id)
     Phoenix.PubSub.broadcast(GameServer.PubSub, topic, event)
@@ -104,6 +114,7 @@ defmodule GameServer.Chat do
 
   defp chat_topic("lobby", lobby_id, _sender_id), do: "chat:lobby:#{lobby_id}"
   defp chat_topic("group", group_id, _sender_id), do: "chat:group:#{group_id}"
+  defp chat_topic("party", party_id, _sender_id), do: "chat:party:#{party_id}"
 
   defp chat_topic("friend", friend_id, sender_id) do
     {low, high} = friend_pair(sender_id, friend_id)
@@ -234,12 +245,39 @@ defmodule GameServer.Chat do
           })
         end
 
+      "party" ->
+        send_party_chat_notifications(message)
+
       _ ->
         :ok
     end
   rescue
     error ->
       Logger.warning("Chat notification failed: #{inspect(error)}")
+      :ok
+  end
+
+  defp send_party_chat_notifications(message) do
+    alias GameServer.{Notifications, Parties}
+
+    party = Parties.get_party(message.chat_ref_id)
+    party_code = if party, do: party.code, else: "Party #{message.chat_ref_id}"
+
+    members = Parties.get_party_members(message.chat_ref_id)
+
+    for member <- members, member.id != message.sender_id do
+      Notifications.create_chat_notification(member.id, member.id, %{
+        "title" => "New message in party #{party_code}",
+        "content" => "1 new message",
+        "metadata" => %{
+          "chat_type" => "party",
+          "party_id" => message.chat_ref_id
+        }
+      })
+    end
+  rescue
+    error ->
+      Logger.warning("Party chat notification failed: #{inspect(error)}")
       :ok
   end
 
@@ -286,6 +324,17 @@ defmodule GameServer.Chat do
 
       true ->
         {:error, :not_friends}
+    end
+  end
+
+  defp validate_chat_access(sender_id, %{"chat_type" => "party", "chat_ref_id" => party_id}) do
+    validate_chat_access(sender_id, %{chat_type: "party", chat_ref_id: party_id})
+  end
+
+  defp validate_chat_access(sender_id, %{chat_type: "party", chat_ref_id: party_id}) do
+    case Accounts.get_user(sender_id) do
+      %User{party_id: ^party_id} when party_id != nil -> :ok
+      _ -> {:error, :not_in_party}
     end
   end
 

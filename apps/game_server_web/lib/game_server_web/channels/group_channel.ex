@@ -16,6 +16,9 @@ defmodule GameServerWeb.GroupChannel do
   - `"updated"` - Group settings were updated. Payload: group object
   - `"join_request_approved"` - A join request was approved. Payload: `%{group_id, user_id}`
   - `"join_request_rejected"` - A join request was rejected. Payload: `%{group_id, user_id}`
+  - `"new_chat_message"` - A new chat message. Payload: chat message object
+  - `"chat_message_updated"` - A chat message was updated. Payload: chat message object
+  - `"chat_message_deleted"` - A chat message was deleted. Payload: `%{id: integer}`
   """
 
   use Phoenix.Channel

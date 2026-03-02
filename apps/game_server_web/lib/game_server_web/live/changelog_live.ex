@@ -32,7 +32,7 @@ defmodule GameServerWeb.ChangelogLive do
             navigate={~p"/blog"}
             class="inline-flex items-center gap-1.5 text-sm text-base-content/60 hover:text-primary transition-colors"
           >
-            Blog
+            <.icon name="hero-newspaper" class="w-4 h-4" /> Blog
           </.link>
         </div>
         <%= if @changelog_available? do %>
@@ -41,6 +41,7 @@ defmodule GameServerWeb.ChangelogLive do
           </article>
         <% else %>
           <div class="text-center py-20">
+            <.icon name="hero-document-text" class="w-16 h-16 mx-auto text-base-content/30 mb-4" />
             <h2 class="text-xl font-semibold text-base-content/60 mb-2">No changelog available</h2>
             <p class="text-base-content/40">
               Configure a changelog file in your theme config JSON to display it here.

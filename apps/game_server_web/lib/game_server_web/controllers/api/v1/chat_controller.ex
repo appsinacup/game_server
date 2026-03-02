@@ -16,12 +16,12 @@ defmodule GameServerWeb.Api.V1.ChatController do
       sender_id: %Schema{type: :integer, description: "User ID of the sender"},
       chat_type: %Schema{
         type: :string,
-        enum: ["lobby", "group", "friend"],
+        enum: ["lobby", "group", "friend", "party"],
         description: "Type of chat conversation"
       },
       chat_ref_id: %Schema{
         type: :integer,
-        description: "Reference ID (lobby_id, group_id, or friend user_id)"
+        description: "Reference ID (lobby_id, group_id, party_id, or friend user_id)"
       },
       inserted_at: %Schema{type: :string, format: "date-time"},
       updated_at: %Schema{type: :string, format: "date-time"}
@@ -46,7 +46,7 @@ defmodule GameServerWeb.Api.V1.ChatController do
     operation_id: "send_chat_message",
     summary: "Send a chat message",
     description:
-      "Send a message to a lobby, group, or friend conversation. Requires authentication and membership/friendship.",
+      "Send a message to a lobby, group, party, or friend conversation. Requires authentication and membership/friendship.",
     request_body:
       {"Chat message", "application/json",
        %Schema{
@@ -55,12 +55,12 @@ defmodule GameServerWeb.Api.V1.ChatController do
          properties: %{
            chat_type: %Schema{
              type: :string,
-             enum: ["lobby", "group", "friend"],
+             enum: ["lobby", "group", "friend", "party"],
              description: "Type of chat"
            },
            chat_ref_id: %Schema{
              type: :integer,
-             description: "Reference ID (lobby_id, group_id, or friend user_id)"
+             description: "Reference ID (lobby_id, group_id, party_id, or friend user_id)"
            },
            content: %Schema{type: :string, description: "Message text (1-4096 chars)"},
            metadata: %Schema{type: :object, description: "Optional metadata"}
@@ -97,6 +97,9 @@ defmodule GameServerWeb.Api.V1.ChatController do
 
       {:error, :not_friends} ->
         conn |> put_status(:forbidden) |> json(%{error: "not_friends"})
+
+      {:error, :not_in_party} ->
+        conn |> put_status(:forbidden) |> json(%{error: "not_in_party"})
 
       {:error, :blocked} ->
         conn |> put_status(:forbidden) |> json(%{error: "blocked"})
@@ -162,19 +165,19 @@ defmodule GameServerWeb.Api.V1.ChatController do
     operation_id: "list_chat_messages",
     summary: "List chat messages",
     description:
-      "List messages for a lobby, group, or friend conversation. Paginated, newest first.",
+      "List messages for a lobby, group, party, or friend conversation. Paginated, newest first.",
     parameters: [
       chat_type: [
         in: :query,
         required: true,
-        schema: %Schema{type: :string, enum: ["lobby", "group", "friend"]},
+        schema: %Schema{type: :string, enum: ["lobby", "group", "friend", "party"]},
         description: "Type of chat"
       ],
       chat_ref_id: [
         in: :query,
         required: true,
         schema: %Schema{type: :integer},
-        description: "Reference ID (lobby_id, group_id, or friend user_id)"
+        description: "Reference ID (lobby_id, group_id, party_id, or friend user_id)"
       ],
       page: [
         in: :query,
@@ -241,7 +244,7 @@ defmodule GameServerWeb.Api.V1.ChatController do
          type: :object,
          required: [:chat_type, :chat_ref_id, :message_id],
          properties: %{
-           chat_type: %Schema{type: :string, enum: ["lobby", "group", "friend"]},
+           chat_type: %Schema{type: :string, enum: ["lobby", "group", "friend", "party"]},
            chat_ref_id: %Schema{type: :integer},
            message_id: %Schema{type: :integer, description: "Last read message ID"}
          }
@@ -284,7 +287,7 @@ defmodule GameServerWeb.Api.V1.ChatController do
       chat_type: [
         in: :query,
         required: true,
-        schema: %Schema{type: :string, enum: ["lobby", "group", "friend"]}
+        schema: %Schema{type: :string, enum: ["lobby", "group", "friend", "party"]}
       ],
       chat_ref_id: [
         in: :query,

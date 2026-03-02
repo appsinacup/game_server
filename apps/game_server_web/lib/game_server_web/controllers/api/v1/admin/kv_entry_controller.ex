@@ -6,7 +6,7 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
   alias GameServerWeb.Pagination
   alias OpenApiSpex.Schema
 
-  tags(["Admin KV"])
+  tags(["Admin – KV"])
 
   @error_schema %Schema{type: :object, properties: %{error: %Schema{type: :string}}}
 

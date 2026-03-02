@@ -76,6 +76,7 @@ defmodule GameServerWeb.BlogLive do
       <div class="py-8 px-4 sm:px-6 max-w-4xl mx-auto">
         <%= if !@blog_available? do %>
           <div class="text-center py-20">
+            <.icon name="hero-newspaper" class="w-16 h-16 mx-auto text-base-content/30 mb-4" />
             <h2 class="text-xl font-semibold text-base-content/60 mb-2">No blog available</h2>
             <p class="text-base-content/40">
               Configure a blog directory in your theme config JSON to display posts here.
@@ -106,12 +107,13 @@ defmodule GameServerWeb.BlogLive do
         navigate={~p"/changelog"}
         class="inline-flex items-center gap-1.5 text-sm text-base-content/60 hover:text-primary transition-colors"
       >
-        Changelog
+        <.icon name="hero-document-text" class="w-4 h-4" /> Changelog
       </.link>
     </div>
 
     <%= if @grouped_posts == [] do %>
       <div class="text-center py-16">
+        <.icon name="hero-pencil-square" class="w-12 h-12 mx-auto text-base-content/30 mb-3" />
         <p class="text-base-content/50">No blog posts yet.</p>
       </div>
     <% else %>
@@ -124,6 +126,7 @@ defmodule GameServerWeb.BlogLive do
             <%= for {month, posts} <- months do %>
               <div class="mb-6">
                 <h3 class="text-lg font-semibold text-base-content/70 mb-3 flex items-center gap-2">
+                  <.icon name="hero-calendar" class="w-5 h-5" />
                   {month_name(month)}
                 </h3>
                 <div class="space-y-3 ml-2">
@@ -172,7 +175,7 @@ defmodule GameServerWeb.BlogLive do
       navigate={~p"/blog"}
       class="inline-flex items-center gap-1 text-sm text-base-content/60 hover:text-primary mb-6 transition-colors"
     >
-      Back to Blog
+      <.icon name="hero-arrow-left" class="w-4 h-4" /> Back to Blog
     </.link>
 
     <%!-- Post header --%>
@@ -196,7 +199,7 @@ defmodule GameServerWeb.BlogLive do
           navigate={~p"/blog/#{@next.slug}"}
           class="inline-flex items-center gap-2 text-sm text-base-content/60 hover:text-primary transition-colors"
         >
-          ←
+          <.icon name="hero-arrow-left" class="w-4 h-4" />
           <div>
             <div class="text-xs text-base-content/40">Older</div>
             <div class="font-medium">{@next.title}</div>
@@ -213,7 +216,7 @@ defmodule GameServerWeb.BlogLive do
             <div class="text-xs text-base-content/40">Newer</div>
             <div class="font-medium">{@prev.title}</div>
           </div>
-          →
+          <.icon name="hero-arrow-right" class="w-4 h-4" />
         </.link>
       </div>
     </nav>

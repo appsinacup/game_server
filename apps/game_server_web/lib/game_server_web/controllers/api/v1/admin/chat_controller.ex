@@ -32,7 +32,7 @@ defmodule GameServerWeb.Api.V1.Admin.ChatController do
       sender_email: %Schema{type: :string, nullable: true},
       content: %Schema{type: :string},
       metadata: %Schema{type: :object},
-      chat_type: %Schema{type: :string, enum: ["lobby", "group", "friend"]},
+      chat_type: %Schema{type: :string, enum: ["lobby", "group", "friend", "party"]},
       chat_ref_id: %Schema{type: :integer},
       inserted_at: %Schema{type: :string, format: :"date-time"},
       updated_at: %Schema{type: :string, format: :"date-time"}
@@ -49,7 +49,7 @@ defmodule GameServerWeb.Api.V1.Admin.ChatController do
       sender_id: [in: :query, schema: %Schema{type: :integer}],
       chat_type: [
         in: :query,
-        schema: %Schema{type: :string, enum: ["lobby", "group", "friend"]}
+        schema: %Schema{type: :string, enum: ["lobby", "group", "friend", "party"]}
       ],
       chat_ref_id: [in: :query, schema: %Schema{type: :integer}],
       content: [in: :query, schema: %Schema{type: :string}],
@@ -98,7 +98,7 @@ defmodule GameServerWeb.Api.V1.Admin.ChatController do
     parameters: [
       chat_type: [
         in: :query,
-        schema: %Schema{type: :string, enum: ["lobby", "group", "friend"]},
+        schema: %Schema{type: :string, enum: ["lobby", "group", "friend", "party"]},
         required: true
       ],
       chat_ref_id: [in: :query, schema: %Schema{type: :integer}, required: true]

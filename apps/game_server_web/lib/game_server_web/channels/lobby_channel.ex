@@ -19,6 +19,8 @@ defmodule GameServerWeb.LobbyChannel do
   - `"updated"` - The lobby settings were updated. Payload: lobby object
   - `"host_changed"` - The host changed. Payload: `%{new_host_id: integer}`
   - `"new_chat_message"` - A new chat message. Payload: chat message object
+  - `"chat_message_updated"` - A chat message was updated. Payload: chat message object
+  - `"chat_message_deleted"` - A chat message was deleted. Payload: `%{id: integer}`
   """
 
   use Phoenix.Channel

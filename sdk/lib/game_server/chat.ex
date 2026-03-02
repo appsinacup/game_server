@@ -469,6 +469,21 @@ defmodule GameServer.Chat do
 
 
   @doc ~S"""
+    Subscribe to chat events for a party.
+  """
+  @spec subscribe_party_chat(integer()) :: :ok | {:error, term()}
+  def subscribe_party_chat(_party_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        :ok
+
+      _ ->
+        raise "GameServer.Chat.subscribe_party_chat/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Unsubscribe from friend DM chat events.
   """
   @spec unsubscribe_friend_chat(integer(), integer()) :: :ok
@@ -509,6 +524,21 @@ defmodule GameServer.Chat do
 
       _ ->
         raise "GameServer.Chat.unsubscribe_lobby_chat/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Unsubscribe from party chat events.
+  """
+  @spec unsubscribe_party_chat(integer()) :: :ok
+  def unsubscribe_party_chat(_party_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        :ok
+
+      _ ->
+        raise "GameServer.Chat.unsubscribe_party_chat/1 is a stub - only available at runtime on GameServer"
     end
   end
 

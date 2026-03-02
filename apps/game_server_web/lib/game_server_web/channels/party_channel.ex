@@ -13,6 +13,9 @@ defmodule GameServerWeb.PartyChannel do
   - `"member_left"` - A user left or was kicked from the party. Payload: `%{user_id: integer}`
   - `"updated"` - The party settings were updated. Payload: party object
   - `"disbanded"` - The party was disbanded. Payload: `%{party_id: integer}`
+  - `"new_chat_message"` - A new chat message. Payload: chat message object
+  - `"chat_message_updated"` - A chat message was updated. Payload: chat message object
+  - `"chat_message_deleted"` - A chat message was deleted. Payload: `%{id: integer}`
   """
 
   use Phoenix.Channel
@@ -21,6 +24,7 @@ defmodule GameServerWeb.PartyChannel do
   alias GameServer.Accounts
   alias GameServer.Accounts.Scope
   alias GameServer.Accounts.User
+  alias GameServer.Chat
   alias GameServer.Parties
 
   @impl true
@@ -38,6 +42,7 @@ defmodule GameServerWeb.PartyChannel do
             else
               _ = Parties.unsubscribe_party(party_id)
               Parties.subscribe_party(party_id)
+              Chat.subscribe_party_chat(party_id)
               assign(socket, :subscribed_party, true)
             end
 
@@ -110,6 +115,26 @@ defmodule GameServerWeb.PartyChannel do
     {:noreply, socket}
   end
 
+  # Chat messages forwarded from PubSub
+
+  @impl true
+  def handle_info({:new_chat_message, message}, socket) do
+    push(socket, "new_chat_message", serialize_chat_message(message))
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:chat_message_updated, message}, socket) do
+    push(socket, "chat_message_updated", serialize_chat_message(message))
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:chat_message_deleted, message}, socket) do
+    push(socket, "chat_message_deleted", %{id: message.id})
+    {:noreply, socket}
+  end
+
   @impl true
   def handle_info({:after_join, nil}, socket) do
     {:noreply, socket}
@@ -132,12 +157,25 @@ defmodule GameServerWeb.PartyChannel do
   def terminate(_reason, socket) do
     case socket.assigns do
       %{party_id: party_id} when is_integer(party_id) ->
+        _ = Chat.unsubscribe_party_chat(party_id)
         _ = Parties.unsubscribe_party(party_id)
         :ok
 
       _ ->
         :ok
     end
+  end
+
+  defp serialize_chat_message(msg) do
+    %{
+      id: msg.id,
+      content: msg.content,
+      metadata: msg.metadata,
+      sender_id: msg.sender_id,
+      chat_type: msg.chat_type,
+      chat_ref_id: msg.chat_ref_id,
+      inserted_at: msg.inserted_at
+    }
   end
 
   defp serialize_party(party) do
