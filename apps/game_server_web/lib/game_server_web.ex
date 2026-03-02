@@ -21,7 +21,7 @@ defmodule GameServerWeb do
   # Adding ".well-known" allows hosting files like
   # /.well-known/apple-app-site-association from priv/static/.well-known
   # so they can be placed/replaced at build time.
-  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt .well-known)
+  def static_paths, do: ~w(assets fonts images game favicon.ico robots.txt .well-known)
 
   def router do
     quote do

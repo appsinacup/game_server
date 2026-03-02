@@ -100,6 +100,11 @@ config :game_server_web, GameServerWeb.Auth.Guardian,
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
 
+# Custom MIME types for Godot web exports
+config :mime, :types, %{
+  "application/octet-stream" => ["pck"]
+}
+
 config :ueberauth, Ueberauth,
   providers: [
     discord: {Ueberauth.Strategy.Discord, [default_scope: "identify email"]},

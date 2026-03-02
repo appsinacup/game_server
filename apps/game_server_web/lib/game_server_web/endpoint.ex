@@ -28,6 +28,9 @@ defmodule GameServerWeb.Endpoint do
   # special handling for content-type and compression).
   plug GameServerWeb.Plugs.WellKnown
 
+  # Add COOP/COEP headers for Godot 4 web exports (SharedArrayBuffer)
+  plug GameServerWeb.Plugs.GameHeaders
+
   plug Plug.Static,
     at: "/",
     from: :game_server_web,
