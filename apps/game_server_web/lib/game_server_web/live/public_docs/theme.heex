@@ -60,7 +60,12 @@
   "tagline": "Play together",
   "css": "/assets/css/theme/theme.css",
   "logo": "/theme/logo.png",
-  "banner": "/theme/banner.png"
+  "banner": "/theme/banner.png",
+  "nav_links": [
+    { "label": "Discord", "href": "https://discord.gg/example", "external": true, "auth": "any" },
+    { "label": "Dashboard", "href": "/dashboard", "auth": "authenticated" },
+    { "label": "Admin Tools", "href": "/admin/tools", "auth": "admin" }
+  ]
 }</pre>
         </div>
       </div>
@@ -82,6 +87,77 @@
             "Optional: you can provide per-locale theme configs by adding a language suffix. For example, if THEME_CONFIG points to theme/default_config.json and the active locale is 'en', the server will prefer theme/default_config.en.json when present (falling back to the base file)."
           )}
         </p>
+      </div>
+    </div>
+    
+<!-- Step 3: Navigation links -->
+    <div class="step">
+      <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+        <span class="badge badge-primary">3</span> {doc_text("Add navigation links")}
+      </h3>
+      <div class="ml-8 space-y-3">
+        <p>
+          {doc_text(
+            "The nav_links array in your theme JSON lets you add custom links to the navigation bar. Each link appears in both the desktop and mobile navs."
+          )}
+        </p>
+
+        <div class="overflow-x-auto">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>{doc_text("Property")}</th>
+                <th>{doc_text("Type")}</th>
+                <th>{doc_text("Description")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>label</code></td>
+                <td>{doc_text("string")}</td>
+                <td>{doc_text("Text displayed in the nav bar")}</td>
+              </tr>
+              <tr>
+                <td><code>href</code></td>
+                <td>{doc_text("string")}</td>
+                <td>
+                  {doc_text("URL — can be an absolute path (internal) or a full URL (external)")}
+                </td>
+              </tr>
+              <tr>
+                <td><code>external</code></td>
+                <td>{doc_text("boolean")}</td>
+                <td>
+                  {doc_text("When true, opens in a new tab with rel=\"noopener noreferrer\"")}
+                </td>
+              </tr>
+              <tr>
+                <td><code>auth</code></td>
+                <td>{doc_text("string")}</td>
+                <td>
+                  {doc_text("Visibility level:")}
+                  <ul class="list-disc ml-4 mt-1">
+                    <li><code>"any"</code> — {doc_text("visible to everyone (default)")}</li>
+                    <li>
+                      <code>"authenticated"</code> — {doc_text("visible only to logged-in users")}
+                    </li>
+                    <li><code>"admin"</code> — {doc_text("visible only to admin users")}</li>
+                  </ul>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="text-sm text-base-content/80">
+          {doc_text(
+            "Example: adding a Discord link visible to everyone and a dashboard link visible only to logged-in users:"
+          )}
+        </p>
+        <pre phx-no-curly-interpolation class="rounded bg-base-200 p-3 text-xs overflow-auto">"nav_links": [
+  { "label": "Discord", "href": "https://discord.gg/example", "external": true, "auth": "any" },
+  { "label": "Dashboard", "href": "/dashboard", "auth": "authenticated" }
+]</pre>
       </div>
     </div>
   </div>
