@@ -39,6 +39,13 @@ config :game_server_web, GameServerWeb.Endpoint,
   pubsub_server: GameServer.PubSub,
   live_view: [signing_salt: "ZPmggGLv"]
 
+# Extend Phoenix's default gzippable extensions to include Godot web export formats.
+# Default list: .js .map .css .txt .text .html .json .svg .eot .ttf
+# Added: .wasm .pck (binary but highly compressible, ~60-70% reduction)
+# NOT added: .png (already compressed, gzip makes it larger)
+config :phoenix,
+  gzippable_exts: ~w(.js .map .css .txt .text .html .json .svg .eot .ttf .wasm .pck)
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails
