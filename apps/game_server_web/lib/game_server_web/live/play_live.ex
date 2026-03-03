@@ -93,6 +93,7 @@ defmodule GameServerWeb.PlayLive do
   # Helpers
   # ---------------------------------------------------------------------------
 
+  defp build_game_url(nil), do: {"/game/index.html", %{}}
   defp build_game_url(%{user: nil}), do: {"/game/index.html", %{}}
 
   defp build_game_url(%{user: user}) do
