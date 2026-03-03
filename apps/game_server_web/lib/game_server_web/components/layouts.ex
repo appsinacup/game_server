@@ -311,7 +311,7 @@ defmodule GameServerWeb.Layouts do
             <.theme_toggle />
           </li>
         </ul>
-
+        
     <!-- Mobile Navigation -->
         <div class="lg:hidden">
           <div class="dropdown dropdown-end">
