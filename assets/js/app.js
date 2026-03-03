@@ -57,6 +57,17 @@ const Hooks = {
       document.removeEventListener("webkitfullscreenchange", this.onFSChange)
     }
   },
+  GameAuth: {
+    mounted() {
+      const access = this.el.dataset.accessToken
+      const refresh = this.el.dataset.refreshToken
+      if (access) localStorage.setItem("gamend_access_token", access)
+      if (refresh) localStorage.setItem("gamend_refresh_token", refresh)
+      // Clear tokens when not authenticated
+      if (!access) localStorage.removeItem("gamend_access_token")
+      if (!refresh) localStorage.removeItem("gamend_refresh_token")
+    }
+  },
   ScrollToBottom: {
     mounted() {
       this.el.scrollTop = this.el.scrollHeight
