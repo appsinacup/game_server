@@ -1798,9 +1798,6 @@
   .absolute {
     position: absolute;
   }
-  .fixed {
-    position: fixed;
-  }
   .relative {
     position: relative;
   }
@@ -1933,12 +1930,6 @@
   .z-\[1\] {
     z-index: 1;
   }
-  .z-\[100\] {
-    z-index: 100;
-  }
-  .z-\[101\] {
-    z-index: 101;
-  }
   .col-span-2 {
     grid-column: span 2 / span 2;
   }
@@ -2060,9 +2051,6 @@
       }
     }
   }
-  .-mx-4 {
-    margin-inline: calc(var(--spacing) * -4);
-  }
   .mx-auto {
     margin-inline: auto;
   }
@@ -2085,9 +2073,6 @@
         margin-inline-end: calc(0.25rem * -3);
       }
     }
-  }
-  .-my-4 {
-    margin-block: calc(var(--spacing) * -4);
   }
   .my-2 {
     margin-block: calc(var(--spacing) * 2);
@@ -3467,9 +3452,6 @@
       background-color: color-mix(in oklab, var(--color-base-content) 30%, transparent);
     }
   }
-  .bg-black {
-    background-color: var(--color-black);
-  }
   .bg-black\/60 {
     background-color: color-mix(in srgb, #000 60%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
@@ -4421,11 +4403,6 @@
       animation: var(--animate-spin);
     }
   }
-  .sm\:-mx-6 {
-    @media (width >= 40rem) {
-      margin-inline: calc(var(--spacing) * -6);
-    }
-  }
   .sm\:w-96 {
     @media (width >= 40rem) {
       width: calc(var(--spacing) * 96);
@@ -4642,11 +4619,6 @@
   .lg\:col-span-2 {
     @media (width >= 64rem) {
       grid-column: span 2 / span 2;
-    }
-  }
-  .lg\:-mx-8 {
-    @media (width >= 64rem) {
-      margin-inline: calc(var(--spacing) * -8);
     }
   }
   .lg\:flex {
