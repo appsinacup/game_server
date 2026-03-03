@@ -11,11 +11,11 @@ defmodule GameServerWeb.Endpoint do
     same_site: "Lax"
   ]
   socket "/socket", GameServerWeb.UserSocket,
-    websocket: [log: false],
+    websocket: [log: false, compress: true],
     longpoll: false
 
   socket "/live", Phoenix.LiveView.Socket,
-    websocket: [connect_info: [session: @session_options], log: false],
+    websocket: [connect_info: [session: @session_options], log: false, compress: true],
     longpoll: [connect_info: [session: @session_options], log: false]
 
   # Serve at "/" the static files from "priv/static" directory.
