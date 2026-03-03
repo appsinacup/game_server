@@ -35,6 +35,10 @@ defmodule GameServerWeb.Layouts do
 
   attr :current_path, :string, default: nil, doc: "current request path for nav active state"
 
+  attr :flush, :boolean,
+    default: false,
+    doc: "when true, render content edge-to-edge with no main wrapper, padding, or footer"
+
   slot :inner_block, required: true
 
   def app(assigns) do
@@ -547,38 +551,43 @@ defmodule GameServerWeb.Layouts do
       </div>
     </header>
 
-    <main class="px-4 py-4 sm:px-6 lg:px-8">
-      <div class="mx-auto max-w-2xl lg:max-w-4xl xl:max-w-6xl space-y-4">
-        {render_slot(@inner_block)}
-      </div>
-    </main>
+    <%= if @flush do %>
+      {render_slot(@inner_block)}
+      <.flash_group flash={@flash} />
+    <% else %>
+      <main class="px-4 py-4 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-2xl lg:max-w-4xl xl:max-w-6xl space-y-4">
+          {render_slot(@inner_block)}
+        </div>
+      </main>
 
-    <.flash_group flash={@flash} />
-    <footer class="px-4 py-6 sm:px-6 lg:px-8 text-center text-sm text-base-content/70">
-      <div class="mx-auto max-w-2xl lg:max-w-4xl xl:max-w-6xl flex flex-wrap justify-center gap-x-4 gap-y-1">
-        <a href={~p"/privacy"} class="hover:underline">{gettext("Privacy Policy")}</a>
-        <a href={~p"/terms"} class="hover:underline">{gettext("Terms and Conditions")}</a>
-        <a href={~p"/docs/setup"} class="hover:underline">{gettext("Guides")}</a>
-        <a
-          href={~p"/api/docs"}
-          rel="noopener noreferrer"
-          class="hover:underline"
-        >
-          {gettext("API Docs")}
-        </a>
-        <a
-          href="https://appsinacup.github.io/game_server/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="hover:underline"
-        >
-          {gettext("Elixir Docs")}
-        </a>
-        <a href={~p"/changelog"} class="hover:underline">Changelog</a>
-        <a href={~p"/blog"} class="hover:underline">Blog</a>
-        <span class="text-xs opacity-60">v{app_version()}</span>
-      </div>
-    </footer>
+      <.flash_group flash={@flash} />
+      <footer class="px-4 py-6 sm:px-6 lg:px-8 text-center text-sm text-base-content/70">
+        <div class="mx-auto max-w-2xl lg:max-w-4xl xl:max-w-6xl flex flex-wrap justify-center gap-x-4 gap-y-1">
+          <a href={~p"/privacy"} class="hover:underline">{gettext("Privacy Policy")}</a>
+          <a href={~p"/terms"} class="hover:underline">{gettext("Terms and Conditions")}</a>
+          <a href={~p"/docs/setup"} class="hover:underline">{gettext("Guides")}</a>
+          <a
+            href={~p"/api/docs"}
+            rel="noopener noreferrer"
+            class="hover:underline"
+          >
+            {gettext("API Docs")}
+          </a>
+          <a
+            href="https://appsinacup.github.io/game_server/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="hover:underline"
+          >
+            {gettext("Elixir Docs")}
+          </a>
+          <a href={~p"/changelog"} class="hover:underline">Changelog</a>
+          <a href={~p"/blog"} class="hover:underline">Blog</a>
+          <span class="text-xs opacity-60">v{app_version()}</span>
+        </div>
+      </footer>
+    <% end %>
     """
   end
 

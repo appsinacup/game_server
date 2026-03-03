@@ -1798,6 +1798,9 @@
   .absolute {
     position: absolute;
   }
+  .fixed {
+    position: fixed;
+  }
   .relative {
     position: relative;
   }
@@ -1835,6 +1838,12 @@
   }
   .top-0 {
     top: calc(var(--spacing) * 0);
+  }
+  .right-4 {
+    right: calc(var(--spacing) * 4);
+  }
+  .bottom-4 {
+    bottom: calc(var(--spacing) * 4);
   }
   .left-0 {
     left: calc(var(--spacing) * 0);
@@ -1923,6 +1932,12 @@
   }
   .z-\[1\] {
     z-index: 1;
+  }
+  .z-\[100\] {
+    z-index: 100;
+  }
+  .z-\[101\] {
+    z-index: 101;
   }
   .col-span-2 {
     grid-column: span 2 / span 2;
@@ -2045,6 +2060,9 @@
       }
     }
   }
+  .-mx-4 {
+    margin-inline: calc(var(--spacing) * -4);
+  }
   .mx-auto {
     margin-inline: auto;
   }
@@ -2067,6 +2085,9 @@
         margin-inline-end: calc(0.25rem * -3);
       }
     }
+  }
+  .-my-4 {
+    margin-block: calc(var(--spacing) * -4);
   }
   .my-2 {
     margin-block: calc(var(--spacing) * 2);
@@ -2651,6 +2672,29 @@
     align-items: center;
     padding: 0.5rem;
     min-height: 4rem;
+  }
+  .footer {
+    display: grid;
+    width: 100%;
+    grid-auto-flow: row;
+    place-items: start;
+    column-gap: calc(0.25rem * 4);
+    row-gap: calc(0.25rem * 10);
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    & > * {
+      display: grid;
+      place-items: start;
+      gap: calc(0.25rem * 2);
+    }
+    &.footer-center {
+      grid-auto-flow: column dense;
+      place-items: center;
+      text-align: center;
+      & > * {
+        place-items: center;
+      }
+    }
   }
   .card-body {
     display: flex;
@@ -3288,6 +3332,10 @@
     border-style: var(--tw-border-style);
     border-width: 1px;
   }
+  .border-0 {
+    border-style: var(--tw-border-style);
+    border-width: 0px;
+  }
   .border-1 {
     border-style: var(--tw-border-style);
     border-width: 1px;
@@ -3417,6 +3465,15 @@
     background-color: var(--color-base-content);
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-base-content) 30%, transparent);
+    }
+  }
+  .bg-black {
+    background-color: var(--color-black);
+  }
+  .bg-black\/60 {
+    background-color: color-mix(in srgb, #000 60%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-black) 60%, transparent);
     }
   }
   .bg-blue-50 {
@@ -3914,6 +3971,9 @@
   .text-warning {
     color: var(--color-warning);
   }
+  .text-white {
+    color: var(--color-white);
+  }
   .text-yellow-400 {
     color: var(--color-yellow-400);
   }
@@ -3964,6 +4024,10 @@
   }
   .shadow {
     --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+  .shadow-lg {
+    --tw-shadow: 0 10px 15px -3px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 4px 6px -4px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
   .shadow-md {
@@ -4314,6 +4378,16 @@
       }
     }
   }
+  .hover\:bg-black\/80 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: color-mix(in srgb, #000 80%, transparent);
+        @supports (color: color-mix(in lab, red, red)) {
+          background-color: color-mix(in oklab, var(--color-black) 80%, transparent);
+        }
+      }
+    }
+  }
   .hover\:text-base-content {
     &:hover {
       @media (hover: hover) {
@@ -4345,6 +4419,11 @@
   .motion-safe\:animate-spin {
     @media (prefers-reduced-motion: no-preference) {
       animation: var(--animate-spin);
+    }
+  }
+  .sm\:-mx-6 {
+    @media (width >= 40rem) {
+      margin-inline: calc(var(--spacing) * -6);
     }
   }
   .sm\:w-96 {
@@ -4563,6 +4642,11 @@
   .lg\:col-span-2 {
     @media (width >= 64rem) {
       grid-column: span 2 / span 2;
+    }
+  }
+  .lg\:-mx-8 {
+    @media (width >= 64rem) {
+      margin-inline: calc(var(--spacing) * -8);
     }
   }
   .lg\:flex {

@@ -28,6 +28,35 @@ import topbar from "../vendor/topbar"
 
 // Custom hooks
 const Hooks = {
+  Fullscreen: {
+    mounted() {
+      this.el.addEventListener("click", () => {
+        const target = document.getElementById(this.el.dataset.target)
+        if (!target) return
+
+        if (document.fullscreenElement) {
+          document.exitFullscreen()
+        } else {
+          target.requestFullscreen().catch(() => {
+            // Fallback for Safari/iOS
+            if (target.webkitRequestFullscreen) target.webkitRequestFullscreen()
+          })
+        }
+      })
+
+      // Update button icon when fullscreen state changes (including Esc key)
+      this.onFSChange = () => {
+        const isFS = !!document.fullscreenElement
+        this.el.setAttribute("data-fullscreen", isFS)
+      }
+      document.addEventListener("fullscreenchange", this.onFSChange)
+      document.addEventListener("webkitfullscreenchange", this.onFSChange)
+    },
+    destroyed() {
+      document.removeEventListener("fullscreenchange", this.onFSChange)
+      document.removeEventListener("webkitfullscreenchange", this.onFSChange)
+    }
+  },
   ScrollToBottom: {
     mounted() {
       this.el.scrollTop = this.el.scrollHeight

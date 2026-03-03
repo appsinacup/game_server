@@ -335,6 +335,7 @@ defmodule GameServerWeb.Router do
       live "/blog", BlogLive, :index
       live "/blog/:slug", BlogLive, :show
       live "/auth/success", AuthSuccessLive, :index
+      live "/play", PlayLive, :index
     end
 
     post "/users/log-in", UserSessionController, :create
