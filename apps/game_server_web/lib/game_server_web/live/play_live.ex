@@ -66,7 +66,7 @@ defmodule GameServerWeb.PlayLive do
           phx-update="ignore"
           data-target="game-container"
           class={[
-            "absolute bottom-4 right-4 z-10",
+            "hidden absolute bottom-4 right-4 z-10",
             "bg-black/60 hover:bg-black/80 text-white rounded-full p-2 shadow-lg transition-colors cursor-pointer"
           ]}
           title="Toggle fullscreen"
