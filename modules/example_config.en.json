@@ -15,7 +15,7 @@
     { "title": "API Docs", "url": "/api/docs", "icon": "hero-book-open" }
   ],
   "nav_links": [
-    { "label": "Discord", "href": "https://discord.com/invite/v649emcpAu", "external": true, "auth": "any" }
+    { "label": "Play", "href": "/play", "auth": "any" }
   ],
   "features": [
     { "title": "Authentication & Users", "description": "Email, Magic-link, OAuth, JWT and Session. Register, login, reset password and verify email.", "icon": "hero-lock-closed" },

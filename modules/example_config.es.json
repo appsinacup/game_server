@@ -15,7 +15,7 @@
     { "title": "Documentación API", "url": "/api/docs", "icon": "hero-book-open" }
   ],
   "nav_links": [
-    { "label": "Discord", "href": "https://discord.com/invite/v649emcpAu", "external": true, "auth": "any" }
+    { "label": "Play", "href": "/play", "auth": "any" }
   ],
   "features": [
     { "title": "Autenticación y usuarios", "description": "Correo, enlace mágico, OAuth, JWT y sesión. Registro, inicio de sesión, recuperación de contraseña y verificación de correo.", "icon": "hero-lock-closed" },

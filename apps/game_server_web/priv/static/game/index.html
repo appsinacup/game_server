@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Gamend Starter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        body { margin:0; padding:0; background:#000; overflow:hidden; font-family:system-ui, sans-serif; }
+        #canvas { display:none; width:100%; height:100%; }
+
+        #loading {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #242424;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.6s ease;
+            color: white;
+        }
+        #splash-image {
+            max-width: 80%;
+            max-height: 60%;
+            margin-bottom: 30px;
+            /* Godot's own splash classes for fullsize/filter etc. */
+        }
+        .spinner {
+            width: 60px; height: 60px;
+            border: 6px solid rgba(255,255,255,0.3);
+            border-top: 6px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        #progress-container {
+            width: 280px;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00ffcc, #00ccff);
+            transition: width 0.2s ease;
+        }
+        #loading-text { margin-top: 15px; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <!-- Splash banner + loading UI -->
+    <div id="loading">
+        <img id="splash-image" src="index.png" class="show-image--true fullsize--true use-filter--true" alt="">
+        <div class="spinner"></div>
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+        <div id="loading-text">Loading… (0%)</div>
+    </div>
+
+    <script src="index.js"></script>
+    <script>
+        const engine = new Engine({"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":510192,"index.wasm":37685705},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"});
+
+        function updateProgress(current, total) {
+            const percent = total > 0 ? Math.round((current / total) * 100) : 50;
+            document.getElementById("progress-bar").style.width = percent + "%";
+            document.getElementById("loading-text").textContent = `Loading… (${percent}%)`;
+        }
+
+        engine.startGame({
+            onProgress: updateProgress
+        }).then(() => {
+            // Game started → fade out banner
+            const loading = document.getElementById("loading");
+            loading.style.opacity = "0";
+            setTimeout(() => {
+                loading.style.display = "none";
+                document.getElementById("canvas").style.display = "block";
+            }, 600);
+        }).catch(err => {
+            console.error("Godot start failed:", err);
+            document.getElementById("loading-text").textContent = "Failed to load :(";
+        });
+    </script>
+</body>
+</html>
+
