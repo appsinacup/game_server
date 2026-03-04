@@ -30,6 +30,12 @@ import topbar from "../vendor/topbar"
 const Hooks = {
   Fullscreen: {
     mounted() {
+      // Hide button on devices that don't support Fullscreen API (e.g. iOS Safari)
+      if (!document.fullscreenEnabled && !document.webkitFullscreenEnabled) {
+        this.el.style.display = "none"
+        return
+      }
+
       this.el.addEventListener("click", () => {
         const target = document.getElementById(this.el.dataset.target)
         if (!target) return

@@ -39,7 +39,7 @@ defmodule GameServerWeb.PlayLive do
       <div
         id="game-container"
         class="relative w-full overflow-hidden"
-        style="height: calc(100vh - 4rem);"
+        style="height: calc(100vh - 4rem); height: calc(100dvh - 4rem);"
       >
         <div
           id="game-auth"
