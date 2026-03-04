@@ -14,6 +14,9 @@
     { "title": "SDK JS", "url": "https://www.npmjs.com/package/@ughuuu/game_server", "icon": "hero-puzzle-piece" },
     { "title": "SDK Godot", "url": "https://godotengine.org/asset-library/asset/4510", "icon": "hero-cube" }
   ],
+  "nav_links": [
+    { "label": "Play", "href": "/play", "auth": "any" }
+  ],
   "features": [
     { "title": "Autenticación y usuarios", "description": "Correo, enlace mágico, OAuth, JWT y sesión. Registro, inicio de sesión, recuperación de contraseña y verificación de correo.", "icon": "hero-lock-closed" },
     { "title": "Salas y clasificaciones", "description": "Configuraciones personalizables y actualizaciones en tiempo real. Clasificaciones con autoridad del servidor.", "icon": "hero-home" },
