@@ -17,6 +17,11 @@
   "nav_links": [
     { "label": "Play", "href": "/play", "auth": "any" }
   ],
+  "footer_links": [
+    { "label": "Guides", "href": "/docs/setup" },
+    { "label": "API Docs", "href": "/api/docs" },
+    { "label": "Elixir Docs", "href": "https://appsinacup.github.io/game_server/", "external": true }
+  ],
   "features": [
     { "title": "Autenticación y usuarios", "description": "Correo, enlace mágico, OAuth, JWT y sesión. Registro, inicio de sesión, recuperación de contraseña y verificación de correo.", "icon": "hero-lock-closed" },
     { "title": "Salas y clasificaciones", "description": "Configuraciones personalizables y actualizaciones en tiempo real. Clasificaciones con autoridad del servidor.", "icon": "hero-home" },

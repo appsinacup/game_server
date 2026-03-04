@@ -35,7 +35,12 @@ defmodule GameServerWeb.PlayLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope} flush>
+    <Layouts.app
+      flash={@flash}
+      current_scope={@current_scope}
+      current_path={assigns[:current_path]}
+      flush
+    >
       <div
         id="game-container"
         class="relative w-full overflow-hidden"

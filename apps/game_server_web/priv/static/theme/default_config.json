@@ -19,6 +19,11 @@
   "nav_links": [
     { "label": "Play", "href": "/play", "auth": "any" }
   ],
+  "footer_links": [
+    { "label": "Guides", "href": "/docs/setup" },
+    { "label": "API Docs", "href": "/api/docs" },
+    { "label": "Elixir Docs", "href": "https://appsinacup.github.io/game_server/", "external": true }
+  ],
   "features": [
     { "title": "Authentication & Users", "description": "Email, Magic-link, OAuth, JWT and Session. Register, login, reset password and verify email.", "icon": "hero-lock-closed" },
     { "title": "Lobbies & Leaderboards", "description": "Customizable settings and real-time updates. Server-authoritative leaderboards.", "icon": "hero-home" },

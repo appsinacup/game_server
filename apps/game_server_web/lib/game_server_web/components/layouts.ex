@@ -69,6 +69,9 @@ defmodule GameServerWeb.Layouts do
     # Extra nav links from theme config JSON ("nav_links" key)
     nav_links = Map.get(provider_theme, "nav_links") || []
 
+    # Extra footer links from theme config JSON ("footer_links" key)
+    footer_links = Map.get(provider_theme, "footer_links") || []
+
     notif_unread_count =
       if assigns[:current_scope] do
         GameServer.Notifications.count_unread_notifications(assigns.current_scope.user.id)
@@ -82,6 +85,7 @@ defmodule GameServerWeb.Layouts do
         current_query: current_query,
         theme: theme,
         nav_links: nav_links,
+        footer_links: footer_links,
         notif_unread_count: notif_unread_count
       )
 
@@ -208,7 +212,7 @@ defmodule GameServerWeb.Layouts do
                 </.link>
               </li>
             <% end %>
-            <%= for link <- filtered_nav_links(@nav_links, if(@current_scope && @current_scope.user.is_admin, do: :admin, else: :authenticated)) do %>
+            <%= for link <- filtered_nav_links(@nav_links, if(@current_scope && @current_scope.user.is_admin, do: :admin, else: :authenticated), true) do %>
               <li>
                 <a
                   href={link["href"]}
@@ -434,7 +438,7 @@ defmodule GameServerWeb.Layouts do
                     </a>
                   </li>
                 <% end %>
-                <%= for link <- filtered_nav_links(@nav_links, if(@current_scope && @current_scope.user.is_admin, do: :admin, else: :authenticated)) do %>
+                <%= for link <- filtered_nav_links(@nav_links, if(@current_scope && @current_scope.user.is_admin, do: :admin, else: :authenticated), true) do %>
                   <li>
                     <a
                       href={link["href"]}
@@ -566,22 +570,16 @@ defmodule GameServerWeb.Layouts do
         <div class="mx-auto max-w-2xl lg:max-w-4xl xl:max-w-6xl flex flex-wrap justify-center gap-x-4 gap-y-1">
           <a href={~p"/privacy"} class="hover:underline">{gettext("Privacy Policy")}</a>
           <a href={~p"/terms"} class="hover:underline">{gettext("Terms and Conditions")}</a>
-          <a href={~p"/docs/setup"} class="hover:underline">{gettext("Guides")}</a>
-          <a
-            href={~p"/api/docs"}
-            rel="noopener noreferrer"
-            class="hover:underline"
-          >
-            {gettext("API Docs")}
-          </a>
-          <a
-            href="https://appsinacup.github.io/game_server/"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="hover:underline"
-          >
-            {gettext("Elixir Docs")}
-          </a>
+          <%= for link <- @footer_links do %>
+            <a
+              href={link["href"]}
+              target={if(link["external"], do: "_blank", else: nil)}
+              rel={if(link["external"], do: "noopener noreferrer", else: nil)}
+              class="hover:underline"
+            >
+              {link["label"]}
+            </a>
+          <% end %>
           <a href={~p"/changelog"} class="hover:underline">Changelog</a>
           <a href={~p"/blog"} class="hover:underline">Blog</a>
           <span class="text-xs opacity-60">v{app_version()}</span>
@@ -762,15 +760,23 @@ defmodule GameServerWeb.Layouts do
   # - `"href"` (required) — URL (internal like "/my-page" or external like "https://...")
   # - `"auth"` (optional) — `"any"` (default), `"authenticated"`, or `"admin"`
   # - `"external"` (optional) — boolean, opens in new tab when true
-  defp filtered_nav_links(nav_links, auth_level) do
+  #
+  # The `exact?` parameter controls whether `"any"` links are included:
+  # - `false` (default): includes `"any"` links — use in the shared section
+  #   that renders after the if/else auth block
+  # - `true`: excludes `"any"` links — use inside the authenticated-only
+  #   block to avoid rendering `"any"` links twice
+  defp filtered_nav_links(nav_links, auth_level, exact? \\ false) do
     Enum.filter(nav_links, fn link ->
       required = Map.get(link, "auth", "any")
 
-      case {required, auth_level} do
-        {"any", _} -> true
-        {"authenticated", :authenticated} -> true
-        {"authenticated", :admin} -> true
-        {"admin", :admin} -> true
+      case {required, auth_level, exact?} do
+        # "any" links only render in the shared (non-exact) section
+        {"any", _, false} -> true
+        {"any", _, true} -> false
+        {"authenticated", :authenticated, _} -> true
+        {"authenticated", :admin, _} -> true
+        {"admin", :admin, _} -> true
         _ -> false
       end
     end)
