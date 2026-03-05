@@ -9,6 +9,7 @@ defmodule GameServerWeb.PageControllerTest do
     body = html_response(conn, 200)
 
     assert body =~ "Features"
+    assert body =~ "Online"
     assert body =~ "Discord"
     assert body =~ "SQLite"
   end

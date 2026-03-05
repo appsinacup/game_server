@@ -358,6 +358,22 @@ defmodule GameServer.Accounts do
 
 
   @doc ~S"""
+    Count users currently marked as online.
+    
+  """
+  @spec count_users_online() :: non_neg_integer()
+  def count_users_online() do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Accounts.count_users_online/0 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Count users registered in the last N days.
     
   """

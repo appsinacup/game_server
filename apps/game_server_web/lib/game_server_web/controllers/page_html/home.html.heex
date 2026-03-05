@@ -68,8 +68,16 @@
           </p>
 
           <%!-- Activity Stats --%>
-          <div class="w-full max-w-xs sm:max-w-sm">
-            <div class="grid grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
+          <div class="w-full max-w-sm sm:max-w-md">
+            <div class="grid grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
+              <div class="flex flex-col items-center rounded-lg bg-base-100/40 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/100 [[data-theme=dark]_&]:border-white/20 px-3 py-1.5 sm:px-4 sm:py-2 transition hover:bg-base-100/60 [[data-theme=dark]_&]:hover:bg-white/20 hover:scale-[1.02]">
+                <span class="text-lg sm:text-xl font-bold text-base-content [[data-theme=dark]_&]:text-white">
+                  {@stats.users_online_now}
+                </span>
+                <span class="text-xs text-base-content/70 [[data-theme=dark]_&]:text-white/80 text-center">
+                  {gettext("Online")}
+                </span>
+              </div>
               <div class="flex flex-col items-center rounded-lg bg-base-100/40 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/100 [[data-theme=dark]_&]:border-white/20 px-3 py-1.5 sm:px-4 sm:py-2 transition hover:bg-base-100/60 [[data-theme=dark]_&]:hover:bg-white/20 hover:scale-[1.02]">
                 <span class="text-lg sm:text-xl font-bold text-base-content [[data-theme=dark]_&]:text-white">
                   {@stats.users_active_1d}

@@ -9,7 +9,14 @@
     <% provider_theme = GameServer.Theme.JSONConfig.get_theme(locale) || %{} %>
     <% title = assigns[:page_title] || Map.get(provider_theme, "title") %>
     <% description = assigns[:meta_description] || Map.get(provider_theme, "tagline") %>
-    <% image_path = Map.get(provider_theme, "banner") %>
+    <% banner_path = Map.get(provider_theme, "banner", "") %>
+    <% static_dir = Application.app_dir(:game_server_web, "priv/static") %>
+    <% banner_dark_path = String.replace(banner_path, ~r/\.(\w+)$/, "_dark.\\1") %>
+    <% banner_dark_exists? =
+      banner_dark_path != "" and
+        banner_dark_path != banner_path and
+        File.exists?(Path.join(static_dir, String.trim_leading(banner_dark_path, "/"))) %>
+    <% image_path = if banner_dark_exists?, do: banner_dark_path, else: banner_path %>
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />

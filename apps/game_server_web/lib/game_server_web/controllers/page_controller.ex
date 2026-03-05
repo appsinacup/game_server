@@ -8,6 +8,7 @@ defmodule GameServerWeb.PageController do
   def home(conn, _params) do
     stats = %{
       users_count: Repo.aggregate(User, :count),
+      users_online_now: Accounts.count_users_online(),
       users_active_1d: Accounts.count_users_active_since(1),
       users_active_7d: Accounts.count_users_active_since(7),
       users_active_30d: Accounts.count_users_active_since(30)

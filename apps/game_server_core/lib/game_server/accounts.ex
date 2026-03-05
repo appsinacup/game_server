@@ -257,6 +257,14 @@ defmodule GameServer.Accounts do
     count_users_active_since_cached(days)
   end
 
+  @doc """
+  Count users currently marked as online.
+  """
+  @spec count_users_online() :: non_neg_integer()
+  def count_users_online do
+    Repo.one(from u in User, where: u.is_online == true, select: count(u.id)) || 0
+  end
+
   @decorate cacheable(
               key: {:accounts, :stats, users_stats_cache_version(), :users_active_since, days},
               opts: [ttl: @stats_cache_ttl_ms]
