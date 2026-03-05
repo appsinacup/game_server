@@ -138,6 +138,14 @@ This metric is based on `users.updated_at` (any user record update,
 including registration/creation), so it reflects all users and not just
 session-token based authentication.
 
+# `count_users_online`
+
+```elixir
+@spec count_users_online() :: non_neg_integer()
+```
+
+Count users currently marked as online.
+
 # `count_users_registered_since`
 
 ```elixir
