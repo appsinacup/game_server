@@ -183,8 +183,11 @@ if config_env() == :prod do
       end
 
     sqlite_cache_size_kb = GameServer.Env.integer("SQLITE_CACHE_SIZE_KB", 200_000)
-    sqlite_busy_timeout_ms = GameServer.Env.integer("SQLITE_BUSY_TIMEOUT", 10_000)
+    sqlite_busy_timeout_ms = GameServer.Env.integer("SQLITE_BUSY_TIMEOUT", 15_000)
     sqlite_wal_autocheckpoint = GameServer.Env.integer("SQLITE_WAL_AUTOCHECKPOINT", 2000)
+
+    # Ensure Ecto/DBConnection timeout does not fire before SQLite's busy timeout.
+    sqlite_query_timeout = max(repo_query_timeout, sqlite_busy_timeout_ms + 5_000)
 
     config :game_server_core, GameServer.Repo,
       database: db_path,
@@ -193,7 +196,7 @@ if config_env() == :prod do
       pool_timeout: repo_pool_timeout,
       queue_target: repo_queue_target,
       queue_interval: repo_queue_interval,
-      timeout: repo_query_timeout,
+      timeout: sqlite_query_timeout,
       pragmas: [
         foreign_keys: :on,
         journal_mode: :wal,
