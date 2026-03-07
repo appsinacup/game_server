@@ -88,11 +88,9 @@ defmodule GameServer.Repo.AdvisoryLock do
     :ok
   end
 
-  @doc "Returns true if the current Repo adapter is PostgreSQL."
+  @doc "Returns true if the Repo was compiled with the PostgreSQL adapter."
   @spec postgres?() :: boolean()
   def postgres? do
-    # Use runtime config lookup to avoid compile-time type comparison warnings
-    # when the default adapter is SQLite3.
-    GameServer.Repo.config()[:adapter] == Ecto.Adapters.Postgres
+    GameServer.Repo.__adapter__() == Ecto.Adapters.Postgres
   end
 end

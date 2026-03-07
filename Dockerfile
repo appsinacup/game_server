@@ -16,6 +16,11 @@ WORKDIR /app
 # Set environment to production
 ENV MIX_ENV=prod
 
+# Database adapter for compile-time selection (sqlite or postgres).
+# Set to "postgres" when deploying with PostgreSQL.
+ARG DATABASE_ADAPTER=sqlite
+ENV DATABASE_ADAPTER=${DATABASE_ADAPTER}
+
 # Plugin build configuration
 ARG GAME_SERVER_PLUGINS_DIR=modules/plugins_examples
 ENV GAME_SERVER_PLUGINS_DIR=${GAME_SERVER_PLUGINS_DIR}

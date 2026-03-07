@@ -50,7 +50,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and (conditionally) push multi-arch image
+      - name: Build and (conditionally) push multi-arch image (SQLite)
         id: build
         uses: docker/build-push-action@v4
         with:
@@ -58,11 +58,27 @@ jobs:
           file: Dockerfile
           build-args: |
             APP_VERSION=${{ env.APP_VERSION }}
+            DATABASE_ADAPTER=sqlite
           platforms: linux/amd64,linux/arm64
           push: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
           tags: |
             ${{ env.IMAGE }}:latest
             ${{ env.IMAGE }}:${{ github.sha }}
+
+      - name: Build and (conditionally) push multi-arch image (Postgres)
+        id: build-postgres
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: Dockerfile
+          build-args: |
+            APP_VERSION=${{ env.APP_VERSION }}
+            DATABASE_ADAPTER=postgres
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+          tags: |
+            ${{ env.IMAGE }}:latest-postgres
+            ${{ env.IMAGE }}:${{ github.sha }}-postgres
 
   lint:
     name: Elixir lint

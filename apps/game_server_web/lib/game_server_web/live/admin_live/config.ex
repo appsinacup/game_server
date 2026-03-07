@@ -1068,6 +1068,7 @@ defmodule GameServerWeb.AdminLive.Config do
       database: Application.get_env(:game_server_core, GameServer.Repo)[:database] || "N/A",
       # Database environment diagnostics (don't show raw passwords)
       database_adapter: detect_db_adapter(),
+      database_config_adapter: detect_db_config_adapter(),
       pg_database_url: System.get_env("DATABASE_URL"),
       pg_host: System.get_env("POSTGRES_HOST"),
       pg_user: System.get_env("POSTGRES_USER"),
@@ -1665,12 +1666,19 @@ defmodule GameServerWeb.AdminLive.Config do
   defp dynamic_signature(_export), do: %{arity: :custom, signature: nil, doc: nil}
 
   defp detect_db_adapter do
+    case GameServer.Repo.__adapter__() do
+      Ecto.Adapters.Postgres -> :postgres
+      _ -> :sqlite
+    end
+  end
+
+  defp detect_db_config_adapter do
     repo_conf = Application.get_env(:game_server_core, GameServer.Repo) || %{}
 
     cond do
       System.get_env("DATABASE_URL") -> :postgres
       System.get_env("POSTGRES_HOST") && System.get_env("POSTGRES_USER") -> :postgres
-      repo_conf[:adapter] in [Ecto.Adapters.Postgres, Ecto.Adapters.Postgres] -> :postgres
+      repo_conf[:adapter] == Ecto.Adapters.Postgres -> :postgres
       true -> :sqlite
     end
   end

@@ -26,7 +26,14 @@ config :game_server_web,
   ecto_repos: [GameServer.Repo],
   generators: [timestamp_type: :utc_datetime]
 
-config :game_server_core, GameServer.Repo, adapter: Ecto.Adapters.SQLite3
+# Adapter selection (compile-time). Override with DATABASE_ADAPTER=postgres
+# at build time for production Postgres deployments.
+_default_adapter =
+  if System.get_env("DATABASE_ADAPTER") == "postgres",
+    do: Ecto.Adapters.Postgres,
+    else: Ecto.Adapters.SQLite3
+
+config :game_server_core, GameServer.Repo, adapter: _default_adapter
 
 # Configures the endpoint
 config :game_server_web, GameServerWeb.Endpoint,

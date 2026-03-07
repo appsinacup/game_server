@@ -69,14 +69,20 @@ defmodule GameServerHost.Application do
 
   defp database_info do
     repo_config = GameServer.Repo.config()
-    adapter = repo_config[:adapter]
+    compiled_adapter = GameServer.Repo.__adapter__()
+    config_adapter = repo_config[:adapter]
 
     adapter_name =
-      case adapter do
+      case compiled_adapter do
         Ecto.Adapters.Postgres -> "PostgreSQL"
         Ecto.Adapters.SQLite3 -> "SQLite"
         other -> inspect(other)
       end
+
+    mismatch =
+      if config_adapter && config_adapter != compiled_adapter,
+        do: " [WARNING: runtime config says #{inspect(config_adapter)} but compiled with #{inspect(compiled_adapter)}]",
+        else: ""
 
     db =
       cond do
@@ -86,7 +92,7 @@ defmodule GameServerHost.Application do
       end
 
     pool = repo_config[:pool_size] || "default"
-    "Database: #{adapter_name} #{db} (pool: #{pool})"
+    "Database: #{adapter_name} #{db} (pool: #{pool})#{mismatch}"
   end
 
   defp cache_info do
