@@ -1286,7 +1286,7 @@ defmodule GameServerWeb.Api.V1.GroupController do
     %{
       id: group.id,
       title: group.title,
-      description: group.description,
+      description: group.description || "",
       type: group.type,
       max_members: group.max_members,
       metadata: group.metadata || %{},
