@@ -18,9 +18,13 @@
     { "label": "Play", "href": "/play", "auth": "any" }
   ],
   "footer_links": [
+    { "label": "Privacy Policy", "href": "/privacy" },
+    { "label": "Terms and Conditions", "href": "/terms" },
     { "label": "Guides", "href": "/docs/setup" },
     { "label": "API Docs", "href": "/api/docs" },
-    { "label": "Elixir Docs", "href": "https://appsinacup.github.io/game_server/", "external": true }
+    { "label": "Elixir Docs", "href": "https://appsinacup.github.io/game_server/", "external": true },
+    { "label": "Changelog", "href": "/changelog" },
+    { "label": "Blog", "href": "/blog" }
   ],
   "features": [
     { "title": "Autenticación y usuarios", "description": "Correo, enlace mágico, OAuth, JWT y sesión. Registro, inicio de sesión, recuperación de contraseña y verificación de correo.", "icon": "hero-lock-closed" },

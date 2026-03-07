@@ -568,8 +568,6 @@ defmodule GameServerWeb.Layouts do
       <.flash_group flash={@flash} />
       <footer class="px-4 py-6 sm:px-6 lg:px-8 text-center text-sm text-base-content/70">
         <div class="mx-auto max-w-2xl lg:max-w-4xl xl:max-w-6xl flex flex-wrap justify-center gap-x-4 gap-y-1">
-          <a href={~p"/privacy"} class="hover:underline">{gettext("Privacy Policy")}</a>
-          <a href={~p"/terms"} class="hover:underline">{gettext("Terms and Conditions")}</a>
           <%= for link <- @footer_links do %>
             <a
               href={link["href"]}
@@ -580,8 +578,6 @@ defmodule GameServerWeb.Layouts do
               {link["label"]}
             </a>
           <% end %>
-          <a href={~p"/changelog"} class="hover:underline">Changelog</a>
-          <a href={~p"/blog"} class="hover:underline">Blog</a>
           <span class="text-xs opacity-60">v{app_version()}</span>
         </div>
       </footer>
