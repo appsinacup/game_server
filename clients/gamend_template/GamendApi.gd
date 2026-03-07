@@ -4,9 +4,48 @@
 class_name GamendApi
 extends Node
 
-signal notification_emitted(content: Dictionary)
+signal notification_emitted(notification: Dictionary)
 signal user_updated(user: Dictionary)
+
+## Lobby realtime events
 signal lobby_updated(lobby: Dictionary)
+signal lobby_member_joined(payload: Dictionary)   ## {user_id}
+signal lobby_member_left(payload: Dictionary)     ## {user_id}
+signal lobby_member_kicked(payload: Dictionary)   ## {user_id}
+signal lobby_host_changed(payload: Dictionary)    ## {new_host_id}
+signal lobby_chat_message(message: Dictionary)         ## new_chat_message
+signal lobby_chat_message_updated(message: Dictionary) ## chat_message_updated
+signal lobby_chat_message_deleted(payload: Dictionary) ## chat_message_deleted {id}
+
+## Party realtime events
+signal party_updated(party: Dictionary)
+signal party_member_joined(payload: Dictionary)   ## {user_id}
+signal party_member_left(payload: Dictionary)     ## {user_id}
+signal party_disbanded(payload: Dictionary)       ## {party_id}
+signal party_chat_message(message: Dictionary)
+signal party_chat_message_updated(message: Dictionary)
+signal party_chat_message_deleted(payload: Dictionary)
+
+## Friend online / offline status (pushed to all accepted friends)
+signal friend_online(payload: Dictionary)         ## {user_id, is_online: true}
+signal friend_offline(payload: Dictionary)        ## {user_id, is_online: false}
+## Friend DM chat (via user channel)
+signal friend_chat_message(message: Dictionary)
+signal friend_chat_message_updated(message: Dictionary)
+signal friend_chat_message_deleted(payload: Dictionary)
+
+## Group realtime events
+signal group_updated(group: Dictionary)
+signal group_member_joined(payload: Dictionary)
+signal group_member_left(payload: Dictionary)
+signal group_member_kicked(payload: Dictionary)
+signal group_member_promoted(payload: Dictionary)
+signal group_member_demoted(payload: Dictionary)
+signal group_join_request_approved(payload: Dictionary)
+signal group_join_request_rejected(payload: Dictionary)
+signal group_chat_message(message: Dictionary)
+signal group_chat_message_updated(message: Dictionary)
+signal group_chat_message_deleted(payload: Dictionary)
 
 var _config := ApiApiConfigClient.new()
 var _realtime: GamendRealtime
@@ -26,6 +65,7 @@ var _refresh_token := ""
 var _expires_at_ms := -1
 var _user_id = -1
 var _lobby_id = -1
+var _party_id = -1
 var _refreshing_token = false
 var _http_clients: Array = []
 var _http_clients_in_flight: Array = []
@@ -159,22 +199,114 @@ func realtime_stop():
 func listen_to_user():
 	_realtime.add_channel("user:" + str(int(_user_id)))
 
-func liste_to_lobby():
+func listen_to_lobby():
 	_realtime.add_channel("lobby:" + str(int(_lobby_id)))
 
+func listen_to_party():
+	if _party_id != -1:
+		_realtime.add_channel("party:" + str(int(_party_id)))
+
+## Subscribe to a group channel to receive group realtime events.
+func listen_to_group(group_id: int):
+	_realtime.add_channel("group:" + str(group_id))
+
 func _on_channel_event(event: String, payload: Dictionary, status, topic: String):
-	if topic.begins_with("user") && event == "updated":
-		var lobby_id = payload.get("lobby_id")
-		# Listen to the lobby
-		if _lobby_id != lobby_id && lobby_id != -1:
+	if topic.begins_with("user:"):
+		_handle_user_event(event, payload)
+	elif topic.begins_with("lobby:"):
+		_handle_lobby_event(event, payload)
+	elif topic.begins_with("party:"):
+		_handle_party_event(event, payload)
+	elif topic.begins_with("group:"):
+		_handle_group_event(event, payload)
+
+func _handle_user_event(event: String, payload: Dictionary):
+	match event:
+		"updated":
+			var lobby_id = payload.get("lobby_id", -1)
+			if lobby_id != -1 && _lobby_id != lobby_id:
+				_lobby_id = lobby_id
+				listen_to_lobby()
 			_lobby_id = lobby_id
-			liste_to_lobby()
-		_lobby_id = lobby_id
-		user_updated.emit(payload)
-	if topic.begins_with("lobby") && event == "updated":
-		lobby_updated.emit(payload)
-	if topic.begins_with("user") && event == "notification":
-		notification_emitted.emit(payload)
+			var party_id = payload.get("party_id", -1)
+			if party_id != -1 && _party_id != party_id:
+				_party_id = party_id
+				listen_to_party()
+			_party_id = party_id
+			user_updated.emit(payload)
+		"notification":
+			notification_emitted.emit(payload)
+		"friend_online":
+			friend_online.emit(payload)
+		"friend_offline":
+			friend_offline.emit(payload)
+		"new_chat_message":
+			friend_chat_message.emit(payload)
+		"chat_message_updated":
+			friend_chat_message_updated.emit(payload)
+		"chat_message_deleted":
+			friend_chat_message_deleted.emit(payload)
+
+func _handle_lobby_event(event: String, payload: Dictionary):
+	match event:
+		"updated":
+			lobby_updated.emit(payload)
+		"user_joined":
+			lobby_member_joined.emit(payload)
+		"user_left":
+			lobby_member_left.emit(payload)
+		"user_kicked":
+			lobby_member_kicked.emit(payload)
+		"host_changed":
+			lobby_host_changed.emit(payload)
+		"new_chat_message":
+			lobby_chat_message.emit(payload)
+		"chat_message_updated":
+			lobby_chat_message_updated.emit(payload)
+		"chat_message_deleted":
+			lobby_chat_message_deleted.emit(payload)
+
+func _handle_party_event(event: String, payload: Dictionary):
+	match event:
+		"updated":
+			party_updated.emit(payload)
+		"member_joined":
+			party_member_joined.emit(payload)
+		"member_left":
+			party_member_left.emit(payload)
+		"disbanded":
+			party_disbanded.emit(payload)
+		"new_chat_message":
+			party_chat_message.emit(payload)
+		"chat_message_updated":
+			party_chat_message_updated.emit(payload)
+		"chat_message_deleted":
+			party_chat_message_deleted.emit(payload)
+
+func _handle_group_event(event: String, payload: Dictionary):
+	match event:
+		"updated":
+			group_updated.emit(payload)
+		"member_joined":
+			group_member_joined.emit(payload)
+		"member_left":
+			group_member_left.emit(payload)
+		"member_kicked":
+			group_member_kicked.emit(payload)
+		"member_promoted":
+			group_member_promoted.emit(payload)
+		"member_demoted":
+			group_member_demoted.emit(payload)
+		"join_request_approved":
+			group_join_request_approved.emit(payload)
+		"join_request_rejected":
+			group_join_request_rejected.emit(payload)
+		"new_chat_message":
+			group_chat_message.emit(payload)
+		"chat_message_updated":
+			group_chat_message_updated.emit(payload)
+		"chat_message_deleted":
+			group_chat_message_deleted.emit(payload)
 		
 ## Authorize with access token
 func authorize():
