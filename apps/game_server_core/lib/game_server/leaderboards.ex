@@ -244,7 +244,7 @@ defmodule GameServer.Leaderboards do
               opts: [ttl: @leaderboards_cache_ttl_ms]
             )
   defp list_leaderboard_groups_cached(page, page_size) do
-    offset = (page - 1) * page_size
+    offset = max((page - 1) * page_size, 0)
 
     # Get unique slugs ordered by most recent end date (nulls first = still active)
     slugs_query =
@@ -750,7 +750,7 @@ defmodule GameServer.Leaderboards do
             )
   defp list_records_cached(leaderboard_id, sort_order, page, page_size)
        when is_integer(leaderboard_id) and is_integer(page) and is_integer(page_size) do
-    offset = (page - 1) * page_size
+    offset = max((page - 1) * page_size, 0)
 
     order_by =
       case sort_order do

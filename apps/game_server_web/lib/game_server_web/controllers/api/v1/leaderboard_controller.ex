@@ -163,8 +163,8 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
   )
 
   def index(conn, params) do
-    page = parse_int(params["page"], 1)
-    page_size = min(parse_int(params["page_size"], 25), 100)
+    page = max(parse_int(params["page"], 1), 1)
+    page_size = min(max(parse_int(params["page_size"], 25), 1), 100)
 
     opts =
       [page: page, page_size: page_size]
@@ -278,8 +278,8 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
         |> json(%{error: "Leaderboard not found"})
 
       leaderboard ->
-        page = parse_int(params["page"], 1)
-        page_size = min(parse_int(params["page_size"], 25), 100)
+        page = max(parse_int(params["page"], 1), 1)
+        page_size = min(max(parse_int(params["page_size"], 25), 1), 100)
 
         records = Leaderboards.list_records(leaderboard.id, page: page, page_size: page_size)
         total_count = Leaderboards.count_records(leaderboard.id)
