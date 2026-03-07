@@ -259,6 +259,11 @@ Call an internal lifecycle callback. When a callback is missing this
   returns a sensible default (eg. {:ok, attrs} for before callbacks) so
   domain code doesn't need to handle missing hooks specially in most cases.
 
+# `internal_hooks`
+
+Returns the set of internal lifecycle hook names that are not callable
+  through the public RPC interface.
+
 # `invoke`
 
 Invoke a dynamic hook function by name.

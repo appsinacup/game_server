@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.673">
+    <meta name="project" content="GameServer v1.0.675">
 
 
-    <title>GameServer.Hooks — GameServer v1.0.673</title>
+    <title>GameServer.Hooks — GameServer v1.0.675</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-C8097FA9.js"></script>
+    <script defer src="dist/sidebar_items-EF72FCCA.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.673
+          v1.0.675
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Hooks</span> <small>behaviour</small>
-      <small class="app-vsn" translate="no">(GameServer v1.0.673)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.675)</small>
 
     </h1>
 
@@ -426,6 +426,17 @@ when the value is a user struct or map containing <code class="inline">:id</code
         <div class="summary-synopsis"><p>Call an internal lifecycle callback. When a callback is missing this
   returns a sensible default (eg. {:ok, attrs} for before callbacks) so
   domain code doesn't need to handle missing hooks specially in most cases.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#internal_hooks/0" data-no-tooltip="" translate="no">internal_hooks()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns the set of internal lifecycle hook names that are not callable
+  through the public RPC interface.</p></div>
 
     </div>
 
@@ -1303,6 +1314,25 @@ This is useful for tooling and admin UI to display what RPCs are available.</p>
 <p>Call an internal lifecycle callback. When a callback is missing this
   returns a sensible default (eg. {:ok, attrs} for before callbacks) so
   domain code doesn't need to handle missing hooks specially in most cases.</p>
+  </section>
+</section>
+<section class="detail" id="internal_hooks/0">
+
+  <div class="detail-header">
+    <a href="#internal_hooks/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">internal_hooks()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Returns the set of internal lifecycle hook names that are not callable
+  through the public RPC interface.</p>
   </section>
 </section>
 <section class="detail" id="invoke/2">
