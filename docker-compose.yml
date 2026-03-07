@@ -20,3 +20,5 @@ services:
       - ./priv/static/images:/app/priv/static/images
       - ./priv/static/assets/css/theme:/app/priv/static/assets/css/theme
       - ./db:/app/db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
