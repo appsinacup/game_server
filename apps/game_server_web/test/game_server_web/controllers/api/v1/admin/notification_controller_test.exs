@@ -201,7 +201,7 @@ defmodule GameServerWeb.Api.V1.Admin.NotificationControllerTest do
     assert resp["error"] =~ "sender_id"
   end
 
-  test "POST /api/v1/admin/notifications rejects duplicate title for same sender and recipient",
+  test "POST /api/v1/admin/notifications replaces duplicate title for same sender and recipient",
        %{
          conn: conn,
          admin: admin
@@ -209,16 +209,7 @@ defmodule GameServerWeb.Api.V1.Admin.NotificationControllerTest do
     sender = AccountsFixtures.user_fixture()
     recipient = AccountsFixtures.user_fixture()
 
-    conn
-    |> bearer_conn(admin)
-    |> post("/api/v1/admin/notifications", %{
-      sender_id: sender.id,
-      recipient_id: recipient.id,
-      title: "Invited to play"
-    })
-    |> json_response(201)
-
-    resp =
+    first =
       conn
       |> bearer_conn(admin)
       |> post("/api/v1/admin/notifications", %{
@@ -226,10 +217,21 @@ defmodule GameServerWeb.Api.V1.Admin.NotificationControllerTest do
         recipient_id: recipient.id,
         title: "Invited to play"
       })
-      |> json_response(422)
+      |> json_response(201)
 
-    assert resp["error"] == "validation_failed"
-    assert get_in(resp, ["errors", "sender_id"]) != nil
+    second =
+      conn
+      |> bearer_conn(admin)
+      |> post("/api/v1/admin/notifications", %{
+        sender_id: sender.id,
+        recipient_id: recipient.id,
+        title: "Invited to play"
+      })
+      |> json_response(201)
+
+    # Should produce a fresh notification (new id, same title)
+    assert second["title"] == "Invited to play"
+    assert second["id"] != first["id"]
   end
 
   # ── Delete ─────────────────────────────────────────────────────────────────

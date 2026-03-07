@@ -291,6 +291,8 @@ defmodule GameServer.Notifications do
           {:ok, Notification.t()} | {:error, Ecto.Changeset.t() | atom()}
   def admin_create_notification(sender_id, recipient_id, attrs)
       when is_integer(sender_id) and is_integer(recipient_id) do
+    delete_existing_notification(sender_id, recipient_id, attrs)
+
     %Notification{}
     |> Notification.changeset(attrs)
     |> Ecto.Changeset.put_change(:sender_id, sender_id)
@@ -357,6 +359,8 @@ defmodule GameServer.Notifications do
         {:error, :not_friends}
 
       true ->
+        delete_existing_notification(sender_id, recipient_id, attrs)
+
         %Notification{}
         |> Notification.changeset(attrs)
         |> Ecto.Changeset.put_change(:sender_id, sender_id)
@@ -396,6 +400,22 @@ defmodule GameServer.Notifications do
   # ---------------------------------------------------------------------------
   # Helpers
   # ---------------------------------------------------------------------------
+
+  # Deletes any existing notification with the same (sender_id, recipient_id, title)
+  # so a fresh re-send is treated as a new notification rather than triggering the
+  # unique constraint and returning a 422 error.
+  defp delete_existing_notification(sender_id, recipient_id, attrs) do
+    title = attrs["title"] || attrs[:title]
+
+    if title do
+      from(n in Notification,
+        where:
+          n.sender_id == ^sender_id and n.recipient_id == ^recipient_id and
+            n.title == ^title
+      )
+      |> Repo.delete_all()
+    end
+  end
 
   @doc """
   Create a chat notification for a recipient.

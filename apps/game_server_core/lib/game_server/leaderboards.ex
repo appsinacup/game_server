@@ -376,7 +376,7 @@ defmodule GameServer.Leaderboards do
               opts: [ttl: @leaderboards_cache_ttl_ms]
             )
   defp list_leaderboards_cached(opts, order_by, page, page_size) do
-    offset = (page - 1) * page_size
+    offset = max((page - 1) * page_size, 0)
 
     opts
     |> build_leaderboard_query()
