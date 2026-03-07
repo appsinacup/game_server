@@ -1,5 +1,8 @@
 This is a web application written using the Phoenix web framework.
 
+# **Always end interactions with confirmation.**
+After completing any work or providing information, use `ask_questions` to confirm the task is complete and ask if anything else is needed. Never finish a turn without this confirmation.
+
 ## Project guidelines
 
 - Use `mix precommit` alias when you are done with all changes and fix any pending issues
@@ -617,6 +620,3 @@ apps/
 assets/                       # JS, CSS, vendor deps
 config/                       # Environment configs
 ```
-
-# **Always end interactions with confirmation.**
-After completing any work or providing information, use `ask_questions` to confirm the task is complete and ask if anything else is needed. Never finish a turn without this confirmation.
