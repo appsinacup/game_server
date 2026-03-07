@@ -522,31 +522,31 @@ func kv_get_kv(key: String, user_id = null, lobby_id = null) -> GamendResult:
 ## CHAT
 
 ## List messages in a lobby, group, party, or friend conversation
-func chat_list_messages(chat_type: String, chat_ref_id: int, page = 1, page_size = 25) -> GamendResult:
+func chat_list_chat_messages(chat_type: String, chat_ref_id: int, page = 1, page_size = 25) -> GamendResult:
 	return await _call_api(ChatApi.new(_config), "list_chat_messages", [chat_type, chat_ref_id, page, page_size])
 
 ## Get a single chat message by ID
-func chat_get_message(id: int) -> GamendResult:
+func chat_get_chat_message(id: int) -> GamendResult:
 	return await _call_api(ChatApi.new(_config), "get_chat_message", [id])
 
 ## Send a message to a lobby, group, party, or friend conversation
-func chat_send_message(chat_type: String, chat_ref_id: int, content: String, metadata = {}) -> GamendResult:
+func chat_send_chat_message(chat_type: String, chat_ref_id: int, content: String, metadata = {}) -> GamendResult:
 	return await _call_api(ChatApi.new(_config), "send_chat_message", [chat_type, chat_ref_id, content, metadata])
 
 ## Update (edit) a chat message by ID
-func chat_update_message(id: int, content: String) -> GamendResult:
+func chat_update_chat_message(id: int, content: String) -> GamendResult:
 	return await _call_api(ChatApi.new(_config), "update_chat_message", [id, content])
 
 ## Delete a chat message by ID
-func chat_delete_message(id: int) -> GamendResult:
+func chat_delete_chat_message(id: int) -> GamendResult:
 	return await _call_api(ChatApi.new(_config), "delete_chat_message", [id])
 
 ## Mark a chat conversation as read up to a given message ID
-func chat_mark_read(chat_type: String, chat_ref_id: int, message_id: int) -> GamendResult:
+func chat_mark_chat_read(chat_type: String, chat_ref_id: int, message_id: int) -> GamendResult:
 	return await _call_api(ChatApi.new(_config), "mark_chat_read", [chat_type, chat_ref_id, message_id])
 
 ## Get unread message count for a chat conversation
-func chat_unread_count(chat_type: String, chat_ref_id: int) -> GamendResult:
+func chat_chat_unread_count(chat_type: String, chat_ref_id: int) -> GamendResult:
 	return await _call_api(ChatApi.new(_config), "chat_unread_count", [chat_type, chat_ref_id])
 
 ## NOTIFICATIONS
