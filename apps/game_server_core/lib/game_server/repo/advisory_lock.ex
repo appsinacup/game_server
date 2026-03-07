@@ -59,20 +59,30 @@ defmodule GameServer.Repo.AdvisoryLock do
   def lock(namespace, resource_id)
       when is_atom(namespace) and is_integer(resource_id) do
     ns = Map.fetch!(@namespaces, namespace)
-
-    if postgres?() do
-      GameServer.Repo.query!("SELECT pg_advisory_xact_lock($1, $2)", [ns, resource_id])
-    end
-
-    :ok
+    maybe_advisory_lock(ns, resource_id)
   end
 
   def lock(namespace, resource_id)
       when is_binary(namespace) and is_integer(resource_id) do
     ns = :erlang.phash2(namespace, 2_147_483_547) + @string_ns_offset
+    maybe_advisory_lock(ns, resource_id)
+  end
 
+  defp maybe_advisory_lock(ns, resource_id) do
     if postgres?() do
-      GameServer.Repo.query!("SELECT pg_advisory_xact_lock($1, $2)", [ns, resource_id])
+      try do
+        GameServer.Repo.query!("SELECT pg_advisory_xact_lock($1, $2)", [ns, resource_id])
+      rescue
+        e ->
+          require Logger
+
+          Logger.warning(
+            "advisory_lock: pg_advisory_xact_lock(#{ns}, #{resource_id}) failed: #{Exception.message(e)}. " <>
+              "Falling back to no-op. Check that the database supports advisory locks " <>
+              "and the compile-time adapter matches runtime (compiled: #{inspect(GameServer.Repo.__adapter__())}, " <>
+              "runtime config: #{inspect(GameServer.Repo.config()[:adapter])})."
+          )
+      end
     end
 
     :ok
