@@ -188,8 +188,10 @@ defmodule GameServerHost.Application do
     end
   end
 
+  alias GameServer.Hooks.PluginManager
+
   defp plugins_info do
-    plugins = GameServer.Hooks.PluginManager.list()
+    plugins = PluginManager.list()
     count = length(plugins)
     names = Enum.map(plugins, fn p -> p.name end)
 

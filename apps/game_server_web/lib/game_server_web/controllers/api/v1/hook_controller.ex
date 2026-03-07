@@ -127,32 +127,30 @@ defmodule GameServerWeb.Api.V1.HookController do
 
     args = if is_list(args), do: args, else: [args]
 
-    cond do
-      reserved_hook_name?(fn_name) ->
-        conn
-        |> put_status(:bad_request)
-        |> json(%{error: :reserved_hook_name})
+    if reserved_hook_name?(fn_name) do
+      conn
+      |> put_status(:bad_request)
+      |> json(%{error: :reserved_hook_name})
+    else
+      case PluginManager.call_rpc(plugin, fn_name, args, caller: user) do
+        {:ok, res} ->
+          json(conn, %{data: res})
 
-      true ->
-        case PluginManager.call_rpc(plugin, fn_name, args, caller: user) do
-          {:ok, res} ->
-            json(conn, %{data: res})
+        {:error, :not_implemented} ->
+          conn |> put_status(:bad_request) |> json(%{error: :not_implemented})
 
-          {:error, :not_implemented} ->
-            conn |> put_status(:bad_request) |> json(%{error: :not_implemented})
+        {:error, :not_found} ->
+          conn |> put_status(:bad_request) |> json(%{error: :plugin_not_found})
 
-          {:error, :not_found} ->
-            conn |> put_status(:bad_request) |> json(%{error: :plugin_not_found})
+        {:error, :missing_hooks_module} ->
+          conn |> put_status(:bad_request) |> json(%{error: :missing_hooks_module})
 
-          {:error, :missing_hooks_module} ->
-            conn |> put_status(:bad_request) |> json(%{error: :missing_hooks_module})
+        {:error, :timeout} ->
+          conn |> put_status(:bad_request) |> json(%{error: :timeout})
 
-          {:error, :timeout} ->
-            conn |> put_status(:bad_request) |> json(%{error: :timeout})
-
-          {:error, other} ->
-            conn |> put_status(:bad_request) |> json(%{error: inspect(other)})
-        end
+        {:error, other} ->
+          conn |> put_status(:bad_request) |> json(%{error: inspect(other)})
+      end
     end
   end
 
