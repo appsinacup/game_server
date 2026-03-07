@@ -81,7 +81,8 @@ defmodule GameServerHost.Application do
 
     mismatch =
       if config_adapter && config_adapter != compiled_adapter,
-        do: " [WARNING: runtime config says #{inspect(config_adapter)} but compiled with #{inspect(compiled_adapter)}]",
+        do:
+          " [WARNING: runtime config says #{inspect(config_adapter)} but compiled with #{inspect(compiled_adapter)}]",
         else: ""
 
     db =
