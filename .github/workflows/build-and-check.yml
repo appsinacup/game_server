@@ -14,8 +14,18 @@ env:
 
 jobs:
   build:
-    name: Build and publish multi-arch image
+    name: Build and publish (${{ matrix.adapter }})
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        include:
+          - adapter: sqlite
+            tags_suffix: ""
+            extra_tag_suffix: ""
+          - adapter: postgres
+            tags_suffix: "-postgres"
+            extra_tag_suffix: "-postgres"
 
     steps:
       - name: Checkout repository (full history for commit count)
@@ -29,11 +39,8 @@ jobs:
           git config --global --add safe.directory $GITHUB_WORKSPACE || true
           git fetch --prune --unshallow || true
           COMMIT_COUNT=$(git rev-list --count HEAD)
-          # Build a simple semver style version used on CI: 1.0.<commit_count>
           VERSION="1.0.${COMMIT_COUNT}"
           echo "Generated version=${VERSION}"
-
-          # Export for remaining steps in this job
           echo "APP_VERSION=${VERSION}" >> $GITHUB_ENV
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
@@ -50,35 +57,19 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and (conditionally) push multi-arch image (SQLite)
-        id: build
+      - name: Build and (conditionally) push multi-arch image
         uses: docker/build-push-action@v4
         with:
           context: .
           file: Dockerfile
           build-args: |
             APP_VERSION=${{ env.APP_VERSION }}
-            DATABASE_ADAPTER=sqlite
+            DATABASE_ADAPTER=${{ matrix.adapter }}
           platforms: linux/amd64,linux/arm64
           push: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
           tags: |
-            ${{ env.IMAGE }}:latest
-            ${{ env.IMAGE }}:${{ github.sha }}
-
-      - name: Build and (conditionally) push multi-arch image (Postgres)
-        id: build-postgres
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: Dockerfile
-          build-args: |
-            APP_VERSION=${{ env.APP_VERSION }}
-            DATABASE_ADAPTER=postgres
-          platforms: linux/amd64,linux/arm64
-          push: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
-          tags: |
-            ${{ env.IMAGE }}:latest-postgres
-            ${{ env.IMAGE }}:${{ github.sha }}-postgres
+            ${{ env.IMAGE }}:latest${{ matrix.tags_suffix }}
+            ${{ env.IMAGE }}:${{ github.sha }}${{ matrix.extra_tag_suffix }}
 
   lint:
     name: Elixir lint

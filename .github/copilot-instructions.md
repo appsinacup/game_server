@@ -1,7 +1,7 @@
 This is a web application written using the Phoenix web framework.
 
-# **Always end interactions with confirmation.**
-After completing any work or providing information, use `ask_questions` to confirm the task is complete and ask if anything else is needed. Never finish a turn without this confirmation.
+# Always end interactions with confirmation.
+After completing any work or providing information, always ask the user if the task is complete and if anything else is needed. Never finish a response without this confirmation.
 
 ## Project guidelines
 
