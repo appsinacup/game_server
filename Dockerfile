@@ -66,5 +66,5 @@ RUN mix do --app game_server_web cmd mix phx.digest
 # Expose port
 EXPOSE 4000
 
-# Default command - run migrations and start server
-CMD ["sh", "-c", "mix do --app game_server_host ecto.migrate && mix do --app game_server_host phx.server"]
+# Default command - create DB (if needed), run migrations, and start server
+CMD ["sh", "-c", "mix do --app game_server_host ecto.create --quiet 2>/dev/null; mix do --app game_server_host ecto.migrate && mix do --app game_server_host phx.server"]

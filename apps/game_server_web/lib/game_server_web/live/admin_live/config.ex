@@ -1680,10 +1680,7 @@ defmodule GameServerWeb.AdminLive.Config do
   defp dynamic_signature(_export), do: %{arity: :custom, signature: nil, doc: nil}
 
   defp detect_db_adapter do
-    case GameServer.Repo.__adapter__() do
-      Ecto.Adapters.Postgres -> :postgres
-      _ -> :sqlite
-    end
+    if GameServer.Repo.AdvisoryLock.postgres?(), do: :postgres, else: :sqlite
   end
 
   defp detect_db_config_adapter do
