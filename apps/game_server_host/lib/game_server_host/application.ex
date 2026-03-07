@@ -3,6 +3,9 @@ defmodule GameServerHost.Application do
 
   use Application
 
+  alias GameServer.Hooks.PluginManager
+  alias GameServer.Repo.AdvisoryLock
+
   @impl true
   def start(_type, _args) do
     Application.start(:os_mon)
@@ -73,7 +76,7 @@ defmodule GameServerHost.Application do
     adapter_name = GameServer.Repo.__adapter__() |> inspect() |> String.split(".") |> List.last()
 
     mismatch =
-      if GameServer.Repo.AdvisoryLock.postgres?() == false &&
+      if AdvisoryLock.postgres?() == false &&
            (System.get_env("DATABASE_URL") ||
               (System.get_env("POSTGRES_HOST") && System.get_env("POSTGRES_USER"))) do
         " [WARNING: Postgres env vars set but compiled with SQLite — rebuild with DATABASE_ADAPTER=postgres]"
@@ -190,8 +193,6 @@ defmodule GameServerHost.Application do
       "Sentry: disabled"
     end
   end
-
-  alias GameServer.Hooks.PluginManager
 
   defp plugins_info do
     plugins = PluginManager.list()

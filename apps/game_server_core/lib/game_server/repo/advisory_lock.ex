@@ -91,6 +91,10 @@ defmodule GameServer.Repo.AdvisoryLock do
   @doc "Returns true if the Repo was compiled with the PostgreSQL adapter."
   @spec postgres?() :: boolean()
   def postgres? do
-    GameServer.Repo.__adapter__() == Ecto.Adapters.Postgres
+    # Use Module.concat to build the expected adapter module name at runtime,
+    # avoiding a compile-time constant comparison warning when SQLite is the
+    # default adapter and Elixir's type checker sees the result as always false.
+    postgres_adapter = Module.concat([Ecto, Adapters, Postgres])
+    GameServer.Repo.__adapter__() == postgres_adapter
   end
 end
