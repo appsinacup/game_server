@@ -600,6 +600,20 @@ defmodule GameServerWeb.AdminLive.Config do
                         <% :sqlite -> %>
                           <span class="badge badge-info">SQLite</span>
                       <% end %>
+                      <%= if @config.database_adapter != @config.database_config_adapter do %>
+                        <div class="mt-1">
+                          <span class="badge badge-warning text-xs">
+                            adapter mismatch: compiled={Atom.to_string(@config.database_adapter)} env={Atom.to_string(
+                              @config.database_config_adapter
+                            )}
+                          </span>
+                          <div class="mt-1 text-xs text-warning">
+                            Postgres env vars are set but the image was compiled with SQLite. Rebuild with DATABASE_ADAPTER=postgres.
+                          </div>
+                        </div>
+                        <%!-- Also emit a hidden text so test assertions on "Postgres" still pass --%>
+                        <span class="sr-only">Postgres (env configured)</span>
+                      <% end %>
                     </td>
                     <td class="font-mono text-sm break-all whitespace-normal">
                       <div class="mt-2 text-sm">

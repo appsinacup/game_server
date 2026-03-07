@@ -69,21 +69,17 @@ defmodule GameServerHost.Application do
 
   defp database_info do
     repo_config = GameServer.Repo.config()
-    compiled_adapter = GameServer.Repo.__adapter__()
-    config_adapter = repo_config[:adapter]
 
-    adapter_name =
-      case compiled_adapter do
-        Ecto.Adapters.Postgres -> "PostgreSQL"
-        Ecto.Adapters.SQLite3 -> "SQLite"
-        other -> inspect(other)
-      end
+    adapter_name = GameServer.Repo.__adapter__() |> inspect() |> String.split(".") |> List.last()
 
     mismatch =
-      if config_adapter && config_adapter != compiled_adapter,
-        do:
-          " [WARNING: runtime config says #{inspect(config_adapter)} but compiled with #{inspect(compiled_adapter)}]",
-        else: ""
+      if GameServer.Repo.AdvisoryLock.postgres?() == false &&
+           (System.get_env("DATABASE_URL") ||
+              (System.get_env("POSTGRES_HOST") && System.get_env("POSTGRES_USER"))) do
+        " [WARNING: Postgres env vars set but compiled with SQLite — rebuild with DATABASE_ADAPTER=postgres]"
+      else
+        ""
+      end
 
     db =
       cond do
