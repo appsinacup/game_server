@@ -487,6 +487,10 @@ func lobbies_quick_join(quick_request: QuickJoinRequest) -> GamendResult:
 func lobbies_join_lobby(id: int, join_request: JoinLobbyRequest = null) -> GamendResult:
 	return await _call_api(LobbiesApi.new(_config), "join_lobby", [id, join_request])
 
+## Get a lobby by ID
+func lobbies_get_lobby(id: int) -> GamendResult:
+	return await _call_api(LobbiesApi.new(_config), "get_lobby", [id])
+
 ### LEADERBOARDS
 
 ## List leaderboard records
@@ -505,11 +509,45 @@ func leaderboards_get_my_record(id: int) -> GamendResult:
 func leaderboards_list_records_around_user(id: int, user_id: int, limit = 11) -> GamendResult:
 	return await _call_api(LeaderboardsApi.new(_config), "list_records_around_user", [id, user_id, limit])
 
+## Get a leaderboard by ID
+func leaderboards_get_leaderboard(id: int) -> GamendResult:
+	return await _call_api(LeaderboardsApi.new(_config), "get_leaderboard", [id])
+
 ## KV
 
 ## Get a key/value entry 
 func kv_get_kv(key: String, user_id = null, lobby_id = null) -> GamendResult:
 	return await _call_api(KVApi.new(_config), "get_kv", [key, user_id, lobby_id])
+
+## CHAT
+
+## List messages in a lobby, group, party, or friend conversation
+func chat_list_messages(chat_type: String, chat_ref_id: int, page = 1, page_size = 25) -> GamendResult:
+	return await _call_api(ChatApi.new(_config), "list_chat_messages", [chat_type, chat_ref_id, page, page_size])
+
+## Get a single chat message by ID
+func chat_get_message(id: int) -> GamendResult:
+	return await _call_api(ChatApi.new(_config), "get_chat_message", [id])
+
+## Send a message to a lobby, group, party, or friend conversation
+func chat_send_message(chat_type: String, chat_ref_id: int, content: String, metadata = {}) -> GamendResult:
+	return await _call_api(ChatApi.new(_config), "send_chat_message", [chat_type, chat_ref_id, content, metadata])
+
+## Update (edit) a chat message by ID
+func chat_update_message(id: int, content: String) -> GamendResult:
+	return await _call_api(ChatApi.new(_config), "update_chat_message", [id, content])
+
+## Delete a chat message by ID
+func chat_delete_message(id: int) -> GamendResult:
+	return await _call_api(ChatApi.new(_config), "delete_chat_message", [id])
+
+## Mark a chat conversation as read up to a given message ID
+func chat_mark_read(chat_type: String, chat_ref_id: int, message_id: int) -> GamendResult:
+	return await _call_api(ChatApi.new(_config), "mark_chat_read", [chat_type, chat_ref_id, message_id])
+
+## Get unread message count for a chat conversation
+func chat_unread_count(chat_type: String, chat_ref_id: int) -> GamendResult:
+	return await _call_api(ChatApi.new(_config), "chat_unread_count", [chat_type, chat_ref_id])
 
 ## NOTIFICATIONS
 
@@ -922,3 +960,17 @@ func admin_groups_admin_list_groups(
 	# pageSize: int   Eg: 56
 	pageSize = null,) -> GamendResult:
 	return await _call_api(AdminGroupsApi.new(_config), "admin_list_groups", [title, type, minMembers, maxMembers, sortBy, page, pageSize])
+
+## ADMIN CHAT
+
+## List all chat messages (admin)
+func admin_chat_admin_list_chat_messages(sender_id = null, chat_type = null, chat_ref_id = null, content = null, sort_by = null, page = 1, page_size = 25) -> GamendResult:
+	return await _call_api(AdminChatApi.new(_config), "admin_list_chat_messages", [sender_id, chat_type, chat_ref_id, content, sort_by, page, page_size])
+
+## Delete a chat message (admin)
+func admin_chat_admin_delete_chat_message(id: int) -> GamendResult:
+	return await _call_api(AdminChatApi.new(_config), "admin_delete_chat_message", [id])
+
+## Delete all messages in a conversation (admin)
+func admin_chat_admin_delete_chat_conversation(chat_type: String, chat_ref_id: int) -> GamendResult:
+	return await _call_api(AdminChatApi.new(_config), "admin_delete_chat_conversation", [chat_type, chat_ref_id])
