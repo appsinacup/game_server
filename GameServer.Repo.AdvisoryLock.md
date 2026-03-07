@@ -60,7 +60,7 @@ the lock is available. On SQLite, returns immediately.
 @spec postgres?() :: boolean()
 ```
 
-Returns true if the current Repo adapter is PostgreSQL.
+Returns true if the Repo was compiled with the PostgreSQL adapter.
 
 ---
 
