@@ -6,6 +6,7 @@ defmodule GameServerWeb.AdminLive.Config do
   alias GameServer.Hooks.DynamicRpcs
   alias GameServer.Hooks.PluginBuilder
   alias GameServer.Hooks.PluginManager
+  alias GameServer.Repo.AdvisoryLock
   alias GameServer.Schedule
   alias GameServer.Theme.JSONConfig
 
@@ -1680,7 +1681,7 @@ defmodule GameServerWeb.AdminLive.Config do
   defp dynamic_signature(_export), do: %{arity: :custom, signature: nil, doc: nil}
 
   defp detect_db_adapter do
-    if GameServer.Repo.AdvisoryLock.postgres?(), do: :postgres, else: :sqlite
+    if AdvisoryLock.postgres?(), do: :postgres, else: :sqlite
   end
 
   defp detect_db_config_adapter do

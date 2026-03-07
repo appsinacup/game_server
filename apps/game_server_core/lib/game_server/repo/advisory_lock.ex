@@ -70,17 +70,25 @@ defmodule GameServer.Repo.AdvisoryLock do
 
   defp maybe_advisory_lock(ns, resource_id) do
     if postgres?() do
+      # Use a SAVEPOINT so that if pg_advisory_xact_lock fails (e.g. permission
+      # issues), we can ROLLBACK TO SAVEPOINT and leave the transaction valid.
+      # Without this, Postgres marks the transaction as aborted and all subsequent
+      # SQL in the same transaction fails with 25P02.
+      GameServer.Repo.query!("SAVEPOINT advisory_lock")
+
       try do
         GameServer.Repo.query!("SELECT pg_advisory_xact_lock($1, $2)", [ns, resource_id])
+        GameServer.Repo.query!("RELEASE SAVEPOINT advisory_lock")
       rescue
         e ->
+          GameServer.Repo.query!("ROLLBACK TO SAVEPOINT advisory_lock")
           require Logger
 
-          Logger.warning(
-            "advisory_lock: pg_advisory_xact_lock(#{ns}, #{resource_id}) failed: #{Exception.message(e)}. " <>
-              "Falling back to no-op. Check that the database supports advisory locks " <>
-              "and the compile-time adapter matches runtime (compiled: #{inspect(GameServer.Repo.__adapter__())}, " <>
-              "runtime config: #{inspect(GameServer.Repo.config()[:adapter])})."
+          Logger.error(
+            "[advisory_lock] pg_advisory_xact_lock(#{ns}, #{resource_id}) failed — " <>
+              "falling back to no-op (no mutual exclusion). " <>
+              "This means concurrent operations may race. " <>
+              "Cause: #{Exception.message(e)}"
           )
       end
     end
