@@ -103,7 +103,6 @@ defmodule GameServerWeb.UserChannelHooksTest do
     {:ok, socket: socket, user: user, plugin: plugin_name}
   end
 
-
   test "call_hook returns result from plugin function", %{socket: socket, plugin: plugin} do
     ref = push(socket, "call_hook", %{"plugin" => plugin, "fn" => "echo", "args" => ["hello"]})
     assert_reply ref, :ok, %{data: "hello"}
