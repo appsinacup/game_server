@@ -128,11 +128,6 @@ defmodule GameServerWeb.Api.V1.HookController do
     args = if is_list(args), do: args, else: [args]
 
     cond do
-      String.contains?(fn_name, ":") ->
-        conn
-        |> put_status(:bad_request)
-        |> json(%{error: :legacy_fn_format_not_supported})
-
       reserved_hook_name?(fn_name) ->
         conn
         |> put_status(:bad_request)
@@ -166,32 +161,7 @@ defmodule GameServerWeb.Api.V1.HookController do
   end
 
   defp reserved_hook_name?(fn_name) when is_binary(fn_name) do
-    fn_name in [
-      "after_startup",
-      "before_stop",
-      "after_user_register",
-      "after_user_login",
-      "after_user_updated",
-      "before_lobby_create",
-      "after_lobby_create",
-      "before_group_create",
-      "after_group_create",
-      "before_lobby_join",
-      "after_lobby_join",
-      "before_group_join",
-      "before_chat_message",
-      "after_chat_message",
-      "before_lobby_leave",
-      "after_lobby_leave",
-      "before_lobby_update",
-      "after_lobby_update",
-      "before_lobby_delete",
-      "after_lobby_delete",
-      "before_user_kicked",
-      "after_user_kicked",
-      "after_lobby_host_change",
-      "on_custom_hook",
-      "before_kv_get"
-    ]
+    GameServer.Hooks.internal_hooks()
+    |> Enum.any?(fn atom -> to_string(atom) == fn_name end)
   end
 end

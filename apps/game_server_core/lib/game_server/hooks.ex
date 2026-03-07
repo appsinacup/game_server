@@ -233,9 +233,8 @@ defmodule GameServer.Hooks do
     end
   end
 
-  defp internal_hooks do
-    # set of callback names considered internal/lifecycle hooks and not
-    # callable through the public `call/3` interface.
+  @doc "Returns the set of internal lifecycle hook names that are not callable\n  through the public RPC interface."
+  def internal_hooks do
     MapSet.new([
       :after_startup,
       :before_stop,

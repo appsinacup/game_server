@@ -17,6 +17,16 @@ defmodule GameServerWeb.UserChannel do
   On join the channel pushes all undeleted notifications for the user in
   chronological order (oldest-first) as individual `"notification"` events.
   New notifications arriving while connected are also pushed as `"notification"`.
+
+  ## Hook RPC
+
+  Clients can call plugin hooks via `"call_hook"` push with reply:
+
+      push("call_hook", %{plugin: "my_plugin", fn: "my_func", args: [1, 2]})
+      → reply {:ok, %{data: result}} | {:error, %{error: reason}}
+
+  This avoids the HTTP round-trip of `POST /api/v1/hooks/call` while the
+  socket is connected.  The caller context (user) is injected automatically.
   """
 
   use Phoenix.Channel
@@ -28,6 +38,7 @@ defmodule GameServerWeb.UserChannel do
   alias GameServer.Accounts.Scope
   alias GameServer.Accounts.User
   alias GameServer.Friends
+  alias GameServer.Hooks.PluginManager
   alias GameServer.Notifications
 
   @impl true
@@ -52,6 +63,44 @@ defmodule GameServerWeb.UserChannel do
         {:error, %{reason: "invalid topic"}}
     end
   end
+
+  # ── Hook RPC via channel ─────────────────────────────────────────────────────
+
+  @impl true
+  def handle_in(
+        "call_hook",
+        %{"plugin" => plugin, "fn" => fn_name} = payload,
+        socket
+      )
+      when is_binary(plugin) and is_binary(fn_name) do
+    args = Map.get(payload, "args", [])
+    args = if is_list(args), do: args, else: [args]
+
+    reserved? =
+      GameServer.Hooks.internal_hooks()
+      |> Enum.any?(fn atom -> to_string(atom) == fn_name end)
+
+    if reserved? do
+      {:reply, {:error, %{error: "reserved_hook_name"}}, socket}
+    else
+      user = socket.assigns.current_scope.user
+
+      case PluginManager.call_rpc(plugin, fn_name, args, caller: user) do
+        {:ok, res} ->
+          {:reply, {:ok, %{data: res}}, socket}
+
+        {:error, reason} ->
+          {:reply, {:error, %{error: to_string(reason)}}, socket}
+      end
+    end
+  end
+
+  @impl true
+  def handle_in(_event, _payload, socket) do
+    {:reply, {:error, %{error: "unknown_event"}}, socket}
+  end
+
+  # ── PubSub event forwarding ────────────────────────────────────────────────
 
   @impl true
   def handle_out("updated", payload, socket) do
