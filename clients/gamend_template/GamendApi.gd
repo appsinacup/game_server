@@ -774,9 +774,29 @@ func groups_update_group(
 func parties_create_party(createPartyRequest: CreatePartyRequest) -> GamendResult:
 	return await _call_api(PartiesApi.new(_config), "create_party", [createPartyRequest])
 
-## Join a party by code
-func parties_join_party_by_code(joinPartyByCodeRequest: JoinPartyByCodeRequest) -> GamendResult:
-	return await _call_api(PartiesApi.new(_config), "join_party_by_code", [joinPartyByCodeRequest])
+## Invite a user to the party (leader only)
+func parties_invite_to_party(inviteToPartyRequest: InviteToPartyRequest) -> GamendResult:
+	return await _call_api(PartiesApi.new(_config), "invite_to_party", [inviteToPartyRequest])
+
+## Cancel a pending party invite (leader only)
+func parties_cancel_party_invite(cancelPartyInviteRequest: CancelPartyInviteRequest) -> GamendResult:
+	return await _call_api(PartiesApi.new(_config), "cancel_party_invite", [cancelPartyInviteRequest])
+
+## Accept a party invite
+func parties_accept_party_invite(acceptPartyInviteRequest: AcceptPartyInviteRequest) -> GamendResult:
+	return await _call_api(PartiesApi.new(_config), "accept_party_invite", [acceptPartyInviteRequest])
+
+## Decline a party invite
+func parties_decline_party_invite(declinePartyInviteRequest: DeclinePartyInviteRequest) -> GamendResult:
+	return await _call_api(PartiesApi.new(_config), "decline_party_invite", [declinePartyInviteRequest])
+
+## List pending party invites for the current user
+func parties_list_party_invitations() -> GamendResult:
+	return await _call_api(PartiesApi.new(_config), "list_party_invitations", [])
+
+## List pending party invites sent by the current leader
+func parties_list_sent_party_invitations() -> GamendResult:
+	return await _call_api(PartiesApi.new(_config), "list_sent_party_invitations", [])
 
 ## Kick a member from the party (leader only)
 func parties_kick_party_member(kickUserRequest: KickUserRequest) -> GamendResult:

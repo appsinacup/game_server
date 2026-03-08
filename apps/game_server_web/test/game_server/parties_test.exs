@@ -3,6 +3,7 @@ defmodule GameServer.PartiesTest do
 
   alias GameServer.Accounts
   alias GameServer.AccountsFixtures
+  alias GameServer.Friends
   alias GameServer.Lobbies
   alias GameServer.Parties
 
@@ -12,6 +13,19 @@ defmodule GameServer.PartiesTest do
     member2 = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
 
     %{leader: leader, member1: member1, member2: member2}
+  end
+
+  # Directly sets the party_id on a user (test setup helper only).
+  defp add_member_to_party(user, party) do
+    user
+    |> Ecto.Changeset.change(%{party_id: party.id})
+    |> GameServer.Repo.update!()
+  end
+
+  # Creates a mutual friendship for invite eligibility.
+  defp make_friends(user_a, user_b) do
+    {:ok, req} = Friends.create_request(user_a, user_b.id)
+    Friends.accept_friend_request(req.id, user_b)
   end
 
   describe "create_party/2" do
@@ -39,93 +53,219 @@ defmodule GameServer.PartiesTest do
     end
   end
 
-  describe "join_party/2" do
-    test "allows a user to join an existing party", %{leader: leader, member1: member1} do
-      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
+  describe "invite_to_party/2" do
+    test "leader can invite a friend", %{leader: leader, member1: member1} do
+      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
+      make_friends(leader, member1)
 
-      assert {:ok, updated_member} = Parties.join_party(member1, party.id)
-      assert updated_member.party_id == party.id
-
-      members = Parties.get_party_members(party.id)
-      assert length(members) == 2
+      assert {:ok, _notification} = Parties.invite_to_party(leader, member1.id)
     end
 
-    test "cannot join a party while already in a party", %{
-      leader: leader,
-      member1: member1,
-      member2: _member2
-    } do
-      {:ok, party1} = Parties.create_party(leader, %{})
-      {:ok, _party2} = Parties.create_party(member1, %{})
+    test "leader can invite a shared group member", %{leader: leader, member1: member1} do
+      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
 
-      assert {:error, :already_in_party} = Parties.join_party(member1, party1.id)
+      {:ok, group} =
+        GameServer.Groups.create_group(leader.id, %{"title" => "g", "type" => "public"})
+
+      {:ok, _} = GameServer.Groups.join_group(member1.id, group.id)
+
+      assert {:ok, _notification} = Parties.invite_to_party(leader, member1.id)
     end
 
-    test "cannot join a non-existent party", %{member1: member1} do
-      assert {:error, :party_not_found} = Parties.join_party(member1, 999_999)
-    end
-
-    test "cannot join a full party", %{leader: leader, member1: member1, member2: member2} do
-      {:ok, party} = Parties.create_party(leader, %{max_size: 2})
-      {:ok, _} = Parties.join_party(member1, party.id)
-
-      assert {:error, :party_full} = Parties.join_party(member2, party.id)
-    end
-  end
-
-  describe "party code" do
-    test "party is created with a unique code", %{leader: leader} do
-      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-      assert is_binary(party.code)
-      assert String.length(party.code) == 6
-    end
-
-    test "join_party_by_code/2 allows joining by code", %{leader: leader, member1: member1} do
-      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-
-      assert {:ok, updated_user} = Parties.join_party_by_code(member1, party.code)
-      assert updated_user.party_id == party.id
-    end
-
-    test "join_party_by_code/2 is case-insensitive", %{leader: leader, member1: member1} do
-      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-
-      assert {:ok, updated_user} =
-               Parties.join_party_by_code(member1, String.downcase(party.code))
-
-      assert updated_user.party_id == party.id
-    end
-
-    test "join_party_by_code/2 returns error for invalid code", %{member1: member1} do
-      assert {:error, :party_not_found} = Parties.join_party_by_code(member1, "BADCOD")
-    end
-
-    test "join_party_by_code/2 returns error for full party", %{
+    test "fails when caller is not the leader", %{
       leader: leader,
       member1: member1,
       member2: member2
     } do
-      {:ok, party} = Parties.create_party(leader, %{max_size: 2})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
+      add_member_to_party(member1, party)
+      make_friends(member1, member2)
 
-      assert {:error, :party_full} = Parties.join_party_by_code(member2, party.code)
+      assert {:error, :not_leader} = Parties.invite_to_party(member1, member2.id)
     end
 
-    test "join_party_by_code/2 auto-leaves current party", %{leader: leader, member1: member1} do
-      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, old_party} = Parties.create_party(member1, %{max_size: 4})
+    test "fails when target is not a friend or group member", %{leader: leader, member1: member1} do
+      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
 
-      # member1 is leader of old_party, joining by code should auto-leave (disband)
-      assert {:ok, updated_user} = Parties.join_party_by_code(member1, party.code)
-      assert updated_user.party_id == party.id
-      assert Parties.get_party(old_party.id) == nil
+      assert {:error, :not_connected} = Parties.invite_to_party(leader, member1.id)
+    end
+
+    test "fails when target is already in a party", %{leader: leader, member1: member1} do
+      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
+      {:ok, _other} = Parties.create_party(member1, %{})
+      make_friends(leader, member1)
+
+      assert {:error, :already_in_party} = Parties.invite_to_party(leader, member1.id)
+    end
+
+    test "fails when invite already pending", %{leader: leader, member1: member1} do
+      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
+      make_friends(leader, member1)
+
+      assert {:ok, _} = Parties.invite_to_party(leader, member1.id)
+      assert {:error, :already_invited} = Parties.invite_to_party(leader, member1.id)
+    end
+
+    test "stores sender_name and recipient_name in notification metadata", %{
+      leader: leader,
+      member1: member1
+    } do
+      {:ok, _} =
+        GameServer.Accounts.update_user_display_name(leader, %{"display_name" => "LeaderDisplay"})
+
+      {:ok, _} =
+        GameServer.Accounts.update_user_display_name(member1, %{
+          "display_name" => "Member1Display"
+        })
+
+      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
+      make_friends(leader, member1)
+      {:ok, notification} = Parties.invite_to_party(leader, member1.id)
+
+      assert notification.metadata["sender_name"] == "LeaderDisplay"
+      assert notification.metadata["recipient_name"] == "Member1Display"
+    end
+  end
+
+  describe "accept_party_invite/2" do
+    test "user can accept a valid invite and joins the party", %{leader: leader, member1: member1} do
+      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
+      make_friends(leader, member1)
+      {:ok, _} = Parties.invite_to_party(leader, member1.id)
+
+      assert {:ok, joined_party} = Parties.accept_party_invite(member1, party.id)
+      assert joined_party.id == party.id
+
+      updated = Accounts.get_user(member1.id)
+      assert updated.party_id == party.id
+    end
+
+    test "invite notification is removed after accept", %{leader: leader, member1: member1} do
+      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
+      make_friends(leader, member1)
+      {:ok, _} = Parties.invite_to_party(leader, member1.id)
+
+      {:ok, _} = Parties.accept_party_invite(member1, party.id)
+
+      invites = Parties.list_party_invitations(member1)
+      assert invites == []
+    end
+
+    test "fails when no invite exists", %{leader: leader, member1: member1} do
+      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
+
+      assert {:error, :no_invite} = Parties.accept_party_invite(member1, party.id)
+    end
+
+    test "fails when user is already in a party", %{
+      leader: leader,
+      member1: member1,
+      member2: _member2
+    } do
+      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
+      make_friends(leader, member1)
+      # Send invite while member1 is not yet in a party
+      {:ok, _} = Parties.invite_to_party(leader, member1.id)
+      # Now put member1 into their own party (directly, to simulate concurrent join)
+      {:ok, _other} = Parties.create_party(member1, %{})
+
+      assert {:error, :already_in_party} = Parties.accept_party_invite(member1, party.id)
+    end
+
+    test "fails when party is full", %{leader: leader, member1: member1, member2: member2} do
+      {:ok, party} = Parties.create_party(leader, %{max_size: 2})
+      add_member_to_party(member1, party)
+      make_friends(leader, member2)
+      {:ok, _} = Parties.invite_to_party(leader, member2.id)
+
+      assert {:error, :party_full} = Parties.accept_party_invite(member2, party.id)
+    end
+  end
+
+  describe "decline_party_invite/2" do
+    test "removes the invite notification", %{leader: leader, member1: member1} do
+      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
+      make_friends(leader, member1)
+      {:ok, _} = Parties.invite_to_party(leader, member1.id)
+
+      assert :ok = Parties.decline_party_invite(member1, party.id)
+
+      invites = Parties.list_party_invitations(member1)
+      assert invites == []
+    end
+
+    test "is idempotent with no invite", %{leader: leader, member1: member1} do
+      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
+
+      assert :ok = Parties.decline_party_invite(member1, party.id)
+    end
+  end
+
+  describe "cancel_party_invite/2" do
+    test "leader can cancel a pending invite", %{leader: leader, member1: member1} do
+      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
+      make_friends(leader, member1)
+      {:ok, _} = Parties.invite_to_party(leader, member1.id)
+
+      assert :ok = Parties.cancel_party_invite(leader, member1.id)
+
+      invites = Parties.list_party_invitations(member1)
+      assert invites == []
+    end
+
+    test "fails when caller is not the leader", %{
+      leader: leader,
+      member1: member1,
+      member2: member2
+    } do
+      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
+      add_member_to_party(member1, party)
+      make_friends(leader, member2)
+      {:ok, _} = Parties.invite_to_party(leader, member2.id)
+
+      assert {:error, :not_leader} = Parties.cancel_party_invite(member1, member2.id)
+    end
+  end
+
+  describe "list_party_invitations/1" do
+    test "returns pending invites for user", %{leader: leader, member1: member1} do
+      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
+      make_friends(leader, member1)
+      {:ok, _} = Parties.invite_to_party(leader, member1.id)
+
+      invites = Parties.list_party_invitations(member1)
+      assert length(invites) == 1
+      assert hd(invites).party_id == party.id
+      assert hd(invites).sender_id == leader.id
+    end
+
+    test "includes sender_name and recipient_name", %{leader: leader, member1: member1} do
+      {:ok, _} =
+        GameServer.Accounts.update_user_display_name(leader, %{"display_name" => "InvLeader"})
+
+      {:ok, _} =
+        GameServer.Accounts.update_user_display_name(member1, %{"display_name" => "InvMember"})
+
+      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
+      make_friends(leader, member1)
+      {:ok, _} = Parties.invite_to_party(leader, member1.id)
+
+      invites = Parties.list_party_invitations(member1)
+      assert length(invites) == 1
+      invite = hd(invites)
+      assert invite.sender_name == "InvLeader"
+      assert invite.recipient_name == "InvMember"
+    end
+
+    test "returns empty list with no invites", %{member1: member1} do
+      assert Parties.list_party_invitations(member1) == []
     end
   end
 
   describe "leave_party/1" do
     test "leader leaving disbands the party", %{leader: leader, member1: member1} do
       {:ok, party} = Parties.create_party(leader, %{})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
 
       assert {:ok, :disbanded} = Parties.leave_party(leader)
 
@@ -142,7 +282,7 @@ defmodule GameServer.PartiesTest do
       member1: member1
     } do
       {:ok, party} = Parties.create_party(leader, %{})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
 
       assert {:ok, :left} = Parties.leave_party(member1)
 
@@ -162,7 +302,7 @@ defmodule GameServer.PartiesTest do
   describe "kick_member/2" do
     test "leader can kick a member", %{leader: leader, member1: member1} do
       {:ok, party} = Parties.create_party(leader, %{})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
 
       assert {:ok, _} = Parties.kick_member(leader, member1.id)
 
@@ -172,7 +312,7 @@ defmodule GameServer.PartiesTest do
 
     test "non-leader cannot kick", %{leader: leader, member1: member1} do
       {:ok, party} = Parties.create_party(leader, %{})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
 
       assert {:error, :not_leader} = Parties.kick_member(member1, leader.id)
     end
@@ -197,7 +337,7 @@ defmodule GameServer.PartiesTest do
       member1: member1
     } do
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
 
       # 2 members, can't set to 1
       assert {:error, :too_small} = Parties.update_party(leader, %{max_size: 1})
@@ -205,7 +345,7 @@ defmodule GameServer.PartiesTest do
 
     test "non-leader cannot update", %{leader: leader, member1: member1} do
       {:ok, party} = Parties.create_party(leader, %{})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
 
       assert {:error, :not_leader} = Parties.update_party(member1, %{max_size: 8})
     end
@@ -217,7 +357,7 @@ defmodule GameServer.PartiesTest do
       member1: member1
     } do
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
 
       assert {:ok, lobby} =
                Parties.create_lobby_with_party(leader, %{title: "party-lobby", max_users: 8})
@@ -242,8 +382,8 @@ defmodule GameServer.PartiesTest do
       member2: member2
     } do
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, _} = Parties.join_party(member1, party.id)
-      {:ok, _} = Parties.join_party(member2, party.id)
+      add_member_to_party(member1, party)
+      add_member_to_party(member2, party)
 
       # 3 members but max_users = 2
       assert {:error, :lobby_too_small_for_party} =
@@ -252,14 +392,14 @@ defmodule GameServer.PartiesTest do
 
     test "non-leader cannot create lobby with party", %{leader: leader, member1: member1} do
       {:ok, party} = Parties.create_party(leader, %{})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
 
       assert {:error, :not_leader} = Parties.create_lobby_with_party(member1, %{title: "nope"})
     end
 
     test "fails if any party member is already in a lobby", %{leader: leader, member1: member1} do
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
 
       # Put member1 in a lobby
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
@@ -277,7 +417,7 @@ defmodule GameServer.PartiesTest do
       member1: member1
     } do
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
 
       # Create a lobby with a different host
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
@@ -304,8 +444,8 @@ defmodule GameServer.PartiesTest do
       member2: member2
     } do
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, _} = Parties.join_party(member1, party.id)
-      {:ok, _} = Parties.join_party(member2, party.id)
+      add_member_to_party(member1, party)
+      add_member_to_party(member2, party)
 
       # Create a lobby with max 3 users and 1 already in it (the host)
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
@@ -317,7 +457,7 @@ defmodule GameServer.PartiesTest do
 
     test "fails if lobby is locked", %{leader: leader, member1: member1} do
       {:ok, party} = Parties.create_party(leader, %{})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
 
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
 
@@ -332,7 +472,7 @@ defmodule GameServer.PartiesTest do
       member1: member1
     } do
       {:ok, party} = Parties.create_party(leader, %{})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
 
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
       phash = Bcrypt.hash_pwd_salt("secret")
@@ -350,7 +490,7 @@ defmodule GameServer.PartiesTest do
 
     test "succeeds with correct password", %{leader: leader, member1: member1} do
       {:ok, party} = Parties.create_party(leader, %{})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
 
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
       phash = Bcrypt.hash_pwd_salt("secret")
@@ -368,7 +508,7 @@ defmodule GameServer.PartiesTest do
 
     test "non-leader cannot join lobby with party", %{leader: leader, member1: member1} do
       {:ok, party} = Parties.create_party(leader, %{})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
 
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
       {:ok, lobby} = Lobbies.create_lobby(%{title: "test-lobby", host_id: host.id})
@@ -378,14 +518,14 @@ defmodule GameServer.PartiesTest do
 
     test "cannot join non-existent lobby with party", %{leader: leader, member1: member1} do
       {:ok, party} = Parties.create_party(leader, %{})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
 
       assert {:error, :invalid_lobby} = Parties.join_lobby_with_party(leader, 999_999)
     end
 
     test "fails with wrong password", %{leader: leader, member1: member1} do
       {:ok, party} = Parties.create_party(leader, %{})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
 
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
       phash = Bcrypt.hash_pwd_salt("secret")
@@ -409,7 +549,7 @@ defmodule GameServer.PartiesTest do
 
     test "fails if any party member is already in a lobby", %{leader: leader, member1: member1} do
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
 
       # Put member1 in a lobby
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
@@ -431,8 +571,8 @@ defmodule GameServer.PartiesTest do
       member2: member2
     } do
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, _} = Parties.join_party(member1, party.id)
-      {:ok, _} = Parties.join_party(member2, party.id)
+      add_member_to_party(member1, party)
+      add_member_to_party(member2, party)
 
       {:ok, lobby} =
         Parties.create_lobby_with_party(leader, %{title: "atomic-lobby", max_users: 8})
@@ -464,8 +604,8 @@ defmodule GameServer.PartiesTest do
       member2: member2
     } do
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, _} = Parties.join_party(member1, party.id)
-      {:ok, _} = Parties.join_party(member2, party.id)
+      add_member_to_party(member1, party)
+      add_member_to_party(member2, party)
 
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
       {:ok, lobby} = Lobbies.create_lobby(%{title: "existing", host_id: host.id, max_users: 10})
@@ -499,7 +639,7 @@ defmodule GameServer.PartiesTest do
       member1: member1
     } do
       {:ok, party} = Parties.create_party(leader, %{})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
 
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
       phash = Bcrypt.hash_pwd_salt("secret")
@@ -527,7 +667,7 @@ defmodule GameServer.PartiesTest do
       member1: member1
     } do
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
 
       # Create a lobby with the same title to cause a conflict
       # (titles need not be unique per se, but let's test with an invalid
@@ -550,11 +690,16 @@ defmodule GameServer.PartiesTest do
   end
 
   describe "PubSub events" do
-    test "party_member_joined event is broadcast on join", %{leader: leader, member1: member1} do
+    test "party_member_joined event is broadcast when invite accepted", %{
+      leader: leader,
+      member1: member1
+    } do
       {:ok, party} = Parties.create_party(leader, %{})
+      make_friends(leader, member1)
+      {:ok, _} = Parties.invite_to_party(leader, member1.id)
       Parties.subscribe_party(party.id)
 
-      {:ok, _} = Parties.join_party(member1, party.id)
+      {:ok, _} = Parties.accept_party_invite(member1, party.id)
 
       party_id = party.id
       member_id = member1.id
@@ -566,7 +711,7 @@ defmodule GameServer.PartiesTest do
       member1: member1
     } do
       {:ok, party} = Parties.create_party(leader, %{})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
       Parties.subscribe_party(party.id)
 
       {:ok, :left} = Parties.leave_party(member1)
@@ -581,7 +726,7 @@ defmodule GameServer.PartiesTest do
       member1: member1
     } do
       {:ok, party} = Parties.create_party(leader, %{})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
       Parties.subscribe_party(party.id)
 
       {:ok, :disbanded} = Parties.leave_party(leader)
@@ -602,7 +747,7 @@ defmodule GameServer.PartiesTest do
 
     test "party_member_left event is broadcast on kick", %{leader: leader, member1: member1} do
       {:ok, party} = Parties.create_party(leader, %{})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
       Parties.subscribe_party(party.id)
 
       {:ok, _} = Parties.kick_member(leader, member1.id)
@@ -619,7 +764,7 @@ defmodule GameServer.PartiesTest do
       member1: member1
     } do
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
 
       # Delete the leader
       {:ok, _} = Accounts.delete_user(leader)
@@ -637,7 +782,7 @@ defmodule GameServer.PartiesTest do
       member1: member1
     } do
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, _} = Parties.join_party(member1, party.id)
+      add_member_to_party(member1, party)
 
       # Delete the member
       {:ok, _} = Accounts.delete_user(member1)
@@ -646,6 +791,46 @@ defmodule GameServer.PartiesTest do
       remaining_party = Parties.get_party(party.id)
       assert remaining_party != nil
       assert remaining_party.leader_id == leader.id
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # Sent party invitations
+  # ---------------------------------------------------------------------------
+
+  describe "list_sent_party_invitations/1" do
+    test "returns invitations sent by leader", %{leader: leader, member1: member1} do
+      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
+      make_friends(leader, member1)
+      {:ok, _} = Parties.invite_to_party(leader, member1.id)
+
+      invites = Parties.list_sent_party_invitations(leader)
+      assert length(invites) == 1
+      invite = hd(invites)
+      assert invite.party_id == party.id
+      assert invite.recipient_id == member1.id
+    end
+
+    test "includes sender_name and recipient_name", %{leader: leader, member1: member1} do
+      {:ok, _} =
+        GameServer.Accounts.update_user_display_name(leader, %{"display_name" => "SentLeader"})
+
+      {:ok, _} =
+        GameServer.Accounts.update_user_display_name(member1, %{"display_name" => "SentMember"})
+
+      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
+      make_friends(leader, member1)
+      {:ok, _} = Parties.invite_to_party(leader, member1.id)
+
+      invites = Parties.list_sent_party_invitations(leader)
+      assert length(invites) == 1
+      invite = hd(invites)
+      assert invite.sender_name == "SentLeader"
+      assert invite.recipient_name == "SentMember"
+    end
+
+    test "returns empty when no invitations sent", %{member1: member1} do
+      assert Parties.list_sent_party_invitations(member1) == []
     end
   end
 end

@@ -10,8 +10,14 @@ defmodule GameServer.Parties do
       # Create a party (user becomes leader and first member)
       {:ok, party} = GameServer.Parties.create_party(user, %{max_size: 4})
 
-      # Join a party by ID
-      {:ok, user} = GameServer.Parties.join_party(user, party_id)
+      # Leader invites a friend or shared-group member by user_id
+      {:ok, _notification} = GameServer.Parties.invite_to_party(leader, target_user_id)
+
+      # Target accepts the invite
+      {:ok, party} = GameServer.Parties.accept_party_invite(target, party_id)
+
+      # Or declines
+      :ok = GameServer.Parties.decline_party_invite(target, party_id)
 
       # Leave a party (if leader leaves, party is disbanded)
       {:ok, _} = GameServer.Parties.leave_party(user)
@@ -39,6 +45,8 @@ defmodule GameServer.Parties do
   alias Ecto.Multi
   alias GameServer.Accounts
   alias GameServer.Accounts.User
+  alias GameServer.Friends
+  alias GameServer.Groups
   alias GameServer.Lobbies
   alias GameServer.Parties.Party
   alias GameServer.Repo
@@ -154,86 +162,216 @@ defmodule GameServer.Parties do
   end
 
   # ---------------------------------------------------------------------------
-  # Join
+  # Invitations
   # ---------------------------------------------------------------------------
 
   @doc """
-  Join an existing party by ID.
+  Invite a user to join the party. Only the party leader may invite.
 
-  Returns `{:error, :already_in_party}` if the user is already in a party.
-  Returns `{:error, :party_not_found}` if the party doesn't exist.
-  Returns `{:error, :party_full}` if the party is at capacity.
+  The target user must be a friend of the leader, or share at least one group
+  with the leader. A pending notification is created; the target accepts or
+  declines via `accept_invite/2` / `decline_invite/2`.
+
+  Returns `{:error, :not_in_party}` if the caller is not in a party.
+  Returns `{:error, :not_leader}` if the caller is not the party leader.
+  Returns `{:error, :not_connected}` if the target is not a friend or shared group member.
+  Returns `{:error, :already_in_party}` if the target is already in a party.
+  Returns `{:error, :already_invited}` if a pending invite already exists.
   """
-  @spec join_party(User.t(), integer()) :: {:ok, User.t()} | {:error, term()}
-  def join_party(%User{} = user, party_id) when is_integer(party_id) do
-    user = Accounts.get_user(user.id)
+  @spec invite_to_party(User.t(), integer()) :: {:ok, map()} | {:error, atom()}
+  def invite_to_party(%User{} = leader, target_user_id) when is_integer(target_user_id) do
+    leader = Accounts.get_user(leader.id)
 
-    with :ok <- check_user_available(user),
-         {:ok, party} <- fetch_party(party_id),
-         :ok <- check_party_has_space(party) do
-      do_join_party(user, party_id)
+    with :ok <- check_in_party(leader),
+         {:ok, party} <- fetch_party(leader.party_id),
+         :ok <- check_is_leader(party, leader),
+         {:ok, target} <- fetch_invite_target(target_user_id),
+         :ok <- check_not_already_in_party(target),
+         :ok <- check_leader_connected_to_target(leader.id, target_user_id),
+         :ok <- check_no_pending_invite(leader.id, target_user_id) do
+      attrs = %{
+        "title" => "party_invite",
+        "content" => "You have been invited to join a party",
+        "metadata" => %{
+          "party_id" => party.id,
+          "sender_name" => leader.display_name,
+          "recipient_name" => target.display_name
+        }
+      }
+
+      GameServer.Notifications.admin_create_notification(leader.id, target_user_id, attrs)
     end
   end
 
   @doc """
-  Join an existing party by its shareable code.
-
-  If the user is currently in another party, they will automatically leave it
-  first (disbanding it if they are the leader).
-
-  Returns `{:error, :party_not_found}` if no party matches the code.
-  Returns `{:error, :party_full}` if the party is at capacity.
+  Cancel a previously sent party invite. Only the original sender (leader) can cancel.
   """
-  @spec join_party_by_code(User.t(), String.t()) :: {:ok, User.t()} | {:error, term()}
-  def join_party_by_code(%User{} = user, code) when is_binary(code) do
-    user = Accounts.get_user(user.id)
-    code = String.upcase(String.trim(code))
+  @spec cancel_party_invite(User.t(), integer()) :: :ok | {:error, atom()}
+  def cancel_party_invite(%User{} = leader, target_user_id) when is_integer(target_user_id) do
+    import Ecto.Query
+    leader = Accounts.get_user(leader.id)
 
-    with {:ok, party} <- fetch_party_by_code(code),
-         {:ok, user} <- maybe_leave_current_party(user),
-         :ok <- check_party_has_space(party) do
-      do_join_party(user, party.id)
-    end
-  end
+    with :ok <- check_in_party(leader),
+         {:ok, party} <- fetch_party(leader.party_id),
+         :ok <- check_is_leader(party, leader) do
+      {count, _} =
+        from(n in GameServer.Notifications.Notification,
+          where:
+            n.sender_id == ^leader.id and n.recipient_id == ^target_user_id and
+              n.title == "party_invite"
+        )
+        |> Repo.delete_all()
 
-  defp fetch_party_by_code(code) do
-    case Repo.get_by(Party, code: code) do
-      nil -> {:error, :party_not_found}
-      %Party{} = party -> {:ok, party}
-    end
-  end
+      if count > 0 do
+        GameServer.Notifications.invalidate_notifications_cache(target_user_id)
+      end
 
-  defp check_user_available(%User{} = user) do
-    if user.party_id != nil do
-      {:error, :already_in_party}
-    else
       :ok
     end
   end
 
-  # Leaves the user's current party (if any) and returns a refreshed user.
-  # Used by join_party_by_code so the user can seamlessly switch parties.
-  defp maybe_leave_current_party(%User{party_id: nil} = user), do: {:ok, user}
+  @doc """
+  Accept a party invite. Joins the party and removes the invite notification.
 
-  defp maybe_leave_current_party(%User{} = user) do
-    case leave_party(user) do
-      {:ok, _} -> {:ok, Accounts.get_user(user.id)}
-      {:error, reason} -> {:error, reason}
+  Returns `{:error, :no_invite}` if no pending invite exists for that party.
+  Returns `{:error, :already_in_party}` if the user is already in another party.
+  """
+  @spec accept_party_invite(User.t(), integer()) :: {:ok, Party.t()} | {:error, atom()}
+  def accept_party_invite(%User{} = user, party_id) when is_integer(party_id) do
+    import Ecto.Query
+    user = Accounts.get_user(user.id)
+
+    invite =
+      Repo.one(
+        from n in GameServer.Notifications.Notification,
+          where:
+            n.recipient_id == ^user.id and n.title == "party_invite" and
+              fragment("json_extract(?, '$.party_id') = ?", n.metadata, ^party_id)
+      )
+
+    if is_nil(invite) do
+      {:error, :no_invite}
+    else
+      with :ok <- check_user_not_in_party(user),
+           {:ok, party} <- fetch_party(party_id),
+           {:ok, updated_user} <- do_join_party(user, party_id) do
+        delete_party_invite_notifications(updated_user.id, party_id)
+        {:ok, party}
+      end
     end
   end
+
+  @doc """
+  Decline a party invite. Simply removes the invite notification.
+  """
+  @spec decline_party_invite(User.t(), integer()) :: :ok | {:error, atom()}
+  def decline_party_invite(%User{} = user, party_id) when is_integer(party_id) do
+    user = Accounts.get_user(user.id)
+    delete_party_invite_notifications(user.id, party_id)
+    :ok
+  end
+
+  @doc """
+  List pending party invites for the given user.
+  """
+  @spec list_party_invitations(User.t()) :: [map()]
+  def list_party_invitations(%User{} = user) do
+    GameServer.Notifications.list_notifications_by_title(user.id, "party_invite")
+    |> Enum.map(fn n ->
+      %{
+        id: n.id,
+        party_id: get_in(n.metadata, ["party_id"]),
+        sender_id: n.sender_id,
+        sender_name: get_in(n.metadata, ["sender_name"]),
+        recipient_name: get_in(n.metadata, ["recipient_name"]),
+        inserted_at: n.inserted_at
+      }
+    end)
+  end
+
+  @doc """
+  List pending party invites sent by the given leader.
+
+  Returns invitations the leader has sent that have not yet been accepted or declined.
+  """
+  @spec list_sent_party_invitations(User.t()) :: [map()]
+  def list_sent_party_invitations(%User{} = leader) do
+    GameServer.Notifications.list_sent_notifications_by_title(leader.id, "party_invite")
+    |> Enum.map(fn n ->
+      %{
+        id: n.id,
+        party_id: get_in(n.metadata, ["party_id"]),
+        recipient_id: n.recipient_id,
+        recipient_name: get_in(n.metadata, ["recipient_name"]),
+        sender_name: get_in(n.metadata, ["sender_name"]),
+        inserted_at: n.inserted_at
+      }
+    end)
+  end
+
+  defp fetch_invite_target(target_user_id) do
+    case Accounts.get_user(target_user_id) do
+      nil -> {:error, :user_not_found}
+      user -> {:ok, user}
+    end
+  end
+
+  defp check_not_already_in_party(%User{party_id: nil}), do: :ok
+  defp check_not_already_in_party(%User{}), do: {:error, :already_in_party}
+
+  defp check_leader_connected_to_target(leader_id, target_user_id) do
+    if Friends.friends?(leader_id, target_user_id) ||
+         Groups.shared_group_member?(leader_id, target_user_id) do
+      :ok
+    else
+      {:error, :not_connected}
+    end
+  end
+
+  defp check_no_pending_invite(leader_id, target_user_id) do
+    import Ecto.Query
+
+    exists =
+      Repo.exists?(
+        from n in GameServer.Notifications.Notification,
+          where:
+            n.sender_id == ^leader_id and n.recipient_id == ^target_user_id and
+              n.title == "party_invite"
+      )
+
+    if exists, do: {:error, :already_invited}, else: :ok
+  end
+
+  defp delete_party_invite_notifications(user_id, party_id) do
+    import Ecto.Query
+
+    {count, _} =
+      from(n in GameServer.Notifications.Notification,
+        where:
+          n.recipient_id == ^user_id and n.title == "party_invite" and
+            fragment("json_extract(?, '$.party_id') = ?", n.metadata, ^party_id)
+      )
+      |> Repo.delete_all()
+
+    if count > 0 do
+      GameServer.Notifications.invalidate_notifications_cache(user_id)
+    end
+
+    :ok
+  end
+
+  # ---------------------------------------------------------------------------
+  # Join (internal — used by accept_party_invite)
+  # ---------------------------------------------------------------------------
+
+  defp check_user_not_in_party(%User{party_id: nil}), do: :ok
+  defp check_user_not_in_party(%User{}), do: {:error, :already_in_party}
 
   defp fetch_party(party_id) do
     case get_party(party_id) do
       nil -> {:error, :party_not_found}
       %Party{} = party -> {:ok, party}
     end
-  end
-
-  defp check_party_has_space(%Party{} = party) do
-    # Advisory lock ensures count + join are atomic on PostgreSQL.
-    # The lock is acquired inside do_join_party's transaction.
-    count = count_party_members(party.id)
-    if count >= party.max_size, do: {:error, :party_full}, else: :ok
   end
 
   defp do_join_party(user, party_id) do

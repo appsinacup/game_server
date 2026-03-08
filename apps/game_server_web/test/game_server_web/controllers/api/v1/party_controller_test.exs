@@ -15,6 +15,12 @@ defmodule GameServerWeb.Api.V1.PartyControllerTest do
     put_req_header(conn, "authorization", "Bearer " <> token)
   end
 
+  defp add_member_to_party(user, party) do
+    user
+    |> Ecto.Changeset.change(%{party_id: party.id})
+    |> GameServer.Repo.update!()
+  end
+
   describe "POST /api/v1/parties" do
     test "creates a party", %{conn: conn} do
       user = AccountsFixtures.user_fixture()
@@ -81,7 +87,7 @@ defmodule GameServerWeb.Api.V1.PartyControllerTest do
       leader = AccountsFixtures.user_fixture()
       member = AccountsFixtures.user_fixture()
       {:ok, party} = Parties.create_party(leader, %{})
-      {:ok, _} = Parties.join_party(member, party.id)
+      add_member_to_party(member, party)
 
       conn =
         conn
@@ -113,7 +119,7 @@ defmodule GameServerWeb.Api.V1.PartyControllerTest do
       leader = AccountsFixtures.user_fixture()
       member = AccountsFixtures.user_fixture()
       {:ok, party} = Parties.create_party(leader, %{})
-      {:ok, _} = Parties.join_party(member, party.id)
+      add_member_to_party(member, party)
 
       conn =
         conn
@@ -127,7 +133,7 @@ defmodule GameServerWeb.Api.V1.PartyControllerTest do
       leader = AccountsFixtures.user_fixture()
       member = AccountsFixtures.user_fixture()
       {:ok, party} = Parties.create_party(leader, %{})
-      {:ok, _} = Parties.join_party(member, party.id)
+      add_member_to_party(member, party)
 
       conn =
         conn
@@ -158,7 +164,7 @@ defmodule GameServerWeb.Api.V1.PartyControllerTest do
       leader = AccountsFixtures.user_fixture()
       member = AccountsFixtures.user_fixture()
       {:ok, party} = Parties.create_party(leader, %{})
-      {:ok, _} = Parties.join_party(member, party.id)
+      add_member_to_party(member, party)
 
       conn =
         conn
@@ -177,7 +183,7 @@ defmodule GameServerWeb.Api.V1.PartyControllerTest do
       leader = AccountsFixtures.user_fixture()
       member = AccountsFixtures.user_fixture()
       {:ok, party} = Parties.create_party(leader, %{})
-      {:ok, _} = Parties.join_party(member, party.id)
+      add_member_to_party(member, party)
 
       conn =
         conn
@@ -193,7 +199,7 @@ defmodule GameServerWeb.Api.V1.PartyControllerTest do
       leader = AccountsFixtures.user_fixture()
       member = AccountsFixtures.user_fixture()
       {:ok, party} = Parties.create_party(leader, %{})
-      {:ok, _} = Parties.join_party(member, party.id)
+      add_member_to_party(member, party)
 
       # Create lobby with different host
       host = AccountsFixtures.user_fixture()
@@ -216,8 +222,8 @@ defmodule GameServerWeb.Api.V1.PartyControllerTest do
       member1 = AccountsFixtures.user_fixture()
       member2 = AccountsFixtures.user_fixture()
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, _} = Parties.join_party(member1, party.id)
-      {:ok, _} = Parties.join_party(member2, party.id)
+      add_member_to_party(member1, party)
+      add_member_to_party(member2, party)
 
       # Create a tiny lobby
       host = AccountsFixtures.user_fixture()
@@ -231,98 +237,6 @@ defmodule GameServerWeb.Api.V1.PartyControllerTest do
         |> post("/api/v1/parties/join_lobby/#{lobby.id}")
 
       assert json_response(conn, 403)["error"] == "not_enough_space"
-    end
-  end
-
-  describe "POST /api/v1/parties/join (join by code)" do
-    test "joins a party by code", %{conn: conn} do
-      leader = AccountsFixtures.user_fixture()
-      user = AccountsFixtures.user_fixture()
-      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-
-      conn =
-        conn
-        |> auth_conn(user)
-        |> post("/api/v1/parties/join", %{code: party.code})
-
-      body = json_response(conn, 200)
-      assert body["id"] == party.id
-      assert body["code"] == party.code
-      assert length(body["members"]) == 2
-    end
-
-    test "join by code is case-insensitive", %{conn: conn} do
-      leader = AccountsFixtures.user_fixture()
-      user = AccountsFixtures.user_fixture()
-      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-
-      conn =
-        conn
-        |> auth_conn(user)
-        |> post("/api/v1/parties/join", %{code: String.downcase(party.code)})
-
-      body = json_response(conn, 200)
-      assert body["id"] == party.id
-    end
-
-    test "returns 404 for invalid code", %{conn: conn} do
-      user = AccountsFixtures.user_fixture()
-
-      conn =
-        conn
-        |> auth_conn(user)
-        |> post("/api/v1/parties/join", %{code: "XXXXXX"})
-
-      assert json_response(conn, 404)["error"] == "party_not_found"
-    end
-
-    test "returns 403 for full party", %{conn: conn} do
-      leader = AccountsFixtures.user_fixture()
-      member = AccountsFixtures.user_fixture()
-      user = AccountsFixtures.user_fixture()
-      {:ok, party} = Parties.create_party(leader, %{max_size: 2})
-      {:ok, _} = Parties.join_party(member, party.id)
-
-      conn =
-        conn
-        |> auth_conn(user)
-        |> post("/api/v1/parties/join", %{code: party.code})
-
-      assert json_response(conn, 403)["error"] == "party_full"
-    end
-
-    test "auto-leaves current party when joining by code", %{conn: conn} do
-      leader = AccountsFixtures.user_fixture()
-      user = AccountsFixtures.user_fixture()
-      {:ok, party} = Parties.create_party(leader, %{max_size: 4})
-      {:ok, old_party} = Parties.create_party(user, %{max_size: 4})
-
-      conn =
-        conn
-        |> auth_conn(user)
-        |> post("/api/v1/parties/join", %{code: party.code})
-
-      body = json_response(conn, 200)
-      assert body["id"] == party.id
-
-      # Old party should be disbanded
-      assert Parties.get_party(old_party.id) == nil
-    end
-
-    test "returns 400 when code is missing", %{conn: conn} do
-      user = AccountsFixtures.user_fixture()
-
-      conn =
-        conn
-        |> auth_conn(user)
-        |> post("/api/v1/parties/join", %{})
-
-      assert json_response(conn, 400)["error"] == "missing_code"
-    end
-
-    test "requires auth", %{conn: conn} do
-      conn = post(conn, "/api/v1/parties/join", %{code: "ABC123"})
-      assert conn.status == 401
     end
   end
 

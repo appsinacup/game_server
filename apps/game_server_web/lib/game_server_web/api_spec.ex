@@ -91,8 +91,11 @@ defmodule GameServerWeb.ApiSpec do
         ## **7. Parties**
         Ephemeral groups of users for short-lived sessions (e.g., matchmaking squads):
 
-        - **Code-based joining**: each party gets a unique 6-character alphanumeric code for sharing
-        - **One party at a time**: creating or joining a party automatically leaves the previous one
+        - **Invite-only joining**: the party leader sends invites by user ID to friends or shared-group members
+        - **Invite flow**: `POST /parties/invite` → recipient accepts via `POST /parties/invite/accept` or declines via `POST /parties/invite/decline`; leader can cancel via `POST /parties/invite/cancel`
+        - **Invite visibility**: leader can list sent invites (`GET /parties/invitations/sent`); recipient can list received invites (`GET /parties/invitations`)
+        - **Connection requirement**: invites can only be sent to users who are friends or share at least one group with the leader
+        - **One party at a time**: a user can only be in one party; accepting an invite while already in a party is rejected
         - **Leader management**: the creator is the leader; leadership can be transferred
         - **Lobby integration**: parties can create or join lobbies as a group
         - **Party chat**: integrated via the Chat API with `chat_type: "party"`
@@ -138,7 +141,10 @@ defmodule GameServerWeb.ApiSpec do
           name: "Groups",
           description: "Persistent community groups with roles and permissions"
         },
-        %Tag{name: "Parties", description: "Ephemeral party groups with code-based joining"},
+        %Tag{
+          name: "Parties",
+          description: "Ephemeral party groups — invite-only, leader-managed"
+        },
         %Tag{
           name: "Chat",
           description: "Real-time messaging across lobbies, groups, parties, and friends"

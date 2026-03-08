@@ -276,6 +276,18 @@ defmodule GameServer.Groups do
     get_membership(group_id, user_id) != nil
   end
 
+  @doc "Return true if both users share at least one common group membership."
+  @spec shared_group_member?(integer(), integer()) :: boolean()
+  def shared_group_member?(user_a_id, user_b_id)
+      when is_integer(user_a_id) and is_integer(user_b_id) do
+    Repo.exists?(
+      from m1 in GroupMember,
+        join: m2 in GroupMember,
+        on: m1.group_id == m2.group_id,
+        where: m1.user_id == ^user_a_id and m2.user_id == ^user_b_id
+    )
+  end
+
   @doc "List groups the user belongs to."
   @spec list_user_groups(integer(), keyword()) :: [Group.t()]
   def list_user_groups(user_id, opts \\ []) when is_integer(user_id) do
@@ -1015,10 +1027,18 @@ defmodule GameServer.Groups do
         {:error, :blocked}
 
       true ->
+        sender = GameServer.Accounts.get_user(admin_id)
+        target = GameServer.Accounts.get_user(target_user_id)
+
         GameServer.Notifications.admin_create_notification(admin_id, target_user_id, %{
           "title" => "group_invite",
           "content" => "You have been invited to join group: #{group.title}",
-          "metadata" => %{"group_id" => group_id, "group_name" => group.title}
+          "metadata" => %{
+            "group_id" => group_id,
+            "group_name" => group.title,
+            "sender_name" => sender && sender.display_name,
+            "recipient_name" => target && target.display_name
+          }
         })
     end
   end
@@ -1044,8 +1064,28 @@ defmodule GameServer.Groups do
         {:error, :already_member}
 
       true ->
-        do_add_group_member(user_id, group_id, group, "invite_accept")
+        case do_add_group_member(user_id, group_id, group, "invite_accept") do
+          {:ok, member} ->
+            delete_group_invite_notifications(user_id, group_id)
+            {:ok, member}
+
+          error ->
+            error
+        end
     end
+  end
+
+  defp delete_group_invite_notifications(user_id, group_id) do
+    import Ecto.Query
+
+    from(n in GameServer.Notifications.Notification,
+      where:
+        n.recipient_id == ^user_id and n.title == "group_invite" and
+          fragment("json_extract(?, '$.group_id') = ?", n.metadata, ^group_id)
+    )
+    |> Repo.delete_all()
+
+    GameServer.Notifications.invalidate_notifications_cache(user_id)
   end
 
   # Shared helper: acquire advisory lock, check capacity, run hook, insert member.
@@ -1088,15 +1128,8 @@ defmodule GameServer.Groups do
   """
   @spec list_invitations(integer(), keyword()) :: [map()]
   def list_invitations(user_id, opts \\ []) when is_integer(user_id) do
-    import Ecto.Query
-
-    from(n in GameServer.Notifications.Notification,
-      where:
-        n.recipient_id == ^user_id and
-          n.title == "group_invite",
-      order_by: [desc: n.inserted_at]
-    )
-    |> paginate(opts)
+    GameServer.Notifications.list_notifications_by_title(user_id, "group_invite")
+    |> paginate_list(opts)
     |> Enum.map(&serialize_invite_notification/1)
   end
 
@@ -1106,22 +1139,9 @@ defmodule GameServer.Groups do
   """
   @spec list_sent_invitations(integer(), keyword()) :: [map()]
   def list_sent_invitations(user_id, opts \\ []) when is_integer(user_id) do
-    import Ecto.Query
-
-    from(n in GameServer.Notifications.Notification,
-      where:
-        n.sender_id == ^user_id and
-          n.title == "group_invite",
-      preload: [:recipient],
-      order_by: [desc: n.inserted_at]
-    )
-    |> paginate(opts)
-    |> Enum.map(fn n ->
-      Map.merge(serialize_invite_notification(n), %{
-        recipient_id: n.recipient_id,
-        recipient_name: n.recipient && n.recipient.display_name
-      })
-    end)
+    GameServer.Notifications.list_sent_notifications_by_title(user_id, "group_invite")
+    |> paginate_list(opts)
+    |> Enum.map(&serialize_invite_notification/1)
   end
 
   @doc """
@@ -1139,6 +1159,7 @@ defmodule GameServer.Groups do
 
       %{sender_id: ^user_id, title: "group_invite"} = notification ->
         Repo.delete(notification)
+        GameServer.Notifications.invalidate_notifications_cache(notification.recipient_id)
         :ok
 
       %{title: "group_invite"} ->
@@ -1155,6 +1176,9 @@ defmodule GameServer.Groups do
       group_id: get_in(n.metadata, ["group_id"]),
       group_name: get_in(n.metadata, ["group_name"]),
       sender_id: n.sender_id,
+      sender_name: get_in(n.metadata, ["sender_name"]),
+      recipient_id: n.recipient_id,
+      recipient_name: get_in(n.metadata, ["recipient_name"]),
       inserted_at: n.inserted_at
     }
   end
@@ -1375,6 +1399,17 @@ defmodule GameServer.Groups do
       Repo.all(from g in q, limit: ^page_size, offset: ^offset)
     else
       Repo.all(q)
+    end
+  end
+
+  defp paginate_list(list, opts) do
+    page = Keyword.get(opts, :page, nil)
+    page_size = Keyword.get(opts, :page_size, nil)
+
+    if page && page_size do
+      Enum.slice(list, (page - 1) * page_size, page_size)
+    else
+      list
     end
   end
 

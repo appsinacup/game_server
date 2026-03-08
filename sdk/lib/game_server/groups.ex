@@ -817,6 +817,21 @@ defmodule GameServer.Groups do
 
 
   @doc ~S"""
+    Return true if both users share at least one common group membership.
+  """
+  @spec shared_group_member?(integer(), integer()) :: boolean()
+  def shared_group_member?(_user_a_id, _user_b_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        false
+
+      _ ->
+        raise "GameServer.Groups.shared_group_member?/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Subscribe to a specific group's events.
   """
   @spec subscribe_group(integer()) :: :ok | {:error, term()}

@@ -175,8 +175,13 @@ defmodule GameServerWeb.Router do
     post "/parties", PartyController, :create
     patch "/parties", PartyController, :update
     post "/parties/leave", PartyController, :leave
-    post "/parties/join", PartyController, :join_by_code
     post "/parties/kick", PartyController, :kick
+    post "/parties/invite", PartyController, :invite
+    post "/parties/invite/cancel", PartyController, :cancel_party_invite
+    post "/parties/invite/accept", PartyController, :accept_party_invite
+    post "/parties/invite/decline", PartyController, :decline_party_invite
+    get "/parties/invitations", PartyController, :list_invitations
+    get "/parties/invitations/sent", PartyController, :list_sent_invitations
     post "/parties/create_lobby", PartyController, :create_lobby
     post "/parties/join_lobby/:id", PartyController, :join_lobby
     # Chat API

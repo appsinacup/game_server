@@ -145,14 +145,21 @@
   users ─────┬──── lobby_id ──────────► lobbies
              │                            │
              ├──── party_id ──────────► parties
-             │                            │
+             │                              └── invites via notifications
+             │                                  (title="party_invite",
+             │                                   metadata.party_id)
              ├──── friendships ◄─────► friendships
              │
              ├──── group_members ─────► groups
-             │
+             │                              └── invites via notifications
+             │                                  (title="group_invite",
+             │                                   metadata.group_id)
              ├──── leaderboard_records ► leaderboards
              │
              ├──── notifications (send / receive)
+             │       known titles: "friend_request"
+             │                     "group_invite"  (metadata.group_id)
+             │                     "party_invite"  (metadata.party_id)
              │
              ├──── chat_messages (sender_id ─► messages)
              │         chat_type: lobby | group | friend

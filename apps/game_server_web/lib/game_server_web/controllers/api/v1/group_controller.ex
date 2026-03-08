@@ -2,6 +2,7 @@ defmodule GameServerWeb.Api.V1.GroupController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
+  alias GameServer.Accounts.User
   alias GameServer.Groups
   alias OpenApiSpex.Schema
 
@@ -67,10 +68,10 @@ defmodule GameServerWeb.Api.V1.GroupController do
       user_id: %Schema{type: :integer},
       group_id: %Schema{type: :integer},
       role: %Schema{type: :string, enum: ["admin", "member"]},
-      display_name: %Schema{type: :string, nullable: true},
+      display_name: %Schema{type: :string},
       profile_url: %Schema{type: :string, nullable: true},
       is_online: %Schema{type: :boolean},
-      last_seen_at: %Schema{type: :string, format: "date-time", nullable: true},
+      last_seen_at: %Schema{type: :string, format: "date-time"},
       inserted_at: %Schema{type: :string, format: :"date-time"}
     }
   }
@@ -82,7 +83,7 @@ defmodule GameServerWeb.Api.V1.GroupController do
       user_id: %Schema{type: :integer},
       group_id: %Schema{type: :integer},
       status: %Schema{type: :string, enum: ["pending", "accepted", "rejected"]},
-      display_name: %Schema{type: :string, nullable: true},
+      display_name: %Schema{type: :string},
       inserted_at: %Schema{type: :string, format: :"date-time"}
     }
   }
@@ -1304,14 +1305,18 @@ defmodule GameServerWeb.Api.V1.GroupController do
     display_name = if user_loaded?, do: member.user.display_name, else: nil
     profile_url = if user_loaded?, do: member.user.profile_url, else: nil
     is_online = if user_loaded?, do: member.user.is_online || false, else: false
-    last_seen_at = if user_loaded?, do: member.user.last_seen_at, else: nil
+
+    last_seen_at =
+      if user_loaded?,
+        do: User.last_seen_at_or_fallback(member.user),
+        else: ~U[1970-01-01 00:00:00Z]
 
     %{
       id: member.id,
       user_id: member.user_id,
       group_id: member.group_id,
       role: member.role,
-      display_name: display_name,
+      display_name: display_name || "",
       profile_url: profile_url || "",
       is_online: is_online,
       last_seen_at: last_seen_at,
@@ -1332,7 +1337,7 @@ defmodule GameServerWeb.Api.V1.GroupController do
       user_id: request.user_id,
       group_id: request.group_id,
       status: request.status,
-      display_name: display_name,
+      display_name: display_name || "",
       inserted_at: request.inserted_at
     }
   end

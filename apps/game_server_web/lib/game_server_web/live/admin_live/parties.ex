@@ -645,8 +645,13 @@ defmodule GameServerWeb.AdminLive.Parties do
         user = GameServer.Accounts.get_user(user_id)
 
         if user do
-          case Parties.join_party(user, party.id) do
-            {:ok, _party} ->
+          result =
+            user
+            |> Ecto.Changeset.change(%{party_id: party.id})
+            |> GameServer.Repo.update()
+
+          case result do
+            {:ok, _user} ->
               members = Parties.get_party_members(party.id)
 
               {:noreply,

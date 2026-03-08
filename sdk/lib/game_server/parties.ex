@@ -10,8 +10,14 @@ defmodule GameServer.Parties do
       # Create a party (user becomes leader and first member)
       {:ok, party} = GameServer.Parties.create_party(user, %{max_size: 4})
   
-      # Join a party by ID
-      {:ok, user} = GameServer.Parties.join_party(user, party_id)
+      # Leader invites a friend or shared-group member by user_id
+      {:ok, _notification} = GameServer.Parties.invite_to_party(leader, target_user_id)
+  
+      # Target accepts the invite
+      {:ok, party} = GameServer.Parties.accept_party_invite(target, party_id)
+  
+      # Or declines
+      :ok = GameServer.Parties.decline_party_invite(target, party_id)
   
       # Leave a party (if leader leaves, party is disbanded)
       {:ok, _} = GameServer.Parties.leave_party(user)
@@ -37,6 +43,26 @@ defmodule GameServer.Parties do
   The actual implementation runs on the GameServer.
   """
 
+
+
+  @doc ~S"""
+    Accept a party invite. Joins the party and removes the invite notification.
+    
+    Returns `{:error, :no_invite}` if no pending invite exists for that party.
+    Returns `{:error, :already_in_party}` if the user is already in another party.
+    
+  """
+  @spec accept_party_invite(GameServer.Accounts.User.t(), integer()) ::
+  {:ok, GameServer.Parties.Party.t()} | {:error, atom()}
+  def accept_party_invite(_user, _party_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, nil}
+
+      _ ->
+        raise "GameServer.Parties.accept_party_invite/2 is a stub - only available at runtime on GameServer"
+    end
+  end
 
 
   @doc ~S"""
@@ -66,6 +92,22 @@ defmodule GameServer.Parties do
 
       _ ->
         raise "GameServer.Parties.admin_update_party/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Cancel a previously sent party invite. Only the original sender (leader) can cancel.
+    
+  """
+  @spec cancel_party_invite(GameServer.Accounts.User.t(), integer()) :: :ok | {:error, atom()}
+  def cancel_party_invite(_leader, _target_user_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        :ok
+
+      _ ->
+        raise "GameServer.Parties.cancel_party_invite/2 is a stub - only available at runtime on GameServer"
     end
   end
 
@@ -169,6 +211,22 @@ defmodule GameServer.Parties do
 
 
   @doc ~S"""
+    Decline a party invite. Simply removes the invite notification.
+    
+  """
+  @spec decline_party_invite(GameServer.Accounts.User.t(), integer()) :: :ok | {:error, atom()}
+  def decline_party_invite(_user, _party_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        :ok
+
+      _ ->
+        raise "GameServer.Parties.decline_party_invite/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Get a party by ID. Returns nil if not found.
   """
   @spec get_party(integer()) :: GameServer.Parties.Party.t() | nil
@@ -229,6 +287,32 @@ defmodule GameServer.Parties do
 
 
   @doc ~S"""
+    Invite a user to join the party. Only the party leader may invite.
+    
+    The target user must be a friend of the leader, or share at least one group
+    with the leader. A pending notification is created; the target accepts or
+    declines via `accept_invite/2` / `decline_invite/2`.
+    
+    Returns `{:error, :not_in_party}` if the caller is not in a party.
+    Returns `{:error, :not_leader}` if the caller is not the party leader.
+    Returns `{:error, :not_connected}` if the target is not a friend or shared group member.
+    Returns `{:error, :already_in_party}` if the target is already in a party.
+    Returns `{:error, :already_invited}` if a pending invite already exists.
+    
+  """
+  @spec invite_to_party(GameServer.Accounts.User.t(), integer()) :: {:ok, map()} | {:error, atom()}
+  def invite_to_party(_leader, _target_user_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, nil}
+
+      _ ->
+        raise "GameServer.Parties.invite_to_party/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     The party leader joins an existing lobby, and all party members join it
     atomically. The party is kept intact.
     
@@ -244,50 +328,6 @@ defmodule GameServer.Parties do
 
       _ ->
         raise "GameServer.Parties.join_lobby_with_party/3 is a stub - only available at runtime on GameServer"
-    end
-  end
-
-
-  @doc ~S"""
-    Join an existing party by ID.
-    
-    Returns `{:error, :already_in_party}` if the user is already in a party.
-    Returns `{:error, :party_not_found}` if the party doesn't exist.
-    Returns `{:error, :party_full}` if the party is at capacity.
-    
-  """
-  @spec join_party(GameServer.Accounts.User.t(), integer()) ::
-  {:ok, GameServer.Accounts.User.t()} | {:error, term()}
-  def join_party(_user, _party_id) do
-    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
-      :placeholder ->
-        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
-
-      _ ->
-        raise "GameServer.Parties.join_party/2 is a stub - only available at runtime on GameServer"
-    end
-  end
-
-
-  @doc ~S"""
-    Join an existing party by its shareable code.
-    
-    If the user is currently in another party, they will automatically leave it
-    first (disbanding it if they are the leader).
-    
-    Returns `{:error, :party_not_found}` if no party matches the code.
-    Returns `{:error, :party_full}` if the party is at capacity.
-    
-  """
-  @spec join_party_by_code(GameServer.Accounts.User.t(), String.t()) ::
-  {:ok, GameServer.Accounts.User.t()} | {:error, term()}
-  def join_party_by_code(_user, _code) do
-    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
-      :placeholder ->
-        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
-
-      _ ->
-        raise "GameServer.Parties.join_party_by_code/2 is a stub - only available at runtime on GameServer"
     end
   end
 
@@ -342,6 +382,40 @@ defmodule GameServer.Parties do
 
       _ ->
         raise "GameServer.Parties.list_all_parties/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    List pending party invites for the given user.
+    
+  """
+  @spec list_party_invitations(GameServer.Accounts.User.t()) :: [map()]
+  def list_party_invitations(_user) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        %{}
+
+      _ ->
+        raise "GameServer.Parties.list_party_invitations/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    List pending party invites sent by the given leader.
+    
+    Returns invitations the leader has sent that have not yet been accepted or declined.
+    
+  """
+  @spec list_sent_party_invitations(GameServer.Accounts.User.t()) :: [map()]
+  def list_sent_party_invitations(_leader) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        %{}
+
+      _ ->
+        raise "GameServer.Parties.list_sent_party_invitations/1 is a stub - only available at runtime on GameServer"
     end
   end
 

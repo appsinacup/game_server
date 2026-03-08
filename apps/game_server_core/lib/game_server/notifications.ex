@@ -148,6 +148,47 @@ defmodule GameServer.Notifications do
     ) || 0
   end
 
+  @doc """
+  List notifications for a user filtered by title (e.g. `\"party_invite\"`, `\"group_invite\"`).
+
+  Results are ordered newest-first and cached with the same version-based TTL
+  as `list_notifications/2`.
+  """
+  @spec list_notifications_by_title(user_id(), String.t()) :: [Notification.t()]
+  @decorate cacheable(
+              key: {:notifications, :by_title, notifications_version(user_id), user_id, title},
+              opts: [ttl: @notifications_cache_ttl_ms]
+            )
+  def list_notifications_by_title(user_id, title)
+      when is_integer(user_id) and is_binary(title) do
+    from(n in Notification,
+      where: n.recipient_id == ^user_id and n.title == ^title,
+      order_by: [desc: n.inserted_at]
+    )
+    |> Repo.all()
+  end
+
+  @doc """
+  List notifications sent by a user filtered by title.
+
+  Useful for a leader to see which invites they have sent that are still pending.
+  Results are ordered newest-first and cached with the same version-based TTL.
+  """
+  @spec list_sent_notifications_by_title(user_id(), String.t()) :: [Notification.t()]
+  @decorate cacheable(
+              key:
+                {:notifications, :sent_by_title, notifications_version(user_id), user_id, title},
+              opts: [ttl: @notifications_cache_ttl_ms]
+            )
+  def list_sent_notifications_by_title(user_id, title)
+      when is_integer(user_id) and is_binary(title) do
+    from(n in Notification,
+      where: n.sender_id == ^user_id and n.title == ^title,
+      order_by: [desc: n.inserted_at]
+    )
+    |> Repo.all()
+  end
+
   @doc "Mark a single notification as read. Only the recipient can mark it."
   @spec mark_notification_read(user_id(), integer()) :: {:ok, Notification.t()} | {:error, atom()}
   def mark_notification_read(user_id, notification_id)

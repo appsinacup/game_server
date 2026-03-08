@@ -3,6 +3,7 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
   use OpenApiSpex.ControllerSpecs
 
   alias GameServer.Accounts
+  alias GameServer.Accounts.User
   alias OpenApiSpex.Schema
 
   tags(["Admin – Users"])
@@ -13,13 +14,13 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
     type: :object,
     properties: %{
       id: %Schema{type: :integer},
-      email: %Schema{type: :string, nullable: true},
-      display_name: %Schema{type: :string, nullable: true},
+      email: %Schema{type: :string},
+      display_name: %Schema{type: :string},
       is_admin: %Schema{type: :boolean},
       metadata: %Schema{type: :object},
       lobby_id: %Schema{type: :integer, nullable: true},
       is_online: %Schema{type: :boolean},
-      last_seen_at: %Schema{type: :string, format: "date-time", nullable: true},
+      last_seen_at: %Schema{type: :string, format: "date-time"},
       inserted_at: %Schema{type: :string, format: "date-time"},
       updated_at: %Schema{type: :string, format: "date-time"}
     }
@@ -130,14 +131,14 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
   defp serialize_user(user) do
     %{
       id: user.id,
-      email: user.email,
-      display_name: user.display_name,
+      email: user.email || "",
+      display_name: user.display_name || "",
       is_admin: user.is_admin,
       metadata: user.metadata || %{},
       lobby_id: user.lobby_id,
       party_id: user.party_id,
       is_online: user.is_online || false,
-      last_seen_at: user.last_seen_at,
+      last_seen_at: User.last_seen_at_or_fallback(user),
       inserted_at: user.inserted_at,
       updated_at: user.updated_at
     }

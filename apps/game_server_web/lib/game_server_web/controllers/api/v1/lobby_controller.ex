@@ -416,7 +416,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
                  properties: %{
                    id: %Schema{type: :integer},
                    email: %Schema{type: :string},
-                   display_name: %Schema{type: :string, nullable: true}
+                   display_name: %Schema{type: :string}
                  }
                }
              }
@@ -437,8 +437,8 @@ defmodule GameServerWeb.Api.V1.LobbyController do
         |> Enum.map(fn user ->
           %{
             id: user.id,
-            email: user.email,
-            display_name: user.display_name
+            email: user.email || "",
+            display_name: user.display_name || ""
           }
         end)
 

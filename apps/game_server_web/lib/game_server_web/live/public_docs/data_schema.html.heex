@@ -115,12 +115,21 @@
       id          : integer (primary key)
       leader_id   : integer (user id of the party leader/creator)
       max_size    : integer (maximum number of members, default: 4)
-      code        : string (unique 6-character join code, auto-generated)
+      code        : string (unique 6-character alphanumeric code, auto-generated)
       metadata    : jsonb/map (arbitrary party metadata)
       inserted_at : utc_datetime
       updated_at  : utc_datetime
     )</pre>
       </div>
+      <p class="text-sm text-base-content/80 mt-1 pl-1">
+        {doc_text("Party invites are stored in the notifications table with")}
+        <code class="font-mono">title = "party_invite"</code>
+        {doc_text("and")}
+        <code class="font-mono">metadata.party_id</code>
+        {doc_text(
+          "set to the party's ID. The sender_id is the inviting leader; recipient_id is the invited user. Invites are removed on accept, decline, or cancel."
+        )}
+      </p>
 
       <h4 class="font-semibold mt-3">{doc_text("Leaderboards")}</h4>
       <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
@@ -151,7 +160,10 @@
       </div>
 
       <h4 class="font-semibold mt-3">{doc_text("Notifications")}</h4>
-      <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+      <div
+        class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto"
+        phx-no-curly-interpolation
+      >
         <pre>
     notifications (
       id           : integer (primary key)
@@ -162,7 +174,12 @@
       metadata     : jsonb/map (optional, e.g. invite data)
       inserted_at  : utc_datetime
       updated_at   : utc_datetime
-    )</pre>
+    )
+
+    Well-known notification titles and their metadata shapes:
+      "friend_request"   — metadata: {}
+      "group_invite"     — metadata: { group_id: integer }
+      "party_invite"     — metadata: { party_id: integer }</pre>
       </div>
 
       <h4 class="font-semibold mt-3">{doc_text("Groups")}</h4>

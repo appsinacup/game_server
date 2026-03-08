@@ -454,6 +454,25 @@ defmodule GameServer.GroupsTest do
 
       assert {:error, :blocked} = Groups.invite_to_group(owner.id, group.id, other.id)
     end
+
+    test "stores sender_name and recipient_name in notification metadata", %{
+      owner: owner,
+      other: other
+    } do
+      {:ok, _} =
+        GameServer.Accounts.update_user_display_name(owner, %{"display_name" => "OwnerName"})
+
+      {:ok, _} =
+        GameServer.Accounts.update_user_display_name(other, %{"display_name" => "OtherName"})
+
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "MetaGrp", "type" => "hidden"})
+      {:ok, notification} = Groups.invite_to_group(owner.id, group.id, other.id)
+
+      assert notification.metadata["sender_name"] == "OwnerName"
+      assert notification.metadata["recipient_name"] == "OtherName"
+      assert notification.metadata["group_id"] == group.id
+      assert notification.metadata["group_name"] == group.title
+    end
   end
 
   describe "accept_invite/2" do
@@ -601,6 +620,38 @@ defmodule GameServer.GroupsTest do
 
       assert Groups.count_invitations(other.id) >= 1
       assert Groups.count_invitations(third.id) >= 1
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # Received Invitations
+  # ---------------------------------------------------------------------------
+
+  describe "list_invitations/2" do
+    test "returns invitations received by user with all fields", %{owner: owner, other: other} do
+      {:ok, _} =
+        GameServer.Accounts.update_user_display_name(owner, %{"display_name" => "SenderDisplay"})
+
+      {:ok, _} =
+        GameServer.Accounts.update_user_display_name(other, %{"display_name" => "RecipDisplay"})
+
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "ListInvGrp", "type" => "hidden"})
+      {:ok, _} = Groups.invite_to_group(owner.id, group.id, other.id)
+
+      invites = Groups.list_invitations(other.id)
+      assert invites != []
+      invite = hd(invites)
+
+      assert invite.group_id == group.id
+      assert invite.group_name == "ListInvGrp"
+      assert invite.sender_id == owner.id
+      assert invite.sender_name == "SenderDisplay"
+      assert invite.recipient_id == other.id
+      assert invite.recipient_name == "RecipDisplay"
+    end
+
+    test "returns empty when no invitations", %{other: other} do
+      assert Groups.list_invitations(other.id) == []
     end
   end
 
@@ -755,6 +806,25 @@ defmodule GameServer.GroupsTest do
       assert length(invites) == 1
       assert hd(invites).group_name == "SentInv"
       assert hd(invites).recipient_id == other.id
+    end
+
+    test "includes sender_name and recipient_name", %{owner: owner, other: other} do
+      {:ok, _} =
+        GameServer.Accounts.update_user_display_name(owner, %{"display_name" => "SentByName"})
+
+      {:ok, _} =
+        GameServer.Accounts.update_user_display_name(other, %{"display_name" => "SentToName"})
+
+      {:ok, group} =
+        Groups.create_group(owner.id, %{"title" => "SentNameInv", "type" => "hidden"})
+
+      {:ok, _} = Groups.invite_to_group(owner.id, group.id, other.id)
+
+      invites = Groups.list_sent_invitations(owner.id)
+      assert length(invites) == 1
+      invite = hd(invites)
+      assert invite.sender_name == "SentByName"
+      assert invite.recipient_name == "SentToName"
     end
 
     test "returns empty when no invitations sent", %{other: other} do

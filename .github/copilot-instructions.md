@@ -182,10 +182,11 @@ API routes use JWT tokens via Guardian for stateless authentication:
 ### Parties
 
 - Parties are ephemeral groups of users (2-10 members by default). They exist only while members are online and are not persisted long-term.
-- Party context: `GameServer.Parties` — key functions: `create_party/1`, `join_party/2`, `join_party_by_code/2`, `leave_party/2`, `kick_member/3`, `promote_leader/3`, `disband_party/2`.
+- Party context: `GameServer.Parties` — key functions: `create_party/1`, `invite_to_party/2`, `cancel_party_invite/2`, `accept_party_invite/2`, `decline_party_invite/2`, `list_party_invitations/1`, `leave_party/2`, `kick_member/3`, `promote_leader/3`, `disband_party/2`.
 - A user can only be in **one party at a time**. Creating a new party automatically leaves any existing party.
-- Each party has a unique 6-character alphanumeric `code` (auto-generated on creation). Users join a party by sharing the code and calling `join_party_by_code/2` — this auto-leaves any current party.
-- There is **no invite system** for parties. Joining is exclusively code-based.
+- Each party has a unique 6-character alphanumeric `code` (auto-generated on creation). Users join parties via invite: the party leader sends an invite by user_id (only to friends or users in a shared group); the recipient then accepts or declines.
+- **Invite mechanism**: `invite_to_party/2` (leader only, target must be friend or shared group member), `accept_party_invite/2` (joins the party and removes the invite notification), `decline_party_invite/2` (removes the invite), `cancel_party_invite/2` (leader cancels a pending invite). `list_party_invitations/1` returns pending `"party_invite"` notifications.
+- There is **no code-based join**. Joining is exclusively invite-based.
 - Parties can create/join lobbies as a group: `create_lobby_with_party/2`, `join_lobby_with_party/2`. These check that no party member is already in another lobby.
 - API endpoints live under `/api/v1/parties`.
 

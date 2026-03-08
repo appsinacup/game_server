@@ -261,6 +261,46 @@ defmodule GameServer.Notifications do
 
 
   @doc ~S"""
+    List notifications for a user filtered by title (e.g. `"party_invite"`, `"group_invite"`).
+    
+    Results are ordered newest-first and cached with the same version-based TTL
+    as `list_notifications/2`.
+    
+  """
+  @spec list_notifications_by_title(user_id(), String.t()) :: [GameServer.Notifications.Notification.t()]
+  def list_notifications_by_title(_user_id, _title) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Notifications.list_notifications_by_title/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    List notifications sent by a user filtered by title.
+    
+    Useful for a leader to see which invites they have sent that are still pending.
+    Results are ordered newest-first and cached with the same version-based TTL.
+    
+  """
+  @spec list_sent_notifications_by_title(user_id(), String.t()) :: [
+  GameServer.Notifications.Notification.t()
+]
+  def list_sent_notifications_by_title(_user_id, _title) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Notifications.list_sent_notifications_by_title/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Mark all notifications as read for a user.
   """
   @spec mark_all_notifications_read(user_id()) :: {non_neg_integer(), nil}
