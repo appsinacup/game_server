@@ -397,6 +397,25 @@ defmodule GameServer.Notifications do
     result
   end
 
+  @doc """
+  Delete all notifications from `sender_id` to `recipient_id` with the given `title`.
+  Used internally to retract system-generated notifications (e.g. friend request cancelled).
+  """
+  @spec delete_notification_by(user_id(), user_id(), String.t()) :: {non_neg_integer(), nil}
+  def delete_notification_by(sender_id, recipient_id, title)
+      when is_integer(sender_id) and is_integer(recipient_id) and is_binary(title) do
+    result =
+      from(n in Notification,
+        where:
+          n.sender_id == ^sender_id and n.recipient_id == ^recipient_id and
+            n.title == ^title
+      )
+      |> Repo.delete_all()
+
+    invalidate_notifications_cache(recipient_id)
+    result
+  end
+
   # ---------------------------------------------------------------------------
   # Helpers
   # ---------------------------------------------------------------------------

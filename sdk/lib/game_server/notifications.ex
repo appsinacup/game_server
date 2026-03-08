@@ -143,6 +143,23 @@ defmodule GameServer.Notifications do
 
 
   @doc ~S"""
+    Delete all notifications from `sender_id` to `recipient_id` with the given `title`.
+    Used internally to retract system-generated notifications (e.g. friend request cancelled).
+    
+  """
+  @spec delete_notification_by(user_id(), user_id(), String.t()) :: {non_neg_integer(), nil}
+  def delete_notification_by(_sender_id, _recipient_id, _title) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Notifications.delete_notification_by/3 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Delete notifications by IDs, scoped to the recipient (owner).
     
     Only notifications belonging to `user_id` will be deleted.

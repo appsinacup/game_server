@@ -71,6 +71,18 @@ defmodule GameServer.Notifications.FriendNotifier do
     {:noreply, state}
   end
 
+  @impl true
+  def handle_info({:request_cancelled, friendship}, state) do
+    # The requester cancelled their outgoing request: retract the "Friend request" notification
+    Notifications.delete_notification_by(
+      friendship.requester_id,
+      friendship.target_id,
+      "Friend request"
+    )
+
+    {:noreply, state}
+  end
+
   # Ignore other friend events (rejected, blocked, removed, etc.)
   @impl true
   def handle_info(_msg, state) do
