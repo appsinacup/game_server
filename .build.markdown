@@ -18,6 +18,7 @@ GameServer.Env.md
 GameServer.Friends.Friendship.md
 GameServer.Friends.md
 GameServer.Groups.Group.md
+GameServer.Groups.GroupInvite.md
 GameServer.Groups.GroupJoinRequest.md
 GameServer.Groups.GroupMember.md
 GameServer.Groups.md
@@ -44,6 +45,7 @@ GameServer.OAuth.GoogleIDToken.md
 GameServer.OAuthSession.md
 GameServer.OAuthSessions.md
 GameServer.Parties.Party.md
+GameServer.Parties.PartyInvite.md
 GameServer.Parties.md
 GameServer.Repo.AdvisoryLock.md
 GameServer.Repo.md

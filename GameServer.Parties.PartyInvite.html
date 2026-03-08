@@ -8,7 +8,7 @@
     <meta name="project" content="GameServer v1.0.707">
 
 
-    <title>GameServer.Hooks.Default — GameServer v1.0.707</title>
+    <title>GameServer.Parties.PartyInvite — GameServer v1.0.707</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
@@ -93,12 +93,12 @@ GameServer
 <div id="top-content">
   <div class="heading-with-actions top-heading">
     <h1>
-      <span translate="no">GameServer.<wbr>Hooks.<wbr>Default</span> 
+      <span translate="no">GameServer.<wbr>Parties.<wbr>PartyInvite</span> 
       <small class="app-vsn" translate="no">(GameServer v1.0.707)</small>
 
     </h1>
 
-<a href="GameServer.Hooks.Default.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
+<a href="GameServer.Parties.PartyInvite.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
   <i class="ri-markdown-line" aria-hidden="true"></i>
   <span class="sr-only">Copy Markdown</span>
 </a>
@@ -109,7 +109,10 @@ GameServer
 
 
     <section id="moduledoc">
-<p>Default no-op implementation for GameServer.Hooks</p>
+<p>Ecto schema for the <code class="inline">party_invites</code> table.</p><p>Stores pending, accepted, declined, and cancelled invitations for parties.
+Unlike the previous approach (which stored invites as notifications),
+invite records are independent of the notification system — deleting
+notifications does not affect pending invites.</p><h2 id="module-statuses" class="section-heading"><a href="#module-statuses" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Statuses</span></h2><ul><li><code class="inline">&quot;pending&quot;</code>   – waiting for the recipient to decide</li><li><code class="inline">&quot;accepted&quot;</code>  – recipient joined the party</li><li><code class="inline">&quot;declined&quot;</code>  – recipient declined the invite</li><li><code class="inline">&quot;cancelled&quot;</code> – sender cancelled the invite</li></ul>
     </section>
 
 </div>
@@ -121,6 +124,20 @@ GameServer
       </a>
       <span class="text">Summary</span>
     </h2>
+<div class="summary-types summary">
+  <h3>
+    <a href="#types">Types</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#t:t/0" data-no-tooltip="" translate="no">t()</a>
+
+      </div>
+
+    </div>
+
+</div>
 <div class="summary-functions summary">
   <h3>
     <a href="#functions">Functions</a>
@@ -128,11 +145,9 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#before_kv_get/2" data-no-tooltip="" translate="no">before_kv_get(key, opts)</a>
+        <a href="#changeset/2" data-no-tooltip="" translate="no">changeset(invite, attrs)</a>
 
       </div>
-
-        <div class="summary-synopsis"><p>Default implementation for <a href="#before_kv_get/2"><code class="inline">before_kv_get/2</code></a> — always allow public reads.</p></div>
 
     </div>
 
@@ -140,6 +155,55 @@ GameServer
 
   </section>
 
+
+  <section id="types" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#types">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Types</span>
+    </h2>
+
+    <div class="types-list">
+<section class="detail" id="t:t/0">
+
+  <div class="detail-header">
+    <a href="#t:t/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">t()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@type</span> t() :: %GameServer.Parties.PartyInvite{
+  __meta__: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  inserted_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  party: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  party_id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  recipient: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  recipient_id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  sender: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  sender_id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  status: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  updated_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()
+}</pre>
+
+      </div>
+
+
+  </section>
+</section>
+
+    </div>
+  </section>
 
   <section id="functions" class="details-list">
     <h2 class="section-heading">
@@ -150,14 +214,14 @@ GameServer
     </h2>
 
     <div class="functions-list">
-<section class="detail" id="before_kv_get/2">
+<section class="detail" id="changeset/2">
 
   <div class="detail-header">
-    <a href="#before_kv_get/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#changeset/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">before_kv_get(key, opts)</h1>
+      <h1 class="signature" translate="no">changeset(invite, attrs)</h1>
 
 
     </div>
@@ -165,7 +229,7 @@ GameServer
 
   <section class="docstring">
 
-<p>Default implementation for <a href="#before_kv_get/2"><code class="inline">before_kv_get/2</code></a> — always allow public reads.</p>
+
   </section>
 </section>
 

@@ -19,6 +19,7 @@ GameServer.Env.html
 GameServer.Friends.Friendship.html
 GameServer.Friends.html
 GameServer.Groups.Group.html
+GameServer.Groups.GroupInvite.html
 GameServer.Groups.GroupJoinRequest.html
 GameServer.Groups.GroupMember.html
 GameServer.Groups.html
@@ -45,6 +46,7 @@ GameServer.OAuth.GoogleIDToken.html
 GameServer.OAuthSession.html
 GameServer.OAuthSessions.html
 GameServer.Parties.Party.html
+GameServer.Parties.PartyInvite.html
 GameServer.Parties.html
 GameServer.Repo.AdvisoryLock.html
 GameServer.Repo.html
@@ -64,7 +66,7 @@ dist/lato-latin-700-normal-2XVSBPG4.woff2
 dist/lato-latin-ext-400-normal-N27NCBWW.woff2
 dist/lato-latin-ext-700-normal-Q2L5DVMW.woff2
 dist/remixicon-ZWU5GQ4X.woff2
-dist/search_data-61E5B57B.js
-dist/sidebar_items-A3E1BA2F.js
+dist/search_data-D2141127.js
+dist/sidebar_items-7D3B3A37.js
 index.html
 search.html

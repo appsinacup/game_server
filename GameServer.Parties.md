@@ -45,7 +45,7 @@ This module broadcasts the following events:
   {:ok, GameServer.Parties.Party.t()} | {:error, atom()}
 ```
 
-Accept a party invite. Joins the party and removes the invite notification.
+Accept a party invite. Joins the party and marks the invite as accepted.
 
 Returns `{:error, :no_invite}` if no pending invite exists for that party.
 Returns `{:error, :already_in_party}` if the user is already in another party.
@@ -139,7 +139,7 @@ Returns `{:error, :already_in_party}` if the user is already in a party.
   :ok | {:error, atom()}
 ```
 
-Decline a party invite. Simply removes the invite notification.
+Decline a party invite. Marks the invite as declined.
 
 # `get_party`
 
@@ -180,14 +180,15 @@ Get the party the user is currently in, or nil.
 
 ```elixir
 @spec invite_to_party(GameServer.Accounts.User.t(), integer()) ::
-  {:ok, map()} | {:error, atom()}
+  {:ok, GameServer.Parties.PartyInvite.t()} | {:error, atom()}
 ```
 
 Invite a user to join the party. Only the party leader may invite.
 
 The target user must be a friend of the leader, or share at least one group
-with the leader. A pending notification is created; the target accepts or
-declines via `accept_invite/2` / `decline_invite/2`.
+with the leader. A `PartyInvite` record is created and an informational
+notification is sent. The invite is independent of the notification —
+deleting notifications does not affect pending invites.
 
 Returns `{:error, :not_in_party}` if the caller is not in a party.
 Returns `{:error, :not_leader}` if the caller is not the party leader.

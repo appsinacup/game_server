@@ -53,8 +53,8 @@ three visibility types:
   {:ok, GameServer.Groups.GroupMember.t()} | {:error, atom()}
 ```
 
-Accept a group invite (for hidden groups). The user must have a group_invite
-notification containing the group_id.
+Accept a group invite (for hidden groups). The user must have a pending
+`GroupInvite` for the group.
 
 # `admin?`
 
@@ -296,12 +296,12 @@ Public wrapper for cache invalidation (used by admin controller).
 
 ```elixir
 @spec invite_to_group(integer(), integer(), integer()) ::
-  {:ok, term()} | {:error, atom()}
+  {:ok, GameServer.Groups.GroupInvite.t()} | {:error, atom()}
 ```
 
-Invite a user to a hidden group by sending a notification with metadata.
-The notification system handles delivery; this creates the notification with
-a special title so the client can recognise it as a group invite.
+Invite a user to a hidden group. Creates a `GroupInvite` record and sends
+an informational notification. The invite record is independent of the
+notification — deleting notifications does not affect pending invites.
 
 # `join_group`
 
@@ -374,8 +374,7 @@ List groups visible to the public (excludes hidden).
 ) :: [map()]
 ```
 
-List pending group invitations for a user. These are notifications with
-title `"group_invite"` and a metadata `group_id`.
+List pending group invitations for a user.
 
 # `list_join_requests`
 
@@ -396,7 +395,6 @@ List pending join requests for a group (admin only).
 ```
 
 List group invitations sent by a user.
-Returns notifications where the user is the sender and the title is `"group_invite"`.
 
 # `list_user_groups`
 

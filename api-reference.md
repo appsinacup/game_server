@@ -1,4 +1,4 @@
-# GameServer v1.0.706 - API Reference
+# GameServer v1.0.707 - API Reference
 
 ## Modules
 
@@ -31,6 +31,7 @@ in the theme JSON config (`"changelog"` and `"blog"` keys).
 - [GameServer.Groups](GameServer.Groups.md): Context module for group management: creating, updating, listing, joining,
 leaving, kicking, promoting/demoting members, and handling join requests.
 - [GameServer.Groups.Group](GameServer.Groups.Group.md): Ecto schema for the `groups` table.
+- [GameServer.Groups.GroupInvite](GameServer.Groups.GroupInvite.md): Ecto schema for the `group_invites` table.
 - [GameServer.Groups.GroupJoinRequest](GameServer.Groups.GroupJoinRequest.md): Ecto schema for the `group_join_requests` table.
 - [GameServer.Groups.GroupMember](GameServer.Groups.GroupMember.md): Ecto schema for the `group_members` join table.
 - [GameServer.Hooks](GameServer.Hooks.md): Behaviour for application-level hooks / callbacks.
@@ -60,6 +61,7 @@ notifications for key friend events
 
 - [GameServer.Parties](GameServer.Parties.md): Context module for party management.
 - [GameServer.Parties.Party](GameServer.Parties.Party.md): Ecto schema for the `parties` table.
+- [GameServer.Parties.PartyInvite](GameServer.Parties.PartyInvite.md): Ecto schema for the `party_invites` table.
 - [GameServer.Repo](GameServer.Repo.md)
 - [GameServer.Repo.AdvisoryLock](GameServer.Repo.AdvisoryLock.md): Advisory locking for protecting TOCTOU (Time-of-Check-Time-of-Use) patterns.
 - [GameServer.Schedule](GameServer.Schedule.md): Dynamic cron-like job scheduling for hooks.
