@@ -242,12 +242,11 @@ defmodule GameServer.Parties do
     user = Accounts.get_user(user.id)
 
     invite =
-      Repo.one(
+      Repo.all(
         from n in GameServer.Notifications.Notification,
-          where:
-            n.recipient_id == ^user.id and n.title == "party_invite" and
-              fragment("json_extract(?, '$.party_id') = ?", n.metadata, ^party_id)
+          where: n.recipient_id == ^user.id and n.title == "party_invite"
       )
+      |> Enum.find(fn n -> get_in(n.metadata, ["party_id"]) == party_id end)
 
     if is_nil(invite) do
       {:error, :no_invite}
@@ -345,15 +344,19 @@ defmodule GameServer.Parties do
   defp delete_party_invite_notifications(user_id, party_id) do
     import Ecto.Query
 
-    {count, _} =
-      from(n in GameServer.Notifications.Notification,
-        where:
-          n.recipient_id == ^user_id and n.title == "party_invite" and
-            fragment("json_extract(?, '$.party_id') = ?", n.metadata, ^party_id)
+    notifications =
+      Repo.all(
+        from n in GameServer.Notifications.Notification,
+          where: n.recipient_id == ^user_id and n.title == "party_invite"
       )
+      |> Enum.filter(fn n -> get_in(n.metadata, ["party_id"]) == party_id end)
+
+    if notifications != [] do
+      ids = Enum.map(notifications, & &1.id)
+
+      from(n in GameServer.Notifications.Notification, where: n.id in ^ids)
       |> Repo.delete_all()
 
-    if count > 0 do
       GameServer.Notifications.invalidate_notifications_cache(user_id)
     end
 

@@ -1078,12 +1078,19 @@ defmodule GameServer.Groups do
   defp delete_group_invite_notifications(user_id, group_id) do
     import Ecto.Query
 
-    from(n in GameServer.Notifications.Notification,
-      where:
-        n.recipient_id == ^user_id and n.title == "group_invite" and
-          fragment("json_extract(?, '$.group_id') = ?", n.metadata, ^group_id)
-    )
-    |> Repo.delete_all()
+    notifications =
+      Repo.all(
+        from n in GameServer.Notifications.Notification,
+          where: n.recipient_id == ^user_id and n.title == "group_invite"
+      )
+      |> Enum.filter(fn n -> get_in(n.metadata, ["group_id"]) == group_id end)
+
+    if notifications != [] do
+      ids = Enum.map(notifications, & &1.id)
+
+      from(n in GameServer.Notifications.Notification, where: n.id in ^ids)
+      |> Repo.delete_all()
+    end
 
     GameServer.Notifications.invalidate_notifications_cache(user_id)
   end
