@@ -257,7 +257,11 @@ defmodule GameServerWeb.NotificationsLive do
 
       # Chat: friend messages
       n.metadata["chat_type"] == "friend" ->
-        {gettext("Open Chat"), ~p"/chat"}
+        friend_id = n.metadata["friend_id"] || n.metadata["sender_id"]
+
+        if friend_id,
+          do: {gettext("Open Chat"), ~p"/chat?#{[type: "friend", id: friend_id]}"},
+          else: {gettext("Open Chat"), ~p"/chat"}
 
       # Chat: lobby messages
       n.metadata["chat_type"] == "lobby" ->
@@ -269,11 +273,15 @@ defmodule GameServerWeb.NotificationsLive do
 
       # Friend requests
       n.title == "Friend request" ->
-        {gettext("View Friends"), ~p"/users/settings"}
+        {gettext("View Friends"), ~p"/users/settings?#{[tab: "friends"]}"}
 
       # Friend request accepted
       n.title == "Friend request accepted" ->
-        {gettext("Open Chat"), ~p"/chat"}
+        friend_id = n.metadata["friend_id"] || n.sender_id
+
+        if friend_id,
+          do: {gettext("Open Chat"), ~p"/chat?#{[type: "friend", id: friend_id]}"},
+          else: {gettext("Open Chat"), ~p"/chat"}
 
       # Game invites
       n.title == "Game invite" ->

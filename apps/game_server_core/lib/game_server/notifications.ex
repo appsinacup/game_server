@@ -332,22 +332,7 @@ defmodule GameServer.Notifications do
           {:ok, Notification.t()} | {:error, Ecto.Changeset.t() | atom()}
   def admin_create_notification(sender_id, recipient_id, attrs)
       when is_integer(sender_id) and is_integer(recipient_id) do
-    delete_existing_notification(sender_id, recipient_id, attrs)
-
-    %Notification{}
-    |> Notification.changeset(attrs)
-    |> Ecto.Changeset.put_change(:sender_id, sender_id)
-    |> Ecto.Changeset.put_change(:recipient_id, recipient_id)
-    |> Repo.insert()
-    |> case do
-      {:ok, notification} ->
-        invalidate_notifications_cache(recipient_id)
-        broadcast_user(recipient_id, {:new_notification, notification})
-        {:ok, notification}
-
-      error ->
-        error
-    end
+    upsert_notification(sender_id, recipient_id, attrs)
   end
 
   @doc "Admin: delete a single notification by ID (no ownership check)."
@@ -405,22 +390,7 @@ defmodule GameServer.Notifications do
         if count_notifications(recipient_id) >= max do
           {:error, :too_many_notifications}
         else
-          delete_existing_notification(sender_id, recipient_id, attrs)
-
-          %Notification{}
-          |> Notification.changeset(attrs)
-          |> Ecto.Changeset.put_change(:sender_id, sender_id)
-          |> Ecto.Changeset.put_change(:recipient_id, recipient_id)
-          |> Repo.insert()
-          |> case do
-            {:ok, notification} ->
-              invalidate_notifications_cache(recipient_id)
-              broadcast_user(recipient_id, {:new_notification, notification})
-              {:ok, notification}
-
-            error ->
-              error
-          end
+          upsert_notification(sender_id, recipient_id, attrs)
         end
     end
   end
@@ -467,19 +437,35 @@ defmodule GameServer.Notifications do
   # Helpers
   # ---------------------------------------------------------------------------
 
-  # Deletes any existing notification with the same (sender_id, recipient_id, title)
-  # so a fresh re-send is treated as a new notification rather than triggering the
-  # unique constraint and returning a 422 error.
-  defp delete_existing_notification(sender_id, recipient_id, attrs) do
-    title = attrs["title"] || attrs[:title]
+  # Upsert a notification: on conflict (same sender, recipient, title),
+  # replace content, metadata, and read flag so the user sees the latest.
+  defp upsert_notification(sender_id, recipient_id, attrs) do
+    content = Map.get(attrs, "content") || Map.get(attrs, :content, "")
+    metadata = Map.get(attrs, "metadata") || Map.get(attrs, :metadata, %{})
 
-    if title do
-      from(n in Notification,
-        where:
-          n.sender_id == ^sender_id and n.recipient_id == ^recipient_id and
-            n.title == ^title
-      )
-      |> Repo.delete_all()
+    %Notification{}
+    |> Notification.changeset(attrs)
+    |> Ecto.Changeset.put_change(:sender_id, sender_id)
+    |> Ecto.Changeset.put_change(:recipient_id, recipient_id)
+    |> Repo.insert(
+      on_conflict: [
+        set: [
+          content: content,
+          metadata: metadata,
+          read: false,
+          updated_at: DateTime.utc_now(:second)
+        ]
+      ],
+      conflict_target: {:unsafe_fragment, "(sender_id, recipient_id, title)"}
+    )
+    |> case do
+      {:ok, notification} ->
+        invalidate_notifications_cache(recipient_id)
+        broadcast_user(recipient_id, {:new_notification, notification})
+        {:ok, notification}
+
+      error ->
+        error
     end
   end
 

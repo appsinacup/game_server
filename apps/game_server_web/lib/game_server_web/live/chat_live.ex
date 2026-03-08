@@ -65,6 +65,36 @@ defmodule GameServerWeb.ChatLive do
   end
 
   @impl true
+  def handle_params(%{"type" => "friend", "id" => id_str}, _uri, socket) do
+    if connected?(socket) do
+      fid = parse_id(id_str)
+      target = Accounts.get_user(fid)
+
+      if target do
+        user = socket.assigns.user
+        socket = unsubscribe_current(socket)
+
+        Chat.subscribe_friend_chat(user.id, fid)
+        mark_friend_chat_read(user.id, fid)
+
+        {:noreply,
+         socket
+         |> assign(:chat_type, "friend")
+         |> assign(:chat_target, fid)
+         |> assign(:chat_target_name, target.display_name || target.email)
+         |> assign(:page, 1)
+         |> assign(:editing_message_id, nil)
+         |> assign(:editing_message_content, "")
+         |> reload_messages()}
+      else
+        {:noreply, put_flash(socket, :error, gettext("User not found"))}
+      end
+    else
+      {:noreply, socket}
+    end
+  end
+
+  @impl true
   def handle_params(_params, _uri, socket), do: {:noreply, socket}
 
   @impl true

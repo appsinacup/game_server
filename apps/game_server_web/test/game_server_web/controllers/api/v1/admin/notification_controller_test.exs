@@ -201,7 +201,7 @@ defmodule GameServerWeb.Api.V1.Admin.NotificationControllerTest do
     assert resp["error"] =~ "sender_id"
   end
 
-  test "POST /api/v1/admin/notifications replaces duplicate title for same sender and recipient",
+  test "POST /api/v1/admin/notifications upserts duplicate title for same sender and recipient",
        %{
          conn: conn,
          admin: admin
@@ -215,7 +215,8 @@ defmodule GameServerWeb.Api.V1.Admin.NotificationControllerTest do
       |> post("/api/v1/admin/notifications", %{
         sender_id: sender.id,
         recipient_id: recipient.id,
-        title: "Invited to play"
+        title: "Invited to play",
+        content: "v1"
       })
       |> json_response(201)
 
@@ -225,13 +226,15 @@ defmodule GameServerWeb.Api.V1.Admin.NotificationControllerTest do
       |> post("/api/v1/admin/notifications", %{
         sender_id: sender.id,
         recipient_id: recipient.id,
-        title: "Invited to play"
+        title: "Invited to play",
+        content: "v2"
       })
       |> json_response(201)
 
-    # Should produce a fresh notification (new id, same title)
+    # Upsert: same notification is updated in place
     assert second["title"] == "Invited to play"
-    assert second["id"] != first["id"]
+    assert second["id"] == first["id"]
+    assert second["content"] == "v2"
   end
 
   # ── Delete ─────────────────────────────────────────────────────────────────

@@ -89,25 +89,26 @@ defmodule GameServerWeb.Api.V1.NotificationControllerTest do
     assert resp.status in [401, 403]
   end
 
-  test "POST /api/v1/notifications replaces duplicate title from same sender to same recipient",
+  test "POST /api/v1/notifications upserts duplicate title from same sender to same recipient",
        %{conn: conn} do
     {a, b} = make_friends()
 
     first =
       conn
       |> auth_conn(a)
-      |> post("/api/v1/notifications", %{user_id: b.id, title: "Invited to play"})
+      |> post("/api/v1/notifications", %{user_id: b.id, title: "Invited to play", content: "v1"})
       |> json_response(201)
 
     second =
       conn
       |> auth_conn(a)
-      |> post("/api/v1/notifications", %{user_id: b.id, title: "Invited to play"})
+      |> post("/api/v1/notifications", %{user_id: b.id, title: "Invited to play", content: "v2"})
       |> json_response(201)
 
-    # Second send should produce a new notification (new id, same title)
+    # Upsert: same notification is updated in place
     assert second["title"] == "Invited to play"
-    assert second["id"] != first["id"]
+    assert second["id"] == first["id"]
+    assert second["content"] == "v2"
   end
 
   test "POST /api/v1/notifications fails when sending to self", %{conn: conn} do

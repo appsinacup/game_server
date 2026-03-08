@@ -562,6 +562,14 @@ defmodule GameServer.Leaderboards do
             _ = invalidate_records_cache(leaderboard.id)
             ok
 
+          {:error, %Ecto.Changeset{} = changeset} ->
+            # Race condition: another process inserted in the meantime
+            if unique_constraint_error?(changeset) do
+              do_submit_score(leaderboard, user_id, score, metadata)
+            else
+              {:error, changeset}
+            end
+
           other ->
             other
         end
@@ -929,5 +937,9 @@ defmodule GameServer.Leaderboards do
   @spec change_record(Record.t(), map()) :: Ecto.Changeset.t()
   def change_record(%Record{} = record, attrs \\ %{}) do
     Record.changeset(record, attrs)
+  end
+
+  defp unique_constraint_error?(%Ecto.Changeset{errors: errors}) do
+    Enum.any?(errors, fn {_field, {_msg, meta}} -> meta[:constraint] == :unique end)
   end
 end
