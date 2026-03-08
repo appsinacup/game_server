@@ -349,5 +349,4 @@ defmodule GameServerWeb.AdminLive.Index do
   def handle_event("set_tab", %{"tab" => tab}, socket) do
     {:noreply, assign(socket, :tab, tab)}
   end
-
 end

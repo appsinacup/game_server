@@ -1,43 +1,43 @@
 defmodule GameServer.Parties do
   @moduledoc ~S"""
   Context module for party management.
-
+  
   A party is a pre-lobby grouping mechanism. Players form a party before
   creating or joining a lobby together.
-
+  
   ## Usage
-
+  
       # Create a party (user becomes leader and first member)
       {:ok, party} = GameServer.Parties.create_party(user, %{max_size: 4})
-
+  
       # Leader invites a friend or shared-group member by user_id
-      {:ok, _party_invite} = GameServer.Parties.invite_to_party(leader, target_user_id)
-
+      {:ok, _notification} = GameServer.Parties.invite_to_party(leader, target_user_id)
+  
       # Target accepts the invite
       {:ok, party} = GameServer.Parties.accept_party_invite(target, party_id)
-
+  
       # Or declines
       :ok = GameServer.Parties.decline_party_invite(target, party_id)
-
+  
       # Leave a party (if leader leaves, party is disbanded)
       {:ok, _} = GameServer.Parties.leave_party(user)
-
+  
       # Party leader creates a lobby — all members join atomically
       {:ok, lobby} = GameServer.Parties.create_lobby_with_party(user, lobby_attrs)
-
+  
       # Party leader joins an existing lobby — all members join atomically
       {:ok, lobby} = GameServer.Parties.join_lobby_with_party(user, lobby_id, opts)
-
+  
   ## PubSub Events
-
+  
   This module broadcasts the following events:
-
+  
   - `"party:<party_id>"` topic:
     - `{:party_member_joined, party_id, user_id}`
     - `{:party_member_left, party_id, user_id}`
     - `{:party_disbanded, party_id}`
     - `{:party_updated, party}`
-
+  
 
   **Note:** This is an SDK stub. Calling these functions will raise an error.
   The actual implementation runs on the GameServer.
@@ -47,10 +47,10 @@ defmodule GameServer.Parties do
 
   @doc ~S"""
     Accept a party invite. Joins the party and marks the invite as accepted.
-
+    
     Returns `{:error, :no_invite}` if no pending invite exists for that party.
     Returns `{:error, :already_in_party}` if the user is already in another party.
-
+    
   """
   @spec accept_party_invite(GameServer.Accounts.User.t(), integer()) ::
   {:ok, GameServer.Parties.Party.t()} | {:error, atom()}
@@ -98,7 +98,7 @@ defmodule GameServer.Parties do
 
   @doc ~S"""
     Cancel a previously sent party invite. Only the original sender (leader) can cancel.
-
+    
   """
   @spec cancel_party_invite(GameServer.Accounts.User.t(), integer()) :: :ok | {:error, atom()}
   def cancel_party_invite(_leader, _target_user_id) do
@@ -175,9 +175,9 @@ defmodule GameServer.Parties do
   @doc ~S"""
     The party leader creates a new lobby, and all party members join it
     atomically. The party is kept intact.
-
+    
     The lobby's `max_users` must be >= party member count.
-
+    
   """
   @spec create_lobby_with_party(GameServer.Accounts.User.t(), map()) :: {:ok, map()} | {:error, term()}
   def create_lobby_with_party(_user, _lobby_attrs) do
@@ -193,9 +193,9 @@ defmodule GameServer.Parties do
 
   @doc ~S"""
     Create a new party. The user becomes the leader and first member.
-
+    
     Returns `{:error, :already_in_party}` if the user is already in a party.
-
+    
   """
   @spec create_party(GameServer.Accounts.User.t(), map()) ::
   {:ok, GameServer.Parties.Party.t()} | {:error, term()}
@@ -212,7 +212,7 @@ defmodule GameServer.Parties do
 
   @doc ~S"""
     Decline a party invite. Marks the invite as declined.
-
+    
   """
   @spec decline_party_invite(GameServer.Accounts.User.t(), integer()) :: :ok | {:error, atom()}
   def decline_party_invite(_user, _party_id) do
@@ -288,18 +288,18 @@ defmodule GameServer.Parties do
 
   @doc ~S"""
     Invite a user to join the party. Only the party leader may invite.
-
+    
     The target user must be a friend of the leader, or share at least one group
     with the leader. A `PartyInvite` record is created and an informational
     notification is sent. The invite is independent of the notification —
     deleting notifications does not affect pending invites.
-
+    
     Returns `{:error, :not_in_party}` if the caller is not in a party.
     Returns `{:error, :not_leader}` if the caller is not the party leader.
     Returns `{:error, :not_connected}` if the target is not a friend or shared group member.
     Returns `{:error, :already_in_party}` if the target is already in a party.
     Returns `{:error, :already_invited}` if a pending invite already exists.
-
+    
   """
   @spec invite_to_party(GameServer.Accounts.User.t(), integer()) ::
   {:ok, GameServer.Parties.PartyInvite.t()} | {:error, atom()}
@@ -317,9 +317,9 @@ defmodule GameServer.Parties do
   @doc ~S"""
     The party leader joins an existing lobby, and all party members join it
     atomically. The party is kept intact.
-
+    
     The lobby must have enough free slots for the entire party.
-
+    
   """
   @spec join_lobby_with_party(GameServer.Accounts.User.t(), integer(), map()) ::
   {:ok, map()} | {:error, term()}
@@ -336,7 +336,7 @@ defmodule GameServer.Parties do
 
   @doc ~S"""
     Kick a member from the party. Only the leader can kick.
-
+    
   """
   @spec kick_member(GameServer.Accounts.User.t(), integer()) ::
   {:ok, GameServer.Accounts.User.t()} | {:error, term()}
@@ -353,10 +353,10 @@ defmodule GameServer.Parties do
 
   @doc ~S"""
     Leave the current party.
-
+    
     If the user is the party leader, the party is disbanded (all members removed,
     party deleted). Regular members are simply removed.
-
+    
   """
   @spec leave_party(GameServer.Accounts.User.t()) :: {:ok, :left | :disbanded} | {:error, term()}
   def leave_party(_user) do
@@ -390,7 +390,7 @@ defmodule GameServer.Parties do
 
   @doc ~S"""
     List pending party invites for the given user.
-
+    
   """
   @spec list_party_invitations(GameServer.Accounts.User.t()) :: [map()]
   def list_party_invitations(_user) do
@@ -406,9 +406,9 @@ defmodule GameServer.Parties do
 
   @doc ~S"""
     List pending party invites sent by the given leader.
-
+    
     Returns invitations the leader has sent that have not yet been accepted or declined.
-
+    
   """
   @spec list_sent_party_invitations(GameServer.Accounts.User.t()) :: [map()]
   def list_sent_party_invitations(_leader) do
@@ -469,7 +469,7 @@ defmodule GameServer.Parties do
 
   @doc ~S"""
     Update party settings. Only the leader can update.
-
+    
   """
   @spec update_party(GameServer.Accounts.User.t(), map()) ::
   {:ok, GameServer.Parties.Party.t()} | {:error, term()}

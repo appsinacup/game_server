@@ -53,7 +53,10 @@ defmodule GameServer.Lobbies.Lobby do
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
     |> validate_length(:title, min: 1, max: GameServer.Limits.get(:max_lobby_title))
-    |> validate_number(:max_users, greater_than: 0, less_than_or_equal_to: GameServer.Limits.get(:max_lobby_users))
+    |> validate_number(:max_users,
+      greater_than: 0,
+      less_than_or_equal_to: GameServer.Limits.get(:max_lobby_users)
+    )
     |> validate_number(:slowdown, greater_than_or_equal_to: 0, less_than_or_equal_to: 3600)
     |> validate_length(:password_hash, max: 256)
     |> GameServer.Limits.validate_metadata_size(:metadata)

@@ -322,6 +322,22 @@ defmodule GameServer.Accounts do
 
 
   @doc ~S"""
+    Counts tokens for a given user.
+    
+  """
+  @spec count_user_tokens(integer()) :: non_neg_integer()
+  def count_user_tokens(_user_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Accounts.count_user_tokens/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Returns the total number of users.
     
   """
@@ -1017,6 +1033,25 @@ defmodule GameServer.Accounts do
 
 
   @doc ~S"""
+    Lists tokens for a given user, optionally filtered by context.
+    
+  """
+  @spec list_user_tokens(
+  integer(),
+  keyword()
+) :: [GameServer.Accounts.UserToken.t()]
+  def list_user_tokens(_user_id, _opts) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Accounts.list_user_tokens/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Logs the user in by magic link.
     
     There are three cases to consider:
@@ -1124,6 +1159,22 @@ defmodule GameServer.Accounts do
 
       _ ->
         raise "GameServer.Accounts.register_user_and_deliver/3 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Revokes all session tokens for a user (mass logout).
+    
+  """
+  @spec revoke_all_user_sessions(integer()) :: {non_neg_integer(), nil}
+  def revoke_all_user_sessions(_user_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Accounts.revoke_all_user_sessions/1 is a stub - only available at runtime on GameServer"
     end
   end
 

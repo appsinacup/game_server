@@ -1084,6 +1084,7 @@ defmodule GameServer.Groups do
         import Ecto.Query
 
         max_invites = GameServer.Limits.get(:max_group_pending_invites)
+
         pending_count =
           Repo.one(
             from(i in GroupInvite,
@@ -1096,43 +1097,43 @@ defmodule GameServer.Groups do
           {:error, :too_many_pending_invites}
         else
           # Delete any existing invite for this recipient + group (regardless of status)
-        # to avoid unique constraint violations on re-invites after accept/decline
-        from(i in GroupInvite,
-          where: i.recipient_id == ^target_user_id and i.group_id == ^group_id
-        )
-        |> Repo.delete_all()
+          # to avoid unique constraint violations on re-invites after accept/decline
+          from(i in GroupInvite,
+            where: i.recipient_id == ^target_user_id and i.group_id == ^group_id
+          )
+          |> Repo.delete_all()
 
-        sender = GameServer.Accounts.get_user(admin_id)
-        target = GameServer.Accounts.get_user(target_user_id)
+          sender = GameServer.Accounts.get_user(admin_id)
+          target = GameServer.Accounts.get_user(target_user_id)
 
-        case %GroupInvite{}
-             |> GroupInvite.changeset(%{
-               group_id: group_id,
-               sender_id: admin_id,
-               recipient_id: target_user_id
-             })
-             |> Repo.insert() do
-          {:ok, invite} ->
-            # Send an informational notification (independent of the invite record)
-            GameServer.Notifications.admin_create_notification(admin_id, target_user_id, %{
-              "title" => "group_invite",
-              "content" => "You have been invited to join group: #{group.title}",
-              "metadata" => %{
-                "group_id" => group_id,
-                "group_name" => group.title,
-                "sender_name" => sender && sender.display_name,
-                "recipient_name" => target && target.display_name
-              }
-            })
+          case %GroupInvite{}
+               |> GroupInvite.changeset(%{
+                 group_id: group_id,
+                 sender_id: admin_id,
+                 recipient_id: target_user_id
+               })
+               |> Repo.insert() do
+            {:ok, invite} ->
+              # Send an informational notification (independent of the invite record)
+              GameServer.Notifications.admin_create_notification(admin_id, target_user_id, %{
+                "title" => "group_invite",
+                "content" => "You have been invited to join group: #{group.title}",
+                "metadata" => %{
+                  "group_id" => group_id,
+                  "group_name" => group.title,
+                  "sender_name" => sender && sender.display_name,
+                  "recipient_name" => target && target.display_name
+                }
+              })
 
-            invalidate_invite_cache(admin_id)
-            invalidate_invite_cache(target_user_id)
+              invalidate_invite_cache(admin_id)
+              invalidate_invite_cache(target_user_id)
 
-            {:ok, invite}
+              {:ok, invite}
 
-          {:error, changeset} ->
-            {:error, changeset}
-        end
+            {:error, changeset} ->
+              {:error, changeset}
+          end
         end
     end
   end

@@ -18,7 +18,7 @@ defmodule GameServerWeb.AdminLive.Config do
         <.link navigate={~p"/admin"} class="btn btn-outline mb-4">
           ← Back to Admin
         </.link>
-
+        
     <!-- Current Configuration Status -->
         <div class="card bg-base-100 shadow-xl" data-card-key="config_status">
           <div class="card-body">
@@ -881,7 +881,7 @@ defmodule GameServerWeb.AdminLive.Config do
                             <% end %>
                           </div>
                         </div>
-
+                        
     <!-- Full docs modal / pane -->
                         <%= if @hooks_full_doc do %>
                           <div class="mt-2 p-3 border rounded bg-base-100">
@@ -908,7 +908,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-
+        
     <!-- Limits & Validation -->
         <div class="card bg-base-100 shadow-xl" data-card-key="limits">
           <div class="card-body">
@@ -934,7 +934,8 @@ defmodule GameServerWeb.AdminLive.Config do
             </h2>
 
             <p class="text-sm opacity-70 mb-4">
-              Override any limit at boot via env vars: <code class="font-mono text-xs">LIMIT_&lt;KEY&gt;=value</code>
+              Override any limit at boot via env vars:
+              <code class="font-mono text-xs">LIMIT_&lt;KEY&gt;=value</code>
               (e.g. <code class="font-mono text-xs">LIMIT_MAX_METADATA_SIZE=32768</code>).
             </p>
 
@@ -976,7 +977,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-
+        
     <!-- Admin Tools -->
         <div class="card bg-base-100 shadow-xl" data-card-key="admin_tools">
           <div class="card-body">
@@ -1033,7 +1034,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-
+        
     <!-- Scheduled Jobs -->
         <div class="card bg-base-100 shadow-xl" data-card-key="scheduled_jobs">
           <div class="card-body">
@@ -1842,8 +1843,7 @@ defmodule GameServerWeb.AdminLive.Config do
     "User" => ~w(max_display_name max_email max_profile_url max_device_id)a,
     "Groups" =>
       ~w(max_group_title max_group_description max_group_members max_groups_per_user max_groups_created_per_user max_group_pending_invites)a,
-    "Lobbies" =>
-      ~w(max_lobby_title max_lobby_users max_lobby_password)a,
+    "Lobbies" => ~w(max_lobby_title max_lobby_users max_lobby_password)a,
     "Parties" => ~w(max_party_size max_party_pending_invites)a,
     "Chat" => ~w(max_chat_content)a,
     "Notifications" =>
@@ -1851,8 +1851,7 @@ defmodule GameServerWeb.AdminLive.Config do
     "Friends" => ~w(max_friends_per_user max_pending_friend_requests)a,
     "Hooks" => ~w(max_hook_args_size max_hook_args_count)a,
     "KV" => ~w(max_kv_key max_kv_value_size max_kv_entries_per_user)a,
-    "Leaderboards" =>
-      ~w(max_leaderboard_title max_leaderboard_description max_leaderboard_slug)a
+    "Leaderboards" => ~w(max_leaderboard_title max_leaderboard_description max_leaderboard_slug)a
   }
 
   @category_order ~w(Global User Groups Lobbies Parties Chat Notifications Friends Hooks KV Leaderboards)

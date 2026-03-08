@@ -124,14 +124,20 @@ defmodule GameServer.Limits do
   def clamp_page_size(raw, default \\ 25) do
     parsed =
       case raw do
-        nil -> default
-        val when is_integer(val) -> val
+        nil ->
+          default
+
+        val when is_integer(val) ->
+          val
+
         val when is_binary(val) ->
           case Integer.parse(val) do
             {n, _} -> n
             :error -> default
           end
-        _ -> default
+
+        _ ->
+          default
       end
 
     max(1, min(parsed, get(:max_page_size)))
@@ -144,14 +150,20 @@ defmodule GameServer.Limits do
   def clamp_page(raw) do
     parsed =
       case raw do
-        nil -> 1
-        val when is_integer(val) -> val
+        nil ->
+          1
+
+        val when is_integer(val) ->
+          val
+
         val when is_binary(val) ->
           case Integer.parse(val) do
             {n, _} -> n
             :error -> 1
           end
-        _ -> 1
+
+        _ ->
+          1
       end
 
     max(1, parsed)

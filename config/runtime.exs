@@ -68,7 +68,9 @@ _limit_overrides =
     env_name = "LIMIT_#{key |> Atom.to_string() |> String.upcase()}"
 
     case System.get_env(env_name) do
-      nil -> acc
+      nil ->
+        acc
+
       val ->
         case Integer.parse(val) do
           {n, _} -> [{key, n} | acc]
