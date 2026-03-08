@@ -46,7 +46,7 @@ defmodule GameServer.Parties do
 
 
   @doc ~S"""
-    Accept a party invite. Joins the party and removes the invite notification.
+    Accept a party invite. Joins the party and marks the invite as accepted.
     
     Returns `{:error, :no_invite}` if no pending invite exists for that party.
     Returns `{:error, :already_in_party}` if the user is already in another party.
@@ -211,7 +211,7 @@ defmodule GameServer.Parties do
 
 
   @doc ~S"""
-    Decline a party invite. Simply removes the invite notification.
+    Decline a party invite. Marks the invite as declined.
     
   """
   @spec decline_party_invite(GameServer.Accounts.User.t(), integer()) :: :ok | {:error, atom()}
@@ -290,8 +290,9 @@ defmodule GameServer.Parties do
     Invite a user to join the party. Only the party leader may invite.
     
     The target user must be a friend of the leader, or share at least one group
-    with the leader. A pending notification is created; the target accepts or
-    declines via `accept_invite/2` / `decline_invite/2`.
+    with the leader. A `PartyInvite` record is created and an informational
+    notification is sent. The invite is independent of the notification —
+    deleting notifications does not affect pending invites.
     
     Returns `{:error, :not_in_party}` if the caller is not in a party.
     Returns `{:error, :not_leader}` if the caller is not the party leader.
@@ -300,7 +301,8 @@ defmodule GameServer.Parties do
     Returns `{:error, :already_invited}` if a pending invite already exists.
     
   """
-  @spec invite_to_party(GameServer.Accounts.User.t(), integer()) :: {:ok, map()} | {:error, atom()}
+  @spec invite_to_party(GameServer.Accounts.User.t(), integer()) ::
+  {:ok, GameServer.Parties.PartyInvite.t()} | {:error, atom()}
   def invite_to_party(_leader, _target_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->

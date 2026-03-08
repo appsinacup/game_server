@@ -466,12 +466,25 @@ defmodule GameServer.GroupsTest do
         GameServer.Accounts.update_user_display_name(other, %{"display_name" => "OtherName"})
 
       {:ok, group} = Groups.create_group(owner.id, %{"title" => "MetaGrp", "type" => "hidden"})
-      {:ok, notification} = Groups.invite_to_group(owner.id, group.id, other.id)
+      {:ok, invite} = Groups.invite_to_group(owner.id, group.id, other.id)
 
+      # invite_to_group now returns a GroupInvite struct;
+      # verify the informational notification was also created
+      notifications =
+        GameServer.Notifications.list_notifications_by_title(other.id, "group_invite")
+
+      assert length(notifications) == 1
+      notification = hd(notifications)
       assert notification.metadata["sender_name"] == "OwnerName"
       assert notification.metadata["recipient_name"] == "OtherName"
       assert notification.metadata["group_id"] == group.id
       assert notification.metadata["group_name"] == group.title
+
+      # Also verify the invite record itself
+      assert invite.sender_id == owner.id
+      assert invite.recipient_id == other.id
+      assert invite.group_id == group.id
+      assert invite.status == "pending"
     end
   end
 
@@ -485,6 +498,8 @@ defmodule GameServer.GroupsTest do
 
     test "cannot accept invite for non-hidden group", %{owner: owner, other: other} do
       {:ok, group} = Groups.create_group(owner.id, %{"title" => "PubNoInv", "type" => "public"})
+      # Create an invite (even though the group is public, for testing the type check)
+      {:ok, _} = Groups.invite_to_group(owner.id, group.id, other.id)
       assert {:error, :not_hidden} = Groups.accept_invite(other.id, group.id)
     end
 
@@ -492,7 +507,8 @@ defmodule GameServer.GroupsTest do
       {:ok, group} = Groups.create_group(owner.id, %{"title" => "AlrIn", "type" => "hidden"})
       {:ok, _} = Groups.invite_to_group(owner.id, group.id, other.id)
       {:ok, _} = Groups.accept_invite(other.id, group.id)
-      assert {:error, :already_member} = Groups.accept_invite(other.id, group.id)
+      # Invite is now consumed (status: accepted), so second accept returns :no_invite
+      assert {:error, :no_invite} = Groups.accept_invite(other.id, group.id)
     end
 
     test "cannot accept invite for non-existent group", %{owner: owner} do

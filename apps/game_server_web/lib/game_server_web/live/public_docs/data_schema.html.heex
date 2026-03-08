@@ -122,14 +122,28 @@
     )</pre>
       </div>
       <p class="text-sm text-base-content/80 mt-1 pl-1">
-        {doc_text("Party invites are stored in the notifications table with")}
-        <code class="font-mono">title = "party_invite"</code>
-        {doc_text("and")}
-        <code class="font-mono">metadata.party_id</code>
+        {doc_text("Party membership is tracked via the")}
+        <code class="font-mono">party_id</code>
+        {doc_text("field on the users table. Party invites are stored in the dedicated")}
+        <code class="font-mono">party_invites</code>
         {doc_text(
-          "set to the party's ID. The sender_id is the inviting leader; recipient_id is the invited user. Invites are removed on accept, decline, or cancel."
+          "table — independent from notifications. An informational notification is also sent when an invite is created, but deleting the notification does not affect the invite."
         )}
       </p>
+
+      <h4 class="font-semibold mt-3">{doc_text("Party Invites")}</h4>
+      <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+        <pre>
+    party_invites (
+      id           : integer (primary key)
+      party_id     : integer (FK to parties)
+      sender_id    : integer (FK to users, the inviting leader)
+      recipient_id : integer (FK to users, the invited user)
+      status       : string ("pending" | "accepted" | "declined" | "cancelled")
+      inserted_at  : utc_datetime
+      updated_at   : utc_datetime
+    )</pre>
+      </div>
 
       <h4 class="font-semibold mt-3">{doc_text("Leaderboards")}</h4>
       <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
@@ -171,15 +185,17 @@
       recipient_id : integer (FK to users)
       title        : string (notification type/category)
       content      : string (message body)
-      metadata     : jsonb/map (optional, e.g. invite data)
+      metadata     : jsonb/map (optional, e.g. context data)
       inserted_at  : utc_datetime
       updated_at   : utc_datetime
     )
 
-    Well-known notification titles and their metadata shapes:
-      "friend_request"   — metadata: {}
-      "group_invite"     — metadata: { group_id: integer }
-      "party_invite"     — metadata: { party_id: integer }</pre>
+    Well-known notification titles:
+      "friend_request"        — metadata: {}
+      "group_invite"          — informational (invite stored in group_invites table)
+      "party_invite"          — informational (invite stored in party_invites table)
+      "group_notification"    — metadata: { group_id, group_name }
+      "New messages from ..." — metadata: { chat_type, group_id|lobby_id }</pre>
       </div>
 
       <h4 class="font-semibold mt-3">{doc_text("Groups")}</h4>
@@ -213,6 +229,16 @@
       status      : string ("pending" | "accepted" | "rejected")
       inserted_at : utc_datetime
       updated_at  : utc_datetime
+    )
+
+    group_invites (
+      id           : integer (primary key)
+      group_id     : integer (FK to groups)
+      sender_id    : integer (FK to users, the inviting admin)
+      recipient_id : integer (FK to users, the invited user)
+      status       : string ("pending" | "accepted" | "declined" | "cancelled")
+      inserted_at  : utc_datetime
+      updated_at   : utc_datetime
     )</pre>
       </div>
 

@@ -91,10 +91,13 @@ defmodule GameServerWeb.Api.V1.GroupController do
   @invitation_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :integer, description: "Notification ID"},
+      id: %Schema{type: :integer, description: "Invite ID"},
       group_id: %Schema{type: :integer},
       group_name: %Schema{type: :string},
       sender_id: %Schema{type: :integer},
+      sender_name: %Schema{type: :string, nullable: true},
+      recipient_id: %Schema{type: :integer},
+      recipient_name: %Schema{type: :string, nullable: true},
       inserted_at: %Schema{type: :string, format: :"date-time"}
     }
   }
@@ -475,7 +478,8 @@ defmodule GameServerWeb.Api.V1.GroupController do
     operation_id: "invite_to_group",
     summary: "Invite a user to a hidden group (admin only)",
     description:
-      "Send an invitation notification to a user for a hidden group. The user can then accept it.",
+      "Send an invitation to a user for a hidden group. Creates a GroupInvite record " <>
+        "and sends an informational notification. The invite is independent of notifications.",
     security: [%{"authorization" => []}],
     parameters: [
       id: [in: :path, schema: %Schema{type: :integer}, description: "Group ID", required: true]
@@ -502,7 +506,8 @@ defmodule GameServerWeb.Api.V1.GroupController do
   operation(:accept_invite,
     operation_id: "accept_group_invite",
     summary: "Accept a group invitation",
-    description: "Accept an invitation to join a hidden group.",
+    description:
+      "Accept an invitation to join a hidden group. Requires a pending GroupInvite record.",
     security: [%{"authorization" => []}],
     parameters: [
       id: [in: :path, schema: %Schema{type: :integer}, description: "Group ID", required: true]
@@ -519,7 +524,8 @@ defmodule GameServerWeb.Api.V1.GroupController do
   operation(:invitations,
     operation_id: "list_group_invitations",
     summary: "List my group invitations",
-    description: "List pending group invitations for the authenticated user, with pagination.",
+    description:
+      "List pending group invitations (GroupInvite records) for the authenticated user, with pagination.",
     security: [%{"authorization" => []}],
     parameters: [
       page: [in: :query, schema: %Schema{type: :integer}, description: "Page number (default: 1)"],
@@ -573,7 +579,8 @@ defmodule GameServerWeb.Api.V1.GroupController do
   operation(:sent_invitations,
     operation_id: "list_sent_invitations",
     summary: "List group invitations I have sent",
-    description: "List group invitations sent by the authenticated user, with pagination.",
+    description:
+      "List group invitations (GroupInvite records) sent by the authenticated user, with pagination.",
     security: [%{"authorization" => []}],
     parameters: [
       page: [in: :query, schema: %Schema{type: :integer}, description: "Page number (default: 1)"],
@@ -620,7 +627,7 @@ defmodule GameServerWeb.Api.V1.GroupController do
       invite_id: [
         in: :path,
         type: :integer,
-        description: "Notification ID of the invitation to cancel",
+        description: "ID of the GroupInvite to cancel",
         required: true
       ]
     ],

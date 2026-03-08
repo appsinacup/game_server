@@ -120,8 +120,15 @@ defmodule GameServer.PartiesTest do
 
       {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
       make_friends(leader, member1)
-      {:ok, notification} = Parties.invite_to_party(leader, member1.id)
+      {:ok, invite} = Parties.invite_to_party(leader, member1.id)
 
+      # invite_to_party now returns a PartyInvite record
+      assert invite.sender_id == leader.id
+      assert invite.recipient_id == member1.id
+      assert invite.status == "pending"
+
+      # Verify the informational notification was also created with metadata
+      [notification] = GameServer.Notifications.list_notifications(member1.id)
       assert notification.metadata["sender_name"] == "LeaderDisplay"
       assert notification.metadata["recipient_name"] == "Member1Display"
     end

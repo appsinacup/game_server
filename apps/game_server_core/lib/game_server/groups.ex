@@ -54,6 +54,7 @@ defmodule GameServer.Groups do
 
   alias GameServer.Friends
   alias GameServer.Groups.Group
+  alias GameServer.Groups.GroupInvite
   alias GameServer.Groups.GroupJoinRequest
   alias GameServer.Groups.GroupMember
   alias GameServer.Repo
@@ -117,6 +118,23 @@ defmodule GameServer.Groups do
   @spec invalidate_group_cache_public(integer()) :: :ok
   def invalidate_group_cache_public(group_id) when is_integer(group_id) do
     invalidate_group_cache(group_id)
+  end
+
+  # -- Invite cache (version-based, keyed by user_id) --
+
+  @invite_cache_ttl_ms 60_000
+
+  defp invite_cache_version(user_id) when is_integer(user_id) do
+    GameServer.Cache.get({:group_invites, :version, user_id}) || 1
+  end
+
+  defp invalidate_invite_cache(user_id) when is_integer(user_id) do
+    GameServer.Async.run(fn ->
+      _ = GameServer.Cache.incr({:group_invites, :version, user_id}, 1, default: 1)
+      :ok
+    end)
+
+    :ok
   end
 
   # ---------------------------------------------------------------------------
@@ -335,12 +353,16 @@ defmodule GameServer.Groups do
 
   @doc "Count pending invitations for a user."
   @spec count_invitations(integer()) :: non_neg_integer()
+  @decorate cacheable(
+              key: {:group_invites, :count, invite_cache_version(user_id), user_id},
+              opts: [ttl: @invite_cache_ttl_ms]
+            )
   def count_invitations(user_id) when is_integer(user_id) do
     import Ecto.Query
 
-    from(n in GameServer.Notifications.Notification,
-      where: n.recipient_id == ^user_id and n.title == "group_invite",
-      select: count(n.id)
+    from(i in GroupInvite,
+      where: i.recipient_id == ^user_id and i.status == "pending",
+      select: count(i.id)
     )
     |> Repo.one()
     |> Kernel.||(0)
@@ -348,12 +370,16 @@ defmodule GameServer.Groups do
 
   @doc "Count group invitations sent by a user."
   @spec count_sent_invitations(integer()) :: non_neg_integer()
+  @decorate cacheable(
+              key: {:group_invites, :count_sent, invite_cache_version(user_id), user_id},
+              opts: [ttl: @invite_cache_ttl_ms]
+            )
   def count_sent_invitations(user_id) when is_integer(user_id) do
     import Ecto.Query
 
-    from(n in GameServer.Notifications.Notification,
-      where: n.sender_id == ^user_id and n.title == "group_invite",
-      select: count(n.id)
+    from(i in GroupInvite,
+      where: i.sender_id == ^user_id and i.status == "pending",
+      select: count(i.id)
     )
     |> Repo.one()
     |> Kernel.||(0)
@@ -1003,12 +1029,12 @@ defmodule GameServer.Groups do
   # ---------------------------------------------------------------------------
 
   @doc """
-  Invite a user to a hidden group by sending a notification with metadata.
-  The notification system handles delivery; this creates the notification with
-  a special title so the client can recognise it as a group invite.
+  Invite a user to a hidden group. Creates a `GroupInvite` record and sends
+  an informational notification. The invite record is independent of the
+  notification — deleting notifications does not affect pending invites.
   """
   @spec invite_to_group(integer(), integer(), integer()) ::
-          {:ok, term()} | {:error, atom()}
+          {:ok, GroupInvite.t()} | {:error, atom()}
   def invite_to_group(admin_id, group_id, target_user_id)
       when is_integer(admin_id) and is_integer(group_id) and is_integer(target_user_id) do
     group = get_group(group_id)
@@ -1027,35 +1053,76 @@ defmodule GameServer.Groups do
         {:error, :blocked}
 
       true ->
+        import Ecto.Query
+
+        # Delete any existing pending invite for this recipient + group
+        from(i in GroupInvite,
+          where:
+            i.recipient_id == ^target_user_id and i.group_id == ^group_id and
+              i.status == "pending"
+        )
+        |> Repo.delete_all()
+
         sender = GameServer.Accounts.get_user(admin_id)
         target = GameServer.Accounts.get_user(target_user_id)
 
-        GameServer.Notifications.admin_create_notification(admin_id, target_user_id, %{
-          "title" => "group_invite",
-          "content" => "You have been invited to join group: #{group.title}",
-          "metadata" => %{
-            "group_id" => group_id,
-            "group_name" => group.title,
-            "sender_name" => sender && sender.display_name,
-            "recipient_name" => target && target.display_name
-          }
-        })
+        case %GroupInvite{}
+             |> GroupInvite.changeset(%{
+               group_id: group_id,
+               sender_id: admin_id,
+               recipient_id: target_user_id
+             })
+             |> Repo.insert() do
+          {:ok, invite} ->
+            # Send an informational notification (independent of the invite record)
+            GameServer.Notifications.admin_create_notification(admin_id, target_user_id, %{
+              "title" => "group_invite",
+              "content" => "You have been invited to join group: #{group.title}",
+              "metadata" => %{
+                "group_id" => group_id,
+                "group_name" => group.title,
+                "sender_name" => sender && sender.display_name,
+                "recipient_name" => target && target.display_name
+              }
+            })
+
+            invalidate_invite_cache(admin_id)
+            invalidate_invite_cache(target_user_id)
+
+            {:ok, invite}
+
+          {:error, changeset} ->
+            {:error, changeset}
+        end
     end
   end
 
   @doc """
-  Accept a group invite (for hidden groups). The user must have a group_invite
-  notification containing the group_id.
+  Accept a group invite (for hidden groups). The user must have a pending
+  `GroupInvite` for the group.
   """
   @spec accept_invite(integer(), integer()) ::
           {:ok, GroupMember.t()} | {:error, atom()}
   def accept_invite(user_id, group_id)
       when is_integer(user_id) and is_integer(group_id) do
+    import Ecto.Query
     group = get_group(group_id)
+
+    invite =
+      Repo.one(
+        from i in GroupInvite,
+          where:
+            i.recipient_id == ^user_id and i.group_id == ^group_id and
+              i.status == "pending",
+          limit: 1
+      )
 
     cond do
       is_nil(group) ->
         {:error, :not_found}
+
+      is_nil(invite) ->
+        {:error, :no_invite}
 
       group.type != "hidden" ->
         {:error, :not_hidden}
@@ -1066,33 +1133,23 @@ defmodule GameServer.Groups do
       true ->
         case do_add_group_member(user_id, group_id, group, "invite_accept") do
           {:ok, member} ->
-            delete_group_invite_notifications(user_id, group_id)
+            # Mark all pending invites for this user + group as accepted
+            from(i in GroupInvite,
+              where:
+                i.recipient_id == ^user_id and i.group_id == ^group_id and
+                  i.status == "pending"
+            )
+            |> Repo.update_all(set: [status: "accepted", updated_at: DateTime.utc_now()])
+
+            invalidate_invite_cache(user_id)
+            invalidate_invite_cache(invite.sender_id)
+
             {:ok, member}
 
           error ->
             error
         end
     end
-  end
-
-  defp delete_group_invite_notifications(user_id, group_id) do
-    import Ecto.Query
-
-    notifications =
-      Repo.all(
-        from n in GameServer.Notifications.Notification,
-          where: n.recipient_id == ^user_id and n.title == "group_invite"
-      )
-      |> Enum.filter(fn n -> get_in(n.metadata, ["group_id"]) == group_id end)
-
-    if notifications != [] do
-      ids = Enum.map(notifications, & &1.id)
-
-      from(n in GameServer.Notifications.Notification, where: n.id in ^ids)
-      |> Repo.delete_all()
-    end
-
-    GameServer.Notifications.invalidate_notifications_cache(user_id)
   end
 
   # Shared helper: acquire advisory lock, check capacity, run hook, insert member.
@@ -1130,25 +1187,70 @@ defmodule GameServer.Groups do
   # ---------------------------------------------------------------------------
 
   @doc """
-  List pending group invitations for a user. These are notifications with
-  title `"group_invite"` and a metadata `group_id`.
+  List pending group invitations for a user.
   """
   @spec list_invitations(integer(), keyword()) :: [map()]
   def list_invitations(user_id, opts \\ []) when is_integer(user_id) do
-    GameServer.Notifications.list_notifications_by_title(user_id, "group_invite")
-    |> paginate_list(opts)
-    |> Enum.map(&serialize_invite_notification/1)
+    page = Keyword.get(opts, :page, 1)
+    page_size = Keyword.get(opts, :page_size, 25)
+
+    do_list_invitations(user_id, page, page_size)
+  end
+
+  @decorate cacheable(
+              key:
+                {:group_invites, :list, invite_cache_version(user_id), user_id, page, page_size},
+              opts: [ttl: @invite_cache_ttl_ms]
+            )
+  defp do_list_invitations(user_id, page, page_size) do
+    import Ecto.Query
+
+    from(i in GroupInvite,
+      where: i.recipient_id == ^user_id and i.status == "pending",
+      join: g in assoc(i, :group),
+      join: s in assoc(i, :sender),
+      join: r in assoc(i, :recipient),
+      order_by: [desc: i.inserted_at],
+      offset: ^((page - 1) * page_size),
+      limit: ^page_size,
+      preload: [group: g, sender: s, recipient: r]
+    )
+    |> Repo.all()
+    |> Enum.map(&serialize_group_invite/1)
   end
 
   @doc """
   List group invitations sent by a user.
-  Returns notifications where the user is the sender and the title is `"group_invite"`.
   """
   @spec list_sent_invitations(integer(), keyword()) :: [map()]
   def list_sent_invitations(user_id, opts \\ []) when is_integer(user_id) do
-    GameServer.Notifications.list_sent_notifications_by_title(user_id, "group_invite")
-    |> paginate_list(opts)
-    |> Enum.map(&serialize_invite_notification/1)
+    page = Keyword.get(opts, :page, 1)
+    page_size = Keyword.get(opts, :page_size, 25)
+
+    do_list_sent_invitations(user_id, page, page_size)
+  end
+
+  @decorate cacheable(
+              key:
+                {:group_invites, :list_sent, invite_cache_version(user_id), user_id, page,
+                 page_size},
+              opts: [ttl: @invite_cache_ttl_ms]
+            )
+  defp do_list_sent_invitations(user_id, page, page_size) do
+    import Ecto.Query
+
+    from(i in GroupInvite,
+      where: i.sender_id == ^user_id and i.status == "pending",
+      join: g in assoc(i, :group),
+      join: s in assoc(i, :sender),
+      join: r in assoc(i, :recipient),
+      order_by: [desc: i.inserted_at],
+      offset: ^((page - 1) * page_size),
+      limit: ^page_size,
+      preload: [group: g, sender: s, recipient: r]
+    )
+    |> Repo.all()
+    |> Enum.map(&serialize_group_invite/1)
   end
 
   @doc """
@@ -1156,20 +1258,19 @@ defmodule GameServer.Groups do
   Only the sender can cancel their own invitation.
   """
   @spec cancel_invite(integer(), integer()) :: :ok | {:error, atom()}
-  def cancel_invite(user_id, notification_id)
-      when is_integer(user_id) and is_integer(notification_id) do
-    import Ecto.Query
-
-    case Repo.get(GameServer.Notifications.Notification, notification_id) do
+  def cancel_invite(user_id, invite_id)
+      when is_integer(user_id) and is_integer(invite_id) do
+    case Repo.get(GroupInvite, invite_id) do
       nil ->
         {:error, :not_found}
 
-      %{sender_id: ^user_id, title: "group_invite"} = notification ->
-        Repo.delete(notification)
-        GameServer.Notifications.invalidate_notifications_cache(notification.recipient_id)
+      %GroupInvite{sender_id: ^user_id, status: "pending"} = invite ->
+        Repo.delete(invite)
+        invalidate_invite_cache(user_id)
+        invalidate_invite_cache(invite.recipient_id)
         :ok
 
-      %{title: "group_invite"} ->
+      %GroupInvite{status: "pending"} ->
         {:error, :not_owner}
 
       _other ->
@@ -1177,16 +1278,16 @@ defmodule GameServer.Groups do
     end
   end
 
-  defp serialize_invite_notification(n) do
+  defp serialize_group_invite(invite) do
     %{
-      id: n.id,
-      group_id: get_in(n.metadata, ["group_id"]),
-      group_name: get_in(n.metadata, ["group_name"]),
-      sender_id: n.sender_id,
-      sender_name: get_in(n.metadata, ["sender_name"]),
-      recipient_id: n.recipient_id,
-      recipient_name: get_in(n.metadata, ["recipient_name"]),
-      inserted_at: n.inserted_at
+      id: invite.id,
+      group_id: invite.group_id,
+      group_name: invite.group.title,
+      sender_id: invite.sender_id,
+      sender_name: invite.sender.display_name,
+      recipient_id: invite.recipient_id,
+      recipient_name: invite.recipient.display_name,
+      inserted_at: invite.inserted_at
     }
   end
 
@@ -1406,17 +1507,6 @@ defmodule GameServer.Groups do
       Repo.all(from g in q, limit: ^page_size, offset: ^offset)
     else
       Repo.all(q)
-    end
-  end
-
-  defp paginate_list(list, opts) do
-    page = Keyword.get(opts, :page, nil)
-    page_size = Keyword.get(opts, :page_size, nil)
-
-    if page && page_size do
-      Enum.slice(list, (page - 1) * page_size, page_size)
-    else
-      list
     end
   end
 

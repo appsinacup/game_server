@@ -581,6 +581,8 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
       owner = create_user()
       target = create_user()
       {:ok, group} = Groups.create_group(owner.id, %{"title" => "PubAccInv", "type" => "public"})
+      # Create an invite so the :no_invite check passes and :not_hidden is reached
+      {:ok, _invite} = Groups.invite_to_group(owner.id, group.id, target.id)
 
       conn =
         conn

@@ -1,8 +1,5 @@
 This is a web application written using the Phoenix web framework.
 
-# Always end interactions with confirmation.
-After completing any work or providing information, always ask the user if the task is complete and if anything else is needed. Never finish a response without this confirmation.
-
 ## Project guidelines
 
 - Use `mix precommit` alias when you are done with all changes and fix any pending issues
@@ -175,6 +172,7 @@ API routes use JWT tokens via Guardian for stateless authentication:
 - Group context: `GameServer.Groups` — key functions: `list_groups/2`, `create_group/2`, `join_group/2` (public), `request_join/2` (private), `invite_to_group/3`, `leave_group/2`, `kick_member/3`, `promote_member/3`, `demote_member/3`, `approve_request/3`, `reject_request/3`.
 - Group membership is stored in the `group_members` table with a `role` field (`"admin"` or `"member"`). The group creator becomes admin automatically.
 - Join requests are stored in the `group_join_requests` table with `status`: `"pending"`, `"approved"`, `"rejected"`.
+- **Group invites** are stored in the dedicated `group_invites` table with fields: `id`, `group_id`, `sender_id`, `recipient_id`, `status` (`"pending"`, `"accepted"`, `"declined"`, `"cancelled"`), `inserted_at`, `updated_at`. An informational notification is also sent, but the invite record is independent — deleting notifications does not affect pending invites.
 - Inviting a blocked user (or a user who blocked you) returns `{:error, :blocked}`.
 - Group creation runs through the `before_group_create(user, attrs)` hook — return `{:ok, attrs}` to allow or `{:error, reason}` to block. After creation, `after_group_create(group)` fires asynchronously. Group joining runs through the `before_group_join(user, group, opts)` hook.
 - API endpoints live under `/api/v1/groups`. Admin API under `/api/v1/admin/groups`.
@@ -185,7 +183,7 @@ API routes use JWT tokens via Guardian for stateless authentication:
 - Party context: `GameServer.Parties` — key functions: `create_party/1`, `invite_to_party/2`, `cancel_party_invite/2`, `accept_party_invite/2`, `decline_party_invite/2`, `list_party_invitations/1`, `leave_party/2`, `kick_member/3`, `promote_leader/3`, `disband_party/2`.
 - A user can only be in **one party at a time**. Creating a new party automatically leaves any existing party.
 - Each party has a unique 6-character alphanumeric `code` (auto-generated on creation). Users join parties via invite: the party leader sends an invite by user_id (only to friends or users in a shared group); the recipient then accepts or declines.
-- **Invite mechanism**: `invite_to_party/2` (leader only, target must be friend or shared group member), `accept_party_invite/2` (joins the party and removes the invite notification), `decline_party_invite/2` (removes the invite), `cancel_party_invite/2` (leader cancels a pending invite). `list_party_invitations/1` returns pending `"party_invite"` notifications.
+- **Invite mechanism**: Invites are stored in the dedicated `party_invites` table with fields: `id`, `party_id`, `sender_id`, `recipient_id`, `status` (`"pending"`, `"accepted"`, `"declined"`, `"cancelled"`), `inserted_at`, `updated_at`. An informational notification is also sent, but the invite record is independent — deleting notifications does not affect pending invites. `invite_to_party/2` (leader only, target must be friend or shared group member), `accept_party_invite/2` (joins the party and marks invite as accepted), `decline_party_invite/2` (marks invite as declined), `cancel_party_invite/2` (leader deletes pending invite). `list_party_invitations/1` returns pending PartyInvite records.
 - There is **no code-based join**. Joining is exclusively invite-based.
 - Parties can create/join lobbies as a group: `create_lobby_with_party/2`, `join_lobby_with_party/2`. These check that no party member is already in another lobby.
 - API endpoints live under `/api/v1/parties`.
@@ -621,3 +619,6 @@ apps/
 assets/                       # JS, CSS, vendor deps
 config/                       # Environment configs
 ```
+
+# **Always end interactions with confirmation.**
+After completing any work or providing information, use `ask_questions` to confirm the task is complete and ask if anything else is needed. Never finish a turn without this confirmation.

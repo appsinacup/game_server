@@ -40,6 +40,8 @@ defmodule GameServer.Parties do
   """
 
   import Ecto.Query, warn: false
+  use Nebulex.Caching, cache: GameServer.Cache
+
   require Logger
 
   alias Ecto.Multi
@@ -49,6 +51,7 @@ defmodule GameServer.Parties do
   alias GameServer.Groups
   alias GameServer.Lobbies
   alias GameServer.Parties.Party
+  alias GameServer.Parties.PartyInvite
   alias GameServer.Repo
   alias GameServer.Repo.AdvisoryLock
 
@@ -70,6 +73,25 @@ defmodule GameServer.Parties do
 
   defp broadcast_party(party_id, event) do
     Phoenix.PubSub.broadcast(GameServer.PubSub, "party:#{party_id}", event)
+  end
+
+  # ---------------------------------------------------------------------------
+  # Cache helpers
+  # ---------------------------------------------------------------------------
+
+  @party_invite_cache_ttl_ms 60_000
+
+  defp party_invite_cache_version(user_id) when is_integer(user_id) do
+    GameServer.Cache.get({:party_invites, :version, user_id}) || 1
+  end
+
+  defp invalidate_party_invite_cache(user_id) when is_integer(user_id) do
+    GameServer.Async.run(fn ->
+      _ = GameServer.Cache.incr({:party_invites, :version, user_id}, 1, default: 1)
+      :ok
+    end)
+
+    :ok
   end
 
   # ---------------------------------------------------------------------------
@@ -169,8 +191,9 @@ defmodule GameServer.Parties do
   Invite a user to join the party. Only the party leader may invite.
 
   The target user must be a friend of the leader, or share at least one group
-  with the leader. A pending notification is created; the target accepts or
-  declines via `accept_invite/2` / `decline_invite/2`.
+  with the leader. A `PartyInvite` record is created and an informational
+  notification is sent. The invite is independent of the notification —
+  deleting notifications does not affect pending invites.
 
   Returns `{:error, :not_in_party}` if the caller is not in a party.
   Returns `{:error, :not_leader}` if the caller is not the party leader.
@@ -178,7 +201,7 @@ defmodule GameServer.Parties do
   Returns `{:error, :already_in_party}` if the target is already in a party.
   Returns `{:error, :already_invited}` if a pending invite already exists.
   """
-  @spec invite_to_party(User.t(), integer()) :: {:ok, map()} | {:error, atom()}
+  @spec invite_to_party(User.t(), integer()) :: {:ok, PartyInvite.t()} | {:error, atom()}
   def invite_to_party(%User{} = leader, target_user_id) when is_integer(target_user_id) do
     leader = Accounts.get_user(leader.id)
 
@@ -189,17 +212,33 @@ defmodule GameServer.Parties do
          :ok <- check_not_already_in_party(target),
          :ok <- check_leader_connected_to_target(leader.id, target_user_id),
          :ok <- check_no_pending_invite(leader.id, target_user_id) do
-      attrs = %{
-        "title" => "party_invite",
-        "content" => "You have been invited to join a party",
-        "metadata" => %{
-          "party_id" => party.id,
-          "sender_name" => leader.display_name,
-          "recipient_name" => target.display_name
-        }
-      }
+      case %PartyInvite{}
+           |> PartyInvite.changeset(%{
+             party_id: party.id,
+             sender_id: leader.id,
+             recipient_id: target_user_id
+           })
+           |> Repo.insert() do
+        {:ok, invite} ->
+          # Send an informational notification (independent of the invite record)
+          GameServer.Notifications.admin_create_notification(leader.id, target_user_id, %{
+            "title" => "party_invite",
+            "content" => "You have been invited to join a party",
+            "metadata" => %{
+              "party_id" => party.id,
+              "sender_name" => leader.display_name,
+              "recipient_name" => target.display_name
+            }
+          })
 
-      GameServer.Notifications.admin_create_notification(leader.id, target_user_id, attrs)
+          invalidate_party_invite_cache(leader.id)
+          invalidate_party_invite_cache(target_user_id)
+
+          {:ok, invite}
+
+        {:error, changeset} ->
+          {:error, changeset}
+      end
     end
   end
 
@@ -208,65 +247,82 @@ defmodule GameServer.Parties do
   """
   @spec cancel_party_invite(User.t(), integer()) :: :ok | {:error, atom()}
   def cancel_party_invite(%User{} = leader, target_user_id) when is_integer(target_user_id) do
-    import Ecto.Query
     leader = Accounts.get_user(leader.id)
 
     with :ok <- check_in_party(leader),
          {:ok, party} <- fetch_party(leader.party_id),
          :ok <- check_is_leader(party, leader) do
-      {count, _} =
-        from(n in GameServer.Notifications.Notification,
-          where:
-            n.sender_id == ^leader.id and n.recipient_id == ^target_user_id and
-              n.title == "party_invite"
-        )
-        |> Repo.delete_all()
+      from(i in PartyInvite,
+        where:
+          i.sender_id == ^leader.id and i.recipient_id == ^target_user_id and
+            i.status == "pending"
+      )
+      |> Repo.delete_all()
 
-      if count > 0 do
-        GameServer.Notifications.invalidate_notifications_cache(target_user_id)
-      end
+      invalidate_party_invite_cache(leader.id)
+      invalidate_party_invite_cache(target_user_id)
 
       :ok
     end
   end
 
   @doc """
-  Accept a party invite. Joins the party and removes the invite notification.
+  Accept a party invite. Joins the party and marks the invite as accepted.
 
   Returns `{:error, :no_invite}` if no pending invite exists for that party.
   Returns `{:error, :already_in_party}` if the user is already in another party.
   """
   @spec accept_party_invite(User.t(), integer()) :: {:ok, Party.t()} | {:error, atom()}
   def accept_party_invite(%User{} = user, party_id) when is_integer(party_id) do
-    import Ecto.Query
     user = Accounts.get_user(user.id)
 
     invite =
-      Repo.all(
-        from n in GameServer.Notifications.Notification,
-          where: n.recipient_id == ^user.id and n.title == "party_invite"
+      Repo.one(
+        from i in PartyInvite,
+          where:
+            i.recipient_id == ^user.id and i.party_id == ^party_id and
+              i.status == "pending",
+          limit: 1
       )
-      |> Enum.find(fn n -> get_in(n.metadata, ["party_id"]) == party_id end)
 
     if is_nil(invite) do
       {:error, :no_invite}
     else
       with :ok <- check_user_not_in_party(user),
            {:ok, party} <- fetch_party(party_id),
-           {:ok, updated_user} <- do_join_party(user, party_id) do
-        delete_party_invite_notifications(updated_user.id, party_id)
+           {:ok, _updated_user} <- do_join_party(user, party_id) do
+        # Mark all pending invites for this user + party as accepted
+        from(i in PartyInvite,
+          where:
+            i.recipient_id == ^user.id and i.party_id == ^party_id and
+              i.status == "pending"
+        )
+        |> Repo.update_all(set: [status: "accepted", updated_at: DateTime.utc_now()])
+
+        invalidate_party_invite_cache(user.id)
+        invalidate_party_invite_cache(invite.sender_id)
+
         {:ok, party}
       end
     end
   end
 
   @doc """
-  Decline a party invite. Simply removes the invite notification.
+  Decline a party invite. Marks the invite as declined.
   """
   @spec decline_party_invite(User.t(), integer()) :: :ok | {:error, atom()}
   def decline_party_invite(%User{} = user, party_id) when is_integer(party_id) do
     user = Accounts.get_user(user.id)
-    delete_party_invite_notifications(user.id, party_id)
+
+    from(i in PartyInvite,
+      where:
+        i.recipient_id == ^user.id and i.party_id == ^party_id and
+          i.status == "pending"
+    )
+    |> Repo.update_all(set: [status: "declined", updated_at: DateTime.utc_now()])
+
+    invalidate_party_invite_cache(user.id)
+
     :ok
   end
 
@@ -275,17 +331,23 @@ defmodule GameServer.Parties do
   """
   @spec list_party_invitations(User.t()) :: [map()]
   def list_party_invitations(%User{} = user) do
-    GameServer.Notifications.list_notifications_by_title(user.id, "party_invite")
-    |> Enum.map(fn n ->
-      %{
-        id: n.id,
-        party_id: get_in(n.metadata, ["party_id"]),
-        sender_id: n.sender_id,
-        sender_name: get_in(n.metadata, ["sender_name"]),
-        recipient_name: get_in(n.metadata, ["recipient_name"]),
-        inserted_at: n.inserted_at
-      }
-    end)
+    do_list_party_invitations(user.id)
+  end
+
+  @decorate cacheable(
+              key: {:party_invites, :list, party_invite_cache_version(user_id), user_id},
+              opts: [ttl: @party_invite_cache_ttl_ms]
+            )
+  defp do_list_party_invitations(user_id) do
+    from(i in PartyInvite,
+      where: i.recipient_id == ^user_id and i.status == "pending",
+      join: s in assoc(i, :sender),
+      join: r in assoc(i, :recipient),
+      order_by: [desc: i.inserted_at],
+      preload: [sender: s, recipient: r]
+    )
+    |> Repo.all()
+    |> Enum.map(&serialize_party_invite/1)
   end
 
   @doc """
@@ -295,17 +357,35 @@ defmodule GameServer.Parties do
   """
   @spec list_sent_party_invitations(User.t()) :: [map()]
   def list_sent_party_invitations(%User{} = leader) do
-    GameServer.Notifications.list_sent_notifications_by_title(leader.id, "party_invite")
-    |> Enum.map(fn n ->
-      %{
-        id: n.id,
-        party_id: get_in(n.metadata, ["party_id"]),
-        recipient_id: n.recipient_id,
-        recipient_name: get_in(n.metadata, ["recipient_name"]),
-        sender_name: get_in(n.metadata, ["sender_name"]),
-        inserted_at: n.inserted_at
-      }
-    end)
+    do_list_sent_party_invitations(leader.id)
+  end
+
+  @decorate cacheable(
+              key: {:party_invites, :list_sent, party_invite_cache_version(leader_id), leader_id},
+              opts: [ttl: @party_invite_cache_ttl_ms]
+            )
+  defp do_list_sent_party_invitations(leader_id) do
+    from(i in PartyInvite,
+      where: i.sender_id == ^leader_id and i.status == "pending",
+      join: s in assoc(i, :sender),
+      join: r in assoc(i, :recipient),
+      order_by: [desc: i.inserted_at],
+      preload: [sender: s, recipient: r]
+    )
+    |> Repo.all()
+    |> Enum.map(&serialize_party_invite/1)
+  end
+
+  defp serialize_party_invite(invite) do
+    %{
+      id: invite.id,
+      party_id: invite.party_id,
+      sender_id: invite.sender_id,
+      sender_name: invite.sender.display_name,
+      recipient_id: invite.recipient_id,
+      recipient_name: invite.recipient.display_name,
+      inserted_at: invite.inserted_at
+    }
   end
 
   defp fetch_invite_target(target_user_id) do
@@ -328,39 +408,15 @@ defmodule GameServer.Parties do
   end
 
   defp check_no_pending_invite(leader_id, target_user_id) do
-    import Ecto.Query
-
     exists =
       Repo.exists?(
-        from n in GameServer.Notifications.Notification,
+        from i in PartyInvite,
           where:
-            n.sender_id == ^leader_id and n.recipient_id == ^target_user_id and
-              n.title == "party_invite"
+            i.sender_id == ^leader_id and i.recipient_id == ^target_user_id and
+              i.status == "pending"
       )
 
     if exists, do: {:error, :already_invited}, else: :ok
-  end
-
-  defp delete_party_invite_notifications(user_id, party_id) do
-    import Ecto.Query
-
-    notifications =
-      Repo.all(
-        from n in GameServer.Notifications.Notification,
-          where: n.recipient_id == ^user_id and n.title == "party_invite"
-      )
-      |> Enum.filter(fn n -> get_in(n.metadata, ["party_id"]) == party_id end)
-
-    if notifications != [] do
-      ids = Enum.map(notifications, & &1.id)
-
-      from(n in GameServer.Notifications.Notification, where: n.id in ^ids)
-      |> Repo.delete_all()
-
-      GameServer.Notifications.invalidate_notifications_cache(user_id)
-    end
-
-    :ok
   end
 
   # ---------------------------------------------------------------------------

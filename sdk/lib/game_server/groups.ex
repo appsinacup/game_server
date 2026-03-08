@@ -54,8 +54,8 @@ defmodule GameServer.Groups do
 
 
   @doc ~S"""
-    Accept a group invite (for hidden groups). The user must have a group_invite
-    notification containing the group_id.
+    Accept a group invite (for hidden groups). The user must have a pending
+    `GroupInvite` for the group.
     
   """
   @spec accept_invite(integer(), integer()) :: {:ok, GameServer.Groups.GroupMember.t()} | {:error, atom()}
@@ -138,7 +138,7 @@ defmodule GameServer.Groups do
     
   """
   @spec cancel_invite(integer(), integer()) :: :ok | {:error, atom()}
-  def cancel_invite(_user_id, _notification_id) do
+  def cancel_invite(_user_id, _invite_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
         :ok
@@ -498,12 +498,13 @@ defmodule GameServer.Groups do
 
 
   @doc ~S"""
-    Invite a user to a hidden group by sending a notification with metadata.
-    The notification system handles delivery; this creates the notification with
-    a special title so the client can recognise it as a group invite.
+    Invite a user to a hidden group. Creates a `GroupInvite` record and sends
+    an informational notification. The invite record is independent of the
+    notification — deleting notifications does not affect pending invites.
     
   """
-  @spec invite_to_group(integer(), integer(), integer()) :: {:ok, term()} | {:error, atom()}
+  @spec invite_to_group(integer(), integer(), integer()) ::
+  {:ok, GameServer.Groups.GroupInvite.t()} | {:error, atom()}
   def invite_to_group(_admin_id, _group_id, _target_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -614,8 +615,7 @@ defmodule GameServer.Groups do
 
 
   @doc ~S"""
-    List pending group invitations for a user. These are notifications with
-    title `"group_invite"` and a metadata `group_id`.
+    List pending group invitations for a user.
     
   """
   @spec list_invitations(
@@ -651,7 +651,6 @@ defmodule GameServer.Groups do
 
   @doc ~S"""
     List group invitations sent by a user.
-    Returns notifications where the user is the sender and the title is `"group_invite"`.
     
   """
   @spec list_sent_invitations(

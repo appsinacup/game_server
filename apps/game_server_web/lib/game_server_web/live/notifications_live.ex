@@ -99,7 +99,13 @@ defmodule GameServerWeb.NotificationsLive do
                     <td class="text-sm whitespace-nowrap">
                       {Calendar.strftime(n.inserted_at, "%Y-%m-%d %H:%M")}
                     </td>
-                    <td class="flex gap-1">
+                    <td class="flex gap-1 flex-wrap">
+                      <%= if action = notification_action(n) do %>
+                        <% {label, path} = action %>
+                        <.link navigate={path} class="btn btn-xs btn-outline btn-primary">
+                          {label}
+                        </.link>
+                      <% end %>
                       <%= if !n.read do %>
                         <button
                           type="button"
@@ -226,6 +232,78 @@ defmodule GameServerWeb.NotificationsLive do
   end
 
   def handle_info(_msg, socket), do: {:noreply, socket}
+
+  defp notification_action(n) do
+    cond do
+      # Group invites
+      n.title == "group_invite" ->
+        group_id = n.metadata["group_id"]
+
+        if group_id,
+          do: {gettext("View Group"), ~p"/groups/#{group_id}"},
+          else: {gettext("View Groups"), ~p"/groups"}
+
+      # Party invites
+      n.title == "party_invite" ->
+        {gettext("View Party"), ~p"/play"}
+
+      # Chat: group messages
+      n.metadata["chat_type"] == "group" ->
+        group_id = n.metadata["group_id"]
+
+        if group_id,
+          do: {gettext("Open Chat"), ~p"/chat?#{[type: "group", id: group_id]}"},
+          else: {gettext("Open Chat"), ~p"/chat"}
+
+      # Chat: friend messages
+      n.metadata["chat_type"] == "friend" ->
+        {gettext("Open Chat"), ~p"/chat"}
+
+      # Chat: lobby messages
+      n.metadata["chat_type"] == "lobby" ->
+        {gettext("Open Chat"), ~p"/lobbies"}
+
+      # Chat: party messages
+      n.metadata["chat_type"] == "party" ->
+        {gettext("View Party"), ~p"/play"}
+
+      # Friend requests
+      n.title == "Friend request" ->
+        {gettext("View Friends"), ~p"/users/settings"}
+
+      # Friend request accepted
+      n.title == "Friend request accepted" ->
+        {gettext("Open Chat"), ~p"/chat"}
+
+      # Game invites
+      n.title == "Game invite" ->
+        {gettext("View Lobbies"), ~p"/lobbies"}
+
+      # Leaderboard notifications (via metadata)
+      n.metadata["leaderboard_slug"] != nil ->
+        slug = n.metadata["leaderboard_slug"]
+        {gettext("View Leaderboard"), ~p"/leaderboards/#{slug}"}
+
+      n.metadata["leaderboard_id"] != nil ->
+        {gettext("View Leaderboards"), ~p"/leaderboards"}
+
+      # Group notifications (group_id in metadata)
+      n.metadata["group_id"] != nil ->
+        group_id = n.metadata["group_id"]
+        {gettext("View Group"), ~p"/groups/#{group_id}"}
+
+      # Lobby notifications (lobby_id in metadata)
+      n.metadata["lobby_id"] != nil ->
+        {gettext("View Lobbies"), ~p"/lobbies"}
+
+      # Party notifications (party_id in metadata)
+      n.metadata["party_id"] != nil ->
+        {gettext("View Party"), ~p"/play"}
+
+      true ->
+        nil
+    end
+  end
 
   defp reload_notifications(socket) do
     user = socket.assigns.current_scope.user

@@ -35,6 +35,39 @@ defmodule GameServerWeb.ChatLive do
   end
 
   @impl true
+  def handle_params(%{"type" => "group", "id" => id_str}, _uri, socket) do
+    if connected?(socket) do
+      gid = parse_id(id_str)
+      group = Groups.get_group(gid)
+
+      if group do
+        user = socket.assigns.user
+        socket = unsubscribe_current(socket)
+
+        Chat.subscribe_group_chat(gid)
+        mark_group_chat_read(user.id, gid)
+
+        {:noreply,
+         socket
+         |> assign(:chat_type, "group")
+         |> assign(:chat_target, gid)
+         |> assign(:chat_target_name, group.title || group.name)
+         |> assign(:page, 1)
+         |> assign(:editing_message_id, nil)
+         |> assign(:editing_message_content, "")
+         |> reload_messages()}
+      else
+        {:noreply, put_flash(socket, :error, gettext("Group not found"))}
+      end
+    else
+      {:noreply, socket}
+    end
+  end
+
+  @impl true
+  def handle_params(_params, _uri, socket), do: {:noreply, socket}
+
+  @impl true
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope} current_path={assigns[:current_path]}>
@@ -113,7 +146,7 @@ defmodule GameServerWeb.ChatLive do
             <div
               id="chat-messages"
               phx-hook="ScrollToBottom"
-              class="flex-1 overflow-y-auto space-y-2 pr-2"
+              class="flex-1 overflow-y-auto pr-2"
             >
               <div :if={@has_more} class="text-center py-2">
                 <button phx-click="load_more" class="btn btn-xs btn-ghost">
@@ -128,14 +161,15 @@ defmodule GameServerWeb.ChatLive do
               <% end %>
 
               <div
-                :for={msg <- @messages}
+                :for={{show_header, msg} <- group_messages(@messages)}
                 id={"msg-" <> to_string(msg.id)}
                 class={[
                   "flex flex-col gap-0.5",
-                  if(msg.sender_id == @user.id, do: "items-end", else: "items-start")
+                  if(msg.sender_id == @user.id, do: "items-end", else: "items-start"),
+                  if(show_header, do: "mt-3", else: "mt-0.5")
                 ]}
               >
-                <div class="text-xs text-base-content/50">
+                <div :if={show_header} class="text-xs text-base-content/50">
                   <%= if msg.sender_id == @user.id do %>
                     {gettext("You")}
                   <% else %>
@@ -532,6 +566,25 @@ defmodule GameServerWeb.ChatLive do
     else
       "User #{msg.sender_id}"
     end
+  end
+
+  defp group_messages(messages) do
+    messages
+    |> Enum.with_index()
+    |> Enum.map(fn {msg, i} ->
+      prev = if i > 0, do: Enum.at(messages, i - 1), else: nil
+
+      show_header =
+        is_nil(prev) or
+          prev.sender_id != msg.sender_id or
+          different_minute?(prev.inserted_at, msg.inserted_at)
+
+      {show_header, msg}
+    end)
+  end
+
+  defp different_minute?(t1, t2) do
+    Calendar.strftime(t1, "%Y-%m-%d %H:%M") != Calendar.strftime(t2, "%Y-%m-%d %H:%M")
   end
 
   defp parse_id(id) when is_binary(id), do: String.to_integer(id)

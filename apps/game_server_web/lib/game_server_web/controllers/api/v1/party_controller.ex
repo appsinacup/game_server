@@ -129,7 +129,8 @@ defmodule GameServerWeb.Api.V1.PartyController do
     summary: "Invite a user to the party (leader only)",
     description:
       "The party leader invites a user by ID. The target must be a friend of the leader " <>
-        "or share at least one group with the leader. A `party_invite` notification is sent to the target.",
+        "or share at least one group with the leader. A PartyInvite record is created " <>
+        "and an informational notification is sent. The invite is independent of notifications.",
     security: [%{"authorization" => []}],
     request_body: {
       "Invite parameters",
@@ -190,7 +191,7 @@ defmodule GameServerWeb.Api.V1.PartyController do
     summary: "Accept a party invite",
     description:
       "Accept a pending party invite. The user joins the party if there is space. " <>
-        "The invite notification is removed on success.",
+        "The PartyInvite record is marked as accepted.",
     security: [%{"authorization" => []}],
     request_body: {
       "Accept parameters",
@@ -224,7 +225,7 @@ defmodule GameServerWeb.Api.V1.PartyController do
   operation(:decline_party_invite,
     operation_id: "decline_party_invite",
     summary: "Decline a party invite",
-    description: "Decline a pending party invite. The invite notification is removed.",
+    description: "Decline a pending party invite. The PartyInvite record is marked as declined.",
     security: [%{"authorization" => []}],
     request_body: {
       "Decline parameters",
@@ -249,8 +250,7 @@ defmodule GameServerWeb.Api.V1.PartyController do
   operation(:list_invitations,
     operation_id: "list_party_invitations",
     summary: "List pending party invites for the current user",
-    description:
-      "Returns all pending `party_invite` notifications addressed to the authenticated user.",
+    description: "Returns all pending PartyInvite records addressed to the authenticated user.",
     security: [%{"authorization" => []}],
     responses: [
       ok:
@@ -260,9 +260,12 @@ defmodule GameServerWeb.Api.V1.PartyController do
            items: %Schema{
              type: :object,
              properties: %{
-               id: %Schema{type: :integer, description: "Notification ID"},
+               id: %Schema{type: :integer, description: "Invite ID"},
                party_id: %Schema{type: :integer},
                sender_id: %Schema{type: :integer},
+               sender_name: %Schema{type: :string, nullable: true},
+               recipient_id: %Schema{type: :integer},
+               recipient_name: %Schema{type: :string, nullable: true},
                inserted_at: %Schema{type: :string, format: "date-time"}
              }
            }
@@ -277,7 +280,7 @@ defmodule GameServerWeb.Api.V1.PartyController do
     operation_id: "list_sent_party_invitations",
     summary: "List pending party invites sent by the current leader",
     description:
-      "Returns all pending `party_invite` notifications the authenticated leader has sent that have not yet been accepted or declined.",
+      "Returns all pending PartyInvite records the authenticated leader has sent that have not yet been accepted or declined.",
     security: [%{"authorization" => []}],
     responses: [
       ok:
@@ -287,9 +290,12 @@ defmodule GameServerWeb.Api.V1.PartyController do
            items: %Schema{
              type: :object,
              properties: %{
-               id: %Schema{type: :integer, description: "Notification ID"},
+               id: %Schema{type: :integer, description: "Invite ID"},
                party_id: %Schema{type: :integer},
+               sender_id: %Schema{type: :integer},
+               sender_name: %Schema{type: :string, nullable: true},
                recipient_id: %Schema{type: :integer},
+               recipient_name: %Schema{type: :string, nullable: true},
                inserted_at: %Schema{type: :string, format: "date-time"}
              }
            }
