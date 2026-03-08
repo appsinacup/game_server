@@ -98,6 +98,16 @@ Uses upsert semantics: if a notification with the same
 `(sender_id, recipient_id, title)` already exists, its content and metadata
 are updated (so the user sees the latest message preview).
 
+# `delete_notification_by`
+
+```elixir
+@spec delete_notification_by(user_id(), user_id(), String.t()) ::
+  {non_neg_integer(), nil}
+```
+
+Delete all notifications from `sender_id` to `recipient_id` with the given `title`.
+Used internally to retract system-generated notifications (e.g. friend request cancelled).
+
 # `delete_notifications`
 
 ```elixir
