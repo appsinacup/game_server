@@ -75,8 +75,15 @@ defmodule GameServerWeb.Components.DynamicIcon do
 
   defp ensure_cache_table do
     case :ets.info(@cache_table) do
-      :undefined -> :ets.new(@cache_table, [:named_table, :public, read_concurrency: true])
-      _info -> :ok
+      :undefined ->
+        try do
+          :ets.new(@cache_table, [:named_table, :public, read_concurrency: true])
+        rescue
+          ArgumentError -> :ok
+        end
+
+      _info ->
+        :ok
     end
   end
 
