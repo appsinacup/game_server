@@ -56,7 +56,7 @@ defmodule GameServerWeb.GroupsChannel do
     %{
       id: group.id,
       title: group.title,
-      description: group.description,
+      description: group.description || "",
       type: group.type,
       max_members: group.max_members,
       creator_id: group.creator_id,

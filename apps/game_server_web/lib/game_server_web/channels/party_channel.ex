@@ -170,7 +170,7 @@ defmodule GameServerWeb.PartyChannel do
     %{
       id: msg.id,
       content: msg.content,
-      metadata: msg.metadata,
+      metadata: msg.metadata || %{},
       sender_id: msg.sender_id,
       chat_type: msg.chat_type,
       chat_ref_id: msg.chat_ref_id,

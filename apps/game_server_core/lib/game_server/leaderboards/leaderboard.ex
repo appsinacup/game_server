@@ -48,7 +48,7 @@ defmodule GameServer.Leaderboards.Leaderboard do
   schema "leaderboards" do
     field :slug, :string
     field :title, :string
-    field :description, :string
+    field :description, :string, default: ""
     field :sort_order, Ecto.Enum, values: @sort_orders, default: :desc
     field :operator, Ecto.Enum, values: @operators, default: :best
     field :starts_at, :utc_datetime

@@ -198,7 +198,7 @@ defmodule GameServerWeb.Api.V1.Admin.KvController do
       user_id: entry.user_id || -1,
       lobby_id: entry.lobby_id || -1,
       data: entry.value,
-      metadata: entry.metadata,
+      metadata: entry.metadata || %{},
       inserted_at: entry.inserted_at,
       updated_at: entry.updated_at
     }

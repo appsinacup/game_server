@@ -9,7 +9,7 @@ defmodule GameServer.KV.Entry do
     belongs_to :user, GameServer.Accounts.User
     belongs_to :lobby, GameServer.Lobbies.Lobby
     field :value, :map
-    field :metadata, :map
+    field :metadata, :map, default: %{}
 
     timestamps(type: :utc_datetime)
   end

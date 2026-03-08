@@ -33,7 +33,7 @@ defmodule GameServer.Notifications.Notification do
     belongs_to :recipient, User
 
     field :title, :string
-    field :content, :string
+    field :content, :string, default: ""
     field :metadata, :map, default: %{}
     field :read, :boolean, default: false
 

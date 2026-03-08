@@ -239,7 +239,7 @@ defmodule GameServerWeb.UserChannel do
       sender_id: notification.sender_id,
       recipient_id: notification.recipient_id,
       title: notification.title,
-      content: notification.content,
+      content: notification.content || "",
       metadata: notification.metadata || %{},
       inserted_at: notification.inserted_at
     }
@@ -249,7 +249,7 @@ defmodule GameServerWeb.UserChannel do
     %{
       id: msg.id,
       content: msg.content,
-      metadata: msg.metadata,
+      metadata: msg.metadata || %{},
       sender_id: msg.sender_id,
       chat_type: msg.chat_type,
       chat_ref_id: msg.chat_ref_id,

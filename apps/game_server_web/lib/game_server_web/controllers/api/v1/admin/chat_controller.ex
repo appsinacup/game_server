@@ -184,7 +184,7 @@ defmodule GameServerWeb.Api.V1.Admin.ChatController do
     %{
       id: message.id,
       sender_id: message.sender_id,
-      sender_email: if(sender, do: sender.email, else: nil),
+      sender_email: if(sender, do: sender.email, else: ""),
       content: message.content,
       metadata: message.metadata || %{},
       chat_type: message.chat_type,

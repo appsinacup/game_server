@@ -38,7 +38,7 @@ defmodule GameServer.Groups.Group do
 
   schema "groups" do
     field :title, :string
-    field :description, :string
+    field :description, :string, default: ""
     field :type, :string, default: "public"
     field :max_members, :integer, default: 100
     field :metadata, :map, default: %{}

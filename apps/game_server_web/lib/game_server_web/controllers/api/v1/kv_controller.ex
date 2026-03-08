@@ -115,7 +115,7 @@ defmodule GameServerWeb.Api.V1.KvController do
   defp do_get(conn, key, user_id, lobby_id) do
     case KV.get(key, user_id: user_id, lobby_id: lobby_id) do
       {:ok, %{value: value, metadata: metadata}} ->
-        json(conn, %{data: value, metadata: metadata})
+        json(conn, %{data: value, metadata: metadata || %{}})
 
       :error ->
         conn |> put_status(:not_found) |> json(%{error: "not_found"})

@@ -420,13 +420,13 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
       id: lb.id,
       slug: lb.slug,
       title: lb.title,
-      description: lb.description,
+      description: lb.description || "",
       sort_order: to_string(lb.sort_order),
       operator: to_string(lb.operator),
       starts_at: lb.starts_at,
       ends_at: lb.ends_at,
       is_active: Leaderboard.active?(lb),
-      metadata: lb.metadata,
+      metadata: lb.metadata || %{},
       inserted_at: lb.inserted_at,
       updated_at: lb.updated_at
     }
@@ -439,7 +439,7 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
       display_name: (record.user && record.user.display_name) || "",
       profile_url: (record.user && record.user.profile_url) || "",
       score: record.score,
-      metadata: record.metadata,
+      metadata: record.metadata || %{},
       updated_at: record.updated_at
     }
   end

@@ -154,7 +154,7 @@ defmodule GameServerWeb.GroupChannel do
     %{
       id: group.id,
       title: group.title,
-      description: group.description,
+      description: group.description || "",
       type: group.type,
       max_members: group.max_members,
       creator_id: group.creator_id,
@@ -166,7 +166,7 @@ defmodule GameServerWeb.GroupChannel do
     %{
       id: msg.id,
       content: msg.content,
-      metadata: msg.metadata,
+      metadata: msg.metadata || %{},
       sender_id: msg.sender_id,
       chat_type: msg.chat_type,
       chat_ref_id: msg.chat_ref_id,
