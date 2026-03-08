@@ -491,6 +491,14 @@ Reject a pending join request. Admin only.
 
 Request to join a private group. Creates a pending join request.
 
+# `shared_group_member?`
+
+```elixir
+@spec shared_group_member?(integer(), integer()) :: boolean()
+```
+
+Return true if both users share at least one common group membership.
+
 # `subscribe_group`
 
 ```elixir

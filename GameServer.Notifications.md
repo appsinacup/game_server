@@ -171,6 +171,32 @@ receives them in chronological order.
 
 Supports pagination via `:page` and `:page_size` options.
 
+# `list_notifications_by_title`
+
+```elixir
+@spec list_notifications_by_title(user_id(), String.t()) :: [
+  GameServer.Notifications.Notification.t()
+]
+```
+
+List notifications for a user filtered by title (e.g. `"party_invite"`, `"group_invite"`).
+
+Results are ordered newest-first and cached with the same version-based TTL
+as `list_notifications/2`.
+
+# `list_sent_notifications_by_title`
+
+```elixir
+@spec list_sent_notifications_by_title(user_id(), String.t()) :: [
+  GameServer.Notifications.Notification.t()
+]
+```
+
+List notifications sent by a user filtered by title.
+
+Useful for a leader to see which invites they have sent that are still pending.
+Results are ordered newest-first and cached with the same version-based TTL.
+
 # `mark_all_notifications_read`
 
 ```elixir

@@ -10,8 +10,14 @@ creating or joining a lobby together.
     # Create a party (user becomes leader and first member)
     {:ok, party} = GameServer.Parties.create_party(user, %{max_size: 4})
 
-    # Join a party by ID
-    {:ok, user} = GameServer.Parties.join_party(user, party_id)
+    # Leader invites a friend or shared-group member by user_id
+    {:ok, _notification} = GameServer.Parties.invite_to_party(leader, target_user_id)
+
+    # Target accepts the invite
+    {:ok, party} = GameServer.Parties.accept_party_invite(target, party_id)
+
+    # Or declines
+    :ok = GameServer.Parties.decline_party_invite(target, party_id)
 
     # Leave a party (if leader leaves, party is disbanded)
     {:ok, _} = GameServer.Parties.leave_party(user)
@@ -32,6 +38,18 @@ This module broadcasts the following events:
   - `{:party_disbanded, party_id}`
   - `{:party_updated, party}`
 
+# `accept_party_invite`
+
+```elixir
+@spec accept_party_invite(GameServer.Accounts.User.t(), integer()) ::
+  {:ok, GameServer.Parties.Party.t()} | {:error, atom()}
+```
+
+Accept a party invite. Joins the party and removes the invite notification.
+
+Returns `{:error, :no_invite}` if no pending invite exists for that party.
+Returns `{:error, :already_in_party}` if the user is already in another party.
+
 # `admin_delete_party`
 
 ```elixir
@@ -49,6 +67,15 @@ Admin delete of a party. Clears all members' party_id and deletes the party.
 ```
 
 Admin update of a party (max_size, metadata).
+
+# `cancel_party_invite`
+
+```elixir
+@spec cancel_party_invite(GameServer.Accounts.User.t(), integer()) ::
+  :ok | {:error, atom()}
+```
+
+Cancel a previously sent party invite. Only the original sender (leader) can cancel.
 
 # `change_party`
 
@@ -105,6 +132,15 @@ Create a new party. The user becomes the leader and first member.
 
 Returns `{:error, :already_in_party}` if the user is already in a party.
 
+# `decline_party_invite`
+
+```elixir
+@spec decline_party_invite(GameServer.Accounts.User.t(), integer()) ::
+  :ok | {:error, atom()}
+```
+
+Decline a party invite. Simply removes the invite notification.
+
 # `get_party`
 
 ```elixir
@@ -140,6 +176,25 @@ Get all members of a party.
 
 Get the party the user is currently in, or nil.
 
+# `invite_to_party`
+
+```elixir
+@spec invite_to_party(GameServer.Accounts.User.t(), integer()) ::
+  {:ok, map()} | {:error, atom()}
+```
+
+Invite a user to join the party. Only the party leader may invite.
+
+The target user must be a friend of the leader, or share at least one group
+with the leader. A pending notification is created; the target accepts or
+declines via `accept_invite/2` / `decline_invite/2`.
+
+Returns `{:error, :not_in_party}` if the caller is not in a party.
+Returns `{:error, :not_leader}` if the caller is not the party leader.
+Returns `{:error, :not_connected}` if the target is not a friend or shared group member.
+Returns `{:error, :already_in_party}` if the target is already in a party.
+Returns `{:error, :already_invited}` if a pending invite already exists.
+
 # `join_lobby_with_party`
 
 ```elixir
@@ -151,34 +206,6 @@ The party leader joins an existing lobby, and all party members join it
 atomically. The party is kept intact.
 
 The lobby must have enough free slots for the entire party.
-
-# `join_party`
-
-```elixir
-@spec join_party(GameServer.Accounts.User.t(), integer()) ::
-  {:ok, GameServer.Accounts.User.t()} | {:error, term()}
-```
-
-Join an existing party by ID.
-
-Returns `{:error, :already_in_party}` if the user is already in a party.
-Returns `{:error, :party_not_found}` if the party doesn't exist.
-Returns `{:error, :party_full}` if the party is at capacity.
-
-# `join_party_by_code`
-
-```elixir
-@spec join_party_by_code(GameServer.Accounts.User.t(), String.t()) ::
-  {:ok, GameServer.Accounts.User.t()} | {:error, term()}
-```
-
-Join an existing party by its shareable code.
-
-If the user is currently in another party, they will automatically leave it
-first (disbanding it if they are the leader).
-
-Returns `{:error, :party_not_found}` if no party matches the code.
-Returns `{:error, :party_full}` if the party is at capacity.
 
 # `kick_member`
 
@@ -211,6 +238,24 @@ party deleted). Regular members are simply removed.
 ```
 
 List all parties with optional filters and pagination.
+
+# `list_party_invitations`
+
+```elixir
+@spec list_party_invitations(GameServer.Accounts.User.t()) :: [map()]
+```
+
+List pending party invites for the given user.
+
+# `list_sent_party_invitations`
+
+```elixir
+@spec list_sent_party_invitations(GameServer.Accounts.User.t()) :: [map()]
+```
+
+List pending party invites sent by the given leader.
+
+Returns invitations the leader has sent that have not yet been accepted or declined.
 
 # `subscribe_parties`
 
