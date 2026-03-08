@@ -562,8 +562,12 @@ func chat_send_chat_message(sendChatMessageRequest: SendChatMessageRequest) -> G
 	return await _call_api(ChatApi.new(_config), "send_chat_message", [sendChatMessageRequest])
 
 ## Update (edit) a chat message by ID
-func chat_update_chat_message(id: int, content: String) -> GamendResult:
-	return await _call_api(ChatApi.new(_config), "update_chat_message", [id, content])
+func chat_update_chat_message(id: int, content: String, metadata: Dictionary = {}) -> GamendResult:
+	var request = UpdateChatMessageRequest.new()
+	request.content = content
+	if not metadata.is_empty():
+		request.metadata = metadata
+	return await _call_api(ChatApi.new(_config), "update_chat_message", [id, request])
 
 ## Delete a chat message by ID
 func chat_delete_chat_message(id: int) -> GamendResult:
