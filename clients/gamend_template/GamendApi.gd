@@ -29,6 +29,12 @@ signal party_chat_message_deleted(payload: Dictionary)
 ## Friend online / offline status (pushed to all accepted friends)
 signal friend_online(payload: Dictionary)         ## {user_id, is_online: true}
 signal friend_offline(payload: Dictionary)        ## {user_id, is_online: false}
+## Friend requests
+signal friend_request_outgoing(payload: Dictionary)   ## {id, requester_id, target_id, status}
+signal friend_request_incoming(payload: Dictionary)   ## {id, requester_id, target_id, status}
+signal friend_added(payload: Dictionary)              ## friend accepted / new friendship created
+signal friend_request_cancelled(payload: Dictionary)  ## sender cancelled a pending request
+signal friend_removed(payload: Dictionary)            ## an existing friendship was removed
 ## Friend DM chat (via user channel)
 signal friend_chat_message(message: Dictionary)
 signal friend_chat_message_updated(message: Dictionary)
@@ -240,6 +246,28 @@ func _handle_user_event(event: String, payload: Dictionary):
 			friend_online.emit(payload)
 		"friend_offline":
 			friend_offline.emit(payload)
+		"outgoing_request":
+			if payload.get("status", "") == "accepted":
+				# Emit friend_added only — don't also emit friend_request_outgoing,
+				# which would race _reload_requests_only against the friends-list fetch.
+				friend_added.emit(payload)
+			else:
+				friend_request_outgoing.emit(payload)
+		"incoming_request":
+			if payload.get("status", "") == "accepted":
+				friend_added.emit(payload)
+			else:
+				friend_request_incoming.emit(payload)
+		"request_accepted":
+			friend_added.emit(payload)
+		"friend_accepted":
+			friend_added.emit(payload)
+		"friend_added":
+			friend_added.emit(payload)
+		"request_cancelled":
+			friend_request_cancelled.emit(payload)
+		"friend_removed":
+			friend_removed.emit(payload)
 		"new_chat_message":
 			friend_chat_message.emit(payload)
 		"chat_message_updated":
@@ -530,8 +558,8 @@ func chat_get_chat_message(id: int) -> GamendResult:
 	return await _call_api(ChatApi.new(_config), "get_chat_message", [id])
 
 ## Send a message to a lobby, group, party, or friend conversation
-func chat_send_chat_message(chat_type: String, chat_ref_id: int, content: String, metadata = {}) -> GamendResult:
-	return await _call_api(ChatApi.new(_config), "send_chat_message", [chat_type, chat_ref_id, content, metadata])
+func chat_send_chat_message(sendChatMessageRequest: SendChatMessageRequest) -> GamendResult:
+	return await _call_api(ChatApi.new(_config), "send_chat_message", [sendChatMessageRequest])
 
 ## Update (edit) a chat message by ID
 func chat_update_chat_message(id: int, content: String) -> GamendResult:
@@ -542,8 +570,8 @@ func chat_delete_chat_message(id: int) -> GamendResult:
 	return await _call_api(ChatApi.new(_config), "delete_chat_message", [id])
 
 ## Mark a chat conversation as read up to a given message ID
-func chat_mark_chat_read(chat_type: String, chat_ref_id: int, message_id: int) -> GamendResult:
-	return await _call_api(ChatApi.new(_config), "mark_chat_read", [chat_type, chat_ref_id, message_id])
+func chat_mark_chat_read(markChatReadRequest: MarkChatReadRequest) -> GamendResult:
+	return await _call_api(ChatApi.new(_config), "mark_chat_read", [markChatReadRequest])
 
 ## Get unread message count for a chat conversation
 func chat_chat_unread_count(chat_type: String, chat_ref_id: int) -> GamendResult:

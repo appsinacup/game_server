@@ -152,6 +152,10 @@ find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/ad
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/get_chat_message_200_response/GetChatMessage200Response/g" -i
 # Replace get_lobby_200_response_members_inner with GetLobby200ResponseMembersInner
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/get_lobby_200_response_members_inner/GetLobby200ResponseMembersInner/g" -i
+# Replace list_party_invitations_200_response_inner with ListPartyInvitations200ResponseInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_party_invitations_200_response_inner/ListPartyInvitations200ResponseInner/g" -i
+# Replace list_sent_party_invitations_200_response_inner with ListSentPartyInvitations200ResponseInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_sent_party_invitations_200_response_inner/ListSentPartyInvitations200ResponseInner/g" -i
 # headers_for_godot, body_serialized
 # with 
 # headers_for_godot, "" if body_serialized == "null" else body_serialized
