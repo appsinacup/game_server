@@ -546,71 +546,82 @@ defmodule GameServer.Leaderboards do
   end
 
   defp do_submit_score(leaderboard, user_id, score, metadata) do
-    case get_record(leaderboard.id, user_id) do
-      nil ->
-        # Create new record
-        %Record{}
-        |> Record.changeset(%{
-          leaderboard_id: leaderboard.id,
-          user_id: user_id,
-          score: score,
-          metadata: metadata
-        })
-        |> Repo.insert()
-        |> case do
-          {:ok, _record} = ok ->
-            _ = invalidate_records_cache(leaderboard.id)
-            ok
+    now = DateTime.utc_now(:second)
 
-          {:error, %Ecto.Changeset{} = changeset} ->
-            # Race condition: another process inserted in the meantime
-            if unique_constraint_error?(changeset) do
-              do_submit_score(leaderboard, user_id, score, metadata)
-            else
-              {:error, changeset}
-            end
+    changeset =
+      %Record{}
+      |> Record.changeset(%{
+        leaderboard_id: leaderboard.id,
+        user_id: user_id,
+        score: score,
+        metadata: metadata
+      })
 
-          other ->
-            other
+    case Repo.insert(changeset,
+           on_conflict: build_score_upsert(leaderboard, score, metadata, now),
+           conflict_target: [:leaderboard_id, :user_id]
+         ) do
+      {:ok, _} ->
+        # Invalidate caches and re-fetch to get accurate data after upsert
+        _ = invalidate_records_cache(leaderboard.id)
+        record = get_record(leaderboard.id, user_id)
+
+        if record do
+          _ = invalidate_record_cache(record.id)
+          {:ok, record}
+        else
+          {:error, :insert_failed}
         end
 
-      existing ->
-        # Update existing record based on operator
-        new_score = calculate_new_score(leaderboard, existing.score, score)
-        new_metadata = if metadata == %{}, do: existing.metadata, else: metadata
-
-        existing
-        |> Record.update_changeset(%{score: new_score, metadata: new_metadata})
-        |> Repo.update()
-        |> case do
-          {:ok, _record} = ok ->
-            _ = invalidate_records_cache(leaderboard.id)
-            _ = invalidate_record_cache(existing.id)
-            ok
-
-          other ->
-            other
-        end
+      error ->
+        error
     end
   end
 
-  defp calculate_new_score(leaderboard, current_score, new_score) do
-    case leaderboard.operator do
-      :set ->
-        new_score
+  defp build_score_upsert(%{operator: :set}, score, metadata, now) do
+    from(r in Record,
+      update: [set: [score: ^score, metadata: ^metadata, updated_at: ^now]]
+    )
+  end
 
-      :best ->
-        case leaderboard.sort_order do
-          :desc -> max(current_score, new_score)
-          :asc -> min(current_score, new_score)
-        end
+  defp build_score_upsert(%{operator: :best, sort_order: :desc}, score, metadata, now) do
+    from(r in Record,
+      update: [
+        set: [
+          score: fragment("CASE WHEN ? >= ? THEN ? ELSE ? END", r.score, ^score, r.score, ^score),
+          metadata: ^metadata,
+          updated_at: ^now
+        ]
+      ]
+    )
+  end
 
-      :incr ->
-        current_score + new_score
+  defp build_score_upsert(%{operator: :best, sort_order: :asc}, score, metadata, now) do
+    from(r in Record,
+      update: [
+        set: [
+          score: fragment("CASE WHEN ? <= ? THEN ? ELSE ? END", r.score, ^score, r.score, ^score),
+          metadata: ^metadata,
+          updated_at: ^now
+        ]
+      ]
+    )
+  end
 
-      :decr ->
-        current_score - new_score
-    end
+  defp build_score_upsert(%{operator: :incr}, score, metadata, now) do
+    from(r in Record,
+      update: [
+        set: [score: fragment("? + ?", r.score, ^score), metadata: ^metadata, updated_at: ^now]
+      ]
+    )
+  end
+
+  defp build_score_upsert(%{operator: :decr}, score, metadata, now) do
+    from(r in Record,
+      update: [
+        set: [score: fragment("? - ?", r.score, ^score), metadata: ^metadata, updated_at: ^now]
+      ]
+    )
   end
 
   # ---------------------------------------------------------------------------
@@ -937,9 +948,5 @@ defmodule GameServer.Leaderboards do
   @spec change_record(Record.t(), map()) :: Ecto.Changeset.t()
   def change_record(%Record{} = record, attrs \\ %{}) do
     Record.changeset(record, attrs)
-  end
-
-  defp unique_constraint_error?(%Ecto.Changeset{errors: errors}) do
-    Enum.any?(errors, fn {_field, {_msg, meta}} -> meta[:constraint] == :unique end)
   end
 end

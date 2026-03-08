@@ -41,6 +41,7 @@ defmodule GameServer.Notifications do
   alias GameServer.Friends
   alias GameServer.Notifications.Notification
   alias GameServer.Repo
+  alias GameServer.Repo.AdvisoryLock
 
   @type user_id :: integer()
 
@@ -494,24 +495,14 @@ defmodule GameServer.Notifications do
       |> Ecto.Changeset.put_change(:sender_id, sender_id)
       |> Ecto.Changeset.put_change(:recipient_id, recipient_id)
 
+    content = Map.get(attrs, "content", "")
+    now = DateTime.utc_now(:second)
+
+    on_conflict_query = chat_notification_on_conflict(content, now)
+
     changeset
     |> Repo.insert(
-      on_conflict:
-        from(n in Notification,
-          update: [
-            set: [
-              content: ^Map.get(attrs, "content", ""),
-              metadata:
-                fragment(
-                  "json_set(?, '$.message_count', COALESCE(json_extract(?, '$.message_count'), 0) + 1)",
-                  n.metadata,
-                  n.metadata
-                ),
-              read: false,
-              updated_at: ^DateTime.utc_now(:second)
-            ]
-          ]
-        ),
+      on_conflict: on_conflict_query,
       conflict_target: {:unsafe_fragment, "(sender_id, recipient_id, title)"}
     )
     |> case do
@@ -522,6 +513,45 @@ defmodule GameServer.Notifications do
 
       error ->
         error
+    end
+  end
+
+  # Build the ON CONFLICT update query for chat notifications.
+  # Uses adapter-specific JSON functions: Postgres uses jsonb_set / ->>
+  # while SQLite uses json_set / json_extract.
+  defp chat_notification_on_conflict(content, now) do
+    if AdvisoryLock.postgres?() do
+      from(n in Notification,
+        update: [
+          set: [
+            content: ^content,
+            metadata:
+              fragment(
+                "jsonb_set(?, '{message_count}', to_jsonb(COALESCE((?->>'message_count')::integer, 0) + 1))",
+                n.metadata,
+                n.metadata
+              ),
+            read: false,
+            updated_at: ^now
+          ]
+        ]
+      )
+    else
+      from(n in Notification,
+        update: [
+          set: [
+            content: ^content,
+            metadata:
+              fragment(
+                "json_set(?, '$.message_count', COALESCE(json_extract(?, '$.message_count'), 0) + 1)",
+                n.metadata,
+                n.metadata
+              ),
+            read: false,
+            updated_at: ^now
+          ]
+        ]
+      )
     end
   end
 

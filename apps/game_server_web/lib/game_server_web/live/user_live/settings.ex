@@ -2716,6 +2716,10 @@ defmodule GameServerWeb.UserLive.Settings do
     {:noreply, reload_groups(socket)}
   end
 
+  # Catch-all: ignore unhandled PubSub messages (e.g. :new_chat_message,
+  # :new_notification) so the LiveView doesn't crash.
+  def handle_info(_msg, socket), do: {:noreply, socket}
+
   ## handle_params is implemented after event handlers to keep handle_event/3
   ## clauses grouped together (avoid compile warnings about grouping clauses).
 

@@ -1415,6 +1415,9 @@ defmodule GameServer.Groups do
   defp upsert_group_notification(sender_id, recipient_id, attrs) do
     alias GameServer.Notifications.Notification
 
+    content = Map.get(attrs, "content") || Map.get(attrs, :content, "")
+    metadata = Map.get(attrs, "metadata") || Map.get(attrs, :metadata, %{})
+
     changeset =
       %Notification{}
       |> Notification.changeset(attrs)
@@ -1422,8 +1425,15 @@ defmodule GameServer.Groups do
       |> Ecto.Changeset.put_change(:recipient_id, recipient_id)
 
     case Repo.insert(changeset,
-           on_conflict: {:replace, [:content, :metadata, :updated_at]},
-           conflict_target: [:sender_id, :recipient_id, :title]
+           on_conflict: [
+             set: [
+               content: content,
+               metadata: metadata,
+               read: false,
+               updated_at: DateTime.utc_now(:second)
+             ]
+           ],
+           conflict_target: {:unsafe_fragment, "(sender_id, recipient_id, title)"}
          ) do
       {:ok, notification} ->
         GameServer.Notifications.invalidate_notifications_cache(recipient_id)

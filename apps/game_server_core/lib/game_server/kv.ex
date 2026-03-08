@@ -203,6 +203,7 @@ defmodule GameServer.KV do
       when is_binary(key) and is_map(value) and is_map(metadata) and is_list(opts) do
     user_id = Keyword.get(opts, :user_id)
     lobby_id = Keyword.get(opts, :lobby_id)
+    now = DateTime.utc_now(:second)
 
     changeset =
       Entry.changeset(%Entry{}, %{
@@ -214,53 +215,49 @@ defmodule GameServer.KV do
       })
 
     try do
-      case Repo.insert(changeset) do
+      case Repo.insert(changeset,
+             on_conflict: [set: [value: value, metadata: metadata, updated_at: now]],
+             conflict_target: kv_conflict_target(user_id, lobby_id)
+           ) do
         {:ok, entry} ->
           _ = cache_put(key, user_id, lobby_id, entry)
           _ = invalidate_entries_cache(user_id, lobby_id)
           {:ok, entry}
 
-        {:error, %Ecto.Changeset{} = insert_changeset} ->
-          if unique_constraint_error?(insert_changeset) do
-            case update_existing(key, user_id, lobby_id, value, metadata) do
-              {:ok, entry} ->
-                _ = cache_put(key, user_id, lobby_id, entry)
-                _ = invalidate_entries_cache(user_id, lobby_id)
-                {:ok, entry}
-
-              other ->
-                other
-            end
-          else
-            {:error, insert_changeset}
-          end
+        {:error, _} = error ->
+          error
       end
     rescue
       e in Ecto.ConstraintError ->
-        cond do
-          Map.get(e, :type) == :foreign_key ->
-            changeset =
-              changeset
-              |> Ecto.Changeset.add_error(:user_id, "does not exist")
-              |> Ecto.Changeset.add_error(:lobby_id, "does not exist")
+        if Map.get(e, :type) == :foreign_key do
+          changeset =
+            changeset
+            |> Ecto.Changeset.add_error(:user_id, "does not exist")
+            |> Ecto.Changeset.add_error(:lobby_id, "does not exist")
 
-            {:error, changeset}
-
-          Map.get(e, :type) in [:unique, :unique_constraint] ->
-            case update_existing(key, user_id, lobby_id, value, metadata) do
-              {:ok, entry} ->
-                _ = cache_put(key, user_id, lobby_id, entry)
-                _ = invalidate_entries_cache(user_id, lobby_id)
-                {:ok, entry}
-
-              other ->
-                other
-            end
-
-          true ->
-            reraise(e, __STACKTRACE__)
+          {:error, changeset}
+        else
+          reraise(e, __STACKTRACE__)
         end
     end
+  end
+
+  # Determine the correct partial unique index target based on scope
+  defp kv_conflict_target(nil, nil) do
+    {:unsafe_fragment, "(key) WHERE user_id IS NULL AND lobby_id IS NULL"}
+  end
+
+  defp kv_conflict_target(_user_id, nil) do
+    {:unsafe_fragment, "(user_id, key) WHERE user_id IS NOT NULL AND lobby_id IS NULL"}
+  end
+
+  defp kv_conflict_target(nil, _lobby_id) do
+    {:unsafe_fragment, "(lobby_id, key) WHERE lobby_id IS NOT NULL AND user_id IS NULL"}
+  end
+
+  defp kv_conflict_target(_user_id, _lobby_id) do
+    {:unsafe_fragment,
+     "(user_id, lobby_id, key) WHERE user_id IS NOT NULL AND lobby_id IS NOT NULL"}
   end
 
   @doc """
@@ -418,10 +415,19 @@ defmodule GameServer.KV do
   end
 
   defp do_create_entry(attrs) do
+    user_id = attrs[:user_id] || attrs["user_id"]
+    lobby_id = attrs[:lobby_id] || attrs["lobby_id"]
     changeset = Entry.changeset(%Entry{}, attrs)
 
     try do
-      case Repo.insert(changeset) do
+      case Repo.insert(changeset,
+             on_conflict: :nothing,
+             conflict_target: kv_conflict_target(user_id, lobby_id)
+           ) do
+        {:ok, %{id: nil}} ->
+          # Conflict occurred (on_conflict: :nothing produces nil id)
+          {:error, Ecto.Changeset.add_error(changeset, :key, "has already been taken")}
+
         {:ok, entry} ->
           _ = cache_put(entry.key, entry.user_id, entry.lobby_id, entry)
           _ = invalidate_entries_cache(entry.user_id, entry.lobby_id)
@@ -432,20 +438,15 @@ defmodule GameServer.KV do
       end
     rescue
       e in Ecto.ConstraintError ->
-        cond do
-          Map.get(e, :type) == :foreign_key ->
-            changeset =
-              changeset
-              |> maybe_add_fk_error(:user_id)
-              |> maybe_add_fk_error(:lobby_id)
+        if Map.get(e, :type) == :foreign_key do
+          changeset =
+            changeset
+            |> maybe_add_fk_error(:user_id)
+            |> maybe_add_fk_error(:lobby_id)
 
-            {:error, changeset}
-
-          Map.get(e, :type) in [:unique, :unique_constraint] ->
-            {:error, Ecto.Changeset.add_error(changeset, :key, "has already been taken")}
-
-          true ->
-            reraise(e, __STACKTRACE__)
+          {:error, changeset}
+        else
+          reraise(e, __STACKTRACE__)
         end
     end
   end
@@ -546,25 +547,6 @@ defmodule GameServer.KV do
     end)
   end
 
-  defp update_existing(key, user_id, lobby_id, value, metadata) do
-    case fetch_entry(key, user_id, lobby_id) do
-      nil ->
-        {:error,
-         Entry.changeset(%Entry{}, %{
-           key: key,
-           user_id: user_id,
-           lobby_id: lobby_id,
-           value: value,
-           metadata: metadata
-         })}
-
-      %Entry{} = entry ->
-        entry
-        |> Entry.changeset(%{value: value, metadata: metadata})
-        |> Repo.update()
-    end
-  end
-
   defp fetch_entry(key, user_id, lobby_id) do
     Repo.one(entry_query(key, user_id, lobby_id))
   end
@@ -618,9 +600,5 @@ defmodule GameServer.KV do
     else
       changeset
     end
-  end
-
-  defp unique_constraint_error?(%Ecto.Changeset{errors: errors}) do
-    Enum.any?(errors, fn {_field, {_msg, meta}} -> meta[:constraint] == :unique end)
   end
 end
