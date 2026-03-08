@@ -164,7 +164,14 @@ defmodule GameServer.Friends do
           accept_friend_request(pending_reverse.id, %User{id: requester_id})
 
         true ->
-          create_new_friend_request(requester_id, target_id)
+          max_pending = GameServer.Limits.get(:max_pending_friend_requests)
+          pending_count = count_outgoing_requests(requester_id)
+
+          if pending_count >= max_pending do
+            {:error, :too_many_pending_requests}
+          else
+            create_new_friend_request(requester_id, target_id)
+          end
       end
     end
   end
@@ -252,6 +259,8 @@ defmodule GameServer.Friends do
       with %Friendship{} = f <- get_friendship(friendship_id),
            true <- f.target_id == user_id,
            true <- f.status == "pending",
+           :ok <- check_friends_limit(f.requester_id),
+           :ok <- check_friends_limit(f.target_id),
            {:ok, accepted} <- f |> Ecto.Changeset.change(status: "accepted") |> Repo.update() do
         # remove any reverse pending request if present
         Repo.delete_all(
@@ -273,6 +282,7 @@ defmodule GameServer.Friends do
       else
         nil -> Repo.rollback(:not_found)
         false -> Repo.rollback(:not_authorized)
+        {:error, :too_many_friends} -> Repo.rollback(:too_many_friends)
       end
     end)
   end
@@ -698,5 +708,16 @@ defmodule GameServer.Friends do
     ids_b = Repo.all(q2)
 
     Enum.uniq(ids_a ++ ids_b)
+  end
+
+  defp check_friends_limit(user_id) do
+    max_friends = GameServer.Limits.get(:max_friends_per_user)
+    current = count_friends_for_user(user_id)
+
+    if current >= max_friends do
+      {:error, :too_many_friends}
+    else
+      :ok
+    end
   end
 end

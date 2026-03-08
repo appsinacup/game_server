@@ -127,30 +127,51 @@ defmodule GameServerWeb.Api.V1.HookController do
 
     args = if is_list(args), do: args, else: [args]
 
-    if reserved_hook_name?(fn_name) do
-      conn
-      |> put_status(:bad_request)
-      |> json(%{error: :reserved_hook_name})
-    else
-      case PluginManager.call_rpc(plugin, fn_name, args, caller: user) do
-        {:ok, res} ->
-          json(conn, %{data: res})
+    max_count = GameServer.Limits.get(:max_hook_args_count)
+    max_size = GameServer.Limits.get(:max_hook_args_size)
 
-        {:error, :not_implemented} ->
-          conn |> put_status(:bad_request) |> json(%{error: :not_implemented})
+    args_too_many = length(args) > max_count
 
-        {:error, :not_found} ->
-          conn |> put_status(:bad_request) |> json(%{error: :plugin_not_found})
-
-        {:error, :missing_hooks_module} ->
-          conn |> put_status(:bad_request) |> json(%{error: :missing_hooks_module})
-
-        {:error, :timeout} ->
-          conn |> put_status(:bad_request) |> json(%{error: :timeout})
-
-        {:error, other} ->
-          conn |> put_status(:bad_request) |> json(%{error: inspect(other)})
+    args_too_large =
+      case Jason.encode(args) do
+        {:ok, encoded} -> byte_size(encoded) > max_size
+        _ -> true
       end
+
+    cond do
+      args_too_many ->
+        conn |> put_status(:bad_request) |> json(%{error: :too_many_args, max: max_count})
+
+      args_too_large ->
+        conn
+        |> put_status(:request_entity_too_large)
+        |> json(%{error: :args_too_large, max_bytes: max_size})
+
+      reserved_hook_name?(fn_name) ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: :reserved_hook_name})
+
+      true ->
+        case PluginManager.call_rpc(plugin, fn_name, args, caller: user) do
+          {:ok, res} ->
+            json(conn, %{data: res})
+
+          {:error, :not_implemented} ->
+            conn |> put_status(:bad_request) |> json(%{error: :not_implemented})
+
+          {:error, :not_found} ->
+            conn |> put_status(:bad_request) |> json(%{error: :plugin_not_found})
+
+          {:error, :missing_hooks_module} ->
+            conn |> put_status(:bad_request) |> json(%{error: :missing_hooks_module})
+
+          {:error, :timeout} ->
+            conn |> put_status(:bad_request) |> json(%{error: :timeout})
+
+          {:error, other} ->
+            conn |> put_status(:bad_request) |> json(%{error: inspect(other)})
+        end
     end
   end
 

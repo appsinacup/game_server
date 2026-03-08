@@ -18,7 +18,7 @@ defmodule GameServerWeb.AdminLive.Config do
         <.link navigate={~p"/admin"} class="btn btn-outline mb-4">
           ← Back to Admin
         </.link>
-        
+
     <!-- Current Configuration Status -->
         <div class="card bg-base-100 shadow-xl" data-card-key="config_status">
           <div class="card-body">
@@ -881,7 +881,7 @@ defmodule GameServerWeb.AdminLive.Config do
                             <% end %>
                           </div>
                         </div>
-                        
+
     <!-- Full docs modal / pane -->
                         <%= if @hooks_full_doc do %>
                           <div class="mt-2 p-3 border rounded bg-base-100">
@@ -908,7 +908,75 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
+    <!-- Limits & Validation -->
+        <div class="card bg-base-100 shadow-xl" data-card-key="limits">
+          <div class="card-body">
+            <h2 class="card-title text-xl mb-4 flex items-center gap-3">
+              Limits &amp; Validation
+              <button
+                type="button"
+                data-action="toggle-card"
+                data-card-key="limits"
+                aria-expanded="false"
+                class="btn btn-ghost btn-sm ml-auto"
+                title="Collapse/Expand"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 8l4 4 4-4"
+                  />
+                </svg>
+              </button>
+            </h2>
+
+            <p class="text-sm opacity-70 mb-4">
+              Override any limit at boot via env vars: <code class="font-mono text-xs">LIMIT_&lt;KEY&gt;=value</code>
+              (e.g. <code class="font-mono text-xs">LIMIT_MAX_METADATA_SIZE=32768</code>).
+            </p>
+
+            <div class="overflow-x-auto">
+              <table id="limits-table" class="table table-zebra table-sm w-full">
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Limit</th>
+                    <th class="text-right">Default</th>
+                    <th class="text-right">Current</th>
+                    <th>Env Var</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <%= for {category, items} <- @limits_grouped do %>
+                    <%= for {key, default, current} <- items do %>
+                      <tr>
+                        <td class="font-semibold capitalize text-xs">{category}</td>
+                        <td class="font-mono text-xs">{key}</td>
+                        <td class="text-right font-mono text-xs">{format_limit_value(default)}</td>
+                        <td class={[
+                          "text-right font-mono text-xs",
+                          current != default && "text-warning font-bold"
+                        ]}>
+                          {format_limit_value(current)}
+                          <%= if current != default do %>
+                            <span class="badge badge-warning badge-xs ml-1">override</span>
+                          <% end %>
+                        </td>
+                        <td class="font-mono text-xs opacity-60">
+                          LIMIT_{String.upcase(to_string(key))}
+                        </td>
+                      </tr>
+                    <% end %>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
     <!-- Admin Tools -->
         <div class="card bg-base-100 shadow-xl" data-card-key="admin_tools">
           <div class="card-body">
@@ -965,7 +1033,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Scheduled Jobs -->
         <div class="card bg-base-100 shadow-xl" data-card-key="scheduled_jobs">
           <div class="card-body">
@@ -1174,6 +1242,7 @@ defmodule GameServerWeb.AdminLive.Config do
     socket =
       assign(socket,
         config: config,
+        limits_grouped: limits_grouped(),
         scheduled_jobs: Schedule.list(),
         hooks_plugin_prefill: %{value: "", seq: 0},
         hooks_prefill: %{value: "", seq: 0},
@@ -1765,4 +1834,71 @@ defmodule GameServerWeb.AdminLive.Config do
 
   defp env_with_recommended(v, _recommended) when is_binary(v) and v != "", do: v
   defp env_with_recommended(_v, recommended), do: "<unset (recommended: #{recommended})>"
+
+  # ── Limits helpers ──────────────────────────────────────────
+
+  @limit_categories %{
+    "Global" => ~w(max_metadata_size max_page_size)a,
+    "User" => ~w(max_display_name max_email max_profile_url max_device_id)a,
+    "Groups" =>
+      ~w(max_group_title max_group_description max_group_members max_groups_per_user max_groups_created_per_user max_group_pending_invites)a,
+    "Lobbies" =>
+      ~w(max_lobby_title max_lobby_users max_lobby_password)a,
+    "Parties" => ~w(max_party_size max_party_pending_invites)a,
+    "Chat" => ~w(max_chat_content)a,
+    "Notifications" =>
+      ~w(max_notification_title max_notification_content max_notifications_per_user)a,
+    "Friends" => ~w(max_friends_per_user max_pending_friend_requests)a,
+    "Hooks" => ~w(max_hook_args_size max_hook_args_count)a,
+    "KV" => ~w(max_kv_key max_kv_value_size max_kv_entries_per_user)a,
+    "Leaderboards" =>
+      ~w(max_leaderboard_title max_leaderboard_description max_leaderboard_slug)a
+  }
+
+  @category_order ~w(Global User Groups Lobbies Parties Chat Notifications Friends Hooks KV Leaderboards)
+
+  defp limits_grouped do
+    defaults = GameServer.Limits.defaults()
+    all = GameServer.Limits.all()
+
+    @category_order
+    |> Enum.map(fn cat ->
+      keys = Map.get(@limit_categories, cat, [])
+
+      items =
+        Enum.map(keys, fn key ->
+          {key, Map.get(defaults, key), Map.get(all, key)}
+        end)
+
+      {cat, items}
+    end)
+  end
+
+  defp format_limit_value(v) when is_integer(v) and v < 0 do
+    "-#{format_limit_value(abs(v))}"
+  end
+
+  defp format_limit_value(v) when is_integer(v) and v >= 1_000_000_000_000 do
+    "#{Float.round(v / 1_000_000_000_000, 1)}T"
+  end
+
+  defp format_limit_value(v) when is_integer(v) and v >= 1_000_000_000 do
+    rounded = Float.round(v / 1_000_000_000, 1)
+
+    if rounded >= 1000.0 do
+      "#{Float.round(v / 1_000_000_000_000, 1)}T"
+    else
+      "#{rounded}B"
+    end
+  end
+
+  defp format_limit_value(v) when is_integer(v) and v >= 1_000_000 do
+    "#{Float.round(v / 1_000_000, 1)}M"
+  end
+
+  defp format_limit_value(v) when is_integer(v) and v >= 10_000 do
+    "#{Float.round(v / 1_000, 1)}K"
+  end
+
+  defp format_limit_value(v), do: to_string(v)
 end

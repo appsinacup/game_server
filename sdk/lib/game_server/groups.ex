@@ -2,38 +2,38 @@ defmodule GameServer.Groups do
   @moduledoc ~S"""
   Context module for group management: creating, updating, listing, joining,
   leaving, kicking, promoting/demoting members, and handling join requests.
-  
+
   Groups are persistent communities (unlike ephemeral lobbies). They support
   three visibility types:
-  
+
   - **public** – anyone can join directly
   - **private** – anyone can request to join; an admin must approve
-  - **hidden** – only invited users can join (via notifications / invite API)
-  
+  - **hidden** – only invited users can join (via invite API)
+
   ## Usage
-  
+
       # Create a group (creator becomes admin)
       {:ok, group} = Groups.create_group(user_id, %{"title" => "Cool Group"})
-  
+
       # List public/private groups (hidden excluded)
       groups = Groups.list_groups(%{}, page: 1, page_size: 25)
-  
+
       # Join a public group
       {:ok, member} = Groups.join_group(user_id, group.id)
-  
+
       # Request to join a private group
       {:ok, request} = Groups.request_join(user_id, group.id)
-  
+
       # Admin approves a join request
       {:ok, member} = Groups.approve_join_request(admin_id, request.id)
-  
+
   ## PubSub Events
-  
+
   - `"groups"` topic:
     - `{:group_created, group}`
     - `{:group_updated, group}`
     - `{:group_deleted, group_id}`
-  
+
   - `"group:<group_id>"` topic:
     - `{:member_joined, group_id, user_id}`
     - `{:member_left, group_id, user_id}`
@@ -45,7 +45,7 @@ defmodule GameServer.Groups do
     - `{:join_request_approved, group_id, user_id}`
     - `{:join_request_rejected, group_id, user_id}`
     - `{:group_notification, group_id, sender_id}`
-  
+
 
   **Note:** This is an SDK stub. Calling these functions will raise an error.
   The actual implementation runs on the GameServer.
@@ -56,7 +56,7 @@ defmodule GameServer.Groups do
   @doc ~S"""
     Accept a group invite (for hidden groups). The user must have a pending
     `GroupInvite` for the group.
-    
+
   """
   @spec accept_invite(integer(), integer()) :: {:ok, GameServer.Groups.GroupMember.t()} | {:error, atom()}
   def accept_invite(_user_id, _group_id) do
@@ -135,7 +135,7 @@ defmodule GameServer.Groups do
   @doc ~S"""
     Cancel (delete) a group invitation that the current user sent.
     Only the sender can cancel their own invitation.
-    
+
   """
   @spec cancel_invite(integer(), integer()) :: :ok | {:error, atom()}
   def cancel_invite(_user_id, _invite_id) do
@@ -315,7 +315,7 @@ defmodule GameServer.Groups do
 
   @doc ~S"""
     Create a new group. The creating user becomes an admin member automatically.
-    
+
   """
   @spec create_group(integer(), map()) ::
   {:ok, GameServer.Groups.Group.t()} | {:error, Ecto.Changeset.t() | term()}
@@ -333,7 +333,7 @@ defmodule GameServer.Groups do
   @doc ~S"""
     Delete a group. Admin-only. Refuses if the group still has members — groups
     are auto-deleted when the last member leaves.
-    
+
   """
   @spec delete_group(integer(), integer()) :: {:ok, GameServer.Groups.Group.t()} | {:error, atom()}
   def delete_group(_user_id, _group_id) do
@@ -458,17 +458,17 @@ defmodule GameServer.Groups do
 
   @doc ~S"""
     Clean up group memberships before a user is deleted.
-    
+
     For each group the user belongs to:
     - If the user is the sole admin and other members exist, promotes the oldest
       member to admin before removing the user's membership row.
     - Removes the membership row.
     - If the group has no members left after removal, deletes the group.
-    
+
     This must be called *before* `Repo.delete(user)` so that the membership
     rows still exist (the DB cascade would silently delete them otherwise
     without running the admin-transfer / empty-group logic).
-    
+
   """
   @spec handle_user_deletion(integer()) :: :ok
   def handle_user_deletion(_user_id) do
@@ -501,7 +501,7 @@ defmodule GameServer.Groups do
     Invite a user to a hidden group. Creates a `GroupInvite` record and sends
     an informational notification. The invite record is independent of the
     notification — deleting notifications does not affect pending invites.
-    
+
   """
   @spec invite_to_group(integer(), integer(), integer()) ::
   {:ok, GameServer.Groups.GroupInvite.t()} | {:error, atom()}
@@ -518,7 +518,7 @@ defmodule GameServer.Groups do
 
   @doc ~S"""
     Join a public group directly. Returns error for private/hidden groups.
-    
+
   """
   @spec join_group(integer(), integer()) :: {:ok, GameServer.Groups.GroupMember.t()} | {:error, atom()}
   def join_group(_user_id, _group_id) do
@@ -565,7 +565,7 @@ defmodule GameServer.Groups do
 
   @doc ~S"""
     List ALL groups including hidden (admin only).
-    
+
   """
   @spec list_all_groups(
   map(),
@@ -584,20 +584,20 @@ defmodule GameServer.Groups do
 
   @doc ~S"""
     List groups visible to the public (excludes hidden).
-    
+
     ## Filters
-    
+
       * `:title` – prefix search on title (case-insensitive)
       * `:type` – exact match on type (`"public"` or `"private"`)
       * `:min_members` – groups with max_members >= value
       * `:max_members` – groups with max_members <= value
       * `:metadata_key` / `:metadata_value` – filter by metadata entry
-    
+
     ## Options
-    
+
       * `:page` – page number (default 1)
       * `:page_size` – results per page (default 25)
-    
+
   """
   @spec list_groups(
   map(),
@@ -616,7 +616,7 @@ defmodule GameServer.Groups do
 
   @doc ~S"""
     List pending group invitations for a user.
-    
+
   """
   @spec list_invitations(
   integer(),
@@ -651,7 +651,7 @@ defmodule GameServer.Groups do
 
   @doc ~S"""
     List group invitations sent by a user.
-    
+
   """
   @spec list_sent_invitations(
   integer(),
@@ -733,25 +733,25 @@ defmodule GameServer.Groups do
 
   @doc ~S"""
     Send a notification to all members of a group (except the sender).
-    
+
     Any group member can send a notification. The notification is created for
     each member using a direct insert (bypassing the friends-only check).
     The `group_id` / `group_name` are stored in metadata so the client can
     recognise and route it.
-    
+
     ## Options
-    
+
       * `title` – notification title string (default: `"group_notification"`).
         The title is part of the unique constraint `(sender_id, recipient_id, title)`,
         so different titles create separate notification slots.
-    
+
     Because of the unique constraint on `(sender_id, recipient_id, title)`, a
     new notification from the same sender to the same recipient with the same title
     replaces the previous one (upsert). This prevents spam while keeping the latest
     message.
-    
+
     Returns `{:ok, count}` with the number of notifications sent.
-    
+
   """
   @spec notify_group(integer(), integer(), String.t(), map()) ::
   {:ok, non_neg_integer()} | {:error, atom()}
@@ -800,7 +800,7 @@ defmodule GameServer.Groups do
 
   @doc ~S"""
     Request to join a private group. Creates a pending join request.
-    
+
   """
   @spec request_join(integer(), integer()) ::
   {:ok, GameServer.Groups.GroupJoinRequest.t()} | {:error, atom()}
@@ -878,7 +878,7 @@ defmodule GameServer.Groups do
   @doc ~S"""
     Update group settings. Only admins can update.
     Cannot lower max_members below current member count.
-    
+
   """
   @spec update_group(integer(), integer(), map()) ::
   {:ok, GameServer.Groups.Group.t()} | {:error, atom() | Ecto.Changeset.t()}

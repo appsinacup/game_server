@@ -11,7 +11,7 @@ defmodule GameServerWeb.Endpoint do
     same_site: "Lax"
   ]
   socket "/socket", GameServerWeb.UserSocket,
-    websocket: [log: false, compress: true],
+    websocket: [log: false, compress: true, max_frame_size: 131_072],
     longpoll: false
 
   socket "/live", Phoenix.LiveView.Socket,
@@ -67,6 +67,7 @@ defmodule GameServerWeb.Endpoint do
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
+    length: 1_048_576,
     json_decoder: Phoenix.json_library()
 
   plug Plug.MethodOverride

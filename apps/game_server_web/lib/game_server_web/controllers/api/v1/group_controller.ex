@@ -98,6 +98,7 @@ defmodule GameServerWeb.Api.V1.GroupController do
       sender_name: %Schema{type: :string, nullable: true},
       recipient_id: %Schema{type: :integer},
       recipient_name: %Schema{type: :string, nullable: true},
+      status: %Schema{type: :string, description: "pending | accepted | declined | cancelled"},
       inserted_at: %Schema{type: :string, format: :"date-time"}
     }
   }
@@ -605,8 +606,10 @@ defmodule GameServerWeb.Api.V1.GroupController do
                    group_id: %Schema{type: :integer},
                    group_name: %Schema{type: :string},
                    sender_id: %Schema{type: :integer},
+                   sender_name: %Schema{type: :string, nullable: true},
                    recipient_id: %Schema{type: :integer},
                    recipient_name: %Schema{type: :string, nullable: true},
+                   status: %Schema{type: :string},
                    inserted_at: %Schema{type: :string, format: :"date-time"}
                  }
                }
@@ -1361,20 +1364,8 @@ defmodule GameServerWeb.Api.V1.GroupController do
   end
 
   defp parse_page_params(params) do
-    page =
-      case params["page"] || params[:page] do
-        p when is_binary(p) -> String.to_integer(p)
-        p when is_integer(p) -> p
-        _ -> 1
-      end
-
-    page_size =
-      case params["page_size"] || params[:page_size] do
-        p when is_binary(p) -> String.to_integer(p)
-        p when is_integer(p) -> p
-        _ -> 25
-      end
-
+    page = GameServer.Limits.clamp_page(params["page"] || params[:page])
+    page_size = GameServer.Limits.clamp_page_size(params["page_size"] || params[:page_size])
     {page, page_size}
   end
 

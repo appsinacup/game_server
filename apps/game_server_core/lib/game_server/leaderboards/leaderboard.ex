@@ -70,13 +70,15 @@ defmodule GameServer.Leaderboards.Leaderboard do
     leaderboard
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
-    |> validate_length(:slug, min: 1, max: 100)
+    |> validate_length(:slug, min: 1, max: GameServer.Limits.get(:max_leaderboard_slug))
     |> validate_format(:slug, ~r/^[a-z0-9_]+$/,
       message: "must be lowercase alphanumeric with underscores"
     )
-    |> validate_length(:title, min: 1, max: 255)
+    |> validate_length(:title, min: 1, max: GameServer.Limits.get(:max_leaderboard_title))
     |> validate_inclusion(:sort_order, @sort_orders)
     |> validate_inclusion(:operator, @operators)
+    |> validate_length(:description, max: GameServer.Limits.get(:max_leaderboard_description))
+    |> GameServer.Limits.validate_metadata_size(:metadata)
   end
 
   @doc """
@@ -86,7 +88,9 @@ defmodule GameServer.Leaderboards.Leaderboard do
   def update_changeset(leaderboard, attrs) do
     leaderboard
     |> cast(attrs, [:title, :description, :starts_at, :ends_at, :metadata])
-    |> validate_length(:title, min: 1, max: 255)
+    |> validate_length(:title, min: 1, max: GameServer.Limits.get(:max_leaderboard_title))
+    |> validate_length(:description, max: GameServer.Limits.get(:max_leaderboard_description))
+    |> GameServer.Limits.validate_metadata_size(:metadata)
   end
 
   @doc """

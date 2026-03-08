@@ -89,7 +89,7 @@ defmodule GameServer.Accounts.User do
       |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+$/,
         message: "must have the @ sign and no spaces"
       )
-      |> validate_length(:email, max: 160)
+      |> validate_length(:email, max: GameServer.Limits.get(:max_email))
 
     if Keyword.get(opts, :validate_unique, true) do
       changeset
@@ -183,11 +183,13 @@ defmodule GameServer.Accounts.User do
     |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+$/,
       message: "must have the @ sign and no spaces"
     )
-    |> validate_length(:email, max: 160)
+    |> validate_length(:email, max: GameServer.Limits.get(:max_email))
     |> unsafe_validate_unique(:email, GameServer.Repo)
     |> unsafe_validate_unique(:discord_id, GameServer.Repo)
     |> unique_constraint(:email)
     |> unique_constraint(:discord_id)
+    |> validate_length(:display_name, max: GameServer.Limits.get(:max_display_name))
+    |> validate_length(:profile_url, max: GameServer.Limits.get(:max_profile_url))
     |> put_change(:confirmed_at, DateTime.utc_now(:second))
   end
 
@@ -207,11 +209,13 @@ defmodule GameServer.Accounts.User do
     |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+$/,
       message: "must have the @ sign and no spaces"
     )
-    |> validate_length(:email, max: 160)
+    |> validate_length(:email, max: GameServer.Limits.get(:max_email))
     |> unsafe_validate_unique(:email, GameServer.Repo)
     |> unsafe_validate_unique(:steam_id, GameServer.Repo)
     |> unique_constraint(:email)
     |> unique_constraint(:steam_id)
+    |> validate_length(:display_name, max: GameServer.Limits.get(:max_display_name))
+    |> validate_length(:profile_url, max: GameServer.Limits.get(:max_profile_url))
     |> put_change(:confirmed_at, DateTime.utc_now(:second))
   end
 
@@ -231,11 +235,12 @@ defmodule GameServer.Accounts.User do
     |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+$/,
       message: "must have the @ sign and no spaces"
     )
-    |> validate_length(:email, max: 160)
+    |> validate_length(:email, max: GameServer.Limits.get(:max_email))
     |> unsafe_validate_unique(:email, GameServer.Repo)
     |> unsafe_validate_unique(:apple_id, GameServer.Repo)
     |> unique_constraint(:email)
     |> unique_constraint(:apple_id)
+    |> validate_length(:display_name, max: GameServer.Limits.get(:max_display_name))
     |> put_change(:confirmed_at, DateTime.utc_now(:second))
   end
 
@@ -255,11 +260,13 @@ defmodule GameServer.Accounts.User do
     |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+$/,
       message: "must have the @ sign and no spaces"
     )
-    |> validate_length(:email, max: 160)
+    |> validate_length(:email, max: GameServer.Limits.get(:max_email))
     |> unsafe_validate_unique(:email, GameServer.Repo)
     |> unsafe_validate_unique(:google_id, GameServer.Repo)
     |> unique_constraint(:email)
     |> unique_constraint(:google_id)
+    |> validate_length(:display_name, max: GameServer.Limits.get(:max_display_name))
+    |> validate_length(:profile_url, max: GameServer.Limits.get(:max_profile_url))
     |> put_change(:confirmed_at, DateTime.utc_now(:second))
   end
 
@@ -279,11 +286,13 @@ defmodule GameServer.Accounts.User do
     |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+$/,
       message: "must have the @ sign and no spaces"
     )
-    |> validate_length(:email, max: 160)
+    |> validate_length(:email, max: GameServer.Limits.get(:max_email))
     |> unsafe_validate_unique(:email, GameServer.Repo)
     |> unsafe_validate_unique(:facebook_id, GameServer.Repo)
     |> unique_constraint(:email)
     |> unique_constraint(:facebook_id)
+    |> validate_length(:display_name, max: GameServer.Limits.get(:max_display_name))
+    |> validate_length(:profile_url, max: GameServer.Limits.get(:max_profile_url))
     |> put_change(:confirmed_at, DateTime.utc_now(:second))
   end
 
@@ -296,8 +305,9 @@ defmodule GameServer.Accounts.User do
   def device_changeset(user, attrs) do
     user
     |> cast(attrs, [:display_name, :metadata])
-    |> validate_length(:display_name, min: 1, max: 80)
+    |> validate_length(:display_name, min: 1, max: GameServer.Limits.get(:max_display_name))
     |> put_change(:confirmed_at, DateTime.utc_now(:second))
+    |> GameServer.Limits.validate_metadata_size(:metadata)
   end
 
   @doc """
@@ -309,6 +319,7 @@ defmodule GameServer.Accounts.User do
     user
     |> cast(attrs, [:device_id])
     |> validate_required([:device_id])
+    |> validate_length(:device_id, max: GameServer.Limits.get(:max_device_id))
     |> unique_constraint(:device_id)
   end
 
@@ -319,6 +330,8 @@ defmodule GameServer.Accounts.User do
     user
     |> cast(attrs, [:is_admin, :metadata, :display_name])
     |> validate_required([:is_admin])
+    |> validate_length(:display_name, max: GameServer.Limits.get(:max_display_name))
+    |> GameServer.Limits.validate_metadata_size(:metadata)
   end
 
   @doc """
@@ -329,7 +342,7 @@ defmodule GameServer.Accounts.User do
   def display_name_changeset(user, attrs) do
     user
     |> cast(attrs, [:display_name])
-    |> validate_length(:display_name, max: 80)
+    |> validate_length(:display_name, max: GameServer.Limits.get(:max_display_name))
   end
 
   @doc """

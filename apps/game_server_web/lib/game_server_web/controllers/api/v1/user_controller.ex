@@ -102,8 +102,8 @@ defmodule GameServerWeb.Api.V1.UserController do
 
   def index(conn, params) do
     q = Map.get(params, "q", "")
-    page = (params["page"] && String.to_integer(params["page"])) || 1
-    page_size = (params["page_size"] && String.to_integer(params["page_size"])) || 25
+    page = GameServer.Limits.clamp_page(params["page"])
+    page_size = GameServer.Limits.clamp_page_size(params["page_size"])
 
     users = if q == "", do: [], else: Accounts.search_users(q, page: page, page_size: page_size)
     serialized = Enum.map(users, &serialize_user/1)

@@ -561,7 +561,7 @@ defmodule GameServerWeb.UserLive.Settings do
               <div class="text-xs text-base-content/70 mb-2">
                 {dgettext("settings", "Search results")}
               </div>
-              
+
     <!-- Render search results as a responsive grid so multiple items show side-by-side -->
               <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <div :for={s <- @search_results} id={"search-" <> Integer.to_string(s.id)}>
@@ -1390,7 +1390,7 @@ defmodule GameServerWeb.UserLive.Settings do
                         <td class="text-sm font-mono">
                           {inv.group_name || "Group ##{inv.group_id}"}
                         </td>
-                        <td class="text-sm font-mono">{inv.sender_id}</td>
+                        <td class="text-sm font-mono">{inv.sender_name || "User ##{inv.sender_id}"}</td>
                         <td class="text-sm whitespace-nowrap">
                           {Calendar.strftime(inv.inserted_at, "%Y-%m-%d %H:%M")}
                         </td>

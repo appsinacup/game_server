@@ -378,7 +378,7 @@ defmodule GameServerWeb.AdminLive.Users do
 
       <%= if @selected_user do %>
         <div class="modal modal-open">
-          <div class="modal-box">
+          <div class="modal-box max-w-2xl">
             <h3 class="font-bold text-lg">Edit User</h3>
             <.form for={@form} id="user-form" phx-submit="save_user">
               <.input field={@form[:email]} type="email" label="Email" />
@@ -409,6 +409,79 @@ defmodule GameServerWeb.AdminLive.Users do
                 <button type="submit" class="btn btn-primary">Save</button>
               </div>
             </.form>
+
+            <%!-- Sessions / Tokens section --%>
+            <div class="divider">Sessions &amp; Tokens ({length(@user_tokens)})</div>
+
+            <%= if @user_tokens == [] do %>
+              <p class="text-sm opacity-60">No tokens found.</p>
+            <% else %>
+              <div class="flex justify-end mb-2">
+                <button
+                  type="button"
+                  phx-click="revoke_all_sessions"
+                  phx-value-user-id={@selected_user.id}
+                  data-confirm={"Revoke all #{length(@user_tokens)} tokens for this user?"}
+                  class="btn btn-xs btn-outline btn-error"
+                >
+                  Revoke All
+                </button>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="table table-zebra table-xs">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Context</th>
+                      <th>Created</th>
+                      <th>Auth At</th>
+                      <th>Sent To</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr :for={token <- @user_tokens} id={"token-#{token.id}"}>
+                      <td class="font-mono text-xs">{token.id}</td>
+                      <td>
+                        <span class={[
+                          "badge badge-xs",
+                          token.context == "session" && "badge-primary",
+                          token.context == "login" && "badge-accent",
+                          token.context == "confirm" && "badge-info",
+                          String.starts_with?(token.context || "", "change:") && "badge-warning"
+                        ]}>
+                          {token.context}
+                        </span>
+                      </td>
+                      <td class="text-xs">
+                        {Calendar.strftime(token.inserted_at, "%Y-%m-%d %H:%M")}
+                      </td>
+                      <td class="text-xs">
+                        <%= if token.authenticated_at do %>
+                          {Calendar.strftime(token.authenticated_at, "%Y-%m-%d %H:%M")}
+                        <% else %>
+                          <span class="opacity-40">-</span>
+                        <% end %>
+                      </td>
+                      <td class="text-xs font-mono">
+                        {token.sent_to || "-"}
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          phx-click="revoke_token"
+                          phx-value-id={token.id}
+                          data-confirm="Revoke this token?"
+                          class="btn btn-xs btn-ghost text-error"
+                        >
+                          Revoke
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            <% end %>
           </div>
         </div>
       <% end %>
@@ -443,6 +516,7 @@ defmodule GameServerWeb.AdminLive.Users do
      |> assign(:users_total_pages, total_pages)
      |> assign(:selected_user, nil)
      |> assign(:form, nil)
+     |> assign(:user_tokens, [])
      |> assign(:search_query, "")
      |> assign(:filters, [])
      |> assign(:sort_field, sort_field)
@@ -455,11 +529,13 @@ defmodule GameServerWeb.AdminLive.Users do
     user = Accounts.get_user!(String.to_integer(id))
     changeset = User.admin_changeset(user, %{})
     form = to_form(changeset, as: "user")
+    tokens = Accounts.list_user_tokens(user.id)
 
     {:noreply,
      socket
      |> assign(:selected_user, user)
-     |> assign(:form, form)}
+     |> assign(:form, form)
+     |> assign(:user_tokens, tokens)}
   end
 
   # Search / filter handlers
@@ -556,7 +632,31 @@ defmodule GameServerWeb.AdminLive.Users do
     {:noreply,
      socket
      |> assign(:selected_user, nil)
-     |> assign(:form, nil)}
+     |> assign(:form, nil)
+     |> assign(:user_tokens, [])}
+  end
+
+  def handle_event("revoke_token", %{"id" => id}, socket) do
+    token = Accounts.get_user_token!(String.to_integer(id))
+    Accounts.delete_user_token(token)
+    user = socket.assigns.selected_user
+    tokens = Accounts.list_user_tokens(user.id)
+
+    {:noreply,
+     socket
+     |> assign(:user_tokens, tokens)
+     |> put_flash(:info, "Token #{id} revoked")}
+  end
+
+  def handle_event("revoke_all_sessions", %{"user-id" => uid}, socket) do
+    user_id = String.to_integer(uid)
+    {count, _} = Accounts.revoke_all_user_sessions(user_id)
+    tokens = Accounts.list_user_tokens(user_id)
+
+    {:noreply,
+     socket
+     |> assign(:user_tokens, tokens)
+     |> put_flash(:info, "Revoked #{count} session(s)")}
   end
 
   def handle_event("save_user", %{"user" => user_params}, socket) do

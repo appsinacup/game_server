@@ -50,6 +50,7 @@
     --container-sm: 24rem;
     --container-md: 28rem;
     --container-2xl: 42rem;
+    --container-3xl: 48rem;
     --container-4xl: 56rem;
     --container-5xl: 64rem;
     --container-6xl: 72rem;
@@ -68,6 +69,7 @@
     --text-3xl: 1.875rem;
     --text-3xl--line-height: calc(2.25 / 1.875);
     --font-weight-light: 300;
+    --font-weight-normal: 400;
     --font-weight-medium: 500;
     --font-weight-semibold: 600;
     --font-weight-bold: 700;
@@ -2114,6 +2116,12 @@
       }
     }
   }
+  .join-item {
+    &:where(*:not(:first-child, :disabled, [disabled], .btn-disabled)) {
+      margin-inline-start: calc(var(--border, 1px) * -1);
+      margin-block-start: 0;
+    }
+  }
   .modal-action {
     margin-top: calc(0.25rem * 6);
     display: flex;
@@ -2931,6 +2939,9 @@
   .min-h-32 {
     min-height: calc(var(--spacing) * 32);
   }
+  .min-h-\[2rem\] {
+    min-height: 2rem;
+  }
   .min-h-screen {
     min-height: 100vh;
   }
@@ -2966,6 +2977,9 @@
   }
   .w-20 {
     width: calc(var(--spacing) * 20);
+  }
+  .w-24 {
+    width: calc(var(--spacing) * 24);
   }
   .w-32 {
     width: calc(var(--spacing) * 32);
@@ -3044,6 +3058,9 @@
   }
   .min-w-\[1\.25rem\] {
     min-width: 1.25rem;
+  }
+  .min-w-\[2rem\] {
+    min-width: 2rem;
   }
   .min-w-\[32rem\] {
     min-width: 32rem;
@@ -3603,13 +3620,30 @@
       padding-block: calc(0.25rem * 2);
     }
   }
+  .table-xs {
+    :not(thead, tfoot) tr {
+      font-size: 0.6875rem;
+    }
+    :where(th, td) {
+      padding-inline: calc(0.25rem * 2);
+      padding-block: calc(0.25rem * 1);
+    }
+  }
   .badge-sm {
     --size: calc(var(--size-selector, 0.25rem) * 5);
     font-size: 0.75rem;
     padding-inline: calc(0.25rem * 2.5 - var(--border));
   }
+  .badge-xs {
+    --size: calc(var(--size-selector, 0.25rem) * 4);
+    font-size: 0.625rem;
+    padding-inline: calc(0.25rem * 2 - var(--border));
+  }
   .px-1 {
     padding-inline: calc(var(--spacing) * 1);
+  }
+  .px-2 {
+    padding-inline: calc(var(--spacing) * 2);
   }
   .px-3 {
     padding-inline: calc(var(--spacing) * 3);
@@ -3619,6 +3653,9 @@
   }
   .px-6 {
     padding-inline: calc(var(--spacing) * 6);
+  }
+  .py-0\.5 {
+    padding-block: calc(var(--spacing) * 0.5);
   }
   .py-1 {
     padding-block: calc(var(--spacing) * 1);
@@ -3791,6 +3828,10 @@
     --tw-font-weight: var(--font-weight-medium);
     font-weight: var(--font-weight-medium);
   }
+  .font-normal {
+    --tw-font-weight: var(--font-weight-normal);
+    font-weight: var(--font-weight-normal);
+  }
   .font-semibold {
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
@@ -3953,6 +3994,9 @@
   .text-red-800 {
     color: var(--color-red-800);
   }
+  .text-success {
+    color: var(--color-success);
+  }
   .text-violet-600 {
     color: var(--color-violet-600);
   }
@@ -3976,6 +4020,9 @@
   }
   .text-yellow-800 {
     color: var(--color-yellow-800);
+  }
+  .capitalize {
+    text-transform: capitalize;
   }
   .lowercase {
     text-transform: lowercase;
@@ -4029,6 +4076,13 @@
   .shadow-xl {
     --tw-shadow: 0 20px 25px -5px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 8px 10px -6px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+  .ring-2 {
+    --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+  .ring-primary {
+    --tw-ring-color: var(--color-primary);
   }
   .outline {
     outline-style: var(--tw-outline-style);
@@ -4288,13 +4342,6 @@
       }
     }
   }
-  .group-hover\:opacity-100 {
-    &:is(:where(.group):hover *) {
-      @media (hover: hover) {
-        opacity: 100%;
-      }
-    }
-  }
   .hover\:scale-\[1\.02\] {
     &:hover {
       @media (hover: hover) {
@@ -4404,14 +4451,32 @@
       }
     }
   }
+  .hover\:shadow-md {
+    &:hover {
+      @media (hover: hover) {
+        --tw-shadow: 0 4px 6px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 2px 4px -2px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+        box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+      }
+    }
+  }
   .motion-safe\:animate-spin {
     @media (prefers-reduced-motion: no-preference) {
       animation: var(--animate-spin);
     }
   }
+  .sm\:w-48 {
+    @media (width >= 40rem) {
+      width: calc(var(--spacing) * 48);
+    }
+  }
   .sm\:w-96 {
     @media (width >= 40rem) {
       width: calc(var(--spacing) * 96);
+    }
+  }
+  .sm\:w-auto {
+    @media (width >= 40rem) {
+      width: auto;
     }
   }
   .sm\:max-w-96 {
@@ -4581,6 +4646,11 @@
       width: auto;
     }
   }
+  .md\:max-w-3xl {
+    @media (width >= 48rem) {
+      max-width: var(--container-3xl);
+    }
+  }
   .md\:max-w-\[460px\] {
     @media (width >= 48rem) {
       max-width: 460px;
@@ -4672,6 +4742,11 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
+  .lg\:grid-cols-4 {
+    @media (width >= 64rem) {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
   .lg\:gap-4 {
     @media (width >= 64rem) {
       gap: calc(var(--spacing) * 4);
@@ -4685,6 +4760,11 @@
   .lg\:overflow-x-hidden {
     @media (width >= 64rem) {
       overflow-x: hidden;
+    }
+  }
+  .lg\:px-1 {
+    @media (width >= 64rem) {
+      padding-inline: calc(var(--spacing) * 1);
     }
   }
   .lg\:px-8 {
@@ -4701,6 +4781,20 @@
     @media (width >= 64rem) {
       font-size: var(--text-lg);
       line-height: var(--tw-leading, var(--text-lg--line-height));
+    }
+  }
+  .lg\:opacity-0 {
+    @media (width >= 64rem) {
+      opacity: 0%;
+    }
+  }
+  .lg\:group-hover\:opacity-100 {
+    @media (width >= 64rem) {
+      &:is(:where(.group):hover *) {
+        @media (hover: hover) {
+          opacity: 100%;
+        }
+      }
     }
   }
   .xl\:max-w-6xl {
@@ -5000,6 +5094,17 @@
 .changelog-pill-docs {
   background: #e0e7ff;
   color: #3730a3;
+}
+@media (hover: none) and (pointer: coarse) {
+  .btn-xs {
+    min-height: 2rem;
+    min-width: 2rem;
+  }
+}
+@media screen and (max-width: 1023px) {
+  input[type="text"], input[type="password"], input[type="email"], input[type="number"], input[type="tel"], input[type="url"], input[type="search"], select, textarea {
+    font-size: 16px !important;
+  }
 }
 @layer base {
   :root:has( .modal-open, .modal[open], .modal:target, .modal-toggle:checked, .drawer:not([class*="drawer-open"]) > .drawer-toggle:checked ) {

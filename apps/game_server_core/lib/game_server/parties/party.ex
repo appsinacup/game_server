@@ -50,10 +50,11 @@ defmodule GameServer.Parties.Party do
     party
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
-    |> validate_number(:max_size, greater_than: 1, less_than_or_equal_to: 32)
+    |> validate_number(:max_size, greater_than: 1, less_than_or_equal_to: GameServer.Limits.get(:max_party_size))
     |> put_code()
     |> unique_constraint(:leader_id)
     |> unique_constraint(:code)
+    |> GameServer.Limits.validate_metadata_size(:metadata)
   end
 
   defp put_code(changeset) do

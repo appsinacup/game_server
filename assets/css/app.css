@@ -252,3 +252,30 @@
 .changelog-pill-deprecated { background: #f3f4f6; color: #4b5563; }
 .changelog-pill-perf     { background: #ccfbf1; color: #115e59; }
 .changelog-pill-docs     { background: #e0e7ff; color: #3730a3; }
+
+/* ─── Mobile touch targets ───
+   Ensure all interactive buttons meet the 44px minimum touch target
+   on devices that don't support hover (phones / tablets). */
+@media (hover: none) and (pointer: coarse) {
+  .btn-xs {
+    min-height: 2rem;
+    min-width: 2rem;
+  }
+}
+
+/* ─── iOS auto-zoom prevention ───
+   Safari zooms in on inputs with font-size < 16px. Force 16px on
+   touch devices to prevent unwanted zoom that doesn't revert. */
+@media screen and (max-width: 1023px) {
+  input[type="text"],
+  input[type="password"],
+  input[type="email"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="search"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}

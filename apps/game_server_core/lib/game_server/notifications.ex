@@ -400,21 +400,27 @@ defmodule GameServer.Notifications do
         {:error, :not_friends}
 
       true ->
-        delete_existing_notification(sender_id, recipient_id, attrs)
+        max = GameServer.Limits.get(:max_notifications_per_user)
 
-        %Notification{}
-        |> Notification.changeset(attrs)
-        |> Ecto.Changeset.put_change(:sender_id, sender_id)
-        |> Ecto.Changeset.put_change(:recipient_id, recipient_id)
-        |> Repo.insert()
-        |> case do
-          {:ok, notification} ->
-            invalidate_notifications_cache(recipient_id)
-            broadcast_user(recipient_id, {:new_notification, notification})
-            {:ok, notification}
+        if count_notifications(recipient_id) >= max do
+          {:error, :too_many_notifications}
+        else
+          delete_existing_notification(sender_id, recipient_id, attrs)
 
-          error ->
-            error
+          %Notification{}
+          |> Notification.changeset(attrs)
+          |> Ecto.Changeset.put_change(:sender_id, sender_id)
+          |> Ecto.Changeset.put_change(:recipient_id, recipient_id)
+          |> Repo.insert()
+          |> case do
+            {:ok, notification} ->
+              invalidate_notifications_cache(recipient_id)
+              broadcast_user(recipient_id, {:new_notification, notification})
+              {:ok, notification}
+
+            error ->
+              error
+          end
         end
     end
   end

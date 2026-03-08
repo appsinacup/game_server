@@ -397,6 +397,27 @@ defmodule GameServer.KV do
   """
   @spec create_entry(attrs()) :: {:ok, Entry.t()} | {:error, Ecto.Changeset.t()}
   def create_entry(attrs) when is_map(attrs) do
+    user_id = attrs[:user_id] || attrs["user_id"]
+
+    with :ok <- check_kv_entries_limit(user_id) do
+      do_create_entry(attrs)
+    end
+  end
+
+  defp check_kv_entries_limit(nil), do: :ok
+
+  defp check_kv_entries_limit(user_id) do
+    max = GameServer.Limits.get(:max_kv_entries_per_user)
+    current = count_entries(user_id: user_id)
+
+    if current >= max do
+      {:error, :too_many_entries}
+    else
+      :ok
+    end
+  end
+
+  defp do_create_entry(attrs) do
     changeset = Entry.changeset(%Entry{}, attrs)
 
     try do

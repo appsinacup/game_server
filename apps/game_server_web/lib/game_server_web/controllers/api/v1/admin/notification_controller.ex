@@ -222,20 +222,8 @@ defmodule GameServerWeb.Api.V1.Admin.NotificationController do
   # ---------------------------------------------------------------------------
 
   defp parse_page_params(params) do
-    page =
-      case params["page"] do
-        p when is_binary(p) -> String.to_integer(p)
-        p when is_integer(p) -> p
-        _ -> 1
-      end
-
-    page_size =
-      case params["page_size"] do
-        p when is_binary(p) -> String.to_integer(p)
-        p when is_integer(p) -> p
-        _ -> 25
-      end
-
+    page = GameServer.Limits.clamp_page(params["page"])
+    page_size = GameServer.Limits.clamp_page_size(params["page_size"])
     {page, page_size}
   end
 

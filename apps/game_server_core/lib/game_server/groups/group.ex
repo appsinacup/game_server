@@ -57,11 +57,12 @@ defmodule GameServer.Groups.Group do
     group
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
-    |> validate_length(:title, min: 1, max: 80)
-    |> validate_length(:description, max: 500)
+    |> validate_length(:title, min: 1, max: GameServer.Limits.get(:max_group_title))
+    |> validate_length(:description, max: GameServer.Limits.get(:max_group_description))
     |> validate_inclusion(:type, ["public", "private", "hidden"])
-    |> validate_number(:max_members, greater_than: 0, less_than_or_equal_to: 10_000)
+    |> validate_number(:max_members, greater_than: 0, less_than_or_equal_to: GameServer.Limits.get(:max_group_members))
     |> validate_number(:slowdown, greater_than_or_equal_to: 0, less_than_or_equal_to: 3600)
     |> unique_constraint(:title)
+    |> GameServer.Limits.validate_metadata_size(:metadata)
   end
 end

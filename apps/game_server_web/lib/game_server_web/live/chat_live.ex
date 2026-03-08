@@ -210,13 +210,13 @@ defmodule GameServerWeb.ChatLive do
                   ]}>
                     <div
                       :if={msg.sender_id == @user.id}
-                      class="flex-shrink-0 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                      class="flex-shrink-0 flex gap-0.5 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity"
                     >
                       <button
                         phx-click="chat_edit_start"
                         phx-value-id={msg.id}
                         phx-value-content={msg.content}
-                        class="btn btn-xs btn-ghost px-1"
+                        class="btn btn-xs btn-ghost min-h-[2rem] min-w-[2rem] px-2 lg:px-1"
                         title={gettext("Edit")}
                       >
                         {gettext("Edit")}
@@ -225,7 +225,7 @@ defmodule GameServerWeb.ChatLive do
                         phx-click="chat_delete"
                         phx-value-id={msg.id}
                         data-confirm={gettext("Delete this message?")}
-                        class="btn btn-xs btn-ghost px-1 text-error"
+                        class="btn btn-xs btn-ghost min-h-[2rem] min-w-[2rem] px-2 lg:px-1 text-error"
                         title={gettext("Delete")}
                       >
                         {gettext("Delete")}

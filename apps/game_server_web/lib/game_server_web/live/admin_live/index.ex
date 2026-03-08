@@ -66,8 +66,14 @@ defmodule GameServerWeb.AdminLive.Index do
             </p>
 
             <div class="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+              <%!-- 1. Users --%>
               <div class="card bg-base-100 p-4">
-                <div class="text-sm font-semibold mb-2">Users</div>
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-sm font-semibold">Users</div>
+                  <.link navigate={~p"/admin/users"} class="link link-primary text-xs">
+                    View →
+                  </.link>
+                </div>
                 <div class="text-2xl font-bold">{@users_count}</div>
                 <div class="text-xs text-base-content/60 mt-2 space-y-1">
                   <div>With email: {@users_password}</div>
@@ -80,25 +86,7 @@ defmodule GameServerWeb.AdminLive.Index do
                 </div>
               </div>
 
-              <div class="card bg-base-100 p-4">
-                <div class="text-sm font-semibold mb-2">Lobbies</div>
-                <div class="text-2xl font-bold">{@lobbies_count}</div>
-                <div class="text-xs text-base-content/60 mt-2 space-y-1">
-                  <div>Hostless: {@lobbies_hostless}</div>
-                  <div>Hidden: {@lobbies_hidden}</div>
-                  <div>Locked: {@lobbies_locked}</div>
-                  <div>With password: {@lobbies_passworded}</div>
-                </div>
-              </div>
-
-              <div class="card bg-base-100 p-4">
-                <div class="text-sm font-semibold mb-2">Leaderboards</div>
-                <div class="text-2xl font-bold">{@leaderboards_count}</div>
-                <div class="text-xs text-base-content/60 mt-2 space-y-1">
-                  <div>Scores total: {@leaderboard_records}</div>
-                </div>
-              </div>
-
+              <%!-- 2. Registration --%>
               <div class="card bg-base-100 p-4">
                 <div class="text-sm font-semibold mb-2">Registration</div>
                 <div class="text-xs text-base-content/60 mt-2 space-y-1">
@@ -112,6 +100,7 @@ defmodule GameServerWeb.AdminLive.Index do
                 </div>
               </div>
 
+              <%!-- 3. Activity --%>
               <div class="card bg-base-100 p-4">
                 <div class="text-sm font-semibold mb-2">Activity</div>
                 <div class="text-xs text-base-content/60 mt-2 space-y-1">
@@ -121,8 +110,45 @@ defmodule GameServerWeb.AdminLive.Index do
                 </div>
               </div>
 
+              <%!-- 4. Lobbies --%>
               <div class="card bg-base-100 p-4">
-                <div class="text-sm font-semibold mb-2">Groups</div>
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-sm font-semibold">Lobbies</div>
+                  <.link navigate={~p"/admin/lobbies"} class="link link-primary text-xs">
+                    View →
+                  </.link>
+                </div>
+                <div class="text-2xl font-bold">{@lobbies_count}</div>
+                <div class="text-xs text-base-content/60 mt-2 space-y-1">
+                  <div>Hostless: {@lobbies_hostless}</div>
+                  <div>Hidden: {@lobbies_hidden}</div>
+                  <div>Locked: {@lobbies_locked}</div>
+                  <div>With password: {@lobbies_passworded}</div>
+                </div>
+              </div>
+
+              <%!-- 5. Leaderboards --%>
+              <div class="card bg-base-100 p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-sm font-semibold">Leaderboards</div>
+                  <.link navigate={~p"/admin/leaderboards"} class="link link-primary text-xs">
+                    View →
+                  </.link>
+                </div>
+                <div class="text-2xl font-bold">{@leaderboards_count}</div>
+                <div class="text-xs text-base-content/60 mt-2 space-y-1">
+                  <div>Scores total: {@leaderboard_records}</div>
+                </div>
+              </div>
+
+              <%!-- 6. Groups --%>
+              <div class="card bg-base-100 p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-sm font-semibold">Groups</div>
+                  <.link navigate={~p"/admin/groups"} class="link link-primary text-xs">
+                    View →
+                  </.link>
+                </div>
                 <div class="text-2xl font-bold">{@groups_count}</div>
                 <div class="text-xs text-base-content/60 mt-2 space-y-1">
                   <div>Public: {@groups_public}</div>
@@ -132,16 +158,28 @@ defmodule GameServerWeb.AdminLive.Index do
                 </div>
               </div>
 
+              <%!-- 7. Parties --%>
               <div class="card bg-base-100 p-4">
-                <div class="text-sm font-semibold mb-2">Parties</div>
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-sm font-semibold">Parties</div>
+                  <.link navigate={~p"/admin/parties"} class="link link-primary text-xs">
+                    View →
+                  </.link>
+                </div>
                 <div class="text-2xl font-bold">{@parties_count}</div>
                 <div class="text-xs text-base-content/60 mt-2 space-y-1">
                   <div>Total members: {@parties_members}</div>
                 </div>
               </div>
 
+              <%!-- 8. Chat --%>
               <div class="card bg-base-100 p-4">
-                <div class="text-sm font-semibold mb-2">Chat</div>
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-sm font-semibold">Chat</div>
+                  <.link navigate={~p"/admin/chat"} class="link link-primary text-xs">
+                    View →
+                  </.link>
+                </div>
                 <div class="text-2xl font-bold">{@chat_count}</div>
                 <div class="text-xs text-base-content/60 mt-2 space-y-1">
                   <div>Users who wrote: {@chat_senders}</div>
@@ -152,9 +190,15 @@ defmodule GameServerWeb.AdminLive.Index do
                 </div>
               </div>
 
+              <%!-- 9. Translations --%>
               <div :for={stats <- @translation_stats} class="card bg-base-100 p-4">
-                <div class="text-sm font-semibold mb-2">
-                  Translations ({String.upcase(stats.locale)})
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-sm font-semibold">
+                    Translations ({String.upcase(stats.locale)})
+                  </div>
+                  <.link navigate={~p"/admin/translations"} class="link link-primary text-xs">
+                    View →
+                  </.link>
                 </div>
                 <div class="text-2xl font-bold">
                   {stats.percent}%
@@ -178,6 +222,21 @@ defmodule GameServerWeb.AdminLive.Index do
                   </div>
                 </div>
               </div>
+
+              <%!-- 10. Key-Value --%>
+              <div class="card bg-base-100 p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-sm font-semibold">Key-Value</div>
+                  <.link navigate={~p"/admin/kv"} class="link link-primary text-xs">
+                    View →
+                  </.link>
+                </div>
+                <div class="text-2xl font-bold">{@kv_count}</div>
+                <div class="text-xs text-base-content/60 mt-2 space-y-1">
+                  <div>Global entries: {@kv_global}</div>
+                  <div>User entries: {@kv_user}</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -194,6 +253,8 @@ defmodule GameServerWeb.AdminLive.Index do
     notifications_count = Notifications.count_all_notifications()
     leaderboards_count = Repo.aggregate(Leaderboard, :count)
     kv_count = KV.count_entries()
+    kv_global = KV.count_entries(global_only: true)
+    kv_user = kv_count - kv_global
 
     # finer-grained stats
     users_google = Accounts.count_users_with_provider(:google_id)
@@ -245,6 +306,8 @@ defmodule GameServerWeb.AdminLive.Index do
        lobbies_count: lobbies_count,
        leaderboards_count: leaderboards_count,
        kv_count: kv_count,
+       kv_global: kv_global,
+       kv_user: kv_user,
        users_google: users_google,
        users_facebook: users_facebook,
        users_discord: users_discord,
@@ -286,4 +349,5 @@ defmodule GameServerWeb.AdminLive.Index do
   def handle_event("set_tab", %{"tab" => tab}, socket) do
     {:noreply, assign(socket, :tab, tab)}
   end
+
 end

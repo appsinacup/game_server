@@ -315,7 +315,7 @@ defmodule GameServerWeb.Layouts do
             <.theme_toggle />
           </li>
         </ul>
-        
+
     <!-- Mobile Navigation -->
         <div class="lg:hidden">
           <div class="dropdown dropdown-end">
@@ -560,14 +560,14 @@ defmodule GameServerWeb.Layouts do
       <.flash_group flash={@flash} />
     <% else %>
       <main class="px-4 py-4 sm:px-6 lg:px-8">
-        <div class="mx-auto max-w-2xl lg:max-w-4xl xl:max-w-6xl space-y-4">
+        <div class="mx-auto max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-6xl space-y-4">
           {render_slot(@inner_block)}
         </div>
       </main>
 
       <.flash_group flash={@flash} />
       <footer class="px-4 py-6 sm:px-6 lg:px-8 text-center text-sm text-base-content/70">
-        <div class="mx-auto max-w-2xl lg:max-w-4xl xl:max-w-6xl flex flex-wrap justify-center gap-x-4 gap-y-1">
+        <div class="mx-auto max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-6xl flex flex-wrap justify-center gap-x-4 gap-y-1">
           <%= for link <- @footer_links do %>
             <a
               href={link["href"]}

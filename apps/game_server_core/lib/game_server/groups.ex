@@ -273,6 +273,28 @@ defmodule GameServer.Groups do
     Repo.one(from(m in GroupMember, where: m.group_id == ^group_id, select: count(m.id))) || 0
   end
 
+  @doc "Count how many groups a user has created (is admin of)."
+  @spec count_groups_created_by(integer()) :: non_neg_integer()
+  def count_groups_created_by(user_id) when is_integer(user_id) do
+    Repo.one(
+      from(m in GroupMember,
+        where: m.user_id == ^user_id and m.role == "admin",
+        select: count(m.id)
+      )
+    ) || 0
+  end
+
+  @doc "Count how many groups a user is a member of (any role)."
+  @spec count_user_group_memberships(integer()) :: non_neg_integer()
+  def count_user_group_memberships(user_id) when is_integer(user_id) do
+    Repo.one(
+      from(m in GroupMember,
+        where: m.user_id == ^user_id,
+        select: count(m.id)
+      )
+    ) || 0
+  end
+
   @doc "Get a specific membership."
   @spec get_membership(integer(), integer()) :: GroupMember.t() | nil
   def get_membership(group_id, user_id) do
@@ -402,9 +424,15 @@ defmodule GameServer.Groups do
         {:error, :user_not_found}
 
       user ->
-        case GameServer.Hooks.internal_call(:before_group_create, [user, attrs]) do
-          {:ok, attrs} -> do_create_group(user_id, attrs)
-          {:error, reason} -> {:error, {:hook_rejected, reason}}
+        max_created = GameServer.Limits.get(:max_groups_created_per_user)
+
+        if count_groups_created_by(user_id) >= max_created do
+          {:error, :too_many_groups_created}
+        else
+          case GameServer.Hooks.internal_call(:before_group_create, [user, attrs]) do
+            {:ok, attrs} -> do_create_group(user_id, attrs)
+            {:error, reason} -> {:error, {:hook_rejected, reason}}
+          end
         end
     end
   end
@@ -1055,11 +1083,22 @@ defmodule GameServer.Groups do
       true ->
         import Ecto.Query
 
-        # Delete any existing pending invite for this recipient + group
+        max_invites = GameServer.Limits.get(:max_group_pending_invites)
+        pending_count =
+          Repo.one(
+            from(i in GroupInvite,
+              where: i.recipient_id == ^target_user_id and i.status == "pending",
+              select: count(i.id)
+            )
+          ) || 0
+
+        if pending_count >= max_invites do
+          {:error, :too_many_pending_invites}
+        else
+          # Delete any existing invite for this recipient + group (regardless of status)
+        # to avoid unique constraint violations on re-invites after accept/decline
         from(i in GroupInvite,
-          where:
-            i.recipient_id == ^target_user_id and i.group_id == ^group_id and
-              i.status == "pending"
+          where: i.recipient_id == ^target_user_id and i.group_id == ^group_id
         )
         |> Repo.delete_all()
 
@@ -1093,6 +1132,7 @@ defmodule GameServer.Groups do
 
           {:error, changeset} ->
             {:error, changeset}
+        end
         end
     end
   end
@@ -1159,6 +1199,12 @@ defmodule GameServer.Groups do
 
       if count_group_members(group_id) >= group.max_members do
         Repo.rollback(:full)
+      end
+
+      max_groups = GameServer.Limits.get(:max_groups_per_user)
+
+      if count_user_group_memberships(user_id) >= max_groups do
+        Repo.rollback(:too_many_groups)
       end
 
       case run_before_group_join_hook(user_id, group, %{"source" => source}) do
@@ -1287,6 +1333,7 @@ defmodule GameServer.Groups do
       sender_name: invite.sender.display_name,
       recipient_id: invite.recipient_id,
       recipient_name: invite.recipient.display_name,
+      status: invite.status,
       inserted_at: invite.inserted_at
     }
   end

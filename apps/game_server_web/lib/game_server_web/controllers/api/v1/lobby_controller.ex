@@ -345,19 +345,8 @@ defmodule GameServerWeb.Api.V1.LobbyController do
         param_value(params, "metadata_value", :metadata_value)
       )
 
-    page =
-      case params["page"] || params[:page] do
-        p when is_binary(p) -> String.to_integer(p)
-        p when is_integer(p) -> p
-        _ -> 1
-      end
-
-    page_size =
-      case params["page_size"] || params[:page_size] do
-        p when is_binary(p) -> String.to_integer(p)
-        p when is_integer(p) -> p
-        _ -> 25
-      end
+    page = GameServer.Limits.clamp_page(params["page"] || params[:page])
+    page_size = GameServer.Limits.clamp_page_size(params["page_size"] || params[:page_size])
 
     lobbies = Lobbies.list_lobbies(filters, page: page, page_size: page_size)
     serialized = Enum.map(lobbies, &serialize_lobby/1)

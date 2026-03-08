@@ -295,6 +295,7 @@ defmodule GameServerWeb.Router do
       live "/admin/groups", AdminLive.Groups, :index
       live "/admin/parties", AdminLive.Parties, :index
       live "/admin/chat", AdminLive.Chat, :index
+      live "/admin/translations", AdminLive.Translations, :index
     end
   end
 

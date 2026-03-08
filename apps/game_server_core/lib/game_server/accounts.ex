@@ -1491,6 +1491,38 @@ defmodule GameServer.Accounts do
   end
 
   @doc """
+  Lists tokens for a given user, optionally filtered by context.
+  """
+  @spec list_user_tokens(integer(), keyword()) :: [UserToken.t()]
+  def list_user_tokens(user_id, opts \\ []) when is_integer(user_id) do
+    context = Keyword.get(opts, :context)
+
+    from(t in UserToken, where: t.user_id == ^user_id, order_by: [desc: t.inserted_at])
+    |> then(fn q ->
+      if context, do: where(q, [t], t.context == ^context), else: q
+    end)
+    |> Repo.all()
+  end
+
+  @doc """
+  Counts tokens for a given user.
+  """
+  @spec count_user_tokens(integer()) :: non_neg_integer()
+  def count_user_tokens(user_id) when is_integer(user_id) do
+    from(t in UserToken, where: t.user_id == ^user_id, select: count())
+    |> Repo.one()
+  end
+
+  @doc """
+  Revokes all session tokens for a user (mass logout).
+  """
+  @spec revoke_all_user_sessions(integer()) :: {non_neg_integer(), nil}
+  def revoke_all_user_sessions(user_id) when is_integer(user_id) do
+    from(t in UserToken, where: t.user_id == ^user_id and t.context == "session")
+    |> Repo.delete_all()
+  end
+
+  @doc """
   Deletes a user and associated resources.
 
   Returns `{:ok, user}` on success or `{:error, changeset}` on failure.

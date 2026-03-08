@@ -53,8 +53,9 @@ defmodule GameServer.Chat.Message do
     message
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
-    |> validate_length(:content, min: 1, max: 4096)
+    |> validate_length(:content, min: 1, max: GameServer.Limits.get(:max_chat_content))
     |> validate_inclusion(:chat_type, @chat_types)
+    |> GameServer.Limits.validate_metadata_size(:metadata)
   end
 
   @doc "Changeset for editing an existing message (content and metadata only)."
@@ -62,6 +63,7 @@ defmodule GameServer.Chat.Message do
     message
     |> cast(attrs, [:content, :metadata])
     |> validate_required([:content])
-    |> validate_length(:content, min: 1, max: 4096)
+    |> validate_length(:content, min: 1, max: GameServer.Limits.get(:max_chat_content))
+    |> GameServer.Limits.validate_metadata_size(:metadata)
   end
 end

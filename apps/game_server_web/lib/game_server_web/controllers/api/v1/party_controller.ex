@@ -266,6 +266,10 @@ defmodule GameServerWeb.Api.V1.PartyController do
                sender_name: %Schema{type: :string, nullable: true},
                recipient_id: %Schema{type: :integer},
                recipient_name: %Schema{type: :string, nullable: true},
+               status: %Schema{
+                 type: :string,
+                 description: "pending | accepted | declined | cancelled"
+               },
                inserted_at: %Schema{type: :string, format: "date-time"}
              }
            }
@@ -296,6 +300,10 @@ defmodule GameServerWeb.Api.V1.PartyController do
                sender_name: %Schema{type: :string, nullable: true},
                recipient_id: %Schema{type: :integer},
                recipient_name: %Schema{type: :string, nullable: true},
+               status: %Schema{
+                 type: :string,
+                 description: "pending | accepted | declined | cancelled"
+               },
                inserted_at: %Schema{type: :string, format: "date-time"}
              }
            }
@@ -509,7 +517,7 @@ defmodule GameServerWeb.Api.V1.PartyController do
           end
 
         case Parties.invite_to_party(user, target_id) do
-          {:ok, _notification} ->
+          {:ok, _invite} ->
             json(conn, %{})
 
           {:error, :not_in_party} ->

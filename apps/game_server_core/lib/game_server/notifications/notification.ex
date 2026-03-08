@@ -57,10 +57,11 @@ defmodule GameServer.Notifications.Notification do
     notification
     |> cast(attrs, [:title, :content, :metadata])
     |> validate_required([:title])
-    |> validate_length(:title, min: 1, max: 255)
-    |> validate_length(:content, max: 10_000)
+    |> validate_length(:title, min: 1, max: GameServer.Limits.get(:max_notification_title))
+    |> validate_length(:content, max: GameServer.Limits.get(:max_notification_content))
     |> unique_constraint([:sender_id, :recipient_id, :title],
       name: :notifications_sender_id_recipient_id_title_index
     )
+    |> GameServer.Limits.validate_metadata_size(:metadata)
   end
 end

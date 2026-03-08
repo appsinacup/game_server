@@ -211,7 +211,8 @@ defmodule GameServer.Parties do
          {:ok, target} <- fetch_invite_target(target_user_id),
          :ok <- check_not_already_in_party(target),
          :ok <- check_leader_connected_to_target(leader.id, target_user_id),
-         :ok <- check_no_pending_invite(leader.id, target_user_id) do
+         :ok <- check_no_pending_invite(leader.id, target_user_id),
+         :ok <- check_max_pending_invites(target_user_id) do
       case %PartyInvite{}
            |> PartyInvite.changeset(%{
              party_id: party.id,
@@ -314,6 +315,16 @@ defmodule GameServer.Parties do
   def decline_party_invite(%User{} = user, party_id) when is_integer(party_id) do
     user = Accounts.get_user(user.id)
 
+    # Fetch sender_ids before updating so we can invalidate their caches
+    sender_ids =
+      from(i in PartyInvite,
+        where:
+          i.recipient_id == ^user.id and i.party_id == ^party_id and
+            i.status == "pending",
+        select: i.sender_id
+      )
+      |> Repo.all()
+
     from(i in PartyInvite,
       where:
         i.recipient_id == ^user.id and i.party_id == ^party_id and
@@ -322,6 +333,7 @@ defmodule GameServer.Parties do
     |> Repo.update_all(set: [status: "declined", updated_at: DateTime.utc_now()])
 
     invalidate_party_invite_cache(user.id)
+    Enum.each(sender_ids, &invalidate_party_invite_cache/1)
 
     :ok
   end
@@ -384,6 +396,7 @@ defmodule GameServer.Parties do
       sender_name: invite.sender.display_name,
       recipient_id: invite.recipient_id,
       recipient_name: invite.recipient.display_name,
+      status: invite.status,
       inserted_at: invite.inserted_at
     }
   end
@@ -417,6 +430,20 @@ defmodule GameServer.Parties do
       )
 
     if exists, do: {:error, :already_invited}, else: :ok
+  end
+
+  defp check_max_pending_invites(target_user_id) do
+    max = GameServer.Limits.get(:max_party_pending_invites)
+
+    count =
+      Repo.one(
+        from(i in PartyInvite,
+          where: i.recipient_id == ^target_user_id and i.status == "pending",
+          select: count(i.id)
+        )
+      ) || 0
+
+    if count >= max, do: {:error, :too_many_pending_invites}, else: :ok
   end
 
   # ---------------------------------------------------------------------------

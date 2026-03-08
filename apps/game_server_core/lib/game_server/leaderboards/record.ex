@@ -51,6 +51,7 @@ defmodule GameServer.Leaderboards.Record do
     |> foreign_key_constraint(:leaderboard_id)
     |> foreign_key_constraint(:user_id)
     |> unique_constraint([:leaderboard_id, :user_id])
+    |> GameServer.Limits.validate_metadata_size(:metadata)
   end
 
   @doc """
@@ -60,5 +61,6 @@ defmodule GameServer.Leaderboards.Record do
     record
     |> cast(attrs, [:score, :metadata])
     |> validate_required([:score])
+    |> GameServer.Limits.validate_metadata_size(:metadata)
   end
 end

@@ -103,6 +103,122 @@ defmodule GameServerWeb.Gettext.Stats do
     "#{locale}: #{stats.translated}/#{stats.total} (#{stats.percent}%)"
   end
 
+  @doc """
+  Returns all translation strings for a given locale.
+
+  Each entry is a map with `:domain`, `:msgid`, `:msgstr`, and `:translated?` keys.
+  Optionally filter by domain and/or search query.
+
+  Options:
+    - `:domain` - filter to a specific domain (e.g. `"auth"`)
+    - `:search` - case-insensitive substring search on msgid or msgstr
+    - `:status` - `"translated"`, `"untranslated"`, or `nil` for all
+  """
+  @spec list_strings(String.t(), keyword()) :: [map()]
+  def list_strings(locale, opts \\ []) when is_binary(locale) do
+    po_dir = Path.join([@gettext_dir, locale, "LC_MESSAGES"])
+    domain_filter = Keyword.get(opts, :domain)
+    search = Keyword.get(opts, :search)
+    status_filter = Keyword.get(opts, :status)
+
+    search_down = if search && search != "", do: String.downcase(search), else: nil
+
+    case File.ls(po_dir) do
+      {:ok, files} ->
+        files
+        |> Enum.filter(&String.ends_with?(&1, ".po"))
+        |> Enum.sort()
+        |> Enum.flat_map(fn filename ->
+          domain = String.trim_trailing(filename, ".po")
+
+          if domain_filter && domain_filter != "" && domain != domain_filter do
+            []
+          else
+            path = Path.join(po_dir, filename)
+            parse_strings(domain, path)
+          end
+        end)
+        |> maybe_filter_status(status_filter)
+        |> maybe_filter_search(search_down)
+
+      {:error, _} ->
+        []
+    end
+  end
+
+  @doc """
+  Returns the list of available domains for a locale.
+  """
+  @spec domains(String.t()) :: [String.t()]
+  def domains(locale) when is_binary(locale) do
+    po_dir = Path.join([@gettext_dir, locale, "LC_MESSAGES"])
+
+    case File.ls(po_dir) do
+      {:ok, files} ->
+        files
+        |> Enum.filter(&String.ends_with?(&1, ".po"))
+        |> Enum.sort()
+        |> Enum.map(&String.trim_trailing(&1, ".po"))
+
+      {:error, _} ->
+        []
+    end
+  end
+
+  defp parse_strings(domain, path) do
+    case Expo.PO.parse_file(path) do
+      {:ok, %Expo.Messages{messages: messages}} ->
+        messages
+        |> Enum.reject(&header?/1)
+        |> Enum.map(fn msg ->
+          msgid = extract_msgid(msg)
+          msgstr = extract_msgstr(msg)
+          is_translated = translated?(msg)
+
+          %{
+            domain: domain,
+            msgid: msgid,
+            msgstr: msgstr,
+            translated?: is_translated
+          }
+        end)
+
+      {:error, _} ->
+        []
+    end
+  end
+
+  defp extract_msgid(%Expo.Message.Singular{msgid: parts}), do: IO.iodata_to_binary(parts)
+  defp extract_msgid(%Expo.Message.Plural{msgid: parts}), do: IO.iodata_to_binary(parts)
+
+  defp extract_msgstr(%Expo.Message.Singular{msgstr: parts}), do: IO.iodata_to_binary(parts)
+
+  defp extract_msgstr(%Expo.Message.Plural{msgstr: msgstr}) do
+    msgstr
+    |> Enum.sort_by(fn {idx, _} -> idx end)
+    |> Enum.map_join(" | ", fn {_idx, parts} -> IO.iodata_to_binary(parts) end)
+  end
+
+  defp maybe_filter_status(strings, nil), do: strings
+  defp maybe_filter_status(strings, ""), do: strings
+
+  defp maybe_filter_status(strings, "translated"),
+    do: Enum.filter(strings, & &1.translated?)
+
+  defp maybe_filter_status(strings, "untranslated"),
+    do: Enum.reject(strings, & &1.translated?)
+
+  defp maybe_filter_status(strings, _), do: strings
+
+  defp maybe_filter_search(strings, nil), do: strings
+
+  defp maybe_filter_search(strings, search) do
+    Enum.filter(strings, fn s ->
+      String.contains?(String.downcase(s.msgid), search) ||
+        String.contains?(String.downcase(s.msgstr), search)
+    end)
+  end
+
   defp domain_stats(domain, path) do
     case Expo.PO.parse_file(path) do
       {:ok, %Expo.Messages{messages: messages}} ->
