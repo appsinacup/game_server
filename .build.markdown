@@ -32,6 +32,7 @@ GameServer.KV.md
 GameServer.Leaderboards.Leaderboard.md
 GameServer.Leaderboards.Record.md
 GameServer.Leaderboards.md
+GameServer.Limits.md
 GameServer.Lobbies.Lobby.md
 GameServer.Lobbies.SpectatorTracker.md
 GameServer.Lobbies.md

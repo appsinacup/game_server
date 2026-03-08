@@ -1,4 +1,4 @@
-# GameServer v1.0.707 - API Reference
+# GameServer v1.0.709 - API Reference
 
 ## Modules
 
@@ -44,6 +44,7 @@ leaving, kicking, promoting/demoting members, and handling join requests.
 - [GameServer.Leaderboards](GameServer.Leaderboards.md): The Leaderboards context.
 - [GameServer.Leaderboards.Leaderboard](GameServer.Leaderboards.Leaderboard.md): Ecto schema for the `leaderboards` table.
 - [GameServer.Leaderboards.Record](GameServer.Leaderboards.Record.md): Ecto schema for the `leaderboard_records` table.
+- [GameServer.Limits](GameServer.Limits.md): Central module for configurable validation limits.
 - [GameServer.Lobbies](GameServer.Lobbies.md): Context module for lobby management: creating, updating, listing and searching lobbies.
 - [GameServer.Lobbies.Lobby](GameServer.Lobbies.Lobby.md): Ecto schema for the `lobbies` table and changeset helpers.
 - [GameServer.Lobbies.SpectatorTracker](GameServer.Lobbies.SpectatorTracker.md): Lightweight ETS-based tracker for lobby spectators.

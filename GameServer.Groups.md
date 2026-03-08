@@ -149,6 +149,14 @@ Count members in a group.
 
 Count groups by type.
 
+# `count_groups_created_by`
+
+```elixir
+@spec count_groups_created_by(integer()) :: non_neg_integer()
+```
+
+Count how many groups a user has created (is admin of).
+
 # `count_invitations`
 
 ```elixir
@@ -178,6 +186,14 @@ Count groups matching public filters (excludes hidden).
 ```
 
 Count group invitations sent by a user.
+
+# `count_user_group_memberships`
+
+```elixir
+@spec count_user_group_memberships(integer()) :: non_neg_integer()
+```
+
+Count how many groups a user is a member of (any role).
 
 # `count_user_groups`
 

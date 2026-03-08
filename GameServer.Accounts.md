@@ -118,6 +118,14 @@ Returns {:error, :not_found} or {:error, :expired} when token is invalid/expired
 
 Count users matching a text query (email or display_name). Returns integer.
 
+# `count_user_tokens`
+
+```elixir
+@spec count_user_tokens(integer()) :: non_neg_integer()
+```
+
+Counts tokens for a given user.
+
 # `count_users`
 
 ```elixir
@@ -524,6 +532,17 @@ authenticate using the device_id in addition to their OAuth providers.
 Returns {:ok, user} on success or {:error, changeset} if the device_id
 is already used by another account.
 
+# `list_user_tokens`
+
+```elixir
+@spec list_user_tokens(
+  integer(),
+  keyword()
+) :: [GameServer.Accounts.UserToken.t()]
+```
+
+Lists tokens for a given user, optionally filtered by context.
+
 # `login_user_by_magic_link`
 
 ```elixir
@@ -587,6 +606,14 @@ that receives the encoded token and returns the confirmation URL string.
 
 If sending the confirmation email fails the transaction is rolled back and
 `{:error, reason}` is returned. On success it returns `{:ok, user}`.
+
+# `revoke_all_user_sessions`
+
+```elixir
+@spec revoke_all_user_sessions(integer()) :: {non_neg_integer(), nil}
+```
+
+Revokes all session tokens for a user (mass logout).
 
 # `search_users`
 
