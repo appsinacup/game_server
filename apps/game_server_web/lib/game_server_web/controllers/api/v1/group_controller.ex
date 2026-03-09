@@ -508,7 +508,7 @@ defmodule GameServerWeb.Api.V1.GroupController do
     operation_id: "accept_group_invite",
     summary: "Accept a group invitation",
     description:
-      "Accept an invitation to join a hidden group. Requires a pending GroupInvite record.",
+      "Accept a pending group invitation. Requires a pending GroupInvite record. Works for all group types.",
     security: [%{"authorization" => []}],
     parameters: [
       id: [in: :path, schema: %Schema{type: :integer}, description: "Group ID", required: true]
@@ -516,7 +516,7 @@ defmodule GameServerWeb.Api.V1.GroupController do
     responses: [
       ok: {"Joined successfully", "application/json", @member_schema},
       forbidden:
-        {"Cannot join (full, not hidden, already member)", "application/json", @error_schema},
+        {"Cannot join (full, already member, no invite)", "application/json", @error_schema},
       not_found: {"Group not found", "application/json", @error_schema},
       unauthorized: {"Not authenticated", "application/json", @error_schema}
     ]
@@ -1163,9 +1163,6 @@ defmodule GameServerWeb.Api.V1.GroupController do
 
             {:error, :not_found} ->
               conn |> put_status(:not_found) |> json(%{error: "not_found"})
-
-            {:error, :not_hidden} ->
-              conn |> put_status(:forbidden) |> json(%{error: "not_hidden"})
 
             {:error, :already_member} ->
               conn |> put_status(:forbidden) |> json(%{error: "already_member"})

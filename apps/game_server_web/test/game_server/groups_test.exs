@@ -496,11 +496,11 @@ defmodule GameServer.GroupsTest do
       assert Groups.member?(group.id, other.id)
     end
 
-    test "cannot accept invite for non-hidden group", %{owner: owner, other: other} do
-      {:ok, group} = Groups.create_group(owner.id, %{"title" => "PubNoInv", "type" => "public"})
-      # Create an invite (even though the group is public, for testing the type check)
+    test "user can accept invite for any group type", %{owner: owner, other: other} do
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "PubInvite", "type" => "public"})
       {:ok, _} = Groups.invite_to_group(owner.id, group.id, other.id)
-      assert {:error, :not_hidden} = Groups.accept_invite(other.id, group.id)
+      assert {:ok, %GroupMember{role: "member"}} = Groups.accept_invite(other.id, group.id)
+      assert Groups.member?(group.id, other.id)
     end
 
     test "cannot accept invite if already member", %{owner: owner, other: other} do

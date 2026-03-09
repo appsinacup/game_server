@@ -1139,8 +1139,8 @@ defmodule GameServer.Groups do
   end
 
   @doc """
-  Accept a group invite (for hidden groups). The user must have a pending
-  `GroupInvite` for the group.
+  Accept a pending group invite. The user must have a pending
+  `GroupInvite` for the group. Works for all group types (public, private, hidden).
   """
   @spec accept_invite(integer(), integer()) ::
           {:ok, GroupMember.t()} | {:error, atom()}
@@ -1165,9 +1165,6 @@ defmodule GameServer.Groups do
       is_nil(invite) ->
         {:error, :no_invite}
 
-      group.type != "hidden" ->
-        {:error, :not_hidden}
-
       member?(group_id, user_id) ->
         {:error, :already_member}
 
@@ -1184,6 +1181,32 @@ defmodule GameServer.Groups do
 
             invalidate_invite_cache(user_id)
             invalidate_invite_cache(invite.sender_id)
+
+            # Notify the sender that the invite was accepted
+            user = GameServer.Accounts.get_user(user_id)
+            user_name = (user && user.display_name) || ""
+
+            GameServer.Notifications.admin_create_notification(
+              user_id,
+              invite.sender_id,
+              %{
+                "title" => "group_invite_accepted",
+                "content" => "#{user_name} accepted your invite to #{group.title}",
+                "metadata" => %{
+                  "group_id" => group_id,
+                  "group_name" => group.title,
+                  "user_id" => user_id,
+                  "user_name" => user_name
+                }
+              }
+            )
+
+            # Broadcast so the sender's LiveView refreshes
+            Phoenix.PubSub.broadcast(
+              GameServer.PubSub,
+              "user:#{invite.sender_id}",
+              {:group_invite_accepted, %{group_id: group_id}}
+            )
 
             {:ok, member}
 

@@ -577,11 +577,10 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
       assert Groups.member?(group.id, target.id)
     end
 
-    test "returns 403 for non-hidden group", %{conn: conn} do
+    test "accepts invite for non-hidden group", %{conn: conn} do
       owner = create_user()
       target = create_user()
       {:ok, group} = Groups.create_group(owner.id, %{"title" => "PubAccInv", "type" => "public"})
-      # Create an invite so the :no_invite check passes and :not_hidden is reached
       {:ok, _invite} = Groups.invite_to_group(owner.id, group.id, target.id)
 
       conn =
@@ -589,7 +588,8 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
         |> auth_conn(target)
         |> post("/api/v1/groups/#{group.id}/accept_invite")
 
-      assert %{"error" => "not_hidden"} = json_response(conn, 403)
+      assert json_response(conn, 200)
+      assert Groups.member?(group.id, target.id)
     end
   end
 
