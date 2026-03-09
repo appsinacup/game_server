@@ -1121,8 +1121,8 @@ defmodule GameServer.Groups do
                 "metadata" => %{
                   "group_id" => group_id,
                   "group_name" => group.title,
-                  "sender_name" => sender && sender.display_name,
-                  "recipient_name" => target && target.display_name
+                  "sender_name" => (sender && sender.display_name) || "",
+                  "recipient_name" => (target && target.display_name) || ""
                 }
               })
 
@@ -1331,9 +1331,9 @@ defmodule GameServer.Groups do
       group_id: invite.group_id,
       group_name: invite.group.title,
       sender_id: invite.sender_id,
-      sender_name: invite.sender.display_name,
+      sender_name: invite.sender.display_name || "",
       recipient_id: invite.recipient_id,
-      recipient_name: invite.recipient.display_name,
+      recipient_name: invite.recipient.display_name || "",
       status: invite.status,
       inserted_at: invite.inserted_at
     }

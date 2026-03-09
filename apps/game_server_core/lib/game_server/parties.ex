@@ -227,8 +227,8 @@ defmodule GameServer.Parties do
             "content" => "You have been invited to join a party",
             "metadata" => %{
               "party_id" => party.id,
-              "sender_name" => leader.display_name,
-              "recipient_name" => target.display_name
+              "sender_name" => leader.display_name || "",
+              "recipient_name" => target.display_name || ""
             }
           })
 
@@ -393,9 +393,9 @@ defmodule GameServer.Parties do
       id: invite.id,
       party_id: invite.party_id,
       sender_id: invite.sender_id,
-      sender_name: invite.sender.display_name,
+      sender_name: invite.sender.display_name || "",
       recipient_id: invite.recipient_id,
-      recipient_name: invite.recipient.display_name,
+      recipient_name: invite.recipient.display_name || "",
       status: invite.status,
       inserted_at: invite.inserted_at
     }
