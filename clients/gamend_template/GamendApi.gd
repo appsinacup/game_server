@@ -22,6 +22,9 @@ signal party_updated(party: Dictionary)
 signal party_member_joined(payload: Dictionary)   ## {user_id}
 signal party_member_left(payload: Dictionary)     ## {user_id}
 signal party_disbanded(payload: Dictionary)       ## {party_id}
+signal party_invite_accepted(payload: Dictionary)  ## {party_id, user_id} via user channel
+signal party_invite_declined(payload: Dictionary)  ## {party_id, user_id} via user channel
+signal party_invite_cancelled(payload: Dictionary) ## {party_id, user_id} via user channel
 signal party_chat_message(message: Dictionary)
 signal party_chat_message_updated(message: Dictionary)
 signal party_chat_message_deleted(payload: Dictionary)
@@ -33,8 +36,11 @@ signal friend_offline(payload: Dictionary)        ## {user_id, is_online: false}
 signal friend_request_outgoing(payload: Dictionary)   ## {id, requester_id, target_id, status}
 signal friend_request_incoming(payload: Dictionary)   ## {id, requester_id, target_id, status}
 signal friend_added(payload: Dictionary)              ## friend accepted / new friendship created
+signal friend_rejected(payload: Dictionary)           ## friend request rejected
 signal friend_request_cancelled(payload: Dictionary)  ## sender cancelled a pending request
 signal friend_removed(payload: Dictionary)            ## an existing friendship was removed
+signal friend_blocked(payload: Dictionary)            ## user blocked
+signal friend_unblocked(payload: Dictionary)          ## user unblocked
 ## Friend DM chat (via user channel)
 signal friend_chat_message(message: Dictionary)
 signal friend_chat_message_updated(message: Dictionary)
@@ -47,8 +53,12 @@ signal group_member_left(payload: Dictionary)
 signal group_member_kicked(payload: Dictionary)
 signal group_member_promoted(payload: Dictionary)
 signal group_member_demoted(payload: Dictionary)
-signal group_join_request_approved(payload: Dictionary)
-signal group_join_request_rejected(payload: Dictionary)
+signal group_member_online(payload: Dictionary)
+signal group_member_offline(payload: Dictionary)
+signal group_join_request_approved(payload: Dictionary)  ## A join request was approved (group channel: for admins; user channel: my request)
+signal group_join_request_rejected(payload: Dictionary)  ## A join request was rejected (group channel: for admins; user channel: my request)
+signal group_invite_accepted(payload: Dictionary)        ## {group_id} via user channel
+signal group_invite_cancelled(payload: Dictionary)       ## {group_id, group_name} via user channel
 signal group_chat_message(message: Dictionary)
 signal group_chat_message_updated(message: Dictionary)
 signal group_chat_message_deleted(payload: Dictionary)
@@ -274,6 +284,26 @@ func _handle_user_event(event: String, payload: Dictionary):
 			friend_chat_message_updated.emit(payload)
 		"chat_message_deleted":
 			friend_chat_message_deleted.emit(payload)
+		"group_invite_accepted":
+			group_invite_accepted.emit(payload)
+		"group_invite_cancelled":
+			group_invite_cancelled.emit(payload)
+		"group_join_approved":
+			group_join_request_approved.emit(payload)
+		"group_join_rejected":
+			group_join_request_rejected.emit(payload)
+		"party_invite_accepted":
+			party_invite_accepted.emit(payload)
+		"party_invite_declined":
+			party_invite_declined.emit(payload)
+		"party_invite_cancelled":
+			party_invite_cancelled.emit(payload)
+		"friend_blocked":
+			friend_blocked.emit(payload)
+		"friend_unblocked":
+			friend_unblocked.emit(payload)
+		"friend_rejected":
+			friend_rejected.emit(payload)
 
 func _handle_lobby_event(event: String, payload: Dictionary):
 	match event:
@@ -325,6 +355,10 @@ func _handle_group_event(event: String, payload: Dictionary):
 			group_member_promoted.emit(payload)
 		"member_demoted":
 			group_member_demoted.emit(payload)
+		"member_online":
+			group_member_online.emit(payload)
+		"member_offline":
+			group_member_offline.emit(payload)
 		"join_request_approved":
 			group_join_request_approved.emit(payload)
 		"join_request_rejected":
