@@ -83,36 +83,497 @@
         <pre>
   Channel              Topic              Client events (push)
   ───────              ─────              ────────────────────
-  UserChannel       "user:{id}"         updated (profile changes)
-                                        notification (new notification)
-                                        friend_online, friend_offline
-  LobbyChannel      "lobby:{id}"        user_joined, user_left,
-                                        user_kicked, updated,
-                                        host_changed
+  UserChannel       "user:{id}"         updated, notification,
+                                        friend_online, friend_offline,
+                                        new_chat_message,
+                                        chat_message_updated,
+                                        chat_message_deleted,
+                                        group_invite_accepted,
+                                        group_invite_cancelled,
+                                        group_join_approved,
+                                        group_join_rejected,
+                                        party_invite_accepted,
+                                        party_invite_declined,
+                                        party_invite_cancelled,
+                                        incoming_request, outgoing_request,
+                                        friend_accepted, friend_rejected,
+                                        request_cancelled, friend_removed,
+                                        friend_blocked, friend_unblocked
+  LobbyChannel      "lobby:{id}"        updated, user_joined, user_left,
+                                        user_kicked, host_changed,
+                                        new_chat_message,
+                                        chat_message_updated,
+                                        chat_message_deleted
   LobbiesChannel    "lobbies"           lobby_created, lobby_updated,
                                         lobby_deleted,
                                         lobby_membership_changed
-  GroupChannel      "group:{id}"        member_joined, member_left,
+  GroupChannel      "group:{id}"        updated, member_joined, member_left,
                                         member_kicked, member_promoted,
-                                        member_demoted, updated,
+                                        member_demoted,
                                         join_request_approved,
-                                        join_request_rejected
+                                        join_request_rejected,
+                                        new_chat_message,
+                                        chat_message_updated,
+                                        chat_message_deleted
   GroupsChannel     "groups"            group_created, group_updated,
                                         group_deleted
-  PartyChannel      "party:{id}"        member_joined, member_left,
-                                        updated, disbanded
+  PartyChannel      "party:{id}"        updated, member_joined, member_left,
+                                        disbanded,
+                                        new_chat_message,
+                                        chat_message_updated,
+                                        chat_message_deleted</pre>
+      </div>
 
-  Chat-specific topics (broadcast via existing channels):
-  ─────────────────────────────────────────────────────────
-  LobbyChannel      "chat:lobby:{id}"   new_chat_message,
-                                        chat_message_updated,
-                                        chat_message_deleted
-  GroupChannel      "chat:group:{id}"   new_chat_message,
-                                        chat_message_updated,
-                                        chat_message_deleted
-  UserChannel       "chat:friend:{lo}:{hi}"  new_chat_message,
-                    + "user:{recipient_id}"   chat_message_updated,
-                                              chat_message_deleted</pre>
+      <h3 class="font-semibold mt-3">{doc_text("Event payload reference")}</h3>
+      <p class="text-sm text-base-content/80 mb-2">
+        {doc_text(
+          "Detailed payload shapes for every event pushed from the server to the client, grouped by channel."
+        )}
+      </p>
+
+      <%!-- UserChannel events --%>
+      <h4 class="font-semibold text-sm mt-4">
+        {doc_text("UserChannel")}
+        <code class="font-mono text-xs ml-1" phx-no-curly-interpolation>user:{user_id}</code>
+      </h4>
+      <div class="overflow-x-auto">
+        <table class="table table-xs w-full">
+          <thead>
+            <tr>
+              <th>{doc_text("Event")}</th>
+              <th>{doc_text("When")}</th>
+              <th>{doc_text("Payload")}</th>
+            </tr>
+          </thead>
+          <tbody class="text-xs">
+            <tr>
+              <td class="font-mono">updated</td>
+              <td>{doc_text("Profile changes, on join")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, email, display_name, metadata, lobby_id, party_id, is_online, last_seen_at, linked_providers, has_password}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">notification</td>
+              <td>{doc_text("New notification / all on join")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, sender_id, recipient_id, title, content, metadata, inserted_at}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">friend_online</td>
+              <td>{doc_text("A friend came online")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{user_id, is_online: true}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">friend_offline</td>
+              <td>{doc_text("A friend went offline")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{user_id, is_online: false}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">new_chat_message</td>
+              <td>{doc_text("Friend DM received")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, content, metadata, sender_id, chat_type, chat_ref_id, inserted_at}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">chat_message_updated</td>
+              <td>{doc_text("Friend DM edited")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, content, metadata, sender_id, chat_type, chat_ref_id, inserted_at}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">chat_message_deleted</td>
+              <td>{doc_text("Friend DM deleted")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">group_invite_accepted</td>
+              <td>{doc_text("Someone accepted your group invite")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{group_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">group_invite_cancelled</td>
+              <td>{doc_text("Group deleted — pending invites cancelled")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{group_id, group_name}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">group_join_approved</td>
+              <td>{doc_text("Your group join request was approved")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{group_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">group_join_rejected</td>
+              <td>{doc_text("Your group join request was declined")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{group_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">party_invite_accepted</td>
+              <td>{doc_text("Someone accepted your party invite")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{party_id, user_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">party_invite_declined</td>
+              <td>{doc_text("Someone declined your party invite")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{party_id, user_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">party_invite_cancelled</td>
+              <td>{doc_text("Party leader cancelled your invite")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{party_id, user_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">incoming_request</td>
+              <td>{doc_text("Friend request received")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, requester_id, target_id, status}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">outgoing_request</td>
+              <td>{doc_text("Friend request sent (echo)")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, requester_id, target_id, status}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">friend_accepted</td>
+              <td>{doc_text("Friend request accepted")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, requester_id, target_id, status}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">friend_rejected</td>
+              <td>{doc_text("Friend request rejected")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, requester_id, target_id, status}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">request_cancelled</td>
+              <td>{doc_text("Friend request cancelled")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, requester_id, target_id, status}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">friend_removed</td>
+              <td>{doc_text("Friendship removed")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, requester_id, target_id, status}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">friend_blocked</td>
+              <td>{doc_text("User blocked")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, requester_id, target_id, status}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">friend_unblocked</td>
+              <td>{doc_text("User unblocked")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, requester_id, target_id, status}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="text-xs text-base-content/60 mt-1">
+        {doc_text(
+          "The UserChannel also accepts a \"call_hook\" push from the client to invoke server-side plugin hooks with a reply."
+        )}
+      </p>
+
+      <%!-- LobbyChannel events --%>
+      <h4 class="font-semibold text-sm mt-4">
+        {doc_text("LobbyChannel")}
+        <code class="font-mono text-xs ml-1" phx-no-curly-interpolation>lobby:{lobby_id}</code>
+      </h4>
+      <div class="overflow-x-auto">
+        <table class="table table-xs w-full">
+          <thead>
+            <tr>
+              <th>{doc_text("Event")}</th>
+              <th>{doc_text("When")}</th>
+              <th>{doc_text("Payload")}</th>
+            </tr>
+          </thead>
+          <tbody class="text-xs">
+            <tr>
+              <td class="font-mono">updated</td>
+              <td>{doc_text("Lobby settings changed, on join")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, title, host_id, hostless, max_users, is_hidden, is_locked, metadata}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">user_joined</td>
+              <td>{doc_text("A user joined the lobby")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{user_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">user_left</td>
+              <td>{doc_text("A user left the lobby")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{user_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">user_kicked</td>
+              <td>{doc_text("A user was kicked")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{user_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">host_changed</td>
+              <td>{doc_text("Lobby host changed")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{new_host_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">new_chat_message</td>
+              <td>{doc_text("New lobby chat message")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, content, metadata, sender_id, chat_type, chat_ref_id, inserted_at}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">chat_message_updated</td>
+              <td>{doc_text("Lobby chat message edited")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, content, metadata, sender_id, chat_type, chat_ref_id, inserted_at}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">chat_message_deleted</td>
+              <td>{doc_text("Lobby chat message deleted")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{id}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <%!-- LobbiesChannel events --%>
+      <h4 class="font-semibold text-sm mt-4">
+        {doc_text("LobbiesChannel")}
+        <code class="font-mono text-xs ml-1">lobbies</code>
+      </h4>
+      <div class="overflow-x-auto">
+        <table class="table table-xs w-full">
+          <thead>
+            <tr>
+              <th>{doc_text("Event")}</th>
+              <th>{doc_text("When")}</th>
+              <th>{doc_text("Payload")}</th>
+            </tr>
+          </thead>
+          <tbody class="text-xs">
+            <tr>
+              <td class="font-mono">lobby_created</td>
+              <td>{doc_text("New lobby created")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, title, host_id, hostless, max_users, is_hidden, is_locked, metadata, is_passworded}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">lobby_updated</td>
+              <td>{doc_text("Lobby settings changed")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, title, host_id, hostless, max_users, is_hidden, is_locked, metadata, is_passworded}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">lobby_deleted</td>
+              <td>{doc_text("Lobby deleted")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">lobby_membership_changed</td>
+              <td>{doc_text("Member count changed")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{id}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <%!-- GroupChannel events --%>
+      <h4 class="font-semibold text-sm mt-4">
+        {doc_text("GroupChannel")}
+        <code class="font-mono text-xs ml-1" phx-no-curly-interpolation>group:{group_id}</code>
+      </h4>
+      <div class="overflow-x-auto">
+        <table class="table table-xs w-full">
+          <thead>
+            <tr>
+              <th>{doc_text("Event")}</th>
+              <th>{doc_text("When")}</th>
+              <th>{doc_text("Payload")}</th>
+            </tr>
+          </thead>
+          <tbody class="text-xs">
+            <tr>
+              <td class="font-mono">updated</td>
+              <td>{doc_text("Group settings changed, on join")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, title, description, type, max_members, creator_id, metadata}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">member_joined</td>
+              <td>{doc_text("New member joined")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{group_id, user_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">member_left</td>
+              <td>{doc_text("Member left")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{group_id, user_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">member_kicked</td>
+              <td>{doc_text("Member kicked")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{group_id, user_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">member_promoted</td>
+              <td>{doc_text("Member promoted to admin")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{group_id, user_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">member_demoted</td>
+              <td>{doc_text("Admin demoted to member")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{group_id, user_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">join_request_approved</td>
+              <td>{doc_text("Join request approved by admin")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{group_id, user_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">join_request_rejected</td>
+              <td>{doc_text("Join request rejected by admin")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{group_id, user_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">new_chat_message</td>
+              <td>{doc_text("New group chat message")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, content, metadata, sender_id, chat_type, chat_ref_id, inserted_at}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">chat_message_updated</td>
+              <td>{doc_text("Group chat message edited")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, content, metadata, sender_id, chat_type, chat_ref_id, inserted_at}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">chat_message_deleted</td>
+              <td>{doc_text("Group chat message deleted")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{id}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <%!-- GroupsChannel events --%>
+      <h4 class="font-semibold text-sm mt-4">
+        {doc_text("GroupsChannel")}
+        <code class="font-mono text-xs ml-1">groups</code>
+      </h4>
+      <div class="overflow-x-auto">
+        <table class="table table-xs w-full">
+          <thead>
+            <tr>
+              <th>{doc_text("Event")}</th>
+              <th>{doc_text("When")}</th>
+              <th>{doc_text("Payload")}</th>
+            </tr>
+          </thead>
+          <tbody class="text-xs">
+            <tr>
+              <td class="font-mono">group_created</td>
+              <td>{doc_text("New group created (excludes hidden)")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, title, description, type, max_members, creator_id, metadata}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">group_updated</td>
+              <td>{doc_text("Group settings changed (excludes hidden)")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, title, description, type, max_members, creator_id, metadata}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">group_deleted</td>
+              <td>{doc_text("Group deleted")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{id}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <%!-- PartyChannel events --%>
+      <h4 class="font-semibold text-sm mt-4">
+        {doc_text("PartyChannel")}
+        <code class="font-mono text-xs ml-1" phx-no-curly-interpolation>party:{party_id}</code>
+      </h4>
+      <div class="overflow-x-auto">
+        <table class="table table-xs w-full">
+          <thead>
+            <tr>
+              <th>{doc_text("Event")}</th>
+              <th>{doc_text("When")}</th>
+              <th>{doc_text("Payload")}</th>
+            </tr>
+          </thead>
+          <tbody class="text-xs">
+            <tr>
+              <td class="font-mono">updated</td>
+              <td>{doc_text("Party settings changed, on join")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, leader_id, max_size, code, metadata}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">member_joined</td>
+              <td>{doc_text("User joined the party")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{user_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">member_left</td>
+              <td>{doc_text("User left the party")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{user_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">disbanded</td>
+              <td>{doc_text("Party was disbanded")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{party_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">new_chat_message</td>
+              <td>{doc_text("New party chat message")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, content, metadata, sender_id, chat_type, chat_ref_id, inserted_at}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">chat_message_updated</td>
+              <td>{doc_text("Party chat message edited")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, content, metadata, sender_id, chat_type, chat_ref_id, inserted_at}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">chat_message_deleted</td>
+              <td>{doc_text("Party chat message deleted")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{id}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <h3 class="font-semibold mt-3">{doc_text("How it works")}</h3>

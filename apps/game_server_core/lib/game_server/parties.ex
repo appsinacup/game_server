@@ -319,6 +319,13 @@ defmodule GameServer.Parties do
       invalidate_party_invite_cache(leader.id)
       invalidate_party_invite_cache(target_user_id)
 
+      # Notify the recipient that the invite was cancelled
+      Phoenix.PubSub.broadcast(
+        GameServer.PubSub,
+        "user:#{target_user_id}",
+        {:party_invite_cancelled, %{party_id: party.id, user_id: leader.id}}
+      )
+
       :ok
     end
   end
@@ -362,6 +369,13 @@ defmodule GameServer.Parties do
         # Cancel pending invites to this user from OTHER parties
         cancel_other_pending_invites_for_user(user.id, party_id)
 
+        # Notify the sender that the invite was accepted
+        Phoenix.PubSub.broadcast(
+          GameServer.PubSub,
+          "user:#{invite.sender_id}",
+          {:party_invite_accepted, %{party_id: party_id, user_id: user.id}}
+        )
+
         {:ok, party}
       end
     end
@@ -393,6 +407,15 @@ defmodule GameServer.Parties do
 
     invalidate_party_invite_cache(user.id)
     Enum.each(sender_ids, &invalidate_party_invite_cache/1)
+
+    # Notify each sender that the invite was declined
+    Enum.each(sender_ids, fn sender_id ->
+      Phoenix.PubSub.broadcast(
+        GameServer.PubSub,
+        "user:#{sender_id}",
+        {:party_invite_declined, %{party_id: party_id, user_id: user.id}}
+      )
+    end)
 
     :ok
   end

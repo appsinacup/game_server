@@ -3508,9 +3508,6 @@
   .bg-green-500 {
     background-color: var(--color-green-500);
   }
-  .bg-info {
-    background-color: var(--color-info);
-  }
   .bg-info\/10 {
     background-color: var(--color-info);
     @supports (color: color-mix(in lab, red, red)) {
