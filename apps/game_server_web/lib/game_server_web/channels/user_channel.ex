@@ -172,6 +172,18 @@ defmodule GameServerWeb.UserChannel do
     {:noreply, socket}
   end
 
+  @impl true
+  def handle_info({:group_invite_accepted, payload}, socket) do
+    push(socket, "group_invite_accepted", payload)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:group_invite_cancelled, payload}, socket) do
+    push(socket, "group_invite_cancelled", payload)
+    {:noreply, socket}
+  end
+
   # Catch-all for unknown messages
   @impl true
   def handle_info(_msg, socket) do

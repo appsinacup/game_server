@@ -137,6 +137,103 @@ defmodule GameServer.Groups do
     :ok
   end
 
+  # Synchronous version — used when the caller needs the cache to be
+  # invalidated immediately before returning (e.g. accept_invite where the
+  # client polls right away).
+  defp invalidate_invite_cache_sync(user_id) when is_integer(user_id) do
+    _ = GameServer.Cache.incr({:group_invites, :version, user_id}, 1, default: 1)
+    :ok
+  end
+
+  # Mark any pending GroupInvite records for a user+group as "accepted" and
+  # notify/invalidate caches for each sender. Called when a user joins a group
+  # through a path other than accept_invite (e.g. manual join, admin approval).
+  defp mark_pending_invites_accepted(user_id, group_id) do
+    pending_invites =
+      from(i in GroupInvite,
+        where:
+          i.recipient_id == ^user_id and i.group_id == ^group_id and
+            i.status == "pending"
+      )
+      |> Repo.all()
+
+    if pending_invites != [] do
+      from(i in GroupInvite,
+        where:
+          i.recipient_id == ^user_id and i.group_id == ^group_id and
+            i.status == "pending"
+      )
+      |> Repo.update_all(set: [status: "accepted", updated_at: DateTime.utc_now()])
+
+      invalidate_invite_cache_sync(user_id)
+
+      user = GameServer.Accounts.get_user(user_id)
+      user_name = (user && user.display_name) || ""
+      group = get_group(group_id)
+      group_title = (group && group.title) || ""
+
+      sender_ids = pending_invites |> Enum.map(& &1.sender_id) |> Enum.uniq()
+
+      for sender_id <- sender_ids do
+        invalidate_invite_cache_sync(sender_id)
+
+        GameServer.Notifications.admin_create_notification(
+          user_id,
+          sender_id,
+          %{
+            "title" => "group_invite_accepted",
+            "content" => "#{user_name} joined #{group_title}",
+            "metadata" => %{
+              "group_id" => group_id,
+              "group_name" => group_title,
+              "user_id" => user_id,
+              "user_name" => user_name
+            }
+          }
+        )
+
+        Phoenix.PubSub.broadcast(
+          GameServer.PubSub,
+          "user:#{sender_id}",
+          {:group_invite_accepted, %{group_id: group_id}}
+        )
+      end
+    end
+
+    :ok
+  end
+
+  # Collect unique user IDs (senders + recipients) with pending invites for a group.
+  # Must be called BEFORE deleting the group (cascade deletes the rows).
+  defp gather_pending_invite_user_ids(group_id) do
+    from(i in GroupInvite,
+      where: i.group_id == ^group_id and i.status == "pending",
+      select: {i.sender_id, i.recipient_id}
+    )
+    |> Repo.all()
+    |> Enum.flat_map(fn {s, r} -> [s, r] end)
+    |> Enum.uniq()
+  end
+
+  # Invalidate invite caches for a list of user IDs.
+  defp invalidate_invite_caches_for_users(user_ids) do
+    for uid <- user_ids, do: invalidate_invite_cache_sync(uid)
+    :ok
+  end
+
+  # Broadcast a group_deleted event to each user who had a pending invite.
+  defp notify_invite_users_group_deleted(user_ids, group) do
+    for uid <- user_ids do
+      Phoenix.PubSub.broadcast(
+        GameServer.PubSub,
+        "user:#{uid}",
+        {:group_invite_cancelled, %{group_id: group.id, group_name: group.title}}
+      )
+    end
+
+    :ok
+  end
+
   # ---------------------------------------------------------------------------
   # Queries – single group
   # ---------------------------------------------------------------------------
@@ -554,10 +651,14 @@ defmodule GameServer.Groups do
 
       true ->
         group = get_group!(group_id)
+        # Gather pending invite user IDs before cascade-delete removes them
+        pending_invite_user_ids = gather_pending_invite_user_ids(group_id)
 
         case Repo.delete(group) do
           {:ok, deleted} ->
             _ = invalidate_group_cache(deleted.id)
+            invalidate_invite_caches_for_users(pending_invite_user_ids)
+            notify_invite_users_group_deleted(pending_invite_user_ids, deleted)
             GameServer.Chat.cleanup_chat("group", deleted.id)
             broadcast_groups({:group_deleted, deleted.id})
             {:ok, deleted}
@@ -572,10 +673,14 @@ defmodule GameServer.Groups do
   @spec admin_delete_group(integer()) :: {:ok, Group.t()} | {:error, term()}
   def admin_delete_group(group_id) when is_integer(group_id) do
     group = get_group!(group_id)
+    # Gather pending invite user IDs before cascade-delete removes them
+    pending_invite_user_ids = gather_pending_invite_user_ids(group_id)
 
     case Repo.delete(group) do
       {:ok, deleted} ->
         _ = invalidate_group_cache(deleted.id)
+        invalidate_invite_caches_for_users(pending_invite_user_ids)
+        notify_invite_users_group_deleted(pending_invite_user_ids, deleted)
         GameServer.Chat.cleanup_chat("group", deleted.id)
         broadcast_groups({:group_deleted, deleted.id})
         {:ok, deleted}
@@ -641,7 +746,15 @@ defmodule GameServer.Groups do
         {:error, :already_member}
 
       true ->
-        do_add_group_member(user_id, group_id, group, "public_join")
+        case do_add_group_member(user_id, group_id, group, "public_join") do
+          {:ok, member} ->
+            # Clean up any pending invites for this user + group
+            mark_pending_invites_accepted(user_id, group_id)
+            {:ok, member}
+
+          error ->
+            error
+        end
     end
   end
 
@@ -977,6 +1090,7 @@ defmodule GameServer.Groups do
         |> case do
           {:ok, %{membership: member}} ->
             _ = invalidate_group_cache(group_id)
+            mark_pending_invites_accepted(user_id, group_id)
             broadcast_group(group_id, {:join_request_approved, group_id, user_id})
             broadcast_group(group_id, {:member_joined, group_id, user_id})
             {:ok, member}
@@ -1146,7 +1260,6 @@ defmodule GameServer.Groups do
           {:ok, GroupMember.t()} | {:error, atom()}
   def accept_invite(user_id, group_id)
       when is_integer(user_id) and is_integer(group_id) do
-    import Ecto.Query
     group = get_group(group_id)
 
     invite =
@@ -1179,8 +1292,8 @@ defmodule GameServer.Groups do
             )
             |> Repo.update_all(set: [status: "accepted", updated_at: DateTime.utc_now()])
 
-            invalidate_invite_cache(user_id)
-            invalidate_invite_cache(invite.sender_id)
+            invalidate_invite_cache_sync(user_id)
+            invalidate_invite_cache_sync(invite.sender_id)
 
             # Notify the sender that the invite was accepted
             user = GameServer.Accounts.get_user(user_id)

@@ -2706,6 +2706,7 @@ defmodule GameServerWeb.UserLive.Settings do
              :group_updated,
              :group_deleted,
              :group_invite_accepted,
+             :group_invite_cancelled,
              :member_joined,
              :member_left,
              :member_kicked,

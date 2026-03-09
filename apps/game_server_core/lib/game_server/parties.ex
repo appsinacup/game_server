@@ -94,6 +94,62 @@ defmodule GameServer.Parties do
     :ok
   end
 
+  # Cancel all pending invites for a party (used when party is disbanded/deleted).
+  # Invalidates invite caches for all affected senders and recipients.
+  defp cancel_pending_invites_for_party(party_id) do
+    pending =
+      from(i in PartyInvite,
+        where: i.party_id == ^party_id and i.status == "pending",
+        select: {i.sender_id, i.recipient_id}
+      )
+      |> Repo.all()
+
+    if pending != [] do
+      from(i in PartyInvite,
+        where: i.party_id == ^party_id and i.status == "pending"
+      )
+      |> Repo.update_all(set: [status: "cancelled", updated_at: DateTime.utc_now()])
+
+      user_ids = pending |> Enum.flat_map(fn {s, r} -> [s, r] end) |> Enum.uniq()
+
+      for uid <- user_ids do
+        invalidate_party_invite_cache(uid)
+      end
+    end
+
+    :ok
+  end
+
+  # Cancel pending invites to a user from parties OTHER than the one they just joined.
+  # Called after accept_party_invite so stale invites from other parties are cleaned up.
+  defp cancel_other_pending_invites_for_user(user_id, joined_party_id) do
+    pending =
+      from(i in PartyInvite,
+        where:
+          i.recipient_id == ^user_id and i.party_id != ^joined_party_id and
+            i.status == "pending",
+        select: {i.sender_id, i.party_id}
+      )
+      |> Repo.all()
+
+    if pending != [] do
+      from(i in PartyInvite,
+        where:
+          i.recipient_id == ^user_id and i.party_id != ^joined_party_id and
+            i.status == "pending"
+      )
+      |> Repo.update_all(set: [status: "cancelled", updated_at: DateTime.utc_now()])
+
+      sender_ids = pending |> Enum.map(fn {s, _} -> s end) |> Enum.uniq()
+
+      for sender_id <- sender_ids do
+        invalidate_party_invite_cache(sender_id)
+      end
+    end
+
+    :ok
+  end
+
   # ---------------------------------------------------------------------------
   # Queries
   # ---------------------------------------------------------------------------
@@ -302,6 +358,9 @@ defmodule GameServer.Parties do
 
         invalidate_party_invite_cache(user.id)
         invalidate_party_invite_cache(invite.sender_id)
+
+        # Cancel pending invites to this user from OTHER parties
+        cancel_other_pending_invites_for_user(user.id, party_id)
 
         {:ok, party}
       end
@@ -855,6 +914,9 @@ defmodule GameServer.Parties do
       end
     end)
 
+    # Cancel all pending invites for this party
+    cancel_pending_invites_for_party(party.id)
+
     # Delete the party
     Repo.delete(party)
     broadcast_party(party.id, {:party_disbanded, party.id})
@@ -988,6 +1050,9 @@ defmodule GameServer.Parties do
         # Clear all members' party_id
         from(u in User, where: u.party_id == ^party_id)
         |> Repo.update_all(set: [party_id: nil])
+
+        # Cancel all pending invites for this party
+        cancel_pending_invites_for_party(party_id)
 
         case Repo.delete(party) do
           {:ok, deleted} ->
