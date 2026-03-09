@@ -1896,11 +1896,14 @@ defmodule GameServerWeb.UserLive.Settings do
 
       {"update_display_name", %{"user" => user_params}} ->
         case Accounts.update_user_display_name(user, user_params) do
-          {:ok, user} ->
+          {:ok, updated_user} ->
+            updated_scope = %{socket.assigns.current_scope | user: updated_user}
+
             {:noreply,
              socket
              |> put_flash(:info, dgettext("settings", "Display name updated."))
-             |> assign(:user, user)}
+             |> assign(:user, updated_user)
+             |> assign(:current_scope, updated_scope)}
 
           {:error, changeset} ->
             {:noreply, assign(socket, display_form: to_form(changeset, action: :insert))}

@@ -427,6 +427,7 @@ defmodule GameServer.Chat do
     |> order_by([m], desc: m.inserted_at, desc: m.id)
     |> limit(^page_size)
     |> offset(^offset)
+    |> preload(:sender)
     |> Repo.all()
   end
 
@@ -452,7 +453,8 @@ defmodule GameServer.Chat do
           (m.chat_type == "friend" and m.sender_id == ^user_b_id and m.chat_ref_id == ^user_a_id),
       order_by: [desc: m.inserted_at, desc: m.id],
       limit: ^page_size,
-      offset: ^offset
+      offset: ^offset,
+      preload: [:sender]
     )
     |> Repo.all()
   end

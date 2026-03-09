@@ -1714,8 +1714,8 @@ defmodule GameServer.Accounts do
   def update_user_display_name(%User{} = user, attrs) do
     case User.display_name_changeset(user, attrs) |> Repo.update() do
       {:ok, updated} = ok ->
-        invalidate_user_cache(user)
-        invalidate_user_cache(updated)
+        invalidate_user_cache_sync(user)
+        invalidate_user_cache_sync(updated)
         broadcast_user_update(updated)
 
         GameServer.Async.run(fn ->
