@@ -1093,6 +1093,32 @@ defmodule GameServer.Groups do
             mark_pending_invites_accepted(user_id, group_id)
             broadcast_group(group_id, {:join_request_approved, group_id, user_id})
             broadcast_group(group_id, {:member_joined, group_id, user_id})
+
+            # Notify the user that their join request was approved
+            admin = GameServer.Accounts.get_user(admin_id)
+            admin_name = (admin && admin.display_name) || ""
+
+            GameServer.Notifications.admin_create_notification(
+              admin_id,
+              user_id,
+              %{
+                "title" => "group_join_approved",
+                "content" => "Your request to join #{group.title} was approved",
+                "metadata" => %{
+                  "group_id" => group_id,
+                  "group_name" => group.title,
+                  "admin_id" => admin_id,
+                  "admin_name" => admin_name
+                }
+              }
+            )
+
+            Phoenix.PubSub.broadcast(
+              GameServer.PubSub,
+              "user:#{user_id}",
+              {:group_join_approved, %{group_id: group_id}}
+            )
+
             {:ok, member}
 
           {:error, _op, changeset, _} ->
@@ -1124,6 +1150,30 @@ defmodule GameServer.Groups do
           |> case do
             {:ok, updated} ->
               broadcast_group(group_id, {:join_request_rejected, group_id, updated.user_id})
+
+              # Notify the user that their join request was rejected
+              group = get_group(group_id)
+              group_title = (group && group.title) || ""
+
+              GameServer.Notifications.admin_create_notification(
+                admin_id,
+                updated.user_id,
+                %{
+                  "title" => "group_join_rejected",
+                  "content" => "Your request to join #{group_title} was declined",
+                  "metadata" => %{
+                    "group_id" => group_id,
+                    "group_name" => group_title
+                  }
+                }
+              )
+
+              Phoenix.PubSub.broadcast(
+                GameServer.PubSub,
+                "user:#{updated.user_id}",
+                {:group_join_rejected, %{group_id: group_id}}
+              )
+
               {:ok, updated}
 
             error ->

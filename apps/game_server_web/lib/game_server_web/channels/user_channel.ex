@@ -184,6 +184,18 @@ defmodule GameServerWeb.UserChannel do
     {:noreply, socket}
   end
 
+  @impl true
+  def handle_info({:group_join_approved, payload}, socket) do
+    push(socket, "group_join_approved", payload)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:group_join_rejected, payload}, socket) do
+    push(socket, "group_join_rejected", payload)
+    {:noreply, socket}
+  end
+
   # Catch-all for unknown messages
   @impl true
   def handle_info(_msg, socket) do
