@@ -53,8 +53,8 @@ three visibility types:
   {:ok, GameServer.Groups.GroupMember.t()} | {:error, atom()}
 ```
 
-Accept a group invite (for hidden groups). The user must have a pending
-`GroupInvite` for the group.
+Accept a pending group invite. The user must have a pending
+`GroupInvite` for the group. Works for all group types (public, private, hidden).
 
 # `admin?`
 
