@@ -570,7 +570,7 @@ defmodule GameServerWeb.UserLive.Settings do
                       {s.display_name || s.email}
                       <span class="text-xs text-base-content/60 ml-2">(id: {s.id})</span>
                     </div>
-                    <div>
+                    <div :if={s.id != @current_scope.user.id}>
                       <button
                         phx-click="send_friend"
                         phx-value-target={s.id}
@@ -1070,6 +1070,7 @@ defmodule GameServerWeb.UserLive.Settings do
                         </div>
                       </div>
                       <button
+                        :if={u.id != @current_scope.user.id}
                         phx-click="group_invite_user"
                         phx-value-group_id={@group_detail.id}
                         phx-value-user_id={u.id}
