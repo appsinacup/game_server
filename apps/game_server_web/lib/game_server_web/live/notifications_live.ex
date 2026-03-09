@@ -24,15 +24,6 @@ defmodule GameServerWeb.NotificationsLive do
               </div>
             </div>
             <div class="flex gap-2">
-              <%= if @notif_unread_count > 0 do %>
-                <button
-                  type="button"
-                  phx-click="mark_all_read"
-                  class="btn btn-sm btn-outline btn-info"
-                >
-                  {dgettext("settings", "Read All")}
-                </button>
-              <% end %>
               <%= if @notif_count > 0 do %>
                 <button
                   type="button"
@@ -64,12 +55,8 @@ defmodule GameServerWeb.NotificationsLive do
                   <tr
                     :for={n <- @notifications}
                     id={"notif-" <> to_string(n.id)}
-                    class={[if(!n.read, do: "font-semibold bg-base-100")]}
                   >
                     <td class="text-sm">
-                      <%= if !n.read do %>
-                        <span class="inline-block w-2 h-2 rounded-full bg-info mr-1"></span>
-                      <% end %>
                       {n.title}
                     </td>
                     <td class="text-sm max-w-xs truncate">
@@ -105,17 +92,6 @@ defmodule GameServerWeb.NotificationsLive do
                         <.link navigate={path} class="btn btn-xs btn-outline btn-primary">
                           {label}
                         </.link>
-                      <% end %>
-                      <%= if !n.read do %>
-                        <button
-                          type="button"
-                          phx-click="mark_read"
-                          phx-value-id={n.id}
-                          class="btn btn-xs btn-outline btn-info"
-                          title={gettext("Mark as read")}
-                        >
-                          {gettext("Read")}
-                        </button>
                       <% end %>
                       <button
                         type="button"
@@ -159,6 +135,8 @@ defmodule GameServerWeb.NotificationsLive do
 
     if connected?(socket) do
       Notifications.subscribe(user.id)
+      # Auto-mark all notifications as read when the user opens the page
+      Notifications.mark_all_notifications_read(user.id)
     end
 
     socket =
@@ -197,19 +175,6 @@ defmodule GameServerWeb.NotificationsLive do
      |> reload_notifications()}
   end
 
-  def handle_event("mark_read", %{"id" => id}, socket) do
-    user = socket.assigns.current_scope.user
-    notif_id = if is_binary(id), do: String.to_integer(id), else: id
-    Notifications.mark_notification_read(user.id, notif_id)
-    {:noreply, reload_notifications(socket)}
-  end
-
-  def handle_event("mark_all_read", _params, socket) do
-    user = socket.assigns.current_scope.user
-    Notifications.mark_all_notifications_read(user.id)
-    {:noreply, reload_notifications(socket)}
-  end
-
   def handle_event("delete_all", _params, socket) do
     user = socket.assigns.current_scope.user
 
@@ -228,6 +193,9 @@ defmodule GameServerWeb.NotificationsLive do
 
   @impl true
   def handle_info({:new_notification, _notification}, socket) do
+    user = socket.assigns.current_scope.user
+    # Auto-mark new notifications as read since the user is viewing the page
+    Notifications.mark_all_notifications_read(user.id)
     {:noreply, reload_notifications(socket)}
   end
 
