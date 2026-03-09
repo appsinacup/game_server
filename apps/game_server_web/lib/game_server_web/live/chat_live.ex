@@ -15,11 +15,26 @@ defmodule GameServerWeb.ChatLive do
     friends = Friends.list_friends_for_user(user.id)
     my_groups = Groups.list_user_groups_with_role(user.id)
 
+    friend_ids = Enum.map(friends, & &1.id)
+    group_ids = Enum.map(my_groups, fn {g, _role} -> g.id end)
+
+    # Compute unread counts
+    friend_unread = Chat.count_unread_friends_batch(user.id, friend_ids)
+    group_unread = Chat.count_unread_groups_batch(user.id, group_ids)
+
+    # Subscribe to all chat topics so we can track incoming messages
+    if connected?(socket) do
+      for fid <- friend_ids, do: Chat.subscribe_friend_chat(user.id, fid)
+      for gid <- group_ids, do: Chat.subscribe_group_chat(gid)
+    end
+
     {:ok,
      socket
      |> assign(:user, user)
      |> assign(:friends, friends)
      |> assign(:my_groups, my_groups)
+     |> assign(:friend_unread, friend_unread)
+     |> assign(:group_unread, group_unread)
      # active conversation
      |> assign(:chat_type, nil)
      |> assign(:chat_target, nil)
@@ -42,9 +57,6 @@ defmodule GameServerWeb.ChatLive do
 
       if group do
         user = socket.assigns.user
-        socket = unsubscribe_current(socket)
-
-        Chat.subscribe_group_chat(gid)
         mark_group_chat_read(user.id, gid)
 
         {:noreply,
@@ -55,6 +67,7 @@ defmodule GameServerWeb.ChatLive do
          |> assign(:page, 1)
          |> assign(:editing_message_id, nil)
          |> assign(:editing_message_content, "")
+         |> update(:group_unread, &Map.delete(&1, gid))
          |> reload_messages()}
       else
         {:noreply, put_flash(socket, :error, gettext("Group not found"))}
@@ -72,9 +85,6 @@ defmodule GameServerWeb.ChatLive do
 
       if target do
         user = socket.assigns.user
-        socket = unsubscribe_current(socket)
-
-        Chat.subscribe_friend_chat(user.id, fid)
         mark_friend_chat_read(user.id, fid)
 
         {:noreply,
@@ -85,6 +95,7 @@ defmodule GameServerWeb.ChatLive do
          |> assign(:page, 1)
          |> assign(:editing_message_id, nil)
          |> assign(:editing_message_content, "")
+         |> update(:friend_unread, &Map.delete(&1, fid))
          |> reload_messages()}
       else
         {:noreply, put_flash(socket, :error, gettext("User not found"))}
@@ -126,7 +137,10 @@ defmodule GameServerWeb.ChatLive do
                   )
                 ]}
               >
-                <span class="truncate">{f.display_name || f.email}</span>
+                <span class="truncate flex-1">{f.display_name || f.email}</span>
+                <%= if (count = Map.get(@friend_unread, f.id, 0)) > 0 do %>
+                  <span class="badge badge-sm badge-info">{count}</span>
+                <% end %>
               </button>
             </li>
           </ul>
@@ -152,7 +166,10 @@ defmodule GameServerWeb.ChatLive do
                   )
                 ]}
               >
-                <span class="truncate">{group.title || group.name}</span>
+                <span class="truncate flex-1">{group.title || group.name}</span>
+                <%= if (count = Map.get(@group_unread, group.id, 0)) > 0 do %>
+                  <span class="badge badge-sm badge-info">{count}</span>
+                <% end %>
               </button>
             </li>
           </ul>
@@ -318,9 +335,6 @@ defmodule GameServerWeb.ChatLive do
 
     if target do
       user = socket.assigns.user
-      unsubscribe_current(socket)
-
-      Chat.subscribe_friend_chat(user.id, fid)
       mark_friend_chat_read(user.id, fid)
 
       {:noreply,
@@ -331,6 +345,7 @@ defmodule GameServerWeb.ChatLive do
        |> assign(:page, 1)
        |> assign(:editing_message_id, nil)
        |> assign(:editing_message_content, "")
+       |> update(:friend_unread, &Map.delete(&1, fid))
        |> reload_messages()}
     else
       {:noreply, put_flash(socket, :error, gettext("User not found"))}
@@ -344,9 +359,6 @@ defmodule GameServerWeb.ChatLive do
 
     if group do
       user = socket.assigns.user
-      unsubscribe_current(socket)
-
-      Chat.subscribe_group_chat(gid)
       mark_group_chat_read(user.id, gid)
 
       {:noreply,
@@ -357,6 +369,7 @@ defmodule GameServerWeb.ChatLive do
        |> assign(:page, 1)
        |> assign(:editing_message_id, nil)
        |> assign(:editing_message_content, "")
+       |> update(:group_unread, &Map.delete(&1, gid))
        |> reload_messages()}
     else
       {:noreply, put_flash(socket, :error, gettext("Group not found"))}
@@ -401,7 +414,6 @@ defmodule GameServerWeb.ChatLive do
   def handle_event("close_chat", _params, socket) do
     socket =
       socket
-      |> unsubscribe_current()
       |> assign(:chat_type, nil)
       |> assign(:chat_target, nil)
       |> assign(:chat_target_name, nil)
@@ -488,9 +500,15 @@ defmodule GameServerWeb.ChatLive do
 
   @impl true
   def handle_info({:new_chat_message, msg}, socket) do
+    user = socket.assigns.user
+
     if matches_current_chat?(socket, msg) do
+      # Active chat — reload messages and mark read
+      mark_current_chat_read(socket)
       {:noreply, reload_messages(socket)}
     else
+      # Not the active chat — bump unread count in the sidebar
+      socket = increment_unread(socket, msg, user.id)
       {:noreply, socket}
     end
   end
@@ -542,22 +560,34 @@ defmodule GameServerWeb.ChatLive do
     end
   end
 
-  defp unsubscribe_current(socket) do
+  defp mark_current_chat_read(socket) do
     user = socket.assigns.user
 
-    _ =
-      case {socket.assigns.chat_type, socket.assigns.chat_target} do
-        {"friend", target_id} when is_integer(target_id) ->
-          Chat.unsubscribe_friend_chat(user.id, target_id)
+    case {socket.assigns.chat_type, socket.assigns.chat_target} do
+      {"friend", fid} when is_integer(fid) -> mark_friend_chat_read(user.id, fid)
+      {"group", gid} when is_integer(gid) -> mark_group_chat_read(user.id, gid)
+      _ -> :ok
+    end
+  end
 
-        {"group", group_id} when is_integer(group_id) ->
-          Chat.unsubscribe_group_chat(group_id)
+  defp increment_unread(socket, msg, user_id) do
+    # Don't count our own messages as unread
+    if msg.sender_id == user_id do
+      socket
+    else
+      case msg.chat_type do
+        "friend" ->
+          fid = msg.sender_id
+          update(socket, :friend_unread, fn m -> Map.update(m, fid, 1, &(&1 + 1)) end)
+
+        "group" ->
+          gid = msg.chat_ref_id
+          update(socket, :group_unread, fn m -> Map.update(m, gid, 1, &(&1 + 1)) end)
 
         _ ->
-          :ok
+          socket
       end
-
-    socket
+    end
   end
 
   defp matches_current_chat?(socket, msg) do
