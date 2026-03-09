@@ -17,6 +17,12 @@ signal lobby_chat_message(message: Dictionary)         ## new_chat_message
 signal lobby_chat_message_updated(message: Dictionary) ## chat_message_updated
 signal lobby_chat_message_deleted(payload: Dictionary) ## chat_message_deleted {id}
 
+## Lobbies collection events (lobby browser)
+signal lobby_created(lobby: Dictionary)    ## new lobby created
+signal lobby_deleted(payload: Dictionary)   ## {id} lobby deleted
+signal lobby_list_updated(lobby: Dictionary)    ## existing lobby updated
+signal lobby_membership_changed(payload: Dictionary) ## {id} member count changed
+
 ## Party realtime events
 signal party_updated(party: Dictionary)
 signal party_member_joined(payload: Dictionary)   ## {user_id}
@@ -62,6 +68,11 @@ signal group_invite_cancelled(payload: Dictionary)       ## {group_id, group_nam
 signal group_chat_message(message: Dictionary)
 signal group_chat_message_updated(message: Dictionary)
 signal group_chat_message_deleted(payload: Dictionary)
+
+## Groups collection events (group browser)
+signal group_created(group: Dictionary)   ## new group created (excludes hidden)
+signal group_deleted(payload: Dictionary)  ## {id} group deleted
+signal group_list_updated(group: Dictionary)  ## existing group updated (excludes hidden)
 
 var _config := ApiApiConfigClient.new()
 var _realtime: GamendRealtime
@@ -226,9 +237,21 @@ func listen_to_party():
 func listen_to_group(group_id: int):
 	_realtime.add_channel("group:" + str(group_id))
 
+## Subscribe to the lobbies collection channel (lobby browser: lobby_created, lobby_updated, etc.)
+func listen_to_lobbies():
+	_realtime.add_channel("lobbies")
+
+## Subscribe to the groups collection channel (group browser: group_created, group_updated, etc.)
+func listen_to_groups():
+	_realtime.add_channel("groups")
+
 func _on_channel_event(event: String, payload: Dictionary, status, topic: String):
 	if topic.begins_with("user:"):
 		_handle_user_event(event, payload)
+	elif topic == "lobbies":
+		_handle_lobbies_event(event, payload)
+	elif topic == "groups":
+		_handle_groups_event(event, payload)
 	elif topic.begins_with("lobby:"):
 		_handle_lobby_event(event, payload)
 	elif topic.begins_with("party:"):
@@ -324,6 +347,17 @@ func _handle_lobby_event(event: String, payload: Dictionary):
 		"chat_message_deleted":
 			lobby_chat_message_deleted.emit(payload)
 
+func _handle_lobbies_event(event: String, payload: Dictionary):
+	match event:
+		"lobby_created":
+			lobby_created.emit(payload)
+		"lobby_updated":
+			lobby_list_updated.emit(payload)
+		"lobby_deleted":
+			lobby_deleted.emit(payload)
+		"lobby_membership_changed":
+			lobby_membership_changed.emit(payload)
+
 func _handle_party_event(event: String, payload: Dictionary):
 	match event:
 		"updated":
@@ -369,6 +403,15 @@ func _handle_group_event(event: String, payload: Dictionary):
 			group_chat_message_updated.emit(payload)
 		"chat_message_deleted":
 			group_chat_message_deleted.emit(payload)
+
+func _handle_groups_event(event: String, payload: Dictionary):
+	match event:
+		"group_created":
+			group_created.emit(payload)
+		"group_updated":
+			group_list_updated.emit(payload)
+		"group_deleted":
+			group_deleted.emit(payload)
 		
 ## Authorize with access token
 func authorize():
