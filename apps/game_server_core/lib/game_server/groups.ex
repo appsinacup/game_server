@@ -799,12 +799,49 @@ defmodule GameServer.Groups do
         |> Ecto.Changeset.change(%{role: "admin"})
         |> Repo.update!()
 
+        # Transfer creator_id if the leaving user is the group creator
+        case Repo.get(Group, group_id) do
+          %Group{creator_id: ^user_id} = group ->
+            group
+            |> Ecto.Changeset.change(%{creator_id: next_member.user_id})
+            |> Repo.update!()
+
+          _ ->
+            :ok
+        end
+
         broadcast_group(group_id, {:member_promoted, group_id, next_member.user_id})
+      else
+        # No other members — transfer creator_id to nil won't help,
+        # the group will be deleted by maybe_delete_empty_group below.
+        :ok
       end
 
       # Leave even if no other member remains (group becomes empty)
       do_leave(member, group_id, user_id)
     else
+      # Multiple admins — still check if leaving user is the creator
+      case Repo.get(Group, group_id) do
+        %Group{creator_id: ^user_id} = group ->
+          # Pick another admin to become the new creator
+          next_admin =
+            from(m in GroupMember,
+              where: m.group_id == ^group_id and m.user_id != ^user_id and m.role == "admin",
+              order_by: [asc: m.inserted_at],
+              limit: 1
+            )
+            |> Repo.one()
+
+          if next_admin do
+            group
+            |> Ecto.Changeset.change(%{creator_id: next_admin.user_id})
+            |> Repo.update!()
+          end
+
+        _ ->
+          :ok
+      end
+
       do_leave(member, group_id, user_id)
     end
   end

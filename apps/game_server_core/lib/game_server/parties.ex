@@ -120,6 +120,36 @@ defmodule GameServer.Parties do
     :ok
   end
 
+  # Cancel pending invites involving a user in a specific party.
+  # Called when a member leaves or is kicked, so their pending invites are cleaned up.
+  defp cancel_pending_invites_for_user_in_party(user_id, party_id) do
+    pending =
+      from(i in PartyInvite,
+        where:
+          i.party_id == ^party_id and i.status == "pending" and
+            (i.sender_id == ^user_id or i.recipient_id == ^user_id),
+        select: {i.sender_id, i.recipient_id}
+      )
+      |> Repo.all()
+
+    if pending != [] do
+      from(i in PartyInvite,
+        where:
+          i.party_id == ^party_id and i.status == "pending" and
+            (i.sender_id == ^user_id or i.recipient_id == ^user_id)
+      )
+      |> Repo.update_all(set: [status: "cancelled", updated_at: DateTime.utc_now()])
+
+      user_ids = pending |> Enum.flat_map(fn {s, r} -> [s, r] end) |> Enum.uniq()
+
+      for uid <- user_ids do
+        invalidate_party_invite_cache(uid)
+      end
+    end
+
+    :ok
+  end
+
   # Cancel pending invites to a user from parties OTHER than the one they just joined.
   # Called after accept_party_invite so stale invites from other parties are cleaned up.
   defp cancel_other_pending_invites_for_user(user_id, joined_party_id) do
@@ -658,6 +688,7 @@ defmodule GameServer.Parties do
     case result do
       {:ok, updated} ->
         invalidate_user_cache(updated.id)
+        cancel_pending_invites_for_user_in_party(updated.id, party.id)
         _ = Accounts.broadcast_user_update(updated)
         broadcast_party(party.id, {:party_member_left, party.id, updated.id})
         {:ok, updated}
@@ -957,6 +988,7 @@ defmodule GameServer.Parties do
     case result do
       {:ok, updated} ->
         invalidate_user_cache(updated.id)
+        cancel_pending_invites_for_user_in_party(updated.id, party_id)
         _ = Accounts.broadcast_user_update(updated)
         broadcast_party(party_id, {:party_member_left, party_id, updated.id})
         {:ok, :left}
