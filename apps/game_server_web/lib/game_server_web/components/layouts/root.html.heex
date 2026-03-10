@@ -2,7 +2,10 @@
 <html lang={Gettext.get_locale(GameServerWeb.Gettext) || "en"} class="scroll-smooth">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, interactive-widget=resizes-content"
+    />
     <meta name="csrf-token" content={get_csrf_token()} />
     <!-- Open Graph / Twitter meta defaults -->
     <% locale = Gettext.get_locale(GameServerWeb.Gettext) %>

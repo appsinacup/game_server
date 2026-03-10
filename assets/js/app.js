@@ -72,6 +72,30 @@ const Hooks = {
       if (!refresh) localStorage.removeItem("gamend_refresh_token")
     }
   },
+  GameViewport: {
+    mounted() {
+      // On mobile, resize the game container when the virtual keyboard
+      // opens so the page doesn't zoom — it shrinks instead.
+      const vv = window.visualViewport
+      if (!vv) return
+
+      this._onResize = () => {
+        const navHeight = 64 // 4rem navbar
+        const availableHeight = vv.height - navHeight
+        this.el.style.height = `${Math.max(availableHeight, 100)}px`
+        // Scroll the viewport offset back to 0 to avoid the page shifting
+        window.scrollTo(0, 0)
+      }
+      vv.addEventListener("resize", this._onResize)
+      vv.addEventListener("scroll", this._onResize)
+    },
+    destroyed() {
+      const vv = window.visualViewport
+      if (!vv || !this._onResize) return
+      vv.removeEventListener("resize", this._onResize)
+      vv.removeEventListener("scroll", this._onResize)
+    }
+  },
   ScrollToBottom: {
     mounted() {
       this.el.scrollTop = this.el.scrollHeight
