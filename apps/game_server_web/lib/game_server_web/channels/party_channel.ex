@@ -67,13 +67,14 @@ defmodule GameServerWeb.PartyChannel do
 
   @impl true
   def handle_info({:party_member_joined, _party_id, user_id}, socket) do
-    push(socket, "member_joined", %{user_id: user_id})
+    push(socket, "member_joined", %{user_id: user_id, display_name: resolve_display_name(user_id)})
+
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:party_member_left, _party_id, user_id}, socket) do
-    push(socket, "member_left", %{user_id: user_id})
+    push(socket, "member_left", %{user_id: user_id, display_name: resolve_display_name(user_id)})
     {:noreply, socket}
   end
 
@@ -167,11 +168,14 @@ defmodule GameServerWeb.PartyChannel do
   end
 
   defp serialize_chat_message(msg) do
+    sender = if Ecto.assoc_loaded?(msg.sender), do: msg.sender, else: nil
+
     %{
       id: msg.id,
       content: msg.content,
       metadata: msg.metadata || %{},
       sender_id: msg.sender_id,
+      sender_name: if(sender, do: sender.display_name || "", else: ""),
       chat_type: msg.chat_type,
       chat_ref_id: msg.chat_ref_id,
       inserted_at: msg.inserted_at
@@ -179,12 +183,34 @@ defmodule GameServerWeb.PartyChannel do
   end
 
   defp serialize_party(party) do
+    leader_name =
+      cond do
+        is_nil(party.leader_id) ->
+          ""
+
+        Ecto.assoc_loaded?(party.leader) and party.leader != nil ->
+          party.leader.display_name || ""
+
+        true ->
+          resolve_display_name(party.leader_id)
+      end
+
     %{
       id: party.id,
       leader_id: party.leader_id,
+      leader_name: leader_name,
       max_size: party.max_size,
       code: party.code,
       metadata: party.metadata || %{}
     }
+  end
+
+  defp resolve_display_name(nil), do: ""
+
+  defp resolve_display_name(user_id) do
+    case Accounts.get_user(user_id) do
+      %{display_name: name} when is_binary(name) -> name
+      _ -> ""
+    end
   end
 end

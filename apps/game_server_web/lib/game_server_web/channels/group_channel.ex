@@ -24,6 +24,7 @@ defmodule GameServerWeb.GroupChannel do
   use Phoenix.Channel
   require Logger
 
+  alias GameServer.Accounts
   alias GameServer.Accounts.Scope
   alias GameServer.Chat
   alias GameServer.Groups
@@ -74,43 +75,78 @@ defmodule GameServerWeb.GroupChannel do
 
   @impl true
   def handle_info({:member_joined, group_id, user_id}, socket) do
-    push(socket, "member_joined", %{group_id: group_id, user_id: user_id})
+    push(socket, "member_joined", %{
+      group_id: group_id,
+      user_id: user_id,
+      display_name: resolve_display_name(user_id)
+    })
+
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:member_left, group_id, user_id}, socket) do
-    push(socket, "member_left", %{group_id: group_id, user_id: user_id})
+    push(socket, "member_left", %{
+      group_id: group_id,
+      user_id: user_id,
+      display_name: resolve_display_name(user_id)
+    })
+
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:member_kicked, group_id, user_id}, socket) do
-    push(socket, "member_kicked", %{group_id: group_id, user_id: user_id})
+    push(socket, "member_kicked", %{
+      group_id: group_id,
+      user_id: user_id,
+      display_name: resolve_display_name(user_id)
+    })
+
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:member_promoted, group_id, user_id}, socket) do
-    push(socket, "member_promoted", %{group_id: group_id, user_id: user_id})
+    push(socket, "member_promoted", %{
+      group_id: group_id,
+      user_id: user_id,
+      display_name: resolve_display_name(user_id)
+    })
+
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:member_demoted, group_id, user_id}, socket) do
-    push(socket, "member_demoted", %{group_id: group_id, user_id: user_id})
+    push(socket, "member_demoted", %{
+      group_id: group_id,
+      user_id: user_id,
+      display_name: resolve_display_name(user_id)
+    })
+
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:join_request_approved, group_id, user_id}, socket) do
-    push(socket, "join_request_approved", %{group_id: group_id, user_id: user_id})
+    push(socket, "join_request_approved", %{
+      group_id: group_id,
+      user_id: user_id,
+      display_name: resolve_display_name(user_id)
+    })
+
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:join_request_rejected, group_id, user_id}, socket) do
-    push(socket, "join_request_rejected", %{group_id: group_id, user_id: user_id})
+    push(socket, "join_request_rejected", %{
+      group_id: group_id,
+      user_id: user_id,
+      display_name: resolve_display_name(user_id)
+    })
+
     {:noreply, socket}
   end
 
@@ -151,6 +187,18 @@ defmodule GameServerWeb.GroupChannel do
   # ── Helpers ────────────────────────────────────────────────────────────────
 
   defp serialize_group(group) do
+    creator_name =
+      cond do
+        is_nil(group.creator_id) ->
+          ""
+
+        Ecto.assoc_loaded?(group.creator) and group.creator != nil ->
+          group.creator.display_name || ""
+
+        true ->
+          resolve_display_name(group.creator_id)
+      end
+
     %{
       id: group.id,
       title: group.title,
@@ -158,16 +206,29 @@ defmodule GameServerWeb.GroupChannel do
       type: group.type,
       max_members: group.max_members,
       creator_id: group.creator_id,
+      creator_name: creator_name,
       metadata: group.metadata || %{}
     }
   end
 
+  defp resolve_display_name(nil), do: ""
+
+  defp resolve_display_name(user_id) do
+    case Accounts.get_user(user_id) do
+      %{display_name: name} when is_binary(name) -> name
+      _ -> ""
+    end
+  end
+
   defp serialize_chat_message(msg) do
+    sender = if Ecto.assoc_loaded?(msg.sender), do: msg.sender, else: nil
+
     %{
       id: msg.id,
       content: msg.content,
       metadata: msg.metadata || %{},
       sender_id: msg.sender_id,
+      sender_name: if(sender, do: sender.display_name || "", else: ""),
       chat_type: msg.chat_type,
       chat_ref_id: msg.chat_ref_id,
       inserted_at: msg.inserted_at

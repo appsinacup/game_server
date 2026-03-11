@@ -53,6 +53,18 @@ defmodule GameServerWeb.GroupsChannel do
   def handle_info(_msg, socket), do: {:noreply, socket}
 
   defp serialize_group(group) do
+    creator_name =
+      cond do
+        is_nil(group.creator_id) ->
+          ""
+
+        Ecto.assoc_loaded?(group.creator) and group.creator != nil ->
+          group.creator.display_name || ""
+
+        true ->
+          resolve_display_name(group.creator_id)
+      end
+
     %{
       id: group.id,
       title: group.title,
@@ -60,7 +72,17 @@ defmodule GameServerWeb.GroupsChannel do
       type: group.type,
       max_members: group.max_members,
       creator_id: group.creator_id,
+      creator_name: creator_name,
       metadata: group.metadata || %{}
     }
+  end
+
+  defp resolve_display_name(nil), do: ""
+
+  defp resolve_display_name(user_id) do
+    case GameServer.Accounts.get_user(user_id) do
+      %{display_name: name} when is_binary(name) -> name
+      _ -> ""
+    end
   end
 end

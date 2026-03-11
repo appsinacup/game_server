@@ -25,6 +25,8 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     lobbies = resp["data"]
     assert Enum.any?(lobbies, fn l -> l["id"] == lobby1.id end)
     assert Enum.any?(lobbies, fn l -> l["id"] == hostless_visible.id and l["host_id"] == -1 end)
+    # display name fields are present in serialized lobbies
+    assert Enum.all?(lobbies, fn l -> Map.has_key?(l, "host_name") end)
     # ensure serializer includes is_passworded flag
     assert Enum.any?(lobbies, fn l -> l["id"] == lobby1.id and l["is_passworded"] == false end)
     refute Enum.any?(lobbies, fn l -> l["id"] == _hidden.id end)
@@ -97,6 +99,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     assert conn.status == 201
     lobby = json_response(conn, 201)
     assert lobby["host_id"] == user.id
+    assert Map.has_key?(lobby, "host_name")
     # 'name' (slug) is omitted from API responses - the unique id is used instead
     refute Map.has_key?(lobby, "name")
 

@@ -60,6 +60,7 @@ defmodule GameServerWeb.UserChannelNotificationsTest do
     assert_push "notification", payload
     assert payload.title == "Live!"
     assert payload.sender_id == a.id
+    assert Map.has_key?(payload, :sender_name)
   end
 
   test "notifications persist across sessions (reconnect)" do

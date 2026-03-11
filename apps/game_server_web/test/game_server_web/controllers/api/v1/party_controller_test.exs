@@ -33,6 +33,7 @@ defmodule GameServerWeb.Api.V1.PartyControllerTest do
       assert conn.status == 201
       body = json_response(conn, 201)
       assert body["leader_id"] == user.id
+      assert Map.has_key?(body, "leader_name")
       assert body["max_size"] == 4
       assert length(body["members"]) == 1
     end
@@ -68,6 +69,7 @@ defmodule GameServerWeb.Api.V1.PartyControllerTest do
       body = json_response(conn, 200)
       assert body["id"] == party.id
       assert body["leader_id"] == user.id
+      assert Map.has_key?(body, "leader_name")
     end
 
     test "returns 404 when not in a party", %{conn: conn} do

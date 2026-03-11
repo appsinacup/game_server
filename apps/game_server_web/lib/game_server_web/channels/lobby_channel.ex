@@ -85,19 +85,19 @@ defmodule GameServerWeb.LobbyChannel do
 
   @impl true
   def handle_info({:user_joined, _lobby_id, user_id}, socket) do
-    push(socket, "user_joined", %{user_id: user_id})
+    push(socket, "user_joined", %{user_id: user_id, display_name: resolve_display_name(user_id)})
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:user_left, _lobby_id, user_id}, socket) do
-    push(socket, "user_left", %{user_id: user_id})
+    push(socket, "user_left", %{user_id: user_id, display_name: resolve_display_name(user_id)})
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:user_kicked, _lobby_id, user_id}, socket) do
-    push(socket, "user_kicked", %{user_id: user_id})
+    push(socket, "user_kicked", %{user_id: user_id, display_name: resolve_display_name(user_id)})
     {:noreply, socket}
   end
 
@@ -116,7 +116,11 @@ defmodule GameServerWeb.LobbyChannel do
 
   @impl true
   def handle_info({:host_changed, _lobby_id, new_host_id}, socket) do
-    push(socket, "host_changed", %{new_host_id: new_host_id})
+    push(socket, "host_changed", %{
+      new_host_id: new_host_id,
+      display_name: resolve_display_name(new_host_id)
+    })
+
     {:noreply, socket}
   end
 
@@ -173,10 +177,18 @@ defmodule GameServerWeb.LobbyChannel do
   defp serialize_lobby(lobby) do
     host_id = if is_nil(lobby.host_id), do: -1, else: lobby.host_id
 
+    host_name =
+      cond do
+        is_nil(lobby.host_id) -> ""
+        Ecto.assoc_loaded?(lobby.host) and lobby.host != nil -> lobby.host.display_name || ""
+        true -> resolve_display_name(lobby.host_id)
+      end
+
     %{
       id: lobby.id,
       title: lobby.title,
       host_id: host_id,
+      host_name: host_name,
       hostless: lobby.hostless,
       max_users: lobby.max_users,
       is_hidden: lobby.is_hidden,
@@ -185,12 +197,24 @@ defmodule GameServerWeb.LobbyChannel do
     }
   end
 
+  defp resolve_display_name(nil), do: ""
+
+  defp resolve_display_name(user_id) do
+    case Accounts.get_user(user_id) do
+      %{display_name: name} when is_binary(name) -> name
+      _ -> ""
+    end
+  end
+
   defp serialize_chat_message(msg) do
+    sender = if Ecto.assoc_loaded?(msg.sender), do: msg.sender, else: nil
+
     %{
       id: msg.id,
       content: msg.content,
       metadata: msg.metadata || %{},
       sender_id: msg.sender_id,
+      sender_name: if(sender, do: sender.display_name || "", else: ""),
       chat_type: msg.chat_type,
       chat_ref_id: msg.chat_ref_id,
       inserted_at: msg.inserted_at

@@ -174,7 +174,8 @@ defmodule GameServer.Chat do
       |> Message.changeset(attrs)
 
     case Repo.insert(changeset) do
-      {:ok, message} = ok ->
+      {:ok, message} ->
+        message = Repo.preload(message, :sender)
         chat_type = message.chat_type
         chat_ref_id = message.chat_ref_id
 
@@ -186,7 +187,7 @@ defmodule GameServer.Chat do
           send_chat_notifications(message)
         end)
 
-        ok
+        {:ok, message}
 
       {:error, _changeset} = err ->
         err
@@ -763,6 +764,7 @@ defmodule GameServer.Chat do
         |> Repo.update()
         |> case do
           {:ok, updated} ->
+            updated = Repo.preload(updated, :sender)
             invalidate_chat_cache(updated.chat_type, updated.chat_ref_id)
 
             broadcast_chat(

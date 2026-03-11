@@ -423,11 +423,14 @@ defmodule GameServerWeb.Api.V1.ChatController do
   # ---------------------------------------------------------------------------
 
   defp serialize_message(msg) do
+    sender = if Ecto.assoc_loaded?(msg.sender), do: msg.sender, else: nil
+
     %{
       id: msg.id,
       content: msg.content,
       metadata: msg.metadata || %{},
       sender_id: msg.sender_id,
+      sender_name: if(sender, do: sender.display_name || "", else: ""),
       chat_type: msg.chat_type,
       chat_ref_id: msg.chat_ref_id,
       inserted_at: msg.inserted_at,

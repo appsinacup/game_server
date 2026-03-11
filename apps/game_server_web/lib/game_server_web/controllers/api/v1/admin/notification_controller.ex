@@ -242,9 +242,12 @@ defmodule GameServerWeb.Api.V1.Admin.NotificationController do
   end
 
   defp serialize_notification(n) do
+    sender = if Ecto.assoc_loaded?(n.sender), do: n.sender, else: nil
+
     %{
       id: n.id,
       sender_id: n.sender_id,
+      sender_name: if(sender, do: sender.display_name || "", else: ""),
       recipient_id: n.recipient_id,
       title: n.title,
       content: n.content || "",

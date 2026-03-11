@@ -112,8 +112,9 @@ defmodule GameServerWeb.LobbyChannelTest do
     # Kick the member - this should broadcast user_kicked event
     {:ok, _} = Lobbies.kick_user(host, lobby, member)
 
-    assert_push "user_kicked", %{user_id: kicked_id}
+    assert_push "user_kicked", %{user_id: kicked_id, display_name: kicked_name}
     assert kicked_id == member.id
+    assert is_binary(kicked_name)
   end
 
   test "channel receives updated event when lobby is updated" do
@@ -125,11 +126,16 @@ defmodule GameServerWeb.LobbyChannelTest do
     {:ok, socket_host} = connect(GameServerWeb.UserSocket, %{"token" => token_host})
     {:ok, _, _socket} = subscribe_and_join(socket_host, "lobby:#{lobby.id}", %{})
 
+    # drain the initial after_join payload
+    assert_push "updated", %{title: "update-channel-room"}, 500
+
     # Update the lobby
     {:ok, _} = Lobbies.update_lobby_by_host(host, lobby, %{"title" => "New Title"})
 
     # allow a slightly longer window for the broadcast -> push to arrive in tests
-    assert_push "updated", %{title: "New Title"}, 500
+    assert_push "updated", payload, 500
+    assert payload.title == "New Title"
+    assert Map.has_key?(payload, :host_name)
   end
 
   test "channel emits a single updated event per lobby update" do

@@ -213,6 +213,18 @@ defmodule GameServerWeb.Api.V1.Admin.GroupController do
   defp serialize_group(group) do
     member_count = Groups.count_group_members(group.id)
 
+    creator_name =
+      cond do
+        is_nil(group.creator_id) ->
+          ""
+
+        Ecto.assoc_loaded?(group.creator) and group.creator != nil ->
+          group.creator.display_name || ""
+
+        true ->
+          resolve_display_name(group.creator_id)
+      end
+
     %{
       id: group.id,
       title: group.title,
@@ -221,11 +233,21 @@ defmodule GameServerWeb.Api.V1.Admin.GroupController do
       max_members: group.max_members,
       metadata: group.metadata || %{},
       creator_id: group.creator_id,
+      creator_name: creator_name,
       member_count: member_count,
       slowdown: group.slowdown,
       inserted_at: group.inserted_at,
       updated_at: group.updated_at
     }
+  end
+
+  defp resolve_display_name(nil), do: ""
+
+  defp resolve_display_name(user_id) do
+    case GameServer.Accounts.get_user(user_id) do
+      %{display_name: name} when is_binary(name) -> name
+      _ -> ""
+    end
   end
 
   defp parse_id(nil), do: nil

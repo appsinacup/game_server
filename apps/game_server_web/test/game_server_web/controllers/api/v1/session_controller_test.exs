@@ -37,7 +37,8 @@ defmodule GameServerWeb.Api.V1.SessionControllerTest do
                  "access_token" => access_token,
                  "refresh_token" => refresh_token,
                  "expires_in" => 900,
-                 "user_id" => user_id
+                 "user_id" => user_id,
+                 "display_name" => _display_name
                }
              } = resp
 
@@ -70,7 +71,8 @@ defmodule GameServerWeb.Api.V1.SessionControllerTest do
                  "access_token" => access_token,
                  "refresh_token" => refresh_token,
                  "expires_in" => 900,
-                 "user_id" => device_user_id
+                 "user_id" => device_user_id,
+                 "display_name" => _display_name
                }
              } = resp
 
@@ -129,7 +131,8 @@ defmodule GameServerWeb.Api.V1.SessionControllerTest do
                  "access_token" => new_access_token,
                  "refresh_token" => returned_refresh_token,
                  "user_id" => user_id,
-                 "expires_in" => 900
+                 "expires_in" => 900,
+                 "display_name" => _display_name
                }
              } = resp
 

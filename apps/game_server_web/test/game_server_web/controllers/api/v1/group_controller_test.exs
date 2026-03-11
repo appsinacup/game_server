@@ -79,7 +79,9 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
       {:ok, group} = Groups.create_group(owner.id, %{"title" => "Shown"})
 
       conn = get(conn, "/api/v1/groups/#{group.id}")
-      assert %{"id" => _, "title" => "Shown"} = json_response(conn, 200)
+      resp = json_response(conn, 200)
+      assert %{"id" => _, "title" => "Shown"} = resp
+      assert Map.has_key?(resp, "creator_name")
     end
 
     test "returns 404 for missing group", %{conn: conn} do
@@ -106,7 +108,9 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
         |> auth_conn(user)
         |> post("/api/v1/groups", %{title: "Created", type: "public"})
 
-      assert %{"id" => _, "title" => "Created"} = json_response(conn, 201)
+      resp = json_response(conn, 201)
+      assert %{"id" => _, "title" => "Created"} = resp
+      assert Map.has_key?(resp, "creator_name")
     end
 
     test "returns 401 without auth", %{conn: conn} do

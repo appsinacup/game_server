@@ -94,7 +94,8 @@ defmodule GameServerWeb.Api.V1.SessionController do
           access_token: access_token,
           refresh_token: refresh_token,
           expires_in: 900,
-          user_id: user.id
+          user_id: user.id,
+          display_name: user.display_name || ""
         }
       })
     else
@@ -149,7 +150,8 @@ defmodule GameServerWeb.Api.V1.SessionController do
               access_token: access_token,
               refresh_token: refresh_token,
               expires_in: 900,
-              user_id: user.id
+              user_id: user.id,
+              display_name: user.display_name || ""
             }
           })
 
@@ -251,6 +253,7 @@ defmodule GameServerWeb.Api.V1.SessionController do
                 access_token: new_access_token,
                 refresh_token: refresh_token,
                 user_id: user.id,
+                display_name: user.display_name || "",
                 expires_in: 900
               }
             })
