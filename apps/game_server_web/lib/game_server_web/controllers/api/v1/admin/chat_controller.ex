@@ -29,6 +29,7 @@ defmodule GameServerWeb.Api.V1.Admin.ChatController do
     properties: %{
       id: %Schema{type: :integer},
       sender_id: %Schema{type: :integer},
+      sender_name: %Schema{type: :string},
       sender_email: %Schema{type: :string, nullable: true},
       content: %Schema{type: :string},
       metadata: %Schema{type: :object},

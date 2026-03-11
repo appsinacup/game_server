@@ -14,6 +14,7 @@ defmodule GameServerWeb.Api.V1.ChatController do
       content: %Schema{type: :string, description: "Message text"},
       metadata: %Schema{type: :object, description: "Arbitrary metadata"},
       sender_id: %Schema{type: :integer, description: "User ID of the sender"},
+      sender_name: %Schema{type: :string, description: "Display name of the sender"},
       chat_type: %Schema{
         type: :string,
         enum: ["lobby", "group", "friend", "party"],
@@ -31,6 +32,7 @@ defmodule GameServerWeb.Api.V1.ChatController do
       content: "Hello everyone!",
       metadata: %{},
       sender_id: 42,
+      sender_name: "Player1",
       chat_type: "lobby",
       chat_ref_id: 1,
       inserted_at: "2026-01-01T00:00:00Z",

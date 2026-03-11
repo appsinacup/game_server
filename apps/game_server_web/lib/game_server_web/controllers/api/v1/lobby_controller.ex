@@ -15,6 +15,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       id: %Schema{type: :integer, description: "Lobby ID"},
       title: %Schema{type: :string, description: "Display title"},
       host_id: %Schema{type: :integer, description: "User ID of the host", nullable: true},
+      host_name: %Schema{type: :string, description: "Display name of the host"},
       hostless: %Schema{type: :boolean, description: "Whether this is a server-managed lobby"},
       max_users: %Schema{type: :integer, description: "Maximum number of users allowed"},
       is_hidden: %Schema{type: :boolean, description: "Hidden from public listings"},
@@ -31,6 +32,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       # 'name' (slug) intentionally omitted from API responses - use 'id' and 'title'
       title: "My Game Lobby",
       host_id: 42,
+      host_name: "PlayerOne",
       hostless: false,
       max_users: 8,
       is_hidden: false,

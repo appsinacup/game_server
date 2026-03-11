@@ -12,6 +12,7 @@ defmodule GameServerWeb.Api.V1.NotificationController do
     properties: %{
       id: %Schema{type: :integer, description: "Notification ID"},
       sender_id: %Schema{type: :integer, description: "User ID of the sender"},
+      sender_name: %Schema{type: :string, description: "Display name of the sender"},
       recipient_id: %Schema{type: :integer, description: "User ID of the recipient"},
       title: %Schema{type: :string, description: "Notification title"},
       content: %Schema{type: :string, description: "Notification body text", nullable: true},
@@ -25,6 +26,7 @@ defmodule GameServerWeb.Api.V1.NotificationController do
     example: %{
       id: 1,
       sender_id: 42,
+      sender_name: "SomePlayer",
       recipient_id: 7,
       title: "Game invite",
       content: "Join my lobby!",

@@ -13,6 +13,7 @@ defmodule GameServerWeb.Api.V1.Admin.NotificationController do
     properties: %{
       id: %Schema{type: :integer, description: "Notification ID"},
       sender_id: %Schema{type: :integer, description: "User ID of the sender"},
+      sender_name: %Schema{type: :string, description: "Display name of the sender"},
       recipient_id: %Schema{type: :integer, description: "User ID of the recipient"},
       title: %Schema{type: :string, description: "Notification title"},
       content: %Schema{type: :string, description: "Notification body text", nullable: true},

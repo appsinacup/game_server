@@ -36,6 +36,7 @@ defmodule GameServerWeb.Api.V1.Admin.GroupController do
       max_members: %Schema{type: :integer},
       metadata: %Schema{type: :object},
       creator_id: %Schema{type: :integer, nullable: true},
+      creator_name: %Schema{type: :string},
       member_count: %Schema{type: :integer},
       slowdown: %Schema{type: :integer, description: "Chat slowdown in seconds (0 = disabled)"},
       inserted_at: %Schema{type: :string, format: :"date-time"},

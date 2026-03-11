@@ -26,6 +26,10 @@ defmodule GameServerWeb.Api.V1.GroupController do
       max_members: %Schema{type: :integer, description: "Maximum number of members"},
       metadata: %Schema{type: :object, description: "Server-managed metadata"},
       creator_id: %Schema{type: :integer, description: "User ID of the creator", nullable: true},
+      creator_name: %Schema{
+        type: :string,
+        description: "Display name of the creator"
+      },
       member_count: %Schema{type: :integer, description: "Current member count"},
       slowdown: %Schema{type: :integer, description: "Chat slowdown in seconds (0 = disabled)"},
       inserted_at: %Schema{type: :string, format: :"date-time"},
@@ -39,6 +43,7 @@ defmodule GameServerWeb.Api.V1.GroupController do
       max_members: 100,
       metadata: %{"lang_tag" => "en"},
       creator_id: 42,
+      creator_name: "AwesomePlayer",
       member_count: 12,
       slowdown: 0
     }
@@ -95,9 +100,9 @@ defmodule GameServerWeb.Api.V1.GroupController do
       group_id: %Schema{type: :integer},
       group_name: %Schema{type: :string},
       sender_id: %Schema{type: :integer},
-      sender_name: %Schema{type: :string, nullable: true},
+      sender_name: %Schema{type: :string},
       recipient_id: %Schema{type: :integer},
-      recipient_name: %Schema{type: :string, nullable: true},
+      recipient_name: %Schema{type: :string},
       status: %Schema{type: :string, description: "pending | accepted | declined | cancelled"},
       inserted_at: %Schema{type: :string, format: :"date-time"}
     }
@@ -606,9 +611,9 @@ defmodule GameServerWeb.Api.V1.GroupController do
                    group_id: %Schema{type: :integer},
                    group_name: %Schema{type: :string},
                    sender_id: %Schema{type: :integer},
-                   sender_name: %Schema{type: :string, nullable: true},
+                   sender_name: %Schema{type: :string},
                    recipient_id: %Schema{type: :integer},
-                   recipient_name: %Schema{type: :string, nullable: true},
+                   recipient_name: %Schema{type: :string},
                    status: %Schema{type: :string},
                    inserted_at: %Schema{type: :string, format: :"date-time"}
                  }

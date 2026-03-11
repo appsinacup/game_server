@@ -21,6 +21,10 @@ defmodule GameServerWeb.Schemas.OAuthSessionData do
         type: :integer,
         description: "User id that was authenticated for this session (when completed)"
       },
+      display_name: %Schema{
+        type: :string,
+        description: "Display name of the authenticated user"
+      },
       details: %Schema{
         description: "Error details (string or object). When present the session failed",
         oneOf: [
@@ -33,7 +37,8 @@ defmodule GameServerWeb.Schemas.OAuthSessionData do
       access_token: "eyJhb...",
       refresh_token: "eyJhb...",
       expires_in: 900,
-      user_id: 123
+      user_id: 123,
+      display_name: "CoolPlayer"
     }
   })
 end

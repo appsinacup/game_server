@@ -46,7 +46,8 @@ defmodule GameServerWeb.Api.V1.SessionController do
                   type: :integer,
                   description: "Seconds until access token expires"
                 },
-                user_id: %Schema{type: :integer}
+                user_id: %Schema{type: :integer},
+                display_name: %Schema{type: :string, description: "User display name"}
               }
             }
           },
@@ -55,7 +56,8 @@ defmodule GameServerWeb.Api.V1.SessionController do
               access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
               refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
               expires_in: 900,
-              user_id: 123
+              user_id: 123,
+              display_name: "CoolPlayer"
             }
           }
         }
@@ -219,7 +221,8 @@ defmodule GameServerWeb.Api.V1.SessionController do
                   description: "Refresh token (same as input)"
                 },
                 user_id: %Schema{type: :integer, description: "User ID"},
-                expires_in: %Schema{type: :integer, description: "Seconds until expiry"}
+                expires_in: %Schema{type: :integer, description: "Seconds until expiry"},
+                display_name: %Schema{type: :string, description: "User display name"}
               }
             }
           },
@@ -228,7 +231,8 @@ defmodule GameServerWeb.Api.V1.SessionController do
               access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
               refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
               user_id: 1,
-              expires_in: 900
+              expires_in: 900,
+              display_name: "CoolPlayer"
             }
           }
         }

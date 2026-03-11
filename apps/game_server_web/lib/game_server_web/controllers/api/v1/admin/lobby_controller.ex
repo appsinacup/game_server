@@ -17,6 +17,7 @@ defmodule GameServerWeb.Api.V1.Admin.LobbyController do
       id: %Schema{type: :integer},
       title: %Schema{type: :string},
       host_id: %Schema{type: :integer, nullable: true},
+      host_name: %Schema{type: :string},
       hostless: %Schema{type: :boolean},
       max_users: %Schema{type: :integer},
       is_hidden: %Schema{type: :boolean},

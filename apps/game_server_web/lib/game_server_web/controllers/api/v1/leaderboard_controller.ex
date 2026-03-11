@@ -57,7 +57,7 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
     properties: %{
       rank: %Schema{type: :integer, description: "Player's rank on this leaderboard"},
       user_id: %Schema{type: :integer, description: "User ID"},
-      display_name: %Schema{type: :string, description: "User's display name", nullable: true},
+      display_name: %Schema{type: :string, description: "User's display name"},
       score: %Schema{type: :integer, description: "Score value"},
       metadata: %Schema{type: :object, description: "Per-record metadata"},
       updated_at: %Schema{type: :string, format: "date-time"}

@@ -13,6 +13,7 @@ defmodule GameServerWeb.Api.V1.PartyController do
     properties: %{
       id: %Schema{type: :integer, description: "Party ID"},
       leader_id: %Schema{type: :integer, description: "User ID of the party leader"},
+      leader_name: %Schema{type: :string, description: "Display name of the party leader"},
       max_size: %Schema{type: :integer, description: "Maximum party members allowed"},
       code: %Schema{
         type: :string,
@@ -38,6 +39,7 @@ defmodule GameServerWeb.Api.V1.PartyController do
     example: %{
       id: 1,
       leader_id: 42,
+      leader_name: "Player1",
       max_size: 4,
       code: "A3BK7P",
       metadata: %{},
@@ -263,9 +265,9 @@ defmodule GameServerWeb.Api.V1.PartyController do
                id: %Schema{type: :integer, description: "Invite ID"},
                party_id: %Schema{type: :integer},
                sender_id: %Schema{type: :integer},
-               sender_name: %Schema{type: :string, nullable: true},
+               sender_name: %Schema{type: :string},
                recipient_id: %Schema{type: :integer},
-               recipient_name: %Schema{type: :string, nullable: true},
+               recipient_name: %Schema{type: :string},
                status: %Schema{
                  type: :string,
                  description: "pending | accepted | declined | cancelled"
@@ -297,9 +299,9 @@ defmodule GameServerWeb.Api.V1.PartyController do
                id: %Schema{type: :integer, description: "Invite ID"},
                party_id: %Schema{type: :integer},
                sender_id: %Schema{type: :integer},
-               sender_name: %Schema{type: :string, nullable: true},
+               sender_name: %Schema{type: :string},
                recipient_id: %Schema{type: :integer},
-               recipient_name: %Schema{type: :string, nullable: true},
+               recipient_name: %Schema{type: :string},
                status: %Schema{
                  type: :string,
                  description: "pending | accepted | declined | cancelled"
