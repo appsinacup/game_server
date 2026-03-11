@@ -260,14 +260,11 @@ defmodule GameServer.Chat do
   defp send_party_chat_notifications(message) do
     alias GameServer.{Notifications, Parties}
 
-    party = Parties.get_party(message.chat_ref_id)
-    party_code = if party, do: party.code, else: "Party #{message.chat_ref_id}"
-
     members = Parties.get_party_members(message.chat_ref_id)
 
     for member <- members, member.id != message.sender_id do
       Notifications.create_chat_notification(member.id, member.id, %{
-        "title" => "New message in party #{party_code}",
+        "title" => "New message in party",
         "content" => "1 new message",
         "metadata" => %{
           "chat_type" => "party",
