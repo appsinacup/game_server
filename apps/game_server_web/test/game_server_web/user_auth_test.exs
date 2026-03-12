@@ -102,6 +102,48 @@ defmodule GameServerWeb.UserAuthTest do
       def before_group_join(_user, _group, opts), do: {:ok, opts}
 
       @impl true
+      def before_group_update(_group, attrs), do: {:ok, attrs}
+
+      @impl true
+      def after_group_update(_group), do: :ok
+
+      @impl true
+      def after_group_join(_user_id, _group), do: :ok
+
+      @impl true
+      def after_group_leave(_user_id, _group_id), do: :ok
+
+      @impl true
+      def after_group_delete(_group), do: :ok
+
+      @impl true
+      def after_group_kick(_admin_id, _target_id, _group_id), do: :ok
+
+      @impl true
+      def before_party_create(_user, attrs), do: {:ok, attrs}
+
+      @impl true
+      def after_party_create(_party), do: :ok
+
+      @impl true
+      def before_party_update(_party, attrs), do: {:ok, attrs}
+
+      @impl true
+      def after_party_update(_party), do: :ok
+
+      @impl true
+      def after_party_join(_user, _party), do: :ok
+
+      @impl true
+      def after_party_leave(_user, _party_id), do: :ok
+
+      @impl true
+      def after_party_kick(_target, _leader, _party), do: :ok
+
+      @impl true
+      def after_party_disband(_party), do: :ok
+
+      @impl true
       def before_chat_message(_user, attrs), do: {:ok, attrs}
 
       @impl true

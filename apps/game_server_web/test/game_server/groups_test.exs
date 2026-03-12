@@ -10,6 +10,20 @@ defmodule GameServer.GroupsTest.HooksCaptureGroupJoin do
   def before_group_join(_user, _group, opts), do: {:error, {:captured, opts}}
 end
 
+defmodule GameServer.GroupsTest.HooksAllowGroupUpdate do
+  def before_group_update(_group, attrs), do: {:ok, attrs}
+end
+
+defmodule GameServer.GroupsTest.HooksDenyGroupUpdate do
+  def before_group_update(_group, _attrs), do: {:error, :update_blocked}
+end
+
+defmodule GameServer.GroupsTest.HooksModifyGroupUpdate do
+  def before_group_update(_group, attrs) do
+    {:ok, Map.put(attrs, "description", "hook-injected")}
+  end
+end
+
 defmodule GameServer.GroupsTest do
   use GameServer.DataCase
 
@@ -486,6 +500,40 @@ defmodule GameServer.GroupsTest do
       assert invite.group_id == group.id
       assert invite.status == "pending"
     end
+
+    test "auto-approves pending join request instead of creating invite", %{
+      owner: owner,
+      other: other
+    } do
+      {:ok, group} =
+        Groups.create_group(owner.id, %{"title" => "AutoApprove", "type" => "private"})
+
+      # other sends a join request
+      {:ok, request} = Groups.request_join(other.id, group.id)
+      assert request.status == "pending"
+
+      # admin invites the same user — should auto-approve the request
+      assert {:ok, :request_approved} = Groups.invite_to_group(owner.id, group.id, other.id)
+
+      # User should now be a member
+      assert Groups.member?(group.id, other.id)
+    end
+
+    test "auto-approve makes the user a member and marks request accepted", %{
+      owner: owner,
+      other: other
+    } do
+      {:ok, group} =
+        Groups.create_group(owner.id, %{"title" => "AutoApprove2", "type" => "private"})
+
+      {:ok, request} = Groups.request_join(other.id, group.id)
+
+      {:ok, :request_approved} = Groups.invite_to_group(owner.id, group.id, other.id)
+
+      # The join request should now be accepted
+      updated_request = GameServer.Repo.get(GameServer.Groups.GroupJoinRequest, request.id)
+      assert updated_request.status == "accepted"
+    end
   end
 
   describe "accept_invite/2" do
@@ -507,8 +555,8 @@ defmodule GameServer.GroupsTest do
       {:ok, group} = Groups.create_group(owner.id, %{"title" => "AlrIn", "type" => "hidden"})
       {:ok, _} = Groups.invite_to_group(owner.id, group.id, other.id)
       {:ok, _} = Groups.accept_invite(other.id, group.id)
-      # Invite is now consumed (status: accepted), so second accept returns :no_invite
-      assert {:error, :no_invite} = Groups.accept_invite(other.id, group.id)
+      # User is already a member, so second accept returns :already_member
+      assert {:error, :already_member} = Groups.accept_invite(other.id, group.id)
     end
 
     test "cannot accept invite for non-existent group", %{owner: owner} do
@@ -1029,6 +1077,145 @@ defmodule GameServer.GroupsTest do
       {:ok, group} = Groups.create_group(owner.id, %{"title" => "InvCount", "type" => "hidden"})
       {:ok, _} = Groups.invite_to_group(owner.id, group.id, other.id)
       assert Groups.count_sent_invitations(owner.id) == 1
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # before_group_update / after_group_update hooks
+  # ---------------------------------------------------------------------------
+
+  describe "before_group_update hook" do
+    setup do
+      original = Application.get_env(:game_server_core, :hooks_module)
+
+      on_exit(fn ->
+        if original do
+          Application.put_env(:game_server_core, :hooks_module, original)
+        else
+          Application.delete_env(:game_server_core, :hooks_module)
+        end
+      end)
+
+      :ok
+    end
+
+    test "allows update when hook returns {:ok, attrs}", %{owner: owner} do
+      Application.put_env(
+        :game_server_core,
+        :hooks_module,
+        GameServer.GroupsTest.HooksAllowGroupUpdate
+      )
+
+      {:ok, group} =
+        Groups.create_group(owner.id, %{"title" => "HookAllowUp", "type" => "public"})
+
+      assert {:ok, updated} =
+               Groups.update_group(owner.id, group.id, %{"description" => "new desc"})
+
+      assert updated.description == "new desc"
+    end
+
+    test "blocks update when hook returns {:error, reason}", %{owner: owner} do
+      Application.put_env(
+        :game_server_core,
+        :hooks_module,
+        GameServer.GroupsTest.HooksDenyGroupUpdate
+      )
+
+      {:ok, group} =
+        Groups.create_group(owner.id, %{"title" => "HookDenyUp", "type" => "public"})
+
+      assert {:error, :update_blocked} =
+               Groups.update_group(owner.id, group.id, %{"description" => "nope"})
+
+      # Verify the group wasn't updated
+      fresh = Groups.get_group!(group.id)
+      refute fresh.description == "nope"
+    end
+
+    test "hook can modify attrs before update", %{owner: owner} do
+      Application.put_env(
+        :game_server_core,
+        :hooks_module,
+        GameServer.GroupsTest.HooksModifyGroupUpdate
+      )
+
+      {:ok, group} =
+        Groups.create_group(owner.id, %{"title" => "HookModUp", "type" => "public"})
+
+      assert {:ok, updated} =
+               Groups.update_group(owner.id, group.id, %{"description" => "original"})
+
+      assert updated.description == "hook-injected"
+    end
+
+    test "admin_update_group also runs through hook", %{owner: owner} do
+      Application.put_env(
+        :game_server_core,
+        :hooks_module,
+        GameServer.GroupsTest.HooksDenyGroupUpdate
+      )
+
+      {:ok, group} =
+        Groups.create_group(owner.id, %{"title" => "HookAdminUp", "type" => "public"})
+
+      assert {:error, :update_blocked} =
+               Groups.admin_update_group(group, %{"description" => "admin nope"})
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # After-hooks – verify they fire without breaking the flow
+  # ---------------------------------------------------------------------------
+
+  describe "after_group_join hook" do
+    test "fires after public join without breaking the flow", %{owner: owner, other: other} do
+      {:ok, group} =
+        Groups.create_group(owner.id, %{"title" => "AfterJoinTest", "type" => "public"})
+
+      assert {:ok, _member} = Groups.join_group(other.id, group.id)
+      assert Groups.member?(group.id, other.id)
+    end
+  end
+
+  describe "after_group_leave hook" do
+    test "fires after leave without breaking the flow", %{owner: owner, other: other} do
+      {:ok, group} =
+        Groups.create_group(owner.id, %{"title" => "AfterLeaveTest", "type" => "public"})
+
+      {:ok, _} = Groups.join_group(other.id, group.id)
+      assert {:ok, _} = Groups.leave_group(other.id, group.id)
+      refute Groups.member?(group.id, other.id)
+    end
+  end
+
+  describe "after_group_kick hook" do
+    test "fires after kick without breaking the flow", %{owner: owner, other: other} do
+      {:ok, group} =
+        Groups.create_group(owner.id, %{"title" => "AfterKickTest", "type" => "public"})
+
+      {:ok, _} = Groups.join_group(other.id, group.id)
+      assert {:ok, _} = Groups.kick_member(owner.id, group.id, other.id)
+      refute Groups.member?(group.id, other.id)
+    end
+  end
+
+  describe "after_group_delete hook" do
+    test "fires after delete without breaking the flow", %{owner: owner} do
+      {:ok, group} =
+        Groups.create_group(owner.id, %{"title" => "AfterDeleteTest", "type" => "public"})
+
+      # delete_group requires no members, so use admin_delete_group instead
+      assert {:ok, _} = Groups.admin_delete_group(group.id)
+      assert is_nil(Groups.get_group(group.id))
+    end
+
+    test "fires after admin_delete_group without breaking the flow", %{owner: owner} do
+      {:ok, group} =
+        Groups.create_group(owner.id, %{"title" => "AdminDelTest", "type" => "public"})
+
+      assert {:ok, _} = Groups.admin_delete_group(group.id)
+      assert is_nil(Groups.get_group(group.id))
     end
   end
 end

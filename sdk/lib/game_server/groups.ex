@@ -528,13 +528,17 @@ defmodule GameServer.Groups do
 
 
   @doc ~S"""
-    Invite a user to a hidden group. Creates a `GroupInvite` record and sends
+    Invite a user to a group. Creates a `GroupInvite` record and sends
     an informational notification. The invite record is independent of the
     notification — deleting notifications does not affect pending invites.
     
+    If the target user already has a pending join request for this group,
+    the request is automatically approved instead of creating an invite.
+    In that case, returns `{:ok, :request_approved}`.
+    
   """
   @spec invite_to_group(integer(), integer(), integer()) ::
-  {:ok, GameServer.Groups.GroupInvite.t()} | {:error, atom()}
+  {:ok, GameServer.Groups.GroupInvite.t()} | {:ok, :request_approved} | {:error, atom()}
   def invite_to_group(_admin_id, _group_id, _target_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->

@@ -41,6 +41,8 @@ defmodule GameServer.Hooks.PluginManagerTest do
           def before_group_create(_user, attrs), do: {:ok, attrs}
           def after_group_create(_group), do: :ok
           def before_group_join(user, group, opts), do: {:ok, {user, group, opts}}
+          def before_group_update(_group, attrs), do: {:ok, attrs}
+          def after_group_update(_group), do: :ok
           def before_lobby_join(user, lobby, opts), do: {:ok, {user, lobby, opts}}
           def before_chat_message(_user, attrs), do: {:ok, attrs}
           def after_chat_message(_message), do: :ok
@@ -54,6 +56,18 @@ defmodule GameServer.Hooks.PluginManagerTest do
           def before_user_kicked(host, target, lobby), do: {:ok, {host, target, lobby}}
           def after_user_kicked(_host, _target, _lobby), do: :ok
           def after_lobby_host_change(_lobby, _new_host_id), do: :ok
+          def after_group_join(_user_id, _group), do: :ok
+          def after_group_leave(_user_id, _group_id), do: :ok
+          def after_group_delete(_group), do: :ok
+          def after_group_kick(_admin_id, _target_id, _group_id), do: :ok
+          def before_party_create(_user, attrs), do: {:ok, attrs}
+          def after_party_create(_party), do: :ok
+          def before_party_update(_party, attrs), do: {:ok, attrs}
+          def after_party_update(_party), do: :ok
+          def after_party_join(_user, _party), do: :ok
+          def after_party_leave(_user, _party_id), do: :ok
+          def after_party_kick(_target, _leader, _party), do: :ok
+          def after_party_disband(_party), do: :ok
 
           def before_kv_get(_key, _opts), do: :public
           def on_custom_hook(_hook, _args), do: {:error, :not_implemented}

@@ -246,26 +246,38 @@ defmodule GameServer.Parties do
         |> normalize_params()
         |> Map.put("leader_id", user.id)
 
-      Multi.new()
-      |> Multi.insert(:party, Party.changeset(%Party{}, attrs))
-      |> Multi.run(:membership, fn repo, %{party: party} ->
-        user
-        |> Ecto.Changeset.change(%{party_id: party.id})
-        |> repo.update()
-      end)
-      |> Repo.transaction()
-      |> case do
-        {:ok, %{party: party, membership: _user}} ->
-          invalidate_user_cache(user.id)
-          broadcast_parties({:party_created, party.id})
-          {:ok, party}
-
-        {:error, :party, changeset, _} ->
-          {:error, changeset}
-
-        {:error, _op, reason, _} ->
-          {:error, reason}
+      case GameServer.Hooks.internal_call(:before_party_create, [user, attrs]) do
+        {:ok, attrs} -> do_create_party(user, attrs)
+        {:error, reason} -> {:error, {:hook_rejected, reason}}
       end
+    end
+  end
+
+  defp do_create_party(user, attrs) do
+    Multi.new()
+    |> Multi.insert(:party, Party.changeset(%Party{}, attrs))
+    |> Multi.run(:membership, fn repo, %{party: party} ->
+      user
+      |> Ecto.Changeset.change(%{party_id: party.id})
+      |> repo.update()
+    end)
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{party: party, membership: _user}} ->
+        invalidate_user_cache(user.id)
+        broadcast_parties({:party_created, party.id})
+
+        GameServer.Async.run(fn ->
+          GameServer.Hooks.internal_call(:after_party_create, [party])
+        end)
+
+        {:ok, party}
+
+      {:error, :party, changeset, _} ->
+        {:error, changeset}
+
+      {:error, _op, reason, _} ->
+        {:error, reason}
     end
   end
 
@@ -405,6 +417,10 @@ defmodule GameServer.Parties do
           "user:#{invite.sender_id}",
           {:party_invite_accepted, %{party_id: party_id, user_id: user.id}}
         )
+
+        GameServer.Async.run(fn ->
+          GameServer.Hooks.internal_call(:after_party_join, [user, party])
+        end)
 
         {:ok, party}
       end
@@ -647,7 +663,17 @@ defmodule GameServer.Parties do
          :ok <- check_is_leader(party, leader),
          :ok <- check_not_self_kick(leader, target_user_id),
          {:ok, target} <- fetch_kick_target(target_user_id, party) do
-      do_kick_member(target, party)
+      case do_kick_member(target, party) do
+        {:ok, _updated} = result ->
+          GameServer.Async.run(fn ->
+            GameServer.Hooks.internal_call(:after_party_kick, [target, leader, party])
+          end)
+
+          result
+
+        error ->
+          error
+      end
     end
   end
 
@@ -735,18 +761,34 @@ defmodule GameServer.Parties do
   end
 
   defp do_update_party(party, attrs) do
-    result =
-      party
-      |> Party.changeset(attrs)
-      |> Repo.update()
+    case GameServer.Hooks.internal_call(:before_party_update, [party, attrs]) do
+      {:ok, returned} ->
+        attrs_to_use =
+          if is_map(returned) and not is_struct(returned) do
+            returned
+          else
+            attrs
+          end
 
-    case result do
-      {:ok, updated} ->
-        broadcast_party(updated.id, {:party_updated, updated})
-        {:ok, updated}
+        party
+        |> Party.changeset(attrs_to_use)
+        |> Repo.update()
+        |> case do
+          {:ok, updated} ->
+            broadcast_party(updated.id, {:party_updated, updated})
 
-      error ->
-        error
+            GameServer.Async.run(fn ->
+              GameServer.Hooks.internal_call(:after_party_update, [updated])
+            end)
+
+            {:ok, updated}
+
+          error ->
+            error
+        end
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 
@@ -976,6 +1018,10 @@ defmodule GameServer.Parties do
     broadcast_party(party.id, {:party_disbanded, party.id})
     broadcast_parties({:party_deleted, party.id})
 
+    GameServer.Async.run(fn ->
+      GameServer.Hooks.internal_call(:after_party_disband, [party])
+    end)
+
     {:ok, :disbanded}
   end
 
@@ -991,6 +1037,11 @@ defmodule GameServer.Parties do
         cancel_pending_invites_for_user_in_party(updated.id, party_id)
         _ = Accounts.broadcast_user_update(updated)
         broadcast_party(party_id, {:party_member_left, party_id, updated.id})
+
+        GameServer.Async.run(fn ->
+          GameServer.Hooks.internal_call(:after_party_leave, [user, party_id])
+        end)
+
         {:ok, :left}
 
       error ->

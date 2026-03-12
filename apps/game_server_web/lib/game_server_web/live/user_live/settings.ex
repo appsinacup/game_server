@@ -2481,6 +2481,19 @@ defmodule GameServerWeb.UserLive.Settings do
         uid = if is_binary(uid), do: String.to_integer(uid), else: uid
 
         case Groups.invite_to_group(user.id, gid, uid) do
+          {:ok, :request_approved} ->
+            {:noreply,
+             socket
+             |> put_flash(:info, dgettext("groups", "Join request approved"))
+             |> assign(
+               :invite_search_results,
+               Enum.reject(socket.assigns.invite_search_results, &(&1.id == uid))
+             )
+             |> assign(
+               :invite_friends,
+               Enum.reject(socket.assigns.invite_friends, &(&1.id == uid))
+             )}
+
           {:ok, _} ->
             {:noreply,
              socket

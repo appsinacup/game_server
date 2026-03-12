@@ -136,6 +136,20 @@ defmodule GameServer.Hooks do
   - `before_group_create/2` - Before group creation, receives `(user, attrs)`. Return `{:ok, attrs}` to allow or `{:error, reason}` to block
   - `after_group_create/1` - After group is created (fire-and-forget)
   - `before_group_join/3` - Before user is accepted into a group (public join, invite accept, or request approval)
+  - `before_group_update/2` - Before group update, receives `(group, attrs)`. Return `{:ok, attrs}` to allow or `{:error, reason}` to block
+  - `after_group_update/1` - After group is updated (fire-and-forget)
+  - `after_group_join/2` - After a user joins a group (fire-and-forget), receives `(user_id, group)`
+  - `after_group_leave/2` - After a user leaves a group (fire-and-forget), receives `(user_id, group_id)`
+  - `after_group_delete/1` - After a group is deleted (fire-and-forget), receives `(group)`
+  - `after_group_kick/3` - After a member is kicked from a group (fire-and-forget), receives `(admin_id, target_id, group_id)`
+  - `before_party_create/2` - Before party creation, receives `(user, attrs)`. Return `{:ok, attrs}` to allow or `{:error, reason}` to block
+  - `after_party_create/1` - After party is created (fire-and-forget)
+  - `before_party_update/2` - Before party update, receives `(party, attrs)`. Return `{:ok, attrs}` to allow or `{:error, reason}` to block
+  - `after_party_update/1` - After party is updated (fire-and-forget)
+  - `after_party_join/2` - After a user joins a party via invite accept (fire-and-forget), receives `(user, party)`
+  - `after_party_leave/2` - After a user leaves a party (fire-and-forget), receives `(user, party_id)`
+  - `after_party_kick/3` - After a member is kicked from a party (fire-and-forget), receives `(target, leader, party)`
+  - `after_party_disband/1` - After a party is disbanded (fire-and-forget), receives `(party)`
   - `before_chat_message/2` - Before a chat message is sent, receives `(user, attrs)`. Return `{:ok, attrs}` to allow (and optionally modify), or `{:error, reason}` to block
   - `after_chat_message/1` - After a chat message is persisted (fire-and-forget)
   - `before_lobby_leave/2` - Before user leaves lobby
@@ -243,6 +257,27 @@ defmodule GameServer.Hooks do
   @callback before_group_join(user(), group :: map(), opts :: map()) ::
               hook_result({user(), map(), map()})
 
+  @callback before_group_update(term(), map()) :: hook_result(map())
+  @callback after_group_update(term()) :: any()
+
+  # Group after-hooks (fire-and-forget)
+  @callback after_group_join(integer(), term()) :: any()
+  @callback after_group_leave(integer(), integer()) :: any()
+  @callback after_group_delete(term()) :: any()
+  @callback after_group_kick(integer(), integer(), integer()) :: any()
+
+  # Party lifecycle callbacks
+  @callback before_party_create(user(), map()) :: hook_result(map())
+  @callback after_party_create(term()) :: any()
+
+  @callback before_party_update(term(), map()) :: hook_result(map())
+  @callback after_party_update(term()) :: any()
+
+  @callback after_party_join(user(), term()) :: any()
+  @callback after_party_leave(user(), integer()) :: any()
+  @callback after_party_kick(user(), user(), term()) :: any()
+  @callback after_party_disband(term()) :: any()
+
   @callback before_chat_message(user(), attrs :: map()) :: hook_result(map())
   @callback after_chat_message(term()) :: any()
 
@@ -260,6 +295,11 @@ defmodule GameServer.Hooks do
   @callback after_user_kicked(host :: user(), target :: user(), lobby()) :: any()
 
   @optional_callbacks before_group_create: 2, after_group_create: 1, before_group_join: 3,
+                     before_group_update: 2, after_group_update: 1,
+                     after_group_join: 2, after_group_leave: 2, after_group_delete: 1, after_group_kick: 3,
+                     before_party_create: 2, after_party_create: 1,
+                     before_party_update: 2, after_party_update: 1,
+                     after_party_join: 2, after_party_leave: 2, after_party_kick: 3, after_party_disband: 1,
                      before_chat_message: 2, after_chat_message: 1
 
   @doc """
@@ -329,6 +369,48 @@ defmodule GameServer.Hooks do
       def after_group_create(_group), do: :ok
 
       @impl true
+      def before_group_update(_group, attrs), do: {:ok, attrs}
+
+      @impl true
+      def after_group_update(_group), do: :ok
+
+      @impl true
+      def after_group_join(_user_id, _group), do: :ok
+
+      @impl true
+      def after_group_leave(_user_id, _group_id), do: :ok
+
+      @impl true
+      def after_group_delete(_group), do: :ok
+
+      @impl true
+      def after_group_kick(_admin_id, _target_id, _group_id), do: :ok
+
+      @impl true
+      def before_party_create(_user, attrs), do: {:ok, attrs}
+
+      @impl true
+      def after_party_create(_party), do: :ok
+
+      @impl true
+      def before_party_update(_party, attrs), do: {:ok, attrs}
+
+      @impl true
+      def after_party_update(_party), do: :ok
+
+      @impl true
+      def after_party_join(_user, _party), do: :ok
+
+      @impl true
+      def after_party_leave(_user, _party_id), do: :ok
+
+      @impl true
+      def after_party_kick(_target, _leader, _party), do: :ok
+
+      @impl true
+      def after_party_disband(_party), do: :ok
+
+      @impl true
       def after_lobby_join(_user, _lobby), do: :ok
 
       @impl true
@@ -375,6 +457,20 @@ defmodule GameServer.Hooks do
                      after_lobby_create: 1,
                      before_group_create: 2,
                      after_group_create: 1,
+                     before_group_update: 2,
+                     after_group_update: 1,
+                     after_group_join: 2,
+                     after_group_leave: 2,
+                     after_group_delete: 1,
+                     after_group_kick: 3,
+                     before_party_create: 2,
+                     after_party_create: 1,
+                     before_party_update: 2,
+                     after_party_update: 1,
+                     after_party_join: 2,
+                     after_party_leave: 2,
+                     after_party_kick: 3,
+                     after_party_disband: 1,
                      before_lobby_join: 3,
                      after_lobby_join: 2,
                      before_chat_message: 2,

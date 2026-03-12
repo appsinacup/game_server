@@ -729,7 +729,7 @@ func groups_get_group(
 	id: int,):
 	return await _call_api(GroupsApi.new(_config), "get_group", [id])
 
-## Invite a user to a hidden group (admin only)
+## Invite a user to a group (admin only). If the target has a pending join request, it is auto-approved.
 func groups_invite_to_group(
 	# id: int   Eg: 56
 	# Group ID

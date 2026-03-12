@@ -61,6 +61,26 @@ defmodule GameServer.Hooks do
   @callback before_group_join(User.t(), term(), map()) ::
               hook_result({User.t(), term(), map()})
 
+  @callback before_group_update(term(), map()) :: hook_result(map())
+  @callback after_group_update(term()) :: any()
+
+  @callback after_group_join(integer(), term()) :: any()
+  @callback after_group_leave(integer(), integer()) :: any()
+  @callback after_group_delete(term()) :: any()
+  @callback after_group_kick(integer(), integer(), integer()) :: any()
+
+  # Party lifecycle hooks
+  @callback before_party_create(User.t(), map()) :: hook_result(map())
+  @callback after_party_create(term()) :: any()
+
+  @callback before_party_update(term(), map()) :: hook_result(map())
+  @callback after_party_update(term()) :: any()
+
+  @callback after_party_join(User.t(), term()) :: any()
+  @callback after_party_leave(User.t(), integer()) :: any()
+  @callback after_party_kick(User.t(), User.t(), term()) :: any()
+  @callback after_party_disband(term()) :: any()
+
   @callback before_chat_message(User.t(), map()) :: hook_result(map())
   @callback after_chat_message(term()) :: any()
 
@@ -248,6 +268,20 @@ defmodule GameServer.Hooks do
       :before_lobby_join,
       :after_lobby_join,
       :before_group_join,
+      :before_group_update,
+      :after_group_update,
+      :after_group_join,
+      :after_group_leave,
+      :after_group_delete,
+      :after_group_kick,
+      :before_party_create,
+      :after_party_create,
+      :before_party_update,
+      :after_party_update,
+      :after_party_join,
+      :after_party_leave,
+      :after_party_kick,
+      :after_party_disband,
       :before_chat_message,
       :after_chat_message,
       :before_lobby_leave,
@@ -285,6 +319,9 @@ defmodule GameServer.Hooks do
       :before_group_create,
       :before_lobby_join,
       :before_group_join,
+      :before_group_update,
+      :before_party_create,
+      :before_party_update,
       :before_chat_message,
       :before_lobby_leave,
       :before_lobby_update,
@@ -357,7 +394,31 @@ defmodule GameServer.Hooks do
     end
   end
 
+  defp normalize_pipeline_args(:before_party_create, value, current_args)
+       when is_list(current_args) and length(current_args) == 2 do
+    case value do
+      tuple when is_tuple(tuple) and tuple_size(tuple) == 2 -> {:ok, Tuple.to_list(tuple)}
+      attrs -> {:ok, [Enum.at(current_args, 0), attrs]}
+    end
+  end
+
+  defp normalize_pipeline_args(:before_party_update, value, current_args)
+       when is_list(current_args) and length(current_args) == 2 do
+    case value do
+      tuple when is_tuple(tuple) and tuple_size(tuple) == 2 -> {:ok, Tuple.to_list(tuple)}
+      attrs -> {:ok, [Enum.at(current_args, 0), attrs]}
+    end
+  end
+
   defp normalize_pipeline_args(:before_lobby_update, value, current_args)
+       when is_list(current_args) and length(current_args) == 2 do
+    case value do
+      tuple when is_tuple(tuple) and tuple_size(tuple) == 2 -> {:ok, Tuple.to_list(tuple)}
+      attrs -> {:ok, [Enum.at(current_args, 0), attrs]}
+    end
+  end
+
+  defp normalize_pipeline_args(:before_group_update, value, current_args)
        when is_list(current_args) and length(current_args) == 2 do
     case value do
       tuple when is_tuple(tuple) and tuple_size(tuple) == 2 -> {:ok, Tuple.to_list(tuple)}
@@ -391,6 +452,21 @@ defmodule GameServer.Hooks do
   end
 
   defp finalize_pipeline_value(:before_lobby_update, args)
+       when is_list(args) and length(args) == 2 do
+    Enum.at(args, 1)
+  end
+
+  defp finalize_pipeline_value(:before_group_update, args)
+       when is_list(args) and length(args) == 2 do
+    Enum.at(args, 1)
+  end
+
+  defp finalize_pipeline_value(:before_party_create, args)
+       when is_list(args) and length(args) == 2 do
+    Enum.at(args, 1)
+  end
+
+  defp finalize_pipeline_value(:before_party_update, args)
        when is_list(args) and length(args) == 2 do
     Enum.at(args, 1)
   end
@@ -870,6 +946,48 @@ defmodule GameServer.Hooks.Default do
 
   @impl true
   def before_group_join(user, group, opts), do: {:ok, {user, group, opts}}
+
+  @impl true
+  def before_group_update(_group, attrs), do: {:ok, attrs}
+
+  @impl true
+  def after_group_update(_group), do: :ok
+
+  @impl true
+  def after_group_join(_user_id, _group), do: :ok
+
+  @impl true
+  def after_group_leave(_user_id, _group_id), do: :ok
+
+  @impl true
+  def after_group_delete(_group), do: :ok
+
+  @impl true
+  def after_group_kick(_admin_id, _target_id, _group_id), do: :ok
+
+  @impl true
+  def before_party_create(_user, attrs), do: {:ok, attrs}
+
+  @impl true
+  def after_party_create(_party), do: :ok
+
+  @impl true
+  def before_party_update(_party, attrs), do: {:ok, attrs}
+
+  @impl true
+  def after_party_update(_party), do: :ok
+
+  @impl true
+  def after_party_join(_user, _party), do: :ok
+
+  @impl true
+  def after_party_leave(_user, _party_id), do: :ok
+
+  @impl true
+  def after_party_kick(_target, _leader, _party), do: :ok
+
+  @impl true
+  def after_party_disband(_party), do: :ok
 
   @impl true
   def before_chat_message(_user, attrs), do: {:ok, attrs}

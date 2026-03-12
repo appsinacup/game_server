@@ -482,10 +482,13 @@ defmodule GameServerWeb.Api.V1.GroupController do
 
   operation(:invite,
     operation_id: "invite_to_group",
-    summary: "Invite a user to a hidden group (admin only)",
+    summary: "Invite a user to a group (admin only)",
     description:
-      "Send an invitation to a user for a hidden group. Creates a GroupInvite record " <>
-        "and sends an informational notification. The invite is independent of notifications.",
+      "Send an invitation to a user for a group. Creates a GroupInvite record " <>
+        "and sends an informational notification. The invite is independent of notifications. " <>
+        "If the target user already has a pending join request for this group, " <>
+        "the request is automatically approved instead of creating an invite " <>
+        "(status: \"request_approved\").",
     security: [%{"authorization" => []}],
     parameters: [
       id: [in: :path, schema: %Schema{type: :integer}, description: "Group ID", required: true]
@@ -502,7 +505,18 @@ defmodule GameServerWeb.Api.V1.GroupController do
       }
     },
     responses: [
-      ok: {"Invitation sent", "application/json", %Schema{type: :object}},
+      ok:
+        {"Invitation sent or join request auto-approved", "application/json",
+         %Schema{
+           type: :object,
+           properties: %{
+             status: %Schema{
+               type: :string,
+               description:
+                 "\"invited\" if a new invite was created, \"request_approved\" if a pending join request was auto-approved"
+             }
+           }
+         }},
       forbidden: {"Not admin or target already member", "application/json", @error_schema},
       not_found: {"Group not found", "application/json", @error_schema},
       unauthorized: {"Not authenticated", "application/json", @error_schema}
@@ -1133,8 +1147,11 @@ defmodule GameServerWeb.Api.V1.GroupController do
 
         {group_id, tid} ->
           case Groups.invite_to_group(user.id, group_id, tid) do
-            {:ok, _} ->
-              json(conn, %{})
+            {:ok, :request_approved} ->
+              json(conn, %{status: "request_approved"})
+
+            {:ok, _invite} ->
+              json(conn, %{status: "invited"})
 
             {:error, :not_found} ->
               conn |> put_status(:not_found) |> json(%{error: "not_found"})
@@ -1170,7 +1187,9 @@ defmodule GameServerWeb.Api.V1.GroupController do
               conn |> put_status(:not_found) |> json(%{error: "not_found"})
 
             {:error, :already_member} ->
-              conn |> put_status(:forbidden) |> json(%{error: "already_member"})
+              # Return 200 with status — user is already in the group
+              # (e.g. invite was auto-approved via join request)
+              json(conn, %{status: "already_member"})
 
             {:error, :full} ->
               conn |> put_status(:forbidden) |> json(%{error: "full"})

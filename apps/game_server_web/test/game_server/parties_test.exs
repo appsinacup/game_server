@@ -1,3 +1,31 @@
+defmodule GameServer.PartiesTest.HooksAllowPartyCreate do
+  def before_party_create(_user, attrs), do: {:ok, attrs}
+end
+
+defmodule GameServer.PartiesTest.HooksDenyPartyCreate do
+  def before_party_create(_user, _attrs), do: {:error, :party_creation_blocked}
+end
+
+defmodule GameServer.PartiesTest.HooksModifyPartyCreate do
+  def before_party_create(_user, attrs) do
+    {:ok, Map.put(attrs, "max_size", 3)}
+  end
+end
+
+defmodule GameServer.PartiesTest.HooksAllowPartyUpdate do
+  def before_party_update(_party, attrs), do: {:ok, attrs}
+end
+
+defmodule GameServer.PartiesTest.HooksDenyPartyUpdate do
+  def before_party_update(_party, _attrs), do: {:error, :party_update_blocked}
+end
+
+defmodule GameServer.PartiesTest.HooksModifyPartyUpdate do
+  def before_party_update(_party, attrs) do
+    {:ok, Map.put(attrs, "max_size", 5)}
+  end
+end
+
 defmodule GameServer.PartiesTest do
   use GameServer.DataCase
 
@@ -838,6 +866,169 @@ defmodule GameServer.PartiesTest do
 
     test "returns empty when no invitations sent", %{member1: member1} do
       assert Parties.list_sent_party_invitations(member1) == []
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # Party hooks
+  # ---------------------------------------------------------------------------
+
+  describe "before_party_create hook" do
+    setup do
+      original = Application.get_env(:game_server_core, :hooks_module)
+
+      on_exit(fn ->
+        if original do
+          Application.put_env(:game_server_core, :hooks_module, original)
+        else
+          Application.delete_env(:game_server_core, :hooks_module)
+        end
+      end)
+
+      :ok
+    end
+
+    test "allows create when hook returns {:ok, attrs}", %{leader: leader} do
+      Application.put_env(
+        :game_server_core,
+        :hooks_module,
+        GameServer.PartiesTest.HooksAllowPartyCreate
+      )
+
+      assert {:ok, party} = Parties.create_party(leader, %{max_size: 4})
+      assert party.leader_id == leader.id
+    end
+
+    test "blocks create when hook returns {:error, reason}", %{leader: leader} do
+      Application.put_env(
+        :game_server_core,
+        :hooks_module,
+        GameServer.PartiesTest.HooksDenyPartyCreate
+      )
+
+      assert {:error, {:hook_rejected, :party_creation_blocked}} =
+               Parties.create_party(leader, %{max_size: 4})
+    end
+
+    test "hook can modify attrs before create", %{leader: leader} do
+      Application.put_env(
+        :game_server_core,
+        :hooks_module,
+        GameServer.PartiesTest.HooksModifyPartyCreate
+      )
+
+      assert {:ok, party} = Parties.create_party(leader, %{max_size: 10})
+      assert party.max_size == 3
+    end
+  end
+
+  describe "before_party_update hook" do
+    setup do
+      original = Application.get_env(:game_server_core, :hooks_module)
+
+      on_exit(fn ->
+        if original do
+          Application.put_env(:game_server_core, :hooks_module, original)
+        else
+          Application.delete_env(:game_server_core, :hooks_module)
+        end
+      end)
+
+      :ok
+    end
+
+    test "allows update when hook returns {:ok, attrs}", %{leader: leader} do
+      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
+
+      Application.put_env(
+        :game_server_core,
+        :hooks_module,
+        GameServer.PartiesTest.HooksAllowPartyUpdate
+      )
+
+      assert {:ok, updated} = Parties.update_party(leader, %{"max_size" => 6})
+      assert updated.max_size == 6
+    end
+
+    test "blocks update when hook returns {:error, reason}", %{leader: leader} do
+      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
+
+      Application.put_env(
+        :game_server_core,
+        :hooks_module,
+        GameServer.PartiesTest.HooksDenyPartyUpdate
+      )
+
+      assert {:error, :party_update_blocked} =
+               Parties.update_party(leader, %{"max_size" => 6})
+    end
+
+    test "hook can modify attrs before update", %{leader: leader} do
+      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
+
+      Application.put_env(
+        :game_server_core,
+        :hooks_module,
+        GameServer.PartiesTest.HooksModifyPartyUpdate
+      )
+
+      assert {:ok, updated} = Parties.update_party(leader, %{"max_size" => 10})
+      assert updated.max_size == 5
+    end
+  end
+
+  describe "after_party_join hook" do
+    test "fires after invite accept without breaking the flow", %{
+      leader: leader,
+      member1: member1
+    } do
+      make_friends(leader, member1)
+      {:ok, party} = Parties.create_party(leader, %{})
+      {:ok, _invite} = Parties.invite_to_party(leader, member1.id)
+
+      assert {:ok, _party} = Parties.accept_party_invite(member1, party.id)
+      updated = Accounts.get_user(member1.id)
+      assert updated.party_id == party.id
+    end
+  end
+
+  describe "after_party_leave hook" do
+    test "fires after leave without breaking the flow", %{leader: leader, member1: member1} do
+      make_friends(leader, member1)
+      {:ok, party} = Parties.create_party(leader, %{})
+      {:ok, _invite} = Parties.invite_to_party(leader, member1.id)
+      {:ok, _} = Parties.accept_party_invite(member1, party.id)
+
+      assert {:ok, :left} = Parties.leave_party(member1)
+      updated = Accounts.get_user(member1.id)
+      assert is_nil(updated.party_id)
+    end
+  end
+
+  describe "after_party_kick hook" do
+    test "fires after kick without breaking the flow", %{leader: leader, member1: member1} do
+      make_friends(leader, member1)
+      {:ok, party} = Parties.create_party(leader, %{})
+      {:ok, _invite} = Parties.invite_to_party(leader, member1.id)
+      {:ok, _} = Parties.accept_party_invite(member1, party.id)
+
+      assert {:ok, _} = Parties.kick_member(leader, member1.id)
+      updated = Accounts.get_user(member1.id)
+      assert is_nil(updated.party_id)
+    end
+  end
+
+  describe "after_party_disband hook" do
+    test "fires after disband without breaking the flow", %{leader: leader, member1: member1} do
+      make_friends(leader, member1)
+      {:ok, party} = Parties.create_party(leader, %{})
+      {:ok, _invite} = Parties.invite_to_party(leader, member1.id)
+      {:ok, _} = Parties.accept_party_invite(member1, party.id)
+
+      # Leader leaving disbands the party (since leader)
+      assert {:ok, :disbanded} = Parties.leave_party(leader)
+      updated_leader = Accounts.get_user(leader.id)
+      assert is_nil(updated_leader.party_id)
     end
   end
 end

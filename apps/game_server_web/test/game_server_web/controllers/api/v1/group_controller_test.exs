@@ -547,7 +547,25 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
         |> auth_conn(owner)
         |> post("/api/v1/groups/#{group.id}/invite", %{target_user_id: target.id})
 
-      assert json_response(conn, 200)
+      assert %{"status" => "invited"} = json_response(conn, 200)
+    end
+
+    test "auto-approves pending join request via invite endpoint", %{conn: conn} do
+      owner = create_user()
+      target = create_user()
+
+      {:ok, group} =
+        Groups.create_group(owner.id, %{"title" => "AutoAPI", "type" => "private"})
+
+      {:ok, _request} = Groups.request_join(target.id, group.id)
+
+      conn =
+        conn
+        |> auth_conn(owner)
+        |> post("/api/v1/groups/#{group.id}/invite", %{target_user_id: target.id})
+
+      assert %{"status" => "request_approved"} = json_response(conn, 200)
+      assert Groups.member?(group.id, target.id)
     end
 
     test "non-admin cannot invite", %{conn: conn} do
