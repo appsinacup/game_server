@@ -312,12 +312,18 @@ Public wrapper for cache invalidation (used by admin controller).
 
 ```elixir
 @spec invite_to_group(integer(), integer(), integer()) ::
-  {:ok, GameServer.Groups.GroupInvite.t()} | {:error, atom()}
+  {:ok, GameServer.Groups.GroupInvite.t()}
+  | {:ok, :request_approved}
+  | {:error, atom()}
 ```
 
-Invite a user to a hidden group. Creates a `GroupInvite` record and sends
+Invite a user to a group. Creates a `GroupInvite` record and sends
 an informational notification. The invite record is independent of the
 notification — deleting notifications does not affect pending invites.
+
+If the target user already has a pending join request for this group,
+the request is automatically approved instead of creating an invite.
+In that case, returns `{:ok, :request_approved}`.
 
 # `join_group`
 

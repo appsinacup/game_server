@@ -40,6 +40,36 @@ options. Hooks may accept either a map or keyword list for convenience.
 @callback after_group_create(term()) :: any()
 ```
 
+# `after_group_delete`
+
+```elixir
+@callback after_group_delete(term()) :: any()
+```
+
+# `after_group_join`
+
+```elixir
+@callback after_group_join(integer(), term()) :: any()
+```
+
+# `after_group_kick`
+
+```elixir
+@callback after_group_kick(integer(), integer(), integer()) :: any()
+```
+
+# `after_group_leave`
+
+```elixir
+@callback after_group_leave(integer(), integer()) :: any()
+```
+
+# `after_group_update`
+
+```elixir
+@callback after_group_update(term()) :: any()
+```
+
 # `after_lobby_create`
 
 ```elixir
@@ -74,6 +104,46 @@ options. Hooks may accept either a map or keyword list for convenience.
 
 ```elixir
 @callback after_lobby_update(term()) :: any()
+```
+
+# `after_party_create`
+
+```elixir
+@callback after_party_create(term()) :: any()
+```
+
+# `after_party_disband`
+
+```elixir
+@callback after_party_disband(term()) :: any()
+```
+
+# `after_party_join`
+
+```elixir
+@callback after_party_join(GameServer.Accounts.User.t(), term()) :: any()
+```
+
+# `after_party_kick`
+
+```elixir
+@callback after_party_kick(
+  GameServer.Accounts.User.t(),
+  GameServer.Accounts.User.t(),
+  term()
+) :: any()
+```
+
+# `after_party_leave`
+
+```elixir
+@callback after_party_leave(GameServer.Accounts.User.t(), integer()) :: any()
+```
+
+# `after_party_update`
+
+```elixir
+@callback after_party_update(term()) :: any()
 ```
 
 # `after_startup`
@@ -129,6 +199,12 @@ options. Hooks may accept either a map or keyword list for convenience.
   hook_result({GameServer.Accounts.User.t(), term(), map()})
 ```
 
+# `before_group_update`
+
+```elixir
+@callback before_group_update(term(), map()) :: hook_result(map())
+```
+
 # `before_kv_get`
 
 ```elixir
@@ -172,6 +248,18 @@ to block the read.
 
 ```elixir
 @callback before_lobby_update(term(), map()) :: hook_result(map())
+```
+
+# `before_party_create`
+
+```elixir
+@callback before_party_create(GameServer.Accounts.User.t(), map()) :: hook_result(map())
+```
+
+# `before_party_update`
+
+```elixir
+@callback before_party_update(term(), map()) :: hook_result(map())
 ```
 
 # `before_stop`
