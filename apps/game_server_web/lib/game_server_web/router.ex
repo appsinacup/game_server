@@ -99,6 +99,8 @@ defmodule GameServerWeb.Router do
     pipe_through [:api, :api_auth]
 
     get "/groups/invitations", GroupController, :invitations
+    post "/groups/invitations/:invite_id/accept", GroupController, :accept_invite
+    post "/groups/invitations/:invite_id/decline", GroupController, :decline_invite
     get "/groups/me", GroupController, :my_groups
     get "/groups/sent_invitations", GroupController, :sent_invitations
     delete "/groups/sent_invitations/:invite_id", GroupController, :cancel_invite
@@ -163,7 +165,6 @@ defmodule GameServerWeb.Router do
     post "/groups/:id/join_requests/:request_id/reject", GroupController, :reject_request
     delete "/groups/:id/join_requests/:request_id", GroupController, :cancel_request
     post "/groups/:id/invite", GroupController, :invite
-    post "/groups/:id/accept_invite", GroupController, :accept_invite
     post "/groups/:id/notify", GroupController, :notify_group
     # Hooks API - list available hook functions and call them
     get "/hooks", HookController, :index

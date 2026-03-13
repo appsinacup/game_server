@@ -1397,13 +1397,20 @@ defmodule GameServerWeb.UserLive.Settings do
                         <td class="text-sm whitespace-nowrap">
                           {Calendar.strftime(inv.inserted_at, "%Y-%m-%d %H:%M")}
                         </td>
-                        <td>
+                        <td class="flex gap-1">
                           <button
                             phx-click="group_accept_invite"
-                            phx-value-group_id={inv.group_id}
+                            phx-value-invite_id={inv.id}
                             class="btn btn-xs btn-primary"
                           >
                             {gettext("Accept")}
+                          </button>
+                          <button
+                            phx-click="group_decline_invite"
+                            phx-value-invite_id={inv.id}
+                            class="btn btn-xs btn-outline btn-error"
+                          >
+                            {gettext("Decline")}
                           </button>
                         </td>
                       </tr>
@@ -2165,10 +2172,10 @@ defmodule GameServerWeb.UserLive.Settings do
              )}
         end
 
-      {"group_accept_invite", %{"group_id" => gid}} ->
-        gid = if is_binary(gid), do: String.to_integer(gid), else: gid
+      {"group_accept_invite", %{"invite_id" => iid}} ->
+        iid = if is_binary(iid), do: String.to_integer(iid), else: iid
 
-        case Groups.accept_invite(user.id, gid) do
+        case Groups.accept_invite(user.id, iid) do
           {:ok, _} ->
             {:noreply,
              socket
@@ -2181,6 +2188,25 @@ defmodule GameServerWeb.UserLive.Settings do
                socket,
                :error,
                dgettext("groups", "Could not accept invite: %{reason}", reason: inspect(reason))
+             )}
+        end
+
+      {"group_decline_invite", %{"invite_id" => iid}} ->
+        iid = if is_binary(iid), do: String.to_integer(iid), else: iid
+
+        case Groups.decline_invite(user.id, iid) do
+          :ok ->
+            {:noreply,
+             socket
+             |> put_flash(:info, dgettext("groups", "Invitation declined"))
+             |> reload_groups()}
+
+          {:error, reason} ->
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               dgettext("groups", "Could not decline invite: %{reason}", reason: inspect(reason))
              )}
         end
 

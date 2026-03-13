@@ -680,9 +680,13 @@ func notifications_send_notification(sendNotificationRequest: SendNotificationRe
 
 ## GROUPS
 
-## Accept a group invitation
-func groups_accept_group_invite(id: int):
-	return await _call_api(GroupsApi.new(_config), "accept_group_invite", [id])
+## Accept a group invitation by invite_id
+func groups_accept_group_invite(inviteId: int):
+	return await _call_api(GroupsApi.new(_config), "accept_group_invite", [inviteId])
+
+## Decline a group invitation by invite_id
+func groups_decline_group_invite(inviteId: int):
+	return await _call_api(GroupsApi.new(_config), "decline_group_invite", [inviteId])
 
 ## Approve a join request (admin only)
 func groups_approve_join_request(

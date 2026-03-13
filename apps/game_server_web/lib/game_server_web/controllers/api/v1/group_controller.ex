@@ -527,16 +527,47 @@ defmodule GameServerWeb.Api.V1.GroupController do
     operation_id: "accept_group_invite",
     summary: "Accept a group invitation",
     description:
-      "Accept a pending group invitation. Requires a pending GroupInvite record. Works for all group types.",
+      "Accept a pending group invitation by invite ID. The authenticated user must be the recipient of the invite.",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Group ID", required: true]
+      invite_id: [
+        in: :path,
+        schema: %Schema{type: :integer},
+        description: "Invite ID (from the invitations list)",
+        required: true
+      ]
     ],
     responses: [
       ok: {"Joined successfully", "application/json", @member_schema},
       forbidden:
         {"Cannot join (full, already member, no invite)", "application/json", @error_schema},
-      not_found: {"Group not found", "application/json", @error_schema},
+      not_found: {"Invite not found", "application/json", @error_schema},
+      unauthorized: {"Not authenticated", "application/json", @error_schema}
+    ]
+  )
+
+  operation(:decline_invite,
+    operation_id: "decline_group_invite",
+    summary: "Decline a group invitation",
+    description:
+      "Decline a pending group invitation by invite ID. Only the recipient can decline. The invite is marked as declined (not deleted).",
+    security: [%{"authorization" => []}],
+    parameters: [
+      invite_id: [
+        in: :path,
+        schema: %Schema{type: :integer},
+        description: "Invite ID (from the invitations list)",
+        required: true
+      ]
+    ],
+    responses: [
+      ok:
+        {"Invite declined", "application/json",
+         %Schema{
+           type: :object,
+           properties: %{status: %Schema{type: :string}}
+         }},
+      not_found: {"Invite not found", "application/json", @error_schema},
       unauthorized: {"Not authenticated", "application/json", @error_schema}
     ]
   )
@@ -1172,14 +1203,14 @@ defmodule GameServerWeb.Api.V1.GroupController do
     end)
   end
 
-  def accept_invite(conn, %{"id" => id}) do
+  def accept_invite(conn, %{"invite_id" => invite_id_raw}) do
     with_auth(conn, fn user ->
-      case parse_id(id) do
+      case parse_id(invite_id_raw) do
         nil ->
           conn |> put_status(:not_found) |> json(%{error: "not_found"})
 
-        group_id ->
-          case Groups.accept_invite(user.id, group_id) do
+        invite_id ->
+          case Groups.accept_invite(user.id, invite_id) do
             {:ok, member} ->
               json(conn, serialize_member(member))
 
@@ -1187,15 +1218,37 @@ defmodule GameServerWeb.Api.V1.GroupController do
               conn |> put_status(:not_found) |> json(%{error: "not_found"})
 
             {:error, :already_member} ->
-              # Return 200 with status — user is already in the group
-              # (e.g. invite was auto-approved via join request)
               json(conn, %{status: "already_member"})
+
+            {:error, :no_invite} ->
+              conn |> put_status(:not_found) |> json(%{error: "not_found"})
 
             {:error, :full} ->
               conn |> put_status(:forbidden) |> json(%{error: "full"})
 
             {:error, reason} ->
               conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
+          end
+      end
+    end)
+  end
+
+  def decline_invite(conn, %{"invite_id" => invite_id_raw}) do
+    with_auth(conn, fn user ->
+      case parse_id(invite_id_raw) do
+        nil ->
+          conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+        invite_id ->
+          case Groups.decline_invite(user.id, invite_id) do
+            :ok ->
+              json(conn, %{status: "declined"})
+
+            {:error, :not_found} ->
+              conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+            {:error, reason} ->
+              conn |> put_status(:unprocessable_entity) |> json(%{error: to_string(reason)})
           end
       end
     end)

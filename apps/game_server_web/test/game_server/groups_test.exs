@@ -440,8 +440,8 @@ defmodule GameServer.GroupsTest do
 
     test "cannot invite existing member", %{owner: owner, other: other} do
       {:ok, group} = Groups.create_group(owner.id, %{"title" => "AlrMem", "type" => "hidden"})
-      {:ok, _} = Groups.invite_to_group(owner.id, group.id, other.id)
-      {:ok, _} = Groups.accept_invite(other.id, group.id)
+      {:ok, invite} = Groups.invite_to_group(owner.id, group.id, other.id)
+      {:ok, _} = Groups.accept_invite(other.id, invite.id)
       assert {:error, :already_member} = Groups.invite_to_group(owner.id, group.id, other.id)
     end
 
@@ -539,27 +539,27 @@ defmodule GameServer.GroupsTest do
   describe "accept_invite/2" do
     test "user can accept invite and join hidden group", %{owner: owner, other: other} do
       {:ok, group} = Groups.create_group(owner.id, %{"title" => "HidJoin", "type" => "hidden"})
-      {:ok, _} = Groups.invite_to_group(owner.id, group.id, other.id)
-      assert {:ok, %GroupMember{role: "member"}} = Groups.accept_invite(other.id, group.id)
+      {:ok, invite} = Groups.invite_to_group(owner.id, group.id, other.id)
+      assert {:ok, %GroupMember{role: "member"}} = Groups.accept_invite(other.id, invite.id)
       assert Groups.member?(group.id, other.id)
     end
 
     test "user can accept invite for any group type", %{owner: owner, other: other} do
       {:ok, group} = Groups.create_group(owner.id, %{"title" => "PubInvite", "type" => "public"})
-      {:ok, _} = Groups.invite_to_group(owner.id, group.id, other.id)
-      assert {:ok, %GroupMember{role: "member"}} = Groups.accept_invite(other.id, group.id)
+      {:ok, invite} = Groups.invite_to_group(owner.id, group.id, other.id)
+      assert {:ok, %GroupMember{role: "member"}} = Groups.accept_invite(other.id, invite.id)
       assert Groups.member?(group.id, other.id)
     end
 
     test "cannot accept invite if already member", %{owner: owner, other: other} do
       {:ok, group} = Groups.create_group(owner.id, %{"title" => "AlrIn", "type" => "hidden"})
-      {:ok, _} = Groups.invite_to_group(owner.id, group.id, other.id)
-      {:ok, _} = Groups.accept_invite(other.id, group.id)
-      # User is already a member, so second accept returns :already_member
-      assert {:error, :already_member} = Groups.accept_invite(other.id, group.id)
+      {:ok, invite} = Groups.invite_to_group(owner.id, group.id, other.id)
+      {:ok, _} = Groups.accept_invite(other.id, invite.id)
+      # Invite is now accepted, second accept returns :no_invite (status changed)
+      assert {:error, :no_invite} = Groups.accept_invite(other.id, invite.id)
     end
 
-    test "cannot accept invite for non-existent group", %{owner: owner} do
+    test "cannot accept invite for non-existent invite", %{owner: owner} do
       assert {:error, :not_found} = Groups.accept_invite(owner.id, 999_999)
     end
 
@@ -571,8 +571,28 @@ defmodule GameServer.GroupsTest do
           "max_members" => 1
         })
 
-      {:ok, _} = Groups.invite_to_group(owner.id, group.id, other.id)
-      assert {:error, :full} = Groups.accept_invite(other.id, group.id)
+      {:ok, invite} = Groups.invite_to_group(owner.id, group.id, other.id)
+      assert {:error, :full} = Groups.accept_invite(other.id, invite.id)
+    end
+  end
+
+  describe "decline_invite/2" do
+    test "recipient can decline invite", %{owner: owner, other: other} do
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "Dec1", "type" => "hidden"})
+      {:ok, invite} = Groups.invite_to_group(owner.id, group.id, other.id)
+      assert :ok = Groups.decline_invite(other.id, invite.id)
+      refute Groups.member?(group.id, other.id)
+    end
+
+    test "decline returns not_found for unknown id", %{owner: owner} do
+      assert {:error, :not_found} = Groups.decline_invite(owner.id, 999_999)
+    end
+
+    test "sender cannot decline their own invite", %{owner: owner, other: other} do
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "DecS", "type" => "hidden"})
+      {:ok, invite} = Groups.invite_to_group(owner.id, group.id, other.id)
+      # The sender is not the recipient — should not find the invite
+      assert {:error, :not_found} = Groups.decline_invite(owner.id, invite.id)
     end
   end
 
@@ -631,9 +651,9 @@ defmodule GameServer.GroupsTest do
       {:ok, group} =
         Groups.create_group(owner.id, %{"title" => "JoinHookInv", "type" => "hidden"})
 
-      {:ok, _} = Groups.invite_to_group(owner.id, group.id, other.id)
+      {:ok, invite} = Groups.invite_to_group(owner.id, group.id, other.id)
 
-      assert {:error, :level_too_low} = Groups.accept_invite(other.id, group.id)
+      assert {:error, :level_too_low} = Groups.accept_invite(other.id, invite.id)
       refute Groups.member?(group.id, other.id)
     end
 

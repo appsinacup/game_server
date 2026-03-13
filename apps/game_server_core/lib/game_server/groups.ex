@@ -1417,87 +1417,92 @@ defmodule GameServer.Groups do
   end
 
   @doc """
-  Accept a pending group invite. The user must have a pending
-  `GroupInvite` for the group. Works for all group types (public, private, hidden).
+  Accept a pending group invite by **invite_id**.
+  The user must be the recipient of the invite.
+  Works for all group types (public, private, hidden).
   """
   @spec accept_invite(integer(), integer()) ::
           {:ok, GroupMember.t()} | {:error, atom()}
-  def accept_invite(user_id, group_id)
-      when is_integer(user_id) and is_integer(group_id) do
-    group = get_group(group_id)
+  def accept_invite(user_id, invite_id)
+      when is_integer(user_id) and is_integer(invite_id) do
+    case Repo.get(GroupInvite, invite_id) do
+      %GroupInvite{recipient_id: ^user_id, status: "pending"} = invite ->
+        do_accept_invite(user_id, invite)
 
-    invite =
-      Repo.one(
-        from i in GroupInvite,
-          where:
-            i.recipient_id == ^user_id and i.group_id == ^group_id and
-              i.status == "pending",
-          limit: 1
-      )
+      %GroupInvite{recipient_id: ^user_id} ->
+        {:error, :no_invite}
+
+      _other ->
+        {:error, :not_found}
+    end
+  end
+
+  defp do_accept_invite(user_id, invite) do
+    group = get_group(invite.group_id)
 
     cond do
       is_nil(group) ->
         {:error, :not_found}
 
-      member?(group_id, user_id) ->
-        # Invalidate the invite cache in case a stale "pending" entry
-        # is still visible to the caller.
+      member?(group.id, user_id) ->
         invalidate_invite_cache_sync(user_id)
         {:error, :already_member}
 
-      is_nil(invite) ->
-        {:error, :no_invite}
-
       true ->
+        group_id = group.id
+
         case do_add_group_member(user_id, group_id, group, "invite_accept") do
           {:ok, member} ->
-            # Mark all pending invites for this user + group as accepted
-            from(i in GroupInvite,
-              where:
-                i.recipient_id == ^user_id and i.group_id == ^group_id and
-                  i.status == "pending"
-            )
-            |> Repo.update_all(set: [status: "accepted", updated_at: DateTime.utc_now()])
-
-            invalidate_invite_cache_sync(user_id)
-            invalidate_invite_cache_sync(invite.sender_id)
-
-            # Notify the sender that the invite was accepted
-            user = GameServer.Accounts.get_user(user_id)
-            user_name = (user && user.display_name) || ""
-
-            GameServer.Notifications.admin_create_notification(
-              user_id,
-              invite.sender_id,
-              %{
-                "title" => "group_invite_accepted",
-                "content" => "#{user_name} accepted your invite to #{group.title}",
-                "metadata" => %{
-                  "group_id" => group_id,
-                  "group_name" => group.title,
-                  "user_id" => user_id,
-                  "user_name" => user_name
-                }
-              }
-            )
-
-            # Broadcast so the sender's LiveView refreshes
-            Phoenix.PubSub.broadcast(
-              GameServer.PubSub,
-              "user:#{invite.sender_id}",
-              {:group_invite_accepted, %{group_id: group_id}}
-            )
-
-            GameServer.Async.run(fn ->
-              GameServer.Hooks.internal_call(:after_group_join, [user_id, group])
-            end)
-
+            finalize_invite_accept(user_id, group_id, group, invite)
             {:ok, member}
 
           error ->
             error
         end
     end
+  end
+
+  defp finalize_invite_accept(user_id, group_id, group, invite) do
+    # Mark all pending invites for this user + group as accepted
+    from(i in GroupInvite,
+      where:
+        i.recipient_id == ^user_id and i.group_id == ^group_id and
+          i.status == "pending"
+    )
+    |> Repo.update_all(set: [status: "accepted", updated_at: DateTime.utc_now()])
+
+    invalidate_invite_cache_sync(user_id)
+    invalidate_invite_cache_sync(invite.sender_id)
+
+    # Notify the sender that the invite was accepted
+    user = GameServer.Accounts.get_user(user_id)
+    user_name = (user && user.display_name) || ""
+
+    GameServer.Notifications.admin_create_notification(
+      user_id,
+      invite.sender_id,
+      %{
+        "title" => "group_invite_accepted",
+        "content" => "#{user_name} accepted your invite to #{group.title}",
+        "metadata" => %{
+          "group_id" => group_id,
+          "group_name" => group.title,
+          "user_id" => user_id,
+          "user_name" => user_name
+        }
+      }
+    )
+
+    # Broadcast so the sender's LiveView refreshes
+    Phoenix.PubSub.broadcast(
+      GameServer.PubSub,
+      "user:#{invite.sender_id}",
+      {:group_invite_accepted, %{group_id: group_id}}
+    )
+
+    GameServer.Async.run(fn ->
+      GameServer.Hooks.internal_call(:after_group_join, [user_id, group])
+    end)
   end
 
   # Shared helper: acquire advisory lock, check capacity, run hook, insert member.
@@ -1626,6 +1631,40 @@ defmodule GameServer.Groups do
 
       %GroupInvite{status: "pending"} ->
         {:error, :not_owner}
+
+      _other ->
+        {:error, :not_found}
+    end
+  end
+
+  @doc """
+  Decline a pending group invite by **invite_id**.
+  Only the recipient can decline. The invite is marked as `"declined"`
+  (not deleted) so the sender can see the outcome.
+  """
+  @spec decline_invite(integer(), integer()) :: :ok | {:error, atom()}
+  def decline_invite(user_id, invite_id)
+      when is_integer(user_id) and is_integer(invite_id) do
+    case Repo.get(GroupInvite, invite_id) do
+      %GroupInvite{recipient_id: ^user_id, status: "pending"} = invite ->
+        from(i in GroupInvite,
+          where:
+            i.recipient_id == ^user_id and i.group_id == ^invite.group_id and
+              i.status == "pending"
+        )
+        |> Repo.update_all(set: [status: "declined", updated_at: DateTime.utc_now()])
+
+        invalidate_invite_cache(user_id)
+        invalidate_invite_cache(invite.sender_id)
+
+        # Notify the sender
+        Phoenix.PubSub.broadcast(
+          GameServer.PubSub,
+          "user:#{invite.sender_id}",
+          {:group_invite_declined, %{group_id: invite.group_id, user_id: user_id}}
+        )
+
+        :ok
 
       _other ->
         {:error, :not_found}

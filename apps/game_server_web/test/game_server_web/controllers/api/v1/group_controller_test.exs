@@ -583,17 +583,17 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
     end
   end
 
-  describe "POST /api/v1/groups/:id/accept_invite" do
+  describe "POST /api/v1/groups/invitations/:invite_id/accept" do
     test "user can accept invite and join hidden group", %{conn: conn} do
       owner = create_user()
       target = create_user()
       {:ok, group} = Groups.create_group(owner.id, %{"title" => "AccInv", "type" => "hidden"})
-      {:ok, _} = Groups.invite_to_group(owner.id, group.id, target.id)
+      {:ok, invite} = Groups.invite_to_group(owner.id, group.id, target.id)
 
       conn =
         conn
         |> auth_conn(target)
-        |> post("/api/v1/groups/#{group.id}/accept_invite")
+        |> post("/api/v1/groups/invitations/#{invite.id}/accept")
 
       assert json_response(conn, 200)
       assert Groups.member?(group.id, target.id)
@@ -603,15 +603,54 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
       owner = create_user()
       target = create_user()
       {:ok, group} = Groups.create_group(owner.id, %{"title" => "PubAccInv", "type" => "public"})
-      {:ok, _invite} = Groups.invite_to_group(owner.id, group.id, target.id)
+      {:ok, invite} = Groups.invite_to_group(owner.id, group.id, target.id)
 
       conn =
         conn
         |> auth_conn(target)
-        |> post("/api/v1/groups/#{group.id}/accept_invite")
+        |> post("/api/v1/groups/invitations/#{invite.id}/accept")
 
       assert json_response(conn, 200)
       assert Groups.member?(group.id, target.id)
+    end
+
+    test "returns not_found for unknown invite_id", %{conn: conn} do
+      user = create_user()
+
+      conn =
+        conn
+        |> auth_conn(user)
+        |> post("/api/v1/groups/invitations/999999/accept")
+
+      assert %{"error" => "not_found"} = json_response(conn, 404)
+    end
+  end
+
+  describe "POST /api/v1/groups/invitations/:invite_id/decline" do
+    test "user can decline invite", %{conn: conn} do
+      owner = create_user()
+      target = create_user()
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "DecInv", "type" => "hidden"})
+      {:ok, invite} = Groups.invite_to_group(owner.id, group.id, target.id)
+
+      conn =
+        conn
+        |> auth_conn(target)
+        |> post("/api/v1/groups/invitations/#{invite.id}/decline")
+
+      assert %{"status" => "declined"} = json_response(conn, 200)
+      refute Groups.member?(group.id, target.id)
+    end
+
+    test "returns not_found for unknown invite_id", %{conn: conn} do
+      user = create_user()
+
+      conn =
+        conn
+        |> auth_conn(user)
+        |> post("/api/v1/groups/invitations/999999/decline")
+
+      assert %{"error" => "not_found"} = json_response(conn, 404)
     end
   end
 

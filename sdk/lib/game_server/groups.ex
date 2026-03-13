@@ -54,12 +54,13 @@ defmodule GameServer.Groups do
 
 
   @doc ~S"""
-    Accept a pending group invite. The user must have a pending
-    `GroupInvite` for the group. Works for all group types (public, private, hidden).
+    Accept a pending group invite by **invite_id**.
+    The user must be the recipient of the invite.
+    Works for all group types (public, private, hidden).
     
   """
   @spec accept_invite(integer(), integer()) :: {:ok, GameServer.Groups.GroupMember.t()} | {:error, atom()}
-  def accept_invite(_user_id, _group_id) do
+  def accept_invite(_user_id, _invite_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
         {:ok, nil}
@@ -356,6 +357,24 @@ defmodule GameServer.Groups do
 
       _ ->
         raise "GameServer.Groups.create_group/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Decline a pending group invite by **invite_id**.
+    Only the recipient can decline. The invite is marked as `"declined"`
+    (not deleted) so the sender can see the outcome.
+    
+  """
+  @spec decline_invite(integer(), integer()) :: :ok | {:error, atom()}
+  def decline_invite(_user_id, _invite_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        :ok
+
+      _ ->
+        raise "GameServer.Groups.decline_invite/2 is a stub - only available at runtime on GameServer"
     end
   end
 

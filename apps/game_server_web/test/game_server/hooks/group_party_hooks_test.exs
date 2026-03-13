@@ -200,8 +200,8 @@ defmodule GameServer.Hooks.GroupPartyHooksTest do
       {:ok, group} =
         Groups.create_group(owner.id, %{"title" => "CaptureJoinInv", "type" => "private"})
 
-      {:ok, _invite} = Groups.invite_to_group(owner.id, group.id, other.id)
-      {:ok, _} = Groups.accept_invite(other.id, group.id)
+      {:ok, invite} = Groups.invite_to_group(owner.id, group.id, other.id)
+      {:ok, _} = Groups.accept_invite(other.id, invite.id)
 
       assert_receive {:after_group_join, uid, g}, 500
       assert uid == other.id
