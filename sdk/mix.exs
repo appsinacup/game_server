@@ -1,7 +1,7 @@
 defmodule GameServerSdk.MixProject do
   use Mix.Project
 
-  @version "1.0.19"
+  @version "1.0.20"
   @source_url "https://github.com/appsinacup/game_server"
 
   def project do
