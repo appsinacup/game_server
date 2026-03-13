@@ -35,6 +35,7 @@ defmodule GameServer.Hooks.PluginManagerTest do
           def after_user_register(_user), do: :ok
           def after_user_login(_user), do: :ok
           def after_user_updated(_user), do: :ok
+          def before_user_update(_user, attrs), do: {:ok, attrs}
 
           def before_lobby_create(attrs), do: {:ok, attrs}
           def after_lobby_create(_lobby), do: :ok

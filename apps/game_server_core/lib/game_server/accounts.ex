@@ -1712,20 +1712,33 @@ defmodule GameServer.Accounts do
   @spec update_user_display_name(User.t(), map()) ::
           {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def update_user_display_name(%User{} = user, attrs) do
-    case User.display_name_changeset(user, attrs) |> Repo.update() do
-      {:ok, updated} = ok ->
-        invalidate_user_cache_sync(user)
-        invalidate_user_cache_sync(updated)
-        broadcast_user_update(updated)
+    case GameServer.Hooks.internal_call(:before_user_update, [user, attrs]) do
+      {:ok, returned} ->
+        attrs_to_use =
+          if is_map(returned) and not is_struct(returned) do
+            returned
+          else
+            attrs
+          end
 
-        GameServer.Async.run(fn ->
-          GameServer.Hooks.internal_call(:after_user_updated, [updated])
-        end)
+        case User.display_name_changeset(user, attrs_to_use) |> Repo.update() do
+          {:ok, updated} = ok ->
+            invalidate_user_cache_sync(user)
+            invalidate_user_cache_sync(updated)
+            broadcast_user_update(updated)
 
-        ok
+            GameServer.Async.run(fn ->
+              GameServer.Hooks.internal_call(:after_user_updated, [updated])
+            end)
 
-      err ->
-        err
+            ok
+
+          err ->
+            err
+        end
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 
@@ -1752,12 +1765,28 @@ defmodule GameServer.Accounts do
   @spec update_user(User.t(), Types.user_update_attrs()) ::
           {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def update_user(%User{} = user, attrs) when is_map(attrs) do
+    case GameServer.Hooks.internal_call(:before_user_update, [user, attrs]) do
+      {:ok, returned} ->
+        attrs_to_use =
+          if is_map(returned) and not is_struct(returned) do
+            returned
+          else
+            attrs
+          end
+
+        do_update_user(user, attrs_to_use)
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  defp do_update_user(%User{} = user, attrs) do
     case User.admin_changeset(user, attrs) |> Repo.update() do
       {:ok, updated} = ok ->
         invalidate_user_cache(user)
         invalidate_user_cache(updated)
         invalidate_users_stats_cache()
-        # Broadcast updates so realtime clients can react
         broadcast_user_update(updated)
 
         GameServer.Async.run(fn ->

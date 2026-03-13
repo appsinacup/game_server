@@ -41,6 +41,7 @@ defmodule GameServer.Hooks.InternalCallPluginFanoutTest do
           def before_stop, do: :ok
           def after_user_login(_user), do: :ok
           def after_user_updated(_user), do: :ok
+          def before_user_update(_user, attrs), do: {:ok, attrs}
           def on_custom_hook(_hook, _args), do: {:error, :not_implemented}
 
           def before_lobby_create(attrs), do: {:ok, attrs}

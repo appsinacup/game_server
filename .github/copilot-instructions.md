@@ -159,6 +159,10 @@ API routes use JWT tokens via Guardian for stateless authentication:
 - Guardian implementation is in `lib/game_server_web/auth/guardian.ex`
 - Guardian pipeline is in `lib/game_server_web/auth/pipeline.ex`
 
+### User hooks
+
+- User updates (both `update_user` and `update_user_display_name`) run through the `before_user_update(user, attrs)` hook — return `{:ok, attrs}` to allow (optionally modified) or `{:error, reason}` to block. After update, `after_user_updated(user)` fires asynchronously.
+
 ### Lobbies
 
 - Lobbies are stored in the `lobbies` table with fields: `id`, `name`, `title`, `host_id`, `hostless`, `max_users`, `is_hidden`, `is_locked`, `password_hash`, `metadata`, `inserted_at`, `updated_at`.

@@ -35,6 +35,7 @@ defmodule GameServer.Hooks do
 
   @callback after_user_login(User.t()) :: any()
 
+  @callback before_user_update(User.t(), map()) :: hook_result(map())
   @callback after_user_updated(User.t()) :: any()
 
   @doc """
@@ -261,6 +262,7 @@ defmodule GameServer.Hooks do
       :after_user_register,
       :after_user_login,
       :after_user_updated,
+      :before_user_update,
       :before_lobby_create,
       :after_lobby_create,
       :before_group_create,
@@ -315,6 +317,7 @@ defmodule GameServer.Hooks do
     # Pipeline-style hooks transform their inputs. These are the "before_*" hooks
     # used by domain flows.
     name in [
+      :before_user_update,
       :before_lobby_create,
       :before_group_create,
       :before_lobby_join,
@@ -418,6 +421,14 @@ defmodule GameServer.Hooks do
     end
   end
 
+  defp normalize_pipeline_args(:before_user_update, value, current_args)
+       when is_list(current_args) and length(current_args) == 2 do
+    case value do
+      tuple when is_tuple(tuple) and tuple_size(tuple) == 2 -> {:ok, Tuple.to_list(tuple)}
+      attrs -> {:ok, [Enum.at(current_args, 0), attrs]}
+    end
+  end
+
   defp normalize_pipeline_args(:before_group_update, value, current_args)
        when is_list(current_args) and length(current_args) == 2 do
     case value do
@@ -452,6 +463,11 @@ defmodule GameServer.Hooks do
   end
 
   defp finalize_pipeline_value(:before_lobby_update, args)
+       when is_list(args) and length(args) == 2 do
+    Enum.at(args, 1)
+  end
+
+  defp finalize_pipeline_value(:before_user_update, args)
        when is_list(args) and length(args) == 2 do
     Enum.at(args, 1)
   end
@@ -928,6 +944,9 @@ defmodule GameServer.Hooks.Default do
 
   @impl true
   def after_user_updated(_user), do: :ok
+
+  @impl true
+  def before_user_update(_user, attrs), do: {:ok, attrs}
 
   @impl true
   def before_lobby_create(attrs), do: {:ok, attrs}

@@ -69,6 +69,8 @@ defmodule GameServer.LobbiesTest do
 
       @impl true
       def after_user_updated(_user), do: :ok
+      @impl true
+      def before_user_update(_user, attrs), do: {:ok, attrs}
 
       @impl true
       def before_group_create(_user, attrs), do: {:ok, attrs}
