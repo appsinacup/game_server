@@ -281,6 +281,12 @@ to block the read.
   )
 ```
 
+# `before_user_update`
+
+```elixir
+@callback before_user_update(GameServer.Accounts.User.t(), map()) :: hook_result(map())
+```
+
 # `on_custom_hook`
 
 ```elixir
