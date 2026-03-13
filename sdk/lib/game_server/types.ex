@@ -246,4 +246,44 @@ defmodule GameServer.Types do
           optional(:password) => String.t() | nil,
           optional(:metadata) => map()
         }
+
+  @typedoc """
+  Attributes for creating a new group.
+
+  ## Fields
+
+    * `:name` - Unique machine-friendly identifier (required)
+    * `:title` - Display title (required)
+    * `:description` - Optional text description
+    * `:type` - Visibility type: `"public"`, `"private"`, or `"hidden"`
+    * `:max_members` - Maximum members allowed (default: 100, max: 10000)
+    * `:metadata` - Server-managed arbitrary key-value data
+  """
+  @type group_create_attrs :: %{
+          required(:name) => String.t(),
+          required(:title) => String.t(),
+          optional(:description) => String.t(),
+          optional(:type) => String.t(),
+          optional(:max_members) => pos_integer(),
+          optional(:metadata) => map()
+        }
+
+  @typedoc """
+  Attributes for updating an existing group.
+
+  ## Fields
+
+    * `:title` - Display title
+    * `:description` - Description
+    * `:type` - Visibility type
+    * `:max_members` - Max members (cannot be less than current member count)
+    * `:metadata` - Server-managed metadata
+  """
+  @type group_update_attrs :: %{
+          optional(:title) => String.t(),
+          optional(:description) => String.t(),
+          optional(:type) => String.t(),
+          optional(:max_members) => pos_integer(),
+          optional(:metadata) => map()
+        }
 end

@@ -35,6 +35,13 @@ defmodule GameServer.Hooks do
           :ok
         end
 
+        @impl true
+        def before_user_update(_user, attrs) do
+          # Validate or modify user update attributes before they are applied
+          # Return {:ok, attrs} to allow, {:error, reason} to block
+          {:ok, attrs}
+        end
+
         # Lobby hooks
         @impl true
         def before_lobby_create(attrs) do
@@ -239,6 +246,7 @@ defmodule GameServer.Hooks do
   @callback on_custom_hook(String.t(), list()) :: any()
 
   # User lifecycle callbacks
+  @callback before_user_update(user(), attrs :: map()) :: hook_result(map())
   @callback after_user_register(user()) :: any()
   @callback after_user_login(user()) :: any()
   @callback after_user_updated(user()) :: any()
@@ -296,6 +304,7 @@ defmodule GameServer.Hooks do
 
   @optional_callbacks before_group_create: 2, after_group_create: 1, before_group_join: 3,
                      before_group_update: 2, after_group_update: 1,
+                     before_user_update: 2,
                      after_group_join: 2, after_group_leave: 2, after_group_delete: 1, after_group_kick: 3,
                      before_party_create: 2, after_party_create: 1,
                      before_party_update: 2, after_party_update: 1,
@@ -352,6 +361,9 @@ defmodule GameServer.Hooks do
 
       @impl true
       def after_user_updated(_user), do: :ok
+
+      @impl true
+      def before_user_update(_user, attrs), do: {:ok, attrs}
 
       @impl true
       def before_lobby_create(attrs), do: {:ok, attrs}
@@ -452,6 +464,7 @@ defmodule GameServer.Hooks do
       defoverridable after_user_register: 1,
                      after_user_login: 1,
                      after_user_updated: 1,
+                     before_user_update: 2,
                      on_custom_hook: 2,
                      before_lobby_create: 1,
                      after_lobby_create: 1,
