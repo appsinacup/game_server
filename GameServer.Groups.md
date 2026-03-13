@@ -484,7 +484,7 @@ recognise and route it.
 
 ## Options
 
-  * `title` – notification title string (default: `"group_notification"`).
+  * `title` – notification title string (default: `"Group Notification"`).
     The title is part of the unique constraint `(sender_id, recipient_id, title)`,
     so different titles create separate notification slots.
 
