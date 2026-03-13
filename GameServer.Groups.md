@@ -53,8 +53,9 @@ three visibility types:
   {:ok, GameServer.Groups.GroupMember.t()} | {:error, atom()}
 ```
 
-Accept a pending group invite. The user must have a pending
-`GroupInvite` for the group. Works for all group types (public, private, hidden).
+Accept a pending group invite by **invite_id**.
+The user must be the recipient of the invite.
+Works for all group types (public, private, hidden).
 
 # `admin?`
 
@@ -211,6 +212,16 @@ Count groups the user belongs to.
 ```
 
 Create a new group. The creating user becomes an admin member automatically.
+
+# `decline_invite`
+
+```elixir
+@spec decline_invite(integer(), integer()) :: :ok | {:error, atom()}
+```
+
+Decline a pending group invite by **invite_id**.
+Only the recipient can decline. The invite is marked as `"declined"`
+(not deleted) so the sender can see the outcome.
 
 # `delete_group`
 

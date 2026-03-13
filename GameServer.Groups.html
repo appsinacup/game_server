@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.733">
+    <meta name="project" content="GameServer v1.0.735">
 
 
-    <title>GameServer.Groups — GameServer v1.0.733</title>
+    <title>GameServer.Groups — GameServer v1.0.735</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-3790C7BD.js"></script>
+    <script defer src="dist/sidebar_items-35031CDB.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.733
+          v1.0.735
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Groups</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.733)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.735)</small>
 
     </h1>
 
@@ -112,19 +112,19 @@ GameServer
 <p>Context module for group management: creating, updating, listing, joining,
 leaving, kicking, promoting/demoting members, and handling join requests.</p><p>Groups are persistent communities (unlike ephemeral lobbies). They support
 three visibility types:</p><ul><li><strong>public</strong> – anyone can join directly</li><li><strong>private</strong> – anyone can request to join; an admin must approve</li><li><strong>hidden</strong> – only invited users can join (via notifications / invite API)</li></ul><h2 id="module-usage" class="section-heading"><a href="#module-usage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># Create a group (creator becomes admin)</span><span class="w">
-</span><span class="p" data-group-id="2295109266-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">group</span><span class="p" data-group-id="2295109266-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Groups</span><span class="o">.</span><span class="n">create_group</span><span class="p" data-group-id="2295109266-2">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="2295109266-3">%{</span><span class="s">&quot;title&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;Cool Group&quot;</span><span class="p" data-group-id="2295109266-3">}</span><span class="p" data-group-id="2295109266-2">)</span><span class="w">
+</span><span class="p" data-group-id="4791400532-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">group</span><span class="p" data-group-id="4791400532-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Groups</span><span class="o">.</span><span class="n">create_group</span><span class="p" data-group-id="4791400532-2">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="4791400532-3">%{</span><span class="s">&quot;title&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;Cool Group&quot;</span><span class="p" data-group-id="4791400532-3">}</span><span class="p" data-group-id="4791400532-2">)</span><span class="w">
 
 </span><span class="c1"># List public/private groups (hidden excluded)</span><span class="w">
-</span><span class="n">groups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Groups</span><span class="o">.</span><span class="n">list_groups</span><span class="p" data-group-id="2295109266-4">(</span><span class="p" data-group-id="2295109266-5">%{</span><span class="p" data-group-id="2295109266-5">}</span><span class="p">,</span><span class="w"> </span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p" data-group-id="2295109266-4">)</span><span class="w">
+</span><span class="n">groups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Groups</span><span class="o">.</span><span class="n">list_groups</span><span class="p" data-group-id="4791400532-4">(</span><span class="p" data-group-id="4791400532-5">%{</span><span class="p" data-group-id="4791400532-5">}</span><span class="p">,</span><span class="w"> </span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p" data-group-id="4791400532-4">)</span><span class="w">
 
 </span><span class="c1"># Join a public group</span><span class="w">
-</span><span class="p" data-group-id="2295109266-6">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">member</span><span class="p" data-group-id="2295109266-6">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Groups</span><span class="o">.</span><span class="n">join_group</span><span class="p" data-group-id="2295109266-7">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="n">group</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="2295109266-7">)</span><span class="w">
+</span><span class="p" data-group-id="4791400532-6">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">member</span><span class="p" data-group-id="4791400532-6">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Groups</span><span class="o">.</span><span class="n">join_group</span><span class="p" data-group-id="4791400532-7">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="n">group</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="4791400532-7">)</span><span class="w">
 
 </span><span class="c1"># Request to join a private group</span><span class="w">
-</span><span class="p" data-group-id="2295109266-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p" data-group-id="2295109266-8">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Groups</span><span class="o">.</span><span class="n">request_join</span><span class="p" data-group-id="2295109266-9">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="n">group</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="2295109266-9">)</span><span class="w">
+</span><span class="p" data-group-id="4791400532-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="p" data-group-id="4791400532-8">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Groups</span><span class="o">.</span><span class="n">request_join</span><span class="p" data-group-id="4791400532-9">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="n">group</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="4791400532-9">)</span><span class="w">
 
 </span><span class="c1"># Admin approves a join request</span><span class="w">
-</span><span class="p" data-group-id="2295109266-10">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">member</span><span class="p" data-group-id="2295109266-10">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Groups</span><span class="o">.</span><span class="n">approve_join_request</span><span class="p" data-group-id="2295109266-11">(</span><span class="n">admin_id</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="2295109266-11">)</span></code></pre><h2 id="module-pubsub-events" class="section-heading"><a href="#module-pubsub-events" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">PubSub Events</span></h2><ul><li><p><code class="inline">&quot;groups&quot;</code> topic:</p><ul><li><code class="inline">{:group_created, group}</code></li><li><code class="inline">{:group_updated, group}</code></li><li><code class="inline">{:group_deleted, group_id}</code></li></ul></li><li><p><code class="inline">&quot;group:&lt;group_id&gt;&quot;</code> topic:</p><ul><li><code class="inline">{:member_joined, group_id, user_id}</code></li><li><code class="inline">{:member_left, group_id, user_id}</code></li><li><code class="inline">{:member_kicked, group_id, user_id}</code></li><li><code class="inline">{:member_promoted, group_id, user_id}</code></li><li><code class="inline">{:member_demoted, group_id, user_id}</code></li><li><code class="inline">{:group_updated, group}</code></li><li><code class="inline">{:join_request_created, group_id, user_id}</code></li><li><code class="inline">{:join_request_approved, group_id, user_id}</code></li><li><code class="inline">{:join_request_rejected, group_id, user_id}</code></li><li><code class="inline">{:group_notification, group_id, sender_id}</code></li></ul></li></ul>
+</span><span class="p" data-group-id="4791400532-10">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">member</span><span class="p" data-group-id="4791400532-10">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Groups</span><span class="o">.</span><span class="n">approve_join_request</span><span class="p" data-group-id="4791400532-11">(</span><span class="n">admin_id</span><span class="p">,</span><span class="w"> </span><span class="n">request</span><span class="o">.</span><span class="n">id</span><span class="p" data-group-id="4791400532-11">)</span></code></pre><h2 id="module-pubsub-events" class="section-heading"><a href="#module-pubsub-events" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">PubSub Events</span></h2><ul><li><p><code class="inline">&quot;groups&quot;</code> topic:</p><ul><li><code class="inline">{:group_created, group}</code></li><li><code class="inline">{:group_updated, group}</code></li><li><code class="inline">{:group_deleted, group_id}</code></li></ul></li><li><p><code class="inline">&quot;group:&lt;group_id&gt;&quot;</code> topic:</p><ul><li><code class="inline">{:member_joined, group_id, user_id}</code></li><li><code class="inline">{:member_left, group_id, user_id}</code></li><li><code class="inline">{:member_kicked, group_id, user_id}</code></li><li><code class="inline">{:member_promoted, group_id, user_id}</code></li><li><code class="inline">{:member_demoted, group_id, user_id}</code></li><li><code class="inline">{:group_updated, group}</code></li><li><code class="inline">{:join_request_created, group_id, user_id}</code></li><li><code class="inline">{:join_request_approved, group_id, user_id}</code></li><li><code class="inline">{:join_request_rejected, group_id, user_id}</code></li><li><code class="inline">{:group_notification, group_id, sender_id}</code></li></ul></li></ul>
     </section>
 
 </div>
@@ -143,12 +143,13 @@ three visibility types:</p><ul><li><strong>public</strong> – anyone can join d
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#accept_invite/2" data-no-tooltip="" translate="no">accept_invite(user_id, group_id)</a>
+        <a href="#accept_invite/2" data-no-tooltip="" translate="no">accept_invite(user_id, invite_id)</a>
 
       </div>
 
-        <div class="summary-synopsis"><p>Accept a pending group invite. The user must have a pending
-<code class="inline">GroupInvite</code> for the group. Works for all group types (public, private, hidden).</p></div>
+        <div class="summary-synopsis"><p>Accept a pending group invite by <strong>invite_id</strong>.
+The user must be the recipient of the invite.
+Works for all group types (public, private, hidden).</p></div>
 
     </div>
 
@@ -338,6 +339,18 @@ Only the sender can cancel their own invitation.</p></div>
       </div>
 
         <div class="summary-synopsis"><p>Create a new group. The creating user becomes an admin member automatically.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#decline_invite/2" data-no-tooltip="" translate="no">decline_invite(user_id, invite_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Decline a pending group invite by <strong>invite_id</strong>.
+Only the recipient can decline. The invite is marked as <code class="inline">&quot;declined&quot;</code>
+(not deleted) so the sender can see the outcome.</p></div>
 
     </div>
 
@@ -686,7 +699,7 @@ Cannot lower max_members below current member count.</p></div>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">accept_invite(user_id, group_id)</h1>
+      <h1 class="signature" translate="no">accept_invite(user_id, invite_id)</h1>
 
 
     </div>
@@ -701,8 +714,9 @@ Cannot lower max_members below current member count.</p></div>
 
       </div>
 
-<p>Accept a pending group invite. The user must have a pending
-<code class="inline">GroupInvite</code> for the group. Works for all group types (public, private, hidden).</p>
+<p>Accept a pending group invite by <strong>invite_id</strong>.
+The user must be the recipient of the invite.
+Works for all group types (public, private, hidden).</p>
   </section>
 </section>
 <section class="detail" id="admin?/2">
@@ -1171,6 +1185,32 @@ Only the sender can cancel their own invitation.</p>
       </div>
 
 <p>Create a new group. The creating user becomes an admin member automatically.</p>
+  </section>
+</section>
+<section class="detail" id="decline_invite/2">
+
+  <div class="detail-header">
+    <a href="#decline_invite/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">decline_invite(user_id, invite_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> decline_invite(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: :ok | {:error, <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>()}</pre>
+
+      </div>
+
+<p>Decline a pending group invite by <strong>invite_id</strong>.
+Only the recipient can decline. The invite is marked as <code class="inline">&quot;declined&quot;</code>
+(not deleted) so the sender can see the outcome.</p>
   </section>
 </section>
 <section class="detail" id="delete_group/2">
