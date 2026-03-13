@@ -374,10 +374,8 @@ defmodule GameServer.Hooks.GroupPartyHooksTest do
 
       assert_receive {:before_user_update, user, hook_attrs}, 500
       assert user.id == owner.id
-
-      assert hook_attrs[:display_name] == "HookedName" ||
-               hook_attrs["display_name"] == "HookedName"
-
+      # attrs are normalized to string keys by the hooks pipeline
+      assert hook_attrs["display_name"] == "HookedName"
       assert updated.display_name == "HookedName"
     end
 

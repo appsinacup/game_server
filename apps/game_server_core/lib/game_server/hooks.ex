@@ -333,8 +333,26 @@ defmodule GameServer.Hooks do
     ] and arity > 0
   end
 
+  # Ensure all plain-map arguments passed to before_* hooks have string keys.
+  # Structs (User, Group, etc.) are left untouched.
+  defp normalize_hook_args(args) when is_list(args) do
+    Enum.map(args, fn
+      %_{} = struct -> struct
+      m when is_map(m) -> stringify_keys(m)
+      other -> other
+    end)
+  end
+
+  defp stringify_keys(map) when is_map(map) do
+    Map.new(map, fn
+      {k, v} when is_atom(k) -> {Atom.to_string(k), v}
+      {k, v} -> {k, v}
+    end)
+  end
+
   defp run_before_pipeline(mods, name, args, opts, timeout) do
     arity = length(args)
+    args = normalize_hook_args(args)
 
     if Enum.any?(mods, &function_exported?(&1, name, arity)) do
       mods
@@ -370,7 +388,7 @@ defmodule GameServer.Hooks do
 
   defp handle_pipeline_apply_result({:ok, {:ok, new}}, name, current_args) do
     case normalize_pipeline_args(name, new, current_args) do
-      {:ok, new_args} -> {:cont, new_args}
+      {:ok, new_args} -> {:cont, normalize_hook_args(new_args)}
       {:error, reason} -> {:halt, {:error, reason}}
     end
   end

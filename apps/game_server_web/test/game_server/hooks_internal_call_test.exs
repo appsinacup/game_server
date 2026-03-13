@@ -1,9 +1,9 @@
 defmodule GameServer.Hooks.InternalCallTest.ReturnOkTuple do
-  def before_lobby_create(attrs), do: {:ok, Map.put(attrs, :x, 1)}
+  def before_lobby_create(attrs), do: {:ok, Map.put(attrs, "x", 1)}
 end
 
 defmodule GameServer.Hooks.InternalCallTest.ReturnRaw do
-  def before_lobby_create(attrs), do: Map.put(attrs, :raw, true)
+  def before_lobby_create(attrs), do: Map.put(attrs, "raw", true)
 end
 
 defmodule GameServer.Hooks.InternalCallTest.NoCallbacks do
@@ -39,7 +39,7 @@ defmodule GameServer.Hooks.InternalCallTest do
     # sanity-check the module exports
     assert function_exported?(mod, :before_lobby_create, 1)
 
-    assert {:ok, %{name: "t1", x: 1}} =
+    assert {:ok, %{"name" => "t1", "x" => 1}} =
              Hooks.internal_call(:before_lobby_create, [%{name: "t1"}])
   end
 
@@ -51,7 +51,7 @@ defmodule GameServer.Hooks.InternalCallTest do
     assert function_exported?(mod, :before_lobby_create, 1)
 
     # raw return should be normalized to {:ok, value}
-    assert {:ok, %{name: "t2", raw: true}} =
+    assert {:ok, %{"name" => "t2", "raw" => true}} =
              Hooks.internal_call(:before_lobby_create, [%{name: "t2"}])
   end
 
@@ -60,7 +60,7 @@ defmodule GameServer.Hooks.InternalCallTest do
 
     Application.put_env(:game_server_core, :hooks_module, mod)
 
-    assert {:ok, %{name: "t3"}} =
+    assert {:ok, %{"name" => "t3"}} =
              Hooks.internal_call(:before_lobby_create, [%{name: "t3"}])
   end
 end
