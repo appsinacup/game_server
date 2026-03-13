@@ -46,7 +46,7 @@ defmodule GameServer.Notifications.FriendNotifier do
       friendship.requester_id,
       friendship.target_id,
       %{
-        "title" => "Friend request",
+        "title" => "New Friend Request",
         "content" => "You have a new friend request.",
         "metadata" => %{"type" => "friend_request", "friendship_id" => friendship.id}
       }
@@ -62,7 +62,7 @@ defmodule GameServer.Notifications.FriendNotifier do
       friendship.target_id,
       friendship.requester_id,
       %{
-        "title" => "Friend request accepted",
+        "title" => "Friend Request Accepted",
         "content" => "Your friend request has been accepted.",
         "metadata" => %{"type" => "friend_accepted", "friendship_id" => friendship.id}
       }
@@ -73,11 +73,11 @@ defmodule GameServer.Notifications.FriendNotifier do
 
   @impl true
   def handle_info({:request_cancelled, friendship}, state) do
-    # The requester cancelled their outgoing request: retract the "Friend request" notification
+    # The requester cancelled their outgoing request: retract the "New Friend Request" notification
     Notifications.delete_notification_by(
       friendship.requester_id,
       friendship.target_id,
-      "Friend request"
+      "New Friend Request"
     )
 
     {:noreply, state}

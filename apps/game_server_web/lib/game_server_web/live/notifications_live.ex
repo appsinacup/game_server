@@ -204,7 +204,7 @@ defmodule GameServerWeb.NotificationsLive do
   defp notification_action(n) do
     cond do
       # Group invites
-      n.title == "group_invite" ->
+      n.title == "New Group Invite" ->
         group_id = n.metadata["group_id"]
 
         if group_id,
@@ -212,7 +212,7 @@ defmodule GameServerWeb.NotificationsLive do
           else: {gettext("View Groups"), ~p"/groups"}
 
       # Party invites
-      n.title == "party_invite" ->
+      n.title == "New Party Invite" ->
         {gettext("View Party"), ~p"/play"}
 
       # Chat: group messages
@@ -240,11 +240,11 @@ defmodule GameServerWeb.NotificationsLive do
         {gettext("View Party"), ~p"/play"}
 
       # Friend requests
-      n.title == "Friend request" ->
+      n.title == "New Friend Request" ->
         {gettext("View Friends"), ~p"/users/settings?#{[tab: "friends"]}"}
 
       # Friend request accepted
-      n.title == "Friend request accepted" ->
+      n.title == "Friend Request Accepted" ->
         friend_id = n.metadata["friend_id"] || n.sender_id
 
         if friend_id,

@@ -181,7 +181,7 @@ defmodule GameServer.Groups do
           user_id,
           sender_id,
           %{
-            "title" => "group_invite_accepted",
+            "title" => "Group Invite Accepted",
             "content" => "#{user_name} accepted your invite to #{group_title}",
             "metadata" => %{
               "group_id" => group_id,
@@ -1186,7 +1186,7 @@ defmodule GameServer.Groups do
               admin_id,
               user_id,
               %{
-                "title" => "group_join_approved",
+                "title" => "Group Join Request Approved",
                 "content" => "Your request to join #{group.title} was approved",
                 "metadata" => %{
                   "group_id" => group_id,
@@ -1247,7 +1247,7 @@ defmodule GameServer.Groups do
                 admin_id,
                 updated.user_id,
                 %{
-                  "title" => "group_join_rejected",
+                  "title" => "Group Join Request Declined",
                   "content" => "Your request to join #{group_title} was declined",
                   "metadata" => %{
                     "group_id" => group_id,
@@ -1395,8 +1395,8 @@ defmodule GameServer.Groups do
         {:ok, invite} ->
           # Send an informational notification (independent of the invite record)
           GameServer.Notifications.admin_create_notification(admin_id, target_user_id, %{
-            "title" => "group_invite",
-            "content" => "You have been invited to join group: #{group.title}",
+            "title" => "New Group Invite",
+            "content" => "You have been invited to join #{group.title}",
             "metadata" => %{
               "group_id" => group_id,
               "group_name" => group.title,
@@ -1482,7 +1482,7 @@ defmodule GameServer.Groups do
       user_id,
       invite.sender_id,
       %{
-        "title" => "group_invite_accepted",
+        "title" => "Group Invite Accepted",
         "content" => "#{user_name} accepted your invite to #{group.title}",
         "metadata" => %{
           "group_id" => group_id,
@@ -1699,7 +1699,7 @@ defmodule GameServer.Groups do
 
   ## Options
 
-    * `title` – notification title string (default: `"group_notification"`).
+    * `title` – notification title string (default: `"Group Notification"`).
       The title is part of the unique constraint `(sender_id, recipient_id, title)`,
       so different titles create separate notification slots.
 
@@ -1715,7 +1715,7 @@ defmodule GameServer.Groups do
   def notify_group(sender_id, group_id, content, metadata \\ %{})
       when is_integer(sender_id) and is_integer(group_id) and is_binary(content) do
     group = get_group(group_id)
-    title = Map.get(metadata, "title") || Map.get(metadata, :title) || "group_notification"
+    title = Map.get(metadata, "title") || Map.get(metadata, :title) || "Group Notification"
     # Remove the title key from metadata so it doesn't duplicate in the payload
     clean_metadata =
       metadata |> Map.delete("title") |> Map.delete(:title)

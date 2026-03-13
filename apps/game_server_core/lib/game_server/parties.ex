@@ -321,7 +321,7 @@ defmodule GameServer.Parties do
         {:ok, invite} ->
           # Send an informational notification (independent of the invite record)
           GameServer.Notifications.admin_create_notification(leader.id, target_user_id, %{
-            "title" => "party_invite",
+            "title" => "New Party Invite",
             "content" => "You have been invited to join a party",
             "metadata" => %{
               "party_id" => party.id,

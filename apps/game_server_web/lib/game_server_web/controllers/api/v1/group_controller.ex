@@ -723,7 +723,7 @@ defmodule GameServerWeb.Api.V1.GroupController do
            title: %Schema{
              type: :string,
              description:
-               "Notification title (default: \"group_notification\"). " <>
+               "Notification title (default: \"Group Notification\"). " <>
                  "Different titles create separate notification slots per sender/recipient."
            },
            metadata: %Schema{

@@ -485,7 +485,7 @@ defmodule GameServer.GroupsTest do
       # invite_to_group now returns a GroupInvite struct;
       # verify the informational notification was also created
       notifications =
-        GameServer.Notifications.list_notifications_by_title(other.id, "group_invite")
+        GameServer.Notifications.list_notifications_by_title(other.id, "New Group Invite")
 
       assert length(notifications) == 1
       notification = hd(notifications)
@@ -957,14 +957,14 @@ defmodule GameServer.GroupsTest do
 
       # Verify notifications were created for other members
       other_notifs = GameServer.Notifications.list_notifications(other.id)
-      assert Enum.any?(other_notifs, fn n -> n.title == "group_notification" end)
+      assert Enum.any?(other_notifs, fn n -> n.title == "Group Notification" end)
 
       third_notifs = GameServer.Notifications.list_notifications(third.id)
-      assert Enum.any?(third_notifs, fn n -> n.title == "group_notification" end)
+      assert Enum.any?(third_notifs, fn n -> n.title == "Group Notification" end)
 
       # Sender should NOT receive notification
       owner_notifs = GameServer.Notifications.list_notifications(owner.id)
-      refute Enum.any?(owner_notifs, fn n -> n.title == "group_notification" end)
+      refute Enum.any?(owner_notifs, fn n -> n.title == "Group Notification" end)
     end
 
     test "non-member cannot notify group", %{owner: owner, other: other} do
@@ -986,7 +986,7 @@ defmodule GameServer.GroupsTest do
       notifs = GameServer.Notifications.list_notifications(other.id)
 
       group_notifs =
-        Enum.filter(notifs, fn n -> n.title == "group_notification" end)
+        Enum.filter(notifs, fn n -> n.title == "Group Notification" end)
 
       # Should be only ONE notification (upserted)
       assert length(group_notifs) == 1
@@ -1002,7 +1002,7 @@ defmodule GameServer.GroupsTest do
       notifs = GameServer.Notifications.list_notifications(other.id)
 
       group_notif =
-        Enum.find(notifs, fn n -> n.title == "group_notification" end)
+        Enum.find(notifs, fn n -> n.title == "Group Notification" end)
 
       assert group_notif.metadata["group_id"] == group.id
       assert group_notif.metadata["group_name"] == "MetaGrp"
@@ -1018,7 +1018,7 @@ defmodule GameServer.GroupsTest do
       notifs = GameServer.Notifications.list_notifications(other.id)
 
       group_notif =
-        Enum.find(notifs, fn n -> n.title == "group_notification" end)
+        Enum.find(notifs, fn n -> n.title == "Group Notification" end)
 
       assert group_notif.metadata["event"] == "raid"
       assert group_notif.metadata["group_id"] == group.id
