@@ -2,6 +2,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
+  alias GameServer.Accounts.User
   alias GameServer.Lobbies
   alias GameServer.Lobbies.SpectatorTracker
   alias OpenApiSpex.Schema
@@ -424,7 +425,14 @@ defmodule GameServerWeb.Api.V1.LobbyController do
                  properties: %{
                    id: %Schema{type: :integer},
                    email: %Schema{type: :string},
-                   display_name: %Schema{type: :string}
+                   display_name: %Schema{type: :string},
+                   profile_url: %Schema{type: :string, nullable: true},
+                   metadata: %Schema{
+                     type: :object,
+                     description: "User metadata (accessories, hat, color, etc.)"
+                   },
+                   is_online: %Schema{type: :boolean},
+                   last_seen_at: %Schema{type: :string, format: "date-time"}
                  }
                }
              }
@@ -442,13 +450,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
          true <- !lobby.is_hidden do
       members =
         Lobbies.get_lobby_members(lobby)
-        |> Enum.map(fn user ->
-          %{
-            id: user.id,
-            email: user.email || "",
-            display_name: user.display_name || ""
-          }
-        end)
+        |> Enum.map(&User.serialize_brief/1)
 
       json(conn, %{
         data: serialize_lobby(lobby),

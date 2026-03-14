@@ -155,4 +155,49 @@ defmodule GameServerWeb.LobbyChannelTest do
     assert_push "updated", %{title: "Single Update"}, 500
     refute_push "updated", _payload, 200
   end
+
+  test "channel receives member_online when a lobby member comes online" do
+    host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+    member = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "presence-room", host_id: host.id})
+    {:ok, _} = Lobbies.join_lobby(member, lobby)
+
+    {:ok, token_host, _} = Guardian.encode_and_sign(host)
+    {:ok, socket_host} = connect(GameServerWeb.UserSocket, %{"token" => token_host})
+    {:ok, _, _socket} = subscribe_and_join(socket_host, "lobby:#{lobby.id}", %{})
+
+    # drain the initial after_join payload
+    assert_push "updated", _initial, 500
+
+    # Simulate member coming online
+    Lobbies.broadcast_member_presence(lobby.id, {:member_online, member.id})
+
+    assert_push "member_online", payload, 500
+    assert payload.user_id == member.id
+    assert Map.has_key?(payload, :display_name)
+    assert Map.has_key?(payload, :metadata)
+  end
+
+  test "channel receives member_offline when a lobby member goes offline" do
+    host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+    member = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "offline-room", host_id: host.id})
+    {:ok, _} = Lobbies.join_lobby(member, lobby)
+
+    {:ok, token_host, _} = Guardian.encode_and_sign(host)
+    {:ok, socket_host} = connect(GameServerWeb.UserSocket, %{"token" => token_host})
+    {:ok, _, _socket} = subscribe_and_join(socket_host, "lobby:#{lobby.id}", %{})
+
+    # drain the initial after_join payload
+    assert_push "updated", _initial, 500
+
+    # Simulate member going offline
+    Lobbies.broadcast_member_presence(lobby.id, {:member_offline, member.id})
+
+    assert_push "member_offline", payload, 500
+    assert payload.user_id == member.id
+    assert Map.has_key?(payload, :display_name)
+  end
 end

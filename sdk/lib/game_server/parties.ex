@@ -97,6 +97,21 @@ defmodule GameServer.Parties do
 
 
   @doc ~S"""
+    Broadcast a member presence event (online/offline) to a party's PubSub topic.
+  """
+  @spec broadcast_member_presence(integer(), tuple()) :: :ok | {:error, term()}
+  def broadcast_member_presence(_party_id, _event) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        :ok
+
+      _ ->
+        raise "GameServer.Parties.broadcast_member_presence/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Cancel a previously sent party invite. Only the original sender (leader) can cancel.
     
   """

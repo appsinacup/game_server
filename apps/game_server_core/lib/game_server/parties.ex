@@ -75,6 +75,12 @@ defmodule GameServer.Parties do
     Phoenix.PubSub.broadcast(GameServer.PubSub, "party:#{party_id}", event)
   end
 
+  @doc "Broadcast a member presence event (online/offline) to a party's PubSub topic."
+  @spec broadcast_member_presence(integer(), tuple()) :: :ok | {:error, term()}
+  def broadcast_member_presence(party_id, event) do
+    broadcast_party(party_id, event)
+  end
+
   # ---------------------------------------------------------------------------
   # Cache helpers
   # ---------------------------------------------------------------------------
@@ -694,6 +700,16 @@ defmodule GameServer.Parties do
     end
   end
 
+  defp check_all_members_online(members) do
+    offline = Enum.filter(members, fn m -> not (m.is_online || false) end)
+
+    if offline == [] do
+      :ok
+    else
+      {:error, :members_offline}
+    end
+  end
+
   defp check_not_self_kick(%User{id: id}, id), do: {:error, :cannot_kick_self}
   defp check_not_self_kick(%User{}, _target_id), do: :ok
 
@@ -813,6 +829,7 @@ defmodule GameServer.Parties do
       lobby_attrs = normalize_params(lobby_attrs)
 
       with :ok <- check_no_members_in_lobby(members),
+           :ok <- check_all_members_online(members),
            :ok <- check_lobby_fits_party(lobby_attrs, length(members)) do
         do_create_lobby_with_party(user, party, members, lobby_attrs)
       end
@@ -898,7 +915,8 @@ defmodule GameServer.Parties do
          {:ok, lobby} <- fetch_joinable_lobby(lobby_id) do
       members = get_party_members(party.id)
 
-      with :ok <- check_no_members_in_lobby(members) do
+      with :ok <- check_no_members_in_lobby(members),
+           :ok <- check_all_members_online(members) do
         password = Map.get(opts, :password) || Map.get(opts, "password")
 
         case validate_lobby_password(lobby, password) do

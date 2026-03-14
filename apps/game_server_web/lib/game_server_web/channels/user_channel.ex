@@ -39,7 +39,9 @@ defmodule GameServerWeb.UserChannel do
   alias GameServer.Accounts.User
   alias GameServer.Friends
   alias GameServer.Hooks.PluginManager
+  alias GameServer.Lobbies
   alias GameServer.Notifications
+  alias GameServer.Parties
 
   @impl true
   def join("user:" <> user_id_str, _payload, socket) do
@@ -129,6 +131,7 @@ defmodule GameServerWeb.UserChannel do
           payload = Accounts.serialize_user_payload(updated_user)
           push(socket, "updated", payload)
           broadcast_online_status(updated_user.id, true)
+          broadcast_member_presence(updated_user.id, true)
           assign(socket, :last_user_payload, payload)
 
         _ ->
@@ -231,6 +234,7 @@ defmodule GameServerWeb.UserChannel do
       case Accounts.set_user_offline(user_id) do
         {:ok, _} ->
           broadcast_online_status(user_id, false)
+          broadcast_member_presence(user_id, false)
 
         _ ->
           :ok
@@ -257,13 +261,13 @@ defmodule GameServerWeb.UserChannel do
   defp broadcast_online_status(user_id, online?) do
     event = if online?, do: "friend_online", else: "friend_offline"
     user = Accounts.get_user(user_id)
-    display_name = if user, do: user.display_name || "", else: ""
 
-    payload = %{
-      user_id: user_id,
-      display_name: display_name,
-      is_online: online?
-    }
+    payload =
+      if user do
+        User.serialize_brief(user) |> Map.put(:user_id, user_id)
+      else
+        %{user_id: user_id, display_name: "", is_online: online?}
+      end
 
     friend_ids = Friends.friend_ids(user_id)
 
@@ -306,5 +310,21 @@ defmodule GameServerWeb.UserChannel do
       chat_ref_id: msg.chat_ref_id,
       inserted_at: msg.inserted_at
     }
+  end
+
+  # Broadcast member_online/member_offline to the user's current lobby and party channels.
+  defp broadcast_member_presence(user_id, online?) do
+    user = Accounts.get_user(user_id)
+    event = if online?, do: :member_online, else: :member_offline
+
+    if user do
+      if user.lobby_id do
+        Lobbies.broadcast_member_presence(user.lobby_id, {event, user_id})
+      end
+
+      if user.party_id do
+        Parties.broadcast_member_presence(user.party_id, {event, user_id})
+      end
+    end
   end
 end

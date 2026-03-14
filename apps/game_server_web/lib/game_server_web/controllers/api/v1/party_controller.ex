@@ -26,6 +26,10 @@ defmodule GameServerWeb.Api.V1.PartyController do
             display_name: %Schema{type: :string},
             email: %Schema{type: :string, nullable: true},
             profile_url: %Schema{type: :string, nullable: true},
+            metadata: %Schema{
+              type: :object,
+              description: "User metadata (accessories, hat, color, etc.)"
+            },
             is_online: %Schema{type: :boolean},
             last_seen_at: %Schema{type: :string, format: "date-time"}
           }
@@ -44,6 +48,7 @@ defmodule GameServerWeb.Api.V1.PartyController do
           display_name: "Player1",
           email: "player1@example.com",
           profile_url: "",
+          metadata: %{hat: "red", color: "#FF0000"},
           is_online: true,
           last_seen_at: "2025-01-15T10:30:00Z"
         }
@@ -732,6 +737,9 @@ defmodule GameServerWeb.Api.V1.PartyController do
           {:error, :member_in_lobby} ->
             conn |> put_status(:conflict) |> json(%{error: "member_in_lobby"})
 
+          {:error, :members_offline} ->
+            conn |> put_status(:conflict) |> json(%{error: "members_offline"})
+
           {:error, %Ecto.Changeset{} = changeset} ->
             conn
             |> put_status(:unprocessable_entity)
@@ -767,6 +775,9 @@ defmodule GameServerWeb.Api.V1.PartyController do
 
               {:error, :member_in_lobby} ->
                 conn |> put_status(:conflict) |> json(%{error: "member_in_lobby"})
+
+              {:error, :members_offline} ->
+                conn |> put_status(:conflict) |> json(%{error: "members_offline"})
 
               {:error, :invalid_lobby} ->
                 conn |> put_status(:not_found) |> json(%{error: "not_found"})
@@ -821,17 +832,7 @@ defmodule GameServerWeb.Api.V1.PartyController do
       leader_name: leader_name,
       max_size: party.max_size,
       metadata: party.metadata || %{},
-      members:
-        Enum.map(members, fn m ->
-          %{
-            id: m.id,
-            display_name: m.display_name || "",
-            email: m.email || "",
-            profile_url: m.profile_url || "",
-            is_online: m.is_online || false,
-            last_seen_at: User.last_seen_at_or_fallback(m)
-          }
-        end),
+      members: Enum.map(members, &User.serialize_brief/1),
       inserted_at: party.inserted_at,
       updated_at: party.updated_at
     }

@@ -369,6 +369,23 @@ defmodule GameServer.Accounts.User do
 
   def last_seen_at_or_fallback(%__MODULE__{last_seen_at: %DateTime{} = last_seen_at}),
     do: last_seen_at
+
+  @doc """
+  Serialize a user into a compact map suitable for member lists in parties,
+  lobbies, and friends. Includes metadata for rendering player appearance.
+  """
+  @spec serialize_brief(t()) :: map()
+  def serialize_brief(%__MODULE__{} = user) do
+    %{
+      id: user.id,
+      display_name: user.display_name || "",
+      email: user.email || "",
+      profile_url: user.profile_url || "",
+      metadata: user.metadata || %{},
+      is_online: user.is_online || false,
+      last_seen_at: last_seen_at_or_fallback(user)
+    }
+  end
 end
 
 defimpl Jason.Encoder, for: GameServer.Accounts.User do

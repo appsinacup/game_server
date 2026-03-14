@@ -48,6 +48,21 @@ defmodule GameServer.Lobbies do
 
 
   @doc ~S"""
+    Broadcast a member presence event (online/offline) to a lobby's PubSub topic.
+  """
+  @spec broadcast_member_presence(integer(), tuple()) :: :ok | {:error, term()}
+  def broadcast_member_presence(_lobby_id, _event) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        :ok
+
+      _ ->
+        raise "GameServer.Lobbies.broadcast_member_presence/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Check if a user can edit a lobby (is host or lobby is hostless).
     
   """

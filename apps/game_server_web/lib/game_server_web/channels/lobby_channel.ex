@@ -16,6 +16,8 @@ defmodule GameServerWeb.LobbyChannel do
   - `"user_joined"` - A user joined the lobby. Payload: `%{user_id: integer}`
   - `"user_left"` - A user left the lobby. Payload: `%{user_id: integer}`
   - `"user_kicked"` - A user was kicked from the lobby. Payload: `%{user_id: integer}`
+  - `"member_online"` - A lobby member came online. Payload: user brief object
+  - `"member_offline"` - A lobby member went offline. Payload: user brief object
   - `"updated"` - The lobby settings were updated. Payload: lobby object
   - `"host_changed"` - The host changed. Payload: `%{new_host_id: integer}`
   - `"new_chat_message"` - A new chat message. Payload: chat message object
@@ -85,7 +87,16 @@ defmodule GameServerWeb.LobbyChannel do
 
   @impl true
   def handle_info({:user_joined, _lobby_id, user_id}, socket) do
-    push(socket, "user_joined", %{user_id: user_id, display_name: resolve_display_name(user_id)})
+    user = Accounts.get_user(user_id)
+
+    payload =
+      if user do
+        User.serialize_brief(user) |> Map.put(:user_id, user_id)
+      else
+        %{user_id: user_id, display_name: ""}
+      end
+
+    push(socket, "user_joined", payload)
     {:noreply, socket}
   end
 
@@ -149,6 +160,22 @@ defmodule GameServerWeb.LobbyChannel do
     {:noreply, socket}
   end
 
+  @impl true
+  def handle_info({event, user_id}, socket) when event in [:member_online, :member_offline] do
+    user = Accounts.get_user(user_id)
+    ws_event = if event == :member_online, do: "member_online", else: "member_offline"
+
+    payload =
+      if user do
+        User.serialize_brief(user) |> Map.put(:user_id, user_id)
+      else
+        %{user_id: user_id, display_name: "", is_online: event == :member_online}
+      end
+
+    push(socket, ws_event, payload)
+    {:noreply, socket}
+  end
+
   # Ignore other messages
   @impl true
   def handle_info(_msg, socket) do
@@ -184,6 +211,10 @@ defmodule GameServerWeb.LobbyChannel do
         true -> resolve_display_name(lobby.host_id)
       end
 
+    members =
+      Lobbies.get_lobby_members(lobby)
+      |> Enum.map(&User.serialize_brief/1)
+
     %{
       id: lobby.id,
       title: lobby.title,
@@ -193,7 +224,8 @@ defmodule GameServerWeb.LobbyChannel do
       max_users: lobby.max_users,
       is_hidden: lobby.is_hidden,
       is_locked: lobby.is_locked,
-      metadata: lobby.metadata || %{}
+      metadata: lobby.metadata || %{},
+      members: members
     }
   end
 

@@ -33,6 +33,10 @@ defmodule GameServerWeb.Api.V1.UserController do
                    email: %Schema{type: :string},
                    display_name: %Schema{type: :string},
                    profile_url: %Schema{type: :string},
+                   metadata: %Schema{
+                     type: :object,
+                     description: "User metadata (accessories, hat, color, etc.)"
+                   },
                    lobby_id: %Schema{
                      type: :integer,
                      nullable: false,
@@ -80,6 +84,10 @@ defmodule GameServerWeb.Api.V1.UserController do
              email: %Schema{type: :string},
              display_name: %Schema{type: :string},
              profile_url: %Schema{type: :string},
+             metadata: %Schema{
+               type: :object,
+               description: "User metadata (accessories, hat, color, etc.)"
+             },
              lobby_id: %Schema{
                type: :integer,
                nullable: false,
@@ -135,15 +143,10 @@ defmodule GameServerWeb.Api.V1.UserController do
   end
 
   defp serialize_user(user) do
-    %{
-      id: user.id,
-      email: user.email || "",
-      display_name: user.display_name || "",
-      profile_url: user.profile_url || "",
+    User.serialize_brief(user)
+    |> Map.merge(%{
       lobby_id: user.lobby_id || -1,
-      party_id: user.party_id || -1,
-      is_online: user.is_online || false,
-      last_seen_at: User.last_seen_at_or_fallback(user)
-    }
+      party_id: user.party_id || -1
+    })
   end
 end

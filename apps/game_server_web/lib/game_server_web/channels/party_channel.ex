@@ -11,6 +11,8 @@ defmodule GameServerWeb.PartyChannel do
 
   - `"member_joined"` - A user joined the party. Payload: `%{user_id: integer}`
   - `"member_left"` - A user left or was kicked from the party. Payload: `%{user_id: integer}`
+  - `"member_online"` - A party member came online. Payload: user brief object
+  - `"member_offline"` - A party member went offline. Payload: user brief object
   - `"updated"` - The party settings were updated. Payload: party object
   - `"disbanded"` - The party was disbanded. Payload: `%{party_id: integer}`
   - `"new_chat_message"` - A new chat message. Payload: chat message object
@@ -67,7 +69,16 @@ defmodule GameServerWeb.PartyChannel do
 
   @impl true
   def handle_info({:party_member_joined, _party_id, user_id}, socket) do
-    push(socket, "member_joined", %{user_id: user_id, display_name: resolve_display_name(user_id)})
+    user = Accounts.get_user(user_id)
+
+    payload =
+      if user do
+        User.serialize_brief(user) |> Map.put(:user_id, user_id)
+      else
+        %{user_id: user_id, display_name: ""}
+      end
+
+    push(socket, "member_joined", payload)
 
     {:noreply, socket}
   end
@@ -137,6 +148,22 @@ defmodule GameServerWeb.PartyChannel do
   end
 
   @impl true
+  def handle_info({event, user_id}, socket) when event in [:member_online, :member_offline] do
+    user = Accounts.get_user(user_id)
+    ws_event = if event == :member_online, do: "member_online", else: "member_offline"
+
+    payload =
+      if user do
+        User.serialize_brief(user) |> Map.put(:user_id, user_id)
+      else
+        %{user_id: user_id, display_name: "", is_online: event == :member_online}
+      end
+
+    push(socket, ws_event, payload)
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info({:after_join, nil}, socket) do
     {:noreply, socket}
   end
@@ -183,6 +210,8 @@ defmodule GameServerWeb.PartyChannel do
   end
 
   defp serialize_party(party) do
+    members = Parties.get_party_members(party.id)
+
     leader_name =
       cond do
         is_nil(party.leader_id) ->
@@ -200,7 +229,8 @@ defmodule GameServerWeb.PartyChannel do
       leader_id: party.leader_id,
       leader_name: leader_name,
       max_size: party.max_size,
-      metadata: party.metadata || %{}
+      metadata: party.metadata || %{},
+      members: Enum.map(members, &User.serialize_brief/1)
     }
   end
 

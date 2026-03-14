@@ -1,6 +1,7 @@
 defmodule GameServerWeb.Api.V1.PartyControllerTest do
   use GameServerWeb.ConnCase
 
+  alias GameServer.Accounts
   alias GameServer.AccountsFixtures
   alias GameServer.Lobbies
   alias GameServer.Parties
@@ -19,6 +20,10 @@ defmodule GameServerWeb.Api.V1.PartyControllerTest do
     user
     |> Ecto.Changeset.change(%{party_id: party.id})
     |> GameServer.Repo.update!()
+  end
+
+  defp set_all_online(users) do
+    Enum.each(users, &Accounts.set_user_online/1)
   end
 
   describe "POST /api/v1/parties" do
@@ -167,6 +172,7 @@ defmodule GameServerWeb.Api.V1.PartyControllerTest do
       member = AccountsFixtures.user_fixture()
       {:ok, party} = Parties.create_party(leader, %{})
       add_member_to_party(member, party)
+      set_all_online([leader, member])
 
       conn =
         conn
@@ -202,6 +208,7 @@ defmodule GameServerWeb.Api.V1.PartyControllerTest do
       member = AccountsFixtures.user_fixture()
       {:ok, party} = Parties.create_party(leader, %{})
       add_member_to_party(member, party)
+      set_all_online([leader, member])
 
       # Create lobby with different host
       host = AccountsFixtures.user_fixture()
@@ -226,6 +233,7 @@ defmodule GameServerWeb.Api.V1.PartyControllerTest do
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
       add_member_to_party(member1, party)
       add_member_to_party(member2, party)
+      set_all_online([leader, member1, member2])
 
       # Create a tiny lobby
       host = AccountsFixtures.user_fixture()

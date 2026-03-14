@@ -119,6 +119,12 @@ defmodule GameServer.Lobbies do
     Phoenix.PubSub.broadcast(GameServer.PubSub, "lobby:#{lobby_id}", event)
   end
 
+  @doc "Broadcast a member presence event (online/offline) to a lobby's PubSub topic."
+  @spec broadcast_member_presence(integer(), tuple()) :: :ok | {:error, term()}
+  def broadcast_member_presence(lobby_id, event) do
+    broadcast_lobby(lobby_id, event)
+  end
+
   @doc """
   List lobbies. Accepts optional search filters.
 

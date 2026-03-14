@@ -77,6 +77,10 @@ defmodule GameServerWeb.Api.V1.FriendController do
                    email: %Schema{type: :string},
                    display_name: %Schema{type: :string},
                    profile_url: %Schema{type: :string},
+                   metadata: %Schema{
+                     type: :object,
+                     description: "User metadata (accessories, hat, color, etc.)"
+                   },
                    is_online: %Schema{
                      type: :boolean,
                      description: "Whether the friend is currently connected"
@@ -142,6 +146,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
                     properties: %{
                       id: %Schema{type: :integer},
                       display_name: %Schema{type: :string},
+                      metadata: %Schema{type: :object, description: "User metadata"},
                       is_online: %Schema{type: :boolean},
                       last_seen_at: %Schema{type: :string, format: :date_time, nullable: false}
                     }
@@ -151,6 +156,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
                     properties: %{
                       id: %Schema{type: :integer},
                       display_name: %Schema{type: :string},
+                      metadata: %Schema{type: :object, description: "User metadata"},
                       is_online: %Schema{type: :boolean},
                       last_seen_at: %Schema{type: :string, format: :date_time, nullable: false}
                     }
@@ -171,6 +177,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
                     properties: %{
                       id: %Schema{type: :integer},
                       display_name: %Schema{type: :string},
+                      metadata: %Schema{type: :object, description: "User metadata"},
                       is_online: %Schema{type: :boolean},
                       last_seen_at: %Schema{type: :string, format: :date_time, nullable: false}
                     }
@@ -180,6 +187,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
                     properties: %{
                       id: %Schema{type: :integer},
                       display_name: %Schema{type: :string},
+                      metadata: %Schema{type: :object, description: "User metadata"},
                       is_online: %Schema{type: :boolean},
                       last_seen_at: %Schema{type: :string, format: :date_time, nullable: false}
                     }
@@ -612,26 +620,11 @@ defmodule GameServerWeb.Api.V1.FriendController do
   end
 
   defp serialize_user(user) do
-    %{
-      id: user.id,
-      email: user.email || "",
-      display_name: user.display_name || "",
-      profile_url: user.profile_url || "",
-      is_online: user.is_online || false,
-      last_seen_at: User.last_seen_at_or_fallback(user)
-    }
+    User.serialize_brief(user)
   end
 
   defp serialize_friend(%{friendship_id: fid, user: user}) do
-    %{
-      id: user.id,
-      friendship_id: fid,
-      email: user.email || "",
-      display_name: user.display_name || "",
-      profile_url: user.profile_url || "",
-      is_online: user.is_online || false,
-      last_seen_at: User.last_seen_at_or_fallback(user)
-    }
+    User.serialize_brief(user) |> Map.put(:friendship_id, fid)
   end
 
   defp serialize_request(%Friends.Friendship{} = f) do
@@ -641,17 +634,13 @@ defmodule GameServerWeb.Api.V1.FriendController do
           %{
             id: f.requester_id,
             display_name: "",
+            metadata: %{},
             is_online: false,
             last_seen_at: User.last_seen_at_or_fallback(%User{})
           }
 
-        %{} = r ->
-          %{
-            id: r.id,
-            display_name: r.display_name || "",
-            is_online: r.is_online || false,
-            last_seen_at: User.last_seen_at_or_fallback(r)
-          }
+        %User{} = r ->
+          User.serialize_brief(r)
       end
 
     target =
@@ -660,17 +649,13 @@ defmodule GameServerWeb.Api.V1.FriendController do
           %{
             id: f.target_id,
             display_name: "",
+            metadata: %{},
             is_online: false,
             last_seen_at: User.last_seen_at_or_fallback(%User{})
           }
 
-        %{} = t ->
-          %{
-            id: t.id,
-            display_name: t.display_name || "",
-            is_online: t.is_online || false,
-            last_seen_at: User.last_seen_at_or_fallback(t)
-          }
+        %User{} = t ->
+          User.serialize_brief(t)
       end
 
     %{

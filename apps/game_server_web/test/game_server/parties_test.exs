@@ -50,6 +50,11 @@ defmodule GameServer.PartiesTest do
     |> GameServer.Repo.update!()
   end
 
+  # Sets all given users as online (required for party lobby operations).
+  defp set_all_online(users) do
+    Enum.each(users, &Accounts.set_user_online/1)
+  end
+
   # Creates a mutual friendship for invite eligibility.
   defp make_friends(user_a, user_b) do
     {:ok, req} = Friends.create_request(user_a, user_b.id)
@@ -391,6 +396,7 @@ defmodule GameServer.PartiesTest do
     } do
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
       add_member_to_party(member1, party)
+      set_all_online([leader, member1])
 
       assert {:ok, lobby} =
                Parties.create_lobby_with_party(leader, %{title: "party-lobby", max_users: 8})
@@ -417,6 +423,7 @@ defmodule GameServer.PartiesTest do
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
       add_member_to_party(member1, party)
       add_member_to_party(member2, party)
+      set_all_online([leader, member1, member2])
 
       # 3 members but max_users = 2
       assert {:error, :lobby_too_small_for_party} =
@@ -426,6 +433,7 @@ defmodule GameServer.PartiesTest do
     test "non-leader cannot create lobby with party", %{leader: leader, member1: member1} do
       {:ok, party} = Parties.create_party(leader, %{})
       add_member_to_party(member1, party)
+      set_all_online([leader, member1])
 
       assert {:error, :not_leader} = Parties.create_lobby_with_party(member1, %{title: "nope"})
     end
@@ -433,6 +441,7 @@ defmodule GameServer.PartiesTest do
     test "fails if any party member is already in a lobby", %{leader: leader, member1: member1} do
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
       add_member_to_party(member1, party)
+      set_all_online([leader, member1])
 
       # Put member1 in a lobby
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
@@ -451,6 +460,7 @@ defmodule GameServer.PartiesTest do
     } do
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
       add_member_to_party(member1, party)
+      set_all_online([leader, member1])
 
       # Create a lobby with a different host
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
@@ -479,6 +489,7 @@ defmodule GameServer.PartiesTest do
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
       add_member_to_party(member1, party)
       add_member_to_party(member2, party)
+      set_all_online([leader, member1, member2])
 
       # Create a lobby with max 3 users and 1 already in it (the host)
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
@@ -491,6 +502,7 @@ defmodule GameServer.PartiesTest do
     test "fails if lobby is locked", %{leader: leader, member1: member1} do
       {:ok, party} = Parties.create_party(leader, %{})
       add_member_to_party(member1, party)
+      set_all_online([leader, member1])
 
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
 
@@ -506,6 +518,7 @@ defmodule GameServer.PartiesTest do
     } do
       {:ok, party} = Parties.create_party(leader, %{})
       add_member_to_party(member1, party)
+      set_all_online([leader, member1])
 
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
       phash = Bcrypt.hash_pwd_salt("secret")
@@ -524,6 +537,7 @@ defmodule GameServer.PartiesTest do
     test "succeeds with correct password", %{leader: leader, member1: member1} do
       {:ok, party} = Parties.create_party(leader, %{})
       add_member_to_party(member1, party)
+      set_all_online([leader, member1])
 
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
       phash = Bcrypt.hash_pwd_salt("secret")
@@ -542,6 +556,7 @@ defmodule GameServer.PartiesTest do
     test "non-leader cannot join lobby with party", %{leader: leader, member1: member1} do
       {:ok, party} = Parties.create_party(leader, %{})
       add_member_to_party(member1, party)
+      set_all_online([leader, member1])
 
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
       {:ok, lobby} = Lobbies.create_lobby(%{title: "test-lobby", host_id: host.id})
@@ -552,6 +567,7 @@ defmodule GameServer.PartiesTest do
     test "cannot join non-existent lobby with party", %{leader: leader, member1: member1} do
       {:ok, party} = Parties.create_party(leader, %{})
       add_member_to_party(member1, party)
+      set_all_online([leader, member1])
 
       assert {:error, :invalid_lobby} = Parties.join_lobby_with_party(leader, 999_999)
     end
@@ -559,6 +575,7 @@ defmodule GameServer.PartiesTest do
     test "fails with wrong password", %{leader: leader, member1: member1} do
       {:ok, party} = Parties.create_party(leader, %{})
       add_member_to_party(member1, party)
+      set_all_online([leader, member1])
 
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
       phash = Bcrypt.hash_pwd_salt("secret")
@@ -583,6 +600,7 @@ defmodule GameServer.PartiesTest do
     test "fails if any party member is already in a lobby", %{leader: leader, member1: member1} do
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
       add_member_to_party(member1, party)
+      set_all_online([leader, member1])
 
       # Put member1 in a lobby
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
@@ -606,6 +624,7 @@ defmodule GameServer.PartiesTest do
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
       add_member_to_party(member1, party)
       add_member_to_party(member2, party)
+      set_all_online([leader, member1, member2])
 
       {:ok, lobby} =
         Parties.create_lobby_with_party(leader, %{title: "atomic-lobby", max_users: 8})
@@ -639,6 +658,7 @@ defmodule GameServer.PartiesTest do
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
       add_member_to_party(member1, party)
       add_member_to_party(member2, party)
+      set_all_online([leader, member1, member2])
 
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
       {:ok, lobby} = Lobbies.create_lobby(%{title: "existing", host_id: host.id, max_users: 10})
@@ -673,6 +693,7 @@ defmodule GameServer.PartiesTest do
     } do
       {:ok, party} = Parties.create_party(leader, %{})
       add_member_to_party(member1, party)
+      set_all_online([leader, member1])
 
       host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
       phash = Bcrypt.hash_pwd_salt("secret")
@@ -701,6 +722,7 @@ defmodule GameServer.PartiesTest do
     } do
       {:ok, party} = Parties.create_party(leader, %{max_size: 4})
       add_member_to_party(member1, party)
+      set_all_online([leader, member1])
 
       # Create a lobby with the same title to cause a conflict
       # (titles need not be unique per se, but let's test with an invalid
