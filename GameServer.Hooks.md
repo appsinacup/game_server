@@ -31,25 +31,25 @@ options. Hooks may accept either a map or keyword list for convenience.
 # `after_chat_message`
 
 ```elixir
-@callback after_chat_message(term()) :: any()
+@callback after_chat_message(GameServer.Chat.Message.t()) :: any()
 ```
 
 # `after_group_create`
 
 ```elixir
-@callback after_group_create(term()) :: any()
+@callback after_group_create(GameServer.Groups.Group.t()) :: any()
 ```
 
 # `after_group_delete`
 
 ```elixir
-@callback after_group_delete(term()) :: any()
+@callback after_group_delete(GameServer.Groups.Group.t()) :: any()
 ```
 
 # `after_group_join`
 
 ```elixir
-@callback after_group_join(integer(), term()) :: any()
+@callback after_group_join(integer(), GameServer.Groups.Group.t()) :: any()
 ```
 
 # `after_group_kick`
@@ -67,61 +67,64 @@ options. Hooks may accept either a map or keyword list for convenience.
 # `after_group_update`
 
 ```elixir
-@callback after_group_update(term()) :: any()
+@callback after_group_update(GameServer.Groups.Group.t()) :: any()
 ```
 
 # `after_lobby_create`
 
 ```elixir
-@callback after_lobby_create(term()) :: any()
+@callback after_lobby_create(GameServer.Lobbies.Lobby.t()) :: any()
 ```
 
 # `after_lobby_delete`
 
 ```elixir
-@callback after_lobby_delete(term()) :: any()
+@callback after_lobby_delete(GameServer.Lobbies.Lobby.t()) :: any()
 ```
 
 # `after_lobby_host_change`
 
 ```elixir
-@callback after_lobby_host_change(term(), term()) :: any()
+@callback after_lobby_host_change(GameServer.Lobbies.Lobby.t(), integer()) :: any()
 ```
 
 # `after_lobby_join`
 
 ```elixir
-@callback after_lobby_join(GameServer.Accounts.User.t(), term()) :: any()
+@callback after_lobby_join(GameServer.Accounts.User.t(), GameServer.Lobbies.Lobby.t()) ::
+  any()
 ```
 
 # `after_lobby_leave`
 
 ```elixir
-@callback after_lobby_leave(GameServer.Accounts.User.t(), term()) :: any()
+@callback after_lobby_leave(GameServer.Accounts.User.t(), GameServer.Lobbies.Lobby.t()) ::
+  any()
 ```
 
 # `after_lobby_update`
 
 ```elixir
-@callback after_lobby_update(term()) :: any()
+@callback after_lobby_update(GameServer.Lobbies.Lobby.t()) :: any()
 ```
 
 # `after_party_create`
 
 ```elixir
-@callback after_party_create(term()) :: any()
+@callback after_party_create(GameServer.Parties.Party.t()) :: any()
 ```
 
 # `after_party_disband`
 
 ```elixir
-@callback after_party_disband(term()) :: any()
+@callback after_party_disband(GameServer.Parties.Party.t()) :: any()
 ```
 
 # `after_party_join`
 
 ```elixir
-@callback after_party_join(GameServer.Accounts.User.t(), term()) :: any()
+@callback after_party_join(GameServer.Accounts.User.t(), GameServer.Parties.Party.t()) ::
+  any()
 ```
 
 # `after_party_kick`
@@ -130,7 +133,7 @@ options. Hooks may accept either a map or keyword list for convenience.
 @callback after_party_kick(
   GameServer.Accounts.User.t(),
   GameServer.Accounts.User.t(),
-  term()
+  GameServer.Parties.Party.t()
 ) :: any()
 ```
 
@@ -143,7 +146,7 @@ options. Hooks may accept either a map or keyword list for convenience.
 # `after_party_update`
 
 ```elixir
-@callback after_party_update(term()) :: any()
+@callback after_party_update(GameServer.Parties.Party.t()) :: any()
 ```
 
 # `after_startup`
@@ -158,7 +161,7 @@ options. Hooks may accept either a map or keyword list for convenience.
 @callback after_user_kicked(
   GameServer.Accounts.User.t(),
   GameServer.Accounts.User.t(),
-  term()
+  GameServer.Lobbies.Lobby.t()
 ) :: any()
 ```
 
@@ -207,14 +210,20 @@ options. Hooks may accept either a map or keyword list for convenience.
 # `before_group_join`
 
 ```elixir
-@callback before_group_join(GameServer.Accounts.User.t(), term(), map()) ::
-  hook_result({GameServer.Accounts.User.t(), term(), map()})
+@callback before_group_join(
+  GameServer.Accounts.User.t(),
+  GameServer.Groups.Group.t(),
+  map()
+) ::
+  hook_result(
+    {GameServer.Accounts.User.t(), GameServer.Groups.Group.t(), map()}
+  )
 ```
 
 # `before_group_update`
 
 ```elixir
-@callback before_group_update(term(), map()) :: hook_result(map())
+@callback before_group_update(GameServer.Groups.Group.t(), map()) :: hook_result(map())
 ```
 
 # `before_kv_get`
@@ -239,27 +248,34 @@ to block the read.
 # `before_lobby_delete`
 
 ```elixir
-@callback before_lobby_delete(term()) :: hook_result(term())
+@callback before_lobby_delete(GameServer.Lobbies.Lobby.t()) ::
+  hook_result(GameServer.Lobbies.Lobby.t())
 ```
 
 # `before_lobby_join`
 
 ```elixir
-@callback before_lobby_join(GameServer.Accounts.User.t(), term(), term()) ::
-  hook_result({GameServer.Accounts.User.t(), term(), term()})
+@callback before_lobby_join(
+  GameServer.Accounts.User.t(),
+  GameServer.Lobbies.Lobby.t(),
+  keyword()
+) ::
+  hook_result(
+    {GameServer.Accounts.User.t(), GameServer.Lobbies.Lobby.t(), keyword()}
+  )
 ```
 
 # `before_lobby_leave`
 
 ```elixir
-@callback before_lobby_leave(GameServer.Accounts.User.t(), term()) ::
-  hook_result({GameServer.Accounts.User.t(), term()})
+@callback before_lobby_leave(GameServer.Accounts.User.t(), GameServer.Lobbies.Lobby.t()) ::
+  hook_result({GameServer.Accounts.User.t(), GameServer.Lobbies.Lobby.t()})
 ```
 
 # `before_lobby_update`
 
 ```elixir
-@callback before_lobby_update(term(), map()) :: hook_result(map())
+@callback before_lobby_update(GameServer.Lobbies.Lobby.t(), map()) :: hook_result(map())
 ```
 
 # `before_party_create`
@@ -271,7 +287,7 @@ to block the read.
 # `before_party_update`
 
 ```elixir
-@callback before_party_update(term(), map()) :: hook_result(map())
+@callback before_party_update(GameServer.Parties.Party.t(), map()) :: hook_result(map())
 ```
 
 # `before_stop`
@@ -286,10 +302,11 @@ to block the read.
 @callback before_user_kicked(
   GameServer.Accounts.User.t(),
   GameServer.Accounts.User.t(),
-  term()
+  GameServer.Lobbies.Lobby.t()
 ) ::
   hook_result(
-    {GameServer.Accounts.User.t(), GameServer.Accounts.User.t(), term()}
+    {GameServer.Accounts.User.t(), GameServer.Accounts.User.t(),
+     GameServer.Lobbies.Lobby.t()}
   )
 ```
 

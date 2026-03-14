@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.746">
+    <meta name="project" content="GameServer v1.0.747">
 
 
-    <title>GameServer.Hooks — GameServer v1.0.746</title>
+    <title>GameServer.Hooks — GameServer v1.0.747</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-284814CC.js"></script>
+    <script defer src="dist/sidebar_items-DC786F06.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.746
+          v1.0.747
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Hooks</span> <small>behaviour</small>
-      <small class="app-vsn" translate="no">(GameServer v1.0.746)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.747)</small>
 
     </h1>
 
@@ -153,7 +153,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:after_chat_message/1" data-no-tooltip="" translate="no">after_chat_message(term)</a>
+        <a href="#c:after_chat_message/1" data-no-tooltip="" translate="no">after_chat_message(t)</a>
 
       </div>
 
@@ -161,7 +161,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:after_group_create/1" data-no-tooltip="" translate="no">after_group_create(term)</a>
+        <a href="#c:after_group_create/1" data-no-tooltip="" translate="no">after_group_create(t)</a>
 
       </div>
 
@@ -169,7 +169,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:after_group_delete/1" data-no-tooltip="" translate="no">after_group_delete(term)</a>
+        <a href="#c:after_group_delete/1" data-no-tooltip="" translate="no">after_group_delete(t)</a>
 
       </div>
 
@@ -177,7 +177,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:after_group_join/2" data-no-tooltip="" translate="no">after_group_join(integer, term)</a>
+        <a href="#c:after_group_join/2" data-no-tooltip="" translate="no">after_group_join(integer, t)</a>
 
       </div>
 
@@ -201,7 +201,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:after_group_update/1" data-no-tooltip="" translate="no">after_group_update(term)</a>
+        <a href="#c:after_group_update/1" data-no-tooltip="" translate="no">after_group_update(t)</a>
 
       </div>
 
@@ -209,7 +209,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:after_lobby_create/1" data-no-tooltip="" translate="no">after_lobby_create(term)</a>
+        <a href="#c:after_lobby_create/1" data-no-tooltip="" translate="no">after_lobby_create(t)</a>
 
       </div>
 
@@ -217,7 +217,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:after_lobby_delete/1" data-no-tooltip="" translate="no">after_lobby_delete(term)</a>
+        <a href="#c:after_lobby_delete/1" data-no-tooltip="" translate="no">after_lobby_delete(t)</a>
 
       </div>
 
@@ -225,7 +225,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:after_lobby_host_change/2" data-no-tooltip="" translate="no">after_lobby_host_change(term, term)</a>
+        <a href="#c:after_lobby_host_change/2" data-no-tooltip="" translate="no">after_lobby_host_change(t, integer)</a>
 
       </div>
 
@@ -233,7 +233,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:after_lobby_join/2" data-no-tooltip="" translate="no">after_lobby_join(t, term)</a>
+        <a href="#c:after_lobby_join/2" data-no-tooltip="" translate="no">after_lobby_join(t, t)</a>
 
       </div>
 
@@ -241,7 +241,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:after_lobby_leave/2" data-no-tooltip="" translate="no">after_lobby_leave(t, term)</a>
+        <a href="#c:after_lobby_leave/2" data-no-tooltip="" translate="no">after_lobby_leave(t, t)</a>
 
       </div>
 
@@ -249,7 +249,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:after_lobby_update/1" data-no-tooltip="" translate="no">after_lobby_update(term)</a>
+        <a href="#c:after_lobby_update/1" data-no-tooltip="" translate="no">after_lobby_update(t)</a>
 
       </div>
 
@@ -257,7 +257,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:after_party_create/1" data-no-tooltip="" translate="no">after_party_create(term)</a>
+        <a href="#c:after_party_create/1" data-no-tooltip="" translate="no">after_party_create(t)</a>
 
       </div>
 
@@ -265,7 +265,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:after_party_disband/1" data-no-tooltip="" translate="no">after_party_disband(term)</a>
+        <a href="#c:after_party_disband/1" data-no-tooltip="" translate="no">after_party_disband(t)</a>
 
       </div>
 
@@ -273,7 +273,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:after_party_join/2" data-no-tooltip="" translate="no">after_party_join(t, term)</a>
+        <a href="#c:after_party_join/2" data-no-tooltip="" translate="no">after_party_join(t, t)</a>
 
       </div>
 
@@ -281,7 +281,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:after_party_kick/3" data-no-tooltip="" translate="no">after_party_kick(t, t, term)</a>
+        <a href="#c:after_party_kick/3" data-no-tooltip="" translate="no">after_party_kick(t, t, t)</a>
 
       </div>
 
@@ -297,7 +297,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:after_party_update/1" data-no-tooltip="" translate="no">after_party_update(term)</a>
+        <a href="#c:after_party_update/1" data-no-tooltip="" translate="no">after_party_update(t)</a>
 
       </div>
 
@@ -313,7 +313,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:after_user_kicked/3" data-no-tooltip="" translate="no">after_user_kicked(t, t, term)</a>
+        <a href="#c:after_user_kicked/3" data-no-tooltip="" translate="no">after_user_kicked(t, t, t)</a>
 
       </div>
 
@@ -377,7 +377,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:before_group_join/3" data-no-tooltip="" translate="no">before_group_join(t, term, map)</a>
+        <a href="#c:before_group_join/3" data-no-tooltip="" translate="no">before_group_join(t, t, map)</a>
 
       </div>
 
@@ -385,7 +385,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:before_group_update/2" data-no-tooltip="" translate="no">before_group_update(term, map)</a>
+        <a href="#c:before_group_update/2" data-no-tooltip="" translate="no">before_group_update(t, map)</a>
 
       </div>
 
@@ -412,7 +412,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:before_lobby_delete/1" data-no-tooltip="" translate="no">before_lobby_delete(term)</a>
+        <a href="#c:before_lobby_delete/1" data-no-tooltip="" translate="no">before_lobby_delete(t)</a>
 
       </div>
 
@@ -420,7 +420,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:before_lobby_join/3" data-no-tooltip="" translate="no">before_lobby_join(t, term, term)</a>
+        <a href="#c:before_lobby_join/3" data-no-tooltip="" translate="no">before_lobby_join(t, t, keyword)</a>
 
       </div>
 
@@ -428,7 +428,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:before_lobby_leave/2" data-no-tooltip="" translate="no">before_lobby_leave(t, term)</a>
+        <a href="#c:before_lobby_leave/2" data-no-tooltip="" translate="no">before_lobby_leave(t, t)</a>
 
       </div>
 
@@ -436,7 +436,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:before_lobby_update/2" data-no-tooltip="" translate="no">before_lobby_update(term, map)</a>
+        <a href="#c:before_lobby_update/2" data-no-tooltip="" translate="no">before_lobby_update(t, map)</a>
 
       </div>
 
@@ -452,7 +452,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:before_party_update/2" data-no-tooltip="" translate="no">before_party_update(term, map)</a>
+        <a href="#c:before_party_update/2" data-no-tooltip="" translate="no">before_party_update(t, map)</a>
 
       </div>
 
@@ -468,7 +468,7 @@ GameServer
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#c:before_user_kicked/3" data-no-tooltip="" translate="no">before_user_kicked(t, t, term)</a>
+        <a href="#c:before_user_kicked/3" data-no-tooltip="" translate="no">before_user_kicked(t, t, t)</a>
 
       </div>
 
@@ -679,7 +679,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">after_chat_message(term)</h1>
+      <h1 class="signature" translate="no">after_chat_message(t)</h1>
 
 
     </div>
@@ -689,7 +689,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> after_chat_message(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+          <pre translate="no"><span class="attribute">@callback</span> after_chat_message(<a href="GameServer.Chat.Message.html#t:t/0">GameServer.Chat.Message.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
 
       </div>
 
@@ -703,7 +703,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">after_group_create(term)</h1>
+      <h1 class="signature" translate="no">after_group_create(t)</h1>
 
 
     </div>
@@ -713,7 +713,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> after_group_create(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+          <pre translate="no"><span class="attribute">@callback</span> after_group_create(<a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
 
       </div>
 
@@ -727,7 +727,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">after_group_delete(term)</h1>
+      <h1 class="signature" translate="no">after_group_delete(t)</h1>
 
 
     </div>
@@ -737,7 +737,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> after_group_delete(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+          <pre translate="no"><span class="attribute">@callback</span> after_group_delete(<a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
 
       </div>
 
@@ -751,7 +751,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">after_group_join(integer, term)</h1>
+      <h1 class="signature" translate="no">after_group_join(integer, t)</h1>
 
 
     </div>
@@ -761,7 +761,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> after_group_join(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+          <pre translate="no"><span class="attribute">@callback</span> after_group_join(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>(), <a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
 
       </div>
 
@@ -823,7 +823,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">after_group_update(term)</h1>
+      <h1 class="signature" translate="no">after_group_update(t)</h1>
 
 
     </div>
@@ -833,7 +833,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> after_group_update(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+          <pre translate="no"><span class="attribute">@callback</span> after_group_update(<a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
 
       </div>
 
@@ -847,7 +847,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">after_lobby_create(term)</h1>
+      <h1 class="signature" translate="no">after_lobby_create(t)</h1>
 
 
     </div>
@@ -857,7 +857,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> after_lobby_create(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+          <pre translate="no"><span class="attribute">@callback</span> after_lobby_create(<a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
 
       </div>
 
@@ -871,7 +871,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">after_lobby_delete(term)</h1>
+      <h1 class="signature" translate="no">after_lobby_delete(t)</h1>
 
 
     </div>
@@ -881,7 +881,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> after_lobby_delete(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+          <pre translate="no"><span class="attribute">@callback</span> after_lobby_delete(<a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
 
       </div>
 
@@ -895,7 +895,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">after_lobby_host_change(term, term)</h1>
+      <h1 class="signature" translate="no">after_lobby_host_change(t, integer)</h1>
 
 
     </div>
@@ -905,7 +905,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> after_lobby_host_change(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+          <pre translate="no"><span class="attribute">@callback</span> after_lobby_host_change(<a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
 
       </div>
 
@@ -919,7 +919,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">after_lobby_join(t, term)</h1>
+      <h1 class="signature" translate="no">after_lobby_join(t, t)</h1>
 
 
     </div>
@@ -929,7 +929,8 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> after_lobby_join(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+          <pre translate="no"><span class="attribute">@callback</span> after_lobby_join(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>()) ::
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
 
       </div>
 
@@ -943,7 +944,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">after_lobby_leave(t, term)</h1>
+      <h1 class="signature" translate="no">after_lobby_leave(t, t)</h1>
 
 
     </div>
@@ -953,7 +954,8 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> after_lobby_leave(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+          <pre translate="no"><span class="attribute">@callback</span> after_lobby_leave(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>()) ::
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
 
       </div>
 
@@ -967,7 +969,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">after_lobby_update(term)</h1>
+      <h1 class="signature" translate="no">after_lobby_update(t)</h1>
 
 
     </div>
@@ -977,7 +979,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> after_lobby_update(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+          <pre translate="no"><span class="attribute">@callback</span> after_lobby_update(<a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
 
       </div>
 
@@ -991,7 +993,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">after_party_create(term)</h1>
+      <h1 class="signature" translate="no">after_party_create(t)</h1>
 
 
     </div>
@@ -1001,7 +1003,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> after_party_create(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+          <pre translate="no"><span class="attribute">@callback</span> after_party_create(GameServer.Parties.Party.t()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
 
       </div>
 
@@ -1015,7 +1017,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">after_party_disband(term)</h1>
+      <h1 class="signature" translate="no">after_party_disband(t)</h1>
 
 
     </div>
@@ -1025,7 +1027,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> after_party_disband(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+          <pre translate="no"><span class="attribute">@callback</span> after_party_disband(GameServer.Parties.Party.t()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
 
       </div>
 
@@ -1039,7 +1041,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">after_party_join(t, term)</h1>
+      <h1 class="signature" translate="no">after_party_join(t, t)</h1>
 
 
     </div>
@@ -1049,7 +1051,8 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> after_party_join(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+          <pre translate="no"><span class="attribute">@callback</span> after_party_join(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), GameServer.Parties.Party.t()) ::
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
 
       </div>
 
@@ -1063,7 +1066,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">after_party_kick(t, t, term)</h1>
+      <h1 class="signature" translate="no">after_party_kick(t, t, t)</h1>
 
 
     </div>
@@ -1076,7 +1079,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
           <pre translate="no"><span class="attribute">@callback</span> after_party_kick(
   <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
   <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()
+  GameServer.Parties.Party.t()
 ) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
 
       </div>
@@ -1115,7 +1118,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">after_party_update(term)</h1>
+      <h1 class="signature" translate="no">after_party_update(t)</h1>
 
 
     </div>
@@ -1125,7 +1128,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> after_party_update(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
+          <pre translate="no"><span class="attribute">@callback</span> after_party_update(GameServer.Parties.Party.t()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
 
       </div>
 
@@ -1163,7 +1166,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">after_user_kicked(t, t, term)</h1>
+      <h1 class="signature" translate="no">after_user_kicked(t, t, t)</h1>
 
 
     </div>
@@ -1176,7 +1179,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
           <pre translate="no"><span class="attribute">@callback</span> after_user_kicked(
   <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
   <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()
+  <a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>()
 ) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">any</a>()</pre>
 
       </div>
@@ -1359,7 +1362,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">before_group_join(t, term, map)</h1>
+      <h1 class="signature" translate="no">before_group_join(t, t, map)</h1>
 
 
     </div>
@@ -1369,8 +1372,14 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> before_group_join(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) ::
-  <a href="#t:hook_result/1">hook_result</a>({<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()})</pre>
+          <pre translate="no"><span class="attribute">@callback</span> before_group_join(
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  <a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()
+) ::
+  hook_result(
+    {<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()}
+  )</pre>
 
       </div>
 
@@ -1384,7 +1393,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">before_group_update(term, map)</h1>
+      <h1 class="signature" translate="no">before_group_update(t, map)</h1>
 
 
     </div>
@@ -1394,7 +1403,7 @@ options. Hooks may accept either a map or keyword list for convenience.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> before_group_update(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="#t:hook_result/1">hook_result</a>(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>())</pre>
+          <pre translate="no"><span class="attribute">@callback</span> before_group_update(<a href="GameServer.Groups.Group.html#t:t/0">GameServer.Groups.Group.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="#t:hook_result/1">hook_result</a>(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>())</pre>
 
       </div>
 
@@ -1459,7 +1468,7 @@ to block the read.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">before_lobby_delete(term)</h1>
+      <h1 class="signature" translate="no">before_lobby_delete(t)</h1>
 
 
     </div>
@@ -1469,7 +1478,8 @@ to block the read.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> before_lobby_delete(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) :: <a href="#t:hook_result/1">hook_result</a>(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>())</pre>
+          <pre translate="no"><span class="attribute">@callback</span> before_lobby_delete(<a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>()) ::
+  <a href="#t:hook_result/1">hook_result</a>(<a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>())</pre>
 
       </div>
 
@@ -1483,7 +1493,7 @@ to block the read.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">before_lobby_join(t, term, term)</h1>
+      <h1 class="signature" translate="no">before_lobby_join(t, t, keyword)</h1>
 
 
     </div>
@@ -1493,8 +1503,14 @@ to block the read.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> before_lobby_join(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) ::
-  <a href="#t:hook_result/1">hook_result</a>({<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()})</pre>
+          <pre translate="no"><span class="attribute">@callback</span> before_lobby_join(
+  <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+  <a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) ::
+  hook_result(
+    {<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()}
+  )</pre>
 
       </div>
 
@@ -1508,7 +1524,7 @@ to block the read.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">before_lobby_leave(t, term)</h1>
+      <h1 class="signature" translate="no">before_lobby_leave(t, t)</h1>
 
 
     </div>
@@ -1518,8 +1534,8 @@ to block the read.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> before_lobby_leave(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()) ::
-  <a href="#t:hook_result/1">hook_result</a>({<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()})</pre>
+          <pre translate="no"><span class="attribute">@callback</span> before_lobby_leave(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>()) ::
+  <a href="#t:hook_result/1">hook_result</a>({<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>()})</pre>
 
       </div>
 
@@ -1533,7 +1549,7 @@ to block the read.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">before_lobby_update(term, map)</h1>
+      <h1 class="signature" translate="no">before_lobby_update(t, map)</h1>
 
 
     </div>
@@ -1543,7 +1559,7 @@ to block the read.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> before_lobby_update(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="#t:hook_result/1">hook_result</a>(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>())</pre>
+          <pre translate="no"><span class="attribute">@callback</span> before_lobby_update(<a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="#t:hook_result/1">hook_result</a>(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>())</pre>
 
       </div>
 
@@ -1581,7 +1597,7 @@ to block the read.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">before_party_update(term, map)</h1>
+      <h1 class="signature" translate="no">before_party_update(t, map)</h1>
 
 
     </div>
@@ -1591,7 +1607,7 @@ to block the read.</p>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@callback</span> before_party_update(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="#t:hook_result/1">hook_result</a>(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>())</pre>
+          <pre translate="no"><span class="attribute">@callback</span> before_party_update(GameServer.Parties.Party.t(), <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()) :: <a href="#t:hook_result/1">hook_result</a>(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>())</pre>
 
       </div>
 
@@ -1629,7 +1645,7 @@ to block the read.</p>
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">before_user_kicked(t, t, term)</h1>
+      <h1 class="signature" translate="no">before_user_kicked(t, t, t)</h1>
 
 
     </div>
@@ -1642,10 +1658,11 @@ to block the read.</p>
           <pre translate="no"><span class="attribute">@callback</span> before_user_kicked(
   <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
   <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
-  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()
+  <a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>()
 ) ::
   hook_result(
-    {<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()}
+    {<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(), <a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>(),
+     <a href="GameServer.Lobbies.Lobby.html#t:t/0">GameServer.Lobbies.Lobby.t</a>()}
   )</pre>
 
       </div>
