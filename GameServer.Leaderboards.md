@@ -299,6 +299,27 @@ Returns records above and below the user's rank.
 
   * `:limit` - Total number of records to return (default 11, centered on user)
 
+# `resolve_slugs`
+
+```elixir
+@spec resolve_slugs([String.t()]) :: %{
+  required(String.t()) =&gt; GameServer.Leaderboards.Leaderboard.t()
+}
+```
+
+Resolves multiple slugs to their currently active leaderboards in a single query.
+
+Returns a map of `slug => %Leaderboard{}` for each slug that has an active
+leaderboard. Slugs with no active leaderboard are omitted from the result.
+
+## Examples
+
+    iex> resolve_slugs(["weekly_kills", "monthly_score", "nonexistent"])
+    %{
+      "weekly_kills" => %Leaderboard{id: 1, slug: "weekly_kills", ...},
+      "monthly_score" => %Leaderboard{id: 5, slug: "monthly_score", ...}
+    }
+
 # `submit_score`
 
 ```elixir
