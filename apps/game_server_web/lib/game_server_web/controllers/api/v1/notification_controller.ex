@@ -16,33 +16,7 @@ defmodule GameServerWeb.Api.V1.NotificationController do
       recipient_id: %Schema{type: :integer, description: "User ID of the recipient"},
       title: %Schema{type: :string, description: "Notification title"},
       content: %Schema{type: :string, description: "Notification body text", nullable: true},
-      metadata: %Schema{
-        type: :object,
-        description:
-          "Arbitrary metadata. All system-generated notifications include a `type` string tag for client-side routing. " <>
-            "Possible values: " <>
-            "**Friends:** `friend_request`, `friend_accepted`, `friend_declined`. " <>
-            "**Groups:** `group_invite`, `group_invite_accepted`, `group_invite_declined`, " <>
-            "`group_join_request`, `group_join_approved`, `group_join_declined`, " <>
-            "`group_kicked`, `group_promoted`, `group_demoted`. " <>
-            "**Parties:** `party_invite`, `party_invite_accepted`, `party_invite_declined`, `party_kicked`. " <>
-            "**Lobbies:** `lobby_kicked`. " <>
-            "**Chat:** `chat_friend`, `chat_group`, `chat_lobby`, `chat_party` (includes `message_count`).",
-        properties: %{
-          type: %Schema{
-            type: :string,
-            description:
-              "Notification type tag for client-side routing/filtering. " <>
-                "One of: friend_request, friend_accepted, friend_declined, " <>
-                "group_invite, group_invite_accepted, group_invite_declined, " <>
-                "group_join_request, group_join_approved, group_join_declined, " <>
-                "group_kicked, group_promoted, group_demoted, " <>
-                "party_invite, party_invite_accepted, party_invite_declined, party_kicked, " <>
-                "lobby_kicked, " <>
-                "chat_friend, chat_group, chat_lobby, chat_party"
-          }
-        }
-      },
+      metadata: %Schema{type: :object, description: "Arbitrary metadata"},
       inserted_at: %Schema{
         type: :string,
         format: "date-time",
@@ -56,7 +30,7 @@ defmodule GameServerWeb.Api.V1.NotificationController do
       recipient_id: 7,
       title: "Game invite",
       content: "Join my lobby!",
-      metadata: %{"lobby_id" => 10, "type" => "group_invite"},
+      metadata: %{"lobby_id" => 10},
       inserted_at: "2026-02-22T12:00:00Z"
     }
   }
