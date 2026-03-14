@@ -130,6 +130,8 @@ defmodule GameServer.Hooks do
   - `after_user_register/1` - Called after a new user registers
   - `after_user_login/1` - Called after a user logs in
   - `after_user_updated/1` - Called after a user is updated (fire-and-forget)
+  - `after_user_online/1` - Called after a user comes online (fire-and-forget)
+  - `after_user_offline/1` - Called after a user goes offline (fire-and-forget)
 
   ### Lobby Lifecycle Hooks
 
@@ -250,6 +252,8 @@ defmodule GameServer.Hooks do
   @callback after_user_register(user()) :: any()
   @callback after_user_login(user()) :: any()
   @callback after_user_updated(user()) :: any()
+  @callback after_user_online(user()) :: any()
+  @callback after_user_offline(user()) :: any()
 
   # Lobby lifecycle callbacks
   @callback before_lobby_create(attrs :: map()) :: hook_result(map())
@@ -363,6 +367,12 @@ defmodule GameServer.Hooks do
       def after_user_updated(_user), do: :ok
 
       @impl true
+      def after_user_online(_user), do: :ok
+
+      @impl true
+      def after_user_offline(_user), do: :ok
+
+      @impl true
       def before_user_update(_user, attrs), do: {:ok, attrs}
 
       @impl true
@@ -464,6 +474,8 @@ defmodule GameServer.Hooks do
       defoverridable after_user_register: 1,
                      after_user_login: 1,
                      after_user_updated: 1,
+                     after_user_online: 1,
+                     after_user_offline: 1,
                      before_user_update: 2,
                      on_custom_hook: 2,
                      before_lobby_create: 1,

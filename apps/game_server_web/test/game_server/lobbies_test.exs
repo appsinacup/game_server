@@ -70,6 +70,10 @@ defmodule GameServer.LobbiesTest do
       @impl true
       def after_user_updated(_user), do: :ok
       @impl true
+      def after_user_online(_user), do: :ok
+      @impl true
+      def after_user_offline(_user), do: :ok
+      @impl true
       def before_user_update(_user, attrs), do: {:ok, attrs}
 
       @impl true

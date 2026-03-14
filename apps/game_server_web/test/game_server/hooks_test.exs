@@ -84,6 +84,18 @@ defmodule GameServer.HooksTest do
     @impl true
     def after_user_updated(_user), do: :ok
     @impl true
+    def after_user_online(user) do
+      meta = Map.put(user.metadata || %{}, "online_hook", true)
+      Repo.update!(Ecto.Changeset.change(user, metadata: meta))
+    end
+
+    @impl true
+    def after_user_offline(user) do
+      meta = Map.put(user.metadata || %{}, "offline_hook", true)
+      Repo.update!(Ecto.Changeset.change(user, metadata: meta))
+    end
+
+    @impl true
     def before_user_update(_user, attrs), do: {:ok, attrs}
 
     @impl true
@@ -197,6 +209,35 @@ defmodule GameServer.HooksTest do
     assert Map.get(reloaded.metadata || %{}, "hooked") == true
   end
 
+  test "after_user_online hook fires when user comes online" do
+    Application.put_env(:game_server_core, :hooks_module, TestHooksRegister)
+
+    user = unconfirmed_user_fixture()
+    {:ok, _online_user} = Accounts.set_user_online(user)
+
+    # after_user_online runs asynchronously; wait for update
+    Process.sleep(50)
+
+    reloaded = Accounts.get_user!(user.id)
+    assert reloaded.is_online == true
+    assert Map.get(reloaded.metadata || %{}, "online_hook") == true
+  end
+
+  test "after_user_offline hook fires when user goes offline" do
+    Application.put_env(:game_server_core, :hooks_module, TestHooksRegister)
+
+    user = unconfirmed_user_fixture()
+    {:ok, _online} = Accounts.set_user_online(user)
+    {:ok, _offline} = Accounts.set_user_offline(user)
+
+    # after_user_offline runs asynchronously; wait for update
+    Process.sleep(50)
+
+    reloaded = Accounts.get_user!(user.id)
+    assert reloaded.is_online == false
+    assert Map.get(reloaded.metadata || %{}, "offline_hook") == true
+  end
+
   describe "scheduled callbacks protection" do
     defmodule ScheduleTestHook do
       @behaviour GameServer.Hooks
@@ -266,6 +307,10 @@ defmodule GameServer.HooksTest do
 
       @impl true
       def after_user_updated(_user), do: :ok
+      @impl true
+      def after_user_online(_user), do: :ok
+      @impl true
+      def after_user_offline(_user), do: :ok
       @impl true
       def before_user_update(_user, attrs), do: {:ok, attrs}
 

@@ -1844,6 +1844,11 @@ defmodule GameServer.Accounts do
         |> case do
           {:ok, updated} = ok ->
             invalidate_user_cache(updated)
+
+            GameServer.Async.run(fn ->
+              GameServer.Hooks.internal_call(:after_user_online, [updated])
+            end)
+
             ok
 
           err ->
@@ -1873,6 +1878,11 @@ defmodule GameServer.Accounts do
         |> case do
           {:ok, updated} = ok ->
             invalidate_user_cache(updated)
+
+            GameServer.Async.run(fn ->
+              GameServer.Hooks.internal_call(:after_user_offline, [updated])
+            end)
+
             ok
 
           err ->
