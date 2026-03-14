@@ -168,6 +168,18 @@ options. Hooks may accept either a map or keyword list for convenience.
 @callback after_user_login(GameServer.Accounts.User.t()) :: any()
 ```
 
+# `after_user_offline`
+
+```elixir
+@callback after_user_offline(GameServer.Accounts.User.t()) :: any()
+```
+
+# `after_user_online`
+
+```elixir
+@callback after_user_online(GameServer.Accounts.User.t()) :: any()
+```
+
 # `after_user_register`
 
 ```elixir
