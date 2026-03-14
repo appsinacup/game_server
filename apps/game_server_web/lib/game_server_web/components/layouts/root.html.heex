@@ -4,9 +4,13 @@
     <meta charset="utf-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1, interactive-widget=resizes-content"
+      content="width=device-width, initial-scale=1"
     />
     <meta name="csrf-token" content={get_csrf_token()} />
+    <%!-- Set theme before any CSS loads to prevent FOUC (data-cfasync=false excludes from Cloudflare Rocket Loader) --%>
+    <script data-cfasync="false">
+      (function(){var t=localStorage.getItem("phx:theme");var d=t||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.setAttribute("data-theme",d)})();
+    </script>
     <!-- Open Graph / Twitter meta defaults -->
     <% locale = Gettext.get_locale(GameServerWeb.Gettext) %>
     <% provider_theme = GameServer.Theme.JSONConfig.get_theme(locale) || %{} %>
@@ -45,7 +49,7 @@
     <% end %>
     <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
     </script>
-    <script>
+    <script data-cfasync="false">
       (() => {
         const getSystemTheme = () => window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
         
