@@ -24,7 +24,7 @@ This SDK provides stub modules that match the GameServer API:
 - `GameServer.Accounts` - User account management (registration, login, profile updates, metadata)
 - `GameServer.Lobbies` - Lobby management (create, join, leave, kick, host transfer)
 - `GameServer.Groups` - Group management (create, join, leave, invite, promote/demote, join requests)
-- `GameServer.Parties` - Ephemeral party management (create, join by code, lobby integration)
+- `GameServer.Parties` - Ephemeral party management (create, invite, lobby integration)
 - `GameServer.Leaderboards` - Leaderboard operations (submit scores, rankings, seasonal resets)
 - `GameServer.Friends` - Friend relationships and blocking (send/accept/decline requests, block/unblock)
 - `GameServer.Notifications` - In-app notification delivery (friend requests, group invites, system alerts)

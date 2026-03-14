@@ -241,32 +241,4 @@ defmodule GameServerWeb.Api.V1.PartyControllerTest do
       assert json_response(conn, 403)["error"] == "not_enough_space"
     end
   end
-
-  describe "party code in responses" do
-    test "create party returns code", %{conn: conn} do
-      user = AccountsFixtures.user_fixture()
-
-      conn =
-        conn
-        |> auth_conn(user)
-        |> post("/api/v1/parties", %{max_size: 4})
-
-      body = json_response(conn, 201)
-      assert is_binary(body["code"])
-      assert String.length(body["code"]) == 6
-    end
-
-    test "show party returns code", %{conn: conn} do
-      user = AccountsFixtures.user_fixture()
-      {:ok, party} = Parties.create_party(user, %{max_size: 4})
-
-      conn =
-        conn
-        |> auth_conn(user)
-        |> get("/api/v1/parties/me")
-
-      body = json_response(conn, 200)
-      assert body["code"] == party.code
-    end
-  end
 end

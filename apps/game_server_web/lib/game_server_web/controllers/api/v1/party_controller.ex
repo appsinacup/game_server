@@ -15,10 +15,6 @@ defmodule GameServerWeb.Api.V1.PartyController do
       leader_id: %Schema{type: :integer, description: "User ID of the party leader"},
       leader_name: %Schema{type: :string, description: "Display name of the party leader"},
       max_size: %Schema{type: :integer, description: "Maximum party members allowed"},
-      code: %Schema{
-        type: :string,
-        description: "Unique 6-character code for joining the party"
-      },
       metadata: %Schema{type: :object, description: "Arbitrary metadata"},
       members: %Schema{
         type: :array,
@@ -41,7 +37,6 @@ defmodule GameServerWeb.Api.V1.PartyController do
       leader_id: 42,
       leader_name: "Player1",
       max_size: 4,
-      code: "A3BK7P",
       metadata: %{},
       members: [
         %{
@@ -825,7 +820,6 @@ defmodule GameServerWeb.Api.V1.PartyController do
       leader_id: party.leader_id,
       leader_name: leader_name,
       max_size: party.max_size,
-      code: party.code,
       metadata: party.metadata || %{},
       members:
         Enum.map(members, fn m ->

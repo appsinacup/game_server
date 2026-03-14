@@ -200,7 +200,6 @@ defmodule GameServerWeb.PartyChannel do
       leader_id: party.leader_id,
       leader_name: leader_name,
       max_size: party.max_size,
-      code: party.code,
       metadata: party.metadata || %{}
     }
   end

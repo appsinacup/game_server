@@ -61,8 +61,6 @@ defmodule GameServer.PartiesTest do
       assert {:ok, party} = Parties.create_party(leader, %{max_size: 4})
       assert party.leader_id == leader.id
       assert party.max_size == 4
-      assert is_binary(party.code)
-      assert String.length(party.code) == 6
 
       # Leader should now have party_id set
       updated_leader = Accounts.get_user(leader.id)
