@@ -261,7 +261,7 @@ defmodule GameServer.Lobbies do
   def create_lobby() do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, %GameServer.Lobbies.Lobby{id: 0, name: "", title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+        {:ok, %GameServer.Lobbies.Lobby{id: 0, title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Lobbies.create_lobby/0 is a stub - only available at runtime on GameServer"
@@ -282,7 +282,7 @@ defmodule GameServer.Lobbies do
   def create_lobby(_attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, %GameServer.Lobbies.Lobby{id: 0, name: "", title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+        {:ok, %GameServer.Lobbies.Lobby{id: 0, title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Lobbies.create_lobby/1 is a stub - only available at runtime on GameServer"
@@ -310,7 +310,7 @@ defmodule GameServer.Lobbies do
   def delete_lobby(_lobby) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, %GameServer.Lobbies.Lobby{id: 0, name: "", title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+        {:ok, %GameServer.Lobbies.Lobby{id: 0, title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Lobbies.delete_lobby/1 is a stub - only available at runtime on GameServer"
@@ -337,7 +337,7 @@ defmodule GameServer.Lobbies do
   def get_lobby(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: %GameServer.Lobbies.Lobby{id: 0, name: "", title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}
+        if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: %GameServer.Lobbies.Lobby{id: 0, title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}
 
       _ ->
         raise "GameServer.Lobbies.get_lobby/1 is a stub - only available at runtime on GameServer"
@@ -698,7 +698,7 @@ defmodule GameServer.Lobbies do
   def quick_join(_user) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, %GameServer.Lobbies.Lobby{id: 0, name: "", title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+        {:ok, %GameServer.Lobbies.Lobby{id: 0, title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Lobbies.quick_join/1 is a stub - only available at runtime on GameServer"
@@ -722,7 +722,7 @@ defmodule GameServer.Lobbies do
   def quick_join(_user, _title) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, %GameServer.Lobbies.Lobby{id: 0, name: "", title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+        {:ok, %GameServer.Lobbies.Lobby{id: 0, title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Lobbies.quick_join/2 is a stub - only available at runtime on GameServer"
@@ -746,7 +746,7 @@ defmodule GameServer.Lobbies do
   def quick_join(_user, _title, _max_users) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, %GameServer.Lobbies.Lobby{id: 0, name: "", title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+        {:ok, %GameServer.Lobbies.Lobby{id: 0, title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Lobbies.quick_join/3 is a stub - only available at runtime on GameServer"
@@ -770,7 +770,7 @@ defmodule GameServer.Lobbies do
   def quick_join(_user, _title, _max_users, _metadata) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, %GameServer.Lobbies.Lobby{id: 0, name: "", title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+        {:ok, %GameServer.Lobbies.Lobby{id: 0, title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Lobbies.quick_join/4 is a stub - only available at runtime on GameServer"
@@ -857,7 +857,7 @@ defmodule GameServer.Lobbies do
   def update_lobby(_lobby, _attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, %GameServer.Lobbies.Lobby{id: 0, name: "", title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+        {:ok, %GameServer.Lobbies.Lobby{id: 0, title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Lobbies.update_lobby/2 is a stub - only available at runtime on GameServer"

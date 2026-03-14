@@ -56,8 +56,14 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
     type: :object,
     properties: %{
       rank: %Schema{type: :integer, description: "Player's rank on this leaderboard"},
-      user_id: %Schema{type: :integer, description: "User ID"},
-      display_name: %Schema{type: :string, description: "User's display name"},
+      user_id: %Schema{
+        type: :integer,
+        description: "User ID (-1 for non-user/label-based records)"
+      },
+      display_name: %Schema{
+        type: :string,
+        description: "Human-readable name (user display name or label text)"
+      },
       score: %Schema{type: :integer, description: "Score value"},
       metadata: %Schema{type: :object, description: "Per-record metadata"},
       updated_at: %Schema{type: :string, format: "date-time"}
@@ -515,17 +521,13 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
 
     if record.label do
       Map.merge(base, %{
-        label: record.label,
         user_id: -1,
-        display_name: record.label,
-        profile_url: ""
+        display_name: record.label
       })
     else
       Map.merge(base, %{
-        label: nil,
         user_id: record.user_id,
-        display_name: (record.user && record.user.display_name) || "",
-        profile_url: (record.user && record.user.profile_url) || ""
+        display_name: (record.user && record.user.display_name) || ""
       })
     end
   end

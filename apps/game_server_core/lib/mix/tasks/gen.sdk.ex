@@ -394,7 +394,7 @@ defmodule Mix.Tasks.Gen.Sdk do
   defp lobby_placeholder_expr do
     dt = dt_placeholder_expr()
 
-    "%GameServer.Lobbies.Lobby{id: 0, name: \"\", title: \"\", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: #{dt}, updated_at: #{dt}}"
+    "%GameServer.Lobbies.Lobby{id: 0, title: \"\", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: #{dt}, updated_at: #{dt}}"
   end
 
   defp leaderboard_placeholder_expr do
@@ -406,7 +406,7 @@ defmodule Mix.Tasks.Gen.Sdk do
   defp record_placeholder_expr do
     dt = dt_placeholder_expr()
 
-    "%GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, score: 0, rank: nil, metadata: %{}, inserted_at: #{dt}, updated_at: #{dt}}"
+    "%GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, label: nil, score: 0, rank: nil, metadata: %{}, inserted_at: #{dt}, updated_at: #{dt}}"
   end
 
   defp friendship_placeholder_expr do

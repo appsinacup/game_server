@@ -235,7 +235,7 @@ defmodule GameServer.Leaderboards do
   def delete_record(_record) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+        {:ok, %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, label: nil, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Leaderboards.delete_record/1 is a stub - only available at runtime on GameServer"
@@ -253,7 +253,7 @@ defmodule GameServer.Leaderboards do
   def delete_user_record(_id_or_slug, _user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+        {:ok, %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, label: nil, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Leaderboards.delete_user_record/2 is a stub - only available at runtime on GameServer"
@@ -310,7 +310,7 @@ defmodule GameServer.Leaderboards do
   def get_label_record(_leaderboard_id, _label) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}
+        if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, label: nil, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}
 
       _ ->
         raise "GameServer.Leaderboards.get_label_record/2 is a stub - only available at runtime on GameServer"
@@ -366,7 +366,7 @@ defmodule GameServer.Leaderboards do
   def get_record(_leaderboard_id, _user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}
+        if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, label: nil, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}
 
       _ ->
         raise "GameServer.Leaderboards.get_record/2 is a stub - only available at runtime on GameServer"
@@ -402,7 +402,7 @@ defmodule GameServer.Leaderboards do
   def get_user_record(_leaderboard_id, _user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+        {:ok, %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, label: nil, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Leaderboards.get_user_record/2 is a stub - only available at runtime on GameServer"
@@ -705,7 +705,7 @@ defmodule GameServer.Leaderboards do
   def submit_label_score(_leaderboard_id, _label, _score, _metadata) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+        {:ok, %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, label: nil, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Leaderboards.submit_label_score/4 is a stub - only available at runtime on GameServer"
@@ -743,7 +743,7 @@ defmodule GameServer.Leaderboards do
   def submit_score(_leaderboard_id, _user_id, _score) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+        {:ok, %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, label: nil, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Leaderboards.submit_score/3 is a stub - only available at runtime on GameServer"
@@ -781,7 +781,7 @@ defmodule GameServer.Leaderboards do
   def submit_score(_leaderboard_id, _user_id, _score, _metadata) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+        {:ok, %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, label: nil, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Leaderboards.submit_score/4 is a stub - only available at runtime on GameServer"
@@ -825,7 +825,7 @@ defmodule GameServer.Leaderboards do
   def update_record(_record, _attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+        {:ok, %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, label: nil, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Leaderboards.update_record/2 is a stub - only available at runtime on GameServer"

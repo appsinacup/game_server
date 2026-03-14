@@ -9,7 +9,8 @@ defmodule GameServer.Leaderboards.Record do
 
   - `id` - Record ID (integer)
   - `leaderboard_id` - Associated leaderboard ID (integer)
-  - `user_id` - User ID (integer)
+  - `user_id` - User ID (integer, nil for label-based records)
+  - `label` - Label string (nil for user-based records)
   - `score` - The score value (integer)
   - `rank` - Virtual field for computed rank (integer)
   - `metadata` - Arbitrary record metadata (map)
@@ -20,7 +21,8 @@ defmodule GameServer.Leaderboards.Record do
   @type t :: %__MODULE__{
           id: integer(),
           leaderboard_id: integer(),
-          user_id: integer(),
+          user_id: integer() | nil,
+          label: String.t() | nil,
           score: integer(),
           rank: integer() | nil,
           metadata: map(),
@@ -32,6 +34,7 @@ defmodule GameServer.Leaderboards.Record do
     :id,
     :leaderboard_id,
     :user_id,
+    :label,
     :score,
     :rank,
     :metadata,

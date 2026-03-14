@@ -207,7 +207,6 @@ defmodule GameServerWeb.Api.V1.LeaderboardControllerTest do
       first = hd(resp["data"])
       assert Map.has_key?(first, "user_id")
       assert Map.has_key?(first, "display_name")
-      assert Map.has_key?(first, "profile_url")
     end
 
     test "returns 404 for non-existent leaderboard", %{conn: conn} do
