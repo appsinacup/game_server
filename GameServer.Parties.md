@@ -47,8 +47,10 @@ This module broadcasts the following events:
 
 Accept a party invite. Joins the party and marks the invite as accepted.
 
+If the user is already in another party, they automatically leave it first
+(disbanding if they are the leader).
+
 Returns `{:error, :no_invite}` if no pending invite exists for that party.
-Returns `{:error, :already_in_party}` if the user is already in another party.
 
 # `admin_delete_party`
 
@@ -201,7 +203,6 @@ deleting notifications does not affect pending invites.
 Returns `{:error, :not_in_party}` if the caller is not in a party.
 Returns `{:error, :not_leader}` if the caller is not the party leader.
 Returns `{:error, :not_connected}` if the target is not a friend or shared group member.
-Returns `{:error, :already_in_party}` if the target is already in a party.
 Returns `{:error, :already_invited}` if a pending invite already exists.
 
 # `join_lobby_with_party`

@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.747">
+    <meta name="project" content="GameServer v1.0.750">
 
 
-    <title>GameServer.Leaderboards.Record — GameServer v1.0.747</title>
+    <title>GameServer.Leaderboards.Record — GameServer v1.0.750</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-DC786F06.js"></script>
+    <script defer src="dist/sidebar_items-1A534E09.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.747
+          v1.0.750
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Leaderboards.<wbr>Record</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.747)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.750)</small>
 
     </h1>
 
@@ -109,8 +109,9 @@ GameServer
 
 
     <section id="moduledoc">
-<p>Ecto schema for the <code class="inline">leaderboard_records</code> table.</p><p>A record represents a single user's score entry in a leaderboard.
-Each user can have at most one record per leaderboard.</p>
+<p>Ecto schema for the <code class="inline">leaderboard_records</code> table.</p><p>A record represents a single score entry in a leaderboard.
+Records can be either <strong>user-based</strong> (one per user per leaderboard)
+or <strong>label-based</strong> (one per label per leaderboard, no user required).</p><ul><li>User-based: <code class="inline">user_id</code> is set, <code class="inline">label</code> is nil. Uniqueness on <code class="inline">(leaderboard_id, user_id)</code>.</li><li>Label-based: <code class="inline">label</code> is set, <code class="inline">user_id</code> is nil. Uniqueness on <code class="inline">(leaderboard_id, label)</code>.</li></ul>
     </section>
 
 </div>
@@ -147,7 +148,8 @@ Each user can have at most one record per leaderboard.</p>
 
       </div>
 
-        <div class="summary-synopsis"><p>Changeset for creating a new record.</p></div>
+        <div class="summary-synopsis"><p>Changeset for creating a new record.
+Either <code class="inline">user_id</code> or <code class="inline">label</code> must be provided (but not both).</p></div>
 
     </div>
 
@@ -196,6 +198,7 @@ Each user can have at most one record per leaderboard.</p>
   __meta__: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
   id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
   inserted_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
+  label: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
   leaderboard: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
   leaderboard_id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
   metadata: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
@@ -239,7 +242,8 @@ Each user can have at most one record per leaderboard.</p>
 
   <section class="docstring">
 
-<p>Changeset for creating a new record.</p>
+<p>Changeset for creating a new record.
+Either <code class="inline">user_id</code> or <code class="inline">label</code> must be provided (but not both).</p>
   </section>
 </section>
 <section class="detail" id="update_changeset/2">

@@ -156,6 +156,15 @@ An active leaderboard is one that:
 If multiple active leaderboards exist with the same slug,
 returns the most recently created one.
 
+# `get_label_record`
+
+```elixir
+@spec get_label_record(integer(), String.t()) ::
+  GameServer.Leaderboards.Record.t() | nil
+```
+
+Gets a single record by leaderboard ID and label.
+
 # `get_leaderboard`
 
 ```elixir
@@ -319,6 +328,23 @@ leaderboard. Slugs with no active leaderboard are omitted from the result.
       "weekly_kills" => %Leaderboard{id: 1, slug: "weekly_kills", ...},
       "monthly_score" => %Leaderboard{id: 5, slug: "monthly_score", ...}
     }
+
+# `submit_label_score`
+
+```elixir
+@spec submit_label_score(integer(), String.t(), integer(), map()) ::
+  {:ok, GameServer.Leaderboards.Record.t()} | {:error, term()}
+```
+
+Submit a score for a label-based (non-user) record.
+
+Works just like `submit_score/4` but uses a string label instead of a user ID.
+This is useful for statistics, rankings by category, etc.
+
+## Examples
+
+    iex> submit_label_score(leaderboard_id, "English", 42)
+    {:ok, %Record{label: "English", score: 42}}
 
 # `submit_score`
 
