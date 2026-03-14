@@ -309,7 +309,8 @@ defmodule GameServerWeb.LeaderboardsLive do
                     <span class={[
                       record.user_id == @current_user_id && "font-bold"
                     ]}>
-                      {(record.user && record.user.display_name) || "User #{record.user_id}"}
+                      {record.label || (record.user && record.user.display_name) ||
+                        "User #{record.user_id}"}
                     </span>
                     <%= if record.user_id == @current_user_id do %>
                       <span class="badge badge-primary badge-sm">{gettext("You")}</span>
