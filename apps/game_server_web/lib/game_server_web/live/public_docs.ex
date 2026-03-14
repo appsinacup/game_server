@@ -31,6 +31,7 @@ defmodule GameServerWeb.PublicDocs do
         {GameServerWeb.PublicDocsTemplates.realtime(assigns)}
         {GameServerWeb.PublicDocsTemplates.leaderboards(assigns)}
         {GameServerWeb.PublicDocsTemplates.chat(assigns)}
+        {GameServerWeb.PublicDocsTemplates.notifications(assigns)}
         {GameServerWeb.PublicDocsTemplates.server_scripting(assigns)}
         {GameServerWeb.PublicDocsTemplates.theme(assigns)}
 

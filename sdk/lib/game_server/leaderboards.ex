@@ -303,6 +303,22 @@ defmodule GameServer.Leaderboards do
 
 
   @doc ~S"""
+    Gets a single record by leaderboard ID and label.
+    
+  """
+  @spec get_label_record(integer(), String.t()) :: GameServer.Leaderboards.Record.t() | nil
+  def get_label_record(_leaderboard_id, _label) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}
+
+      _ ->
+        raise "GameServer.Leaderboards.get_label_record/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Gets a leaderboard by its integer ID.
     
     ## Examples
@@ -668,6 +684,31 @@ defmodule GameServer.Leaderboards do
 
       _ ->
         raise "GameServer.Leaderboards.resolve_slugs/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Submit a score for a label-based (non-user) record.
+    
+    Works just like `submit_score/4` but uses a string label instead of a user ID.
+    This is useful for statistics, rankings by category, etc.
+    
+    ## Examples
+    
+        iex> submit_label_score(leaderboard_id, "English", 42)
+        {:ok, %Record{label: "English", score: 42}}
+    
+  """
+  @spec submit_label_score(integer(), String.t(), integer(), map()) ::
+  {:ok, GameServer.Leaderboards.Record.t()} | {:error, term()}
+  def submit_label_score(_leaderboard_id, _label, _score, _metadata) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Leaderboards.Record{id: 0, leaderboard_id: 0, user_id: 0, score: 0, rank: nil, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Leaderboards.submit_label_score/4 is a stub - only available at runtime on GameServer"
     end
   end
 

@@ -591,6 +591,78 @@ defmodule GameServer.Leaderboards do
     end
   end
 
+  @doc """
+  Submit a score for a label-based (non-user) record.
+
+  Works just like `submit_score/4` but uses a string label instead of a user ID.
+  This is useful for statistics, rankings by category, etc.
+
+  ## Examples
+
+      iex> submit_label_score(leaderboard_id, "English", 42)
+      {:ok, %Record{label: "English", score: 42}}
+  """
+  @spec submit_label_score(integer(), String.t(), integer(), map()) ::
+          {:ok, Record.t()} | {:error, term()}
+  def submit_label_score(leaderboard_id, label, score, metadata \\ %{})
+      when is_integer(leaderboard_id) and is_binary(label) and is_integer(score) do
+    case get_leaderboard(leaderboard_id) do
+      nil ->
+        {:error, :leaderboard_not_found}
+
+      leaderboard ->
+        if Leaderboard.ended?(leaderboard) do
+          {:error, :leaderboard_ended}
+        else
+          do_submit_label_score(leaderboard, label, score, metadata)
+        end
+    end
+  end
+
+  defp do_submit_label_score(leaderboard, label, score, metadata) do
+    now = DateTime.utc_now(:second)
+
+    changeset =
+      %Record{}
+      |> Record.changeset(%{
+        leaderboard_id: leaderboard.id,
+        label: label,
+        score: score,
+        metadata: metadata
+      })
+
+    case Repo.insert(changeset,
+           on_conflict: build_score_upsert(leaderboard, score, metadata, now),
+           conflict_target: [:leaderboard_id, :label]
+         ) do
+      {:ok, _} ->
+        _ = invalidate_records_cache(leaderboard.id)
+        record = get_label_record(leaderboard.id, label)
+
+        if record do
+          _ = invalidate_record_cache(record.id)
+          {:ok, record}
+        else
+          {:error, :insert_failed}
+        end
+
+      error ->
+        error
+    end
+  end
+
+  @doc """
+  Gets a single record by leaderboard ID and label.
+  """
+  @spec get_label_record(integer(), String.t()) :: Record.t() | nil
+  def get_label_record(leaderboard_id, label)
+      when is_integer(leaderboard_id) and is_binary(label) do
+    from(r in Record,
+      where: r.leaderboard_id == ^leaderboard_id and r.label == ^label
+    )
+    |> Repo.one()
+  end
+
   defp do_submit_score(leaderboard, user_id, score, metadata) do
     now = DateTime.utc_now(:second)
 

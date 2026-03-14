@@ -302,7 +302,6 @@ defmodule GameServer.Parties do
   Returns `{:error, :not_in_party}` if the caller is not in a party.
   Returns `{:error, :not_leader}` if the caller is not the party leader.
   Returns `{:error, :not_connected}` if the target is not a friend or shared group member.
-  Returns `{:error, :already_in_party}` if the target is already in a party.
   Returns `{:error, :already_invited}` if a pending invite already exists.
   """
   @spec invite_to_party(User.t(), integer()) :: {:ok, PartyInvite.t()} | {:error, atom()}
@@ -313,7 +312,6 @@ defmodule GameServer.Parties do
          {:ok, party} <- fetch_party(leader.party_id),
          :ok <- check_is_leader(party, leader),
          {:ok, target} <- fetch_invite_target(target_user_id),
-         :ok <- check_not_already_in_party(target),
          :ok <- check_leader_connected_to_target(leader.id, target_user_id),
          :ok <- check_no_pending_invite(leader.id, target_user_id),
          :ok <- check_max_pending_invites(target_user_id) do
@@ -389,8 +387,10 @@ defmodule GameServer.Parties do
   @doc """
   Accept a party invite. Joins the party and marks the invite as accepted.
 
+  If the user is already in another party, they automatically leave it first
+  (disbanding if they are the leader).
+
   Returns `{:error, :no_invite}` if no pending invite exists for that party.
-  Returns `{:error, :already_in_party}` if the user is already in another party.
   """
   @spec accept_party_invite(User.t(), integer()) :: {:ok, Party.t()} | {:error, atom()}
   def accept_party_invite(%User{} = user, party_id) when is_integer(party_id) do
@@ -408,8 +408,17 @@ defmodule GameServer.Parties do
     if is_nil(invite) do
       {:error, :no_invite}
     else
-      with :ok <- check_user_not_in_party(user),
-           {:ok, party} <- fetch_party(party_id),
+      # Auto-leave current party if user is already in one
+      user =
+        if user.party_id != nil do
+          leave_party(user)
+          # Re-fetch user after leaving to get cleared party_id
+          Accounts.get_user(user.id)
+        else
+          user
+        end
+
+      with {:ok, party} <- fetch_party(party_id),
            {:ok, _updated_user} <- do_join_party(user, party_id) do
         # Mark all pending invites for this user + party as accepted
         from(i in PartyInvite,
@@ -600,9 +609,6 @@ defmodule GameServer.Parties do
     end
   end
 
-  defp check_not_already_in_party(%User{party_id: nil}), do: :ok
-  defp check_not_already_in_party(%User{}), do: {:error, :already_in_party}
-
   defp check_leader_connected_to_target(leader_id, target_user_id) do
     if Friends.friends?(leader_id, target_user_id) ||
          Groups.shared_group_member?(leader_id, target_user_id) do
@@ -641,9 +647,6 @@ defmodule GameServer.Parties do
   # ---------------------------------------------------------------------------
   # Join (internal — used by accept_party_invite)
   # ---------------------------------------------------------------------------
-
-  defp check_user_not_in_party(%User{party_id: nil}), do: :ok
-  defp check_user_not_in_party(%User{}), do: {:error, :already_in_party}
 
   defp fetch_party(party_id) do
     case get_party(party_id) do

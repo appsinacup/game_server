@@ -506,15 +506,28 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
   end
 
   defp serialize_record(record) do
-    %{
+    base = %{
       rank: record.rank,
-      user_id: record.user_id,
-      display_name: (record.user && record.user.display_name) || "",
-      profile_url: (record.user && record.user.profile_url) || "",
       score: record.score,
       metadata: record.metadata || %{},
       updated_at: record.updated_at
     }
+
+    if record.label do
+      Map.merge(base, %{
+        label: record.label,
+        user_id: -1,
+        display_name: record.label,
+        profile_url: ""
+      })
+    else
+      Map.merge(base, %{
+        label: nil,
+        user_id: record.user_id,
+        display_name: (record.user && record.user.display_name) || "",
+        profile_url: (record.user && record.user.profile_url) || ""
+      })
+    end
   end
 
   defp parse_int(nil, default), do: default

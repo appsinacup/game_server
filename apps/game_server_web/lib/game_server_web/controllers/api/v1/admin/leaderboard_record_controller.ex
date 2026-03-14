@@ -15,7 +15,8 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardRecordController do
     properties: %{
       id: %Schema{type: :integer},
       leaderboard_id: %Schema{type: :integer},
-      user_id: %Schema{type: :integer},
+      user_id: %Schema{type: :integer, nullable: true},
+      label: %Schema{type: :string, nullable: true},
       score: %Schema{type: :integer},
       rank: %Schema{type: :integer, nullable: true},
       metadata: %Schema{type: :object},
@@ -37,11 +38,15 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardRecordController do
       %Schema{
         type: :object,
         properties: %{
-          user_id: %Schema{type: :integer},
+          user_id: %Schema{type: :integer, description: "User ID (for user-based records)"},
+          label: %Schema{
+            type: :string,
+            description: "Label (for non-user records, e.g. \"English\")"
+          },
           score: %Schema{type: :integer},
           metadata: %Schema{type: :object}
         },
-        required: [:user_id, :score]
+        required: [:score]
       }
     },
     responses: [
@@ -54,6 +59,35 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardRecordController do
       not_found: {"Not found", "application/json", @error_schema}
     ]
   )
+
+  def create(conn, %{"id" => leaderboard_id, "label" => label, "score" => score} = params)
+      when is_binary(label) and label != "" do
+    leaderboard_id = String.to_integer(to_string(leaderboard_id))
+
+    score =
+      case score do
+        s when is_integer(s) -> s
+        s when is_binary(s) -> String.to_integer(s)
+      end
+
+    metadata = Map.get(params, "metadata") || %{}
+
+    case Leaderboards.submit_label_score(leaderboard_id, label, score, metadata) do
+      {:ok, %Record{} = record} ->
+        json(conn, %{data: record})
+
+      {:error, :not_found} ->
+        conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+      {:error, %Ecto.Changeset{} = cs} ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{error: "validation_failed", errors: Ecto.Changeset.traverse_errors(cs, & &1)})
+
+      {:error, reason} ->
+        conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
+    end
+  end
 
   def create(conn, %{"id" => leaderboard_id, "user_id" => user_id, "score" => score} = params) do
     leaderboard_id = String.to_integer(to_string(leaderboard_id))

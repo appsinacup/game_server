@@ -121,12 +121,12 @@ defmodule GameServer.PartiesTest do
       assert {:error, :not_connected} = Parties.invite_to_party(leader, member1.id)
     end
 
-    test "fails when target is already in a party", %{leader: leader, member1: member1} do
+    test "succeeds when target is already in a party", %{leader: leader, member1: member1} do
       {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
       {:ok, _other} = Parties.create_party(member1, %{})
       make_friends(leader, member1)
 
-      assert {:error, :already_in_party} = Parties.invite_to_party(leader, member1.id)
+      assert {:ok, _invite} = Parties.invite_to_party(leader, member1.id)
     end
 
     test "fails when invite already pending", %{leader: leader, member1: member1} do
@@ -195,7 +195,7 @@ defmodule GameServer.PartiesTest do
       assert {:error, :no_invite} = Parties.accept_party_invite(member1, party.id)
     end
 
-    test "fails when user is already in a party", %{
+    test "auto-leaves current party when accepting another invite", %{
       leader: leader,
       member1: member1,
       member2: _member2
@@ -205,9 +205,14 @@ defmodule GameServer.PartiesTest do
       # Send invite while member1 is not yet in a party
       {:ok, _} = Parties.invite_to_party(leader, member1.id)
       # Now put member1 into their own party (directly, to simulate concurrent join)
-      {:ok, _other} = Parties.create_party(member1, %{})
+      {:ok, other_party} = Parties.create_party(member1, %{})
 
-      assert {:error, :already_in_party} = Parties.accept_party_invite(member1, party.id)
+      # Accept should auto-leave the other party and join the new one
+      assert {:ok, joined_party} = Parties.accept_party_invite(member1, party.id)
+      assert joined_party.id == party.id
+
+      # The old party should be disbanded (member1 was leader)
+      assert is_nil(Parties.get_party(other_party.id))
     end
 
     test "fails when party is full", %{leader: leader, member1: member1, member2: member2} do

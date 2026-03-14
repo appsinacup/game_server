@@ -348,7 +348,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
                 <thead>
                   <tr>
                     <th>Rank</th>
-                    <th>User ID</th>
+                    <th>User / Label</th>
                     <th>Display Name</th>
                     <th>Score</th>
                     <th>Updated</th>
@@ -358,8 +358,14 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
                 <tbody>
                   <tr :for={record <- @records} id={"record-#{record.id}"}>
                     <td class="font-mono">#{record.rank}</td>
-                    <td class="font-mono text-sm">{record.user_id}</td>
-                    <td class="text-sm">{(record.user && record.user.display_name) || "-"}</td>
+                    <td class="font-mono text-sm">{record.label || record.user_id || "-"}</td>
+                    <td class="text-sm">
+                      {cond do
+                        record.label -> record.label
+                        record.user && record.user.display_name -> record.user.display_name
+                        true -> "-"
+                      end}
+                    </td>
                     <td class="font-mono">{record.score}</td>
                     <td class="text-sm">
                       {Calendar.strftime(record.updated_at, "%Y-%m-%d %H:%M")}
