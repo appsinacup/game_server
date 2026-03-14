@@ -214,6 +214,47 @@ API routes use JWT tokens via Guardian for stateless authentication:
 - Caching: uses Nebulex version-based caching for `list_messages` (60s TTL).
 - API endpoints: `GET /api/v1/chat/messages`, `POST /api/v1/chat/messages`, `POST /api/v1/chat/read`, `GET /api/v1/chat/unread`.
 
+### Notifications
+
+- Notification context: `GameServer.Notifications` — key functions: `admin_create_notification/3`, `create_chat_notification/3`, `send_notification/2`, `delete_notification_by/3`, `delete_notifications/2`.
+- Schema: `id`, `sender_id`, `recipient_id`, `title`, `content`, `metadata` (map), `read` (boolean), timestamps. Upserts on `(sender_id, recipient_id, title)`.
+- `FriendNotifier` GenServer subscribes to `"friends"` PubSub topic and auto-creates persistent notifications.
+- All notifications carry a `metadata.type` string tag for client-side routing/filtering. The complete list of notification types:
+
+  **Friends:**
+  - `friend_request` — new incoming friend request
+  - `friend_accepted` — your friend request was accepted
+  - `friend_declined` — your friend request was declined
+
+  **Groups:**
+  - `group_invite` — invited to join a group
+  - `group_invite_accepted` — your group invite was accepted
+  - `group_invite_declined` — your group invite was declined
+  - `group_join_request` — someone requested to join your group (sent to admins)
+  - `group_join_approved` — your group join request was approved
+  - `group_join_declined` — your group join request was declined
+  - `group_kicked` — you were removed from a group
+  - `group_promoted` — you were promoted to admin
+  - `group_demoted` — you were demoted to member
+
+  **Parties:**
+  - `party_invite` — invited to join a party
+  - `party_invite_accepted` — your party invite was accepted
+  - `party_invite_declined` — your party invite was declined
+  - `party_kicked` — you were removed from a party
+
+  **Lobbies:**
+  - `lobby_kicked` — you were removed from a lobby
+
+  **Chat** (via `create_chat_notification`, includes `message_count` in metadata):
+  - `chat_friend` — new friend DM messages
+  - `chat_group` — new group chat messages
+  - `chat_lobby` — new lobby chat messages
+  - `chat_party` — new party chat messages
+
+- Invite cancellation retracts the original invite notification via `delete_notification_by/3` (friends, groups, parties).
+- API endpoints: `GET /api/v1/notifications`, `POST /api/v1/notifications`, `PUT /api/v1/notifications/:id/read`, `DELETE /api/v1/notifications`.
+
 ### PubSub & Real-time conventions
 
 - PubSub topics follow the pattern `"resource:<id>"` for instance topics and `"resources"` for collection topics:
