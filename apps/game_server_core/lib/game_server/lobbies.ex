@@ -1068,8 +1068,10 @@ defmodule GameServer.Lobbies do
   def kick_user(_host, _lobby, _target), do: {:error, :invalid}
 
   defp do_kick_membership(membership, host_id, lobby) do
+    host_user = Accounts.get_user(host_id) || %GameServer.Accounts.User{id: host_id}
+
     case GameServer.Hooks.internal_call(:before_user_kicked, [
-           %GameServer.Accounts.User{id: host_id},
+           host_user,
            membership,
            lobby
          ]) do
@@ -1083,7 +1085,7 @@ defmodule GameServer.Lobbies do
 
             GameServer.Async.run(fn ->
               GameServer.Hooks.internal_call(:after_user_kicked, [
-                %GameServer.Accounts.User{id: host_id},
+                host_user,
                 membership,
                 lobby
               ])

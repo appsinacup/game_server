@@ -22,8 +22,8 @@ defmodule GameServer.Accounts.User do
   """
 
   @type t :: %__MODULE__{
-          id: integer(),
-          email: String.t(),
+          id: integer() | nil,
+          email: String.t() | nil,
           display_name: String.t() | nil,
           profile_url: String.t() | nil,
           metadata: map(),

@@ -12,6 +12,8 @@ signal lobby_updated(lobby: Dictionary)
 signal lobby_member_joined(payload: Dictionary)   ## {user_id}
 signal lobby_member_left(payload: Dictionary)     ## {user_id}
 signal lobby_member_kicked(payload: Dictionary)   ## {user_id}
+signal lobby_member_online(payload: Dictionary)   ## user came online while in lobby
+signal lobby_member_offline(payload: Dictionary)  ## user went offline while in lobby
 signal lobby_host_changed(payload: Dictionary)    ## {new_host_id}
 signal lobby_chat_message(message: Dictionary)         ## new_chat_message
 signal lobby_chat_message_updated(message: Dictionary) ## chat_message_updated
@@ -27,6 +29,8 @@ signal lobby_membership_changed(payload: Dictionary) ## {id} member count change
 signal party_updated(party: Dictionary)
 signal party_member_joined(payload: Dictionary)   ## {user_id}
 signal party_member_left(payload: Dictionary)     ## {user_id}
+signal party_member_online(payload: Dictionary)   ## user came online while in party
+signal party_member_offline(payload: Dictionary)  ## user went offline while in party
 signal party_disbanded(payload: Dictionary)       ## {party_id}
 signal party_invite_accepted(payload: Dictionary)  ## {party_id, user_id} via user channel
 signal party_invite_declined(payload: Dictionary)  ## {party_id, user_id} via user channel
@@ -338,6 +342,10 @@ func _handle_lobby_event(event: String, payload: Dictionary):
 			lobby_member_left.emit(payload)
 		"user_kicked":
 			lobby_member_kicked.emit(payload)
+		"member_online":
+			lobby_member_online.emit(payload)
+		"member_offline":
+			lobby_member_offline.emit(payload)
 		"host_changed":
 			lobby_host_changed.emit(payload)
 		"new_chat_message":
@@ -366,6 +374,10 @@ func _handle_party_event(event: String, payload: Dictionary):
 			party_member_joined.emit(payload)
 		"member_left":
 			party_member_left.emit(payload)
+		"member_online":
+			party_member_online.emit(payload)
+		"member_offline":
+			party_member_offline.emit(payload)
 		"disbanded":
 			party_disbanded.emit(payload)
 		"new_chat_message":

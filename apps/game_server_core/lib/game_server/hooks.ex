@@ -13,8 +13,12 @@ defmodule GameServer.Hooks do
   """
 
   alias GameServer.Accounts.User
+  alias GameServer.Chat.Message
+  alias GameServer.Groups.Group
   alias GameServer.Hooks.Default, as: Default
   alias GameServer.Hooks.PluginManager
+  alias GameServer.Lobbies.Lobby
+  alias GameServer.Parties.Party
   require Logger
 
   @type hook_result(attrs_or_user) :: {:ok, attrs_or_user} | {:error, term()}
@@ -54,52 +58,53 @@ defmodule GameServer.Hooks do
 
   # Lobby lifecycle hooks
   @callback before_lobby_create(map()) :: hook_result(map())
-  @callback after_lobby_create(term()) :: any()
+  @callback after_lobby_create(Lobby.t()) :: any()
 
-  @callback before_lobby_join(User.t(), term(), term()) :: hook_result({User.t(), term(), term()})
-  @callback after_lobby_join(User.t(), term()) :: any()
+  @callback before_lobby_join(User.t(), Lobby.t(), keyword()) ::
+              hook_result({User.t(), Lobby.t(), keyword()})
+  @callback after_lobby_join(User.t(), Lobby.t()) :: any()
 
   @callback before_group_create(User.t(), map()) :: hook_result(map())
-  @callback after_group_create(term()) :: any()
+  @callback after_group_create(Group.t()) :: any()
 
-  @callback before_group_join(User.t(), term(), map()) ::
-              hook_result({User.t(), term(), map()})
+  @callback before_group_join(User.t(), Group.t(), map()) ::
+              hook_result({User.t(), Group.t(), map()})
 
-  @callback before_group_update(term(), map()) :: hook_result(map())
-  @callback after_group_update(term()) :: any()
+  @callback before_group_update(Group.t(), map()) :: hook_result(map())
+  @callback after_group_update(Group.t()) :: any()
 
-  @callback after_group_join(integer(), term()) :: any()
+  @callback after_group_join(integer(), Group.t()) :: any()
   @callback after_group_leave(integer(), integer()) :: any()
-  @callback after_group_delete(term()) :: any()
+  @callback after_group_delete(Group.t()) :: any()
   @callback after_group_kick(integer(), integer(), integer()) :: any()
 
   # Party lifecycle hooks
   @callback before_party_create(User.t(), map()) :: hook_result(map())
-  @callback after_party_create(term()) :: any()
+  @callback after_party_create(Party.t()) :: any()
 
-  @callback before_party_update(term(), map()) :: hook_result(map())
-  @callback after_party_update(term()) :: any()
+  @callback before_party_update(Party.t(), map()) :: hook_result(map())
+  @callback after_party_update(Party.t()) :: any()
 
-  @callback after_party_join(User.t(), term()) :: any()
+  @callback after_party_join(User.t(), Party.t()) :: any()
   @callback after_party_leave(User.t(), integer()) :: any()
-  @callback after_party_kick(User.t(), User.t(), term()) :: any()
-  @callback after_party_disband(term()) :: any()
+  @callback after_party_kick(User.t(), User.t(), Party.t()) :: any()
+  @callback after_party_disband(Party.t()) :: any()
 
   @callback before_chat_message(User.t(), map()) :: hook_result(map())
-  @callback after_chat_message(term()) :: any()
+  @callback after_chat_message(Message.t()) :: any()
 
-  @callback before_lobby_leave(User.t(), term()) :: hook_result({User.t(), term()})
-  @callback after_lobby_leave(User.t(), term()) :: any()
+  @callback before_lobby_leave(User.t(), Lobby.t()) :: hook_result({User.t(), Lobby.t()})
+  @callback after_lobby_leave(User.t(), Lobby.t()) :: any()
 
-  @callback before_lobby_update(term(), map()) :: hook_result(map())
-  @callback after_lobby_update(term()) :: any()
+  @callback before_lobby_update(Lobby.t(), map()) :: hook_result(map())
+  @callback after_lobby_update(Lobby.t()) :: any()
 
-  @callback before_lobby_delete(term()) :: hook_result(term())
-  @callback after_lobby_delete(term()) :: any()
+  @callback before_lobby_delete(Lobby.t()) :: hook_result(Lobby.t())
+  @callback after_lobby_delete(Lobby.t()) :: any()
 
-  @callback before_user_kicked(User.t(), User.t(), term()) ::
-              hook_result({User.t(), User.t(), term()})
-  @callback after_user_kicked(User.t(), User.t(), term()) :: any()
+  @callback before_user_kicked(User.t(), User.t(), Lobby.t()) ::
+              hook_result({User.t(), User.t(), Lobby.t()})
+  @callback after_user_kicked(User.t(), User.t(), Lobby.t()) :: any()
 
   @doc """
   Called before a KV `get/2` is performed. Implementations should return
@@ -111,7 +116,7 @@ defmodule GameServer.Hooks do
   """
   @callback before_kv_get(String.t(), kv_opts()) :: hook_result(:public | :private)
 
-  @callback after_lobby_host_change(term(), term()) :: any()
+  @callback after_lobby_host_change(Lobby.t(), integer()) :: any()
 
   @doc "Return the configured module that implements the hooks behaviour."
   def module do

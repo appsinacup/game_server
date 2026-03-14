@@ -203,6 +203,15 @@ defmodule GameServer.Hooks do
   @typedoc "A lobby struct from GameServer.Lobbies.Lobby"
   @type lobby :: GameServer.Lobbies.Lobby.t()
 
+  @typedoc "A group struct from GameServer.Groups.Group"
+  @type group :: GameServer.Groups.Group.t()
+
+  @typedoc "A party struct from GameServer.Parties.Party"
+  @type party :: GameServer.Parties.Party.t()
+
+  @typedoc "A chat message struct from GameServer.Chat.Message"
+  @type message :: GameServer.Chat.Message.t()
+
   @typedoc "Result type for before hooks"
   @type hook_result(t) :: {:ok, t} | {:error, term()}
 
@@ -264,34 +273,34 @@ defmodule GameServer.Hooks do
   @callback after_lobby_join(user(), lobby()) :: any()
 
   @callback before_group_create(user(), map()) :: hook_result(map())
-  @callback after_group_create(term()) :: any()
+  @callback after_group_create(group()) :: any()
 
-  @callback before_group_join(user(), group :: map(), opts :: map()) ::
-              hook_result({user(), map(), map()})
+  @callback before_group_join(user(), group(), opts :: map()) ::
+              hook_result({user(), group(), map()})
 
-  @callback before_group_update(term(), map()) :: hook_result(map())
-  @callback after_group_update(term()) :: any()
+  @callback before_group_update(group(), map()) :: hook_result(map())
+  @callback after_group_update(group()) :: any()
 
   # Group after-hooks (fire-and-forget)
-  @callback after_group_join(integer(), term()) :: any()
+  @callback after_group_join(integer(), group()) :: any()
   @callback after_group_leave(integer(), integer()) :: any()
-  @callback after_group_delete(term()) :: any()
+  @callback after_group_delete(group()) :: any()
   @callback after_group_kick(integer(), integer(), integer()) :: any()
 
   # Party lifecycle callbacks
   @callback before_party_create(user(), map()) :: hook_result(map())
-  @callback after_party_create(term()) :: any()
+  @callback after_party_create(party()) :: any()
 
-  @callback before_party_update(term(), map()) :: hook_result(map())
-  @callback after_party_update(term()) :: any()
+  @callback before_party_update(party(), map()) :: hook_result(map())
+  @callback after_party_update(party()) :: any()
 
-  @callback after_party_join(user(), term()) :: any()
+  @callback after_party_join(user(), party()) :: any()
   @callback after_party_leave(user(), integer()) :: any()
-  @callback after_party_kick(user(), user(), term()) :: any()
-  @callback after_party_disband(term()) :: any()
+  @callback after_party_kick(user(), user(), party()) :: any()
+  @callback after_party_disband(party()) :: any()
 
   @callback before_chat_message(user(), attrs :: map()) :: hook_result(map())
-  @callback after_chat_message(term()) :: any()
+  @callback after_chat_message(message()) :: any()
 
   @callback before_lobby_leave(user(), lobby()) :: hook_result({user(), lobby()})
   @callback after_lobby_leave(user(), lobby()) :: any()
