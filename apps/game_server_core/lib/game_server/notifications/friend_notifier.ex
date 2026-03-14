@@ -83,7 +83,30 @@ defmodule GameServer.Notifications.FriendNotifier do
     {:noreply, state}
   end
 
-  # Ignore other friend events (rejected, blocked, removed, etc.)
+  @impl true
+  def handle_info({:friend_rejected, friendship}, state) do
+    # Friend request was rejected: retract the "New Friend Request" notification
+    # and notify the requester
+    Notifications.delete_notification_by(
+      friendship.requester_id,
+      friendship.target_id,
+      "New Friend Request"
+    )
+
+    Notifications.admin_create_notification(
+      friendship.target_id,
+      friendship.requester_id,
+      %{
+        "title" => "Friend Request Declined",
+        "content" => "Your friend request has been declined.",
+        "metadata" => %{"type" => "friend_declined", "friendship_id" => friendship.id}
+      }
+    )
+
+    {:noreply, state}
+  end
+
+  # Ignore other friend events (blocked, removed, etc.)
   @impl true
   def handle_info(_msg, state) do
     {:noreply, state}

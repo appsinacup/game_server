@@ -206,7 +206,7 @@ defmodule GameServer.Chat do
         Notifications.create_chat_notification(recipient_id, recipient_id, %{
           "title" => "New messages from friends",
           "content" => "1 new message",
-          "metadata" => %{"chat_type" => "friend"}
+          "metadata" => %{"type" => "chat_friend", "chat_type" => "friend"}
         })
 
       "group" ->
@@ -222,6 +222,7 @@ defmodule GameServer.Chat do
             "title" => "New messages from #{group_name}",
             "content" => "1 new message",
             "metadata" => %{
+              "type" => "chat_group",
               "chat_type" => "group",
               "group_id" => message.chat_ref_id
             }
@@ -240,6 +241,7 @@ defmodule GameServer.Chat do
             "title" => "New messages from #{lobby_name}",
             "content" => "1 new message",
             "metadata" => %{
+              "type" => "chat_lobby",
               "chat_type" => "lobby",
               "lobby_id" => message.chat_ref_id
             }
@@ -268,6 +270,7 @@ defmodule GameServer.Chat do
         "title" => "New message in party",
         "content" => "1 new message",
         "metadata" => %{
+          "type" => "chat_party",
           "chat_type" => "party",
           "party_id" => message.chat_ref_id
         }

@@ -330,6 +330,7 @@ defmodule GameServer.Parties do
             "title" => "New Party Invite",
             "content" => "You have been invited to join a party",
             "metadata" => %{
+              "type" => "party_invite",
               "party_id" => party.id,
               "sender_name" => leader.display_name || "",
               "recipient_name" => target.display_name || ""
@@ -366,6 +367,13 @@ defmodule GameServer.Parties do
 
       invalidate_party_invite_cache(leader.id)
       invalidate_party_invite_cache(target_user_id)
+
+      # Retract the "New Party Invite" notification
+      GameServer.Notifications.delete_notification_by(
+        leader.id,
+        target_user_id,
+        "New Party Invite"
+      )
 
       # Notify the recipient that the invite was cancelled
       Phoenix.PubSub.broadcast(
@@ -417,7 +425,32 @@ defmodule GameServer.Parties do
         # Cancel pending invites to this user from OTHER parties
         cancel_other_pending_invites_for_user(user.id, party_id)
 
-        # Notify the sender that the invite was accepted
+        # Retract the "New Party Invite" notification for the accepting user
+        GameServer.Notifications.delete_notification_by(
+          invite.sender_id,
+          user.id,
+          "New Party Invite"
+        )
+
+        # Notify the leader that the invite was accepted
+        user_name = user.display_name || ""
+
+        GameServer.Notifications.admin_create_notification(
+          user.id,
+          invite.sender_id,
+          %{
+            "title" => "Party Invite Accepted",
+            "content" => "#{user_name} accepted your party invite",
+            "metadata" => %{
+              "type" => "party_invite_accepted",
+              "party_id" => party_id,
+              "user_id" => user.id,
+              "user_name" => user_name
+            }
+          }
+        )
+
+        # Notify the sender that the invite was accepted via PubSub
         Phoenix.PubSub.broadcast(
           GameServer.PubSub,
           "user:#{invite.sender_id}",
@@ -461,7 +494,32 @@ defmodule GameServer.Parties do
     Enum.each(sender_ids, &invalidate_party_invite_cache/1)
 
     # Notify each sender that the invite was declined
+    user_name = user.display_name || ""
+
     Enum.each(sender_ids, fn sender_id ->
+      # Retract the "New Party Invite" notification
+      GameServer.Notifications.delete_notification_by(
+        sender_id,
+        user.id,
+        "New Party Invite"
+      )
+
+      # Notify the leader that the invite was declined
+      GameServer.Notifications.admin_create_notification(
+        user.id,
+        sender_id,
+        %{
+          "title" => "Party Invite Declined",
+          "content" => "#{user_name} declined your party invite",
+          "metadata" => %{
+            "type" => "party_invite_declined",
+            "party_id" => party_id,
+            "user_id" => user.id,
+            "user_name" => user_name
+          }
+        }
+      )
+
       Phoenix.PubSub.broadcast(
         GameServer.PubSub,
         "user:#{sender_id}",
@@ -733,6 +791,21 @@ defmodule GameServer.Parties do
         cancel_pending_invites_for_user_in_party(updated.id, party.id)
         _ = Accounts.broadcast_user_update(updated)
         broadcast_party(party.id, {:party_member_left, party.id, updated.id})
+
+        # Notify the kicked user
+        GameServer.Notifications.admin_create_notification(
+          party.leader_id,
+          target.id,
+          %{
+            "title" => "Removed From Party",
+            "content" => "You have been removed from the party",
+            "metadata" => %{
+              "type" => "party_kicked",
+              "party_id" => party.id
+            }
+          }
+        )
+
         {:ok, updated}
 
       error ->

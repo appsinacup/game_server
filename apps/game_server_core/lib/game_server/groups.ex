@@ -184,6 +184,7 @@ defmodule GameServer.Groups do
             "title" => "Group Invite Accepted",
             "content" => "#{user_name} accepted your invite to #{group_title}",
             "metadata" => %{
+              "type" => "group_invite_accepted",
               "group_id" => group_id,
               "group_name" => group_title,
               "user_id" => user_id,
@@ -940,6 +941,24 @@ defmodule GameServer.Groups do
         _ = invalidate_group_cache(group_id)
         broadcast_group(group_id, {:member_kicked, group_id, target_id})
 
+        # Notify the kicked user
+        group = get_group(group_id)
+        group_title = (group && group.title) || ""
+
+        GameServer.Notifications.admin_create_notification(
+          admin_id,
+          target_id,
+          %{
+            "title" => "Removed From Group",
+            "content" => "You have been removed from #{group_title}",
+            "metadata" => %{
+              "type" => "group_kicked",
+              "group_id" => group_id,
+              "group_name" => group_title
+            }
+          }
+        )
+
         GameServer.Async.run(fn ->
           GameServer.Hooks.internal_call(:after_group_kick, [admin_id, target_id, group_id])
         end)
@@ -983,6 +1002,25 @@ defmodule GameServer.Groups do
               {:ok, updated} ->
                 _ = invalidate_group_cache(group_id)
                 broadcast_group(group_id, {:member_promoted, group_id, target_id})
+
+                # Notify the promoted user
+                group = get_group(group_id)
+                group_title = (group && group.title) || ""
+
+                GameServer.Notifications.admin_create_notification(
+                  admin_id,
+                  target_id,
+                  %{
+                    "title" => "Promoted To Admin",
+                    "content" => "You have been promoted to admin in #{group_title}",
+                    "metadata" => %{
+                      "type" => "group_promoted",
+                      "group_id" => group_id,
+                      "group_name" => group_title
+                    }
+                  }
+                )
+
                 {:ok, updated}
 
               error ->
@@ -1020,6 +1058,25 @@ defmodule GameServer.Groups do
               {:ok, updated} ->
                 _ = invalidate_group_cache(group_id)
                 broadcast_group(group_id, {:member_demoted, group_id, target_id})
+
+                # Notify the demoted user
+                group = get_group(group_id)
+                group_title = (group && group.title) || ""
+
+                GameServer.Notifications.admin_create_notification(
+                  admin_id,
+                  target_id,
+                  %{
+                    "title" => "Demoted From Admin",
+                    "content" => "You have been demoted to member in #{group_title}",
+                    "metadata" => %{
+                      "type" => "group_demoted",
+                      "group_id" => group_id,
+                      "group_name" => group_title
+                    }
+                  }
+                )
+
                 {:ok, updated}
 
               error ->
@@ -1073,12 +1130,43 @@ defmodule GameServer.Groups do
           |> case do
             {:ok, request} ->
               broadcast_group(group_id, {:join_request_created, group_id, user_id})
+              notify_admins_of_join_request(user_id, group_id, group)
               {:ok, request}
 
             error ->
               error
           end
         end
+    end
+  end
+
+  defp notify_admins_of_join_request(user_id, group_id, group) do
+    user = GameServer.Accounts.get_user(user_id)
+    user_name = (user && user.display_name) || ""
+
+    admins =
+      from(m in GroupMember,
+        where: m.group_id == ^group_id and m.role == "admin",
+        select: m.user_id
+      )
+      |> Repo.all()
+
+    for admin_id <- admins do
+      GameServer.Notifications.admin_create_notification(
+        user_id,
+        admin_id,
+        %{
+          "title" => "New Group Join Request",
+          "content" => "#{user_name} wants to join #{group.title}",
+          "metadata" => %{
+            "type" => "group_join_request",
+            "group_id" => group_id,
+            "group_name" => group.title,
+            "user_id" => user_id,
+            "user_name" => user_name
+          }
+        }
+      )
     end
   end
 
@@ -1189,6 +1277,7 @@ defmodule GameServer.Groups do
                 "title" => "Group Join Request Approved",
                 "content" => "Your request to join #{group.title} was approved",
                 "metadata" => %{
+                  "type" => "group_join_approved",
                   "group_id" => group_id,
                   "group_name" => group.title,
                   "admin_id" => admin_id,
@@ -1250,6 +1339,7 @@ defmodule GameServer.Groups do
                   "title" => "Group Join Request Declined",
                   "content" => "Your request to join #{group_title} was declined",
                   "metadata" => %{
+                    "type" => "group_join_declined",
                     "group_id" => group_id,
                     "group_name" => group_title
                   }
@@ -1398,6 +1488,7 @@ defmodule GameServer.Groups do
             "title" => "New Group Invite",
             "content" => "You have been invited to join #{group.title}",
             "metadata" => %{
+              "type" => "group_invite",
               "group_id" => group_id,
               "group_name" => group.title,
               "sender_name" => (sender && sender.display_name) || "",
@@ -1485,6 +1576,7 @@ defmodule GameServer.Groups do
         "title" => "Group Invite Accepted",
         "content" => "#{user_name} accepted your invite to #{group.title}",
         "metadata" => %{
+          "type" => "group_invite_accepted",
           "group_id" => group_id,
           "group_name" => group.title,
           "user_id" => user_id,
@@ -1627,6 +1719,14 @@ defmodule GameServer.Groups do
         Repo.delete(invite)
         invalidate_invite_cache(user_id)
         invalidate_invite_cache(invite.recipient_id)
+
+        # Retract the "New Group Invite" notification
+        GameServer.Notifications.delete_notification_by(
+          user_id,
+          invite.recipient_id,
+          "New Group Invite"
+        )
+
         :ok
 
       %GroupInvite{status: "pending"} ->
@@ -1657,7 +1757,36 @@ defmodule GameServer.Groups do
         invalidate_invite_cache(user_id)
         invalidate_invite_cache(invite.sender_id)
 
-        # Notify the sender
+        # Retract the "New Group Invite" notification for the recipient
+        GameServer.Notifications.delete_notification_by(
+          invite.sender_id,
+          user_id,
+          "New Group Invite"
+        )
+
+        # Notify the sender that the invite was declined
+        group = get_group(invite.group_id)
+        group_title = (group && group.title) || ""
+        user = GameServer.Accounts.get_user(user_id)
+        user_name = (user && user.display_name) || ""
+
+        GameServer.Notifications.admin_create_notification(
+          user_id,
+          invite.sender_id,
+          %{
+            "title" => "Group Invite Declined",
+            "content" => "#{user_name} declined your invite to #{group_title}",
+            "metadata" => %{
+              "type" => "group_invite_declined",
+              "group_id" => invite.group_id,
+              "group_name" => group_title,
+              "user_id" => user_id,
+              "user_name" => user_name
+            }
+          }
+        )
+
+        # Notify the sender via PubSub
         Phoenix.PubSub.broadcast(
           GameServer.PubSub,
           "user:#{invite.sender_id}",

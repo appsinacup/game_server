@@ -1093,6 +1093,24 @@ defmodule GameServer.Lobbies do
 
             broadcast_lobby(lobby.id, {:user_kicked, lobby.id, membership.id})
             broadcast_lobbies({:lobby_membership_changed, lobby.id})
+
+            # Notify the kicked user
+            lobby_title = lobby.title || ""
+
+            GameServer.Notifications.admin_create_notification(
+              host_id,
+              membership.id,
+              %{
+                "title" => "Removed From Lobby",
+                "content" => "You have been removed from #{lobby_title}",
+                "metadata" => %{
+                  "type" => "lobby_kicked",
+                  "lobby_id" => lobby.id,
+                  "lobby_name" => lobby_title
+                }
+              }
+            )
+
             result
 
           _ ->
