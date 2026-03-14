@@ -527,8 +527,13 @@ defmodule GameServer.Hooks do
           id: 0,
           email: "",
           display_name: nil,
+          profile_url: nil,
           metadata: %{},
           is_admin: false,
+          is_online: false,
+          last_seen_at: nil,
+          lobby_id: nil,
+          party_id: nil,
           inserted_at: ~U[1970-01-01 00:00:00Z],
           updated_at: ~U[1970-01-01 00:00:00Z]
         }
@@ -571,8 +576,13 @@ defmodule GameServer.Hooks do
           id: 0,
           email: "",
           display_name: nil,
+          profile_url: nil,
           metadata: %{},
           is_admin: false,
+          is_online: false,
+          last_seen_at: nil,
+          lobby_id: nil,
+          party_id: nil,
           inserted_at: ~U[1970-01-01 00:00:00Z],
           updated_at: ~U[1970-01-01 00:00:00Z]
         }
