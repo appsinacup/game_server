@@ -332,4 +332,64 @@ defmodule GameServerWeb.Api.V1.LeaderboardControllerTest do
       assert json_response(conn, 404)
     end
   end
+
+  describe "POST /api/v1/leaderboards/resolve" do
+    test "resolves multiple slugs to active leaderboards", %{conn: conn} do
+      {:ok, lb1} = Leaderboards.create_leaderboard(%{slug: "ctrl_resolve_a", title: "A"})
+      {:ok, lb2} = Leaderboards.create_leaderboard(%{slug: "ctrl_resolve_b", title: "B"})
+
+      conn =
+        post(conn, "/api/v1/leaderboards/resolve", %{slugs: ["ctrl_resolve_a", "ctrl_resolve_b"]})
+
+      resp = json_response(conn, 200)
+
+      assert resp["data"]["ctrl_resolve_a"]["id"] == lb1.id
+      assert resp["data"]["ctrl_resolve_b"]["id"] == lb2.id
+      assert resp["data"]["ctrl_resolve_a"]["slug"] == "ctrl_resolve_a"
+    end
+
+    test "omits slugs with no active leaderboard", %{conn: conn} do
+      {:ok, lb} = Leaderboards.create_leaderboard(%{slug: "ctrl_resolve_exists", title: "X"})
+      Leaderboards.end_leaderboard(lb)
+
+      conn = post(conn, "/api/v1/leaderboards/resolve", %{slugs: ["ctrl_resolve_exists", "nope"]})
+      resp = json_response(conn, 200)
+
+      assert resp["data"] == %{}
+    end
+
+    test "returns empty map for empty slugs array", %{conn: conn} do
+      conn = post(conn, "/api/v1/leaderboards/resolve", %{slugs: []})
+      resp = json_response(conn, 200)
+
+      assert resp["data"] == %{}
+    end
+
+    test "returns 400 when slugs param is missing", %{conn: conn} do
+      conn = post(conn, "/api/v1/leaderboards/resolve", %{})
+      assert json_response(conn, 400)["error"]
+    end
+
+    test "includes all leaderboard fields in response", %{conn: conn} do
+      {:ok, _lb} =
+        Leaderboards.create_leaderboard(%{
+          slug: "ctrl_resolve_fields",
+          title: "Full Fields",
+          description: "Desc",
+          sort_order: :asc,
+          operator: :incr
+        })
+
+      conn = post(conn, "/api/v1/leaderboards/resolve", %{slugs: ["ctrl_resolve_fields"]})
+      resp = json_response(conn, 200)
+
+      lb_data = resp["data"]["ctrl_resolve_fields"]
+      assert lb_data["title"] == "Full Fields"
+      assert lb_data["description"] == "Desc"
+      assert lb_data["sort_order"] == "asc"
+      assert lb_data["operator"] == "incr"
+      assert lb_data["is_active"] == true
+      assert is_integer(lb_data["id"])
+    end
+  end
 end

@@ -220,6 +220,52 @@ defmodule GameServer.Leaderboards do
   end
 
   @doc """
+  Resolves multiple slugs to their currently active leaderboards in a single query.
+
+  Returns a map of `slug => %Leaderboard{}` for each slug that has an active
+  leaderboard. Slugs with no active leaderboard are omitted from the result.
+
+  ## Examples
+
+      iex> resolve_slugs(["weekly_kills", "monthly_score", "nonexistent"])
+      %{
+        "weekly_kills" => %Leaderboard{id: 1, slug: "weekly_kills", ...},
+        "monthly_score" => %Leaderboard{id: 5, slug: "monthly_score", ...}
+      }
+  """
+  @spec resolve_slugs([String.t()]) :: %{String.t() => Leaderboard.t()}
+  def resolve_slugs([]), do: %{}
+
+  def resolve_slugs(slugs) when is_list(slugs) do
+    now = DateTime.utc_now()
+    unique_slugs = Enum.uniq(slugs)
+
+    # Subquery: for each slug, find the most recently created active leaderboard
+    ranked =
+      from(lb in Leaderboard,
+        where: lb.slug in ^unique_slugs,
+        where: is_nil(lb.ends_at) or lb.ends_at > ^now,
+        where: is_nil(lb.starts_at) or lb.starts_at <= ^now,
+        select: %{
+          id: lb.id,
+          slug: lb.slug,
+          row_number:
+            over(row_number(),
+              partition_by: lb.slug,
+              order_by: [desc: lb.inserted_at, desc: lb.id]
+            )
+        }
+      )
+
+    from(lb in Leaderboard,
+      join: r in subquery(ranked),
+      on: lb.id == r.id and r.row_number == 1
+    )
+    |> Repo.all()
+    |> Map.new(fn lb -> {lb.slug, lb} end)
+  end
+
+  @doc """
   Lists unique leaderboard slugs with summary info.
 
   Returns a list of maps with:

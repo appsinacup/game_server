@@ -646,6 +646,33 @@ defmodule GameServer.Leaderboards do
 
 
   @doc ~S"""
+    Resolves multiple slugs to their currently active leaderboards in a single query.
+    
+    Returns a map of `slug => %Leaderboard{}` for each slug that has an active
+    leaderboard. Slugs with no active leaderboard are omitted from the result.
+    
+    ## Examples
+    
+        iex> resolve_slugs(["weekly_kills", "monthly_score", "nonexistent"])
+        %{
+          "weekly_kills" => %Leaderboard{id: 1, slug: "weekly_kills", ...},
+          "monthly_score" => %Leaderboard{id: 5, slug: "monthly_score", ...}
+        }
+    
+  """
+  @spec resolve_slugs([String.t()]) :: %{required(String.t()) => GameServer.Leaderboards.Leaderboard.t()}
+  def resolve_slugs(_slugs) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        ""
+
+      _ ->
+        raise "GameServer.Leaderboards.resolve_slugs/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Submits a score for a user on a leaderboard.
     
     This is a server-only function — there is no public API for score submission.

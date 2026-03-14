@@ -618,6 +618,13 @@ func leaderboards_list_records_around_user(id: int, user_id: int, limit = 11) ->
 func leaderboards_get_leaderboard(id: int) -> GamendResult:
 	return await _call_api(LeaderboardsApi.new(_config), "get_leaderboard", [id])
 
+## Resolve multiple slugs to their active leaderboards
+## Returns a map of slug -> leaderboard for each slug that has an active leaderboard
+func leaderboards_resolve_slugs(slugs: Array) -> GamendResult:
+	var request = ResolveLeaderboardSlugsRequest.new()
+	request.slugs = slugs
+	return await _call_api(LeaderboardsApi.new(_config), "resolve_leaderboard_slugs", [request])
+
 ## KV
 
 ## Get a key/value entry 

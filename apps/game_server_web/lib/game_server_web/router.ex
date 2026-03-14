@@ -86,6 +86,7 @@ defmodule GameServerWeb.Router do
 
     # Leaderboards (public read)
     get "/leaderboards", LeaderboardController, :index
+    post "/leaderboards/resolve", LeaderboardController, :resolve
     get "/leaderboards/:id", LeaderboardController, :show
     get "/leaderboards/:id/records", LeaderboardController, :records
     get "/leaderboards/:id/records/around/:user_id", LeaderboardController, :around

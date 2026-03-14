@@ -333,4 +333,54 @@ defmodule GameServer.LeaderboardsTest do
       assert {:error, :not_found} = Leaderboards.get_user_record(lb.id, user.id)
     end
   end
+
+  describe "resolve_slugs/1" do
+    test "returns empty map for empty list" do
+      assert %{} == Leaderboards.resolve_slugs([])
+    end
+
+    test "resolves active leaderboards by slug" do
+      {:ok, lb1} = Leaderboards.create_leaderboard(%{slug: "resolve_a", title: "A"})
+      {:ok, lb2} = Leaderboards.create_leaderboard(%{slug: "resolve_b", title: "B"})
+
+      result = Leaderboards.resolve_slugs(["resolve_a", "resolve_b"])
+
+      assert map_size(result) == 2
+      assert result["resolve_a"].id == lb1.id
+      assert result["resolve_b"].id == lb2.id
+    end
+
+    test "omits slugs with no active leaderboard" do
+      {:ok, lb} = Leaderboards.create_leaderboard(%{slug: "resolve_exists", title: "Exists"})
+      Leaderboards.end_leaderboard(lb)
+
+      result = Leaderboards.resolve_slugs(["resolve_exists", "nonexistent_slug"])
+      assert result == %{}
+    end
+
+    test "returns latest active season for seasonal slugs" do
+      {:ok, _old} =
+        Leaderboards.create_leaderboard(%{
+          slug: "resolve_season",
+          title: "Season 1",
+          starts_at: ~U[2020-01-01 00:00:00Z],
+          ends_at: ~U[2020-12-31 23:59:59Z]
+        })
+
+      {:ok, current} =
+        Leaderboards.create_leaderboard(%{slug: "resolve_season", title: "Season 2"})
+
+      result = Leaderboards.resolve_slugs(["resolve_season"])
+      assert result["resolve_season"].id == current.id
+      assert result["resolve_season"].title == "Season 2"
+    end
+
+    test "deduplicates input slugs" do
+      {:ok, lb} = Leaderboards.create_leaderboard(%{slug: "resolve_dup", title: "Dup"})
+
+      result = Leaderboards.resolve_slugs(["resolve_dup", "resolve_dup", "resolve_dup"])
+      assert map_size(result) == 1
+      assert result["resolve_dup"].id == lb.id
+    end
+  end
 end

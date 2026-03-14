@@ -231,6 +231,79 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
   end
 
   # ---------------------------------------------------------------------------
+  # Resolve Slugs (batch)
+  # ---------------------------------------------------------------------------
+
+  operation(:resolve,
+    operation_id: "resolve_leaderboard_slugs",
+    summary: "Resolve multiple slugs to active leaderboards",
+    description: """
+    Accepts an array of leaderboard slugs and returns the currently active
+    leaderboard for each slug. If a slug has seasonal leaderboards, the latest
+    active season is returned. Slugs with no active leaderboard are omitted
+    from the result.
+    """,
+    request_body: {
+      "Slugs to resolve",
+      "application/json",
+      %Schema{
+        type: :object,
+        required: [:slugs],
+        properties: %{
+          slugs: %Schema{
+            type: :array,
+            items: %Schema{type: :string},
+            description: "List of leaderboard slugs to resolve",
+            example: ["weekly_kills", "monthly_score"]
+          }
+        }
+      }
+    },
+    responses: [
+      ok:
+        {"Resolved leaderboards", "application/json",
+         %Schema{
+           type: :object,
+           properties: %{
+             data: %Schema{
+               type: :object,
+               description: "Map of slug → leaderboard object. Unresolved slugs are omitted.",
+               additionalProperties: @leaderboard_schema
+             }
+           },
+           example: %{
+             data: %{
+               "weekly_kills" => %{
+                 id: 1,
+                 slug: "weekly_kills",
+                 title: "Weekly Kills",
+                 is_active: true
+               }
+             }
+           }
+         }},
+      bad_request:
+        {"Invalid request", "application/json",
+         %Schema{type: :object, properties: %{error: %Schema{type: :string}}}}
+    ]
+  )
+
+  def resolve(conn, %{"slugs" => slugs}) when is_list(slugs) do
+    resolved = Leaderboards.resolve_slugs(slugs)
+
+    data =
+      Map.new(resolved, fn {slug, lb} -> {slug, serialize_leaderboard(lb)} end)
+
+    json(conn, %{data: data})
+  end
+
+  def resolve(conn, _params) do
+    conn
+    |> put_status(:bad_request)
+    |> json(%{error: "Request body must include a \"slugs\" array"})
+  end
+
+  # ---------------------------------------------------------------------------
   # List Records
   # ---------------------------------------------------------------------------
 

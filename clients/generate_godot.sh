@@ -156,6 +156,10 @@ find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/ge
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_party_invitations_200_response_inner/ListPartyInvitations200ResponseInner/g" -i
 # Replace list_sent_party_invitations_200_response_inner with ListSentPartyInvitations200ResponseInner
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_sent_party_invitations_200_response_inner/ListSentPartyInvitations200ResponseInner/g" -i
+# Replace from_dict.has("ends_at") with from_dict.has("ends_at") && from_dict.get("ends_at", "")
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe 's/from_dict\.has\("ends_at"\)/from_dict.has("ends_at") && from_dict.get("ends_at", "")/g' -i
+# Replace from_dict.has("starts_at") with from_dict.has("starts_at") && from_dict.get("starts_at", "")
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe 's/from_dict\.has\("starts_at"\)/from_dict.has("starts_at") && from_dict.get("starts_at", "")/g' -i
 # headers_for_godot, body_serialized
 # with 
 # headers_for_godot, "" if body_serialized == "null" else body_serialized
