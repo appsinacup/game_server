@@ -68,6 +68,14 @@ Admin delete of a party. Clears all members' party_id and deletes the party.
 
 Admin update of a party (max_size, metadata).
 
+# `broadcast_member_presence`
+
+```elixir
+@spec broadcast_member_presence(integer(), tuple()) :: :ok | {:error, term()}
+```
+
+Broadcast a member presence event (online/offline) to a party's PubSub topic.
+
 # `cancel_party_invite`
 
 ```elixir

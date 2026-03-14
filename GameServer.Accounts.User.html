@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.743">
+    <meta name="project" content="GameServer v1.0.744">
 
 
-    <title>GameServer.Accounts.User — GameServer v1.0.743</title>
+    <title>GameServer.Accounts.User — GameServer v1.0.744</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-B7BD0965.js"></script>
+    <script defer src="dist/sidebar_items-989D7E62.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.743
+          v1.0.744
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Accounts.<wbr>User</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.743)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.744)</small>
 
     </h1>
 
@@ -273,6 +273,17 @@ constraint.</p></div>
       </div>
 
         <div class="summary-synopsis"><p>A user changeset for registering a new user.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#serialize_brief/1" data-no-tooltip="" translate="no">serialize_brief(user)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Serialize a user into a compact map suitable for member lists in parties,
+lobbies, and friends. Includes metadata for rendering player appearance.</p></div>
 
     </div>
 
@@ -628,6 +639,31 @@ Defaults to <code class="inline">true</code>.</li></ul>
   <section class="docstring">
 
 <p>A user changeset for registering a new user.</p>
+  </section>
+</section>
+<section class="detail" id="serialize_brief/1">
+
+  <div class="detail-header">
+    <a href="#serialize_brief/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">serialize_brief(user)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> serialize_brief(<a href="#t:t/0">t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">map</a>()</pre>
+
+      </div>
+
+<p>Serialize a user into a compact map suitable for member lists in parties,
+lobbies, and friends. Includes metadata for rendering player appearance.</p>
   </section>
 </section>
 <section class="detail" id="steam_oauth_changeset/2">

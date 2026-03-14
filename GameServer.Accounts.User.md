@@ -131,6 +131,15 @@ be very expensive to hash for certain algorithms.
 
 A user changeset for registering a new user.
 
+# `serialize_brief`
+
+```elixir
+@spec serialize_brief(t()) :: map()
+```
+
+Serialize a user into a compact map suitable for member lists in parties,
+lobbies, and friends. Includes metadata for rendering player appearance.
+
 # `steam_oauth_changeset`
 
 A user changeset for Steam OpenID registration.

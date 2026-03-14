@@ -40,6 +40,14 @@ This module broadcasts the following events:
   - `{:lobby_updated, lobby}` - the lobby settings were updated
   - `{:host_changed, lobby_id, new_host_id}` - the host changed (e.g., after host leaves)
 
+# `broadcast_member_presence`
+
+```elixir
+@spec broadcast_member_presence(integer(), tuple()) :: :ok | {:error, term()}
+```
+
+Broadcast a member presence event (online/offline) to a lobby's PubSub topic.
+
 # `can_edit_lobby?`
 
 ```elixir
