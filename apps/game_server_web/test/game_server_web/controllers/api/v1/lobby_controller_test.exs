@@ -430,4 +430,118 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     reloaded = GameServer.Repo.get(GameServer.Accounts.User, member.id)
     assert is_nil(reloaded.lobby_id)
   end
+
+  # ---------------------------------------------------------------------------
+  # Party members cannot individually create/join/quick_join lobbies
+  # ---------------------------------------------------------------------------
+
+  defp create_party_with_member do
+    leader = AccountsFixtures.user_fixture()
+    member = AccountsFixtures.user_fixture()
+
+    {:ok, party} = GameServer.Parties.create_party(leader)
+
+    member =
+      member
+      |> Ecto.Changeset.change(%{party_id: party.id})
+      |> GameServer.Repo.update!()
+
+    {leader, member, party}
+  end
+
+  test "POST /api/v1/lobbies returns in_party when non-leader party member tries to create", %{
+    conn: conn
+  } do
+    {_leader, member, _party} = create_party_with_member()
+
+    {:ok, token, _} = Guardian.encode_and_sign(member)
+
+    conn =
+      conn
+      |> put_req_header("authorization", "Bearer " <> token)
+      |> post("/api/v1/lobbies", %{title: "solo-lobby"})
+
+    assert json_response(conn, 403)["error"] == "in_party"
+  end
+
+  test "POST /api/v1/lobbies as party leader auto-creates lobby for entire party", %{
+    conn: conn
+  } do
+    {leader, member, _party} = create_party_with_member()
+
+    GameServer.Accounts.set_user_online(leader.id)
+    GameServer.Accounts.set_user_online(member.id)
+
+    {:ok, token, _} = Guardian.encode_and_sign(leader)
+
+    conn =
+      conn
+      |> put_req_header("authorization", "Bearer " <> token)
+      |> post("/api/v1/lobbies", %{title: "party-auto-lobby", max_users: 8})
+
+    body = json_response(conn, 201)
+    assert body["title"] == "party-auto-lobby"
+
+    # Both leader and member should now be in the lobby
+    reloaded_leader = GameServer.Repo.get(User, leader.id)
+    reloaded_member = GameServer.Repo.get(User, member.id)
+    assert reloaded_leader.lobby_id == body["id"]
+    assert reloaded_member.lobby_id == body["id"]
+  end
+
+  test "POST /api/v1/lobbies/:id/join returns in_party for non-leader party member", %{
+    conn: conn
+  } do
+    {_leader, member, _party} = create_party_with_member()
+
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "target-lobby", max_users: 8})
+
+    {:ok, token, _} = Guardian.encode_and_sign(member)
+
+    conn =
+      conn
+      |> put_req_header("authorization", "Bearer " <> token)
+      |> post("/api/v1/lobbies/#{lobby.id}/join")
+
+    assert json_response(conn, 403)["error"] == "in_party"
+  end
+
+  test "POST /api/v1/lobbies/:id/join as party leader auto-joins lobby for entire party", %{
+    conn: conn
+  } do
+    {leader, member, _party} = create_party_with_member()
+
+    GameServer.Accounts.set_user_online(leader.id)
+    GameServer.Accounts.set_user_online(member.id)
+
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "target-lobby", max_users: 8})
+
+    {:ok, token, _} = Guardian.encode_and_sign(leader)
+
+    conn =
+      conn
+      |> put_req_header("authorization", "Bearer " <> token)
+      |> post("/api/v1/lobbies/#{lobby.id}/join")
+
+    body = json_response(conn, 200)
+    assert body["id"] == lobby.id
+
+    reloaded_leader = GameServer.Repo.get(User, leader.id)
+    reloaded_member = GameServer.Repo.get(User, member.id)
+    assert reloaded_leader.lobby_id == lobby.id
+    assert reloaded_member.lobby_id == lobby.id
+  end
+
+  test "POST /api/v1/lobbies/quick_join returns in_party for party member", %{conn: conn} do
+    {_leader, member, _party} = create_party_with_member()
+
+    {:ok, token, _} = Guardian.encode_and_sign(member)
+
+    conn =
+      conn
+      |> put_req_header("authorization", "Bearer " <> token)
+      |> post("/api/v1/lobbies/quick_join", %{title: "quick"})
+
+    assert json_response(conn, 403)["error"] == "in_party"
+  end
 end

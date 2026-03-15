@@ -198,6 +198,17 @@ defmodule GameServer.Parties do
   @spec get_party!(integer()) :: Party.t()
   def get_party!(id) when is_integer(id), do: Repo.get!(Party, id)
 
+  @doc "Returns true if the given user is the leader of their current party."
+  @spec leader?(User.t()) :: boolean()
+  def leader?(%User{party_id: nil}), do: false
+
+  def leader?(%User{party_id: party_id, id: user_id}) do
+    case get_party(party_id) do
+      %Party{leader_id: ^user_id} -> true
+      _ -> false
+    end
+  end
+
   @doc "Get all members of a party."
   @spec get_party_members(Party.t() | integer()) :: [User.t()]
   def get_party_members(%Party{id: party_id}), do: get_party_members(party_id)

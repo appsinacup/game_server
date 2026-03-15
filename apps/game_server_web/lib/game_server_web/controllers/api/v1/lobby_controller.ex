@@ -5,6 +5,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
   alias GameServer.Accounts.User
   alias GameServer.Lobbies
   alias GameServer.Lobbies.SpectatorTracker
+  alias GameServer.Parties
   alias OpenApiSpex.Schema
 
   tags(["Lobbies"])
@@ -476,25 +477,20 @@ defmodule GameServerWeb.Api.V1.LobbyController do
     else
       case conn.assigns[:current_scope] do
         %{user: user} when is_map(user) ->
-          attrs = Map.put(params, "host_id", user.id)
+          user = GameServer.Accounts.get_user(user.id)
 
-          case Lobbies.create_lobby(attrs) do
-            {:ok, lobby} ->
-              conn
-              |> put_status(:created)
-              |> json(serialize_lobby(lobby))
+          cond do
+            # Non-leader party members must leave the party first
+            user.party_id != nil and not Parties.leader?(user) ->
+              conn |> put_status(:forbidden) |> json(%{error: "in_party"})
 
-            {:error, %Ecto.Changeset{} = changeset} ->
-              conn
-              |> put_status(:conflict)
-              |> json(%{
-                error: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
-              })
+            # Party leader: automatically bring the whole party
+            user.party_id != nil and Parties.leader?(user) ->
+              create_lobby_as_party_leader(conn, user, params)
 
-            other ->
-              conn
-              |> put_status(:unprocessable_entity)
-              |> json(%{error: inspect(other)})
+            # Not in a party: normal create flow
+            true ->
+              create_lobby_solo(conn, user, params)
           end
 
         _ ->
@@ -503,42 +499,77 @@ defmodule GameServerWeb.Api.V1.LobbyController do
     end
   end
 
+  defp create_lobby_as_party_leader(conn, user, params) do
+    case Parties.create_lobby_with_party(user, params) do
+      {:ok, lobby} ->
+        conn
+        |> put_status(:created)
+        |> json(serialize_lobby(lobby))
+
+      {:error, :member_in_lobby} ->
+        conn |> put_status(:conflict) |> json(%{error: "member_in_lobby"})
+
+      {:error, :not_enough_space} ->
+        conn |> put_status(:forbidden) |> json(%{error: "not_enough_space"})
+
+      {:error, :member_offline} ->
+        conn |> put_status(:forbidden) |> json(%{error: "member_offline"})
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> put_status(:conflict)
+        |> json(%{error: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)})
+
+      other ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{error: inspect(other)})
+    end
+  end
+
+  defp create_lobby_solo(conn, user, params) do
+    attrs = Map.put(params, "host_id", user.id)
+
+    case Lobbies.create_lobby(attrs) do
+      {:ok, lobby} ->
+        conn
+        |> put_status(:created)
+        |> json(serialize_lobby(lobby))
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> put_status(:conflict)
+        |> json(%{
+          error: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
+        })
+
+      other ->
+        conn
+        |> put_status(:unprocessable_entity)
+        |> json(%{error: inspect(other)})
+    end
+  end
+
   def join(conn, %{"id" => id} = params) do
     case conn.assigns[:current_scope] do
       %{user: user} when is_map(user) ->
+        user = GameServer.Accounts.get_user(user.id)
         password = Map.get(params, "password") || Map.get(params, :password)
 
         case Integer.parse(to_string(id)) do
           {lobby_id, ""} ->
-            case Lobbies.join_lobby(user, lobby_id, %{password: password}) do
-              {:ok, _member} ->
-                # return the full lobby so clients receive the lobby representation
-                lobby = Lobbies.get_lobby!(lobby_id)
-                json(conn, serialize_lobby(lobby))
+            cond do
+              # Non-leader party members cannot join a lobby individually
+              user.party_id != nil and not Parties.leader?(user) ->
+                conn |> put_status(:forbidden) |> json(%{error: "in_party"})
 
-              {:error, :invalid_lobby} ->
-                conn |> put_status(:not_found) |> json(%{error: "not_found"})
+              # Party leader: bring the whole party
+              user.party_id != nil and Parties.leader?(user) ->
+                join_lobby_as_party_leader(conn, user, lobby_id, params)
 
-              {:error, :already_in_lobby} ->
-                conn |> put_status(:forbidden) |> json(%{error: "already_in_lobby"})
-
-              {:error, :password_required} ->
-                conn |> put_status(:forbidden) |> json(%{error: "password_required"})
-
-              {:error, :invalid_password} ->
-                conn |> put_status(:forbidden) |> json(%{error: "invalid_password"})
-
-              {:error, :locked} ->
-                conn |> put_status(:forbidden) |> json(%{error: "locked"})
-
-              {:error, :full} ->
-                conn |> put_status(:forbidden) |> json(%{error: "full"})
-
-              {:error, {:hook_rejected, _}} ->
-                conn |> put_status(:forbidden) |> json(%{error: "rejected"})
-
-              _ ->
-                conn |> put_status(:forbidden) |> json(%{error: "cannot_join"})
+              # Not in a party: normal join
+              true ->
+                join_lobby_solo(conn, user, lobby_id, %{password: password})
             end
 
           _ ->
@@ -550,58 +581,141 @@ defmodule GameServerWeb.Api.V1.LobbyController do
     end
   end
 
+  defp join_lobby_as_party_leader(conn, user, lobby_id, params) do
+    password = Map.get(params, "password") || Map.get(params, :password)
+    opts = if password, do: %{password: password}, else: %{}
+
+    case Parties.join_lobby_with_party(user, lobby_id, opts) do
+      {:ok, lobby} ->
+        json(conn, serialize_lobby(lobby))
+
+      {:error, :invalid_lobby} ->
+        conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+      {:error, :locked} ->
+        conn |> put_status(:forbidden) |> json(%{error: "locked"})
+
+      {:error, :password_required} ->
+        conn |> put_status(:forbidden) |> json(%{error: "password_required"})
+
+      {:error, :invalid_password} ->
+        conn |> put_status(:forbidden) |> json(%{error: "invalid_password"})
+
+      {:error, :member_in_lobby} ->
+        conn |> put_status(:conflict) |> json(%{error: "member_in_lobby"})
+
+      {:error, :not_enough_space} ->
+        conn |> put_status(:forbidden) |> json(%{error: "not_enough_space"})
+
+      {:error, :member_offline} ->
+        conn |> put_status(:forbidden) |> json(%{error: "member_offline"})
+
+      {:error, :full} ->
+        conn |> put_status(:forbidden) |> json(%{error: "full"})
+
+      {:error, {:hook_rejected, _}} ->
+        conn |> put_status(:forbidden) |> json(%{error: "rejected"})
+
+      _ ->
+        conn |> put_status(:forbidden) |> json(%{error: "cannot_join"})
+    end
+  end
+
+  defp join_lobby_solo(conn, user, lobby_id, opts) do
+    case Lobbies.join_lobby(user, lobby_id, opts) do
+      {:ok, _member} ->
+        lobby = Lobbies.get_lobby!(lobby_id)
+        json(conn, serialize_lobby(lobby))
+
+      {:error, :invalid_lobby} ->
+        conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+      {:error, :already_in_lobby} ->
+        conn |> put_status(:forbidden) |> json(%{error: "already_in_lobby"})
+
+      {:error, :password_required} ->
+        conn |> put_status(:forbidden) |> json(%{error: "password_required"})
+
+      {:error, :invalid_password} ->
+        conn |> put_status(:forbidden) |> json(%{error: "invalid_password"})
+
+      {:error, :locked} ->
+        conn |> put_status(:forbidden) |> json(%{error: "locked"})
+
+      {:error, :full} ->
+        conn |> put_status(:forbidden) |> json(%{error: "full"})
+
+      {:error, {:hook_rejected, _}} ->
+        conn |> put_status(:forbidden) |> json(%{error: "rejected"})
+
+      _ ->
+        conn |> put_status(:forbidden) |> json(%{error: "cannot_join"})
+    end
+  end
+
   def quick_join(conn, params) do
     case conn.assigns[:current_scope] do
       %{user: user} when is_map(user) ->
-        title = Map.get(params, "title") || Map.get(params, :title)
-        max_users = Map.get(params, "max_users") || Map.get(params, :max_users)
+        user = GameServer.Accounts.get_user(user.id)
 
-        # Normalize metadata: allow either a map (from parsed JSON) or a
-        # JSON-encoded string. If a client sends the metadata as a string
-        # (eg. form submission), try to decode it to a map; otherwise fall
-        # back to an empty map.
-        metadata_raw = Map.get(params, "metadata") || Map.get(params, :metadata)
-
-        metadata =
-          case metadata_raw do
-            nil ->
-              %{}
-
-            "" ->
-              %{}
-
-            s when is_binary(s) ->
-              case Jason.decode(s) do
-                {:ok, map} when is_map(map) -> map
-                _ -> %{}
-              end
-
-            m when is_map(m) ->
-              m
-
-            _ ->
-              %{}
-          end
-
-        case Lobbies.quick_join(user, title, max_users, metadata || %{}) do
-          {:ok, lobby} ->
-            json(conn, serialize_lobby(lobby))
-
-          {:error, :already_in_lobby} ->
-            conn |> put_status(:conflict) |> json(%{error: "already_in_lobby"})
-
-          {:error, reason} when is_atom(reason) ->
-            conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
-
-          {:error, {:hook_rejected, _}} ->
-            conn |> put_status(:forbidden) |> json(%{error: "rejected"})
-
-          other ->
-            conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
+        # Party members cannot quick_join individually
+        if user.party_id != nil do
+          conn |> put_status(:forbidden) |> json(%{error: "in_party"})
+        else
+          do_quick_join(conn, user, params)
         end
 
       _ ->
         conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
+    end
+  end
+
+  defp do_quick_join(conn, user, params) do
+    title = Map.get(params, "title") || Map.get(params, :title)
+    max_users = Map.get(params, "max_users") || Map.get(params, :max_users)
+
+    # Normalize metadata: allow either a map (from parsed JSON) or a
+    # JSON-encoded string. If a client sends the metadata as a string
+    # (eg. form submission), try to decode it to a map; otherwise fall
+    # back to an empty map.
+    metadata_raw = Map.get(params, "metadata") || Map.get(params, :metadata)
+
+    metadata =
+      case metadata_raw do
+        nil ->
+          %{}
+
+        "" ->
+          %{}
+
+        s when is_binary(s) ->
+          case Jason.decode(s) do
+            {:ok, map} when is_map(map) -> map
+            _ -> %{}
+          end
+
+        m when is_map(m) ->
+          m
+
+        _ ->
+          %{}
+      end
+
+    case Lobbies.quick_join(user, title, max_users, metadata || %{}) do
+      {:ok, lobby} ->
+        json(conn, serialize_lobby(lobby))
+
+      {:error, :already_in_lobby} ->
+        conn |> put_status(:conflict) |> json(%{error: "already_in_lobby"})
+
+      {:error, reason} when is_atom(reason) ->
+        conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
+
+      {:error, {:hook_rejected, _}} ->
+        conn |> put_status(:forbidden) |> json(%{error: "rejected"})
+
+      other ->
+        conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
     end
   end
 
