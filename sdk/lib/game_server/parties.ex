@@ -368,6 +368,21 @@ defmodule GameServer.Parties do
 
 
   @doc ~S"""
+    Returns true if the given user is the leader of their current party.
+  """
+  @spec leader?(GameServer.Accounts.User.t()) :: boolean()
+  def leader?(_user) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        false
+
+      _ ->
+        raise "GameServer.Parties.leader?/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Leave the current party.
     
     If the user is the party leader, the party is disbanded (all members removed,
