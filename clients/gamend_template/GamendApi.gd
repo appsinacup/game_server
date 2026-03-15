@@ -237,6 +237,11 @@ func listen_to_party():
 	if _party_id != -1:
 		_realtime.add_channel("party:" + str(int(_party_id)))
 
+## Unsubscribe from the party channel so it stops trying to rejoin.
+func stop_listening_to_party():
+	if _party_id != -1:
+		_realtime.remove_channel("party:" + str(int(_party_id)))
+
 ## Subscribe to a group channel to receive group realtime events.
 func listen_to_group(group_id: int):
 	_realtime.add_channel("group:" + str(group_id))

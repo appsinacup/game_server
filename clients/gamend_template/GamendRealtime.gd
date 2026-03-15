@@ -36,6 +36,15 @@ func add_channel(topic: String):
 	channel.join()
 	return channel
 
+## Gracefully leave and remove a channel so it won't try to rejoin.
+func remove_channel(topic: String) -> void:
+	if not _channels.has(topic):
+		return
+	var channel: PhoenixChannel = _channels[topic]
+	_channels.erase(topic)
+	channel.leave()
+	channel.queue_free()
+
 func _socket_on_open(params):
 	if enable_logs:
 		print("Socket Open ", params)

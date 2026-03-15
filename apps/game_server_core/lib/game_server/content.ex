@@ -407,7 +407,26 @@ defmodule GameServer.Content do
     end)
     |> List.first("")
     |> String.trim()
+    |> strip_markdown_inline()
     |> String.slice(0, 200)
+  end
+
+  # Strip common inline markdown syntax so excerpts read as plain text.
+  defp strip_markdown_inline(text) do
+    text
+    # [text](url) → text
+    |> String.replace(~r/\[([^\]]*)\]\([^)]*\)/, "\\1")
+    # ![alt](url) → alt
+    |> String.replace(~r/!\[([^\]]*)\]\([^)]*\)/, "\\1")
+    # **bold** or __bold__ → bold
+    |> String.replace(~r/(\*\*|__)(.+?)\1/, "\\2")
+    # *italic* or _italic_ → italic
+    |> String.replace(~r/(\*|_)(.+?)\1/, "\\2")
+    # `code` → code
+    |> String.replace(~r/`([^`]+)`/, "\\1")
+    # collapse multiple spaces
+    |> String.replace(~r/\s+/, " ")
+    |> String.trim()
   end
 
   defp humanize_slug(slug) do
