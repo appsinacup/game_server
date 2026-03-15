@@ -226,6 +226,14 @@ The lobby must have enough free slots for the entire party.
 
 Kick a member from the party. Only the leader can kick.
 
+# `leader?`
+
+```elixir
+@spec leader?(GameServer.Accounts.User.t()) :: boolean()
+```
+
+Returns true if the given user is the leader of their current party.
+
 # `leave_party`
 
 ```elixir
