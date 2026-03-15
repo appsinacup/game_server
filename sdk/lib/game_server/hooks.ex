@@ -159,6 +159,7 @@ defmodule GameServer.Hooks do
   - `after_party_leave/2` - After a user leaves a party (fire-and-forget), receives `(user, party_id)`
   - `after_party_kick/3` - After a member is kicked from a party (fire-and-forget), receives `(target, leader, party)`
   - `after_party_disband/1` - After a party is disbanded (fire-and-forget), receives `(party)`
+  - `after_achievement_unlocked/2` - After an achievement is unlocked (fire-and-forget), receives `(user_id, achievement)`
   - `before_chat_message/2` - Before a chat message is sent, receives `(user, attrs)`. Return `{:ok, attrs}` to allow (and optionally modify), or `{:error, reason}` to block
   - `after_chat_message/1` - After a chat message is persisted (fire-and-forget)
   - `before_lobby_leave/2` - Before user leaves lobby
@@ -299,6 +300,9 @@ defmodule GameServer.Hooks do
   @callback after_party_kick(user(), user(), party()) :: any()
   @callback after_party_disband(party()) :: any()
 
+  # Achievement lifecycle callbacks
+  @callback after_achievement_unlocked(integer(), map()) :: any()
+
   @callback before_chat_message(user(), attrs :: map()) :: hook_result(map())
   @callback after_chat_message(message()) :: any()
 
@@ -322,6 +326,7 @@ defmodule GameServer.Hooks do
                      before_party_create: 2, after_party_create: 1,
                      before_party_update: 2, after_party_update: 1,
                      after_party_join: 2, after_party_leave: 2, after_party_kick: 3, after_party_disband: 1,
+                     after_achievement_unlocked: 2,
                      before_chat_message: 2, after_chat_message: 1
 
   @doc """
@@ -442,6 +447,9 @@ defmodule GameServer.Hooks do
       def after_party_disband(_party), do: :ok
 
       @impl true
+      def after_achievement_unlocked(_user_id, _achievement), do: :ok
+
+      @impl true
       def after_lobby_join(_user, _lobby), do: :ok
 
       @impl true
@@ -505,6 +513,7 @@ defmodule GameServer.Hooks do
                      after_party_leave: 2,
                      after_party_kick: 3,
                      after_party_disband: 1,
+                     after_achievement_unlocked: 2,
                      before_lobby_join: 3,
                      after_lobby_join: 2,
                      before_chat_message: 2,

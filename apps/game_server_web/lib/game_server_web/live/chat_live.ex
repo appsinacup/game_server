@@ -112,7 +112,10 @@ defmodule GameServerWeb.ChatLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope} current_path={assigns[:current_path]}>
-      <div class="flex gap-4 h-[calc(100vh-10rem)]">
+      <div>
+        <h1 class="text-3xl font-bold mb-4">{gettext("Chat")}</h1>
+      </div>
+      <div class="flex gap-4 h-[calc(100vh-12rem)]">
         <%!-- Sidebar: contacts list --%>
         <div class={[
           "w-full md:w-64 flex-shrink-0 overflow-y-auto md:border-r border-base-300 md:pr-4",

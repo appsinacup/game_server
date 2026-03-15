@@ -139,6 +139,20 @@ defmodule GameServerWeb.Layouts do
             </li>
             <li>
               <.link
+                href={~p"/achievements"}
+                class={[
+                  "btn",
+                  if(String.starts_with?(@current_path, "/achievements"),
+                    do: "btn-primary",
+                    else: "btn-outline"
+                  )
+                ]}
+              >
+                {gettext("Achievements")}
+              </.link>
+            </li>
+            <li>
+              <.link
                 href={~p"/groups"}
                 class={[
                   "btn",
@@ -252,6 +266,20 @@ defmodule GameServerWeb.Layouts do
             </li>
             <li>
               <.link
+                href={~p"/achievements"}
+                class={[
+                  "btn",
+                  if(String.starts_with?(@current_path, "/achievements"),
+                    do: "btn-primary",
+                    else: "btn-outline"
+                  )
+                ]}
+              >
+                {gettext("Achievements")}
+              </.link>
+            </li>
+            <li>
+              <.link
                 href={~p"/groups"}
                 class={[
                   "btn",
@@ -315,7 +343,7 @@ defmodule GameServerWeb.Layouts do
             <.theme_toggle />
           </li>
         </ul>
-        
+
     <!-- Mobile Navigation -->
         <div class="lg:hidden">
           <div class="dropdown dropdown-end">
@@ -361,6 +389,20 @@ defmodule GameServerWeb.Layouts do
                     ]}
                   >
                     {gettext("Leaderboards")}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href={~p"/achievements"}
+                    class={[
+                      "btn",
+                      if(String.starts_with?(@current_path, "/achievements"),
+                        do: "btn-primary",
+                        else: "btn-outline"
+                      )
+                    ]}
+                  >
+                    {gettext("Achievements")}
                   </a>
                 </li>
                 <li>
@@ -502,6 +544,20 @@ defmodule GameServerWeb.Layouts do
                     ]}
                   >
                     {gettext("Leaderboards")}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href={~p"/achievements"}
+                    class={[
+                      "btn",
+                      if(String.starts_with?(@current_path, "/achievements"),
+                        do: "btn-primary",
+                        else: "btn-outline"
+                      )
+                    ]}
+                  >
+                    {gettext("Achievements")}
                   </a>
                 </li>
                 <li>

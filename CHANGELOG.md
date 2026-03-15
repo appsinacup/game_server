@@ -1,3 +1,8 @@
+# March 2026
+
+- [changed] Make Leaderboards accept label instead of user_id.
+- [added] Initial version of Achievements.
+
 # Feb 2026
 
 - [added] Initial version of CHANGELOG and Blog.

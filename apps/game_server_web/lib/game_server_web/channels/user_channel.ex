@@ -217,6 +217,18 @@ defmodule GameServerWeb.UserChannel do
     {:noreply, socket}
   end
 
+  @impl true
+  def handle_info({:achievement_unlocked, user_achievement}, socket) do
+    push(socket, "achievement_unlocked", serialize_user_achievement(user_achievement))
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:achievement_progress, user_achievement}, socket) do
+    push(socket, "achievement_progress", serialize_user_achievement(user_achievement))
+    {:noreply, socket}
+  end
+
   # Catch-all for unknown messages
   @impl true
   def handle_info(_msg, socket) do
@@ -309,6 +321,19 @@ defmodule GameServerWeb.UserChannel do
       chat_type: msg.chat_type,
       chat_ref_id: msg.chat_ref_id,
       inserted_at: msg.inserted_at
+    }
+  end
+
+  defp serialize_user_achievement(ua) do
+    %{
+      id: ua.id,
+      user_id: ua.user_id,
+      achievement_id: ua.achievement_id,
+      progress: ua.progress,
+      unlocked_at: ua.unlocked_at,
+      metadata: ua.metadata || %{},
+      inserted_at: ua.inserted_at,
+      updated_at: ua.updated_at
     }
   end
 

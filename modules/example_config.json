@@ -30,7 +30,7 @@
   ],
   "features": [
     { "title": "Authentication & Users", "description": "Email, Magic-link, OAuth, JWT and Session. Register, login, reset password and verify email.", "icon": "hero-lock-closed" },
-    { "title": "Lobbies & Leaderboards", "description": "Customizable settings and real-time updates. Server-authoritative leaderboards.", "icon": "hero-home" },
+    { "title": "Lobbies & Leaderboards & Achievements", "description": "Customizable settings and real-time updates. Server-authoritative leaderboards and achievements.", "icon": "hero-home" },
     { "title": "Friends & Groups", "description": "Request, block, and lists with real-time presence and notifications. Communities with public, private, and hidden visibility.", "icon": "hero-user-group" },
     { "title": "Server Scripting & Server Scheduling", "description": "Server logic using Elixir scripts. Schedule tasks for automated server operations.", "icon": "hero-computer-desktop" },
     { "title": "Persistence & Caching", "description": "SQLite (in memory) and PostgreSQL. In-memory or distributed caching.", "icon": "hero-server-stack" },

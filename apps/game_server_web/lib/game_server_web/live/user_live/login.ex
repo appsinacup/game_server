@@ -10,7 +10,8 @@ defmodule GameServerWeb.UserLive.Login do
     <Layouts.app flash={@flash} current_scope={@current_scope} current_path={assigns[:current_path]}>
       <div class="mx-auto max-w-sm lg:max-w-4xl space-y-4">
         <div class="text-center">
-          <p class="text-sm text-base-content/70">
+          <h1 class="text-3xl font-bold">{dgettext("auth", "Log in")}</h1>
+          <p class="text-sm text-base-content/70 mt-2">
             <%= if @current_scope do %>
               {dgettext(
                 "auth",

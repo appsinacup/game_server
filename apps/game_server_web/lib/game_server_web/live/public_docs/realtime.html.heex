@@ -88,6 +88,8 @@
                                         new_chat_message,
                                         chat_message_updated,
                                         chat_message_deleted,
+                                        achievement_unlocked,
+                                        achievement_progress,
                                         group_invite_accepted,
                                         group_invite_cancelled,
                                         group_join_approved,
@@ -188,6 +190,20 @@
               <td class="font-mono">chat_message_deleted</td>
               <td>{doc_text("Friend DM deleted")}</td>
               <td class="font-mono" phx-no-curly-interpolation>{id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">achievement_unlocked</td>
+              <td>{doc_text("Achievement fully unlocked")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, user_id, achievement_id, progress, unlocked_at, metadata, inserted_at, updated_at}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">achievement_progress</td>
+              <td>{doc_text("Progress incremented toward an achievement")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {id, user_id, achievement_id, progress, unlocked_at, metadata, inserted_at, updated_at}
+              </td>
             </tr>
             <tr>
               <td class="font-mono">group_invite_accepted</td>
@@ -650,6 +666,34 @@
       <p class="text-sm text-base-content/80">
         {doc_text(
           "Notifications use upsert semantics — multiple messages update the existing notification with the latest content rather than creating duplicates."
+        )}
+      </p>
+
+      <h3 class="font-semibold mt-3">{doc_text("Achievement Notifications")}</h3>
+      <p class="text-sm text-base-content/80">
+        {doc_text(
+          "When a user unlocks an achievement, a notification is automatically created:"
+        )}
+      </p>
+      <ul class="list-disc pl-6 text-sm space-y-1 text-base-content/80">
+        <li>
+          <strong>{doc_text("Title:")}</strong>
+          {doc_text("\"Achievement Unlocked\"")}
+        </li>
+        <li>
+          <strong>{doc_text("Content:")}</strong>
+          {doc_text("The achievement's title")}
+        </li>
+        <li>
+          <strong>{doc_text("Metadata:")}</strong>
+          <code class="font-mono text-xs" phx-no-curly-interpolation>
+            {type: "achievement_unlocked", achievement_id, achievement_slug, points}
+          </code>
+        </li>
+      </ul>
+      <p class="text-sm text-base-content/80">
+        {doc_text(
+          "Progress increments do not generate notifications — only the final unlock does. The notification is a self-notification (sender = recipient) since it is system-generated."
         )}
       </p>
     </div>

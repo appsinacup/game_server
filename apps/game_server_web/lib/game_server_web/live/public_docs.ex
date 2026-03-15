@@ -30,6 +30,7 @@ defmodule GameServerWeb.PublicDocs do
         <%!-- Core Features --%>
         {GameServerWeb.PublicDocsTemplates.realtime(assigns)}
         {GameServerWeb.PublicDocsTemplates.leaderboards(assigns)}
+        {GameServerWeb.PublicDocsTemplates.achievements(assigns)}
         {GameServerWeb.PublicDocsTemplates.chat(assigns)}
         {GameServerWeb.PublicDocsTemplates.notifications(assigns)}
         {GameServerWeb.PublicDocsTemplates.server_scripting(assigns)}

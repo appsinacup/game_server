@@ -172,6 +172,37 @@
     )</pre>
       </div>
 
+      <h4 class="font-semibold mt-3">{doc_text("Achievements")}</h4>
+      <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+        <pre>
+    achievements (
+      id              : integer (primary key)
+      slug            : string (unique identifier, e.g. "first_lobby")
+      title           : string (display name)
+      description     : string (condition to unlock)
+      icon_url        : string (optional)
+      points          : integer (prestige value, default: 0)
+      sort_order      : integer (display order, default: 0)
+      hidden          : boolean (only shown after unlock, default: false)
+      progress_target : integer (1 = one-shot, >1 = multi-step)
+      metadata        : jsonb (optional custom data)
+      inserted_at     : utc_datetime
+      updated_at      : utc_datetime
+    )
+
+    user_achievements (
+      id             : integer (primary key)
+      user_id        : integer (FK to users)
+      achievement_id : integer (FK to achievements)
+      progress       : integer (current progress, default: 0)
+      unlocked_at    : utc_datetime (nil until unlocked)
+      metadata       : jsonb (optional)
+      inserted_at    : utc_datetime
+      updated_at     : utc_datetime
+      -- unique index on (user_id, achievement_id)
+    )</pre>
+      </div>
+
       <h4 class="font-semibold mt-3">{doc_text("Notifications")}</h4>
       <div
         class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto"

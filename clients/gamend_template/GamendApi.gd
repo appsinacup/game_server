@@ -73,6 +73,10 @@ signal group_chat_message(message: Dictionary)
 signal group_chat_message_updated(message: Dictionary)
 signal group_chat_message_deleted(payload: Dictionary)
 
+## Achievement events
+signal achievement_unlocked(user_achievement: Dictionary)  ## achievement fully unlocked
+signal achievement_progress(user_achievement: Dictionary)  ## progress incremented toward an achievement
+
 ## Groups collection events (group browser)
 signal group_created(group: Dictionary)   ## new group created (excludes hidden)
 signal group_deleted(payload: Dictionary)  ## {id} group deleted
@@ -336,6 +340,10 @@ func _handle_user_event(event: String, payload: Dictionary):
 			friend_unblocked.emit(payload)
 		"friend_rejected":
 			friend_rejected.emit(payload)
+		"achievement_unlocked":
+			achievement_unlocked.emit(payload)
+		"achievement_progress":
+			achievement_progress.emit(payload)
 
 func _handle_lobby_event(event: String, payload: Dictionary):
 	match event:
@@ -647,6 +655,24 @@ func leaderboards_resolve_slugs(slugs: Array) -> GamendResult:
 ## Get a key/value entry 
 func kv_get_kv(key: String, user_id = null, lobby_id = null) -> GamendResult:
 	return await _call_api(KVApi.new(_config), "get_kv", [key, user_id, lobby_id])
+
+### ACHIEVEMENTS
+
+## List all achievements (public, includes user progress if authenticated)
+func achievements_list_achievements(page = 1, page_size = 25) -> GamendResult:
+	return await _call_api(AchievementsApi.new(_config), "list_achievements", [page, page_size])
+
+## Get achievement details by slug
+func achievements_get_achievement(slug: String) -> GamendResult:
+	return await _call_api(AchievementsApi.new(_config), "get_achievement", [slug])
+
+## List my achievements (auth required). Returns achievements with progress and total_points.
+func achievements_my_achievements(page = 1, page_size = 25) -> GamendResult:
+	return await _call_api(AchievementsApi.new(_config), "my_achievements", [page, page_size])
+
+## List achievements for a specific user
+func achievements_user_achievements(user_id: int, page = 1, page_size = 25) -> GamendResult:
+	return await _call_api(AchievementsApi.new(_config), "user_achievements", [user_id, page, page_size])
 
 ## CHAT
 
@@ -1131,3 +1157,37 @@ func admin_chat_admin_delete_chat_message(id: int) -> GamendResult:
 ## Delete all messages in a conversation (admin)
 func admin_chat_admin_delete_chat_conversation(chat_type: String, chat_ref_id: int) -> GamendResult:
 	return await _call_api(AdminChatApi.new(_config), "admin_delete_chat_conversation", [chat_type, chat_ref_id])
+
+## ADMIN ACHIEVEMENTS
+
+## List all achievements (admin)
+func admin_achievements_admin_list_achievements(page = 1, pageSize = 25) -> GamendResult:
+	return await _call_api(AdminAchievementsApi.new(_config), "admin_list_achievements", [page, pageSize])
+
+## Create an achievement (admin)
+func admin_achievements_admin_create_achievement(request: AdminCreateAchievementRequest) -> GamendResult:
+	return await _call_api(AdminAchievementsApi.new(_config), "admin_create_achievement", [request])
+
+## Update an achievement (admin)
+func admin_achievements_admin_update_achievement(id: int, request: AdminUpdateAchievementRequest) -> GamendResult:
+	return await _call_api(AdminAchievementsApi.new(_config), "admin_update_achievement", [id, request])
+
+## Delete an achievement (admin)
+func admin_achievements_admin_delete_achievement(id: int) -> GamendResult:
+	return await _call_api(AdminAchievementsApi.new(_config), "admin_delete_achievement", [id])
+
+## Grant an achievement to a user (admin)
+func admin_achievements_admin_grant_achievement(request: AdminUnlockAchievementRequest) -> GamendResult:
+	return await _call_api(AdminAchievementsApi.new(_config), "admin_grant_achievement", [request])
+
+## Revoke an achievement from a user (admin)
+func admin_achievements_admin_revoke_achievement(request: AdminRevokeAchievementRequest) -> GamendResult:
+	return await _call_api(AdminAchievementsApi.new(_config), "admin_revoke_achievement", [request])
+
+## Immediately unlock an achievement for a user (admin)
+func admin_achievements_admin_unlock_achievement(request: AdminUnlockAchievementRequest) -> GamendResult:
+	return await _call_api(AdminAchievementsApi.new(_config), "admin_unlock_achievement", [request])
+
+## Increment achievement progress for a user (admin)
+func admin_achievements_admin_increment_achievement(request: AdminIncrementAchievementRequest) -> GamendResult:
+	return await _call_api(AdminAchievementsApi.new(_config), "admin_increment_achievement", [request])

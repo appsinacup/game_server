@@ -95,6 +95,22 @@ defmodule GameServerWeb.Router do
     get "/groups", GroupController, :index
   end
 
+  # Achievements - authenticated routes must be defined before /achievements/:slug
+  scope "/api/v1", GameServerWeb.Api.V1, as: :api_v1 do
+    pipe_through [:api, :api_auth]
+
+    get "/achievements/me", AchievementController, :me
+  end
+
+  # Achievements (public read - slug catch-all must come after /me)
+  scope "/api/v1", GameServerWeb.Api.V1, as: :api_v1 do
+    pipe_through :api
+
+    get "/achievements", AchievementController, :index
+    get "/achievements/user/:user_id", AchievementController, :user_achievements
+    get "/achievements/:slug", AchievementController, :show
+  end
+
   # Groups - authenticated routes that must be defined before /groups/:id
   scope "/api/v1", GameServerWeb.Api.V1, as: :api_v1 do
     pipe_through [:api, :api_auth]
@@ -246,6 +262,16 @@ defmodule GameServerWeb.Router do
     get "/chat", ChatController, :index
     delete "/chat/:id", ChatController, :delete
     delete "/chat/conversation", ChatController, :delete_conversation
+
+    # Achievements
+    get "/achievements", AchievementController, :index
+    post "/achievements", AchievementController, :create
+    patch "/achievements/:id", AchievementController, :update
+    delete "/achievements/:id", AchievementController, :delete
+    post "/achievements/grant", AchievementController, :grant
+    post "/achievements/revoke", AchievementController, :revoke
+    post "/achievements/unlock", AchievementController, :unlock
+    post "/achievements/increment", AchievementController, :increment
   end
 
   # API OAuth routes
@@ -297,6 +323,7 @@ defmodule GameServerWeb.Router do
       live "/admin/groups", AdminLive.Groups, :index
       live "/admin/parties", AdminLive.Parties, :index
       live "/admin/chat", AdminLive.Chat, :index
+      live "/admin/achievements", AdminLive.Achievements, :index
       live "/admin/translations", AdminLive.Translations, :index
     end
   end
@@ -332,6 +359,7 @@ defmodule GameServerWeb.Router do
       live "/lobbies", LobbyLive.Index, :index
       live "/groups", GroupsLive, :index
       live "/groups/:id", GroupsLive, :show
+      live "/achievements", AchievementsLive, :index
       live "/leaderboards", LeaderboardsLive, :index
       live "/leaderboards/:slug/:id", LeaderboardsLive, :show
       live "/leaderboards/:slug", LeaderboardsLive, :show_active

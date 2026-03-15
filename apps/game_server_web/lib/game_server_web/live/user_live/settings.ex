@@ -11,6 +11,10 @@ defmodule GameServerWeb.UserLive.Settings do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope} current_path={assigns[:current_path]}>
+      <div>
+        <h1 class="text-3xl font-bold">{dgettext("settings", "Settings")}</h1>
+      </div>
+
       <div class="text-center">
         <%= if @conflict_user do %>
           <div class="divider" />
@@ -561,7 +565,7 @@ defmodule GameServerWeb.UserLive.Settings do
               <div class="text-xs text-base-content/70 mb-2">
                 {dgettext("settings", "Search results")}
               </div>
-              
+
     <!-- Render search results as a responsive grid so multiple items show side-by-side -->
               <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <div :for={s <- @search_results} id={"search-" <> Integer.to_string(s.id)}>

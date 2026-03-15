@@ -13,6 +13,7 @@ defmodule GameServer.Hooks do
   """
 
   alias GameServer.Accounts.User
+  alias GameServer.Achievements.Achievement
   alias GameServer.Chat.Message
   alias GameServer.Groups.Group
   alias GameServer.Hooks.Default, as: Default
@@ -89,6 +90,9 @@ defmodule GameServer.Hooks do
   @callback after_party_leave(User.t(), integer()) :: any()
   @callback after_party_kick(User.t(), User.t(), Party.t()) :: any()
   @callback after_party_disband(Party.t()) :: any()
+
+  # Achievement lifecycle hooks
+  @callback after_achievement_unlocked(integer(), Achievement.t()) :: any()
 
   @callback before_chat_message(User.t(), map()) :: hook_result(map())
   @callback after_chat_message(Message.t()) :: any()
@@ -305,6 +309,7 @@ defmodule GameServer.Hooks do
       :before_user_kicked,
       :after_user_kicked,
       :after_lobby_host_change,
+      :after_achievement_unlocked,
       :on_custom_hook,
       :before_kv_get
     ])
@@ -1083,6 +1088,9 @@ defmodule GameServer.Hooks.Default do
   Default implementation for `before_kv_get/2` — always allow public reads.
   """
   def before_kv_get(_key, _opts), do: :public
+
+  @impl true
+  def after_achievement_unlocked(_user_id, _achievement), do: :ok
 
   @impl true
   def on_custom_hook(_hook, _args), do: {:error, :not_implemented}

@@ -17,6 +17,7 @@ defmodule Mix.Tasks.Gen.Sdk do
 
   @sdk_modules [
     {GameServer.Accounts, "accounts.ex"},
+    {GameServer.Achievements, "achievements.ex"},
     {GameServer.Lobbies, "lobbies.ex"},
     {GameServer.Leaderboards, "leaderboards.ex"},
     {GameServer.Friends, "friends.ex"},

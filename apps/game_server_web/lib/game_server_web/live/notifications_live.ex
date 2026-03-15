@@ -10,37 +10,33 @@ defmodule GameServerWeb.NotificationsLive do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope} current_path={assigns[:current_path]}>
       <div class="space-y-6">
-        <div class="card bg-base-200 p-4 rounded-lg">
-          <div class="flex items-center justify-between">
-            <div>
-              <div class="font-semibold text-lg flex items-center gap-2">
-                {dgettext("settings", "Notifications")}
-              </div>
-              <div class="text-sm text-base-content/70">
-                {dgettext("settings", "Your notifications (%{count}, %{unread} unread)",
-                  count: @notif_count,
-                  unread: @notif_unread_count
-                )}
-              </div>
-            </div>
-            <div class="flex gap-2">
-              <%= if @notif_count > 0 do %>
-                <button
-                  type="button"
-                  phx-click="delete_all"
-                  data-confirm={dgettext("settings", "Delete all notifications?")}
-                  class="btn btn-sm btn-outline btn-error"
-                >
-                  {dgettext("settings", "Delete All")}
-                </button>
-              <% end %>
-            </div>
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-3xl font-bold">{dgettext("settings", "Notifications")}</h1>
+            <p class="text-base-content/60 mt-1">
+              {dgettext("settings", "%{count} notifications, %{unread} unread",
+                count: @notif_count,
+                unread: @notif_unread_count
+              )}
+            </p>
           </div>
+          <div class="flex gap-2">
+            <%= if @notif_count > 0 do %>
+              <button
+                type="button"
+                phx-click="delete_all"
+                data-confirm={dgettext("settings", "Delete all notifications?")}
+                class="btn btn-sm btn-outline btn-error"
+              >
+                {dgettext("settings", "Delete All")}
+              </button>
+            <% end %>
+          </div>
+        </div>
 
-          <%= if @notif_count == 0 do %>
-            <div class="mt-4 text-sm text-base-content/60">{gettext("None yet.")}</div>
-          <% else %>
-            <div class="overflow-x-auto mt-4">
+        <%= if @notif_count > 0 do %>
+          <div class="card bg-base-200 p-4 rounded-lg">
+            <div class="overflow-x-auto">
               <table id="notifications-table" class="table table-zebra w-full">
                 <thead>
                   <tr>
@@ -122,8 +118,8 @@ defmodule GameServerWeb.NotificationsLive do
                 {gettext("Next")}
               </button>
             </div>
-          <% end %>
-        </div>
+          </div>
+        <% end %>
       </div>
     </Layouts.app>
     """

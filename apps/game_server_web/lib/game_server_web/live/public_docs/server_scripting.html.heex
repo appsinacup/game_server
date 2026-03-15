@@ -141,6 +141,32 @@ end</code></pre>
       </div>
 
       <div class="step">
+        <h4 class="font-semibold">{doc_text("Reacting to achievement unlocks")}</h4>
+        <div class="ml-6 mt-2 space-y-2">
+          <p>
+            {doc_text(
+              "The after_achievement_unlocked/2 hook fires asynchronously whenever a user unlocks an achievement. Use it to reward players with in-game currency, items, or trigger other game logic:"
+            )}
+          </p>
+          <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
+            <pre><code class="language-elixir" phx-no-curly-interpolation>@impl true
+def after_achievement_unlocked(user_id, achievement) do
+  # Grant coins based on achievement points
+  user = GameServer.Accounts.get_user(user_id)
+  coins = get_in(user.metadata, ["coins"]) || 0
+  new_coins = coins + achievement.points
+
+  GameServer.Accounts.update_user(user, %{
+    metadata: Map.put(user.metadata || %{}, "coins", new_coins)
+  })
+
+  :ok
+end</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
         <h4 class="font-semibold">{doc_text("Exposing an RPC function")}</h4>
         <div class="ml-6 mt-2 space-y-2">
           <p>

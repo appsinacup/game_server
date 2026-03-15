@@ -214,6 +214,17 @@ API routes use JWT tokens via Guardian for stateless authentication:
 - Caching: uses Nebulex version-based caching for `list_messages` (60s TTL).
 - API endpoints: `GET /api/v1/chat/messages`, `POST /api/v1/chat/messages`, `POST /api/v1/chat/read`, `GET /api/v1/chat/unread`.
 
+### Achievements
+
+- Achievement context: `GameServer.Achievements` — key functions: `create_achievement/1`, `update_achievement/2`, `delete_achievement/1`, `get_achievement/1`, `get_achievement_by_slug/1`, `list_achievements/1`, `unlock_achievement/2`, `increment_progress/3`, `grant_achievement/2`, `revoke_achievement/2`, `get_user_achievement/2`, `list_user_achievements/2`, `get_user_points/1`, `unlock_percentage/1`.
+- Achievements are stored in the `achievements` table with fields: `id`, `slug` (unique), `title`, `description`, `icon_url`, `points`, `sort_order`, `hidden`, `progress_target` (default 1), `metadata` (map), `inserted_at`, `updated_at`.
+- User progress is tracked in the `user_achievements` table with fields: `id`, `user_id`, `achievement_id`, `progress` (default 0), `unlocked_at` (nil until unlocked), `metadata` (map). Unique index on `(user_id, achievement_id)`.
+- `unlock_achievement/2` immediately unlocks (sets `progress = progress_target`, `unlocked_at = now`). `increment_progress/3` adds to progress and auto-unlocks when `progress >= progress_target`.
+- Hidden achievements are excluded from public listings unless the user has unlocked them.
+- `list_achievements/1` accepts opts: `:page`, `:page_size`, `:user_id` (to include user progress), `:include_hidden`.
+- On unlock, a notification is created and `after_achievement_unlocked(user_id, achievement)` hook fires asynchronously via `GameServer.Async.run`.
+- API endpoints: `GET /api/v1/achievements` (public, paginated), `GET /api/v1/achievements/:slug`, `GET /api/v1/achievements/me` (auth required, user's achievements + total_points), `GET /api/v1/achievements/user/:user_id`. Admin API under `/api/v1/admin/achievements` (GET list, POST create, PATCH update, DELETE, POST grant, POST revoke, POST unlock, POST increment).
+
 ### Notifications
 
 - Notification context: `GameServer.Notifications` — key functions: `admin_create_notification/3`, `create_chat_notification/3`, `send_notification/2`, `delete_notification_by/3`, `delete_notifications/2`.
@@ -246,6 +257,9 @@ API routes use JWT tokens via Guardian for stateless authentication:
   **Lobbies:**
   - `lobby_kicked` — you were removed from a lobby
 
+  **Achievements:**
+  - `achievement_unlocked` — you unlocked an achievement
+
   **Chat** (via `create_chat_notification`, includes `message_count` in metadata):
   - `chat_friend` — new friend DM messages
   - `chat_group` — new group chat messages
@@ -261,7 +275,8 @@ API routes use JWT tokens via Guardian for stateless authentication:
   - `"lobby:<id>"` / `"lobbies"` — lobby events (member join/leave, updates)
   - `"group:<id>"` / `"groups"` — group events (member join/leave, requests, updates)
   - `"party:<id>"` / `"parties"` — party events (member join/leave, updates)
-  - `"user:<id>"` — user-specific events (friend requests, notifications, friend DM chat)
+  - `"user:<id>"` — user-specific events (friend requests, notifications, friend DM chat, achievement unlock/progress)
+  - `"achievements"` — global achievement events (definition changes, unlocks for admin dashboards)
   - `"chat:lobby:<id>"` — lobby chat messages
   - `"chat:group:<id>"` — group chat messages
   - `"chat:friend:<low>:<high>"` — friend DM chat (sorted user id pair)
@@ -650,6 +665,7 @@ apps/
       lobbies.ex              # Lobbies context
       parties.ex              # Parties context
       leaderboards.ex         # Leaderboards context
+      achievements.ex         # Achievements context
       notifications.ex        # Notifications context
       kv.ex                   # Key-value storage context
       hooks.ex                # Server scripting/hooks context

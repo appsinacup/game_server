@@ -160,6 +160,8 @@ find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/li
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe 's/from_dict\.has\("ends_at"\)/from_dict.has("ends_at") && from_dict.get("ends_at", "")/g' -i
 # Replace from_dict.has("starts_at") with from_dict.has("starts_at") && from_dict.get("starts_at", "")
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe 's/from_dict\.has\("starts_at"\)/from_dict.has("starts_at") && from_dict.get("starts_at", "")/g' -i
+# Replace user_achievements_200_response_data_inner with UserAchievements200ResponseDataInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/user_achievements_200_response_data_inner/UserAchievements200ResponseDataInner/g" -i
 # headers_for_godot, body_serialized
 # with 
 # headers_for_godot, "" if body_serialized == "null" else body_serialized

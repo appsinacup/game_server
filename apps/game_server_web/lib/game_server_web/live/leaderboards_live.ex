@@ -91,6 +91,13 @@ defmodule GameServerWeb.LeaderboardsLive do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope} current_path={assigns[:current_path]}>
       <div class="space-y-6">
+        <div>
+          <h1 class="text-3xl font-bold">{dgettext("leaderboards", "Leaderboards")}</h1>
+          <p class="text-base-content/60 mt-1">
+            {dgettext("leaderboards", "%{count} leaderboards", count: @count)}
+          </p>
+        </div>
+
         <%= if @selected_leaderboard do %>
           <.render_leaderboard_detail
             leaderboard={@selected_leaderboard}

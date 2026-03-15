@@ -4,6 +4,7 @@ defmodule GameServerWeb.AdminLive.Index do
   alias GameServer.Accounts
   alias GameServer.Accounts.User
   alias GameServer.Accounts.UserToken
+  alias GameServer.Achievements
   alias GameServer.Groups
   alias GameServer.KV
   alias GameServer.Leaderboards.Leaderboard
@@ -55,6 +56,9 @@ defmodule GameServerWeb.AdminLive.Index do
           </.link>
           <.link navigate={~p"/admin/chat"} class="btn btn-primary">
             Chat ({@chat_count})
+          </.link>
+          <.link navigate={~p"/admin/achievements"} class="btn btn-primary">
+            Achievements ({@achievements_count})
           </.link>
         </div>
 
@@ -237,6 +241,20 @@ defmodule GameServerWeb.AdminLive.Index do
                   <div>User entries: {@kv_user}</div>
                 </div>
               </div>
+
+              <%!-- 11. Achievements --%>
+              <div class="card bg-base-100 p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-sm font-semibold">Achievements</div>
+                  <.link navigate={~p"/admin/achievements"} class="link link-primary text-xs">
+                    View →
+                  </.link>
+                </div>
+                <div class="text-2xl font-bold">{@achievements_count}</div>
+                <div class="text-xs text-base-content/60 mt-2 space-y-1">
+                  <div>Total unlocks: {@achievements_unlocks}</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -291,6 +309,10 @@ defmodule GameServerWeb.AdminLive.Index do
     # translation stats
     translation_stats = TranslationStats.all_completeness()
 
+    # achievement stats
+    achievements_count = Achievements.count_all_achievements()
+    achievements_unlocks = Achievements.count_all_unlocks()
+
     # time-based metrics
     users_registered_1d = Accounts.count_users_registered_since(1)
     users_registered_7d = Accounts.count_users_registered_since(7)
@@ -335,6 +357,8 @@ defmodule GameServerWeb.AdminLive.Index do
        chat_by_group: Map.get(chat_by_type, "group", 0),
        chat_by_friend: Map.get(chat_by_type, "friend", 0),
        translation_stats: translation_stats,
+       achievements_count: achievements_count,
+       achievements_unlocks: achievements_unlocks,
        users_registered_1d: users_registered_1d,
        users_registered_7d: users_registered_7d,
        users_registered_30d: users_registered_30d,

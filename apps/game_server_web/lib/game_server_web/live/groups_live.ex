@@ -380,6 +380,10 @@ defmodule GameServerWeb.GroupsLive do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope} current_path={assigns[:current_path]}>
       <div class="space-y-6">
+        <div>
+          <h1 class="text-3xl font-bold">{dgettext("groups", "Groups")}</h1>
+        </div>
+
         <%= if @selected_group do %>
           {render_group_detail(assigns)}
         <% else %>

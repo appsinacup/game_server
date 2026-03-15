@@ -71,9 +71,10 @@
   │             │              │                │               │
   │  ┌───────── Business Layer (Contexts) ────────────────────┐ │
   │  │                                                        │ │
-  │  │  Accounts  │  Lobbies       │  Parties  │  Friend      │ │
+  │  │  Accounts  │  Lobbies       │  Parties  │  Friends     │ │
   │  │  Groups    │  Leaderboards  │  Notifications           │ │
-  │  │  Hooks (server scripting)   │  KV Storage              │ │
+  │  │  Achievements │ Chat        │  Hooks (server scripting)│ │
+  │  │  KV Storage                                            │ │
   │  │                                                        │ │
   │  └──────────┬─────────────────────┬───────────────────────┘ │
   │             │                     │                         │
@@ -133,7 +134,9 @@
   Chat module     ──────►  "chat:lobby:{id}"  ─►  LobbyChannel
   Chat module     ──────►  "chat:group:{id}"  ─►  GroupChannel
   Chat module     ──────►  "chat:friend:{lo}:{hi}"  UserChannel
-                            + "user:{id}"</pre>
+                            + "user:{id}"
+  Achievements    ──────►  "user:{id}"   ──────►  UserChannel, LiveViews
+  Achievements    ──────►  "achievements" ─────►  Admin LiveViews</pre>
       </div>
 
       <h3 class="font-semibold mt-3">{doc_text("Entity relationships (simplified)")}</h3>
@@ -169,6 +172,9 @@
              │         chat_ref_id ─► lobby/group/user
              │
              ├──── chat_read_cursors (unread tracking)
+             │
+             ├──── user_achievements ──► achievements
+             │       (progress, unlocked_at)
              │
              └──── users_tokens, oauth_sessions</pre>
       </div>
