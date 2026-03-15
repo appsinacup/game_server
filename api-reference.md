@@ -1,4 +1,4 @@
-# GameServer v1.0.757 - API Reference
+# GameServer v1.0.758 - API Reference
 
 ## Modules
 
@@ -12,6 +12,9 @@ application (registration, OAuth, and admin changes).
 (confirmation, magic link, and email change instructions).
 - [GameServer.Accounts.UserToken](GameServer.Accounts.UserToken.md): Functions and schema for persistent user tokens used by sessions, magic links,
 and email-change workflows.
+- [GameServer.Achievements](GameServer.Achievements.md): The Achievements context.
+- [GameServer.Achievements.Achievement](GameServer.Achievements.Achievement.md): Ecto schema for the `achievements` table.
+- [GameServer.Achievements.UserAchievement](GameServer.Achievements.UserAchievement.md): Ecto schema for the `user_achievements` table.
 - [GameServer.Apple](GameServer.Apple.md): Apple OAuth client secret generation for Ueberauth.
 - [GameServer.Async](GameServer.Async.md): Utilities for running best-effort background work.
 - [GameServer.Cache](GameServer.Cache.md): Application cache backed by Nebulex.

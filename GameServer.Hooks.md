@@ -28,6 +28,13 @@ Options passed to hooks that accept an options map/keyword list.
 Common keys include `:user_id` (pos_integer) and other domain-specific
 options. Hooks may accept either a map or keyword list for convenience.
 
+# `after_achievement_unlocked`
+
+```elixir
+@callback after_achievement_unlocked(integer(), GameServer.Achievements.Achievement.t()) ::
+  any()
+```
+
 # `after_chat_message`
 
 ```elixir

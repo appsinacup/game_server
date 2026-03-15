@@ -3,6 +3,9 @@ GameServer.Accounts.User.md
 GameServer.Accounts.UserNotifier.md
 GameServer.Accounts.UserToken.md
 GameServer.Accounts.md
+GameServer.Achievements.Achievement.md
+GameServer.Achievements.UserAchievement.md
+GameServer.Achievements.md
 GameServer.Apple.md
 GameServer.Async.md
 GameServer.Cache.L1.md
