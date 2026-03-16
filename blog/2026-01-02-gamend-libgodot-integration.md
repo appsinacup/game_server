@@ -1,4 +1,4 @@
-# Gamend - LibGodot Integration
+# LibGodot Integration
 
 Previously I had added integration with Godot from Gamend:
 - Host (Elixir) -> Godot (WebSocket)

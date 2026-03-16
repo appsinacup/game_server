@@ -1,4 +1,4 @@
-# Gamend - Godot Integration
+# Godot Integration
 
 Gamend now has a module that connects to Godot so it's possible to write server side logic in GDScript.
 

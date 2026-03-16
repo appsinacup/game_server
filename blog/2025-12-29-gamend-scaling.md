@@ -1,4 +1,4 @@
-# Gamend - Game Server Scaling
+# Server Scaling
 
 Tutorial on how to scale the game server cluster to multiple instances.
 

@@ -1,4 +1,4 @@
-# Gamend - Game Server Deploy
+# Server Deploy
 
 This tutorial will help you to deploy Gamend.
 
