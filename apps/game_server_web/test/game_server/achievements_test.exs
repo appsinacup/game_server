@@ -18,7 +18,6 @@ defmodule GameServer.AchievementsTest do
         slug: "first_lobby",
         title: "Welcome!",
         description: "Join your first lobby",
-        points: 10,
         progress_target: 1,
         hidden: false,
         metadata: %{"category" => "social"}
@@ -28,7 +27,6 @@ defmodule GameServer.AchievementsTest do
       assert ach.slug == "first_lobby"
       assert ach.title == "Welcome!"
       assert ach.description == "Join your first lobby"
-      assert ach.points == 10
       assert ach.progress_target == 1
       assert ach.hidden == false
       assert ach.metadata == %{"category" => "social"}
@@ -49,13 +47,6 @@ defmodule GameServer.AchievementsTest do
       assert "has already been taken" in errors_on(changeset).slug
     end
 
-    test "create_achievement/1 validates points >= 0" do
-      assert {:error, changeset} =
-               Achievements.create_achievement(%{slug: "neg", title: "Neg", points: -1})
-
-      assert errors_on(changeset).points != []
-    end
-
     test "create_achievement/1 validates progress_target > 0" do
       assert {:error, changeset} =
                Achievements.create_achievement(%{
@@ -68,10 +59,9 @@ defmodule GameServer.AchievementsTest do
     end
 
     test "create_achievement/1 accepts string keys" do
-      attrs = %{"slug" => "str_keys", "title" => "String Keys", "points" => 5}
+      attrs = %{"slug" => "str_keys", "title" => "String Keys"}
       assert {:ok, %Achievement{} = ach} = Achievements.create_achievement(attrs)
       assert ach.slug == "str_keys"
-      assert ach.points == 5
     end
 
     test "get_achievement/1 returns achievement by id" do
@@ -176,7 +166,7 @@ defmodule GameServer.AchievementsTest do
   describe "unlocking achievements" do
     test "unlock_achievement/2 by slug" do
       user = AccountsFixtures.user_fixture()
-      ach = create_achievement(%{slug: "unlock_slug", points: 10})
+      ach = create_achievement(%{slug: "unlock_slug"})
 
       assert {:ok, %UserAchievement{} = ua} =
                Achievements.unlock_achievement(user.id, "unlock_slug")
@@ -217,7 +207,7 @@ defmodule GameServer.AchievementsTest do
   describe "increment_progress/3" do
     test "increments progress and auto-unlocks at target" do
       user = AccountsFixtures.user_fixture()
-      create_achievement(%{slug: "progress_ach", progress_target: 3, points: 15})
+      create_achievement(%{slug: "progress_ach", progress_target: 3})
 
       assert {:ok, ua} = Achievements.increment_progress(user.id, "progress_ach", 1)
       assert ua.progress == 1
@@ -284,22 +274,6 @@ defmodule GameServer.AchievementsTest do
       {:ok, _} = Achievements.increment_progress(user.id, "count_ua_2", 1)
 
       assert Achievements.count_user_achievements(user.id) == 1
-    end
-
-    test "get_user_points/1 sums points from unlocked achievements" do
-      user = AccountsFixtures.user_fixture()
-      create_achievement(%{slug: "pts_1", points: 10})
-      create_achievement(%{slug: "pts_2", points: 25})
-      create_achievement(%{slug: "pts_3", points: 5})
-      {:ok, _} = Achievements.unlock_achievement(user.id, "pts_1")
-      {:ok, _} = Achievements.unlock_achievement(user.id, "pts_2")
-
-      assert Achievements.get_user_points(user.id) == 35
-    end
-
-    test "get_user_points/1 returns 0 for user with no unlocks" do
-      user = AccountsFixtures.user_fixture()
-      assert Achievements.get_user_points(user.id) == 0
     end
   end
 

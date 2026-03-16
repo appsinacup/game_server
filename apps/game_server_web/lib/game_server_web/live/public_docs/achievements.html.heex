@@ -52,12 +52,6 @@
           <code class="font-mono">reach_level_10</code>{doc_text(")")}
         </li>
         <li>
-          <strong>{doc_text("Points:")}</strong>
-          {doc_text("Optional point value awarded on unlock. Use")}
-          <code class="font-mono">get_user_points/1</code>
-          {doc_text("to sum a user's total")}
-        </li>
-        <li>
           <strong>{doc_text("Progress Target:")}</strong>
           {doc_text("Number of increments required to unlock (default 1 = instant unlock)")}
         </li>
@@ -79,7 +73,6 @@ GameServer.Achievements.create_achievement(%{
   slug: "first_win",
   title: "First Victory",
   description: "Win your first match",
-  points: 100,
   progress_target: 1,
   hidden: false,
   metadata: %{"category" => "combat"}
@@ -90,7 +83,6 @@ GameServer.Achievements.create_achievement(%{
   slug: "win_50_matches",
   title: "Veteran",
   description: "Win 50 matches",
-  points: 500,
   progress_target: 50
 })
 
@@ -106,7 +98,6 @@ GameServer.Achievements.revoke_achievement(user_id, achievement_id)
 
 # Query user achievements
 GameServer.Achievements.list_user_achievements(user_id, page: 1, page_size: 25)
-GameServer.Achievements.get_user_points(user_id)
 GameServer.Achievements.unlock_percentage("first_win")</pre>
       </div>
 
@@ -138,7 +129,7 @@ GameServer.Achievements.unlock_percentage("first_win")</pre>
               <td><code class="font-mono">GET</code></td>
               <td><code class="font-mono">/api/v1/achievements/me</code></td>
               <td>{doc_text("Required")}</td>
-              <td>{doc_text("List your unlocked achievements + total points")}</td>
+              <td>{doc_text("List your unlocked achievements")}</td>
             </tr>
             <tr>
               <td><code class="font-mono">GET</code></td>
@@ -218,7 +209,6 @@ GameServer.Achievements.unlock_percentage("first_win")</pre>
       "slug": "first_win",
       "title": "First Victory",
       "description": "Win your first match",
-      "points": 100,
       "progress_target": 1,
       "hidden": false,
       "icon_url": null,
@@ -244,13 +234,11 @@ GameServer.Achievements.unlock_percentage("first_win")</pre>
       "achievement_id": 1,
       "slug": "first_win",
       "title": "First Victory",
-      "points": 100,
       "progress": 1,
       "progress_target": 1,
       "unlocked_at": "2026-03-16T12:30:00Z"
     }
   ],
-  "total_points": 100,
   "meta": { ... }
 }</pre>
       </div>

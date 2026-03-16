@@ -671,9 +671,7 @@
 
       <h3 class="font-semibold mt-3">{doc_text("Achievement Notifications")}</h3>
       <p class="text-sm text-base-content/80">
-        {doc_text(
-          "When a user unlocks an achievement, a notification is automatically created:"
-        )}
+        {doc_text("When a user unlocks an achievement, a notification is automatically created:")}
       </p>
       <ul class="list-disc pl-6 text-sm space-y-1 text-base-content/80">
         <li>
@@ -687,7 +685,7 @@
         <li>
           <strong>{doc_text("Metadata:")}</strong>
           <code class="font-mono text-xs" phx-no-curly-interpolation>
-            {type: "achievement_unlocked", achievement_id, achievement_slug, points}
+            {type: "achievement_unlocked", achievement_id, achievement_slug}
           </code>
         </li>
       </ul>

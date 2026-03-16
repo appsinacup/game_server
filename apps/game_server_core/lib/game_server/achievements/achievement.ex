@@ -9,7 +9,6 @@ defmodule GameServer.Achievements.Achievement do
   - `title` — display name
   - `description` — human-readable description
   - `icon_url` — optional icon path/URL
-  - `points` — point value for this achievement
   - `sort_order` — display ordering (lower = first)
   - `hidden` — if true, not shown until unlocked
   - `progress_target` — number of steps to complete (1 = one-shot, >1 = incremental)
@@ -27,7 +26,6 @@ defmodule GameServer.Achievements.Achievement do
              :title,
              :description,
              :icon_url,
-             :points,
              :sort_order,
              :hidden,
              :progress_target,
@@ -41,7 +39,6 @@ defmodule GameServer.Achievements.Achievement do
     field :title, :string
     field :description, :string, default: ""
     field :icon_url, :string
-    field :points, :integer, default: 0
     field :sort_order, :integer, default: 0
     field :hidden, :boolean, default: false
     field :progress_target, :integer, default: 1
@@ -53,14 +50,13 @@ defmodule GameServer.Achievements.Achievement do
   end
 
   @required_fields ~w(slug title)a
-  @optional_fields ~w(description icon_url points sort_order hidden progress_target metadata)a
+  @optional_fields ~w(description icon_url sort_order hidden progress_target metadata)a
 
   @doc false
   def changeset(achievement, attrs) do
     achievement
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
-    |> validate_number(:points, greater_than_or_equal_to: 0)
     |> validate_number(:progress_target, greater_than: 0)
     |> unique_constraint(:slug)
   end

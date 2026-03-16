@@ -11,7 +11,6 @@ defmodule GameServer.Achievements do
         slug: "first_lobby",
         title: "Welcome!",
         description: "Join your first lobby",
-        points: 10,
         progress_target: 1
       })
 
@@ -210,21 +209,6 @@ defmodule GameServer.Achievements do
 
       _ ->
         raise "GameServer.Achievements.get_user_achievement/2 is a stub - only available at runtime on GameServer"
-    end
-  end
-
-
-  @doc ~S"""
-    Get total points earned by a user.
-  """
-  @spec get_user_points(integer()) :: non_neg_integer()
-  def get_user_points(_user_id) do
-    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
-      :placeholder ->
-        0
-
-      _ ->
-        raise "GameServer.Achievements.get_user_points/1 is a stub - only available at runtime on GameServer"
     end
   end
 

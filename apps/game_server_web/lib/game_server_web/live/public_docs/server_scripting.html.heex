@@ -151,13 +151,13 @@ end</code></pre>
           <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
             <pre><code class="language-elixir" phx-no-curly-interpolation>@impl true
 def after_achievement_unlocked(user_id, achievement) do
-  # Grant coins based on achievement points
+  # Grant coins based on achievement metadata
   user = GameServer.Accounts.get_user(user_id)
   coins = get_in(user.metadata, ["coins"]) || 0
-  new_coins = coins + achievement.points
+  reward = get_in(achievement.metadata, ["coin_reward"]) || 50
 
   GameServer.Accounts.update_user(user, %{
-    metadata: Map.put(user.metadata || %{}, "coins", new_coins)
+    metadata: Map.put(user.metadata || %{}, "coins", coins + reward)
   })
 
   :ok

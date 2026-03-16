@@ -216,14 +216,14 @@ API routes use JWT tokens via Guardian for stateless authentication:
 
 ### Achievements
 
-- Achievement context: `GameServer.Achievements` — key functions: `create_achievement/1`, `update_achievement/2`, `delete_achievement/1`, `get_achievement/1`, `get_achievement_by_slug/1`, `list_achievements/1`, `unlock_achievement/2`, `increment_progress/3`, `grant_achievement/2`, `revoke_achievement/2`, `get_user_achievement/2`, `list_user_achievements/2`, `get_user_points/1`, `unlock_percentage/1`.
-- Achievements are stored in the `achievements` table with fields: `id`, `slug` (unique), `title`, `description`, `icon_url`, `points`, `sort_order`, `hidden`, `progress_target` (default 1), `metadata` (map), `inserted_at`, `updated_at`.
+- Achievement context: `GameServer.Achievements` — key functions: `create_achievement/1`, `update_achievement/2`, `delete_achievement/1`, `get_achievement/1`, `get_achievement_by_slug/1`, `list_achievements/1`, `unlock_achievement/2`, `increment_progress/3`, `grant_achievement/2`, `revoke_achievement/2`, `get_user_achievement/2`, `list_user_achievements/2`, `unlock_percentage/1`.
+- Achievements are stored in the `achievements` table with fields: `id`, `slug` (unique), `title`, `description`, `icon_url`, `sort_order`, `hidden`, `progress_target` (default 1), `metadata` (map), `inserted_at`, `updated_at`.
 - User progress is tracked in the `user_achievements` table with fields: `id`, `user_id`, `achievement_id`, `progress` (default 0), `unlocked_at` (nil until unlocked), `metadata` (map). Unique index on `(user_id, achievement_id)`.
 - `unlock_achievement/2` immediately unlocks (sets `progress = progress_target`, `unlocked_at = now`). `increment_progress/3` adds to progress and auto-unlocks when `progress >= progress_target`.
 - Hidden achievements are excluded from public listings unless the user has unlocked them.
 - `list_achievements/1` accepts opts: `:page`, `:page_size`, `:user_id` (to include user progress), `:include_hidden`.
 - On unlock, a notification is created and `after_achievement_unlocked(user_id, achievement)` hook fires asynchronously via `GameServer.Async.run`.
-- API endpoints: `GET /api/v1/achievements` (public, paginated), `GET /api/v1/achievements/:slug`, `GET /api/v1/achievements/me` (auth required, user's achievements + total_points), `GET /api/v1/achievements/user/:user_id`. Admin API under `/api/v1/admin/achievements` (GET list, POST create, PATCH update, DELETE, POST grant, POST revoke, POST unlock, POST increment).
+- API endpoints: `GET /api/v1/achievements` (public, paginated), `GET /api/v1/achievements/:slug`, `GET /api/v1/achievements/me` (auth required, user's achievements), `GET /api/v1/achievements/user/:user_id`. Admin API under `/api/v1/admin/achievements` (GET list, POST create, PATCH update, DELETE, POST grant, POST revoke, POST unlock, POST increment).
 
 ### Notifications
 

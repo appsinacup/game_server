@@ -3,7 +3,7 @@ defmodule GameServerWeb.AchievementsLive do
   Public-facing achievements page.
 
   Anonymous users see all non-hidden achievements.
-  Logged-in users see their progress, unlock status, and total points.
+  Logged-in users see their progress and unlock status.
   """
   use GameServerWeb, :live_view
 
@@ -105,15 +105,13 @@ defmodule GameServerWeb.AchievementsLive do
     total_count = Achievements.count_achievements(if(user, do: [user_id: user.id], else: []))
     total_pages = max(ceil(total_count / page_size), 1)
 
-    user_points = if user, do: Achievements.get_user_points(user.id), else: 0
-    unlocked_count = if user, do: Achievements.count_user_achievements(user.id), else: 0
+    user_unlocked_count = if user, do: Achievements.count_user_achievements(user.id), else: 0
 
     socket
     |> assign(:achievements, items)
     |> assign(:total_count, total_count)
     |> assign(:total_pages, total_pages)
-    |> assign(:user_points, user_points)
-    |> assign(:unlocked_count, unlocked_count)
+    |> assign(:unlocked_count, user_unlocked_count)
   end
 
   # ---------------------------------------------------------------------------
@@ -131,10 +129,9 @@ defmodule GameServerWeb.AchievementsLive do
             <h1 class="text-3xl font-bold">{dgettext("achievements", "Achievements")}</h1>
             <p class="text-base-content/60 mt-1">
               <%= if @current_scope && @current_scope.user do %>
-                {dgettext("achievements", "%{unlocked} of %{total} unlocked · %{points} points",
+                {dgettext("achievements", "%{unlocked} of %{total} unlocked",
                   unlocked: @unlocked_count,
-                  total: @total_count,
-                  points: @user_points
+                  total: @total_count
                 )}
               <% else %>
                 {dgettext("achievements", "%{total} achievements available", total: @total_count)}
@@ -274,7 +271,7 @@ defmodule GameServerWeb.AchievementsLive do
       )
     ]}>
       <div class="card-body p-4">
-        <%!-- Top row: icon + title + points --%>
+        <%!-- Top row: icon + title --%>
         <div class="flex items-start gap-3">
           <%!-- Icon or placeholder --%>
           <div class={[
@@ -299,20 +296,12 @@ defmodule GameServerWeb.AchievementsLive do
           </div>
 
           <div class="flex-1 min-w-0">
-            <div class="flex items-center justify-between gap-2">
-              <h3 class={[
-                "font-semibold text-sm leading-tight truncate",
-                if(!@unlocked?, do: "text-base-content/60")
-              ]}>
-                {@achievement.title}
-              </h3>
-              <span class={[
-                "badge badge-sm flex-shrink-0",
-                if(@unlocked?, do: "badge-success", else: "badge-ghost")
-              ]}>
-                {@achievement.points} pts
-              </span>
-            </div>
+            <h3 class={[
+              "font-semibold text-sm leading-tight truncate",
+              if(!@unlocked?, do: "text-base-content/60")
+            ]}>
+              {@achievement.title}
+            </h3>
 
             <p class={[
               "text-xs mt-1 line-clamp-2",

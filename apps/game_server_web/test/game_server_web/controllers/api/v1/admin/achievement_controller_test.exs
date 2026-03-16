@@ -24,14 +24,12 @@ defmodule GameServerWeb.Api.V1.Admin.AchievementControllerTest do
       |> post("/api/v1/admin/achievements", %{
         "slug" => "admin_ach",
         "title" => "Admin Achievement",
-        "points" => 50,
         "progress_target" => 1
       })
 
     resp = json_response(conn, 201)
     assert resp["data"]["slug"] == "admin_ach"
     assert resp["data"]["title"] == "Admin Achievement"
-    assert resp["data"]["points"] == 50
   end
 
   test "POST /api/v1/admin/achievements returns errors for invalid data", %{

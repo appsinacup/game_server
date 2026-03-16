@@ -12,7 +12,6 @@ defmodule GameServer.Achievements.Achievement do
   - `title` - Display title (string)
   - `description` - Optional description (string)
   - `icon_url` - Optional icon URL (string)
-  - `points` - Point value awarded on unlock (integer, default 0)
   - `sort_order` - Display ordering (integer, default 0)
   - `hidden` - Whether hidden from public listings until unlocked (boolean)
   - `progress_target` - Number of increments required to unlock (integer, default 1)
@@ -27,7 +26,6 @@ defmodule GameServer.Achievements.Achievement do
           title: String.t(),
           description: String.t() | nil,
           icon_url: String.t() | nil,
-          points: non_neg_integer(),
           sort_order: integer(),
           hidden: boolean(),
           progress_target: pos_integer(),
@@ -42,7 +40,6 @@ defmodule GameServer.Achievements.Achievement do
     :title,
     :description,
     :icon_url,
-    :points,
     :sort_order,
     :hidden,
     :progress_target,

@@ -71,7 +71,6 @@ defmodule GameServerWeb.Api.V1.AchievementControllerTest do
         slug: "full_fields_api",
         title: "Full",
         description: "Desc",
-        points: 10,
         progress_target: 5,
         hidden: false
       })
@@ -83,7 +82,6 @@ defmodule GameServerWeb.Api.V1.AchievementControllerTest do
       assert item["slug"] == "full_fields_api"
       assert item["title"] == "Full"
       assert item["description"] == "Desc"
-      assert item["points"] == 10
       assert item["progress_target"] == 5
     end
   end
@@ -108,7 +106,7 @@ defmodule GameServerWeb.Api.V1.AchievementControllerTest do
   describe "GET /api/v1/achievements/me" do
     test "returns authenticated user's unlocked achievements", %{conn: conn} do
       user = AccountsFixtures.user_fixture()
-      ach = create_achievement(%{slug: "my_ach", points: 10})
+      ach = create_achievement(%{slug: "my_ach"})
       {:ok, _} = Achievements.unlock_achievement(user.id, "my_ach")
 
       conn =
@@ -119,7 +117,6 @@ defmodule GameServerWeb.Api.V1.AchievementControllerTest do
       resp = json_response(conn, 200)
       assert length(resp["data"]) == 1
       assert hd(resp["data"])["slug"] == "my_ach"
-      assert resp["total_points"] == 10
     end
 
     test "requires authentication", %{conn: conn} do

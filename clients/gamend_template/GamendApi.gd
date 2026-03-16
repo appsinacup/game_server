@@ -666,7 +666,7 @@ func achievements_list_achievements(page = 1, page_size = 25) -> GamendResult:
 func achievements_get_achievement(slug: String) -> GamendResult:
 	return await _call_api(AchievementsApi.new(_config), "get_achievement", [slug])
 
-## List my achievements (auth required). Returns achievements with progress and total_points.
+## List my achievements (auth required). Returns achievements with progress.
 func achievements_my_achievements(page = 1, page_size = 25) -> GamendResult:
 	return await _call_api(AchievementsApi.new(_config), "my_achievements", [page, page_size])
 

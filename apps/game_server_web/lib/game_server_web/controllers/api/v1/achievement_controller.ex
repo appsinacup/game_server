@@ -15,7 +15,6 @@ defmodule GameServerWeb.Api.V1.AchievementController do
       title: %Schema{type: :string, description: "Display title"},
       description: %Schema{type: :string, description: "Description"},
       icon_url: %Schema{type: :string, description: "Icon URL"},
-      points: %Schema{type: :integer, description: "Point value"},
       sort_order: %Schema{type: :integer, description: "Display order"},
       hidden: %Schema{type: :boolean, description: "Whether hidden until unlocked"},
       progress_target: %Schema{type: :integer, description: "Steps to complete (1 = one-shot)"},
@@ -37,7 +36,6 @@ defmodule GameServerWeb.Api.V1.AchievementController do
       title: "Welcome!",
       description: "Join your first lobby",
       icon_url: "",
-      points: 10,
       sort_order: 0,
       hidden: false,
       progress_target: 1,
@@ -183,8 +181,7 @@ defmodule GameServerWeb.Api.V1.AchievementController do
            type: :object,
            properties: %{
              data: %Schema{type: :array, items: @achievement_schema},
-             meta: @meta_schema,
-             total_points: %Schema{type: :integer, description: "Total achievement points earned"}
+             meta: @meta_schema
            }
          }},
       401 => {"Unauthorized", "application/json", %Schema{type: :object}}
@@ -201,7 +198,6 @@ defmodule GameServerWeb.Api.V1.AchievementController do
           Achievements.list_user_achievements(user_id, page: page, page_size: page_size)
 
         total_count = Achievements.count_user_achievements(user_id)
-        total_points = Achievements.get_user_points(user_id)
         total_pages = max(ceil(total_count / page_size), 1)
         count = length(user_achievements)
 
@@ -221,8 +217,7 @@ defmodule GameServerWeb.Api.V1.AchievementController do
             total_count: total_count,
             total_pages: total_pages,
             has_more: count == page_size
-          },
-          total_points: total_points
+          }
         })
 
       _ ->
@@ -250,8 +245,7 @@ defmodule GameServerWeb.Api.V1.AchievementController do
            type: :object,
            properties: %{
              data: %Schema{type: :array, items: @achievement_schema},
-             meta: @meta_schema,
-             total_points: %Schema{type: :integer}
+             meta: @meta_schema
            }
          }}
     }
@@ -267,7 +261,6 @@ defmodule GameServerWeb.Api.V1.AchievementController do
           Achievements.list_user_achievements(user_id, page: page, page_size: page_size)
 
         total_count = Achievements.count_user_achievements(user_id)
-        total_points = Achievements.get_user_points(user_id)
         total_pages = max(ceil(total_count / page_size), 1)
         count = length(user_achievements)
 
@@ -287,8 +280,7 @@ defmodule GameServerWeb.Api.V1.AchievementController do
             total_count: total_count,
             total_pages: total_pages,
             has_more: count == page_size
-          },
-          total_points: total_points
+          }
         })
 
       _ ->
@@ -307,7 +299,6 @@ defmodule GameServerWeb.Api.V1.AchievementController do
       title: a.title,
       description: a.description || "",
       icon_url: a.icon_url || "",
-      points: a.points,
       sort_order: a.sort_order,
       hidden: a.hidden,
       progress_target: a.progress_target,

@@ -11,7 +11,6 @@ defmodule GameServer.Achievements do
         slug: "first_lobby",
         title: "Welcome!",
         description: "Join your first lobby",
-        points: 10,
         progress_target: 1
       })
 
@@ -296,17 +295,6 @@ defmodule GameServer.Achievements do
     |> Repo.aggregate(:count)
   end
 
-  @doc "Get total points earned by a user."
-  @spec get_user_points(integer()) :: non_neg_integer()
-  def get_user_points(user_id) when is_integer(user_id) do
-    from(ua in UserAchievement,
-      join: a in assoc(ua, :achievement),
-      where: ua.user_id == ^user_id and not is_nil(ua.unlocked_at),
-      select: coalesce(sum(a.points), 0)
-    )
-    |> Repo.one()
-  end
-
   # ---------------------------------------------------------------------------
   # Unlocking & progress
   # ---------------------------------------------------------------------------
@@ -513,8 +501,7 @@ defmodule GameServer.Achievements do
         metadata: %{
           type: "achievement_unlocked",
           achievement_id: achievement.id,
-          achievement_slug: achievement.slug,
-          points: achievement.points
+          achievement_slug: achievement.slug
         }
       })
     end)

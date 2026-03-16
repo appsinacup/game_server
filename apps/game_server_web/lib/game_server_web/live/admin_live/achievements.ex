@@ -66,7 +66,6 @@ defmodule GameServerWeb.AdminLive.Achievements do
                     <th>ID</th>
                     <th>Slug</th>
                     <th>Title</th>
-                    <th>Points</th>
                     <th>Target</th>
                     <th>Hidden</th>
                     <th>Order</th>
@@ -89,9 +88,6 @@ defmodule GameServerWeb.AdminLive.Achievements do
                     <td class="font-mono text-sm">{a.id}</td>
                     <td class="font-mono text-sm">{a.slug}</td>
                     <td class="text-sm">{a.title}</td>
-                    <td class="text-sm">
-                      <span class="badge badge-ghost badge-sm">{a.points}</span>
-                    </td>
                     <td class="text-sm">{a.progress_target}</td>
                     <td class="text-sm">
                       <%= if a.hidden do %>
@@ -187,7 +183,6 @@ defmodule GameServerWeb.AdminLive.Achievements do
               <.input field={@form[:title]} type="text" label="Title" />
               <.input field={@form[:description]} type="textarea" label="Description" />
               <.input field={@form[:icon_url]} type="text" label="Icon URL (optional)" />
-              <.input field={@form[:points]} type="number" label="Points" />
               <.input
                 field={@form[:progress_target]}
                 type="number"
