@@ -11,7 +11,6 @@ Manages achievement definitions and user progress/unlocks.
       slug: "first_lobby",
       title: "Welcome!",
       description: "Join your first lobby",
-      points: 10,
       progress_target: 1
     })
 
@@ -109,14 +108,6 @@ Get an achievement by slug.
 ```
 
 Get a user's progress on a specific achievement.
-
-# `get_user_points`
-
-```elixir
-@spec get_user_points(integer()) :: non_neg_integer()
-```
-
-Get total points earned by a user.
 
 # `grant_achievement`
 

@@ -9,7 +9,6 @@ An achievement is a goal or milestone that players can unlock.
 - `title` — display name
 - `description` — human-readable description
 - `icon_url` — optional icon path/URL
-- `points` — point value for this achievement
 - `sort_order` — display ordering (lower = first)
 - `hidden` — if true, not shown until unlocked
 - `progress_target` — number of steps to complete (1 = one-shot, >1 = incremental)
@@ -26,7 +25,6 @@ An achievement is a goal or milestone that players can unlock.
   id: term(),
   inserted_at: term(),
   metadata: term(),
-  points: term(),
   progress_target: term(),
   slug: term(),
   sort_order: term(),

@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.760">
+    <meta name="project" content="GameServer v1.0.761">
 
 
-    <title>GameServer.Achievements.Achievement — GameServer v1.0.760</title>
+    <title>GameServer.Achievements.Achievement — GameServer v1.0.761</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-6DBAE7D4.js"></script>
+    <script defer src="dist/sidebar_items-6CA838FD.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.760
+          v1.0.761
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Achievements.<wbr>Achievement</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.760)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.761)</small>
 
     </h1>
 
@@ -109,7 +109,7 @@ GameServer
 
 
     <section id="moduledoc">
-<p>Ecto schema for the <code class="inline">achievements</code> table.</p><p>An achievement is a goal or milestone that players can unlock.</p><h2 id="module-fields" class="section-heading"><a href="#module-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">slug</code> — unique identifier (e.g., &quot;first_lobby_join&quot;)</li><li><code class="inline">title</code> — display name</li><li><code class="inline">description</code> — human-readable description</li><li><code class="inline">icon_url</code> — optional icon path/URL</li><li><code class="inline">points</code> — point value for this achievement</li><li><code class="inline">sort_order</code> — display ordering (lower = first)</li><li><code class="inline">hidden</code> — if true, not shown until unlocked</li><li><code class="inline">progress_target</code> — number of steps to complete (1 = one-shot, &gt;1 = incremental)</li><li><code class="inline">metadata</code> — arbitrary JSON data</li></ul>
+<p>Ecto schema for the <code class="inline">achievements</code> table.</p><p>An achievement is a goal or milestone that players can unlock.</p><h2 id="module-fields" class="section-heading"><a href="#module-fields" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Fields</span></h2><ul><li><code class="inline">slug</code> — unique identifier (e.g., &quot;first_lobby_join&quot;)</li><li><code class="inline">title</code> — display name</li><li><code class="inline">description</code> — human-readable description</li><li><code class="inline">icon_url</code> — optional icon path/URL</li><li><code class="inline">sort_order</code> — display ordering (lower = first)</li><li><code class="inline">hidden</code> — if true, not shown until unlocked</li><li><code class="inline">progress_target</code> — number of steps to complete (1 = one-shot, &gt;1 = incremental)</li><li><code class="inline">metadata</code> — arbitrary JSON data</li></ul>
     </section>
 
 </div>
@@ -173,7 +173,6 @@ GameServer
   id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
   inserted_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
   metadata: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  points: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
   progress_target: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
   slug: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
   sort_order: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),

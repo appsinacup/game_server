@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.760">
+    <meta name="project" content="GameServer v1.0.761">
 
 
-    <title>GameServer.Achievements — GameServer v1.0.760</title>
+    <title>GameServer.Achievements — GameServer v1.0.761</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-6DBAE7D4.js"></script>
+    <script defer src="dist/sidebar_items-6CA838FD.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.760
+          v1.0.761
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Achievements</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.760)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.761)</small>
 
     </h1>
 
@@ -110,23 +110,22 @@ GameServer
 
     <section id="moduledoc">
 <p>The Achievements context.</p><p>Manages achievement definitions and user progress/unlocks.</p><h2 id="module-usage" class="section-heading"><a href="#module-usage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># Create an achievement (admin)</span><span class="w">
-</span><span class="p" data-group-id="4379369045-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">ach</span><span class="p" data-group-id="4379369045-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Achievements</span><span class="o">.</span><span class="n">create_achievement</span><span class="p" data-group-id="4379369045-2">(</span><span class="p" data-group-id="4379369045-3">%{</span><span class="w">
+</span><span class="p" data-group-id="3865854837-1">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">ach</span><span class="p" data-group-id="3865854837-1">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Achievements</span><span class="o">.</span><span class="n">create_achievement</span><span class="p" data-group-id="3865854837-2">(</span><span class="p" data-group-id="3865854837-3">%{</span><span class="w">
   </span><span class="ss">slug</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;first_lobby&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Welcome!&quot;</span><span class="p">,</span><span class="w">
   </span><span class="ss">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Join your first lobby&quot;</span><span class="p">,</span><span class="w">
-  </span><span class="ss">points</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w">
   </span><span class="ss">progress_target</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
-</span><span class="p" data-group-id="4379369045-3">}</span><span class="p" data-group-id="4379369045-2">)</span><span class="w">
+</span><span class="p" data-group-id="3865854837-3">}</span><span class="p" data-group-id="3865854837-2">)</span><span class="w">
 
 </span><span class="c1"># Unlock a one-shot achievement</span><span class="w">
-</span><span class="p" data-group-id="4379369045-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">ua</span><span class="p" data-group-id="4379369045-4">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Achievements</span><span class="o">.</span><span class="n">unlock_achievement</span><span class="p" data-group-id="4379369045-5">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;first_lobby&quot;</span><span class="p" data-group-id="4379369045-5">)</span><span class="w">
+</span><span class="p" data-group-id="3865854837-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">ua</span><span class="p" data-group-id="3865854837-4">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Achievements</span><span class="o">.</span><span class="n">unlock_achievement</span><span class="p" data-group-id="3865854837-5">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;first_lobby&quot;</span><span class="p" data-group-id="3865854837-5">)</span><span class="w">
 
 </span><span class="c1"># Increment progress on a multi-step achievement</span><span class="w">
-</span><span class="p" data-group-id="4379369045-6">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">ua</span><span class="p" data-group-id="4379369045-6">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Achievements</span><span class="o">.</span><span class="n">increment_progress</span><span class="p" data-group-id="4379369045-7">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;chat_100&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p" data-group-id="4379369045-7">)</span><span class="w">
+</span><span class="p" data-group-id="3865854837-6">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">ua</span><span class="p" data-group-id="3865854837-6">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Achievements</span><span class="o">.</span><span class="n">increment_progress</span><span class="p" data-group-id="3865854837-7">(</span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;chat_100&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p" data-group-id="3865854837-7">)</span><span class="w">
 </span><span class="c1"># auto-unlocks when progress &gt;= progress_target</span><span class="w">
 
 </span><span class="c1"># List achievements (with user progress if user_id provided)</span><span class="w">
-</span><span class="n">achievements</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Achievements</span><span class="o">.</span><span class="n">list_achievements</span><span class="p" data-group-id="4379369045-8">(</span><span class="ss">user_id</span><span class="p">:</span><span class="w"> </span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p" data-group-id="4379369045-8">)</span></code></pre>
+</span><span class="n">achievements</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">Achievements</span><span class="o">.</span><span class="n">list_achievements</span><span class="p" data-group-id="3865854837-8">(</span><span class="ss">user_id</span><span class="p">:</span><span class="w"> </span><span class="n">user_id</span><span class="p">,</span><span class="w"> </span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p" data-group-id="3865854837-8">)</span></code></pre>
     </section>
 
 </div>
@@ -240,16 +239,6 @@ GameServer
       </div>
 
         <div class="summary-synopsis"><p>Get a user's progress on a specific achievement.</p></div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#get_user_points/1" data-no-tooltip="" translate="no">get_user_points(user_id)</a>
-
-      </div>
-
-        <div class="summary-synopsis"><p>Get total points earned by a user.</p></div>
 
     </div>
 
@@ -616,30 +605,6 @@ sets progress to the target and marks it as unlocked.</p></div>
       </div>
 
 <p>Get a user's progress on a specific achievement.</p>
-  </section>
-</section>
-<section class="detail" id="get_user_points/1">
-
-  <div class="detail-header">
-    <a href="#get_user_points/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">get_user_points(user_id)</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> get_user_points(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
-
-      </div>
-
-<p>Get total points earned by a user.</p>
   </section>
 </section>
 <section class="detail" id="grant_achievement/2">
