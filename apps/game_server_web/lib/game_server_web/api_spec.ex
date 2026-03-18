@@ -17,7 +17,7 @@ defmodule GameServerWeb.ApiSpec do
         title: "Game Server API",
         version: api_version(),
         description: """
-        API for the Gamend Game Server. Has authentication, users, lobbies, groups, friends, notifications, leaderboards, server scripting and admin portal.
+        API for the Gamend Game Server. Has authentication, users, lobbies, groups, parties, friends, chat, notifications, achievements, leaderboards, server scripting and admin portal.
 
         ## **1. Authentication**
 

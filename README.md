@@ -2,7 +2,7 @@
 
 # Gamend
 
-**Open source game server with authentication, users, lobbies, groups, notifications, server scripting and an admin portal**
+**Open source game server with authentication, users, lobbies, groups, parties, friends, chat, notifications, achievements, leaderboards, server scripting and an admin portal**
 
 Game + Backend = Gamend
 
@@ -14,9 +14,14 @@ Game + Backend = Gamend
 - **Users** — Profiles, metadata, device tokens, account lifecycle
 - **Lobbies** — Host-managed, max users, hidden/locked, passwords, real-time updates
 - **Groups** — Public / private / hidden communities, roles, join requests, invites
+- **Parties** — Ephemeral groups (2–10 players), invite-based, lobby integration
 - **Friends** — Requests, accept/reject, blocking
-- **Notifications** — User-to-user + server-wide, read/unread, real-time delivery
-- **Server Scripting** — Elixir hooks on server events (login, lobby created, etc.)
+- **Chat** — Lobby, group, party, and friend DMs with read cursors and unread counts
+- **Notifications** — Typed notifications for all social events, read/unread, real-time delivery
+- **Achievements** — Progress tracking, hidden achievements, unlock percentage (rarity), admin management
+- **Leaderboards** — Global and per-user rankings
+- **Key-Value Store** — Server-side key-value storage with access control hooks
+- **Server Scripting** — Elixir hooks on server events (login, lobby created, achievement unlocked, etc.)
 - **Admin Portal** — Built-in web dashboard for managing all resources
 
 ## Client SDKs
