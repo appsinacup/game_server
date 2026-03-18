@@ -157,6 +157,8 @@ defmodule GameServerWeb.UserAuthTest do
 
       @impl true
       def before_kv_get(_key, _opts), do: :public
+      @impl true
+      def after_achievement_unlocked(_user_id, _achievement), do: :ok
     end
 
     test "stores the user token in the session", %{conn: conn, user: user} do

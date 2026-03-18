@@ -1,11 +1,11 @@
 defmodule GameServer.Achievements do
   @moduledoc ~S"""
   The Achievements context.
-
+  
   Manages achievement definitions and user progress/unlocks.
-
+  
   ## Usage
-
+  
       # Create an achievement (admin)
       {:ok, ach} = Achievements.create_achievement(%{
         slug: "first_lobby",
@@ -13,17 +13,17 @@ defmodule GameServer.Achievements do
         description: "Join your first lobby",
         progress_target: 1
       })
-
+  
       # Unlock a one-shot achievement
       {:ok, ua} = Achievements.unlock_achievement(user_id, "first_lobby")
-
+  
       # Increment progress on a multi-step achievement
       {:ok, ua} = Achievements.increment_progress(user_id, "chat_100", 1)
       # auto-unlocks when progress >= progress_target
-
+  
       # List achievements (with user progress if user_id provided)
       achievements = Achievements.list_achievements(user_id: user_id, page: 1, page_size: 25)
-
+  
 
   **Note:** This is an SDK stub. Calling these functions will raise an error.
   The actual implementation runs on the GameServer.
@@ -232,9 +232,9 @@ defmodule GameServer.Achievements do
   @doc ~S"""
     Increment progress on an achievement for a user. Automatically unlocks
     when progress reaches the target.
-
+    
     Returns `{:ok, user_achievement}`.
-
+    
   """
   @spec increment_progress(integer(), String.t()) ::
   {:ok, GameServer.Achievements.UserAchievement.t()} | {:error, atom()}
@@ -252,9 +252,9 @@ defmodule GameServer.Achievements do
   @doc ~S"""
     Increment progress on an achievement for a user. Automatically unlocks
     when progress reaches the target.
-
+    
     Returns `{:ok, user_achievement}`.
-
+    
   """
   @spec increment_progress(integer(), String.t(), pos_integer()) ::
   {:ok, GameServer.Achievements.UserAchievement.t()} | {:error, atom()}
@@ -271,13 +271,13 @@ defmodule GameServer.Achievements do
 
   @doc ~S"""
     Lists all achievements, optionally with user progress.
-
+    
     ## Options
     - `:user_id` — if provided, includes user progress/unlock status
     - `:page` — page number (default: 1)
     - `:page_size` — items per page (default: 25)
     - `:include_hidden` — if true, include hidden achievements (default: false)
-
+    
   """
   @spec list_achievements() :: [map()]
   def list_achievements() do
@@ -293,13 +293,13 @@ defmodule GameServer.Achievements do
 
   @doc ~S"""
     Lists all achievements, optionally with user progress.
-
+    
     ## Options
     - `:user_id` — if provided, includes user progress/unlock status
     - `:page` — page number (default: 1)
     - `:page_size` — items per page (default: 25)
     - `:include_hidden` — if true, include hidden achievements (default: false)
-
+    
   """
   @spec list_achievements(keyword()) :: [map()]
   def list_achievements(_opts) do
@@ -364,7 +364,7 @@ defmodule GameServer.Achievements do
 
   @doc ~S"""
     Revoke an achievement from a user. Deletes the user_achievement record entirely.
-
+    
   """
   @spec revoke_achievement(integer(), integer()) ::
   {:ok, GameServer.Achievements.UserAchievement.t()} | {:error, atom()}
@@ -397,9 +397,9 @@ defmodule GameServer.Achievements do
   @doc ~S"""
     Unlock an achievement for a user by slug. If it's a progress-based achievement,
     sets progress to the target and marks it as unlocked.
-
+    
     Returns `{:ok, user_achievement}` or `{:error, reason}`.
-
+    
   """
   @spec unlock_achievement(integer(), String.t() | integer()) ::
   {:ok, GameServer.Achievements.UserAchievement.t()} | {:error, atom()}

@@ -494,10 +494,19 @@ defmodule GameServer.Achievements do
     broadcast_achievement_unlocked(user_id, user_achievement)
 
     # Send notification (sender = recipient for system notifications)
+    # Hidden achievements show "Secret Achievement" as content until viewed
+    {notification_title, notification_content} =
+      if achievement.hidden do
+        {"Secret Achievement Unlocked", "You unlocked a secret achievement!"}
+      else
+        {"Achievement Unlocked: #{achievement.title}",
+         achievement.description || achievement.title}
+      end
+
     GameServer.Async.run(fn ->
       GameServer.Notifications.admin_create_notification(user_id, user_id, %{
-        title: "Achievement Unlocked",
-        content: achievement.title,
+        title: notification_title,
+        content: notification_content,
         metadata: %{
           type: "achievement_unlocked",
           achievement_id: achievement.id,

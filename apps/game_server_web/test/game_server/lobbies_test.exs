@@ -138,6 +138,8 @@ defmodule GameServer.LobbiesTest do
 
       @impl true
       def on_custom_hook(_hook, _args), do: {:error, :not_implemented}
+      @impl true
+      def after_achievement_unlocked(_user_id, _achievement), do: :ok
     end
 
     setup do

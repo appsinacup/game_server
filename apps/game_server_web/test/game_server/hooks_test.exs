@@ -160,6 +160,8 @@ defmodule GameServer.HooksTest do
 
     @impl true
     def on_custom_hook(_hook, _args), do: {:error, :not_implemented}
+    @impl true
+    def after_achievement_unlocked(_user_id, _achievement), do: :ok
   end
 
   test "after_user_register hook runs and can modify the created user" do
@@ -373,6 +375,8 @@ defmodule GameServer.HooksTest do
 
       @impl true
       def before_kv_get(_key, _opts), do: :public
+      @impl true
+      def after_achievement_unlocked(_user_id, _achievement), do: :ok
     end
 
     alias GameServer.Hooks

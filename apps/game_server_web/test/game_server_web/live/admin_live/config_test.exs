@@ -230,6 +230,8 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
       def after_party_kick(_target, _leader, _party), do: :ok
       def after_party_disband(_party), do: :ok
 
+      def after_achievement_unlocked(_user_id, _achievement), do: :ok
+
       def before_kv_get(_key, _opts), do: :public
 
       def on_custom_hook("custom_hello", _args), do: "hello"

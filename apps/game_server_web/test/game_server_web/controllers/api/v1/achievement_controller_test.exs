@@ -10,7 +10,7 @@ defmodule GameServerWeb.Api.V1.AchievementControllerTest do
     put_req_header(conn, "authorization", "Bearer " <> token)
   end
 
-  defp create_achievement(attrs \\ %{}) do
+  defp create_achievement(attrs) do
     defaults = %{slug: "ach_#{System.unique_integer([:positive])}", title: "Test"}
     {:ok, ach} = Achievements.create_achievement(Map.merge(defaults, attrs))
     ach
@@ -88,7 +88,7 @@ defmodule GameServerWeb.Api.V1.AchievementControllerTest do
 
   describe "GET /api/v1/achievements/:slug" do
     test "returns a single achievement by slug", %{conn: conn} do
-      ach = create_achievement(%{slug: "show_slug", title: "Show Me"})
+      create_achievement(%{slug: "show_slug", title: "Show Me"})
 
       conn = get(conn, "/api/v1/achievements/show_slug")
       resp = json_response(conn, 200)
@@ -106,7 +106,7 @@ defmodule GameServerWeb.Api.V1.AchievementControllerTest do
   describe "GET /api/v1/achievements/me" do
     test "returns authenticated user's unlocked achievements", %{conn: conn} do
       user = AccountsFixtures.user_fixture()
-      ach = create_achievement(%{slug: "my_ach"})
+      create_achievement(%{slug: "my_ach"})
       {:ok, _} = Achievements.unlock_achievement(user.id, "my_ach")
 
       conn =

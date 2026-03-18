@@ -128,7 +128,7 @@ defmodule GameServer.AchievementsTest do
 
     test "list_achievements/1 shows unlocked hidden achievements for user" do
       user = AccountsFixtures.user_fixture()
-      ach = create_achievement(%{slug: "hidden_unlocked", hidden: true})
+      create_achievement(%{slug: "hidden_unlocked", hidden: true})
       {:ok, _} = Achievements.unlock_achievement(user.id, "hidden_unlocked")
 
       results = Achievements.list_achievements(user_id: user.id)
@@ -138,7 +138,7 @@ defmodule GameServer.AchievementsTest do
 
     test "list_achievements/1 includes user progress when user_id provided" do
       user = AccountsFixtures.user_fixture()
-      ach = create_achievement(%{slug: "with_progress", progress_target: 10})
+      create_achievement(%{slug: "with_progress", progress_target: 10})
       {:ok, _} = Achievements.increment_progress(user.id, "with_progress", 3)
 
       results = Achievements.list_achievements(user_id: user.id)
@@ -312,7 +312,7 @@ defmodule GameServer.AchievementsTest do
   describe "unlock_percentage/1" do
     test "returns unlock percentage" do
       user1 = AccountsFixtures.user_fixture()
-      user2 = AccountsFixtures.user_fixture()
+      _user2 = AccountsFixtures.user_fixture()
       ach = create_achievement(%{slug: "rarity_test"})
 
       {:ok, _} = Achievements.unlock_achievement(user1.id, "rarity_test")
