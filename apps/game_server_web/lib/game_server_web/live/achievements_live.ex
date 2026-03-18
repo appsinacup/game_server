@@ -9,7 +9,7 @@ defmodule GameServerWeb.AchievementsLive do
 
   alias GameServer.Achievements
 
-  @page_size 24
+  @page_size 100
 
   @impl true
   def mount(_params, _session, socket) do
@@ -45,12 +45,27 @@ defmodule GameServerWeb.AchievementsLive do
      |> load_achievements()}
   end
 
-  def handle_event("page", %{"page" => page}, socket) do
-    page = String.to_integer(page)
+  def handle_event("prev_page", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:page, max(1, socket.assigns.page - 1))
+     |> load_achievements()}
+  end
+
+  def handle_event("next_page", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:page, socket.assigns.page + 1)
+     |> load_achievements()}
+  end
+
+  def handle_event("page_size", %{"size" => size}, socket) do
+    size = size |> String.to_integer() |> min(200) |> max(24)
 
     {:noreply,
      socket
-     |> assign(:page, max(page, 1))
+     |> assign(:page_size, size)
+     |> assign(:page, 1)
      |> load_achievements()}
   end
 
@@ -208,32 +223,18 @@ defmodule GameServerWeb.AchievementsLive do
         <% end %>
 
         <%!-- Pagination --%>
-        <%= if @total_pages > 1 do %>
-          <div class="flex justify-center items-center gap-2 pt-4">
-            <button
-              phx-click="page"
-              phx-value-page={@page - 1}
-              disabled={@page <= 1}
-              class="btn btn-sm btn-outline"
-            >
-              {dgettext("achievements", "Previous")}
-            </button>
-            <span class="text-sm text-base-content/60">
-              {dgettext("achievements", "Page %{page} of %{total}",
-                page: @page,
-                total: @total_pages
-              )}
-            </span>
-            <button
-              phx-click="page"
-              phx-value-page={@page + 1}
-              disabled={@page >= @total_pages}
-              class="btn btn-sm btn-outline"
-            >
-              {dgettext("achievements", "Next")}
-            </button>
-          </div>
-        <% end %>
+        <div class="flex justify-center items-center pt-4">
+          <.pagination
+            page={@page}
+            total_pages={@total_pages}
+            total_count={@total_count}
+            page_size={@page_size}
+            on_prev="prev_page"
+            on_next="next_page"
+            on_page_size="page_size"
+            page_sizes={[24, 50, 100, 200]}
+          />
+        </div>
       </div>
     </Layouts.app>
     """

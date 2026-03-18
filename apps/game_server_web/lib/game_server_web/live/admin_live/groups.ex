@@ -215,24 +215,16 @@ defmodule GameServerWeb.AdminLive.Groups do
               </div>
             </form>
 
-            <div class="mt-4 flex gap-2 items-center">
-              <button
-                phx-click="admin_groups_prev"
-                class="btn btn-xs"
-                disabled={@groups_page <= 1}
-              >
-                Prev
-              </button>
-              <div class="text-xs text-base-content/70">
-                page {@groups_page} / {@groups_total_pages} ({@count} total)
-              </div>
-              <button
-                phx-click="admin_groups_next"
-                class="btn btn-xs"
-                disabled={@groups_page >= @groups_total_pages || @groups_total_pages == 0}
-              >
-                Next
-              </button>
+            <div class="mt-4">
+              <.pagination
+                page={@groups_page}
+                total_pages={@groups_total_pages}
+                total_count={@count}
+                page_size={@groups_page_size}
+                on_prev="admin_groups_prev"
+                on_next="admin_groups_next"
+                on_page_size="admin_groups_page_size"
+              />
             </div>
           </div>
         </div>
@@ -626,6 +618,17 @@ defmodule GameServerWeb.AdminLive.Groups do
   def handle_event("admin_groups_next", _params, socket) do
     page = (socket.assigns[:groups_page] || 1) + 1
     {:noreply, socket |> assign(:groups_page, page) |> reload_groups()}
+  end
+
+  @impl true
+  def handle_event("admin_groups_page_size", %{"size" => size}, socket) do
+    size = size |> String.to_integer() |> min(200) |> max(25)
+
+    {:noreply,
+     socket
+     |> assign(:groups_page_size, size)
+     |> assign(:groups_page, 1)
+     |> reload_groups()}
   end
 
   # ---------------------------------------------------------------------------

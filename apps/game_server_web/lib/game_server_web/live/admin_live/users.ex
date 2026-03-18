@@ -357,20 +357,16 @@ defmodule GameServerWeb.AdminLive.Users do
                 </tbody>
               </table>
             </div>
-            <div class="mt-4 flex gap-2 items-center">
-              <button phx-click="admin_users_prev" class="btn btn-xs" disabled={@users_page <= 1}>
-                Prev
-              </button>
-              <div class="text-xs text-base-content/70">
-                page {@users_page} / {@users_total_pages} ({@users_count} total)
-              </div>
-              <button
-                phx-click="admin_users_next"
-                class="btn btn-xs"
-                disabled={@users_page >= @users_total_pages || @users_total_pages == 0}
-              >
-                Next
-              </button>
+            <div class="mt-4">
+              <.pagination
+                page={@users_page}
+                total_pages={@users_total_pages}
+                total_count={@users_count}
+                page_size={@users_page_size}
+                on_prev="admin_users_prev"
+                on_next="admin_users_next"
+                on_page_size="admin_users_page_size"
+              />
             </div>
           </div>
         </div>
@@ -787,6 +783,27 @@ defmodule GameServerWeb.AdminLive.Users do
     {:noreply,
      socket
      |> assign(:users_page, page)
+     |> assign(:recent_users, users)
+     |> assign(:users_count, total_count)
+     |> assign(:users_total_pages, total_pages)
+     |> sync_selected_ids(user_ids(users))}
+  end
+
+  def handle_event("admin_users_page_size", %{"size" => size}, socket) do
+    page_size = String.to_integer(size)
+
+    {users, total_count, total_pages} =
+      load_users(
+        1,
+        page_size,
+        socket.assigns[:search_query] || "",
+        socket.assigns[:filters] || []
+      )
+
+    {:noreply,
+     socket
+     |> assign(:users_page_size, page_size)
+     |> assign(:users_page, 1)
      |> assign(:recent_users, users)
      |> assign(:users_count, total_count)
      |> assign(:users_total_pages, total_pages)

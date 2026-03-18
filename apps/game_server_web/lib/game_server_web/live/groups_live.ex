@@ -137,6 +137,13 @@ defmodule GameServerWeb.GroupsLive do
      |> load_groups()}
   end
 
+  def handle_event("groups_page_size", %{"size" => size}, socket) do
+    {:noreply,
+     socket
+     |> assign(page_size: String.to_integer(size), page: 1)
+     |> load_groups()}
+  end
+
   def handle_event("view_group", %{"id" => id}, socket) do
     {:noreply, push_patch(socket, to: ~p"/groups/#{id}")}
   end
@@ -493,24 +500,16 @@ defmodule GameServerWeb.GroupsLive do
       </div>
     <% end %>
 
-    <div class="mt-6 flex gap-2 items-center justify-center">
-      <button phx-click="prev_page" class="btn btn-sm" disabled={@page <= 1}>
-        ← {gettext("Previous")}
-      </button>
-      <div class="text-sm text-base-content/70">
-        {gettext("Page %{page} of %{total} (%{count} total)",
-          page: @page,
-          total: max(@total_pages, 1),
-          count: @total_count
-        )}
-      </div>
-      <button
-        phx-click="next_page"
-        class="btn btn-sm"
-        disabled={@page >= @total_pages || @total_pages == 0}
-      >
-        {gettext("Next")} →
-      </button>
+    <div class="mt-6 flex justify-center">
+      <.pagination
+        page={@page}
+        total_pages={@total_pages}
+        total_count={@total_count}
+        page_size={@page_size}
+        on_prev="prev_page"
+        on_next="next_page"
+        on_page_size="groups_page_size"
+      />
     </div>
     """
   end
@@ -641,24 +640,14 @@ defmodule GameServerWeb.GroupsLive do
           </div>
         <% end %>
 
-        <div class="mt-4 flex gap-2 items-center justify-center">
-          <button phx-click="members_prev" class="btn btn-sm" disabled={@members_page <= 1}>
-            ← {gettext("Previous")}
-          </button>
-          <div class="text-sm text-base-content/70">
-            {gettext("Page %{page} of %{total} (%{count} total)",
-              page: @members_page,
-              total: max(@members_total_pages, 1),
-              count: @members_total
-            )}
-          </div>
-          <button
-            phx-click="members_next"
-            class="btn btn-sm"
-            disabled={@members_page >= @members_total_pages || @members_total_pages == 0}
-          >
-            {gettext("Next")} →
-          </button>
+        <div class="mt-4 flex justify-center">
+          <.pagination
+            page={@members_page}
+            total_pages={@members_total_pages}
+            total_count={@members_total}
+            on_prev="members_prev"
+            on_next="members_next"
+          />
         </div>
       </div>
     </div>

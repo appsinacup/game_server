@@ -411,20 +411,14 @@ defmodule GameServerWeb.UserLive.Settings do
                 </div>
               </div>
 
-              <div :if={@incoming_total_pages > 1} class="mt-2 flex gap-2 items-center">
-                <button phx-click="incoming_prev" class="btn btn-xs" disabled={@incoming_page <= 1}>
-                  {gettext("Prev")}
-                </button>
-                <div class="text-xs text-base-content/70">
-                  page {@incoming_page} / {@incoming_total_pages} ({@incoming_total} total)
-                </div>
-                <button
-                  phx-click="incoming_next"
-                  class="btn btn-xs"
-                  disabled={@incoming_page >= @incoming_total_pages || @incoming_total_pages == 0}
-                >
-                  {gettext("Next")}
-                </button>
+              <div :if={@incoming_total_pages > 1} class="mt-2">
+                <.pagination
+                  page={@incoming_page}
+                  total_pages={@incoming_total_pages}
+                  total_count={@incoming_total}
+                  on_prev="incoming_prev"
+                  on_next="incoming_next"
+                />
               </div>
             </div>
 
@@ -444,20 +438,14 @@ defmodule GameServerWeb.UserLive.Settings do
                   </button>
                 </div>
               </div>
-              <div :if={@outgoing_total_pages > 1} class="mt-2 flex gap-2 items-center">
-                <button phx-click="outgoing_prev" class="btn btn-xs" disabled={@outgoing_page <= 1}>
-                  {gettext("Prev")}
-                </button>
-                <div class="text-xs text-base-content/70">
-                  page {@outgoing_page} / {@outgoing_total_pages} ({@outgoing_total} total)
-                </div>
-                <button
-                  phx-click="outgoing_next"
-                  class="btn btn-xs"
-                  disabled={@outgoing_page >= @outgoing_total_pages || @outgoing_total_pages == 0}
-                >
-                  {gettext("Next")}
-                </button>
+              <div :if={@outgoing_total_pages > 1} class="mt-2">
+                <.pagination
+                  page={@outgoing_page}
+                  total_pages={@outgoing_total_pages}
+                  total_count={@outgoing_total}
+                  on_prev="outgoing_prev"
+                  on_next="outgoing_next"
+                />
               </div>
             </div>
 
@@ -491,20 +479,14 @@ defmodule GameServerWeb.UserLive.Settings do
                   </div>
                 </div>
               </div>
-              <div :if={@friends_total_pages > 1} class="mt-2 flex gap-2 items-center">
-                <button phx-click="friends_prev" class="btn btn-xs" disabled={@friends_page <= 1}>
-                  {gettext("Prev")}
-                </button>
-                <div class="text-xs text-base-content/70">
-                  page {@friends_page} / {@friends_total_pages} ({@friends_total} total)
-                </div>
-                <button
-                  phx-click="friends_next"
-                  class="btn btn-xs"
-                  disabled={@friends_page >= @friends_total_pages || @friends_total_pages == 0}
-                >
-                  {gettext("Next")}
-                </button>
+              <div :if={@friends_total_pages > 1} class="mt-2">
+                <.pagination
+                  page={@friends_page}
+                  total_pages={@friends_total_pages}
+                  total_count={@friends_total}
+                  on_prev="friends_prev"
+                  on_next="friends_next"
+                />
               </div>
             </div>
           </div>
@@ -533,20 +515,14 @@ defmodule GameServerWeb.UserLive.Settings do
                   </button>
                 </div>
               </div>
-              <div :if={@blocked_total_pages > 1} class="mt-2 flex gap-2 items-center">
-                <button phx-click="blocked_prev" class="btn btn-xs" disabled={@blocked_page <= 1}>
-                  {gettext("Prev")}
-                </button>
-                <div class="text-xs text-base-content/70">
-                  page {@blocked_page} / {@blocked_total_pages} ({@blocked_total} total)
-                </div>
-                <button
-                  phx-click="blocked_next"
-                  class="btn btn-xs"
-                  disabled={@blocked_page >= @blocked_total_pages || @blocked_total_pages == 0}
-                >
-                  {gettext("Next")}
-                </button>
+              <div :if={@blocked_total_pages > 1} class="mt-2">
+                <.pagination
+                  page={@blocked_page}
+                  total_pages={@blocked_total_pages}
+                  total_count={@blocked_total}
+                  on_prev="blocked_prev"
+                  on_next="blocked_next"
+                />
               </div>
             </div>
 
@@ -586,20 +562,14 @@ defmodule GameServerWeb.UserLive.Settings do
                   </div>
                 </div>
               </div>
-              <div :if={@search_total_pages > 1} class="mt-2 flex gap-2 items-center">
-                <button phx-click="search_prev" class="btn btn-xs" disabled={@search_page <= 1}>
-                  {gettext("Prev")}
-                </button>
-                <div class="text-xs text-base-content/70">
-                  page {@search_page} / {@search_total_pages} ({@search_total} total)
-                </div>
-                <button
-                  phx-click="search_next"
-                  class="btn btn-xs"
-                  disabled={@search_page >= @search_total_pages || @search_total_pages == 0}
-                >
-                  {gettext("Next")}
-                </button>
+              <div :if={@search_total_pages > 1} class="mt-2">
+                <.pagination
+                  page={@search_page}
+                  total_pages={@search_total_pages}
+                  total_count={@search_total}
+                  on_prev="search_prev"
+                  on_next="search_next"
+                />
               </div>
             </div>
           </div>
@@ -677,20 +647,14 @@ defmodule GameServerWeb.UserLive.Settings do
             </table>
           </div>
 
-          <div class="mt-4 flex gap-2 items-center">
-            <button phx-click="kv_prev" class="btn btn-xs" disabled={@kv_page <= 1}>
-              {gettext("Prev")}
-            </button>
-            <div class="text-xs text-base-content/70">
-              page {@kv_page} / {@kv_total_pages} ({@kv_count} total)
-            </div>
-            <button
-              phx-click="kv_next"
-              class="btn btn-xs"
-              disabled={@kv_page >= @kv_total_pages || @kv_total_pages == 0}
-            >
-              {gettext("Next")}
-            </button>
+          <div class="mt-4">
+            <.pagination
+              page={@kv_page}
+              total_pages={@kv_total_pages}
+              total_count={@kv_count}
+              on_prev="kv_prev"
+              on_next="kv_next"
+            />
           </div>
         </div>
       </div>
@@ -967,27 +931,14 @@ defmodule GameServerWeb.UserLive.Settings do
                   </table>
                 </div>
 
-                <div :if={@group_members_total_pages > 1} class="mt-2 flex gap-2 items-center">
-                  <button
-                    phx-click="group_members_prev"
-                    class="btn btn-xs"
-                    disabled={@group_members_page <= 1}
-                  >
-                    {gettext("Prev")}
-                  </button>
-                  <div class="text-xs text-base-content/70">
-                    page {@group_members_page} / {@group_members_total_pages} ({@group_members_total} total)
-                  </div>
-                  <button
-                    phx-click="group_members_next"
-                    class="btn btn-xs"
-                    disabled={
-                      @group_members_page >= @group_members_total_pages ||
-                        @group_members_total_pages == 0
-                    }
-                  >
-                    {gettext("Next")}
-                  </button>
+                <div :if={@group_members_total_pages > 1} class="mt-2">
+                  <.pagination
+                    page={@group_members_page}
+                    total_pages={@group_members_total_pages}
+                    total_count={@group_members_total}
+                    on_prev="group_members_prev"
+                    on_next="group_members_next"
+                  />
                 </div>
               </div>
 
@@ -1346,27 +1297,14 @@ defmodule GameServerWeb.UserLive.Settings do
                 </table>
               </div>
 
-              <div class="mt-4 flex gap-2 items-center">
-                <button
-                  phx-click="browse_groups_prev"
-                  class="btn btn-xs"
-                  disabled={@browse_groups_page <= 1}
-                >
-                  {gettext("Prev")}
-                </button>
-                <div class="text-xs text-base-content/70">
-                  page {@browse_groups_page} / {@browse_groups_total_pages} ({@browse_groups_total} total)
-                </div>
-                <button
-                  phx-click="browse_groups_next"
-                  class="btn btn-xs"
-                  disabled={
-                    @browse_groups_page >= @browse_groups_total_pages ||
-                      @browse_groups_total_pages == 0
-                  }
-                >
-                  {gettext("Next")}
-                </button>
+              <div class="mt-4">
+                <.pagination
+                  page={@browse_groups_page}
+                  total_pages={@browse_groups_total_pages}
+                  total_count={@browse_groups_total}
+                  on_prev="browse_groups_prev"
+                  on_next="browse_groups_next"
+                />
               </div>
             <% end %>
 

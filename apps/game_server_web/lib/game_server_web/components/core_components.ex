@@ -474,4 +474,80 @@ defmodule GameServerWeb.CoreComponents do
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
   end
+
+  # ---------------------------------------------------------------------------
+  # Pagination
+  # ---------------------------------------------------------------------------
+
+  @doc """
+  Renders a pagination bar with Prev/Next buttons, page info, and optional page-size selector.
+
+  ## Attributes
+
+    * `page` — current page number (required)
+    * `total_pages` — total number of pages (required)
+    * `total_count` — total number of items (optional, shown in info text)
+    * `page_size` — current page size (optional, enables size selector when combined with `on_page_size`)
+    * `on_prev` — event name for previous page (required)
+    * `on_next` — event name for next page (required)
+    * `on_page_size` — event name for page size change (optional, enables size selector)
+    * `page_sizes` — list of page size options (default: [25, 50, 100, 200])
+    * `class` — additional CSS classes for the container
+
+  ## Usage
+
+      <.pagination
+        page={@page}
+        total_pages={@total_pages}
+        total_count={@count}
+        page_size={@page_size}
+        on_prev="prev_page"
+        on_next="next_page"
+        on_page_size="page_size"
+      />
+  """
+  attr :page, :integer, required: true
+  attr :total_pages, :integer, required: true
+  attr :total_count, :integer, default: nil
+  attr :page_size, :integer, default: nil
+  attr :on_prev, :string, required: true
+  attr :on_next, :string, required: true
+  attr :on_page_size, :string, default: nil
+  attr :page_sizes, :list, default: [25, 50, 100, 200]
+  attr :class, :string, default: nil
+
+  def pagination(assigns) do
+    ~H"""
+    <div class={["flex flex-wrap items-center gap-2", @class]}>
+      <button phx-click={@on_prev} class="btn btn-xs" disabled={@page <= 1}>
+        Prev
+      </button>
+      <div class="text-xs text-base-content/70">
+        <%= if @total_count do %>
+          page {@page} / {@total_pages} ({@total_count} total)
+        <% else %>
+          page {@page} / {@total_pages}
+        <% end %>
+      </div>
+      <button
+        phx-click={@on_next}
+        class="btn btn-xs"
+        disabled={@page >= @total_pages || @total_pages == 0}
+      >
+        Next
+      </button>
+      <%= if @on_page_size && @page_size do %>
+        <select
+          phx-change={@on_page_size}
+          name="size"
+          class="select select-xs select-bordered w-18 ml-2"
+        >
+          <option :for={size <- @page_sizes} value={size} selected={@page_size == size}>
+            {size}
+          </option>
+        </select>
+      <% end %>
+    </div>
+    """
+  end
 end

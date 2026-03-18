@@ -173,24 +173,16 @@ defmodule GameServerWeb.AdminLive.Chat do
               </div>
             </form>
 
-            <div class="mt-4 flex gap-2 items-center">
-              <button
-                phx-click="admin_chat_prev"
-                class="btn btn-xs"
-                disabled={@page <= 1}
-              >
-                Prev
-              </button>
-              <div class="text-xs text-base-content/70">
-                page {@page} / {@total_pages} ({@count} total)
-              </div>
-              <button
-                phx-click="admin_chat_next"
-                class="btn btn-xs"
-                disabled={@page >= @total_pages || @total_pages == 0}
-              >
-                Next
-              </button>
+            <div class="mt-4">
+              <.pagination
+                page={@page}
+                total_pages={@total_pages}
+                total_count={@count}
+                page_size={@page_size}
+                on_prev="admin_chat_prev"
+                on_next="admin_chat_next"
+                on_page_size="admin_chat_page_size"
+              />
             </div>
           </div>
         </div>
@@ -297,6 +289,15 @@ defmodule GameServerWeb.AdminLive.Chat do
   def handle_event("admin_chat_next", _params, socket) do
     page = socket.assigns.page + 1
     {:noreply, socket |> assign(:page, page) |> reload_messages()}
+  end
+
+  @impl true
+  def handle_event("admin_chat_page_size", %{"size" => size}, socket) do
+    {:noreply,
+     socket
+     |> assign(:page_size, String.to_integer(size))
+     |> assign(:page, 1)
+     |> reload_messages()}
   end
 
   defp reload_messages(socket) do

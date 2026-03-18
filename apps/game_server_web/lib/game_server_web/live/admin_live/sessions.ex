@@ -103,24 +103,16 @@ defmodule GameServerWeb.AdminLive.Sessions do
               </table>
             </div>
 
-            <div class="mt-4 flex gap-2 items-center">
-              <button
-                phx-click="admin_sessions_prev"
-                class="btn btn-xs"
-                disabled={@sessions_page <= 1}
-              >
-                Prev
-              </button>
-              <div class="text-xs text-base-content/70">
-                page {@sessions_page} / {@sessions_total_pages} ({@sessions_count} total)
-              </div>
-              <button
-                phx-click="admin_sessions_next"
-                class="btn btn-xs"
-                disabled={@sessions_page >= @sessions_total_pages || @sessions_total_pages == 0}
-              >
-                Next
-              </button>
+            <div class="mt-4">
+              <.pagination
+                page={@sessions_page}
+                total_pages={@sessions_total_pages}
+                total_count={@sessions_count}
+                page_size={@sessions_page_size}
+                on_prev="admin_sessions_prev"
+                on_next="admin_sessions_next"
+                on_page_size="admin_sessions_page_size"
+              />
             </div>
           </div>
         </div>
@@ -273,57 +265,25 @@ defmodule GameServerWeb.AdminLive.Sessions do
 
   @impl true
   def handle_event("admin_sessions_prev", _params, socket) do
-    page = max(1, (socket.assigns[:sessions_page] || 1) - 1)
-    page_size = socket.assigns[:sessions_page_size] || 50
-
-    recent_sessions =
-      Repo.all(
-        from t in UserToken,
-          join: u in assoc(t, :user),
-          where: t.context == "session",
-          order_by: [desc: t.inserted_at],
-          offset: ^((page - 1) * page_size),
-          limit: ^page_size,
-          preload: [:user]
-      )
-
-    sessions_count = Repo.aggregate(from(t in UserToken, where: t.context == "session"), :count)
-    total_pages = if page_size > 0, do: div(sessions_count + page_size - 1, page_size), else: 0
-
     {:noreply,
      socket
-     |> assign(:sessions_page, page)
-     |> assign(:recent_sessions, recent_sessions)
-     |> assign(:sessions_count, sessions_count)
-     |> assign(:sessions_total_pages, total_pages)
-     |> sync_selected_ids(session_ids(recent_sessions))}
+     |> assign(:sessions_page, max(1, (socket.assigns[:sessions_page] || 1) - 1))
+     |> reload_sessions()}
   end
 
   def handle_event("admin_sessions_next", _params, socket) do
-    page = (socket.assigns[:sessions_page] || 1) + 1
-    page_size = socket.assigns[:sessions_page_size] || 50
-
-    recent_sessions =
-      Repo.all(
-        from t in UserToken,
-          join: u in assoc(t, :user),
-          where: t.context == "session",
-          order_by: [desc: t.inserted_at],
-          offset: ^((page - 1) * page_size),
-          limit: ^page_size,
-          preload: [:user]
-      )
-
-    sessions_count = Repo.aggregate(from(t in UserToken, where: t.context == "session"), :count)
-    total_pages = if page_size > 0, do: div(sessions_count + page_size - 1, page_size), else: 0
-
     {:noreply,
      socket
-     |> assign(:sessions_page, page)
-     |> assign(:recent_sessions, recent_sessions)
-     |> assign(:sessions_count, sessions_count)
-     |> assign(:sessions_total_pages, total_pages)
-     |> sync_selected_ids(session_ids(recent_sessions))}
+     |> assign(:sessions_page, (socket.assigns[:sessions_page] || 1) + 1)
+     |> reload_sessions()}
+  end
+
+  def handle_event("admin_sessions_page_size", %{"size" => size}, socket) do
+    {:noreply,
+     socket
+     |> assign(:sessions_page_size, String.to_integer(size))
+     |> assign(:sessions_page, 1)
+     |> reload_sessions()}
   end
 
   defp reload_sessions(socket) do

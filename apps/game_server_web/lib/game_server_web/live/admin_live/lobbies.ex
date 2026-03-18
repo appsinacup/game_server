@@ -260,20 +260,16 @@ defmodule GameServerWeb.AdminLive.Lobbies do
               </div>
             </form>
 
-            <div class="mt-4 flex gap-2 items-center">
-              <button phx-click="admin_lobbies_prev" class="btn btn-xs" disabled={@lobbies_page <= 1}>
-                Prev
-              </button>
-              <div class="text-xs text-base-content/70">
-                page {@lobbies_page} / {@lobbies_total_pages} ({@count} total)
-              </div>
-              <button
-                phx-click="admin_lobbies_next"
-                class="btn btn-xs"
-                disabled={@lobbies_page >= @lobbies_total_pages || @lobbies_total_pages == 0}
-              >
-                Next
-              </button>
+            <div class="mt-4">
+              <.pagination
+                page={@lobbies_page}
+                total_pages={@lobbies_total_pages}
+                total_count={@count}
+                page_size={@lobbies_page_size}
+                on_prev="admin_lobbies_prev"
+                on_next="admin_lobbies_next"
+                on_page_size="admin_lobbies_page_size"
+              />
             </div>
           </div>
         </div>
@@ -683,6 +679,14 @@ defmodule GameServerWeb.AdminLive.Lobbies do
   def handle_event("admin_lobbies_next", _params, socket) do
     page = (socket.assigns[:lobbies_page] || 1) + 1
     {:noreply, socket |> assign(:lobbies_page, page) |> reload_lobbies()}
+  end
+
+  def handle_event("admin_lobbies_page_size", %{"size" => size}, socket) do
+    {:noreply,
+     socket
+     |> assign(:lobbies_page_size, String.to_integer(size))
+     |> assign(:lobbies_page, 1)
+     |> reload_lobbies()}
   end
 
   def handle_event("save_lobby", %{"lobby" => params}, socket) do

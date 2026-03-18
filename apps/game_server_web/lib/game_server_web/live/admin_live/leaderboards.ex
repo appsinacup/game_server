@@ -179,20 +179,16 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
               </table>
             </div>
 
-            <div class="mt-4 flex gap-2 items-center">
-              <button phx-click="prev_page" class="btn btn-xs" disabled={@page <= 1}>
-                Prev
-              </button>
-              <div class="text-xs text-base-content/70">
-                page {@page} / {@total_pages} ({@count} total)
-              </div>
-              <button
-                phx-click="next_page"
-                class="btn btn-xs"
-                disabled={@page >= @total_pages || @total_pages == 0}
-              >
-                Next
-              </button>
+            <div class="mt-4">
+              <.pagination
+                page={@page}
+                total_pages={@total_pages}
+                total_count={@count}
+                page_size={@page_size}
+                on_prev="prev_page"
+                on_next="next_page"
+                on_page_size="leaderboards_page_size"
+              />
             </div>
           </div>
         </div>
@@ -392,26 +388,14 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
               </table>
             </div>
 
-            <div class="mt-4 flex gap-2 items-center justify-between">
-              <div class="flex gap-2 items-center">
-                <button
-                  phx-click="records_prev_page"
-                  class="btn btn-xs"
-                  disabled={@records_page <= 1}
-                >
-                  Prev
-                </button>
-                <div class="text-xs text-base-content/70">
-                  page {@records_page} / {@records_total_pages} ({@records_count} total)
-                </div>
-                <button
-                  phx-click="records_next_page"
-                  class="btn btn-xs"
-                  disabled={@records_page >= @records_total_pages}
-                >
-                  Next
-                </button>
-              </div>
+            <div class="mt-4 flex items-center justify-between">
+              <.pagination
+                page={@records_page}
+                total_pages={@records_total_pages}
+                total_count={@records_count}
+                on_prev="records_prev_page"
+                on_next="records_next_page"
+              />
               <button phx-click="close_records" class="btn btn-sm">Close</button>
             </div>
           </div>
@@ -547,6 +531,14 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
     {:noreply,
      socket
      |> assign(:page, socket.assigns.page + 1)
+     |> reload_leaderboards()}
+  end
+
+  def handle_event("leaderboards_page_size", %{"size" => size}, socket) do
+    {:noreply,
+     socket
+     |> assign(:page_size, String.to_integer(size))
+     |> assign(:page, 1)
      |> reload_leaderboards()}
   end
 

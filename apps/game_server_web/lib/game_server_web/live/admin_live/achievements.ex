@@ -130,20 +130,16 @@ defmodule GameServerWeb.AdminLive.Achievements do
               </table>
             </div>
 
-            <div class="mt-4 flex gap-2 items-center">
-              <button phx-click="prev_page" class="btn btn-xs" disabled={@page <= 1}>
-                Prev
-              </button>
-              <div class="text-xs text-base-content/70">
-                page {@page} / {@total_pages} ({@count} total)
-              </div>
-              <button
-                phx-click="next_page"
-                class="btn btn-xs"
-                disabled={@page >= @total_pages || @total_pages == 0}
-              >
-                Next
-              </button>
+            <div class="mt-4">
+              <.pagination
+                page={@page}
+                total_pages={@total_pages}
+                total_count={@count}
+                page_size={@page_size}
+                on_prev="prev_page"
+                on_next="next_page"
+                on_page_size="page_size"
+              />
             </div>
           </div>
         </div>
@@ -335,6 +331,14 @@ defmodule GameServerWeb.AdminLive.Achievements do
     {:noreply,
      socket
      |> assign(:page, socket.assigns.page + 1)
+     |> reload_achievements()}
+  end
+
+  def handle_event("page_size", %{"size" => size}, socket) do
+    {:noreply,
+     socket
+     |> assign(:page_size, String.to_integer(size))
+     |> assign(:page, 1)
      |> reload_achievements()}
   end
 

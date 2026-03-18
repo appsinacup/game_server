@@ -212,24 +212,16 @@ defmodule GameServerWeb.AdminLive.Parties do
               </div>
             </form>
 
-            <div class="mt-4 flex gap-2 items-center">
-              <button
-                phx-click="admin_parties_prev"
-                class="btn btn-xs"
-                disabled={@parties_page <= 1}
-              >
-                Prev
-              </button>
-              <div class="text-xs text-base-content/70">
-                page {@parties_page} / {@parties_total_pages} ({@count} total)
-              </div>
-              <button
-                phx-click="admin_parties_next"
-                class="btn btn-xs"
-                disabled={@parties_page >= @parties_total_pages || @parties_total_pages == 0}
-              >
-                Next
-              </button>
+            <div class="mt-4">
+              <.pagination
+                page={@parties_page}
+                total_pages={@parties_total_pages}
+                total_count={@count}
+                page_size={@parties_page_size}
+                on_prev="admin_parties_prev"
+                on_next="admin_parties_next"
+                on_page_size="admin_parties_page_size"
+              />
             </div>
           </div>
         </div>
@@ -698,6 +690,15 @@ defmodule GameServerWeb.AdminLive.Parties do
   def handle_event("admin_parties_next", _params, socket) do
     page = (socket.assigns[:parties_page] || 1) + 1
     {:noreply, socket |> assign(:parties_page, page) |> reload_parties()}
+  end
+
+  @impl true
+  def handle_event("admin_parties_page_size", %{"size" => size}, socket) do
+    {:noreply,
+     socket
+     |> assign(:parties_page_size, String.to_integer(size))
+     |> assign(:parties_page, 1)
+     |> reload_parties()}
   end
 
   # ---------------------------------------------------------------------------

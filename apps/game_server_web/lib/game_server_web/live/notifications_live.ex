@@ -103,20 +103,16 @@ defmodule GameServerWeb.NotificationsLive do
               </table>
             </div>
 
-            <div :if={@notif_total_pages > 1} class="mt-4 flex gap-2 items-center">
-              <button phx-click="prev_page" class="btn btn-xs" disabled={@notif_page <= 1}>
-                {gettext("Prev")}
-              </button>
-              <div class="text-xs text-base-content/70">
-                page {@notif_page} / {@notif_total_pages} ({@notif_count} total)
-              </div>
-              <button
-                phx-click="next_page"
-                class="btn btn-xs"
-                disabled={@notif_page >= @notif_total_pages || @notif_total_pages == 0}
-              >
-                {gettext("Next")}
-              </button>
+            <div :if={@notif_total_pages > 1} class="mt-4">
+              <.pagination
+                page={@notif_page}
+                total_pages={@notif_total_pages}
+                total_count={@notif_count}
+                page_size={@notif_page_size}
+                on_prev="prev_page"
+                on_next="next_page"
+                on_page_size="notif_page_size"
+              />
             </div>
           </div>
         <% end %>
@@ -158,6 +154,14 @@ defmodule GameServerWeb.NotificationsLive do
   def handle_event("next_page", _params, socket) do
     page = socket.assigns.notif_page + 1
     {:noreply, socket |> assign(:notif_page, page) |> reload_notifications()}
+  end
+
+  def handle_event("notif_page_size", %{"size" => size}, socket) do
+    {:noreply,
+     socket
+     |> assign(:notif_page_size, String.to_integer(size))
+     |> assign(:notif_page, 1)
+     |> reload_notifications()}
   end
 
   def handle_event("delete", %{"id" => id}, socket) do

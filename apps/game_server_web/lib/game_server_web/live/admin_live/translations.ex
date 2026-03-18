@@ -192,30 +192,16 @@ defmodule GameServerWeb.AdminLive.Translations do
             </div>
 
             <%!-- Pagination --%>
-            <div
-              :if={@total_pages > 1}
-              class="flex items-center justify-between mt-4"
-              id="translations-pagination"
-            >
-              <div class="text-sm text-base-content/60">
-                Page {@page} / {@total_pages} ({@total} total)
-              </div>
-              <div class="join">
-                <button
-                  class="join-item btn btn-sm"
-                  disabled={@page <= 1}
-                  phx-click="prev_page"
-                >
-                  «
-                </button>
-                <button
-                  class="join-item btn btn-sm"
-                  disabled={@page >= @total_pages}
-                  phx-click="next_page"
-                >
-                  »
-                </button>
-              </div>
+            <div :if={@total_pages > 1} class="mt-4" id="translations-pagination">
+              <.pagination
+                page={@page}
+                total_pages={@total_pages}
+                total_count={@total}
+                page_size={@page_size}
+                on_prev="prev_page"
+                on_next="next_page"
+                on_page_size="translations_page_size"
+              />
             </div>
           </div>
         </div>
@@ -274,5 +260,13 @@ defmodule GameServerWeb.AdminLive.Translations do
   def handle_event("next_page", _params, socket) do
     total_pages = max(ceil(length(socket.assigns.strings) / socket.assigns.page_size), 1)
     {:noreply, assign(socket, :page, min(socket.assigns.page + 1, total_pages))}
+  end
+
+  @impl true
+  def handle_event("translations_page_size", %{"size" => size}, socket) do
+    {:noreply,
+     socket
+     |> assign(:page_size, String.to_integer(size))
+     |> assign(:page, 1)}
   end
 end

@@ -174,17 +174,16 @@ defmodule GameServerWeb.LeaderboardsLive do
       </div>
     <% end %>
 
-    <%= if @page > @total_pages do %>
-      <div class="mt-6 flex gap-2 items-center justify-center">
-        <button phx-click="prev_page" class="btn btn-sm" disabled={@page <= 1}>
-          {gettext("Previous")}
-        </button>
-        <div class="text-sm text-base-content/70">
-          {gettext("Page %{page} of %{total}", page: @page, total: @total_pages)}
-        </div>
-        <button phx-click="next_page" class="btn btn-sm" disabled={@page >= @total_pages}>
-          {gettext("Next")}
-        </button>
+    <%= if @total_pages > 1 do %>
+      <div class="mt-6 flex justify-center">
+        <.pagination
+          page={@page}
+          total_pages={@total_pages}
+          page_size={@page_size}
+          on_prev="prev_page"
+          on_next="next_page"
+          on_page_size="leaderboards_page_size"
+        />
       </div>
     <% end %>
     """
@@ -338,25 +337,15 @@ defmodule GameServerWeb.LeaderboardsLive do
           </div>
         <% end %>
 
-        <%= if @records_page > @records_total_pages do %>
-          <div class="mt-4 flex gap-2 items-center justify-center">
-            <button phx-click="records_prev" class="btn btn-sm" disabled={@records_page <= 1}>
-              {gettext("Previous")}
-            </button>
-            <div class="text-sm text-base-content/70">
-              {gettext("Page %{page} of %{total} (%{count} total)",
-                page: @records_page,
-                total: @records_total_pages,
-                count: @records_count
-              )}
-            </div>
-            <button
-              phx-click="records_next"
-              class="btn btn-sm"
-              disabled={@records_page >= @records_total_pages}
-            >
-              {gettext("Next")}
-            </button>
+        <%= if @records_total_pages > 1 do %>
+          <div class="mt-4 flex justify-center">
+            <.pagination
+              page={@records_page}
+              total_pages={@records_total_pages}
+              total_count={@records_count}
+              on_prev="records_prev"
+              on_next="records_next"
+            />
           </div>
         <% end %>
       </div>
@@ -380,6 +369,14 @@ defmodule GameServerWeb.LeaderboardsLive do
     {:noreply,
      socket
      |> assign(:page, socket.assigns.page + 1)
+     |> reload_groups()}
+  end
+
+  def handle_event("leaderboards_page_size", %{"size" => size}, socket) do
+    {:noreply,
+     socket
+     |> assign(:page_size, String.to_integer(size))
+     |> assign(:page, 1)
      |> reload_groups()}
   end
 
