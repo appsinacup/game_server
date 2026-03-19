@@ -192,7 +192,7 @@ defmodule GameServerWeb.AdminLive.Translations do
             </div>
 
             <%!-- Pagination --%>
-            <div :if={@total_pages > 1} class="mt-4" id="translations-pagination">
+            <div class="mt-4" id="translations-pagination">
               <.pagination
                 page={@page}
                 total_pages={@total_pages}

@@ -103,21 +103,15 @@ defmodule GameServerWeb.AchievementsLive do
     page_size = socket.assigns.page_size
     filter = socket.assigns.filter
 
-    opts = [page: page, page_size: page_size, include_hidden: true]
+    opts = [page: page, page_size: page_size, include_hidden: true, filter: filter]
     opts = if user, do: Keyword.put(opts, :user_id, user.id), else: opts
 
-    all_items = Achievements.list_achievements(opts)
+    items = Achievements.list_achievements(opts)
 
-    # Apply client-side filter for logged-in users
-    items =
-      case filter do
-        "unlocked" -> Enum.filter(all_items, & &1.unlocked_at)
-        "locked" -> Enum.reject(all_items, & &1.unlocked_at)
-        "in_progress" -> Enum.filter(all_items, &(&1.progress > 0 and is_nil(&1.unlocked_at)))
-        _ -> all_items
-      end
+    count_opts = [include_hidden: true, filter: filter]
+    count_opts = if user, do: Keyword.put(count_opts, :user_id, user.id), else: count_opts
 
-    total_count = Achievements.count_achievements(include_hidden: true)
+    total_count = Achievements.count_achievements(count_opts)
     total_pages = max(ceil(total_count / page_size), 1)
 
     user_unlocked_count = if user, do: Achievements.count_user_achievements(user.id), else: 0

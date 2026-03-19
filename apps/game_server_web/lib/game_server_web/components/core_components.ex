@@ -537,15 +537,16 @@ defmodule GameServerWeb.CoreComponents do
         Next
       </button>
       <%= if @on_page_size && @page_size do %>
-        <select
-          phx-change={@on_page_size}
-          name="size"
-          class="select select-xs select-bordered w-18 ml-2"
-        >
-          <option :for={size <- @page_sizes} value={size} selected={@page_size == size}>
-            {size}
-          </option>
-        </select>
+        <form phx-change={@on_page_size} class="inline">
+          <select
+            name="size"
+            class="select select-xs select-bordered w-18 ml-2"
+          >
+            <option :for={size <- @page_sizes} value={size} selected={@page_size == size}>
+              {size}
+            </option>
+          </select>
+        </form>
       <% end %>
     </div>
     """

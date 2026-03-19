@@ -103,7 +103,7 @@ defmodule GameServerWeb.NotificationsLive do
               </table>
             </div>
 
-            <div :if={@notif_total_pages > 1} class="mt-4">
+            <div class="mt-4">
               <.pagination
                 page={@notif_page}
                 total_pages={@notif_total_pages}

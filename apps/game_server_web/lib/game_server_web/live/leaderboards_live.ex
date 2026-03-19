@@ -174,18 +174,16 @@ defmodule GameServerWeb.LeaderboardsLive do
       </div>
     <% end %>
 
-    <%= if @total_pages > 1 do %>
-      <div class="mt-6 flex justify-center">
-        <.pagination
-          page={@page}
-          total_pages={@total_pages}
-          page_size={@page_size}
-          on_prev="prev_page"
-          on_next="next_page"
-          on_page_size="leaderboards_page_size"
-        />
-      </div>
-    <% end %>
+    <div class="mt-6 flex justify-center">
+      <.pagination
+        page={@page}
+        total_pages={@total_pages}
+        page_size={@page_size}
+        on_prev="prev_page"
+        on_next="next_page"
+        on_page_size="leaderboards_page_size"
+      />
+    </div>
     """
   end
 

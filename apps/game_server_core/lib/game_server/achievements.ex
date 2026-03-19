@@ -176,32 +176,22 @@ defmodule GameServer.Achievements do
     page = max(Keyword.get(opts, :page, 1), 1)
     page_size = min(max(Keyword.get(opts, :page_size, 25), 1), 200)
     include_hidden = Keyword.get(opts, :include_hidden, false)
+    filter = Keyword.get(opts, :filter, "all")
 
-    query =
-      from(a in Achievement, order_by: [asc: a.sort_order, asc: a.title])
-
-    query =
-      if include_hidden do
-        query
-      else
-        if user_id do
-          # Show non-hidden OR unlocked hidden achievements
-          from a in query,
-            left_join: ua in UserAchievement,
-            on: ua.achievement_id == a.id and ua.user_id == ^user_id,
-            where: a.hidden == false or not is_nil(ua.unlocked_at)
-        else
-          from a in query, where: a.hidden == false
-        end
-      end
-
-    offset = (page - 1) * page_size
-
+    # When a user-specific filter is active we must JOIN user_achievements in
+    # SQL so pagination is correct.  The "all" filter can still use the cached
+    # path for the base achievement list.
     achievements =
-      query
-      |> limit(^page_size)
-      |> offset(^offset)
-      |> Repo.all()
+      cond do
+        filter != "all" && user_id != nil ->
+          do_list_achievements_user_filtered(user_id, filter, include_hidden, page, page_size)
+
+        include_hidden ->
+          do_list_achievements_all(page, page_size)
+
+        true ->
+          do_list_achievements_filtered(user_id, page, page_size)
+      end
 
     if user_id do
       achievement_ids = Enum.map(achievements, & &1.id)
@@ -224,16 +214,102 @@ defmodule GameServer.Achievements do
     end
   end
 
-  @doc "Count achievements (for pagination)."
+  # Cached: all achievements (include_hidden: true). Key includes page params
+  # and the version counter so it's invalidated when achievements change.
+  @decorate cacheable(
+              key: {:achievements, :list_all, page, page_size, achievements_version()},
+              opts: [ttl: @achievements_cache_ttl_ms]
+            )
+  defp do_list_achievements_all(page, page_size) do
+    offset = (page - 1) * page_size
+
+    from(a in Achievement, order_by: [asc: a.sort_order, asc: a.title])
+    |> limit(^page_size)
+    |> offset(^offset)
+    |> Repo.all()
+  end
+
+  # Not cached: when include_hidden is false, the query may depend on user_id
+  # (LEFT JOIN to show hidden achievements the user has unlocked).
+  defp do_list_achievements_filtered(user_id, page, page_size) do
+    query = from(a in Achievement, order_by: [asc: a.sort_order, asc: a.title])
+
+    query =
+      if user_id do
+        from a in query,
+          left_join: ua in UserAchievement,
+          on: ua.achievement_id == a.id and ua.user_id == ^user_id,
+          where: a.hidden == false or not is_nil(ua.unlocked_at)
+      else
+        from a in query, where: a.hidden == false
+      end
+
+    offset = (page - 1) * page_size
+
+    query
+    |> limit(^page_size)
+    |> offset(^offset)
+    |> Repo.all()
+  end
+
+  # Not cached: user-specific filtered queries (unlocked/locked/in_progress).
+  # These JOIN user_achievements so pagination counts are correct.
+  defp do_list_achievements_user_filtered(user_id, filter, include_hidden, page, page_size) do
+    offset = (page - 1) * page_size
+
+    base =
+      from(a in Achievement,
+        left_join: ua in UserAchievement,
+        on: ua.achievement_id == a.id and ua.user_id == ^user_id,
+        order_by: [asc: a.sort_order, asc: a.title],
+        select: a
+      )
+
+    base =
+      if include_hidden do
+        base
+      else
+        from([a, ua] in base, where: a.hidden == false or not is_nil(ua.unlocked_at))
+      end
+
+    query =
+      case filter do
+        "unlocked" ->
+          from [a, ua] in base, where: not is_nil(ua.unlocked_at)
+
+        "locked" ->
+          from [a, ua] in base, where: is_nil(ua.unlocked_at)
+
+        "in_progress" ->
+          from [a, ua] in base, where: ua.progress > 0 and is_nil(ua.unlocked_at)
+
+        _ ->
+          base
+      end
+
+    query
+    |> limit(^page_size)
+    |> offset(^offset)
+    |> Repo.all()
+  end
+
+  @doc "Count achievements (for pagination). Supports `:include_hidden`, `:filter`, and `:user_id`."
   @spec count_achievements() :: non_neg_integer()
   @spec count_achievements(keyword()) :: non_neg_integer()
   def count_achievements(opts \\ []) do
     include_hidden = Keyword.get(opts, :include_hidden, false)
+    filter = Keyword.get(opts, :filter, "all")
+    user_id = Keyword.get(opts, :user_id)
 
-    if include_hidden do
-      do_count_achievements_all()
-    else
-      do_count_achievements_public()
+    cond do
+      filter != "all" && user_id != nil ->
+        do_count_achievements_user_filtered(user_id, filter, include_hidden)
+
+      include_hidden ->
+        do_count_achievements_all()
+
+      true ->
+        do_count_achievements_public()
     end
   end
 
@@ -252,6 +328,30 @@ defmodule GameServer.Achievements do
   defp do_count_achievements_public do
     from(a in Achievement, where: a.hidden == false)
     |> Repo.aggregate(:count)
+  end
+
+  # Not cached: count with user-specific filter (unlocked/locked/in_progress).
+  defp do_count_achievements_user_filtered(user_id, filter, include_hidden) do
+    base =
+      from(a in Achievement,
+        left_join: ua in UserAchievement,
+        on: ua.achievement_id == a.id and ua.user_id == ^user_id
+      )
+
+    base =
+      if include_hidden,
+        do: base,
+        else: from([a, ua] in base, where: a.hidden == false or not is_nil(ua.unlocked_at))
+
+    query =
+      case filter do
+        "unlocked" -> from([a, ua] in base, where: not is_nil(ua.unlocked_at))
+        "locked" -> from([a, ua] in base, where: is_nil(ua.unlocked_at))
+        "in_progress" -> from([a, ua] in base, where: ua.progress > 0 and is_nil(ua.unlocked_at))
+        _ -> base
+      end
+
+    Repo.aggregate(query, :count)
   end
 
   @doc "Count all achievements (including hidden), for admin dashboard."
