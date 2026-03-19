@@ -320,7 +320,9 @@ defmodule GameServerWeb.AchievementsLive do
                 true -> "text-base-content/50"
               end
             ]}>
-              {if @hidden?, do: dgettext("achievements", "Hidden achievement"), else: @achievement.description}
+              {if @hidden?,
+                do: dgettext("achievements", "Hidden achievement"),
+                else: @achievement.description}
             </p>
           </div>
         </div>
