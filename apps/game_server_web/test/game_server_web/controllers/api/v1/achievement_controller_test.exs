@@ -43,16 +43,24 @@ defmodule GameServerWeb.Api.V1.AchievementControllerTest do
       assert resp["meta"]["has_more"] == true
     end
 
-    test "excludes hidden achievements", %{conn: conn} do
-      create_achievement(%{slug: "visible_api", hidden: false})
-      create_achievement(%{slug: "hidden_api", hidden: true})
+    test "includes hidden achievements with obscured details", %{conn: conn} do
+      create_achievement(%{slug: "visible_api", hidden: false, title: "Visible"})
+      create_achievement(%{slug: "hidden_api", hidden: true, title: "Secret"})
 
       conn = get(conn, "/api/v1/achievements")
       resp = json_response(conn, 200)
 
       slugs = Enum.map(resp["data"], & &1["slug"])
       assert "visible_api" in slugs
-      refute "hidden_api" in slugs
+      assert "hidden_api" in slugs
+
+      hidden_item = Enum.find(resp["data"], &(&1["slug"] == "hidden_api"))
+      assert hidden_item["title"] == "???"
+      assert hidden_item["description"] == "???"
+      assert hidden_item["hidden"] == true
+
+      visible_item = Enum.find(resp["data"], &(&1["slug"] == "visible_api"))
+      assert visible_item["title"] == "Visible"
     end
 
     test "includes zero progress for unauthenticated requests", %{conn: conn} do

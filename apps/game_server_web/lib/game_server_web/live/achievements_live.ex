@@ -103,7 +103,7 @@ defmodule GameServerWeb.AchievementsLive do
     page_size = socket.assigns.page_size
     filter = socket.assigns.filter
 
-    opts = [page: page, page_size: page_size]
+    opts = [page: page, page_size: page_size, include_hidden: true]
     opts = if user, do: Keyword.put(opts, :user_id, user.id), else: opts
 
     all_items = Achievements.list_achievements(opts)
@@ -117,7 +117,7 @@ defmodule GameServerWeb.AchievementsLive do
         _ -> all_items
       end
 
-    total_count = Achievements.count_achievements(if(user, do: [user_id: user.id], else: []))
+    total_count = Achievements.count_achievements(include_hidden: true)
     total_pages = max(ceil(total_count / page_size), 1)
 
     user_unlocked_count = if user, do: Achievements.count_user_achievements(user.id), else: 0
@@ -251,6 +251,7 @@ defmodule GameServerWeb.AchievementsLive do
     logged_in = assigns.logged_in
     target = achievement.progress_target || 1
     unlocked? = unlocked_at != nil
+    hidden? = achievement.hidden && !unlocked?
     pct = if target > 0, do: min(trunc(progress / target * 100), 100), else: 0
 
     assigns =
@@ -260,16 +261,18 @@ defmodule GameServerWeb.AchievementsLive do
       |> assign(:unlocked_at, unlocked_at)
       |> assign(:target, target)
       |> assign(:unlocked?, unlocked?)
+      |> assign(:hidden?, hidden?)
       |> assign(:pct, pct)
       |> assign(:logged_in, logged_in)
 
     ~H"""
     <div class={[
       "card bg-base-200 shadow-sm hover:shadow-md transition-all duration-200 border",
-      if(@unlocked?,
-        do: "border-success/30 bg-success/5",
-        else: "border-base-300"
-      )
+      cond do
+        @unlocked? -> "border-success/30 bg-success/5"
+        @hidden? -> "border-base-content/10 opacity-60"
+        true -> "border-base-300"
+      end
     ]}>
       <div class="card-body p-4">
         <%!-- Top row: icon + title --%>
@@ -277,38 +280,47 @@ defmodule GameServerWeb.AchievementsLive do
           <%!-- Icon or placeholder --%>
           <div class={[
             "flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center text-2xl",
-            if(@unlocked?,
-              do: "bg-success/20 text-success",
-              else: "bg-base-300 text-base-content/30"
-            )
+            cond do
+              @unlocked? -> "bg-success/20 text-success"
+              @hidden? -> "bg-base-300/50 text-base-content/20"
+              true -> "bg-base-300 text-base-content/30"
+            end
           ]}>
-            <%= if @achievement.icon_url && @achievement.icon_url != "" do %>
-              <img
-                src={@achievement.icon_url}
-                alt={@achievement.title}
-                class={["w-8 h-8 object-contain", if(!@unlocked?, do: "opacity-40 grayscale")]}
-              />
+            <%= if @hidden? do %>
+              <.icon name="hero-question-mark-circle" class="w-7 h-7" />
             <% else %>
-              <.icon
-                name={if @unlocked?, do: "hero-trophy", else: "hero-lock-closed"}
-                class="w-7 h-7"
-              />
+              <%= if @achievement.icon_url && @achievement.icon_url != "" do %>
+                <img
+                  src={@achievement.icon_url}
+                  alt={@achievement.title}
+                  class={["w-8 h-8 object-contain", if(!@unlocked?, do: "opacity-40 grayscale")]}
+                />
+              <% else %>
+                <.icon
+                  name={if @unlocked?, do: "hero-trophy", else: "hero-lock-closed"}
+                  class="w-7 h-7"
+                />
+              <% end %>
             <% end %>
           </div>
 
           <div class="flex-1 min-w-0">
             <h3 class={[
               "font-semibold text-sm leading-tight truncate",
-              if(!@unlocked?, do: "text-base-content/60")
+              if(@hidden? || !@unlocked?, do: "text-base-content/60")
             ]}>
-              {@achievement.title}
+              {if @hidden?, do: "???", else: @achievement.title}
             </h3>
 
             <p class={[
               "text-xs mt-1 line-clamp-2",
-              if(@unlocked?, do: "text-base-content/70", else: "text-base-content/50")
+              cond do
+                @hidden? -> "text-base-content/30 italic"
+                @unlocked? -> "text-base-content/70"
+                true -> "text-base-content/50"
+              end
             ]}>
-              {@achievement.description}
+              {if @hidden?, do: dgettext("achievements", "Hidden achievement"), else: @achievement.description}
             </p>
           </div>
         </div>
@@ -316,36 +328,44 @@ defmodule GameServerWeb.AchievementsLive do
         <%!-- Progress section (logged-in users only) --%>
         <%= if @logged_in do %>
           <div class="mt-3">
-            <%= if @unlocked? do %>
-              <div class="flex items-center gap-1.5 text-success">
-                <.icon name="hero-check-circle-solid" class="w-4 h-4" />
-                <span class="text-xs font-medium">
-                  {dgettext("achievements", "Unlocked")}
-                  <span class="text-base-content/40 ml-1">
-                    {Calendar.strftime(@unlocked_at, "%b %d, %Y")}
+            <%= cond do %>
+              <% @unlocked? -> %>
+                <div class="flex items-center gap-1.5 text-success">
+                  <.icon name="hero-check-circle-solid" class="w-4 h-4" />
+                  <span class="text-xs font-medium">
+                    {dgettext("achievements", "Unlocked")}
+                    <span class="text-base-content/40 ml-1">
+                      {Calendar.strftime(@unlocked_at, "%b %d, %Y")}
+                    </span>
                   </span>
-                </span>
-              </div>
-            <% else %>
-              <%!-- Progress bar --%>
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-xs text-base-content/50">
-                  {dgettext("achievements", "Progress")}
-                </span>
-                <span class="text-xs font-medium text-base-content/70">
-                  {@progress} / {@target}
-                </span>
-              </div>
-              <div class="w-full bg-base-300 rounded-full h-2 overflow-hidden">
-                <div
-                  class={[
-                    "h-2 rounded-full transition-all duration-500",
-                    if(@pct > 0, do: "bg-primary", else: "bg-base-300")
-                  ]}
-                  style={"width: #{@pct}%"}
-                >
                 </div>
-              </div>
+              <% @hidden? -> %>
+                <div class="flex items-center gap-1.5 text-base-content/30">
+                  <.icon name="hero-eye-slash" class="w-4 h-4" />
+                  <span class="text-xs font-medium italic">
+                    {dgettext("achievements", "Hidden")}
+                  </span>
+                </div>
+              <% true -> %>
+                <%!-- Progress bar --%>
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs text-base-content/50">
+                    {dgettext("achievements", "Progress")}
+                  </span>
+                  <span class="text-xs font-medium text-base-content/70">
+                    {@progress} / {@target}
+                  </span>
+                </div>
+                <div class="w-full bg-base-300 rounded-full h-2 overflow-hidden">
+                  <div
+                    class={[
+                      "h-2 rounded-full transition-all duration-500",
+                      if(@pct > 0, do: "bg-primary", else: "bg-base-300")
+                    ]}
+                    style={"width: #{@pct}%"}
+                  >
+                  </div>
+                </div>
             <% end %>
           </div>
         <% end %>

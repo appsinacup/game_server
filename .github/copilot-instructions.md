@@ -220,8 +220,9 @@ API routes use JWT tokens via Guardian for stateless authentication:
 - Achievements are stored in the `achievements` table with fields: `id`, `slug` (unique), `title`, `description`, `icon_url`, `sort_order`, `hidden`, `progress_target` (default 1), `metadata` (map), `inserted_at`, `updated_at`.
 - User progress is tracked in the `user_achievements` table with fields: `id`, `user_id`, `achievement_id`, `progress` (default 0), `unlocked_at` (nil until unlocked), `metadata` (map). Unique index on `(user_id, achievement_id)`.
 - `unlock_achievement/2` immediately unlocks (sets `progress = progress_target`, `unlocked_at = now`). `increment_progress/3` adds to progress and auto-unlocks when `progress >= progress_target`.
-- Hidden achievements are excluded from public listings unless the user has unlocked them.
+- Hidden achievements are always included in public listings but with obscured details (title/description shown as "???", no icon, no progress) until the user unlocks them. Once unlocked, the full details are revealed.
 - `list_achievements/1` accepts opts: `:page`, `:page_size`, `:user_id` (to include user progress), `:include_hidden`.
+- Public achievement API routes (`/api/v1/achievements`, `/api/v1/achievements/:slug`, `/api/v1/achievements/user/:user_id`) use the `:api_optional_auth` pipeline so authenticated callers get their progress/unlocked_at while unauthenticated callers still get results.
 - On unlock, a notification is created and `after_achievement_unlocked(user_id, achievement)` hook fires asynchronously via `GameServer.Async.run`.
 - API endpoints: `GET /api/v1/achievements` (public, paginated), `GET /api/v1/achievements/:slug`, `GET /api/v1/achievements/me` (auth required, user's achievements), `GET /api/v1/achievements/user/:user_id`. Admin API under `/api/v1/admin/achievements` (GET list, POST create, PATCH update, DELETE, POST grant, POST revoke, POST unlock, POST increment).
 

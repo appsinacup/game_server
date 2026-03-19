@@ -97,10 +97,11 @@ defmodule GameServerWeb.Api.V1.AchievementController do
       Achievements.list_achievements(
         user_id: user_id,
         page: page,
-        page_size: page_size
+        page_size: page_size,
+        include_hidden: true
       )
 
-    total_count = Achievements.count_achievements()
+    total_count = Achievements.count_achievements(include_hidden: true)
     total_pages = max(ceil(total_count / page_size), 1)
     count = length(achievements)
 
@@ -146,19 +147,24 @@ defmodule GameServerWeb.Api.V1.AchievementController do
             _ -> nil
           end
 
+        # Hidden achievements that the user hasn't unlocked return 404
         ua =
           if user_id do
             Achievements.get_user_achievement(user_id, achievement.id)
           end
 
-        json(conn, %{
-          data:
-            serialize_achievement(%{
-              achievement: achievement,
-              progress: (ua && ua.progress) || 0,
-              unlocked_at: ua && ua.unlocked_at
-            })
-        })
+        if achievement.hidden && (is_nil(ua) || is_nil(ua.unlocked_at)) do
+          conn |> put_status(:not_found) |> json(%{error: "not_found"})
+        else
+          json(conn, %{
+            data:
+              serialize_achievement(%{
+                achievement: achievement,
+                progress: (ua && ua.progress) || 0,
+                unlocked_at: ua && ua.unlocked_at
+              })
+          })
+        end
     end
   end
 
@@ -293,19 +299,36 @@ defmodule GameServerWeb.Api.V1.AchievementController do
   # ---------------------------------------------------------------------------
 
   defp serialize_achievement(%{achievement: a, progress: progress, unlocked_at: unlocked_at}) do
-    %{
-      id: a.id,
-      slug: a.slug,
-      title: a.title,
-      description: a.description || "",
-      icon_url: a.icon_url || "",
-      sort_order: a.sort_order,
-      hidden: a.hidden,
-      progress_target: a.progress_target,
-      progress: progress,
-      unlocked_at: unlocked_at,
-      metadata: a.metadata || %{}
-    }
+    if a.hidden && is_nil(unlocked_at) do
+      # Hidden + not unlocked: obscure all details
+      %{
+        id: a.id,
+        slug: a.slug,
+        title: "???",
+        description: "???",
+        icon_url: "",
+        sort_order: a.sort_order,
+        hidden: true,
+        progress_target: a.progress_target,
+        progress: 0,
+        unlocked_at: nil,
+        metadata: %{}
+      }
+    else
+      %{
+        id: a.id,
+        slug: a.slug,
+        title: a.title,
+        description: a.description || "",
+        icon_url: a.icon_url || "",
+        sort_order: a.sort_order,
+        hidden: a.hidden,
+        progress_target: a.progress_target,
+        progress: progress,
+        unlocked_at: unlocked_at,
+        metadata: a.metadata || %{}
+      }
+    end
   end
 
   defp parse_int(nil, default), do: default
