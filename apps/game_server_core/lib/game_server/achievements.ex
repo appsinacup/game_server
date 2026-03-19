@@ -367,6 +367,82 @@ defmodule GameServer.Achievements do
     |> Repo.aggregate(:count)
   end
 
+  @doc "Count hidden achievements."
+  @spec count_hidden_achievements() :: non_neg_integer()
+  def count_hidden_achievements do
+    from(a in Achievement, where: a.hidden == true)
+    |> Repo.aggregate(:count)
+  end
+
+  @doc "Count distinct users who have unlocked at least one achievement."
+  @spec count_users_with_unlocks() :: non_neg_integer()
+  def count_users_with_unlocks do
+    from(ua in UserAchievement,
+      where: not is_nil(ua.unlocked_at),
+      select: count(ua.user_id, :distinct)
+    )
+    |> Repo.one()
+  end
+
+  @doc """
+  Returns achievement statistics for the admin dashboard.
+
+  Returns a map with:
+  - `hidden` — number of hidden achievements
+  - `users_with_unlocks` — users who unlocked at least one
+  - `avg_unlocks_per_user` — average unlocks per user (among users who have any)
+  - `most_unlocked` — `{slug, title, count}` of the most-unlocked achievement
+  - `least_unlocked` — `{slug, title, count}` of the least-unlocked achievement (with at least 1 unlock)
+  """
+  @spec dashboard_stats() :: map()
+  def dashboard_stats do
+    hidden = count_hidden_achievements()
+    users_with = count_users_with_unlocks()
+    total_unlocks = count_all_unlocks()
+
+    avg_unlocks =
+      if users_with > 0,
+        do: Float.round(total_unlocks / users_with, 1),
+        else: 0.0
+
+    most_unlocked = most_unlocked_achievement()
+    least_unlocked = least_unlocked_achievement()
+
+    %{
+      hidden: hidden,
+      users_with_unlocks: users_with,
+      avg_unlocks_per_user: avg_unlocks,
+      most_unlocked: most_unlocked,
+      least_unlocked: least_unlocked
+    }
+  end
+
+  defp most_unlocked_achievement do
+    from(ua in UserAchievement,
+      where: not is_nil(ua.unlocked_at),
+      join: a in Achievement,
+      on: a.id == ua.achievement_id,
+      group_by: [a.id, a.slug, a.title],
+      order_by: [desc: count(ua.id)],
+      limit: 1,
+      select: {a.slug, a.title, count(ua.id)}
+    )
+    |> Repo.one()
+  end
+
+  defp least_unlocked_achievement do
+    from(ua in UserAchievement,
+      where: not is_nil(ua.unlocked_at),
+      join: a in Achievement,
+      on: a.id == ua.achievement_id,
+      group_by: [a.id, a.slug, a.title],
+      order_by: [asc: count(ua.id)],
+      limit: 1,
+      select: {a.slug, a.title, count(ua.id)}
+    )
+    |> Repo.one()
+  end
+
   @doc "Lists all achievements unlocked by a user."
   @spec list_user_achievements(integer()) :: [UserAchievement.t()]
   @spec list_user_achievements(integer(), keyword()) :: [UserAchievement.t()]

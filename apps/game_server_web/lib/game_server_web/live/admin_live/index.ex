@@ -252,7 +252,30 @@ defmodule GameServerWeb.AdminLive.Index do
                 </div>
                 <div class="text-2xl font-bold">{@achievements_count}</div>
                 <div class="text-xs text-base-content/60 mt-2 space-y-1">
+                  <div>Hidden: {@achievement_stats.hidden}</div>
                   <div>Total unlocks: {@achievements_unlocks}</div>
+                  <div>
+                    Users with unlocks: {@achievement_stats.users_with_unlocks}
+                  </div>
+                  <div>
+                    Avg per user: {@achievement_stats.avg_unlocks_per_user}
+                  </div>
+                  <%= if @achievement_stats.most_unlocked do %>
+                    <div>
+                      Most unlocked: {elem(@achievement_stats.most_unlocked, 1)} ({elem(
+                        @achievement_stats.most_unlocked,
+                        2
+                      )})
+                    </div>
+                  <% end %>
+                  <%= if @achievement_stats.least_unlocked do %>
+                    <div>
+                      Least unlocked: {elem(@achievement_stats.least_unlocked, 1)} ({elem(
+                        @achievement_stats.least_unlocked,
+                        2
+                      )})
+                    </div>
+                  <% end %>
                 </div>
               </div>
             </div>
@@ -312,6 +335,7 @@ defmodule GameServerWeb.AdminLive.Index do
     # achievement stats
     achievements_count = Achievements.count_all_achievements()
     achievements_unlocks = Achievements.count_all_unlocks()
+    achievement_stats = Achievements.dashboard_stats()
 
     # time-based metrics
     users_registered_1d = Accounts.count_users_registered_since(1)
@@ -359,6 +383,7 @@ defmodule GameServerWeb.AdminLive.Index do
        translation_stats: translation_stats,
        achievements_count: achievements_count,
        achievements_unlocks: achievements_unlocks,
+       achievement_stats: achievement_stats,
        users_registered_1d: users_registered_1d,
        users_registered_7d: users_registered_7d,
        users_registered_30d: users_registered_30d,

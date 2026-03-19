@@ -166,6 +166,8 @@ find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/us
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/admin_update_achievement_200_response/AdminUpdateAchievement200Response/g" -i
 # Replace from_dict.has("unlocked_at") with from_dict.has("unlocked_at") && from_dict.get("unlocked_at", "") != null
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe 's/from_dict\.has\("unlocked_at"\)/from_dict.has("unlocked_at") && from_dict.get("unlocked_at", "") != null/g' -i  
+# Replace GameServerWeb_Api_V1_AchievementController_UserAchievements200ResponseDataInner with GameServerWebApiV1AchievementControllerUserAchievements200ResponseDataInner
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/GameServerWeb_Api_V1_AchievementController_UserAchievements200ResponseDataInner/GameServerWebApiV1AchievementControllerUserAchievements200ResponseDataInner/g" -i
 # headers_for_godot, body_serialized
 # with 
 # headers_for_godot, "" if body_serialized == "null" else body_serialized

@@ -62,7 +62,7 @@ defmodule GameServer.Achievements do
 
 
   @doc ~S"""
-    Count achievements (for pagination).
+    Count achievements (for pagination). Supports `:include_hidden`, `:filter`, and `:user_id`.
   """
   @spec count_achievements() :: non_neg_integer()
   def count_achievements() do
@@ -77,7 +77,7 @@ defmodule GameServer.Achievements do
 
 
   @doc ~S"""
-    Count achievements (for pagination).
+    Count achievements (for pagination). Supports `:include_hidden`, `:filter`, and `:user_id`.
   """
   @spec count_achievements(keyword()) :: non_neg_integer()
   def count_achievements(_opts) do
@@ -122,6 +122,21 @@ defmodule GameServer.Achievements do
 
 
   @doc ~S"""
+    Count hidden achievements.
+  """
+  @spec count_hidden_achievements() :: non_neg_integer()
+  def count_hidden_achievements() do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Achievements.count_hidden_achievements/0 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Count unlocked achievements for a user.
   """
   @spec count_user_achievements(integer()) :: non_neg_integer()
@@ -132,6 +147,21 @@ defmodule GameServer.Achievements do
 
       _ ->
         raise "GameServer.Achievements.count_user_achievements/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Count distinct users who have unlocked at least one achievement.
+  """
+  @spec count_users_with_unlocks() :: non_neg_integer()
+  def count_users_with_unlocks() do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Achievements.count_users_with_unlocks/0 is a stub - only available at runtime on GameServer"
     end
   end
 
@@ -148,6 +178,29 @@ defmodule GameServer.Achievements do
 
       _ ->
         raise "GameServer.Achievements.create_achievement/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Returns achievement statistics for the admin dashboard.
+    
+    Returns a map with:
+    - `hidden` — number of hidden achievements
+    - `users_with_unlocks` — users who unlocked at least one
+    - `avg_unlocks_per_user` — average unlocks per user (among users who have any)
+    - `most_unlocked` — `{slug, title, count}` of the most-unlocked achievement
+    - `least_unlocked` — `{slug, title, count}` of the least-unlocked achievement (with at least 1 unlock)
+    
+  """
+  @spec dashboard_stats() :: map()
+  def dashboard_stats() do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        %{}
+
+      _ ->
+        raise "GameServer.Achievements.dashboard_stats/0 is a stub - only available at runtime on GameServer"
     end
   end
 
