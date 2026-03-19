@@ -174,7 +174,7 @@ defmodule GameServer.Achievements do
   def list_achievements(opts \\ []) do
     user_id = Keyword.get(opts, :user_id)
     page = max(Keyword.get(opts, :page, 1), 1)
-    page_size = min(max(Keyword.get(opts, :page_size, 25), 1), 100)
+    page_size = min(max(Keyword.get(opts, :page_size, 25), 1), 200)
     include_hidden = Keyword.get(opts, :include_hidden, false)
 
     query =
@@ -272,7 +272,7 @@ defmodule GameServer.Achievements do
   @spec list_user_achievements(integer(), keyword()) :: [UserAchievement.t()]
   def list_user_achievements(user_id, opts \\ []) when is_integer(user_id) do
     page = max(Keyword.get(opts, :page, 1), 1)
-    page_size = min(max(Keyword.get(opts, :page_size, 25), 1), 100)
+    page_size = min(max(Keyword.get(opts, :page_size, 25), 1), 200)
     offset = (page - 1) * page_size
 
     from(ua in UserAchievement,

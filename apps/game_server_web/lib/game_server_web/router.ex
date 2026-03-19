@@ -36,6 +36,10 @@ defmodule GameServerWeb.Router do
     plug GameServerWeb.Plugs.SentryContext
   end
 
+  pipeline :api_optional_auth do
+    plug GameServerWeb.Auth.OptionalPipeline
+  end
+
   pipeline :api_admin do
     plug GameServerWeb.Plugs.RequireAdminApi
   end
@@ -103,8 +107,9 @@ defmodule GameServerWeb.Router do
   end
 
   # Achievements (public read - slug catch-all must come after /me)
+  # Uses optional auth so authenticated callers get their progress/unlocked_at.
   scope "/api/v1", GameServerWeb.Api.V1, as: :api_v1 do
-    pipe_through :api
+    pipe_through [:api, :api_optional_auth]
 
     get "/achievements", AchievementController, :index
     get "/achievements/user/:user_id", AchievementController, :user_achievements
