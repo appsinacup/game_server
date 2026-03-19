@@ -39,7 +39,7 @@ Returns a changeset for tracking achievement changes (used by forms).
 @spec count_achievements(keyword()) :: non_neg_integer()
 ```
 
-Count achievements (for pagination).
+Count achievements (for pagination). Supports `:include_hidden`, `:filter`, and `:user_id`.
 
 # `count_all_achievements`
 
