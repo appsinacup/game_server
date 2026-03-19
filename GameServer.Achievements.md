@@ -57,6 +57,14 @@ Count all achievements (including hidden), for admin dashboard.
 
 Count all user achievement unlock records.
 
+# `count_hidden_achievements`
+
+```elixir
+@spec count_hidden_achievements() :: non_neg_integer()
+```
+
+Count hidden achievements.
+
 # `count_user_achievements`
 
 ```elixir
@@ -64,6 +72,14 @@ Count all user achievement unlock records.
 ```
 
 Count unlocked achievements for a user.
+
+# `count_users_with_unlocks`
+
+```elixir
+@spec count_users_with_unlocks() :: non_neg_integer()
+```
+
+Count distinct users who have unlocked at least one achievement.
 
 # `create_achievement`
 
@@ -73,6 +89,21 @@ Count unlocked achievements for a user.
 ```
 
 Creates a new achievement definition.
+
+# `dashboard_stats`
+
+```elixir
+@spec dashboard_stats() :: map()
+```
+
+Returns achievement statistics for the admin dashboard.
+
+Returns a map with:
+- `hidden` — number of hidden achievements
+- `users_with_unlocks` — users who unlocked at least one
+- `avg_unlocks_per_user` — average unlocks per user (among users who have any)
+- `most_unlocked` — `{slug, title, count}` of the most-unlocked achievement
+- `least_unlocked` — `{slug, title, count}` of the least-unlocked achievement (with at least 1 unlock)
 
 # `delete_achievement`
 
