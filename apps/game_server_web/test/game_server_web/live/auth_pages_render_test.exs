@@ -1,33 +1,34 @@
 defmodule GameServerWeb.AuthPagesRenderTest do
   @moduledoc """
-  Basic render tests for pages that require authentication
+  Permission + render tests for pages that require authentication
   (live_session :require_authenticated_user).
-  These catch crashes like missing assigns or template errors.
+  Ensures unauthenticated users are redirected and authenticated users can render.
   """
   use GameServerWeb.ConnCase, async: true
   import Phoenix.LiveViewTest
 
-  describe "redirects to login when unauthenticated" do
-    test "GET /notifications redirects", %{conn: conn} do
-      assert {:error, {:redirect, %{to: "/users/log-in"}}} = live(conn, ~p"/notifications")
-    end
+  @auth_routes [
+    {"/notifications", "Notifications"},
+    {"/chat", "Chat"},
+    {"/users/settings", "Settings"}
+  ]
 
-    test "GET /chat redirects", %{conn: conn} do
-      assert {:error, {:redirect, %{to: "/users/log-in"}}} = live(conn, ~p"/chat")
+  describe "unauthenticated users are redirected to login" do
+    for {path, _label} <- @auth_routes do
+      test "GET #{path} redirects unauthenticated", %{conn: conn} do
+        assert {:error, {:redirect, %{to: "/users/log-in"}}} =
+                 live(conn, unquote(path))
+      end
     end
   end
 
-  describe "renders when authenticated" do
+  describe "authenticated users can render pages" do
     setup :register_and_log_in_user
 
-    test "GET /notifications renders", %{conn: conn} do
-      {:ok, _view, html} = live(conn, ~p"/notifications")
-      assert html =~ "Notifications"
-    end
-
-    test "GET /chat renders", %{conn: conn} do
-      {:ok, _view, html} = live(conn, ~p"/chat")
-      assert html =~ "Chat"
+    for {path, _label} <- @auth_routes do
+      test "GET #{path} renders when authenticated", %{conn: conn} do
+        {:ok, _view, _html} = live(conn, unquote(path))
+      end
     end
   end
 end
