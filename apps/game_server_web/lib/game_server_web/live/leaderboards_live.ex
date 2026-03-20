@@ -115,6 +115,7 @@ defmodule GameServerWeb.LeaderboardsLive do
           <.render_group_list
             groups={@groups}
             page={@page}
+            page_size={@page_size}
             total_pages={@total_pages}
             count={@count}
             locale={@locale}
