@@ -103,28 +103,28 @@ defmodule GameServerWeb.AdminLive.Achievements do
                     </td>
                     <td class="text-sm">
                       <div class="flex flex-wrap gap-1">
-                      <button
-                        phx-click="edit_achievement"
-                        phx-value-id={a.id}
-                        class="btn btn-xs btn-outline btn-info"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        phx-click="grant_form"
-                        phx-value-id={a.id}
-                        class="btn btn-xs btn-outline btn-success"
-                      >
-                        Grant
-                      </button>
-                      <button
-                        phx-click="delete_achievement"
-                        phx-value-id={a.id}
-                        data-confirm="Delete this achievement and all user progress?"
-                        class="btn btn-xs btn-outline btn-error"
-                      >
-                        Delete
-                      </button>
+                        <button
+                          phx-click="edit_achievement"
+                          phx-value-id={a.id}
+                          class="btn btn-xs btn-outline btn-info"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          phx-click="grant_form"
+                          phx-value-id={a.id}
+                          class="btn btn-xs btn-outline btn-success"
+                        >
+                          Grant
+                        </button>
+                        <button
+                          phx-click="delete_achievement"
+                          phx-value-id={a.id}
+                          data-confirm="Delete this achievement and all user progress?"
+                          class="btn btn-xs btn-outline btn-error"
+                        >
+                          Delete
+                        </button>
                       </div>
                     </td>
                   </tr>

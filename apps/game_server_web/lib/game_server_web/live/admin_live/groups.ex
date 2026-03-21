@@ -317,37 +317,37 @@ defmodule GameServerWeb.AdminLive.Groups do
                   </td>
                   <td class="text-sm">
                     <div class="flex flex-wrap gap-1">
-                    <%= if m.role == "member" do %>
+                      <%= if m.role == "member" do %>
+                        <button
+                          type="button"
+                          phx-click="promote_member"
+                          phx-value-group-id={m.group_id}
+                          phx-value-user-id={m.user_id}
+                          class="btn btn-xs btn-outline btn-info"
+                        >
+                          Promote
+                        </button>
+                      <% else %>
+                        <button
+                          type="button"
+                          phx-click="demote_member"
+                          phx-value-group-id={m.group_id}
+                          phx-value-user-id={m.user_id}
+                          class="btn btn-xs btn-outline btn-warning"
+                        >
+                          Demote
+                        </button>
+                      <% end %>
                       <button
                         type="button"
-                        phx-click="promote_member"
+                        phx-click="kick_member"
                         phx-value-group-id={m.group_id}
                         phx-value-user-id={m.user_id}
-                        class="btn btn-xs btn-outline btn-info"
+                        data-confirm={"Kick user #{m.user_id} from group?"}
+                        class="btn btn-xs btn-outline btn-error"
                       >
-                        Promote
+                        Kick
                       </button>
-                    <% else %>
-                      <button
-                        type="button"
-                        phx-click="demote_member"
-                        phx-value-group-id={m.group_id}
-                        phx-value-user-id={m.user_id}
-                        class="btn btn-xs btn-outline btn-warning"
-                      >
-                        Demote
-                      </button>
-                    <% end %>
-                    <button
-                      type="button"
-                      phx-click="kick_member"
-                      phx-value-group-id={m.group_id}
-                      phx-value-user-id={m.user_id}
-                      data-confirm={"Kick user #{m.user_id} from group?"}
-                      class="btn btn-xs btn-outline btn-error"
-                    >
-                      Kick
-                    </button>
                     </div>
                   </td>
                 </tr>

@@ -134,46 +134,46 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
                     </td>
                     <td class="text-sm">
                       <div class="flex flex-wrap gap-1">
-                      <button
-                        phx-click="view_records"
-                        phx-value-id={lb.id}
-                        class="btn btn-xs btn-outline"
-                      >
-                        Records
-                      </button>
-                      <button
-                        phx-click="edit_leaderboard"
-                        phx-value-id={lb.id}
-                        class="btn btn-xs btn-outline btn-info"
-                      >
-                        Edit
-                      </button>
-                      <%= if Leaderboard.active?(lb) do %>
                         <button
-                          phx-click="end_leaderboard"
+                          phx-click="view_records"
                           phx-value-id={lb.id}
-                          data-confirm="End this leaderboard? No more scores can be submitted."
-                          class="btn btn-xs btn-outline btn-warning"
+                          class="btn btn-xs btn-outline"
                         >
-                          End
+                          Records
                         </button>
-                      <% end %>
-                      <button
-                        phx-click="delete_leaderboard"
-                        phx-value-id={lb.id}
-                        data-confirm="Delete this leaderboard and all its records?"
-                        class="btn btn-xs btn-outline btn-error"
-                      >
-                        Delete
-                      </button>
-                      <button
-                        phx-click="new_season_from"
-                        phx-value-id={lb.id}
-                        class="btn btn-xs btn-outline btn-success"
-                        title="Create new season with same settings"
-                      >
-                        + Season
-                      </button>
+                        <button
+                          phx-click="edit_leaderboard"
+                          phx-value-id={lb.id}
+                          class="btn btn-xs btn-outline btn-info"
+                        >
+                          Edit
+                        </button>
+                        <%= if Leaderboard.active?(lb) do %>
+                          <button
+                            phx-click="end_leaderboard"
+                            phx-value-id={lb.id}
+                            data-confirm="End this leaderboard? No more scores can be submitted."
+                            class="btn btn-xs btn-outline btn-warning"
+                          >
+                            End
+                          </button>
+                        <% end %>
+                        <button
+                          phx-click="delete_leaderboard"
+                          phx-value-id={lb.id}
+                          data-confirm="Delete this leaderboard and all its records?"
+                          class="btn btn-xs btn-outline btn-error"
+                        >
+                          Delete
+                        </button>
+                        <button
+                          phx-click="new_season_from"
+                          phx-value-id={lb.id}
+                          class="btn btn-xs btn-outline btn-success"
+                          title="Create new season with same settings"
+                        >
+                          + Season
+                        </button>
                       </div>
                     </td>
                   </tr>

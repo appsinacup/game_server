@@ -4,6 +4,8 @@ defmodule GameServerWeb.AdminPagesRenderTest do
   (live_session :require_admin).
   Ensures unauthenticated and non-admin users are redirected,
   and admin users can render every page.
+  Also verifies pages render correctly when data exists (catches
+  struct field access errors in templates).
   """
   use GameServerWeb.ConnCase, async: true
   import Phoenix.LiveViewTest
@@ -70,6 +72,91 @@ defmodule GameServerWeb.AdminPagesRenderTest do
 
     for {path, _label} <- @admin_routes do
       test "GET #{path} renders for admin", %{conn: conn, admin: admin} do
+        {:ok, _view, _html} = conn |> log_in_user(admin) |> live(unquote(path))
+      end
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # Data-seeded render tests — catches struct field access errors in templates
+  # ---------------------------------------------------------------------------
+
+  @seeded_routes [
+    {"/admin/lobbies", "Lobbies"},
+    {"/admin/parties", "Parties"},
+    {"/admin/groups", "Groups"},
+    {"/admin/leaderboards", "Leaderboards"},
+    {"/admin/achievements", "Achievements"},
+    {"/admin/kv", "KV"},
+    {"/admin/notifications", "Notifications"},
+    {"/admin/users", "Users"}
+  ]
+
+  defp seed_data(admin) do
+    # Create a second user for relationships
+    other = AccountsFixtures.user_fixture()
+
+    # Lobby with a member
+    {:ok, _lobby} =
+      GameServer.Lobbies.create_lobby(%{title: "Seeded Lobby", hostless: true, max_users: 10})
+
+    # Group with a member
+    {:ok, _group} =
+      GameServer.Groups.create_group(admin.id, %{
+        "title" => "Seeded Group",
+        "type" => "public",
+        "max_members" => 50
+      })
+
+    # Party (requires friendship for invite, so just create with leader)
+    {:ok, _party} = GameServer.Parties.create_party(admin, %{max_size: 4})
+
+    # Leaderboard with a score
+    {:ok, lb} =
+      GameServer.Leaderboards.create_leaderboard(%{
+        slug: "seeded_lb_#{System.unique_integer([:positive])}",
+        title: "Seeded LB",
+        sort_order: :desc,
+        operator: :incr
+      })
+
+    GameServer.Leaderboards.submit_score(lb.id, admin.id, 100)
+
+    # Achievement (unlocked for the admin user)
+    slug = "seeded_ach_#{System.unique_integer([:positive])}"
+
+    {:ok, _ach} =
+      GameServer.Achievements.create_achievement(%{
+        slug: slug,
+        title: "Seeded Achievement",
+        progress_target: 1
+      })
+
+    GameServer.Achievements.unlock_achievement(admin.id, slug)
+
+    # KV entry
+    GameServer.KV.put("seeded:key", %{v: 1}, %{"meta" => "data"})
+
+    # Notification
+    GameServer.Notifications.admin_create_notification(admin.id, other.id, %{
+      "title" => "Seeded Notification",
+      "content" => "Test",
+      "metadata" => %{"type" => "system"}
+    })
+
+    :ok
+  end
+
+  describe "admin pages render correctly with actual data" do
+    setup [:create_admin]
+
+    setup %{admin: admin} do
+      seed_data(admin)
+      :ok
+    end
+
+    for {path, label} <- @seeded_routes do
+      test "GET #{path} renders with #{label} data", %{conn: conn, admin: admin} do
         {:ok, _view, _html} = conn |> log_in_user(admin) |> live(unquote(path))
       end
     end
