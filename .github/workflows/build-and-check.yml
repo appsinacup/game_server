@@ -269,7 +269,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
           # repository uses JS packages under the `clients` subfolder. When caching
           # npm dependencies we need to point setup-node at the lockfile location
