@@ -162,6 +162,11 @@ jobs:
           apt update
           apt install -y build-essential erlang-dev curl
 
+      - name: Install Rust toolchain (for ex_sctp WebRTC DataChannels)
+        run: |
+          curl https://sh.rustup.rs -sSf | sh -s -- -y
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
       - name: Set up Elixir helpers
         run: |
           mix local.hex --force
@@ -210,6 +215,11 @@ jobs:
         run: |
           apt update
           apt install -y build-essential erlang-dev curl
+
+      - name: Install Rust toolchain (for ex_sctp WebRTC DataChannels)
+        run: |
+          curl https://sh.rustup.rs -sSf | sh -s -- -y
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Set up Elixir helpers
         run: |

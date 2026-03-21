@@ -284,6 +284,22 @@ API routes use JWT tokens via Guardian for stateless authentication:
 - WebSocket channels mirror PubSub topics: `UserChannel`, `LobbyChannel`, `LobbiesChannel`, `GroupChannel`, `GroupsChannel`, `PartyChannel`.
 - LiveViews subscribe to PubSub topics directly (not via channels) using context `subscribe_*` functions.
 
+### WebRTC DataChannels (optional)
+
+- WebRTC provides low-latency DataChannels alongside the existing WebSocket. The server acts as a WebRTC peer (not P2P between clients).
+- **Optional dependency**: `ex_webrtc` and `ex_sctp` are optional deps in `game_server_web`. All WebRTC code is gated by `if Code.ensure_loaded?(ExWebRTC.PeerConnection) do`. If deps aren't installed, signaling events return `{:error, "webrtc_disabled"}`.
+- **Rust requirement**: `ex_sctp` (required for DataChannels) compiles a Rust NIF. Local dev needs `rustup`. Docker/CI need Rust toolchain added.
+- **Signaling over UserChannel**: No new channel. The existing authenticated `UserChannel` handles SDP/ICE exchange via events:
+  - Client → Server: `"webrtc:offer"`, `"webrtc:ice"`, `"webrtc:send"`, `"webrtc:close"`
+  - Server → Client: `"webrtc:answer"`, `"webrtc:ice"`, `"webrtc:data"`, `"webrtc:channel_open"`, `"webrtc:channel_closed"`, `"webrtc:state"`
+- **Auth inherited from WebSocket**: The `PeerConnection` is created inside an authenticated channel process. No separate WebRTC auth.
+- **One PeerConnection per user**: Managed by `GameServerWeb.WebRTCPeer` GenServer, linked to the channel process. Stored in channel assigns as `:webrtc_peer`.
+- **WebSocket stays open**: Both transports coexist. WebSocket handles signaling/notifications/chat. WebRTC handles game-specific data.
+- **DataChannel strategy**: Clients create named channels — `"events"` (reliable, ordered) for important game events, `"state"` (unreliable, unordered) for high-frequency position sync.
+- **Config**: `config :game_server_web, :webrtc, enabled: true, ice_servers: [%{urls: "stun:stun.l.google.com:19302"}]`
+- **Client helpers**: `assets/js/webrtc.js` (browser), `clients/gamend_template/GamendWebRTC.gd` (Godot)
+- **Design document**: `docs/webrtc-design.md`
+
 ### Advisory locks
 
 - Used for atomic join/leave/create operations on lobbies, groups, and parties.
@@ -674,15 +690,16 @@ apps/
     lib/game_server_web/
       controllers/api/v1/     # Public API controllers (14 controllers)
       controllers/api/v1/admin/ # Admin API controllers (8 controllers)
-      channels/               # WebSocket channels (6 channels)
+      channels/               # WebSocket channels (6 channels) + webrtc_peer.ex
       live/                   # LiveViews (public + user auth)
       live/admin_live/        # Admin dashboard LiveViews (10 modules)
       live/public_docs/       # Documentation guide templates (20 guides)
       components/             # Shared components (layouts.ex, core_components.ex)
       auth/                   # Guardian JWT (guardian.ex, pipeline.ex)
   game_server_host/           # Runnable host app (router, boot config)
-assets/                       # JS, CSS, vendor deps
+assets/                       # JS, CSS, vendor deps (incl. webrtc.js)
 config/                       # Environment configs
+docs/                         # Design documents (webrtc-design.md)
 ```
 
 # **Always end interactions with confirmation.**

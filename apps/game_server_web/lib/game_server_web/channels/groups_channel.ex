@@ -20,6 +20,7 @@ defmodule GameServerWeb.GroupsChannel do
 
   @impl true
   def join("groups", _payload, socket) do
+    GameServerWeb.ConnectionTracker.register(:groups_channel)
     Groups.subscribe_groups()
     {:ok, socket}
   end

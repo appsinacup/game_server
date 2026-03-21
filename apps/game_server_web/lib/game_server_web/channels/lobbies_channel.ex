@@ -15,6 +15,7 @@ defmodule GameServerWeb.LobbiesChannel do
   @impl true
   def join("lobbies", _payload, socket) do
     # allow anonymous or authenticated sockets to subscribe to global lobby events
+    GameServerWeb.ConnectionTracker.register(:lobbies_channel)
     Lobbies.subscribe_lobbies()
     {:ok, socket}
   end

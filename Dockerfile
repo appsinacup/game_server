@@ -3,8 +3,12 @@ FROM elixir:1.19-slim
 # Install git and other build dependencies
 RUN apt-get update && \
     # Install build tools + sqlite dev headers so Exqlite NIF builds in-image
-    apt-get install -y git build-essential libsqlite3-dev sqlite3 pkg-config ca-certificates && \
+    apt-get install -y git build-essential libsqlite3-dev sqlite3 pkg-config ca-certificates curl && \
     rm -rf /var/lib/apt/lists/*
+
+# Install Rust toolchain (required by ex_sctp for WebRTC DataChannels)
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
 
 # Install hex and rebar
 RUN mix local.hex --force && \

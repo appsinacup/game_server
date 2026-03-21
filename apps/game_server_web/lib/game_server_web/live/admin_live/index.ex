@@ -60,6 +60,12 @@ defmodule GameServerWeb.AdminLive.Index do
           <.link navigate={~p"/admin/achievements"} class="btn btn-primary">
             Achievements ({@achievements_count})
           </.link>
+          <.link navigate={~p"/admin/connections"} class="btn btn-primary">
+            Connections ({@conn_stats.total_connections})
+          </.link>
+          <.link navigate={~p"/admin/system"} class="btn btn-primary">
+            System
+          </.link>
         </div>
 
         <div class="card bg-base-200">
@@ -278,6 +284,46 @@ defmodule GameServerWeb.AdminLive.Index do
                   <% end %>
                 </div>
               </div>
+
+              <%!-- 12. Live Connections --%>
+              <div class="card bg-base-100 p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-sm font-semibold">Connections</div>
+                  <.link navigate={~p"/admin/connections"} class="text-xs text-primary hover:underline">
+                    View →
+                  </.link>
+                </div>
+                <div class="text-2xl font-bold">{@conn_stats.total_connections}</div>
+                <div class="text-xs text-base-content/60 mt-2 space-y-1">
+                  <div>WS sockets: {@conn_stats.ws_sockets}</div>
+                  <div>WS channels: {@conn_stats.total_channels}</div>
+                  <div>LiveViews: {@conn_stats.live_views}</div>
+                  <div>WebRTC: {@conn_stats.webrtc_peers}</div>
+                </div>
+              </div>
+
+              <%!-- 13. System (BEAM) --%>
+              <div class="card bg-base-100 p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-sm font-semibold">System</div>
+                  <.link navigate={~p"/admin/system"} class="text-xs text-primary hover:underline">
+                    View →
+                  </.link>
+                </div>
+                <div class="text-2xl font-bold">
+                  {GameServerWeb.ConnectionTracker.format_uptime(@sys_stats.uptime_seconds)}
+                </div>
+                <div class="text-xs text-base-content/60 mt-2 space-y-1">
+                  <div>OTP: {@sys_stats.otp_release}</div>
+                  <div>Schedulers: {@sys_stats.schedulers}</div>
+                  <div>Node: {@sys_stats.node}</div>
+                  <div>Cluster: {@sys_stats.cluster_size} nodes</div>
+                  <div>Memory: {@sys_stats.memory_total_mb} MB</div>
+                  <div>
+                    Processes: {@sys_stats.process_count} / {format_number(@sys_stats.process_limit)}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -337,6 +383,12 @@ defmodule GameServerWeb.AdminLive.Index do
     achievements_unlocks = Achievements.count_all_unlocks()
     achievement_stats = Achievements.dashboard_stats()
 
+    # live connection & system stats (refreshed periodically)
+    conn_stats = GameServerWeb.ConnectionTracker.cluster_counts()
+    sys_stats = GameServerWeb.ConnectionTracker.system_stats()
+
+    if connected?(socket), do: schedule_live_refresh()
+
     # time-based metrics
     users_registered_1d = Accounts.count_users_registered_since(1)
     users_registered_7d = Accounts.count_users_registered_since(7)
@@ -384,6 +436,8 @@ defmodule GameServerWeb.AdminLive.Index do
        achievements_count: achievements_count,
        achievements_unlocks: achievements_unlocks,
        achievement_stats: achievement_stats,
+       conn_stats: conn_stats,
+       sys_stats: sys_stats,
        users_registered_1d: users_registered_1d,
        users_registered_7d: users_registered_7d,
        users_registered_30d: users_registered_30d,
@@ -398,4 +452,27 @@ defmodule GameServerWeb.AdminLive.Index do
   def handle_event("set_tab", %{"tab" => tab}, socket) do
     {:noreply, assign(socket, :tab, tab)}
   end
+
+  @impl true
+  def handle_info(:refresh_live_stats, socket) do
+    schedule_live_refresh()
+
+    {:noreply,
+     assign(socket,
+       conn_stats: GameServerWeb.ConnectionTracker.cluster_counts(),
+       sys_stats: GameServerWeb.ConnectionTracker.system_stats()
+     )}
+  end
+
+  defp schedule_live_refresh, do: Process.send_after(self(), :refresh_live_stats, 5_000)
+
+  defp format_number(n) when is_integer(n) and n >= 1_000_000 do
+    "#{Float.round(n / 1_000_000, 1)}M"
+  end
+
+  defp format_number(n) when is_integer(n) and n >= 1_000 do
+    "#{Float.round(n / 1_000, 1)}K"
+  end
+
+  defp format_number(n), do: to_string(n)
 end

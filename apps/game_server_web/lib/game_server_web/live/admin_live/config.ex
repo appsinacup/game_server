@@ -1628,6 +1628,12 @@ defmodule GameServerWeb.AdminLive.Config do
      |> put_flash(:error, "Plugin build failed: #{inspect(reason)}")}
   end
 
+  # Catch-all to avoid crashes from async messages (e.g. test email delivery)
+  @impl true
+  def handle_info(_msg, socket) do
+    {:noreply, socket}
+  end
+
   defp cache_diagnostics do
     cache_conf = Application.get_env(:game_server_core, GameServer.Cache) || []
     cache_levels = Keyword.get(cache_conf, :levels, [])

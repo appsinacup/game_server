@@ -1,0 +1,307 @@
+<!-- WebRTC DataChannels -->
+<div class="card bg-base-100 shadow-xl collapsed" data-card-key="webrtc">
+  <div class="card-body">
+    <h2 class="card-title text-2xl mb-4 flex items-center gap-3">
+      <svg
+        class="w-12 h-8 text-green-600"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.14 0M1.394 9.393c5.857-5.858 15.355-5.858 21.213 0"
+        />
+      </svg>
+      {doc_text("WebRTC DataChannels")}
+      <button
+        type="button"
+        data-action="toggle-card"
+        data-card-key="webrtc"
+        aria-expanded="false"
+        class="btn btn-ghost btn-sm ml-auto"
+        title={doc_text("Collapse/Expand")}
+      >
+        <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 8l4 4 4-4"
+          />
+        </svg>
+      </button>
+    </h2>
+
+    <div class="space-y-4">
+      <p class="text-sm text-base-content/80">
+        {doc_text(
+          "Optional WebRTC DataChannel support provides low-latency, optionally unreliable data transport alongside the existing WebSocket. The server acts as a WebRTC peer (not peer-to-peer between clients). Both transports coexist — WebSocket handles signaling, notifications, and chat while WebRTC handles high-frequency game data."
+        )}
+      </p>
+
+      <div class="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+        <p class="text-sm text-amber-800 dark:text-amber-200">
+          <strong>{doc_text("Optional dependency:")}</strong>
+          {doc_text(
+            " WebRTC requires ex_webrtc and ex_sctp packages. ex_sctp compiles a Rust NIF, so Rust toolchain is needed. If the dependencies are not installed, WebRTC signaling events will return an error and everything else works unchanged."
+          )}
+        </p>
+      </div>
+
+      <h3 class="font-semibold">{doc_text("Architecture overview")}</h3>
+      <div
+        class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto"
+        phx-no-curly-interpolation
+      >
+        <pre>
+Client                           Server (ex_webrtc)
+  │                                    │
+  │── WS connect (JWT auth) ──────────&gt;│  existing flow
+  │── WS join "user:&lt;id&gt;"  ───────────&gt;│  existing flow
+  │                                    │
+  │── WS push "webrtc:offer"  ────────&gt;│  Server creates PeerConnection
+  │&lt;── WS push "webrtc:answer"  ───────│  Server sends SDP answer
+  │── WS push "webrtc:ice"  ──────────&gt;│  ICE candidate exchange
+  │&lt;── WS push "webrtc:ice"  ──────────│  ICE candidate exchange
+  │                                    │
+  │══ DataChannel "events"  ═══════════│  reliable, ordered
+  │══ DataChannel "state"  ════════════│  unreliable, unordered
+  │                                    │
+  │── WS still open  ─────────────────&gt;│  notifications, chat, etc.
+        </pre>
+      </div>
+
+      <h3 class="font-semibold mt-3">{doc_text("Key design decisions")}</h3>
+      <ul class="list-disc pl-6 text-sm space-y-1 text-base-content/80">
+        <li>
+          <strong>{doc_text("Signaling over existing UserChannel")}</strong>
+          — {doc_text("No new channel needed. SDP/ICE exchange happens via the already-authenticated WebSocket.")}
+        </li>
+        <li>
+          <strong>{doc_text("Auth inherited from WebSocket")}</strong>
+          — {doc_text("The PeerConnection is created inside the authenticated channel process. No separate WebRTC auth.")}
+        </li>
+        <li>
+          <strong>{doc_text("One PeerConnection per user")}</strong>
+          — {doc_text("Spawned on first \"webrtc:offer\". Linked to the channel process (auto-terminates when WS disconnects).")}
+        </li>
+        <li>
+          <strong>{doc_text("WebSocket stays open")}</strong>
+          — {doc_text("Both transports coexist. Client chooses which to use for game data.")}
+        </li>
+      </ul>
+
+      <h3 class="font-semibold mt-3">{doc_text("Setup")}</h3>
+      <p class="text-sm text-base-content/80">
+        {doc_text("Add the optional dependencies to your mix.exs:")}
+      </p>
+      <div class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto" phx-no-curly-interpolation>
+        <pre>
+# In apps/game_server_web/mix.exs
+{:ex_webrtc, "~> 0.16.0", optional: true},
+{:ex_sctp, "~> 0.1.2", optional: true}   # Requires Rust toolchain
+        </pre>
+      </div>
+
+      <p class="text-sm text-base-content/80 mt-2">
+        {doc_text("Configure ICE servers in config/config.exs:")}
+      </p>
+      <div class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto" phx-no-curly-interpolation>
+        <pre>
+config :game_server_web, :webrtc,
+  enabled: true,
+  ice_servers: [%{urls: "stun:stun.l.google.com:19302"}]
+
+  # Optional TURN for restrictive NATs:
+  # ice_servers: [
+  #   %{urls: "stun:stun.l.google.com:19302"},
+  #   %{urls: "turn:your-server:3478", username: "u", credential: "p"}
+  # ]
+        </pre>
+      </div>
+
+      <h3 class="font-semibold mt-3">{doc_text("DataChannel strategy")}</h3>
+      <div class="overflow-x-auto">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>{doc_text("Channel label")}</th>
+              <th>{doc_text("Ordered")}</th>
+              <th>{doc_text("Reliable")}</th>
+              <th>{doc_text("Use case")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>"events"</code></td>
+              <td>{doc_text("Yes")}</td>
+              <td>{doc_text("Yes")}</td>
+              <td>{doc_text("Important game events (scores, spawns, deaths)")}</td>
+            </tr>
+            <tr>
+              <td><code>"state"</code></td>
+              <td>{doc_text("No")}</td>
+              <td>{doc_text("No")}</td>
+              <td>{doc_text("High-frequency state sync (positions, rotations)")}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="font-semibold mt-3">{doc_text("Signaling events")}</h3>
+      <div class="overflow-x-auto">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>{doc_text("Direction")}</th>
+              <th>{doc_text("Event")}</th>
+              <th>{doc_text("Payload")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{doc_text("Client → Server")}</td>
+              <td><code>"webrtc:offer"</code></td>
+              <td class="font-mono text-xs" phx-no-curly-interpolation>{"sdp": "...", "type": "offer"}</td>
+            </tr>
+            <tr>
+              <td>{doc_text("Server → Client")}</td>
+              <td><code>"webrtc:answer"</code></td>
+              <td class="font-mono text-xs" phx-no-curly-interpolation>{"sdp": "...", "type": "answer"}</td>
+            </tr>
+            <tr>
+              <td>{doc_text("Both")}</td>
+              <td><code>"webrtc:ice"</code></td>
+              <td class="font-mono text-xs" phx-no-curly-interpolation>{"candidate": "...", "sdpMid": "...", "sdpMLineIndex": 0}</td>
+            </tr>
+            <tr>
+              <td>{doc_text("Client → Server")}</td>
+              <td><code>"webrtc:send"</code></td>
+              <td class="font-mono text-xs" phx-no-curly-interpolation>{"channel": "events", "data": "..."}</td>
+            </tr>
+            <tr>
+              <td>{doc_text("Server → Client")}</td>
+              <td><code>"webrtc:data"</code></td>
+              <td class="font-mono text-xs" phx-no-curly-interpolation>{"channel": "events", "data": "..."}</td>
+            </tr>
+            <tr>
+              <td>{doc_text("Client → Server")}</td>
+              <td><code>"webrtc:close"</code></td>
+              <td class="font-mono text-xs" phx-no-curly-interpolation>{}</td>
+            </tr>
+            <tr>
+              <td>{doc_text("Server → Client")}</td>
+              <td><code>"webrtc:state"</code></td>
+              <td class="font-mono text-xs" phx-no-curly-interpolation>{"state": "connected|failed|closed"}</td>
+            </tr>
+            <tr>
+              <td>{doc_text("Server → Client")}</td>
+              <td><code>"webrtc:channel_open"</code></td>
+              <td class="font-mono text-xs" phx-no-curly-interpolation>{"channel": "events"}</td>
+            </tr>
+            <tr>
+              <td>{doc_text("Server → Client")}</td>
+              <td><code>"webrtc:channel_closed"</code></td>
+              <td class="font-mono text-xs" phx-no-curly-interpolation>{}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="font-semibold mt-3">{doc_text("JavaScript client")}</h3>
+      <p class="text-sm text-base-content/80">
+        {doc_text("Import GameWebRTC from assets/js/webrtc.js:")}
+      </p>
+      <div class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto" phx-no-curly-interpolation>
+        <pre>
+import { GameWebRTC } from "./webrtc"
+import { _ensureSocket } from "./lobbies"
+
+const socket = _ensureSocket()
+const userChannel = socket.channel("user:123", {token: myToken})
+userChannel.join()
+
+const webrtc = new GameWebRTC(userChannel, {
+  dataChannels: [
+    { label: "events", ordered: true },
+    { label: "state",  ordered: false, maxRetransmits: 0 },
+  ],
+  onData: (label, data) => {
+    console.log(`Received on ${label}:`, data)
+  },
+  onChannelOpen: (label) => console.log(`Channel ${label} open`),
+  onStateChange: (state) => console.log(`WebRTC state: ${state}`),
+})
+
+await webrtc.connect()
+webrtc.send("events", JSON.stringify({ type: "move", x: 10, y: 20 }))
+webrtc.close()
+        </pre>
+      </div>
+
+      <h3 class="font-semibold mt-3">{doc_text("Godot client")}</h3>
+      <p class="text-sm text-base-content/80">
+        {doc_text("Use GamendWebRTC.gd from the gamend_template:")}
+      </p>
+      <div class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto" phx-no-curly-interpolation>
+        <pre>
+var realtime := GamendRealtime.new(token)
+var user_channel := realtime.add_channel("user:%d" % user_id)
+# wait for join...
+
+var webrtc := GamendWebRTC.new(user_channel, {
+    "enable_logs": true
+})
+add_child(webrtc)
+webrtc.data_received.connect(_on_data)
+webrtc.connected.connect(_on_connected)
+webrtc.connect_webrtc()
+
+func _on_data(label: String, data: PackedByteArray):
+    print("Recv on %s: %s" % [label, data.get_string_from_utf8()])
+
+func _on_connected():
+    webrtc.send_text("events", '{"type":"move","x":10,"y":20}')
+        </pre>
+      </div>
+
+      <h3 class="font-semibold mt-3">{doc_text("Server-side components")}</h3>
+      <ul class="list-disc pl-6 text-sm space-y-1 text-base-content/80">
+        <li>
+          <strong>WebRTCPeer</strong>
+          — {doc_text("GenServer managing ExWebRTC.PeerConnection per user. Handles SDP negotiation, ICE exchange, and DataChannel lifecycle.")}
+        </li>
+        <li>
+          <strong>UserChannel</strong>
+          — {doc_text("Extended with WebRTC signaling handlers (conditionally compiled). All WebRTC code is gated by Code.ensure_loaded?(ExWebRTC.PeerConnection).")}
+        </li>
+      </ul>
+
+      <h3 class="font-semibold mt-3">{doc_text("Deployment")}</h3>
+      <ul class="list-disc pl-6 text-sm space-y-1 text-base-content/80">
+        <li>
+          {doc_text("Docker: Add Rust toolchain to Dockerfile (ex_sctp compiles a Rust NIF).")}
+        </li>
+        <li>
+          {doc_text("Server needs UDP ports accessible for WebRTC media/data transport.")}
+        </li>
+        <li>
+          {doc_text("Fly.io: ex_webrtc includes ExWebRTC.ICE.FlyIpFilter for correct public IP binding.")}
+        </li>
+        <li>
+          {doc_text("TURN server recommended for clients behind restrictive NATs/firewalls.")}
+        </li>
+      </ul>
+
+      <h3 class="font-semibold mt-3">{doc_text("Disabling WebRTC")}</h3>
+      <p class="text-sm text-base-content/80">
+        {doc_text(
+          "Set enabled: false in config to reject offers at runtime. Or simply don't install the ex_webrtc/ex_sctp dependencies — the code won't compile in, and the server works normally with WebSocket only."
+        )}
+      </p>
+    </div>
+  </div>
+</div>

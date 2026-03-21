@@ -314,7 +314,8 @@ defmodule GameServerWeb.Router do
       on_mount: [
         {GameServerWeb.OnMount.Locale, :default},
         {GameServerWeb.UserAuth, :require_admin},
-        {GameServerWeb.OnMount.Theme, :mount_theme}
+        {GameServerWeb.OnMount.Theme, :mount_theme},
+        {GameServerWeb.OnMount.TrackConnection, :default}
       ] do
       # Admin routes
       live "/admin", AdminLive.Index, :index
@@ -330,6 +331,8 @@ defmodule GameServerWeb.Router do
       live "/admin/chat", AdminLive.Chat, :index
       live "/admin/achievements", AdminLive.Achievements, :index
       live "/admin/translations", AdminLive.Translations, :index
+      live "/admin/connections", AdminLive.Connections, :index
+      live "/admin/system", AdminLive.System, :index
     end
   end
 
@@ -340,7 +343,8 @@ defmodule GameServerWeb.Router do
       on_mount: [
         {GameServerWeb.OnMount.Locale, :default},
         {GameServerWeb.UserAuth, :require_authenticated},
-        {GameServerWeb.OnMount.Theme, :mount_theme}
+        {GameServerWeb.OnMount.Theme, :mount_theme},
+        {GameServerWeb.OnMount.TrackConnection, :default}
       ] do
       live "/users/settings", UserLive.Settings, :edit
       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
@@ -358,7 +362,8 @@ defmodule GameServerWeb.Router do
       on_mount: [
         {GameServerWeb.OnMount.Locale, :default},
         {GameServerWeb.UserAuth, :mount_current_scope},
-        {GameServerWeb.OnMount.Theme, :mount_theme}
+        {GameServerWeb.OnMount.Theme, :mount_theme},
+        {GameServerWeb.OnMount.TrackConnection, :default}
       ] do
       live "/users/register", UserLive.Registration, :new
       live "/lobbies", LobbyLive.Index, :index

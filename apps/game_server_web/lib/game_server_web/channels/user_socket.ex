@@ -68,6 +68,7 @@ defmodule GameServerWeb.UserSocket do
           {:ok, claims} ->
             case Guardian.resource_from_claims(claims) do
               {:ok, user} ->
+                GameServerWeb.ConnectionTracker.register(:ws_socket, %{user_id: user.id, authenticated: true})
                 socket = assign(socket, :current_scope, Scope.for_user(user))
                 {:ok, socket}
 
@@ -80,6 +81,7 @@ defmodule GameServerWeb.UserSocket do
         end
 
       _ ->
+        GameServerWeb.ConnectionTracker.register(:ws_socket, %{authenticated: false})
         {:ok, socket}
     end
   end
