@@ -18,7 +18,7 @@ defmodule GameServerWeb.AdminLive.Config do
         <.link navigate={~p"/admin"} class="btn btn-outline mb-4">
           ← Back to Admin
         </.link>
-        
+
     <!-- Current Configuration Status -->
         <div class="card bg-base-100 shadow-xl" data-card-key="config_status">
           <div class="card-body">
@@ -185,24 +185,309 @@ defmodule GameServerWeb.AdminLive.Config do
                     <td class="font-mono text-sm break-all whitespace-normal">
                       THEME_CONFIG: {@config.theme_config || "<unset>"}<br />
 
-                      <div class="mt-2 flex items-center gap-3">
-                        <%= if @config.theme_map && Map.get(@config.theme_map, "logo") do %>
-                          <img src={Map.get(@config.theme_map, "logo")} alt="logo" class="h-8 w-auto" />
+                      <%= if @config.theme_map do %>
+                        <%!-- Branding: Logo + dark, Favicon + dark, Banner + dark --%>
+                        <div class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <%!-- Logo --%>
+                          <div class="flex flex-col items-center gap-1">
+                            <span class="text-xs font-semibold opacity-70">Logo</span>
+                            <%= if Map.get(@config.theme_map, "logo") do %>
+                              <img
+                                src={Map.get(@config.theme_map, "logo")}
+                                alt="logo"
+                                class="h-12 w-auto rounded"
+                              />
+                              <span class="text-[10px] opacity-50">
+                                {Map.get(@config.theme_map, "logo")}
+                              </span>
+                            <% else %>
+                              <span class="text-xs opacity-50">—</span>
+                            <% end %>
+                            <%!-- Logo Dark --%>
+                            <%= if @config.theme_dark.logo_dark_exists? do %>
+                              <span class="text-[10px] font-semibold opacity-50 mt-1">
+                                Dark
+                              </span>
+                              <img
+                                src={@config.theme_dark.logo_dark_path}
+                                alt="logo dark"
+                                class="h-12 w-auto rounded bg-neutral p-1"
+                              />
+                              <span class="text-[10px] opacity-40">
+                                {@config.theme_dark.logo_dark_path}
+                              </span>
+                            <% else %>
+                              <%= if Map.get(@config.theme_map, "logo") do %>
+                                <span class="text-[10px] opacity-40 mt-1">
+                                  Dark: not found
+                                </span>
+                              <% end %>
+                            <% end %>
+                          </div>
+                          <%!-- Favicon --%>
+                          <div class="flex flex-col items-center gap-1">
+                            <span class="text-xs font-semibold opacity-70">Favicon</span>
+                            <%= if Map.get(@config.theme_map, "favicon") do %>
+                              <img
+                                src={Map.get(@config.theme_map, "favicon")}
+                                alt="favicon"
+                                class="h-8 w-auto"
+                              />
+                              <span class="text-[10px] opacity-50">
+                                {Map.get(@config.theme_map, "favicon")}
+                              </span>
+                            <% else %>
+                              <span class="text-xs opacity-50">—</span>
+                            <% end %>
+                            <%!-- Favicon Dark --%>
+                            <%= if @config.theme_dark.favicon_dark_exists? do %>
+                              <span class="text-[10px] font-semibold opacity-50 mt-1">
+                                Dark
+                              </span>
+                              <img
+                                src={@config.theme_dark.favicon_dark_path}
+                                alt="favicon dark"
+                                class="h-8 w-auto bg-neutral p-0.5 rounded"
+                              />
+                              <span class="text-[10px] opacity-40">
+                                {@config.theme_dark.favicon_dark_path}
+                              </span>
+                            <% else %>
+                              <%= if Map.get(@config.theme_map, "favicon") do %>
+                                <span class="text-[10px] opacity-40 mt-1">
+                                  Dark: not found
+                                </span>
+                              <% end %>
+                            <% end %>
+                          </div>
+                          <%!-- Banner --%>
+                          <div class="flex flex-col items-center gap-1">
+                            <span class="text-xs font-semibold opacity-70">Banner</span>
+                            <%= if Map.get(@config.theme_map, "banner") do %>
+                              <img
+                                src={Map.get(@config.theme_map, "banner")}
+                                alt="banner"
+                                class="h-16 w-auto rounded shadow-sm"
+                              />
+                              <span class="text-[10px] opacity-50">
+                                {Map.get(@config.theme_map, "banner")}
+                              </span>
+                            <% else %>
+                              <span class="text-xs opacity-50">—</span>
+                            <% end %>
+                            <%!-- Banner Dark --%>
+                            <%= if @config.theme_dark.banner_dark_exists? do %>
+                              <span class="text-[10px] font-semibold opacity-50 mt-1">
+                                Dark
+                              </span>
+                              <img
+                                src={@config.theme_dark.banner_dark_path}
+                                alt="banner dark"
+                                class="h-16 w-auto rounded shadow-sm bg-neutral p-1"
+                              />
+                              <span class="text-[10px] opacity-40">
+                                {@config.theme_dark.banner_dark_path}
+                              </span>
+                            <% else %>
+                              <%= if Map.get(@config.theme_map, "banner") do %>
+                                <span class="text-[10px] opacity-40 mt-1">
+                                  Dark: not found
+                                </span>
+                              <% end %>
+                            <% end %>
+                          </div>
+                        </div>
+
+                        <%!-- Fullscreen Hero Images --%>
+                        <div class="mt-4">
+                          <span class="text-xs font-semibold opacity-70">
+                            Fullscreen Hero Images
+                          </span>
+                          <div class="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="flex flex-col items-center gap-1">
+                              <span class="text-[10px] font-semibold opacity-50">Light</span>
+                              <%= if @config.theme_dark.fullscreen_exists? do %>
+                                <img
+                                  src="/images/fullscreen.png"
+                                  alt="fullscreen hero"
+                                  class="w-full max-w-[220px] h-auto rounded shadow-sm"
+                                />
+                                <span class="text-[10px] opacity-40">
+                                  /images/fullscreen.png
+                                </span>
+                              <% else %>
+                                <span class="text-[10px] opacity-40">
+                                  /images/fullscreen.png — not found
+                                </span>
+                              <% end %>
+                            </div>
+                            <div class="flex flex-col items-center gap-1">
+                              <span class="text-[10px] font-semibold opacity-50">Dark</span>
+                              <%= if @config.theme_dark.fullscreen_dark_exists? do %>
+                                <img
+                                  src="/images/fullscreen_dark.png"
+                                  alt="fullscreen hero dark"
+                                  class="w-full max-w-[220px] h-auto rounded shadow-sm bg-neutral p-1"
+                                />
+                                <span class="text-[10px] opacity-40">
+                                  /images/fullscreen_dark.png
+                                </span>
+                              <% else %>
+                                <span class="text-[10px] opacity-40">
+                                  /images/fullscreen_dark.png — not found
+                                </span>
+                              <% end %>
+                            </div>
+                          </div>
+                        </div>
+
+                        <%!-- Title, Tagline, Description --%>
+                        <div class="mt-4 space-y-1">
+                          <div class="flex items-baseline gap-2">
+                            <span class="text-xs font-semibold opacity-70 w-20 shrink-0">
+                              Title
+                            </span>
+                            <span class="text-sm font-bold">
+                              {Map.get(@config.theme_map, "title", "—")}
+                            </span>
+                          </div>
+                          <div class="flex items-baseline gap-2">
+                            <span class="text-xs font-semibold opacity-70 w-20 shrink-0">
+                              Tagline
+                            </span>
+                            <span class="text-sm">
+                              {Map.get(@config.theme_map, "tagline", "—")}
+                            </span>
+                          </div>
+                          <div class="flex items-baseline gap-2">
+                            <span class="text-xs font-semibold opacity-70 w-20 shrink-0">
+                              Description
+                            </span>
+                            <span class="text-sm">
+                              {Map.get(@config.theme_map, "description", "—")}
+                            </span>
+                          </div>
+                          <div class="flex items-baseline gap-2">
+                            <span class="text-xs font-semibold opacity-70 w-20 shrink-0">
+                              CSS
+                            </span>
+                            <span class="text-xs font-mono">
+                              {Map.get(@config.theme_map, "css", "—")}
+                            </span>
+                          </div>
+                          <div class="flex items-baseline gap-2">
+                            <span class="text-xs font-semibold opacity-70 w-20 shrink-0">
+                              Blog
+                            </span>
+                            <span class="text-xs font-mono">
+                              {Map.get(@config.theme_map, "blog", "—")}
+                            </span>
+                          </div>
+                          <div class="flex items-baseline gap-2">
+                            <span class="text-xs font-semibold opacity-70 w-20 shrink-0">
+                              Changelog
+                            </span>
+                            <span class="text-xs font-mono">
+                              {Map.get(@config.theme_map, "changelog", "—")}
+                            </span>
+                          </div>
+                        </div>
+
+                        <%!-- Features --%>
+                        <% features = Map.get(@config.theme_map, "features", []) %>
+                        <%= if features != [] do %>
+                          <div class="mt-4">
+                            <span class="text-xs font-semibold opacity-70">
+                              Features ({length(features)})
+                            </span>
+                            <div class="mt-1 flex flex-wrap gap-2">
+                              <%= for feat <- features do %>
+                                <div class="badge badge-outline gap-1 py-3">
+                                  <span class={"#{feat["icon"]} size-3.5"}></span>
+                                  <span class="text-xs">{feat["title"]}</span>
+                                </div>
+                              <% end %>
+                            </div>
+                          </div>
                         <% end %>
 
-                        <%= if @config.theme_map && Map.get(@config.theme_map, "banner") do %>
-                          <img
-                            src={Map.get(@config.theme_map, "banner")}
-                            alt="banner"
-                            class="h-8 w-auto"
-                          />
+                        <%!-- Nav Links --%>
+                        <% nav_links = Map.get(@config.theme_map, "nav_links", []) %>
+                        <%= if nav_links != [] do %>
+                          <div class="mt-3">
+                            <span class="text-xs font-semibold opacity-70">
+                              Nav Links ({length(nav_links)})
+                            </span>
+                            <div class="mt-1 flex flex-wrap gap-2">
+                              <%= for link <- nav_links do %>
+                                <div class="badge badge-ghost gap-1 py-3">
+                                  <span class="text-xs">
+                                    {link["label"]}
+                                  </span>
+                                  <span class="text-[10px] opacity-50">
+                                    {link["href"]}
+                                  </span>
+                                  <%= if link["auth"] do %>
+                                    <span class="text-[10px] opacity-40">
+                                      ({link["auth"]})
+                                    </span>
+                                  <% end %>
+                                </div>
+                              <% end %>
+                            </div>
+                          </div>
                         <% end %>
-                      </div>
 
-                      <div class="mt-2">
-                        <div class="text-xs font-semibold">Raw JSON</div>
-                        <pre class="mt-1 text-xs font-mono whitespace-pre-wrap max-h-48 overflow-auto">{Jason.encode!(@config.theme_map)}</pre>
-                      </div>
+                        <%!-- Footer Links --%>
+                        <% footer_links = Map.get(@config.theme_map, "footer_links", []) %>
+                        <%= if footer_links != [] do %>
+                          <div class="mt-3">
+                            <span class="text-xs font-semibold opacity-70">
+                              Footer Links ({length(footer_links)})
+                            </span>
+                            <div class="mt-1 flex flex-wrap gap-2">
+                              <%= for link <- footer_links do %>
+                                <div class="badge badge-ghost gap-1 py-3">
+                                  <span class="text-xs">{link["label"]}</span>
+                                  <span class="text-[10px] opacity-50">{link["href"]}</span>
+                                  <%= if link["external"] do %>
+                                    <span class="text-[10px] opacity-40">↗</span>
+                                  <% end %>
+                                </div>
+                              <% end %>
+                            </div>
+                          </div>
+                        <% end %>
+
+                        <%!-- Useful Links --%>
+                        <% useful_links = Map.get(@config.theme_map, "useful_links", []) %>
+                        <%= if useful_links != [] do %>
+                          <div class="mt-3">
+                            <span class="text-xs font-semibold opacity-70">
+                              Useful Links ({length(useful_links)})
+                            </span>
+                            <div class="mt-1 flex flex-wrap gap-2">
+                              <%= for link <- useful_links do %>
+                                <div class="badge badge-ghost gap-1 py-3">
+                                  <%= if link["icon"] do %>
+                                    <span class={"#{link["icon"]} size-3.5"}></span>
+                                  <% end %>
+                                  <span class="text-xs">{link["title"]}</span>
+                                  <span class="text-[10px] opacity-50">{link["url"]}</span>
+                                </div>
+                              <% end %>
+                            </div>
+                          </div>
+                        <% end %>
+
+                        <%!-- Collapsible Raw JSON --%>
+                        <details class="mt-4">
+                          <summary class="text-xs font-semibold opacity-70 cursor-pointer">
+                            Raw JSON
+                          </summary>
+                          <pre class="mt-1 text-xs font-mono whitespace-pre-wrap max-h-48 overflow-auto bg-base-200/60 rounded-lg p-2">{Jason.encode!(@config.theme_map, pretty: true)}</pre>
+                        </details>
+                      <% end %>
                     </td>
                   </tr>
                   <tr>
@@ -881,7 +1166,7 @@ defmodule GameServerWeb.AdminLive.Config do
                             <% end %>
                           </div>
                         </div>
-                        
+
     <!-- Full docs modal / pane -->
                         <%= if @hooks_full_doc do %>
                           <div class="mt-2 p-3 border rounded bg-base-100">
@@ -908,7 +1193,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Limits & Validation -->
         <div class="card bg-base-100 shadow-xl" data-card-key="limits">
           <div class="card-body">
@@ -977,7 +1262,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Admin Tools -->
         <div class="card bg-base-100 shadow-xl" data-card-key="admin_tools">
           <div class="card-body">
@@ -1034,7 +1319,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Scheduled Jobs -->
         <div class="card bg-base-100 shadow-xl" data-card-key="scheduled_jobs">
           <div class="card-body">
@@ -1232,6 +1517,8 @@ defmodule GameServerWeb.AdminLive.Config do
       # content. Keep logic inside the provider instead of duplicating parsing
       # here.
       theme_config: JSONConfig.runtime_path(),
+      # Dark variant / fullscreen image diagnostics (convention-based)
+      theme_dark: theme_dark_variants(JSONConfig.get_theme()),
       device_auth_enabled_app: Application.get_env(:game_server_core, :device_auth_enabled),
       device_auth_enabled_env: System.get_env("DEVICE_AUTH_ENABLED"),
 
@@ -1675,6 +1962,41 @@ defmodule GameServerWeb.AdminLive.Config do
   end
 
   defp parse_hook_args(_), do: []
+
+  # Compute dark-variant and fullscreen image existence for theme diagnostics.
+  # Convention: `file.ext` → `file_dark.ext`, detected via File.exists? on priv/static.
+  defp theme_dark_variants(theme_map) do
+    static_dir = Application.app_dir(:game_server_web, "priv/static")
+
+    banner_path = (theme_map && Map.get(theme_map, "banner")) || ""
+    banner_dark_path = derive_dark_path(banner_path)
+
+    logo_path = (theme_map && Map.get(theme_map, "logo")) || ""
+    logo_dark_path = derive_dark_path(logo_path)
+
+    favicon_path = (theme_map && Map.get(theme_map, "favicon")) || ""
+    favicon_dark_path = derive_dark_path(favicon_path)
+
+    %{
+      banner_dark_path: banner_dark_path,
+      banner_dark_exists?: file_exists_in_static?(static_dir, banner_dark_path),
+      logo_dark_path: logo_dark_path,
+      logo_dark_exists?: file_exists_in_static?(static_dir, logo_dark_path),
+      favicon_dark_path: favicon_dark_path,
+      favicon_dark_exists?: file_exists_in_static?(static_dir, favicon_dark_path),
+      fullscreen_exists?: File.exists?(Path.join(static_dir, "images/fullscreen.png")),
+      fullscreen_dark_exists?: File.exists?(Path.join(static_dir, "images/fullscreen_dark.png"))
+    }
+  end
+
+  defp derive_dark_path(""), do: ""
+  defp derive_dark_path(path), do: String.replace(path, ~r/\.(\w+)$/, "_dark.\\1")
+
+  defp file_exists_in_static?(_static_dir, ""), do: false
+
+  defp file_exists_in_static?(static_dir, path) do
+    File.exists?(Path.join(static_dir, String.trim_leading(path, "/")))
+  end
 
   defp exported_plugin_functions do
     plugins = PluginManager.hook_modules()

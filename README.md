@@ -52,3 +52,7 @@ docker compose -f docker-compose.multi.yml up --scale app=2
 ## Deploy
 
 See the [Deployment Tutorial](https://appsinacup.com/gamend-deploy/) and [Starter Template](https://github.com/appsinacup/gamend_starter) for production deployment on fly.io (~$5/month without Postgres).
+
+## AI instructions file
+
+This project has a [.github/copilot-instructions.md](.github/copilot-instructions.md) file you can use.

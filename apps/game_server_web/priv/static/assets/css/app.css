@@ -2118,12 +2118,6 @@
       }
     }
   }
-  .join-item {
-    &:where(*:not(:first-child, :disabled, [disabled], .btn-disabled)) {
-      margin-inline-start: calc(var(--border, 1px) * -1);
-      margin-block-start: 0;
-    }
-  }
   .modal-action {
     margin-top: calc(0.25rem * 6);
     display: flex;
@@ -2458,6 +2452,17 @@
     width: 1.5rem;
     height: 1.5rem;
   }
+  .hero-eye-slash {
+    --hero-eye-slash: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke-width%3D%221.5%22%20stroke%3D%22currentColor%22%20aria-hidden%3D%22true%22%20data-slot%3D%22icon%22%3E%20%20%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M3.98%208.223A10.477%2010.477%200%200%200%201.934%2012C3.226%2016.338%207.244%2019.5%2012%2019.5c.993%200%201.953-.138%202.863-.395M6.228%206.228A10.451%2010.451%200%200%201%2012%204.5c4.756%200%208.773%203.162%2010.065%207.498a10.522%2010.522%200%200%201-4.293%205.774M6.228%206.228%203%203m3.228%203.228%203.65%203.65m7.894%207.894L21%2021m-3.228-3.228-3.65-3.65m0%200a3%203%200%201%200-4.243-4.243m4.242%204.242L9.88%209.88%22%2F%3E%3C%2Fsvg%3E');
+    -webkit-mask: var(--hero-eye-slash);
+    mask: var(--hero-eye-slash);
+    mask-repeat: no-repeat;
+    background-color: currentColor;
+    vertical-align: middle;
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
   .hero-forward {
     --hero-forward: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke-width%3D%221.5%22%20stroke%3D%22currentColor%22%20aria-hidden%3D%22true%22%20data-slot%3D%22icon%22%3E%20%20%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M3%208.689c0-.864.933-1.406%201.683-.977l7.108%204.061a1.125%201.125%200%200%201%200%201.954l-7.108%204.061A1.125%201.125%200%200%201%203%2016.811V8.69ZM12.75%208.689c0-.864.933-1.406%201.683-.977l7.108%204.061a1.125%201.125%200%200%201%200%201.954l-7.108%204.061a1.125%201.125%200%200%201-1.683-.977V8.69Z%22%2F%3E%3C%2Fsvg%3E');
     -webkit-mask: var(--hero-forward);
@@ -2572,6 +2577,17 @@
     --hero-puzzle-piece: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke-width%3D%221.5%22%20stroke%3D%22currentColor%22%20aria-hidden%3D%22true%22%20data-slot%3D%22icon%22%3E%20%20%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M14.25%206.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003%200-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25%201.875c0%20.369.128.713.349%201.003.215.283.401.604.401.959v0a.64.64%200%200%201-.657.643%2048.39%2048.39%200%200%201-4.163-.3c.186%201.613.293%203.25.315%204.907a.656.656%200%200%201-.658.663v0c-.355%200-.676-.186-.959-.401a1.647%201.647%200%200%200-1.003-.349c-1.036%200-1.875%201.007-1.875%202.25s.84%202.25%201.875%202.25c.369%200%20.713-.128%201.003-.349.283-.215.604-.401.959-.401v0c.31%200%20.555.26.532.57a48.039%2048.039%200%200%201-.642%205.056c1.518.19%203.058.309%204.616.354a.64.64%200%200%200%20.657-.643v0c0-.355-.186-.676-.401-.959a1.647%201.647%200%200%201-.349-1.003c0-1.035%201.008-1.875%202.25-1.875%201.243%200%202.25.84%202.25%201.875%200%20.369-.128.713-.349%201.003-.215.283-.4.604-.4.959v0c0%20.333.277.599.61.58a48.1%2048.1%200%200%200%205.427-.63%2048.05%2048.05%200%200%200%20.582-4.717.532.532%200%200%200-.533-.57v0c-.355%200-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035%200-1.875-1.007-1.875-2.25s.84-2.25%201.875-2.25c.37%200%20.713.128%201.003.349.283.215.604.401.96.401v0a.656.656%200%200%200%20.658-.663%2048.422%2048.422%200%200%200-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578%200%200%201-.61-.58v0Z%22%2F%3E%3C%2Fsvg%3E');
     -webkit-mask: var(--hero-puzzle-piece);
     mask: var(--hero-puzzle-piece);
+    mask-repeat: no-repeat;
+    background-color: currentColor;
+    vertical-align: middle;
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .hero-question-mark-circle {
+    --hero-question-mark-circle: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke-width%3D%221.5%22%20stroke%3D%22currentColor%22%20aria-hidden%3D%22true%22%20data-slot%3D%22icon%22%3E%20%20%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M9.879%207.519c1.171-1.025%203.071-1.025%204.242%200%201.172%201.025%201.172%202.687%200%203.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45%201.827v.75M21%2012a9%209%200%201%201-18%200%209%209%200%200%201%2018%200Zm-9%205.25h.008v.008H12v-.008Z%22%2F%3E%3C%2Fsvg%3E');
+    -webkit-mask: var(--hero-question-mark-circle);
+    mask: var(--hero-question-mark-circle);
     mask-repeat: no-repeat;
     background-color: currentColor;
     vertical-align: middle;
@@ -2872,6 +2888,9 @@
   .hidden {
     display: none;
   }
+  .inline {
+    display: inline;
+  }
   .inline-block {
     display: inline-block;
   }
@@ -2890,6 +2909,10 @@
   .size-3 {
     width: calc(var(--spacing) * 3);
     height: calc(var(--spacing) * 3);
+  }
+  .size-3\.5 {
+    width: calc(var(--spacing) * 3.5);
+    height: calc(var(--spacing) * 3.5);
   }
   .size-4 {
     width: calc(var(--spacing) * 4);
@@ -3068,6 +3091,9 @@
   }
   .max-w-\[200px\] {
     max-width: 200px;
+  }
+  .max-w-\[220px\] {
+    max-width: 220px;
   }
   .max-w-md {
     max-width: var(--container-md);
@@ -3422,6 +3448,12 @@
   .border-base-300\/100 {
     border-color: var(--color-base-300);
   }
+  .border-base-content\/10 {
+    border-color: var(--color-base-content);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in oklab, var(--color-base-content) 10%, transparent);
+    }
+  }
   .border-error {
     border-color: var(--color-error);
   }
@@ -3500,6 +3532,12 @@
   .bg-base-300 {
     background-color: var(--color-base-300);
   }
+  .bg-base-300\/50 {
+    background-color: var(--color-base-300);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-base-300) 50%, transparent);
+    }
+  }
   .bg-base-content\/30 {
     background-color: var(--color-base-content);
     @supports (color: color-mix(in lab, red, red)) {
@@ -3547,6 +3585,9 @@
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-info) 10%, transparent);
     }
+  }
+  .bg-neutral {
+    background-color: var(--color-neutral);
   }
   .bg-orange-500\/20 {
     background-color: color-mix(in srgb, oklch(70.5% 0.213 47.604) 20%, transparent);
@@ -3643,6 +3684,12 @@
   .checkbox-sm {
     padding: 0.1875rem;
     --size: calc(var(--size-selector, 0.25rem) * 5);
+  }
+  .p-0\.5 {
+    padding: calc(var(--spacing) * 0.5);
+  }
+  .p-1 {
+    padding: calc(var(--spacing) * 1);
   }
   .p-2 {
     padding: calc(var(--spacing) * 2);
@@ -3853,6 +3900,9 @@
   .text-\[2rem\] {
     font-size: 2rem;
   }
+  .text-\[10px\] {
+    font-size: 10px;
+  }
   .leading-6 {
     --tw-leading: calc(var(--spacing) * 6);
     line-height: calc(var(--spacing) * 6);
@@ -3950,6 +4000,12 @@
   }
   .text-base-content {
     color: var(--color-base-content);
+  }
+  .text-base-content\/20 {
+    color: var(--color-base-content);
+    @supports (color: color-mix(in lab, red, red)) {
+      color: color-mix(in oklab, var(--color-base-content) 20%, transparent);
+    }
   }
   .text-base-content\/30 {
     color: var(--color-base-content);
@@ -4115,6 +4171,9 @@
   }
   .opacity-40 {
     opacity: 40%;
+  }
+  .opacity-50 {
+    opacity: 50%;
   }
   .opacity-60 {
     opacity: 60%;
