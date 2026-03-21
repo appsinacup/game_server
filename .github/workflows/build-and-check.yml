@@ -227,10 +227,11 @@ jobs:
 
   publish-js-sdk:
     name: Publish JS SDK
-    # Disable for now, the publish to npm doesnt work, will do it manually.
-    if: false
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
     runs-on: ubuntu-latest
-    # if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Checkout repository (full history for commit count)
@@ -268,6 +269,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
           # repository uses JS packages under the `clients` subfolder. When caching
           # npm dependencies we need to point setup-node at the lockfile location
@@ -310,7 +312,8 @@ jobs:
           echo "Publishing package with version=${{ steps.version.outputs.version }}"
           # Make sure package.json version is set to the computed version
           npm version ${{ steps.version.outputs.version }} --no-git-tag-version
-          # Ensure we have the token configured (already done above), then publish
+          # Publish using OIDC tokenless auth (provenance + id-token: write).
+          # The npm package must be linked to the GitHub repo at npmjs.com.
           npm publish --access public --provenance --verbose
 
   build-godot-sdk:
