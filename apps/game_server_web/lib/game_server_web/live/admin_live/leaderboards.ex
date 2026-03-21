@@ -36,7 +36,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
           <div class="card-body">
             <div class="flex items-center justify-between">
               <h2 class="card-title">Leaderboards ({@count})</h2>
-              <div class="flex gap-2">
+              <div class="flex flex-wrap gap-2">
                 <button
                   type="button"
                   phx-click="bulk_delete"
@@ -77,7 +77,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
             </div>
 
             <div class="overflow-x-auto mt-4">
-              <table class="table table-zebra w-full">
+              <table class="table table-zebra w-full min-w-[52rem]">
                 <thead>
                   <tr>
                     <th class="w-10">
@@ -132,7 +132,8 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
                     <td class="text-sm">
                       {Calendar.strftime(lb.inserted_at, "%Y-%m-%d %H:%M")}
                     </td>
-                    <td class="text-sm flex gap-1">
+                    <td class="text-sm">
+                      <div class="flex flex-wrap gap-1">
                       <button
                         phx-click="view_records"
                         phx-value-id={lb.id}
@@ -173,6 +174,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
                       >
                         + Season
                       </button>
+                      </div>
                     </td>
                   </tr>
                 </tbody>

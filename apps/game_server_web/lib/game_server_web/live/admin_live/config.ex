@@ -18,7 +18,7 @@ defmodule GameServerWeb.AdminLive.Config do
         <.link navigate={~p"/admin"} class="btn btn-outline mb-4">
           ← Back to Admin
         </.link>
-        
+
     <!-- Current Configuration Status -->
         <div class="card bg-base-100 shadow-xl" data-card-key="config_status">
           <div class="card-body">
@@ -1166,7 +1166,7 @@ defmodule GameServerWeb.AdminLive.Config do
                             <% end %>
                           </div>
                         </div>
-                        
+
     <!-- Full docs modal / pane -->
                         <%= if @hooks_full_doc do %>
                           <div class="mt-2 p-3 border rounded bg-base-100">
@@ -1193,7 +1193,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Limits & Validation -->
         <div class="card bg-base-100 shadow-xl" data-card-key="limits">
           <div class="card-body">
@@ -1225,7 +1225,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </p>
 
             <div class="overflow-x-auto">
-              <table id="limits-table" class="table table-zebra table-sm w-full">
+              <table id="limits-table" class="table table-zebra table-sm w-full min-w-[40rem]">
                 <thead>
                   <tr>
                     <th>Category</th>
@@ -1262,7 +1262,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Admin Tools -->
         <div class="card bg-base-100 shadow-xl" data-card-key="admin_tools">
           <div class="card-body">
@@ -1319,7 +1319,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Scheduled Jobs -->
         <div class="card bg-base-100 shadow-xl" data-card-key="scheduled_jobs">
           <div class="card-body">

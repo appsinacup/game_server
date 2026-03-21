@@ -39,9 +39,9 @@ defmodule GameServerWeb.AdminLive.Lobbies do
 
         <div class="card bg-base-200">
           <div class="card-body">
-            <div class="flex items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center justify-between gap-3">
               <h2 class="card-title">Lobbies ({@count})</h2>
-              <div class="flex gap-2">
+              <div class="flex flex-wrap gap-2">
                 <button
                   type="button"
                   phx-click="show_create"
@@ -92,7 +92,7 @@ defmodule GameServerWeb.AdminLive.Lobbies do
               </div>
 
               <div class="overflow-x-auto mt-4">
-                <table class="table table-zebra w-full">
+                <table class="table table-zebra w-full min-w-[56rem]">
                   <thead>
                     <tr>
                       <th class="w-10">
@@ -228,31 +228,33 @@ defmodule GameServerWeb.AdminLive.Lobbies do
                         {Calendar.strftime(l.updated_at, "%Y-%m-%d %H:%M")}
                       </td>
                       <td class="text-sm">
-                        <button
-                          type="button"
-                          phx-click="view_members"
-                          phx-value-id={l.id}
-                          class="btn btn-xs btn-outline btn-accent mr-1"
-                        >
-                          Members
-                        </button>
-                        <button
-                          type="button"
-                          phx-click="edit_lobby"
-                          phx-value-id={l.id}
-                          class="btn btn-xs btn-outline btn-info mr-1"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          phx-click="delete_lobby"
-                          phx-value-id={l.id}
-                          data-confirm="Are you sure?"
-                          class="btn btn-xs btn-outline btn-error"
-                        >
-                          Delete
-                        </button>
+                        <div class="flex flex-wrap gap-1">
+                          <button
+                            type="button"
+                            phx-click="view_members"
+                            phx-value-id={l.id}
+                            class="btn btn-xs btn-outline btn-accent"
+                          >
+                            Members
+                          </button>
+                          <button
+                            type="button"
+                            phx-click="edit_lobby"
+                            phx-value-id={l.id}
+                            class="btn btn-xs btn-outline btn-info"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            phx-click="delete_lobby"
+                            phx-value-id={l.id}
+                            data-confirm="Are you sure?"
+                            class="btn btn-xs btn-outline btn-error"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   </tbody>

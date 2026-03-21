@@ -14,9 +14,9 @@ defmodule GameServerWeb.AdminLive.KV do
 
         <div class="card bg-base-200">
           <div class="card-body">
-            <div class="flex items-center justify-between gap-4">
+            <div class="flex flex-wrap items-center justify-between gap-4">
               <h2 class="card-title">KV Entries ({@count})</h2>
-              <div class="flex items-center gap-2">
+              <div class="flex flex-wrap items-center gap-2">
                 <button
                   id="admin-kv-new-entry"
                   type="button"
@@ -84,7 +84,7 @@ defmodule GameServerWeb.AdminLive.KV do
             </div>
 
             <div class="overflow-x-auto mt-4">
-              <table id="admin-kv-table" class="table table-zebra w-full table-fixed">
+              <table id="admin-kv-table" class="table table-zebra w-full table-fixed min-w-[56rem]">
                 <colgroup>
                   <col class="w-10" />
                   <col class="w-16" />

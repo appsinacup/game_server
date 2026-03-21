@@ -40,7 +40,7 @@ defmodule GameServerWeb.AdminLive.Notifications do
         <%!-- Create notification form --%>
         <div class="card bg-base-200">
           <div class="card-body">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-wrap items-center justify-between">
               <h2 class="card-title">Create Notification</h2>
               <button
                 type="button"
@@ -80,7 +80,7 @@ defmodule GameServerWeb.AdminLive.Notifications do
 
         <div class="card bg-base-200">
           <div class="card-body">
-            <div class="flex items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center justify-between gap-3">
               <h2 class="card-title">Notifications ({@count})</h2>
               <button
                 type="button"
@@ -95,7 +95,7 @@ defmodule GameServerWeb.AdminLive.Notifications do
 
             <form phx-change="filter" id="notifications-filter-form">
               <div class="overflow-x-auto mt-4">
-                <table class="table table-zebra w-full">
+                <table class="table table-zebra w-full min-w-[48rem]">
                   <thead>
                     <tr>
                       <th class="w-10">

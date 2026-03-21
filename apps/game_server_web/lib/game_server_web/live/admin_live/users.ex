@@ -18,10 +18,10 @@ defmodule GameServerWeb.AdminLive.Users do
 
         <div class="card bg-base-200">
           <div class="card-body">
-            <div class="flex items-center justify-between gap-4">
+            <div class="flex flex-wrap items-center justify-between gap-4">
               <h2 class="card-title">Users ({@users_count})</h2>
 
-              <div class="flex gap-2">
+              <div class="flex flex-wrap gap-2">
                 <button
                   type="button"
                   phx-click="bulk_delete"
@@ -43,16 +43,16 @@ defmodule GameServerWeb.AdminLive.Users do
                     id="admin-user-search"
                     placeholder="Search by name, email, or any ID"
                     value={@search_query}
-                    class="input input-sm w-64"
+                    class="input input-sm w-full md:w-64"
                   />
                 </form>
                 <button phx-click="clear_search" class="btn btn-sm">Clear</button>
               </div>
             </div>
 
-            <div class="mt-2 flex items-center gap-4">
+            <div class="mt-2 flex flex-wrap items-center gap-4">
               <div class="text-sm">Sort by:</div>
-              <div class="flex items-center gap-2">
+              <div class="flex flex-wrap items-center gap-2">
                 <button
                   phx-click="sort_users"
                   phx-value-field="inserted_at"
@@ -95,9 +95,9 @@ defmodule GameServerWeb.AdminLive.Users do
               </div>
             </div>
 
-            <div class="mt-2 flex items-center gap-4">
+            <div class="mt-2 flex flex-wrap items-center gap-4">
               <div class="text-sm">Filter by auth provider:</div>
-              <div class="flex items-center gap-3">
+              <div class="flex flex-wrap items-center gap-3">
                 <label class="label cursor-pointer">
                   <input
                     type="checkbox"
@@ -182,7 +182,7 @@ defmodule GameServerWeb.AdminLive.Users do
               </div>
             </div>
             <div class="overflow-x-auto">
-              <table class="table table-zebra">
+              <table class="table table-zebra min-w-[72rem]">
                 <thead>
                   <tr>
                     <th class="w-10">

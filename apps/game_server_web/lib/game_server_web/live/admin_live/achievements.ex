@@ -30,9 +30,9 @@ defmodule GameServerWeb.AdminLive.Achievements do
 
         <div class="card bg-base-200">
           <div class="card-body">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-wrap items-center justify-between">
               <h2 class="card-title">Achievements ({@count})</h2>
-              <div class="flex gap-2">
+              <div class="flex flex-wrap gap-2">
                 <button
                   type="button"
                   phx-click="bulk_delete"
@@ -49,7 +49,7 @@ defmodule GameServerWeb.AdminLive.Achievements do
             </div>
 
             <div class="overflow-x-auto mt-4">
-              <table class="table table-zebra w-full">
+              <table class="table table-zebra w-full min-w-[48rem]">
                 <thead>
                   <tr>
                     <th class="w-10">
@@ -101,7 +101,8 @@ defmodule GameServerWeb.AdminLive.Achievements do
                     <td class="text-sm">
                       {Calendar.strftime(a.inserted_at, "%Y-%m-%d %H:%M")}
                     </td>
-                    <td class="text-sm flex gap-1">
+                    <td class="text-sm">
+                      <div class="flex flex-wrap gap-1">
                       <button
                         phx-click="edit_achievement"
                         phx-value-id={a.id}
@@ -124,6 +125,7 @@ defmodule GameServerWeb.AdminLive.Achievements do
                       >
                         Delete
                       </button>
+                      </div>
                     </td>
                   </tr>
                 </tbody>

@@ -2154,9 +2154,6 @@
   .mt-12 {
     margin-top: calc(var(--spacing) * 12);
   }
-  .mr-1 {
-    margin-right: calc(var(--spacing) * 1);
-  }
   .mr-2 {
     margin-right: calc(var(--spacing) * 2);
   }
@@ -3041,9 +3038,6 @@
   .w-52 {
     width: calc(var(--spacing) * 52);
   }
-  .w-64 {
-    width: calc(var(--spacing) * 64);
-  }
   .w-80 {
     width: calc(var(--spacing) * 80);
   }
@@ -3113,11 +3107,29 @@
   .min-w-\[2rem\] {
     min-width: 2rem;
   }
+  .min-w-\[28rem\] {
+    min-width: 28rem;
+  }
   .min-w-\[32rem\] {
     min-width: 32rem;
   }
+  .min-w-\[36rem\] {
+    min-width: 36rem;
+  }
+  .min-w-\[40rem\] {
+    min-width: 40rem;
+  }
   .min-w-\[48rem\] {
     min-width: 48rem;
+  }
+  .min-w-\[52rem\] {
+    min-width: 52rem;
+  }
+  .min-w-\[56rem\] {
+    min-width: 56rem;
+  }
+  .min-w-\[72rem\] {
+    min-width: 72rem;
   }
   .min-w-max {
     min-width: max-content;

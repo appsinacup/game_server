@@ -31,7 +31,7 @@ defmodule GameServerWeb.AdminLive.Groups do
 
         <div class="card bg-base-200">
           <div class="card-body">
-            <div class="flex items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center justify-between gap-3">
               <h2 class="card-title">Groups ({@count})</h2>
               <button
                 type="button"
@@ -78,7 +78,7 @@ defmodule GameServerWeb.AdminLive.Groups do
               </div>
 
               <div class="overflow-x-auto mt-4">
-                <table class="table table-zebra w-full">
+                <table class="table table-zebra w-full min-w-[48rem]">
                   <thead>
                     <tr>
                       <th class="w-10">
@@ -183,31 +183,33 @@ defmodule GameServerWeb.AdminLive.Groups do
                         {Calendar.strftime(g.updated_at, "%Y-%m-%d %H:%M")}
                       </td>
                       <td class="text-sm">
-                        <button
-                          type="button"
-                          phx-click="view_members"
-                          phx-value-id={g.id}
-                          class="btn btn-xs btn-outline btn-accent mr-1"
-                        >
-                          Members
-                        </button>
-                        <button
-                          type="button"
-                          phx-click="edit_group"
-                          phx-value-id={g.id}
-                          class="btn btn-xs btn-outline btn-info mr-1"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          phx-click="delete_group"
-                          phx-value-id={g.id}
-                          data-confirm="Are you sure?"
-                          class="btn btn-xs btn-outline btn-error"
-                        >
-                          Delete
-                        </button>
+                        <div class="flex flex-wrap gap-1">
+                          <button
+                            type="button"
+                            phx-click="view_members"
+                            phx-value-id={g.id}
+                            class="btn btn-xs btn-outline btn-accent"
+                          >
+                            Members
+                          </button>
+                          <button
+                            type="button"
+                            phx-click="edit_group"
+                            phx-value-id={g.id}
+                            class="btn btn-xs btn-outline btn-info"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            phx-click="delete_group"
+                            phx-value-id={g.id}
+                            data-confirm="Are you sure?"
+                            class="btn btn-xs btn-outline btn-error"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   </tbody>
@@ -289,7 +291,7 @@ defmodule GameServerWeb.AdminLive.Groups do
           </h3>
 
           <div class="overflow-x-auto mt-4">
-            <table class="table table-zebra w-full">
+            <table class="table table-zebra w-full min-w-[36rem]">
               <thead>
                 <tr>
                   <th>User ID</th>
@@ -314,13 +316,14 @@ defmodule GameServerWeb.AdminLive.Groups do
                     {Calendar.strftime(m.inserted_at, "%Y-%m-%d %H:%M")}
                   </td>
                   <td class="text-sm">
+                    <div class="flex flex-wrap gap-1">
                     <%= if m.role == "member" do %>
                       <button
                         type="button"
                         phx-click="promote_member"
                         phx-value-group-id={m.group_id}
                         phx-value-user-id={m.user_id}
-                        class="btn btn-xs btn-outline btn-info mr-1"
+                        class="btn btn-xs btn-outline btn-info"
                       >
                         Promote
                       </button>
@@ -330,7 +333,7 @@ defmodule GameServerWeb.AdminLive.Groups do
                         phx-click="demote_member"
                         phx-value-group-id={m.group_id}
                         phx-value-user-id={m.user_id}
-                        class="btn btn-xs btn-outline btn-warning mr-1"
+                        class="btn btn-xs btn-outline btn-warning"
                       >
                         Demote
                       </button>
@@ -345,6 +348,7 @@ defmodule GameServerWeb.AdminLive.Groups do
                     >
                       Kick
                     </button>
+                    </div>
                   </td>
                 </tr>
               </tbody>
