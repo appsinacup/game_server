@@ -2,7 +2,7 @@
 
 # Gamend
 
-**Open source game server with authentication, users, lobbies, groups, parties, friends, chat, notifications, achievements, leaderboards, server scripting and an admin portal**
+**Open source Elixir game server with authentication, users, lobbies, groups, parties, friends, chat, notifications, achievements, leaderboards, server scripting and an admin portal with HTTP and Websocket support and SDK for JS and Godot.**
 
 Game + Backend = Gamend
 
