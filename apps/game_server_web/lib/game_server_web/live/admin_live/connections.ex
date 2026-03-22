@@ -302,22 +302,7 @@ defmodule GameServerWeb.AdminLive.Connections do
 
     user_data =
       Enum.reduce(channel_types, %{}, fn {type, label}, acc ->
-        Enum.reduce(Map.get(all, type, []), acc, fn {_pid, meta}, inner_acc ->
-          user_id = Map.get(meta, :user_id)
-
-          if user_id do
-            Map.update(
-              inner_acc,
-              user_id,
-              %{channels: [label], live_view: false, live_view_pages: [], webrtc: false},
-              fn existing ->
-                %{existing | channels: [label | existing.channels]}
-              end
-            )
-          else
-            inner_acc
-          end
-        end)
+        merge_channel_users(Map.get(all, type, []), label, acc)
       end)
 
     # Add LiveView info
@@ -388,4 +373,21 @@ defmodule GameServerWeb.AdminLive.Connections do
   defp channel_badge_class("group"), do: "badge-info"
   defp channel_badge_class("party"), do: "badge-warning"
   defp channel_badge_class(_), do: "badge-ghost"
+
+  defp merge_channel_users(entries, label, acc) do
+    Enum.reduce(entries, acc, fn {_pid, meta}, inner_acc ->
+      user_id = Map.get(meta, :user_id)
+
+      if user_id do
+        Map.update(
+          inner_acc,
+          user_id,
+          %{channels: [label], live_view: false, live_view_pages: [], webrtc: false},
+          fn existing -> %{existing | channels: [label | existing.channels]} end
+        )
+      else
+        inner_acc
+      end
+    end)
+  end
 end
