@@ -80,10 +80,10 @@ defmodule GameServerWeb.UserChannelWebRTCTest do
       {client_pc, offer_json} = create_test_offer()
 
       ref = push(socket, "webrtc:offer", offer_json)
-        assert_reply ref, :ok, %{}, 5000
+      assert_reply ref, :ok, %{}, 5000
 
-        # Server should push an SDP answer back
-        assert_push "webrtc:answer", answer_payload, 5000
+      # Server should push an SDP answer back
+      assert_push "webrtc:answer", answer_payload, 5000
     end
 
     test "returns error when WebRTC is disabled via config", %{socket: socket} do
