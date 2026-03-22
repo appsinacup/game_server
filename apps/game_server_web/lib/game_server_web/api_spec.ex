@@ -17,7 +17,7 @@ defmodule GameServerWeb.ApiSpec do
         title: "Game Server API",
         version: api_version(),
         description: """
-        API for the Gamend Game Server. Has authentication, users, lobbies, groups, parties, friends, chat, notifications, achievements, leaderboards, server scripting and admin portal.
+        API for the Gamend Game Server. Provides HTTP REST API, real-time WebSocket channels, and WebRTC DataChannels for low-latency game data. Features authentication, users, lobbies, groups, parties, friends, chat, notifications, achievements, leaderboards, server scripting, and admin portal.
 
         ## **1. Authentication**
 
@@ -125,6 +125,71 @@ defmodule GameServerWeb.ApiSpec do
         - **Get/set/delete** key-value pairs scoped to the authenticated user
         - **List keys** with optional prefix filtering
         - **Metadata support**: values can include arbitrary JSON metadata
+
+        ## **11. Achievements**
+        Track player accomplishments with progress-based or instant-unlock achievements:
+
+        - **Achievement definitions**: admin-created with slug, title, description, icon, sort order, and optional progress target
+        - **Progress tracking**: increment progress toward a target; auto-unlocks when progress reaches the target
+        - **Instant unlock**: directly unlock achievements without progress tracking
+        - **Hidden achievements**: details obscured ("???") until unlocked by the user
+        - **Public listings**: paginated, optionally filtered; authenticated users see their own progress
+        - **Admin management**: create, update, delete, grant, revoke, unlock, and increment achievements
+
+        ## **12. Real-time: WebSocket Channels**
+        The server provides real-time communication via Phoenix WebSocket channels. Connect to the WebSocket endpoint and join topic-based channels for live updates.
+
+        ### **12.1 Connection**
+        Connect to `wss://your-server.com/socket` with your JWT token as a parameter:
+        ```
+        const socket = new Socket("wss://your-server.com/socket", { params: { token: "<access_token>" } })
+        socket.connect()
+        ```
+
+        ### **12.2 Available Channels**
+        - **User channel** (`user:<user_id>`): notifications, friend events, achievement unlocks, party/group invites
+        - **Lobby channel** (`lobby:<lobby_id>`): lobby member joins/leaves, lobby updates, lobby chat
+        - **Lobbies channel** (`lobbies`): global lobby list changes (created, updated, deleted)
+        - **Group channel** (`group:<group_id>`): group member changes, group updates, group chat
+        - **Groups channel** (`groups`): global group list changes
+        - **Party channel** (`party:<party_id>`): party member changes, party updates, party chat
+
+        ### **12.3 JS SDK Helper**
+        The `GameRealtime` class (included in this SDK) wraps Phoenix.Socket with convenient channel helpers:
+        ```javascript
+        import { GameRealtime } from '@ughuuu/game_server'
+        const realtime = new GameRealtime('https://your-server.com', accessToken)
+        const userChannel = realtime.joinUserChannel(userId)
+        userChannel.on('notification', payload => console.log(payload))
+        ```
+        Requires the `phoenix` npm package as a peer dependency: `npm install phoenix`
+
+        ## **13. Real-time: WebRTC DataChannels**
+        For low-latency game data, the server supports WebRTC DataChannels alongside WebSocket. The server acts as a WebRTC peer (not P2P between clients).
+
+        ### **13.1 How It Works**
+        1. Client connects via WebSocket and joins the **User channel**
+        2. Client sends an SDP offer over the channel (`webrtc:offer` event)
+        3. Server responds with an SDP answer (`webrtc:answer` event)
+        4. ICE candidates are exchanged (`webrtc:ice` events)
+        5. Once connected, named DataChannels carry game data at low latency
+
+        ### **13.2 Default DataChannels**
+        - **`events`** (reliable, ordered): important game events (player actions, state changes)
+        - **`state`** (unreliable, unordered): high-frequency position/state sync
+
+        ### **13.3 JS SDK Helper**
+        The `GameWebRTC` class (included in this SDK, browser-only) handles signaling automatically:
+        ```javascript
+        import { GameRealtime, GameWebRTC } from '@ughuuu/game_server'
+        const realtime = new GameRealtime('https://your-server.com', token)
+        const userChannel = realtime.joinUserChannel(userId)
+        const webrtc = new GameWebRTC(userChannel, {
+          onData: (label, data) => console.log(label, data)
+        })
+        await webrtc.connect()
+        webrtc.send('events', JSON.stringify({ type: 'move', x: 10, y: 20 }))
+        ```
         """
       },
       paths: filter_api_paths(Paths.from_router(Router)),
@@ -151,6 +216,10 @@ defmodule GameServerWeb.ApiSpec do
         },
         %Tag{name: "Notifications", description: "Persistent user notifications"},
         %Tag{name: "Leaderboards", description: "Ranked scoreboards and score submission"},
+        %Tag{
+          name: "Achievements",
+          description: "Player achievements, progress tracking, and unlocks"
+        },
         %Tag{name: "KV", description: "Per-user key-value storage"},
         %Tag{name: "Hooks", description: "Server scripting hooks"},
         %Tag{name: "Health", description: "Server health check"},
@@ -160,6 +229,7 @@ defmodule GameServerWeb.ApiSpec do
         %Tag{name: "Admin – Lobbies", description: "Admin lobby management"},
         %Tag{name: "Admin – Groups", description: "Admin group management"},
         %Tag{name: "Admin – Chat", description: "Admin chat management"},
+        %Tag{name: "Admin – Achievements", description: "Admin achievement management"},
         %Tag{name: "Admin – Notifications", description: "Admin notification management"},
         %Tag{name: "Admin – Leaderboards", description: "Admin leaderboard management"},
         %Tag{name: "Admin – KV", description: "Admin key-value storage management"}

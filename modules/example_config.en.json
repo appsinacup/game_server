@@ -1,7 +1,7 @@
 {
   "title": "Gamend",
   "tagline": "Game + Backend",
-  "description": "Open source Elixir game server with authentication, users, lobbies, groups, parties, friends, chat, notifications, achievements, leaderboards, server scripting and admin portal with HTTP and Websocket support and SDK for JS and Godot.",
+  "description": "Open source Elixir game server with authentication, users, lobbies, groups, parties, friends, chat, notifications, achievements, leaderboards, server scripting and admin portal with HTTP, WebSocket, and WebRTC support and SDK for JS and Godot.",
   "css": "",
   "logo": "/images/logo.png",
   "banner": "/images/banner.png",

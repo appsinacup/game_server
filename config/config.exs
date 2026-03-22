@@ -110,7 +110,7 @@ config :game_server_web, GameServerWeb.Auth.Guardian,
   issuer: "game_server",
   secret_key: "REPLACE_THIS_IN_RUNTIME_CONFIG"
 
-# WebRTC DataChannel support (optional, requires ex_webrtc + ex_sctp deps)
+# WebRTC DataChannel support (requires ex_webrtc + ex_sctp deps)
 config :game_server_web, :webrtc,
   enabled: true,
   ice_servers: [%{urls: "stun:stun.l.google.com:19302"}]
