@@ -284,10 +284,10 @@ API routes use JWT tokens via Guardian for stateless authentication:
 - WebSocket channels mirror PubSub topics: `UserChannel`, `LobbyChannel`, `LobbiesChannel`, `GroupChannel`, `GroupsChannel`, `PartyChannel`.
 - LiveViews subscribe to PubSub topics directly (not via channels) using context `subscribe_*` functions.
 
-### WebRTC DataChannels (optional)
+### WebRTC DataChannels
 
 - WebRTC provides low-latency DataChannels alongside the existing WebSocket. The server acts as a WebRTC peer (not P2P between clients).
-- **Optional dependency**: `ex_webrtc` and `ex_sctp` are optional deps in `game_server_web`. All WebRTC code is gated by `if Code.ensure_loaded?(ExWebRTC.PeerConnection) do`. If deps aren't installed, signaling events return `{:error, "webrtc_disabled"}`.
+- **Required dependency**: `ex_webrtc` and `ex_sctp` are required deps in `game_server_web`. WebRTC signaling handlers are always compiled in.
 - **Rust requirement**: `ex_sctp` (required for DataChannels) compiles a Rust NIF. Local dev needs `rustup`. Docker/CI need Rust toolchain added.
 - **Signaling over UserChannel**: No new channel. The existing authenticated `UserChannel` handles SDP/ICE exchange via events:
   - Client → Server: `"webrtc:offer"`, `"webrtc:ice"`, `"webrtc:send"`, `"webrtc:close"`

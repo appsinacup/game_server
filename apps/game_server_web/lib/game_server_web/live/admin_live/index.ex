@@ -289,7 +289,10 @@ defmodule GameServerWeb.AdminLive.Index do
               <div class="card bg-base-100 p-4">
                 <div class="flex items-center justify-between mb-2">
                   <div class="text-sm font-semibold">Connections</div>
-                  <.link navigate={~p"/admin/connections"} class="text-xs text-primary hover:underline">
+                  <.link
+                    navigate={~p"/admin/connections"}
+                    class="text-xs text-primary hover:underline"
+                  >
                     View →
                   </.link>
                 </div>

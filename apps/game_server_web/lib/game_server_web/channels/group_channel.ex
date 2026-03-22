@@ -41,7 +41,11 @@ defmodule GameServerWeb.GroupChannel do
       Groups.subscribe_group(group_id)
       Chat.subscribe_group_chat(group_id)
 
-      GameServerWeb.ConnectionTracker.register(:group_channel, %{group_id: group_id, user_id: user_id})
+      GameServerWeb.ConnectionTracker.register(:group_channel, %{
+        group_id: group_id,
+        user_id: user_id
+      })
+
       group = Groups.get_group!(group_id)
       send(self(), {:after_join, group})
 

@@ -48,7 +48,11 @@ defmodule GameServerWeb.PartyChannel do
               assign(socket, :subscribed_party, true)
             end
 
-          GameServerWeb.ConnectionTracker.register(:party_channel, %{party_id: party_id, user_id: user_id})
+          GameServerWeb.ConnectionTracker.register(:party_channel, %{
+            party_id: party_id,
+            user_id: user_id
+          })
+
           party = Parties.get_party(party_id)
           send(self(), {:after_join, party})
           {:ok, socket |> assign(:party_id, party_id)}

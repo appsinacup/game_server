@@ -47,8 +47,7 @@ defmodule GameServerWeb.AdminLive.System do
           <div class="card bg-base-200 shadow">
             <div class="card-body">
               <h2 class="card-title text-lg flex items-center gap-2">
-                <.icon name="hero-cpu-chip" class="w-5 h-5 text-primary" />
-                Memory
+                <.icon name="hero-cpu-chip" class="w-5 h-5 text-primary" /> Memory
               </h2>
               <div class="overflow-x-auto">
                 <table class="table table-sm">
@@ -86,8 +85,7 @@ defmodule GameServerWeb.AdminLive.System do
           <div class="card bg-base-200 shadow">
             <div class="card-body">
               <h2 class="card-title text-lg flex items-center gap-2">
-                <.icon name="hero-squares-2x2" class="w-5 h-5 text-secondary" />
-                Processes & Ports
+                <.icon name="hero-squares-2x2" class="w-5 h-5 text-secondary" /> Processes & Ports
               </h2>
               <div class="space-y-6 mt-2">
                 <div>
@@ -163,8 +161,7 @@ defmodule GameServerWeb.AdminLive.System do
           <div class="card bg-base-200 shadow">
             <div class="card-body">
               <h2 class="card-title text-lg flex items-center gap-2">
-                <.icon name="hero-arrow-path" class="w-5 h-5 text-accent" />
-                I/O & GC
+                <.icon name="hero-arrow-path" class="w-5 h-5 text-accent" /> I/O & GC
               </h2>
               <div class="overflow-x-auto">
                 <table class="table table-sm">
@@ -205,8 +202,7 @@ defmodule GameServerWeb.AdminLive.System do
           <div class="card bg-base-200 shadow">
             <div class="card-body">
               <h2 class="card-title text-lg flex items-center gap-2">
-                <.icon name="hero-table-cells" class="w-5 h-5 text-info" />
-                ETS Tables
+                <.icon name="hero-table-cells" class="w-5 h-5 text-info" /> ETS Tables
                 <span class="badge badge-sm badge-ghost">{length(@ets_tables)}</span>
               </h2>
               <div class="overflow-x-auto max-h-80">
@@ -236,8 +232,7 @@ defmodule GameServerWeb.AdminLive.System do
           <div class="card bg-base-200 shadow">
             <div class="card-body">
               <h2 class="card-title text-lg flex items-center gap-2">
-                <.icon name="hero-server-stack" class="w-5 h-5 text-warning" />
-                Cluster Topology
+                <.icon name="hero-server-stack" class="w-5 h-5 text-warning" /> Cluster Topology
               </h2>
               <div class="flex flex-wrap gap-2 mt-2">
                 <div class="badge badge-lg badge-primary gap-1">
@@ -279,7 +274,10 @@ defmodule GameServerWeb.AdminLive.System do
     sys = ConnectionTracker.system_stats()
     memory = :erlang.memory()
     total_bytes = memory[:total]
-    {io_input, io_output} = :erlang.statistics(:io) |> then(fn {{:input, i}, {:output, o}} -> {i, o} end)
+
+    {io_input, io_output} =
+      :erlang.statistics(:io) |> then(fn {{:input, i}, {:output, o}} -> {i, o} end)
+
     {gc_count, gc_words, _} = :erlang.statistics(:garbage_collection)
     {reductions, _} = :erlang.statistics(:exact_reductions)
 

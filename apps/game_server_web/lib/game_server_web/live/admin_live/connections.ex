@@ -13,26 +13,21 @@ defmodule GameServerWeb.AdminLive.Connections do
         <.link navigate={~p"/admin"} class="btn btn-outline mb-4">&larr; Back to Admin</.link>
 
         <%!-- Summary cards --%>
-        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
           <div class="stat bg-base-100 rounded-lg shadow-sm p-4">
             <div class="stat-title text-xs">Total Connections</div>
             <div class="stat-value text-2xl">{@conn_stats.total_connections}</div>
-            <div class="stat-desc text-xs">WS + LiveView + WebRTC</div>
+            <div class="stat-desc text-xs">WebSockets + LiveViews + WebRTC</div>
           </div>
           <div class="stat bg-base-100 rounded-lg shadow-sm p-4">
-            <div class="stat-title text-xs">WS Sockets</div>
+            <div class="stat-title text-xs">WebSockets</div>
             <div class="stat-value text-2xl">{@conn_stats.ws_sockets}</div>
             <div class="stat-desc text-xs">1 per game client</div>
           </div>
           <div class="stat bg-base-100 rounded-lg shadow-sm p-4">
-            <div class="stat-title text-xs">WS Channels</div>
-            <div class="stat-value text-2xl">{@conn_stats.total_channels}</div>
-            <div class="stat-desc text-xs">Topics on sockets</div>
-          </div>
-          <div class="stat bg-base-100 rounded-lg shadow-sm p-4">
             <div class="stat-title text-xs">LiveViews</div>
             <div class="stat-value text-2xl">{@conn_stats.live_views}</div>
-            <div class="stat-desc text-xs">Browser tabs</div>
+            <div class="stat-desc text-xs">Browser tabs (also WebSocket)</div>
           </div>
           <div class="stat bg-base-100 rounded-lg shadow-sm p-4">
             <div class="stat-title text-xs">WebRTC Peers</div>
@@ -53,8 +48,9 @@ defmodule GameServerWeb.AdminLive.Connections do
             <p class="text-sm">
               <strong>1 WebSocket = multiple channels.</strong>
               Each game client opens a single WebSocket connection (via UserSocket), then joins multiple
-              channel topics (user, lobby, groups, etc.) over that same connection. LiveView pages use
-              a separate WebSocket managed by Phoenix. WebRTC peers run alongside WebSocket.
+              channel topics (user, lobby, groups, etc.) over that same connection. LiveView pages also
+              use WebSocket (separate, Phoenix-managed). WebRTC peers run alongside both and provide
+              low-latency DataChannels for high-frequency game data.
             </p>
           </div>
         </div>
@@ -64,8 +60,7 @@ defmodule GameServerWeb.AdminLive.Connections do
           <div class="card bg-base-200 shadow">
             <div class="card-body">
               <h2 class="card-title text-lg flex items-center gap-2">
-                <.icon name="hero-signal" class="w-5 h-5 text-primary" />
-                WebSocket Channels
+                <.icon name="hero-signal" class="w-5 h-5 text-primary" /> WebSocket Channels
                 <span class="badge badge-sm badge-primary">{@conn_stats.total_channels}</span>
               </h2>
               <p class="text-xs text-base-content/60 mb-2">
@@ -134,38 +129,13 @@ defmodule GameServerWeb.AdminLive.Connections do
             </div>
           </div>
 
-          <%!-- WS Sockets + LiveView --%>
+          <%!-- LiveView + WebRTC --%>
           <div class="space-y-6">
-            <%!-- WS Sockets card --%>
-            <div class="card bg-base-200 shadow">
-              <div class="card-body">
-                <h2 class="card-title text-lg flex items-center gap-2">
-                  <.icon name="hero-globe-alt" class="w-5 h-5 text-warning" />
-                  WebSocket Connections
-                  <span class="badge badge-sm badge-warning">{@conn_stats.ws_sockets}</span>
-                </h2>
-                <p class="text-xs text-base-content/60 mb-2">
-                  Raw TCP/WebSocket connections from game clients (1 per client)
-                </p>
-                <div class="grid grid-cols-2 gap-4 mt-2">
-                  <div class="text-center p-3 bg-base-100 rounded-lg">
-                    <div class="text-2xl font-bold">{@ws_authenticated}</div>
-                    <div class="text-xs text-base-content/60">Authenticated</div>
-                  </div>
-                  <div class="text-center p-3 bg-base-100 rounded-lg">
-                    <div class="text-2xl font-bold">{@ws_anonymous}</div>
-                    <div class="text-xs text-base-content/60">Anonymous</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <%!-- LiveView Sessions --%>
             <div class="card bg-base-200 shadow">
               <div class="card-body">
                 <h2 class="card-title text-lg flex items-center gap-2">
-                  <.icon name="hero-window" class="w-5 h-5 text-secondary" />
-                  LiveView Sessions
+                  <.icon name="hero-window" class="w-5 h-5 text-secondary" /> LiveView Sessions
                   <span class="badge badge-sm badge-secondary">{@conn_stats.live_views}</span>
                 </h2>
                 <p class="text-xs text-base-content/60 mb-2">
@@ -195,47 +165,48 @@ defmodule GameServerWeb.AdminLive.Connections do
                 <% end %>
               </div>
             </div>
-          </div>
-        </div>
-
-        <%!-- WebRTC Peers detail --%>
-        <%= if @webrtc_users != [] do %>
-          <div class="card bg-base-200 shadow">
-            <div class="card-body">
-              <h2 class="card-title text-lg flex items-center gap-2">
-                <.icon name="hero-bolt" class="w-5 h-5 text-accent" />
-                WebRTC DataChannel Peers
-                <span class="badge badge-sm badge-accent">{@conn_stats.webrtc_peers}</span>
-              </h2>
-              <p class="text-xs text-base-content/60 mb-2">
-                Low-latency peer connections for game data (runs alongside WebSocket)
-              </p>
-              <div class="overflow-x-auto">
-                <table class="table table-sm">
-                  <thead>
-                    <tr>
-                      <th>User ID</th>
-                      <th>PID</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr :for={peer <- @webrtc_users}>
-                      <td class="font-mono text-sm">{peer.user_id}</td>
-                      <td class="font-mono text-xs text-base-content/50">{peer.pid}</td>
-                    </tr>
-                  </tbody>
-                </table>
+            <%!-- WebRTC Peers --%>
+            <div class="card bg-base-200 shadow">
+              <div class="card-body">
+                <h2 class="card-title text-lg flex items-center gap-2">
+                  <.icon name="hero-bolt" class="w-5 h-5 text-accent" /> WebRTC Peers
+                  <span class="badge badge-sm badge-accent">{@conn_stats.webrtc_peers}</span>
+                </h2>
+                <p class="text-xs text-base-content/60 mb-2">
+                  Low-latency DataChannel connections running alongside WebSocket
+                </p>
+                <%= if @webrtc_users == [] do %>
+                  <div class="text-center py-4 text-base-content/40 text-sm">
+                    No WebRTC peers active
+                  </div>
+                <% else %>
+                  <div class="overflow-x-auto">
+                    <table class="table table-sm">
+                      <thead>
+                        <tr>
+                          <th>User ID</th>
+                          <th>PID</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr :for={peer <- @webrtc_users}>
+                          <td class="font-mono text-sm">{peer.user_id}</td>
+                          <td class="font-mono text-xs text-base-content/50">{peer.pid}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                <% end %>
               </div>
             </div>
           </div>
-        <% end %>
+        </div>
 
         <%!-- Connected Users --%>
         <div class="card bg-base-200 shadow">
           <div class="card-body">
             <h2 class="card-title text-lg flex items-center gap-2">
-              <.icon name="hero-users" class="w-5 h-5 text-info" />
-              Connected Users
+              <.icon name="hero-users" class="w-5 h-5 text-info" /> Connected Users
               <span class="badge badge-sm badge-info">{length(@connected_users)}</span>
             </h2>
             <p class="text-sm text-base-content/60 mb-4">
@@ -317,8 +288,6 @@ defmodule GameServerWeb.AdminLive.Connections do
       connected_users: build_connected_users(all),
       live_view_pages: build_live_view_pages(all),
       webrtc_users: build_webrtc_users(all),
-      ws_authenticated: count_ws_by_auth(all, true),
-      ws_anonymous: count_ws_by_auth(all, false),
       cluster_size: 1 + length(Node.list())
     )
   end
@@ -406,12 +375,6 @@ defmodule GameServerWeb.AdminLive.Connections do
       %{user_id: Map.get(meta, :user_id, "?"), pid: inspect(pid)}
     end)
     |> Enum.sort_by(& &1.user_id)
-  end
-
-  defp count_ws_by_auth(all, authenticated?) do
-    all
-    |> Map.get(:ws_socket, [])
-    |> Enum.count(fn {_pid, meta} -> Map.get(meta, :authenticated, false) == authenticated? end)
   end
 
   defp short_module(module) do

@@ -100,67 +100,65 @@ defmodule GameServerWeb.UserChannel do
 
   # ── WebRTC signaling via channel ────────────────────────────────────────────
 
-  if Code.ensure_loaded?(ExWebRTC.PeerConnection) do
-    @impl true
-    def handle_in("webrtc:offer", %{"sdp" => _} = offer_json, socket) do
-      webrtc_config = Application.get_env(:game_server_web, :webrtc, [])
-      enabled? = Keyword.get(webrtc_config, :enabled, true)
+  @impl true
+  def handle_in("webrtc:offer", %{"sdp" => _} = offer_json, socket) do
+    webrtc_config = Application.get_env(:game_server_web, :webrtc, [])
+    enabled? = Keyword.get(webrtc_config, :enabled, true)
 
-      if enabled? do
-        # Stop existing peer if re-negotiating
-        if peer = Map.get(socket.assigns, :webrtc_peer) do
-          if Process.alive?(peer), do: GameServerWeb.WebRTCPeer.close(peer)
+    if enabled? do
+      # Stop existing peer if re-negotiating
+      if peer = Map.get(socket.assigns, :webrtc_peer) do
+        if Process.alive?(peer), do: GameServerWeb.WebRTCPeer.close(peer)
+      end
+
+      {:ok, peer} =
+        GameServerWeb.WebRTCPeer.start_link(
+          user_id: socket.assigns.user_id,
+          channel_pid: self()
+        )
+
+      GameServerWeb.WebRTCPeer.handle_offer(peer, offer_json)
+      {:reply, {:ok, %{}}, assign(socket, :webrtc_peer, peer)}
+    else
+      {:reply, {:error, %{error: "webrtc_disabled"}}, socket}
+    end
+  end
+
+  @impl true
+  def handle_in("webrtc:ice", %{"candidate" => _} = candidate_json, socket) do
+    case Map.get(socket.assigns, :webrtc_peer) do
+      nil ->
+        {:reply, {:error, %{error: "no_webrtc_session"}}, socket}
+
+      peer ->
+        GameServerWeb.WebRTCPeer.add_ice_candidate(peer, candidate_json)
+        {:reply, {:ok, %{}}, socket}
+    end
+  end
+
+  @impl true
+  def handle_in("webrtc:send", %{"channel" => label, "data" => data}, socket) do
+    case Map.get(socket.assigns, :webrtc_peer) do
+      nil ->
+        {:reply, {:error, %{error: "no_webrtc_session"}}, socket}
+
+      peer ->
+        case GameServerWeb.WebRTCPeer.send_data(peer, label, data) do
+          :ok -> {:reply, {:ok, %{}}, socket}
+          {:error, reason} -> {:reply, {:error, %{error: to_string(reason)}}, socket}
         end
-
-        {:ok, peer} =
-          GameServerWeb.WebRTCPeer.start_link(
-            user_id: socket.assigns.user_id,
-            channel_pid: self()
-          )
-
-        GameServerWeb.WebRTCPeer.handle_offer(peer, offer_json)
-        {:reply, {:ok, %{}}, assign(socket, :webrtc_peer, peer)}
-      else
-        {:reply, {:error, %{error: "webrtc_disabled"}}, socket}
-      end
     end
+  end
 
-    @impl true
-    def handle_in("webrtc:ice", %{"candidate" => _} = candidate_json, socket) do
-      case Map.get(socket.assigns, :webrtc_peer) do
-        nil ->
-          {:reply, {:error, %{error: "no_webrtc_session"}}, socket}
+  @impl true
+  def handle_in("webrtc:close", _payload, socket) do
+    case Map.get(socket.assigns, :webrtc_peer) do
+      nil ->
+        {:reply, {:ok, %{}}, socket}
 
-        peer ->
-          GameServerWeb.WebRTCPeer.add_ice_candidate(peer, candidate_json)
-          {:reply, {:ok, %{}}, socket}
-      end
-    end
-
-    @impl true
-    def handle_in("webrtc:send", %{"channel" => label, "data" => data}, socket) do
-      case Map.get(socket.assigns, :webrtc_peer) do
-        nil ->
-          {:reply, {:error, %{error: "no_webrtc_session"}}, socket}
-
-        peer ->
-          case GameServerWeb.WebRTCPeer.send_data(peer, label, data) do
-            :ok -> {:reply, {:ok, %{}}, socket}
-            {:error, reason} -> {:reply, {:error, %{error: to_string(reason)}}, socket}
-          end
-      end
-    end
-
-    @impl true
-    def handle_in("webrtc:close", _payload, socket) do
-      case Map.get(socket.assigns, :webrtc_peer) do
-        nil ->
-          {:reply, {:ok, %{}}, socket}
-
-        peer ->
-          if Process.alive?(peer), do: GameServerWeb.WebRTCPeer.close(peer)
-          {:reply, {:ok, %{}}, assign(socket, :webrtc_peer, nil)}
-      end
+      peer ->
+        if Process.alive?(peer), do: GameServerWeb.WebRTCPeer.close(peer)
+        {:reply, {:ok, %{}}, assign(socket, :webrtc_peer, nil)}
     end
   end
 
@@ -298,42 +296,40 @@ defmodule GameServerWeb.UserChannel do
 
   # ── WebRTC peer messages ────────────────────────────────────────────────────
 
-  if Code.ensure_loaded?(ExWebRTC.PeerConnection) do
-    @impl true
-    def handle_info({:webrtc_answer, answer_json}, socket) do
-      push(socket, "webrtc:answer", %{sdp: answer_json["sdp"], type: answer_json["type"]})
-      {:noreply, socket}
-    end
+  @impl true
+  def handle_info({:webrtc_answer, answer_json}, socket) do
+    push(socket, "webrtc:answer", %{sdp: answer_json["sdp"], type: answer_json["type"]})
+    {:noreply, socket}
+  end
 
-    @impl true
-    def handle_info({:webrtc_ice, candidate_json}, socket) do
-      push(socket, "webrtc:ice", candidate_json)
-      {:noreply, socket}
-    end
+  @impl true
+  def handle_info({:webrtc_ice, candidate_json}, socket) do
+    push(socket, "webrtc:ice", candidate_json)
+    {:noreply, socket}
+  end
 
-    @impl true
-    def handle_info({:webrtc_data, channel_label, data}, socket) do
-      push(socket, "webrtc:data", %{channel: channel_label, data: data})
-      {:noreply, socket}
-    end
+  @impl true
+  def handle_info({:webrtc_data, channel_label, data}, socket) do
+    push(socket, "webrtc:data", %{channel: channel_label, data: data})
+    {:noreply, socket}
+  end
 
-    @impl true
-    def handle_info({:webrtc_channel_open, _ref, label}, socket) do
-      push(socket, "webrtc:channel_open", %{channel: label})
-      {:noreply, socket}
-    end
+  @impl true
+  def handle_info({:webrtc_channel_open, _ref, label}, socket) do
+    push(socket, "webrtc:channel_open", %{channel: label})
+    {:noreply, socket}
+  end
 
-    @impl true
-    def handle_info({:webrtc_channel_closed, _ref}, socket) do
-      push(socket, "webrtc:channel_closed", %{})
-      {:noreply, socket}
-    end
+  @impl true
+  def handle_info({:webrtc_channel_closed, _ref}, socket) do
+    push(socket, "webrtc:channel_closed", %{})
+    {:noreply, socket}
+  end
 
-    @impl true
-    def handle_info({:webrtc_connection_state, conn_state}, socket) do
-      push(socket, "webrtc:state", %{state: to_string(conn_state)})
-      {:noreply, socket}
-    end
+  @impl true
+  def handle_info({:webrtc_connection_state, conn_state}, socket) do
+    push(socket, "webrtc:state", %{state: to_string(conn_state)})
+    {:noreply, socket}
   end
 
   # Catch-all for unknown messages

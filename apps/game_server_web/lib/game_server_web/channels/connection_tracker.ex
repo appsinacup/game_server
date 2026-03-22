@@ -132,21 +132,25 @@ defmodule GameServerWeb.ConnectionTracker do
           _ -> []
         end)
 
-      Enum.reduce(results, %{
-        ws_sockets: 0,
-        user_channels: 0,
-        lobby_channels: 0,
-        lobbies_channels: 0,
-        group_channels: 0,
-        groups_channels: 0,
-        party_channels: 0,
-        webrtc_peers: 0,
-        live_views: 0,
-        total_channels: 0,
-        total_connections: 0
-      }, fn counts, acc ->
-        Map.merge(acc, counts, fn _k, v1, v2 -> v1 + v2 end)
-      end)
+      Enum.reduce(
+        results,
+        %{
+          ws_sockets: 0,
+          user_channels: 0,
+          lobby_channels: 0,
+          lobbies_channels: 0,
+          group_channels: 0,
+          groups_channels: 0,
+          party_channels: 0,
+          webrtc_peers: 0,
+          live_views: 0,
+          total_channels: 0,
+          total_connections: 0
+        },
+        fn counts, acc ->
+          Map.merge(acc, counts, fn _k, v1, v2 -> v1 + v2 end)
+        end
+      )
     end
   end
 
@@ -177,8 +181,8 @@ defmodule GameServerWeb.ConnectionTracker do
   Formats uptime seconds into a human-readable string like "2d 3h 15m".
   """
   def format_uptime(seconds) when is_integer(seconds) do
-    days = div(seconds, 86400)
-    hours = div(rem(seconds, 86400), 3600)
+    days = div(seconds, 86_400)
+    hours = div(rem(seconds, 86_400), 3600)
     minutes = div(rem(seconds, 3600), 60)
 
     parts =

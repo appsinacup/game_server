@@ -47,7 +47,11 @@ defmodule GameServerWeb.LobbyChannel do
       cond do
         # Case 1: user is a member of this lobby → join as member
         match?(%User{lobby_id: ^lobby_id}, user) ->
-          GameServerWeb.ConnectionTracker.register(:lobby_channel, %{lobby_id: lobby_id, user_id: user_id})
+          GameServerWeb.ConnectionTracker.register(:lobby_channel, %{
+            lobby_id: lobby_id,
+            user_id: user_id
+          })
+
           socket = subscribe_to_lobby(socket, lobby_id)
           send(self(), {:after_join, lobby})
           {:ok, socket |> assign(:lobby_id, lobby_id) |> assign(:spectator, false)}
@@ -58,7 +62,12 @@ defmodule GameServerWeb.LobbyChannel do
 
         # Case 3: user is not in any lobby and lobby is spectatable → join as spectator
         Lobbies.spectatable?(lobby) ->
-          GameServerWeb.ConnectionTracker.register(:lobby_channel, %{lobby_id: lobby_id, user_id: user_id, spectator: true})
+          GameServerWeb.ConnectionTracker.register(:lobby_channel, %{
+            lobby_id: lobby_id,
+            user_id: user_id,
+            spectator: true
+          })
+
           socket = subscribe_to_lobby(socket, lobby_id)
           SpectatorTracker.track(lobby_id, user_id)
           send(self(), {:after_join, lobby})
