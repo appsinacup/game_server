@@ -284,27 +284,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
           # repository uses JS packages under the `clients` subfolder. When caching
           # npm dependencies we need to point setup-node at the lockfile location
           # so the cache key is computed correctly.
           cache-dependency-path: clients/package-lock.json
-
-      - name: Configure .npmrc for OIDC Trusted Publishing
-        run: |
-          # setup-node creates .npmrc with _authToken=${NODE_AUTH_TOKEN}, which
-          # resolves to empty and blocks OIDC. Remove the token line so npm
-          # falls through to Trusted Publishing (OIDC) authentication.
-          # NPM_CONFIG_USERCONFIG points to the actual file on GitHub Actions runners.
-          NPMRC_FILE="${NPM_CONFIG_USERCONFIG:-$HOME/.npmrc}"
-          if [ -f "$NPMRC_FILE" ]; then
-            sed -i '/_authToken/d' "$NPMRC_FILE"
-            echo "--- .npmrc contents ($NPMRC_FILE) ---"
-            cat "$NPMRC_FILE"
-          else
-            echo "No .npmrc found at $NPMRC_FILE — skipping"
-          fi
 
       - name: Install Elixir deps (for generating spec)
         run: |
