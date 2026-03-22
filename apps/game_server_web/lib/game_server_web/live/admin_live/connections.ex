@@ -233,10 +233,10 @@ defmodule GameServerWeb.AdminLive.Connections do
                       <td>
                         <div class="flex flex-wrap gap-1">
                           <span
-                            :for={ch <- user.channels}
-                            class={["badge badge-sm", channel_badge_class(ch)]}
+                            :if={user.channels != []}
+                            class="badge badge-sm badge-primary"
                           >
-                            {ch}
+                            WebSocket
                           </span>
                           <span :if={user.live_view} class="badge badge-sm badge-secondary">
                             LiveView
@@ -247,11 +247,9 @@ defmodule GameServerWeb.AdminLive.Connections do
                         </div>
                       </td>
                       <td class="text-xs text-base-content/50">
-                        <%= if user.live_view_pages != [] do %>
-                          <span class="font-mono">
-                            {Enum.join(Enum.map(user.live_view_pages, &short_module/1), ", ")}
-                          </span>
-                        <% end %>
+                        <span class="font-mono">
+                          {Enum.join(user.detail_labels, ", ")}
+                        </span>
                       </td>
                     </tr>
                   </tbody>
@@ -334,12 +332,15 @@ defmodule GameServerWeb.AdminLive.Connections do
 
     user_data
     |> Enum.map(fn {user_id, data} ->
+      ws_labels = data.channels |> Enum.uniq() |> Enum.sort() |> Enum.map(&"WebSocket:#{&1}")
+      lv_labels = data.live_view_pages |> Enum.uniq() |> Enum.map(&"LiveView:#{short_module(&1)}")
+
       %{
         user_id: user_id,
         channels: data.channels |> Enum.uniq() |> Enum.sort(),
         live_view: data.live_view,
-        live_view_pages: data.live_view_pages |> Enum.uniq(),
-        webrtc: MapSet.member?(webrtc_users, user_id)
+        webrtc: MapSet.member?(webrtc_users, user_id),
+        detail_labels: ws_labels ++ lv_labels
       }
     end)
     |> Enum.sort_by(& &1.user_id)
@@ -367,12 +368,6 @@ defmodule GameServerWeb.AdminLive.Connections do
     |> String.replace("GameServerWeb.", "")
     |> String.replace("AdminLive.", "Admin.")
   end
-
-  defp channel_badge_class("user"), do: "badge-primary"
-  defp channel_badge_class("lobby"), do: "badge-secondary"
-  defp channel_badge_class("group"), do: "badge-info"
-  defp channel_badge_class("party"), do: "badge-warning"
-  defp channel_badge_class(_), do: "badge-ghost"
 
   defp merge_channel_users(entries, label, acc) do
     Enum.reduce(entries, acc, fn {_pid, meta}, inner_acc ->
