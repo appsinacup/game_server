@@ -291,9 +291,15 @@ jobs:
           # setup-node creates .npmrc with _authToken=${NODE_AUTH_TOKEN}, which
           # resolves to empty and blocks OIDC. Remove the token line so npm
           # falls through to Trusted Publishing (OIDC) authentication.
-          sed -i '/_authToken/d' ~/.npmrc
-          echo "--- .npmrc contents ---"
-          cat ~/.npmrc
+          # NPM_CONFIG_USERCONFIG points to the actual file on GitHub Actions runners.
+          NPMRC_FILE="${NPM_CONFIG_USERCONFIG:-$HOME/.npmrc}"
+          if [ -f "$NPMRC_FILE" ]; then
+            sed -i '/_authToken/d' "$NPMRC_FILE"
+            echo "--- .npmrc contents ($NPMRC_FILE) ---"
+            cat "$NPMRC_FILE"
+          else
+            echo "No .npmrc found at $NPMRC_FILE — skipping"
+          fi
 
       - name: Install Elixir deps (for generating spec)
         run: |
