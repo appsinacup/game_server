@@ -87,6 +87,11 @@ jobs:
           apt update
           apt install -y build-essential erlang-dev curl
 
+      - name: Install Rust toolchain (for ex_sctp WebRTC DataChannels)
+        run: |
+          curl https://sh.rustup.rs -sSf | sh -s -- -y
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
       - name: Set up Elixir helpers
         run: |
           mix local.hex --force
@@ -330,6 +335,12 @@ jobs:
       - name: Add publishing config with provenance true
         run: |
           jq '.publishConfig = { "provenance": true }' clients/javascript/package.json > clients/javascript/package.json.tmp && mv clients/javascript/package.json.tmp clients/javascript/package.json
+
+      - name: Declare phoenix as optional peer dependency
+        run: |
+          jq '.peerDependencies = {"phoenix": ">=1.7.0"} | .peerDependenciesMeta = {"phoenix": {"optional": true}}' \
+            clients/javascript/package.json > clients/javascript/package.json.tmp \
+            && mv clients/javascript/package.json.tmp clients/javascript/package.json
 
       - name: Apply version and publish
         run: |

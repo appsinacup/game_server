@@ -4,7 +4,7 @@
   },
   "scripts": {
     "openapi": "cd .. && mix openapi.spec.json --spec GameServerWeb.ApiSpec --filename clients/javascript/openapi.json --pretty=true && cd clients",
-    "generate": "mkdir -p javascript && cd javascript && npx @openapitools/openapi-generator-cli generate -i openapi.json -g javascript -o . --additional-properties usePromises=true,projectName=@ughuuu/game_server,projectVersion=1.0.0 && npm i && npm run build && cd ..",
+    "generate": "mkdir -p javascript/src && cp openapi-generator-ignore javascript/.openapi-generator-ignore && cd javascript && npx @openapitools/openapi-generator-cli generate -i openapi.json -g javascript -o . --additional-properties usePromises=true,projectName=@ughuuu/game_server,projectVersion=1.0.0 && cp ../realtime.js src/realtime.js && cp ../webrtc.js src/webrtc.js && node ../postgenerate.js && npm i && npm run build && cd ..",
     "start": "node test_js"
   }
 }
