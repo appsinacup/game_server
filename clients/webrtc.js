@@ -6,7 +6,7 @@
  * alongside the WebSocket at lower latency.
  *
  * Requires a browser with native WebRTC support (RTCPeerConnection).
- * Does NOT work in Node.js without a WebRTC polyfill.
+ * For Node.js environments, install the `node-datachannel` package as a polyfill.
  *
  * Usage:
  *

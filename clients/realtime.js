@@ -2,7 +2,7 @@
  * GameRealtime — Phoenix WebSocket client for game_server.
  *
  * Wraps Phoenix.Socket to provide helpers for common game_server channel topics.
- * Requires the `phoenix` npm package (peer dependency).
+ * The `phoenix` npm package is included as a dependency.
  *
  * Usage (browser / Node.js with bundler):
  *
@@ -21,19 +21,10 @@
  *
  *   realtime.disconnect()
  *
- * Peer dependency:
- *
- *   npm install phoenix
+ * Dependency: `phoenix` (bundled with @ughuuu/game_server)
  */
 
-let _Socket = null
-try {
-  // Works in Node (bundled) and browser environments
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  _Socket = require('phoenix').Socket
-} catch (_) {
-  // Swallow — will throw a descriptive error at instantiation time
-}
+import { Socket } from 'phoenix'
 
 export class GameRealtime {
   /**
@@ -43,12 +34,6 @@ export class GameRealtime {
    * @param {Object} socketOpts - Optional Phoenix.Socket constructor options
    */
   constructor(serverUrl, token, socketOpts = {}) {
-    if (!_Socket) {
-      throw new Error(
-        'GameRealtime requires the "phoenix" npm package. Install it: npm install phoenix'
-      )
-    }
-
     // Normalise URL: strip trailing slash, ensure ws(s):// scheme, append /socket
     const wsUrl =
       serverUrl
@@ -56,7 +41,7 @@ export class GameRealtime {
         .replace(/^http(s?):\/\//, (_m, s) => `ws${s}://`) + '/socket'
 
     this._token = token
-    this._socket = new _Socket(wsUrl, { params: { token }, ...socketOpts })
+    this._socket = new Socket(wsUrl, { params: { token }, ...socketOpts })
     this._socket.connect()
     /** @type {Map<string, Object>} topic → Phoenix Channel */
     this._channels = new Map()

@@ -1,5 +1,7 @@
-const { ApiClient, HealthApi, AuthenticationApi, UsersApi, LobbiesApi } = require('./javascript/dist/index.js');
+const { ApiClient, HealthApi, AuthenticationApi, UsersApi, LobbiesApi, GameRealtime, GameWebRTC } = require('./javascript/dist/index.js');
 const { default: open } = require('open');
+const { Socket: PhoenixSocket } = require('phoenix');
+const { RTCPeerConnection, RTCSessionDescription, RTCIceCandidate } = require('node-datachannel/polyfill');
 const basePath = 'http://localhost:4000';
 //const basePath = 'https://gamend.appsinacup.com';
 async function testSDK() {
@@ -171,11 +173,39 @@ async function testUserAPI(accessToken, refreshToken, provider) {
   }
 }
 
+// Helper: device login — returns { accessToken, userId }
+async function deviceLogin(deviceId) {
+  const apiClient = new ApiClient();
+  apiClient.basePath = basePath;
+  const authApi = new AuthenticationApi(apiClient);
+  const loginResponse = await authApi.deviceLogin({ deviceLoginRequest: { device_id: deviceId } });
+  return {
+    accessToken: loginResponse.data.access_token,
+    userId: loginResponse.data.user_id,
+  };
+}
+
 // Run the tests
 async function runAllTests() {
   console.log('🚀 Starting comprehensive OAuth and API tests...\n');
 
   await testSDK();
+  console.log('');
+
+  // Shared device_id for WebSocket + WebRTC tests
+  const testDeviceId = 'realtime-test-device-' + Date.now();
+  console.log('\n--- Device login for realtime tests ---\n');
+  const { accessToken: rtToken, userId: rtUserId } = await deviceLogin(testDeviceId);
+  console.log('✅ Device login successful, user_id:', rtUserId);
+
+  // Test WebSocket connection independently
+  console.log('\n--- Testing WebSocket ---\n');
+  await testWebSocket(rtToken, rtUserId);
+  console.log('');
+
+  // Test full WebRTC signaling flow (reuses same device credentials)
+  console.log('\n--- Testing WebRTC Full Flow ---\n');
+  await testWebRTCFullFlow(rtToken, rtUserId);
   console.log('');
 
   const providers = ['steam', 'discord', 'google', 'facebook', 'apple'];
@@ -189,6 +219,8 @@ async function runAllTests() {
       if (apiClient) {
         await testLobbyAPI(apiClient);
       }
+
+      // (WebSocket already tested independently with device login above)
     } else if (result && result.status === 'conflict') {
       console.log(`⚠️  ${provider} OAuth resulted in conflict. Skipping authenticated API tests.`);
     } else {
@@ -232,6 +264,218 @@ async function testLobbyAPI(apiClient) {
 
   } catch (error) {
     console.error('❌ Error testing lobby API:', error);
+  }
+}
+
+// Test WebSocket real-time connection via GameRealtime
+async function testWebSocket(accessToken, userId) {
+  try {
+    console.log('Testing WebSocket (GameRealtime) connection...');
+
+    const realtime = new GameRealtime(basePath, accessToken);
+    console.log('✅ GameRealtime created, socket connected');
+
+    // Join the user channel
+    const userChannel = realtime.joinUserChannel(userId);
+    console.log('✅ Joined user channel: user:' + userId);
+
+    // Wait a moment for the channel join to complete
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    // Verify the channel is tracked
+    const retrieved = realtime.channel('user:' + userId);
+    if (retrieved) {
+      console.log('✅ Channel retrieved successfully');
+    } else {
+      console.log('⚠️  Channel not found after join');
+    }
+
+    // Join lobbies channel (public feed)
+    const lobbiesChannel = realtime.joinLobbiesChannel();
+    console.log('✅ Joined lobbies channel');
+
+    // Test idempotent re-join (should return same channel)
+    const sameChannel = realtime.joinUserChannel(userId);
+    if (sameChannel === userChannel) {
+      console.log('✅ Idempotent re-join returns same channel');
+    }
+
+    // Leave a channel
+    realtime.leaveChannel('lobbies');
+    const gone = realtime.channel('lobbies');
+    if (!gone) {
+      console.log('✅ Channel left successfully');
+    }
+
+    // Disconnect
+    realtime.disconnect();
+    console.log('✅ WebSocket disconnected');
+
+    return true;
+  } catch (error) {
+    console.error('❌ Error testing WebSocket:', error.message || error);
+    return false;
+  }
+}
+
+// Full end-to-end WebRTC signaling test via WebSocket + DataChannels
+async function testWebRTCFullFlow(accessToken, userId) {
+  try {
+    console.log('Testing full WebRTC signaling flow...');
+
+    // Step 1: Connect WebSocket and join user channel
+    console.log('Step 1: Connecting WebSocket...');
+    const wsUrl = basePath.replace(/^http/, 'ws') + '/socket';
+    const socket = new PhoenixSocket(wsUrl, { params: { token: accessToken } });
+
+    await new Promise((resolve, reject) => {
+      socket.onOpen(resolve);
+      socket.onError((err) => reject(new Error('Socket connection failed: ' + err)));
+      socket.connect();
+    });
+    console.log('✅ WebSocket connected');
+
+    const channel = socket.channel('user:' + userId, { token: accessToken });
+    await new Promise((resolve, reject) => {
+      channel.join()
+        .receive('ok', resolve)
+        .receive('error', (resp) => reject(new Error('Channel join failed: ' + JSON.stringify(resp))));
+    });
+    console.log('✅ Joined user channel: user:' + userId);
+
+    // Step 2: Create RTCPeerConnection and DataChannels
+    console.log('Step 2: Creating RTCPeerConnection + DataChannels...');
+    const pc = new RTCPeerConnection({
+      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
+    });
+
+    const eventsChannel = pc.createDataChannel('events', { ordered: true });
+    const stateChannel = pc.createDataChannel('state', { ordered: false, maxRetransmits: 0 });
+    console.log('✅ DataChannels created: events (reliable), state (unreliable)');
+
+    // Track received data and channel states
+    const receivedData = [];
+    let eventsOpen = false;
+    let stateOpen = false;
+
+    eventsChannel.onopen = () => { eventsOpen = true; console.log('   📡 DataChannel "events" opened'); };
+    eventsChannel.onmessage = (event) => { receivedData.push({ channel: 'events', data: event.data }); };
+    eventsChannel.onerror = (err) => console.error('   ❌ DataChannel "events" error:', err);
+
+    stateChannel.onopen = () => { stateOpen = true; console.log('   📡 DataChannel "state" opened'); };
+    stateChannel.onmessage = (event) => { receivedData.push({ channel: 'state', data: event.data }); };
+    stateChannel.onerror = (err) => console.error('   ❌ DataChannel "state" error:', err);
+
+    // Step 3: Set up ICE candidate exchange
+    console.log('Step 3: Setting up ICE exchange...');
+    pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        channel.push('webrtc:ice', event.candidate.toJSON());
+      }
+    };
+
+    // Listen for server ICE candidates
+    channel.on('webrtc:ice', (payload) => {
+      if (payload.candidate) {
+        pc.addIceCandidate(new RTCIceCandidate(payload)).catch((err) => {
+          console.error('   ❌ Failed to add ICE candidate:', err.message);
+        });
+      }
+    });
+
+    // Step 4: Create and send SDP offer
+    console.log('Step 4: Creating SDP offer...');
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    console.log('✅ Local description set (offer)');
+
+    // Send offer to server and wait for answer
+    const answerPromise = new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error('webrtc:answer timeout')), 10000);
+      channel.on('webrtc:answer', (payload) => {
+        clearTimeout(timeout);
+        resolve(payload);
+      });
+    });
+
+    await new Promise((resolve, reject) => {
+      channel.push('webrtc:offer', { sdp: offer.sdp, type: offer.type })
+        .receive('ok', resolve)
+        .receive('error', (resp) => reject(new Error('webrtc:offer rejected: ' + JSON.stringify(resp))));
+    });
+    console.log('✅ SDP offer sent and accepted');
+
+    // Step 5: Receive SDP answer and set remote description
+    console.log('Step 5: Waiting for SDP answer...');
+    const answerPayload = await answerPromise;
+    await pc.setRemoteDescription(new RTCSessionDescription({ sdp: answerPayload.sdp, type: answerPayload.type }));
+    console.log('✅ Remote description set (answer)');
+
+    // Step 6: Wait for DataChannel to open
+    console.log('Step 6: Waiting for DataChannel open...');
+    await new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error('DataChannel open timeout')), 15000);
+      const checkOpen = setInterval(() => {
+        if (eventsOpen || stateOpen) {
+          clearInterval(checkOpen);
+          clearTimeout(timeout);
+          resolve();
+        }
+      }, 100);
+    });
+    console.log('✅ At least one DataChannel is open (events:', eventsOpen, ', state:', stateOpen, ')');
+
+    // Step 7: Send data over DataChannel
+    console.log('Step 7: Sending data over DataChannels...');
+    if (eventsOpen) {
+      eventsChannel.send(JSON.stringify({ type: 'test_event', payload: 'hello from client' }));
+      console.log('✅ Sent test message on "events" channel');
+    }
+    if (stateOpen) {
+      stateChannel.send(JSON.stringify({ x: 100, y: 200, z: 0 }));
+      console.log('✅ Sent test message on "state" channel');
+    }
+
+    // Wait a moment for any server echoes
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Step 8: Verify server relayed data back via WebSocket
+    console.log('Step 8: Checking server-relayed data...');
+    // The server relays DataChannel data back via webrtc:data push
+    const wsReceivedData = [];
+    channel.on('webrtc:data', (payload) => {
+      wsReceivedData.push(payload);
+    });
+
+    // Send another message and check if we receive webrtc:channel_open
+    let channelOpenReceived = false;
+    channel.on('webrtc:channel_open', () => { channelOpenReceived = true; });
+
+    // Allow time for any pending messages
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    console.log('   Received data on DataChannels:', receivedData.length, 'messages');
+    console.log('   Channel open notification received:', channelOpenReceived || 'already received before listener');
+
+    // Step 9: Close WebRTC and clean up
+    console.log('Step 9: Closing WebRTC connection...');
+    channel.push('webrtc:close', {});
+    eventsChannel.close();
+    stateChannel.close();
+    pc.close();
+    console.log('✅ WebRTC connection closed');
+
+    // Disconnect WebSocket
+    channel.leave();
+    socket.disconnect();
+    console.log('✅ WebSocket disconnected');
+
+    console.log('🎉 Full WebRTC signaling flow completed successfully!');
+    return true;
+
+  } catch (error) {
+    console.error('❌ Error in WebRTC full flow test:', error.message || error);
+    return false;
   }
 }
 

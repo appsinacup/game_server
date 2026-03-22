@@ -1,6 +1,8 @@
 {
   "dependencies": {
-    "open": "^11.0.0"
+    "node-datachannel": "^0.32.1",
+    "open": "^11.0.0",
+    "phoenix": "^1.8.5"
   },
   "scripts": {
     "openapi": "cd .. && mix openapi.spec.json --spec GameServerWeb.ApiSpec --filename clients/javascript/openapi.json --pretty=true && cd clients",

@@ -317,9 +317,9 @@ jobs:
           REPO_FIELD='"repository": { "type": "git", "url": "git+https://github.com/appsinacup/game_server.git" },'
           jq ". + { $REPO_FIELD }" clients/javascript/package.json > clients/javascript/package.json.tmp && mv clients/javascript/package.json.tmp clients/javascript/package.json
 
-      - name: Declare phoenix as optional peer dependency
+      - name: Add phoenix as a dependency
         run: |
-          jq '.peerDependencies = {"phoenix": ">=1.7.0"} | .peerDependenciesMeta = {"phoenix": {"optional": true}}' \
+          jq '.dependencies.phoenix = ">=1.7.0"' \
             clients/javascript/package.json > clients/javascript/package.json.tmp \
             && mv clients/javascript/package.json.tmp clients/javascript/package.json
 
