@@ -14,31 +14,32 @@ defmodule GameServerWeb.AdminLive.System do
 
         <%!-- Top-level stats --%>
         <div class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4">
-          <div class="stat bg-base-100 rounded-lg shadow-sm p-4">
-            <div class="stat-title text-xs">Uptime</div>
-            <div class="stat-value text-xl">
+          <div class="bg-base-100 rounded-lg shadow-sm p-4">
+            <div class="text-xs text-base-content/60">Uptime</div>
+            <div class="text-xl font-bold">
               {ConnectionTracker.format_uptime(@sys.uptime_seconds)}
             </div>
           </div>
-          <div class="stat bg-base-100 rounded-lg shadow-sm p-4">
-            <div class="stat-title text-xs">OTP</div>
-            <div class="stat-value text-xl">{@sys.otp_release}</div>
+          <div class="bg-base-100 rounded-lg shadow-sm p-4">
+            <div class="text-xs text-base-content/60">OTP</div>
+            <div class="text-xl font-bold">{@sys.otp_release}</div>
           </div>
-          <div class="stat bg-base-100 rounded-lg shadow-sm p-4">
-            <div class="stat-title text-xs">Schedulers</div>
-            <div class="stat-value text-xl">{@sys.schedulers}</div>
+          <div class="bg-base-100 rounded-lg shadow-sm p-4">
+            <div class="text-xs text-base-content/60">Schedulers</div>
+            <div class="text-xl font-bold">{@sys.schedulers}</div>
+            <div class="text-xs text-base-content/40">{@scheduler_util}% busy</div>
           </div>
-          <div class="stat bg-base-100 rounded-lg shadow-sm p-4">
-            <div class="stat-title text-xs">Node</div>
-            <div class="stat-value text-sm font-mono break-all">{@sys.node}</div>
+          <div class="bg-base-100 rounded-lg shadow-sm p-4">
+            <div class="text-xs text-base-content/60">Node</div>
+            <div class="text-sm font-bold font-mono break-all">{@sys.node}</div>
           </div>
-          <div class="stat bg-base-100 rounded-lg shadow-sm p-4">
-            <div class="stat-title text-xs">Cluster Nodes</div>
-            <div class="stat-value text-xl">{@sys.cluster_size}</div>
+          <div class="bg-base-100 rounded-lg shadow-sm p-4">
+            <div class="text-xs text-base-content/60">Cluster Nodes</div>
+            <div class="text-xl font-bold">{@sys.cluster_size}</div>
           </div>
-          <div class="stat bg-base-100 rounded-lg shadow-sm p-4">
-            <div class="stat-title text-xs">Elixir</div>
-            <div class="stat-value text-xl">{@elixir_version}</div>
+          <div class="bg-base-100 rounded-lg shadow-sm p-4">
+            <div class="text-xs text-base-content/60">Elixir</div>
+            <div class="text-xl font-bold">{@elixir_version}</div>
           </div>
         </div>
 
@@ -46,22 +47,24 @@ defmodule GameServerWeb.AdminLive.System do
           <%!-- Memory breakdown --%>
           <div class="card bg-base-200 shadow">
             <div class="card-body">
-              <h2 class="card-title text-lg flex items-center gap-2">
-                <.icon name="hero-cpu-chip" class="w-5 h-5 text-primary" /> Memory
-              </h2>
+              <h2 class="card-title text-lg">Memory (BEAM VM)</h2>
+              <p class="text-xs text-base-content/60 mb-2">
+                Memory allocated by the Erlang VM. Does not include OS-level overhead.
+              </p>
               <div class="overflow-x-auto">
                 <table class="table table-sm">
                   <thead>
                     <tr>
                       <th>Category</th>
-                      <th class="text-right">MB</th>
+                      <th class="text-right">Used</th>
                       <th class="text-right">% of Total</th>
+                      <th class="text-right">Description</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr :for={{label, mb, pct} <- @memory_breakdown} id={"mem-#{label}"}>
+                    <tr :for={{label, mb, pct, desc} <- @memory_breakdown} id={"mem-#{label}"}>
                       <td class="font-medium">{label}</td>
-                      <td class="text-right font-mono">{mb}</td>
+                      <td class="text-right font-mono">{mb} MB</td>
                       <td class="text-right">
                         <div class="flex items-center justify-end gap-2">
                           <div class="w-16 bg-base-300 rounded-full h-2">
@@ -74,6 +77,7 @@ defmodule GameServerWeb.AdminLive.System do
                           <span class="font-mono text-xs w-10 text-right">{pct}%</span>
                         </div>
                       </td>
+                      <td class="text-right text-xs text-base-content/60">{desc}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -84,9 +88,7 @@ defmodule GameServerWeb.AdminLive.System do
           <%!-- Processes & Ports --%>
           <div class="card bg-base-200 shadow">
             <div class="card-body">
-              <h2 class="card-title text-lg flex items-center gap-2">
-                <.icon name="hero-squares-2x2" class="w-5 h-5 text-secondary" /> Processes & Ports
-              </h2>
+              <h2 class="card-title text-lg">Processes & Ports</h2>
               <div class="space-y-6 mt-2">
                 <div>
                   <div class="flex justify-between text-sm mb-1">
@@ -97,10 +99,7 @@ defmodule GameServerWeb.AdminLive.System do
                   </div>
                   <div class="w-full bg-base-300 rounded-full h-3">
                     <div
-                      class={[
-                        "h-3 rounded-full transition-all",
-                        process_usage_color(@process_pct)
-                      ]}
+                      class="bg-primary h-3 rounded-full transition-all"
                       style={"width: #{@process_pct}%"}
                     >
                     </div>
@@ -119,10 +118,7 @@ defmodule GameServerWeb.AdminLive.System do
                   </div>
                   <div class="w-full bg-base-300 rounded-full h-3">
                     <div
-                      class={[
-                        "h-3 rounded-full transition-all",
-                        process_usage_color(@port_pct)
-                      ]}
+                      class="bg-primary h-3 rounded-full transition-all"
                       style={"width: #{@port_pct}%"}
                     >
                     </div>
@@ -141,16 +137,32 @@ defmodule GameServerWeb.AdminLive.System do
                   </div>
                   <div class="w-full bg-base-300 rounded-full h-3">
                     <div
-                      class={[
-                        "h-3 rounded-full transition-all",
-                        process_usage_color(@atom_pct)
-                      ]}
+                      class="bg-primary h-3 rounded-full transition-all"
                       style={"width: #{@atom_pct}%"}
                     >
                     </div>
                   </div>
                   <div class="text-xs text-base-content/60 mt-1">
                     {Float.round(@atom_pct, 2)}% utilization
+                  </div>
+                </div>
+
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span class="font-medium">Scheduler CPU</span>
+                    <span class="font-mono">
+                      {@scheduler_util}%
+                    </span>
+                  </div>
+                  <div class="w-full bg-base-300 rounded-full h-3">
+                    <div
+                      class="bg-primary h-3 rounded-full transition-all"
+                      style={"width: #{@scheduler_util}%"}
+                    >
+                    </div>
+                  </div>
+                  <div class="text-xs text-base-content/60 mt-1">
+                    Average busy time across {@sys.schedulers} schedulers
                   </div>
                 </div>
               </div>
@@ -160,9 +172,7 @@ defmodule GameServerWeb.AdminLive.System do
           <%!-- IO stats --%>
           <div class="card bg-base-200 shadow">
             <div class="card-body">
-              <h2 class="card-title text-lg flex items-center gap-2">
-                <.icon name="hero-arrow-path" class="w-5 h-5 text-accent" /> I/O & GC
-              </h2>
+              <h2 class="card-title text-lg">I/O & GC</h2>
               <div class="overflow-x-auto">
                 <table class="table table-sm">
                   <thead>
@@ -202,8 +212,7 @@ defmodule GameServerWeb.AdminLive.System do
           <div class="card bg-base-200 shadow">
             <div class="card-body">
               <h2 class="card-title text-lg flex items-center gap-2">
-                <.icon name="hero-table-cells" class="w-5 h-5 text-info" /> ETS Tables
-                <span class="badge badge-sm badge-ghost">{length(@ets_tables)}</span>
+                ETS Tables <span class="badge badge-sm badge-primary">{length(@ets_tables)}</span>
               </h2>
               <div class="overflow-x-auto max-h-80">
                 <table class="table table-xs table-zebra">
@@ -231,9 +240,7 @@ defmodule GameServerWeb.AdminLive.System do
         <%= if @cluster_nodes != [] do %>
           <div class="card bg-base-200 shadow">
             <div class="card-body">
-              <h2 class="card-title text-lg flex items-center gap-2">
-                <.icon name="hero-server-stack" class="w-5 h-5 text-warning" /> Cluster Topology
-              </h2>
+              <h2 class="card-title text-lg">Cluster Topology</h2>
               <div class="flex flex-wrap gap-2 mt-2">
                 <div class="badge badge-lg badge-primary gap-1">
                   <span class="w-2 h-2 rounded-full bg-success"></span>
@@ -292,6 +299,9 @@ defmodule GameServerWeb.AdminLive.System do
 
     ets_tables = build_ets_tables()
 
+    # Scheduler utilization: capture a 1-second sample
+    scheduler_util = get_scheduler_utilization(socket)
+
     assign(socket,
       sys: sys,
       elixir_version: System.version(),
@@ -307,25 +317,28 @@ defmodule GameServerWeb.AdminLive.System do
       gc_words_reclaimed: gc_words,
       reductions: reductions,
       ets_tables: ets_tables,
-      cluster_nodes: Node.list()
+      cluster_nodes: Node.list(),
+      scheduler_util: scheduler_util,
+      scheduler_sample: :scheduler.sample()
     )
   end
 
   defp build_memory_breakdown(memory, total_bytes) do
     categories = [
-      {"Total", memory[:total]},
-      {"Processes", memory[:processes]},
-      {"ETS", memory[:ets]},
-      {"Atom", memory[:atom]},
-      {"Binary", memory[:binary]},
-      {"Code", memory[:code]},
-      {"System", memory[:system]}
+      {"Total", memory[:total], "All memory allocated by the BEAM VM"},
+      {"Processes", memory[:processes],
+       "Heap, stack, and internal data for all Erlang processes"},
+      {"ETS", memory[:ets], "In-memory key-value tables (caches, registries)"},
+      {"Atom", memory[:atom], "Interned strings (module names, map keys, etc.)"},
+      {"Binary", memory[:binary], "Reference-counted binary data (large strings, files)"},
+      {"Code", memory[:code], "Loaded modules (compiled .beam bytecode)"},
+      {"System", memory[:system], "VM internals, drivers, NIF memory"}
     ]
 
-    Enum.map(categories, fn {label, bytes} ->
+    Enum.map(categories, fn {label, bytes, desc} ->
       mb = Float.round(bytes / 1_048_576, 2)
       pct = if total_bytes > 0, do: Float.round(bytes / total_bytes * 100, 1), else: 0.0
-      {label, mb, pct}
+      {label, mb, pct, desc}
     end)
   end
 
@@ -360,10 +373,6 @@ defmodule GameServerWeb.AdminLive.System do
   defp safe_pct(count, limit) when limit > 0, do: count / limit * 100
   defp safe_pct(_, _), do: 0.0
 
-  defp process_usage_color(pct) when pct > 80, do: "bg-error"
-  defp process_usage_color(pct) when pct > 50, do: "bg-warning"
-  defp process_usage_color(_), do: "bg-success"
-
   defp format_number(n) when is_integer(n) and n >= 1_000_000_000 do
     "#{Float.round(n / 1_000_000_000, 1)}B"
   end
@@ -391,4 +400,22 @@ defmodule GameServerWeb.AdminLive.System do
   end
 
   defp format_bytes(bytes), do: "#{bytes} B"
+
+  # Scheduler utilization via :scheduler.utilization/1
+  # Uses a diff between samples stored in socket assigns
+  defp get_scheduler_utilization(socket) do
+    current_sample = :scheduler.sample()
+    prev_sample = socket.assigns[:scheduler_sample]
+
+    if prev_sample do
+      :scheduler.utilization(prev_sample, current_sample)
+      |> Enum.reduce(0.0, fn
+        {:total, pct, _}, _acc -> pct * 100
+        _, acc -> acc
+      end)
+      |> Float.round(1)
+    else
+      0.0
+    end
+  end
 end

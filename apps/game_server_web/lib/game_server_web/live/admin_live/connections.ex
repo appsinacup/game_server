@@ -14,30 +14,26 @@ defmodule GameServerWeb.AdminLive.Connections do
 
         <%!-- Summary cards --%>
         <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
-          <div class="stat bg-base-100 rounded-lg shadow-sm p-4">
-            <div class="stat-title text-xs">Total Connections</div>
-            <div class="stat-value text-2xl">{@conn_stats.total_connections}</div>
-            <div class="stat-desc text-xs">WebSockets + LiveViews + WebRTC</div>
+          <div class="bg-base-100 rounded-lg shadow-sm p-4">
+            <div class="text-xs text-base-content/60">Total Connections</div>
+            <div class="text-2xl font-bold">{@conn_stats.total_connections}</div>
           </div>
-          <div class="stat bg-base-100 rounded-lg shadow-sm p-4">
-            <div class="stat-title text-xs">WebSockets</div>
-            <div class="stat-value text-2xl">{@conn_stats.ws_sockets}</div>
-            <div class="stat-desc text-xs">1 per game client</div>
+          <div class="bg-base-100 rounded-lg shadow-sm p-4">
+            <div class="text-xs text-base-content/60">WebSockets</div>
+            <div class="text-2xl font-bold">{@conn_stats.ws_sockets}</div>
           </div>
-          <div class="stat bg-base-100 rounded-lg shadow-sm p-4">
-            <div class="stat-title text-xs">LiveViews</div>
-            <div class="stat-value text-2xl">{@conn_stats.live_views}</div>
-            <div class="stat-desc text-xs">Browser tabs (also WebSocket)</div>
+          <div class="bg-base-100 rounded-lg shadow-sm p-4">
+            <div class="text-xs text-base-content/60">LiveViews</div>
+            <div class="text-2xl font-bold">{@conn_stats.live_views}</div>
           </div>
-          <div class="stat bg-base-100 rounded-lg shadow-sm p-4">
-            <div class="stat-title text-xs">WebRTC Peers</div>
-            <div class="stat-value text-2xl">{@conn_stats.webrtc_peers}</div>
-            <div class="stat-desc text-xs">DataChannel peers</div>
+          <div class="bg-base-100 rounded-lg shadow-sm p-4">
+            <div class="text-xs text-base-content/60">WebRTC</div>
+            <div class="text-2xl font-bold">{@conn_stats.webrtc_peers}</div>
           </div>
-          <div class="stat bg-base-100 rounded-lg shadow-sm p-4">
-            <div class="stat-title text-xs">Cluster Nodes</div>
-            <div class="stat-value text-2xl">{@cluster_size}</div>
-            <div class="stat-desc text-xs truncate">{node()}</div>
+          <div class="bg-base-100 rounded-lg shadow-sm p-4">
+            <div class="text-xs text-base-content/60">Cluster Nodes</div>
+            <div class="text-2xl font-bold">{@cluster_size}</div>
+            <div class="text-xs text-base-content/40 truncate">{node()}</div>
           </div>
         </div>
 
@@ -60,7 +56,7 @@ defmodule GameServerWeb.AdminLive.Connections do
           <div class="card bg-base-200 shadow">
             <div class="card-body">
               <h2 class="card-title text-lg flex items-center gap-2">
-                <.icon name="hero-signal" class="w-5 h-5 text-primary" /> WebSocket Channels
+                WebSocket Channels
                 <span class="badge badge-sm badge-primary">{@conn_stats.total_channels}</span>
               </h2>
               <p class="text-xs text-base-content/60 mb-2">
@@ -135,8 +131,8 @@ defmodule GameServerWeb.AdminLive.Connections do
             <div class="card bg-base-200 shadow">
               <div class="card-body">
                 <h2 class="card-title text-lg flex items-center gap-2">
-                  <.icon name="hero-window" class="w-5 h-5 text-secondary" /> LiveView Sessions
-                  <span class="badge badge-sm badge-secondary">{@conn_stats.live_views}</span>
+                  LiveView Sessions
+                  <span class="badge badge-sm badge-primary">{@conn_stats.live_views}</span>
                 </h2>
                 <p class="text-xs text-base-content/60 mb-2">
                   Active browser tabs with server-rendered real-time pages
@@ -169,11 +165,10 @@ defmodule GameServerWeb.AdminLive.Connections do
             <div class="card bg-base-200 shadow">
               <div class="card-body">
                 <h2 class="card-title text-lg flex items-center gap-2">
-                  <.icon name="hero-bolt" class="w-5 h-5 text-accent" /> WebRTC Peers
-                  <span class="badge badge-sm badge-accent">{@conn_stats.webrtc_peers}</span>
+                  WebRTC <span class="badge badge-sm badge-primary">{@conn_stats.webrtc_peers}</span>
                 </h2>
                 <p class="text-xs text-base-content/60 mb-2">
-                  Low-latency DataChannel connections running alongside WebSocket
+                  Active DataChannel connections
                 </p>
                 <%= if @webrtc_users == [] do %>
                   <div class="text-center py-4 text-base-content/40 text-sm">
@@ -206,14 +201,36 @@ defmodule GameServerWeb.AdminLive.Connections do
         <div class="card bg-base-200 shadow">
           <div class="card-body">
             <h2 class="card-title text-lg flex items-center gap-2">
-              <.icon name="hero-users" class="w-5 h-5 text-info" /> Connected Users
-              <span class="badge badge-sm badge-info">{length(@connected_users)}</span>
+              Connected Users
+              <span class="badge badge-sm badge-primary">{@total_connected_users}</span>
             </h2>
             <p class="text-sm text-base-content/60 mb-4">
               All users with active connections (WebSocket channels, LiveView, or WebRTC).
             </p>
 
-            <%= if @connected_users == [] do %>
+            <%!-- Filter buttons --%>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <button
+                :for={
+                  {label, value} <- [
+                    {"All", "all"},
+                    {"WebSocket", "websocket"},
+                    {"LiveView", "liveview"},
+                    {"WebRTC", "webrtc"}
+                  ]
+                }
+                phx-click="filter-connections"
+                phx-value-filter={value}
+                class={[
+                  "btn btn-sm",
+                  if(@conn_filter == value, do: "btn-primary", else: "btn-outline")
+                ]}
+              >
+                {label}
+              </button>
+            </div>
+
+            <%= if @paged_users == [] do %>
               <div class="text-center py-8 text-base-content/40">
                 No users currently connected
               </div>
@@ -228,7 +245,7 @@ defmodule GameServerWeb.AdminLive.Connections do
                     </tr>
                   </thead>
                   <tbody>
-                    <tr :for={user <- @connected_users} id={"conn-user-#{user.user_id}"}>
+                    <tr :for={user <- @paged_users} id={"conn-user-#{user.user_id}"}>
                       <td class="font-mono text-sm">{user.user_id}</td>
                       <td>
                         <div class="flex flex-wrap gap-1">
@@ -238,10 +255,10 @@ defmodule GameServerWeb.AdminLive.Connections do
                           >
                             WebSocket
                           </span>
-                          <span :if={user.live_view} class="badge badge-sm badge-secondary">
+                          <span :if={user.live_view} class="badge badge-sm badge-primary">
                             LiveView
                           </span>
-                          <span :if={user.webrtc} class="badge badge-sm badge-accent">
+                          <span :if={user.webrtc} class="badge badge-sm badge-primary">
                             WebRTC
                           </span>
                         </div>
@@ -255,6 +272,31 @@ defmodule GameServerWeb.AdminLive.Connections do
                   </tbody>
                 </table>
               </div>
+
+              <%!-- Pagination controls --%>
+              <div class="flex items-center justify-between mt-4">
+                <span class="text-sm text-base-content/60">
+                  Page {@conn_page} / {@conn_total_pages} ({@conn_filtered_count} users)
+                </span>
+                <div class="join">
+                  <button
+                    class="join-item btn btn-sm"
+                    phx-click="page-connections"
+                    phx-value-page={@conn_page - 1}
+                    disabled={@conn_page <= 1}
+                  >
+                    &larr; Prev
+                  </button>
+                  <button
+                    class="join-item btn btn-sm"
+                    phx-click="page-connections"
+                    phx-value-page={@conn_page + 1}
+                    disabled={@conn_page >= @conn_total_pages}
+                  >
+                    Next &rarr;
+                  </button>
+                </div>
+              </div>
             <% end %>
           </div>
         </div>
@@ -263,11 +305,18 @@ defmodule GameServerWeb.AdminLive.Connections do
     """
   end
 
+  @per_page 25
+
   @impl true
   def mount(_params, _session, socket) do
     if connected?(socket), do: schedule_refresh()
 
-    {:ok, assign_all(socket)}
+    socket =
+      socket
+      |> assign(conn_page: 1, conn_filter: "all")
+      |> assign_all()
+
+    {:ok, socket}
   end
 
   @impl true
@@ -276,14 +325,57 @@ defmodule GameServerWeb.AdminLive.Connections do
     {:noreply, assign_all(socket)}
   end
 
+  @impl true
+  def handle_event("filter-connections", %{"filter" => filter}, socket) do
+    {:noreply,
+     socket
+     |> assign(conn_filter: filter, conn_page: 1)
+     |> assign_all()}
+  end
+
+  @impl true
+  def handle_event("page-connections", %{"page" => page}, socket) do
+    page = String.to_integer(page)
+
+    {:noreply,
+     socket
+     |> assign(conn_page: max(page, 1))
+     |> assign_all()}
+  end
+
   defp schedule_refresh, do: Process.send_after(self(), :refresh, @refresh_interval)
 
   defp assign_all(socket) do
     all = ConnectionTracker.all_registered()
+    connected_users = build_connected_users(all)
+
+    filter = socket.assigns.conn_filter
+    page = socket.assigns.conn_page
+
+    filtered =
+      case filter do
+        "websocket" -> Enum.filter(connected_users, &(&1.channels != []))
+        "liveview" -> Enum.filter(connected_users, & &1.live_view)
+        "webrtc" -> Enum.filter(connected_users, & &1.webrtc)
+        _all -> connected_users
+      end
+
+    filtered_count = length(filtered)
+    total_pages = max(ceil(filtered_count / @per_page), 1)
+    page = min(page, total_pages)
+
+    paged =
+      filtered
+      |> Enum.drop((page - 1) * @per_page)
+      |> Enum.take(@per_page)
 
     assign(socket,
       conn_stats: ConnectionTracker.cluster_counts(),
-      connected_users: build_connected_users(all),
+      total_connected_users: length(connected_users),
+      paged_users: paged,
+      conn_filtered_count: filtered_count,
+      conn_total_pages: total_pages,
+      conn_page: page,
       live_view_pages: build_live_view_pages(all),
       webrtc_users: build_webrtc_users(all),
       cluster_size: 1 + length(Node.list())
