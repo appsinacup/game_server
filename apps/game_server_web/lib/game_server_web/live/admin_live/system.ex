@@ -1,6 +1,9 @@
 defmodule GameServerWeb.AdminLive.System do
   use GameServerWeb, :live_view
 
+  # :scheduler is an Erlang runtime_tools module loaded at runtime
+  @compile {:no_warn_undefined, :scheduler}
+
   alias GameServerWeb.ConnectionTracker
 
   @refresh_interval 5_000
