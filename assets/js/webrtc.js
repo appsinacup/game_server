@@ -118,6 +118,7 @@ export class GameWebRTC {
       setTimeout(() => {
         if (this._resolveConnect) {
           this._resolveConnect = null
+          this._rejectConnect = null
           reject(new Error("WebRTC connection timed out"))
         }
       }, 15000)

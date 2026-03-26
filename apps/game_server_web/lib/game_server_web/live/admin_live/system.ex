@@ -278,6 +278,9 @@ defmodule GameServerWeb.AdminLive.System do
     {:noreply, assign_all_stats(socket)}
   end
 
+  @impl true
+  def handle_info(_msg, socket), do: {:noreply, socket}
+
   defp schedule_refresh, do: Process.send_after(self(), :refresh, @refresh_interval)
 
   defp assign_all_stats(socket) do

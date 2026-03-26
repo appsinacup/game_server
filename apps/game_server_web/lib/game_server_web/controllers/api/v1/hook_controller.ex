@@ -169,8 +169,8 @@ defmodule GameServerWeb.Api.V1.HookController do
           {:error, :timeout} ->
             conn |> put_status(:bad_request) |> json(%{error: :timeout})
 
-          {:error, other} ->
-            conn |> put_status(:bad_request) |> json(%{error: inspect(other)})
+          {:error, _other} ->
+            conn |> put_status(:bad_request) |> json(%{error: "unexpected_error"})
         end
     end
   end

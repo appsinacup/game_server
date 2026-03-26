@@ -1,6 +1,9 @@
 defmodule GameServerWeb.AuthController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
+
+  @mix_env Mix.env()
+
   # Only use Ueberauth for Steam (OpenID), other providers use custom implementation
   plug Ueberauth, only: [:request, :callback], providers: [:steam]
 
@@ -96,10 +99,10 @@ defmodule GameServerWeb.AuthController do
 
               redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
 
-            {:error, changeset} ->
+            {:error, _changeset} ->
               OAuthSessions.create_session(session_id, %{
                 status: "error",
-                data: %{error: "link_failed", details: inspect(changeset.errors)}
+                data: %{error: "link_failed", details: "internal_error"}
               })
 
               redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
@@ -161,10 +164,10 @@ defmodule GameServerWeb.AuthController do
           message: "This provider is already linked to another account"
         })
 
-      {:error, changeset} ->
+      {:error, _changeset} ->
         conn
         |> put_status(:bad_request)
-        |> json(%{error: "link_failed", details: inspect(changeset.errors)})
+        |> json(%{error: "link_failed", details: "internal_error"})
     end
   end
 
@@ -205,7 +208,7 @@ defmodule GameServerWeb.AuthController do
     )
 
     msg =
-      if Mix.env() == :dev do
+      if @mix_env == :dev do
         "Failed to authenticate with #{String.capitalize(provider)}: #{inspect(error)}"
       else
         "Failed to authenticate with #{String.capitalize(provider)}."
@@ -416,7 +419,7 @@ defmodule GameServerWeb.AuthController do
               _ ->
                 GameServer.OAuthSessions.create_session(session_id, %{
                   status: "error",
-                  data: %{details: inspect(error)}
+                  data: %{details: "authentication_failed"}
                 })
 
                 redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
@@ -478,7 +481,7 @@ defmodule GameServerWeb.AuthController do
               _ ->
                 GameServer.OAuthSessions.create_session(session_id, %{
                   status: "error",
-                  data: %{details: inspect(error)}
+                  data: %{details: "authentication_failed"}
                 })
 
                 redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
@@ -548,7 +551,7 @@ defmodule GameServerWeb.AuthController do
               _ ->
                 GameServer.OAuthSessions.create_session(session_id, %{
                   status: "error",
-                  data: %{details: inspect(error)}
+                  data: %{details: "authentication_failed"}
                 })
 
                 redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
@@ -614,7 +617,7 @@ defmodule GameServerWeb.AuthController do
               _ ->
                 GameServer.OAuthSessions.create_session(session_id, %{
                   status: "error",
-                  data: %{details: inspect(error)}
+                  data: %{details: "authentication_failed"}
                 })
 
                 redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
@@ -679,7 +682,7 @@ defmodule GameServerWeb.AuthController do
           _ ->
             GameServer.OAuthSessions.create_session(session_id, %{
               status: "error",
-              data: %{details: inspect(failure)}
+              data: %{details: "authentication_failed"}
             })
 
             redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
@@ -965,10 +968,10 @@ defmodule GameServerWeb.AuthController do
         |> put_status(:bad_request)
         |> json(%{error: "invalid_token", message: "Token expired"})
 
-      {:error, err} ->
+      {:error, _err} ->
         conn
         |> put_status(:bad_request)
-        |> json(%{error: "invalid_token", details: inspect(err)})
+        |> json(%{error: "invalid_token", details: "authentication_failed"})
     end
   end
 
@@ -1019,10 +1022,10 @@ defmodule GameServerWeb.AuthController do
             handle_api_login(conn, &Accounts.find_or_create_from_discord/1, user_params)
         end
 
-      {:error, err} ->
+      {:error, _err} ->
         conn
         |> put_status(:bad_request)
-        |> json(%{error: "exchange_failed", details: inspect(err)})
+        |> json(%{error: "exchange_failed", details: "authentication_failed"})
 
       _ ->
         conn
@@ -1065,10 +1068,10 @@ defmodule GameServerWeb.AuthController do
             handle_api_login(conn, &Accounts.find_or_create_from_google/1, user_params)
         end
 
-      {:error, err} ->
+      {:error, _err} ->
         conn
         |> put_status(:bad_request)
-        |> json(%{error: "exchange_failed", details: inspect(err)})
+        |> json(%{error: "exchange_failed", details: "authentication_failed"})
     end
   end
 
@@ -1113,10 +1116,10 @@ defmodule GameServerWeb.AuthController do
             handle_api_login(conn, &Accounts.find_or_create_from_facebook/1, user_params)
         end
 
-      {:error, err} ->
+      {:error, _err} ->
         conn
         |> put_status(:bad_request)
-        |> json(%{error: "exchange_failed", details: inspect(err)})
+        |> json(%{error: "exchange_failed", details: "authentication_failed"})
     end
   end
 
@@ -1159,10 +1162,10 @@ defmodule GameServerWeb.AuthController do
             handle_api_login(conn, &Accounts.find_or_create_from_apple/1, user_params)
         end
 
-      {:error, err} ->
+      {:error, _err} ->
         conn
         |> put_status(:bad_request)
-        |> json(%{error: "exchange_failed", details: inspect(err)})
+        |> json(%{error: "exchange_failed", details: "authentication_failed"})
     end
   end
 
@@ -1218,10 +1221,10 @@ defmodule GameServerWeb.AuthController do
           message: "code (Steam auth ticket) is required for steam provider"
         })
 
-      {:error, err} ->
+      {:error, _err} ->
         conn
         |> put_status(:bad_request)
-        |> json(%{error: "exchange_failed", details: inspect(err)})
+        |> json(%{error: "exchange_failed", details: "authentication_failed"})
     end
   end
 
@@ -1305,10 +1308,10 @@ defmodule GameServerWeb.AuthController do
             handle_api_login(conn, &Accounts.find_or_create_from_apple/1, user_params)
         end
 
-      {:error, err} ->
+      {:error, _err} ->
         conn
         |> put_status(:bad_request)
-        |> json(%{error: "exchange_failed", details: inspect(err)})
+        |> json(%{error: "exchange_failed", details: "authentication_failed"})
     end
   end
 

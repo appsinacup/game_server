@@ -51,6 +51,7 @@ defmodule GameServer.Lobbies do
   alias GameServer.Accounts
   alias GameServer.Accounts.User
   alias GameServer.Lobbies.Lobby
+  alias GameServer.Lobbies.SpectatorTracker
   alias GameServer.Repo
   alias GameServer.Repo.AdvisoryLock
   alias GameServer.Types
@@ -161,7 +162,7 @@ defmodule GameServer.Lobbies do
       |> filter_by_min_users(filters)
       |> filter_by_max_users(filters)
 
-    results = paginate(q, opts)
+    results = q |> preload(:host) |> paginate(opts)
 
     filter_by_metadata_in_memory(results, filters)
   end
@@ -624,21 +625,7 @@ defmodule GameServer.Lobbies do
   def create_lobby(attrs \\ %{}) do
     attrs = normalize_changeset_params(attrs)
     attrs = maybe_hash_password(attrs)
-
-    # If host_id is provided, check that the user isn't already in a lobby
-    host_id = Map.get(attrs, "host_id") || Map.get(attrs, :host_id)
-
-    if host_id do
-      host_user = Accounts.get_user(host_id)
-
-      if host_user && host_user.lobby_id do
-        {:error, :already_in_lobby}
-      else
-        do_create_lobby(attrs)
-      end
-    else
-      do_create_lobby(attrs)
-    end
+    do_create_lobby(attrs)
   end
 
   defp do_create_lobby(attrs) do
@@ -679,6 +666,9 @@ defmodule GameServer.Lobbies do
         attrs = normalize_changeset_params(attrs)
 
         Multi.new()
+        |> Multi.run(:check_host, fn _repo, _changes ->
+          validate_host_not_in_lobby(attrs)
+        end)
         |> Multi.insert(:lobby, Lobby.changeset(%Lobby{}, attrs))
         |> maybe_add_host_membership(attrs)
         |> Repo.transaction()
@@ -718,6 +708,22 @@ defmodule GameServer.Lobbies do
   end
 
   defp normalize_hostless_lobby(%Lobby{} = lobby), do: lobby
+
+  defp validate_host_not_in_lobby(attrs) do
+    host_id = Map.get(attrs, "host_id") || Map.get(attrs, :host_id)
+
+    if host_id do
+      host_user = Accounts.get_user(host_id)
+
+      if host_user && host_user.lobby_id do
+        {:error, :already_in_lobby}
+      else
+        {:ok, :ok}
+      end
+    else
+      {:ok, :ok}
+    end
+  end
 
   defp maybe_add_host_membership(multi, %{"host_id" => host_id}) when host_id != nil do
     multi
@@ -825,6 +831,9 @@ defmodule GameServer.Lobbies do
               GameServer.Chat.cleanup_chat("lobby", deleted.id)
               GameServer.Hooks.internal_call(:after_lobby_delete, [deleted])
             end)
+
+            # Clean up spectator tracking for this lobby
+            SpectatorTracker.untrack_all(deleted.id)
 
             _ = invalidate_lobby_cache(deleted.id)
             broadcast_lobbies({:lobby_deleted, deleted.id})

@@ -2,6 +2,8 @@ defmodule GameServerWeb.Api.V1.PartyController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
+  import GameServerWeb.Helpers.ParamParser
+
   alias GameServer.Accounts.User
   alias GameServer.Parties
   alias OpenApiSpex.Schema
@@ -481,8 +483,8 @@ defmodule GameServerWeb.Api.V1.PartyController do
               error: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
             })
 
-          other ->
-            conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
+          _other ->
+            conn |> put_status(:unprocessable_entity) |> json(%{error: "unexpected_error"})
         end
 
       _ ->
@@ -500,8 +502,8 @@ defmodule GameServerWeb.Api.V1.PartyController do
           {:error, :not_in_party} ->
             json(conn, %{})
 
-          other ->
-            conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
+          _other ->
+            conn |> put_status(:unprocessable_entity) |> json(%{error: "unexpected_error"})
         end
 
       _ ->
@@ -512,36 +514,36 @@ defmodule GameServerWeb.Api.V1.PartyController do
   def invite(conn, %{"target_user_id" => target_user_id}) do
     case conn.assigns[:current_scope] do
       %{user: user} when is_map(user) ->
-        target_id =
-          case target_user_id do
-            id when is_integer(id) -> id
-            id when is_binary(id) -> String.to_integer(id)
-          end
+        case parse_id(target_user_id) do
+          nil ->
+            conn |> put_status(:bad_request) |> json(%{error: "invalid_id"})
 
-        case Parties.invite_to_party(user, target_id) do
-          {:ok, _invite} ->
-            json(conn, %{})
+          target_id ->
+            case Parties.invite_to_party(user, target_id) do
+              {:ok, _invite} ->
+                json(conn, %{})
 
-          {:error, :not_in_party} ->
-            conn |> put_status(:bad_request) |> json(%{error: "not_in_party"})
+              {:error, :not_in_party} ->
+                conn |> put_status(:bad_request) |> json(%{error: "not_in_party"})
 
-          {:error, :not_leader} ->
-            conn |> put_status(:forbidden) |> json(%{error: "not_leader"})
+              {:error, :not_leader} ->
+                conn |> put_status(:forbidden) |> json(%{error: "not_leader"})
 
-          {:error, :user_not_found} ->
-            conn |> put_status(:not_found) |> json(%{error: "user_not_found"})
+              {:error, :user_not_found} ->
+                conn |> put_status(:not_found) |> json(%{error: "user_not_found"})
 
-          {:error, :already_in_party} ->
-            conn |> put_status(:conflict) |> json(%{error: "already_in_party"})
+              {:error, :already_in_party} ->
+                conn |> put_status(:conflict) |> json(%{error: "already_in_party"})
 
-          {:error, :not_connected} ->
-            conn |> put_status(:forbidden) |> json(%{error: "not_connected"})
+              {:error, :not_connected} ->
+                conn |> put_status(:forbidden) |> json(%{error: "not_connected"})
 
-          {:error, :already_invited} ->
-            conn |> put_status(:conflict) |> json(%{error: "already_invited"})
+              {:error, :already_invited} ->
+                conn |> put_status(:conflict) |> json(%{error: "already_invited"})
 
-          other ->
-            conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
+              _other ->
+                conn |> put_status(:unprocessable_entity) |> json(%{error: "unexpected_error"})
+            end
         end
 
       _ ->
@@ -552,24 +554,24 @@ defmodule GameServerWeb.Api.V1.PartyController do
   def cancel_party_invite(conn, %{"target_user_id" => target_user_id}) do
     case conn.assigns[:current_scope] do
       %{user: user} when is_map(user) ->
-        target_id =
-          case target_user_id do
-            id when is_integer(id) -> id
-            id when is_binary(id) -> String.to_integer(id)
-          end
+        case parse_id(target_user_id) do
+          nil ->
+            conn |> put_status(:bad_request) |> json(%{error: "invalid_id"})
 
-        case Parties.cancel_party_invite(user, target_id) do
-          :ok ->
-            json(conn, %{})
+          target_id ->
+            case Parties.cancel_party_invite(user, target_id) do
+              :ok ->
+                json(conn, %{})
 
-          {:error, :not_in_party} ->
-            conn |> put_status(:bad_request) |> json(%{error: "not_in_party"})
+              {:error, :not_in_party} ->
+                conn |> put_status(:bad_request) |> json(%{error: "not_in_party"})
 
-          {:error, :not_leader} ->
-            conn |> put_status(:forbidden) |> json(%{error: "not_leader"})
+              {:error, :not_leader} ->
+                conn |> put_status(:forbidden) |> json(%{error: "not_leader"})
 
-          other ->
-            conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
+              _other ->
+                conn |> put_status(:unprocessable_entity) |> json(%{error: "unexpected_error"})
+            end
         end
 
       _ ->
@@ -580,30 +582,30 @@ defmodule GameServerWeb.Api.V1.PartyController do
   def accept_party_invite(conn, %{"party_id" => party_id}) do
     case conn.assigns[:current_scope] do
       %{user: user} when is_map(user) ->
-        pid =
-          case party_id do
-            id when is_integer(id) -> id
-            id when is_binary(id) -> String.to_integer(id)
-          end
+        case parse_id(party_id) do
+          nil ->
+            conn |> put_status(:bad_request) |> json(%{error: "invalid_id"})
 
-        case Parties.accept_party_invite(user, pid) do
-          {:ok, party} ->
-            json(conn, serialize_party(party))
+          pid ->
+            case Parties.accept_party_invite(user, pid) do
+              {:ok, party} ->
+                json(conn, serialize_party(party))
 
-          {:error, :no_invite} ->
-            conn |> put_status(:not_found) |> json(%{error: "no_invite"})
+              {:error, :no_invite} ->
+                conn |> put_status(:not_found) |> json(%{error: "no_invite"})
 
-          {:error, :party_not_found} ->
-            conn |> put_status(:not_found) |> json(%{error: "party_not_found"})
+              {:error, :party_not_found} ->
+                conn |> put_status(:not_found) |> json(%{error: "party_not_found"})
 
-          {:error, :already_in_party} ->
-            conn |> put_status(:conflict) |> json(%{error: "already_in_party"})
+              {:error, :already_in_party} ->
+                conn |> put_status(:conflict) |> json(%{error: "already_in_party"})
 
-          {:error, :party_full} ->
-            conn |> put_status(:forbidden) |> json(%{error: "party_full"})
+              {:error, :party_full} ->
+                conn |> put_status(:forbidden) |> json(%{error: "party_full"})
 
-          other ->
-            conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
+              _other ->
+                conn |> put_status(:unprocessable_entity) |> json(%{error: "unexpected_error"})
+            end
         end
 
       _ ->
@@ -614,14 +616,14 @@ defmodule GameServerWeb.Api.V1.PartyController do
   def decline_party_invite(conn, %{"party_id" => party_id}) do
     case conn.assigns[:current_scope] do
       %{user: user} when is_map(user) ->
-        pid =
-          case party_id do
-            id when is_integer(id) -> id
-            id when is_binary(id) -> String.to_integer(id)
-          end
+        case parse_id(party_id) do
+          nil ->
+            conn |> put_status(:bad_request) |> json(%{error: "invalid_id"})
 
-        Parties.decline_party_invite(user, pid)
-        json(conn, %{})
+          pid ->
+            Parties.decline_party_invite(user, pid)
+            json(conn, %{})
+        end
 
       _ ->
         conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
@@ -653,30 +655,30 @@ defmodule GameServerWeb.Api.V1.PartyController do
   def kick(conn, %{"target_user_id" => target_user_id}) do
     case conn.assigns[:current_scope] do
       %{user: user} when is_map(user) ->
-        target_id =
-          case target_user_id do
-            id when is_integer(id) -> id
-            id when is_binary(id) -> String.to_integer(id)
-          end
+        case parse_id(target_user_id) do
+          nil ->
+            conn |> put_status(:bad_request) |> json(%{error: "invalid_id"})
 
-        case Parties.kick_member(user, target_id) do
-          {:ok, _} ->
-            json(conn, %{})
+          target_id ->
+            case Parties.kick_member(user, target_id) do
+              {:ok, _} ->
+                json(conn, %{})
 
-          {:error, :not_in_party} ->
-            conn |> put_status(:bad_request) |> json(%{error: "not_in_party"})
+              {:error, :not_in_party} ->
+                conn |> put_status(:bad_request) |> json(%{error: "not_in_party"})
 
-          {:error, :not_leader} ->
-            conn |> put_status(:forbidden) |> json(%{error: "not_leader"})
+              {:error, :not_leader} ->
+                conn |> put_status(:forbidden) |> json(%{error: "not_leader"})
 
-          {:error, :cannot_kick_self} ->
-            conn |> put_status(:forbidden) |> json(%{error: "cannot_kick_self"})
+              {:error, :cannot_kick_self} ->
+                conn |> put_status(:forbidden) |> json(%{error: "cannot_kick_self"})
 
-          {:error, :user_not_found} ->
-            conn |> put_status(:not_found) |> json(%{error: "user_not_found"})
+              {:error, :user_not_found} ->
+                conn |> put_status(:not_found) |> json(%{error: "user_not_found"})
 
-          other ->
-            conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
+              _other ->
+                conn |> put_status(:unprocessable_entity) |> json(%{error: "unexpected_error"})
+            end
         end
 
       _ ->
@@ -707,8 +709,8 @@ defmodule GameServerWeb.Api.V1.PartyController do
               error: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
             })
 
-          other ->
-            conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
+          _other ->
+            conn |> put_status(:unprocessable_entity) |> json(%{error: "unexpected_error"})
         end
 
       _ ->
@@ -747,8 +749,8 @@ defmodule GameServerWeb.Api.V1.PartyController do
               error: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
             })
 
-          other ->
-            conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
+          _other ->
+            conn |> put_status(:unprocessable_entity) |> json(%{error: "unexpected_error"})
         end
 
       _ ->
@@ -794,8 +796,8 @@ defmodule GameServerWeb.Api.V1.PartyController do
               {:error, :invalid_password} ->
                 conn |> put_status(:forbidden) |> json(%{error: "invalid_password"})
 
-              other ->
-                conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
+              _other ->
+                conn |> put_status(:unprocessable_entity) |> json(%{error: "unexpected_error"})
             end
 
           _ ->

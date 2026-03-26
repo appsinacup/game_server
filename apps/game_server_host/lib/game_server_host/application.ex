@@ -229,7 +229,7 @@ defmodule GameServerHost.Application do
     endpoint_config = Application.get_env(:game_server_web, GameServerWeb.Endpoint, [])
     url_config = endpoint_config[:url] || []
     host = url_config[:host] || "localhost"
-    port = endpoint_config[:http][:port] || 4000
+    port = get_in(endpoint_config, [:http, :port]) || 4000
     "Endpoint: #{host}:#{port}"
   end
 end

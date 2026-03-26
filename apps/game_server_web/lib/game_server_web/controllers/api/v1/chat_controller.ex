@@ -149,13 +149,37 @@ defmodule GameServerWeb.Api.V1.ChatController do
 
   def show(conn, %{"id" => id}) do
     message_id = parse_int(id)
+    user = conn.assigns.current_scope.user
 
     case Chat.get_message(message_id) do
       nil ->
         conn |> put_status(:not_found) |> json(%{error: "not_found"})
 
       message ->
-        json(conn, serialize_message(message))
+        if can_access_message?(user, message) do
+          json(conn, serialize_message(message))
+        else
+          conn |> put_status(:not_found) |> json(%{error: "not_found"})
+        end
+    end
+  end
+
+  defp can_access_message?(user, message) do
+    case message.chat_type do
+      "friend" ->
+        message.sender_id == user.id || message.chat_ref_id == user.id
+
+      "lobby" ->
+        user.lobby_id != nil && user.lobby_id == message.chat_ref_id
+
+      "group" ->
+        GameServer.Groups.member?(message.chat_ref_id, user.id)
+
+      "party" ->
+        user.party_id != nil && user.party_id == message.chat_ref_id
+
+      _ ->
+        false
     end
   end
 

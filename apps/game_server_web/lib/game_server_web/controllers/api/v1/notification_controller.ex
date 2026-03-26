@@ -2,6 +2,8 @@ defmodule GameServerWeb.Api.V1.NotificationController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
+  import GameServerWeb.Helpers.ParamParser
+
   alias GameServer.Notifications
   alias OpenApiSpex.Schema
 
@@ -232,10 +234,9 @@ defmodule GameServerWeb.Api.V1.NotificationController do
     case conn.assigns.current_scope do
       %{user: user} when user != nil ->
         int_ids =
-          Enum.map(ids, fn
-            id when is_integer(id) -> id
-            id when is_binary(id) -> String.to_integer(id)
-          end)
+          ids
+          |> Enum.map(&parse_id/1)
+          |> Enum.reject(&is_nil/1)
 
         {deleted, _} = Notifications.delete_notifications(user.id, int_ids)
         json(conn, %{deleted: deleted})

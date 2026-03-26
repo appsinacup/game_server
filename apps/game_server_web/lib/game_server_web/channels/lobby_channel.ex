@@ -196,8 +196,8 @@ defmodule GameServerWeb.LobbyChannel do
   @impl true
   def terminate(_reason, socket) do
     case socket.assigns do
-      %{lobby_id: lobby_id, spectator: true} when is_integer(lobby_id) ->
-        user_id = socket.assigns.current_scope.user.id
+      %{lobby_id: lobby_id, spectator: true, current_scope: %{user: %{id: user_id}}}
+      when is_integer(lobby_id) ->
         SpectatorTracker.untrack(lobby_id, user_id)
         _ = Lobbies.unsubscribe_lobby(lobby_id)
         :ok

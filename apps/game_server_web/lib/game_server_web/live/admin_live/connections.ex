@@ -326,6 +326,9 @@ defmodule GameServerWeb.AdminLive.Connections do
   end
 
   @impl true
+  def handle_info(_msg, socket), do: {:noreply, socket}
+
+  @impl true
   def handle_event("filter-connections", %{"filter" => filter}, socket) do
     {:noreply,
      socket

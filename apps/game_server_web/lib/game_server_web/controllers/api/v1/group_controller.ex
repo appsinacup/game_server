@@ -779,7 +779,8 @@ defmodule GameServerWeb.Api.V1.GroupController do
         sort_by: sort_by
       )
 
-    serialized = Enum.map(groups, &serialize_group/1)
+    member_counts = Groups.batch_member_counts(Enum.map(groups, & &1.id))
+    serialized = Enum.map(groups, &serialize_group(&1, member_counts))
     count = length(serialized)
     total_count = Groups.count_list_groups(filters)
 
@@ -1272,7 +1273,8 @@ defmodule GameServerWeb.Api.V1.GroupController do
     with_auth(conn, fn user ->
       {page, page_size} = parse_page_params(params)
       groups = Groups.list_user_groups(user.id, page: page, page_size: page_size)
-      serialized = Enum.map(groups, &serialize_group/1)
+      member_counts = Groups.batch_member_counts(Enum.map(groups, & &1.id))
+      serialized = Enum.map(groups, &serialize_group(&1, member_counts))
       count = length(serialized)
       total_count = Groups.count_user_groups(user.id)
 
@@ -1365,8 +1367,8 @@ defmodule GameServerWeb.Api.V1.GroupController do
     end
   end
 
-  defp serialize_group(group) do
-    member_count = Groups.count_group_members(group.id)
+  defp serialize_group(group, member_counts \\ %{}) do
+    member_count = Map.get(member_counts, group.id) || Groups.count_group_members(group.id)
 
     creator_name =
       cond do

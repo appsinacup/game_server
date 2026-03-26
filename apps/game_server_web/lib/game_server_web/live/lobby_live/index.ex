@@ -129,8 +129,8 @@ defmodule GameServerWeb.LobbyLive.Index do
   def handle_event("join_lobby", %{"id" => id}, socket) do
     case Lobbies.get_lobby(String.to_integer(id)) do
       lobby when lobby != nil ->
-        if lobby.is_private do
-          {:noreply, assign(socket, :password_modal_lobby, lobby)}
+        if lobby.password_hash != nil do
+          {:noreply, assign(socket, joining_lobby_id: lobby.id, join_password: "")}
         else
           # Public lobby, join directly
           handle_start_join_for_lobby(socket, lobby)
@@ -535,6 +535,12 @@ defmodule GameServerWeb.LobbyLive.Index do
   @impl true
   def handle_info({:host_changed, lobby_id, _new_host_id}, socket) do
     {:noreply, refresh_lobby_memberships(socket, lobby_id)}
+  end
+
+  # Catch-all for unexpected PubSub messages to prevent LiveView crashes
+  @impl true
+  def handle_info(_msg, socket) do
+    {:noreply, socket}
   end
 
   # Helper to refresh all lobbies and memberships

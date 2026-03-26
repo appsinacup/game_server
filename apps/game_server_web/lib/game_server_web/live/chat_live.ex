@@ -541,7 +541,7 @@ defmodule GameServerWeb.ChatLive do
     if chat_type && chat_target do
       page_size = socket.assigns.page_size
       page = socket.assigns.page
-      total = page * page_size
+      total = min(page * page_size, 500)
 
       messages =
         case chat_type do
@@ -601,7 +601,8 @@ defmodule GameServerWeb.ChatLive do
       chat_type == "group" && msg.chat_type == "group" && msg.chat_ref_id == chat_target ->
         true
 
-      chat_type == "friend" && msg.chat_type == "friend" ->
+      chat_type == "friend" && msg.chat_type == "friend" &&
+          (msg.sender_id == chat_target || msg.chat_ref_id == chat_target) ->
         true
 
       true ->
@@ -632,18 +633,17 @@ defmodule GameServerWeb.ChatLive do
   end
 
   defp group_messages(messages) do
-    messages
-    |> Enum.with_index()
-    |> Enum.map(fn {msg, i} ->
-      prev = if i > 0, do: Enum.at(messages, i - 1), else: nil
+    {result, _} =
+      Enum.reduce(messages, {[], nil}, fn msg, {acc, prev} ->
+        show_header =
+          is_nil(prev) or
+            prev.sender_id != msg.sender_id or
+            different_minute?(prev.inserted_at, msg.inserted_at)
 
-      show_header =
-        is_nil(prev) or
-          prev.sender_id != msg.sender_id or
-          different_minute?(prev.inserted_at, msg.inserted_at)
+        {[{show_header, msg} | acc], msg}
+      end)
 
-      {show_header, msg}
-    end)
+    Enum.reverse(result)
   end
 
   defp different_minute?(t1, t2) do

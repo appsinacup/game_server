@@ -2,6 +2,8 @@ defmodule GameServerWeb.Api.V1.UserController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
+  import GameServerWeb.Helpers.ParamParser
+
   alias GameServer.Accounts
   alias GameServer.Accounts.User
   alias OpenApiSpex.Schema
@@ -134,12 +136,16 @@ defmodule GameServerWeb.Api.V1.UserController do
   end
 
   def show(conn, %{"id" => id}) do
-    case Accounts.get_user!(String.to_integer(id)) do
-      %{} = user -> json(conn, serialize_user(user))
-      _ -> conn |> put_status(:not_found) |> json(%{error: "not_found"})
+    case parse_id(id) do
+      nil ->
+        conn |> put_status(:bad_request) |> json(%{error: "invalid_id"})
+
+      int_id ->
+        case Accounts.get_user(int_id) do
+          %{} = user -> json(conn, serialize_user(user))
+          nil -> conn |> put_status(:not_found) |> json(%{error: "not_found"})
+        end
     end
-  rescue
-    Ecto.NoResultsError -> conn |> put_status(:not_found) |> json(%{error: "not_found"})
   end
 
   defp serialize_user(user) do

@@ -134,6 +134,21 @@ defmodule GameServer.Groups do
 
 
   @doc ~S"""
+    Batch count members for a list of group IDs. Returns a map of group_id => count.
+  """
+  @spec batch_member_counts([integer()]) :: %{required(integer()) => non_neg_integer()}
+  def batch_member_counts(_group_ids) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Groups.batch_member_counts/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Cancel (delete) a group invitation that the current user sent.
     Only the sender can cancel their own invitation.
     

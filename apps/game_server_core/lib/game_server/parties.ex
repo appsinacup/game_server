@@ -44,7 +44,6 @@ defmodule GameServer.Parties do
 
   require Logger
 
-  alias Ecto.Multi
   alias GameServer.Accounts
   alias GameServer.Accounts.User
   alias GameServer.Friends
@@ -252,35 +251,45 @@ defmodule GameServer.Parties do
   """
   @spec create_party(User.t(), map()) :: {:ok, Party.t()} | {:error, term()}
   def create_party(%User{} = user, attrs \\ %{}) do
-    # Reload latest state
-    user = Accounts.get_user(user.id)
+    attrs =
+      attrs
+      |> normalize_params()
+      |> Map.put("leader_id", user.id)
 
-    if user.party_id != nil do
-      {:error, :already_in_party}
-    else
-      attrs =
-        attrs
-        |> normalize_params()
-        |> Map.put("leader_id", user.id)
-
-      case GameServer.Hooks.internal_call(:before_party_create, [user, attrs]) do
-        {:ok, attrs} -> do_create_party(user, attrs)
-        {:error, reason} -> {:error, {:hook_rejected, reason}}
-      end
+    case GameServer.Hooks.internal_call(:before_party_create, [user, attrs]) do
+      {:ok, attrs} -> do_create_party(user, attrs)
+      {:error, reason} -> {:error, {:hook_rejected, reason}}
     end
   end
 
   defp do_create_party(user, attrs) do
-    Multi.new()
-    |> Multi.insert(:party, Party.changeset(%Party{}, attrs))
-    |> Multi.run(:membership, fn repo, %{party: party} ->
-      user
-      |> Ecto.Changeset.change(%{party_id: party.id})
-      |> repo.update()
+    Repo.transaction(fn ->
+      # Lock on the user's id to prevent concurrent party creation
+      AdvisoryLock.lock(:party, user.id)
+
+      # Re-check inside the lock to prevent TOCTOU
+      fresh_user = Accounts.get_user(user.id)
+
+      if fresh_user.party_id != nil do
+        Repo.rollback(:already_in_party)
+      end
+
+      case %Party{} |> Party.changeset(attrs) |> Repo.insert() do
+        {:ok, party} ->
+          case fresh_user |> Ecto.Changeset.change(%{party_id: party.id}) |> Repo.update() do
+            {:ok, _updated_user} ->
+              party
+
+            {:error, reason} ->
+              Repo.rollback(reason)
+          end
+
+        {:error, changeset} ->
+          Repo.rollback(changeset)
+      end
     end)
-    |> Repo.transaction()
     |> case do
-      {:ok, %{party: party, membership: _user}} ->
+      {:ok, party} ->
         invalidate_user_cache(user.id)
         broadcast_parties({:party_created, party.id})
 
@@ -290,10 +299,7 @@ defmodule GameServer.Parties do
 
         {:ok, party}
 
-      {:error, :party, changeset, _} ->
-        {:error, changeset}
-
-      {:error, _op, reason, _} ->
+      {:error, reason} ->
         {:error, reason}
     end
   end
@@ -419,71 +425,75 @@ defmodule GameServer.Parties do
     if is_nil(invite) do
       {:error, :no_invite}
     else
-      # Auto-leave current party if user is already in one
-      user =
-        if user.party_id != nil do
-          leave_party(user)
-          # Re-fetch user after leaving to get cleared party_id
-          Accounts.get_user(user.id)
-        else
-          user
-        end
-
-      with {:ok, party} <- fetch_party(party_id),
+      with {:ok, user} <- ensure_left_current_party(user),
+           {:ok, party} <- fetch_party(party_id),
            {:ok, _updated_user} <- do_join_party(user, party_id) do
-        # Mark all pending invites for this user + party as accepted
-        from(i in PartyInvite,
-          where:
-            i.recipient_id == ^user.id and i.party_id == ^party_id and
-              i.status == "pending"
-        )
-        |> Repo.update_all(set: [status: "accepted", updated_at: DateTime.utc_now()])
-
-        invalidate_party_invite_cache(user.id)
-        invalidate_party_invite_cache(invite.sender_id)
-
-        # Cancel pending invites to this user from OTHER parties
-        cancel_other_pending_invites_for_user(user.id, party_id)
-
-        # Retract the "New Party Invite" notification for the accepting user
-        GameServer.Notifications.delete_notification_by(
-          invite.sender_id,
-          user.id,
-          "New Party Invite"
-        )
-
-        # Notify the leader that the invite was accepted
-        user_name = user.display_name || ""
-
-        GameServer.Notifications.admin_create_notification(
-          user.id,
-          invite.sender_id,
-          %{
-            "title" => "Party Invite Accepted",
-            "content" => "#{user_name} accepted your party invite",
-            "metadata" => %{
-              "type" => "party_invite_accepted",
-              "party_id" => party_id,
-              "user_id" => user.id,
-              "user_name" => user_name
-            }
-          }
-        )
-
-        # Notify the sender that the invite was accepted via PubSub
-        Phoenix.PubSub.broadcast(
-          GameServer.PubSub,
-          "user:#{invite.sender_id}",
-          {:party_invite_accepted, %{party_id: party_id, user_id: user.id}}
-        )
-
-        GameServer.Async.run(fn ->
-          GameServer.Hooks.internal_call(:after_party_join, [user, party])
-        end)
-
-        {:ok, party}
+        finalize_accept_invite(user, invite, party_id, party)
       end
     end
+  end
+
+  defp ensure_left_current_party(%User{party_id: nil} = user), do: {:ok, user}
+
+  defp ensure_left_current_party(%User{} = user) do
+    case leave_party(user) do
+      {:ok, _} -> {:ok, Accounts.get_user(user.id)}
+      {:error, reason} -> {:error, {:leave_failed, reason}}
+    end
+  end
+
+  defp finalize_accept_invite(user, invite, party_id, party) do
+    # Mark all pending invites for this user + party as accepted
+    from(i in PartyInvite,
+      where:
+        i.recipient_id == ^user.id and i.party_id == ^party_id and
+          i.status == "pending"
+    )
+    |> Repo.update_all(set: [status: "accepted", updated_at: DateTime.utc_now()])
+
+    invalidate_party_invite_cache(user.id)
+    invalidate_party_invite_cache(invite.sender_id)
+
+    # Cancel pending invites to this user from OTHER parties
+    cancel_other_pending_invites_for_user(user.id, party_id)
+
+    # Retract the "New Party Invite" notification for the accepting user
+    GameServer.Notifications.delete_notification_by(
+      invite.sender_id,
+      user.id,
+      "New Party Invite"
+    )
+
+    # Notify the leader that the invite was accepted
+    user_name = user.display_name || ""
+
+    GameServer.Notifications.admin_create_notification(
+      user.id,
+      invite.sender_id,
+      %{
+        "title" => "Party Invite Accepted",
+        "content" => "#{user_name} accepted your party invite",
+        "metadata" => %{
+          "type" => "party_invite_accepted",
+          "party_id" => party_id,
+          "user_id" => user.id,
+          "user_name" => user_name
+        }
+      }
+    )
+
+    # Notify the sender that the invite was accepted via PubSub
+    Phoenix.PubSub.broadcast(
+      GameServer.PubSub,
+      "user:#{invite.sender_id}",
+      {:party_invite_accepted, %{party_id: party_id, user_id: user.id}}
+    )
+
+    GameServer.Async.run(fn ->
+      GameServer.Hooks.internal_call(:after_party_join, [user, party])
+    end)
+
+    {:ok, party}
   end
 
   @doc """
@@ -977,7 +987,10 @@ defmodule GameServer.Parties do
         {:ok, lobby}
 
       {:error, reason} ->
-        Logger.warning("Party lobby creation rolled back: #{inspect(reason)}")
+        # Roll back lobby creation since not all party members could join
+        Logger.warning("Party lobby creation rolled back: #{inspect(reason)}, deleting lobby #{lobby.id}")
+        Lobbies.leave_lobby(user)
+        Lobbies.delete_lobby(lobby)
         {:error, reason}
     end
   end
@@ -1098,36 +1111,44 @@ defmodule GameServer.Parties do
   # ---------------------------------------------------------------------------
 
   defp disband_party(%Party{} = party) do
-    # Remove party_id from all members
+    # Collect member IDs before bulk update for cache invalidation + broadcasts
     members = get_party_members(party.id)
+    member_ids = Enum.map(members, & &1.id)
 
-    Enum.each(members, fn member ->
-      member
-      |> Ecto.Changeset.change(%{party_id: nil})
-      |> Repo.update()
-      |> case do
-        {:ok, updated} ->
-          invalidate_user_cache(updated.id)
-          _ = Accounts.broadcast_user_update(updated)
+    Repo.transaction(fn ->
+      # Bulk-clear party_id for all members in a single query
+      from(u in User, where: u.party_id == ^party.id)
+      |> Repo.update_all(set: [party_id: nil])
 
-        _ ->
-          :ok
-      end
+      # Cancel all pending invites for this party
+      cancel_pending_invites_for_party(party.id)
+
+      # Delete the party
+      Repo.delete!(party)
     end)
+    |> case do
+      {:ok, _} ->
+        # Invalidate caches and broadcast outside the transaction
+        Enum.each(member_ids, fn id ->
+          invalidate_user_cache(id)
+        end)
 
-    # Cancel all pending invites for this party
-    cancel_pending_invites_for_party(party.id)
+        Enum.each(members, fn member ->
+          _ = Accounts.broadcast_user_update(%{member | party_id: nil})
+        end)
 
-    # Delete the party
-    Repo.delete(party)
-    broadcast_party(party.id, {:party_disbanded, party.id})
-    broadcast_parties({:party_deleted, party.id})
+        broadcast_party(party.id, {:party_disbanded, party.id})
+        broadcast_parties({:party_deleted, party.id})
 
-    GameServer.Async.run(fn ->
-      GameServer.Hooks.internal_call(:after_party_disband, [party])
-    end)
+        GameServer.Async.run(fn ->
+          GameServer.Hooks.internal_call(:after_party_disband, [party])
+        end)
 
-    {:ok, :disbanded}
+        {:ok, :disbanded}
+
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 
   defp remove_member(%User{} = user, party_id) do

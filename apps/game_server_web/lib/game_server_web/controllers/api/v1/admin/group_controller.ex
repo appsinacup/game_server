@@ -3,8 +3,6 @@ defmodule GameServerWeb.Api.V1.Admin.GroupController do
   use OpenApiSpex.ControllerSpecs
 
   alias GameServer.Groups
-  alias GameServer.Groups.Group
-  alias GameServer.Repo
   alias OpenApiSpex.Schema
 
   tags(["Admin – Groups"])
@@ -178,9 +176,8 @@ defmodule GameServerWeb.Api.V1.Admin.GroupController do
         else
           attrs = Map.drop(params, ["id"])
 
-          case group |> Group.changeset(attrs) |> Repo.update() do
+          case Groups.admin_update_group(group, attrs) do
             {:ok, updated} ->
-              _ = Groups.invalidate_group_cache_public(updated.id)
               json(conn, serialize_group(updated))
 
             {:error, changeset} ->

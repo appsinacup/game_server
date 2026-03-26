@@ -553,54 +553,55 @@ defmodule GameServer.Achievements do
   end
 
   defp do_increment(user_id, achievement, amount) do
-    ua =
-      case get_user_achievement(user_id, achievement.id) do
-        nil ->
-          {:ok, ua} =
-            %UserAchievement{
-              user_id: user_id,
-              achievement_id: achievement.id,
-              progress: 0
-            }
-            |> Repo.insert()
+    # Ensure a user_achievement row exists (upsert with on_conflict: :nothing)
+    _ =
+      %UserAchievement{
+        user_id: user_id,
+        achievement_id: achievement.id,
+        progress: 0
+      }
+      |> Repo.insert(on_conflict: :nothing, conflict_target: [:user_id, :achievement_id])
 
-          ua
+    # Atomic increment to avoid lost updates under concurrency.
+    # Only increment if not already unlocked.
+    target = achievement.progress_target
+    now = DateTime.utc_now(:second)
 
-        existing ->
-          existing
-      end
+    {_updated_count, updated_rows} =
+      from(ua in UserAchievement,
+        where: ua.user_id == ^user_id and ua.achievement_id == ^achievement.id,
+        where: is_nil(ua.unlocked_at),
+        update: [
+          set: [
+            progress: fragment("MIN(progress + ?, ?)", ^amount, ^target),
+            unlocked_at:
+              fragment(
+                "CASE WHEN progress + ? >= ? THEN ? ELSE unlocked_at END",
+                ^amount,
+                ^target,
+                ^now
+              ),
+            updated_at: ^now
+          ]
+        ],
+        select: ua
+      )
+      |> Repo.update_all([])
 
-    # Already unlocked — no-op
-    if ua.unlocked_at do
-      {:ok, ua}
-    else
-      new_progress = min(ua.progress + amount, achievement.progress_target)
-      now = DateTime.utc_now(:second)
+    case updated_rows do
+      [updated_ua] ->
+        if updated_ua.unlocked_at do
+          on_unlock(user_id, updated_ua, achievement)
+        else
+          broadcast_achievement_progress(user_id, updated_ua)
+        end
 
-      unlocked? = new_progress >= achievement.progress_target
-      unlock_time = if unlocked?, do: now, else: nil
+        {:ok, updated_ua}
 
-      changes = %{progress: new_progress}
-      changes = if unlocked?, do: Map.put(changes, :unlocked_at, unlock_time), else: changes
-
-      result =
-        ua
-        |> Ecto.Changeset.change(changes)
-        |> Repo.update()
-
-      case result do
-        {:ok, updated_ua} ->
-          if unlocked? do
-            on_unlock(user_id, updated_ua, achievement)
-          else
-            broadcast_achievement_progress(user_id, updated_ua)
-          end
-
-          {:ok, updated_ua}
-
-        error ->
-          error
-      end
+      [] ->
+        # Already unlocked — return current state
+        ua = get_user_achievement(user_id, achievement.id)
+        {:ok, ua}
     end
   end
 

@@ -145,11 +145,26 @@ defmodule GameServer.Hooks do
   """
   def call(name, args \\ [], opts \\ [])
       when is_list(args) and (is_atom(name) or is_binary(name)) do
-    name = if is_binary(name), do: String.to_atom(name), else: name
+    name =
+      if is_binary(name) do
+        try do
+          String.to_existing_atom(name)
+        rescue
+          ArgumentError -> nil
+        end
+      else
+        name
+      end
+
+    if is_nil(name) do
+      {:error, :not_implemented}
+    else
+      do_call(name, args, opts)
+    end
+  end
+
+  defp do_call(name, args, opts) do
     mod = module()
-    # If caller passed as an id or a simple map with id, resolve it here in the
-    # current process so the spawned task doesn't need to hit the DB (tests use
-    # Ecto sandbox ownership rules). If resolution fails, leave caller as-is.
     opts = resolve_caller(opts)
     arity = length(args)
 

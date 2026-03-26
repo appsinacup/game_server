@@ -83,11 +83,26 @@ export function joinLobbyChannel(lobbyId, handlers = {}) {
 
   // fallback generic handler
   if (handlers.onMessage) channel.on('event', handlers.onMessage)
-  if (handlers.onClose) socket.onClose(handlers.onClose)
+
+  // Track socket onClose ref so it can be cleaned up on channel leave
+  let onCloseRef = null
+  if (handlers.onClose) {
+    onCloseRef = socket.onClose(handlers.onClose)
+  }
 
   return new Promise((resolve, reject) => {
     channel.join()
-      .receive('ok', resp => resolve({channel, resp}))
+      .receive('ok', resp => {
+        // Patch leave to also clean up the onClose handler
+        const origLeave = channel.leave.bind(channel)
+        channel.leave = (timeout) => {
+          if (onCloseRef !== null && onCloseRef !== undefined) {
+            socket.off([onCloseRef])
+          }
+          return origLeave(timeout)
+        }
+        resolve({channel, resp})
+      })
       .receive('error', resp => reject(resp))
   })
 }

@@ -467,6 +467,9 @@ defmodule GameServerWeb.AdminLive.Index do
      )}
   end
 
+  @impl true
+  def handle_info(_msg, socket), do: {:noreply, socket}
+
   defp schedule_live_refresh, do: Process.send_after(self(), :refresh_live_stats, 5_000)
 
   defp format_number(n) when is_integer(n) and n >= 1_000_000 do

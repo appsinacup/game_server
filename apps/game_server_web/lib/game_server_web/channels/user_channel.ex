@@ -351,13 +351,24 @@ defmodule GameServerWeb.UserChannel do
       # Unsubscribe from notifications
       Notifications.unsubscribe(user_id)
 
-      case Accounts.set_user_offline(user_id) do
-        {:ok, _} ->
-          broadcast_online_status(user_id, false)
-          broadcast_member_presence(user_id, false)
+      # Only mark offline if no other user_channel processes remain for this user.
+      # ConnectionTracker automatically unregisters the *current* process on exit,
+      # but terminate runs before the process fully exits, so we subtract 1 (self).
+      other_channels =
+        GameServerWeb.ConnectionTracker.list_registered(:user_channel)
+        |> Enum.count(fn {pid, meta} ->
+          pid != self() and Map.get(meta, :user_id) == user_id
+        end)
 
-        _ ->
-          :ok
+      if other_channels == 0 do
+        case Accounts.set_user_offline(user_id) do
+          {:ok, _} ->
+            broadcast_online_status(user_id, false)
+            broadcast_member_presence(user_id, false)
+
+          _ ->
+            :ok
+        end
       end
     end
 

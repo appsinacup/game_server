@@ -47,4 +47,10 @@ defmodule GameServer.Lobbies.SpectatorTracker do
   def list(lobby_id) do
     :ets.match(@table, {lobby_id, :"$1"}) |> List.flatten()
   end
+
+  @doc "Remove all spectators for a given lobby (e.g. when lobby is deleted)."
+  @spec untrack_all(integer()) :: true
+  def untrack_all(lobby_id) do
+    :ets.match_delete(@table, {lobby_id, :_})
+  end
 end

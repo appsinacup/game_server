@@ -520,10 +520,10 @@ defmodule GameServerWeb.Api.V1.LobbyController do
         |> put_status(:conflict)
         |> json(%{error: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)})
 
-      other ->
+      _other ->
         conn
         |> put_status(:unprocessable_entity)
-        |> json(%{error: inspect(other)})
+        |> json(%{error: "unexpected_error"})
     end
   end
 
@@ -543,10 +543,10 @@ defmodule GameServerWeb.Api.V1.LobbyController do
           error: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
         })
 
-      other ->
+      _other ->
         conn
         |> put_status(:unprocessable_entity)
-        |> json(%{error: inspect(other)})
+        |> json(%{error: "unexpected_error"})
     end
   end
 
@@ -714,8 +714,8 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       {:error, {:hook_rejected, _}} ->
         conn |> put_status(:forbidden) |> json(%{error: "rejected"})
 
-      other ->
-        conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
+      _other ->
+        conn |> put_status(:unprocessable_entity) |> json(%{error: "unexpected_error"})
     end
   end
 
@@ -743,8 +743,8 @@ defmodule GameServerWeb.Api.V1.LobbyController do
               |> put_status(:unprocessable_entity)
               |> json(%{error: Ecto.Changeset.traverse_errors(changeset, fn {msg, _} -> msg end)})
 
-            other ->
-              conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
+            _other ->
+              conn |> put_status(:unprocessable_entity) |> json(%{error: "unexpected_error"})
           end
         end
 
@@ -778,8 +778,8 @@ defmodule GameServerWeb.Api.V1.LobbyController do
             {:error, {:hook_rejected, _}} ->
               conn |> put_status(:forbidden) |> json(%{error: "rejected"})
 
-            other ->
-              conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
+            _other ->
+              conn |> put_status(:unprocessable_entity) |> json(%{error: "unexpected_error"})
           end
         end
 
@@ -805,8 +805,8 @@ defmodule GameServerWeb.Api.V1.LobbyController do
             {:error, {:hook_rejected, _}} ->
               conn |> put_status(:forbidden) |> json(%{error: "rejected"})
 
-            other ->
-              conn |> put_status(:unprocessable_entity) |> json(%{error: inspect(other)})
+            _other ->
+              conn |> put_status(:unprocessable_entity) |> json(%{error: "unexpected_error"})
           end
         end
 

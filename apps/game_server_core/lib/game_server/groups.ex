@@ -290,7 +290,7 @@ defmodule GameServer.Groups do
       |> apply_filters(filters)
       |> apply_sort(opts)
 
-    results = paginate(q, opts)
+    results = q |> preload(:creator) |> paginate(opts)
     filter_by_metadata_in_memory(results, filters)
   end
 
@@ -307,8 +307,25 @@ defmodule GameServer.Groups do
     if is_nil(metadata_key) do
       Repo.one(from g in q, select: count(g.id)) || 0
     else
-      q |> Repo.all() |> filter_by_metadata_in_memory(filters) |> length()
+      # Only fetch metadata column to reduce data transfer
+      q
+      |> select([g], g.metadata)
+      |> Repo.all()
+      |> count_matching_metadata(filters)
     end
+  end
+
+  defp count_matching_metadata(metadata_list, filters) do
+    key = Map.get(filters, :metadata_key) || Map.get(filters, "metadata_key")
+    value = Map.get(filters, :metadata_value) || Map.get(filters, "metadata_value")
+
+    Enum.count(metadata_list, fn metadata ->
+      case Map.get(metadata || %{}, key) do
+        nil -> false
+        _ when is_nil(value) -> true
+        v -> String.contains?(to_string(v), to_string(value))
+      end
+    end)
   end
 
   @doc """
@@ -369,6 +386,20 @@ defmodule GameServer.Groups do
   @spec count_group_members(integer()) :: non_neg_integer()
   def count_group_members(group_id) when is_integer(group_id) do
     Repo.one(from(m in GroupMember, where: m.group_id == ^group_id, select: count(m.id))) || 0
+  end
+
+  @doc "Batch count members for a list of group IDs. Returns a map of group_id => count."
+  @spec batch_member_counts([integer()]) :: %{integer() => non_neg_integer()}
+  def batch_member_counts([]), do: %{}
+
+  def batch_member_counts(group_ids) when is_list(group_ids) do
+    from(m in GroupMember,
+      where: m.group_id in ^group_ids,
+      group_by: m.group_id,
+      select: {m.group_id, count(m.id)}
+    )
+    |> Repo.all()
+    |> Map.new()
   end
 
   @doc "Count how many groups a user has created (is admin of)."
@@ -433,7 +464,8 @@ defmodule GameServer.Groups do
       join: m in GroupMember,
       on: m.group_id == g.id,
       where: m.user_id == ^user_id,
-      order_by: [asc: g.title]
+      order_by: [asc: g.title],
+      preload: [:creator]
     )
     |> paginate(opts)
   end
@@ -737,14 +769,16 @@ defmodule GameServer.Groups do
       from(m in GroupMember, where: m.user_id == ^user_id)
       |> Repo.all()
 
-    Enum.each(memberships, fn member ->
-      group_id = member.group_id
+    Repo.transaction(fn ->
+      Enum.each(memberships, fn member ->
+        group_id = member.group_id
 
-      if member.role == "admin" do
-        maybe_transfer_admin_before_leave(member, group_id, user_id)
-      else
-        do_leave(member, group_id, user_id)
-      end
+        if member.role == "admin" do
+          maybe_transfer_admin_before_leave(member, group_id, user_id)
+        else
+          do_leave(member, group_id, user_id)
+        end
+      end)
     end)
 
     :ok
@@ -795,18 +829,28 @@ defmodule GameServer.Groups do
   @spec leave_group(integer(), integer()) :: {:ok, GroupMember.t()} | {:error, atom()}
   def leave_group(user_id, group_id)
       when is_integer(user_id) and is_integer(group_id) do
-    case get_membership(group_id, user_id) do
-      nil ->
-        {:error, :not_member}
+    Repo.transaction(fn ->
+      AdvisoryLock.lock(:group, group_id)
 
-      member ->
-        # If leaving user is admin, check if they're the last admin
-        if member.role == "admin" do
-          maybe_transfer_admin_before_leave(member, group_id, user_id)
-        else
-          do_leave(member, group_id, user_id)
-        end
-    end
+      case get_membership(group_id, user_id) do
+        nil ->
+          Repo.rollback(:not_member)
+
+        member ->
+          # If leaving user is admin, check if they're the last admin
+          result =
+            if member.role == "admin" do
+              maybe_transfer_admin_before_leave(member, group_id, user_id)
+            else
+              do_leave(member, group_id, user_id)
+            end
+
+          case result do
+            {:ok, deleted} -> deleted
+            {:error, reason} -> Repo.rollback(reason)
+          end
+      end
+    end)
   end
 
   defp maybe_transfer_admin_before_leave(member, group_id, user_id) do

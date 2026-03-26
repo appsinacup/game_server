@@ -702,24 +702,36 @@ defmodule GameServer.Leaderboards do
     )
   end
 
-  defp build_score_upsert(%{operator: :best, sort_order: :desc}, score, metadata, now) do
+  defp build_score_upsert(%{operator: :best, sort_order: :desc}, score, _metadata, now) do
     from(r in Record,
       update: [
         set: [
           score: fragment("CASE WHEN ? >= ? THEN ? ELSE ? END", r.score, ^score, r.score, ^score),
-          metadata: ^metadata,
+          metadata:
+            fragment(
+              "CASE WHEN ? >= ? THEN ? ELSE excluded.\"metadata\" END",
+              r.score,
+              ^score,
+              r.metadata
+            ),
           updated_at: ^now
         ]
       ]
     )
   end
 
-  defp build_score_upsert(%{operator: :best, sort_order: :asc}, score, metadata, now) do
+  defp build_score_upsert(%{operator: :best, sort_order: :asc}, score, _metadata, now) do
     from(r in Record,
       update: [
         set: [
           score: fragment("CASE WHEN ? <= ? THEN ? ELSE ? END", r.score, ^score, r.score, ^score),
-          metadata: ^metadata,
+          metadata:
+            fragment(
+              "CASE WHEN ? <= ? THEN ? ELSE excluded.\"metadata\" END",
+              r.score,
+              ^score,
+              r.metadata
+            ),
           updated_at: ^now
         ]
       ]
@@ -830,29 +842,30 @@ defmodule GameServer.Leaderboards do
 
   defp calculate_rank(leaderboard_id, score, inserted_at)
        when is_integer(leaderboard_id) do
-    leaderboard = get_leaderboard!(leaderboard_id)
+    case get_leaderboard(leaderboard_id) do
+      nil ->
+        1
 
-    # Count how many records rank above this one.
-    # For ties (same score) the earlier inserted_at wins a higher rank,
-    # giving every entry a unique sequential position (ROW_NUMBER style).
-    query =
-      case leaderboard.sort_order do
-        :desc ->
-          from r in Record,
-            where:
-              r.leaderboard_id == ^leaderboard_id and
-                (r.score > ^score or (r.score == ^score and r.inserted_at < ^inserted_at)),
-            select: count(r.id)
+      leaderboard ->
+        query =
+          case leaderboard.sort_order do
+            :desc ->
+              from r in Record,
+                where:
+                  r.leaderboard_id == ^leaderboard_id and
+                    (r.score > ^score or (r.score == ^score and r.inserted_at < ^inserted_at)),
+                select: count(r.id)
 
-        :asc ->
-          from r in Record,
-            where:
-              r.leaderboard_id == ^leaderboard_id and
-                (r.score < ^score or (r.score == ^score and r.inserted_at < ^inserted_at)),
-            select: count(r.id)
-      end
+            :asc ->
+              from r in Record,
+                where:
+                  r.leaderboard_id == ^leaderboard_id and
+                    (r.score < ^score or (r.score == ^score and r.inserted_at < ^inserted_at)),
+                select: count(r.id)
+          end
 
-    Repo.one(query) + 1
+        Repo.one(query) + 1
+    end
   end
 
   @doc """

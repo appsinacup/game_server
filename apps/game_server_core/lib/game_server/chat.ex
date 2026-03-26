@@ -911,7 +911,7 @@ defmodule GameServer.Chat do
       case Map.get(filters, :content) || Map.get(filters, "content") do
         nil -> query
         "" -> query
-        v -> where(query, [m], like(m.content, ^"%#{v}%"))
+        v -> where(query, [m], like(m.content, ^"%#{escape_like(v)}%"))
       end
 
     query
@@ -920,6 +920,13 @@ defmodule GameServer.Chat do
   defp admin_sort(query, "inserted_at_asc"), do: order_by(query, [m], asc: m.inserted_at)
   defp admin_sort(query, "inserted_at"), do: order_by(query, [m], desc: m.inserted_at)
   defp admin_sort(query, _), do: order_by(query, [m], desc: m.inserted_at)
+
+  defp escape_like(str) do
+    str
+    |> String.replace("\\", "\\\\")
+    |> String.replace("%", "\\%")
+    |> String.replace("_", "\\_")
+  end
 
   defp parse_int(v) when is_integer(v), do: v
 

@@ -795,8 +795,14 @@ defmodule GameServer.Accounts do
   @spec find_or_create_from_device(String.t(), map()) ::
           {:ok, User.t()} | {:error, :disabled | Ecto.Changeset.t() | term()}
   def find_or_create_from_device(device_id, attrs \\ %{}) when is_binary(device_id) do
-    unless device_auth_enabled?(), do: {:error, :disabled}
+    if device_auth_enabled?() do
+      do_find_or_create_from_device(device_id, attrs)
+    else
+      {:error, :disabled}
+    end
+  end
 
+  defp do_find_or_create_from_device(device_id, attrs) do
     case get_user_by_device_id(device_id) do
       %User{} = user ->
         {:ok, user}
@@ -1164,7 +1170,7 @@ defmodule GameServer.Accounts do
     provider_field = provider_field(provider)
 
     # Count remaining linked providers (only non-empty, non-nil strings)
-    providers = [:discord_id, :apple_id, :google_id, :facebook_id]
+    providers = [:discord_id, :apple_id, :google_id, :facebook_id, :steam_id]
 
     present =
       Enum.count(providers, fn f ->

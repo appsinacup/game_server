@@ -8,6 +8,8 @@ defmodule GameServerWeb.Plugs.LoadTheme do
     Application.get_env(:game_server_web, :theme_module) || GameServer.Theme.JSONConfig
   """
 
+  @log_theme Mix.env() in [:dev, :test]
+
   import Plug.Conn
 
   alias GameServer.Theme.JSONConfig
@@ -43,7 +45,7 @@ defmodule GameServerWeb.Plugs.LoadTheme do
 
     # In development & test environments log the resolved theme_map to make
     # runtime debugging easier when things appear blank in the UI.
-    if Mix.env() in [:dev, :test] do
+    if @log_theme do
       Logger.debug(
         "LoadTheme: assigned theme=#{inspect(theme)} (THEME_CONFIG=#{inspect(System.get_env("THEME_CONFIG"))})"
       )

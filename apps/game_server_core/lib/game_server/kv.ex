@@ -271,18 +271,14 @@ defmodule GameServer.KV do
     user_id = Keyword.get(opts, :user_id)
     lobby_id = Keyword.get(opts, :lobby_id)
 
-    if user_id && lobby_id do
+    GameServer.Async.run(fn ->
+      _ = GameServer.Cache.delete(cache_key(key, user_id, lobby_id))
       :ok
-    else
-      GameServer.Async.run(fn ->
-        _ = GameServer.Cache.delete(cache_key(key, user_id, lobby_id))
-        :ok
-      end)
+    end)
 
-      _ = Repo.delete_all(entry_query(key, user_id, lobby_id))
-      _ = invalidate_entries_cache(user_id, lobby_id)
-      :ok
-    end
+    _ = Repo.delete_all(entry_query(key, user_id, lobby_id))
+    _ = invalidate_entries_cache(user_id, lobby_id)
+    :ok
   end
 
   @doc """
@@ -582,9 +578,18 @@ defmodule GameServer.KV do
   defp maybe_filter_key(query, nil), do: query
 
   defp maybe_filter_key(query, key_filter) when is_binary(key_filter) do
+    escaped = escape_like(key_filter)
+
     from(e in query,
-      where: like(fragment("lower(?)", e.key), ^"%#{key_filter}%")
+      where: like(fragment("lower(?)", e.key), ^"%#{escaped}%")
     )
+  end
+
+  defp escape_like(str) do
+    str
+    |> String.replace("\\", "\\\\")
+    |> String.replace("%", "\\%")
+    |> String.replace("_", "\\_")
   end
 
   defp normalize_key_filter(nil), do: nil

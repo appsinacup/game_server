@@ -2,6 +2,8 @@ defmodule GameServerWeb.Api.V1.FriendController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
+  import GameServerWeb.Helpers.ParamParser
+
   alias GameServer.Accounts.User
   alias GameServer.Friends
   alias OpenApiSpex.Schema
@@ -413,18 +415,24 @@ defmodule GameServerWeb.Api.V1.FriendController do
   def block(conn, %{"id" => id}) do
     case conn.assigns.current_scope do
       %{user: user} when user != nil ->
-        case Friends.block_friend_request(String.to_integer(id), user) do
-          {:ok, _f} ->
-            json(conn, %{})
+        case parse_id(id) do
+          nil ->
+            conn |> put_status(:bad_request) |> json(%{error: "invalid_id"})
 
-          {:error, :not_found} ->
-            conn |> put_status(:not_found) |> json(%{error: "not_found"})
+          int_id ->
+            case Friends.block_friend_request(int_id, user) do
+              {:ok, _f} ->
+                json(conn, %{})
 
-          {:error, :not_authorized} ->
-            conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
+              {:error, :not_found} ->
+                conn |> put_status(:not_found) |> json(%{error: "not_found"})
 
-          {:error, reason} ->
-            conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
+              {:error, :not_authorized} ->
+                conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
+
+              {:error, reason} ->
+                conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
+            end
         end
 
       _ ->
@@ -479,18 +487,24 @@ defmodule GameServerWeb.Api.V1.FriendController do
   def unblock(conn, %{"id" => id}) do
     case conn.assigns.current_scope do
       %{user: user} when user != nil ->
-        case Friends.unblock_friendship(String.to_integer(id), user) do
-          {:ok, :unblocked} ->
-            json(conn, %{})
+        case parse_id(id) do
+          nil ->
+            conn |> put_status(:bad_request) |> json(%{error: "invalid_id"})
 
-          {:error, :not_found} ->
-            conn |> put_status(:not_found) |> json(%{error: "not_found"})
+          int_id ->
+            case Friends.unblock_friendship(int_id, user) do
+              {:ok, :unblocked} ->
+                json(conn, %{})
 
-          {:error, :not_authorized} ->
-            conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
+              {:error, :not_found} ->
+                conn |> put_status(:not_found) |> json(%{error: "not_found"})
 
-          {:error, reason} ->
-            conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
+              {:error, :not_authorized} ->
+                conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
+
+              {:error, reason} ->
+                conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
+            end
         end
 
       _ ->
@@ -539,18 +553,24 @@ defmodule GameServerWeb.Api.V1.FriendController do
   def accept(conn, %{"id" => id}) do
     case conn.assigns.current_scope do
       %{user: user} when user != nil ->
-        case Friends.accept_friend_request(String.to_integer(id), user) do
-          {:ok, _f} ->
-            json(conn, %{})
+        case parse_id(id) do
+          nil ->
+            conn |> put_status(:bad_request) |> json(%{error: "invalid_id"})
 
-          {:error, :not_found} ->
-            conn |> put_status(:not_found) |> json(%{error: "not_found"})
+          int_id ->
+            case Friends.accept_friend_request(int_id, user) do
+              {:ok, _f} ->
+                json(conn, %{})
 
-          {:error, :not_authorized} ->
-            conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
+              {:error, :not_found} ->
+                conn |> put_status(:not_found) |> json(%{error: "not_found"})
 
-          {:error, reason} ->
-            conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
+              {:error, :not_authorized} ->
+                conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
+
+              {:error, reason} ->
+                conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
+            end
         end
 
       _ ->
@@ -561,18 +581,24 @@ defmodule GameServerWeb.Api.V1.FriendController do
   def reject(conn, %{"id" => id}) do
     case conn.assigns.current_scope do
       %{user: user} when user != nil ->
-        case Friends.reject_friend_request(String.to_integer(id), user) do
-          {:ok, _f} ->
-            json(conn, %{})
+        case parse_id(id) do
+          nil ->
+            conn |> put_status(:bad_request) |> json(%{error: "invalid_id"})
 
-          {:error, :not_found} ->
-            conn |> put_status(:not_found) |> json(%{error: "not_found"})
+          int_id ->
+            case Friends.reject_friend_request(int_id, user) do
+              {:ok, _f} ->
+                json(conn, %{})
 
-          {:error, :not_authorized} ->
-            conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
+              {:error, :not_found} ->
+                conn |> put_status(:not_found) |> json(%{error: "not_found"})
 
-          {:error, reason} ->
-            conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
+              {:error, :not_authorized} ->
+                conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
+
+              {:error, reason} ->
+                conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
+            end
         end
 
       _ ->
@@ -583,13 +609,18 @@ defmodule GameServerWeb.Api.V1.FriendController do
   def delete(conn, %{"id" => id}) do
     case conn.assigns.current_scope do
       %{user: user} when user != nil ->
-        # Try to fetch and delete. allow requesters to cancel pending, or either user to delete accepted friendship
-        case Friends.get_friendship(String.to_integer(id)) do
+        case parse_id(id) do
           nil ->
-            conn |> put_status(:not_found) |> json(%{error: "not_found"})
+            conn |> put_status(:bad_request) |> json(%{error: "invalid_id"})
 
-          f ->
-            handle_delete_friendship(conn, user, f)
+          int_id ->
+            case Friends.get_friendship(int_id) do
+              nil ->
+                conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+              f ->
+                handle_delete_friendship(conn, user, f)
+            end
         end
 
       _ ->

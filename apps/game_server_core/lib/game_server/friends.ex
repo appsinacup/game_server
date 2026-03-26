@@ -147,31 +147,42 @@ defmodule GameServer.Friends do
     if requester_id == target_id do
       {:error, :cannot_friend_self}
     else
-      # clean up any rejected same-direction rows to allow fresh request creation
-      remove_rejected_same_direction(requester_id, target_id)
+      Repo.transaction(fn ->
+        # clean up any rejected same-direction rows to allow fresh request creation
+        remove_rejected_same_direction(requester_id, target_id)
 
-      cond do
-        blocked?(requester_id, target_id) ->
-          {:error, :blocked}
+        cond do
+          blocked?(requester_id, target_id) ->
+            Repo.rollback(:blocked)
 
-        already_friends?(requester_id, target_id) ->
-          {:error, :already_friends}
+          already_friends?(requester_id, target_id) ->
+            Repo.rollback(:already_friends)
 
-        same_direction_pending?(requester_id, target_id) ->
-          {:error, :already_requested}
+          same_direction_pending?(requester_id, target_id) ->
+            Repo.rollback(:already_requested)
 
-        pending_reverse = find_pending_reverse(requester_id, target_id) ->
-          accept_friend_request(pending_reverse.id, %User{id: requester_id})
+          pending_reverse = find_pending_reverse(requester_id, target_id) ->
+            # Roll back so accept_friend_request can use its own transaction
+            Repo.rollback({:accept_reverse, pending_reverse.id})
 
-        true ->
-          max_pending = GameServer.Limits.get(:max_pending_friend_requests)
-          pending_count = count_outgoing_requests(requester_id)
+          true ->
+            insert_friend_request(requester_id, target_id)
+        end
+      end)
+      |> case do
+        {:ok, f} ->
+          _ = invalidate_friendship_cache(f.id)
+          _ = invalidate_friends_cache_pair(requester_id, target_id)
+          broadcast_user(target_id, {:incoming_request, f})
+          broadcast_user(requester_id, {:outgoing_request, f})
+          broadcast_all({:friend_created, f})
+          {:ok, f}
 
-          if pending_count >= max_pending do
-            {:error, :too_many_pending_requests}
-          else
-            create_new_friend_request(requester_id, target_id)
-          end
+        {:error, {:accept_reverse, friendship_id}} ->
+          accept_friend_request(friendship_id, %User{id: requester_id})
+
+        {:error, reason} ->
+          {:error, reason}
       end
     end
   end
@@ -185,6 +196,27 @@ defmodule GameServer.Friends do
 
       _ ->
         :ok
+    end
+  end
+
+  # Extracted to reduce nesting depth in create_request/2 transaction.
+  # Must be called inside a Repo.transaction.
+  defp insert_friend_request(requester_id, target_id) do
+    max_pending = GameServer.Limits.get(:max_pending_friend_requests)
+    pending_count = count_outgoing_requests(requester_id)
+
+    if pending_count >= max_pending do
+      Repo.rollback(:too_many_pending_requests)
+    end
+
+    case %Friendship{}
+         |> Friendship.changeset(%{requester_id: requester_id, target_id: target_id})
+         |> Repo.insert() do
+      {:ok, f} ->
+        f
+
+      {:error, changeset} ->
+        Repo.rollback(changeset)
     end
   end
 
@@ -232,23 +264,6 @@ defmodule GameServer.Friends do
     case get_by_pair(target_id, requester_id) do
       %Friendship{status: "pending"} = f -> f
       _ -> nil
-    end
-  end
-
-  defp create_new_friend_request(requester_id, target_id) do
-    case %Friendship{}
-         |> Friendship.changeset(%{requester_id: requester_id, target_id: target_id})
-         |> Repo.insert() do
-      {:ok, f} = ok ->
-        _ = invalidate_friendship_cache(f.id)
-        _ = invalidate_friends_cache_pair(requester_id, target_id)
-        broadcast_user(target_id, {:incoming_request, f})
-        broadcast_user(requester_id, {:outgoing_request, f})
-        broadcast_all({:friend_created, f})
-        ok
-
-      err ->
-        err
     end
   end
 
@@ -704,10 +719,7 @@ defmodule GameServer.Friends do
         where: f.status == "accepted" and f.target_id == ^user_id,
         select: f.requester_id
 
-    ids_a = Repo.all(q1)
-    ids_b = Repo.all(q2)
-
-    Enum.uniq(ids_a ++ ids_b)
+    union_all(q1, ^q2) |> Repo.all()
   end
 
   defp check_friends_limit(user_id) do

@@ -311,8 +311,15 @@ defmodule GameServer.Notifications do
     case Map.get(filters, "title") do
       nil -> query
       "" -> query
-      title -> where(query, [n], like(n.title, ^"%#{title}%"))
+      title -> where(query, [n], like(n.title, ^"%#{escape_like(title)}%"))
     end
+  end
+
+  defp escape_like(str) do
+    str
+    |> String.replace("\\", "\\\\")
+    |> String.replace("%", "\\%")
+    |> String.replace("_", "\\_")
   end
 
   defp parse_int(nil), do: nil
@@ -457,7 +464,8 @@ defmodule GameServer.Notifications do
           updated_at: DateTime.utc_now(:second)
         ]
       ],
-      conflict_target: {:unsafe_fragment, "(sender_id, recipient_id, title)"}
+      conflict_target: {:unsafe_fragment, "(sender_id, recipient_id, title)"},
+      returning: true
     )
     |> case do
       {:ok, notification} ->
@@ -570,7 +578,6 @@ defmodule GameServer.Notifications do
   end
 
   defp friends?(a, b) when is_integer(a) and is_integer(b) do
-    friend_ids = Friends.friend_ids(a)
-    b in friend_ids
+    Friends.friends?(a, b)
   end
 end

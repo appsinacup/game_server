@@ -107,13 +107,12 @@ if System.get_env("SMTP_PASSWORD") do
     relay: System.get_env("SMTP_RELAY"),
     username: System.get_env("SMTP_USERNAME"),
     password: System.get_env("SMTP_PASSWORD"),
-    port: System.get_env("SMTP_PORT"),
+    port: String.to_integer(System.get_env("SMTP_PORT") || "587"),
     tls: String.to_existing_atom(System.get_env("SMTP_TLS") || "never"),
     ssl: String.to_existing_atom(System.get_env("SMTP_SSL") || "true"),
     auth: :always,
     no_mx_lookups: false,
     retries: 2,
-    auth: :always,
     sockopts: [
       versions: [:"tlsv1.2", :"tlsv1.3"],
       verify: :verify_peer,
@@ -122,7 +121,8 @@ if System.get_env("SMTP_PASSWORD") do
       customize_hostname_check: [
         match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
       ],
-      server_name_indication: System.get_env("SMTP_SNI")
+      server_name_indication:
+        if(sni = System.get_env("SMTP_SNI"), do: String.to_charlist(sni), else: :disable)
     ]
 
   # When using an SMTP adapter we may still need the HTTP API client for

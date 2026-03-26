@@ -716,11 +716,13 @@ defmodule GameServerWeb.Layouts do
 
   # defp strip_locale_prefix(_), do: "/"
 
+  @app_version_fallback Mix.Project.config()[:version] || "1.0.0"
+
   defp app_version do
     # Prefer CI-injected APP_VERSION when present, otherwise fall back to the
     # compiled application vsn or the Mix project version.
     case System.get_env("APP_VERSION") || Application.spec(:game_server, :vsn) do
-      nil -> Mix.Project.config()[:version] || "1.0.0"
+      nil -> @app_version_fallback
       vsn -> to_string(vsn)
     end
   end
