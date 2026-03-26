@@ -573,7 +573,14 @@ defmodule GameServer.Achievements do
         where: is_nil(ua.unlocked_at),
         update: [
           set: [
-            progress: fragment("MIN(progress + ?, ?)", ^amount, ^target),
+            progress:
+              fragment(
+                "CASE WHEN progress + ? > ? THEN ? ELSE progress + ? END",
+                ^amount,
+                ^target,
+                ^target,
+                ^amount
+              ),
             unlocked_at:
               fragment(
                 "CASE WHEN progress + ? >= ? THEN ? ELSE unlocked_at END",
