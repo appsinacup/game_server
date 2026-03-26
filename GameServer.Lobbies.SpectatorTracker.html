@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.797">
+    <meta name="project" content="GameServer v1.0.799">
 
 
-    <title>GameServer.Lobbies.SpectatorTracker — GameServer v1.0.797</title>
+    <title>GameServer.Lobbies.SpectatorTracker — GameServer v1.0.799</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-BDC469F3.js"></script>
+    <script defer src="dist/sidebar_items-80E29325.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.797
+          v1.0.799
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Lobbies.<wbr>SpectatorTracker</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.797)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.799)</small>
 
     </h1>
 
@@ -193,6 +193,16 @@ counts in admin panels and API responses.</p>
       </div>
 
         <div class="summary-synopsis"><p>Remove a spectator from a lobby.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#untrack_all/1" data-no-tooltip="" translate="no">untrack_all(lobby_id)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Remove all spectators for a given lobby (e.g. when lobby is deleted).</p></div>
 
     </div>
 
@@ -364,6 +374,30 @@ counts in admin panels and API responses.</p>
       </div>
 
 <p>Remove a spectator from a lobby.</p>
+  </section>
+</section>
+<section class="detail" id="untrack_all/1">
+
+  <div class="detail-header">
+    <a href="#untrack_all/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">untrack_all(lobby_id)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> untrack_all(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">integer</a>()) :: true</pre>
+
+      </div>
+
+<p>Remove all spectators for a given lobby (e.g. when lobby is deleted).</p>
   </section>
 </section>
 

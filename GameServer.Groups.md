@@ -92,6 +92,14 @@ Admin-level update, bypasses membership checks.
 
 Approve a pending join request. Admin only.
 
+# `batch_member_counts`
+
+```elixir
+@spec batch_member_counts([integer()]) :: %{required(integer()) =&gt; non_neg_integer()}
+```
+
+Batch count members for a list of group IDs. Returns a map of group_id => count.
+
 # `cancel_invite`
 
 ```elixir

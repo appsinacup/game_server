@@ -54,6 +54,14 @@ Track a spectator joining a lobby.
 
 Remove a spectator from a lobby.
 
+# `untrack_all`
+
+```elixir
+@spec untrack_all(integer()) :: true
+```
+
+Remove all spectators for a given lobby (e.g. when lobby is deleted).
+
 ---
 
 *Consult [api-reference.md](api-reference.md) for complete listing*
