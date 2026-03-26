@@ -988,7 +988,10 @@ defmodule GameServer.Parties do
 
       {:error, reason} ->
         # Roll back lobby creation since not all party members could join
-        Logger.warning("Party lobby creation rolled back: #{inspect(reason)}, deleting lobby #{lobby.id}")
+        Logger.warning(
+          "Party lobby creation rolled back: #{inspect(reason)}, deleting lobby #{lobby.id}"
+        )
+
         Lobbies.leave_lobby(user)
         Lobbies.delete_lobby(lobby)
         {:error, reason}
