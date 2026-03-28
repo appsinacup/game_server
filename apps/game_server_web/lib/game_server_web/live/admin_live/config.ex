@@ -34,7 +34,7 @@ defmodule GameServerWeb.AdminLive.Config do
                 class="btn btn-ghost btn-sm ml-auto"
                 title="Collapse/Expand"
               >
-                ▾
+                ▸
               </button>
             </h2>
             <div class="overflow-x-auto lg:overflow-x-hidden">
