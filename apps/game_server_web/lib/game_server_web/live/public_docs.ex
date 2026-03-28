@@ -18,6 +18,9 @@ defmodule GameServerWeb.PublicDocs do
           </:subtitle>
         </.header>
 
+        <%!-- Infrastructure & Operations --%>
+        {GameServerWeb.PublicDocsTemplates.deployment(assigns)}
+
         <%!-- Overview & Fundamentals --%>
         {GameServerWeb.PublicDocsTemplates.architecture(assigns)}
         {GameServerWeb.PublicDocsTemplates.data_schema(assigns)}
@@ -47,7 +50,7 @@ defmodule GameServerWeb.PublicDocs do
         {GameServerWeb.PublicDocsTemplates.google_oauth(assigns)}
         {GameServerWeb.PublicDocsTemplates.facebook_oauth(assigns)}
 
-        <%!-- Infrastructure & Operations --%>
+        <%!-- Infrastructure & Operations (continued) --%>
         {GameServerWeb.PublicDocsTemplates.email_setup(assigns)}
         {GameServerWeb.PublicDocsTemplates.sentry_setup(assigns)}
         {GameServerWeb.PublicDocsTemplates.cache_setup(assigns)}

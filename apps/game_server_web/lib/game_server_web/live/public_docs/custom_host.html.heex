@@ -50,11 +50,11 @@
             phx-no-curly-interpolation
           ><code>apps/
   game_server_core/     # Domain logic (schemas, contexts, migrations)
-                        # No web dependency. Reusable across hosts.
+<span class="code-comment"># No web dependency. Reusable across hosts.</span>
   game_server_web/      # UI library (controllers, LiveViews, components,
-                        # channels, endpoint). Does NOT start itself.
+<span class="code-comment"># channels, endpoint). Does NOT start itself.</span>
   game_server_host/     # Default runnable host. Starts the supervision tree.
-                        # Extension point for forks.</code></pre>
+<span class="code-comment"># Extension point for forks.</span></code></pre>
         </div>
       </div>
 
@@ -73,7 +73,7 @@
           ><code># GameServerWeb.Endpoint reads this at request time:
 router = Application.get_env(:game_server_web, :router, GameServerWeb.Router)
 
-# The host app sets it at boot:
+<span class="code-comment"># The host app sets it at boot:</span>
 Application.put_env(:game_server_web, :router, MyHost.Router, persistent: true)</code></pre>
           <p class="text-sm text-base-content/80">
             {doc_text(
@@ -165,7 +165,7 @@ end</code></pre>
     plug GameServerWeb.UserAuth, :fetch_current_scope_for_user
   end
 
-  # Your custom game pages (auth required)
+<span class="code-comment"># Your custom game pages (auth required)</span>
   scope "/game", MyWordGame do
     pipe_through [:browser, GameServerWeb.UserAuth, :require_authenticated_user]
 
@@ -176,7 +176,7 @@ end</code></pre>
     end
   end
 
-  # Delegate all standard routes to the upstream router
+<span class="code-comment"># Delegate all standard routes to the upstream router</span>
   forward "/", GameServerWeb.Router
 end</code></pre>
           </div>
@@ -196,14 +196,14 @@ end</code></pre>
 
   @impl true
   def start(_type, _args) do
-    # Tell the endpoint to use YOUR router
+<span class="code-comment"># Tell the endpoint to use YOUR router</span>
     Application.put_env(:game_server_web, :router, MyWordGame.Router, persistent: true)
 
-    # Initialize ETS for schedule callbacks
+<span class="code-comment"># Initialize ETS for schedule callbacks</span>
     GameServer.Schedule.start_link()
 
     children = [
-      # Standard infrastructure (same as GameServerHost)
+<span class="code-comment"># Standard infrastructure (same as GameServerHost)</span>
       GameServerWeb.Telemetry,
       GameServer.Repo,
       {GameServer.Cache, []},
@@ -216,9 +216,9 @@ end</code></pre>
       GameServer.Notifications.FriendNotifier,
       GameServer.Schedule.Scheduler,
 
-      # Your custom game-specific children
-      # MyWordGame.GameSupervisor,
-      # {Registry, keys: :unique, name: MyWordGame.GameRegistry}
+<span class="code-comment"># Your custom game-specific children</span>
+<span class="code-comment"># MyWordGame.GameSupervisor,</span>
+<span class="code-comment"># {Registry, keys: :unique, name: MyWordGame.GameRegistry}</span>
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: MyWordGame.Supervisor)
@@ -234,7 +234,7 @@ end</code></pre>
             ><code># Dev
 elixir --sname my_game -S mix phx.server --app my_word_game
 
-# Or create a start.sh script:
+<span class="code-comment"># Or create a start.sh script:</span>
 #!/bin/sh
 exec elixir --sname my_game -S mix phx.server --app my_word_game</code></pre>
           </div>
@@ -305,7 +305,7 @@ def rpc("word_guessed", [word], caller) do
   lobby_id = caller.lobby_id
 
   GameServer.Lock.serialize("word_guessed", lobby_id, fn ->
-    # Only one process per lobby reaches here at a time
+<span class="code-comment"># Only one process per lobby reaches here at a time</span>
     {:ok, entry} = GameServer.KV.get("game_state", lobby_id: lobby_id)
     new_val = Map.update(entry.value, "guessed", [word], &[word | &1])
     GameServer.KV.put("game_state", new_val, %{}, lobby_id: lobby_id)

@@ -79,7 +79,9 @@
           <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
             <div class="space-y-2">
               <div>CACHE_MODE=single</div>
-              <div># optional: CACHE_ENABLED=false (bypass caching)</div>
+              <div>
+                <span class="code-comment"># optional: CACHE_ENABLED=false (bypass caching)</span>
+              </div>
             </div>
           </div>
         </div>
@@ -92,10 +94,10 @@
           <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
             <div class="space-y-2">
               <div>CACHE_MODE=multi</div>
-              <div># Choose one L2:</div>
+              <div><span class="code-comment"># Choose one L2:</span></div>
               <div>CACHE_L2=redis</div>
               <div>CACHE_REDIS_URL="redis://:password@host:6379/0"</div>
-              <div># OR</div>
+              <div><span class="code-comment"># OR</span></div>
               <div>CACHE_L2=partitioned</div>
             </div>
           </div>

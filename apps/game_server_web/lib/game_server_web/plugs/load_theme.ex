@@ -12,8 +12,6 @@ defmodule GameServerWeb.Plugs.LoadTheme do
 
   import Plug.Conn
 
-  alias GameServer.Theme.JSONConfig
-
   def init(opts), do: opts
 
   def call(conn, _opts) do
@@ -22,16 +20,7 @@ defmodule GameServerWeb.Plugs.LoadTheme do
 
     locale = Map.get(conn.assigns, :locale) || Gettext.get_locale(GameServerWeb.Gettext)
 
-    provider_map = fetch_theme(theme_mod, locale)
-
-    theme_map =
-      if provider_map == %{} do
-        get_default_theme(theme_mod)
-      else
-        # merge the provider_map over the defaults to ensure missing keys are present
-        default = get_default_theme(theme_mod) || %{}
-        Map.merge(default, provider_map)
-      end
+    theme_map = fetch_theme(theme_mod, locale)
 
     # Only expose the simple, safe keys that the application uses for UI
     theme = %{
@@ -104,11 +93,5 @@ defmodule GameServerWeb.Plugs.LoadTheme do
     if function_exported?(mod, :get_theme, 0), do: mod.get_theme() || %{}, else: %{}
   rescue
     _ -> %{}
-  end
-
-  defp get_default_theme(_mod) do
-    # Defer to the JSON provider's packaged default helper so we have a single
-    # implementation that understands where the default JSON lives.
-    JSONConfig.packaged_default()
   end
 end

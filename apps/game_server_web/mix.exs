@@ -85,6 +85,7 @@ defmodule GameServerWeb.MixProject do
       {:ueberauth_steam_strategy, "~> 0.1"},
       {:quantum, "~> 3.5"},
       {:corsica, "~> 2.0"},
+      {:hammer, "~> 7.2"},
       {:earmark, "~> 1.4"},
       {:ex_webrtc, "~> 0.16.0"},
       {:ex_sctp, "~> 0.1.2"}

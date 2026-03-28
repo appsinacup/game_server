@@ -9,7 +9,12 @@ defmodule GameServerWeb.Router do
     plug :fetch_live_flash
     plug :put_root_layout, html: {GameServerWeb.Layouts, :root}
     plug :protect_from_forgery
-    plug :put_secure_browser_headers
+
+    plug :put_secure_browser_headers, %{
+      "content-security-policy" =>
+        "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' wss: ws:; font-src 'self' data:; frame-ancestors 'self'"
+    }
+
     plug :fetch_current_scope_for_user
     # Attach Sentry context information (user id, path, request id) to
     # Sentry's per-request scope so events are enriched with user info.
@@ -26,7 +31,12 @@ defmodule GameServerWeb.Router do
     plug :fetch_session
     plug :fetch_live_flash
     plug :put_root_layout, html: {GameServerWeb.Layouts, :root}
-    plug :put_secure_browser_headers
+
+    plug :put_secure_browser_headers, %{
+      "content-security-policy" =>
+        "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' wss: ws:; font-src 'self' data:; frame-ancestors 'self'"
+    }
+
     plug :fetch_current_scope_for_user
     plug GameServerWeb.Plugs.SentryContext
   end

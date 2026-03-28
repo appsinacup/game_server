@@ -75,7 +75,7 @@ config :esbuild,
   version: "0.25.4",
   game_server_web: [
     args:
-      ~w(js/app.js --bundle --target=es2022 --outdir=../apps/game_server_web/priv/static/assets/js --external:/fonts/* --external:/images/* --alias:@=.),
+      ~w(js/app.js js/theme-init.js --bundle --target=es2022 --outdir=../apps/game_server_web/priv/static/assets/js --external:/fonts/* --external:/images/* --alias:@=.),
     cd: Path.expand("../assets", __DIR__),
     env: %{
       "NODE_PATH" => [
@@ -104,6 +104,9 @@ config :logger, :default_formatter,
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
+
+# Filter sensitive parameters from logs
+config :phoenix, :filter_parameters, ["password", "token", "secret", "authorization", "api_key"]
 
 # Configure Guardian for JWT authentication
 config :game_server_web, GameServerWeb.Auth.Guardian,

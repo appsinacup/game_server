@@ -6,8 +6,8 @@ defmodule GameServerWeb.ThemeLiveTest do
   alias GameServer.Content
   alias GameServer.Theme.JSONConfig
 
-  test "LiveView pages get theme assigns and show defaults when runtime empty", %{conn: conn} do
-    # Ensure THEME_CONFIG unset so packaged defaults are used
+  test "LiveView pages render without errors when THEME_CONFIG is unset", %{conn: conn} do
+    # Ensure THEME_CONFIG unset so no theme is loaded
     orig = System.get_env("THEME_CONFIG")
     System.delete_env("THEME_CONFIG")
     JSONConfig.reload()
@@ -21,12 +21,7 @@ defmodule GameServerWeb.ThemeLiveTest do
 
     {:ok, _lv, html} = live(conn, ~p"/docs/setup")
 
-    default_path = Path.join(:code.priv_dir(:game_server_web), "static/theme/default_config.json")
-    {:ok, file} = File.read(default_path)
-    expected = Jason.decode!(file)
-
-    # verify header and title area contain the packaged defaults
-    assert html =~ expected["title"]
-    assert html =~ expected["tagline"]
+    # Page should render without crashing even with no theme
+    assert html =~ "<html"
   end
 end

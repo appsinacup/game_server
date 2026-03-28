@@ -6,7 +6,11 @@
   "logo": "/images/logo.png",
   "banner": "/images/banner.png",
   "favicon": "/favicon.ico",
+  "changelog": "/CHANGELOG.md",
+  "blog": "/blog",
   "useful_links": [
+    { "title": "Empezar", "url": "/docs/setup#deployment", "icon": "hero-rocket-launch", "style": "primary" },
+    { "title": "YouTube", "url": "https://www.youtube.com/watch?v=KhjWyUVsTkE&t=2s", "icon": "hero-play", "external": true },
     { "title": "Discord", "url": "https://discord.com/invite/v649emcpAu", "icon": "hero-chat-bubble-left-ellipsis", "external": true },
     { "title": "Blog", "url": "/blog", "icon": "hero-newspaper" },
     { "title": "Notas de versión", "url": "/changelog", "icon": "hero-document-text" },

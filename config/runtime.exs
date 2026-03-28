@@ -360,6 +360,20 @@ if config_env() == :prod do
   # Expose these choices via application config so endpoint/plug can pick them up
   config :game_server_web, :cors_allowed_origins, cors_allowed_origins
 
+  # Rate Limiting — configurable per-IP request throttling via RATE_LIMIT_* env vars.
+  rate_limit_opts = [
+    general_limit: String.to_integer(System.get_env("RATE_LIMIT_HTTP_GENERAL_LIMIT", "120")),
+    general_window: String.to_integer(System.get_env("RATE_LIMIT_HTTP_GENERAL_WINDOW", "60000")),
+    auth_limit: String.to_integer(System.get_env("RATE_LIMIT_HTTP_AUTH_LIMIT", "10")),
+    auth_window: String.to_integer(System.get_env("RATE_LIMIT_HTTP_AUTH_WINDOW", "60000")),
+    ws_limit: String.to_integer(System.get_env("RATE_LIMIT_WS_LIMIT", "60")),
+    ws_window: String.to_integer(System.get_env("RATE_LIMIT_WS_WINDOW", "10000")),
+    dc_limit: String.to_integer(System.get_env("RATE_LIMIT_WEBRTC_LIMIT", "300")),
+    dc_window: String.to_integer(System.get_env("RATE_LIMIT_WEBRTC_WINDOW", "10000"))
+  ]
+
+  config :game_server_web, GameServerWeb.Plugs.RateLimiter, rate_limit_opts
+
   endpoint_config =
     [
       url: [host: host, port: if(scheme == "https", do: 443, else: port), scheme: scheme],

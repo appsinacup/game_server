@@ -25,6 +25,7 @@ defmodule GameServerHost.Application do
       {DNSCluster, query: Application.get_env(:game_server_web, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: GameServer.PubSub},
       GameServerWeb.ConnectionTracker,
+      {GameServerWeb.RateLimit, clean_period: :timer.minutes(5)},
       GameServer.Lobbies.SpectatorTracker,
       GameServerWeb.AdminLogBuffer,
       # Load hook plugins (OTP apps) shipped under modules/plugins/*

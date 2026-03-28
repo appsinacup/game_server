@@ -109,15 +109,40 @@
           <%= if useful_links != [] do %>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 w-full">
               <%= for link <- useful_links do %>
+                <% link_style = Map.get(link, "style", "default") %>
                 <a
                   href={link["url"]}
-                  class="group flex items-center gap-3 rounded-lg bg-base-100/40 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/100 [[data-theme=dark]_&]:border-white/20 px-4 py-2 sm:py-4 text-sm font-bold text-base-content [[data-theme=dark]_&]:text-white transition hover:bg-base-100/95 [[data-theme=dark]_&]:hover:bg-white/20 hover:border-base-300/70 [[data-theme=dark]_&]:hover:border-white/30 hover:scale-[1.02]"
+                  class={[
+                    "group flex items-center gap-3 rounded-lg px-4 py-2 sm:py-4 text-sm font-bold transition hover:scale-[1.02]",
+                    if(link_style == "primary",
+                      do:
+                        "bg-primary text-primary-content shadow-lg hover:bg-primary/90 active:scale-[0.98]",
+                      else:
+                        if(link_style == "secondary",
+                          do:
+                            "bg-secondary text-secondary-content shadow-lg hover:bg-secondary/90 active:scale-[0.98]",
+                          else:
+                            if(link_style == "accent",
+                              do:
+                                "bg-accent text-accent-content shadow-lg hover:bg-accent/90 active:scale-[0.98]",
+                              else:
+                                "bg-base-100/40 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/100 [[data-theme=dark]_&]:border-white/20 text-base-content [[data-theme=dark]_&]:text-white hover:bg-base-100/95 [[data-theme=dark]_&]:hover:bg-white/20 hover:border-base-300/70 [[data-theme=dark]_&]:hover:border-white/30"
+                            )
+                        )
+                    )
+                  ]}
                   target={if link["external"], do: "_blank"}
                   rel={if link["external"], do: "noopener noreferrer"}
                 >
                   <.dynamic_icon
                     name={link["icon"]}
-                    class="size-5 text-base-content/70 [[data-theme=dark]_&]:text-white/80 shrink-0"
+                    class={
+                      "size-5 shrink-0 " <>
+                        if(link_style in ~w(primary secondary accent),
+                          do: "text-current",
+                          else: "text-base-content/70 [[data-theme=dark]_&]:text-white/80"
+                        )
+                    }
                   />
                   <span class="truncate">{link["title"]}</span>
                 </a>
@@ -164,6 +189,9 @@
     <.icon name="hero-shield-check" />
     <.icon name="hero-sparkles" />
     <.icon name="hero-server-stack" />
+    <.icon name="hero-rocket-launch" />
+    <.icon name="hero-play" />
+    <.icon name="hero-code-bracket" />
   </div>
 
   <%!-- Scroll target --%>

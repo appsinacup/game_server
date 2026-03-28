@@ -44,7 +44,7 @@
 
       <h3 class="font-semibold">{doc_text("System overview")}</h3>
       <div
-        class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto"
+        class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto highlight-code"
         phx-no-curly-interpolation
       >
         <pre>
@@ -272,7 +272,7 @@
       </p>
       <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
         <pre phx-no-curly-interpolation>
-# Send a message (validates access, runs hook pipeline, broadcasts, notifies)
+<span class="code-comment"># Send a message (validates access, runs hook pipeline, broadcasts, notifies)</span>
 GameServer.Chat.send_message(%{user: user}, %{
   "chat_type" => "lobby",
   "chat_ref_id" => lobby_id,
@@ -280,17 +280,17 @@ GameServer.Chat.send_message(%{user: user}, %{
   "metadata" => %{"color" => "blue"}
 })
 
-# List messages (paginated, cached with 60s TTL)
+<span class="code-comment"># List messages (paginated, cached with 60s TTL)</span>
 GameServer.Chat.list_messages("lobby", lobby_id, page: 1, page_size: 50)
 
-# List friend messages (bidirectional)
+<span class="code-comment"># List friend messages (bidirectional)</span>
 GameServer.Chat.list_friend_messages(user_a_id, user_b_id, page: 1)
 
-# Update/delete your own message (ownership enforced)
+<span class="code-comment"># Update/delete your own message (ownership enforced)</span>
 GameServer.Chat.update_message(user_id, message_id, %{"content" => "edited"})
 GameServer.Chat.delete_own_message(user_id, message_id)
 
-# Mark messages as read (upsert cursor) / count unread
+<span class="code-comment"># Mark messages as read (upsert cursor) / count unread</span>
 GameServer.Chat.mark_read(user_id, "lobby", lobby_id, last_message_id)
 GameServer.Chat.count_unread(user_id, "lobby", lobby_id)</pre>
       </div>
@@ -303,7 +303,7 @@ GameServer.Chat.count_unread(user_id, "lobby", lobby_id)</pre>
       </p>
       <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
         <pre phx-no-curly-interpolation>
-# In your hooks module (implements GameServer.Hooks behaviour)
+<span class="code-comment"># In your hooks module (implements GameServer.Hooks behaviour)</span>
 @impl true
 def before_chat_message(user, attrs) do
   content = attrs["content"] || ""

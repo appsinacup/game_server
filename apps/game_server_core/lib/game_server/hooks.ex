@@ -226,7 +226,7 @@ defmodule GameServer.Hooks do
   domain code doesn't need to handle missing hooks specially in most cases."
   def internal_call(name, args \\ [], opts \\ [])
       when is_list(args) and (is_atom(name) or is_binary(name)) do
-    name = if is_binary(name), do: String.to_atom(name), else: name
+    name = if is_binary(name), do: String.to_existing_atom(name), else: name
     # resolve caller before spawning a task in case the caller was provided as
     # a simple id (avoids sandbox issues for spawned tasks in tests)
     opts = resolve_caller(opts)

@@ -79,7 +79,7 @@
 var access_token := ""
 var refresh_token := ""
 
-# This function will be reused in future examples
+<span class="code-comment"># This function will be reused in future examples</span>
 func print_error_or_result(response: GamendResult):
 	if response.error:
 		print(response.error)
@@ -109,7 +109,7 @@ var access_token := ""
 var refresh_token := ""
 
 func _ready() -> void:
-    # Request OAuth URL, open browser and login
+    <span class="code-comment"># Request OAuth URL, open browser and login</span>
     do_discord_auth()
 
 	gamend_api.authorize(access_token)
@@ -121,7 +121,7 @@ func do_discord_auth():
 	var authorization_url = response.response.data.authorization_url
 	var session_id :String = response.response.data.session_id
 
-	# Opening Auth URL
+	<span class="code-comment"># Opening Auth URL</span>
 	OS.shell_open(authorization_url)
 	for i in 60:
 		print("CHECKING SESSION: ", session_id)
@@ -148,9 +148,9 @@ func do_discord_auth():
             <pre class="text-sm text-wrap"><code class="language-gd" phx-no-curly-interpolation>var gamend_api:= GamendApi.new()
 
 func _ready() -> void:
-    # From previous example
+    <span class="code-comment"># From previous example</span>
     gamend_api.authorize(access_token)
-    # ...
+    <span class="code-comment"># ...</span>
 	
 	response = await gamend_api.users_get_current_user().finished
 	print_error_or_result(response)

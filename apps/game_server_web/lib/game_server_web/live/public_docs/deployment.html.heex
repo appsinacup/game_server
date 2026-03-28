@@ -1,0 +1,195 @@
+<!-- Deployment Guide -->
+<div class="card bg-base-100 shadow-xl collapsed" data-card-key="deployment">
+  <div class="card-body">
+    <h2 class="card-title text-2xl mb-4 flex items-center gap-3">
+      <svg
+        class="w-12 h-8 text-green-600"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M5 12h14M12 5l7 7-7 7"
+        />
+      </svg>
+      {doc_text("Deployment")}
+      <button
+        type="button"
+        data-action="toggle-card"
+        data-card-key="deployment"
+        aria-expanded="false"
+        class="btn btn-ghost btn-sm ml-auto"
+        title={doc_text("Collapse/Expand")}
+      >
+        <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 8l4 4 4-4"
+          />
+        </svg>
+      </button>
+    </h2>
+
+    <div class="space-y-4">
+      <p class="text-sm text-base-content/80">
+        {doc_text(
+          "Deploy your own game server instance using the starter repository. The quickest path is Docker Compose — clone, configure, and run."
+        )}
+      </p>
+
+      <%!-- Step 1: Clone --%>
+      <div class="step">
+        <h3 class="text-lg font-semibold mb-3">
+          {doc_text("1. Clone the starter repository")}
+        </h3>
+        <div class="ml-8 space-y-3">
+          <p class="text-sm text-base-content/80">
+            {doc_text(
+              "The starter repo contains a pre-configured Docker Compose setup with the game server, PostgreSQL, and optional Redis for caching."
+            )}
+          </p>
+          <div class="bg-base-200 p-4 rounded-lg font-mono text-sm highlight-code">
+            <pre phx-no-curly-interpolation><span class="code-comment"># <%= doc_text("Clone the starter repository") %></span>
+git clone https://github.com/appsinacup/gamend_starter.git
+cd gamend_starter</pre>
+          </div>
+        </div>
+      </div>
+
+      <%!-- Step 2: Configure --%>
+      <div class="step">
+        <h3 class="text-lg font-semibold mb-3">
+          {doc_text("2. Configure environment variables")}
+        </h3>
+        <div class="ml-8 space-y-3">
+          <p class="text-sm text-base-content/80">
+            {doc_text(
+              "Copy the example environment file and edit it to set your secrets and configuration."
+            )}
+          </p>
+          <div class="bg-base-200 p-4 rounded-lg font-mono text-sm highlight-code">
+            <pre phx-no-curly-interpolation><span class="code-comment"># <%= doc_text("Create .env from example") %></span>
+cp .env.example .env</pre>
+          </div>
+          <p class="text-sm text-base-content/80">
+            {doc_text("Key variables to set:")}
+          </p>
+          <div class="overflow-x-auto">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>{doc_text("Variable")}</th>
+                  <th>{doc_text("Description")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="font-mono text-xs">SECRET_KEY_BASE</td>
+                  <td class="text-xs">
+                    {doc_text(
+                      "64-byte hex secret for session signing. Generate with: mix phx.gen.secret"
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="font-mono text-xs">DATABASE_URL</td>
+                  <td class="text-xs">
+                    {doc_text(
+                      "PostgreSQL connection string (pre-configured for the Docker Compose DB)"
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="font-mono text-xs">PHX_HOST</td>
+                  <td class="text-xs">
+                    {doc_text("Your public hostname (e.g. play.example.com)")}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="font-mono text-xs">GUARDIAN_SECRET_KEY</td>
+                  <td class="text-xs">
+                    {doc_text("Secret for signing JWT API tokens")}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="text-sm text-base-content/70">
+            {doc_text(
+              "See the .env.example file for the full list of available environment variables including OAuth providers, email, rate limiting, and more."
+            )}
+          </p>
+        </div>
+      </div>
+
+      <%!-- Step 3: Run --%>
+      <div class="step">
+        <h3 class="text-lg font-semibold mb-3">
+          {doc_text("3. Start the server")}
+        </h3>
+        <div class="ml-8 space-y-3">
+          <p class="text-sm text-base-content/80">
+            {doc_text("Start everything with Docker Compose:")}
+          </p>
+          <div class="bg-base-200 p-4 rounded-lg font-mono text-sm highlight-code">
+            <pre phx-no-curly-interpolation>docker compose up -d</pre>
+          </div>
+          <p class="text-sm text-base-content/80">
+            {doc_text(
+              "The server will be available at http://localhost:4000 by default. Database migrations run automatically on startup."
+            )}
+          </p>
+        </div>
+      </div>
+
+      <%!-- Step 4: Verify --%>
+      <div class="step">
+        <h3 class="text-lg font-semibold mb-3">
+          {doc_text("4. Verify the deployment")}
+        </h3>
+        <div class="ml-8 space-y-3">
+          <p class="text-sm text-base-content/80">
+            {doc_text("Check that the server is running:")}
+          </p>
+          <div class="bg-base-200 p-4 rounded-lg font-mono text-sm highlight-code">
+            <pre phx-no-curly-interpolation><span class="code-comment"># <%= doc_text("Health check") %></span>
+curl http://localhost:4000/api/v1/health
+
+<span class="code-comment"># <%= doc_text("View logs") %></span>
+docker compose logs -f game_server</pre>
+          </div>
+        </div>
+      </div>
+
+      <%!-- Production tips --%>
+      <div class="step">
+        <h3 class="text-lg font-semibold mb-3">
+          {doc_text("Production recommendations")}
+        </h3>
+        <div class="ml-8 space-y-3">
+          <ul class="list-disc list-inside text-sm text-base-content/80 space-y-1">
+            <li>{doc_text("Use a reverse proxy (nginx, Caddy) with TLS termination")}</li>
+            <li>{doc_text("Set PHX_HOST to your actual domain")}</li>
+            <li>
+              {doc_text("Configure OAuth providers for social login (see provider guides above)")}
+            </li>
+            <li>
+              {doc_text("Enable email delivery via SMTP for password resets and notifications")}
+            </li>
+            <li>
+              {doc_text(
+                "Set up Redis for distributed caching when running multiple instances (see Scaling guide)"
+              )}
+            </li>
+            <li>{doc_text("Review rate limiting settings for your expected traffic")}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

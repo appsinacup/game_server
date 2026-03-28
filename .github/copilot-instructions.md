@@ -669,6 +669,7 @@ When adding a new feature or domain resource, evaluate which of the following ne
 - Add `blocked?/2` checks on invite operations to prevent inviting blocked users
 - Add lightweight `count_*` helpers for paginated list endpoints
 - Context list functions should support keyword options: `:page`, `:page_size`, `:sort_by` and relevant filters
+- **Always** update `CHANGELOG.md` when adding new features or making significant changes to existing functionality, especially if they affect configuration or public APIs.
 
 ## Project file organization
 

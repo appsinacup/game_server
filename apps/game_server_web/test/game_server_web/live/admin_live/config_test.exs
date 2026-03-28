@@ -338,17 +338,18 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
   end
 
   test "renders theme diagnostics when THEME_CONFIG is set (env var)", %{conn: conn} do
-    # create temporary theme config file and set env var to point at it
+    # create temporary locale-specific theme config file
     orig = System.get_env("THEME_CONFIG")
 
-    tmp = Path.join(System.tmp_dir!(), "theme_test_#{System.unique_integer([:positive])}.json")
+    base = Path.join(System.tmp_dir!(), "theme_test_#{System.unique_integer([:positive])}.json")
+    en_path = String.trim_trailing(base, ".json") <> ".en.json"
 
     json =
       ~s({"title":"Test Theme","logo":"/theme/test-logo.png","banner":"/theme/test-banner.png"})
 
-    File.write!(tmp, json)
+    File.write!(en_path, json)
 
-    System.put_env("THEME_CONFIG", tmp)
+    System.put_env("THEME_CONFIG", base)
     JSONConfig.reload()
     Content.reload()
 
@@ -356,7 +357,7 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
       if orig, do: System.put_env("THEME_CONFIG", orig), else: System.delete_env("THEME_CONFIG")
       JSONConfig.reload()
       Content.reload()
-      File.rm_rf(tmp)
+      File.rm_rf(en_path)
     end)
 
     {:ok, user} =
@@ -370,14 +371,14 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
       |> live(~p"/admin/config")
 
     assert html =~ "Theme"
-    assert html =~ "THEME_CONFIG: #{tmp}"
+    assert html =~ "THEME_CONFIG: #{base}"
     # raw JSON content should be present in the page
     assert html =~ "Test Theme"
     assert html =~ "/theme/test-logo.png"
   end
 
   test "renders default theme diagnostics when THEME_CONFIG is unset", %{conn: conn} do
-    # Ensure env var is unset so loader uses the default shipped theme
+    # Ensure env var is unset so no theme is loaded
     orig = System.get_env("THEME_CONFIG")
 
     System.delete_env("THEME_CONFIG")
@@ -400,21 +401,11 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
       |> log_in_user(user)
       |> live(~p"/admin/config")
 
-    # Default title/tagline/logo from priv/static/theme/default_config.json should be shown
-    default_path = Path.join(:code.priv_dir(:game_server_web), "static/theme/default_config.json")
-    {:ok, file} = File.read(default_path)
-    expected = Jason.decode!(file)
-
-    assert html =~ expected["title"]
-    assert html =~ expected["tagline"]
-    # When THEME_CONFIG is not present we should consider runtime theme not configured
-    # (we still show the default values). Ensure the UI shows Disabled for runtime theme.
+    # When THEME_CONFIG is not present, the UI should show Disabled badge
     assert html =~ "<span class=\"badge badge-error\">Disabled</span>"
-    assert html =~ expected["logo"]
-    assert html =~ expected["banner"]
   end
 
-  test "blank THEME_CONFIG is treated as unset and shows defaults", %{conn: conn} do
+  test "blank THEME_CONFIG is treated as unset and shows disabled badge", %{conn: conn} do
     orig = System.get_env("THEME_CONFIG")
     System.put_env("THEME_CONFIG", "")
     JSONConfig.reload()
@@ -437,12 +428,6 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
       |> live(~p"/admin/config")
 
     assert html =~ "THEME_CONFIG: &lt;unset&gt;"
-    default_path = Path.join(:code.priv_dir(:game_server_web), "static/theme/default_config.json")
-    {:ok, file} = File.read(default_path)
-    expected = Jason.decode!(file)
-
-    assert html =~ expected["title"]
-    assert html =~ expected["tagline"]
     assert html =~ "<span class=\"badge badge-error\">Disabled</span>"
   end
 end

@@ -565,6 +565,25 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                   </tr>
                   <tr>
+                    <td class="font-semibold">Rate Limiting</td>
+                    <td>
+                      <%= if @config.rate_limit_enabled do %>
+                        <span class="badge badge-success">Enabled</span>
+                      <% else %>
+                        <span class="badge badge-error">Disabled</span>
+                      <% end %>
+                    </td>
+                    <td class="font-mono text-sm break-all whitespace-normal">
+                      General: {@config.rate_limit_general_limit} req / {@config.rate_limit_general_window}ms<br />
+                      Auth (login/register): {@config.rate_limit_auth_limit} req / {@config.rate_limit_auth_window}ms<br />
+                      WebSocket: {@config.rate_limit_ws_limit} msg / {@config.rate_limit_ws_window}ms<br />
+                      WebRTC DC: {@config.rate_limit_dc_limit} msg / {@config.rate_limit_dc_window}ms<br />
+                      <span class="text-xs text-base-content/60">
+                        Set via RATE_LIMIT_* env vars
+                      </span>
+                    </td>
+                  </tr>
+                  <tr>
                     <td class="font-semibold">Facebook OAuth</td>
                     <td>
                       <%= if @config.facebook_client_id && @config.facebook_client_secret do %>
@@ -1197,7 +1216,7 @@ defmodule GameServerWeb.AdminLive.Config do
         </div>
         
     <!-- Limits & Validation -->
-        <div class="card bg-base-100 shadow-xl" data-card-key="limits">
+        <div class="card bg-base-100 shadow-xl collapsed" data-card-key="limits">
           <div class="card-body">
             <h2 class="card-title text-xl mb-4 flex items-center gap-3">
               Limits &amp; Validation
@@ -1266,7 +1285,7 @@ defmodule GameServerWeb.AdminLive.Config do
         </div>
         
     <!-- Admin Tools -->
-        <div class="card bg-base-100 shadow-xl" data-card-key="admin_tools">
+        <div class="card bg-base-100 shadow-xl collapsed" data-card-key="admin_tools">
           <div class="card-body">
             <h2 class="card-title text-xl mb-4 flex items-center gap-3">
               Admin Tools
@@ -1323,7 +1342,7 @@ defmodule GameServerWeb.AdminLive.Config do
         </div>
         
     <!-- Scheduled Jobs -->
-        <div class="card bg-base-100 shadow-xl" data-card-key="scheduled_jobs">
+        <div class="card bg-base-100 shadow-xl collapsed" data-card-key="scheduled_jobs">
           <div class="card-body">
             <h2 class="card-title text-xl mb-4 flex items-center gap-3">
               Scheduled Jobs
@@ -1512,7 +1531,7 @@ defmodule GameServerWeb.AdminLive.Config do
       # implementation so behavior is consistent across the app. We expose three
       # keys used by the template:
       #  - :theme_config -> the runtime THEME_CONFIG env value (path) or nil
-      #  - :theme_map -> resolved theme map (merged default + runtime file)
+      #  - :theme_map -> resolved theme map (locale-specific, no merging)
       #  - :theme_json -> raw JSON shown in the UI (runtime file contents or packaged default)
       theme_map: JSONConfig.get_theme(),
       # Only rely on JSONConfig for decisions about runtime vs default and raw
@@ -1526,7 +1545,63 @@ defmodule GameServerWeb.AdminLive.Config do
 
       # PHX/CORS runtime configuration (set via PHX_ALLOWED_ORIGINS)
       phx_allowed_origins_env: System.get_env("PHX_ALLOWED_ORIGINS"),
-      cors_allowed_origins: Application.get_env(:game_server_web, :cors_allowed_origins, "*")
+      cors_allowed_origins: Application.get_env(:game_server_web, :cors_allowed_origins, "*"),
+
+      # Rate Limiting runtime configuration
+      rate_limit_enabled:
+        Keyword.get(
+          Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, []),
+          :enabled,
+          true
+        ),
+      rate_limit_general_limit:
+        Keyword.get(
+          Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, []),
+          :general_limit,
+          120
+        ),
+      rate_limit_general_window:
+        Keyword.get(
+          Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, []),
+          :general_window,
+          60_000
+        ),
+      rate_limit_auth_limit:
+        Keyword.get(
+          Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, []),
+          :auth_limit,
+          10
+        ),
+      rate_limit_auth_window:
+        Keyword.get(
+          Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, []),
+          :auth_window,
+          60_000
+        ),
+      rate_limit_ws_limit:
+        Keyword.get(
+          Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, []),
+          :ws_limit,
+          60
+        ),
+      rate_limit_ws_window:
+        Keyword.get(
+          Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, []),
+          :ws_window,
+          10_000
+        ),
+      rate_limit_dc_limit:
+        Keyword.get(
+          Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, []),
+          :dc_limit,
+          300
+        ),
+      rate_limit_dc_window:
+        Keyword.get(
+          Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, []),
+          :dc_window,
+          10_000
+        )
     }
 
     socket =

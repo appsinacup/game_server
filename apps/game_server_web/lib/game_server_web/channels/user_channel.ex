@@ -44,6 +44,10 @@ defmodule GameServerWeb.UserChannel do
   alias GameServer.Notifications
   alias GameServer.Parties
 
+  # WebSocket message rate limits (per user) — defaults, overridden by config
+  @default_ws_rate_limit 60
+  @default_ws_rate_window :timer.seconds(10)
+
   @impl true
   def join("user:" <> user_id_str, _payload, socket) do
     # ensure the socket has a current_scope assign created during socket connect
@@ -77,24 +81,26 @@ defmodule GameServerWeb.UserChannel do
         socket
       )
       when is_binary(plugin) and is_binary(fn_name) do
-    args = Map.get(payload, "args", [])
-    args = if is_list(args), do: args, else: [args]
+    with :ok <- check_ws_rate_limit(socket) do
+      args = Map.get(payload, "args", [])
+      args = if is_list(args), do: args, else: [args]
 
-    reserved? =
-      GameServer.Hooks.internal_hooks()
-      |> Enum.any?(fn atom -> to_string(atom) == fn_name end)
+      reserved? =
+        GameServer.Hooks.internal_hooks()
+        |> Enum.any?(fn atom -> to_string(atom) == fn_name end)
 
-    if reserved? do
-      {:reply, {:error, %{error: "reserved_hook_name"}}, socket}
-    else
-      user = socket.assigns.current_scope.user
+      if reserved? do
+        {:reply, {:error, %{error: "reserved_hook_name"}}, socket}
+      else
+        user = socket.assigns.current_scope.user
 
-      case PluginManager.call_rpc(plugin, fn_name, args, caller: user) do
-        {:ok, res} ->
-          {:reply, {:ok, %{data: res}}, socket}
+        case PluginManager.call_rpc(plugin, fn_name, args, caller: user) do
+          {:ok, res} ->
+            {:reply, {:ok, %{data: res}}, socket}
 
-        {:error, reason} ->
-          {:reply, {:error, %{error: to_string(reason)}}, socket}
+          {:error, reason} ->
+            {:reply, {:error, %{error: to_string(reason)}}, socket}
+        end
       end
     end
   end
@@ -103,14 +109,9 @@ defmodule GameServerWeb.UserChannel do
 
   @impl true
   def handle_in("webrtc:offer", %{"sdp" => _} = offer_json, socket) do
-    webrtc_config = Application.get_env(:game_server_web, :webrtc, [])
-    enabled? = Keyword.get(webrtc_config, :enabled, true)
-
-    if enabled? do
-      # Stop existing peer if re-negotiating
-      if peer = Map.get(socket.assigns, :webrtc_peer) do
-        if Process.alive?(peer), do: GameServerWeb.WebRTCPeer.close(peer)
-      end
+    with :ok <- check_ws_rate_limit(socket),
+         :ok <- check_webrtc_enabled() do
+      stop_existing_peer(socket)
 
       {:ok, peer} =
         GameServerWeb.WebRTCPeer.start_link(
@@ -121,33 +122,38 @@ defmodule GameServerWeb.UserChannel do
       GameServerWeb.WebRTCPeer.handle_offer(peer, offer_json)
       {:reply, {:ok, %{}}, assign(socket, :webrtc_peer, peer)}
     else
-      {:reply, {:error, %{error: "webrtc_disabled"}}, socket}
+      {:error, %{error: _} = err} -> {:reply, {:error, err}, socket}
+      other -> other
     end
   end
 
   @impl true
   def handle_in("webrtc:ice", %{"candidate" => _} = candidate_json, socket) do
-    case Map.get(socket.assigns, :webrtc_peer) do
-      nil ->
-        {:reply, {:error, %{error: "no_webrtc_session"}}, socket}
+    with :ok <- check_ws_rate_limit(socket) do
+      case Map.get(socket.assigns, :webrtc_peer) do
+        nil ->
+          {:reply, {:error, %{error: "no_webrtc_session"}}, socket}
 
-      peer ->
-        GameServerWeb.WebRTCPeer.add_ice_candidate(peer, candidate_json)
-        {:reply, {:ok, %{}}, socket}
+        peer ->
+          GameServerWeb.WebRTCPeer.add_ice_candidate(peer, candidate_json)
+          {:reply, {:ok, %{}}, socket}
+      end
     end
   end
 
   @impl true
   def handle_in("webrtc:send", %{"channel" => label, "data" => data}, socket) do
-    case Map.get(socket.assigns, :webrtc_peer) do
-      nil ->
-        {:reply, {:error, %{error: "no_webrtc_session"}}, socket}
+    with :ok <- check_ws_rate_limit(socket) do
+      case Map.get(socket.assigns, :webrtc_peer) do
+        nil ->
+          {:reply, {:error, %{error: "no_webrtc_session"}}, socket}
 
-      peer ->
-        case GameServerWeb.WebRTCPeer.send_data(peer, label, data) do
-          :ok -> {:reply, {:ok, %{}}, socket}
-          {:error, reason} -> {:reply, {:error, %{error: to_string(reason)}}, socket}
-        end
+        peer ->
+          case GameServerWeb.WebRTCPeer.send_data(peer, label, data) do
+            :ok -> {:reply, {:ok, %{}}, socket}
+            {:error, reason} -> {:reply, {:error, %{error: to_string(reason)}}, socket}
+          end
+      end
     end
   end
 
@@ -474,6 +480,46 @@ defmodule GameServerWeb.UserChannel do
       for group_id <- Groups.user_group_ids(user_id) do
         Groups.broadcast_member_presence(group_id, {event, user_id})
       end
+    end
+  end
+
+  # ── WebSocket rate limiting ────────────────────────────────────────────────
+
+  defp check_ws_rate_limit(socket) do
+    config = Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, [])
+
+    if Keyword.get(config, :enabled, true) do
+      user_id = socket.assigns.user_id
+      limit = Keyword.get(config, :ws_limit, @default_ws_rate_limit)
+      window = Keyword.get(config, :ws_window, @default_ws_rate_window)
+
+      case GameServerWeb.RateLimit.hit("ws:#{user_id}", window, limit) do
+        {:allow, _count} ->
+          :ok
+
+        {:deny, _retry_after} ->
+          Logger.warning("UserChannel: rate limit exceeded for user=#{user_id}")
+          {:stop, :normal, {:error, %{error: "rate_limited"}}, socket}
+      end
+    else
+      :ok
+    end
+  end
+
+  defp check_webrtc_enabled do
+    webrtc_config = Application.get_env(:game_server_web, :webrtc, [])
+
+    if Keyword.get(webrtc_config, :enabled, true) do
+      :ok
+    else
+      {:error, %{error: "webrtc_disabled"}}
+    end
+  end
+
+  defp stop_existing_peer(socket) do
+    case Map.get(socket.assigns, :webrtc_peer) do
+      nil -> :ok
+      peer -> if Process.alive?(peer), do: GameServerWeb.WebRTCPeer.close(peer)
     end
   end
 end

@@ -55,25 +55,25 @@
           <p>
             {doc_text("Implement the behaviour in a hooks module:")}
           </p>
-          <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
-            <pre><code class="language-elixir" phx-no-curly-interpolation># your_hook_module.ex
+          <div class="bg-base-300 p-4 rounded-lg font-mono text-sm highlight-code">
+            <pre><code class="language-elixir" phx-no-curly-interpolation><span class="code-comment"># your_hook_module.ex</span>
 
-defmodule MyApp.HooksImpl do
-    @behaviour GameServer.Hooks
+<span class="code-keyword">defmodule</span> <span class="code-variable">MyApp.HooksImpl</span> <span class="code-keyword">do</span>
+    <span class="code-variable">@behaviour</span> <span class="code-variable">GameServer.Hooks</span>
 
-    @impl true
-    def after_user_register(user) do
-        # safe database update (non-blocking in hooks is recommended)
-        GameServer.Accounts.update_user(user, %{metadata: Map.put(user.metadata || %{}, "from_hook", true)})
-    :ok
-    end
+    <span class="code-variable">@impl</span> <span class="code-keyword">true</span>
+    <span class="code-keyword">def</span> <span class="code-function">after_user_register</span>(user) <span class="code-keyword">do</span>
+        <span class="code-comment"># safe database update (non-blocking in hooks is recommended)</span>
+        <span class="code-variable">GameServer.Accounts.update_user</span>(user, %{<span class="code-variable">metadata:</span> <span class="code-variable">Map.put</span>(user.metadata || %{}, <span class="code-string">"from_hook"</span>, <span class="code-keyword">true</span>)})
+    <span class="code-variable">:ok</span>
+    <span class="code-keyword">end</span>
 
-    @impl true
-    def after_user_updated(user) do
-        # React to any user profile change (metadata, display name, etc.)
-        :ok
-    end
-end
+    <span class="code-variable">@impl</span> <span class="code-keyword">true</span>
+    <span class="code-keyword">def</span> <span class="code-function">after_user_updated</span>(_user) <span class="code-keyword">do</span>
+        <span class="code-comment"># React to any user profile change (metadata, display name, etc.)</span>
+        <span class="code-variable">:ok</span>
+    <span class="code-keyword">end</span>
+<span class="code-keyword">end</span>
 </code></pre>
           </div>
         </div>
@@ -88,8 +88,8 @@ end
               "You can override the plugins directory using:"
             )}
           </p>
-          <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
-            <pre><code class="language-elixir" phx-no-curly-interpolation>GAME_SERVER_PLUGINS_DIR=modules/plugins</code></pre>
+          <div class="bg-base-300 p-4 rounded-lg font-mono text-sm highlight-code">
+            <pre><code class="language-elixir" phx-no-curly-interpolation><span class="code-variable">GAME_SERVER_PLUGINS_DIR</span>=modules/plugins</code></pre>
           </div>
           <p>
             {doc_text("Each plugin is an OTP app directory with an")}
@@ -151,7 +151,7 @@ end</code></pre>
           <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
             <pre><code class="language-elixir" phx-no-curly-interpolation>@impl true
 def after_achievement_unlocked(user_id, achievement) do
-  # Grant coins based on achievement metadata
+<span class="code-comment"># Grant coins based on achievement metadata</span>
   user = GameServer.Accounts.get_user(user_id)
   coins = get_in(user.metadata, ["coins"]) || 0
   reward = get_in(achievement.metadata, ["coin_reward"]) || 50

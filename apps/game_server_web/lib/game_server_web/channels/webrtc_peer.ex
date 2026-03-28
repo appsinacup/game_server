@@ -33,6 +33,10 @@ defmodule GameServerWeb.WebRTCPeer do
     SessionDescription
   }
 
+  # DataChannel message rate limits (per user) — defaults, overridden by config
+  @default_dc_rate_limit 300
+  @default_dc_rate_window :timer.seconds(10)
+
   # ── Public API ────────────────────────────────────────────────────────────
 
   @doc """
@@ -221,9 +225,15 @@ defmodule GameServerWeb.WebRTCPeer do
 
   @impl true
   def handle_info({:ex_webrtc, _pc, {:data, ref, data}}, state) do
-    label = Map.get(state.channels, ref, "unknown")
-    send(state.channel_pid, {:webrtc_data, label, data})
-    {:noreply, state}
+    if dc_rate_limit_allowed?(state.user_id) do
+      label = Map.get(state.channels, ref, "unknown")
+      send(state.channel_pid, {:webrtc_data, label, data})
+      {:noreply, state}
+    else
+      Logger.warning("WebRTCPeer user=#{state.user_id} DataChannel rate limit exceeded")
+      send(state.channel_pid, {:webrtc_connection_state, :rate_limited})
+      {:stop, {:shutdown, :rate_limited}, state}
+    end
   end
 
   # Ignore other ExWebRTC messages (ICE gathering state, signaling state, etc.)
@@ -261,5 +271,24 @@ defmodule GameServerWeb.WebRTCPeer do
     end
 
     :ok
+  end
+
+  # ── DataChannel rate limiting ──────────────────────────────────────────────
+
+  defp dc_rate_limit_allowed?(user_id) do
+    config = Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, [])
+    enabled? = Keyword.get(config, :enabled, true)
+
+    if enabled? do
+      limit = Keyword.get(config, :dc_limit, @default_dc_rate_limit)
+      window = Keyword.get(config, :dc_window, @default_dc_rate_window)
+
+      case GameServerWeb.RateLimit.hit("dc:#{user_id}", window, limit) do
+        {:allow, _count} -> true
+        {:deny, _retry_after} -> false
+      end
+    else
+      true
+    end
   end
 end

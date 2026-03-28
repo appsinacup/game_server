@@ -1,11 +1,16 @@
 defmodule GameServer.Theme.JSONConfig do
   @moduledoc """
-  JSON-backed Theme provider. Reads a JSON file specified by the THEME_CONFIG
-  environment variable (single canonical runtime source) — e.g. THEME_CONFIG=theme/custom.json
+  JSON-backed Theme provider. Reads a locale-specific JSON file specified by the
+  THEME_CONFIG environment variable — e.g. THEME_CONFIG=modules/example_config.json
 
-  The path may be relative to the project root (eg. "theme/default_config.json")
-  or an absolute path. When the file is missing we fall back to the built-in
-  default at `priv/static/theme/default_config.json`.
+  Only locale-suffixed files are loaded (e.g. `example_config.en.json`,
+  `example_config.es.json`). The base path itself (without a locale suffix) is
+  never loaded directly — it serves only as a naming template to derive
+  locale-specific paths.
+
+  When THEME_CONFIG is not set, an empty map is returned. There is no implicit
+  fallback to packaged defaults — the UI will display blanks until you configure
+  a THEME_CONFIG path.
 
   Theme configs are cached in `:persistent_term` after the first read so
   subsequent requests never hit the filesystem. Call `reload/0` to clear the
@@ -13,9 +18,6 @@ defmodule GameServer.Theme.JSONConfig do
   """
 
   @behaviour GameServer.Theme
-
-  # Path relative to the app's priv dir
-  @default_path "static/theme/default_config.json"
 
   @impl true
   def get_theme do
@@ -25,8 +27,9 @@ defmodule GameServer.Theme.JSONConfig do
   @doc """
   Variant of `get_theme/0` that prefers a locale-specific THEME_CONFIG file when present.
 
-  Given a base config like `modules/example_config.json` and locale `"en"`, we will
-  try `modules/example_config.en.json` first (and fall back to the base file).
+  Given a base config like `modules/example_config.json` and locale `"es"`, we will
+  try `modules/example_config.es.json` first, then fall back to `.en.json`.
+  The base file itself is never loaded.
   """
   @spec get_theme(String.t() | nil) :: map()
   def get_theme(locale) when is_binary(locale) or is_nil(locale) do
@@ -44,63 +47,38 @@ defmodule GameServer.Theme.JSONConfig do
   end
 
   # Performs the actual file-based theme resolution (uncached).
+  #
+  # When THEME_CONFIG is not set → empty map.
+  # When THEME_CONFIG is set → resolve locale-specific file, load directly
+  # (no merging with packaged defaults). Only locale-suffixed files are tried.
   defp do_get_theme(locale) do
-    base_path = config_path() || @default_path
-    path_candidates = runtime_path_candidates(base_path, locale)
+    case config_path() do
+      nil ->
+        # No THEME_CONFIG configured → return empty.
+        %{}
 
-    # Load packaged defaults first (read_default always returns {:ok, map}
-    # including a baked-in fallback). If the runtime THEME_CONFIG path points
-    # at a JSON file we'll merge the runtime file over the defaults so missing
-    # keys are filled in.
-    default =
-      case read_default() do
-        {:ok, map} when is_map(map) -> map
-        _ -> %{}
-      end
+      base_path ->
+        candidates = locale_only_candidates(base_path, locale)
 
-    runtime_json =
-      Enum.find_value(path_candidates, :error, fn p ->
-        read_json(p)
-      end)
-
-    case runtime_json do
-      {:ok, map} when is_map(map) ->
-        # Ignore runtime-provided empty strings/nil values so packaged defaults
-        # are not accidentally overwritten by blank values.
-        cleaned = clean_runtime_map(map)
-        cleaned_runtime = Map.merge(default, cleaned)
-
-        # Normalize asset keys so authors can use relative paths like
-        # "custom/example_logo.png" in their runtime JSON and the web UI will
-        # treat them as web-accessible paths ("/custom/example_logo.png").
-        normalize_asset_paths(cleaned_runtime)
-
-      _ ->
-        default
+        case Enum.find_value(candidates, :error, &read_json/1) do
+          {:ok, map} when is_map(map) -> normalize_asset_paths(map)
+          _ -> %{}
+        end
     end
   end
 
-  # Recursively remove keys whose values are nil, empty strings, or empty
-  # maps. This ensures runtime JSON won't overwrite packaged defaults with
-  # blank values at any nesting level.
-  defp clean_runtime_map(map) when is_map(map) do
-    map
-    |> Enum.reduce(%{}, fn {k, v}, acc ->
-      case v do
-        nil ->
-          acc
+  # Build locale-specific file candidates from the base path.
+  # Never includes the base path itself (only locale-suffixed variants).
+  # Always includes the ".en" variant as a final fallback.
+  defp locale_only_candidates(base_path, locale) do
+    locale_variants(locale)
+    |> append_if_missing("en")
+    |> Enum.map(&localized_config_path(base_path, &1))
+  end
 
-        s when is_binary(s) ->
-          if String.trim(s) == "", do: acc, else: Map.put(acc, k, s)
-
-        m when is_map(m) ->
-          cleaned = clean_runtime_map(m)
-          if map_size(cleaned) > 0, do: Map.put(acc, k, cleaned), else: acc
-
-        other ->
-          Map.put(acc, k, other)
-      end
-    end)
+  # Appends an item to the end of a list only if it's not already present.
+  defp append_if_missing(list, item) do
+    if item in list, do: list, else: Enum.reverse([item | Enum.reverse(list)])
   end
 
   @impl true
@@ -146,19 +124,6 @@ defmodule GameServer.Theme.JSONConfig do
     end
   end
 
-  defp runtime_path_candidates(nil, _locale), do: [nil]
-
-  defp runtime_path_candidates(base_path, locale) when is_binary(base_path) do
-    locale_variants = locale_variants(locale)
-
-    localized =
-      Enum.map(locale_variants, fn loc ->
-        localized_config_path(base_path, loc)
-      end)
-
-    Enum.reverse([base_path | Enum.reverse(localized)])
-  end
-
   defp locale_variants(nil), do: []
 
   defp locale_variants(locale) when is_binary(locale) do
@@ -192,16 +157,19 @@ defmodule GameServer.Theme.JSONConfig do
   end
 
   defp read_default do
-    # Attempt to load the packaged default. If it's missing or invalid we
-    # return :error (don't invent a fake title) — callers should handle an
-    # empty/default-less case explicitly.
-    read_json(Path.join(:code.priv_dir(:game_server_web), @default_path))
+    # Read the packaged English default as a reference config. This is only used
+    # by `packaged_default/0` for programmatic access (e.g. admin dashboards).
+    # It is NOT merged into runtime themes.
+    path = Path.join(:code.priv_dir(:game_server_web), "static/theme/default_config.en.json")
+    read_json(path)
   end
 
   @doc """
-  Return the packaged default theme config found under priv/static/theme/default_config.json
-  as a map (or an empty map when missing/invalid). This is a convenience wrapper so other
-  modules can rely on a single source of truth for the packaged defaults.
+  Return the packaged default theme config found under
+  `priv/static/theme/default_config.en.json` as a map (or an empty map when
+  missing/invalid). This is a convenience wrapper for programmatic access
+  (e.g. admin dashboards showing reference values). It is NOT merged into
+  runtime themes.
   """
   def packaged_default do
     case read_default() do

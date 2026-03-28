@@ -79,7 +79,7 @@
       <h3 class="font-semibold">{doc_text("Elixir Context Functions")}</h3>
       <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
         <pre phx-no-curly-interpolation>
-# Create a new leaderboard (admin)
+<span class="code-comment"># Create a new leaderboard (admin)</span>
 GameServer.Leaderboards.create_leaderboard(%{
   slug: "weekly_score_2024_w48",
   title: "Weekly High Scores",
@@ -89,28 +89,28 @@ GameServer.Leaderboards.create_leaderboard(%{
   metadata: %{"prize" => "Gold Badge"}
 })
 
-# Submit a score (server-side only)
-# First fetch the active leaderboard (by slug) then submit using its integer id
+<span class="code-comment"># Submit a score (server-side only)</span>
+<span class="code-comment"># First fetch the active leaderboard (by slug) then submit using its integer id</span>
 leaderboard = GameServer.Leaderboards.get_active_leaderboard_by_slug("weekly_score_2024_w48")
 if leaderboard do
   GameServer.Leaderboards.submit_score(
-    leaderboard.id,   # leaderboard id (integer)
-    user_id,          # user_id
-    9500,             # score
-    %{"level" => 15} # optional metadata
+    leaderboard.id,   <span class="code-comment"># leaderboard id (integer)</span>
+    user_id,          <span class="code-comment"># user_id</span>
+    9500,             <span class="code-comment"># score</span>
+    %{"level" => 15} <span class="code-comment"># optional metadata</span>
   )
 end
 
-# List records with pagination
+<span class="code-comment"># List records with pagination</span>
 GameServer.Leaderboards.list_records(leaderboard.id, page: 1, page_size: 25)
 
-# Get user's record with rank
+<span class="code-comment"># Get user's record with rank</span>
 GameServer.Leaderboards.get_user_record(leaderboard.id, user_id)
 
-# Get records around a user (for context display)
+<span class="code-comment"># Get records around a user (for context display)</span>
 GameServer.Leaderboards.list_records_around_user(leaderboard.id, user_id, limit: 5)
 
-# End a leaderboard (marks it as finished)
+<span class="code-comment"># End a leaderboard (marks it as finished)</span>
 GameServer.Leaderboards.end_leaderboard(leaderboard)</pre>
       </div>
 

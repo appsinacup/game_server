@@ -256,15 +256,19 @@ defmodule GameServer.Hooks.PluginManager do
       |> Enum.map(&Path.basename/1)
       |> Enum.sort()
       |> Enum.reduce(%{}, fn plugin_name, acc ->
-        plugin = load_plugin(dir, plugin_name)
-        Map.put(acc, plugin_name, plugin)
+        case load_plugin(dir, plugin_name) do
+          %Plugin{} = plugin -> Map.put(acc, plugin_name, plugin)
+          nil -> acc
+        end
       end)
     else
       _ -> %{}
     end
   end
 
-  defp load_plugin(root, plugin_name) do
+  @max_plugin_name_length 64
+
+  defp load_plugin(root, plugin_name) when byte_size(plugin_name) <= @max_plugin_name_length do
     app = String.to_atom(plugin_name)
 
     plugin_dir = Path.join(root, plugin_name)
@@ -302,6 +306,11 @@ defmodule GameServer.Hooks.PluginManager do
       other ->
         %Plugin{plugin | status: {:error, other}}
     end
+  end
+
+  defp load_plugin(_root, plugin_name) do
+    Logger.warning("plugin=#{plugin_name} skipped: name exceeds #{@max_plugin_name_length} chars")
+    nil
   end
 
   defp safe_load_app(app) do

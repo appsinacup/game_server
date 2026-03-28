@@ -110,9 +110,9 @@
             <li>{doc_text("Select your App ID as the Primary App ID")}</li>
             <li>
               {doc_text("Add these domains and redirect URLs:")}<br />
-              <div class="bg-base-200 p-3 rounded mt-2 font-mono text-sm">
-                <div>Domain: example.com</div>
-                <div>Return URL: https://example.com/auth/apple/callback</div>
+              <div class="bg-base-200 p-3 rounded mt-2 font-mono text-sm highlight-code">
+                <pre phx-no-curly-interpolation>Domain: example.com
+Return URL: https://example.com/auth/apple/callback</pre>
               </div>
             </li>
             <li>{doc_text("Click Save, then Continue, then Register")}</li>
@@ -180,16 +180,14 @@
         </h3>
         <div class="ml-8 space-y-3">
           <p>{doc_text("Set these environment variables:")}</p>
-          <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
-            <div class="space-y-2">
-              <div>APPLE_WEB_CLIENT_ID="com.yourcompany.gameserver.web"</div>
-              <div>APPLE_IOS_CLIENT_ID="com.yourcompany.gameserver.ios"</div>
-              <div>APPLE_TEAM_ID="A1B2C3D4E5"</div>
-              <div>APPLE_KEY_ID="ABC123XYZ"</div>
-              <div>APPLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----</div>
-              <div>MIGTAgEAMBMGByq...your key content...</div>
-              <div>-----END PRIVATE KEY-----"</div>
-            </div>
+          <div class="bg-base-200 p-4 rounded-lg font-mono text-sm highlight-code">
+            <pre phx-no-curly-interpolation><span class="code-variable">APPLE_WEB_CLIENT_ID</span>=<span class="code-string">"com.yourcompany.gameserver.web"</span>
+<span class="code-variable">APPLE_IOS_CLIENT_ID</span>=<span class="code-string">"com.yourcompany.gameserver.ios"</span>
+<span class="code-variable">APPLE_TEAM_ID</span>=<span class="code-string">"A1B2C3D4E5"</span>
+<span class="code-variable">APPLE_KEY_ID</span>=<span class="code-string">"ABC123XYZ"</span>
+<span class="code-variable">APPLE_PRIVATE_KEY</span>=<span class="code-string">"-----BEGIN PRIVATE KEY-----"</span>
+<span class="code-string">"MIGTAgEAMBMGByq...your key content..."</span>
+<span class="code-string">"-----END PRIVATE KEY-----"</span></pre>
           </div>
         </div>
       </div>

@@ -329,6 +329,7 @@ defmodule GameServer.Parties do
          {:ok, party} <- fetch_party(leader.party_id),
          :ok <- check_is_leader(party, leader),
          {:ok, target} <- fetch_invite_target(target_user_id),
+         :ok <- check_not_blocked(leader.id, target_user_id),
          :ok <- check_leader_connected_to_target(leader.id, target_user_id),
          :ok <- check_no_pending_invite(leader.id, target_user_id),
          :ok <- check_max_pending_invites(target_user_id) do
@@ -628,6 +629,10 @@ defmodule GameServer.Parties do
       nil -> {:error, :user_not_found}
       user -> {:ok, user}
     end
+  end
+
+  defp check_not_blocked(user_a_id, user_b_id) do
+    if Friends.blocked?(user_a_id, user_b_id), do: {:error, :blocked}, else: :ok
   end
 
   defp check_leader_connected_to_target(leader_id, target_user_id) do

@@ -6,11 +6,13 @@
   "logo": "/images/logo.png",
   "banner": "/images/banner.png",
   "favicon": "/favicon.ico",
+  "changelog": "/CHANGELOG.md",
+  "blog": "/blog",
   "useful_links": [
+    { "title": "Getting Started", "url": "/docs/setup#deployment", "icon": "hero-rocket-launch", "style": "primary" },
+    { "title": "Presentation Video", "url": "https://www.youtube.com/watch?v=KhjWyUVsTkE", "icon": "hero-play", "external": true, "style": "primary" },
     { "title": "Discord", "url": "https://discord.com/invite/v649emcpAu", "icon": "hero-chat-bubble-left-ellipsis", "external": true },
     { "title": "Blog", "url": "/blog", "icon": "hero-newspaper" },
-    { "title": "Release Notes", "url": "/changelog", "icon": "hero-document-text" },
-    { "title": "Source Code", "url": "https://github.com/appsinacup/game_server", "icon": "hero-book-open", "external": true },
     { "title": "Guides", "url": "/docs/setup", "icon": "hero-academic-cap" },
     { "title": "API Docs", "url": "/api/docs", "icon": "hero-book-open" }
   ],

@@ -71,16 +71,14 @@
             {doc_text("Docker Compose is a simple way to run the app with PostgreSQL and Redis.")}
           </p>
 
-          <div class="bg-base-200 p-4 rounded-lg font-mono text-sm">
-            <div class="space-y-2">
-              <div># Start deps (Postgres + Redis):</div>
-              <div>docker compose up</div>
-              <div></div>
-              <div># In your app env:</div>
-              <div>CACHE_MODE=multi</div>
-              <div>CACHE_L2=redis</div>
-              <div>CACHE_REDIS_URL="redis://redis:6379/0"</div>
-            </div>
+          <div class="bg-base-200 p-4 rounded-lg font-mono text-sm highlight-code">
+            <pre phx-no-curly-interpolation><span class="code-comment"># <%= doc_text("Start deps (Postgres + Redis):") %></span>
+docker compose up
+
+<span class="code-comment"># <%= doc_text("In your app env:") %></span>
+CACHE_MODE=multi
+CACHE_L2=redis
+CACHE_REDIS_URL="redis://redis:6379/0"</pre>
           </div>
 
           <p class="text-sm text-base-content/70">
@@ -88,6 +86,54 @@
             <code>CACHE_L2=partitioned</code>
             {doc_text(
               "under Compose, you also need to configure Erlang distribution + node discovery for your app containers."
+            )}
+          </p>
+        </div>
+      </div>
+      <div class="step">
+        <h3 class="text-lg font-semibold mb-3">
+          {doc_text("Rate Limiting")}
+        </h3>
+        <div class="ml-8 space-y-3">
+          <p>
+            {doc_text(
+              "HTTP rate limiting is enforced per client IP using the Hammer library (ETS backend). It protects against brute-force attacks and API abuse."
+            )}
+          </p>
+          <p class="text-sm text-base-content/80">
+            {doc_text(
+              "Configuration is via environment variables. The server reads the real client IP from CF-Connecting-IP (Cloudflare), Fly-Client-IP, or X-Forwarded-For headers."
+            )}
+          </p>
+
+          <div class="bg-base-200 p-4 rounded-lg font-mono text-sm highlight-code">
+            <pre phx-no-curly-interpolation><span class="code-comment"># <%= doc_text("General: 120 req / 60000ms") %></span>
+<span class="code-comment"># <%= doc_text("Auth (login/register): 10 req / 60000ms") %></span>
+<span class="code-comment"># <%= doc_text("WebSocket: 60 msg / 10000ms") %></span>
+<span class="code-comment"># <%= doc_text("WebRTC DC: 300 msg / 10000ms") %></span>
+<span class="code-comment"># <%= doc_text("Set via RATE_LIMIT_* env vars") %></span>
+RATE_LIMIT_HTTP_GENERAL_LIMIT=120
+RATE_LIMIT_HTTP_GENERAL_WINDOW=60000
+RATE_LIMIT_HTTP_AUTH_LIMIT=10
+RATE_LIMIT_HTTP_AUTH_WINDOW=60000
+RATE_LIMIT_WEBSOCKET_LIMIT=60
+RATE_LIMIT_WEBSOCKET_WINDOW=10000
+RATE_LIMIT_WEBRTC_LIMIT=300
+RATE_LIMIT_WEBRTC_WINDOW=10000</pre>
+          </div>
+
+          <p class="text-sm text-base-content/70">
+            {doc_text(
+              "When a client exceeds the limit, the server returns HTTP 429 Too Many Requests with a Retry-After header."
+            )}
+          </p>
+
+          <h4 class="font-semibold text-sm mt-4">
+            {doc_text("WebSocket & WebRTC rate limiting")}
+          </h4>
+          <p class="text-sm text-base-content/80">
+            {doc_text(
+              "WebSocket channel messages are rate-limited per user (60 messages per 10 seconds by default). When exceeded, the channel is closed with a \"rate_limited\" error. WebRTC DataChannel messages have a separate, higher limit (300 messages per 10 seconds). Exceeding it disconnects the WebRTC peer connection. Unrecognized WebSocket events also close the channel immediately to prevent abuse."
             )}
           </p>
         </div>

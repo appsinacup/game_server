@@ -85,6 +85,8 @@ defmodule GameServerWeb.Endpoint do
 
   plug GameServerWeb.Plugs.DynamicCors
 
+  plug GameServerWeb.Plugs.RateLimiter
+
   plug :dispatch_router
 
   # Cache the router + compiled init opts in persistent_term to avoid

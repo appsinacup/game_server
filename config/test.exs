@@ -86,3 +86,6 @@ config :game_server_web, GameServerWeb.Auth.Guardian,
   issuer: "game_server",
   secret_key: "dJoNJZBOt08JlBREyPV5xvuOdwgHPORxK9WHp/k3Cs+g0R9ctyheJ8/CMeg/AdI1",
   ttl: {15, :minutes}
+
+# Disable rate limiting in tests
+config :game_server_web, GameServerWeb.Plugs.RateLimiter, enabled: false

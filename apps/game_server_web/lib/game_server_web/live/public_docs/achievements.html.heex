@@ -66,39 +66,38 @@
       </ul>
 
       <h3 class="font-semibold">{doc_text("Elixir Context Functions")}</h3>
-      <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
-        <pre phx-no-curly-interpolation>
-# Create an achievement (admin)
-GameServer.Achievements.create_achievement(%{
-  slug: "first_win",
-  title: "First Victory",
-  description: "Win your first match",
-  progress_target: 1,
-  hidden: false,
-  metadata: %{"category" => "combat"}
+      <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto highlight-code">
+        <pre phx-no-curly-interpolation><span class="code-comment"># Create an achievement (admin)</span>
+<span class="code-variable">GameServer</span>.<span class="code-variable">Achievements</span>.<span class="code-function">create_achievement</span>(%{
+  <span class="code-keyword">slug:</span> <span class="code-string">"first_win"</span>,
+  <span class="code-keyword">title:</span> <span class="code-string">"First Victory"</span>,
+  <span class="code-keyword">description:</span> <span class="code-string">"Win your first match"</span>,
+  <span class="code-keyword">progress_target:</span> <span class="code-variable">1</span>,
+  <span class="code-keyword">hidden:</span> <span class="code-variable">false</span>,
+  <span class="code-keyword">metadata:</span> %{<span class="code-string">"category"</span> => <span class="code-string">"combat"</span>}
 })
 
-# Create a multi-step achievement
-GameServer.Achievements.create_achievement(%{
-  slug: "win_50_matches",
-  title: "Veteran",
-  description: "Win 50 matches",
-  progress_target: 50
+<span class="code-comment"># Create a multi-step achievement</span>
+<span class="code-variable">GameServer</span>.<span class="code-variable">Achievements</span>.<span class="code-function">create_achievement</span>(%{
+  <span class="code-keyword">slug:</span> <span class="code-string">"win_50_matches"</span>,
+  <span class="code-keyword">title:</span> <span class="code-string">"Veteran"</span>,
+  <span class="code-keyword">description:</span> <span class="code-string">"Win 50 matches"</span>,
+  <span class="code-keyword">progress_target:</span> <span class="code-variable">50</span>
 })
 
-# Instant unlock (sets progress = target, unlocked_at = now)
-GameServer.Achievements.unlock_achievement(user_id, "first_win")
+<span class="code-comment"># Instant unlock (sets progress = target, unlocked_at = now)</span>
+<span class="code-variable">GameServer</span>.<span class="code-variable">Achievements</span>.<span class="code-function">unlock_achievement</span>(user_id, <span class="code-string">"first_win"</span>)
 
-# Increment progress (auto-unlocks when progress >= target)
-GameServer.Achievements.increment_progress(user_id, "win_50_matches", 1)
+<span class="code-comment"># Increment progress (auto-unlocks when progress >= target)</span>
+<span class="code-variable">GameServer</span>.<span class="code-variable">Achievements</span>.<span class="code-function">increment_progress</span>(user_id, <span class="code-string">"win_50_matches"</span>, <span class="code-variable">1</span>)
 
-# Admin grant/revoke
-GameServer.Achievements.grant_achievement(user_id, achievement_id)
-GameServer.Achievements.revoke_achievement(user_id, achievement_id)
+<span class="code-comment"># Admin grant/revoke</span>
+<span class="code-variable">GameServer</span>.<span class="code-variable">Achievements</span>.<span class="code-function">grant_achievement</span>(user_id, achievement_id)
+<span class="code-variable">GameServer</span>.<span class="code-variable">Achievements</span>.<span class="code-function">revoke_achievement</span>(user_id, achievement_id)
 
-# Query user achievements
-GameServer.Achievements.list_user_achievements(user_id, page: 1, page_size: 25)
-GameServer.Achievements.unlock_percentage("first_win")</pre>
+<span class="code-comment"># Query user achievements</span>
+<span class="code-variable">GameServer</span>.<span class="code-variable">Achievements</span>.<span class="code-function">list_user_achievements</span>(user_id, <span class="code-keyword">page:</span> <span class="code-variable">1</span>, <span class="code-keyword">page_size:</span> <span class="code-variable">25</span>)
+<span class="code-variable">GameServer</span>.<span class="code-variable">Achievements</span>.<span class="code-function">unlock_percentage</span>(<span class="code-string">"first_win"</span>)</pre>
       </div>
 
       <h3 class="font-semibold">{doc_text("REST API Endpoints")}</h3>
