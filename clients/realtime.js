@@ -113,6 +113,40 @@ export class GameRealtime {
     return this._join(`party:${partyId}`, params)
   }
 
+  // ── Push helpers ─────────────────────────────────────────────────────────
+
+  /**
+   * Push an event to a channel by topic. Returns a Phoenix Push object.
+   * If no topic is given, pushes to the user channel.
+   * @param {string} event
+   * @param {Object} [payload={}]
+   * @param {string} [topic] - defaults to the user channel
+   * @returns {Object} Phoenix Push
+   */
+  push(event, payload = {}, topic) {
+    const ch = topic ? this._channels.get(topic) : this._findUserChannel()
+    if (!ch) {
+      throw new Error(`No channel found${topic ? ` for topic "${topic}"` : ''}. Join it first.`)
+    }
+    return ch.push(event, payload)
+  }
+
+  /**
+   * Call a plugin hook via the user channel. Returns a Promise.
+   * @param {string} plugin
+   * @param {string} fn
+   * @param {Array}  [args=[]]
+   * @returns {Promise<any>}
+   */
+  callHook(plugin, fn, args = []) {
+    return new Promise((resolve, reject) => {
+      this.push('call_hook', { plugin, fn, args })
+        .receive('ok', (resp) => resolve(resp.data))
+        .receive('error', (resp) => reject(new Error(resp.error || 'unknown_error')))
+        .receive('timeout', () => reject(new Error('timeout')))
+    })
+  }
+
   /**
    * Join an arbitrary channel topic.
    * @param {string} topic  - Full Phoenix channel topic string
@@ -174,6 +208,13 @@ export class GameRealtime {
       )
     this._channels.set(topic, ch)
     return ch
+  }
+
+  _findUserChannel() {
+    for (const [topic, ch] of this._channels) {
+      if (topic.startsWith('user:')) return ch
+    }
+    return undefined
   }
 }
 

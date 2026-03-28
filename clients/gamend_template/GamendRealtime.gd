@@ -53,6 +53,20 @@ func remove_channel(topic: String) -> void:
 	debug_message.emit("info", "network", "Channel left: %s" % topic)
 	channel.queue_free()
 
+func call_hook(plugin: String, fn_name: String, args: Array = []) -> bool:
+	return push("call_hook", {"plugin": plugin, "fn": fn_name, "args": args})
+
+func push(event: String, payload: Dictionary = {}, topic: String = "") -> bool:
+	var ch: PhoenixChannel
+	if topic == "":
+		ch = _get_user_channel()
+	elif _channels.has(topic):
+		ch = _channels[topic]
+	if ch == null:
+		push_warning("GamendRealtime: no channel found for push")
+		return false
+	return ch.push(event, payload)
+
 func _socket_on_open(params):
 	if enable_logs:
 		print("Socket Open ", params)
@@ -89,3 +103,9 @@ func _channel_on_close(params, topic):
 		print("Channel on close ", topic, " ", params)
 	if _channels.has(topic):
 		_channels.erase(topic)
+
+func _get_user_channel() -> PhoenixChannel:
+	for topic in _channels:
+		if topic.begins_with("user:"):
+			return _channels[topic]
+	return null
