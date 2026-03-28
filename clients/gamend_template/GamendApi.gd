@@ -34,6 +34,7 @@ signal party_member_online(payload: Dictionary)   ## user came online while in p
 signal party_member_offline(payload: Dictionary)  ## user went offline while in party
 signal party_member_updated(payload: Dictionary)  ## member updated while in party
 signal party_disbanded(payload: Dictionary)       ## {party_id}
+signal party_lobby_joined(payload: Dictionary)    ## {lobby_id} - party joined a lobby together
 signal party_invite_accepted(payload: Dictionary)  ## {party_id, user_id} via user channel
 signal party_invite_declined(payload: Dictionary)  ## {party_id, user_id} via user channel
 signal party_invite_cancelled(payload: Dictionary) ## {party_id, user_id} via user channel
@@ -444,6 +445,8 @@ func _handle_party_event(event: String, payload: Dictionary):
 			party_member_updated.emit(payload)
 		"disbanded":
 			party_disbanded.emit(payload)
+		"lobby_joined":
+			party_lobby_joined.emit(payload)
 		"new_chat_message":
 			party_chat_message.emit(payload)
 		"chat_message_updated":

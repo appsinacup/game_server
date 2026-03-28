@@ -127,6 +127,7 @@
                                         disbanded,
                                         member_online, member_offline,
                                         member_updated,
+                                        lobby_joined,
                                         new_chat_message,
                                         chat_message_updated,
                                         chat_message_deleted</pre>
@@ -633,6 +634,11 @@
               <td class="font-mono" phx-no-curly-interpolation>
                 {user_id, display_name, profile_url, metadata, is_online}
               </td>
+            </tr>
+            <tr>
+              <td class="font-mono">lobby_joined</td>
+              <td>{doc_text("The party joined a lobby together")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{lobby_id}</td>
             </tr>
             <tr>
               <td class="font-mono">new_chat_message</td>

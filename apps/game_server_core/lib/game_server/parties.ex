@@ -783,8 +783,18 @@ defmodule GameServer.Parties do
     end
   end
 
+  # A member is considered "recently active" if they are online or were last
+  # seen within the grace period (default 5 minutes). This avoids false
+  # negatives caused by brief disconnects or heartbeat delays.
+  @online_grace_seconds 300
+
   defp check_all_members_online(members) do
-    offline = Enum.filter(members, fn m -> not (m.is_online || false) end)
+    cutoff = DateTime.add(DateTime.utc_now(), -@online_grace_seconds, :second)
+
+    offline =
+      Enum.filter(members, fn m ->
+        not member_recently_active?(m, cutoff)
+      end)
 
     if offline == [] do
       :ok
@@ -792,6 +802,14 @@ defmodule GameServer.Parties do
       {:error, :members_offline}
     end
   end
+
+  defp member_recently_active?(%User{is_online: true}, _cutoff), do: true
+
+  defp member_recently_active?(%User{last_seen_at: %DateTime{} = last_seen}, cutoff) do
+    DateTime.compare(last_seen, cutoff) != :lt
+  end
+
+  defp member_recently_active?(_user, _cutoff), do: false
 
   defp check_not_self_kick(%User{id: id}, id), do: {:error, :cannot_kick_self}
   defp check_not_self_kick(%User{}, _target_id), do: :ok
@@ -982,10 +1000,21 @@ defmodule GameServer.Parties do
       {:ok, _} ->
         # Broadcast events only after successful commit
         Enum.each(non_leader_members, fn member ->
-          _ = Accounts.broadcast_user_update(Accounts.get_user(member.id))
+          updated = Accounts.get_user(member.id)
+          _ = Accounts.broadcast_user_update(updated)
+
+          Phoenix.PubSub.broadcast(
+            GameServer.PubSub,
+            "lobby:#{lobby.id}",
+            {:user_joined, lobby.id, member.id}
+          )
         end)
 
         _ = Accounts.broadcast_user_update(Accounts.get_user(user.id))
+
+        # Notify the party that all members joined a lobby
+        broadcast_party(user.party_id, {:party_lobby_joined, user.party_id, lobby.id})
+
         {:ok, lobby}
 
       {:error, reason} ->
@@ -1053,7 +1082,7 @@ defmodule GameServer.Parties do
     end
   end
 
-  defp join_all_members_to_lobby(members, lobby, _party) do
+  defp join_all_members_to_lobby(members, lobby, party) do
     # Use a transaction with advisory lock so the space check + member joins
     # are atomic. This prevents TOCTOU race conditions on PostgreSQL.
     Repo.transaction(fn ->
@@ -1102,6 +1131,9 @@ defmodule GameServer.Parties do
             {:user_joined, lobby.id, member.id}
           )
         end)
+
+        # Notify the party that all members joined a lobby
+        broadcast_party(party.id, {:party_lobby_joined, party.id, lobby.id})
 
         {:ok, lobby}
 
