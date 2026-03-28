@@ -165,7 +165,7 @@ defmodule GameServerWeb.UserChannel do
 
   @impl true
   def handle_in(_event, _payload, socket) do
-    {:reply, {:error, %{error: "unknown_event"}}, socket}
+    {:stop, :normal, {:error, %{error: "unknown_event"}}, socket}
   end
 
   # ── PubSub event forwarding ────────────────────────────────────────────────

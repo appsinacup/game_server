@@ -97,7 +97,7 @@ defmodule GameServerWeb.LobbyChannel do
 
   @impl true
   def handle_in(_event, _payload, socket),
-    do: {:reply, {:error, %{error: "unknown_event"}}, socket}
+    do: {:stop, :normal, {:error, %{error: "unknown_event"}}, socket}
 
   # Handle PubSub messages and forward them to WebSocket clients
 
