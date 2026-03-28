@@ -53,9 +53,6 @@ signal friend_request_cancelled(payload: Dictionary)  ## sender cancelled a pend
 signal friend_removed(payload: Dictionary)            ## an existing friendship was removed
 signal friend_blocked(payload: Dictionary)            ## user blocked
 signal friend_unblocked(payload: Dictionary)          ## user unblocked
-## Membership events (via user channel)
-signal lobby_joined(payload: Dictionary)              ## {lobby_id} you joined a lobby
-signal party_joined(payload: Dictionary)              ## {party_id} you joined a party
 ## Friend DM chat (via user channel)
 signal friend_chat_message(message: Dictionary)
 signal friend_chat_message_updated(message: Dictionary)
@@ -394,10 +391,6 @@ func _handle_user_event(event: String, payload: Dictionary):
 			achievement_unlocked.emit(payload)
 		"achievement_progress":
 			achievement_progress.emit(payload)
-		"lobby_joined":
-			lobby_joined.emit(payload)
-		"party_joined":
-			party_joined.emit(payload)
 
 func _handle_lobby_event(event: String, payload: Dictionary):
 	match event:

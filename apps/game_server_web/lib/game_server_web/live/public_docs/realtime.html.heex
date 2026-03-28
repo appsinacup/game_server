@@ -100,8 +100,7 @@
                                         incoming_request, outgoing_request,
                                         friend_accepted, friend_rejected,
                                         request_cancelled, friend_removed,
-                                        friend_blocked, friend_unblocked,
-                                        lobby_joined, party_joined
+                                        friend_blocked, friend_unblocked
   LobbyChannel      "lobby:{id}"        updated, user_joined, user_left,
                                         user_kicked, host_changed,
                                         member_online, member_offline,
@@ -302,16 +301,6 @@
               <td class="font-mono" phx-no-curly-interpolation>
                 {id, requester_id, target_id, status}
               </td>
-            </tr>
-            <tr>
-              <td class="font-mono">lobby_joined</td>
-              <td>{doc_text("You joined a lobby")}</td>
-              <td class="font-mono" phx-no-curly-interpolation>{lobby_id}</td>
-            </tr>
-            <tr>
-              <td class="font-mono">party_joined</td>
-              <td>{doc_text("You joined a party")}</td>
-              <td class="font-mono" phx-no-curly-interpolation>{party_id}</td>
             </tr>
           </tbody>
         </table>

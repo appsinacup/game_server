@@ -532,7 +532,9 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     assert reloaded_member.lobby_id == lobby.id
   end
 
-  test "POST /api/v1/lobbies/quick_join returns in_party for party member", %{conn: conn} do
+  test "POST /api/v1/lobbies/quick_join returns not_leader for non-leader party member", %{
+    conn: conn
+  } do
     {_leader, member, _party} = create_party_with_member()
 
     {:ok, token, _} = Guardian.encode_and_sign(member)
@@ -542,6 +544,34 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
       |> put_req_header("authorization", "Bearer " <> token)
       |> post("/api/v1/lobbies/quick_join", %{title: "quick"})
 
-    assert json_response(conn, 403)["error"] == "in_party"
+    assert json_response(conn, 403)["error"] == "not_leader"
+  end
+
+  test "POST /api/v1/lobbies/quick_join with party leader joins whole party", %{conn: conn} do
+    {leader, member, party} = create_party_with_member()
+
+    # Mark both members as online so the online check passes
+    GameServer.Accounts.set_user_online(leader.id)
+    GameServer.Accounts.set_user_online(member.id)
+
+    # Reload leader to get the updated party_id
+    leader = GameServer.Accounts.get_user(leader.id)
+    assert leader.party_id == party.id
+
+    {:ok, token, _} = Guardian.encode_and_sign(leader)
+
+    conn =
+      conn
+      |> put_req_header("authorization", "Bearer " <> token)
+      |> post("/api/v1/lobbies/quick_join", %{title: "party-quick"})
+
+    resp = json_response(conn, 200)
+    assert resp["id"]
+
+    # Verify both members are now in the lobby
+    updated_leader = GameServer.Accounts.get_user(leader.id)
+    updated_member = GameServer.Accounts.get_user(member.id)
+    assert updated_leader.lobby_id == resp["id"]
+    assert updated_member.lobby_id == resp["id"]
   end
 end

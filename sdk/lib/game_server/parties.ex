@@ -454,6 +454,29 @@ defmodule GameServer.Parties do
 
 
   @doc ~S"""
+    The party leader quick-joins a lobby with the entire party.
+    
+    Searches for an open lobby that matches the given criteria (title,
+    max_users, metadata) and has enough space for the whole party. If no
+    matching lobby is found, creates a new one and joins all party members
+    atomically.
+    
+    Returns `{:ok, lobby}` on success.
+    
+  """
+  @spec quick_join_with_party(GameServer.Accounts.User.t(), map()) :: {:ok, Lobby.t()} | {:error, term()}
+  def quick_join_with_party(_user, _params) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, nil}
+
+      _ ->
+        raise "GameServer.Parties.quick_join_with_party/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Subscribe to all party events (create/delete).
   """
   @spec subscribe_parties() :: :ok | {:error, term()}

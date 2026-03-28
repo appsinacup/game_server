@@ -293,13 +293,6 @@ defmodule GameServer.Parties do
         invalidate_user_cache(user.id)
         broadcast_parties({:party_created, party.id})
 
-        # Notify the creator on their personal channel that they joined a party
-        Phoenix.PubSub.broadcast(
-          GameServer.PubSub,
-          "user:#{user.id}",
-          {:party_joined, party.id}
-        )
-
         GameServer.Async.run(fn ->
           GameServer.Hooks.internal_call(:after_party_create, [party])
         end)
@@ -706,13 +699,6 @@ defmodule GameServer.Parties do
             _ = Accounts.broadcast_member_update(updated_user)
             broadcast_party(party_id, {:party_member_joined, party_id, updated_user.id})
 
-            # Notify the user on their personal channel that they joined a party
-            Phoenix.PubSub.broadcast(
-              GameServer.PubSub,
-              "user:#{updated_user.id}",
-              {:party_joined, party_id}
-            )
-
             updated_user
 
           {:error, reason} ->
@@ -941,6 +927,136 @@ defmodule GameServer.Parties do
   end
 
   # ---------------------------------------------------------------------------
+  # Lobby integration: quick join with party
+  # ---------------------------------------------------------------------------
+
+  @doc """
+  The party leader quick-joins a lobby with the entire party.
+
+  Searches for an open lobby that matches the given criteria (title,
+  max_users, metadata) and has enough space for the whole party. If no
+  matching lobby is found, creates a new one and joins all party members
+  atomically.
+
+  Returns `{:ok, lobby}` on success.
+  """
+  @spec quick_join_with_party(User.t(), map()) :: {:ok, Lobby.t()} | {:error, term()}
+  def quick_join_with_party(%User{} = user, params \\ %{}) do
+    user = Accounts.get_user(user.id)
+
+    with :ok <- check_in_party(user),
+         {:ok, party} <- fetch_party(user.party_id),
+         :ok <- check_is_leader(party, user) do
+      members = get_party_members(party.id)
+
+      with :ok <- check_no_members_in_lobby(members),
+           :ok <- check_all_members_online(members) do
+        do_quick_join_with_party(user, party, members, params)
+      end
+    end
+  end
+
+  defp do_quick_join_with_party(user, party, members, params) do
+    title = Map.get(params, "title") || Map.get(params, :title)
+    max_users = Map.get(params, "max_users") || Map.get(params, :max_users)
+
+    metadata_raw = Map.get(params, "metadata") || Map.get(params, :metadata)
+
+    metadata =
+      case metadata_raw do
+        nil ->
+          %{}
+
+        "" ->
+          %{}
+
+        s when is_binary(s) ->
+          case Jason.decode(s) do
+            {:ok, m} when is_map(m) -> m
+            _ -> %{}
+          end
+
+        m when is_map(m) ->
+          m
+
+        _ ->
+          %{}
+      end
+
+    party_size = length(members)
+
+    # Find candidate lobbies: visible, unlocked, no password, matching max_users
+    q =
+      from(l in Lobbies.Lobby,
+        where: l.is_hidden == false and l.is_locked == false and is_nil(l.password_hash)
+      )
+
+    q =
+      if is_nil(max_users) do
+        q
+      else
+        from(l in q, where: l.max_users == ^max_users)
+      end
+
+    # Only consider lobbies that have at least party_size free slots
+    q =
+      from(l in q,
+        left_join: u in User,
+        on: u.lobby_id == l.id,
+        group_by: l.id,
+        having: l.max_users - count(u.id) >= ^party_size,
+        order_by: [asc: l.inserted_at],
+        limit: 5
+      )
+
+    candidates = Repo.all(q)
+
+    # Try candidates in order
+    tried =
+      Enum.reduce_while(candidates, :none, fn lobby, _acc ->
+        if Lobbies.lobby_matches_metadata?(lobby, metadata) do
+          case join_all_members_to_lobby(members, lobby, party) do
+            {:ok, _} -> {:halt, {:ok, lobby}}
+            {:error, :not_enough_space} -> {:cont, :none}
+            {:error, _} = err -> {:halt, err}
+          end
+        else
+          {:cont, :none}
+        end
+      end)
+
+    case tried do
+      {:ok, lobby} when is_map(lobby) ->
+        {:ok, lobby}
+
+      {:error, _} = err ->
+        err
+
+      :none ->
+        # No match found -> create a new lobby with the whole party
+        lobby_attrs = %{}
+        lobby_attrs = if title, do: Map.put(lobby_attrs, "title", title), else: lobby_attrs
+
+        lobby_attrs =
+          if max_users,
+            do: Map.put(lobby_attrs, "max_users", max_users),
+            else:
+              Map.put(
+                lobby_attrs,
+                "max_users",
+                max(party_size, 8)
+              )
+
+        lobby_attrs =
+          if metadata && metadata != %{},
+            do: Map.put(lobby_attrs, "metadata", metadata),
+            else: lobby_attrs
+
+        do_create_lobby_with_party(user, party, members, lobby_attrs)
+    end
+  end
+
+  # ---------------------------------------------------------------------------
   # Lobby integration: create lobby with party
   # ---------------------------------------------------------------------------
 
@@ -1024,13 +1140,6 @@ defmodule GameServer.Parties do
             GameServer.PubSub,
             "lobby:#{lobby.id}",
             {:user_joined, lobby.id, member.id}
-          )
-
-          # Notify each member on their user channel that they joined a lobby
-          Phoenix.PubSub.broadcast(
-            GameServer.PubSub,
-            "user:#{member.id}",
-            {:lobby_joined, lobby.id}
           )
         end)
 
@@ -1148,13 +1257,6 @@ defmodule GameServer.Parties do
             GameServer.PubSub,
             "lobby:#{lobby.id}",
             {:user_joined, lobby.id, member.id}
-          )
-
-          # Notify each member on their user channel that they joined a lobby
-          Phoenix.PubSub.broadcast(
-            GameServer.PubSub,
-            "user:#{member.id}",
-            {:lobby_joined, lobby.id}
           )
         end)
 

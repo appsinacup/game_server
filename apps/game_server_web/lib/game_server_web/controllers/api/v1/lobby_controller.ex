@@ -658,15 +658,44 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       %{user: user} when is_map(user) ->
         user = GameServer.Accounts.get_user(user.id)
 
-        # Party members cannot quick_join individually
         if user.party_id != nil do
-          conn |> put_status(:forbidden) |> json(%{error: "in_party"})
+          # Party leader quick-joins with the whole party
+          do_party_quick_join(conn, user, params)
         else
           do_quick_join(conn, user, params)
         end
 
       _ ->
         conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
+    end
+  end
+
+  defp do_party_quick_join(conn, user, params) do
+    case GameServer.Parties.quick_join_with_party(user, params) do
+      {:ok, lobby} ->
+        json(conn, serialize_lobby(lobby))
+
+      {:error, :not_leader} ->
+        conn |> put_status(:forbidden) |> json(%{error: "not_leader"})
+
+      {:error, :member_in_lobby} ->
+        conn
+        |> put_status(:conflict)
+        |> json(%{error: "member_in_lobby"})
+
+      {:error, :members_offline} ->
+        conn
+        |> put_status(:conflict)
+        |> json(%{error: "members_offline"})
+
+      {:error, reason} when is_atom(reason) ->
+        conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
+
+      {:error, {:hook_rejected, _}} ->
+        conn |> put_status(:forbidden) |> json(%{error: "rejected"})
+
+      _other ->
+        conn |> put_status(:unprocessable_entity) |> json(%{error: "unexpected_error"})
     end
   end
 

@@ -677,7 +677,7 @@ defmodule GameServer.Lobbies do
         {:error, {:hook_rejected, reason}}
     end
     |> case do
-      {:ok, %{lobby: lobby} = result} ->
+      {:ok, %{lobby: lobby}} ->
         lobby = normalize_hostless_lobby(lobby)
 
         GameServer.Async.run(fn ->
@@ -686,17 +686,6 @@ defmodule GameServer.Lobbies do
 
         _ = invalidate_lobby_cache(lobby.id)
         broadcast_lobbies({:lobby_created, lobby})
-
-        # Notify the host on their user channel (if present)
-        if Map.has_key?(result, :membership) do
-          %{membership: %{id: host_user_id}} = result
-
-          Phoenix.PubSub.broadcast(
-            GameServer.PubSub,
-            "user:#{host_user_id}",
-            {:lobby_joined, lobby.id}
-          )
-        end
 
         {:ok, lobby}
 
@@ -888,13 +877,6 @@ defmodule GameServer.Lobbies do
             _ = Accounts.broadcast_member_update(updated_user)
             broadcast_lobby(lobby_id, {:user_joined, lobby_id, user_id})
             broadcast_lobbies({:lobby_membership_changed, lobby_id})
-
-            # Notify the user on their personal channel that they joined a lobby
-            Phoenix.PubSub.broadcast(
-              GameServer.PubSub,
-              "user:#{user_id}",
-              {:lobby_joined, lobby_id}
-            )
 
             # Fetch the lobby before starting the background task so the task
             # does not need to check out a DB connection from the sandbox.
@@ -1320,7 +1302,7 @@ defmodule GameServer.Lobbies do
       # Try candidates in order — if a candidate fails due to full, move to next.
       tried =
         Enum.reduce_while(candidates, {:none, []}, fn lobby, _acc ->
-          if matches_metadata?(lobby, metadata) do
+          if lobby_matches_metadata?(lobby, metadata) do
             attempt_quick_join(user, lobby)
           else
             {:cont, {:none, []}}
@@ -1365,7 +1347,8 @@ defmodule GameServer.Lobbies do
     end
   end
 
-  defp matches_metadata?(lobby, metadata) do
+  @doc false
+  def lobby_matches_metadata?(lobby, metadata) do
     Enum.all?(Map.to_list(metadata || %{}), fn
       {_k, v} when is_nil(v) ->
         true
