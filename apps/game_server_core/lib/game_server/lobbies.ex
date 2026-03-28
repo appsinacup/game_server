@@ -873,6 +873,7 @@ defmodule GameServer.Lobbies do
           {:ok, updated_user} ->
             _ = invalidate_accounts_user_cache(updated_user.id)
             _ = Accounts.broadcast_user_update(updated_user)
+            _ = Accounts.broadcast_member_update(updated_user)
             broadcast_lobby(lobby_id, {:user_joined, lobby_id, user_id})
             broadcast_lobbies({:lobby_membership_changed, lobby_id})
 
@@ -903,6 +904,7 @@ defmodule GameServer.Lobbies do
       {:ok, updated} = ok ->
         _ = invalidate_accounts_user_cache(updated.id)
         _ = Accounts.broadcast_user_update(updated)
+        _ = Accounts.broadcast_member_update(updated)
         ok
 
       other ->
@@ -984,6 +986,7 @@ defmodule GameServer.Lobbies do
         _ = invalidate_accounts_user_cache(user_id)
         _ = invalidate_lobby_cache(lobby_id)
         maybe_broadcast_user_updated(user_id)
+        maybe_broadcast_member_updated(user_id)
         broadcast_lobbies({:lobby_deleted, lobby_id})
         result
 
@@ -991,6 +994,7 @@ defmodule GameServer.Lobbies do
         _ = invalidate_accounts_user_cache(user_id)
         _ = invalidate_lobby_cache(lobby_id)
         maybe_broadcast_user_updated(user_id)
+        maybe_broadcast_member_updated(user_id)
         broadcast_lobby(lobby_id, {:user_left, lobby_id, user_id})
         broadcast_lobby(lobby_id, {:host_changed, lobby_id, new_host_id})
         broadcast_lobbies({:lobby_membership_changed, lobby_id})
@@ -1008,12 +1012,20 @@ defmodule GameServer.Lobbies do
         _ = invalidate_accounts_user_cache(user_id)
         _ = invalidate_lobby_cache(lobby_id)
         maybe_broadcast_user_updated(user_id)
+        maybe_broadcast_member_updated(user_id)
         broadcast_lobby(lobby_id, {:user_left, lobby_id, user_id})
         broadcast_lobbies({:lobby_membership_changed, lobby_id})
         result
 
       _ ->
         result
+    end
+  end
+
+  defp maybe_broadcast_member_updated(user_id) when is_integer(user_id) do
+    case Accounts.get_user(user_id) do
+      %User{} = user -> Accounts.broadcast_member_update(user)
+      nil -> :ok
     end
   end
 
@@ -1091,6 +1103,7 @@ defmodule GameServer.Lobbies do
           {:ok, updated} ->
             _ = invalidate_accounts_user_cache(membership.id)
             _ = Accounts.broadcast_user_update(updated)
+            _ = Accounts.broadcast_member_update(updated)
 
             GameServer.Async.run(fn ->
               GameServer.Hooks.internal_call(:after_user_kicked, [

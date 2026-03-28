@@ -19,6 +19,9 @@ defmodule GameServerWeb.GroupChannel do
   - `"new_chat_message"` - A new chat message. Payload: chat message object
   - `"chat_message_updated"` - A chat message was updated. Payload: chat message object
   - `"chat_message_deleted"` - A chat message was deleted. Payload: `%{id: integer}`
+  - `"member_updated"` - A group member was updated. Payload: user brief object
+  - `"member_online"` - A group member came online. Payload: `%{user_id, is_online: true}`
+  - `"member_offline"` - A group member went offline. Payload: `%{user_id, is_online: false}`
   """
 
   use Phoenix.Channel
@@ -26,6 +29,7 @@ defmodule GameServerWeb.GroupChannel do
 
   alias GameServer.Accounts
   alias GameServer.Accounts.Scope
+  alias GameServer.Accounts.User
   alias GameServer.Chat
   alias GameServer.Groups
 
@@ -170,6 +174,30 @@ defmodule GameServerWeb.GroupChannel do
   @impl true
   def handle_info({:chat_message_deleted, message}, socket) do
     push(socket, "chat_message_deleted", %{id: message.id})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:member_updated, user_id}, socket) do
+    user = Accounts.get_user(user_id)
+
+    if user do
+      payload = User.serialize_brief(user) |> Map.put(:user_id, user_id)
+      push(socket, "member_updated", payload)
+    end
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:member_online, user_id}, socket) do
+    push(socket, "member_online", %{user_id: user_id, is_online: true})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:member_offline, user_id}, socket) do
+    push(socket, "member_offline", %{user_id: user_id, is_online: false})
     {:noreply, socket}
   end
 

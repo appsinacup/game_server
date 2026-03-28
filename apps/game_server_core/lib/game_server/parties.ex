@@ -696,6 +696,7 @@ defmodule GameServer.Parties do
           {:ok, updated_user} ->
             invalidate_user_cache(updated_user.id)
             _ = Accounts.broadcast_user_update(updated_user)
+            _ = Accounts.broadcast_member_update(updated_user)
             broadcast_party(party_id, {:party_member_joined, party_id, updated_user.id})
             updated_user
 
@@ -814,6 +815,7 @@ defmodule GameServer.Parties do
         invalidate_user_cache(updated.id)
         cancel_pending_invites_for_user_in_party(updated.id, party.id)
         _ = Accounts.broadcast_user_update(updated)
+        _ = Accounts.broadcast_member_update(updated)
         broadcast_party(party.id, {:party_member_left, party.id, updated.id})
 
         # Notify the kicked user
@@ -1138,6 +1140,7 @@ defmodule GameServer.Parties do
 
         Enum.each(members, fn member ->
           _ = Accounts.broadcast_user_update(%{member | party_id: nil})
+          _ = Accounts.broadcast_member_update(%{member | party_id: nil})
         end)
 
         broadcast_party(party.id, {:party_disbanded, party.id})
@@ -1165,6 +1168,7 @@ defmodule GameServer.Parties do
         invalidate_user_cache(updated.id)
         cancel_pending_invites_for_user_in_party(updated.id, party_id)
         _ = Accounts.broadcast_user_update(updated)
+        _ = Accounts.broadcast_member_update(updated)
         broadcast_party(party_id, {:party_member_left, party_id, updated.id})
 
         GameServer.Async.run(fn ->
@@ -1186,6 +1190,7 @@ defmodule GameServer.Parties do
       {:ok, updated} ->
         invalidate_user_cache(updated.id)
         _ = Accounts.broadcast_user_update(updated)
+        _ = Accounts.broadcast_member_update(updated)
         {:ok, updated}
 
       error ->

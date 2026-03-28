@@ -1652,6 +1652,41 @@ defmodule GameServer.Accounts do
   end
 
   @doc """
+  Broadcast a `member_updated` event to the user's current lobby and
+  party channels so other members see the profile change (display name, avatar,
+  metadata, etc.) in real-time.
+
+  This is fire-and-forget and safe to call even when the user is not in a lobby
+  or party.
+  """
+  @spec broadcast_member_update(User.t()) :: :ok
+  def broadcast_member_update(%User{} = user) do
+    if user.lobby_id do
+      GameServer.Lobbies.broadcast_member_presence(
+        user.lobby_id,
+        {:member_updated, user.id}
+      )
+    end
+
+    if user.party_id do
+      GameServer.Parties.broadcast_member_presence(
+        user.party_id,
+        {:member_updated, user.id}
+      )
+    end
+
+    # Broadcast to all groups the user belongs to
+    for group_id <- GameServer.Groups.user_group_ids(user.id) do
+      GameServer.Groups.broadcast_member_presence(
+        group_id,
+        {:member_updated, user.id}
+      )
+    end
+
+    :ok
+  end
+
+  @doc """
   Serialize a user into the compact payload used by realtime updates.
   """
   @spec serialize_user_payload(User.t()) :: map()
@@ -1732,6 +1767,7 @@ defmodule GameServer.Accounts do
             invalidate_user_cache_sync(user)
             invalidate_user_cache_sync(updated)
             broadcast_user_update(updated)
+            broadcast_member_update(updated)
 
             GameServer.Async.run(fn ->
               GameServer.Hooks.internal_call(:after_user_updated, [updated])
@@ -1794,6 +1830,7 @@ defmodule GameServer.Accounts do
         invalidate_user_cache(updated)
         invalidate_users_stats_cache()
         broadcast_user_update(updated)
+        broadcast_member_update(updated)
 
         GameServer.Async.run(fn ->
           GameServer.Hooks.internal_call(:after_user_updated, [updated])
@@ -1850,6 +1887,7 @@ defmodule GameServer.Accounts do
         |> case do
           {:ok, updated} = ok ->
             invalidate_user_cache(updated)
+            broadcast_member_update(updated)
 
             GameServer.Async.run(fn ->
               GameServer.Hooks.internal_call(:after_user_online, [updated])
@@ -1884,6 +1922,7 @@ defmodule GameServer.Accounts do
         |> case do
           {:ok, updated} = ok ->
             invalidate_user_cache(updated)
+            broadcast_member_update(updated)
 
             GameServer.Async.run(fn ->
               GameServer.Hooks.internal_call(:after_user_offline, [updated])

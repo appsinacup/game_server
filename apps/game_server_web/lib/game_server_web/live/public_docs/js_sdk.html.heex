@@ -313,6 +313,7 @@ await lobbyChannel.join();
 // - 'user_kicked'  => { user_id }
 // - 'updated' => lobby object (full lobby payload, contains fields like title, max_users, metadata, etc.)
 // - 'host_changed' => { new_host_id }
+// - 'member_updated' => { user_id, display_name, profile_url, metadata, is_online }
 
 lobbyChannel.on('user_joined', ({ user_id }) => {
   console.log('User joined lobby', user_id)

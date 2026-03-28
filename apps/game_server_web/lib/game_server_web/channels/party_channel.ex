@@ -13,6 +13,7 @@ defmodule GameServerWeb.PartyChannel do
   - `"member_left"` - A user left or was kicked from the party. Payload: `%{user_id: integer}`
   - `"member_online"` - A party member came online. Payload: user brief object
   - `"member_offline"` - A party member went offline. Payload: user brief object
+  - `"member_updated"` - A party member was updated. Payload: user brief object
   - `"updated"` - The party settings were updated. Payload: party object
   - `"disbanded"` - The party was disbanded. Payload: `%{party_id: integer}`
   - `"new_chat_message"` - A new chat message. Payload: chat message object
@@ -165,6 +166,18 @@ defmodule GameServerWeb.PartyChannel do
       end
 
     push(socket, ws_event, payload)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:member_updated, user_id}, socket) do
+    user = Accounts.get_user(user_id)
+
+    if user do
+      payload = User.serialize_brief(user) |> Map.put(:user_id, user_id)
+      push(socket, "member_updated", payload)
+    end
+
     {:noreply, socket}
   end
 

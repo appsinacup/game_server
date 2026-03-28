@@ -103,6 +103,8 @@
                                         friend_blocked, friend_unblocked
   LobbyChannel      "lobby:{id}"        updated, user_joined, user_left,
                                         user_kicked, host_changed,
+                                        member_online, member_offline,
+                                        member_updated,
                                         new_chat_message,
                                         chat_message_updated,
                                         chat_message_deleted
@@ -112,6 +114,8 @@
   GroupChannel      "group:{id}"        updated, member_joined, member_left,
                                         member_kicked, member_promoted,
                                         member_demoted,
+                                        member_online, member_offline,
+                                        member_updated,
                                         join_request_approved,
                                         join_request_rejected,
                                         new_chat_message,
@@ -121,6 +125,8 @@
                                         group_deleted
   PartyChannel      "party:{id}"        updated, member_joined, member_left,
                                         disbanded,
+                                        member_online, member_offline,
+                                        member_updated,
                                         new_chat_message,
                                         chat_message_updated,
                                         chat_message_deleted</pre>
@@ -349,6 +355,27 @@
               <td class="font-mono" phx-no-curly-interpolation>{new_host_id}</td>
             </tr>
             <tr>
+              <td class="font-mono">member_online</td>
+              <td>{doc_text("A lobby member came online")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {user_id, display_name, profile_url, metadata, is_online}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">member_offline</td>
+              <td>{doc_text("A lobby member went offline")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {user_id, display_name, profile_url, metadata, is_online}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">member_updated</td>
+              <td>{doc_text("A lobby member was updated")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {user_id, display_name, profile_url, metadata, is_online}
+              </td>
+            </tr>
+            <tr>
               <td class="font-mono">new_chat_message</td>
               <td>{doc_text("New lobby chat message")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
@@ -462,6 +489,16 @@
               <td class="font-mono" phx-no-curly-interpolation>{group_id, user_id}</td>
             </tr>
             <tr>
+              <td class="font-mono">member_online</td>
+              <td>{doc_text("A group member came online")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{user_id, is_online: true}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">member_offline</td>
+              <td>{doc_text("A group member went offline")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{user_id, is_online: false}</td>
+            </tr>
+            <tr>
               <td class="font-mono">join_request_approved</td>
               <td>{doc_text("Join request approved by admin")}</td>
               <td class="font-mono" phx-no-curly-interpolation>{group_id, user_id}</td>
@@ -470,6 +507,13 @@
               <td class="font-mono">join_request_rejected</td>
               <td>{doc_text("Join request rejected by admin")}</td>
               <td class="font-mono" phx-no-curly-interpolation>{group_id, user_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">member_updated</td>
+              <td>{doc_text("A group member was updated")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {user_id, display_name, profile_url, metadata, is_online}
+              </td>
             </tr>
             <tr>
               <td class="font-mono">new_chat_message</td>
@@ -568,6 +612,27 @@
               <td class="font-mono">disbanded</td>
               <td>{doc_text("Party was disbanded")}</td>
               <td class="font-mono" phx-no-curly-interpolation>{party_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">member_online</td>
+              <td>{doc_text("A party member came online")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {user_id, display_name, profile_url, metadata, is_online}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">member_offline</td>
+              <td>{doc_text("A party member went offline")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {user_id, display_name, profile_url, metadata, is_online}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">member_updated</td>
+              <td>{doc_text("A party member was updated")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {user_id, display_name, profile_url, metadata, is_online}
+              </td>
             </tr>
             <tr>
               <td class="font-mono">new_chat_message</td>

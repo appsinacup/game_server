@@ -38,6 +38,7 @@ defmodule GameServerWeb.UserChannel do
   alias GameServer.Accounts.Scope
   alias GameServer.Accounts.User
   alias GameServer.Friends
+  alias GameServer.Groups
   alias GameServer.Hooks.PluginManager
   alias GameServer.Lobbies
   alias GameServer.Notifications
@@ -456,7 +457,7 @@ defmodule GameServerWeb.UserChannel do
     }
   end
 
-  # Broadcast member_online/member_offline to the user's current lobby and party channels.
+  # Broadcast member_online/member_offline to the user's current lobby, party, and group channels.
   defp broadcast_member_presence(user_id, online?) do
     user = Accounts.get_user(user_id)
     event = if online?, do: :member_online, else: :member_offline
@@ -468,6 +469,10 @@ defmodule GameServerWeb.UserChannel do
 
       if user.party_id do
         Parties.broadcast_member_presence(user.party_id, {event, user_id})
+      end
+
+      for group_id <- Groups.user_group_ids(user_id) do
+        Groups.broadcast_member_presence(group_id, {event, user_id})
       end
     end
   end

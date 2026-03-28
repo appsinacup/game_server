@@ -149,6 +149,21 @@ defmodule GameServer.Groups do
 
 
   @doc ~S"""
+    Broadcast a presence event (e.g. member_online, member_updated) to a group topic.
+  """
+  @spec broadcast_member_presence(integer(), tuple()) :: :ok | {:error, term()}
+  def broadcast_member_presence(_group_id, _event) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        :ok
+
+      _ ->
+        raise "GameServer.Groups.broadcast_member_presence/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Cancel (delete) a group invitation that the current user sent.
     Only the sender can cancel their own invitation.
     
@@ -957,6 +972,21 @@ defmodule GameServer.Groups do
 
       _ ->
         raise "GameServer.Groups.update_group/3 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Return the list of group IDs the user belongs to (lightweight, no preloads).
+  """
+  @spec user_group_ids(integer()) :: [integer()]
+  def user_group_ids(_user_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Groups.user_group_ids/1 is a stub - only available at runtime on GameServer"
     end
   end
 

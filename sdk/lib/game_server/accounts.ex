@@ -42,6 +42,27 @@ defmodule GameServer.Accounts do
 
 
   @doc ~S"""
+    Broadcast a `member_updated` event to the user's current lobby and
+    party channels so other members see the profile change (display name, avatar,
+    metadata, etc.) in real-time.
+    
+    This is fire-and-forget and safe to call even when the user is not in a lobby
+    or party.
+    
+  """
+  @spec broadcast_member_update(GameServer.Accounts.User.t()) :: :ok
+  def broadcast_member_update(_user) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        :ok
+
+      _ ->
+        raise "GameServer.Accounts.broadcast_member_update/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Broadcast that the given user has been updated.
     
     This helper is intentionally small and only broadcasts a compact payload

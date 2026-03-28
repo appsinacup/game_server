@@ -92,6 +92,19 @@ defmodule GameServer.Groups do
     Phoenix.PubSub.broadcast(GameServer.PubSub, "group:#{group_id}", event)
   end
 
+  @doc "Broadcast a presence event (e.g. member_online, member_updated) to a group topic."
+  @spec broadcast_member_presence(integer(), tuple()) :: :ok | {:error, term()}
+  def broadcast_member_presence(group_id, event) do
+    broadcast_group(group_id, event)
+  end
+
+  @doc "Return the list of group IDs the user belongs to (lightweight, no preloads)."
+  @spec user_group_ids(integer()) :: [integer()]
+  def user_group_ids(user_id) when is_integer(user_id) do
+    from(m in GroupMember, where: m.user_id == ^user_id, select: m.group_id)
+    |> Repo.all()
+  end
+
   # ---------------------------------------------------------------------------
   # Cache helpers
   # ---------------------------------------------------------------------------

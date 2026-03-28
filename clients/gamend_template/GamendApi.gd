@@ -14,6 +14,7 @@ signal lobby_member_left(payload: Dictionary)     ## {user_id}
 signal lobby_member_kicked(payload: Dictionary)   ## {user_id}
 signal lobby_member_online(payload: Dictionary)   ## user came online while in lobby
 signal lobby_member_offline(payload: Dictionary)  ## user went offline while in lobby
+signal lobby_member_updated(payload: Dictionary)  ## member updated while in lobby
 signal lobby_host_changed(payload: Dictionary)    ## {new_host_id}
 signal lobby_chat_message(message: Dictionary)         ## new_chat_message
 signal lobby_chat_message_updated(message: Dictionary) ## chat_message_updated
@@ -31,6 +32,7 @@ signal party_member_joined(payload: Dictionary)   ## {user_id}
 signal party_member_left(payload: Dictionary)     ## {user_id}
 signal party_member_online(payload: Dictionary)   ## user came online while in party
 signal party_member_offline(payload: Dictionary)  ## user went offline while in party
+signal party_member_updated(payload: Dictionary)  ## member updated while in party
 signal party_disbanded(payload: Dictionary)       ## {party_id}
 signal party_invite_accepted(payload: Dictionary)  ## {party_id, user_id} via user channel
 signal party_invite_declined(payload: Dictionary)  ## {party_id, user_id} via user channel
@@ -65,6 +67,7 @@ signal group_member_promoted(payload: Dictionary)
 signal group_member_demoted(payload: Dictionary)
 signal group_member_online(payload: Dictionary)
 signal group_member_offline(payload: Dictionary)
+signal group_member_updated(payload: Dictionary)
 signal group_join_request_approved(payload: Dictionary)  ## A join request was approved (group channel: for admins; user channel: my request)
 signal group_join_request_rejected(payload: Dictionary)  ## A join request was rejected (group channel: for admins; user channel: my request)
 signal group_invite_accepted(payload: Dictionary)        ## {group_id} via user channel
@@ -81,6 +84,12 @@ signal achievement_progress(user_achievement: Dictionary)  ## progress increment
 signal group_created(group: Dictionary)   ## new group created (excludes hidden)
 signal group_deleted(payload: Dictionary)  ## {id} group deleted
 signal group_list_updated(group: Dictionary)  ## existing group updated (excludes hidden)
+
+## Network latency
+signal latency_updated(latency_ms: int)
+signal auth_failed()  ## Refresh token expired or 403 — controller should force logout
+signal token_refreshed()  ## Access token was refreshed — controller should re-persist
+signal debug_message(severity: String, category: String, message: String)
 
 var _config := ApiApiConfigClient.new()
 var _realtime: GamendRealtime
@@ -102,6 +111,7 @@ var _user_id = -1
 var _lobby_id = -1
 var _party_id = -1
 var _refreshing_token = false
+var _has_reloaded_for_auth := false
 var _http_clients: Array = []
 var _http_clients_in_flight: Array = []
 var _http_client_pool_index := 0
@@ -128,7 +138,8 @@ func _ensure_http_client_pool() -> void:
 func _acquire_http_client() -> int:
 	_ensure_http_client_pool()
 	var size := _http_clients.size()
-	while true:
+	var wait_start := Time.get_ticks_msec()
+	while Time.get_ticks_msec() - wait_start < 30000:
 		for offset in range(size):
 			var idx := (_http_client_pool_index + offset) % size
 			if not _http_clients_in_flight[idx]:
@@ -136,6 +147,7 @@ func _acquire_http_client() -> int:
 				_http_client_pool_index = (idx + 1) % size
 				return idx
 		await get_tree().process_frame
+	push_warning("GamendApi: HTTP client pool exhausted after 30s")
 	return -1
 
 func _release_http_client(idx: int) -> void:
@@ -152,9 +164,28 @@ func _verify_token_expired():
 		_refreshing_token = true
 		var result :GamendResult= await authenticate_refresh_token(_refresh_token)
 		if result.error:
-			# Can't refresh token, return to login screen.
-			get_tree().reload_current_scene()
+			debug_message.emit("err", "auth", "Token refresh failed (verify): %s" % str(result.error))
+			auth_failed.emit()
+		else:
+			_has_reloaded_for_auth = false
+			token_refreshed.emit()
+			debug_message.emit("info", "auth", "Token refreshed (verify path)")
 		_refreshing_token = false
+
+## Attempt to refresh the token in the background. If refresh fails, emit auth_failed.
+func _try_refresh_or_logout() -> void:
+	if _refreshing_token or _refresh_token.is_empty():
+		return
+	_refreshing_token = true
+	var refresh_result := await authenticate_refresh_token(_refresh_token)
+	_refreshing_token = false
+	if refresh_result.error:
+		debug_message.emit("err", "auth", "Token refresh failed (background): %s" % str(refresh_result.error))
+		auth_failed.emit()
+	else:
+		_has_reloaded_for_auth = false
+		token_refreshed.emit()
+		debug_message.emit("info", "auth", "Token refreshed (background refresh)")
 
 func _call_api(api: ApiApiBeeClient, method_name: String, params: Array = []) -> GamendResult:
 	# Check if it's close to expiring first, if so make a refresh_call if we already have access token
@@ -179,10 +210,12 @@ func _call_api(api: ApiApiBeeClient, method_name: String, params: Array = []) ->
 			,
 		func(error):
 			_release_http_client(client_idx)
-			if error.response_code == 401:
-				# Expire the token now.
+			if error.response_code in [401, 403] and method_name != "refresh_token":
 				_expires_at_ms = -1
+				_try_refresh_or_logout()
 			result.error = error
+			if error.response_code not in [400, 404]:
+				debug_message.emit("err", "network", "API error %s.%s code=%d: %s" % [api._bzz_name, method_name, error.response_code, str(error)])
 			if enable_logs:
 				print(api._bzz_name, " ", method_name, " ", result.error, " t: ", (Time.get_ticks_msec() - start_request_time) / 1000.0)
 			result.finished.emit(result)]
@@ -217,12 +250,14 @@ func realtime_start():
 	var protocol = "ws://"
 	if _config.tls_enabled:
 		protocol = "wss://"
-	_realtime = GamendRealtime.new(_access_token, protocol + _config.host + ":" + str(_config.port) + "/socket")
+	_realtime = GamendRealtime.new(func(): return _access_token, protocol + _config.host + ":" + str(_config.port) + "/socket")
 	_realtime.enable_logs = enable_logs
 	_realtime.socket_opened.connect(func (): if result: result.finished.emit())
 	_realtime.socket_closed.connect(func (): if result: result.finished.emit())
 	_realtime.socket_errored.connect(func (): if result: result.finished.emit())
 	_realtime.channel_event.connect(_on_channel_event)
+	_realtime.latency_updated.connect(func(ms: int): latency_updated.emit(ms))
+	_realtime.debug_message.connect(func(s, c, m): debug_message.emit(s, c, m))
 	add_child(_realtime)
 	return await result.finished
 
@@ -246,6 +281,11 @@ func stop_listening_to_party():
 	if _party_id != -1:
 		_realtime.remove_channel("party:" + str(int(_party_id)))
 
+## Unsubscribe from the lobby channel so it stops trying to rejoin.
+func stop_listening_to_lobby():
+	if _lobby_id != -1:
+		_realtime.remove_channel("lobby:" + str(int(_lobby_id)))
+
 ## Subscribe to a group channel to receive group realtime events.
 func listen_to_group(group_id: int):
 	_realtime.add_channel("group:" + str(group_id))
@@ -266,25 +306,32 @@ func _on_channel_event(event: String, payload: Dictionary, status, topic: String
 	elif topic == "groups":
 		_handle_groups_event(event, payload)
 	elif topic.begins_with("lobby:"):
+		payload["lobby_id"] = int(topic.substr(6))
 		_handle_lobby_event(event, payload)
 	elif topic.begins_with("party:"):
+		payload["party_id"] = int(topic.substr(6))
 		_handle_party_event(event, payload)
 	elif topic.begins_with("group:"):
+		payload["group_id"] = int(topic.substr(6))
 		_handle_group_event(event, payload)
 
 func _handle_user_event(event: String, payload: Dictionary):
 	match event:
 		"updated":
-			var lobby_id = payload.get("lobby_id", -1)
-			if lobby_id != -1 && _lobby_id != lobby_id:
-				_lobby_id = lobby_id
-				listen_to_lobby()
-			_lobby_id = lobby_id
-			var party_id = payload.get("party_id", -1)
-			if party_id != -1 && _party_id != party_id:
-				_party_id = party_id
-				listen_to_party()
-			_party_id = party_id
+			if payload.has("lobby_id"):
+				var lobby_id = int(payload["lobby_id"])
+				if lobby_id != _lobby_id:
+					stop_listening_to_lobby()
+					_lobby_id = lobby_id
+					if lobby_id != -1:
+						listen_to_lobby()
+			if payload.has("party_id"):
+				var party_id = int(payload["party_id"])
+				if party_id != _party_id:
+					stop_listening_to_party()
+					_party_id = party_id
+					if party_id != -1:
+						listen_to_party()
 			user_updated.emit(payload)
 		"notification":
 			notification_emitted.emit(payload)
@@ -359,6 +406,8 @@ func _handle_lobby_event(event: String, payload: Dictionary):
 			lobby_member_online.emit(payload)
 		"member_offline":
 			lobby_member_offline.emit(payload)
+		"member_updated":
+			lobby_member_updated.emit(payload)
 		"host_changed":
 			lobby_host_changed.emit(payload)
 		"new_chat_message":
@@ -391,6 +440,8 @@ func _handle_party_event(event: String, payload: Dictionary):
 			party_member_online.emit(payload)
 		"member_offline":
 			party_member_offline.emit(payload)
+		"member_updated":
+			party_member_updated.emit(payload)
 		"disbanded":
 			party_disbanded.emit(payload)
 		"new_chat_message":
@@ -418,6 +469,8 @@ func _handle_group_event(event: String, payload: Dictionary):
 			group_member_online.emit(payload)
 		"member_offline":
 			group_member_offline.emit(payload)
+		"member_updated":
+			group_member_updated.emit(payload)
 		"join_request_approved":
 			group_join_request_approved.emit(payload)
 		"join_request_rejected":
