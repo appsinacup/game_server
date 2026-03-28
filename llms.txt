@@ -1,4 +1,4 @@
-# GameServer v1.0.809 - Table of Contents
+# GameServer v1.0.810 - Table of Contents
 
 ## Modules
 
@@ -74,8 +74,8 @@ notifications for key friend events
 - [GameServer.Schedule.Lock](GameServer.Schedule.Lock.md): Schema for schedule job locks.
 - [GameServer.Schedule.Scheduler](GameServer.Schedule.Scheduler.md): Defines a quantum Scheduler.
 - [GameServer.Theme](GameServer.Theme.md): Behaviour for pluggable site theming providers.
-- [GameServer.Theme.JSONConfig](GameServer.Theme.JSONConfig.md): JSON-backed Theme provider. Reads a JSON file specified by the THEME_CONFIG
-environment variable (single canonical runtime source) — e.g. THEME_CONFIG=theme/custom.json
+- [GameServer.Theme.JSONConfig](GameServer.Theme.JSONConfig.md): JSON-backed Theme provider. Reads a locale-specific JSON file specified by the
+THEME_CONFIG environment variable — e.g. THEME_CONFIG=modules/example_config.json
 - [GameServer.Types](GameServer.Types.md): Shared types used across GameServer contexts.
 
 ## Mix Tasks
