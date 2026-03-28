@@ -60,6 +60,10 @@ defmodule GameServerWeb.GroupChannel do
     end
   end
 
+  @impl true
+  def handle_in(_event, _payload, socket),
+    do: {:reply, {:error, %{error: "unknown_event"}}, socket}
+
   # ── PubSub → WebSocket ────────────────────────────────────────────────────
 
   @impl true

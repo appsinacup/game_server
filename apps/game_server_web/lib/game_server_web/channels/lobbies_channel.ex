@@ -21,6 +21,10 @@ defmodule GameServerWeb.LobbiesChannel do
   end
 
   @impl true
+  def handle_in(_event, _payload, socket),
+    do: {:reply, {:error, %{error: "unknown_event"}}, socket}
+
+  @impl true
   def handle_info({:lobby_created, lobby}, socket) do
     push(socket, "lobby_created", serialize_lobby(lobby))
     {:noreply, socket}

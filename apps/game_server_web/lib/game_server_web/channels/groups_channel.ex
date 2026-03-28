@@ -26,6 +26,10 @@ defmodule GameServerWeb.GroupsChannel do
   end
 
   @impl true
+  def handle_in(_event, _payload, socket),
+    do: {:reply, {:error, %{error: "unknown_event"}}, socket}
+
+  @impl true
   def handle_info({:group_created, group}, socket) do
     # Don't broadcast hidden groups to the public list channel
     if group.type != "hidden" do
