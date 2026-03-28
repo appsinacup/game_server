@@ -275,6 +275,22 @@ List pending party invites sent by the given leader.
 
 Returns invitations the leader has sent that have not yet been accepted or declined.
 
+# `quick_join_with_party`
+
+```elixir
+@spec quick_join_with_party(GameServer.Accounts.User.t(), map()) ::
+  {:ok, Lobby.t()} | {:error, term()}
+```
+
+The party leader quick-joins a lobby with the entire party.
+
+Searches for an open lobby that matches the given criteria (title,
+max_users, metadata) and has enough space for the whole party. If no
+matching lobby is found, creates a new one and joins all party members
+atomically.
+
+Returns `{:ok, lobby}` on success.
+
 # `subscribe_parties`
 
 ```elixir
