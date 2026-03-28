@@ -293,6 +293,13 @@ defmodule GameServer.Parties do
         invalidate_user_cache(user.id)
         broadcast_parties({:party_created, party.id})
 
+        # Notify the creator on their personal channel that they joined a party
+        Phoenix.PubSub.broadcast(
+          GameServer.PubSub,
+          "user:#{user.id}",
+          {:party_joined, party.id}
+        )
+
         GameServer.Async.run(fn ->
           GameServer.Hooks.internal_call(:after_party_create, [party])
         end)
@@ -698,6 +705,14 @@ defmodule GameServer.Parties do
             _ = Accounts.broadcast_user_update(updated_user)
             _ = Accounts.broadcast_member_update(updated_user)
             broadcast_party(party_id, {:party_member_joined, party_id, updated_user.id})
+
+            # Notify the user on their personal channel that they joined a party
+            Phoenix.PubSub.broadcast(
+              GameServer.PubSub,
+              "user:#{updated_user.id}",
+              {:party_joined, party_id}
+            )
+
             updated_user
 
           {:error, reason} ->
@@ -999,7 +1014,9 @@ defmodule GameServer.Parties do
     |> case do
       {:ok, _} ->
         # Broadcast events only after successful commit
-        Enum.each(non_leader_members, fn member ->
+        all_members = [user | non_leader_members]
+
+        Enum.each(all_members, fn member ->
           updated = Accounts.get_user(member.id)
           _ = Accounts.broadcast_user_update(updated)
 
@@ -1008,12 +1025,14 @@ defmodule GameServer.Parties do
             "lobby:#{lobby.id}",
             {:user_joined, lobby.id, member.id}
           )
+
+          # Notify each member on their user channel that they joined a lobby
+          Phoenix.PubSub.broadcast(
+            GameServer.PubSub,
+            "user:#{member.id}",
+            {:lobby_joined, lobby.id}
+          )
         end)
-
-        _ = Accounts.broadcast_user_update(Accounts.get_user(user.id))
-
-        # Notify the party that all members joined a lobby
-        broadcast_party(user.party_id, {:party_lobby_joined, user.party_id, lobby.id})
 
         {:ok, lobby}
 
@@ -1082,7 +1101,7 @@ defmodule GameServer.Parties do
     end
   end
 
-  defp join_all_members_to_lobby(members, lobby, party) do
+  defp join_all_members_to_lobby(members, lobby, _party) do
     # Use a transaction with advisory lock so the space check + member joins
     # are atomic. This prevents TOCTOU race conditions on PostgreSQL.
     Repo.transaction(fn ->
@@ -1130,10 +1149,14 @@ defmodule GameServer.Parties do
             "lobby:#{lobby.id}",
             {:user_joined, lobby.id, member.id}
           )
-        end)
 
-        # Notify the party that all members joined a lobby
-        broadcast_party(party.id, {:party_lobby_joined, party.id, lobby.id})
+          # Notify each member on their user channel that they joined a lobby
+          Phoenix.PubSub.broadcast(
+            GameServer.PubSub,
+            "user:#{member.id}",
+            {:lobby_joined, lobby.id}
+          )
+        end)
 
         {:ok, lobby}
 

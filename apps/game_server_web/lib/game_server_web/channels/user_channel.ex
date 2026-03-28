@@ -27,6 +27,11 @@ defmodule GameServerWeb.UserChannel do
 
   This avoids the HTTP round-trip of `POST /api/v1/hooks/call` while the
   socket is connected.  The caller context (user) is injected automatically.
+
+  ## Membership events
+
+  - `"lobby_joined"` - You joined a lobby (including via party). Payload: `%{lobby_id: integer}`
+  - `"party_joined"` - You joined a party. Payload: `%{party_id: integer}`
   """
 
   use Phoenix.Channel
@@ -330,6 +335,18 @@ defmodule GameServerWeb.UserChannel do
   @impl true
   def handle_info({:webrtc_connection_state, conn_state}, socket) do
     push(socket, "webrtc:state", %{state: to_string(conn_state)})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:lobby_joined, lobby_id}, socket) do
+    push(socket, "lobby_joined", %{lobby_id: lobby_id})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:party_joined, party_id}, socket) do
+    push(socket, "party_joined", %{party_id: party_id})
     {:noreply, socket}
   end
 

@@ -19,7 +19,6 @@ defmodule GameServerWeb.PartyChannel do
   - `"new_chat_message"` - A new chat message. Payload: chat message object
   - `"chat_message_updated"` - A chat message was updated. Payload: chat message object
   - `"chat_message_deleted"` - A chat message was deleted. Payload: `%{id: integer}`
-  - `"lobby_joined"` - The party joined a lobby together. Payload: `%{lobby_id: integer}`
   """
 
   use Phoenix.Channel
@@ -192,12 +191,6 @@ defmodule GameServerWeb.PartyChannel do
     payload = serialize_party(party)
     push(socket, "updated", payload)
     {:noreply, assign(socket, :last_party_payload, payload)}
-  end
-
-  @impl true
-  def handle_info({:party_lobby_joined, _party_id, lobby_id}, socket) do
-    push(socket, "lobby_joined", %{lobby_id: lobby_id})
-    {:noreply, socket}
   end
 
   # Ignore other messages

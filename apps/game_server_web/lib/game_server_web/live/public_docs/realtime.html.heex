@@ -100,7 +100,8 @@
                                         incoming_request, outgoing_request,
                                         friend_accepted, friend_rejected,
                                         request_cancelled, friend_removed,
-                                        friend_blocked, friend_unblocked
+                                        friend_blocked, friend_unblocked,
+                                        lobby_joined, party_joined
   LobbyChannel      "lobby:{id}"        updated, user_joined, user_left,
                                         user_kicked, host_changed,
                                         member_online, member_offline,
@@ -127,7 +128,6 @@
                                         disbanded,
                                         member_online, member_offline,
                                         member_updated,
-                                        lobby_joined,
                                         new_chat_message,
                                         chat_message_updated,
                                         chat_message_deleted</pre>
@@ -302,6 +302,16 @@
               <td class="font-mono" phx-no-curly-interpolation>
                 {id, requester_id, target_id, status}
               </td>
+            </tr>
+            <tr>
+              <td class="font-mono">lobby_joined</td>
+              <td>{doc_text("You joined a lobby")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{lobby_id}</td>
+            </tr>
+            <tr>
+              <td class="font-mono">party_joined</td>
+              <td>{doc_text("You joined a party")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{party_id}</td>
             </tr>
           </tbody>
         </table>
@@ -634,11 +644,6 @@
               <td class="font-mono" phx-no-curly-interpolation>
                 {user_id, display_name, profile_url, metadata, is_online}
               </td>
-            </tr>
-            <tr>
-              <td class="font-mono">lobby_joined</td>
-              <td>{doc_text("The party joined a lobby together")}</td>
-              <td class="font-mono" phx-no-curly-interpolation>{lobby_id}</td>
             </tr>
             <tr>
               <td class="font-mono">new_chat_message</td>

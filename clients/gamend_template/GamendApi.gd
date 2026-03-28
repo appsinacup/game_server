@@ -34,7 +34,6 @@ signal party_member_online(payload: Dictionary)   ## user came online while in p
 signal party_member_offline(payload: Dictionary)  ## user went offline while in party
 signal party_member_updated(payload: Dictionary)  ## member updated while in party
 signal party_disbanded(payload: Dictionary)       ## {party_id}
-signal party_lobby_joined(payload: Dictionary)    ## {lobby_id} - party joined a lobby together
 signal party_invite_accepted(payload: Dictionary)  ## {party_id, user_id} via user channel
 signal party_invite_declined(payload: Dictionary)  ## {party_id, user_id} via user channel
 signal party_invite_cancelled(payload: Dictionary) ## {party_id, user_id} via user channel
@@ -54,6 +53,9 @@ signal friend_request_cancelled(payload: Dictionary)  ## sender cancelled a pend
 signal friend_removed(payload: Dictionary)            ## an existing friendship was removed
 signal friend_blocked(payload: Dictionary)            ## user blocked
 signal friend_unblocked(payload: Dictionary)          ## user unblocked
+## Membership events (via user channel)
+signal lobby_joined(payload: Dictionary)              ## {lobby_id} you joined a lobby
+signal party_joined(payload: Dictionary)              ## {party_id} you joined a party
 ## Friend DM chat (via user channel)
 signal friend_chat_message(message: Dictionary)
 signal friend_chat_message_updated(message: Dictionary)
@@ -392,6 +394,10 @@ func _handle_user_event(event: String, payload: Dictionary):
 			achievement_unlocked.emit(payload)
 		"achievement_progress":
 			achievement_progress.emit(payload)
+		"lobby_joined":
+			lobby_joined.emit(payload)
+		"party_joined":
+			party_joined.emit(payload)
 
 func _handle_lobby_event(event: String, payload: Dictionary):
 	match event:
@@ -445,8 +451,6 @@ func _handle_party_event(event: String, payload: Dictionary):
 			party_member_updated.emit(payload)
 		"disbanded":
 			party_disbanded.emit(payload)
-		"lobby_joined":
-			party_lobby_joined.emit(payload)
 		"new_chat_message":
 			party_chat_message.emit(payload)
 		"chat_message_updated":

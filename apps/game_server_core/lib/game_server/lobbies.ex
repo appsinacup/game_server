@@ -677,7 +677,7 @@ defmodule GameServer.Lobbies do
         {:error, {:hook_rejected, reason}}
     end
     |> case do
-      {:ok, %{lobby: lobby}} ->
+      {:ok, %{lobby: lobby} = result} ->
         lobby = normalize_hostless_lobby(lobby)
 
         GameServer.Async.run(fn ->
@@ -686,6 +686,18 @@ defmodule GameServer.Lobbies do
 
         _ = invalidate_lobby_cache(lobby.id)
         broadcast_lobbies({:lobby_created, lobby})
+
+        # Notify the host on their user channel (if present)
+        if Map.has_key?(result, :membership) do
+          %{membership: %{id: host_user_id}} = result
+
+          Phoenix.PubSub.broadcast(
+            GameServer.PubSub,
+            "user:#{host_user_id}",
+            {:lobby_joined, lobby.id}
+          )
+        end
+
         {:ok, lobby}
 
       {:error, _op, changeset, _} ->
@@ -876,6 +888,13 @@ defmodule GameServer.Lobbies do
             _ = Accounts.broadcast_member_update(updated_user)
             broadcast_lobby(lobby_id, {:user_joined, lobby_id, user_id})
             broadcast_lobbies({:lobby_membership_changed, lobby_id})
+
+            # Notify the user on their personal channel that they joined a lobby
+            Phoenix.PubSub.broadcast(
+              GameServer.PubSub,
+              "user:#{user_id}",
+              {:lobby_joined, lobby_id}
+            )
 
             # Fetch the lobby before starting the background task so the task
             # does not need to check out a DB connection from the sandbox.
