@@ -8,7 +8,7 @@
     <meta name="project" content="GameServer v1.0.802">
 
 
-    <title>GameServer.Chat.ReadCursor — GameServer v1.0.802</title>
+    <title>GameServer.Accounts.StalePresenceSweeper — GameServer v1.0.802</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
@@ -93,12 +93,12 @@ GameServer
 <div id="top-content">
   <div class="heading-with-actions top-heading">
     <h1>
-      <span translate="no">GameServer.<wbr>Chat.<wbr>ReadCursor</span> 
+      <span translate="no">GameServer.<wbr>Accounts.<wbr>StalePresenceSweeper</span> 
       <small class="app-vsn" translate="no">(GameServer v1.0.802)</small>
 
     </h1>
 
-<a href="GameServer.Chat.ReadCursor.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
+<a href="GameServer.Accounts.StalePresenceSweeper.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
   <i class="ri-markdown-line" aria-hidden="true"></i>
   <span class="sr-only">Copy Markdown</span>
 </a>
@@ -109,9 +109,13 @@ GameServer
 
 
     <section id="moduledoc">
-<p>Ecto schema for the <code class="inline">chat_read_cursors</code> table.</p><p>Tracks the last message a user has read in a given chat conversation.
-The unique constraint on <code class="inline">[user_id, chat_type, chat_ref_id]</code> ensures
-one cursor per user per conversation.</p>
+<p>Periodically sweeps users whose <code class="inline">is_online</code> flag is <code class="inline">true</code> but whose
+<code class="inline">last_seen_at</code> timestamp is older than a configurable threshold.</p><p>This is a safety net for node crashes or ungraceful disconnects where the
+<code class="inline">UserChannel.terminate/2</code> callback never fires. Without this, users would
+remain marked as online indefinitely.</p><h2 id="module-configuration" class="section-heading"><a href="#module-configuration" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Configuration</span></h2><pre><code class="makeup elixir" translate="no"><span class="n">config</span><span class="w"> </span><span class="ss">:game_server_core</span><span class="p">,</span><span class="w"> </span><span class="nc">GameServer.Accounts.StalePresenceSweeper</span><span class="p">,</span><span class="w">
+  </span><span class="ss">interval_ms</span><span class="p">:</span><span class="w"> </span><span class="mi">120_000</span><span class="p">,</span><span class="w">       </span><span class="c1"># how often to run the sweep (default 2 min)</span><span class="w">
+  </span><span class="ss">stale_threshold_s</span><span class="p">:</span><span class="w"> </span><span class="mi">300</span><span class="p">,</span><span class="w">     </span><span class="c1"># mark offline if last_seen &gt; 5 min ago</span><span class="w">
+  </span><span class="ss">enabled</span><span class="p">:</span><span class="w"> </span><span class="no">true</span><span class="w">               </span><span class="c1"># set false to disable the sweep entirely</span></code></pre>
     </section>
 
 </div>
@@ -123,20 +127,6 @@ one cursor per user per conversation.</p>
       </a>
       <span class="text">Summary</span>
     </h2>
-<div class="summary-types summary">
-  <h3>
-    <a href="#types">Types</a>
-  </h3>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#t:t/0" data-no-tooltip="" translate="no">t()</a>
-
-      </div>
-
-    </div>
-
-</div>
 <div class="summary-functions summary">
   <h3>
     <a href="#functions">Functions</a>
@@ -144,11 +134,29 @@ one cursor per user per conversation.</p>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#changeset/2" data-no-tooltip="" translate="no">changeset(cursor, attrs)</a>
+        <a href="#child_spec/1" data-no-tooltip="" translate="no">child_spec(init_arg)</a>
 
       </div>
 
-        <div class="summary-synopsis"><p>Changeset for creating/updating a read cursor.</p></div>
+        <div class="summary-synopsis"><p>Returns a specification to start this module under a supervisor.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#config/0" data-no-tooltip="" translate="no">config()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns the current configuration used by the sweeper.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#start_link/1" data-no-tooltip="" translate="no">start_link(opts \\ [])</a>
+
+      </div>
 
     </div>
 
@@ -156,54 +164,6 @@ one cursor per user per conversation.</p>
 
   </section>
 
-
-  <section id="types" class="details-list">
-    <h2 class="section-heading">
-      <a class="hover-link" href="#types">
-        <i class="ri-link-m" aria-hidden="true"></i>
-      </a>
-      <span class="text">Types</span>
-    </h2>
-
-    <div class="types-list">
-<section class="detail" id="t:t/0">
-
-  <div class="detail-header">
-    <a href="#t:t/0" class="detail-link" data-no-tooltip="" aria-label="Link to this type">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">t()</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@type</span> t() :: %GameServer.Chat.ReadCursor{
-  __meta__: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  chat_ref_id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  chat_type: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  inserted_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  last_read_message: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  last_read_message_id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  updated_at: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  user: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(),
-  user_id: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()
-}</pre>
-
-      </div>
-
-
-  </section>
-</section>
-
-    </div>
-  </section>
 
   <section id="functions" class="details-list">
     <h2 class="section-heading">
@@ -214,14 +174,14 @@ one cursor per user per conversation.</p>
     </h2>
 
     <div class="functions-list">
-<section class="detail" id="changeset/2">
+<section class="detail" id="child_spec/1">
 
   <div class="detail-header">
-    <a href="#changeset/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#child_spec/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">changeset(cursor, attrs)</h1>
+      <h1 class="signature" translate="no">child_spec(init_arg)</h1>
 
 
     </div>
@@ -229,7 +189,51 @@ one cursor per user per conversation.</p>
 
   <section class="docstring">
 
-<p>Changeset for creating/updating a read cursor.</p>
+<p>Returns a specification to start this module under a supervisor.</p><p>See <a href="https://hexdocs.pm/elixir/Supervisor.html"><code class="inline">Supervisor</code></a>.</p>
+  </section>
+</section>
+<section class="detail" id="config/0">
+
+  <div class="detail-header">
+    <a href="#config/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">config()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> config() :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()</pre>
+
+      </div>
+
+<p>Returns the current configuration used by the sweeper.</p>
+  </section>
+</section>
+<section class="detail" id="start_link/1">
+
+    <span id="start_link/0"></span>
+
+  <div class="detail-header">
+    <a href="#start_link/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">start_link(opts \\ [])</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+
   </section>
 </section>
 

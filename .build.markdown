@@ -1,4 +1,5 @@
 GameServer.Accounts.Scope.md
+GameServer.Accounts.StalePresenceSweeper.md
 GameServer.Accounts.User.md
 GameServer.Accounts.UserNotifier.md
 GameServer.Accounts.UserToken.md

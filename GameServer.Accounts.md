@@ -25,6 +25,19 @@ The Accounts context.
 Attach a device_id to an existing user record. Returns {:ok, user} or
 {:error, changeset} if the device_id is already used.
 
+# `broadcast_member_update`
+
+```elixir
+@spec broadcast_member_update(GameServer.Accounts.User.t()) :: :ok
+```
+
+Broadcast a `member_updated` event to the user's current lobby and
+party channels so other members see the profile change (display name, avatar,
+metadata, etc.) in real-time.
+
+This is fire-and-forget and safe to call even when the user is not in a lobby
+or party.
+
 # `broadcast_user_update`
 
 ```elixir

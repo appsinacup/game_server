@@ -1,4 +1,4 @@
-# GameServer v1.0.801 - API Reference
+# GameServer v1.0.802 - API Reference
 
 ## Modules
 
@@ -6,6 +6,8 @@
 and business logic.
 - [GameServer.Accounts](GameServer.Accounts.md): The Accounts context.
 - [GameServer.Accounts.Scope](GameServer.Accounts.Scope.md): Defines the scope of the caller to be used throughout the app.
+- [GameServer.Accounts.StalePresenceSweeper](GameServer.Accounts.StalePresenceSweeper.md): Periodically sweeps users whose `is_online` flag is `true` but whose
+`last_seen_at` timestamp is older than a configurable threshold.
 - [GameServer.Accounts.User](GameServer.Accounts.User.md): The User schema and associated changeset functions used across the
 application (registration, OAuth, and admin changes).
 - [GameServer.Accounts.UserNotifier](GameServer.Accounts.UserNotifier.md): Small helpers used to deliver transactional emails for the Accounts flow

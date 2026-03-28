@@ -100,6 +100,14 @@ Approve a pending join request. Admin only.
 
 Batch count members for a list of group IDs. Returns a map of group_id => count.
 
+# `broadcast_member_presence`
+
+```elixir
+@spec broadcast_member_presence(integer(), tuple()) :: :ok | {:error, term()}
+```
+
+Broadcast a presence event (e.g. member_online, member_updated) to a group topic.
+
 # `cancel_invite`
 
 ```elixir
@@ -571,6 +579,14 @@ Unsubscribe from a specific group's events.
 
 Update group settings. Only admins can update.
 Cannot lower max_members below current member count.
+
+# `user_group_ids`
+
+```elixir
+@spec user_group_ids(integer()) :: [integer()]
+```
+
+Return the list of group IDs the user belongs to (lightweight, no preloads).
 
 ---
 
