@@ -58,6 +58,22 @@ defmodule GameServerWeb.Router do
     plug GameServerWeb.Plugs.MailboxPreviewEnabled
   end
 
+  pipeline :swagger_browser do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_live_flash
+    plug :put_root_layout, html: {GameServerWeb.Layouts, :root}
+    plug :protect_from_forgery
+
+    plug :put_secure_browser_headers, %{
+      "content-security-policy" =>
+        "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' wss: ws:; font-src 'self' data:; frame-ancestors 'self'"
+    }
+
+    plug :fetch_current_scope_for_user
+    plug GameServerWeb.Plugs.SentryContext
+  end
+
   # Lightweight pipeline for content assets (blog/changelog images).
   # No session, CSRF, or user auth needed — avoids DB contention
   # from concurrent image requests.
@@ -81,7 +97,7 @@ defmodule GameServerWeb.Router do
   end
 
   scope "/api" do
-    pipe_through :browser
+    pipe_through :swagger_browser
 
     get "/docs", GameServerWeb.SwaggerController, :index
   end
