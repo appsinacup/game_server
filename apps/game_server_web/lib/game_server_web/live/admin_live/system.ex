@@ -457,57 +457,55 @@ defmodule GameServerWeb.AdminLive.System do
     # Hammer ETS format: {{key, window_index}, count, expiry_ms}
     now_ms = :os.system_time(:millisecond)
 
-    try do
-      :ets.tab2list(GameServerWeb.RateLimit)
-      |> Enum.reduce(%{banned: 0, limited: 0, usage: [], banned_ips: []}, fn
-        {{key, _window}, count, expiry}, acc when is_binary(key) ->
-          cond do
-            String.starts_with?(key, "ip_ban:") ->
-              ip = String.replace_prefix(key, "ip_ban:", "")
-              remaining = max(0, div(expiry - now_ms, 1000))
-              remaining_str = "#{div(remaining, 60)}m #{rem(remaining, 60)}s"
-              %{acc | banned: acc.banned + 1, banned_ips: [{ip, remaining_str} | acc.banned_ips]}
+    :ets.tab2list(GameServerWeb.RateLimit)
+    |> Enum.reduce(%{banned: 0, limited: 0, usage: [], banned_ips: []}, fn
+      {{key, _window}, count, expiry}, acc when is_binary(key) ->
+        cond do
+          String.starts_with?(key, "ip_ban:") ->
+            ip = String.replace_prefix(key, "ip_ban:", "")
+            remaining = max(0, div(expiry - now_ms, 1000))
+            remaining_str = "#{div(remaining, 60)}m #{rem(remaining, 60)}s"
+            %{acc | banned: acc.banned + 1, banned_ips: [{ip, remaining_str} | acc.banned_ips]}
 
-            String.contains?(key, ":") ->
-              [type, ip] = String.split(key, ":", parts: 2)
+          String.contains?(key, ":") ->
+            [type, ip] = String.split(key, ":", parts: 2)
 
-              limit =
-                case type do
-                  "auth" -> 10
-                  "dc" -> 300
-                  "ws" -> 100
-                  _ -> 120
-                end
+            limit =
+              case type do
+                "auth" -> 10
+                "dc" -> 300
+                "ws" -> 100
+                _ -> 120
+              end
 
-              limited_inc = if count >= limit, do: 1, else: 0
+            limited_inc = if count >= limit, do: 1, else: 0
 
-              usage = [{type, ip, count, limit} | acc.usage]
+            usage = [{type, ip, count, limit} | acc.usage]
 
-              %{acc | limited: acc.limited + limited_inc, usage: usage}
+            %{acc | limited: acc.limited + limited_inc, usage: usage}
 
-            true ->
-              acc
-          end
+          true ->
+            acc
+        end
 
-        # Handle matches that don't fit the expected structure (if any)
-        _, acc ->
-          acc
+      # Handle matches that don't fit the expected structure (if any)
+      _, acc ->
+        acc
+    end)
+    |> Map.update!(:usage, fn usage ->
+      # Aggregate across Hammer time windows: group by {type, ip} and keep the max count
+      usage
+      |> Enum.group_by(fn {type, ip, _count, _limit} -> {type, ip} end)
+      |> Enum.map(fn {{type, ip}, entries} ->
+        max_count = entries |> Enum.map(fn {_, _, c, _} -> c end) |> Enum.max()
+        limit = entries |> List.first() |> elem(3)
+        {type, ip, max_count, limit}
       end)
-      |> Map.update!(:usage, fn usage ->
-        # Aggregate across Hammer time windows: group by {type, ip} and keep the max count
-        usage
-        |> Enum.group_by(fn {type, ip, _count, _limit} -> {type, ip} end)
-        |> Enum.map(fn {{type, ip}, entries} ->
-          max_count = entries |> Enum.map(fn {_, _, c, _} -> c end) |> Enum.max()
-          limit = entries |> List.first() |> elem(3)
-          {type, ip, max_count, limit}
-        end)
-        |> Enum.sort_by(fn {_type, _ip, count, _limit} -> count end, :desc)
-        |> Enum.take(5)
-      end)
-    rescue
-      _ -> %{banned: 0, limited: 0, usage: [], banned_ips: []}
-    end
+      |> Enum.sort_by(fn {_type, _ip, count, _limit} -> count end, :desc)
+      |> Enum.take(5)
+    end)
+  rescue
+    _ -> %{banned: 0, limited: 0, usage: [], banned_ips: []}
   end
 
   defp build_memory_breakdown(memory, total_bytes) do

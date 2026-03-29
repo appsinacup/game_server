@@ -506,29 +506,27 @@ defmodule GameServerWeb.AdminLive.Index do
   defp schedule_live_refresh, do: Process.send_after(self(), :refresh_live_stats, 5_000)
 
   defp build_rate_limit_stats do
-    try do
-      :ets.tab2list(GameServerWeb.RateLimit)
-      |> Enum.reduce(%{banned: 0, limited: 0}, fn
-        {{key, _window}, count, _expiry}, acc when is_binary(key) ->
-          cond do
-            String.starts_with?(key, "ip_ban:") ->
-              %{acc | banned: acc.banned + 1}
+    :ets.tab2list(GameServerWeb.RateLimit)
+    |> Enum.reduce(%{banned: 0, limited: 0}, fn
+      {{key, _window}, count, _expiry}, acc when is_binary(key) ->
+        cond do
+          String.starts_with?(key, "ip_ban:") ->
+            %{acc | banned: acc.banned + 1}
 
-            String.starts_with?(key, "auth:") or String.starts_with?(key, "general:") ->
-              limit = if String.starts_with?(key, "auth:"), do: 10, else: 120
-              limited_inc = if count >= limit, do: 1, else: 0
-              %{acc | limited: acc.limited + limited_inc}
+          String.starts_with?(key, "auth:") or String.starts_with?(key, "general:") ->
+            limit = if String.starts_with?(key, "auth:"), do: 10, else: 120
+            limited_inc = if count >= limit, do: 1, else: 0
+            %{acc | limited: acc.limited + limited_inc}
 
-            true ->
-              acc
-          end
+          true ->
+            acc
+        end
 
-        _, acc ->
-          acc
-      end)
-    rescue
-      _ -> %{banned: 0, limited: 0}
-    end
+      _, acc ->
+        acc
+    end)
+  rescue
+    _ -> %{banned: 0, limited: 0}
   end
 
   defp format_number(n) when is_integer(n) and n >= 1_000_000 do

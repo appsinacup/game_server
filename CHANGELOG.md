@@ -2,11 +2,11 @@
 
 - [changed] Make Leaderboards accept label instead of user_id.
 - [added] Initial version of Achievements.
-= [added] Initial version of Rate Limiting.
-= [changed] Self-hosted Inter font and eliminated all inline scripts.
-= [added] Initial version of WebSocket updates.
-= [added] Initial version of WebRTC updates.
-= [ahanged] Admin interface with realtime connections view.
+- [added] Initial version of Rate Limiting.
+- [changed] Self-hosted Inter font and eliminated all inline scripts.
+- [added] Initial version of WebSocket updates.
+- [added] Initial version of WebRTC updates.
+- [changed] Admin interface with realtime connections view.
 
 # Feb 2026
 
