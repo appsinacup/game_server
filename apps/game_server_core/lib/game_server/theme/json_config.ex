@@ -156,28 +156,6 @@ defmodule GameServer.Theme.JSONConfig do
     end
   end
 
-  defp read_default do
-    # Read the packaged English default as a reference config. This is only used
-    # by `packaged_default/0` for programmatic access (e.g. admin dashboards).
-    # It is NOT merged into runtime themes.
-    path = Path.join(:code.priv_dir(:game_server_web), "static/theme/default_config.en.json")
-    read_json(path)
-  end
-
-  @doc """
-  Return the packaged default theme config found under
-  `priv/static/theme/default_config.en.json` as a map (or an empty map when
-  missing/invalid). This is a convenience wrapper for programmatic access
-  (e.g. admin dashboards showing reference values). It is NOT merged into
-  runtime themes.
-  """
-  def packaged_default do
-    case read_default() do
-      {:ok, map} when is_map(map) -> map
-      _ -> %{}
-    end
-  end
-
   defp read_json(nil), do: :error
 
   defp read_json(path) when is_binary(path) do

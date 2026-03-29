@@ -58,9 +58,13 @@ defmodule GameServerWeb.Layouts do
     provider_theme =
       Map.get(assigns, :theme) || JSONConfig.get_theme(locale) || %{}
 
+    # When THEME_CONFIG is not set, show placeholder text so the user
+    # immediately sees what needs configuring.
+    missing? = provider_theme == %{}
+
     theme = %{
-      "title" => Map.get(provider_theme, "title"),
-      "tagline" => Map.get(provider_theme, "tagline"),
+      "title" => Map.get(provider_theme, "title") || if(missing?, do: "MISSING_CONFIG"),
+      "tagline" => Map.get(provider_theme, "tagline") || if(missing?, do: "Set THEME_CONFIG env"),
       "logo" => Map.get(provider_theme, "logo"),
       "banner" => Map.get(provider_theme, "banner"),
       "css" => Map.get(provider_theme, "css")

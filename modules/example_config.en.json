@@ -1,10 +1,11 @@
 {
   "title": "Gamend",
   "tagline": "Game + Backend",
-  "description": "Open source Elixir game server with authentication, users, lobbies, groups, parties, friends, chat, notifications, achievements, leaderboards, server scripting and admin portal with HTTP, WebSocket, and WebRTC support and SDK for JS and Godot.",
+  "description": "**Open source** Elixir game server for **real-time** multiplayer games.",
   "css": "",
   "logo": "/images/logo.png",
   "banner": "/images/banner.png",
+  "banner_link": "/docs/setup",
   "favicon": "/favicon.ico",
   "changelog": "/CHANGELOG.md",
   "blog": "/blog",
@@ -30,10 +31,10 @@
   ],
   "features": [
     { "title": "Authentication & Users", "description": "Email, Magic-link, OAuth, JWT and Session. Register, login, reset password and verify email.", "icon": "hero-lock-closed" },
-    { "title": "Lobbies & Leaderboards & Achievements", "description": "Customizable settings and real-time updates. Server-authoritative leaderboards and achievements.", "icon": "hero-home" },
-    { "title": "Friends & Groups", "description": "Request, block, and lists with real-time presence and notifications. Communities with public, private, and hidden visibility.", "icon": "hero-user-group" },
-    { "title": "Server Scripting & Server Scheduling", "description": "Server logic using Elixir scripts. Schedule tasks for automated server operations.", "icon": "hero-computer-desktop" },
-    { "title": "Persistence & Caching", "description": "SQLite (in memory) and PostgreSQL. In-memory or distributed caching.", "icon": "hero-server-stack" },
-    { "title": "Web & Integrations", "description": "Built-in web UI and admin portal. Supports Discord, Apple, Google, Facebook, Steam.", "icon": "hero-puzzle-piece" }
+    { "title": "Lobbies, Parties & Matchmaking", "description": "Real-time lobbies and ephemeral parties. Customizable settings with live updates.", "icon": "hero-home" },
+    { "title": "Friends, Groups & Chat", "description": "Friend requests, blocking, real-time presence. Public, private and hidden groups. Direct and group messaging.", "icon": "hero-user-group" },
+    { "title": "Achievements, Leaderboards & Notifications", "description": "Server-authoritative achievements and leaderboards. Real-time notifications across all features.", "icon": "hero-trophy" },
+    { "title": "Server Scripting & Scheduling", "description": "Extend server logic with Elixir scripts. Schedule automated tasks and cron jobs.", "icon": "hero-computer-desktop" },
+    { "title": "HTTP, WebSocket & WebRTC", "description": "REST API, real-time WebSocket channels and low-latency WebRTC DataChannels. Admin portal and web UI.", "icon": "hero-puzzle-piece" }
   ]
 }
