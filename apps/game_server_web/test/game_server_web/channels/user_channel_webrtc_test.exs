@@ -149,26 +149,6 @@ defmodule GameServerWeb.UserChannelWebRTCTest do
     end
   end
 
-  describe "webrtc:send" do
-    test "returns error when no WebRTC session exists", %{socket: socket} do
-      ref = push(socket, "webrtc:send", %{"channel" => "events", "data" => "hello"})
-      assert_reply ref, :error, %{error: "no_webrtc_session"}
-    end
-
-    test "returns error when channel not found", %{socket: socket} do
-      {client_pc, offer_json} = create_test_offer()
-
-      ref = push(socket, "webrtc:offer", offer_json)
-      assert_reply ref, :ok, %{}, 5000
-      assert_push "webrtc:answer", _answer, 5000
-
-      send_ref = push(socket, "webrtc:send", %{"channel" => "nonexistent", "data" => "hello"})
-      assert_reply send_ref, :error, %{error: "channel_not_found"}
-
-      safe_stop_pc(client_pc)
-    end
-  end
-
   describe "webrtc:close" do
     test "returns ok when no session exists", %{socket: socket} do
       ref = push(socket, "webrtc:close", %{})
@@ -185,10 +165,6 @@ defmodule GameServerWeb.UserChannelWebRTCTest do
       # Close — give extra time since PeerConnection cleanup can be slow
       close_ref = push(socket, "webrtc:close", %{})
       assert_reply close_ref, :ok, %{}, 500
-
-      # After close, sending should fail
-      send_ref = push(socket, "webrtc:send", %{"channel" => "events", "data" => "hello"})
-      assert_reply send_ref, :error, %{error: "no_webrtc_session"}
 
       safe_stop_pc(client_pc)
     end

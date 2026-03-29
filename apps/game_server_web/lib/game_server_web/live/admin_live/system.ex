@@ -44,6 +44,11 @@ defmodule GameServerWeb.AdminLive.System do
             <div class="text-xs text-base-content/60">Elixir</div>
             <div class="text-xl font-bold">{@elixir_version}</div>
           </div>
+          <div class="bg-primary text-primary-content rounded-lg shadow-sm p-4">
+            <div class="text-xs opacity-70">Rate Limited</div>
+            <div class="text-xl font-bold">{@rate_stats.limited}</div>
+            <div class="text-xs opacity-60">{@rate_stats.banned} IPs banned</div>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -260,6 +265,124 @@ defmodule GameServerWeb.AdminLive.System do
             </div>
           </div>
         <% end %>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <%!-- Rate Limit Usage --%>
+          <div class="card bg-base-200 shadow">
+            <div class="card-body">
+              <h2 class="card-title text-lg">
+                Rate Limit Load
+              </h2>
+              <p class="text-xs text-base-content/60">
+                Top IPs by request count in current 60s window.
+              </p>
+
+              <div class="overflow-x-auto mt-2">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>IP / Type</th>
+                      <th class="text-right">Usage</th>
+                      <th class="text-right">Limit</th>
+                      <th class="text-right">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      :for={{type, ip, count, limit} <- @rate_stats.usage}
+                      id={"usage-#{type}-#{ip}"}
+                    >
+                      <td class="font-mono text-xs">
+                        <span class={[
+                          "badge badge-xs font-bold text-[0.6rem] mr-2",
+                          cond do
+                            type == "auth" -> "badge-warning"
+                            type == "dc" -> "badge-info"
+                            type == "ws" -> "badge-secondary"
+                            true -> "badge-primary"
+                          end
+                        ]}>
+                          {case type do
+                            "dc" -> "WebRTC"
+                            "ws" -> "WebSocket"
+                            "auth" -> "Auth"
+                            _ -> "HTTP"
+                          end}
+                        </span>
+                        {if type in ["ws", "dc"], do: "User #{ip}", else: ip}
+                      </td>
+                      <td class="text-right">
+                        <div class="flex items-center justify-end gap-2">
+                          <div class="w-16 bg-base-300 rounded-full h-1.5">
+                            <div
+                              class={[
+                                "h-1.5 rounded-full",
+                                count >= limit && "bg-error",
+                                count >= limit * 0.8 && count < limit && "bg-warning",
+                                count < limit * 0.8 && "bg-success"
+                              ]}
+                              style={"width: #{min(count / limit * 100, 100)}%"}
+                            >
+                            </div>
+                          </div>
+                          <span class="font-mono text-xs">{count}</span>
+                        </div>
+                      </td>
+                      <td class="text-right font-mono text-xs">{limit}</td>
+                      <td class="text-right">
+                        <span :if={count >= limit} class="badge badge-error badge-xs">Blocked</span>
+                        <span
+                          :if={count < limit && count >= limit * 0.8}
+                          class="badge badge-warning badge-xs"
+                        >
+                          High
+                        </span>
+                        <span :if={count < limit * 0.8} class="badge badge-success badge-xs">OK</span>
+                      </td>
+                    </tr>
+                    <tr :if={@rate_stats.usage == []}>
+                      <td colspan="4" class="text-center text-xs text-base-content/40 py-4 italic">
+                        No significant traffic in current window.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <%!-- Bans --%>
+          <div class="card bg-base-200 shadow">
+            <div class="card-body">
+              <h2 class="card-title text-lg">Active IP Bans</h2>
+              <div class="overflow-x-auto">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>Banned IP</th>
+                      <th class="text-right">Reason</th>
+                      <th class="text-right">Remaining</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr :for={{ip, expiry} <- @rate_stats.banned_ips} id={"ban-#{ip}"}>
+                      <td class="font-mono text-xs font-bold text-error">{ip}</td>
+                      <td class="text-right text-xs">Exceeded Rate Limit</td>
+                      <td class="text-right font-mono text-xs">
+                        {expiry}
+                      </td>
+                    </tr>
+                    <tr :if={@rate_stats.banned_ips == []}>
+                      <td colspan="3" class="text-center text-xs text-base-content/40 py-4 italic">
+                        No active IP bans.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </Layouts.app>
     """
@@ -324,9 +447,67 @@ defmodule GameServerWeb.AdminLive.System do
       reductions: reductions,
       ets_tables: ets_tables,
       cluster_nodes: Node.list(),
+      rate_stats: build_rate_limit_stats(),
       scheduler_util: scheduler_util,
       scheduler_sample: :scheduler.sample()
     )
+  end
+
+  defp build_rate_limit_stats do
+    # Hammer ETS format: {{key, window_index}, count, expiry_ms}
+    now_ms = :os.system_time(:millisecond)
+
+    try do
+      :ets.tab2list(GameServerWeb.RateLimit)
+      |> Enum.reduce(%{banned: 0, limited: 0, usage: [], banned_ips: []}, fn
+        {{key, _window}, count, expiry}, acc when is_binary(key) ->
+          cond do
+            String.starts_with?(key, "ip_ban:") ->
+              ip = String.replace_prefix(key, "ip_ban:", "")
+              remaining = max(0, div(expiry - now_ms, 1000))
+              remaining_str = "#{div(remaining, 60)}m #{rem(remaining, 60)}s"
+              %{acc | banned: acc.banned + 1, banned_ips: [{ip, remaining_str} | acc.banned_ips]}
+
+            String.contains?(key, ":") ->
+              [type, ip] = String.split(key, ":", parts: 2)
+
+              limit =
+                case type do
+                  "auth" -> 10
+                  "dc" -> 300
+                  "ws" -> 100
+                  _ -> 120
+                end
+
+              limited_inc = if count >= limit, do: 1, else: 0
+
+              usage = [{type, ip, count, limit} | acc.usage]
+
+              %{acc | limited: acc.limited + limited_inc, usage: usage}
+
+            true ->
+              acc
+          end
+
+        # Handle matches that don't fit the expected structure (if any)
+        _, acc ->
+          acc
+      end)
+      |> Map.update!(:usage, fn usage ->
+        # Aggregate across Hammer time windows: group by {type, ip} and keep the max count
+        usage
+        |> Enum.group_by(fn {type, ip, _count, _limit} -> {type, ip} end)
+        |> Enum.map(fn {{type, ip}, entries} ->
+          max_count = entries |> Enum.map(fn {_, _, c, _} -> c end) |> Enum.max()
+          limit = entries |> List.first() |> elem(3)
+          {type, ip, max_count, limit}
+        end)
+        |> Enum.sort_by(fn {_type, _ip, count, _limit} -> count end, :desc)
+        |> Enum.take(5)
+      end)
+    rescue
+      _ -> %{banned: 0, limited: 0, usage: [], banned_ips: []}
+    end
   end
 
   defp build_memory_breakdown(memory, total_bytes) do

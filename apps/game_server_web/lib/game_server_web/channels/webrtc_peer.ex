@@ -4,21 +4,34 @@ defmodule GameServerWeb.WebRTCPeer do
 
   This GenServer owns an `ExWebRTC.PeerConnection` process and acts as the
   bridge between the Phoenix Channel (signaling) and the WebRTC DataChannels
-  (game data transport).
+  for low-latency hook RPC calls.
 
   ## Lifecycle
 
   1. Started by `UserChannel` when the client sends a `"webrtc:offer"` event.
   2. Linked to the channel process — auto-terminates when WebSocket disconnects.
   3. Handles SDP offer/answer exchange and ICE candidate relay.
-  4. Forwards incoming DataChannel messages to the channel process.
-  5. Provides `send_data/3` for the channel to push data to the client.
+  4. Processes hook RPC calls received on the "events" DataChannel.
+  5. Provides `send_data/3` to push hook responses back to the client.
+
+  ## Hook RPC
+
+  Clients send JSON messages on the "events" DataChannel:
+
+      {"type": "call_hook", "plugin": "my_plugin", "fn": "my_func", "args": [1, 2]}
+
+  The server replies on the same channel with:
+
+      {"type": "hook_reply", "plugin": "my_plugin", "fn": "my_func", "data": result}
+
+  Or on error:
+
+      {"type": "hook_error", "plugin": "my_plugin", "fn": "my_func", "error": "reason"}
 
   ## Messages sent to the controlling channel process
 
   - `{:webrtc_answer, answer_json}` — SDP answer to send to client
   - `{:webrtc_ice, candidate_json}` — ICE candidate to send to client
-  - `{:webrtc_data, channel_label, binary}` — data received from client
   - `{:webrtc_channel_open, ref, label}` — DataChannel opened
   - `{:webrtc_channel_closed, ref}` — DataChannel closed
   - `{:webrtc_connection_state, state}` — connection state change
@@ -32,6 +45,9 @@ defmodule GameServerWeb.WebRTCPeer do
     PeerConnection,
     SessionDescription
   }
+
+  alias GameServer.Accounts
+  alias GameServer.Hooks.PluginManager
 
   # DataChannel message rate limits (per user) — defaults, overridden by config
   @default_dc_rate_limit 300
@@ -95,6 +111,8 @@ defmodule GameServerWeb.WebRTCPeer do
     user_id = Keyword.fetch!(opts, :user_id)
     channel_pid = Keyword.get(opts, :channel_pid, self())
 
+    user = Accounts.get_user(user_id)
+
     ice_servers =
       Keyword.get_lazy(opts, :ice_servers, fn ->
         webrtc_config = Application.get_env(:game_server_web, :webrtc, [])
@@ -106,6 +124,7 @@ defmodule GameServerWeb.WebRTCPeer do
     state = %{
       peer_connection: pc,
       channel_pid: channel_pid,
+      user: user,
       user_id: user_id,
       # %{ref => label} for open DataChannels
       channels: %{},
@@ -227,7 +246,7 @@ defmodule GameServerWeb.WebRTCPeer do
   def handle_info({:ex_webrtc, _pc, {:data, ref, data}}, state) do
     if dc_rate_limit_allowed?(state.user_id) do
       label = Map.get(state.channels, ref, "unknown")
-      send(state.channel_pid, {:webrtc_data, label, data})
+      maybe_handle_rpc(label, data, state)
       {:noreply, state}
     else
       Logger.warning("WebRTCPeer user=#{state.user_id} DataChannel rate limit exceeded")
@@ -272,6 +291,34 @@ defmodule GameServerWeb.WebRTCPeer do
 
     :ok
   end
+
+  # ── RPC handling over DataChannels ──────────────────────────────────────────
+
+  defp maybe_handle_rpc("events", data, state) do
+    case Jason.decode(data) do
+      {:ok, %{"type" => "call_hook", "plugin" => plugin, "fn" => func} = payload} ->
+        args = Map.get(payload, "args", [])
+        args = if is_list(args), do: args, else: [args]
+
+        # Use the stored full user or refetch if missing
+        user = state.user || Accounts.get_user(state.user_id)
+
+        case PluginManager.call_rpc(plugin, func, args, caller: user) do
+          {:ok, res} ->
+            resp = %{type: "hook_reply", plugin: plugin, fn: func, data: res}
+            send_data(self(), "events", Jason.encode!(resp))
+
+          {:error, reason} ->
+            resp = %{type: "hook_error", plugin: plugin, fn: func, error: to_string(reason)}
+            send_data(self(), "events", Jason.encode!(resp))
+        end
+
+      _ ->
+        :ok
+    end
+  end
+
+  defp maybe_handle_rpc(_label, _data, _state), do: :ok
 
   # ── DataChannel rate limiting ──────────────────────────────────────────────
 

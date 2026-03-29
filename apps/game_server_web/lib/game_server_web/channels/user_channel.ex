@@ -92,7 +92,8 @@ defmodule GameServerWeb.UserChannel do
       if reserved? do
         {:reply, {:error, %{error: "reserved_hook_name"}}, socket}
       else
-        user = socket.assigns.current_scope.user
+        # Re-fetch user from DB to get current lobby_id / state
+        user = Accounts.get_user(socket.assigns.user_id) || socket.assigns.current_scope.user
 
         case PluginManager.call_rpc(plugin, fn_name, args, caller: user) do
           {:ok, res} ->
@@ -142,22 +143,6 @@ defmodule GameServerWeb.UserChannel do
   end
 
   @impl true
-  def handle_in("webrtc:send", %{"channel" => label, "data" => data}, socket) do
-    with :ok <- check_ws_rate_limit(socket) do
-      case Map.get(socket.assigns, :webrtc_peer) do
-        nil ->
-          {:reply, {:error, %{error: "no_webrtc_session"}}, socket}
-
-        peer ->
-          case GameServerWeb.WebRTCPeer.send_data(peer, label, data) do
-            :ok -> {:reply, {:ok, %{}}, socket}
-            {:error, reason} -> {:reply, {:error, %{error: to_string(reason)}}, socket}
-          end
-      end
-    end
-  end
-
-  @impl true
   def handle_in("webrtc:close", _payload, socket) do
     case Map.get(socket.assigns, :webrtc_peer) do
       nil ->
@@ -171,7 +156,7 @@ defmodule GameServerWeb.UserChannel do
 
   @impl true
   def handle_in(_event, _payload, socket) do
-    {:stop, :normal, {:error, %{error: "unknown_event"}}, socket}
+    {:reply, {:error, %{error: "unknown_event"}}, socket}
   end
 
   # ── PubSub event forwarding ────────────────────────────────────────────────
@@ -312,12 +297,6 @@ defmodule GameServerWeb.UserChannel do
   @impl true
   def handle_info({:webrtc_ice, candidate_json}, socket) do
     push(socket, "webrtc:ice", candidate_json)
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_info({:webrtc_data, channel_label, data}, socket) do
-    push(socket, "webrtc:data", %{channel: channel_label, data: data})
     {:noreply, socket}
   end
 

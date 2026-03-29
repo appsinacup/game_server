@@ -327,6 +327,36 @@ defmodule GameServerWeb.AdminLive.Index do
                   </div>
                 </div>
               </div>
+
+              <%!-- 14. Rate Limiting --%>
+              <div class="card bg-base-100 p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-sm font-semibold">Rate Limiting</div>
+                  <.link navigate={~p"/admin/system"} class="link link-primary text-xs">
+                    View →
+                  </.link>
+                </div>
+                <div class="text-xs text-base-content/60 mt-2 space-y-2">
+                  <div class="flex justify-between items-center">
+                    <span>IP Banned (1h)</span>
+                    <span class={[
+                      "badge badge-sm font-mono",
+                      if(@rate_stats.banned > 0, do: "badge-error", else: "badge-ghost opacity-50")
+                    ]}>
+                      {@rate_stats.banned}
+                    </span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <span>Rate Limited (1m)</span>
+                    <span class={[
+                      "badge badge-sm font-mono",
+                      if(@rate_stats.limited > 0, do: "badge-warning", else: "badge-ghost opacity-50")
+                    ]}>
+                      {@rate_stats.limited}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -389,6 +419,7 @@ defmodule GameServerWeb.AdminLive.Index do
     # live connection & system stats (refreshed periodically)
     conn_stats = GameServerWeb.ConnectionTracker.cluster_counts()
     sys_stats = GameServerWeb.ConnectionTracker.system_stats()
+    rate_stats = build_rate_limit_stats()
 
     if connected?(socket), do: schedule_live_refresh()
 
@@ -441,6 +472,7 @@ defmodule GameServerWeb.AdminLive.Index do
        achievement_stats: achievement_stats,
        conn_stats: conn_stats,
        sys_stats: sys_stats,
+       rate_stats: rate_stats,
        users_registered_1d: users_registered_1d,
        users_registered_7d: users_registered_7d,
        users_registered_30d: users_registered_30d,
@@ -463,7 +495,8 @@ defmodule GameServerWeb.AdminLive.Index do
     {:noreply,
      assign(socket,
        conn_stats: GameServerWeb.ConnectionTracker.cluster_counts(),
-       sys_stats: GameServerWeb.ConnectionTracker.system_stats()
+       sys_stats: GameServerWeb.ConnectionTracker.system_stats(),
+       rate_stats: build_rate_limit_stats()
      )}
   end
 
@@ -471,6 +504,32 @@ defmodule GameServerWeb.AdminLive.Index do
   def handle_info(_msg, socket), do: {:noreply, socket}
 
   defp schedule_live_refresh, do: Process.send_after(self(), :refresh_live_stats, 5_000)
+
+  defp build_rate_limit_stats do
+    try do
+      :ets.tab2list(GameServerWeb.RateLimit)
+      |> Enum.reduce(%{banned: 0, limited: 0}, fn
+        {{key, _window}, count, _expiry}, acc when is_binary(key) ->
+          cond do
+            String.starts_with?(key, "ip_ban:") ->
+              %{acc | banned: acc.banned + 1}
+
+            String.starts_with?(key, "auth:") or String.starts_with?(key, "general:") ->
+              limit = if String.starts_with?(key, "auth:"), do: 10, else: 120
+              limited_inc = if count >= limit, do: 1, else: 0
+              %{acc | limited: acc.limited + limited_inc}
+
+            true ->
+              acc
+          end
+
+        _, acc ->
+          acc
+      end)
+    rescue
+      _ -> %{banned: 0, limited: 0}
+    end
+  end
 
   defp format_number(n) when is_integer(n) and n >= 1_000_000 do
     "#{Float.round(n / 1_000_000, 1)}M"
