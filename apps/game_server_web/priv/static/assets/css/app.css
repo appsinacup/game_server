@@ -11584,6 +11584,12 @@
       height: calc(var(--spacing) * 14);
     }
   }
+  .sm\:size-15 {
+    @media (width >= 40rem) {
+      width: calc(var(--spacing) * 15);
+      height: calc(var(--spacing) * 15);
+    }
+  }
   .sm\:size-16 {
     @media (width >= 40rem) {
       width: calc(var(--spacing) * 16);
