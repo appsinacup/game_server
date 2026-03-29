@@ -33,6 +33,8 @@ defmodule GameServerWeb.Layouts do
   @doc false
   def icon_placements(icons) when is_list(icons) do
     icons
+    |> Enum.uniq()
+    |> Enum.take(length(@icon_slots))
     |> Enum.with_index()
     |> Enum.map(fn {icon_name, idx} ->
       slot = Enum.at(@icon_slots, rem(idx, length(@icon_slots)))
