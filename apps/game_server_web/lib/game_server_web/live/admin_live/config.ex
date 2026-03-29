@@ -22,7 +22,7 @@ defmodule GameServerWeb.AdminLive.Config do
         </.link>
 
     <!-- Current Configuration Status -->
-        <div class="card bg-base-100 shadow-xl" data-card-key="config_status">
+        <div class="card bg-base-100 shadow-sm" data-card-key="config_status">
           <div class="card-body">
             <h2 class="card-title text-xl mb-4 flex items-center gap-3">
               Current Configuration Status
@@ -1216,7 +1216,7 @@ defmodule GameServerWeb.AdminLive.Config do
         </div>
 
     <!-- Limits & Validation -->
-        <div class="card bg-base-100 shadow-xl collapsed" data-card-key="limits">
+        <div class="card bg-base-100 shadow-sm collapsed" data-card-key="limits">
           <div class="card-body">
             <h2 class="card-title text-xl mb-4 flex items-center gap-3">
               Limits &amp; Validation
@@ -1285,7 +1285,7 @@ defmodule GameServerWeb.AdminLive.Config do
         </div>
 
     <!-- Admin Tools -->
-        <div class="card bg-base-100 shadow-xl collapsed" data-card-key="admin_tools">
+        <div class="card bg-base-100 shadow-sm collapsed" data-card-key="admin_tools">
           <div class="card-body">
             <h2 class="card-title text-xl mb-4 flex items-center gap-3">
               Admin Tools
@@ -1342,7 +1342,7 @@ defmodule GameServerWeb.AdminLive.Config do
         </div>
 
     <!-- Scheduled Jobs -->
-        <div class="card bg-base-100 shadow-xl collapsed" data-card-key="scheduled_jobs">
+        <div class="card bg-base-100 shadow-sm collapsed" data-card-key="scheduled_jobs">
           <div class="card-body">
             <h2 class="card-title text-xl mb-4 flex items-center gap-3">
               Scheduled Jobs
