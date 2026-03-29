@@ -824,6 +824,10 @@ defmodule GameServer.Lobbies do
 
   @spec delete_lobby(Lobby.t()) :: {:ok, Lobby.t()} | {:error, Ecto.Changeset.t() | term()}
   def delete_lobby(%Lobby{} = lobby) do
+    # Fetch member IDs before deletion — the DB on_delete: :nilify_all will
+    # clear their lobby_id, but we need to invalidate the Nebulex cache too.
+    member_ids = Repo.all(from u in User, where: u.lobby_id == ^lobby.id, select: u.id)
+
     case GameServer.Hooks.internal_call(:before_lobby_delete, [lobby]) do
       {:ok, _} ->
         case Repo.delete(lobby) do
@@ -832,6 +836,9 @@ defmodule GameServer.Lobbies do
               GameServer.Chat.cleanup_chat("lobby", deleted.id)
               GameServer.Hooks.internal_call(:after_lobby_delete, [deleted])
             end)
+
+            # Invalidate cached users whose lobby_id was just nullified by the DB
+            Enum.each(member_ids, &invalidate_accounts_user_cache/1)
 
             # Clean up spectator tracking for this lobby
             SpectatorTracker.untrack_all(deleted.id)
