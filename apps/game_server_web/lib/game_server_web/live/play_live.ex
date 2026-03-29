@@ -45,6 +45,7 @@ defmodule GameServerWeb.PlayLive do
         id="game-container"
         phx-hook="GameViewport"
         class="relative w-full h-full overflow-hidden"
+        style="touch-action: manipulation;"
       >
         <div
           id="game-auth"

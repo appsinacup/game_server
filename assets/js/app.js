@@ -76,26 +76,38 @@ const Hooks = {
   },
   GameViewport: {
     mounted() {
-      // On mobile, resize the game container when the virtual keyboard
-      // opens so the page doesn't zoom — it shrinks instead.
-      const vv = window.visualViewport
-      if (!vv) return
-
-      this._onResize = () => {
-        const navHeight = 64 // 4rem navbar
-        const availableHeight = vv.height - navHeight
-        this.el.style.height = `${Math.max(availableHeight, 100)}px`
-        // Scroll the viewport offset back to 0 to avoid the page shifting
-        window.scrollTo(0, 0)
+      // Prevent mobile browsers from zooming when the virtual keyboard opens.
+      // We swap the viewport meta to disable user scaling while the game is
+      // visible, and restore it when the LiveView is destroyed.
+      const meta = document.querySelector('meta[name="viewport"]')
+      if (meta) {
+        this._origViewport = meta.getAttribute("content")
+        meta.setAttribute(
+          "content",
+          "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+        )
       }
-      vv.addEventListener("resize", this._onResize)
-      vv.addEventListener("scroll", this._onResize)
+
+      // Prevent scroll drift when virtual keyboard opens/closes
+      const vv = window.visualViewport
+      if (vv) {
+        this._onResize = () => window.scrollTo(0, 0)
+        vv.addEventListener("resize", this._onResize)
+        vv.addEventListener("scroll", this._onResize)
+      }
     },
     destroyed() {
+      // Restore original viewport meta
+      const meta = document.querySelector('meta[name="viewport"]')
+      if (meta && this._origViewport) {
+        meta.setAttribute("content", this._origViewport)
+      }
+
       const vv = window.visualViewport
-      if (!vv || !this._onResize) return
-      vv.removeEventListener("resize", this._onResize)
-      vv.removeEventListener("scroll", this._onResize)
+      if (vv && this._onResize) {
+        vv.removeEventListener("resize", this._onResize)
+        vv.removeEventListener("scroll", this._onResize)
+      }
     }
   },
   ScrollToBottom: {
