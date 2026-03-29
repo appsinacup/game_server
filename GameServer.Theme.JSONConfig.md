@@ -28,14 +28,6 @@ Given a base config like `modules/example_config.json` and locale `"es"`, we wil
 try `modules/example_config.es.json` first, then fall back to `.en.json`.
 The base file itself is never loaded.
 
-# `packaged_default`
-
-Return the packaged default theme config found under
-`priv/static/theme/default_config.en.json` as a map (or an empty map when
-missing/invalid). This is a convenience wrapper for programmatic access
-(e.g. admin dashboards showing reference values). It is NOT merged into
-runtime themes.
-
 # `runtime_path`
 
 Returns the runtime THEME_CONFIG path if present and non-blank, otherwise nil.

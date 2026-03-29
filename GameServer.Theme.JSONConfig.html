@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.815">
+    <meta name="project" content="GameServer v1.0.816">
 
 
-    <title>GameServer.Theme.JSONConfig — GameServer v1.0.815</title>
+    <title>GameServer.Theme.JSONConfig — GameServer v1.0.816</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-63FEB412.js"></script>
+    <script defer src="dist/sidebar_items-08F774F1.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.815
+          v1.0.816
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Theme.<wbr>JSONConfig</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.815)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.816)</small>
 
     </h1>
 
@@ -141,20 +141,6 @@ cache (e.g. after editing the JSON file at runtime).</p>
       </div>
 
         <div class="summary-synopsis"><p>Variant of <code class="inline">get_theme/0</code> that prefers a locale-specific THEME_CONFIG file when present.</p></div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#packaged_default/0" data-no-tooltip="" translate="no">packaged_default()</a>
-
-      </div>
-
-        <div class="summary-synopsis"><p>Return the packaged default theme config found under
-<code class="inline">priv/static/theme/default_config.en.json</code> as a map (or an empty map when
-missing/invalid). This is a convenience wrapper for programmatic access
-(e.g. admin dashboards showing reference values). It is NOT merged into
-runtime themes.</p></div>
 
     </div>
 
@@ -207,28 +193,6 @@ This function intentionally treats blank env values as unset.</p></div>
 <p>Variant of <code class="inline">get_theme/0</code> that prefers a locale-specific THEME_CONFIG file when present.</p><p>Given a base config like <code class="inline">modules/example_config.json</code> and locale <code class="inline">&quot;es&quot;</code>, we will
 try <code class="inline">modules/example_config.es.json</code> first, then fall back to <code class="inline">.en.json</code>.
 The base file itself is never loaded.</p>
-  </section>
-</section>
-<section class="detail" id="packaged_default/0">
-
-  <div class="detail-header">
-    <a href="#packaged_default/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">packaged_default()</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-<p>Return the packaged default theme config found under
-<code class="inline">priv/static/theme/default_config.en.json</code> as a map (or an empty map when
-missing/invalid). This is a convenience wrapper for programmatic access
-(e.g. admin dashboards showing reference values). It is NOT merged into
-runtime themes.</p>
   </section>
 </section>
 <section class="detail" id="runtime_path/0">
