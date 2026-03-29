@@ -99,6 +99,7 @@
     --radius-md: 0.375rem;
     --radius-lg: 0.5rem;
     --radius-xl: 0.75rem;
+    --radius-2xl: 1rem;
     --drop-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.15);
     --ease-in: cubic-bezier(0.4, 0, 1, 1);
     --ease-out: cubic-bezier(0, 0, 0.2, 1);
@@ -9766,10 +9767,6 @@
     width: calc(var(--spacing) * 10);
     height: calc(var(--spacing) * 10);
   }
-  .size-11 {
-    width: calc(var(--spacing) * 11);
-    height: calc(var(--spacing) * 11);
-  }
   .h-1\.5 {
     height: calc(var(--spacing) * 1.5);
   }
@@ -10235,6 +10232,9 @@
   .rounded {
     border-radius: 0.25rem;
   }
+  .rounded-2xl {
+    border-radius: var(--radius-2xl);
+  }
   .rounded-box {
     border-radius: var(--radius-box);
   }
@@ -10313,6 +10313,12 @@
     border-color: var(--color-base-300);
     @supports (color: color-mix(in lab, red, red)) {
       border-color: color-mix(in oklab, var(--color-base-300) 60%, transparent);
+    }
+  }
+  .border-base-300\/70 {
+    border-color: var(--color-base-300);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in oklab, var(--color-base-300) 70%, transparent);
     }
   }
   .border-base-300\/100 {
@@ -11590,12 +11596,6 @@
       height: calc(var(--spacing) * 15);
     }
   }
-  .sm\:size-16 {
-    @media (width >= 40rem) {
-      width: calc(var(--spacing) * 16);
-      height: calc(var(--spacing) * 16);
-    }
-  }
   .sm\:w-48 {
     @media (width >= 40rem) {
       width: calc(var(--spacing) * 48);
@@ -11706,6 +11706,11 @@
   .sm\:gap-6 {
     @media (width >= 40rem) {
       gap: calc(var(--spacing) * 6);
+    }
+  }
+  .sm\:p-6 {
+    @media (width >= 40rem) {
+      padding: calc(var(--spacing) * 6);
     }
   }
   .sm\:px-4 {

@@ -16,36 +16,34 @@ defmodule GameServerWeb.Layouts do
   # Pre-computed icon placement slots — positions, sizes, animation params.
   # Icons are placed along edges (left/right) to avoid overlapping center content.
   @icon_slots [
-    %{top: 7, left: 4, size: "size-9 sm:size-13", dur: 8, delay: 0},
+    %{top: 13, left: 4, size: "size-9 sm:size-13", dur: 8, delay: 0},
     %{top: 12, right: 6, size: "size-8 sm:size-12", dur: 10, delay: 1},
-    %{top: 19, left: 13, size: "size-7 sm:size-9", dur: 9, delay: 3.5},
-    %{top: 24, right: 14, size: "size-7 sm:size-10", dur: 8, delay: 2.2},
-    %{top: 31, left: 3, size: "size-9 sm:size-12", dur: 9, delay: 2},
-    %{top: 36, right: 4, size: "size-10 sm:size-14", dur: 11, delay: 0.5},
-    %{top: 43, left: 16, size: "size-7 sm:size-9", dur: 10, delay: 1.8},
-    %{top: 47, right: 12, size: "size-8 sm:size-11", dur: 11, delay: 0.8},
-    %{top: 54, left: 7, size: "size-8 sm:size-10", dur: 7, delay: 3},
-    %{top: 58, right: 5, size: "size-10 sm:size-15", dur: 12, delay: 1.5},
-    %{top: 64, left: 18, size: "size-8 sm:size-11", dur: 8, delay: 1.2},
-    %{top: 69, right: 15, size: "size-7 sm:size-10", dur: 9, delay: 2.8},
-    %{top: 74, left: 11, size: "size-9 sm:size-13", dur: 8, delay: 4},
-    %{top: 79, right: 10, size: "size-8 sm:size-12", dur: 10, delay: 2.5},
-    %{top: 84, left: 5, size: "size-7 sm:size-9", dur: 9, delay: 0.9},
-    %{top: 88, right: 14, size: "size-9 sm:size-12", dur: 10, delay: 4.5},
-    %{top: 92, left: 17, size: "size-7 sm:size-9", dur: 8, delay: 2.1},
-    %{top: 95, right: 6, size: "size-8 sm:size-11", dur: 9, delay: 3.2}
+    %{top: 21, left: 13, size: "size-7 sm:size-9", dur: 9, delay: 3.5},
+    %{top: 28, right: 14, size: "size-7 sm:size-10", dur: 8, delay: 2.2},
+    %{top: 36, left: 3, size: "size-9 sm:size-12", dur: 9, delay: 2},
+    %{top: 42, right: 4, size: "size-10 sm:size-14", dur: 11, delay: 0.5},
+    %{top: 51, left: 16, size: "size-7 sm:size-9", dur: 10, delay: 1.8},
+    %{top: 57, right: 12, size: "size-8 sm:size-11", dur: 11, delay: 0.8},
+    %{top: 66, left: 7, size: "size-8 sm:size-10", dur: 7, delay: 3},
+    %{top: 72, right: 5, size: "size-10 sm:size-15", dur: 12, delay: 1.5},
+    %{top: 81, left: 18, size: "size-8 sm:size-11", dur: 8, delay: 1.2},
+    %{top: 88, right: 15, size: "size-7 sm:size-10", dur: 9, delay: 2.8}
   ]
 
   @doc false
   def icon_placements(icons) when is_list(icons) do
-    icons
-    |> Enum.uniq()
-    |> Enum.take(length(@icon_slots))
-    |> Enum.with_index()
-    |> Enum.map(fn {icon_name, idx} ->
-      slot = Enum.at(@icon_slots, rem(idx, length(@icon_slots)))
-      Map.put(slot, :name, icon_name)
-    end)
+    unique_icons = Enum.uniq(icons)
+
+    if unique_icons == [] do
+      []
+    else
+      @icon_slots
+      |> Enum.with_index()
+      |> Enum.map(fn {slot, idx} ->
+        icon_name = Enum.at(unique_icons, rem(idx, length(unique_icons)))
+        Map.put(slot, :name, icon_name)
+      end)
+    end
   end
 
   @doc """
@@ -134,7 +132,7 @@ defmodule GameServerWeb.Layouts do
 
     ~H"""
     <%!-- Icons float in background at z-[1]; page content is above via normal stacking --%>
-    <%= if @background_icons != [] and @current_path != "/" do %>
+    <%= if @background_icons != [] and @current_path not in ["/", "/play"] do %>
       <div class="fixed inset-0 overflow-hidden pointer-events-none z-[1]" aria-hidden="true">
         <%= for placement <- GameServerWeb.Layouts.icon_placements(@background_icons) do %>
           <div
@@ -402,7 +400,7 @@ defmodule GameServerWeb.Layouts do
             <.theme_toggle />
           </li>
         </ul>
-
+        
     <!-- Mobile Navigation -->
         <div class="lg:hidden">
           <div class="dropdown dropdown-end">

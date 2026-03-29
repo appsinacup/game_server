@@ -261,9 +261,9 @@ defmodule GameServerWeb.AchievementsLive do
 
     ~H"""
     <div class={[
-      "card bg-base-200 shadow-sm hover:shadow-md transition-all duration-200 border",
+      "card bg-base-100 shadow-sm hover:shadow-md transition-all duration-200 border",
       cond do
-        @unlocked? -> "border-success/30 bg-success/5"
+        @unlocked? -> "border-success/30"
         @hidden? -> "border-base-content/10 opacity-60"
         true -> "border-base-300"
       end
