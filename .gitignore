@@ -34,6 +34,10 @@ game_server-*.tar
 # Umbrella layout: ignore generated/digested static assets in the web app
 /apps/game_server_web/priv/static/
 !/apps/game_server_web/priv/static/game/
+!/apps/game_server_web/priv/static/fonts/
+!/apps/game_server_web/priv/static/images/
+!/apps/game_server_web/priv/static/favicon.ico
+!/apps/game_server_web/priv/static/robots.txt
 /apps/game_server_web/apps/game_server_web/priv/static/
 
 # In case you use Node.js/npm, you want to ignore these.
