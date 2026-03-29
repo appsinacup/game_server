@@ -44,8 +44,7 @@ defmodule GameServerWeb.PlayLive do
       <div
         id="game-container"
         phx-hook="GameViewport"
-        class="relative w-full overflow-hidden"
-        style="height: calc(100vh - 4rem); height: calc(100dvh - 4rem);"
+        class="relative w-full h-full overflow-hidden"
       >
         <div
           id="game-auth"

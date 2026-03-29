@@ -147,494 +147,145 @@ defmodule GameServerWeb.Layouts do
         <% end %>
       </div>
     <% end %>
-    <header class={[
-      "navbar px-4 sm:px-6 lg:px-8 sticky top-0 z-50",
-      "bg-transparent backdrop-blur-md border-base-200/20"
-    ]}>
-      <% title = Map.get(@theme, "title") %>
-      <% tagline = Map.get(@theme, "tagline") %>
-      <div class="flex-1">
-        <a href={~p"/"} class="flex-1 flex w-fit items-center gap-2">
-          <img src={Map.get(@theme, "logo")} width="36" alt={title} />
-          <span class="text-lg font-bold">{title}</span>
-          <%= if tagline && tagline != "" do %>
-            <span class="text-sm opacity-80 ml-1 hidden lg:inline">: {tagline}</span>
-          <% end %>
-        </a>
-      </div>
-      <div class="flex-none">
-        <!-- Desktop Navigation -->
-        <ul class="hidden lg:flex flex-row px-1 space-x-4 items-center">
-          <%= if @current_scope do %>
-            <li>
-              <.link
-                href={~p"/users/settings"}
-                class={[
-                  "btn",
-                  if(String.starts_with?(@current_path, "/users/settings"),
-                    do: "btn-primary",
-                    else: "btn-outline"
-                  )
-                ]}
-              >
-                {gettext("Account")}
-              </.link>
-            </li>
-            <li>
-              <.link
-                href={~p"/leaderboards"}
-                class={[
-                  "btn",
-                  if(String.starts_with?(@current_path, "/leaderboards"),
-                    do: "btn-primary",
-                    else: "btn-outline"
-                  )
-                ]}
-              >
-                {gettext("Leaderboards")}
-              </.link>
-            </li>
-            <li>
-              <.link
-                href={~p"/achievements"}
-                class={[
-                  "btn",
-                  if(String.starts_with?(@current_path, "/achievements"),
-                    do: "btn-primary",
-                    else: "btn-outline"
-                  )
-                ]}
-              >
-                {gettext("Achievements")}
-              </.link>
-            </li>
-            <li>
-              <.link
-                href={~p"/groups"}
-                class={[
-                  "btn",
-                  if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")
-                ]}
-              >
-                {gettext("Groups")}
-              </.link>
-            </li>
-            <li>
-              <.link
-                href={~p"/notifications"}
-                class={[
-                  "btn",
-                  if(String.starts_with?(@current_path, "/notifications"),
-                    do: "btn-primary",
-                    else: "btn-outline"
-                  )
-                ]}
-              >
-                {gettext("Notifications")}
-                <span
-                  :if={@notif_unread_count > 0}
-                  class="ml-0.5 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold rounded-full bg-error text-error-content"
-                >
-                  {@notif_unread_count}
-                </span>
-              </.link>
-            </li>
-            <li>
-              <.link
-                href={~p"/chat"}
-                class={[
-                  "btn",
-                  if(String.starts_with?(@current_path, "/chat"),
-                    do: "btn-primary",
-                    else: "btn-outline"
-                  )
-                ]}
-              >
-                {gettext("Chat")}
-              </.link>
-            </li>
-            <%= if @current_scope && @current_scope.user.is_admin do %>
+    <div class={["flex flex-col", if(@flush, do: "h-dvh overflow-hidden", else: "")]}>
+      <header class={[
+        "navbar px-4 sm:px-6 lg:px-8 z-50 shrink-0",
+        if(!@flush, do: "sticky top-0", else: ""),
+        "bg-transparent backdrop-blur-md border-base-200/20"
+      ]}>
+        <% title = Map.get(@theme, "title") %>
+        <% tagline = Map.get(@theme, "tagline") %>
+        <div class="flex-1">
+          <a href={~p"/"} class="flex-1 flex w-fit items-center gap-2">
+            <img src={Map.get(@theme, "logo")} width="36" alt={title} />
+            <span class="text-lg font-bold">{title}</span>
+            <%= if tagline && tagline != "" do %>
+              <span class="text-sm opacity-80 ml-1 hidden lg:inline">: {tagline}</span>
+            <% end %>
+          </a>
+        </div>
+        <div class="flex-none">
+          <!-- Desktop Navigation -->
+          <ul class="hidden lg:flex flex-row px-1 space-x-4 items-center">
+            <%= if @current_scope do %>
               <li>
                 <.link
-                  href={~p"/admin"}
+                  href={~p"/users/settings"}
                   class={[
                     "btn",
-                    if(String.starts_with?(@current_path, "/admin"),
+                    if(String.starts_with?(@current_path, "/users/settings"),
                       do: "btn-primary",
                       else: "btn-outline"
                     )
                   ]}
                 >
-                  {gettext("Admin")}
+                  {gettext("Account")}
                 </.link>
               </li>
               <li>
                 <.link
-                  href={~p"/lobbies"}
+                  href={~p"/leaderboards"}
                   class={[
                     "btn",
-                    if(String.starts_with?(@current_path, "/lobbies"),
+                    if(String.starts_with?(@current_path, "/leaderboards"),
                       do: "btn-primary",
                       else: "btn-outline"
                     )
                   ]}
                 >
-                  {gettext("Lobbies")}
+                  {gettext("Leaderboards")}
                 </.link>
               </li>
-            <% end %>
-            <%= for link <- filtered_nav_links(@nav_links, if(@current_scope && @current_scope.user.is_admin, do: :admin, else: :authenticated), true) do %>
               <li>
-                <a
-                  href={link["href"]}
-                  target={if(link["external"], do: "_blank", else: nil)}
-                  rel={if(link["external"], do: "noopener noreferrer", else: nil)}
+                <.link
+                  href={~p"/achievements"}
                   class={[
                     "btn",
-                    if(String.starts_with?(@current_path, link["href"]),
+                    if(String.starts_with?(@current_path, "/achievements"),
                       do: "btn-primary",
                       else: "btn-outline"
                     )
                   ]}
                 >
-                  {link["label"]}
-                </a>
+                  {gettext("Achievements")}
+                </.link>
               </li>
-            <% end %>
-            <li>
-              <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline">
-                {gettext("Log out")}
-              </.link>
-            </li>
-          <% else %>
-            <li>
-              <.link
-                href={~p"/leaderboards"}
-                class={[
-                  "btn",
-                  if(String.starts_with?(@current_path, "/leaderboards"),
-                    do: "btn-primary",
-                    else: "btn-outline"
-                  )
-                ]}
-              >
-                {gettext("Leaderboards")}
-              </.link>
-            </li>
-            <li>
-              <.link
-                href={~p"/achievements"}
-                class={[
-                  "btn",
-                  if(String.starts_with?(@current_path, "/achievements"),
-                    do: "btn-primary",
-                    else: "btn-outline"
-                  )
-                ]}
-              >
-                {gettext("Achievements")}
-              </.link>
-            </li>
-            <li>
-              <.link
-                href={~p"/groups"}
-                class={[
-                  "btn",
-                  if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")
-                ]}
-              >
-                {gettext("Groups")}
-              </.link>
-            </li>
-            <li>
-              <.link
-                href={~p"/users/log-in"}
-                class={[
-                  "btn",
-                  if(String.starts_with?(@current_path, "/users/log-in"),
-                    do: "btn-primary",
-                    else: "btn-outline"
-                  )
-                ]}
-              >
-                {gettext("Log in")}
-              </.link>
-            </li>
-            <li>
-              <.link
-                href={~p"/users/register"}
-                class={[
-                  "btn",
-                  if(String.starts_with?(@current_path, "/users/register"),
-                    do: "btn-primary",
-                    else: "btn-outline"
-                  )
-                ]}
-              >
-                {gettext("Register")}
-              </.link>
-            </li>
-          <% end %>
-          <%= for link <- filtered_nav_links(@nav_links, if(@current_scope, do: :authenticated, else: :unauthenticated)) do %>
-            <li>
-              <a
-                href={link["href"]}
-                target={if(link["external"], do: "_blank", else: nil)}
-                rel={if(link["external"], do: "noopener noreferrer", else: nil)}
-                class={[
-                  "btn",
-                  if(String.starts_with?(@current_path, link["href"]),
-                    do: "btn-primary",
-                    else: "btn-outline"
-                  )
-                ]}
-              >
-                {link["label"]}
-              </a>
-            </li>
-          <% end %>
-          <%!-- <li>
-            <.language_dropdown />
-          </li> --%>
-          <li>
-            <.theme_toggle />
-          </li>
-        </ul>
-        
-    <!-- Mobile Navigation -->
-        <div class="lg:hidden">
-          <div class="dropdown dropdown-end">
-            <button tabindex="0" class="btn btn-ghost btn-circle">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 6h16M4 12h16M4 18h16"
+              <li>
+                <.link
+                  href={~p"/groups"}
+                  class={[
+                    "btn",
+                    if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")
+                  ]}
                 >
-                </path>
-              </svg>
-            </button>
-            <ul
-              tabindex="0"
-              class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-80 text-lg"
-            >
-              <%= if @current_scope do %>
+                  {gettext("Groups")}
+                </.link>
+              </li>
+              <li>
+                <.link
+                  href={~p"/notifications"}
+                  class={[
+                    "btn",
+                    if(String.starts_with?(@current_path, "/notifications"),
+                      do: "btn-primary",
+                      else: "btn-outline"
+                    )
+                  ]}
+                >
+                  {gettext("Notifications")}
+                  <span
+                    :if={@notif_unread_count > 0}
+                    class="ml-0.5 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold rounded-full bg-error text-error-content"
+                  >
+                    {@notif_unread_count}
+                  </span>
+                </.link>
+              </li>
+              <li>
+                <.link
+                  href={~p"/chat"}
+                  class={[
+                    "btn",
+                    if(String.starts_with?(@current_path, "/chat"),
+                      do: "btn-primary",
+                      else: "btn-outline"
+                    )
+                  ]}
+                >
+                  {gettext("Chat")}
+                </.link>
+              </li>
+              <%= if @current_scope && @current_scope.user.is_admin do %>
                 <li>
-                  <a
-                    href={~p"/users/settings"}
+                  <.link
+                    href={~p"/admin"}
                     class={[
                       "btn",
-                      if(String.starts_with?(@current_path, "/users/settings"),
+                      if(String.starts_with?(@current_path, "/admin"),
                         do: "btn-primary",
                         else: "btn-outline"
                       )
                     ]}
                   >
-                    {gettext("Account")}
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href={~p"/leaderboards"}
-                    class={[
-                      "btn",
-                      if(String.starts_with?(@current_path, "/leaderboards"),
-                        do: "btn-primary",
-                        else: "btn-outline"
-                      )
-                    ]}
-                  >
-                    {gettext("Leaderboards")}
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href={~p"/achievements"}
-                    class={[
-                      "btn",
-                      if(String.starts_with?(@current_path, "/achievements"),
-                        do: "btn-primary",
-                        else: "btn-outline"
-                      )
-                    ]}
-                  >
-                    {gettext("Achievements")}
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href={~p"/groups"}
-                    class={[
-                      "btn",
-                      if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")
-                    ]}
-                  >
-                    {gettext("Groups")}
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href={~p"/notifications"}
-                    class={[
-                      "btn",
-                      if(String.starts_with?(@current_path, "/notifications"),
-                        do: "btn-primary",
-                        else: "btn-outline"
-                      )
-                    ]}
-                  >
-                    {gettext("Notifications")}
-                    <span
-                      :if={@notif_unread_count > 0}
-                      class="ml-0.5 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold rounded-full bg-error text-error-content"
-                    >
-                      {@notif_unread_count}
-                    </span>
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href={~p"/chat"}
-                    class={[
-                      "btn",
-                      if(String.starts_with?(@current_path, "/chat"),
-                        do: "btn-primary",
-                        else: "btn-outline"
-                      )
-                    ]}
-                  >
-                    {gettext("Chat")}
-                  </a>
-                </li>
-                <%= if @current_scope && @current_scope.user.is_admin do %>
-                  <li>
-                    <a
-                      href={~p"/lobbies"}
-                      class={[
-                        "btn",
-                        if(String.starts_with?(@current_path, "/lobbies"),
-                          do: "btn-primary",
-                          else: "btn-outline"
-                        )
-                      ]}
-                    >
-                      {gettext("Lobbies")}
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href={~p"/admin"}
-                      class={[
-                        "btn",
-                        if(String.starts_with?(@current_path, "/admin"),
-                          do: "btn-primary",
-                          else: "btn-outline"
-                        )
-                      ]}
-                    >
-                      {gettext("Admin")}
-                    </a>
-                  </li>
-                <% end %>
-                <%= for link <- filtered_nav_links(@nav_links, if(@current_scope && @current_scope.user.is_admin, do: :admin, else: :authenticated), true) do %>
-                  <li>
-                    <a
-                      href={link["href"]}
-                      target={if(link["external"], do: "_blank", else: nil)}
-                      rel={if(link["external"], do: "noopener noreferrer", else: nil)}
-                      class={[
-                        "btn",
-                        if(String.starts_with?(@current_path, link["href"]),
-                          do: "btn-primary",
-                          else: "btn-outline"
-                        )
-                      ]}
-                    >
-                      {link["label"]}
-                    </a>
-                  </li>
-                <% end %>
-                <li>
-                  <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline">
-                    {gettext("Log out")}
+                    {gettext("Admin")}
                   </.link>
                 </li>
-              <% else %>
                 <li>
-                  <a
-                    href={~p"/users/log-in"}
+                  <.link
+                    href={~p"/lobbies"}
                     class={[
                       "btn",
-                      if(String.starts_with?(@current_path, "/users/log-in"),
+                      if(String.starts_with?(@current_path, "/lobbies"),
                         do: "btn-primary",
                         else: "btn-outline"
                       )
                     ]}
                   >
-                    {gettext("Log in")}
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href={~p"/users/register"}
-                    class={[
-                      "btn",
-                      if(String.starts_with?(@current_path, "/users/register"),
-                        do: "btn-primary",
-                        else: "btn-outline"
-                      )
-                    ]}
-                  >
-                    {gettext("Register")}
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href={~p"/leaderboards"}
-                    class={[
-                      "btn",
-                      if(String.starts_with?(@current_path, "/leaderboards"),
-                        do: "btn-primary",
-                        else: "btn-outline"
-                      )
-                    ]}
-                  >
-                    {gettext("Leaderboards")}
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href={~p"/achievements"}
-                    class={[
-                      "btn",
-                      if(String.starts_with?(@current_path, "/achievements"),
-                        do: "btn-primary",
-                        else: "btn-outline"
-                      )
-                    ]}
-                  >
-                    {gettext("Achievements")}
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href={~p"/groups"}
-                    class={[
-                      "btn",
-                      if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")
-                    ]}
-                  >
-                    {gettext("Groups")}
-                  </a>
-                </li>
-                <li class="menu-title">
-                  <div class="flex justify-end items-center w-full pr-2">
-                    <span class="text-xs opacity-60">v{app_version()}</span>
-                  </div>
+                    {gettext("Lobbies")}
+                  </.link>
                 </li>
               <% end %>
-              <%= for link <- filtered_nav_links(@nav_links, if(@current_scope, do: :authenticated, else: :unauthenticated)) do %>
+              <%= for link <- filtered_nav_links(@nav_links, if(@current_scope && @current_scope.user.is_admin, do: :admin, else: :authenticated), true) do %>
                 <li>
                   <a
                     href={link["href"]}
@@ -652,49 +303,403 @@ defmodule GameServerWeb.Layouts do
                   </a>
                 </li>
               <% end %>
-              <%!-- <li class="mt-2">
+              <li>
+                <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline">
+                  {gettext("Log out")}
+                </.link>
+              </li>
+            <% else %>
+              <li>
+                <.link
+                  href={~p"/leaderboards"}
+                  class={[
+                    "btn",
+                    if(String.starts_with?(@current_path, "/leaderboards"),
+                      do: "btn-primary",
+                      else: "btn-outline"
+                    )
+                  ]}
+                >
+                  {gettext("Leaderboards")}
+                </.link>
+              </li>
+              <li>
+                <.link
+                  href={~p"/achievements"}
+                  class={[
+                    "btn",
+                    if(String.starts_with?(@current_path, "/achievements"),
+                      do: "btn-primary",
+                      else: "btn-outline"
+                    )
+                  ]}
+                >
+                  {gettext("Achievements")}
+                </.link>
+              </li>
+              <li>
+                <.link
+                  href={~p"/groups"}
+                  class={[
+                    "btn",
+                    if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")
+                  ]}
+                >
+                  {gettext("Groups")}
+                </.link>
+              </li>
+              <li>
+                <.link
+                  href={~p"/users/log-in"}
+                  class={[
+                    "btn",
+                    if(String.starts_with?(@current_path, "/users/log-in"),
+                      do: "btn-primary",
+                      else: "btn-outline"
+                    )
+                  ]}
+                >
+                  {gettext("Log in")}
+                </.link>
+              </li>
+              <li>
+                <.link
+                  href={~p"/users/register"}
+                  class={[
+                    "btn",
+                    if(String.starts_with?(@current_path, "/users/register"),
+                      do: "btn-primary",
+                      else: "btn-outline"
+                    )
+                  ]}
+                >
+                  {gettext("Register")}
+                </.link>
+              </li>
+            <% end %>
+            <%= for link <- filtered_nav_links(@nav_links, if(@current_scope, do: :authenticated, else: :unauthenticated)) do %>
+              <li>
+                <a
+                  href={link["href"]}
+                  target={if(link["external"], do: "_blank", else: nil)}
+                  rel={if(link["external"], do: "noopener noreferrer", else: nil)}
+                  class={[
+                    "btn",
+                    if(String.starts_with?(@current_path, link["href"]),
+                      do: "btn-primary",
+                      else: "btn-outline"
+                    )
+                  ]}
+                >
+                  {link["label"]}
+                </a>
+              </li>
+            <% end %>
+            <%!-- <li>
+            <.language_dropdown />
+          </li> --%>
+            <li>
+              <.theme_toggle />
+            </li>
+          </ul>
+
+    <!-- Mobile Navigation -->
+          <div class="lg:hidden">
+            <div class="dropdown dropdown-end">
+              <button tabindex="0" class="btn btn-ghost btn-circle">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  >
+                  </path>
+                </svg>
+              </button>
+              <ul
+                tabindex="0"
+                class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-80 text-lg"
+              >
+                <%= if @current_scope do %>
+                  <li>
+                    <a
+                      href={~p"/users/settings"}
+                      class={[
+                        "btn",
+                        if(String.starts_with?(@current_path, "/users/settings"),
+                          do: "btn-primary",
+                          else: "btn-outline"
+                        )
+                      ]}
+                    >
+                      {gettext("Account")}
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href={~p"/leaderboards"}
+                      class={[
+                        "btn",
+                        if(String.starts_with?(@current_path, "/leaderboards"),
+                          do: "btn-primary",
+                          else: "btn-outline"
+                        )
+                      ]}
+                    >
+                      {gettext("Leaderboards")}
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href={~p"/achievements"}
+                      class={[
+                        "btn",
+                        if(String.starts_with?(@current_path, "/achievements"),
+                          do: "btn-primary",
+                          else: "btn-outline"
+                        )
+                      ]}
+                    >
+                      {gettext("Achievements")}
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href={~p"/groups"}
+                      class={[
+                        "btn",
+                        if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")
+                      ]}
+                    >
+                      {gettext("Groups")}
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href={~p"/notifications"}
+                      class={[
+                        "btn",
+                        if(String.starts_with?(@current_path, "/notifications"),
+                          do: "btn-primary",
+                          else: "btn-outline"
+                        )
+                      ]}
+                    >
+                      {gettext("Notifications")}
+                      <span
+                        :if={@notif_unread_count > 0}
+                        class="ml-0.5 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold rounded-full bg-error text-error-content"
+                      >
+                        {@notif_unread_count}
+                      </span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href={~p"/chat"}
+                      class={[
+                        "btn",
+                        if(String.starts_with?(@current_path, "/chat"),
+                          do: "btn-primary",
+                          else: "btn-outline"
+                        )
+                      ]}
+                    >
+                      {gettext("Chat")}
+                    </a>
+                  </li>
+                  <%= if @current_scope && @current_scope.user.is_admin do %>
+                    <li>
+                      <a
+                        href={~p"/lobbies"}
+                        class={[
+                          "btn",
+                          if(String.starts_with?(@current_path, "/lobbies"),
+                            do: "btn-primary",
+                            else: "btn-outline"
+                          )
+                        ]}
+                      >
+                        {gettext("Lobbies")}
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href={~p"/admin"}
+                        class={[
+                          "btn",
+                          if(String.starts_with?(@current_path, "/admin"),
+                            do: "btn-primary",
+                            else: "btn-outline"
+                          )
+                        ]}
+                      >
+                        {gettext("Admin")}
+                      </a>
+                    </li>
+                  <% end %>
+                  <%= for link <- filtered_nav_links(@nav_links, if(@current_scope && @current_scope.user.is_admin, do: :admin, else: :authenticated), true) do %>
+                    <li>
+                      <a
+                        href={link["href"]}
+                        target={if(link["external"], do: "_blank", else: nil)}
+                        rel={if(link["external"], do: "noopener noreferrer", else: nil)}
+                        class={[
+                          "btn",
+                          if(String.starts_with?(@current_path, link["href"]),
+                            do: "btn-primary",
+                            else: "btn-outline"
+                          )
+                        ]}
+                      >
+                        {link["label"]}
+                      </a>
+                    </li>
+                  <% end %>
+                  <li>
+                    <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline">
+                      {gettext("Log out")}
+                    </.link>
+                  </li>
+                <% else %>
+                  <li>
+                    <a
+                      href={~p"/users/log-in"}
+                      class={[
+                        "btn",
+                        if(String.starts_with?(@current_path, "/users/log-in"),
+                          do: "btn-primary",
+                          else: "btn-outline"
+                        )
+                      ]}
+                    >
+                      {gettext("Log in")}
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href={~p"/users/register"}
+                      class={[
+                        "btn",
+                        if(String.starts_with?(@current_path, "/users/register"),
+                          do: "btn-primary",
+                          else: "btn-outline"
+                        )
+                      ]}
+                    >
+                      {gettext("Register")}
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href={~p"/leaderboards"}
+                      class={[
+                        "btn",
+                        if(String.starts_with?(@current_path, "/leaderboards"),
+                          do: "btn-primary",
+                          else: "btn-outline"
+                        )
+                      ]}
+                    >
+                      {gettext("Leaderboards")}
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href={~p"/achievements"}
+                      class={[
+                        "btn",
+                        if(String.starts_with?(@current_path, "/achievements"),
+                          do: "btn-primary",
+                          else: "btn-outline"
+                        )
+                      ]}
+                    >
+                      {gettext("Achievements")}
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href={~p"/groups"}
+                      class={[
+                        "btn",
+                        if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")
+                      ]}
+                    >
+                      {gettext("Groups")}
+                    </a>
+                  </li>
+                  <li class="menu-title">
+                    <div class="flex justify-end items-center w-full pr-2">
+                      <span class="text-xs opacity-60">v{app_version()}</span>
+                    </div>
+                  </li>
+                <% end %>
+                <%= for link <- filtered_nav_links(@nav_links, if(@current_scope, do: :authenticated, else: :unauthenticated)) do %>
+                  <li>
+                    <a
+                      href={link["href"]}
+                      target={if(link["external"], do: "_blank", else: nil)}
+                      rel={if(link["external"], do: "noopener noreferrer", else: nil)}
+                      class={[
+                        "btn",
+                        if(String.starts_with?(@current_path, link["href"]),
+                          do: "btn-primary",
+                          else: "btn-outline"
+                        )
+                      ]}
+                    >
+                      {link["label"]}
+                    </a>
+                  </li>
+                <% end %>
+                <%!-- <li class="mt-2">
                 <div class="flex justify-center">
                   <.language_dropdown />
                 </div>
               </li> --%>
-              <li class="mt-2">
-                <div class="flex justify-center">
-                  <.theme_toggle />
-                </div>
-              </li>
-            </ul>
+                <li class="mt-2">
+                  <div class="flex justify-center">
+                    <.theme_toggle />
+                  </div>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
 
-    <%= if @flush do %>
-      {render_slot(@inner_block)}
-      <.flash_group flash={@flash} />
-    <% else %>
-      <main class="relative z-[2] px-4 py-4 sm:px-6 lg:px-8">
-        <div class="mx-auto max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-6xl space-y-4">
+      <%= if @flush do %>
+        <div class="flex-1 min-h-0 relative">
           {render_slot(@inner_block)}
         </div>
-      </main>
+        <.flash_group flash={@flash} />
+      <% else %>
+        <main class="relative z-[2] px-4 py-4 sm:px-6 lg:px-8">
+          <div class="mx-auto max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-6xl space-y-4">
+            {render_slot(@inner_block)}
+          </div>
+        </main>
 
-      <.flash_group flash={@flash} />
-      <footer class="px-4 py-6 sm:px-6 lg:px-8 text-center text-sm text-base-content/70">
-        <div class="mx-auto max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-6xl flex flex-wrap justify-center gap-x-4 gap-y-1">
-          <%= for link <- @footer_links do %>
-            <a
-              href={link["href"]}
-              target={if(link["external"], do: "_blank", else: nil)}
-              rel={if(link["external"], do: "noopener noreferrer", else: nil)}
-              class="hover:underline"
-            >
-              {link["label"]}
-            </a>
-          <% end %>
-          <span class="text-xs opacity-60">v{app_version()}</span>
-        </div>
-      </footer>
-    <% end %>
+        <.flash_group flash={@flash} />
+        <footer class="px-4 py-6 sm:px-6 lg:px-8 text-center text-sm text-base-content/70">
+          <div class="mx-auto max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-6xl flex flex-wrap justify-center gap-x-4 gap-y-1">
+            <%= for link <- @footer_links do %>
+              <a
+                href={link["href"]}
+                target={if(link["external"], do: "_blank", else: nil)}
+                rel={if(link["external"], do: "noopener noreferrer", else: nil)}
+                class="hover:underline"
+              >
+                {link["label"]}
+              </a>
+            <% end %>
+            <span class="text-xs opacity-60">v{app_version()}</span>
+          </div>
+        </footer>
+      <% end %>
+    </div>
     """
   end
 
