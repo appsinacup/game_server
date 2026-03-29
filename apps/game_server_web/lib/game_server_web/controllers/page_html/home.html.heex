@@ -4,6 +4,7 @@
   <% useful_links = Map.get(provider_theme, "useful_links", []) %>
   <% features = Map.get(provider_theme, "features", []) %>
   <% banner_link = Map.get(provider_theme, "banner_link") %>
+  <% background_icons = Map.get(provider_theme, "background_icons") || [] %>
   <% # Compute dark variant paths for hero and banner images
   static_dir = Application.app_dir(:game_server_web, "priv/static")
 
@@ -20,11 +21,26 @@
   <div class="relative w-screen left-1/2 -translate-x-1/2 -mt-20">
     <%!-- Background image — fills the hero naturally, min full viewport --%>
     <div class="relative min-h-screen overflow-hidden">
+      <%= if background_icons != [] do %>
+        <div class="absolute inset-0 overflow-hidden pointer-events-none z-[1]" aria-hidden="true">
+          <%= for placement <- GameServerWeb.Layouts.icon_placements(background_icons) do %>
+            <div
+              class={[
+                "absolute text-base-content [[data-theme=dark]_&]:text-white opacity-[0.08] [[data-theme=dark]_&]:opacity-[0.10]",
+                placement.size
+              ]}
+              style={"top: #{placement.top}%; #{if Map.has_key?(placement, :left), do: "left: #{placement.left}%", else: "right: #{placement.right}%"}; animation: float #{placement.dur}s ease-in-out infinite #{placement.delay}s;"}
+            >
+              <.dynamic_icon name={placement.name} class={placement.size} />
+            </div>
+          <% end %>
+        </div>
+      <% end %>
       <img
         src="/images/fullscreen.png"
         alt=""
         class={[
-          "absolute inset-0 w-full h-full object-cover",
+          "absolute inset-0 z-0 w-full h-full object-cover",
           fullscreen_dark_exists? && "[[data-theme=dark]_&]:hidden"
         ]}
       />
@@ -32,11 +48,11 @@
         <img
           src="/images/fullscreen_dark.png"
           alt=""
-          class="absolute inset-0 w-full h-full object-cover hidden [[data-theme=dark]_&]:block"
+          class="absolute inset-0 z-0 w-full h-full object-cover hidden [[data-theme=dark]_&]:block"
         />
       <% end %>
       <%!-- Minimal gradient overlay for text readability --%>
-      <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/5">
+      <div class="absolute inset-0 z-0 bg-gradient-to-b from-transparent via-transparent to-black/5">
       </div>
 
       <%!-- Hero content overlay — centered with arrow pinned at bottom --%>

@@ -125,8 +125,8 @@ defmodule GameServerWeb.Layouts do
       )
 
     ~H"""
-    <%!-- Icons float in background at z-[1]; all page content is wrapped at z-[2] above them --%>
-    <%= if @background_icons != [] do %>
+    <%!-- Icons float in background at z-[1]; page content is above via normal stacking --%>
+    <%= if @background_icons != [] and @current_path != "/" do %>
       <div class="fixed inset-0 overflow-hidden pointer-events-none z-[1]" aria-hidden="true">
         <%= for placement <- GameServerWeb.Layouts.icon_placements(@background_icons) do %>
           <div
@@ -141,7 +141,6 @@ defmodule GameServerWeb.Layouts do
         <% end %>
       </div>
     <% end %>
-    <div class="relative z-[2]">
     <header class={[
       "navbar px-4 sm:px-6 lg:px-8 sticky top-0 z-50",
       "bg-transparent backdrop-blur-md border-base-200/20"
@@ -667,7 +666,7 @@ defmodule GameServerWeb.Layouts do
       {render_slot(@inner_block)}
       <.flash_group flash={@flash} />
     <% else %>
-      <main class="px-4 py-4 sm:px-6 lg:px-8">
+      <main class="relative z-[2] px-4 py-4 sm:px-6 lg:px-8">
         <div class="mx-auto max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-6xl space-y-4">
           {render_slot(@inner_block)}
         </div>
@@ -690,7 +689,6 @@ defmodule GameServerWeb.Layouts do
         </div>
       </footer>
     <% end %>
-    </div>
     """
   end
 
