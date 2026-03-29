@@ -2006,8 +2006,8 @@
   .z-\[1\] {
     z-index: 1;
   }
-  .z-\[5\] {
-    z-index: 5;
+  .z-\[2\] {
+    z-index: 2;
   }
   .col-span-2 {
     grid-column: span 2 / span 2;
@@ -10935,12 +10935,6 @@
       color: color-mix(in oklab, var(--color-base-content) 90%, transparent);
     }
   }
-  .text-base-content\/\[0\.08\] {
-    color: var(--color-base-content);
-    @supports (color: color-mix(in lab, red, red)) {
-      color: color-mix(in oklab, var(--color-base-content) 8%, transparent);
-    }
-  }
   .text-blue-500 {
     color: var(--color-blue-500);
   }
@@ -11087,6 +11081,9 @@
   }
   .opacity-100 {
     opacity: 100%;
+  }
+  .opacity-\[0\.08\] {
+    opacity: 0.08;
   }
   .shadow {
     --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
@@ -12058,12 +12055,9 @@
       }
     }
   }
-  .\[\[data-theme\=dark\]_\&\]\:text-white\/\[0\.10\] {
+  .\[\[data-theme\=dark\]_\&\]\:opacity-\[0\.10\] {
     [data-theme=dark] & {
-      color: color-mix(in srgb, #fff 10%, transparent);
-      @supports (color: color-mix(in lab, red, red)) {
-        color: color-mix(in oklab, var(--color-white) 10%, transparent);
-      }
+      opacity: 0.10;
     }
   }
   .\[\[data-theme\=dark\]_\&\]\:drop-shadow {
@@ -12124,13 +12118,13 @@
     transform: translateY(0px) rotate(0deg);
   }
   25% {
-    transform: translateY(-12px) rotate(3deg);
+    transform: translateY(-18px) rotate(3deg);
   }
   50% {
-    transform: translateY(-6px) rotate(-2deg);
+    transform: translateY(-9px) rotate(-2deg);
   }
   75% {
-    transform: translateY(-15px) rotate(1deg);
+    transform: translateY(-22px) rotate(1deg);
   }
 }
 [data-phx-session], [data-phx-teleported-src] {

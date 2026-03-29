@@ -125,13 +125,13 @@ defmodule GameServerWeb.Layouts do
       )
 
     ~H"""
-    <%!-- Floating background icons (configurable via theme "background_icons") --%>
+    <%!-- Icons float in background at z-[1]; all page content is wrapped at z-[2] above them --%>
     <%= if @background_icons != [] do %>
-      <div class="fixed inset-0 overflow-hidden pointer-events-none z-[5]" aria-hidden="true">
+      <div class="fixed inset-0 overflow-hidden pointer-events-none z-[1]" aria-hidden="true">
         <%= for placement <- GameServerWeb.Layouts.icon_placements(@background_icons) do %>
           <div
             class={[
-              "absolute text-base-content/[0.08] [[data-theme=dark]_&]:text-white/[0.10]",
+              "absolute text-base-content [[data-theme=dark]_&]:text-white opacity-[0.08] [[data-theme=dark]_&]:opacity-[0.10]",
               placement.size
             ]}
             style={"top: #{placement.top}%; #{if Map.has_key?(placement, :left), do: "left: #{placement.left}%", else: "right: #{placement.right}%"}; animation: float #{placement.dur}s ease-in-out infinite #{placement.delay}s;"}
@@ -141,6 +141,7 @@ defmodule GameServerWeb.Layouts do
         <% end %>
       </div>
     <% end %>
+    <div class="relative z-[2]">
     <header class={[
       "navbar px-4 sm:px-6 lg:px-8 sticky top-0 z-50",
       "bg-transparent backdrop-blur-md border-base-200/20"
@@ -394,7 +395,7 @@ defmodule GameServerWeb.Layouts do
             <.theme_toggle />
           </li>
         </ul>
-        
+
     <!-- Mobile Navigation -->
         <div class="lg:hidden">
           <div class="dropdown dropdown-end">
@@ -689,6 +690,7 @@ defmodule GameServerWeb.Layouts do
         </div>
       </footer>
     <% end %>
+    </div>
     """
   end
 
