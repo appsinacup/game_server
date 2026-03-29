@@ -13,6 +13,33 @@ defmodule GameServerWeb.Layouts do
   # and other static content.
   embed_templates "layouts/*"
 
+  # Pre-computed icon placement slots — positions, sizes, animation params.
+  # Icons are placed along edges (left/right) to avoid overlapping center content.
+  @icon_slots [
+    %{top: 8, left: 5, size: "size-10 sm:size-14", dur: 8, delay: 0},
+    %{top: 15, right: 8, size: "size-8 sm:size-12", dur: 10, delay: 1},
+    %{top: 35, left: 3, size: "size-9 sm:size-11", dur: 9, delay: 2},
+    %{top: 30, right: 4, size: "size-10 sm:size-14", dur: 11, delay: 0.5},
+    %{top: 55, left: 8, size: "size-8 sm:size-10", dur: 7, delay: 3},
+    %{top: 60, right: 6, size: "size-11 sm:size-16", dur: 12, delay: 1.5},
+    %{top: 75, left: 12, size: "size-9 sm:size-13", dur: 8, delay: 4},
+    %{top: 80, right: 10, size: "size-8 sm:size-12", dur: 10, delay: 2.5},
+    %{top: 20, left: 15, size: "size-7 sm:size-9", dur: 9, delay: 3.5},
+    %{top: 45, right: 12, size: "size-8 sm:size-11", dur: 11, delay: 0.8},
+    %{top: 68, left: 18, size: "size-9 sm:size-12", dur: 8, delay: 1.2},
+    %{top: 88, right: 15, size: "size-10 sm:size-13", dur: 10, delay: 4.5}
+  ]
+
+  @doc false
+  def icon_placements(icons) when is_list(icons) do
+    icons
+    |> Enum.with_index()
+    |> Enum.map(fn {icon_name, idx} ->
+      slot = Enum.at(@icon_slots, rem(idx, length(@icon_slots)))
+      Map.put(slot, :name, icon_name)
+    end)
+  end
+
   @doc """
   Renders your app layout.
 
@@ -76,6 +103,9 @@ defmodule GameServerWeb.Layouts do
     # Extra footer links from theme config JSON ("footer_links" key)
     footer_links = Map.get(provider_theme, "footer_links") || []
 
+    # Background floating icons from theme config JSON
+    background_icons = Map.get(provider_theme, "background_icons") || []
+
     notif_unread_count =
       if assigns[:current_scope] do
         GameServer.Notifications.count_unread_notifications(assigns.current_scope.user.id)
@@ -90,10 +120,27 @@ defmodule GameServerWeb.Layouts do
         theme: theme,
         nav_links: nav_links,
         footer_links: footer_links,
+        background_icons: background_icons,
         notif_unread_count: notif_unread_count
       )
 
     ~H"""
+    <%!-- Floating background icons (configurable via theme "background_icons") --%>
+    <%= if @background_icons != [] do %>
+      <div class="fixed inset-0 overflow-hidden pointer-events-none z-[5]" aria-hidden="true">
+        <%= for placement <- GameServerWeb.Layouts.icon_placements(@background_icons) do %>
+          <div
+            class={[
+              "absolute text-base-content/[0.08] [[data-theme=dark]_&]:text-white/[0.10]",
+              placement.size
+            ]}
+            style={"top: #{placement.top}%; #{if Map.has_key?(placement, :left), do: "left: #{placement.left}%", else: "right: #{placement.right}%"}; animation: float #{placement.dur}s ease-in-out infinite #{placement.delay}s;"}
+          >
+            <.dynamic_icon name={placement.name} class={placement.size} />
+          </div>
+        <% end %>
+      </div>
+    <% end %>
     <header class={[
       "navbar px-4 sm:px-6 lg:px-8 sticky top-0 z-50",
       "bg-transparent backdrop-blur-md border-base-200/20"

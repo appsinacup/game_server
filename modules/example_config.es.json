@@ -10,14 +10,14 @@
   "changelog": "/CHANGELOG.md",
   "blog": "/blog",
   "useful_links": [
-    { "title": "Empezar", "url": "/docs/setup#deployment", "icon": "hero-rocket-launch", "style": "primary" },
-    { "title": "YouTube", "url": "https://www.youtube.com/watch?v=KhjWyUVsTkE&t=2s", "icon": "hero-play", "external": true },
-    { "title": "Discord", "url": "https://discord.com/invite/v649emcpAu", "icon": "hero-chat-bubble-left-ellipsis", "external": true },
-    { "title": "Blog", "url": "/blog", "icon": "hero-newspaper" },
-    { "title": "Notas de versión", "url": "/changelog", "icon": "hero-document-text" },
-    { "title": "Código fuente", "url": "https://github.com/appsinacup/game_server", "icon": "hero-book-open", "external": true },
-    { "title": "Guías", "url": "/docs/setup", "icon": "hero-academic-cap" },
-    { "title": "Documentación API", "url": "/api/docs", "icon": "hero-book-open" }
+    { "title": "Empezar", "url": "/docs/setup#deployment", "icon": "hero-rocket-launch-solid", "style": "primary" },
+    { "title": "YouTube", "url": "https://www.youtube.com/watch?v=KhjWyUVsTkE&t=2s", "icon": "hero-play-solid", "external": true },
+    { "title": "Discord", "url": "https://discord.com/invite/v649emcpAu", "icon": "hero-chat-bubble-left-ellipsis-solid", "external": true },
+    { "title": "Blog", "url": "/blog", "icon": "hero-newspaper-solid" },
+    { "title": "Notas de versión", "url": "/changelog", "icon": "hero-document-text-solid" },
+    { "title": "Código fuente", "url": "https://github.com/appsinacup/game_server", "icon": "hero-book-open-solid", "external": true },
+    { "title": "Guías", "url": "/docs/setup", "icon": "hero-academic-cap-solid" },
+    { "title": "Documentación API", "url": "/api/docs", "icon": "hero-book-open-solid" }
   ],
   "nav_links": [
     { "label": "Play", "href": "/play", "auth": "any" }
@@ -32,11 +32,17 @@
     { "label": "Blog", "href": "/blog" }
   ],
   "features": [
-    { "title": "Autenticación y usuarios", "description": "Correo, enlace mágico, OAuth, JWT y sesión. Registro, inicio de sesión, recuperación de contraseña y verificación de correo.", "icon": "hero-lock-closed" },
-    { "title": "Salas, grupos y chat", "description": "Salas en tiempo real y grupos efímeros. Mensajería directa y grupal.", "icon": "hero-home" },
-    { "title": "Amigos, grupos y chat", "description": "Solicitudes, bloqueo, presencia en tiempo real. Comunidades públicas, privadas y ocultas. Mensajería directa y grupal.", "icon": "hero-user-group" },
-    { "title": "Logros, clasificaciones y notificaciones", "description": "Logros y clasificaciones con autoridad del servidor. Notificaciones en tiempo real.", "icon": "hero-trophy" },
-    { "title": "Scripting y programación", "description": "Extiende la lógica del servidor con scripts en Elixir. Programa tareas automáticas.", "icon": "hero-computer-desktop" },
-    { "title": "HTTP, WebSocket y WebRTC", "description": "API REST, canales WebSocket en tiempo real y DataChannels WebRTC de baja latencia. Portal de administración.", "icon": "hero-puzzle-piece" }
+    { "title": "Autenticación y usuarios", "description": "Correo, enlace mágico, OAuth, JWT y sesión. Registro, inicio de sesión, recuperación de contraseña y verificación de correo.", "icon": "hero-lock-closed-solid" },
+    { "title": "Salas, grupos y chat", "description": "Salas en tiempo real y grupos efímeros. Mensajería directa y grupal.", "icon": "hero-home-solid" },
+    { "title": "Amigos, grupos y chat", "description": "Solicitudes, bloqueo, presencia en tiempo real. Comunidades públicas, privadas y ocultas. Mensajería directa y grupal.", "icon": "hero-user-group-solid" },
+    { "title": "Logros, clasificaciones y notificaciones", "description": "Logros y clasificaciones con autoridad del servidor. Notificaciones en tiempo real.", "icon": "hero-trophy-solid" },
+    { "title": "Scripting y programación", "description": "Extiende la lógica del servidor con scripts en Elixir. Programa tareas automáticas.", "icon": "hero-computer-desktop-solid" },
+    { "title": "HTTP, WebSocket y WebRTC", "description": "API REST, canales WebSocket en tiempo real y DataChannels WebRTC de baja latencia. Portal de administración.", "icon": "hero-puzzle-piece-solid" }
+  ],
+  "background_icons": [
+    "hero-lock-closed-solid", "hero-trophy-solid", "hero-user-group-solid",
+    "hero-chat-bubble-left-ellipsis-solid", "hero-home-solid", "hero-server-stack-solid",
+    "hero-puzzle-piece-solid", "hero-rocket-launch-solid", "hero-bell-solid",
+    "hero-shield-check-solid", "hero-computer-desktop-solid", "hero-globe-alt-solid"
   ]
 }
