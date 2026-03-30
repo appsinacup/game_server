@@ -438,6 +438,7 @@ defmodule GameServer.Notifications do
       |> Repo.delete_all()
 
     invalidate_notifications_cache(recipient_id)
+    invalidate_notifications_cache(sender_id)
     result
   end
 
@@ -470,6 +471,7 @@ defmodule GameServer.Notifications do
     |> case do
       {:ok, notification} ->
         invalidate_notifications_cache(recipient_id)
+        invalidate_notifications_cache(sender_id)
         broadcast_user(recipient_id, {:new_notification, notification})
         {:ok, notification}
 
@@ -516,6 +518,7 @@ defmodule GameServer.Notifications do
     |> case do
       {:ok, notification} ->
         invalidate_notifications_cache(recipient_id)
+        invalidate_notifications_cache(sender_id)
         broadcast_user(recipient_id, {:new_notification, notification})
         {:ok, notification}
 

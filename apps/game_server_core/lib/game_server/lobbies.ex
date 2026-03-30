@@ -57,10 +57,10 @@ defmodule GameServer.Lobbies do
   alias GameServer.Types
 
   defp invalidate_accounts_user_cache(user_id) when is_integer(user_id) do
-    # Synchronous delete — the client may join a channel immediately after
-    # a lobby operation, so the cached user must already be cleared.
-    _ = GameServer.Cache.delete({:accounts, :user, user_id})
-    :ok
+    # Synchronous invalidation including index keys — the client may join a
+    # channel immediately after a lobby operation, so the cached user must
+    # already be cleared.
+    GameServer.Accounts.invalidate_user_cache_by_id(user_id)
   end
 
   # PubSub topic names
@@ -680,6 +680,8 @@ defmodule GameServer.Lobbies do
           GameServer.Hooks.internal_call(:after_lobby_create, [lobby])
         end)
 
+        # Invalidate after normalize_hostless_lobby to avoid race
+        # where cache is re-populated with pre-normalization state.
         _ = invalidate_lobby_cache(lobby.id)
         broadcast_lobbies({:lobby_created, lobby})
 

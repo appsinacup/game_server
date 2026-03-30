@@ -1459,6 +1459,11 @@ defmodule GameServer.Parties do
         {:error, :not_found}
 
       party ->
+        # Collect member IDs before clearing, to invalidate caches after
+        member_ids =
+          from(u in User, where: u.party_id == ^party_id, select: u.id)
+          |> Repo.all()
+
         # Clear all members' party_id
         from(u in User, where: u.party_id == ^party_id)
         |> Repo.update_all(set: [party_id: nil])
@@ -1468,6 +1473,7 @@ defmodule GameServer.Parties do
 
         case Repo.delete(party) do
           {:ok, deleted} ->
+            Enum.each(member_ids, &invalidate_user_cache/1)
             broadcast_party(party_id, {:party_disbanded, party_id})
             broadcast_parties({:party_deleted, party_id})
             {:ok, deleted}

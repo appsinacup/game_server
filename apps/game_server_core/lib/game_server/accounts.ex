@@ -289,9 +289,10 @@ defmodule GameServer.Accounts do
   def touch_last_seen(%User{} = user) do
     now = DateTime.utc_now(:second)
 
-    user
-    |> Ecto.Changeset.change(last_seen_at: now)
-    |> Repo.update()
+    case user |> Ecto.Changeset.change(last_seen_at: now) |> Repo.update() do
+      {:ok, updated} -> invalidate_user_cache(updated)
+      _ -> :ok
+    end
 
     invalidate_users_stats_cache()
     :ok
@@ -407,6 +408,20 @@ defmodule GameServer.Accounts do
     |> Enum.each(fn key ->
       _ = GameServer.Cache.delete(key)
     end)
+
+    :ok
+  end
+
+  @doc """
+  Public cache invalidation for cross-module use (lobbies, parties, groups).
+  Accepts a user ID and clears both the primary and all index caches.
+  """
+  @spec invalidate_user_cache_by_id(integer()) :: :ok
+  def invalidate_user_cache_by_id(user_id) when is_integer(user_id) do
+    case Repo.get(User, user_id) do
+      %User{} = user -> invalidate_user_cache(user)
+      nil -> _ = GameServer.Cache.delete({:accounts, :user, user_id})
+    end
 
     :ok
   end
@@ -1511,8 +1526,22 @@ defmodule GameServer.Accounts do
   """
   @spec revoke_all_user_sessions(integer()) :: {non_neg_integer(), nil}
   def revoke_all_user_sessions(user_id) when is_integer(user_id) do
-    from(t in UserToken, where: t.user_id == ^user_id and t.context == "session")
-    |> Repo.delete_all()
+    token_ids =
+      from(t in UserToken,
+        where: t.user_id == ^user_id and t.context == "session",
+        select: t.id
+      )
+      |> Repo.all()
+
+    result =
+      from(t in UserToken, where: t.user_id == ^user_id and t.context == "session")
+      |> Repo.delete_all()
+
+    Enum.each(token_ids, fn id ->
+      _ = GameServer.Cache.delete({:accounts, :user_token, id})
+    end)
+
+    result
   end
 
   @doc """

@@ -1010,6 +1010,23 @@ defmodule GameServer.Accounts do
 
 
   @doc ~S"""
+    Public cache invalidation for cross-module use (lobbies, parties, groups).
+    Accepts a user ID and clears both the primary and all index caches.
+    
+  """
+  @spec invalidate_user_cache_by_id(integer()) :: :ok
+  def invalidate_user_cache_by_id(_user_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        :ok
+
+      _ ->
+        raise "GameServer.Accounts.invalidate_user_cache_by_id/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Link an OAuth provider to an existing user account. Updates the user
     via the provider's oauth changeset while being careful not to overwrite
     existing email or avatars.

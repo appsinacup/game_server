@@ -1029,6 +1029,7 @@ defmodule GameServer.Leaderboards do
     |> case do
       {:ok, rec} = ok ->
         _ = invalidate_records_cache(rec.leaderboard_id)
+        _ = invalidate_record_cache(rec.id)
         ok
 
       other ->
