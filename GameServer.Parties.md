@@ -203,7 +203,7 @@ deleting notifications does not affect pending invites.
 Returns `{:error, :not_in_party}` if the caller is not in a party.
 Returns `{:error, :not_leader}` if the caller is not the party leader.
 Returns `{:error, :not_connected}` if the target is not a friend or shared group member.
-Returns `{:error, :already_invited}` if a pending invite already exists.
+If a pending invite already exists, returns `{:ok, existing_invite}` (no-op).
 
 # `join_lobby_with_party`
 
