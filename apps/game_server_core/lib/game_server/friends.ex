@@ -47,11 +47,7 @@ defmodule GameServer.Friends do
   end
 
   defp invalidate_friends_cache(user_id) when is_integer(user_id) do
-    GameServer.Async.run(fn ->
-      _ = GameServer.Cache.incr({:friends, :version, user_id}, 1, default: 1)
-      :ok
-    end)
-
+    _ = GameServer.Cache.incr({:friends, :version, user_id}, 1, default: 1)
     :ok
   end
 
@@ -66,11 +62,8 @@ defmodule GameServer.Friends do
   end
 
   defp invalidate_friendship_cache(friendship_id) when is_integer(friendship_id) do
-    GameServer.Async.run(fn ->
-      _ = GameServer.Cache.incr({:friends, :friendship_version, friendship_id}, 1, default: 1)
-      :ok
-    end)
-
+    # Synchronous — get_friendship may be called immediately after mutation.
+    _ = GameServer.Cache.incr({:friends, :friendship_version, friendship_id}, 1, default: 1)
     :ok
   end
 

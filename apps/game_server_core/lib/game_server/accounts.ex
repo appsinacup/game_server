@@ -400,22 +400,6 @@ defmodule GameServer.Accounts do
   end
 
   defp invalidate_user_cache(%User{id: id} = user) do
-    GameServer.Async.run(fn ->
-      _ = GameServer.Cache.delete({:accounts, :user, id})
-
-      user
-      |> user_index_keys()
-      |> Enum.each(fn key ->
-        _ = GameServer.Cache.delete(key)
-      end)
-
-      :ok
-    end)
-
-    :ok
-  end
-
-  defp invalidate_user_cache_sync(%User{id: id} = user) do
     _ = GameServer.Cache.delete({:accounts, :user, id})
 
     user
@@ -426,6 +410,9 @@ defmodule GameServer.Accounts do
 
     :ok
   end
+
+  # Alias kept for readability at call sites that emphasise synchronous semantics.
+  defp invalidate_user_cache_sync(user), do: invalidate_user_cache(user)
 
   ## User registration
 

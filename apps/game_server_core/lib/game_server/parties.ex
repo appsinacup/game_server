@@ -91,11 +91,7 @@ defmodule GameServer.Parties do
   end
 
   defp invalidate_party_invite_cache(user_id) when is_integer(user_id) do
-    GameServer.Async.run(fn ->
-      _ = GameServer.Cache.incr({:party_invites, :version, user_id}, 1, default: 1)
-      :ok
-    end)
-
+    _ = GameServer.Cache.incr({:party_invites, :version, user_id}, 1, default: 1)
     :ok
   end
 

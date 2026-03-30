@@ -271,10 +271,7 @@ defmodule GameServer.KV do
     user_id = Keyword.get(opts, :user_id)
     lobby_id = Keyword.get(opts, :lobby_id)
 
-    GameServer.Async.run(fn ->
-      _ = GameServer.Cache.delete(cache_key(key, user_id, lobby_id))
-      :ok
-    end)
+    _ = GameServer.Cache.delete(cache_key(key, user_id, lobby_id))
 
     _ = Repo.delete_all(entry_query(key, user_id, lobby_id))
     _ = invalidate_entries_cache(user_id, lobby_id)
@@ -514,10 +511,7 @@ defmodule GameServer.KV do
         :ok
 
       %Entry{} = entry ->
-        GameServer.Async.run(fn ->
-          _ = GameServer.Cache.delete(cache_key(entry.key, entry.user_id, entry.lobby_id))
-          :ok
-        end)
+        _ = GameServer.Cache.delete(cache_key(entry.key, entry.user_id, entry.lobby_id))
 
         _ = Repo.delete(entry)
         _ = invalidate_entries_cache(entry.user_id, entry.lobby_id)
