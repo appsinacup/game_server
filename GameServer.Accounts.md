@@ -512,6 +512,15 @@ Returns `%User{}` or `nil`.
 
 Returns whether the user has a password set.
 
+# `invalidate_user_cache_by_id`
+
+```elixir
+@spec invalidate_user_cache_by_id(integer()) :: :ok
+```
+
+Public cache invalidation for cross-module use (lobbies, parties, groups).
+Accepts a user ID and clears both the primary and all index caches.
+
 # `link_account`
 
 ```elixir
