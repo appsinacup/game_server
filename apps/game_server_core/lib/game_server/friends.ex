@@ -181,6 +181,20 @@ defmodule GameServer.Friends do
         {:error, {:accept_reverse, friendship_id}} ->
           accept_friend_request(friendship_id, %User{id: requester_id})
 
+        {:error, :already_requested} ->
+          # Idempotent: return existing pending request instead of erroring
+          case get_by_pair(requester_id, target_id) do
+            %Friendship{status: "pending"} = f -> {:ok, f}
+            _ -> {:error, :already_requested}
+          end
+
+        {:error, :already_friends} ->
+          # Idempotent: return existing accepted friendship instead of erroring
+          case already_friends?(requester_id, target_id) do
+            %Friendship{} = f -> {:ok, f}
+            _ -> {:error, :already_friends}
+          end
+
         {:error, reason} ->
           {:error, reason}
       end

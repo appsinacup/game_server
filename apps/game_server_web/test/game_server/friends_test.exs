@@ -34,9 +34,10 @@ defmodule GameServer.FriendsTest do
       assert {:error, :cannot_friend_self} = Friends.create_request(a.id, a.id)
     end
 
-    test "duplicate request is prevented", %{a: a, b: b} do
-      assert {:ok, _} = Friends.create_request(a.id, b.id)
-      assert {:error, :already_requested} = Friends.create_request(a.id, b.id)
+    test "duplicate request succeeds idempotently", %{a: a, b: b} do
+      assert {:ok, f1} = Friends.create_request(a.id, b.id)
+      assert {:ok, f2} = Friends.create_request(a.id, b.id)
+      assert f1.id == f2.id
     end
 
     test "reverse request auto-accepts if reverse pending", %{a: a, b: b} do

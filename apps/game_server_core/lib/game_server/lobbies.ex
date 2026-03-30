@@ -57,13 +57,9 @@ defmodule GameServer.Lobbies do
   alias GameServer.Types
 
   defp invalidate_accounts_user_cache(user_id) when is_integer(user_id) do
-    # Accounts.get_user/1 is cached; lobbies updates users.lobby_id directly,
-    # so we must invalidate the cached user to avoid stale lobby_id.
-    GameServer.Async.run(fn ->
-      _ = GameServer.Cache.delete({:accounts, :user, user_id})
-      :ok
-    end)
-
+    # Synchronous delete — the client may join a channel immediately after
+    # a lobby operation, so the cached user must already be cleared.
+    _ = GameServer.Cache.delete({:accounts, :user, user_id})
     :ok
   end
 

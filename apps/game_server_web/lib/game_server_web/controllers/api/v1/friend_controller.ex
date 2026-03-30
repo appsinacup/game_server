@@ -383,12 +383,6 @@ defmodule GameServerWeb.Api.V1.FriendController do
           {:error, :cannot_friend_self} ->
             conn |> put_status(:bad_request) |> json(%{error: "cannot_friend_self"})
 
-          {:error, :already_friends} ->
-            conn |> put_status(:conflict) |> json(%{error: "already_friends"})
-
-          {:error, :already_requested} ->
-            conn |> put_status(:conflict) |> json(%{error: "already_requested"})
-
           {:error, %Ecto.Changeset{} = cs} ->
             conn
             |> put_status(:unprocessable_entity)

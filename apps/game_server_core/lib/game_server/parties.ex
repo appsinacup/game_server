@@ -319,7 +319,7 @@ defmodule GameServer.Parties do
   Returns `{:error, :not_in_party}` if the caller is not in a party.
   Returns `{:error, :not_leader}` if the caller is not the party leader.
   Returns `{:error, :not_connected}` if the target is not a friend or shared group member.
-  Returns `{:error, :already_invited}` if a pending invite already exists.
+  If a pending invite already exists, returns `{:ok, existing_invite}` (no-op).
   """
   @spec invite_to_party(User.t(), integer()) :: {:ok, PartyInvite.t()} | {:error, atom()}
   def invite_to_party(%User{} = leader, target_user_id) when is_integer(target_user_id) do
@@ -361,6 +361,22 @@ defmodule GameServer.Parties do
         {:error, changeset} ->
           {:error, changeset}
       end
+    else
+      {:error, :already_invited} ->
+        # No-op: return the existing pending invite instead of erroring
+        existing =
+          Repo.one(
+            from(i in PartyInvite,
+              where:
+                i.sender_id == ^leader.id and i.recipient_id == ^target_user_id and
+                  i.status == "pending"
+            )
+          )
+
+        {:ok, existing}
+
+      other ->
+        other
     end
   end
 
@@ -1361,11 +1377,9 @@ defmodule GameServer.Parties do
   end
 
   defp invalidate_user_cache(user_id) when is_integer(user_id) do
-    GameServer.Async.run(fn ->
-      _ = GameServer.Cache.delete({:accounts, :user, user_id})
-      :ok
-    end)
-
+    # Synchronous delete — the client may join the party channel immediately
+    # after a party operation, so the cached user must already be cleared.
+    _ = GameServer.Cache.delete({:accounts, :user, user_id})
     :ok
   end
 

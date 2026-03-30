@@ -314,7 +314,7 @@ defmodule GameServer.Parties do
     Returns `{:error, :not_in_party}` if the caller is not in a party.
     Returns `{:error, :not_leader}` if the caller is not the party leader.
     Returns `{:error, :not_connected}` if the target is not a friend or shared group member.
-    Returns `{:error, :already_invited}` if a pending invite already exists.
+    If a pending invite already exists, returns `{:ok, existing_invite}` (no-op).
     
   """
   @spec invite_to_party(GameServer.Accounts.User.t(), integer()) ::

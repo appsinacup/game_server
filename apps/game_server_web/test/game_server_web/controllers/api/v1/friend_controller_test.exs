@@ -132,7 +132,7 @@ defmodule GameServerWeb.Api.V1.FriendControllerTest do
     assert conn2.status == 401
   end
 
-  test "cannot request self and cannot duplicate requests", %{conn: conn} do
+  test "cannot request self; duplicate request succeeds idempotently", %{conn: conn} do
     a = AccountsFixtures.user_fixture()
 
     {:ok, token_a, _} = Guardian.encode_and_sign(a)
@@ -142,11 +142,11 @@ defmodule GameServerWeb.Api.V1.FriendControllerTest do
     resp = post(conn_a, "/api/v1/friends", %{target_user_id: a.id})
     assert resp.status == 400
 
-    # create a valid request to b then duplicate should conflict
+    # create a valid request to b then duplicate should succeed (idempotent)
     b = AccountsFixtures.user_fixture()
     post(conn_a, "/api/v1/friends", %{target_user_id: b.id})
     resp2 = post(conn_a, "/api/v1/friends", %{target_user_id: b.id})
-    assert resp2.status == 409
+    assert resp2.status == 201
   end
 
   test "reverse pending request is auto-accepted", %{conn: conn} do

@@ -204,7 +204,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
       assert %{"error" => "not_joinable"} = json_response(conn, 403)
     end
 
-    test "returns 403 when already a member", %{conn: conn} do
+    test "returns 200 when already a member (idempotent)", %{conn: conn} do
       owner = create_user()
       joiner = create_user()
       {:ok, group} = Groups.create_group(owner.id, %{"title" => "AlrJoin", "type" => "public"})
@@ -215,7 +215,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
         |> auth_conn(joiner)
         |> post("/api/v1/groups/#{group.id}/join")
 
-      assert %{"error" => "already_member"} = json_response(conn, 403)
+      assert json_response(conn, 200)
     end
 
     test "returns 401 without auth", %{conn: conn} do
@@ -387,7 +387,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
       assert %{"status" => "pending"} = json_response(conn, 201)
     end
 
-    test "returns error when user already requested", %{conn: conn} do
+    test "returns 201 when user already requested (idempotent)", %{conn: conn} do
       owner = create_user()
       other = create_user()
       {:ok, group} = Groups.create_group(owner.id, %{"title" => "DupReq", "type" => "private"})
@@ -398,7 +398,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
         |> auth_conn(other)
         |> post("/api/v1/groups/#{group.id}/join")
 
-      assert %{"error" => "already_requested"} = json_response(conn, 403)
+      assert json_response(conn, 201)
     end
   end
 

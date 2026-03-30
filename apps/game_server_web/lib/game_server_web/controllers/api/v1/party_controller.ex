@@ -538,9 +538,6 @@ defmodule GameServerWeb.Api.V1.PartyController do
               {:error, :not_connected} ->
                 conn |> put_status(:forbidden) |> json(%{error: "not_connected"})
 
-              {:error, :already_invited} ->
-                conn |> put_status(:conflict) |> json(%{error: "already_invited"})
-
               _other ->
                 conn |> put_status(:unprocessable_entity) |> json(%{error: "unexpected_error"})
             end

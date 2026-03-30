@@ -129,12 +129,13 @@ defmodule GameServer.PartiesTest do
       assert {:ok, _invite} = Parties.invite_to_party(leader, member1.id)
     end
 
-    test "fails when invite already pending", %{leader: leader, member1: member1} do
+    test "succeeds idempotently when invite already pending", %{leader: leader, member1: member1} do
       {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
       make_friends(leader, member1)
 
-      assert {:ok, _} = Parties.invite_to_party(leader, member1.id)
-      assert {:error, :already_invited} = Parties.invite_to_party(leader, member1.id)
+      assert {:ok, invite1} = Parties.invite_to_party(leader, member1.id)
+      assert {:ok, invite2} = Parties.invite_to_party(leader, member1.id)
+      assert invite1.id == invite2.id
     end
 
     test "stores sender_name and recipient_name in notification metadata", %{

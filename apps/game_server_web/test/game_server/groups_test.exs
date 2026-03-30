@@ -203,10 +203,11 @@ defmodule GameServer.GroupsTest do
       assert {:error, :not_public} = Groups.join_group(other.id, group.id)
     end
 
-    test "cannot join when already a member", %{owner: owner, other: other} do
+    test "joining when already a member succeeds idempotently", %{owner: owner, other: other} do
       {:ok, group} = Groups.create_group(owner.id, %{"title" => "Once", "type" => "public"})
-      {:ok, _} = Groups.join_group(other.id, group.id)
-      assert {:error, :already_member} = Groups.join_group(other.id, group.id)
+      {:ok, m1} = Groups.join_group(other.id, group.id)
+      {:ok, m2} = Groups.join_group(other.id, group.id)
+      assert m1.id == m2.id
     end
 
     test "cannot join when group is full", %{owner: owner, other: other} do
@@ -343,10 +344,11 @@ defmodule GameServer.GroupsTest do
       assert {:error, :not_private} = Groups.request_join(other.id, group.id)
     end
 
-    test "cannot duplicate pending request", %{owner: owner, other: other} do
+    test "duplicate pending request succeeds idempotently", %{owner: owner, other: other} do
       {:ok, group} = Groups.create_group(owner.id, %{"title" => "Dup", "type" => "private"})
-      {:ok, _} = Groups.request_join(other.id, group.id)
-      assert {:error, :already_requested} = Groups.request_join(other.id, group.id)
+      {:ok, r1} = Groups.request_join(other.id, group.id)
+      {:ok, r2} = Groups.request_join(other.id, group.id)
+      assert r1.id == r2.id
     end
 
     test "member cannot request join", %{owner: owner} do

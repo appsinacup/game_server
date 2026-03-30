@@ -818,7 +818,8 @@ defmodule GameServer.Groups do
         {:error, :not_public}
 
       member?(group_id, user_id) ->
-        {:error, :already_member}
+        # Idempotent: return existing membership instead of erroring
+        {:ok, get_membership(group_id, user_id)}
 
       true ->
         case do_add_group_member(user_id, group_id, group, "public_join") do
@@ -1176,7 +1177,8 @@ defmodule GameServer.Groups do
           )
 
         if existing do
-          {:error, :already_requested}
+          # Idempotent: return existing pending request instead of erroring
+          {:ok, existing}
         else
           %GroupJoinRequest{}
           |> GroupJoinRequest.changeset(%{group_id: group_id, user_id: user_id})
