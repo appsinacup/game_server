@@ -440,8 +440,16 @@ defmodule GameServer.Parties do
     else
       with {:ok, user} <- ensure_left_current_party(user),
            {:ok, party} <- fetch_party(party_id),
-           {:ok, _updated_user} <- do_join_party(user, party_id) do
-        finalize_accept_invite(user, invite, party_id, party)
+           {:ok, updated_user} <- do_join_party(user, party_id) do
+        result = finalize_accept_invite(user, invite, party_id, party)
+
+        # Final cache invalidation to clear any stale writes from concurrent
+        # processes (e.g. Guardian pipeline calls to Accounts.get_user/1) whose
+        # DB read happened before do_join_party committed but whose Cache.put
+        # landed after do_join_party's cache delete.
+        invalidate_user_cache(updated_user.id)
+
+        result
       end
     end
   end
@@ -450,7 +458,12 @@ defmodule GameServer.Parties do
 
   defp ensure_left_current_party(%User{} = user) do
     case leave_party(user) do
-      {:ok, _} -> {:ok, Accounts.get_user(user.id)}
+      # Use Repo.get directly instead of cached Accounts.get_user/1.
+      # The cached version would store the intermediate party_id=nil state,
+      # which combined with concurrent requests can poison the cache
+      # (a concurrent @decorate cacheable put of the nil value can land after
+      # do_join_party's cache delete, leaving stale data behind).
+      {:ok, _} -> {:ok, Repo.get(User, user.id)}
       {:error, reason} -> {:error, {:leave_failed, reason}}
     end
   end
@@ -697,6 +710,13 @@ defmodule GameServer.Parties do
     # Wrap in a transaction with advisory lock to prevent TOCTOU race
     # conditions on PostgreSQL (two concurrent joins both passing the
     # count check before either updates).
+    #
+    # IMPORTANT: Cache invalidation and PubSub broadcasts MUST happen
+    # after the transaction commits. If they fire inside the transaction,
+    # other processes may read the DB (different connection, READ COMMITTED)
+    # before the commit and re-populate the cache with stale data (e.g.
+    # party_id still nil), causing "not_a_member" errors on subsequent
+    # channel joins or API calls.
     Repo.transaction(fn ->
       AdvisoryLock.lock(:party, party_id)
 
@@ -711,11 +731,6 @@ defmodule GameServer.Parties do
              |> Ecto.Changeset.change(%{party_id: party_id})
              |> Repo.update() do
           {:ok, updated_user} ->
-            invalidate_user_cache(updated_user.id)
-            _ = Accounts.broadcast_user_update(updated_user)
-            _ = Accounts.broadcast_member_update(updated_user)
-            broadcast_party(party_id, {:party_member_joined, party_id, updated_user.id})
-
             updated_user
 
           {:error, reason} ->
@@ -723,6 +738,28 @@ defmodule GameServer.Parties do
         end
       end
     end)
+    |> case do
+      {:ok, updated_user} ->
+        # Post-commit: now safe to invalidate cache and broadcast because
+        # the party_id change is visible to all DB connections.
+        invalidate_user_cache(updated_user.id)
+
+        # Also write the correct value into cache.  This narrows the window
+        # for a stale concurrent @decorate cacheable put (which read
+        # party_id=nil from DB before this commit) from overwriting our
+        # delete.  A final invalidation in accept_party_invite closes the
+        # remaining gap.
+        GameServer.Cache.put({:accounts, :user, updated_user.id}, updated_user)
+
+        _ = Accounts.broadcast_user_update(updated_user)
+        _ = Accounts.broadcast_member_update(updated_user)
+        broadcast_party(party_id, {:party_member_joined, party_id, updated_user.id})
+
+        {:ok, updated_user}
+
+      {:error, _reason} = error ->
+        error
+    end
   end
 
   # ---------------------------------------------------------------------------
