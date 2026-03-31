@@ -499,7 +499,13 @@ defmodule GameServer.Lobbies do
   def join_lobby(_user, _lobby, _opts), do: {:error, :invalid}
 
   defp do_join(user_id, lobby, opts) do
-    user = Accounts.get_user(user_id)
+    # Use Repo.get directly instead of cached Accounts.get_user/1.
+    # The cached version would store the current lobby_id state which,
+    # combined with concurrent requests through the Guardian pipeline,
+    # can poison the cache via the non-atomic @decorate cacheable
+    # (a concurrent Cache.put of stale data can land after the
+    # post-commit Cache.delete inside create_membership).
+    user = Repo.get(User, user_id)
 
     cond do
       user && user.lobby_id ->
@@ -509,7 +515,16 @@ defmodule GameServer.Lobbies do
         {:error, :locked}
 
       true ->
-        do_join_with_lock(user, lobby, opts, user_id)
+        case do_join_with_lock(user, lobby, opts, user_id) do
+          {:ok, updated_user} ->
+            # Post-commit: write the correct value to cache so stale
+            # concurrent @decorate cacheable puts are overwritten.
+            GameServer.Cache.put({:accounts, :user, updated_user.id}, updated_user)
+            {:ok, updated_user}
+
+          error ->
+            error
+        end
     end
   end
 
@@ -673,8 +688,22 @@ defmodule GameServer.Lobbies do
         {:error, {:hook_rejected, reason}}
     end
     |> case do
-      {:ok, %{lobby: lobby}} ->
+      {:ok, %{lobby: lobby} = multi_result} ->
         lobby = normalize_hostless_lobby(lobby)
+
+        # Post-commit user cache handling for host membership.
+        # The cache invalidation inside maybe_add_host_membership fires before
+        # the Multi transaction commits, so a concurrent Accounts.get_user
+        # call can re-poison the cache with stale (lobby_id=nil) data.
+        # Writing the correct value here closes that race.
+        case multi_result do
+          %{membership: updated_user} ->
+            _ = invalidate_accounts_user_cache(updated_user.id)
+            GameServer.Cache.put({:accounts, :user, updated_user.id}, updated_user)
+
+          _ ->
+            :ok
+        end
 
         GameServer.Async.run(fn ->
           GameServer.Hooks.internal_call(:after_lobby_create, [lobby])
@@ -865,7 +894,12 @@ defmodule GameServer.Lobbies do
   @spec create_membership(%{lobby_id: integer(), user_id: integer()}) ::
           {:ok, User.t()} | {:error, :not_found | Ecto.Changeset.t() | term()}
   def create_membership(%{lobby_id: lobby_id, user_id: user_id} = _attrs) do
-    case Accounts.get_user(user_id) do
+    # Use Repo.get directly — this function may be called inside a
+    # Repo.transaction (e.g. from do_join_with_lock). Using the cached
+    # Accounts.get_user/1 would seed the cache with lobby_id=nil
+    # before the transaction commits, enabling a concurrent process's
+    # @decorate cacheable put to re-poison the cache after our delete.
+    case Repo.get(User, user_id) do
       nil ->
         {:error, :not_found}
 

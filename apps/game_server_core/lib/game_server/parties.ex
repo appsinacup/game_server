@@ -263,8 +263,11 @@ defmodule GameServer.Parties do
       # Lock on the user's id to prevent concurrent party creation
       AdvisoryLock.lock(:party, user.id)
 
-      # Re-check inside the lock to prevent TOCTOU
-      fresh_user = Accounts.get_user(user.id)
+      # Use Repo.get directly instead of cached Accounts.get_user/1.
+      # The cached version would seed the cache with party_id=nil inside
+      # the transaction, enabling a concurrent @decorate cacheable put
+      # of stale data to land after our post-commit cache invalidation.
+      fresh_user = Repo.get(User, user.id)
 
       if fresh_user.party_id != nil do
         Repo.rollback(:already_in_party)
@@ -273,8 +276,8 @@ defmodule GameServer.Parties do
       case %Party{} |> Party.changeset(attrs) |> Repo.insert() do
         {:ok, party} ->
           case fresh_user |> Ecto.Changeset.change(%{party_id: party.id}) |> Repo.update() do
-            {:ok, _updated_user} ->
-              party
+            {:ok, updated_user} ->
+              {party, updated_user}
 
             {:error, reason} ->
               Repo.rollback(reason)
@@ -285,8 +288,10 @@ defmodule GameServer.Parties do
       end
     end)
     |> case do
-      {:ok, party} ->
+      {:ok, {party, updated_user}} ->
         invalidate_user_cache(user.id)
+        # Write the correct value to cache to prevent stale concurrent puts.
+        GameServer.Cache.put({:accounts, :user, updated_user.id}, updated_user)
         broadcast_parties({:party_created, party.id})
 
         GameServer.Async.run(fn ->
@@ -1168,12 +1173,13 @@ defmodule GameServer.Parties do
     Repo.transaction(fn ->
       AdvisoryLock.lock(:lobby, lobby.id)
 
-      Enum.each(non_leader_members, fn member ->
-        member = Accounts.get_user(member.id)
+      Enum.map(non_leader_members, fn member ->
+        # Use Repo.get directly — Accounts.get_user would seed the cache
+        # with lobby_id=nil inside the un-committed transaction.
+        member = Repo.get(User, member.id)
 
         case Ecto.Changeset.change(member, %{lobby_id: lobby.id}) |> Repo.update() do
           {:ok, updated} ->
-            invalidate_user_cache(updated.id)
             updated
 
           {:error, reason} ->
@@ -1182,9 +1188,14 @@ defmodule GameServer.Parties do
       end)
     end)
     |> case do
-      {:ok, _} ->
-        # Broadcast events only after successful commit
+      {:ok, updated_members} ->
+        # Post-commit: invalidate and write correct values to cache.
         all_members = [user | non_leader_members]
+
+        Enum.each(updated_members, fn updated ->
+          invalidate_user_cache(updated.id)
+          GameServer.Cache.put({:accounts, :user, updated.id}, updated)
+        end)
 
         Enum.each(all_members, fn member ->
           updated = Accounts.get_user(member.id)
@@ -1285,14 +1296,15 @@ defmodule GameServer.Parties do
         Repo.rollback(:not_enough_space)
       end
 
-      Enum.each(members, fn member ->
-        member = Accounts.get_user(member.id)
+      Enum.map(members, fn member ->
+        # Use Repo.get directly — Accounts.get_user would seed the cache
+        # with lobby_id=nil inside the un-committed transaction.
+        member = Repo.get(User, member.id)
 
         case member
              |> Ecto.Changeset.change(%{lobby_id: lobby.id})
              |> Repo.update() do
           {:ok, updated} ->
-            invalidate_user_cache(updated.id)
             updated
 
           {:error, reason} ->
@@ -1301,7 +1313,13 @@ defmodule GameServer.Parties do
       end)
     end)
     |> case do
-      {:ok, _} ->
+      {:ok, updated_members} ->
+        # Post-commit: invalidate and write correct values to cache.
+        Enum.each(updated_members, fn updated ->
+          invalidate_user_cache(updated.id)
+          GameServer.Cache.put({:accounts, :user, updated.id}, updated)
+        end)
+
         # Broadcast events only after successful commit
         Enum.each(members, fn member ->
           updated = Accounts.get_user(member.id)
