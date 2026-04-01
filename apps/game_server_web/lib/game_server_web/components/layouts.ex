@@ -292,61 +292,62 @@ defmodule GameServerWeb.Layouts do
               <li class="flex items-center px-0">
                 <div class="w-px h-6 bg-base-content/20"></div>
               </li>
-              <li>
-                <.link
-                  href={~p"/users/log-in"}
-                  class={[
-                    "btn",
-                    if(String.starts_with?(@current_path, "/users/log-in"),
-                      do: "btn-primary",
-                      else: "btn-outline"
-                    )
-                  ]}
-                >
-                  <.icon name="hero-arrow-right-on-rectangle-solid" class="w-4 h-4" />
-                  {gettext("Log in")}
-                </.link>
-              </li>
-              <li>
-                <.link
-                  href={~p"/users/register"}
-                  class={[
-                    "btn",
-                    if(String.starts_with?(@current_path, "/users/register"),
-                      do: "btn-primary",
-                      else: "btn-outline"
-                    )
-                  ]}
-                >
-                  <.icon name="hero-user-plus-solid" class="w-4 h-4" />
-                  {gettext("Register")}
-                </.link>
-              </li>
+
+              <%= for link <- filtered_nav_links(@nav_links, if(@current_scope, do: :authenticated, else: :unauthenticated)) do %>
+                <li>
+                  <a
+                    href={link["href"]}
+                    target={if(link["external"], do: "_blank", else: nil)}
+                    rel={if(link["external"], do: "noopener noreferrer", else: nil)}
+                    class={[
+                      "btn",
+                      if(String.starts_with?(@current_path, link["href"]),
+                        do: "btn-primary",
+                        else: "btn-outline"
+                      )
+                    ]}
+                  >
+                    <.icon :if={link["icon"]} name={link["icon"]} class="w-4 h-4" />
+                    {link["label"]}
+                  </a>
+                </li>
+              <% end %>
               <%= if filtered_nav_links(@nav_links, if(@current_scope, do: :authenticated, else: :unauthenticated)) != [] do %>
                 <li class="flex items-center px-0">
                   <div class="w-px h-6 bg-base-content/20"></div>
                 </li>
               <% end %>
             <% end %>
-            <%= for link <- filtered_nav_links(@nav_links, if(@current_scope, do: :authenticated, else: :unauthenticated)) do %>
-              <li>
-                <a
-                  href={link["href"]}
-                  target={if(link["external"], do: "_blank", else: nil)}
-                  rel={if(link["external"], do: "noopener noreferrer", else: nil)}
-                  class={[
-                    "btn",
-                    if(String.starts_with?(@current_path, link["href"]),
-                      do: "btn-primary",
-                      else: "btn-outline"
-                    )
-                  ]}
-                >
-                  <.icon :if={link["icon"]} name={link["icon"]} class="w-4 h-4" />
-                  {link["label"]}
-                </a>
-              </li>
-            <% end %>
+            <li>
+              <.link
+                href={~p"/users/log-in"}
+                class={[
+                  "btn",
+                  if(String.starts_with?(@current_path, "/users/log-in"),
+                    do: "btn-primary",
+                    else: "btn-outline"
+                  )
+                ]}
+              >
+                <.icon name="hero-arrow-right-on-rectangle-solid" class="w-4 h-4" />
+                {gettext("Log in")}
+              </.link>
+            </li>
+            <li>
+              <.link
+                href={~p"/users/register"}
+                class={[
+                  "btn",
+                  if(String.starts_with?(@current_path, "/users/register"),
+                    do: "btn-primary",
+                    else: "btn-outline"
+                  )
+                ]}
+              >
+                <.icon name="hero-user-plus-solid" class="w-4 h-4" />
+                {gettext("Register")}
+              </.link>
+            </li>
             <li class="flex items-center px-0">
               <div class="w-px h-6 bg-base-content/20"></div>
             </li>
@@ -475,7 +476,7 @@ defmodule GameServerWeb.Layouts do
               <.theme_toggle />
             </li>
           </ul>
-
+          
     <!-- Mobile Navigation -->
           <div class="lg:hidden">
             <div class="dropdown dropdown-end">
