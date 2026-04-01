@@ -1369,6 +1369,25 @@ defmodule GameServer.Accounts do
 
 
   @doc ~S"""
+    Lightweight version of `touch_last_seen/1` that accepts a user ID directly.
+    Performs a single UPDATE without loading the full struct first, setting
+    `last_seen_at` to now and `is_online` to true, then invalidates the cache.
+    Fire-and-forget — errors are ignored.
+    
+  """
+  @spec touch_last_seen_by_id(integer()) :: :ok
+  def touch_last_seen_by_id(_user_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        :ok
+
+      _ ->
+        raise "GameServer.Accounts.touch_last_seen_by_id/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Unlink the device_id from a user's account.
     
     Returns {:ok, user} when successful or {:error, reason}.
