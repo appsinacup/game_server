@@ -224,11 +224,9 @@ defmodule GameServerWeb.Layouts do
                   {gettext("Groups")}
                 </.link>
               </li>
-              <%= if filtered_nav_links(@nav_links, if(@current_scope && @current_scope.user.is_admin, do: :admin, else: :authenticated), true) != [] do %>
-                <li class="flex items-center px-0">
-                  <div class="w-px h-6 bg-base-content/20"></div>
-                </li>
-              <% end %>
+              <li class="flex items-center px-0">
+                <div class="w-px h-6 bg-base-content/20"></div>
+              </li>
               <%= for link <- filtered_nav_links(@nav_links, if(@current_scope && @current_scope.user.is_admin, do: :admin, else: :authenticated), true) do %>
                 <li>
                   <a
@@ -477,7 +475,7 @@ defmodule GameServerWeb.Layouts do
               <.theme_toggle />
             </li>
           </ul>
-          
+
     <!-- Mobile Navigation -->
           <div class="lg:hidden">
             <div class="dropdown dropdown-end">
@@ -826,7 +824,7 @@ defmodule GameServerWeb.Layouts do
         tabindex="0"
         class={[
           "btn",
-          @mobile && "btn-ghost w-full relative text-sm",
+          @mobile && "btn-ghost btn-sm w-full relative",
           !@mobile && "btn-outline"
         ]}
       >
