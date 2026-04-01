@@ -542,7 +542,7 @@ defmodule GameServer.AccountsTest do
       {:ok, _} = Accounts.update_user_display_name(user, %{"display_name" => "AlphaPlayer"})
 
       results = Accounts.search_users("alpha")
-      assert length(results) >= 1
+      assert results != []
       assert Enum.any?(results, &(&1.id == user.id))
     end
 
