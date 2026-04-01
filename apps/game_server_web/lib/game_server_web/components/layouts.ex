@@ -193,6 +193,7 @@ defmodule GameServerWeb.Layouts do
                     )
                   ]}
                 >
+                  <.icon name="hero-user-circle-solid" class="w-4 h-4" />
                   {gettext("Account")}
                 </.link>
               </li>
@@ -207,6 +208,7 @@ defmodule GameServerWeb.Layouts do
                     )
                   ]}
                 >
+                  <.icon name="hero-chart-bar-solid" class="w-4 h-4" />
                   {gettext("Leaderboards")}
                 </.link>
               </li>
@@ -221,6 +223,7 @@ defmodule GameServerWeb.Layouts do
                     )
                   ]}
                 >
+                  <.icon name="hero-trophy-solid" class="w-4 h-4" />
                   {gettext("Achievements")}
                 </.link>
               </li>
@@ -232,6 +235,7 @@ defmodule GameServerWeb.Layouts do
                     if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")
                   ]}
                 >
+                  <.icon name="hero-user-group-solid" class="w-4 h-4" />
                   {gettext("Groups")}
                 </.link>
               </li>
@@ -246,6 +250,7 @@ defmodule GameServerWeb.Layouts do
                     )
                   ]}
                 >
+                  <.icon name="hero-bell-solid" class="w-4 h-4" />
                   {gettext("Notifications")}
                   <span
                     :if={@notif_unread_count > 0}
@@ -266,6 +271,7 @@ defmodule GameServerWeb.Layouts do
                     )
                   ]}
                 >
+                  <.icon name="hero-chat-bubble-left-right-solid" class="w-4 h-4" />
                   {gettext("Chat")}
                 </.link>
               </li>
@@ -281,6 +287,7 @@ defmodule GameServerWeb.Layouts do
                       )
                     ]}
                   >
+                    <.icon name="hero-cog-6-tooth-solid" class="w-4 h-4" />
                     {gettext("Admin")}
                   </.link>
                 </li>
@@ -295,6 +302,7 @@ defmodule GameServerWeb.Layouts do
                       )
                     ]}
                   >
+                    <.icon name="hero-home-solid" class="w-4 h-4" />
                     {gettext("Lobbies")}
                   </.link>
                 </li>
@@ -313,12 +321,14 @@ defmodule GameServerWeb.Layouts do
                       )
                     ]}
                   >
+                    <.icon :if={link["icon"]} name={link["icon"]} class="w-4 h-4" />
                     {link["label"]}
                   </a>
                 </li>
               <% end %>
               <li>
                 <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline">
+                  <.icon name="hero-arrow-left-on-rectangle-solid" class="w-4 h-4" />
                   {gettext("Log out")}
                 </.link>
               </li>
@@ -334,6 +344,7 @@ defmodule GameServerWeb.Layouts do
                     )
                   ]}
                 >
+                  <.icon name="hero-chart-bar-solid" class="w-4 h-4" />
                   {gettext("Leaderboards")}
                 </.link>
               </li>
@@ -348,6 +359,7 @@ defmodule GameServerWeb.Layouts do
                     )
                   ]}
                 >
+                  <.icon name="hero-trophy-solid" class="w-4 h-4" />
                   {gettext("Achievements")}
                 </.link>
               </li>
@@ -359,6 +371,7 @@ defmodule GameServerWeb.Layouts do
                     if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")
                   ]}
                 >
+                  <.icon name="hero-user-group-solid" class="w-4 h-4" />
                   {gettext("Groups")}
                 </.link>
               </li>
@@ -373,6 +386,7 @@ defmodule GameServerWeb.Layouts do
                     )
                   ]}
                 >
+                  <.icon name="hero-arrow-right-on-rectangle-solid" class="w-4 h-4" />
                   {gettext("Log in")}
                 </.link>
               </li>
@@ -387,6 +401,7 @@ defmodule GameServerWeb.Layouts do
                     )
                   ]}
                 >
+                  <.icon name="hero-user-plus-solid" class="w-4 h-4" />
                   {gettext("Register")}
                 </.link>
               </li>
@@ -405,6 +420,7 @@ defmodule GameServerWeb.Layouts do
                     )
                   ]}
                 >
+                  <.icon :if={link["icon"]} name={link["icon"]} class="w-4 h-4" />
                   {link["label"]}
                 </a>
               </li>
@@ -423,7 +439,7 @@ defmodule GameServerWeb.Layouts do
               <.theme_toggle />
             </li>
           </ul>
-          
+
     <!-- Mobile Navigation -->
           <div class="lg:hidden">
             <div class="dropdown dropdown-end">
@@ -454,6 +470,7 @@ defmodule GameServerWeb.Layouts do
                         )
                       ]}
                     >
+                      <.icon name="hero-user-circle-solid" class="w-4 h-4" />
                       {gettext("Account")}
                     </a>
                   </li>
@@ -468,6 +485,7 @@ defmodule GameServerWeb.Layouts do
                         )
                       ]}
                     >
+                      <.icon name="hero-chart-bar-solid" class="w-4 h-4" />
                       {gettext("Leaderboards")}
                     </a>
                   </li>
@@ -482,6 +500,7 @@ defmodule GameServerWeb.Layouts do
                         )
                       ]}
                     >
+                      <.icon name="hero-trophy-solid" class="w-4 h-4" />
                       {gettext("Achievements")}
                     </a>
                   </li>
@@ -493,6 +512,7 @@ defmodule GameServerWeb.Layouts do
                         if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")
                       ]}
                     >
+                      <.icon name="hero-user-group-solid" class="w-4 h-4" />
                       {gettext("Groups")}
                     </a>
                   </li>
@@ -507,6 +527,7 @@ defmodule GameServerWeb.Layouts do
                         )
                       ]}
                     >
+                      <.icon name="hero-bell-solid" class="w-4 h-4" />
                       {gettext("Notifications")}
                       <span
                         :if={@notif_unread_count > 0}
@@ -527,6 +548,7 @@ defmodule GameServerWeb.Layouts do
                         )
                       ]}
                     >
+                      <.icon name="hero-chat-bubble-left-right-solid" class="w-4 h-4" />
                       {gettext("Chat")}
                     </a>
                   </li>
@@ -542,6 +564,7 @@ defmodule GameServerWeb.Layouts do
                           )
                         ]}
                       >
+                        <.icon name="hero-home-solid" class="w-4 h-4" />
                         {gettext("Lobbies")}
                       </a>
                     </li>
@@ -556,6 +579,7 @@ defmodule GameServerWeb.Layouts do
                           )
                         ]}
                       >
+                        <.icon name="hero-cog-6-tooth-solid" class="w-4 h-4" />
                         {gettext("Admin")}
                       </a>
                     </li>
@@ -574,12 +598,14 @@ defmodule GameServerWeb.Layouts do
                           )
                         ]}
                       >
+                        <.icon :if={link["icon"]} name={link["icon"]} class="w-4 h-4" />
                         {link["label"]}
                       </a>
                     </li>
                   <% end %>
                   <li>
                     <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline">
+                      <.icon name="hero-arrow-left-on-rectangle-solid" class="w-4 h-4" />
                       {gettext("Log out")}
                     </.link>
                   </li>
@@ -595,6 +621,7 @@ defmodule GameServerWeb.Layouts do
                         )
                       ]}
                     >
+                      <.icon name="hero-arrow-right-on-rectangle-solid" class="w-4 h-4" />
                       {gettext("Log in")}
                     </a>
                   </li>
@@ -609,6 +636,7 @@ defmodule GameServerWeb.Layouts do
                         )
                       ]}
                     >
+                      <.icon name="hero-user-plus-solid" class="w-4 h-4" />
                       {gettext("Register")}
                     </a>
                   </li>
@@ -623,6 +651,7 @@ defmodule GameServerWeb.Layouts do
                         )
                       ]}
                     >
+                      <.icon name="hero-chart-bar-solid" class="w-4 h-4" />
                       {gettext("Leaderboards")}
                     </a>
                   </li>
@@ -637,6 +666,7 @@ defmodule GameServerWeb.Layouts do
                         )
                       ]}
                     >
+                      <.icon name="hero-trophy-solid" class="w-4 h-4" />
                       {gettext("Achievements")}
                     </a>
                   </li>
@@ -648,6 +678,7 @@ defmodule GameServerWeb.Layouts do
                         if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")
                       ]}
                     >
+                      <.icon name="hero-user-group-solid" class="w-4 h-4" />
                       {gettext("Groups")}
                     </a>
                   </li>
@@ -671,6 +702,7 @@ defmodule GameServerWeb.Layouts do
                         )
                       ]}
                     >
+                      <.icon :if={link["icon"]} name={link["icon"]} class="w-4 h-4" />
                       {link["label"]}
                     </a>
                   </li>

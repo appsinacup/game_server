@@ -18,7 +18,7 @@
     { "title": "Documentație API", "url": "/api/docs", "icon": "hero-book-open-solid" }
   ],
   "nav_links": [
-    { "label": "Joacă", "href": "/play", "auth": "any" }
+    { "label": "Joacă", "href": "/play", "auth": "any", "icon": "hero-play-solid" }
   ],
   "footer_links": [
     { "label": "Politica de confidențialitate", "href": "/privacy" },

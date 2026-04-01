@@ -18,7 +18,7 @@
     { "title": "Documentación API", "url": "/api/docs", "icon": "hero-book-open-solid" }
   ],
   "nav_links": [
-    { "label": "Jugar", "href": "/play", "auth": "any" }
+    { "label": "Jugar", "href": "/play", "auth": "any", "icon": "hero-play-solid" }
   ],
   "footer_links": [
     { "label": "Política de privacidad", "href": "/privacy" },
