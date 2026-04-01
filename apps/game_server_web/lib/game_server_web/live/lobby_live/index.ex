@@ -651,6 +651,8 @@ defmodule GameServerWeb.LobbyLive.Index do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope} current_path={assigns[:current_path]}>
       <div class="p-6">
+        <.link navigate={~p"/admin"} class="btn btn-outline mb-4">← Back to Admin</.link>
+
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
           <div class="card bg-base-200 p-4 rounded-lg">
             <div class="font-semibold">{dgettext("lobbies", "Create a Lobby")}</div>

@@ -21,49 +21,49 @@ defmodule GameServerWeb.AdminLive.Index do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope} current_path={assigns[:current_path]}>
       <div class="space-y-6">
-        <.header>
-          Admin Dashboard
-          <:subtitle>System administration</:subtitle>
-        </.header>
+        <div>
+          <h1 class="text-3xl font-bold">Admin Dashboard</h1>
+          <p class="mt-1 text-sm text-base-content/70">System administration</p>
+        </div>
 
         <div class="flex gap-4 flex-wrap">
-          <.link navigate={~p"/admin/config"} class="btn btn-primary">
+          <.link navigate={~p"/admin/config"} class="btn btn-outline">
             Configuration
           </.link>
-          <.link navigate={~p"/admin/kv"} class="btn btn-primary">
+          <.link navigate={~p"/admin/kv"} class="btn btn-outline">
             KV ({@kv_count})
           </.link>
-          <.link navigate={~p"/admin/users"} class="btn btn-primary">
+          <.link navigate={~p"/admin/users"} class="btn btn-outline">
             Users ({@users_count})
           </.link>
-          <.link navigate={~p"/admin/lobbies"} class="btn btn-primary">
+          <.link navigate={~p"/admin/lobbies"} class="btn btn-outline">
             Lobbies ({@lobbies_count})
           </.link>
-          <.link navigate={~p"/admin/leaderboards"} class="btn btn-primary">
+          <.link navigate={~p"/admin/leaderboards"} class="btn btn-outline">
             Leaderboards ({@leaderboards_count})
           </.link>
-          <.link navigate={~p"/admin/sessions"} class="btn btn-primary">
+          <.link navigate={~p"/admin/sessions"} class="btn btn-outline">
             Tokens ({@sessions_count})
           </.link>
-          <.link navigate={~p"/admin/notifications"} class="btn btn-primary">
+          <.link navigate={~p"/admin/notifications"} class="btn btn-outline">
             Notifications ({@notifications_count})
           </.link>
-          <.link navigate={~p"/admin/groups"} class="btn btn-primary">
+          <.link navigate={~p"/admin/groups"} class="btn btn-outline">
             Groups ({@groups_count})
           </.link>
-          <.link navigate={~p"/admin/parties"} class="btn btn-primary">
+          <.link navigate={~p"/admin/parties"} class="btn btn-outline">
             Parties ({@parties_count})
           </.link>
-          <.link navigate={~p"/admin/chat"} class="btn btn-primary">
+          <.link navigate={~p"/admin/chat"} class="btn btn-outline">
             Chat ({@chat_count})
           </.link>
-          <.link navigate={~p"/admin/achievements"} class="btn btn-primary">
+          <.link navigate={~p"/admin/achievements"} class="btn btn-outline">
             Achievements ({@achievements_count})
           </.link>
-          <.link navigate={~p"/admin/connections"} class="btn btn-primary">
+          <.link navigate={~p"/admin/connections"} class="btn btn-outline">
             Connections ({@conn_stats.total_connections})
           </.link>
-          <.link navigate={~p"/admin/system"} class="btn btn-primary">
+          <.link navigate={~p"/admin/system"} class="btn btn-outline">
             System
           </.link>
         </div>

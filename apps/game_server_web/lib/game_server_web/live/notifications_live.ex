@@ -205,7 +205,7 @@ defmodule GameServerWeb.NotificationsLive do
   end
 
   defp action_for_type("party_invite", _n), do: {gettext("View Party"), ~p"/play"}
-  defp action_for_type("chat_lobby", _n), do: {gettext("Open Chat"), ~p"/lobbies"}
+  defp action_for_type("chat_lobby", _n), do: {gettext("Open Play"), ~p"/play"}
   defp action_for_type("chat_party", _n), do: {gettext("View Party"), ~p"/play"}
 
   defp action_for_type("friend_request", _n),
@@ -250,7 +250,7 @@ defmodule GameServerWeb.NotificationsLive do
   defp action_for_metadata(%{"group_id" => group_id}) when is_integer(group_id),
     do: {gettext("View Group"), ~p"/groups/#{group_id}"}
 
-  defp action_for_metadata(%{"lobby_id" => _}), do: {gettext("View Lobbies"), ~p"/lobbies"}
+  defp action_for_metadata(%{"lobby_id" => _}), do: {gettext("Open Play"), ~p"/play"}
   defp action_for_metadata(%{"party_id" => _}), do: {gettext("View Party"), ~p"/play"}
   defp action_for_metadata(_), do: nil
 

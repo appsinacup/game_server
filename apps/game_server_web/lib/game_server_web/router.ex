@@ -348,6 +348,7 @@ defmodule GameServerWeb.Router do
       live "/admin/config", AdminLive.Config, :index
       live "/admin/kv", AdminLive.KV, :index
       live "/admin/lobbies", AdminLive.Lobbies, :index
+      live "/admin/lobbies/live", LobbyLive.Index, :index
       live "/admin/leaderboards", AdminLive.Leaderboards, :index
       live "/admin/users", AdminLive.Users, :index
       live "/admin/sessions", AdminLive.Sessions, :index
@@ -392,7 +393,6 @@ defmodule GameServerWeb.Router do
         {GameServerWeb.OnMount.TrackConnection, :default}
       ] do
       live "/users/register", UserLive.Registration, :new
-      live "/lobbies", LobbyLive.Index, :index
       live "/groups", GroupsLive, :index
       live "/groups/:id", GroupsLive, :show
       live "/achievements", AchievementsLive, :index

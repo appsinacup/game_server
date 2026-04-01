@@ -42,6 +42,9 @@ defmodule GameServerWeb.AdminLive.Lobbies do
             <div class="flex flex-wrap items-center justify-between gap-3">
               <h2 class="card-title">Lobbies ({@count})</h2>
               <div class="flex flex-wrap gap-2">
+                <.link navigate={~p"/admin/lobbies/live"} class="btn btn-sm btn-outline">
+                  Open lobby page
+                </.link>
                 <button
                   type="button"
                   phx-click="show_create"

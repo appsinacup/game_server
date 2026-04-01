@@ -48,11 +48,11 @@ defmodule GameServerWeb.Layouts do
     if unique_icons == [] do
       []
     else
-      @icon_slots
+      unique_icons
       |> Enum.with_index()
-      |> Enum.map(fn {slot, idx} ->
-        icon_name = Enum.at(unique_icons, rem(idx, length(unique_icons)))
-        Map.put(slot, :name, icon_name)
+      |> Enum.map(fn {icon, index} ->
+        slot = Enum.at(@icon_slots, rem(index, length(@icon_slots)))
+        Map.put(slot, :name, icon)
       end)
     end
   end
@@ -184,21 +184,6 @@ defmodule GameServerWeb.Layouts do
             <%= if @current_scope do %>
               <li>
                 <.link
-                  href={~p"/users/settings"}
-                  class={[
-                    "btn",
-                    if(String.starts_with?(@current_path, "/users/settings"),
-                      do: "btn-primary",
-                      else: "btn-outline"
-                    )
-                  ]}
-                >
-                  <.icon name="hero-user-circle-solid" class="w-4 h-4" />
-                  {gettext("Account")}
-                </.link>
-              </li>
-              <li>
-                <.link
                   href={~p"/leaderboards"}
                   class={[
                     "btn",
@@ -239,74 +224,6 @@ defmodule GameServerWeb.Layouts do
                   {gettext("Groups")}
                 </.link>
               </li>
-              <li>
-                <.link
-                  href={~p"/notifications"}
-                  class={[
-                    "btn",
-                    if(String.starts_with?(@current_path, "/notifications"),
-                      do: "btn-primary",
-                      else: "btn-outline"
-                    )
-                  ]}
-                >
-                  <.icon name="hero-bell-solid" class="w-4 h-4" />
-                  {gettext("Notifications")}
-                  <span
-                    :if={@notif_unread_count > 0}
-                    class="ml-0.5 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold rounded-full bg-error text-error-content"
-                  >
-                    {@notif_unread_count}
-                  </span>
-                </.link>
-              </li>
-              <li>
-                <.link
-                  href={~p"/chat"}
-                  class={[
-                    "btn",
-                    if(String.starts_with?(@current_path, "/chat"),
-                      do: "btn-primary",
-                      else: "btn-outline"
-                    )
-                  ]}
-                >
-                  <.icon name="hero-chat-bubble-left-right-solid" class="w-4 h-4" />
-                  {gettext("Chat")}
-                </.link>
-              </li>
-              <%= if @current_scope && @current_scope.user.is_admin do %>
-                <li>
-                  <.link
-                    href={~p"/admin"}
-                    class={[
-                      "btn",
-                      if(String.starts_with?(@current_path, "/admin"),
-                        do: "btn-primary",
-                        else: "btn-outline"
-                      )
-                    ]}
-                  >
-                    <.icon name="hero-cog-6-tooth-solid" class="w-4 h-4" />
-                    {gettext("Admin")}
-                  </.link>
-                </li>
-                <li>
-                  <.link
-                    href={~p"/lobbies"}
-                    class={[
-                      "btn",
-                      if(String.starts_with?(@current_path, "/lobbies"),
-                        do: "btn-primary",
-                        else: "btn-outline"
-                      )
-                    ]}
-                  >
-                    <.icon name="hero-home-solid" class="w-4 h-4" />
-                    {gettext("Lobbies")}
-                  </.link>
-                </li>
-              <% end %>
               <%= for link <- filtered_nav_links(@nav_links, if(@current_scope && @current_scope.user.is_admin, do: :admin, else: :authenticated), true) do %>
                 <li>
                   <a
@@ -326,12 +243,6 @@ defmodule GameServerWeb.Layouts do
                   </a>
                 </li>
               <% end %>
-              <li>
-                <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline">
-                  <.icon name="hero-arrow-left-on-rectangle-solid" class="w-4 h-4" />
-                  {gettext("Log out")}
-                </.link>
-              </li>
             <% else %>
               <li>
                 <.link
@@ -425,6 +336,9 @@ defmodule GameServerWeb.Layouts do
                 </a>
               </li>
             <% end %>
+            <li>
+              <.theme_toggle />
+            </li>
             <%= if length(@known_locales) > 1 do %>
               <li>
                 <.language_dropdown
@@ -432,14 +346,119 @@ defmodule GameServerWeb.Layouts do
                   current_path={@current_path}
                   current_query={@current_query}
                   known_locales={@known_locales}
+                  mobile={false}
                 />
               </li>
             <% end %>
-            <li>
-              <.theme_toggle />
-            </li>
+            <%= if @current_scope do %>
+              <li>
+                <div class="dropdown dropdown-end">
+                  <button
+                    tabindex="0"
+                    class={[
+                      "btn gap-1",
+                      if(
+                        String.starts_with?(@current_path, "/users/settings") or
+                          String.starts_with?(@current_path, "/notifications") or
+                          String.starts_with?(@current_path, "/chat") or
+                          String.starts_with?(@current_path, "/admin"),
+                        do: "btn-primary",
+                        else: "btn-outline"
+                      )
+                    ]}
+                  >
+                    <.icon name="hero-user-circle-solid" class="w-5 h-5" />
+                    <span class="max-w-[8rem] truncate">
+                      {display_name(@current_scope.user)}
+                    </span>
+                    <span
+                      :if={@notif_unread_count > 0}
+                      class="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold rounded-full bg-error text-error-content"
+                    >
+                      {@notif_unread_count}
+                    </span>
+                    <.icon name="hero-chevron-down-solid" class="w-3 h-3" />
+                  </button>
+                  <ul
+                    tabindex="0"
+                    class="menu menu-sm dropdown-content mt-2 z-[1] p-2 shadow-lg bg-base-100 rounded-box w-56"
+                  >
+                    <li>
+                      <.link
+                        href={~p"/users/settings"}
+                        class={[
+                          if(String.starts_with?(@current_path, "/users/settings"),
+                            do: "active",
+                            else: ""
+                          )
+                        ]}
+                      >
+                        <.icon name="hero-user-circle-solid" class="w-4 h-4" />
+                        {gettext("Account")}
+                      </.link>
+                    </li>
+                    <li>
+                      <.link
+                        href={~p"/notifications"}
+                        class={[
+                          if(String.starts_with?(@current_path, "/notifications"),
+                            do: "active",
+                            else: ""
+                          )
+                        ]}
+                      >
+                        <.icon name="hero-bell-solid" class="w-4 h-4" />
+                        {gettext("Notifications")}
+                        <span
+                          :if={@notif_unread_count > 0}
+                          class="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold rounded-full bg-error text-error-content"
+                        >
+                          {@notif_unread_count}
+                        </span>
+                      </.link>
+                    </li>
+                    <li>
+                      <.link
+                        href={~p"/chat"}
+                        class={[
+                          if(String.starts_with?(@current_path, "/chat"),
+                            do: "active",
+                            else: ""
+                          )
+                        ]}
+                      >
+                        <.icon name="hero-chat-bubble-left-right-solid" class="w-4 h-4" />
+                        {gettext("Chat")}
+                      </.link>
+                    </li>
+                    <%= if @current_scope && @current_scope.user.is_admin do %>
+                      <li>
+                        <.link
+                          href={~p"/admin"}
+                          class={[
+                            if(String.starts_with?(@current_path, "/admin"),
+                              do: "active",
+                              else: ""
+                            )
+                          ]}
+                        >
+                          <.icon name="hero-cog-6-tooth-solid" class="w-4 h-4" />
+                          {gettext("Admin")}
+                        </.link>
+                      </li>
+                    <% end %>
+                    <li class="border-t border-base-300 mt-1 pt-1">
+                      <.link href={~p"/users/log-out"} method="delete">
+                        <.icon name="hero-arrow-left-on-rectangle-solid" class="w-4 h-4" />
+                        {gettext("Log out")}
+                      </.link>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+            <% end %>
           </ul>
-
+          
     <!-- Mobile Navigation -->
           <div class="lg:hidden">
             <div class="dropdown dropdown-end">
@@ -474,6 +493,59 @@ defmodule GameServerWeb.Layouts do
                       {gettext("Account")}
                     </a>
                   </li>
+                  <li>
+                    <a
+                      href={~p"/notifications"}
+                      class={[
+                        "btn",
+                        if(String.starts_with?(@current_path, "/notifications"),
+                          do: "btn-primary",
+                          else: "btn-outline"
+                        )
+                      ]}
+                    >
+                      <.icon name="hero-bell-solid" class="w-4 h-4" />
+                      {gettext("Notifications")}
+                      <span
+                        :if={@notif_unread_count > 0}
+                        class="ml-0.5 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold rounded-full bg-error text-error-content"
+                      >
+                        {@notif_unread_count}
+                      </span>
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href={~p"/chat"}
+                      class={[
+                        "btn",
+                        if(String.starts_with?(@current_path, "/chat"),
+                          do: "btn-primary",
+                          else: "btn-outline"
+                        )
+                      ]}
+                    >
+                      <.icon name="hero-chat-bubble-left-right-solid" class="w-4 h-4" />
+                      {gettext("Chat")}
+                    </a>
+                  </li>
+                  <%= if @current_scope && @current_scope.user.is_admin do %>
+                    <li>
+                      <a
+                        href={~p"/admin"}
+                        class={[
+                          "btn",
+                          if(String.starts_with?(@current_path, "/admin"),
+                            do: "btn-primary",
+                            else: "btn-outline"
+                          )
+                        ]}
+                      >
+                        <.icon name="hero-cog-6-tooth-solid" class="w-4 h-4" />
+                        {gettext("Admin")}
+                      </a>
+                    </li>
+                  <% end %>
                   <li>
                     <a
                       href={~p"/leaderboards"}
@@ -516,74 +588,6 @@ defmodule GameServerWeb.Layouts do
                       {gettext("Groups")}
                     </a>
                   </li>
-                  <li>
-                    <a
-                      href={~p"/notifications"}
-                      class={[
-                        "btn",
-                        if(String.starts_with?(@current_path, "/notifications"),
-                          do: "btn-primary",
-                          else: "btn-outline"
-                        )
-                      ]}
-                    >
-                      <.icon name="hero-bell-solid" class="w-4 h-4" />
-                      {gettext("Notifications")}
-                      <span
-                        :if={@notif_unread_count > 0}
-                        class="ml-0.5 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold rounded-full bg-error text-error-content"
-                      >
-                        {@notif_unread_count}
-                      </span>
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href={~p"/chat"}
-                      class={[
-                        "btn",
-                        if(String.starts_with?(@current_path, "/chat"),
-                          do: "btn-primary",
-                          else: "btn-outline"
-                        )
-                      ]}
-                    >
-                      <.icon name="hero-chat-bubble-left-right-solid" class="w-4 h-4" />
-                      {gettext("Chat")}
-                    </a>
-                  </li>
-                  <%= if @current_scope && @current_scope.user.is_admin do %>
-                    <li>
-                      <a
-                        href={~p"/lobbies"}
-                        class={[
-                          "btn",
-                          if(String.starts_with?(@current_path, "/lobbies"),
-                            do: "btn-primary",
-                            else: "btn-outline"
-                          )
-                        ]}
-                      >
-                        <.icon name="hero-home-solid" class="w-4 h-4" />
-                        {gettext("Lobbies")}
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href={~p"/admin"}
-                        class={[
-                          "btn",
-                          if(String.starts_with?(@current_path, "/admin"),
-                            do: "btn-primary",
-                            else: "btn-outline"
-                          )
-                        ]}
-                      >
-                        <.icon name="hero-cog-6-tooth-solid" class="w-4 h-4" />
-                        {gettext("Admin")}
-                      </a>
-                    </li>
-                  <% end %>
                   <%= for link <- filtered_nav_links(@nav_links, if(@current_scope && @current_scope.user.is_admin, do: :admin, else: :authenticated), true) do %>
                     <li>
                       <a
@@ -603,12 +607,6 @@ defmodule GameServerWeb.Layouts do
                       </a>
                     </li>
                   <% end %>
-                  <li>
-                    <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline">
-                      <.icon name="hero-arrow-left-on-rectangle-solid" class="w-4 h-4" />
-                      {gettext("Log out")}
-                    </.link>
-                  </li>
                 <% else %>
                   <li>
                     <a
@@ -709,14 +707,23 @@ defmodule GameServerWeb.Layouts do
                 <% end %>
                 <%= if length(@known_locales) > 1 do %>
                   <li class="mt-2">
-                    <div class="flex justify-center">
+                    <div class="flex">
                       <.language_dropdown
                         locale={@locale}
                         current_path={@current_path}
                         current_query={@current_query}
                         known_locales={@known_locales}
+                        mobile={true}
                       />
                     </div>
+                  </li>
+                <% end %>
+                <%= if @current_scope do %>
+                  <li class="mt-2">
+                    <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline">
+                      <.icon name="hero-arrow-left-on-rectangle-solid" class="w-4 h-4" />
+                      {gettext("Log out")}
+                    </.link>
                   </li>
                 <% end %>
                 <li class="mt-2">
@@ -788,17 +795,32 @@ defmodule GameServerWeb.Layouts do
       assign(assigns,
         locale: locale,
         locale_links: locale_links,
-        label: Map.get(@locale_labels, locale, locale)
+        label: Map.get(@locale_labels, locale, locale),
+        mobile: Map.get(assigns, :mobile, false)
       )
 
     ~H"""
     <div class="dropdown dropdown-end">
-      <a href="#" tabindex="0" class="btn btn-outline">
-        {@label}
+      <a
+        href="#"
+        tabindex="0"
+        class={[
+          "btn btn-outline",
+          @mobile && "w-full justify-between text-base"
+        ]}
+      >
+        <span class="inline-flex items-center gap-2">
+          <.icon name="hero-globe-alt-solid" class="w-4 h-4" />
+          <span>{@label}</span>
+        </span>
+        <.icon name="hero-chevron-down-solid" class="w-3 h-3" />
       </a>
       <ul
         tabindex="0"
-        class="menu menu-sm dropdown-content mt-2 z-[1] p-2 shadow bg-base-100 rounded-box"
+        class={[
+          "menu menu-sm dropdown-content mt-2 z-[1] p-2 shadow bg-base-100 rounded-box",
+          @mobile && "w-full"
+        ]}
       >
         <%= for link <- @locale_links do %>
           <li>
@@ -940,6 +962,14 @@ defmodule GameServerWeb.Layouts do
   #   that renders after the if/else auth block
   # - `true`: excludes `"any"` links — use inside the authenticated-only
   #   block to avoid rendering `"any"` links twice
+  defp display_name(user) do
+    cond do
+      is_binary(user.display_name) and user.display_name != "" -> user.display_name
+      is_binary(user.email) and user.email != "" -> user.email
+      true -> "User"
+    end
+  end
+
   defp filtered_nav_links(nav_links, auth_level, exact? \\ false) do
     Enum.filter(nav_links, fn link ->
       required = Map.get(link, "auth", "any")

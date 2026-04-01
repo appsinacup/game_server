@@ -24,6 +24,7 @@ defmodule GameServerWeb.Router.BrowserRoutes do
           live "/admin/config", AdminLive.Config, :index
           live "/admin/kv", AdminLive.KV, :index
           live "/admin/lobbies", AdminLive.Lobbies, :index
+          live "/admin/lobbies/live", LobbyLive.Index, :index
           live "/admin/leaderboards", AdminLive.Leaderboards, :index
           live "/admin/users", AdminLive.Users, :index
           live "/admin/sessions", AdminLive.Sessions, :index
@@ -55,7 +56,6 @@ defmodule GameServerWeb.Router.BrowserRoutes do
             {GameServerWeb.OnMount.Theme, :mount_theme}
           ] do
           live "/users/register", UserLive.Registration, :new
-          live "/lobbies", LobbyLive.Index, :index
           live "/leaderboards", LeaderboardsLive, :index
           live "/leaderboards/:slug/:id", LeaderboardsLive, :show
           live "/leaderboards/:slug", LeaderboardsLive, :show_active
