@@ -1606,10 +1606,65 @@ defmodule GameServer.Groups do
             finalize_invite_accept(user_id, group_id, group, invite)
             {:ok, member}
 
+          {:error, :full} = error ->
+            # The group filled up between the invite and acceptance.
+            # Mark the invite as declined, notify the sender, and return the error.
+            handle_invite_capacity_failure(user_id, invite, group)
+            error
+
           error ->
             error
         end
     end
+  end
+
+  defp handle_invite_capacity_failure(user_id, invite, group) do
+    user = GameServer.Accounts.get_user(user_id)
+    user_name = (user && user.display_name) || ""
+    group_id = group.id
+
+    # Mark the invite as declined so the sender sees it didn't go through
+    from(i in GroupInvite,
+      where:
+        i.recipient_id == ^user_id and i.group_id == ^group_id and
+          i.status == "pending"
+    )
+    |> Repo.update_all(set: [status: "declined", updated_at: DateTime.utc_now()])
+
+    invalidate_invite_cache_sync(user_id)
+    invalidate_invite_cache_sync(invite.sender_id)
+
+    # Retract the original invite notification
+    GameServer.Notifications.delete_notification_by(
+      invite.sender_id,
+      user_id,
+      "New Group Invite"
+    )
+
+    # Notify the sender that the invite was declined because the group is full
+    GameServer.Notifications.admin_create_notification(
+      user_id,
+      invite.sender_id,
+      %{
+        "title" => "Group Invite Declined",
+        "content" => "#{user_name} could not join #{group.title} — the group is full",
+        "metadata" => %{
+          "type" => "group_invite_declined",
+          "group_id" => group_id,
+          "group_name" => group.title,
+          "user_id" => user_id,
+          "user_name" => user_name,
+          "reason" => "full"
+        }
+      }
+    )
+
+    # Real-time PubSub so the sender's UI updates immediately
+    Phoenix.PubSub.broadcast(
+      GameServer.PubSub,
+      "user:#{invite.sender_id}",
+      {:group_invite_declined, %{group_id: group_id, user_id: user_id, reason: "full"}}
+    )
   end
 
   defp finalize_invite_accept(user_id, group_id, group, invite) do

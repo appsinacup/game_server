@@ -455,8 +455,63 @@ defmodule GameServer.Parties do
         invalidate_user_cache(updated_user.id)
 
         result
+      else
+        {:error, :party_full} = error ->
+          # The party filled up between the invite and acceptance.
+          # Mark the invite as declined, notify both parties, and return the error.
+          handle_accept_capacity_failure(user, invite, party_id, "party_full")
+          error
+
+        other ->
+          other
       end
     end
+  end
+
+  defp handle_accept_capacity_failure(user, invite, party_id, reason_str) do
+    user_name = user.display_name || ""
+
+    # Mark the invite as declined so the sender knows it didn't go through
+    from(i in PartyInvite,
+      where:
+        i.recipient_id == ^user.id and i.party_id == ^party_id and
+          i.status == "pending"
+    )
+    |> Repo.update_all(set: [status: "declined", updated_at: DateTime.utc_now()])
+
+    invalidate_party_invite_cache(user.id)
+    invalidate_party_invite_cache(invite.sender_id)
+
+    # Retract the original invite notification
+    GameServer.Notifications.delete_notification_by(
+      invite.sender_id,
+      user.id,
+      "New Party Invite"
+    )
+
+    # Notify the sender that the invite was declined because the party is full
+    GameServer.Notifications.admin_create_notification(
+      user.id,
+      invite.sender_id,
+      %{
+        "title" => "Party Invite Declined",
+        "content" => "#{user_name} could not join — the party is full",
+        "metadata" => %{
+          "type" => "party_invite_declined",
+          "party_id" => party_id,
+          "user_id" => user.id,
+          "user_name" => user_name,
+          "reason" => reason_str
+        }
+      }
+    )
+
+    # Real-time PubSub so the sender's UI updates immediately
+    Phoenix.PubSub.broadcast(
+      GameServer.PubSub,
+      "user:#{invite.sender_id}",
+      {:party_invite_declined, %{party_id: party_id, user_id: user.id, reason: reason_str}}
+    )
   end
 
   defp ensure_left_current_party(%User{party_id: nil} = user), do: {:ok, user}
