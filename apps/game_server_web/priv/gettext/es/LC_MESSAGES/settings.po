@@ -29,8 +29,8 @@ msgstr "Cuenta no encontrada."
 msgid "All friends are already members."
 msgstr "Todos los amigos ya son miembros."
 
-#: lib/game_server_web/live/notifications_live.ex:189
-#: lib/game_server_web/live/notifications_live.ex:189
+#: lib/game_server_web/live/notifications_live.ex:180
+#: lib/game_server_web/live/notifications_live.ex:180
 #, elixir-autogen, elixir-format
 msgid "All notifications deleted"
 msgstr "Todas las notificaciones eliminadas"
@@ -443,8 +443,8 @@ msgstr "Nueva contraseña"
 msgid "No results for \"%{query}\""
 msgstr "Sin resultados para \"%{query}\""
 
-#: lib/game_server_web/live/notifications_live.ex:174
-#: lib/game_server_web/live/notifications_live.ex:174
+#: lib/game_server_web/live/notifications_live.ex:165
+#: lib/game_server_web/live/notifications_live.ex:165
 #, elixir-autogen, elixir-format
 msgid "Notification deleted"
 msgstr "Notificación eliminada"
@@ -621,8 +621,8 @@ msgstr "Configuración"
 msgid "Sign in and link"
 msgstr "Iniciar sesión y vincular"
 
-#: lib/game_server_web/live/notifications_live.ex:64
-#: lib/game_server_web/live/notifications_live.ex:64
+#: lib/game_server_web/live/notifications_live.ex:429
+#: lib/game_server_web/live/notifications_live.ex:429
 #, elixir-autogen, elixir-format
 msgid "%{count} new messages"
 msgstr "%{count} mensajes nuevos"

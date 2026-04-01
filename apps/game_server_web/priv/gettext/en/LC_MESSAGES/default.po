@@ -257,8 +257,8 @@ msgstr ""
 #: lib/game_server_web/live/chat_live.ex:279
 #: lib/game_server_web/live/chat_live.ex:281
 #: lib/game_server_web/live/chat_live.ex:281
-#: lib/game_server_web/live/notifications_live.ex:98
-#: lib/game_server_web/live/notifications_live.ex:98
+#: lib/game_server_web/live/notifications_live.ex:89
+#: lib/game_server_web/live/notifications_live.ex:89
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Delete"
 msgstr ""
@@ -681,8 +681,8 @@ msgstr ""
 msgid "(edited)"
 msgstr ""
 
-#: lib/game_server_web/live/notifications_live.ex:62
-#: lib/game_server_web/live/notifications_live.ex:62
+#: lib/game_server_web/live/notifications_live.ex:426
+#: lib/game_server_web/live/notifications_live.ex:426
 #, elixir-autogen, elixir-format
 msgid "1 new message"
 msgstr ""
@@ -703,6 +703,8 @@ msgstr ""
 #: lib/game_server_web/components/layouts.ex:483
 #: lib/game_server_web/components/layouts.ex:638
 #: lib/game_server_web/components/layouts.ex:638
+#: lib/game_server_web/live/notifications_live.ex:250
+#: lib/game_server_web/live/notifications_live.ex:250
 #, elixir-autogen, elixir-format
 msgid "Achievements"
 msgstr ""
@@ -719,8 +721,8 @@ msgstr ""
 #: lib/game_server_web/components/layouts.ex:528
 #: lib/game_server_web/live/chat_live.ex:116
 #: lib/game_server_web/live/chat_live.ex:116
-#: lib/game_server_web/live/notifications_live.ex:74
-#: lib/game_server_web/live/notifications_live.ex:74
+#: lib/game_server_web/live/notifications_live.ex:65
+#: lib/game_server_web/live/notifications_live.ex:65
 #, elixir-autogen, elixir-format
 msgid "Chat"
 msgstr ""
@@ -841,8 +843,8 @@ msgstr ""
 #: lib/game_server_web/components/layouts.ex:247
 #: lib/game_server_web/components/layouts.ex:508
 #: lib/game_server_web/components/layouts.ex:508
-#: lib/game_server_web/live/notifications_live.ex:136
-#: lib/game_server_web/live/notifications_live.ex:136
+#: lib/game_server_web/live/notifications_live.ex:127
+#: lib/game_server_web/live/notifications_live.ex:127
 #, elixir-autogen, elixir-format
 msgid "Notifications"
 msgstr ""
@@ -853,20 +855,20 @@ msgstr ""
 msgid "Online"
 msgstr ""
 
-#: lib/game_server_web/live/notifications_live.ex:223
-#: lib/game_server_web/live/notifications_live.ex:223
+#: lib/game_server_web/live/notifications_live.ex:216
+#: lib/game_server_web/live/notifications_live.ex:216
+#: lib/game_server_web/live/notifications_live.ex:217
+#: lib/game_server_web/live/notifications_live.ex:217
 #: lib/game_server_web/live/notifications_live.ex:224
 #: lib/game_server_web/live/notifications_live.ex:224
-#: lib/game_server_web/live/notifications_live.ex:231
-#: lib/game_server_web/live/notifications_live.ex:231
-#: lib/game_server_web/live/notifications_live.ex:232
-#: lib/game_server_web/live/notifications_live.ex:232
-#: lib/game_server_web/live/notifications_live.ex:236
-#: lib/game_server_web/live/notifications_live.ex:236
-#: lib/game_server_web/live/notifications_live.ex:251
-#: lib/game_server_web/live/notifications_live.ex:251
-#: lib/game_server_web/live/notifications_live.ex:252
-#: lib/game_server_web/live/notifications_live.ex:252
+#: lib/game_server_web/live/notifications_live.ex:225
+#: lib/game_server_web/live/notifications_live.ex:225
+#: lib/game_server_web/live/notifications_live.ex:229
+#: lib/game_server_web/live/notifications_live.ex:229
+#: lib/game_server_web/live/notifications_live.ex:244
+#: lib/game_server_web/live/notifications_live.ex:244
+#: lib/game_server_web/live/notifications_live.ex:245
+#: lib/game_server_web/live/notifications_live.ex:245
 #, elixir-autogen, elixir-format
 msgid "Open Chat"
 msgstr ""
@@ -897,52 +899,58 @@ msgstr ""
 msgid "User not found"
 msgstr ""
 
-#: lib/game_server_web/live/notifications_live.ex:244
-#: lib/game_server_web/live/notifications_live.ex:244
+#: lib/game_server_web/live/notifications_live.ex:237
+#: lib/game_server_web/live/notifications_live.ex:237
+#: lib/game_server_web/live/notifications_live.ex:282
+#: lib/game_server_web/live/notifications_live.ex:282
 #, elixir-autogen, elixir-format
 msgid "View Friends"
 msgstr ""
 
-#: lib/game_server_web/live/notifications_live.ex:211
-#: lib/game_server_web/live/notifications_live.ex:211
-#: lib/game_server_web/live/notifications_live.ex:269
-#: lib/game_server_web/live/notifications_live.ex:269
+#: lib/game_server_web/live/notifications_live.ex:204
+#: lib/game_server_web/live/notifications_live.ex:204
+#: lib/game_server_web/live/notifications_live.ex:263
+#: lib/game_server_web/live/notifications_live.ex:263
+#: lib/game_server_web/live/notifications_live.ex:276
+#: lib/game_server_web/live/notifications_live.ex:276
 #, elixir-autogen, elixir-format
 msgid "View Group"
 msgstr ""
 
-#: lib/game_server_web/live/notifications_live.ex:212
-#: lib/game_server_web/live/notifications_live.ex:212
+#: lib/game_server_web/live/notifications_live.ex:205
+#: lib/game_server_web/live/notifications_live.ex:205
 #, elixir-autogen, elixir-format
 msgid "View Groups"
 msgstr ""
 
-#: lib/game_server_web/live/notifications_live.ex:261
-#: lib/game_server_web/live/notifications_live.ex:261
+#: lib/game_server_web/live/notifications_live.ex:255
+#: lib/game_server_web/live/notifications_live.ex:255
 #, elixir-autogen, elixir-format
 msgid "View Leaderboard"
 msgstr ""
 
-#: lib/game_server_web/live/notifications_live.ex:264
-#: lib/game_server_web/live/notifications_live.ex:264
+#: lib/game_server_web/live/notifications_live.ex:258
+#: lib/game_server_web/live/notifications_live.ex:258
 #, elixir-autogen, elixir-format, fuzzy
 msgid "View Leaderboards"
 msgstr ""
 
-#: lib/game_server_web/live/notifications_live.ex:256
-#: lib/game_server_web/live/notifications_live.ex:256
-#: lib/game_server_web/live/notifications_live.ex:273
-#: lib/game_server_web/live/notifications_live.ex:273
+#: lib/game_server_web/live/notifications_live.ex:267
+#: lib/game_server_web/live/notifications_live.ex:267
+#: lib/game_server_web/live/notifications_live.ex:285
+#: lib/game_server_web/live/notifications_live.ex:285
 #, elixir-autogen, elixir-format
 msgid "View Lobbies"
 msgstr ""
 
-#: lib/game_server_web/live/notifications_live.ex:216
-#: lib/game_server_web/live/notifications_live.ex:216
-#: lib/game_server_web/live/notifications_live.ex:240
-#: lib/game_server_web/live/notifications_live.ex:240
-#: lib/game_server_web/live/notifications_live.ex:277
-#: lib/game_server_web/live/notifications_live.ex:277
+#: lib/game_server_web/live/notifications_live.ex:209
+#: lib/game_server_web/live/notifications_live.ex:209
+#: lib/game_server_web/live/notifications_live.ex:233
+#: lib/game_server_web/live/notifications_live.ex:233
+#: lib/game_server_web/live/notifications_live.ex:271
+#: lib/game_server_web/live/notifications_live.ex:271
+#: lib/game_server_web/live/notifications_live.ex:279
+#: lib/game_server_web/live/notifications_live.ex:279
 #, elixir-autogen, elixir-format
 msgid "View Party"
 msgstr ""

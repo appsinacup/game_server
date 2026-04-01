@@ -53,19 +53,10 @@ defmodule GameServerWeb.NotificationsLive do
                     id={"notif-" <> to_string(n.id)}
                   >
                     <td class="text-sm">
-                      {n.title}
+                      {translate_notification_title(n)}
                     </td>
                     <td class="text-sm max-w-xs truncate">
-                      <%= cond do %>
-                        <% msg_count = n.metadata["message_count"] -> %>
-                          <%= if msg_count == 1 do %>
-                            {gettext("1 new message")}
-                          <% else %>
-                            {dgettext("settings", "%{count} new messages", count: msg_count)}
-                          <% end %>
-                        <% true -> %>
-                          {n.content || "-"}
-                      <% end %>
+                      {translate_notification_content(n)}
                     </td>
                     <td class="text-sm">
                       <%= cond do %>
@@ -202,84 +193,66 @@ defmodule GameServerWeb.NotificationsLive do
   def handle_info(_msg, socket), do: {:noreply, socket}
 
   defp notification_action(n) do
-    cond do
-      # Group invites
-      n.title == "New Group Invite" ->
-        group_id = n.metadata["group_id"]
-
-        if group_id,
-          do: {gettext("View Group"), ~p"/groups/#{group_id}"},
-          else: {gettext("View Groups"), ~p"/groups"}
-
-      # Party invites
-      n.title == "New Party Invite" ->
-        {gettext("View Party"), ~p"/play"}
-
-      # Chat: group messages
-      n.metadata["chat_type"] == "group" ->
-        group_id = n.metadata["group_id"]
-
-        if group_id,
-          do: {gettext("Open Chat"), ~p"/chat?#{[type: "group", id: group_id]}"},
-          else: {gettext("Open Chat"), ~p"/chat"}
-
-      # Chat: friend messages
-      n.metadata["chat_type"] == "friend" ->
-        friend_id = n.metadata["friend_id"] || n.metadata["sender_id"]
-
-        if friend_id,
-          do: {gettext("Open Chat"), ~p"/chat?#{[type: "friend", id: friend_id]}"},
-          else: {gettext("Open Chat"), ~p"/chat"}
-
-      # Chat: lobby messages
-      n.metadata["chat_type"] == "lobby" ->
-        {gettext("Open Chat"), ~p"/lobbies"}
-
-      # Chat: party messages
-      n.metadata["chat_type"] == "party" ->
-        {gettext("View Party"), ~p"/play"}
-
-      # Friend requests
-      n.title == "New Friend Request" ->
-        {gettext("View Friends"), ~p"/users/settings?#{[tab: "friends"]}"}
-
-      # Friend request accepted
-      n.title == "Friend Request Accepted" ->
-        friend_id = n.metadata["friend_id"] || n.sender_id
-
-        if friend_id,
-          do: {gettext("Open Chat"), ~p"/chat?#{[type: "friend", id: friend_id]}"},
-          else: {gettext("Open Chat"), ~p"/chat"}
-
-      # Game invites
-      n.title == "Game invite" ->
-        {gettext("View Lobbies"), ~p"/lobbies"}
-
-      # Leaderboard notifications (via metadata)
-      n.metadata["leaderboard_slug"] != nil ->
-        slug = n.metadata["leaderboard_slug"]
-        {gettext("View Leaderboard"), ~p"/leaderboards/#{slug}"}
-
-      n.metadata["leaderboard_id"] != nil ->
-        {gettext("View Leaderboards"), ~p"/leaderboards"}
-
-      # Group notifications (group_id in metadata)
-      n.metadata["group_id"] != nil ->
-        group_id = n.metadata["group_id"]
-        {gettext("View Group"), ~p"/groups/#{group_id}"}
-
-      # Lobby notifications (lobby_id in metadata)
-      n.metadata["lobby_id"] != nil ->
-        {gettext("View Lobbies"), ~p"/lobbies"}
-
-      # Party notifications (party_id in metadata)
-      n.metadata["party_id"] != nil ->
-        {gettext("View Party"), ~p"/play"}
-
-      true ->
-        nil
-    end
+    action_for_type(n.metadata["type"], n) || action_for_metadata(n.metadata)
   end
+
+  defp action_for_type("group_invite", n) do
+    group_id = n.metadata["group_id"]
+
+    if group_id,
+      do: {gettext("View Group"), ~p"/groups/#{group_id}"},
+      else: {gettext("View Groups"), ~p"/groups"}
+  end
+
+  defp action_for_type("party_invite", _n), do: {gettext("View Party"), ~p"/play"}
+  defp action_for_type("chat_lobby", _n), do: {gettext("Open Chat"), ~p"/lobbies"}
+  defp action_for_type("chat_party", _n), do: {gettext("View Party"), ~p"/play"}
+
+  defp action_for_type("friend_request", _n),
+    do: {gettext("View Friends"), ~p"/users/settings?#{[tab: "friends"]}"}
+
+  defp action_for_type("achievement_unlocked", _n),
+    do: {gettext("Achievements"), ~p"/achievements"}
+
+  defp action_for_type("chat_group", n) do
+    group_id = n.metadata["group_id"]
+
+    if group_id,
+      do: {gettext("Open Chat"), ~p"/chat?#{[type: "group", id: group_id]}"},
+      else: {gettext("Open Chat"), ~p"/chat"}
+  end
+
+  defp action_for_type("chat_friend", n) do
+    friend_id = n.metadata["friend_id"] || n.metadata["sender_id"]
+
+    if friend_id,
+      do: {gettext("Open Chat"), ~p"/chat?#{[type: "friend", id: friend_id]}"},
+      else: {gettext("Open Chat"), ~p"/chat"}
+  end
+
+  defp action_for_type("friend_accepted", n) do
+    friend_id = n.metadata["friend_id"] || n.sender_id
+
+    if friend_id,
+      do: {gettext("Open Chat"), ~p"/chat?#{[type: "friend", id: friend_id]}"},
+      else: {gettext("Open Chat"), ~p"/chat"}
+  end
+
+  defp action_for_type(_type, _n), do: nil
+
+  # Fallback: infer action from metadata keys for notifications without a known type
+  defp action_for_metadata(%{"leaderboard_slug" => slug}) when is_binary(slug),
+    do: {gettext("View Leaderboard"), ~p"/leaderboards/#{slug}"}
+
+  defp action_for_metadata(%{"leaderboard_id" => _}),
+    do: {gettext("View Leaderboards"), ~p"/leaderboards"}
+
+  defp action_for_metadata(%{"group_id" => group_id}) when is_integer(group_id),
+    do: {gettext("View Group"), ~p"/groups/#{group_id}"}
+
+  defp action_for_metadata(%{"lobby_id" => _}), do: {gettext("View Lobbies"), ~p"/lobbies"}
+  defp action_for_metadata(%{"party_id" => _}), do: {gettext("View Party"), ~p"/play"}
+  defp action_for_metadata(_), do: nil
 
   defp reload_notifications(socket) do
     user = socket.assigns.current_scope.user
@@ -297,4 +270,128 @@ defmodule GameServerWeb.NotificationsLive do
     |> assign(:notif_unread_count, unread_count)
     |> assign(:notif_total_pages, total_pages)
   end
+
+  # ---------------------------------------------------------------------------
+  # Notification display-time translation
+  #
+  # Dispatches on metadata["type"] via function heads so each type is a small,
+  # simple clause. Falls back to the DB-stored English strings for unknown
+  # types or missing metadata.
+  # ---------------------------------------------------------------------------
+
+  defp translate_notification_title(n), do: title_for_type(n.metadata["type"], n)
+
+  defp title_for_type("friend_request", _n), do: dgettext("notifications", "New Friend Request")
+
+  defp title_for_type("friend_accepted", _n),
+    do: dgettext("notifications", "Friend Request Accepted")
+
+  defp title_for_type("friend_declined", _n),
+    do: dgettext("notifications", "Friend Request Declined")
+
+  defp title_for_type("group_invite", _n), do: dgettext("notifications", "New Group Invite")
+
+  defp title_for_type("group_invite_accepted", _n),
+    do: dgettext("notifications", "Group Invite Accepted")
+
+  defp title_for_type("group_invite_declined", _n),
+    do: dgettext("notifications", "Group Invite Declined")
+
+  defp title_for_type("group_join_request", _n),
+    do: dgettext("notifications", "New Group Join Request")
+
+  defp title_for_type("group_join_approved", _n),
+    do: dgettext("notifications", "Group Join Request Approved")
+
+  defp title_for_type("group_join_declined", _n),
+    do: dgettext("notifications", "Group Join Request Declined")
+
+  defp title_for_type("group_kicked", _n), do: dgettext("notifications", "Removed From Group")
+  defp title_for_type("group_promoted", _n), do: dgettext("notifications", "Promoted To Admin")
+  defp title_for_type("group_demoted", _n), do: dgettext("notifications", "Demoted From Admin")
+  defp title_for_type("party_invite", _n), do: dgettext("notifications", "New Party Invite")
+
+  defp title_for_type("party_invite_accepted", _n),
+    do: dgettext("notifications", "Party Invite Accepted")
+
+  defp title_for_type("party_invite_declined", _n),
+    do: dgettext("notifications", "Party Invite Declined")
+
+  defp title_for_type("party_kicked", _n), do: dgettext("notifications", "Removed From Party")
+  defp title_for_type("lobby_kicked", _n), do: dgettext("notifications", "Removed From Lobby")
+
+  defp title_for_type("chat_friend", _n),
+    do: dgettext("notifications", "New messages from friends")
+
+  defp title_for_type("chat_party", _n), do: dgettext("notifications", "New message in party")
+
+  defp title_for_type("achievement_unlocked", n) do
+    name = n.metadata["achievement_title"] || ""
+    dgettext("notifications", "Achievement Unlocked: %{name}", name: name)
+  end
+
+  defp title_for_type("chat_group", n) do
+    name = n.metadata["group_name"] || ""
+    dgettext("notifications", "New messages from %{name}", name: name)
+  end
+
+  defp title_for_type("chat_lobby", n) do
+    name = n.metadata["lobby_name"] || ""
+    dgettext("notifications", "New messages from %{name}", name: name)
+  end
+
+  defp title_for_type(_unknown, n), do: n.title
+
+  # Content translation — dispatches on type, with message_count special case.
+
+  defp translate_notification_content(%{metadata: %{"message_count" => 1}}),
+    do: gettext("1 new message")
+
+  defp translate_notification_content(%{metadata: %{"message_count" => count}})
+       when is_integer(count),
+       do: dgettext("settings", "%{count} new messages", count: count)
+
+  defp translate_notification_content(n), do: content_for_type(n.metadata["type"], n)
+
+  defp content_for_type("friend_request", _n),
+    do: dgettext("notifications", "You have a new friend request.")
+
+  defp content_for_type("friend_accepted", _n),
+    do: dgettext("notifications", "Your friend request has been accepted.")
+
+  defp content_for_type("friend_declined", _n),
+    do: dgettext("notifications", "Your friend request has been declined.")
+
+  defp content_for_type("party_invite", _n),
+    do: dgettext("notifications", "You have been invited to join a party")
+
+  defp content_for_type("party_kicked", _n),
+    do: dgettext("notifications", "You have been removed from the party")
+
+  defp content_for_type("group_invite", n) do
+    name = n.metadata["group_title"] || ""
+    dgettext("notifications", "You have been invited to join %{name}", name: name)
+  end
+
+  defp content_for_type("group_kicked", n) do
+    name = n.metadata["group_title"] || ""
+    dgettext("notifications", "You have been removed from %{name}", name: name)
+  end
+
+  defp content_for_type("group_promoted", n) do
+    name = n.metadata["group_title"] || ""
+    dgettext("notifications", "You have been promoted to admin in %{name}", name: name)
+  end
+
+  defp content_for_type("group_demoted", n) do
+    name = n.metadata["group_title"] || ""
+    dgettext("notifications", "You have been demoted to member in %{name}", name: name)
+  end
+
+  defp content_for_type("lobby_kicked", n) do
+    name = n.metadata["lobby_title"] || ""
+    dgettext("notifications", "You have been removed from %{name}", name: name)
+  end
+
+  defp content_for_type(_type, n), do: n.content || "-"
 end

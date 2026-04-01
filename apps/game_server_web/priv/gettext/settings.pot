@@ -29,8 +29,8 @@ msgstr ""
 msgid "All friends are already members."
 msgstr ""
 
-#: lib/game_server_web/live/notifications_live.ex:189
-#: lib/game_server_web/live/notifications_live.ex:189
+#: lib/game_server_web/live/notifications_live.ex:180
+#: lib/game_server_web/live/notifications_live.ex:180
 #, elixir-autogen, elixir-format
 msgid "All notifications deleted"
 msgstr ""
@@ -443,8 +443,8 @@ msgstr ""
 msgid "No results for \"%{query}\""
 msgstr ""
 
-#: lib/game_server_web/live/notifications_live.ex:174
-#: lib/game_server_web/live/notifications_live.ex:174
+#: lib/game_server_web/live/notifications_live.ex:165
+#: lib/game_server_web/live/notifications_live.ex:165
 #, elixir-autogen, elixir-format
 msgid "Notification deleted"
 msgstr ""
@@ -621,8 +621,8 @@ msgstr ""
 msgid "Sign in and link"
 msgstr ""
 
-#: lib/game_server_web/live/notifications_live.ex:64
-#: lib/game_server_web/live/notifications_live.ex:64
+#: lib/game_server_web/live/notifications_live.ex:429
+#: lib/game_server_web/live/notifications_live.ex:429
 #, elixir-autogen, elixir-format
 msgid "%{count} new messages"
 msgstr ""
