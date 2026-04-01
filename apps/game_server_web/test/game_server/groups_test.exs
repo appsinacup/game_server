@@ -576,6 +576,33 @@ defmodule GameServer.GroupsTest do
       {:ok, invite} = Groups.invite_to_group(owner.id, group.id, other.id)
       assert {:error, :full} = Groups.accept_invite(other.id, invite.id)
     end
+
+    test "full group marks invite as declined and notifies sender", %{owner: owner, other: other} do
+      {:ok, group} =
+        Groups.create_group(owner.id, %{
+          "title" => "FullNotif",
+          "type" => "hidden",
+          "max_members" => 1
+        })
+
+      {:ok, invite} = Groups.invite_to_group(owner.id, group.id, other.id)
+      assert {:error, :full} = Groups.accept_invite(other.id, invite.id)
+
+      # Invite should be marked as "declined"
+      updated_invite = GameServer.Repo.get(GameServer.Groups.GroupInvite, invite.id)
+      assert updated_invite.status == "declined"
+
+      # Owner (sender) should receive a notification about the decline
+      notifs = GameServer.Notifications.list_notifications(owner.id)
+
+      declined_notif =
+        Enum.find(notifs, fn n -> n.metadata["type"] == "group_invite_declined" end)
+
+      assert declined_notif != nil
+      assert declined_notif.metadata["reason"] == "full"
+      assert declined_notif.metadata["group_id"] == group.id
+      assert declined_notif.metadata["user_id"] == other.id
+    end
   end
 
   describe "decline_invite/2" do

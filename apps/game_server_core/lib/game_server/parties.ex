@@ -391,29 +391,34 @@ defmodule GameServer.Parties do
     with :ok <- check_in_party(leader),
          {:ok, party} <- fetch_party(leader.party_id),
          :ok <- check_is_leader(party, leader) do
-      from(i in PartyInvite,
-        where:
-          i.sender_id == ^leader.id and i.recipient_id == ^target_user_id and
-            i.status == "pending"
-      )
-      |> Repo.delete_all()
+      {deleted_count, _} =
+        from(i in PartyInvite,
+          where:
+            i.sender_id == ^leader.id and i.recipient_id == ^target_user_id and
+              i.status == "pending"
+        )
+        |> Repo.delete_all()
 
       invalidate_party_invite_cache(leader.id)
       invalidate_party_invite_cache(target_user_id)
 
-      # Retract the "New Party Invite" notification
-      GameServer.Notifications.delete_notification_by(
-        leader.id,
-        target_user_id,
-        "New Party Invite"
-      )
+      # Only retract notification and broadcast if invites were actually deleted.
+      # Without this guard, a cancel-then-invite "refresh" pattern would send
+      # a spurious party_invite_cancelled event to the recipient even when no
+      # prior invite existed.
+      if deleted_count > 0 do
+        GameServer.Notifications.delete_notification_by(
+          leader.id,
+          target_user_id,
+          "New Party Invite"
+        )
 
-      # Notify the recipient that the invite was cancelled
-      Phoenix.PubSub.broadcast(
-        GameServer.PubSub,
-        "user:#{target_user_id}",
-        {:party_invite_cancelled, %{party_id: party.id, user_id: leader.id}}
-      )
+        Phoenix.PubSub.broadcast(
+          GameServer.PubSub,
+          "user:#{target_user_id}",
+          {:party_invite_cancelled, %{party_id: party.id, user_id: leader.id}}
+        )
+      end
 
       :ok
     end

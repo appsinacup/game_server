@@ -84,21 +84,25 @@ defmodule GameServer.Accounts do
     if q == "" do
       []
     else
-      # If query looks like an id, attempt a direct lookup first
+      normalized_q = String.downcase(q)
+      text_results = search_users_by_text(normalized_q, q, page, page_size)
+
+      # If the query is all digits, also attempt a direct ID lookup and
+      # prepend it to the text results (deduplicated).  Previous behaviour
+      # short-circuited on a successful ID match, completely hiding
+      # display_name/email matches for numeric queries like "1234".
       if Regex.match?(~r/^\d+$/, q) do
         id = String.to_integer(q)
 
         case get_user(id) do
           nil ->
-            normalized_q = String.downcase(q)
-            search_users_by_text(normalized_q, q, page, page_size)
+            text_results
 
           user ->
-            [user]
+            [user | Enum.reject(text_results, &(&1.id == id))]
         end
       else
-        normalized_q = String.downcase(q)
-        search_users_by_text(normalized_q, q, page, page_size)
+        text_results
       end
     end
   end
@@ -128,20 +132,31 @@ defmodule GameServer.Accounts do
     if q == "" do
       0
     else
+      normalized_q = String.downcase(q)
+      text_count = count_search_users_by_text(normalized_q, q)
+
+      # If the query is all digits, also check for an ID match and include
+      # it in the count (avoiding double-counting if the ID match also
+      # appears in the text results).
       if Regex.match?(~r/^\d+$/, q) do
         id = String.to_integer(q)
 
         case get_user(id) do
           nil ->
-            normalized_q = String.downcase(q)
-            count_search_users_by_text(normalized_q, q)
+            text_count
 
-          _ ->
-            1
+          user ->
+            # Check whether the ID-matched user was already counted by the
+            # text query (display_name or email starts with the digit string).
+            dn = (user.display_name || "") |> String.downcase()
+            em = (user.email || "") |> String.downcase()
+            nq = String.downcase(q)
+            already_counted = String.starts_with?(dn, nq) or String.starts_with?(em, nq)
+
+            if already_counted, do: text_count, else: text_count + 1
         end
       else
-        normalized_q = String.downcase(q)
-        count_search_users_by_text(normalized_q, q)
+        text_count
       end
     end
   end

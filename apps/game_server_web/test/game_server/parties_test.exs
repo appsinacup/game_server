@@ -224,6 +224,34 @@ defmodule GameServer.PartiesTest do
 
       assert {:error, :party_full} = Parties.accept_party_invite(member2, party.id)
     end
+
+    test "full party marks invite as declined and notifies sender", %{
+      leader: leader,
+      member1: member1,
+      member2: member2
+    } do
+      {:ok, party} = Parties.create_party(leader, %{max_size: 2})
+      add_member_to_party(member1, party)
+      make_friends(leader, member2)
+      {:ok, invite} = Parties.invite_to_party(leader, member2.id)
+
+      assert {:error, :party_full} = Parties.accept_party_invite(member2, party.id)
+
+      # Invite should be marked as "declined"
+      updated_invite = GameServer.Repo.get(GameServer.Parties.PartyInvite, invite.id)
+      assert updated_invite.status == "declined"
+
+      # Sender (leader) should receive a notification about the decline
+      notifs = GameServer.Notifications.list_notifications(leader.id)
+
+      declined_notif =
+        Enum.find(notifs, fn n -> n.metadata["type"] == "party_invite_declined" end)
+
+      assert declined_notif != nil
+      assert declined_notif.metadata["reason"] == "party_full"
+      assert declined_notif.metadata["party_id"] == party.id
+      assert declined_notif.metadata["user_id"] == member2.id
+    end
   end
 
   describe "decline_party_invite/2" do
@@ -268,6 +296,20 @@ defmodule GameServer.PartiesTest do
       {:ok, _} = Parties.invite_to_party(leader, member2.id)
 
       assert {:error, :not_leader} = Parties.cancel_party_invite(member1, member2.id)
+    end
+
+    test "does not broadcast when no invite existed", %{leader: leader, member1: member1} do
+      {:ok, _party} = Parties.create_party(leader, %{max_size: 4})
+      make_friends(leader, member1)
+
+      # Subscribe to PubSub to verify no broadcast is emitted
+      Phoenix.PubSub.subscribe(GameServer.PubSub, "user:#{member1.id}")
+
+      # Cancel with no prior invite — should succeed silently
+      assert :ok = Parties.cancel_party_invite(leader, member1.id)
+
+      # Ensure no spurious cancelled event was broadcast
+      refute_receive {:party_invite_cancelled, _}, 100
     end
   end
 

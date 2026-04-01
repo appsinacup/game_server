@@ -530,4 +530,84 @@ defmodule GameServer.AccountsTest do
       refute inspect(%User{password: "123456"}) =~ "password: \"123456\""
     end
   end
+
+  describe "search_users/2" do
+    test "returns empty list for blank query" do
+      assert Accounts.search_users("") == []
+      assert Accounts.search_users("   ") == []
+    end
+
+    test "finds user by display_name prefix" do
+      user = user_fixture()
+      {:ok, _} = Accounts.update_user_display_name(user, %{"display_name" => "AlphaPlayer"})
+
+      results = Accounts.search_users("alpha")
+      assert length(results) >= 1
+      assert Enum.any?(results, &(&1.id == user.id))
+    end
+
+    test "numeric query returns both ID match and display_name matches" do
+      # Create a user whose display_name starts with a digit
+      user_with_numeric_name = user_fixture()
+
+      {:ok, _} =
+        Accounts.update_user_display_name(user_with_numeric_name, %{
+          "display_name" => "#{user_with_numeric_name.id}player"
+        })
+
+      # Create another user whose display_name also starts with the same digits
+      other_user = user_fixture()
+
+      {:ok, _} =
+        Accounts.update_user_display_name(other_user, %{
+          "display_name" => "#{user_with_numeric_name.id}gamer"
+        })
+
+      query = to_string(user_with_numeric_name.id)
+      results = Accounts.search_users(query)
+
+      # Should include the ID-matched user
+      assert Enum.any?(results, &(&1.id == user_with_numeric_name.id))
+      # Should also include text matches (display_name starts with the same digits)
+      assert Enum.any?(results, &(&1.id == other_user.id))
+      # No duplicates
+      ids = Enum.map(results, & &1.id)
+      assert ids == Enum.uniq(ids)
+    end
+
+    test "numeric query returns ID match even without text match" do
+      user = user_fixture()
+      {:ok, _} = Accounts.update_user_display_name(user, %{"display_name" => "NoDigitsHere"})
+
+      query = to_string(user.id)
+      results = Accounts.search_users(query)
+
+      assert Enum.any?(results, &(&1.id == user.id))
+    end
+  end
+
+  describe "count_search_users/1" do
+    test "returns 0 for blank query" do
+      assert Accounts.count_search_users("") == 0
+    end
+
+    test "numeric query counts both ID and text matches without double-counting" do
+      user = user_fixture()
+
+      {:ok, _} =
+        Accounts.update_user_display_name(user, %{"display_name" => "#{user.id}name"})
+
+      other = user_fixture()
+
+      {:ok, _} =
+        Accounts.update_user_display_name(other, %{"display_name" => "#{user.id}other"})
+
+      query = to_string(user.id)
+      count = Accounts.count_search_users(query)
+      search_count = length(Accounts.search_users(query))
+
+      # count should match the actual number of results from search_users
+      assert count == search_count
+    end
+  end
 end
