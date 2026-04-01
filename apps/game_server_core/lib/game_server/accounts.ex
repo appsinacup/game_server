@@ -85,30 +85,37 @@ defmodule GameServer.Accounts do
       []
     else
       normalized_q = String.downcase(q)
-      text_results = search_users_by_text(normalized_q, q, page, page_size)
+      text_results = search_users_by_text(normalized_q, page, page_size)
 
-      # If the query is all digits, also attempt a direct ID lookup and
-      # prepend it to the text results (deduplicated).  Previous behaviour
-      # short-circuited on a successful ID match, completely hiding
-      # display_name/email matches for numeric queries like "1234".
-      if Regex.match?(~r/^\d+$/, q) do
-        id = String.to_integer(q)
-
-        case get_user(id) do
-          nil ->
-            text_results
-
-          user ->
-            [user | Enum.reject(text_results, &(&1.id == id))]
-        end
-      else
-        text_results
-      end
+      maybe_prepend_id_match(text_results, q)
     end
   end
 
-  defp search_users_by_text(normalized_q, q, page, page_size) do
-    _ = q
+  # If `q` is all digits, attempt a direct ID lookup and prepend the result
+  # (deduplicated) to `results`.  Returns `results` unchanged otherwise.
+  defp maybe_prepend_id_match(results, q) do
+    if Regex.match?(~r/^\d+$/, q) do
+      id = String.to_integer(q)
+
+      case get_user(id) do
+        nil -> results
+        user -> [user | Enum.reject(results, &(&1.id == id))]
+      end
+    else
+      results
+    end
+  end
+
+  # Whether a user's display_name or email starts with `q` (case-insensitive),
+  # meaning the text search already includes them.
+  defp text_search_matches_user?(user, q) do
+    nq = String.downcase(q)
+    dn = (user.display_name || "") |> String.downcase()
+    em = (user.email || "") |> String.downcase()
+    String.starts_with?(dn, nq) or String.starts_with?(em, nq)
+  end
+
+  defp search_users_by_text(normalized_q, page, page_size) do
     pattern = "#{normalized_q}%"
     offset = (page - 1) * page_size
 
@@ -133,36 +140,28 @@ defmodule GameServer.Accounts do
       0
     else
       normalized_q = String.downcase(q)
-      text_count = count_search_users_by_text(normalized_q, q)
+      text_count = count_search_users_by_text(normalized_q)
 
-      # If the query is all digits, also check for an ID match and include
-      # it in the count (avoiding double-counting if the ID match also
-      # appears in the text results).
-      if Regex.match?(~r/^\d+$/, q) do
-        id = String.to_integer(q)
-
-        case get_user(id) do
-          nil ->
-            text_count
-
-          user ->
-            # Check whether the ID-matched user was already counted by the
-            # text query (display_name or email starts with the digit string).
-            dn = (user.display_name || "") |> String.downcase()
-            em = (user.email || "") |> String.downcase()
-            nq = String.downcase(q)
-            already_counted = String.starts_with?(dn, nq) or String.starts_with?(em, nq)
-
-            if already_counted, do: text_count, else: text_count + 1
-        end
-      else
-        text_count
-      end
+      maybe_add_id_match_count(text_count, q)
     end
   end
 
-  defp count_search_users_by_text(normalized_q, q) do
-    _ = q
+  # If `q` is all digits, check for an ID match and add 1 to the count
+  # only if the user isn't already included in the text results.
+  defp maybe_add_id_match_count(text_count, q) do
+    if Regex.match?(~r/^\d+$/, q) do
+      id = String.to_integer(q)
+
+      case get_user(id) do
+        nil -> text_count
+        user -> if text_search_matches_user?(user, q), do: text_count, else: text_count + 1
+      end
+    else
+      text_count
+    end
+  end
+
+  defp count_search_users_by_text(normalized_q) do
     pattern = "#{normalized_q}%"
 
     Repo.one(
@@ -310,6 +309,23 @@ defmodule GameServer.Accounts do
     end
 
     invalidate_users_stats_cache()
+    :ok
+  end
+
+  @doc """
+  Lightweight version of `touch_last_seen/1` that accepts a user ID directly.
+  Performs a single UPDATE without loading the full struct first, setting
+  `last_seen_at` to now and `is_online` to true, then invalidates the cache.
+  Fire-and-forget — errors are ignored.
+  """
+  @spec touch_last_seen_by_id(integer()) :: :ok
+  def touch_last_seen_by_id(user_id) when is_integer(user_id) do
+    now = DateTime.utc_now(:second)
+
+    from(u in User, where: u.id == ^user_id)
+    |> Repo.update_all(set: [last_seen_at: now, is_online: true])
+
+    GameServer.Cache.delete({:accounts, :user, user_id})
     :ok
   end
 

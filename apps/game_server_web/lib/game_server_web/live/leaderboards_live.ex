@@ -204,20 +204,25 @@ defmodule GameServerWeb.LeaderboardsLive do
             <% else %>
               <span class="badge badge-neutral">{dgettext("leaderboards", "Ended")}</span>
             <% end %>
-            <span class="text-sm text-base-content/60">
-              <%= cond do %>
-                <% @leaderboard.ends_at && Leaderboard.ended?(@leaderboard) -> %>
-                  {dgettext("leaderboards", "Ended %{date}",
-                    date: Calendar.strftime(@leaderboard.ends_at, "%b %d, %Y")
-                  )}
-                <% @leaderboard.ends_at -> %>
-                  {dgettext("leaderboards", "Ends %{date}",
-                    date: Calendar.strftime(@leaderboard.ends_at, "%b %d, %Y")
-                  )}
-                <% true -> %>
-                  {dgettext("leaderboards", "Permanent")}
-              <% end %>
-            </span>
+            <%= if @leaderboard.starts_at || @leaderboard.ends_at do %>
+              <span class="text-sm text-base-content/60">
+                <%= cond do %>
+                  <% @leaderboard.starts_at && @leaderboard.ends_at -> %>
+                    {Calendar.strftime(@leaderboard.starts_at, "%b %d, %Y")}
+                    —
+                    {Calendar.strftime(@leaderboard.ends_at, "%b %d, %Y")}
+                  <% @leaderboard.ends_at -> %>
+                    {dgettext("leaderboards", "Ends %{date}",
+                      date: Calendar.strftime(@leaderboard.ends_at, "%b %d, %Y")
+                    )}
+                  <% @leaderboard.starts_at -> %>
+                    {dgettext("leaderboards", "Started %{date}",
+                      date: Calendar.strftime(@leaderboard.starts_at, "%b %d, %Y")
+                    )}
+                  <% true -> %>
+                <% end %>
+              </span>
+            <% end %>
           </div>
         </div>
       </div>
@@ -296,7 +301,7 @@ defmodule GameServerWeb.LeaderboardsLive do
               <tr
                 :for={record <- @records}
                 class={[
-                  record.user_id == @current_user_id && "bg-primary/10"
+                  record.user_id != nil && record.user_id == @current_user_id && "bg-primary/10"
                 ]}
               >
                 <td class="font-mono">
@@ -312,12 +317,12 @@ defmodule GameServerWeb.LeaderboardsLive do
                 <td>
                   <div class="flex items-center gap-2">
                     <span class={[
-                      record.user_id == @current_user_id && "font-bold"
+                      record.user_id != nil && record.user_id == @current_user_id && "font-bold"
                     ]}>
                       {record.label || (record.user && record.user.display_name) ||
                         "User #{record.user_id}"}
                     </span>
-                    <%= if record.user_id == @current_user_id do %>
+                    <%= if record.user_id != nil and record.user_id == @current_user_id do %>
                       <span class="badge badge-primary badge-sm">{gettext("You")}</span>
                     <% end %>
                   </div>

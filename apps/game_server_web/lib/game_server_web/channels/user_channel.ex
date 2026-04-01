@@ -48,6 +48,10 @@ defmodule GameServerWeb.UserChannel do
   @default_ws_rate_limit 60
   @default_ws_rate_window :timer.seconds(10)
 
+  # Interval for periodic presence refresh (keeps StalePresenceSweeper from
+  # marking actively connected users as offline).  Default: 3 minutes.
+  @presence_refresh_interval :timer.minutes(3)
+
   @impl true
   def join("user:" <> user_id_str, _payload, socket) do
     # ensure the socket has a current_scope assign created during socket connect
@@ -203,6 +207,24 @@ defmodule GameServerWeb.UserChannel do
     # Push all existing (undeleted) notifications in chronological order
     push_existing_notifications(socket, user.id)
 
+    # Start periodic presence refresh so the StalePresenceSweeper doesn't
+    # mark this user offline while the WebSocket is still open.
+    Process.send_after(self(), :refresh_presence, @presence_refresh_interval)
+
+    {:noreply, socket}
+  end
+
+  # ── Periodic presence refresh ───────────────────────────────────────────────
+
+  @impl true
+  def handle_info(:refresh_presence, socket) do
+    user_id = socket.assigns[:user_id]
+
+    if user_id do
+      Accounts.touch_last_seen_by_id(user_id)
+    end
+
+    Process.send_after(self(), :refresh_presence, @presence_refresh_interval)
     {:noreply, socket}
   end
 
