@@ -13,7 +13,9 @@ defmodule GameServerWeb.Layouts do
 
   @locale_labels %{
     "en" => "English",
-    "es" => "Español"
+    "es" => "Español",
+    "fr" => "Français",
+    "ro" => "Română"
   }
 
   # Embed all files in layouts/* within this module.

@@ -1,0 +1,196 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+
+#: lib/game_server_web/live/notifications_live.ex:402
+#: lib/game_server_web/live/notifications_live.ex:402
+#, elixir-autogen, elixir-format
+msgid "Achievement Unlocked: %{name}"
+msgstr "Succès débloqué : %{name}"
+
+#: lib/game_server_web/live/notifications_live.ex:383
+#: lib/game_server_web/live/notifications_live.ex:383
+#, elixir-autogen, elixir-format
+msgid "Demoted From Admin"
+msgstr "Rétrogradé d'administrateur"
+
+#: lib/game_server_web/live/notifications_live.ex:353
+#: lib/game_server_web/live/notifications_live.ex:353
+#, elixir-autogen, elixir-format
+msgid "Friend Request Accepted"
+msgstr "Demande d'ami acceptée"
+
+#: lib/game_server_web/live/notifications_live.ex:356
+#: lib/game_server_web/live/notifications_live.ex:356
+#, elixir-autogen, elixir-format
+msgid "Friend Request Declined"
+msgstr "Demande d'ami refusée"
+
+#: lib/game_server_web/live/notifications_live.ex:362
+#: lib/game_server_web/live/notifications_live.ex:362
+#, elixir-autogen, elixir-format
+msgid "Group Invite Accepted"
+msgstr "Invitation de groupe acceptée"
+
+#: lib/game_server_web/live/notifications_live.ex:365
+#: lib/game_server_web/live/notifications_live.ex:365
+#, elixir-autogen, elixir-format
+msgid "Group Invite Declined"
+msgstr "Invitation de groupe refusée"
+
+#: lib/game_server_web/live/notifications_live.ex:371
+#: lib/game_server_web/live/notifications_live.ex:371
+#, elixir-autogen, elixir-format
+msgid "Group Join Request Approved"
+msgstr "Demande d'adhésion au groupe approuvée"
+
+#: lib/game_server_web/live/notifications_live.ex:374
+#: lib/game_server_web/live/notifications_live.ex:374
+#, elixir-autogen, elixir-format
+msgid "Group Join Request Declined"
+msgstr "Demande d'adhésion au groupe refusée"
+
+#: lib/game_server_web/live/notifications_live.ex:350
+#: lib/game_server_web/live/notifications_live.ex:350
+#, elixir-autogen, elixir-format
+msgid "New Friend Request"
+msgstr "Nouvelle demande d'ami"
+
+#: lib/game_server_web/live/notifications_live.ex:359
+#: lib/game_server_web/live/notifications_live.ex:359
+#, elixir-autogen, elixir-format
+msgid "New Group Invite"
+msgstr "Nouvelle invitation de groupe"
+
+#: lib/game_server_web/live/notifications_live.ex:368
+#: lib/game_server_web/live/notifications_live.ex:368
+#, elixir-autogen, elixir-format
+msgid "New Group Join Request"
+msgstr "Nouvelle demande d'adhésion"
+
+#: lib/game_server_web/live/notifications_live.ex:386
+#: lib/game_server_web/live/notifications_live.ex:386
+#, elixir-autogen, elixir-format
+msgid "New Party Invite"
+msgstr "Nouvelle invitation d'équipe"
+
+#: lib/game_server_web/live/notifications_live.ex:416
+#: lib/game_server_web/live/notifications_live.ex:416
+#, elixir-autogen, elixir-format
+msgid "New message in party"
+msgstr "Nouveau message dans l'équipe"
+
+#: lib/game_server_web/live/notifications_live.ex:409
+#: lib/game_server_web/live/notifications_live.ex:409
+#: lib/game_server_web/live/notifications_live.ex:413
+#: lib/game_server_web/live/notifications_live.ex:413
+#, elixir-autogen, elixir-format
+msgid "New messages from %{name}"
+msgstr "Nouveaux messages de %{name}"
+
+#: lib/game_server_web/live/notifications_live.ex:405
+#: lib/game_server_web/live/notifications_live.ex:405
+#, elixir-autogen, elixir-format
+msgid "New messages from friends"
+msgstr "Nouveaux messages d'amis"
+
+#: lib/game_server_web/live/notifications_live.ex:389
+#: lib/game_server_web/live/notifications_live.ex:389
+#, elixir-autogen, elixir-format
+msgid "Party Invite Accepted"
+msgstr "Invitation d'équipe acceptée"
+
+#: lib/game_server_web/live/notifications_live.ex:392
+#: lib/game_server_web/live/notifications_live.ex:392
+#, elixir-autogen, elixir-format
+msgid "Party Invite Declined"
+msgstr "Invitation d'équipe refusée"
+
+#: lib/game_server_web/live/notifications_live.ex:380
+#: lib/game_server_web/live/notifications_live.ex:380
+#, elixir-autogen, elixir-format
+msgid "Promoted To Admin"
+msgstr "Promu administrateur"
+
+#: lib/game_server_web/live/notifications_live.ex:377
+#: lib/game_server_web/live/notifications_live.ex:377
+#, elixir-autogen, elixir-format
+msgid "Removed From Group"
+msgstr "Retiré du groupe"
+
+#: lib/game_server_web/live/notifications_live.ex:398
+#: lib/game_server_web/live/notifications_live.ex:398
+#, elixir-autogen, elixir-format
+msgid "Removed From Lobby"
+msgstr "Retiré du salon"
+
+#: lib/game_server_web/live/notifications_live.ex:395
+#: lib/game_server_web/live/notifications_live.ex:395
+#, elixir-autogen, elixir-format
+msgid "Removed From Party"
+msgstr "Retiré de l'équipe"
+
+#: lib/game_server_web/live/notifications_live.ex:432
+#: lib/game_server_web/live/notifications_live.ex:432
+#, elixir-autogen, elixir-format
+msgid "You have a new friend request."
+msgstr "Vous avez une nouvelle demande d'ami."
+
+#: lib/game_server_web/live/notifications_live.ex:454
+#: lib/game_server_web/live/notifications_live.ex:454
+#, elixir-autogen, elixir-format
+msgid "You have been demoted to member in %{name}"
+msgstr "Vous avez été rétrogradé en membre dans %{name}"
+
+#: lib/game_server_web/live/notifications_live.ex:442
+#: lib/game_server_web/live/notifications_live.ex:442
+#, elixir-autogen, elixir-format
+msgid "You have been invited to join %{name}"
+msgstr "Vous avez été invité à rejoindre %{name}"
+
+#: lib/game_server_web/live/notifications_live.ex:457
+#: lib/game_server_web/live/notifications_live.ex:457
+#, elixir-autogen, elixir-format
+msgid "You have been invited to join a party"
+msgstr "Vous avez été invité à rejoindre une équipe"
+
+#: lib/game_server_web/live/notifications_live.ex:450
+#: lib/game_server_web/live/notifications_live.ex:450
+#, elixir-autogen, elixir-format
+msgid "You have been promoted to admin in %{name}"
+msgstr "Vous avez été promu administrateur dans %{name}"
+
+#: lib/game_server_web/live/notifications_live.ex:446
+#: lib/game_server_web/live/notifications_live.ex:446
+#: lib/game_server_web/live/notifications_live.ex:464
+#: lib/game_server_web/live/notifications_live.ex:464
+#, elixir-autogen, elixir-format
+msgid "You have been removed from %{name}"
+msgstr "Vous avez été retiré de %{name}"
+
+#: lib/game_server_web/live/notifications_live.ex:460
+#: lib/game_server_web/live/notifications_live.ex:460
+#, elixir-autogen, elixir-format
+msgid "You have been removed from the party"
+msgstr "Vous avez été retiré de l'équipe"
+
+#: lib/game_server_web/live/notifications_live.ex:435
+#: lib/game_server_web/live/notifications_live.ex:435
+#, elixir-autogen, elixir-format
+msgid "Your friend request has been accepted."
+msgstr "Votre demande d'ami a été acceptée."
+
+#: lib/game_server_web/live/notifications_live.ex:438
+#: lib/game_server_web/live/notifications_live.ex:438
+#, elixir-autogen, elixir-format
+msgid "Your friend request has been declined."
+msgstr "Votre demande d'ami a été refusée."

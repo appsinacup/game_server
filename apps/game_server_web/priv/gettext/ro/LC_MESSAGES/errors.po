@@ -1,0 +1,150 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: ro\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0||(n%100>0 && n%100<20)) ? 1 : 2);\n"
+
+msgid "can't be blank"
+msgstr "nu poate fi gol"
+
+#: lib/game_server_web/i18n/errors_catalog.ex:21
+#: lib/game_server_web/i18n/errors_catalog.ex:21
+#, elixir-autogen
+msgid "has already been taken"
+msgstr "a fost deja luat"
+
+msgid "is invalid"
+msgstr "este invalid"
+
+msgid "must be accepted"
+msgstr "trebuie acceptat"
+
+msgid "has invalid format"
+msgstr "are un format invalid"
+
+msgid "has an invalid entry"
+msgstr "are o intrare invalidă"
+
+msgid "is reserved"
+msgstr "este rezervat"
+
+msgid "does not match confirmation"
+msgstr "nu corespunde confirmării"
+
+msgid "is still associated with this entry"
+msgstr "este încă asociat cu această intrare"
+
+msgid "are still associated with this entry"
+msgstr "sunt încă asociate cu această intrare"
+
+msgid "should have %{count} item(s)"
+msgid_plural "should have %{count} item(s)"
+msgstr[0] "ar trebui să aibă %{count} element"
+msgstr[1] "ar trebui să aibă %{count} elemente"
+msgstr[2] ""
+
+msgid "should be %{count} character(s)"
+msgid_plural "should be %{count} character(s)"
+msgstr[0] "ar trebui să fie %{count} caracter"
+msgstr[1] "ar trebui să fie %{count} caractere"
+msgstr[2] ""
+
+msgid "should be %{count} byte(s)"
+msgid_plural "should be %{count} byte(s)"
+msgstr[0] "ar trebui să fie %{count} octet"
+msgstr[1] "ar trebui să fie %{count} octeți"
+msgstr[2] ""
+
+msgid "should have at least %{count} item(s)"
+msgid_plural "should have at least %{count} item(s)"
+msgstr[0] "ar trebui să aibă cel puțin %{count} element"
+msgstr[1] "ar trebui să aibă cel puțin %{count} elemente"
+msgstr[2] ""
+
+msgid "should be at least %{count} character(s)"
+msgid_plural "should be at least %{count} character(s)"
+msgstr[0] "ar trebui să fie cel puțin %{count} caracter"
+msgstr[1] "ar trebui să fie cel puțin %{count} caractere"
+msgstr[2] ""
+
+msgid "should be at least %{count} byte(s)"
+msgid_plural "should be at least %{count} byte(s)"
+msgstr[0] "ar trebui să fie cel puțin %{count} octet"
+msgstr[1] "ar trebui să fie cel puțin %{count} octeți"
+msgstr[2] ""
+
+msgid "should have at most %{count} item(s)"
+msgid_plural "should have at most %{count} item(s)"
+msgstr[0] "ar trebui să aibă cel mult %{count} element"
+msgstr[1] "ar trebui să aibă cel mult %{count} elemente"
+msgstr[2] ""
+
+msgid "should be at most %{count} character(s)"
+msgid_plural "should be at most %{count} character(s)"
+msgstr[0] "ar trebui să fie cel mult %{count} caracter"
+msgstr[1] "ar trebui să fie cel mult %{count} caractere"
+msgstr[2] ""
+
+msgid "should be at most %{count} byte(s)"
+msgid_plural "should be at most %{count} byte(s)"
+msgstr[0] "ar trebui să fie cel mult %{count} octet"
+msgstr[1] "ar trebui să fie cel mult %{count} octeți"
+msgstr[2] ""
+
+msgid "must be less than %{number}"
+msgstr "trebuie să fie mai mic decât %{number}"
+
+msgid "must be greater than %{number}"
+msgstr "trebuie să fie mai mare decât %{number}"
+
+msgid "must be less than or equal to %{number}"
+msgstr "trebuie să fie mai mic sau egal cu %{number}"
+
+msgid "must be greater than or equal to %{number}"
+msgstr "trebuie să fie mai mare sau egal cu %{number}"
+
+msgid "must be equal to %{number}"
+msgstr "trebuie să fie egal cu %{number}"
+
+#: lib/game_server_web/i18n/errors_catalog.ex:18
+#: lib/game_server_web/i18n/errors_catalog.ex:18
+#, elixir-autogen, elixir-format
+msgid "cannot friend yourself"
+msgstr "nu vă puteți adăuga pe voi ca prieten"
+
+#: lib/game_server_web/i18n/errors_catalog.ex:19
+#: lib/game_server_web/i18n/errors_catalog.ex:19
+#, elixir-autogen, elixir-format
+msgid "did not change"
+msgstr "nu s-a schimbat"
+
+#: lib/game_server_web/i18n/errors_catalog.ex:20
+#: lib/game_server_web/i18n/errors_catalog.ex:20
+#, elixir-autogen, elixir-format
+msgid "does not exist"
+msgstr "nu există"
+
+#: lib/game_server_web/i18n/errors_catalog.ex:24
+#: lib/game_server_web/i18n/errors_catalog.ex:24
+#, elixir-autogen, elixir-format
+msgid "does not match password"
+msgstr "nu corespunde parolei"
+
+#: lib/game_server_web/i18n/errors_catalog.ex:22
+#: lib/game_server_web/i18n/errors_catalog.ex:22
+#, elixir-autogen, elixir-format
+msgid "must be lowercase alphanumeric with underscores"
+msgstr "trebuie să fie alfanumeric cu litere mici și underscore"
+
+#: lib/game_server_web/i18n/errors_catalog.ex:23
+#: lib/game_server_web/i18n/errors_catalog.ex:23
+#, elixir-autogen, elixir-format
+msgid "must have the @ sign and no spaces"
+msgstr "trebuie să conțină semnul @ și fără spații"

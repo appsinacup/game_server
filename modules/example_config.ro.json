@@ -1,0 +1,46 @@
+{
+  "title": "Gamend",
+  "tagline": "Joc + Backend",
+  "description": "Server de jocuri open source în Elixir pentru jocuri multiplayer în timp real.",
+  "css": "",
+  "logo": "/images/logo.png",
+  "banner": "/images/banner.png",
+  "banner_link": "/docs/setup",
+  "favicon": "/favicon.ico",
+  "changelog": "/CHANGELOG.md",
+  "blog": "/blog",
+  "useful_links": [
+    { "title": "Începe", "url": "/docs/setup#deployment", "icon": "hero-rocket-launch-solid", "style": "primary" },
+    { "title": "Video de prezentare", "url": "https://www.youtube.com/watch?v=KhjWyUVsTkE", "icon": "hero-play-solid", "external": true, "style": "primary" },
+    { "title": "Discord", "url": "https://discord.com/invite/v649emcpAu", "icon": "hero-chat-bubble-left-ellipsis-solid", "external": true },
+    { "title": "Blog", "url": "/blog", "icon": "hero-newspaper-solid" },
+    { "title": "Ghiduri", "url": "/docs/setup", "icon": "hero-academic-cap-solid" },
+    { "title": "Documentație API", "url": "/api/docs", "icon": "hero-book-open-solid" }
+  ],
+  "nav_links": [
+    { "label": "Joacă", "href": "/play", "auth": "any" }
+  ],
+  "footer_links": [
+    { "label": "Politica de confidențialitate", "href": "/privacy" },
+    { "label": "Termeni și condiții", "href": "/terms" },
+    { "label": "Ghiduri", "href": "/docs/setup" },
+    { "label": "Documentație API", "href": "/api/docs" },
+    { "label": "Documentație Elixir", "href": "https://appsinacup.github.io/game_server/", "external": true },
+    { "label": "Jurnal de modificări", "href": "/changelog" },
+    { "label": "Blog", "href": "/blog" }
+  ],
+  "features": [
+    { "title": "Autentificare și utilizatori", "description": "E-mail, link magic, OAuth, JWT și sesiune. Înregistrare, autentificare, resetare parolă și verificare e-mail.", "icon": "hero-lock-closed-solid" },
+    { "title": "Camere, echipe și matchmaking", "description": "Camere în timp real și echipe efemere. Setări personalizabile cu actualizări în timp real.", "icon": "hero-home-solid" },
+    { "title": "Prieteni, grupuri și chat", "description": "Cereri de prietenie, blocare, prezență în timp real. Grupuri publice, private și ascunse. Mesagerie directă și de grup.", "icon": "hero-user-group-solid" },
+    { "title": "Realizări, clasamente și notificări", "description": "Realizări și clasamente gestionate de server. Notificări în timp real pentru toate funcționalitățile.", "icon": "hero-trophy-solid" },
+    { "title": "Scripting și planificare", "description": "Extinde logica serverului cu scripturi Elixir. Planifică sarcini automatizate și joburi cron.", "icon": "hero-computer-desktop-solid" },
+    { "title": "HTTP, WebSocket și WebRTC", "description": "API REST, canale WebSocket în timp real și DataChannels WebRTC cu latență scăzută. Portal de administrare și interfață web.", "icon": "hero-puzzle-piece-solid" }
+  ],
+  "background_icons": [
+    "hero-lock-closed-solid", "hero-trophy-solid", "hero-user-group-solid",
+    "hero-chat-bubble-left-ellipsis-solid", "hero-home-solid", "hero-server-stack-solid",
+    "hero-puzzle-piece-solid", "hero-rocket-launch-solid", "hero-bell-solid",
+    "hero-shield-check-solid", "hero-computer-desktop-solid", "hero-globe-alt-solid"
+  ]
+}

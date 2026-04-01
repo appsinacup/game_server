@@ -1,0 +1,130 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+
+#: lib/game_server_web/live/leaderboards_live.ex:152
+#: lib/game_server_web/live/leaderboards_live.ex:152
+#, elixir-autogen, elixir-format
+msgid "%{count} season"
+msgid_plural "%{count} seasons"
+msgstr[0] "%{count} saison"
+msgstr[1] "%{count} saisons"
+
+#: lib/game_server_web/live/leaderboards_live.ex:146
+#: lib/game_server_web/live/leaderboards_live.ex:146
+#: lib/game_server_web/live/leaderboards_live.ex:203
+#: lib/game_server_web/live/leaderboards_live.ex:203
+#, elixir-autogen, elixir-format
+msgid "Active"
+msgstr "Actif"
+
+#: lib/game_server_web/live/leaderboards_live.ex:148
+#: lib/game_server_web/live/leaderboards_live.ex:148
+#: lib/game_server_web/live/leaderboards_live.ex:205
+#: lib/game_server_web/live/leaderboards_live.ex:205
+#, elixir-autogen, elixir-format
+msgid "Ended"
+msgstr "Terminé"
+
+#: lib/game_server_web/live/leaderboards_live.ex:216
+#: lib/game_server_web/live/leaderboards_live.ex:216
+#, elixir-autogen, elixir-format
+msgid "Ends %{date}"
+msgstr "Se termine le %{date}"
+
+#: lib/game_server_web/live/leaderboards_live.ex:38
+#: lib/game_server_web/live/leaderboards_live.ex:38
+#: lib/game_server_web/live/leaderboards_live.ex:70
+#: lib/game_server_web/live/leaderboards_live.ex:70
+#, elixir-autogen, elixir-format
+msgid "Leaderboard not found"
+msgstr "Classement non trouvé"
+
+#: lib/game_server_web/live/leaderboards_live.ex:19
+#: lib/game_server_web/live/leaderboards_live.ex:19
+#: lib/game_server_web/live/leaderboards_live.ex:95
+#: lib/game_server_web/live/leaderboards_live.ex:95
+#, elixir-autogen, elixir-format
+msgid "Leaderboards"
+msgstr "Classements"
+
+#: lib/game_server_web/live/leaderboards_live.ex:256
+#: lib/game_server_web/live/leaderboards_live.ex:256
+#, elixir-autogen, elixir-format
+msgid "Newer"
+msgstr "Plus récent"
+
+#: lib/game_server_web/live/leaderboards_live.ex:239
+#: lib/game_server_web/live/leaderboards_live.ex:239
+#, elixir-autogen, elixir-format
+msgid "Older"
+msgstr "Plus ancien"
+
+#: lib/game_server_web/live/leaderboards_live.ex:297
+#: lib/game_server_web/live/leaderboards_live.ex:297
+#, elixir-autogen, elixir-format
+msgid "Player"
+msgstr "Joueur"
+
+#: lib/game_server_web/live/leaderboards_live.ex:296
+#: lib/game_server_web/live/leaderboards_live.ex:296
+#, elixir-autogen, elixir-format
+msgid "Rank"
+msgstr "Rang"
+
+#: lib/game_server_web/live/leaderboards_live.ex:290
+#: lib/game_server_web/live/leaderboards_live.ex:290
+#, elixir-autogen, elixir-format
+msgid "Rankings"
+msgstr "Classements"
+
+#: lib/game_server_web/live/leaderboards_live.ex:298
+#: lib/game_server_web/live/leaderboards_live.ex:298
+#, elixir-autogen, elixir-format
+msgid "Score"
+msgstr "Score"
+
+#: lib/game_server_web/live/leaderboards_live.ex:243
+#: lib/game_server_web/live/leaderboards_live.ex:243
+#, elixir-autogen, elixir-format
+msgid "Season %{number}"
+msgstr "Saison %{number}"
+
+#: lib/game_server_web/live/leaderboards_live.ex:273
+#: lib/game_server_web/live/leaderboards_live.ex:273
+#, elixir-autogen, elixir-format
+msgid "Your Rank"
+msgstr "Votre rang"
+
+#: lib/game_server_web/live/leaderboards_live.ex:279
+#: lib/game_server_web/live/leaderboards_live.ex:279
+#, elixir-autogen, elixir-format
+msgid "Your Score"
+msgstr "Votre score"
+
+#: lib/game_server_web/live/leaderboards_live.ex:248
+#: lib/game_server_web/live/leaderboards_live.ex:248
+#, elixir-autogen, elixir-format
+msgid "of %{total}"
+msgstr "sur %{total}"
+
+#: lib/game_server_web/live/leaderboards_live.ex:97
+#: lib/game_server_web/live/leaderboards_live.ex:97
+#, elixir-autogen, elixir-format
+msgid "%{count} leaderboards"
+msgstr "%{count} classements"
+
+#: lib/game_server_web/live/leaderboards_live.ex:220
+#: lib/game_server_web/live/leaderboards_live.ex:220
+#, elixir-autogen, elixir-format
+msgid "Started %{date}"
+msgstr "Commencé le %{date}"

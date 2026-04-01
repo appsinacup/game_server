@@ -1,0 +1,94 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: ro\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0||(n%100>0 && n%100<20)) ? 1 : 2);\n"
+
+#: lib/game_server_web/live/achievements_live.ex:146
+#: lib/game_server_web/live/achievements_live.ex:146
+#, elixir-autogen, elixir-format
+msgid "%{total} achievements available"
+msgstr "%{total} realizări disponibile"
+
+#: lib/game_server_web/live/achievements_live.ex:141
+#: lib/game_server_web/live/achievements_live.ex:141
+#, elixir-autogen, elixir-format
+msgid "%{unlocked} of %{total} unlocked"
+msgstr "%{unlocked} din %{total} deblocate"
+
+#: lib/game_server_web/live/achievements_live.ex:25
+#: lib/game_server_web/live/achievements_live.ex:25
+#: lib/game_server_web/live/achievements_live.ex:138
+#: lib/game_server_web/live/achievements_live.ex:138
+#, elixir-autogen, elixir-format
+msgid "Achievements"
+msgstr "Realizări"
+
+#: lib/game_server_web/live/achievements_live.ex:157
+#: lib/game_server_web/live/achievements_live.ex:157
+#, elixir-autogen, elixir-format
+msgid "All"
+msgstr "Toate"
+
+#: lib/game_server_web/live/achievements_live.ex:342
+#: lib/game_server_web/live/achievements_live.ex:342
+#, elixir-autogen, elixir-format
+msgid "Hidden"
+msgstr "Ascuns"
+
+#: lib/game_server_web/live/achievements_live.ex:318
+#: lib/game_server_web/live/achievements_live.ex:318
+#, elixir-autogen, elixir-format
+msgid "Hidden achievement"
+msgstr "Realizare ascunsă"
+
+#: lib/game_server_web/live/achievements_live.ex:160
+#: lib/game_server_web/live/achievements_live.ex:160
+#, elixir-autogen, elixir-format
+msgid "In Progress"
+msgstr "În progres"
+
+#: lib/game_server_web/live/achievements_live.ex:159
+#: lib/game_server_web/live/achievements_live.ex:159
+#, elixir-autogen, elixir-format
+msgid "Locked"
+msgstr "Blocat"
+
+#: lib/game_server_web/live/achievements_live.ex:203
+#: lib/game_server_web/live/achievements_live.ex:203
+#, elixir-autogen, elixir-format
+msgid "No achievements match this filter."
+msgstr "Nicio realizare nu corespunde acestui filtru."
+
+#: lib/game_server_web/live/achievements_live.ex:205
+#: lib/game_server_web/live/achievements_live.ex:205
+#, elixir-autogen, elixir-format
+msgid "No achievements yet."
+msgstr "Nicio realizare încă."
+
+#: lib/game_server_web/live/achievements_live.ex:181
+#: lib/game_server_web/live/achievements_live.ex:181
+#, elixir-autogen, elixir-format
+msgid "Overall Progress"
+msgstr "Progres general"
+
+#: lib/game_server_web/live/achievements_live.ex:349
+#: lib/game_server_web/live/achievements_live.ex:349
+#, elixir-autogen, elixir-format
+msgid "Progress"
+msgstr "Progres"
+
+#: lib/game_server_web/live/achievements_live.ex:158
+#: lib/game_server_web/live/achievements_live.ex:158
+#: lib/game_server_web/live/achievements_live.ex:332
+#: lib/game_server_web/live/achievements_live.ex:332
+#, elixir-autogen, elixir-format
+msgid "Unlocked"
+msgstr "Deblocat"

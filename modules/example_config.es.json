@@ -1,7 +1,7 @@
 {
   "title": "Gamend",
   "tagline": "Juego + Backend",
-  "description": "Servidor de juegos de código abierto para juegos multijugador en tiempo real. SDKs para JavaScript y Godot.",
+  "description": "Servidor de juegos de código abierto en Elixir para juegos multijugador en tiempo real.",
   "css": "",
   "logo": "/images/logo.png",
   "banner": "/images/banner.png",
@@ -11,33 +11,31 @@
   "blog": "/blog",
   "useful_links": [
     { "title": "Empezar", "url": "/docs/setup#deployment", "icon": "hero-rocket-launch-solid", "style": "primary" },
-    { "title": "YouTube", "url": "https://www.youtube.com/watch?v=KhjWyUVsTkE&t=2s", "icon": "hero-play-solid", "external": true },
+    { "title": "Video de presentación", "url": "https://www.youtube.com/watch?v=KhjWyUVsTkE", "icon": "hero-play-solid", "external": true, "style": "primary" },
     { "title": "Discord", "url": "https://discord.com/invite/v649emcpAu", "icon": "hero-chat-bubble-left-ellipsis-solid", "external": true },
     { "title": "Blog", "url": "/blog", "icon": "hero-newspaper-solid" },
-    { "title": "Notas de versión", "url": "/changelog", "icon": "hero-document-text-solid" },
-    { "title": "Código fuente", "url": "https://github.com/appsinacup/game_server", "icon": "hero-book-open-solid", "external": true },
     { "title": "Guías", "url": "/docs/setup", "icon": "hero-academic-cap-solid" },
     { "title": "Documentación API", "url": "/api/docs", "icon": "hero-book-open-solid" }
   ],
   "nav_links": [
-    { "label": "Play", "href": "/play", "auth": "any" }
+    { "label": "Jugar", "href": "/play", "auth": "any" }
   ],
   "footer_links": [
-    { "label": "Privacy Policy", "href": "/privacy" },
-    { "label": "Terms and Conditions", "href": "/terms" },
-    { "label": "Guides", "href": "/docs/setup" },
-    { "label": "API Docs", "href": "/api/docs" },
-    { "label": "Elixir Docs", "href": "https://appsinacup.github.io/game_server/", "external": true },
-    { "label": "Changelog", "href": "/changelog" },
+    { "label": "Política de privacidad", "href": "/privacy" },
+    { "label": "Términos y condiciones", "href": "/terms" },
+    { "label": "Guías", "href": "/docs/setup" },
+    { "label": "Documentación API", "href": "/api/docs" },
+    { "label": "Documentación Elixir", "href": "https://appsinacup.github.io/game_server/", "external": true },
+    { "label": "Registro de cambios", "href": "/changelog" },
     { "label": "Blog", "href": "/blog" }
   ],
   "features": [
     { "title": "Autenticación y usuarios", "description": "Correo, enlace mágico, OAuth, JWT y sesión. Registro, inicio de sesión, recuperación de contraseña y verificación de correo.", "icon": "hero-lock-closed-solid" },
-    { "title": "Salas, grupos y chat", "description": "Salas en tiempo real y grupos efímeros. Mensajería directa y grupal.", "icon": "hero-home-solid" },
-    { "title": "Amigos, grupos y chat", "description": "Solicitudes, bloqueo, presencia en tiempo real. Comunidades públicas, privadas y ocultas. Mensajería directa y grupal.", "icon": "hero-user-group-solid" },
-    { "title": "Logros, clasificaciones y notificaciones", "description": "Logros y clasificaciones con autoridad del servidor. Notificaciones en tiempo real.", "icon": "hero-trophy-solid" },
-    { "title": "Scripting y programación", "description": "Extiende la lógica del servidor con scripts en Elixir. Programa tareas automáticas.", "icon": "hero-computer-desktop-solid" },
-    { "title": "HTTP, WebSocket y WebRTC", "description": "API REST, canales WebSocket en tiempo real y DataChannels WebRTC de baja latencia. Portal de administración.", "icon": "hero-puzzle-piece-solid" }
+    { "title": "Salas, equipos y emparejamiento", "description": "Salas en tiempo real y equipos efímeros. Configuraciones personalizables con actualizaciones en vivo.", "icon": "hero-home-solid" },
+    { "title": "Amigos, grupos y chat", "description": "Solicitudes de amistad, bloqueo, presencia en tiempo real. Grupos públicos, privados y ocultos. Mensajería directa y grupal.", "icon": "hero-user-group-solid" },
+    { "title": "Logros, clasificaciones y notificaciones", "description": "Logros y clasificaciones con autoridad del servidor. Notificaciones en tiempo real en todas las funciones.", "icon": "hero-trophy-solid" },
+    { "title": "Scripting y programación", "description": "Extiende la lógica del servidor con scripts en Elixir. Programa tareas automáticas y trabajos cron.", "icon": "hero-computer-desktop-solid" },
+    { "title": "HTTP, WebSocket y WebRTC", "description": "API REST, canales WebSocket en tiempo real y DataChannels WebRTC de baja latencia. Portal de administración e interfaz web.", "icon": "hero-puzzle-piece-solid" }
   ],
   "background_icons": [
     "hero-lock-closed-solid", "hero-trophy-solid", "hero-user-group-solid",
