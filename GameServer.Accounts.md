@@ -701,6 +701,17 @@ than 20 minutes ago. The limit can be given as second argument in minutes.
 Updates `last_seen_at` to now for the given user. Fire-and-forget — errors are ignored.
 Call on login (session or JWT) to track activity.
 
+# `touch_last_seen_by_id`
+
+```elixir
+@spec touch_last_seen_by_id(integer()) :: :ok
+```
+
+Lightweight version of `touch_last_seen/1` that accepts a user ID directly.
+Performs a single UPDATE without loading the full struct first, setting
+`last_seen_at` to now and `is_online` to true, then invalidates the cache.
+Fire-and-forget — errors are ignored.
+
 # `unlink_device_id`
 
 ```elixir
