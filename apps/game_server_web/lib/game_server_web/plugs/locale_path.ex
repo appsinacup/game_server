@@ -1,14 +1,21 @@
 defmodule GameServerWeb.Plugs.LocalePath do
-  @moduledoc false
+  @moduledoc """
+  Extracts an optional locale prefix from the URL path (e.g. `/es/settings`)
+  and sets the Gettext locale accordingly.
+
+  When a locale prefix is found the plug stores the chosen locale in the session
+  under `:preferred_locale` and **redirects** to the unprefixed path.  This
+  ensures the router always sees clean paths and LiveView WebSocket reconnects
+  never hit an unmatched `/es/...` URL.
+
+  Known locales are derived from `Gettext.known_locales/1` at compile time.
+  """
 
   import Plug.Conn
 
   @session_key :preferred_locale
   @default_locale "en"
-
-  # Keep this explicit so path parsing is predictable.
-  # If you add locales, add them here too.
-  @known_locales ["en", "es"]
+  @known_locales Gettext.known_locales(GameServerWeb.Gettext)
 
   def init(opts), do: opts
 
@@ -24,8 +31,19 @@ defmodule GameServerWeb.Plugs.LocalePath do
       conn
     else
       conn = fetch_session(conn)
-      {conn, prefix_locale} = maybe_extract_locale_prefix(conn)
-      maybe_apply_session_locale(conn, prefix_locale)
+
+      case maybe_extract_locale_prefix(conn) do
+        {:redirect, conn, locale, redirect_path} ->
+          # Store locale in session and redirect to unprefixed URL.
+          # This avoids LiveView WebSocket URL mismatches.
+          conn
+          |> put_session(@session_key, locale)
+          |> Phoenix.Controller.redirect(to: redirect_path)
+          |> halt()
+
+        {:ok, conn} ->
+          apply_session_locale(conn)
+      end
     end
   end
 
@@ -38,27 +56,28 @@ defmodule GameServerWeb.Plugs.LocalePath do
 
   defp maybe_extract_locale_prefix(%Plug.Conn{path_info: [first | rest]} = conn)
        when first in @known_locales do
-    # Extract locale from URL, rewrite path, store in session
-    script_name = conn.script_name |> :lists.reverse() |> then(&[first | &1]) |> :lists.reverse()
+    clean_path =
+      case rest do
+        [] -> "/"
+        _ -> "/" <> Enum.join(rest, "/")
+      end
 
-    conn = %{conn | script_name: script_name, path_info: rest}
-    {conn, first}
+    query = conn.query_string
+    redirect_path = if query != "", do: clean_path <> "?" <> query, else: clean_path
+
+    {:redirect, conn, first, redirect_path}
   end
 
-  defp maybe_extract_locale_prefix(conn), do: {conn, nil}
+  defp maybe_extract_locale_prefix(conn), do: {:ok, conn}
 
-  defp maybe_apply_session_locale(conn, prefix_locale) when is_binary(prefix_locale) do
-    # URL has locale prefix - treat it as source of truth and remember it.
-    Gettext.put_locale(GameServerWeb.Gettext, prefix_locale)
+  # Read locale from session (set by a prior redirect) or fall back to default.
+  defp apply_session_locale(conn) do
+    locale = get_session(conn, @session_key) || @default_locale
 
-    conn
-    |> assign(:locale, prefix_locale)
-    |> put_session(@session_key, prefix_locale)
-  end
+    locale =
+      if locale in @known_locales, do: locale, else: @default_locale
 
-  defp maybe_apply_session_locale(conn, nil) do
-    # No locale prefix in URL - do not redirect. Treat unprefixed URLs as default locale.
-    Gettext.put_locale(GameServerWeb.Gettext, @default_locale)
-    assign(conn, :locale, @default_locale)
+    Gettext.put_locale(GameServerWeb.Gettext, locale)
+    assign(conn, :locale, locale)
   end
 end

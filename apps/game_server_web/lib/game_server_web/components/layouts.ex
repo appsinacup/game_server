@@ -7,6 +7,15 @@ defmodule GameServerWeb.Layouts do
 
   alias GameServer.Theme.JSONConfig
 
+  # Available locales — computed once at compile time from Gettext .po files.
+  # The language dropdown is only rendered when there are 2+ locales.
+  @known_locales Gettext.known_locales(GameServerWeb.Gettext)
+
+  @locale_labels %{
+    "en" => "English",
+    "es" => "Español"
+  }
+
   # Embed all files in layouts/* within this module.
   # The default root.html.heex file contains the HTML
   # skeleton of your application, namely HTML headers
@@ -85,8 +94,9 @@ defmodule GameServerWeb.Layouts do
         if(conn, do: conn.request_path, else: "/")
 
     current_query = if conn, do: conn.query_string, else: ""
-    # Locale feature temporarily disabled — always use English
-    locale = "en"
+    # Locale comes from the LocalePath plug or the OnMount.Locale hook,
+    # both of which call Gettext.put_locale before this renders.
+    locale = Gettext.get_locale(GameServerWeb.Gettext) || "en"
 
     provider_theme =
       Map.get(assigns, :theme) || JSONConfig.get_theme(locale) || %{}
@@ -123,6 +133,8 @@ defmodule GameServerWeb.Layouts do
       assign(assigns,
         current_path: current_path,
         current_query: current_query,
+        locale: locale,
+        known_locales: @known_locales,
         theme: theme,
         nav_links: nav_links,
         footer_links: footer_links,
@@ -395,14 +407,21 @@ defmodule GameServerWeb.Layouts do
                 </a>
               </li>
             <% end %>
-            <%!-- <li>
-            <.language_dropdown />
-          </li> --%>
+            <%= if length(@known_locales) > 1 do %>
+              <li>
+                <.language_dropdown
+                  locale={@locale}
+                  current_path={@current_path}
+                  current_query={@current_query}
+                  known_locales={@known_locales}
+                />
+              </li>
+            <% end %>
             <li>
               <.theme_toggle />
             </li>
           </ul>
-          
+
     <!-- Mobile Navigation -->
           <div class="lg:hidden">
             <div class="dropdown dropdown-end">
@@ -654,11 +673,18 @@ defmodule GameServerWeb.Layouts do
                     </a>
                   </li>
                 <% end %>
-                <%!-- <li class="mt-2">
-                <div class="flex justify-center">
-                  <.language_dropdown />
-                </div>
-              </li> --%>
+                <%= if length(@known_locales) > 1 do %>
+                  <li class="mt-2">
+                    <div class="flex justify-center">
+                      <.language_dropdown
+                        locale={@locale}
+                        current_path={@current_path}
+                        current_query={@current_query}
+                        known_locales={@known_locales}
+                      />
+                    </div>
+                  </li>
+                <% end %>
                 <li class="mt-2">
                   <div class="flex justify-center">
                     <.theme_toggle />
@@ -703,80 +729,78 @@ defmodule GameServerWeb.Layouts do
     """
   end
 
-  # Language dropdown temporarily hidden — uncomment in layouts when re-enabling
-  # defp language_dropdown(assigns) do
-  #   locale = Gettext.get_locale(GameServerWeb.Gettext) || "en"
-  #   current_path = Map.get(assigns, :current_path, "/")
-  #   current_query = Map.get(assigns, :current_query, "")
-  #
-  #   base_path = strip_locale_prefix(current_path)
-  #
-  #   query_suffix =
-  #     if is_binary(current_query) and current_query != "", do: "?" <> current_query, else: ""
-  #
-  #   english_href = base_path <> query_suffix
-  #
-  #   spanish_href =
-  #     if(base_path == "/", do: "/es", else: "/es" <> base_path) <> query_suffix
-  #
-  #   assigns =
-  #     assign(assigns,
-  #       locale: locale,
-  #       english_href: english_href,
-  #       spanish_href: spanish_href,
-  #       label:
-  #         case locale do
-  #           "es" -> "Español"
-  #           _ -> "English"
-  #         end
-  #     )
-  #
-  #   ~H"""
-  #   <div class="dropdown dropdown-end">
-  #     <a href="#" tabindex="0" class="btn btn-outline">
-  #       {@label}
-  #     </a>
-  #     <ul
-  #       tabindex="0"
-  #       class="menu menu-sm dropdown-content mt-2 z-[1] p-2 shadow bg-base-100 rounded-box"
-  #     >
-  #       <li>
-  #         <a
-  #           href={@english_href}
-  #           class={["whitespace-nowrap", @locale == "en" && "active"]}
-  #         >
-  #           English
-  #         </a>
-  #       </li>
-  #       <li>
-  #         <a
-  #           href={@spanish_href}
-  #           class={["whitespace-nowrap", @locale == "es" && "active"]}
-  #         >
-  #           Español
-  #         </a>
-  #       </li>
-  #     </ul>
-  #   </div>
-  #   """
-  # end
+  defp language_dropdown(assigns) do
+    locale = assigns.locale
+    current_path = assigns.current_path || "/"
+    current_query = assigns.current_query || ""
+    known_locales = assigns.known_locales
 
-  # defp strip_locale_prefix(path) when is_binary(path) do
-  #   segments = String.split(path, "/", trim: true)
-  #
-  #   case segments do
-  #     [first | rest] when first in ["en", "es"] ->
-  #       case rest do
-  #         [] -> "/"
-  #         _ -> "/" <> Enum.join(rest, "/")
-  #       end
-  #
-  #     _ ->
-  #       if String.starts_with?(path, "/"), do: path, else: "/"
-  #   end
-  # end
+    base_path = strip_locale_prefix(current_path, known_locales)
 
-  # defp strip_locale_prefix(_), do: "/"
+    query_suffix =
+      if is_binary(current_query) and current_query != "", do: "?" <> current_query, else: ""
+
+    locale_links =
+      Enum.map(known_locales, fn loc ->
+        # All locale links use /<locale>/path format — the LocalePath plug
+        # stores the choice in session and redirects to the clean URL.
+        href =
+          if(base_path == "/", do: "/" <> loc, else: "/" <> loc <> base_path) <> query_suffix
+
+        %{locale: loc, label: Map.get(@locale_labels, loc, loc), href: href}
+      end)
+
+    assigns =
+      assign(assigns,
+        locale: locale,
+        locale_links: locale_links,
+        label: Map.get(@locale_labels, locale, locale)
+      )
+
+    ~H"""
+    <div class="dropdown dropdown-end">
+      <a href="#" tabindex="0" class="btn btn-outline">
+        {@label}
+      </a>
+      <ul
+        tabindex="0"
+        class="menu menu-sm dropdown-content mt-2 z-[1] p-2 shadow bg-base-100 rounded-box"
+      >
+        <%= for link <- @locale_links do %>
+          <li>
+            <a
+              href={link.href}
+              class={["whitespace-nowrap", link.locale == @locale && "active"]}
+            >
+              {link.label}
+            </a>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+    """
+  end
+
+  defp strip_locale_prefix(path, known_locales) when is_binary(path) do
+    segments = String.split(path, "/", trim: true)
+
+    case segments do
+      [first | rest] when is_list(rest) ->
+        if first in known_locales do
+          case rest do
+            [] -> "/"
+            _ -> "/" <> Enum.join(rest, "/")
+          end
+        else
+          if String.starts_with?(path, "/"), do: path, else: "/"
+        end
+
+      _ ->
+        if String.starts_with?(path, "/"), do: path, else: "/"
+    end
+  end
+
+  defp strip_locale_prefix(_, _known_locales), do: "/"
 
   @app_version_fallback Mix.Project.config()[:version] || "1.0.0"
 

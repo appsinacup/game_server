@@ -1,24 +1,28 @@
 defmodule GameServerWeb.OnMount.Locale do
-  @moduledoc false
+  @moduledoc """
+  LiveView on_mount hook that sets the Gettext locale from the session.
 
-  # Locale feature temporarily disabled — uncomment when re-enabling
-  # @session_key_atom :preferred_locale
-  # @session_key_string "preferred_locale"
+  When the `LocalePath` plug stores a `:preferred_locale` in the session,
+  this hook reads it so that LiveView renders use the correct locale.
+  """
 
-  def on_mount(:default, _params, _session, socket) do
-    # Locale feature temporarily disabled — no-op pass-through
-    {:cont, socket}
+  @session_key "preferred_locale"
+
+  def on_mount(:default, _params, session, socket) do
+    locale = normalize_locale(session[@session_key]) || "en"
+    Gettext.put_locale(GameServerWeb.Gettext, locale)
+    {:cont, Phoenix.Component.assign(socket, :locale, locale)}
   end
 
-  # defp normalize_locale(locale) when is_binary(locale) do
-  #   locale = String.downcase(locale)
-  #
-  #   if locale in Gettext.known_locales(GameServerWeb.Gettext) do
-  #     locale
-  #   else
-  #     nil
-  #   end
-  # end
+  defp normalize_locale(locale) when is_binary(locale) do
+    locale = String.downcase(locale)
 
-  # defp normalize_locale(_), do: nil
+    if locale in Gettext.known_locales(GameServerWeb.Gettext) do
+      locale
+    else
+      nil
+    end
+  end
+
+  defp normalize_locale(_), do: nil
 end

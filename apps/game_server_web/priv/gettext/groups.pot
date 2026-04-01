@@ -11,148 +11,148 @@
 msgid ""
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1343
-#: lib/game_server_web/live/user_live/settings.ex:1343
+#: lib/game_server_web/live/user_live/settings.ex:1445
+#: lib/game_server_web/live/user_live/settings.ex:1445
 #, elixir-autogen, elixir-format
 msgid "Cancel this invitation?"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1299
-#: lib/game_server_web/live/user_live/settings.ex:1299
+#: lib/game_server_web/live/user_live/settings.ex:1399
+#: lib/game_server_web/live/user_live/settings.ex:1399
 #, elixir-autogen, elixir-format
 msgid "Cancel this join request?"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2256
-#: lib/game_server_web/live/user_live/settings.ex:2256
+#: lib/game_server_web/live/user_live/settings.ex:2132
+#: lib/game_server_web/live/user_live/settings.ex:2132
 #, elixir-autogen, elixir-format
 msgid "Could not accept invite: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2320
-#: lib/game_server_web/live/user_live/settings.ex:2320
+#: lib/game_server_web/live/user_live/settings.ex:2215
+#: lib/game_server_web/live/user_live/settings.ex:2215
 #, elixir-autogen, elixir-format
 msgid "Could not approve: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2294
-#: lib/game_server_web/live/user_live/settings.ex:2294
+#: lib/game_server_web/live/user_live/settings.ex:2189
+#: lib/game_server_web/live/user_live/settings.ex:2189
 #, elixir-autogen, elixir-format
 msgid "Could not cancel invitation: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2275
-#: lib/game_server_web/live/user_live/settings.ex:2275
+#: lib/game_server_web/live/user_live/settings.ex:2170
+#: lib/game_server_web/live/user_live/settings.ex:2170
 #, elixir-autogen, elixir-format
 msgid "Could not cancel request: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2177
-#: lib/game_server_web/live/user_live/settings.ex:2177
+#: lib/game_server_web/live/user_live/settings.ex:2053
+#: lib/game_server_web/live/user_live/settings.ex:2053
 #, elixir-autogen, elixir-format
 msgid "Could not create group — check the form for errors"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2509
-#: lib/game_server_web/live/user_live/settings.ex:2509
+#: lib/game_server_web/live/user_live/settings.ex:2404
+#: lib/game_server_web/live/user_live/settings.ex:2404
 #, elixir-autogen, elixir-format
 msgid "Could not demote: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2578
-#: lib/game_server_web/live/user_live/settings.ex:2578
+#: lib/game_server_web/live/user_live/settings.ex:2486
+#: lib/game_server_web/live/user_live/settings.ex:2486
 #, elixir-autogen, elixir-format
 msgid "Could not invite: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2218
-#: lib/game_server_web/live/user_live/settings.ex:2218
+#: lib/game_server_web/live/user_live/settings.ex:2094
+#: lib/game_server_web/live/user_live/settings.ex:2094
 #, elixir-autogen, elixir-format
 msgid "Could not join group: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/groups_live.ex:172
-#: lib/game_server_web/live/groups_live.ex:172
+#: lib/game_server_web/live/groups_live.ex:179
+#: lib/game_server_web/live/groups_live.ex:179
 #, elixir-autogen, elixir-format
 msgid "Could not join: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2469
-#: lib/game_server_web/live/user_live/settings.ex:2469
+#: lib/game_server_web/live/user_live/settings.ex:2364
+#: lib/game_server_web/live/user_live/settings.ex:2364
 #, elixir-autogen, elixir-format
 msgid "Could not kick: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2199
-#: lib/game_server_web/live/user_live/settings.ex:2199
+#: lib/game_server_web/live/user_live/settings.ex:2075
+#: lib/game_server_web/live/user_live/settings.ex:2075
 #, elixir-autogen, elixir-format
 msgid "Could not leave group: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/groups_live.ex:240
-#: lib/game_server_web/live/groups_live.ex:240
+#: lib/game_server_web/live/groups_live.ex:247
+#: lib/game_server_web/live/groups_live.ex:247
 #, elixir-autogen, elixir-format
 msgid "Could not leave: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2614
-#: lib/game_server_web/live/user_live/settings.ex:2614
+#: lib/game_server_web/live/user_live/settings.ex:2522
+#: lib/game_server_web/live/user_live/settings.ex:2522
 #, elixir-autogen, elixir-format
 msgid "Could not notify: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2489
-#: lib/game_server_web/live/user_live/settings.ex:2489
+#: lib/game_server_web/live/user_live/settings.ex:2384
+#: lib/game_server_web/live/user_live/settings.ex:2384
 #, elixir-autogen, elixir-format
 msgid "Could not promote: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2342
-#: lib/game_server_web/live/user_live/settings.ex:2342
+#: lib/game_server_web/live/user_live/settings.ex:2237
+#: lib/game_server_web/live/user_live/settings.ex:2237
 #, elixir-autogen, elixir-format
 msgid "Could not reject: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2237
-#: lib/game_server_web/live/user_live/settings.ex:2237
+#: lib/game_server_web/live/user_live/settings.ex:2113
+#: lib/game_server_web/live/user_live/settings.ex:2113
 #, elixir-autogen, elixir-format
 msgid "Could not request to join: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/groups_live.ex:213
-#: lib/game_server_web/live/groups_live.ex:213
+#: lib/game_server_web/live/groups_live.ex:220
+#: lib/game_server_web/live/groups_live.ex:220
 #, elixir-autogen, elixir-format
 msgid "Could not request: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2448
-#: lib/game_server_web/live/user_live/settings.ex:2448
+#: lib/game_server_web/live/user_live/settings.ex:2343
+#: lib/game_server_web/live/user_live/settings.ex:2343
 #, elixir-autogen, elixir-format
 msgid "Could not update: %{reason}"
 msgstr ""
 
-#: lib/game_server_web/live/groups_live.ex:564
-#: lib/game_server_web/live/groups_live.ex:564
+#: lib/game_server_web/live/groups_live.ex:567
+#: lib/game_server_web/live/groups_live.ex:567
 #, elixir-autogen, elixir-format
 msgid "Created %{date}"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2164
-#: lib/game_server_web/live/user_live/settings.ex:2164
+#: lib/game_server_web/live/user_live/settings.ex:2040
+#: lib/game_server_web/live/user_live/settings.ex:2040
 #, elixir-autogen, elixir-format
 msgid "Group created"
 msgstr ""
 
 #: lib/game_server_web/live/groups_live.ex:70
 #: lib/game_server_web/live/groups_live.ex:70
-#: lib/game_server_web/live/user_live/settings.ex:2944
-#: lib/game_server_web/live/user_live/settings.ex:2944
+#: lib/game_server_web/live/user_live/settings.ex:2852
+#: lib/game_server_web/live/user_live/settings.ex:2852
 #, elixir-autogen, elixir-format
 msgid "Group not found"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2434
-#: lib/game_server_web/live/user_live/settings.ex:2434
+#: lib/game_server_web/live/user_live/settings.ex:2329
+#: lib/game_server_web/live/user_live/settings.ex:2329
 #, elixir-autogen, elixir-format
 msgid "Group updated"
 msgstr ""
@@ -161,222 +161,244 @@ msgstr ""
 #: lib/game_server_web/live/groups_live.ex:40
 #: lib/game_server_web/live/groups_live.ex:94
 #: lib/game_server_web/live/groups_live.ex:94
-#: lib/game_server_web/live/user_live/settings.ex:529
-#: lib/game_server_web/live/user_live/settings.ex:529
+#: lib/game_server_web/live/groups_live.ex:391
+#: lib/game_server_web/live/groups_live.ex:391
+#: lib/game_server_web/live/user_live/settings.ex:59
+#: lib/game_server_web/live/user_live/settings.ex:59
+#: lib/game_server_web/live/user_live/settings.ex:668
+#: lib/game_server_web/live/user_live/settings.ex:668
 #, elixir-autogen, elixir-format
 msgid "Groups"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2248
-#: lib/game_server_web/live/user_live/settings.ex:2248
+#: lib/game_server_web/live/user_live/settings.ex:2124
+#: lib/game_server_web/live/user_live/settings.ex:2124
 #, elixir-autogen, elixir-format
 msgid "Invitation accepted"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2286
-#: lib/game_server_web/live/user_live/settings.ex:2286
+#: lib/game_server_web/live/user_live/settings.ex:2181
+#: lib/game_server_web/live/user_live/settings.ex:2181
 #, elixir-autogen, elixir-format
 msgid "Invitation cancelled"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2560
-#: lib/game_server_web/live/user_live/settings.ex:2560
+#: lib/game_server_web/live/user_live/settings.ex:2468
+#: lib/game_server_web/live/user_live/settings.ex:2468
 #, elixir-autogen, elixir-format
 msgid "Invitation sent"
 msgstr ""
 
-#: lib/game_server_web/live/groups_live.ex:686
-#: lib/game_server_web/live/groups_live.ex:686
+#: lib/game_server_web/live/groups_live.ex:679
+#: lib/game_server_web/live/groups_live.ex:679
 #, elixir-autogen, elixir-format
 msgid "Join Group"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2267
-#: lib/game_server_web/live/user_live/settings.ex:2267
+#: lib/game_server_web/live/user_live/settings.ex:2162
+#: lib/game_server_web/live/user_live/settings.ex:2162
 #, elixir-autogen, elixir-format
 msgid "Join request cancelled"
 msgstr ""
 
-#: lib/game_server_web/live/groups_live.ex:190
-#: lib/game_server_web/live/groups_live.ex:190
-#: lib/game_server_web/live/user_live/settings.ex:2229
-#: lib/game_server_web/live/user_live/settings.ex:2229
+#: lib/game_server_web/live/groups_live.ex:197
+#: lib/game_server_web/live/groups_live.ex:197
+#: lib/game_server_web/live/user_live/settings.ex:2105
+#: lib/game_server_web/live/user_live/settings.ex:2105
 #, elixir-autogen, elixir-format
 msgid "Join request sent"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2210
-#: lib/game_server_web/live/user_live/settings.ex:2210
+#: lib/game_server_web/live/user_live/settings.ex:2086
+#: lib/game_server_web/live/user_live/settings.ex:2086
 #, elixir-autogen, elixir-format
 msgid "Joined group"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:778
-#: lib/game_server_web/live/user_live/settings.ex:778
+#: lib/game_server_web/live/user_live/settings.ex:917
+#: lib/game_server_web/live/user_live/settings.ex:917
 #, elixir-autogen, elixir-format
 msgid "Kick %{name}?"
 msgstr ""
 
-#: lib/game_server_web/live/groups_live.ex:675
-#: lib/game_server_web/live/groups_live.ex:675
-#: lib/game_server_web/live/user_live/settings.ex:699
-#: lib/game_server_web/live/user_live/settings.ex:699
+#: lib/game_server_web/live/groups_live.ex:668
+#: lib/game_server_web/live/groups_live.ex:668
+#: lib/game_server_web/live/user_live/settings.ex:838
+#: lib/game_server_web/live/user_live/settings.ex:838
 #, elixir-autogen, elixir-format
 msgid "Leave Group"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2189
-#: lib/game_server_web/live/user_live/settings.ex:2189
+#: lib/game_server_web/live/user_live/settings.ex:2065
+#: lib/game_server_web/live/user_live/settings.ex:2065
 #, elixir-autogen, elixir-format
 msgid "Left group"
 msgstr ""
 
-#: lib/game_server_web/live/groups_live.ex:701
-#: lib/game_server_web/live/groups_live.ex:701
+#: lib/game_server_web/live/groups_live.ex:694
+#: lib/game_server_web/live/groups_live.ex:694
 #, elixir-autogen, elixir-format
 msgid "Log in to join"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2501
-#: lib/game_server_web/live/user_live/settings.ex:2501
+#: lib/game_server_web/live/user_live/settings.ex:2396
+#: lib/game_server_web/live/user_live/settings.ex:2396
 #, elixir-autogen, elixir-format
 msgid "Member demoted to member"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2460
-#: lib/game_server_web/live/user_live/settings.ex:2460
+#: lib/game_server_web/live/user_live/settings.ex:2355
+#: lib/game_server_web/live/user_live/settings.ex:2355
 #, elixir-autogen, elixir-format
 msgid "Member kicked"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2481
-#: lib/game_server_web/live/user_live/settings.ex:2481
+#: lib/game_server_web/live/user_live/settings.ex:2376
+#: lib/game_server_web/live/user_live/settings.ex:2376
 #, elixir-autogen, elixir-format
 msgid "Member promoted to admin"
 msgstr ""
 
-#: lib/game_server_web/live/groups_live.ex:488
-#: lib/game_server_web/live/groups_live.ex:488
+#: lib/game_server_web/live/groups_live.ex:499
+#: lib/game_server_web/live/groups_live.ex:499
 #, elixir-autogen, elixir-format
 msgid "No groups found"
 msgstr ""
 
-#: lib/game_server_web/live/groups_live.ex:636
-#: lib/game_server_web/live/groups_live.ex:636
+#: lib/game_server_web/live/groups_live.ex:639
+#: lib/game_server_web/live/groups_live.ex:639
 #, elixir-autogen, elixir-format
 msgid "No members yet"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2596
-#: lib/game_server_web/live/user_live/settings.ex:2596
+#: lib/game_server_web/live/user_live/settings.ex:2504
+#: lib/game_server_web/live/user_live/settings.ex:2504
 #, elixir-autogen, elixir-format
 msgid "Notification sent to %{count} member"
 msgid_plural "Notification sent to %{count} members"
 msgstr[0] ""
 msgstr[1] ""
 
-#: lib/game_server_web/live/groups_live.ex:521
-#: lib/game_server_web/live/groups_live.ex:521
-#: lib/game_server_web/live/user_live/settings.ex:1172
-#: lib/game_server_web/live/user_live/settings.ex:1172
+#: lib/game_server_web/live/groups_live.ex:524
+#: lib/game_server_web/live/groups_live.ex:524
+#: lib/game_server_web/live/user_live/settings.ex:1273
+#: lib/game_server_web/live/user_live/settings.ex:1273
 #, elixir-autogen, elixir-format
 msgid "Pending"
 msgstr ""
 
-#: lib/game_server_web/live/groups_live.ex:601
-#: lib/game_server_web/live/groups_live.ex:601
+#: lib/game_server_web/live/groups_live.ex:604
+#: lib/game_server_web/live/groups_live.ex:604
 #, elixir-autogen, elixir-format
 msgid "Player"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2618
-#: lib/game_server_web/live/user_live/settings.ex:2618
+#: lib/game_server_web/live/user_live/settings.ex:2526
+#: lib/game_server_web/live/user_live/settings.ex:2526
 #, elixir-autogen, elixir-format
 msgid "Please enter a message"
 msgstr ""
 
-#: lib/game_server_web/live/groups_live.ex:678
-#: lib/game_server_web/live/groups_live.ex:678
+#: lib/game_server_web/live/groups_live.ex:671
+#: lib/game_server_web/live/groups_live.ex:671
 #, elixir-autogen, elixir-format
 msgid "Request Pending"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2307
-#: lib/game_server_web/live/user_live/settings.ex:2307
+#: lib/game_server_web/live/user_live/settings.ex:2202
+#: lib/game_server_web/live/user_live/settings.ex:2202
 #, elixir-autogen, elixir-format
 msgid "Request approved"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2331
-#: lib/game_server_web/live/user_live/settings.ex:2331
+#: lib/game_server_web/live/user_live/settings.ex:2226
+#: lib/game_server_web/live/user_live/settings.ex:2226
 #, elixir-autogen, elixir-format
 msgid "Request rejected"
 msgstr ""
 
-#: lib/game_server_web/live/groups_live.ex:695
-#: lib/game_server_web/live/groups_live.ex:695
+#: lib/game_server_web/live/groups_live.ex:688
+#: lib/game_server_web/live/groups_live.ex:688
 #, elixir-autogen, elixir-format
 msgid "Request to Join"
 msgstr ""
 
-#: lib/game_server_web/live/groups_live.ex:602
-#: lib/game_server_web/live/groups_live.ex:602
+#: lib/game_server_web/live/groups_live.ex:605
+#: lib/game_server_web/live/groups_live.ex:605
 #, elixir-autogen, elixir-format
 msgid "Role"
 msgstr ""
 
-#: lib/game_server_web/live/groups_live.ex:205
-#: lib/game_server_web/live/groups_live.ex:205
+#: lib/game_server_web/live/groups_live.ex:212
+#: lib/game_server_web/live/groups_live.ex:212
 #, elixir-autogen, elixir-format
 msgid "This group does not accept join requests"
 msgstr ""
 
-#: lib/game_server_web/live/groups_live.ex:165
-#: lib/game_server_web/live/groups_live.ex:165
+#: lib/game_server_web/live/groups_live.ex:172
+#: lib/game_server_web/live/groups_live.ex:172
 #, elixir-autogen, elixir-format
 msgid "This group is not public"
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:2571
-#: lib/game_server_web/live/user_live/settings.ex:2571
+#: lib/game_server_web/live/user_live/settings.ex:2479
+#: lib/game_server_web/live/user_live/settings.ex:2479
 #, elixir-autogen, elixir-format
 msgid "User is already a member"
 msgstr ""
 
-#: lib/game_server_web/live/groups_live.ex:198
-#: lib/game_server_web/live/groups_live.ex:198
+#: lib/game_server_web/live/groups_live.ex:205
+#: lib/game_server_web/live/groups_live.ex:205
 #, elixir-autogen, elixir-format
 msgid "You already have a pending request"
 msgstr ""
 
-#: lib/game_server_web/live/groups_live.ex:162
-#: lib/game_server_web/live/groups_live.ex:162
-#: lib/game_server_web/live/groups_live.ex:194
-#: lib/game_server_web/live/groups_live.ex:194
+#: lib/game_server_web/live/groups_live.ex:169
+#: lib/game_server_web/live/groups_live.ex:169
+#: lib/game_server_web/live/groups_live.ex:201
+#: lib/game_server_web/live/groups_live.ex:201
 #, elixir-autogen, elixir-format
 msgid "You are already a member"
 msgstr ""
 
-#: lib/game_server_web/live/groups_live.ex:157
-#: lib/game_server_web/live/groups_live.ex:157
+#: lib/game_server_web/live/groups_live.ex:164
+#: lib/game_server_web/live/groups_live.ex:164
 #, elixir-autogen, elixir-format
 msgid "You have joined the group"
 msgstr ""
 
-#: lib/game_server_web/live/groups_live.ex:231
-#: lib/game_server_web/live/groups_live.ex:231
+#: lib/game_server_web/live/groups_live.ex:238
+#: lib/game_server_web/live/groups_live.ex:238
 #, elixir-autogen, elixir-format
 msgid "You have left the group"
 msgstr ""
 
-#: lib/game_server_web/live/groups_live.ex:479
-#: lib/game_server_web/live/groups_live.ex:479
+#: lib/game_server_web/live/groups_live.ex:490
+#: lib/game_server_web/live/groups_live.ex:490
 #, elixir-autogen, elixir-format
 msgid "members"
 msgstr ""
 
-#: lib/game_server_web/live/groups_live.ex:618
-#: lib/game_server_web/live/groups_live.ex:618
+#: lib/game_server_web/live/groups_live.ex:621
+#: lib/game_server_web/live/groups_live.ex:621
 #, elixir-autogen, elixir-format
 msgid "user-%{id}"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:2151
+#: lib/game_server_web/live/user_live/settings.ex:2151
+#, elixir-autogen, elixir-format
+msgid "Could not decline invite: %{reason}"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:2143
+#: lib/game_server_web/live/user_live/settings.ex:2143
+#, elixir-autogen, elixir-format
+msgid "Invitation declined"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:2455
+#: lib/game_server_web/live/user_live/settings.ex:2455
+#, elixir-autogen, elixir-format
+msgid "Join request approved"
 msgstr ""

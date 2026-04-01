@@ -80,8 +80,8 @@ defmodule GameServerWeb.Endpoint do
   defp maybe_session(%{path_info: ["api", "v1" | _]} = conn, _opts), do: conn
   defp maybe_session(conn, _opts), do: Plug.Session.call(conn, @compiled_session_opts)
 
-  # Locale feature temporarily disabled — uncomment when re-enabling
-  # plug GameServerWeb.Plugs.LocalePath
+  # Extract optional locale prefix from URL (e.g. /es/...) and set Gettext locale
+  plug GameServerWeb.Plugs.LocalePath
 
   plug GameServerWeb.Plugs.DynamicCors
 
