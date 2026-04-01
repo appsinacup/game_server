@@ -161,7 +161,7 @@ defmodule GameServerWeb.Layouts do
         <% end %>
       </div>
     <% end %>
-    <div class={["flex flex-col", if(@flush, do: "h-dvh overflow-hidden", else: "")]}>
+    <div class={["flex flex-col", if(@flush, do: "h-dvh overflow-hidden", else: "min-h-dvh")]}>
       <header class={[
         "navbar px-4 sm:px-6 lg:px-8 z-50 shrink-0",
         if(!@flush, do: "sticky top-0", else: ""),
@@ -224,6 +224,11 @@ defmodule GameServerWeb.Layouts do
                   {gettext("Groups")}
                 </.link>
               </li>
+              <%= if filtered_nav_links(@nav_links, if(@current_scope && @current_scope.user.is_admin, do: :admin, else: :authenticated), true) != [] do %>
+                <li class="flex items-center px-0">
+                  <div class="w-px h-6 bg-base-content/20"></div>
+                </li>
+              <% end %>
               <%= for link <- filtered_nav_links(@nav_links, if(@current_scope && @current_scope.user.is_admin, do: :admin, else: :authenticated), true) do %>
                 <li>
                   <a
@@ -286,6 +291,9 @@ defmodule GameServerWeb.Layouts do
                   {gettext("Groups")}
                 </.link>
               </li>
+              <li class="flex items-center px-0">
+                <div class="w-px h-6 bg-base-content/20"></div>
+              </li>
               <li>
                 <.link
                   href={~p"/users/log-in"}
@@ -316,6 +324,11 @@ defmodule GameServerWeb.Layouts do
                   {gettext("Register")}
                 </.link>
               </li>
+              <%= if filtered_nav_links(@nav_links, if(@current_scope, do: :authenticated, else: :unauthenticated)) != [] do %>
+                <li class="flex items-center px-0">
+                  <div class="w-px h-6 bg-base-content/20"></div>
+                </li>
+              <% end %>
             <% end %>
             <%= for link <- filtered_nav_links(@nav_links, if(@current_scope, do: :authenticated, else: :unauthenticated)) do %>
               <li>
@@ -336,8 +349,8 @@ defmodule GameServerWeb.Layouts do
                 </a>
               </li>
             <% end %>
-            <li>
-              <.theme_toggle />
+            <li class="flex items-center px-0">
+              <div class="w-px h-6 bg-base-content/20"></div>
             </li>
             <%= if length(@known_locales) > 1 do %>
               <li>
@@ -351,6 +364,9 @@ defmodule GameServerWeb.Layouts do
               </li>
             <% end %>
             <%= if @current_scope do %>
+              <li class="flex items-center px-0">
+                <div class="w-px h-6 bg-base-content/20"></div>
+              </li>
               <li>
                 <div class="dropdown dropdown-end">
                   <button
@@ -457,6 +473,9 @@ defmodule GameServerWeb.Layouts do
                 </div>
               </li>
             <% end %>
+            <li>
+              <.theme_toggle />
+            </li>
           </ul>
           
     <!-- Mobile Navigation -->
@@ -485,7 +504,7 @@ defmodule GameServerWeb.Layouts do
                         "btn",
                         if(String.starts_with?(@current_path, "/users/settings"),
                           do: "btn-primary",
-                          else: "btn-outline"
+                          else: "btn-ghost"
                         )
                       ]}
                     >
@@ -500,7 +519,7 @@ defmodule GameServerWeb.Layouts do
                         "btn",
                         if(String.starts_with?(@current_path, "/notifications"),
                           do: "btn-primary",
-                          else: "btn-outline"
+                          else: "btn-ghost"
                         )
                       ]}
                     >
@@ -521,7 +540,7 @@ defmodule GameServerWeb.Layouts do
                         "btn",
                         if(String.starts_with?(@current_path, "/chat"),
                           do: "btn-primary",
-                          else: "btn-outline"
+                          else: "btn-ghost"
                         )
                       ]}
                     >
@@ -537,7 +556,7 @@ defmodule GameServerWeb.Layouts do
                           "btn",
                           if(String.starts_with?(@current_path, "/admin"),
                             do: "btn-primary",
-                            else: "btn-outline"
+                            else: "btn-ghost"
                           )
                         ]}
                       >
@@ -546,14 +565,14 @@ defmodule GameServerWeb.Layouts do
                       </a>
                     </li>
                   <% end %>
-                  <li>
+                  <li class="mt-3">
                     <a
                       href={~p"/leaderboards"}
                       class={[
                         "btn",
                         if(String.starts_with?(@current_path, "/leaderboards"),
                           do: "btn-primary",
-                          else: "btn-outline"
+                          else: "btn-ghost"
                         )
                       ]}
                     >
@@ -568,7 +587,7 @@ defmodule GameServerWeb.Layouts do
                         "btn",
                         if(String.starts_with?(@current_path, "/achievements"),
                           do: "btn-primary",
-                          else: "btn-outline"
+                          else: "btn-ghost"
                         )
                       ]}
                     >
@@ -581,7 +600,7 @@ defmodule GameServerWeb.Layouts do
                       href={~p"/groups"}
                       class={[
                         "btn",
-                        if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")
+                        if(@current_path == "/groups", do: "btn-primary", else: "btn-ghost")
                       ]}
                     >
                       <.icon name="hero-user-group-solid" class="w-4 h-4" />
@@ -598,7 +617,7 @@ defmodule GameServerWeb.Layouts do
                           "btn",
                           if(String.starts_with?(@current_path, link["href"]),
                             do: "btn-primary",
-                            else: "btn-outline"
+                            else: "btn-ghost"
                           )
                         ]}
                       >
@@ -615,7 +634,7 @@ defmodule GameServerWeb.Layouts do
                         "btn",
                         if(String.starts_with?(@current_path, "/users/log-in"),
                           do: "btn-primary",
-                          else: "btn-outline"
+                          else: "btn-ghost"
                         )
                       ]}
                     >
@@ -630,7 +649,7 @@ defmodule GameServerWeb.Layouts do
                         "btn",
                         if(String.starts_with?(@current_path, "/users/register"),
                           do: "btn-primary",
-                          else: "btn-outline"
+                          else: "btn-ghost"
                         )
                       ]}
                     >
@@ -645,7 +664,7 @@ defmodule GameServerWeb.Layouts do
                         "btn",
                         if(String.starts_with?(@current_path, "/leaderboards"),
                           do: "btn-primary",
-                          else: "btn-outline"
+                          else: "btn-ghost"
                         )
                       ]}
                     >
@@ -660,7 +679,7 @@ defmodule GameServerWeb.Layouts do
                         "btn",
                         if(String.starts_with?(@current_path, "/achievements"),
                           do: "btn-primary",
-                          else: "btn-outline"
+                          else: "btn-ghost"
                         )
                       ]}
                     >
@@ -673,7 +692,7 @@ defmodule GameServerWeb.Layouts do
                       href={~p"/groups"}
                       class={[
                         "btn",
-                        if(@current_path == "/groups", do: "btn-primary", else: "btn-outline")
+                        if(@current_path == "/groups", do: "btn-primary", else: "btn-ghost")
                       ]}
                     >
                       <.icon name="hero-user-group-solid" class="w-4 h-4" />
@@ -696,7 +715,7 @@ defmodule GameServerWeb.Layouts do
                         "btn",
                         if(String.starts_with?(@current_path, link["href"]),
                           do: "btn-primary",
-                          else: "btn-outline"
+                          else: "btn-ghost"
                         )
                       ]}
                     >
@@ -705,22 +724,23 @@ defmodule GameServerWeb.Layouts do
                     </a>
                   </li>
                 <% end %>
+                <%= if @current_scope do %>
+                  <div class="mt-3"></div>
+                <% end %>
                 <%= if length(@known_locales) > 1 do %>
-                  <li class="mt-2">
-                    <div class="flex">
-                      <.language_dropdown
-                        locale={@locale}
-                        current_path={@current_path}
-                        current_query={@current_query}
-                        known_locales={@known_locales}
-                        mobile={true}
-                      />
-                    </div>
+                  <li class="[&>*]:!p-0 [&>*]:!bg-transparent mt-3">
+                    <.language_dropdown
+                      locale={@locale}
+                      current_path={@current_path}
+                      current_query={@current_query}
+                      known_locales={@known_locales}
+                      mobile={true}
+                    />
                   </li>
                 <% end %>
                 <%= if @current_scope do %>
-                  <li class="mt-2">
-                    <.link href={~p"/users/log-out"} method="delete" class="btn btn-outline">
+                  <li class="mt-3">
+                    <.link href={~p"/users/log-out"} method="delete" class="btn btn-ghost">
                       <.icon name="hero-arrow-left-on-rectangle-solid" class="w-4 h-4" />
                       {gettext("Log out")}
                     </.link>
@@ -743,7 +763,7 @@ defmodule GameServerWeb.Layouts do
         </div>
         <.flash_group flash={@flash} />
       <% else %>
-        <main class="relative z-[2] px-4 py-4 sm:px-6 lg:px-8">
+        <main class="relative z-[2] px-4 py-4 sm:px-6 lg:px-8 flex-1">
           <div class="mx-auto max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-6xl space-y-4">
             {render_slot(@inner_block)}
           </div>
@@ -800,33 +820,40 @@ defmodule GameServerWeb.Layouts do
       )
 
     ~H"""
-    <div class="dropdown dropdown-end">
+    <div class={["dropdown dropdown-end", @mobile && "w-full"]}>
       <a
         href="#"
         tabindex="0"
         class={[
-          "btn btn-outline",
-          @mobile && "w-full justify-between text-base"
+          "btn",
+          @mobile && "btn-ghost w-full relative text-sm",
+          !@mobile && "btn-outline"
         ]}
       >
-        <span class="inline-flex items-center gap-2">
-          <.icon name="hero-globe-alt-solid" class="w-4 h-4" />
-          <span>{@label}</span>
-        </span>
-        <.icon name="hero-chevron-down-solid" class="w-3 h-3" />
+        <.icon name="hero-globe-alt-solid" class="w-4 h-4" />
+        {@label}
+        <.icon
+          name="hero-chevron-down-solid"
+          class={if(@mobile, do: "w-3 h-3 absolute right-3", else: "w-3 h-3")}
+        />
       </a>
       <ul
         tabindex="0"
         class={[
           "menu menu-sm dropdown-content mt-2 z-[1] p-2 shadow bg-base-100 rounded-box",
-          @mobile && "w-full"
+          @mobile && "w-full min-w-full"
         ]}
       >
         <%= for link <- @locale_links do %>
           <li>
             <a
               href={link.href}
-              class={["whitespace-nowrap", link.locale == @locale && "active"]}
+              class={[
+                @mobile && "btn",
+                @mobile && if(link.locale == @locale, do: "btn-primary", else: "btn-ghost"),
+                !@mobile && "whitespace-nowrap",
+                !@mobile && link.locale == @locale && "active"
+              ]}
             >
               {link.label}
             </a>
@@ -837,7 +864,9 @@ defmodule GameServerWeb.Layouts do
     """
   end
 
-  defp strip_locale_prefix(path, known_locales) when is_binary(path) do
+  def locale_labels, do: @locale_labels
+
+  def strip_locale_prefix(path, known_locales) when is_binary(path) do
     segments = String.split(path, "/", trim: true)
 
     case segments do
@@ -856,7 +885,7 @@ defmodule GameServerWeb.Layouts do
     end
   end
 
-  defp strip_locale_prefix(_, _known_locales), do: "/"
+  def strip_locale_prefix(_, _known_locales), do: "/"
 
   @app_version_fallback Mix.Project.config()[:version] || "1.0.0"
 
