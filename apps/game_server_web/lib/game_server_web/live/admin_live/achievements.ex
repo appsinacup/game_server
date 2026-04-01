@@ -16,6 +16,7 @@ defmodule GameServerWeb.AdminLive.Achievements do
       |> assign(:form, nil)
       |> assign(:grant_form, nil)
       |> assign(:selected_ids, MapSet.new())
+      |> assign(:translation_values, %{})
       |> reload_achievements()
 
     {:ok, socket}
@@ -70,6 +71,7 @@ defmodule GameServerWeb.AdminLive.Achievements do
                     <th>Hidden</th>
                     <th>Order</th>
                     <th>Unlock %</th>
+                    <th>i18n</th>
                     <th>Created</th>
                     <th>Actions</th>
                   </tr>
@@ -98,6 +100,19 @@ defmodule GameServerWeb.AdminLive.Achievements do
                     </td>
                     <td class="text-sm">{a.sort_order}</td>
                     <td class="text-sm">{Achievements.unlock_percentage(a.id)}%</td>
+                    <td class="text-sm">
+                      <% pct = translation_completeness(a.metadata) %>
+                      <span class={[
+                        "badge badge-sm",
+                        cond do
+                          pct == 100 -> "badge-success"
+                          pct > 0 -> "badge-warning"
+                          true -> "badge-ghost"
+                        end
+                      ]}>
+                        {pct}%
+                      </span>
+                    </td>
                     <td class="text-sm">
                       {Calendar.strftime(a.inserted_at, "%Y-%m-%d %H:%M")}
                     </td>
@@ -188,6 +203,47 @@ defmodule GameServerWeb.AdminLive.Achievements do
               />
               <.input field={@form[:sort_order]} type="number" label="Sort Order" />
               <.input field={@form[:hidden]} type="checkbox" label="Hidden (only shown after unlock)" />
+
+              <%!-- Per-locale translations --%>
+              <% locales = Gettext.known_locales(GameServerWeb.Gettext) -- ["en"] %>
+              <%= if locales != [] do %>
+                <div class="collapse collapse-arrow bg-base-200 mt-4">
+                  <input type="checkbox" />
+                  <div class="collapse-title font-medium text-sm">
+                    Translations ({Enum.join(locales, ", ")})
+                  </div>
+                  <div class="collapse-content space-y-3">
+                    <%= for locale <- locales do %>
+                      <div class="text-xs font-semibold uppercase text-base-content/50 mt-2">
+                        {locale}
+                      </div>
+                      <div class="fieldset mb-2">
+                        <label>
+                          <span class="label mb-1">Title ({locale})</span>
+                          <input
+                            type="text"
+                            name={"translations[#{locale}][title]"}
+                            value={get_in(@translation_values, [locale, "title"]) || ""}
+                            class="w-full input"
+                            placeholder="Leave empty to use default"
+                          />
+                        </label>
+                      </div>
+                      <div class="fieldset mb-2">
+                        <label>
+                          <span class="label mb-1">Description ({locale})</span>
+                          <textarea
+                            name={"translations[#{locale}][description]"}
+                            class="w-full textarea textarea-bordered"
+                            rows="2"
+                            placeholder="Leave empty to use default"
+                          ><%= get_in(@translation_values, [locale, "description"]) || "" %></textarea>
+                        </label>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
 
               <div class="form-control">
                 <label class="label"><span class="label-text">Metadata (JSON)</span></label>
@@ -351,6 +407,7 @@ defmodule GameServerWeb.AdminLive.Achievements do
     {:noreply,
      socket
      |> assign(:selected_achievement, nil)
+     |> assign(:translation_values, %{})
      |> assign(:form, form)}
   end
 
@@ -363,6 +420,7 @@ defmodule GameServerWeb.AdminLive.Achievements do
     {:noreply,
      socket
      |> assign(:selected_achievement, ach)
+     |> assign(:translation_values, extract_translation_values(ach.metadata))
      |> assign(:form, form)}
   end
 
@@ -373,9 +431,12 @@ defmodule GameServerWeb.AdminLive.Achievements do
      |> assign(:form, nil)}
   end
 
-  def handle_event("save_achievement", %{"achievement" => params}, socket) do
+  def handle_event("save_achievement", %{"achievement" => params} = all_params, socket) do
     # Parse metadata JSON
     params = parse_metadata(params)
+
+    # Merge translations into metadata
+    params = merge_translations_into_metadata(params, Map.get(all_params, "translations", %{}))
 
     if socket.assigns.selected_achievement do
       case Achievements.update_achievement(socket.assigns.selected_achievement, params) do
@@ -550,5 +611,52 @@ defmodule GameServerWeb.AdminLive.Achievements do
       _ ->
         params
     end
+  end
+
+  defp extract_translation_values(nil), do: %{}
+
+  defp extract_translation_values(metadata) when is_map(metadata) do
+    titles = Map.get(metadata, "titles", %{})
+    descriptions = Map.get(metadata, "descriptions", %{})
+
+    locales = MapSet.union(MapSet.new(Map.keys(titles)), MapSet.new(Map.keys(descriptions)))
+
+    Map.new(locales, fn locale ->
+      {locale,
+       %{
+         "title" => Map.get(titles, locale, ""),
+         "description" => Map.get(descriptions, locale, "")
+       }}
+    end)
+  end
+
+  defp merge_translations_into_metadata(params, translations) when translations == %{}, do: params
+
+  defp merge_translations_into_metadata(params, translations) do
+    metadata = Map.get(params, "metadata", %{})
+
+    {titles, descriptions} =
+      Enum.reduce(translations, {%{}, %{}}, fn {locale, fields}, {titles_acc, descs_acc} ->
+        title = String.trim(Map.get(fields, "title", ""))
+        desc = String.trim(Map.get(fields, "description", ""))
+
+        titles_acc = if title != "", do: Map.put(titles_acc, locale, title), else: titles_acc
+        descs_acc = if desc != "", do: Map.put(descs_acc, locale, desc), else: descs_acc
+
+        {titles_acc, descs_acc}
+      end)
+
+    metadata =
+      metadata
+      |> then(fn m ->
+        if titles == %{}, do: Map.delete(m, "titles"), else: Map.put(m, "titles", titles)
+      end)
+      |> then(fn m ->
+        if descriptions == %{},
+          do: Map.delete(m, "descriptions"),
+          else: Map.put(m, "descriptions", descriptions)
+      end)
+
+    Map.put(params, "metadata", metadata)
   end
 end

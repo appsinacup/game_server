@@ -1,3 +1,9 @@
+# April 2026
+
+- [added] Translations for Spanish, French, Romanian.
+- [changed] Moved some menu items under dropdowns.
+- [changed] Add translation support for Achievements under metadata through admin portal (same as for Leaderboards)
+
 # March 2026
 
 - [changed] Make Leaderboards accept label instead of user_id.

@@ -520,13 +520,17 @@ defmodule GameServerWeb.CoreComponents do
     ~H"""
     <div class={["flex flex-wrap items-center gap-2", @class]}>
       <button phx-click={@on_prev} class="btn btn-xs" disabled={@page <= 1}>
-        Prev
+        {gettext("Prev")}
       </button>
       <div class="text-xs text-base-content/70">
         <%= if @total_count do %>
-          page {@page} / {@total_pages} ({@total_count} total)
+          {gettext("page %{page} / %{total_pages} (%{total} total)",
+            page: @page,
+            total_pages: @total_pages,
+            total: @total_count
+          )}
         <% else %>
-          page {@page} / {@total_pages}
+          {gettext("page %{page} / %{total_pages}", page: @page, total_pages: @total_pages)}
         <% end %>
       </div>
       <button
@@ -534,7 +538,7 @@ defmodule GameServerWeb.CoreComponents do
         class="btn btn-xs"
         disabled={@page >= @total_pages || @total_pages == 0}
       >
-        Next
+        {gettext("Next")}
       </button>
       <%= if @on_page_size && @page_size do %>
         <form phx-change={@on_page_size} class="inline">

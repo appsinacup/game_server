@@ -60,4 +60,35 @@ defmodule GameServer.Achievements.Achievement do
     |> validate_number(:progress_target, greater_than: 0)
     |> unique_constraint(:slug)
   end
+
+  @doc """
+  Returns the localized title for the given locale.
+
+  Looks up `metadata["titles"][locale]`, falling back to `title`.
+
+  ## Examples
+
+      iex> a = %Achievement{title: "First Kill", metadata: %{"titles" => %{"es" => "Primera Baja"}}}
+      iex> Achievement.localized_title(a, "es")
+      "Primera Baja"
+      iex> Achievement.localized_title(a, "en")
+      "First Kill"
+  """
+  def localized_title(%{metadata: metadata, title: title}, locale) when is_binary(locale) do
+    get_in(metadata || %{}, ["titles", locale]) || title
+  end
+
+  def localized_title(%{title: title}, _locale), do: title
+
+  @doc """
+  Returns the localized description for the given locale.
+
+  Looks up `metadata["descriptions"][locale]`, falling back to `description`.
+  """
+  def localized_description(%{metadata: metadata, description: desc}, locale)
+      when is_binary(locale) do
+    get_in(metadata || %{}, ["descriptions", locale]) || desc
+  end
+
+  def localized_description(%{description: desc}, _locale), do: desc
 end

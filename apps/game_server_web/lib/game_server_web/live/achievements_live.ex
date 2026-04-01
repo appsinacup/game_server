@@ -8,6 +8,7 @@ defmodule GameServerWeb.AchievementsLive do
   use GameServerWeb, :live_view
 
   alias GameServer.Achievements
+  alias GameServer.Achievements.Achievement
 
   @page_size 100
 
@@ -22,6 +23,7 @@ defmodule GameServerWeb.AchievementsLive do
 
     socket =
       socket
+      |> assign(:locale, Gettext.get_locale(GameServerWeb.Gettext))
       |> assign(:page_title, dgettext("achievements", "Achievements"))
       |> assign(:page, 1)
       |> assign(:page_size, @page_size)
@@ -212,6 +214,7 @@ defmodule GameServerWeb.AchievementsLive do
               :for={item <- @achievements}
               item={item}
               logged_in={@current_scope != nil && @current_scope.user != nil}
+              locale={@locale}
             />
           </div>
         <% end %>
@@ -243,10 +246,14 @@ defmodule GameServerWeb.AchievementsLive do
     progress = assigns.item.progress
     unlocked_at = assigns.item.unlocked_at
     logged_in = assigns.logged_in
+    locale = assigns.locale
     target = achievement.progress_target || 1
     unlocked? = unlocked_at != nil
     hidden? = achievement.hidden && !unlocked?
     pct = if target > 0, do: min(trunc(progress / target * 100), 100), else: 0
+
+    localized_title = Achievement.localized_title(achievement, locale)
+    localized_desc = Achievement.localized_description(achievement, locale)
 
     assigns =
       assigns
@@ -258,6 +265,8 @@ defmodule GameServerWeb.AchievementsLive do
       |> assign(:hidden?, hidden?)
       |> assign(:pct, pct)
       |> assign(:logged_in, logged_in)
+      |> assign(:localized_title, localized_title)
+      |> assign(:localized_desc, localized_desc)
 
     ~H"""
     <div class={[
@@ -303,7 +312,7 @@ defmodule GameServerWeb.AchievementsLive do
               "font-semibold text-sm leading-tight truncate",
               if(@hidden? || !@unlocked?, do: "text-base-content/60")
             ]}>
-              {if @hidden?, do: "???", else: @achievement.title}
+              {if @hidden?, do: "???", else: @localized_title}
             </h3>
 
             <p class={[
@@ -316,7 +325,7 @@ defmodule GameServerWeb.AchievementsLive do
             ]}>
               {if @hidden?,
                 do: dgettext("achievements", "Hidden achievement"),
-                else: @achievement.description}
+                else: @localized_desc}
             </p>
           </div>
         </div>
