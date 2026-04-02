@@ -278,7 +278,7 @@ msgid "Notification sent to %{count} member"
 msgid_plural "Notification sent to %{count} members"
 msgstr[0] "Notificare trimisă la %{count} membru"
 msgstr[1] "Notificări trimise la %{count} membri"
-msgstr[2] ""
+msgstr[2] "Notificări trimise la %{count} de membri"
 
 #: lib/game_server_web/live/groups_live.ex:524
 #: lib/game_server_web/live/groups_live.ex:524

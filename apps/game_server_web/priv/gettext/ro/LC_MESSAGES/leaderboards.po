@@ -18,7 +18,7 @@ msgid "%{count} season"
 msgid_plural "%{count} seasons"
 msgstr[0] "%{count} sezon"
 msgstr[1] "%{count} sezoane"
-msgstr[2] ""
+msgstr[2] "%{count} de sezoane"
 
 #: lib/game_server_web/live/leaderboards_live.ex:146
 #: lib/game_server_web/live/leaderboards_live.ex:146
