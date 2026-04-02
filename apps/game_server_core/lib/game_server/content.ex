@@ -458,7 +458,9 @@ defmodule GameServer.Content do
     "breaking" => {"breaking", "Breaking"},
     "deprecated" => {"deprecated", "Deprecated"},
     "perf" => {"perf", "Perf"},
-    "docs" => {"docs", "Docs"}
+    "docs" => {"docs", "Docs"},
+    "started" => {"started", "Started"},
+    "investigated" => {"investigated", "Investigated"}
   }
 
   # Convert `[tag]` markers in changelog HTML into colored pill badges.
