@@ -1,7 +1,7 @@
 # `GameServer.Content`
 
 Reads and renders Markdown content from files/directories configured
-in the theme JSON config (`"changelog"` and `"blog"` keys).
+in the theme JSON config (`"changelog"`, `"roadmap"`, and `"blog"` keys).
 
 Paths are resolved relative to the project working directory.
 
@@ -99,6 +99,23 @@ Each post is a map with keys:
 ```
 
 Clears all cached content so the next call re-reads from disk.
+
+# `roadmap_html`
+
+```elixir
+@spec roadmap_html() :: String.t() | nil
+```
+
+Returns the rendered roadmap HTML, or `nil` when the roadmap path is
+not configured or the file doesn't exist.
+
+# `roadmap_path`
+
+```elixir
+@spec roadmap_path() :: String.t() | nil
+```
+
+Returns the resolved absolute path to the roadmap file, or `nil`.
 
 ---
 

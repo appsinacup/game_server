@@ -1,4 +1,4 @@
-# GameServer v1.0.856 - API Reference
+# GameServer v1.0.857 - API Reference
 
 ## Modules
 
@@ -29,7 +29,7 @@ and email-change workflows.
 - [GameServer.Chat.Message](GameServer.Chat.Message.md): Ecto schema for the `chat_messages` table.
 - [GameServer.Chat.ReadCursor](GameServer.Chat.ReadCursor.md): Ecto schema for the `chat_read_cursors` table.
 - [GameServer.Content](GameServer.Content.md): Reads and renders Markdown content from files/directories configured
-in the theme JSON config (`"changelog"` and `"blog"` keys).
+in the theme JSON config (`"changelog"`, `"roadmap"`, and `"blog"` keys).
 - [GameServer.Env](GameServer.Env.md): Helpers for reading and parsing environment variables.
 - [GameServer.Friends](GameServer.Friends.md): Friends context - handles friend requests and relationships.
 - [GameServer.Friends.Friendship](GameServer.Friends.Friendship.md): Ecto schema representing a friendship/request between two users.

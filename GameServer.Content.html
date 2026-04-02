@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.856">
+    <meta name="project" content="GameServer v1.0.857">
 
 
-    <title>GameServer.Content — GameServer v1.0.856</title>
+    <title>GameServer.Content — GameServer v1.0.857</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-E7D99220.js"></script>
+    <script defer src="dist/sidebar_items-3E8F17F1.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.856
+          v1.0.857
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Content</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.856)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.857)</small>
 
     </h1>
 
@@ -110,7 +110,7 @@ GameServer
 
     <section id="moduledoc">
 <p>Reads and renders Markdown content from files/directories configured
-in the theme JSON config (<code class="inline">&quot;changelog&quot;</code> and <code class="inline">&quot;blog&quot;</code> keys).</p><p>Paths are resolved relative to the project working directory.</p><p>All content is cached in <code class="inline">:persistent_term</code> after the first read.
+in the theme JSON config (<code class="inline">&quot;changelog&quot;</code>, <code class="inline">&quot;roadmap&quot;</code>, and <code class="inline">&quot;blog&quot;</code> keys).</p><p>Paths are resolved relative to the project working directory.</p><p>All content is cached in <code class="inline">:persistent_term</code> after the first read.
 Call <a href="#reload/0"><code class="inline">reload/0</code></a> to invalidate everything (e.g. after a config change).</p>
     </section>
 
@@ -230,6 +230,27 @@ is attempted.</p></div>
       </div>
 
         <div class="summary-synopsis"><p>Clears all cached content so the next call re-reads from disk.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#roadmap_html/0" data-no-tooltip="" translate="no">roadmap_html()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns the rendered roadmap HTML, or <code class="inline">nil</code> when the roadmap path is
+not configured or the file doesn't exist.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#roadmap_path/0" data-no-tooltip="" translate="no">roadmap_path()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns the resolved absolute path to the roadmap file, or <code class="inline">nil</code>.</p></div>
 
     </div>
 
@@ -490,6 +511,55 @@ is attempted.</p>
       </div>
 
 <p>Clears all cached content so the next call re-reads from disk.</p>
+  </section>
+</section>
+<section class="detail" id="roadmap_html/0">
+
+  <div class="detail-header">
+    <a href="#roadmap_html/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">roadmap_html()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> roadmap_html() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil</pre>
+
+      </div>
+
+<p>Returns the rendered roadmap HTML, or <code class="inline">nil</code> when the roadmap path is
+not configured or the file doesn't exist.</p>
+  </section>
+</section>
+<section class="detail" id="roadmap_path/0">
+
+  <div class="detail-header">
+    <a href="#roadmap_path/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">roadmap_path()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> roadmap_path() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil</pre>
+
+      </div>
+
+<p>Returns the resolved absolute path to the roadmap file, or <code class="inline">nil</code>.</p>
   </section>
 </section>
 
