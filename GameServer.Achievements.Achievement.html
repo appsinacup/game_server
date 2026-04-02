@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.850">
+    <meta name="project" content="GameServer v1.0.852">
 
 
-    <title>GameServer.Achievements.Achievement — GameServer v1.0.850</title>
+    <title>GameServer.Achievements.Achievement — GameServer v1.0.852</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-B22A2C79.js"></script>
+    <script defer src="dist/sidebar_items-E7D99220.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.850
+          v1.0.852
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Achievements.<wbr>Achievement</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.850)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.852)</small>
 
     </h1>
 
@@ -131,6 +131,32 @@ GameServer
         <a href="#t:t/0" data-no-tooltip="" translate="no">t()</a>
 
       </div>
+
+    </div>
+
+</div>
+<div class="summary-functions summary">
+  <h3>
+    <a href="#functions">Functions</a>
+  </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#localized_description/2" data-no-tooltip="" translate="no">localized_description(map, locale)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns the localized description for the given locale.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#localized_title/2" data-no-tooltip="" translate="no">localized_title(map, locale)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns the localized title for the given locale.</p></div>
 
     </div>
 
@@ -184,6 +210,59 @@ GameServer
       </div>
 
 
+  </section>
+</section>
+
+    </div>
+  </section>
+
+  <section id="functions" class="details-list">
+    <h2 class="section-heading">
+      <a class="hover-link" href="#functions">
+        <i class="ri-link-m" aria-hidden="true"></i>
+      </a>
+      <span class="text">Functions</span>
+    </h2>
+
+    <div class="functions-list">
+<section class="detail" id="localized_description/2">
+
+  <div class="detail-header">
+    <a href="#localized_description/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">localized_description(map, locale)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Returns the localized description for the given locale.</p><p>Looks up <code class="inline">metadata[&quot;descriptions&quot;][locale]</code>, falling back to <code class="inline">description</code>.</p>
+  </section>
+</section>
+<section class="detail" id="localized_title/2">
+
+  <div class="detail-header">
+    <a href="#localized_title/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">localized_title(map, locale)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Returns the localized title for the given locale.</p><p>Looks up <code class="inline">metadata[&quot;titles&quot;][locale]</code>, falling back to <code class="inline">title</code>.</p><h2 id="localized_title/2-examples" class="section-heading"><a href="#localized_title/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p" data-group-id="6955068602-1">%</span><span class="nc" data-group-id="6955068602-1">Achievement</span><span class="p" data-group-id="6955068602-1">{</span><span class="ss">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;First Kill&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">metadata</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="6955068602-2">%{</span><span class="s">&quot;titles&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p" data-group-id="6955068602-3">%{</span><span class="s">&quot;es&quot;</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="s">&quot;Primera Baja&quot;</span><span class="p" data-group-id="6955068602-3">}</span><span class="p" data-group-id="6955068602-2">}</span><span class="p" data-group-id="6955068602-1">}</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="nc">Achievement</span><span class="o">.</span><span class="n">localized_title</span><span class="p" data-group-id="6955068602-4">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;es&quot;</span><span class="p" data-group-id="6955068602-4">)</span><span class="w">
+</span><span class="s">&quot;Primera Baja&quot;</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="nc">Achievement</span><span class="o">.</span><span class="n">localized_title</span><span class="p" data-group-id="6955068602-5">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;en&quot;</span><span class="p" data-group-id="6955068602-5">)</span><span class="w">
+</span><span class="s">&quot;First Kill&quot;</span></code></pre>
   </section>
 </section>
 

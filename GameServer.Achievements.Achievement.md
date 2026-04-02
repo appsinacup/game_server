@@ -34,6 +34,26 @@ An achievement is a goal or milestone that players can unlock.
 }
 ```
 
+# `localized_description`
+
+Returns the localized description for the given locale.
+
+Looks up `metadata["descriptions"][locale]`, falling back to `description`.
+
+# `localized_title`
+
+Returns the localized title for the given locale.
+
+Looks up `metadata["titles"][locale]`, falling back to `title`.
+
+## Examples
+
+    iex> a = %Achievement{title: "First Kill", metadata: %{"titles" => %{"es" => "Primera Baja"}}}
+    iex> Achievement.localized_title(a, "es")
+    "Primera Baja"
+    iex> Achievement.localized_title(a, "en")
+    "First Kill"
+
 ---
 
 *Consult [api-reference.md](api-reference.md) for complete listing*
