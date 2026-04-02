@@ -233,41 +233,7 @@ defmodule GameServerWeb.AdminLive.Index do
                 </div>
               </div>
 
-              <%!-- 10. Content i18n --%>
-              <div class="card bg-base-100 p-4">
-                <div class="text-sm font-semibold mb-2">Content i18n</div>
-                <div class="text-2xl font-bold">
-                  {if @content_i18n_stats.total > 0,
-                    do: trunc(@content_i18n_stats.translated / @content_i18n_stats.total * 100),
-                    else: 100}%
-                </div>
-                <div class="mt-2">
-                  <% pct =
-                    if @content_i18n_stats.total > 0,
-                      do: trunc(@content_i18n_stats.translated / @content_i18n_stats.total * 100),
-                      else: 100 %>
-                  <div class="w-full bg-base-300 rounded-full h-2">
-                    <div
-                      class={[
-                        "h-2 rounded-full transition-all",
-                        if(pct == 100, do: "bg-success", else: "bg-warning")
-                      ]}
-                      style={"width: #{pct}%"}
-                    >
-                    </div>
-                  </div>
-                </div>
-                <div class="text-xs text-base-content/60 mt-2 space-y-1">
-                  <div>
-                    {@content_i18n_stats.translated}/{@content_i18n_stats.total} items × locales
-                  </div>
-                  <div :for={{resource, stats} <- @content_i18n_stats.resources}>
-                    {resource}: {stats.translated}/{stats.total}
-                  </div>
-                </div>
-              </div>
-
-              <%!-- 11. Key-Value --%>
+              <%!-- 10. Key-Value --%>
               <div class="card bg-base-100 p-4">
                 <div class="flex items-center justify-between mb-2">
                   <div class="text-sm font-semibold">Key-Value</div>
