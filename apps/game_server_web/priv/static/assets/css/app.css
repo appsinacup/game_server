@@ -12006,6 +12006,21 @@
       }
     }
   }
+  .xl\:flex {
+    @media (width >= 80rem) {
+      display: flex;
+    }
+  }
+  .xl\:hidden {
+    @media (width >= 80rem) {
+      display: none;
+    }
+  }
+  .xl\:inline {
+    @media (width >= 80rem) {
+      display: inline;
+    }
+  }
   .xl\:max-w-6xl {
     @media (width >= 80rem) {
       max-width: var(--container-6xl);
@@ -12024,6 +12039,11 @@
   .xl\:grid-cols-6 {
     @media (width >= 80rem) {
       grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+  }
+  .\32 xl\:inline {
+    @media (width >= 96rem) {
+      display: inline;
     }
   }
   .dark\:border-blue-800 {

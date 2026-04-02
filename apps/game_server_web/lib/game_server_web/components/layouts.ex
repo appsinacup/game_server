@@ -174,13 +174,13 @@ defmodule GameServerWeb.Layouts do
             <img src={Map.get(@theme, "logo")} width="36" alt={title} />
             <span class="text-lg font-bold">{title}</span>
             <%= if tagline && tagline != "" do %>
-              <span class="text-sm opacity-80 ml-1 hidden lg:inline">: {tagline}</span>
+              <span class="text-sm opacity-80 ml-1 hidden xl:inline">{tagline}</span>
             <% end %>
           </a>
         </div>
         <div class="flex-none">
           <!-- Desktop Navigation -->
-          <ul class="hidden lg:flex flex-row px-1 space-x-4 items-center">
+          <ul class="hidden xl:flex flex-row px-1 space-x-4 items-center">
             <%= if @current_scope do %>
               <li>
                 <.link
@@ -496,7 +496,7 @@ defmodule GameServerWeb.Layouts do
           </ul>
           
     <!-- Mobile Navigation -->
-          <div class="lg:hidden">
+          <div class="xl:hidden">
             <div class="dropdown dropdown-end">
               <button tabindex="0" class="btn btn-ghost btn-circle">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -132,14 +132,28 @@ defmodule GameServer.Accounts.User do
   end
 
   defp validate_password(changeset, opts) do
+    min_length = min_password_length()
+
     changeset
     |> validate_required([:password])
-    |> validate_length(:password, min: 12, max: 72)
+    |> validate_length(:password, min: min_length, max: 72)
     # Examples of additional password validation:
     # |> validate_format(:password, ~r/[a-z]/, message: "at least one lower case character")
     # |> validate_format(:password, ~r/[A-Z]/, message: "at least one upper case character")
     # |> validate_format(:password, ~r/[!?@#$%^&*_0-9]/, message: "at least one digit or punctuation character")
     |> maybe_hash_password(opts)
+  end
+
+  @doc """
+  Returns the minimum password length, configurable via the `MIN_PASSWORD_LENGTH`
+  environment variable. Defaults to 8 if not set.
+  """
+  @spec min_password_length() :: pos_integer()
+  def min_password_length do
+    case System.get_env("MIN_PASSWORD_LENGTH") do
+      nil -> 8
+      val -> String.to_integer(val)
+    end
   end
 
   defp maybe_hash_password(changeset, opts) do

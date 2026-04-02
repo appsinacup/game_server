@@ -121,10 +121,7 @@ defmodule GameServerWeb.UserLive.Settings do
           </div>
 
           <div class="card bg-base-200 p-4 rounded-lg">
-            <div class="font-semibold">{dgettext("settings", "Metadata")}</div>
-            <div class="text-sm mt-2 font-mono text-xs bg-base-300 p-3 rounded-lg overflow-auto text-base-content/80">
-              <pre phx-no-curly-interpolation><%= Jason.encode!(@user.metadata || %{}, pretty: true) %></pre>
-            </div>
+            <div class="font-semibold">{dgettext("settings", "Password")}</div>
 
             <.form
               for={@password_form}
@@ -328,6 +325,13 @@ defmodule GameServerWeb.UserLive.Settings do
                 <% end %>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 p-4 rounded-lg mt-6">
+          <div class="font-semibold">{dgettext("settings", "Metadata")}</div>
+          <div class="text-sm mt-2 font-mono text-xs bg-base-300 p-3 rounded-lg overflow-auto text-base-content/80">
+            <pre phx-no-curly-interpolation><%= Jason.encode!(@user.metadata || %{}, pretty: true) %></pre>
           </div>
         </div>
 

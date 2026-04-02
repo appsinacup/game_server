@@ -3,6 +3,7 @@ defmodule GameServerWeb.AdminLive.Config do
 
   @mix_env Mix.env()
 
+  alias GameServer.Accounts.User
   alias GameServer.Accounts.UserNotifier
   alias GameServer.Hooks
   alias GameServer.Hooks.DynamicRpcs
@@ -173,6 +174,20 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                     <td class="font-mono text-sm break-all whitespace-normal">
                       DEVICE_AUTH_ENABLED: {@config.device_auth_enabled_env || "<unset>"}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="font-semibold">Password policy</td>
+                    <td>
+                      <%= if @config.min_password_length_env do %>
+                        <span class="badge badge-success">Custom</span>
+                      <% else %>
+                        <span class="badge badge-ghost">Default</span>
+                      <% end %>
+                    </td>
+                    <td class="font-mono text-sm break-all whitespace-normal">
+                      MIN_PASSWORD_LENGTH: {@config.min_password_length_env || "<undefined>"} <br />
+                      Effective: {@config.min_password_length_effective} characters
                     </td>
                   </tr>
                   <tr>
@@ -1542,6 +1557,8 @@ defmodule GameServerWeb.AdminLive.Config do
       theme_dark: theme_dark_variants(JSONConfig.get_theme()),
       device_auth_enabled_app: Application.get_env(:game_server_core, :device_auth_enabled),
       device_auth_enabled_env: System.get_env("DEVICE_AUTH_ENABLED"),
+      min_password_length_env: System.get_env("MIN_PASSWORD_LENGTH"),
+      min_password_length_effective: User.min_password_length(),
 
       # PHX/CORS runtime configuration (set via PHX_ALLOWED_ORIGINS)
       phx_allowed_origins_env: System.get_env("PHX_ALLOWED_ORIGINS"),

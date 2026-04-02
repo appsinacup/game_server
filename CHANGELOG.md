@@ -5,6 +5,7 @@
 - [changed] Add translation support for Achievements under metadata through admin portal (same as for Leaderboards).
 - [fixed] Dark mode flash (FOUC) on full page navigations — theme is now set server-side via cookie.
 - [added] **Roadmap** page.
+- [changed] Make min password configurable and default to 8 characters.
 
 # March 2026
 
