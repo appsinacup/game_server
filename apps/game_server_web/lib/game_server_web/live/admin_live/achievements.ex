@@ -659,4 +659,24 @@ defmodule GameServerWeb.AdminLive.Achievements do
 
     Map.put(params, "metadata", metadata)
   end
+
+  defp translation_completeness(nil), do: 0
+
+  defp translation_completeness(metadata) when is_map(metadata) do
+    locales = Gettext.known_locales(GameServerWeb.Gettext) -- ["en"]
+
+    if locales == [] do
+      100
+    else
+      titles = Map.get(metadata, "titles", %{})
+
+      translated =
+        Enum.count(locales, fn locale ->
+          title = Map.get(titles, locale, "")
+          is_binary(title) and String.trim(title) != ""
+        end)
+
+      trunc(translated / length(locales) * 100)
+    end
+  end
 end

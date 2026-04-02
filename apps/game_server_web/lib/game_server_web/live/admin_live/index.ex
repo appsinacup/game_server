@@ -233,7 +233,41 @@ defmodule GameServerWeb.AdminLive.Index do
                 </div>
               </div>
 
-              <%!-- 10. Key-Value --%>
+              <%!-- 10. Content i18n --%>
+              <div class="card bg-base-100 p-4">
+                <div class="text-sm font-semibold mb-2">Content i18n</div>
+                <div class="text-2xl font-bold">
+                  {if @content_i18n_stats.total > 0,
+                    do: trunc(@content_i18n_stats.translated / @content_i18n_stats.total * 100),
+                    else: 100}%
+                </div>
+                <div class="mt-2">
+                  <% pct =
+                    if @content_i18n_stats.total > 0,
+                      do: trunc(@content_i18n_stats.translated / @content_i18n_stats.total * 100),
+                      else: 100 %>
+                  <div class="w-full bg-base-300 rounded-full h-2">
+                    <div
+                      class={[
+                        "h-2 rounded-full transition-all",
+                        if(pct == 100, do: "bg-success", else: "bg-warning")
+                      ]}
+                      style={"width: #{pct}%"}
+                    >
+                    </div>
+                  </div>
+                </div>
+                <div class="text-xs text-base-content/60 mt-2 space-y-1">
+                  <div>
+                    {@content_i18n_stats.translated}/{@content_i18n_stats.total} items × locales
+                  </div>
+                  <div :for={{resource, stats} <- @content_i18n_stats.resources}>
+                    {resource}: {stats.translated}/{stats.total}
+                  </div>
+                </div>
+              </div>
+
+              <%!-- 11. Key-Value --%>
               <div class="card bg-base-100 p-4">
                 <div class="flex items-center justify-between mb-2">
                   <div class="text-sm font-semibold">Key-Value</div>
@@ -410,6 +444,7 @@ defmodule GameServerWeb.AdminLive.Index do
 
     # translation stats
     translation_stats = TranslationStats.all_completeness()
+    content_i18n_stats = compute_content_i18n_stats()
 
     # achievement stats
     achievements_count = Achievements.count_all_achievements()
@@ -467,6 +502,7 @@ defmodule GameServerWeb.AdminLive.Index do
        chat_by_group: Map.get(chat_by_type, "group", 0),
        chat_by_friend: Map.get(chat_by_type, "friend", 0),
        translation_stats: translation_stats,
+       content_i18n_stats: content_i18n_stats,
        achievements_count: achievements_count,
        achievements_unlocks: achievements_unlocks,
        achievement_stats: achievement_stats,
@@ -538,4 +574,58 @@ defmodule GameServerWeb.AdminLive.Index do
   end
 
   defp format_number(n), do: to_string(n)
+
+  defp compute_content_i18n_stats do
+    locales = Gettext.known_locales(GameServerWeb.Gettext) -- ["en"]
+
+    if locales == [] do
+      %{total: 0, translated: 0, resources: []}
+    else
+      # Leaderboards
+      leaderboards = GameServer.Leaderboards.list_leaderboards(page: 1, page_size: 10_000)
+      lb_total = length(leaderboards) * length(locales)
+
+      lb_translated =
+        Enum.reduce(leaderboards, 0, fn lb, acc ->
+          titles = get_in(lb.metadata || %{}, ["titles"]) || %{}
+
+          acc +
+            Enum.count(locales, fn locale ->
+              title = Map.get(titles, locale, "")
+              is_binary(title) and String.trim(title) != ""
+            end)
+        end)
+
+      # Achievements
+      achievements =
+        GameServer.Achievements.list_achievements(
+          page: 1,
+          page_size: 10_000,
+          include_hidden: true
+        )
+
+      ach_items = Enum.map(achievements, & &1.achievement)
+      ach_total = length(ach_items) * length(locales)
+
+      ach_translated =
+        Enum.reduce(ach_items, 0, fn a, acc ->
+          titles = get_in(a.metadata || %{}, ["titles"]) || %{}
+
+          acc +
+            Enum.count(locales, fn locale ->
+              title = Map.get(titles, locale, "")
+              is_binary(title) and String.trim(title) != ""
+            end)
+        end)
+
+      %{
+        total: lb_total + ach_total,
+        translated: lb_translated + ach_translated,
+        resources: [
+          {"Leaderboards", %{total: lb_total, translated: lb_translated}},
+          {"Achievements", %{total: ach_total, translated: ach_translated}}
+        ]
+      }
+    end
+  end
 end

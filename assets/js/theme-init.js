@@ -8,4 +8,7 @@
       ? "dark"
       : "light");
   document.documentElement.setAttribute("data-theme", d);
+  // Sync a cookie so the server can set data-theme on the next full page load
+  document.cookie =
+    "phx_theme=" + d + "; path=/; max-age=31536000; SameSite=Lax";
 })();

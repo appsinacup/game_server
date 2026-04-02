@@ -12,6 +12,9 @@ const setTheme = (theme) => {
     localStorage.removeItem("phx:theme");
   }
   document.documentElement.setAttribute("data-theme", actualTheme);
+  // Sync a cookie so the server can render data-theme on full page loads
+  document.cookie =
+    "phx_theme=" + actualTheme + "; path=/; max-age=31536000; SameSite=Lax";
 };
 
 // Set initial theme — default to system preference if no stored preference

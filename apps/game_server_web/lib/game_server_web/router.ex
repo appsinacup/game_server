@@ -15,6 +15,7 @@ defmodule GameServerWeb.Router do
         "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' wss: ws:; font-src 'self' data:; frame-ancestors 'self'"
     }
 
+    plug GameServerWeb.Plugs.ColorMode
     plug :fetch_current_scope_for_user
     # Attach Sentry context information (user id, path, request id) to
     # Sentry's per-request scope so events are enriched with user info.
@@ -37,6 +38,7 @@ defmodule GameServerWeb.Router do
         "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' wss: ws:; font-src 'self' data:; frame-ancestors 'self'"
     }
 
+    plug GameServerWeb.Plugs.ColorMode
     plug :fetch_current_scope_for_user
     plug GameServerWeb.Plugs.SentryContext
   end
