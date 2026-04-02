@@ -11,16 +11,16 @@ msgstr ""
 "Language: ro\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0||(n%100>0 && n%100<20)) ? 1 : 2);\n"
 
-#: lib/game_server_web/live/lobby_live/index.ex:702
-#: lib/game_server_web/live/lobby_live/index.ex:702
+#: lib/game_server_web/live/lobby_live/index.ex:704
+#: lib/game_server_web/live/lobby_live/index.ex:704
 #, elixir-autogen, elixir-format
 msgid "%{count} / %{max} members"
 msgstr "%{count} / %{max} membri"
 
-#: lib/game_server_web/live/lobby_live/index.ex:856
-#: lib/game_server_web/live/lobby_live/index.ex:856
-#: lib/game_server_web/live/lobby_live/index.ex:894
-#: lib/game_server_web/live/lobby_live/index.ex:894
+#: lib/game_server_web/live/lobby_live/index.ex:858
+#: lib/game_server_web/live/lobby_live/index.ex:858
+#: lib/game_server_web/live/lobby_live/index.ex:896
+#: lib/game_server_web/live/lobby_live/index.ex:896
 #, elixir-autogen, elixir-format
 msgid "(host)"
 msgstr "(gazdă)"
@@ -51,14 +51,14 @@ msgstr "Nu s-a putut părăsi: %{reason}"
 msgid "Could not update: %{reason}"
 msgstr "Nu s-a putut actualiza: %{reason}"
 
-#: lib/game_server_web/live/lobby_live/index.ex:656
-#: lib/game_server_web/live/lobby_live/index.ex:656
+#: lib/game_server_web/live/lobby_live/index.ex:658
+#: lib/game_server_web/live/lobby_live/index.ex:658
 #, elixir-autogen, elixir-format
 msgid "Create a Lobby"
 msgstr "Creează o cameră"
 
-#: lib/game_server_web/live/lobby_live/index.ex:827
-#: lib/game_server_web/live/lobby_live/index.ex:827
+#: lib/game_server_web/live/lobby_live/index.ex:829
+#: lib/game_server_web/live/lobby_live/index.ex:829
 #, elixir-autogen, elixir-format
 msgid "Leave empty to clear"
 msgstr "Lasă gol pentru a șterge"
@@ -91,20 +91,20 @@ msgstr "Cameră negăsită"
 msgid "Lobby updated"
 msgstr "Cameră actualizată"
 
-#: lib/game_server_web/live/lobby_live/index.ex:720
-#: lib/game_server_web/live/lobby_live/index.ex:720
+#: lib/game_server_web/live/lobby_live/index.ex:722
+#: lib/game_server_web/live/lobby_live/index.ex:722
 #, elixir-autogen, elixir-format
 msgid "Manage"
 msgstr "Administrează"
 
-#: lib/game_server_web/live/lobby_live/index.ex:691
-#: lib/game_server_web/live/lobby_live/index.ex:691
+#: lib/game_server_web/live/lobby_live/index.ex:693
+#: lib/game_server_web/live/lobby_live/index.ex:693
 #, elixir-autogen, elixir-format
 msgid "Open Lobbies"
 msgstr "Camere deschise"
 
-#: lib/game_server_web/live/lobby_live/index.ex:683
-#: lib/game_server_web/live/lobby_live/index.ex:683
+#: lib/game_server_web/live/lobby_live/index.ex:685
+#: lib/game_server_web/live/lobby_live/index.ex:685
 #, elixir-autogen, elixir-format
 msgid "You are already in a lobby"
 msgstr "Ești deja într-o cameră"

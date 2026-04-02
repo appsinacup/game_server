@@ -1,7 +1,7 @@
 defmodule GameServer.Content do
   @moduledoc """
   Reads and renders Markdown content from files/directories configured
-  in the theme JSON config (`"changelog"` and `"blog"` keys).
+  in the theme JSON config (`"changelog"`, `"roadmap"`, and `"blog"` keys).
 
   Paths are resolved relative to the project working directory.
 
@@ -83,6 +83,41 @@ defmodule GameServer.Content do
   @spec changelog_path() :: String.t() | nil
   def changelog_path do
     case JSONConfig.get_setting(:changelog) do
+      p when is_binary(p) and p != "" -> resolve_path(p)
+      _ -> nil
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # Roadmap
+  # ---------------------------------------------------------------------------
+
+  @doc """
+  Returns the rendered roadmap HTML, or `nil` when the roadmap path is
+  not configured or the file doesn't exist.
+  """
+  @spec roadmap_html() :: String.t() | nil
+  def roadmap_html do
+    cached(:roadmap_html, fn ->
+      case roadmap_path() do
+        nil ->
+          nil
+
+        path ->
+          case render_markdown_file(path, "roadmap") do
+            nil -> nil
+            html -> apply_changelog_pills(html)
+          end
+      end
+    end)
+  end
+
+  @doc """
+  Returns the resolved absolute path to the roadmap file, or `nil`.
+  """
+  @spec roadmap_path() :: String.t() | nil
+  def roadmap_path do
+    case JSONConfig.get_setting(:roadmap) do
       p when is_binary(p) and p != "" -> resolve_path(p)
       _ -> nil
     end
@@ -460,7 +495,10 @@ defmodule GameServer.Content do
     "perf" => {"perf", "Perf"},
     "docs" => {"docs", "Docs"},
     "started" => {"started", "Started"},
-    "investigated" => {"investigated", "Investigated"}
+    "investigated" => {"investigated", "Investigated"},
+    "idea" => {"idea", "Idea"},
+    "plan" => {"plan", "Plan"},
+    "planned" => {"plan", "Planned"}
   }
 
   # Convert `[tag]` markers in changelog HTML into colored pill badges.
@@ -477,7 +515,8 @@ defmodule GameServer.Content do
             ~s(<span class="changelog-pill changelog-pill-#{class_suffix}">#{label}</span>)
 
           nil ->
-            "[#{tag}]"
+            label = String.capitalize(tag)
+            ~s(<span class="changelog-pill changelog-pill-other">#{label}</span>)
         end
       end
     )

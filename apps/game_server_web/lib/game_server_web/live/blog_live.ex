@@ -20,7 +20,8 @@ defmodule GameServerWeb.BlogLive do
      socket
      |> assign(:page_title, "Blog")
      |> assign(:blog_available?, Content.blog_dir() != nil)
-     |> assign(:changelog_available?, Content.changelog_path() != nil)}
+     |> assign(:changelog_available?, Content.changelog_path() != nil)
+     |> assign(:roadmap_available?, Content.roadmap_path() != nil)}
   end
 
   # ---------------------------------------------------------------------------
@@ -77,16 +78,22 @@ defmodule GameServerWeb.BlogLive do
         <%= if !@blog_available? do %>
           <div class="text-center py-20">
             <.icon name="hero-newspaper" class="w-16 h-16 mx-auto text-base-content/30 mb-4" />
-            <h2 class="text-xl font-semibold text-base-content/60 mb-2">No blog available</h2>
+            <h2 class="text-xl font-semibold text-base-content/60 mb-2">
+              {gettext("No blog available")}
+            </h2>
             <p class="text-base-content/40">
-              Configure a blog directory in your theme config JSON to display posts here.
+              {gettext("Configure a blog directory in your theme config JSON to display posts here.")}
             </p>
           </div>
         <% else %>
           <%= if @live_action == :show && @post do %>
             <.blog_post post={@post} html={@post_html} prev={@prev_post} next={@next_post} />
           <% else %>
-            <.blog_index grouped_posts={@grouped_posts} changelog_available={@changelog_available?} />
+            <.blog_index
+              grouped_posts={@grouped_posts}
+              changelog_available={@changelog_available?}
+              roadmap_available={@roadmap_available?}
+            />
           <% end %>
         <% end %>
       </div>
@@ -101,20 +108,29 @@ defmodule GameServerWeb.BlogLive do
   defp blog_index(assigns) do
     ~H"""
     <div class="flex items-center justify-between mb-8">
-      <h1 class="text-3xl font-bold">Blog</h1>
-      <.link
-        :if={@changelog_available}
-        navigate={~p"/changelog"}
-        class="inline-flex items-center gap-1.5 text-sm text-base-content/60 hover:text-primary transition-colors"
-      >
-        <.icon name="hero-document-text" class="w-4 h-4" /> Changelog
-      </.link>
+      <h1 class="text-3xl font-bold">{gettext("Blog")}</h1>
+      <div class="flex items-center gap-3">
+        <.link
+          :if={@roadmap_available}
+          navigate={~p"/roadmap"}
+          class="inline-flex items-center gap-1.5 text-sm text-base-content/60 hover:text-primary transition-colors"
+        >
+          <.icon name="hero-map" class="w-4 h-4" /> {gettext("Roadmap")}
+        </.link>
+        <.link
+          :if={@changelog_available}
+          navigate={~p"/changelog"}
+          class="inline-flex items-center gap-1.5 text-sm text-base-content/60 hover:text-primary transition-colors"
+        >
+          <.icon name="hero-document-text" class="w-4 h-4" /> {gettext("Changelog")}
+        </.link>
+      </div>
     </div>
 
     <%= if @grouped_posts == [] do %>
       <div class="text-center py-16">
         <.icon name="hero-pencil-square" class="w-12 h-12 mx-auto text-base-content/30 mb-3" />
-        <p class="text-base-content/50">No blog posts yet.</p>
+        <p class="text-base-content/50">{gettext("No blog posts yet.")}</p>
       </div>
     <% else %>
       <div class="space-y-10">
@@ -165,8 +181,6 @@ defmodule GameServerWeb.BlogLive do
   end
 
   # ---------------------------------------------------------------------------
-  # Blog Post
-  # ---------------------------------------------------------------------------
 
   defp blog_post(assigns) do
     ~H"""
@@ -175,7 +189,7 @@ defmodule GameServerWeb.BlogLive do
       navigate={~p"/blog"}
       class="inline-flex items-center gap-1 text-sm text-base-content/60 hover:text-primary mb-6 transition-colors"
     >
-      <.icon name="hero-arrow-left" class="w-4 h-4" /> Back to Blog
+      <.icon name="hero-arrow-left" class="w-4 h-4" /> {gettext("Back to Blog")}
     </.link>
 
     <%!-- Post header --%>
@@ -201,7 +215,7 @@ defmodule GameServerWeb.BlogLive do
         >
           <.icon name="hero-arrow-left" class="w-4 h-4" />
           <div>
-            <div class="text-xs text-base-content/40">Older</div>
+            <div class="text-xs text-base-content/40">{gettext("Older")}</div>
             <div class="font-medium">{@next.title}</div>
           </div>
         </.link>
@@ -213,7 +227,7 @@ defmodule GameServerWeb.BlogLive do
           class="inline-flex items-center gap-2 text-sm text-base-content/60 hover:text-primary transition-colors ml-auto"
         >
           <div>
-            <div class="text-xs text-base-content/40">Newer</div>
+            <div class="text-xs text-base-content/40">{gettext("Newer")}</div>
             <div class="font-medium">{@prev.title}</div>
           </div>
           <.icon name="hero-arrow-right" class="w-4 h-4" />
@@ -227,16 +241,16 @@ defmodule GameServerWeb.BlogLive do
   # Helpers
   # ---------------------------------------------------------------------------
 
-  defp month_name(1), do: "January"
-  defp month_name(2), do: "February"
-  defp month_name(3), do: "March"
-  defp month_name(4), do: "April"
-  defp month_name(5), do: "May"
-  defp month_name(6), do: "June"
-  defp month_name(7), do: "July"
-  defp month_name(8), do: "August"
-  defp month_name(9), do: "September"
-  defp month_name(10), do: "October"
-  defp month_name(11), do: "November"
-  defp month_name(12), do: "December"
+  defp month_name(1), do: gettext("January")
+  defp month_name(2), do: gettext("February")
+  defp month_name(3), do: gettext("March")
+  defp month_name(4), do: gettext("April")
+  defp month_name(5), do: gettext("May")
+  defp month_name(6), do: gettext("June")
+  defp month_name(7), do: gettext("July")
+  defp month_name(8), do: gettext("August")
+  defp month_name(9), do: gettext("September")
+  defp month_name(10), do: gettext("October")
+  defp month_name(11), do: gettext("November")
+  defp month_name(12), do: gettext("December")
 end

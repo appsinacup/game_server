@@ -38,7 +38,15 @@ defmodule GameServer.Theme.JSONConfig do
     case Map.get(cache, locale, :not_cached) do
       :not_cached ->
         result = do_get_theme(locale)
-        :persistent_term.put({__MODULE__, :theme_cache}, Map.put(cache, locale, result))
+
+        # Only cache non-empty results, OR cache empty when THEME_CONFIG is
+        # genuinely unset. This prevents a startup race condition where the
+        # config file isn't available yet — an empty map would be cached
+        # permanently, even after the file becomes available.
+        if result != %{} or config_path() == nil do
+          :persistent_term.put({__MODULE__, :theme_cache}, Map.put(cache, locale, result))
+        end
+
         result
 
       cached ->

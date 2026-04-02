@@ -406,6 +406,7 @@ defmodule GameServerWeb.Router do
       get "/users/confirm/:token", UserSessionController, :confirm
       live "/docs/setup", PublicDocs, :index
       live "/changelog", ChangelogLive, :index
+      live "/roadmap", RoadmapLive, :index
       live "/blog", BlogLive, :index
       live "/blog/:slug", BlogLive, :show
       live "/auth/success", AuthSuccessLive, :index

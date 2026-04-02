@@ -1,7 +1,7 @@
-defmodule GameServerWeb.ChangelogLive do
+defmodule GameServerWeb.RoadmapLive do
   @moduledoc """
-  LiveView that renders the project changelog from a Markdown file
-  configured via the `"changelog"` key in the theme config JSON.
+  LiveView that renders the project roadmap from a Markdown file
+  configured via the `"roadmap"` key in the theme config JSON.
   """
 
   use GameServerWeb, :live_view
@@ -10,14 +10,14 @@ defmodule GameServerWeb.ChangelogLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    html = Content.changelog_html()
+    html = Content.roadmap_html()
 
     {:ok,
      socket
-     |> assign(:page_title, "Changelog")
-     |> assign(:changelog_html, html)
-     |> assign(:changelog_available?, html != nil)
-     |> assign(:roadmap_available?, Content.roadmap_path() != nil)
+     |> assign(:page_title, "Roadmap")
+     |> assign(:roadmap_html, html)
+     |> assign(:roadmap_available?, html != nil)
+     |> assign(:changelog_available?, Content.changelog_path() != nil)
      |> assign(:blog_available?, Content.blog_dir() != nil)}
   end
 
@@ -27,14 +27,14 @@ defmodule GameServerWeb.ChangelogLive do
     <Layouts.app flash={@flash} current_scope={@current_scope} current_path={assigns[:current_path]}>
       <div class="py-8 px-4 sm:px-6 max-w-4xl mx-auto">
         <div class="flex items-center justify-between mb-8">
-          <h1 class="text-3xl font-bold">{gettext("Changelog")}</h1>
+          <h1 class="text-3xl font-bold">{gettext("Roadmap")}</h1>
           <div class="flex items-center gap-3">
             <.link
-              :if={@roadmap_available?}
-              navigate={~p"/roadmap"}
+              :if={@changelog_available?}
+              navigate={~p"/changelog"}
               class="inline-flex items-center gap-1.5 text-sm text-base-content/60 hover:text-primary transition-colors"
             >
-              <.icon name="hero-map" class="w-4 h-4" /> {gettext("Roadmap")}
+              <.icon name="hero-clipboard-document-list" class="w-4 h-4" /> {gettext("Changelog")}
             </.link>
             <.link
               :if={@blog_available?}
@@ -45,18 +45,18 @@ defmodule GameServerWeb.ChangelogLive do
             </.link>
           </div>
         </div>
-        <%= if @changelog_available? do %>
+        <%= if @roadmap_available? do %>
           <article class="markdown-content">
-            {Phoenix.HTML.raw(@changelog_html)}
+            {Phoenix.HTML.raw(@roadmap_html)}
           </article>
         <% else %>
           <div class="text-center py-20">
-            <.icon name="hero-document-text" class="w-16 h-16 mx-auto text-base-content/30 mb-4" />
+            <.icon name="hero-map" class="w-16 h-16 mx-auto text-base-content/30 mb-4" />
             <h2 class="text-xl font-semibold text-base-content/60 mb-2">
-              {gettext("No changelog available")}
+              {gettext("No roadmap available")}
             </h2>
             <p class="text-base-content/40">
-              {gettext("Configure a changelog file in your theme config JSON to display it here.")}
+              {gettext("Configure a roadmap file in your theme config JSON to display it here.")}
             </p>
           </div>
         <% end %>

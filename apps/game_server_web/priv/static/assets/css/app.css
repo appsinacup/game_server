@@ -12384,6 +12384,18 @@
   background: #f0fdf4;
   color: #166534;
 }
+.changelog-pill-idea {
+  background: #fce4ec;
+  color: #880e4f;
+}
+.changelog-pill-plan {
+  background: #e1f5fe;
+  color: #01579b;
+}
+.changelog-pill-other {
+  background: #c5cae9;
+  color: #283593;
+}
 @media (hover: none) and (pointer: coarse) {
   .btn-xs {
     min-height: 2rem;

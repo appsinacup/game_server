@@ -8,6 +8,7 @@
   "banner_link": "/docs/setup",
   "favicon": "/favicon.ico",
   "changelog": "/CHANGELOG.md",
+  "roadmap": "/ROADMAP.md",
   "blog": "/blog",
   "useful_links": [
     { "title": "Getting Started", "url": "/docs/setup#deployment", "icon": "hero-rocket-launch-solid", "style": "primary" },
@@ -27,6 +28,7 @@
     { "label": "API Docs", "href": "/api/docs" },
     { "label": "Elixir Docs", "href": "https://appsinacup.github.io/game_server/", "external": true },
     { "label": "Changelog", "href": "/changelog" },
+    { "label": "Roadmap", "href": "/roadmap" },
     { "label": "Blog", "href": "/blog" }
   ],
   "features": [
