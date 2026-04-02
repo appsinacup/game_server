@@ -111,6 +111,15 @@ It accepts email and Google ID.
 
 Returns `last_seen_at` when present, otherwise a stable fallback timestamp.
 
+# `min_password_length`
+
+```elixir
+@spec min_password_length() :: pos_integer()
+```
+
+Returns the minimum password length, configurable via the `MIN_PASSWORD_LENGTH`
+environment variable. Defaults to 8 if not set.
+
 # `password_changeset`
 
 A user changeset for changing the password.
