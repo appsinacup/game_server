@@ -161,12 +161,29 @@ defmodule GameServerWeb.Layouts do
         <% end %>
       </div>
     <% end %>
-    <div class={["flex flex-col", if(@flush, do: "h-dvh overflow-hidden", else: "min-h-dvh")]}>
-      <header class={[
-        "navbar px-4 sm:px-6 lg:px-8 z-50 shrink-0",
-        if(!@flush, do: "sticky top-0", else: ""),
-        "bg-transparent backdrop-blur-md border-base-200/20"
-      ]}>
+    <div class={["flex flex-col", if(@flush, do: "h-dvh overflow-hidden relative", else: "min-h-dvh")]}>
+      <div
+        :if={@flush}
+        id="navbar-autohide"
+        phx-hook="NavbarAutohide"
+        data-autohide-delay="5000"
+        data-target="main-navbar"
+        class="hidden"
+      />
+      <header
+        id="main-navbar"
+        class={[
+          "navbar px-4 sm:px-6 lg:px-8 z-50",
+          if(@flush,
+            do: "absolute top-0 left-0 right-0",
+            else: "sticky top-0 shrink-0"
+          ),
+          if(@flush,
+            do: "bg-base-100/90 backdrop-blur-md",
+            else: "bg-transparent backdrop-blur-md border-base-200/20"
+          )
+        ]}
+      >
         <% title = Map.get(@theme, "title") %>
         <% tagline = Map.get(@theme, "tagline") %>
         <div class="flex-1">

@@ -49,6 +49,8 @@
   }
 }
 
+/* Navbar auto-hide toggle button styling is handled in app.js NavbarAutohide hook */
+
 /* A Tailwind plugin that makes "hero-#{ICON}" classes available.
    The heroicons installation itself is managed by your mix.exs */
 @plugin "../vendor/heroicons";
