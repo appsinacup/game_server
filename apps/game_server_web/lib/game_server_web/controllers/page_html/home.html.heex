@@ -82,13 +82,13 @@
             <a href={banner_link} class={banner_wrapper}>
               <img
                 src={Map.get(provider_theme, "banner")}
-                alt={gettext("Game Server Banner")}
+                alt="Banner"
                 class={banner_img_classes}
               />
               <%= if banner_dark_exists? do %>
                 <img
                   src={banner_dark_path}
-                  alt={gettext("Game Server Banner")}
+                  alt="Banner"
                   class="max-w-[90vw] sm:max-w-[380px] md:max-w-[460px] lg:max-w-[540px] xl:max-w-[620px] h-auto block hidden [[data-theme=dark]_&]:block"
                 />
               <% end %>
@@ -98,13 +98,13 @@
             <div class={banner_wrapper}>
               <img
                 src={Map.get(provider_theme, "banner")}
-                alt={gettext("Game Server Banner")}
+                alt="Banner"
                 class={banner_img_classes}
               />
               <%= if banner_dark_exists? do %>
                 <img
                   src={banner_dark_path}
-                  alt={gettext("Game Server Banner")}
+                  alt="Banner"
                   class="max-w-[90vw] sm:max-w-[380px] md:max-w-[460px] lg:max-w-[540px] xl:max-w-[620px] h-auto block hidden [[data-theme=dark]_&]:block"
                 />
               <% end %>
@@ -165,7 +165,7 @@
           <%!-- Activity Stats --%>
           <div class="w-full max-w-xs sm:max-w-sm">
             <p class="text-xs sm:text-sm text-center text-base-content/60 [[data-theme=dark]_&]:text-white/60 mb-2 font-medium">
-              {gettext("Active Users")}
+              {gettext("Online")}
             </p>
             <div class="grid grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
               <div class="flex flex-col items-center rounded-lg bg-base-100/40 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/100 [[data-theme=dark]_&]:border-white/20 px-3 py-1.5 sm:px-4 sm:py-2 transition hover:bg-base-100/60 [[data-theme=dark]_&]:hover:bg-white/20 hover:scale-[1.02]">
@@ -212,7 +212,7 @@
           href="#more-content"
           class="mb-4 flex flex-col items-center gap-1 animate-bounce text-base-content/60 [[data-theme=dark]_&]:text-white/70 hover:text-base-content [[data-theme=dark]_&]:hover:text-white transition"
         >
-          <span class="text-xs sm:text-sm font-medium">{gettext("Learn more")}</span>
+          <span class="text-xs sm:text-sm font-medium">{gettext("Open")}</span>
           <.icon name="hero-chevron-down" class="size-7" />
         </a>
       </div>
@@ -225,7 +225,7 @@
   <%!-- Features --%>
   <%= if features != [] do %>
     <div class="mt-4">
-      <h2 class="text-lg font-semibold mb-4 text-center">{gettext("Features")}</h2>
+      <h2 class="text-lg font-semibold mb-4 text-center">{gettext("Home")}</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
         <%= for feature <- features do %>
           <div class="group relative rounded-box px-6 py-3 text-sm font-semibold leading-6 sm:py-4">

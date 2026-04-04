@@ -27,7 +27,7 @@ defmodule GameServerWeb.AuthSuccessLive do
          assign(socket,
            session_id: session_id,
            session_data: session_data,
-           page_title: dgettext("auth", "Authentication")
+           page_title: gettext("Log in")
          )}
 
       nil ->
@@ -39,17 +39,17 @@ defmodule GameServerWeb.AuthSuccessLive do
           {:ok,
            assign(socket,
              session_id: session_id,
-             page_title: dgettext("auth", "Authentication"),
+             page_title: gettext("Log in"),
              session_data: %{
                status: "completed",
-               message: dgettext("auth", "Authentication completed - you can close this window.")
+               message: gettext("Success.")
              }
            )}
         else
           {:ok,
            assign(socket,
              session_id: session_id,
-             page_title: dgettext("auth", "Authentication"),
+             page_title: gettext("Log in"),
              session_data: %{status: "not_found"}
            )}
         end
@@ -67,15 +67,15 @@ defmodule GameServerWeb.AuthSuccessLive do
               <h2 class="mt-6 text-center text-3xl font-extrabold">
                 <%= case @session_data.status do %>
                   <% "completed" -> %>
-                    {"🎉 " <> dgettext("auth", "Authentication Successful!")}
+                    {"🎉 " <> gettext("Success.")}
                   <% "conflict" -> %>
-                    {"⚠️ " <> dgettext("auth", "Account Conflict")}
+                    {"⚠️ " <> gettext("Failed.")}
                   <% "error" -> %>
-                    {"❌ " <> dgettext("auth", "Authentication Failed")}
+                    {"❌ " <> gettext("Failed.")}
                   <% "not_found" -> %>
-                    {"❓ " <> dgettext("auth", "Session Not Found")}
+                    {"❓ " <> gettext("Not found")}
                   <% _ -> %>
-                    {"🔄 " <> dgettext("auth", "Processing...")}
+                    {"🔄 " <> gettext("Loading...")}
                 <% end %>
               </h2>
 
@@ -95,14 +95,11 @@ defmodule GameServerWeb.AuthSuccessLive do
                         </div>
                         <div class="ml-3">
                           <h3 class="text-sm font-medium text-green-800">
-                            {dgettext("auth", "Authentication Successful!")}
+                            {gettext("Success.")}
                           </h3>
                           <div class="mt-2 text-sm text-green-700">
                             <p>
-                              {dgettext(
-                                "auth",
-                                "You can close this window."
-                              )}
+                              {gettext("Success.")}
                             </p>
                             <p
                               id="auto-close"
@@ -110,13 +107,13 @@ defmodule GameServerWeb.AuthSuccessLive do
                               phx-update="ignore"
                               class="mt-1 text-xs text-green-600"
                             >
-                              {dgettext("auth", "This window will close in 3s...")}
+                              {gettext("Loading...")}
                             </p>
                             <% message =
                               Map.get(@session_data, "message") || Map.get(@session_data, :message) %>
                             <%= if message do %>
                               <p class="mt-1">
-                                <strong>{dgettext("auth", "Message:")}</strong> {message}
+                                <strong>{gettext("Content")}:</strong> {message}
                               </p>
                             <% end %>
                           </div>
@@ -137,14 +134,11 @@ defmodule GameServerWeb.AuthSuccessLive do
                         </div>
                         <div class="ml-3">
                           <h3 class="text-sm font-medium text-yellow-800">
-                            {dgettext("auth", "Account already linked to another user")}
+                            {gettext("Failed.")}
                           </h3>
                           <div class="mt-2 text-sm text-yellow-700">
                             <p>
-                              {dgettext(
-                                "auth",
-                                "Try a different login method."
-                              )}
+                              {gettext("Failed.")}
                             </p>
                           </div>
                         </div>
@@ -164,15 +158,15 @@ defmodule GameServerWeb.AuthSuccessLive do
                         </div>
                         <div class="ml-3">
                           <h3 class="text-sm font-medium text-red-800">
-                            {dgettext("auth", "Authentication failed")}
+                            {gettext("Failed.")}
                           </h3>
                           <div class="mt-2 text-sm text-red-700">
-                            <p>{dgettext("auth", "There was an error during authentication.")}</p>
+                            <p>{gettext("Failed.")}</p>
                             <% details =
                               Map.get(@session_data, "details") || Map.get(@session_data, :details) %>
                             <%= if details do %>
                               <p class="mt-1">
-                                <strong>{dgettext("auth", "Details:")}</strong> {inspect(details)}
+                                <strong>{gettext("Description")}:</strong> {inspect(details)}
                               </p>
                             <% end %>
                           </div>
@@ -193,14 +187,11 @@ defmodule GameServerWeb.AuthSuccessLive do
                         </div>
                         <div class="ml-3">
                           <h3 class="text-sm font-medium text-gray-800">
-                            {dgettext("auth", "Session not found")}
+                            {gettext("Not found")}
                           </h3>
                           <div class="mt-2 text-sm text-gray-700">
                             <p>
-                              {dgettext(
-                                "auth",
-                                "Session expired or invalid link."
-                              )}
+                              {gettext("Failed.")}
                             </p>
                           </div>
                         </div>
@@ -211,7 +202,7 @@ defmodule GameServerWeb.AuthSuccessLive do
                       <div class="flex">
                         <div class="ml-3">
                           <h3 class="text-sm font-medium text-blue-800">
-                            {dgettext("auth", "Processing...")}
+                            {gettext("Loading...")}
                           </h3>
                         </div>
                       </div>

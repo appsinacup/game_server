@@ -139,4 +139,25 @@ defmodule GameServer.Accounts.UserNotifier do
 
     deliver(recipient, subject, body)
   end
+
+  @doc """
+  Deliver a notification that the user's account has been activated by an admin.
+  Silently returns `{:ok, :no_email}` if the user has no email address.
+  """
+  def deliver_account_activated(%User{email: email}) when is_binary(email) and email != "" do
+    deliver(email, "Your account has been approved", """
+
+    ==============================
+
+    Hi #{email},
+
+    Great news! Your account has been reviewed and approved by an administrator.
+
+    You can now log in and start using the platform.
+
+    ==============================
+    """)
+  end
+
+  def deliver_account_activated(_user), do: {:ok, :no_email}
 end

@@ -74,7 +74,7 @@ defmodule GameServerWeb.CoreComponents do
           <p>{msg}</p>
         </div>
         <div class="flex-1" />
-        <button type="button" class="group self-start cursor-pointer" aria-label={gettext("close")}>
+        <button type="button" class="group self-start cursor-pointer" aria-label={gettext("Close")}>
           <.icon name="hero-x-mark" class="size-5 opacity-40 group-hover:opacity-70" />
         </button>
       </div>
@@ -524,13 +524,9 @@ defmodule GameServerWeb.CoreComponents do
       </button>
       <div class="text-xs text-base-content/70">
         <%= if @total_count do %>
-          {gettext("page %{page} / %{total_pages} (%{total} total)",
-            page: @page,
-            total_pages: @total_pages,
-            total: @total_count
-          )}
+          {@page} / {@total_pages} ({@total_count})
         <% else %>
-          {gettext("page %{page} / %{total_pages}", page: @page, total_pages: @total_pages)}
+          {@page} / {@total_pages}
         <% end %>
       </div>
       <button

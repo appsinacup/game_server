@@ -53,10 +53,10 @@ defmodule GameServerWeb.ChangelogLive do
           <div class="text-center py-20">
             <.icon name="hero-document-text" class="w-16 h-16 mx-auto text-base-content/30 mb-4" />
             <h2 class="text-xl font-semibold text-base-content/60 mb-2">
-              {gettext("No changelog available")}
+              {gettext("No results.")}
             </h2>
             <p class="text-base-content/40">
-              {gettext("Configure a changelog file in your theme config JSON to display it here.")}
+              Configure a changelog file in your theme config JSON to display it here.
             </p>
           </div>
         <% end %>

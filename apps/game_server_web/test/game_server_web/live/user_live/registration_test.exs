@@ -45,7 +45,7 @@ defmodule GameServerWeb.UserLive.RegistrationTest do
       {:ok, _lv, html} = render_submit(form) |> follow_redirect(conn)
 
       assert html =~ "Log in"
-      assert html =~ "Account created successfully! Logging you in..."
+      assert html =~ "Success."
     end
 
     test "creates account and redirects to login (non-first user)", %{conn: conn} do
@@ -62,7 +62,7 @@ defmodule GameServerWeb.UserLive.RegistrationTest do
         |> follow_redirect(conn, ~p"/users/log-in")
 
       assert html =~
-               ~r/An email was sent to .*, please access it to confirm your account/
+               "Success."
     end
 
     test "shows friendly error when confirmation delivery fails", %{conn: conn} do
@@ -90,7 +90,7 @@ defmodule GameServerWeb.UserLive.RegistrationTest do
 
       html = render_submit(form)
 
-      assert html =~ "We were unable to create your account right now"
+      assert html =~ "Failed."
 
       refute GameServer.Repo.get_by(GameServer.Accounts.User, email: email)
     end

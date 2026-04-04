@@ -25,5 +25,5 @@ defmodule GameServerWeb.Auth.ErrorHandler do
   defp error_message(:unauthenticated),
     do: Gettext.gettext(GameServerWeb.Gettext, "Authentication required")
 
-  defp error_message(_), do: Gettext.gettext(GameServerWeb.Gettext, "Authentication failed")
+  defp error_message(_), do: Gettext.gettext(GameServerWeb.Gettext, "Failed.")
 end

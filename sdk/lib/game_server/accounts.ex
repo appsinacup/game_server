@@ -343,6 +343,22 @@ defmodule GameServer.Accounts do
 
 
   @doc ~S"""
+    Count users who are not yet activated (is_activated == false).
+    
+  """
+  @spec count_unactivated_users() :: non_neg_integer()
+  def count_unactivated_users() do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Accounts.count_unactivated_users/0 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Counts tokens for a given user.
     
   """
@@ -1202,6 +1218,26 @@ defmodule GameServer.Accounts do
 
 
   @doc ~S"""
+    Returns true when new accounts require manual admin activation before
+    they can log in. Checks the application config
+    `:game_server_core, :require_account_activation` and falls back to the
+    environment variable `REQUIRE_ACCOUNT_ACTIVATION`. If neither is set,
+    account activation is **not** required (default `false`).
+    
+  """
+  @spec require_account_activation?() :: boolean()
+  def require_account_activation?() do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        false
+
+      _ ->
+        raise "GameServer.Accounts.require_account_activation?/0 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Revokes all session tokens for a user (mass logout).
     
   """
@@ -1529,6 +1565,24 @@ defmodule GameServer.Accounts do
 
       _ ->
         raise "GameServer.Accounts.update_user_password/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Returns true when the given user is activated or when account activation
+    is not required. Returns false only when activation is required **and**
+    the user's `is_activated` flag is `false`.
+    
+  """
+  @spec user_activated?(GameServer.Accounts.User.t()) :: boolean()
+  def user_activated?(_user) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        false
+
+      _ ->
+        raise "GameServer.Accounts.user_activated?/1 is a stub - only available at runtime on GameServer"
     end
   end
 

@@ -179,6 +179,16 @@ defmodule GameServerWeb.AdminLive.Users do
                   />
                   <span class="label-text ml-2">Online</span>
                 </label>
+                <label class="label cursor-pointer">
+                  <input
+                    type="checkbox"
+                    phx-click="toggle_provider"
+                    phx-value-provider="unactivated"
+                    checked={"unactivated" in @filters}
+                    class="checkbox"
+                  />
+                  <span class="label-text ml-2">Unactivated</span>
+                </label>
               </div>
             </div>
             <div class="overflow-x-auto">
@@ -208,6 +218,7 @@ defmodule GameServerWeb.AdminLive.Users do
                     <th>Google ID</th>
                     <th>Facebook ID</th>
                     <th>Admin</th>
+                    <th>Activated</th>
                     <th>Metadata</th>
                     <th>Confirmed</th>
                     <th>Last Seen</th>
@@ -310,6 +321,13 @@ defmodule GameServerWeb.AdminLive.Users do
                       <% end %>
                     </td>
                     <td>
+                      <%= if user.is_activated do %>
+                        <span class="badge badge-success badge-sm">Yes</span>
+                      <% else %>
+                        <span class="badge badge-error badge-sm">No</span>
+                      <% end %>
+                    </td>
+                    <td>
                       <%= if user.metadata && user.metadata != %{} do %>
                         <span class="badge badge-info badge-sm">Set</span>
                       <% else %>
@@ -387,6 +405,17 @@ defmodule GameServerWeb.AdminLive.Users do
                     name="user[is_admin]"
                     class="checkbox"
                     checked={@selected_user.is_admin}
+                  />
+                </label>
+              </div>
+              <div class="form-control">
+                <label class="label cursor-pointer">
+                  <span class="label-text">Activated</span>
+                  <input
+                    type="checkbox"
+                    name="user[is_activated]"
+                    class="checkbox"
+                    checked={@selected_user.is_activated}
                   />
                 </label>
               </div>
@@ -486,19 +515,26 @@ defmodule GameServerWeb.AdminLive.Users do
   end
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(params, _session, socket) do
     # paginated admin users view (admins can see all users)
     page = 1
     page_size = 25
     sort_field = "inserted_at"
     sort_dir = "desc"
 
+    # Support ?filter=unactivated from dashboard link
+    initial_filters =
+      case params["filter"] do
+        "unactivated" -> ["unactivated"]
+        _ -> []
+      end
+
     {users, total_count, total_pages} =
       load_users(
         page,
         page_size,
-        socket.assigns[:search_query] || "",
-        socket.assigns[:filters] || [],
+        "",
+        initial_filters,
         sort_field,
         sort_dir
       )
@@ -514,7 +550,7 @@ defmodule GameServerWeb.AdminLive.Users do
      |> assign(:form, nil)
      |> assign(:user_tokens, [])
      |> assign(:search_query, "")
-     |> assign(:filters, [])
+     |> assign(:filters, initial_filters)
      |> assign(:sort_field, sort_field)
      |> assign(:sort_dir, sort_dir)
      |> assign(:selected_ids, MapSet.new())}
@@ -665,6 +701,7 @@ defmodule GameServerWeb.AdminLive.Users do
         if(user_params["confirmed"] == "on", do: DateTime.utc_now(:second), else: nil)
       )
       |> Map.put("is_admin", user_params["is_admin"] == "on")
+      |> Map.put("is_activated", user_params["is_activated"] == "on")
       |> Map.update("metadata", %{}, fn metadata_str ->
         case Jason.decode(metadata_str) do
           {:ok, map} when is_map(map) -> map
@@ -673,7 +710,14 @@ defmodule GameServerWeb.AdminLive.Users do
       end)
 
     case Accounts.update_user(user, attrs) do
-      {:ok, _user} ->
+      {:ok, updated_user} ->
+        # Send activation email if the user was just activated
+        if not user.is_activated and updated_user.is_activated do
+          GameServer.Async.run(fn ->
+            GameServer.Accounts.UserNotifier.deliver_account_activated(updated_user)
+          end)
+        end
+
         # re-fetch current page of users, keeping search and filters
         page = socket.assigns[:users_page] || 1
         page_size = socket.assigns[:users_page_size] || 25
@@ -1001,13 +1045,21 @@ defmodule GameServerWeb.AdminLive.Users do
   end
 
   defp apply_provider_filters(base, filters) do
-    # Separate the "online" filter from provider filters since online
-    # is a boolean column rather than a non-null string check.
-    {online_filters, provider_filters} = Enum.split_with(filters, &(&1 == "online"))
+    # Separate boolean-column filters from provider filters since they
+    # are boolean column checks rather than non-null string checks.
+    {special_filters, provider_filters} =
+      Enum.split_with(filters, &(&1 in ["online", "unactivated"]))
 
     base =
-      if online_filters != [] do
+      if "online" in special_filters do
         from u in base, where: u.is_online == true
+      else
+        base
+      end
+
+    base =
+      if "unactivated" in special_filters do
+        from u in base, where: u.is_activated == false
       else
         base
       end

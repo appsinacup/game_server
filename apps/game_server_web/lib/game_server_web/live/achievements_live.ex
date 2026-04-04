@@ -24,7 +24,7 @@ defmodule GameServerWeb.AchievementsLive do
     socket =
       socket
       |> assign(:locale, Gettext.get_locale(GameServerWeb.Gettext))
-      |> assign(:page_title, dgettext("achievements", "Achievements"))
+      |> assign(:page_title, gettext("Achievements"))
       |> assign(:page, 1)
       |> assign(:page_size, @page_size)
       |> assign(:filter, "all")
@@ -137,15 +137,12 @@ defmodule GameServerWeb.AchievementsLive do
         <%!-- Header --%>
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 class="text-3xl font-bold">{dgettext("achievements", "Achievements")}</h1>
+            <h1 class="text-3xl font-bold">{gettext("Achievements")}</h1>
             <p class="text-base-content/60 mt-1">
               <%= if @current_scope && @current_scope.user do %>
-                {dgettext("achievements", "%{unlocked} of %{total} unlocked",
-                  unlocked: @unlocked_count,
-                  total: @total_count
-                )}
+                {gettext("Success.")}: {@unlocked_count} / {@total_count}
               <% else %>
-                {dgettext("achievements", "%{total} achievements available", total: @total_count)}
+                {gettext("Achievements")}: {@total_count}
               <% end %>
             </p>
           </div>
@@ -156,10 +153,10 @@ defmodule GameServerWeb.AchievementsLive do
               <button
                 :for={
                   {label, value} <- [
-                    {dgettext("achievements", "All"), "all"},
-                    {dgettext("achievements", "Unlocked"), "unlocked"},
-                    {dgettext("achievements", "Locked"), "locked"},
-                    {dgettext("achievements", "In Progress"), "in_progress"}
+                    {gettext("All"), "all"},
+                    {gettext("Success."), "unlocked"},
+                    {gettext("Locked"), "locked"},
+                    {gettext("Loading..."), "in_progress"}
                   ]
                 }
                 phx-click="filter"
@@ -180,7 +177,7 @@ defmodule GameServerWeb.AchievementsLive do
           <div class="bg-base-200 rounded-xl p-4">
             <div class="flex items-center justify-between mb-2">
               <span class="text-sm font-medium">
-                {dgettext("achievements", "Overall Progress")}
+                {gettext("Status")}
               </span>
               <span class="text-sm font-bold text-primary">
                 {trunc(@unlocked_count / @total_count * 100)}%
@@ -201,11 +198,7 @@ defmodule GameServerWeb.AchievementsLive do
           <div class="text-center py-16 text-base-content/50">
             <.icon name="hero-trophy" class="w-16 h-16 mx-auto mb-4 opacity-30" />
             <p class="text-lg">
-              <%= if @filter != "all" do %>
-                {dgettext("achievements", "No achievements match this filter.")}
-              <% else %>
-                {dgettext("achievements", "No achievements yet.")}
-              <% end %>
+              {gettext("No results.")}
             </p>
           </div>
         <% else %>
@@ -324,7 +317,7 @@ defmodule GameServerWeb.AchievementsLive do
               end
             ]}>
               {if @hidden?,
-                do: dgettext("achievements", "Hidden achievement"),
+                do: gettext("Hidden"),
                 else: @localized_desc}
             </p>
           </div>
@@ -338,7 +331,7 @@ defmodule GameServerWeb.AchievementsLive do
                 <div class="flex items-center gap-1.5 text-success">
                   <.icon name="hero-check-circle-solid" class="w-4 h-4" />
                   <span class="text-xs font-medium">
-                    {dgettext("achievements", "Unlocked")}
+                    {gettext("Success.")}
                     <span class="text-base-content/40 ml-1">
                       {Calendar.strftime(@unlocked_at, "%b %d, %Y")}
                     </span>
@@ -348,14 +341,14 @@ defmodule GameServerWeb.AchievementsLive do
                 <div class="flex items-center gap-1.5 text-base-content/30">
                   <.icon name="hero-eye-slash" class="w-4 h-4" />
                   <span class="text-xs font-medium italic">
-                    {dgettext("achievements", "Hidden")}
+                    {gettext("Hidden")}
                   </span>
                 </div>
               <% true -> %>
                 <%!-- Progress bar --%>
                 <div class="flex items-center justify-between mb-1">
                   <span class="text-xs text-base-content/50">
-                    {dgettext("achievements", "Progress")}
+                    {gettext("Status")}
                   </span>
                   <span class="text-xs font-medium text-base-content/70">
                     {@progress} / {@target}

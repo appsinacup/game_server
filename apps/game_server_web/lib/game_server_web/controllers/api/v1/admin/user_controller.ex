@@ -17,6 +17,7 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
       email: %Schema{type: :string},
       display_name: %Schema{type: :string},
       is_admin: %Schema{type: :boolean},
+      is_activated: %Schema{type: :boolean},
       metadata: %Schema{type: :object},
       lobby_id: %Schema{type: :integer, nullable: true},
       is_online: %Schema{type: :boolean},
@@ -40,6 +41,7 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
         type: :object,
         properties: %{
           is_admin: %Schema{type: :boolean},
+          is_activated: %Schema{type: :boolean},
           display_name: %Schema{type: :string},
           metadata: %Schema{type: :object}
         }
@@ -69,6 +71,13 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
 
         case Accounts.update_user(user, attrs) do
           {:ok, updated} ->
+            # Send activation email if the user was just activated
+            if not user.is_activated and updated.is_activated do
+              GameServer.Async.run(fn ->
+                GameServer.Accounts.UserNotifier.deliver_account_activated(updated)
+              end)
+            end
+
             json(conn, %{data: serialize_user(updated)})
 
           {:error, %Ecto.Changeset{} = cs} ->
@@ -134,6 +143,7 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
       email: user.email || "",
       display_name: user.display_name || "",
       is_admin: user.is_admin,
+      is_activated: user.is_activated,
       metadata: user.metadata || %{},
       lobby_id: user.lobby_id || -1,
       party_id: user.party_id || -1,

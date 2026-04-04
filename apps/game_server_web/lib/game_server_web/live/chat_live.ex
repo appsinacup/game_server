@@ -70,7 +70,7 @@ defmodule GameServerWeb.ChatLive do
          |> update(:group_unread, &Map.delete(&1, gid))
          |> reload_messages()}
       else
-        {:noreply, put_flash(socket, :error, gettext("Group not found"))}
+        {:noreply, put_flash(socket, :error, gettext("Not found"))}
       end
     else
       {:noreply, socket}
@@ -98,7 +98,7 @@ defmodule GameServerWeb.ChatLive do
          |> update(:friend_unread, &Map.delete(&1, fid))
          |> reload_messages()}
       else
-        {:noreply, put_flash(socket, :error, gettext("User not found"))}
+        {:noreply, put_flash(socket, :error, gettext("Not found"))}
       end
     else
       {:noreply, socket}
@@ -125,7 +125,7 @@ defmodule GameServerWeb.ChatLive do
             {gettext("Friends")}
           </h3>
           <%= if @friends == [] do %>
-            <p class="text-sm text-base-content/40 pl-2">{gettext("No friends yet")}</p>
+            <p class="text-sm text-base-content/40 pl-2">{gettext("No results.")}</p>
           <% end %>
           <ul class="space-y-1">
             <li :for={f <- @friends}>
@@ -154,7 +154,7 @@ defmodule GameServerWeb.ChatLive do
             {gettext("Groups")}
           </h3>
           <%= if @my_groups == [] do %>
-            <p class="text-sm text-base-content/40 pl-2">{gettext("No groups yet")}</p>
+            <p class="text-sm text-base-content/40 pl-2">{gettext("No results.")}</p>
           <% end %>
           <ul class="space-y-1">
             <li :for={{group, _role} <- @my_groups}>
@@ -200,13 +200,13 @@ defmodule GameServerWeb.ChatLive do
             >
               <div :if={@has_more} class="text-center py-2">
                 <button phx-click="load_more" class="btn btn-xs btn-ghost">
-                  {gettext("Load older messages")}
+                  {gettext("Older")}
                 </button>
               </div>
 
               <%= if @messages == [] do %>
                 <div class="text-sm text-base-content/50 text-center py-8">
-                  {gettext("No messages yet. Say hello!")}
+                  {gettext("No results.")}
                 </div>
               <% end %>
 
@@ -274,7 +274,7 @@ defmodule GameServerWeb.ChatLive do
                       <button
                         phx-click="chat_delete"
                         phx-value-id={msg.id}
-                        data-confirm={gettext("Delete this message?")}
+                        data-confirm={gettext("Delete?")}
                         class="btn btn-xs btn-ghost min-h-[2rem] min-w-[2rem] px-2 lg:px-1 text-error"
                         title={gettext("Delete")}
                       >
@@ -305,7 +305,7 @@ defmodule GameServerWeb.ChatLive do
                 type="text"
                 name="content"
                 value=""
-                placeholder={gettext("Type a message...")}
+                placeholder={gettext("Send")}
                 class="input input-bordered input-sm flex-1"
                 autocomplete="off"
               />
@@ -317,7 +317,7 @@ defmodule GameServerWeb.ChatLive do
             <div class="flex-1 flex items-center justify-center text-base-content/40">
               <div class="text-center">
                 <p class="text-lg">{gettext("Select a conversation")}</p>
-                <p class="text-sm mt-1">{gettext("Choose a friend or group from the sidebar")}</p>
+                <p class="text-sm mt-1">{gettext("Select a conversation")}</p>
               </div>
             </div>
           <% end %>
@@ -351,7 +351,7 @@ defmodule GameServerWeb.ChatLive do
        |> update(:friend_unread, &Map.delete(&1, fid))
        |> reload_messages()}
     else
-      {:noreply, put_flash(socket, :error, gettext("User not found"))}
+      {:noreply, put_flash(socket, :error, gettext("Not found"))}
     end
   end
 
@@ -375,7 +375,7 @@ defmodule GameServerWeb.ChatLive do
        |> update(:group_unread, &Map.delete(&1, gid))
        |> reload_messages()}
     else
-      {:noreply, put_flash(socket, :error, gettext("Group not found"))}
+      {:noreply, put_flash(socket, :error, gettext("Not found"))}
     end
   end
 
@@ -398,15 +398,11 @@ defmodule GameServerWeb.ChatLive do
           {:noreply, reload_messages(socket)}
 
         {:error, :slowdown} ->
-          {:noreply, put_flash(socket, :error, gettext("You are sending messages too quickly"))}
+          {:noreply, put_flash(socket, :error, gettext("Failed."))}
 
         {:error, reason} ->
           {:noreply,
-           put_flash(
-             socket,
-             :error,
-             gettext("Could not send: %{reason}", reason: inspect(reason))
-           )}
+           put_flash(socket, :error, gettext("Failed: %{reason}", reason: inspect(reason)))}
       end
     else
       {:noreply, socket}
@@ -469,11 +465,11 @@ defmodule GameServerWeb.ChatLive do
            put_flash(
              socket,
              :error,
-             gettext("Could not update: %{reason}", reason: inspect(reason))
+             gettext("Failed: %{reason}", reason: inspect(reason))
            )}
       end
     else
-      {:noreply, put_flash(socket, :error, gettext("Message cannot be empty"))}
+      {:noreply, put_flash(socket, :error, gettext("Cannot be empty."))}
     end
   end
 
@@ -492,7 +488,7 @@ defmodule GameServerWeb.ChatLive do
          put_flash(
            socket,
            :error,
-           gettext("Could not delete: %{reason}", reason: inspect(reason))
+           gettext("Failed: %{reason}", reason: inspect(reason))
          )}
     end
   end

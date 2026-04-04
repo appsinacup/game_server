@@ -62,7 +62,7 @@ defmodule GameServerWeb.PageControllerTest do
     conn = get(conn, "/")
     body = html_response(conn, 200)
 
-    assert body =~ "Features"
+    assert body =~ "Home"
     assert body =~ "Online"
     assert body =~ "Discord"
     assert body =~ "SQLite"

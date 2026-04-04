@@ -83,6 +83,14 @@ _limit_overrides =
     overrides -> config :game_server_core, GameServer.Limits, overrides
   end)
 
+# ── Account activation ──────────────────────────────────────────────────────
+# Read REQUIRE_ACCOUNT_ACTIVATION once at boot so the function only hits the
+# fast Application.get_env path at runtime.
+if require_activation = System.get_env("REQUIRE_ACCOUNT_ACTIVATION") do
+  config :game_server_core,
+    require_account_activation: require_activation in ["1", "true", "TRUE", "True"]
+end
+
 if config_env() == :prod do
   cache_enabled = GameServer.Env.bool("CACHE_ENABLED", true)
 

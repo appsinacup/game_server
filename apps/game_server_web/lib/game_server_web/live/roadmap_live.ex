@@ -53,10 +53,10 @@ defmodule GameServerWeb.RoadmapLive do
           <div class="text-center py-20">
             <.icon name="hero-map" class="w-16 h-16 mx-auto text-base-content/30 mb-4" />
             <h2 class="text-xl font-semibold text-base-content/60 mb-2">
-              {gettext("No roadmap available")}
+              {gettext("No results.")}
             </h2>
             <p class="text-base-content/40">
-              {gettext("Configure a roadmap file in your theme config JSON to display it here.")}
+              Configure a roadmap file in your theme config JSON to display it here.
             </p>
           </div>
         <% end %>

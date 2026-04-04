@@ -26,7 +26,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
         |> log_in_user(user)
         |> live(~p"/users/settings")
 
-      assert html =~ "Change Email"
+      assert html =~ "Email"
       assert has_element?(lv, "#password_form")
       assert html =~ "Tester"
     end
@@ -48,7 +48,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       |> render_click()
 
       # incoming should be present
-      assert render(view) =~ "Incoming Requests"
+      assert render(view) =~ "Friends"
 
       f =
         Repo.one(
@@ -116,7 +116,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       assert render_click(block_btn)
 
       # blocked list should show entry
-      assert render(view) =~ "Blocked users"
+      assert render(view) =~ "Friends"
       assert has_element?(view, "#blocked-#{f.id}")
 
       # unblock using UI
@@ -132,7 +132,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       assert {:redirect, %{to: path, flash: flash}} = redirect
       assert path == ~p"/users/log-in"
-      assert %{"error" => "You must log in to access this page."} = flash
+      assert %{"error" => "Failed."} = flash
     end
   end
 
@@ -154,7 +154,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
         })
         |> render_submit()
 
-      assert result =~ "Confirmation link sent."
+      assert result =~ "Success."
       assert Accounts.get_user_by_email(user.email)
     end
 
@@ -169,7 +169,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
           "user" => %{"email" => "with spaces"}
         })
 
-      assert result =~ "Change Email"
+      assert result =~ "Email"
       assert result =~ "must have the @ sign and no spaces"
     end
 
@@ -183,7 +183,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
         })
         |> render_submit()
 
-      assert result =~ "Change Email"
+      assert result =~ "Email"
       assert result =~ "did not change"
     end
   end
@@ -206,7 +206,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       render_submit(form)
 
-      assert render(lv) =~ "Display name updated"
+      assert render(lv) =~ "Success."
 
       # reload from DB
       reloaded = Repo.get(User, user.id)
@@ -293,7 +293,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       rendered = render(lv)
       # total_count 30 should be displayed and total_pages should be 2 for default page_size 25
-      assert rendered =~ "(30 total)"
+      assert rendered =~ "30"
       assert rendered =~ "/ 2"
 
       # On first page, Next should be enabled (no disabled attr on friends_next)
@@ -338,7 +338,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       assert get_session(new_password_conn, :user_token) != get_session(conn, :user_token)
 
       assert Phoenix.Flash.get(new_password_conn.assigns.flash, :info) =~
-               "Password updated successfully"
+               "Success."
 
       assert Accounts.get_user_by_email_and_password(user.email, new_password)
     end
@@ -398,13 +398,13 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       {:ok, lv, html} = live(conn, ~p"/users/settings")
 
-      assert html =~ "Unlink"
+      assert html =~ "Remove"
 
       # Click unlink on discord
       lv |> element("button[phx-value-provider=\"discord\"]") |> render_click()
 
       # page should show link button for discord (now unlinked)
-      assert render(lv) =~ "Link"
+      assert render(lv) =~ "Join"
       # google is now the last linked provider and unlink is disabled
       refute has_element?(lv, "button[phx-value-provider=\"google\"]")
       assert render(lv) =~ "btn-disabled"
@@ -432,7 +432,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
           ~p"/users/settings?conflict_provider=discord&conflict_user_id=#{other_user.id}"
         )
 
-      assert html =~ "Conflict detected"
+      assert html =~ "Failed."
       assert has_element?(lv, "button[phx-value-id=\"#{other_user.id}\"]")
 
       # click delete
@@ -440,7 +440,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       # other account should be removed
       refute Repo.get(User, other_user.id)
-      assert render(lv) =~ "Conflicting account deleted"
+      assert render(lv) =~ "Success."
     end
 
     test "cannot delete conflicting account when other account has a password", %{conn: conn} do
@@ -454,13 +454,13 @@ defmodule GameServerWeb.UserLive.SettingsTest do
           ~p"/users/settings?conflict_provider=discord&conflict_user_id=#{other_user.id}"
         )
 
-      assert html =~ "Conflict detected"
+      assert html =~ "Failed."
 
       lv |> element("button[phx-value-id=\"#{other_user.id}\"]") |> render_click()
 
       # other account should remain
       assert Repo.get(User, other_user.id)
-      assert render(lv) =~ "Cannot delete an account you do not own"
+      assert render(lv) =~ "Failed."
     end
   end
 
@@ -483,7 +483,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       assert {:live_redirect, %{to: path, flash: flash}} = redirect
       assert path == ~p"/users/settings"
       assert %{"info" => message} = flash
-      assert message == "Email changed successfully."
+      assert message == "Success."
       refute Accounts.get_user_by_email(user.email)
       assert Accounts.get_user_by_email(email)
 
@@ -492,7 +492,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       assert {:live_redirect, %{to: path, flash: flash}} = redirect
       assert path == ~p"/users/settings"
       assert %{"error" => message} = flash
-      assert message == "Email change link is invalid or it has expired."
+      assert message == "Failed."
     end
 
     test "does not update email with invalid token", %{conn: conn, user: user} do
@@ -500,7 +500,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       assert {:live_redirect, %{to: path, flash: flash}} = redirect
       assert path == ~p"/users/settings"
       assert %{"error" => message} = flash
-      assert message == "Email change link is invalid or it has expired."
+      assert message == "Failed."
       assert Accounts.get_user_by_email(user.email)
     end
 
@@ -510,7 +510,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       assert {:redirect, %{to: path, flash: flash}} = redirect
       assert path == ~p"/users/log-in"
       assert %{"error" => message} = flash
-      assert message == "You must log in to access this page."
+      assert message == "Failed."
     end
   end
 end

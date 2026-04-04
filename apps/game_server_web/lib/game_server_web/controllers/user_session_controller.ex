@@ -5,26 +5,35 @@ defmodule GameServerWeb.UserSessionController do
   alias GameServerWeb.UserAuth
 
   def create(conn, %{"_action" => "confirmed"} = params) do
-    create(conn, params, dgettext("auth", "User confirmed successfully."))
+    create(conn, params, gettext("Success."))
   end
 
   def create(conn, params) do
-    create(conn, params, dgettext("auth", "Welcome back!"))
+    create(conn, params, gettext("Success."))
   end
 
   # magic link login
   defp create(conn, %{"user" => %{"token" => token} = user_params}, info) do
     case Accounts.login_user_by_magic_link(token) do
       {:ok, {user, tokens_to_disconnect}} ->
-        UserAuth.disconnect_sessions(tokens_to_disconnect)
+        if Accounts.user_activated?(user) do
+          UserAuth.disconnect_sessions(tokens_to_disconnect)
 
-        conn
-        |> put_flash(:info, info)
-        |> UserAuth.log_in_user(user, user_params)
+          conn
+          |> put_flash(:info, info)
+          |> UserAuth.log_in_user(user, user_params)
+        else
+          conn
+          |> put_flash(
+            :error,
+            gettext("Loading...")
+          )
+          |> redirect(to: ~p"/users/log-in")
+        end
 
       _ ->
         conn
-        |> put_flash(:error, dgettext("auth", "The link is invalid or it has expired."))
+        |> put_flash(:error, gettext("Failed."))
         |> redirect(to: ~p"/users/log-in")
     end
   end
@@ -34,13 +43,22 @@ defmodule GameServerWeb.UserSessionController do
     %{"email" => email, "password" => password} = user_params
 
     if user = Accounts.get_user_by_email_and_password(email, password) do
-      conn
-      |> put_flash(:info, info)
-      |> UserAuth.log_in_user(user, user_params)
+      if Accounts.user_activated?(user) do
+        conn
+        |> put_flash(:info, info)
+        |> UserAuth.log_in_user(user, user_params)
+      else
+        conn
+        |> put_flash(
+          :error,
+          gettext("Loading...")
+        )
+        |> redirect(to: ~p"/users/log-in")
+      end
     else
       # In order to prevent user enumeration attacks, don't disclose whether the email is registered.
       conn
-      |> put_flash(:error, dgettext("auth", "Invalid email or password"))
+      |> put_flash(:error, gettext("Failed."))
       |> put_flash(:email, String.slice(email, 0, 160))
       |> redirect(to: ~p"/users/log-in")
     end
@@ -57,32 +75,38 @@ defmodule GameServerWeb.UserSessionController do
 
       conn
       |> put_session(:user_return_to, ~p"/users/settings")
-      |> create(params, dgettext("auth", "Password updated successfully!"))
+      |> create(params, gettext("Success."))
     else
       conn
-      |> put_flash(:error, dgettext("auth", "You must reauthenticate to change your password."))
+      |> put_flash(:error, gettext("Failed."))
       |> redirect(to: ~p"/users/log-in")
     end
   end
 
   def delete(conn, _params) do
     conn
-    |> put_flash(:info, dgettext("auth", "Logged out successfully."))
+    |> put_flash(:info, gettext("Success."))
     |> UserAuth.log_out_user()
   end
 
   def confirm(conn, %{"token" => token}) do
     case Accounts.confirm_user_by_token(token) do
       {:ok, user} ->
-        # Auto-login the user after successful confirmation and send them to settings
-        conn
-        |> put_session(:user_return_to, ~p"/users/settings")
-        |> put_flash(:info, dgettext("auth", "User confirmed successfully."))
-        |> UserAuth.log_in_user(user, %{})
+        if Accounts.user_activated?(user) do
+          # Auto-login the user after successful confirmation and send them to settings
+          conn
+          |> put_session(:user_return_to, ~p"/users/settings")
+          |> put_flash(:info, gettext("Success."))
+          |> UserAuth.log_in_user(user, %{})
+        else
+          conn
+          |> put_flash(:info, gettext("Loading..."))
+          |> redirect(to: ~p"/users/log-in")
+        end
 
       _ ->
         conn
-        |> put_flash(:error, dgettext("auth", "The link is invalid or it has expired."))
+        |> put_flash(:error, gettext("Failed."))
         |> redirect(to: ~p"/users/log-in")
     end
   end

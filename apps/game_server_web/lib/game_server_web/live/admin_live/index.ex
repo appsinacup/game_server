@@ -107,6 +107,17 @@ defmodule GameServerWeb.AdminLive.Index do
                   <div class="font-semibold mt-2">
                     Last 30 days: {@users_registered_30d}
                   </div>
+                  <%= if @users_unactivated > 0 do %>
+                    <div class="mt-3 pt-2 border-t border-base-300">
+                      <.link
+                        navigate={~p"/admin/users?filter=unactivated"}
+                        class="inline-flex items-center gap-1.5 text-warning font-semibold hover:underline"
+                      >
+                        <.icon name="hero-exclamation-triangle" class="w-4 h-4" />
+                        Pending activation: {@users_unactivated}
+                      </.link>
+                    </div>
+                  <% end %>
                 </div>
               </div>
 
@@ -431,6 +442,7 @@ defmodule GameServerWeb.AdminLive.Index do
     users_active_1d = Accounts.count_users_active_since(1)
     users_active_7d = Accounts.count_users_active_since(7)
     users_active_30d = Accounts.count_users_active_since(30)
+    users_unactivated = Accounts.count_unactivated_users()
 
     {:ok,
      assign(socket,
@@ -481,6 +493,7 @@ defmodule GameServerWeb.AdminLive.Index do
        users_active_1d: users_active_1d,
        users_active_7d: users_active_7d,
        users_active_30d: users_active_30d,
+       users_unactivated: users_unactivated,
        dev_routes?: @dev_routes?
      )}
   end

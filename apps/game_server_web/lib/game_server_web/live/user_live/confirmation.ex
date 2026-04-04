@@ -9,7 +9,7 @@ defmodule GameServerWeb.UserLive.Confirmation do
     <Layouts.app flash={@flash} current_scope={@current_scope} current_path={assigns[:current_path]}>
       <div class="mx-auto max-w-sm">
         <div class="text-center">
-          <.header>{dgettext("auth", "Welcome %{email}", email: @user.email)}</.header>
+          <.header>{@user.email}</.header>
         </div>
 
         <.form
@@ -25,16 +25,16 @@ defmodule GameServerWeb.UserLive.Confirmation do
           <.button
             name={@form[:remember_me].name}
             value="true"
-            phx-disable-with={dgettext("auth", "Confirming...")}
+            phx-disable-with={gettext("Loading...")}
             class="btn btn-primary w-full"
           >
-            {dgettext("auth", "Confirm and stay logged in")}
+            {gettext("Confirm")}
           </.button>
           <.button
-            phx-disable-with={dgettext("auth", "Confirming...")}
+            phx-disable-with={gettext("Loading...")}
             class="btn btn-primary btn-soft w-full mt-2"
           >
-            {dgettext("auth", "Confirm and log in only this time")}
+            {gettext("Confirm")}
           </.button>
         </.form>
 
@@ -50,7 +50,7 @@ defmodule GameServerWeb.UserLive.Confirmation do
           <input type="hidden" name={@form[:token].name} value={@form[:token].value} />
           <%= if @current_scope do %>
             <.button
-              phx-disable-with={dgettext("auth", "Logging in...")}
+              phx-disable-with={gettext("Loading...")}
               class="btn btn-primary w-full"
             >
               {gettext("Log in")}
@@ -59,22 +59,22 @@ defmodule GameServerWeb.UserLive.Confirmation do
             <.button
               name={@form[:remember_me].name}
               value="true"
-              phx-disable-with={dgettext("auth", "Logging in...")}
+              phx-disable-with={gettext("Loading...")}
               class="btn btn-primary w-full"
             >
-              {dgettext("auth", "Keep me logged in on this device")}
+              {gettext("Log in")}
             </.button>
             <.button
-              phx-disable-with={dgettext("auth", "Logging in...")}
+              phx-disable-with={gettext("Loading...")}
               class="btn btn-primary btn-soft w-full mt-2"
             >
-              {dgettext("auth", "Log me in only this time")}
+              {gettext("Log in")}
             </.button>
           <% end %>
         </.form>
 
         <p :if={!@user.confirmed_at} class="alert alert-outline mt-8">
-          {dgettext("auth", "Tip: If you prefer passwords, you can enable them in the user settings.")}
+          {gettext("Password")}
         </p>
       </div>
     </Layouts.app>
@@ -91,12 +91,12 @@ defmodule GameServerWeb.UserLive.Confirmation do
          user: user,
          form: form,
          trigger_submit: false,
-         page_title: dgettext("auth", "Confirm Account")
+         page_title: gettext("Confirm")
        ), temporary_assigns: [form: nil]}
     else
       {:ok,
        socket
-       |> put_flash(:error, dgettext("auth", "Magic link is invalid or it has expired."))
+       |> put_flash(:error, gettext("Failed."))
        |> push_navigate(to: ~p"/users/log-in")}
     end
   end

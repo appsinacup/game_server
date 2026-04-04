@@ -79,10 +79,10 @@ defmodule GameServerWeb.BlogLive do
           <div class="text-center py-20">
             <.icon name="hero-newspaper" class="w-16 h-16 mx-auto text-base-content/30 mb-4" />
             <h2 class="text-xl font-semibold text-base-content/60 mb-2">
-              {gettext("No blog available")}
+              {gettext("No results.")}
             </h2>
             <p class="text-base-content/40">
-              {gettext("Configure a blog directory in your theme config JSON to display posts here.")}
+              Configure a blog directory in your theme config JSON to display posts here.
             </p>
           </div>
         <% else %>
@@ -130,7 +130,7 @@ defmodule GameServerWeb.BlogLive do
     <%= if @grouped_posts == [] do %>
       <div class="text-center py-16">
         <.icon name="hero-pencil-square" class="w-12 h-12 mx-auto text-base-content/30 mb-3" />
-        <p class="text-base-content/50">{gettext("No blog posts yet.")}</p>
+        <p class="text-base-content/50">{gettext("No results.")}</p>
       </div>
     <% else %>
       <div class="space-y-10">
@@ -143,7 +143,7 @@ defmodule GameServerWeb.BlogLive do
               <div class="mb-6">
                 <h3 class="text-lg font-semibold text-base-content/70 mb-3 flex items-center gap-2">
                   <.icon name="hero-calendar" class="w-5 h-5" />
-                  {month_name(month)}
+                  {year_month_label(year, month)}
                 </h3>
                 <div class="space-y-3 ml-2">
                   <%= for post <- posts do %>
@@ -189,7 +189,7 @@ defmodule GameServerWeb.BlogLive do
       navigate={~p"/blog"}
       class="inline-flex items-center gap-1 text-sm text-base-content/60 hover:text-primary mb-6 transition-colors"
     >
-      <.icon name="hero-arrow-left" class="w-4 h-4" /> {gettext("Back to Blog")}
+      <.icon name="hero-arrow-left" class="w-4 h-4" /> {gettext("Back")}
     </.link>
 
     <%!-- Post header --%>
@@ -241,16 +241,8 @@ defmodule GameServerWeb.BlogLive do
   # Helpers
   # ---------------------------------------------------------------------------
 
-  defp month_name(1), do: gettext("January")
-  defp month_name(2), do: gettext("February")
-  defp month_name(3), do: gettext("March")
-  defp month_name(4), do: gettext("April")
-  defp month_name(5), do: gettext("May")
-  defp month_name(6), do: gettext("June")
-  defp month_name(7), do: gettext("July")
-  defp month_name(8), do: gettext("August")
-  defp month_name(9), do: gettext("September")
-  defp month_name(10), do: gettext("October")
-  defp month_name(11), do: gettext("November")
-  defp month_name(12), do: gettext("December")
+  defp year_month_label(year, month) do
+    month = month |> Integer.to_string() |> String.pad_leading(2, "0")
+    "#{year}-#{month}"
+  end
 end

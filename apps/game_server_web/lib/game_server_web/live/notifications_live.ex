@@ -12,12 +12,9 @@ defmodule GameServerWeb.NotificationsLive do
       <div class="space-y-6">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold">{dgettext("settings", "Notifications")}</h1>
+            <h1 class="text-3xl font-bold">{gettext("Notifications")}</h1>
             <p class="text-base-content/60 mt-1">
-              {dgettext("settings", "%{count} notifications, %{unread} unread",
-                count: @notif_count,
-                unread: @notif_unread_count
-              )}
+              {@notif_count} / {@notif_unread_count}
             </p>
           </div>
           <div class="flex gap-2">
@@ -25,10 +22,10 @@ defmodule GameServerWeb.NotificationsLive do
               <button
                 type="button"
                 phx-click="delete_all"
-                data-confirm={dgettext("settings", "Delete all notifications?")}
+                data-confirm={gettext("Delete?")}
                 class="btn btn-sm btn-outline btn-error"
               >
-                {dgettext("settings", "Delete All")}
+                {gettext("Delete")}
               </button>
             <% end %>
           </div>
@@ -162,7 +159,7 @@ defmodule GameServerWeb.NotificationsLive do
 
     {:noreply,
      socket
-     |> put_flash(:info, dgettext("settings", "Notification deleted"))
+     |> put_flash(:info, gettext("Success."))
      |> reload_notifications()}
   end
 
@@ -177,7 +174,7 @@ defmodule GameServerWeb.NotificationsLive do
 
     {:noreply,
      socket
-     |> put_flash(:info, dgettext("settings", "All notifications deleted"))
+     |> put_flash(:info, gettext("Success."))
      |> assign(:notif_page, 1)
      |> reload_notifications()}
   end
@@ -200,58 +197,58 @@ defmodule GameServerWeb.NotificationsLive do
     group_id = n.metadata["group_id"]
 
     if group_id,
-      do: {gettext("View Group"), ~p"/groups/#{group_id}"},
-      else: {gettext("View Groups"), ~p"/groups"}
+      do: {gettext("View"), ~p"/groups/#{group_id}"},
+      else: {gettext("View"), ~p"/groups"}
   end
 
-  defp action_for_type("party_invite", _n), do: {gettext("View Party"), ~p"/play"}
-  defp action_for_type("chat_lobby", _n), do: {gettext("Open Play"), ~p"/play"}
-  defp action_for_type("chat_party", _n), do: {gettext("View Party"), ~p"/play"}
+  defp action_for_type("party_invite", _n), do: {gettext("View"), ~p"/play"}
+  defp action_for_type("chat_lobby", _n), do: {gettext("Open"), ~p"/play"}
+  defp action_for_type("chat_party", _n), do: {gettext("View"), ~p"/play"}
 
   defp action_for_type("friend_request", _n),
-    do: {gettext("View Friends"), ~p"/users/settings?#{[tab: "friends"]}"}
+    do: {gettext("View"), ~p"/users/settings?#{[tab: "friends"]}"}
 
   defp action_for_type("achievement_unlocked", _n),
-    do: {gettext("Achievements"), ~p"/achievements"}
+    do: {gettext("View"), ~p"/achievements"}
 
   defp action_for_type("chat_group", n) do
     group_id = n.metadata["group_id"]
 
     if group_id,
-      do: {gettext("Open Chat"), ~p"/chat?#{[type: "group", id: group_id]}"},
-      else: {gettext("Open Chat"), ~p"/chat"}
+      do: {gettext("Open"), ~p"/chat?#{[type: "group", id: group_id]}"},
+      else: {gettext("Open"), ~p"/chat"}
   end
 
   defp action_for_type("chat_friend", n) do
     friend_id = n.metadata["friend_id"] || n.metadata["sender_id"]
 
     if friend_id,
-      do: {gettext("Open Chat"), ~p"/chat?#{[type: "friend", id: friend_id]}"},
-      else: {gettext("Open Chat"), ~p"/chat"}
+      do: {gettext("Open"), ~p"/chat?#{[type: "friend", id: friend_id]}"},
+      else: {gettext("Open"), ~p"/chat"}
   end
 
   defp action_for_type("friend_accepted", n) do
     friend_id = n.metadata["friend_id"] || n.sender_id
 
     if friend_id,
-      do: {gettext("Open Chat"), ~p"/chat?#{[type: "friend", id: friend_id]}"},
-      else: {gettext("Open Chat"), ~p"/chat"}
+      do: {gettext("Open"), ~p"/chat?#{[type: "friend", id: friend_id]}"},
+      else: {gettext("Open"), ~p"/chat"}
   end
 
   defp action_for_type(_type, _n), do: nil
 
   # Fallback: infer action from metadata keys for notifications without a known type
   defp action_for_metadata(%{"leaderboard_slug" => slug}) when is_binary(slug),
-    do: {gettext("View Leaderboard"), ~p"/leaderboards/#{slug}"}
+    do: {gettext("View"), ~p"/leaderboards/#{slug}"}
 
   defp action_for_metadata(%{"leaderboard_id" => _}),
-    do: {gettext("View Leaderboards"), ~p"/leaderboards"}
+    do: {gettext("View"), ~p"/leaderboards"}
 
   defp action_for_metadata(%{"group_id" => group_id}) when is_integer(group_id),
-    do: {gettext("View Group"), ~p"/groups/#{group_id}"}
+    do: {gettext("View"), ~p"/groups/#{group_id}"}
 
-  defp action_for_metadata(%{"lobby_id" => _}), do: {gettext("Open Play"), ~p"/play"}
-  defp action_for_metadata(%{"party_id" => _}), do: {gettext("View Party"), ~p"/play"}
+  defp action_for_metadata(%{"lobby_id" => _}), do: {gettext("Open"), ~p"/play"}
+  defp action_for_metadata(%{"party_id" => _}), do: {gettext("View"), ~p"/play"}
   defp action_for_metadata(_), do: nil
 
   defp reload_notifications(socket) do
@@ -344,12 +341,9 @@ defmodule GameServerWeb.NotificationsLive do
 
   # Content translation — dispatches on type, with message_count special case.
 
-  defp translate_notification_content(%{metadata: %{"message_count" => 1}}),
-    do: gettext("1 new message")
-
   defp translate_notification_content(%{metadata: %{"message_count" => count}})
        when is_integer(count),
-       do: dgettext("settings", "%{count} new messages", count: count)
+       do: "#{count}"
 
   defp translate_notification_content(n), do: content_for_type(n.metadata["type"], n)
 

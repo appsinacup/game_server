@@ -177,6 +177,19 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                   </tr>
                   <tr>
+                    <td class="font-semibold">Account activation</td>
+                    <td>
+                      <%= if @config.require_account_activation do %>
+                        <span class="badge badge-warning">Required (beta mode)</span>
+                      <% else %>
+                        <span class="badge badge-ghost">Not required</span>
+                      <% end %>
+                    </td>
+                    <td class="font-mono text-sm break-all whitespace-normal">
+                      REQUIRE_ACCOUNT_ACTIVATION: {@config.require_account_activation_env || "<unset>"}
+                    </td>
+                  </tr>
+                  <tr>
                     <td class="font-semibold">Password policy</td>
                     <td>
                       <%= if @config.min_password_length_env do %>
@@ -1557,6 +1570,8 @@ defmodule GameServerWeb.AdminLive.Config do
       theme_dark: theme_dark_variants(JSONConfig.get_theme()),
       device_auth_enabled_app: Application.get_env(:game_server_core, :device_auth_enabled),
       device_auth_enabled_env: System.get_env("DEVICE_AUTH_ENABLED"),
+      require_account_activation: GameServer.Accounts.require_account_activation?(),
+      require_account_activation_env: System.get_env("REQUIRE_ACCOUNT_ACTIVATION"),
       min_password_length_env: System.get_env("MIN_PASSWORD_LENGTH"),
       min_password_length_effective: User.min_password_length(),
 

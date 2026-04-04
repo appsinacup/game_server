@@ -18,7 +18,7 @@ defmodule GameServerWeb.UserLive.ConfirmationTest do
         end)
 
       {:ok, _lv, html} = live(conn, ~p"/users/log-in/#{token}")
-      assert html =~ "Confirm and stay logged in"
+      assert html =~ "Confirm"
     end
 
     test "renders login page for confirmed user", %{conn: conn, confirmed_user: user} do
@@ -29,7 +29,7 @@ defmodule GameServerWeb.UserLive.ConfirmationTest do
 
       {:ok, _lv, html} = live(conn, ~p"/users/log-in/#{token}")
       refute html =~ "Confirm my account"
-      assert html =~ "Welcome"
+      assert html =~ "Log in"
       assert html =~ user.email
     end
 
@@ -47,7 +47,7 @@ defmodule GameServerWeb.UserLive.ConfirmationTest do
       conn = follow_trigger_action(form, conn)
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~
-               "User confirmed successfully"
+               "Success."
 
       assert Accounts.get_user!(user.id).confirmed_at
       # we are logged in now
@@ -61,7 +61,7 @@ defmodule GameServerWeb.UserLive.ConfirmationTest do
         live(conn, ~p"/users/log-in/#{token}")
         |> follow_redirect(conn, ~p"/users/log-in")
 
-      assert html =~ "Magic link is invalid or it has expired"
+      assert html =~ "Failed."
     end
 
     test "logs confirmed user in without changing confirmed_at", %{
@@ -81,7 +81,7 @@ defmodule GameServerWeb.UserLive.ConfirmationTest do
       conn = follow_trigger_action(form, conn)
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~
-               "Welcome back!"
+               "Success."
 
       assert Accounts.get_user!(user.id).confirmed_at == user.confirmed_at
 
@@ -92,7 +92,7 @@ defmodule GameServerWeb.UserLive.ConfirmationTest do
         live(conn, ~p"/users/log-in/#{token}")
         |> follow_redirect(conn, ~p"/users/log-in")
 
-      assert html =~ "Magic link is invalid or it has expired"
+      assert html =~ "Failed."
     end
 
     test "raises error for invalid token", %{conn: conn} do
@@ -100,7 +100,7 @@ defmodule GameServerWeb.UserLive.ConfirmationTest do
         live(conn, ~p"/users/log-in/invalid-token")
         |> follow_redirect(conn, ~p"/users/log-in")
 
-      assert html =~ "Magic link is invalid or it has expired"
+      assert html =~ "Failed."
     end
   end
 end

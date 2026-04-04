@@ -951,28 +951,28 @@ defmodule GameServerWeb.Layouts do
       <.flash
         id="client-error"
         kind={:error}
-        title={gettext("Reconnecting…")}
+        title={gettext("Loading...")}
         phx-disconnected={JS.dispatch("gs:lv-disconnected")}
         phx-connected={JS.dispatch("gs:lv-connected")}
         phx-hook="ReconnectNotice"
         data-delay-ms="5000"
         hidden
       >
-        {gettext("Trying to reconnect")}
+        {gettext("Loading...")}
         <.icon name="hero-arrow-path" class="ml-1 size-3 motion-safe:animate-spin" />
       </.flash>
 
       <.flash
         id="server-error"
         kind={:error}
-        title={gettext("Reconnecting…")}
+        title={gettext("Loading...")}
         phx-disconnected={JS.dispatch("gs:lv-disconnected")}
         phx-connected={JS.dispatch("gs:lv-connected")}
         phx-hook="ReconnectNotice"
         data-delay-ms="5000"
         hidden
       >
-        {gettext("Trying to reconnect")}
+        {gettext("Loading...")}
         <.icon name="hero-arrow-path" class="ml-1 size-3 motion-safe:animate-spin" />
       </.flash>
     </div>

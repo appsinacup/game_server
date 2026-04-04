@@ -42,7 +42,7 @@ defmodule GameServerWeb.LobbyLive.Index do
 
     {:ok,
      assign(socket,
-       page_title: dgettext("lobbies", "Lobbies"),
+       page_title: gettext("Home"),
        lobbies: lobbies,
        memberships_map: memberships_map,
        lobbies_page: lobbies_page,
@@ -74,7 +74,7 @@ defmodule GameServerWeb.LobbyLive.Index do
              put_flash(
                socket,
                :error,
-               dgettext("lobbies", "You are already in a lobby and cannot create another")
+               gettext("Failed.")
              )}
 
           _ ->
@@ -117,7 +117,7 @@ defmodule GameServerWeb.LobbyLive.Index do
              put_flash(
                socket,
                :error,
-               dgettext("lobbies", "Could not leave: %{reason}", reason: inspect(reason))
+               gettext("Failed: %{reason}", reason: inspect(reason))
              )}
         end
 
@@ -137,7 +137,7 @@ defmodule GameServerWeb.LobbyLive.Index do
         end
 
       nil ->
-        {:noreply, put_flash(socket, :error, dgettext("lobbies", "Lobby not found"))}
+        {:noreply, put_flash(socket, :error, gettext("Not found"))}
     end
   end
 
@@ -157,10 +157,10 @@ defmodule GameServerWeb.LobbyLive.Index do
       {:ok, lobby_id} ->
         case Lobbies.get_lobby(lobby_id) do
           nil ->
-            {:noreply, put_flash(socket, :error, dgettext("lobbies", "Lobby not found"))}
+            {:noreply, put_flash(socket, :error, gettext("Not found"))}
 
           %{} = l when l.is_locked ->
-            {:noreply, put_flash(socket, :error, dgettext("lobbies", "Lobby is locked"))}
+            {:noreply, put_flash(socket, :error, gettext("Failed."))}
 
           %{} = l when l.password_hash != nil ->
             {:noreply, assign(socket, joining_lobby_id: l.id, join_password: "")}
@@ -172,7 +172,7 @@ defmodule GameServerWeb.LobbyLive.Index do
         end
 
       :error ->
-        {:noreply, put_flash(socket, :error, dgettext("lobbies", "Lobby not found"))}
+        {:noreply, put_flash(socket, :error, gettext("Not found"))}
     end
   end
 
@@ -265,7 +265,7 @@ defmodule GameServerWeb.LobbyLive.Index do
 
             {:noreply,
              socket
-             |> put_flash(:info, dgettext("lobbies", "Lobby updated"))
+             |> put_flash(:info, gettext("Success."))
              |> assign(
                lobbies: lobbies,
                memberships_map: memberships_map,
@@ -278,7 +278,7 @@ defmodule GameServerWeb.LobbyLive.Index do
              put_flash(
                socket,
                :error,
-               dgettext("lobbies", "Could not update: %{reason}", reason: inspect(reason))
+               gettext("Failed: %{reason}", reason: inspect(reason))
              )}
         end
 
@@ -314,7 +314,7 @@ defmodule GameServerWeb.LobbyLive.Index do
              put_flash(
                socket,
                :error,
-               dgettext("lobbies", "Could not kick: %{reason}", reason: inspect(reason))
+               gettext("Failed: %{reason}", reason: inspect(reason))
              )}
         end
 
@@ -365,7 +365,7 @@ defmodule GameServerWeb.LobbyLive.Index do
          put_flash(
            socket,
            :error,
-           dgettext("lobbies", "You are already in a lobby and cannot create another")
+           gettext("Failed.")
          )}
 
       {:error, _} ->
@@ -409,7 +409,7 @@ defmodule GameServerWeb.LobbyLive.Index do
          put_flash(
            socket,
            :error,
-           dgettext("lobbies", "Could not join: %{reason}", reason: inspect(reason))
+           gettext("Failed: %{reason}", reason: inspect(reason))
          )}
     end
   end
@@ -425,7 +425,7 @@ defmodule GameServerWeb.LobbyLive.Index do
 
   defp handle_start_join_for_user(socket, lobby, user) do
     if user.lobby_id == lobby.id do
-      {:noreply, put_flash(socket, :info, dgettext("lobbies", "You are already in this lobby"))}
+      {:noreply, put_flash(socket, :info, gettext("Failed."))}
     else
       case Lobbies.join_lobby(user, lobby.id) do
         {:ok, _member} ->
@@ -457,7 +457,7 @@ defmodule GameServerWeb.LobbyLive.Index do
            put_flash(
              socket,
              :error,
-             dgettext("lobbies", "Could not join: %{reason}", reason: inspect(reason))
+             gettext("Failed: %{reason}", reason: inspect(reason))
            )}
       end
     end
@@ -525,7 +525,7 @@ defmodule GameServerWeb.LobbyLive.Index do
         {:noreply,
          socket
          |> assign(current_scope: updated_scope, subscribed_lobby_id: nil, editing_lobby_id: nil)
-         |> put_flash(:error, dgettext("lobbies", "You have been kicked from the lobby"))}
+         |> put_flash(:error, gettext("Failed."))}
 
       _ ->
         {:noreply, socket}
@@ -655,17 +655,13 @@ defmodule GameServerWeb.LobbyLive.Index do
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
           <div class="card bg-base-200 p-4 rounded-lg">
-            <div class="font-semibold">{dgettext("lobbies", "Create a Lobby")}</div>
+            <div class="font-semibold">{gettext("Create")}</div>
             <div class="mt-2 flex gap-2 items-center">
               <button phx-click="lobbies_prev" class="btn btn-xs" disabled={@lobbies_page <= 1}>
                 {gettext("Prev")}
               </button>
               <div class="text-xs text-base-content/70">
-                {gettext("page %{page} / %{total_pages} (%{total} total)",
-                  page: @lobbies_page,
-                  total_pages: @lobbies_total_pages,
-                  total: @lobbies_total
-                )}
+                {@lobbies_page} / {@lobbies_total_pages} ({@lobbies_total})
               </div>
               <button
                 phx-click="lobbies_next"
@@ -682,7 +678,7 @@ defmodule GameServerWeb.LobbyLive.Index do
                 <button type="submit" class="btn btn-primary">{gettext("Create")}</button>
                 <%= if @current_scope && @current_scope.user && @current_scope.user.lobby_id do %>
                   <span class="text-sm text-warning">
-                    {dgettext("lobbies", "You are already in a lobby")}
+                    {gettext("Failed.")}
                   </span>
                 <% end %>
               </div>
@@ -690,7 +686,7 @@ defmodule GameServerWeb.LobbyLive.Index do
           </div>
 
           <div class="lg:col-span-2">
-            <div class="font-semibold">{dgettext("lobbies", "Open Lobbies")}</div>
+            <div class="font-semibold">{gettext("Home")}</div>
             <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
               <div
                 :for={lobby <- @lobbies}
@@ -701,10 +697,7 @@ defmodule GameServerWeb.LobbyLive.Index do
                   <div>
                     <div class="text-lg font-semibold">{lobby.title}</div>
                     <div class="text-xs text-base-content/60 mt-2">
-                      {dgettext("lobbies", "%{count} / %{max} members",
-                        count: length(@memberships_map[lobby.id] || []),
-                        max: lobby.max_users
-                      )}
+                      {length(@memberships_map[lobby.id] || [])} / {lobby.max_users}
                     </div>
                   </div>
                   <div class="flex flex-col items-end gap-2">
@@ -719,7 +712,7 @@ defmodule GameServerWeb.LobbyLive.Index do
                             phx-value-id={lobby.id}
                             class="btn btn-outline btn-sm"
                           >
-                            {dgettext("lobbies", "Manage")}
+                            {gettext("Edit")}
                           </button>
                         <% user.lobby_id == lobby.id -> %>
                           <%!-- Non-host member can View (with Leave inside) --%>
@@ -826,7 +819,7 @@ defmodule GameServerWeb.LobbyLive.Index do
                           <input
                             name="password"
                             class="input input-sm"
-                            placeholder={dgettext("lobbies", "Leave empty to clear")}
+                            placeholder={gettext("Clear")}
                           />
                           <div class="flex items-center gap-2 mt-2">
                             <button type="submit" class="btn btn-primary btn-sm">
@@ -855,7 +848,7 @@ defmodule GameServerWeb.LobbyLive.Index do
                             <div class="flex items-center gap-2">
                               <%= if m.id == lobby.host_id do %>
                                 <span class="text-xs text-muted">
-                                  {dgettext("lobbies", "(host)")}
+                                  {gettext("Admin")}
                                 </span>
                               <% end %>
                               <%= cond do %>
@@ -893,7 +886,7 @@ defmodule GameServerWeb.LobbyLive.Index do
                             <div>
                               <%= if m.id == lobby.host_id do %>
                                 <span class="text-xs text-muted">
-                                  {dgettext("lobbies", "(host)")}
+                                  {gettext("Admin")}
                                 </span>
                               <% end %>
                               <%= if @current_scope && @current_scope.user && m.id == @current_scope.user.id do %>

@@ -37,7 +37,7 @@ defmodule GameServerWeb.GroupsLive do
 
     {:ok,
      assign(socket,
-       page_title: dgettext("groups", "Groups"),
+       page_title: gettext("Groups"),
        search: "",
        type_filter: "all",
        sort_by: "updated_at",
@@ -67,7 +67,7 @@ defmodule GameServerWeb.GroupsLive do
           nil ->
             {:noreply,
              socket
-             |> put_flash(:error, dgettext("groups", "Group not found"))
+             |> put_flash(:error, gettext("Not found"))
              |> push_navigate(to: ~p"/groups")}
 
           group ->
@@ -91,7 +91,7 @@ defmodule GameServerWeb.GroupsLive do
         end
 
       _ ->
-        {:noreply, assign(socket, selected_group: nil, page_title: dgettext("groups", "Groups"))}
+        {:noreply, assign(socket, selected_group: nil, page_title: gettext("Groups"))}
     end
   end
 
@@ -161,22 +161,22 @@ defmodule GameServerWeb.GroupsLive do
           {:ok, _member} ->
             {:noreply,
              socket
-             |> put_flash(:info, dgettext("groups", "You have joined the group"))
+             |> put_flash(:info, gettext("Success."))
              |> update(:member_group_ids, &MapSet.put(&1, group_id))
              |> maybe_refresh_selected(group_id)}
 
           {:error, :already_member} ->
-            {:noreply, put_flash(socket, :info, dgettext("groups", "You are already a member"))}
+            {:noreply, put_flash(socket, :info, gettext("Failed."))}
 
           {:error, :not_public} ->
-            {:noreply, put_flash(socket, :error, dgettext("groups", "This group is not public"))}
+            {:noreply, put_flash(socket, :error, gettext("Failed."))}
 
           {:error, reason} ->
             {:noreply,
              put_flash(
                socket,
                :error,
-               dgettext("groups", "Could not join: %{reason}", reason: inspect(reason))
+               gettext("Failed: %{reason}", reason: inspect(reason))
              )}
         end
 
@@ -194,22 +194,21 @@ defmodule GameServerWeb.GroupsLive do
           {:ok, _request} ->
             {:noreply,
              socket
-             |> put_flash(:info, dgettext("groups", "Join request sent"))
+             |> put_flash(:info, gettext("Success."))
              |> update(:pending_request_ids, &MapSet.put(&1, group_id))}
 
           {:error, :already_member} ->
-            {:noreply, put_flash(socket, :info, dgettext("groups", "You are already a member"))}
+            {:noreply, put_flash(socket, :info, gettext("Failed."))}
 
           {:error, :already_requested} ->
-            {:noreply,
-             put_flash(socket, :info, dgettext("groups", "You already have a pending request"))}
+            {:noreply, put_flash(socket, :info, gettext("Failed."))}
 
           {:error, :not_private} ->
             {:noreply,
              put_flash(
                socket,
                :error,
-               dgettext("groups", "This group does not accept join requests")
+               gettext("Failed.")
              )}
 
           {:error, reason} ->
@@ -217,7 +216,7 @@ defmodule GameServerWeb.GroupsLive do
              put_flash(
                socket,
                :error,
-               dgettext("groups", "Could not request: %{reason}", reason: inspect(reason))
+               gettext("Failed: %{reason}", reason: inspect(reason))
              )}
         end
 
@@ -235,7 +234,7 @@ defmodule GameServerWeb.GroupsLive do
           {:ok, _} ->
             {:noreply,
              socket
-             |> put_flash(:info, dgettext("groups", "You have left the group"))
+             |> put_flash(:info, gettext("Success."))
              |> update(:member_group_ids, &MapSet.delete(&1, group_id))
              |> maybe_refresh_selected(group_id)}
 
@@ -244,7 +243,7 @@ defmodule GameServerWeb.GroupsLive do
              put_flash(
                socket,
                :error,
-               dgettext("groups", "Could not leave: %{reason}", reason: inspect(reason))
+               gettext("Failed: %{reason}", reason: inspect(reason))
              )}
         end
 
@@ -388,7 +387,7 @@ defmodule GameServerWeb.GroupsLive do
     <Layouts.app flash={@flash} current_scope={@current_scope} current_path={assigns[:current_path]}>
       <div class="space-y-6">
         <div>
-          <h1 class="text-3xl font-bold">{dgettext("groups", "Groups")}</h1>
+          <h1 class="text-3xl font-bold">{gettext("Groups")}</h1>
         </div>
 
         <%= if @selected_group do %>
@@ -436,11 +435,11 @@ defmodule GameServerWeb.GroupsLive do
     </div>
 
     <div class="flex gap-2 items-center" id="groups-sort">
-      <span class="text-sm text-base-content/60">{gettext("Sort by:")}</span>
+      <span class="text-sm text-base-content/60">{gettext("Name")}</span>
       <button
         :for={
           {label, value} <- [
-            {gettext("Recent Activity"), "updated_at"},
+            {gettext("Date"), "updated_at"},
             {gettext("Newest"), "inserted_at"},
             {gettext("Name"), "title"},
             {gettext("Members"), "max_members"}
@@ -487,7 +486,7 @@ defmodule GameServerWeb.GroupsLive do
 
           <div class="flex items-center gap-2 mt-1">
             <span class="badge badge-ghost badge-sm text-nowrap">
-              {@member_counts[group.id] || 0} / {group.max_members} {dgettext("groups", "members")}
+              {@member_counts[group.id] || 0} / {group.max_members} {gettext("Members")}
             </span>
           </div>
         </div>
@@ -496,7 +495,7 @@ defmodule GameServerWeb.GroupsLive do
 
     <%= if @groups == [] do %>
       <div class="text-center py-12 text-base-content/60" id="groups-empty">
-        <p>{dgettext("groups", "No groups found")}</p>
+        <p>{gettext("No results.")}</p>
       </div>
     <% end %>
 
@@ -521,7 +520,7 @@ defmodule GameServerWeb.GroupsLive do
         <% MapSet.member?(@member_group_ids, @group.id) -> %>
           <span class="badge badge-success badge-sm">{gettext("Member")}</span>
         <% MapSet.member?(@pending_request_ids, @group.id) -> %>
-          <span class="badge badge-warning badge-sm">{dgettext("groups", "Pending")}</span>
+          <span class="badge badge-warning badge-sm">{gettext("Loading...")}</span>
         <% @group.type == "public" -> %>
           <button
             phx-click="join_group"
@@ -564,9 +563,7 @@ defmodule GameServerWeb.GroupsLive do
               <span class="badge badge-warning">{gettext("Private")}</span>
             <% end %>
             <span class="text-sm text-base-content/60">
-              {dgettext("groups", "Created %{date}",
-                date: Calendar.strftime(@selected_group.inserted_at, "%b %d, %Y")
-              )}
+              {Calendar.strftime(@selected_group.inserted_at, "%b %d, %Y")}
             </span>
           </div>
         </div>
@@ -601,8 +598,8 @@ defmodule GameServerWeb.GroupsLive do
           <table class="table">
             <thead>
               <tr>
-                <th>{dgettext("groups", "Player")}</th>
-                <th class="text-right">{dgettext("groups", "Role")}</th>
+                <th>{gettext("Name")}</th>
+                <th class="text-right">{gettext("Role")}</th>
               </tr>
             </thead>
             <tbody id="group-members-list">
@@ -617,8 +614,7 @@ defmodule GameServerWeb.GroupsLive do
                       |> String.upcase()}
                     </div>
                     <span>
-                      {member.user.display_name || member.user.email ||
-                        dgettext("groups", "user-%{id}", id: member.user.id)}
+                      {member.user.display_name || member.user.email || "##{member.user.id}"}
                     </span>
                   </div>
                 </td>
@@ -636,7 +632,7 @@ defmodule GameServerWeb.GroupsLive do
 
         <%= if @selected_members == [] do %>
           <div class="text-center py-8 text-base-content/60">
-            <p>{dgettext("groups", "No members yet")}</p>
+            <p>{gettext("No results.")}</p>
           </div>
         <% end %>
 
@@ -665,10 +661,10 @@ defmodule GameServerWeb.GroupsLive do
             class="btn btn-outline btn-error btn-sm"
             id="group-leave-btn"
           >
-            {dgettext("groups", "Leave Group")}
+            {gettext("Leave")}
           </button>
         <% MapSet.member?(@pending_request_ids, @selected_group.id) -> %>
-          <span class="badge badge-warning">{dgettext("groups", "Request Pending")}</span>
+          <span class="badge badge-warning">{gettext("Loading...")}</span>
         <% @selected_group.type == "public" -> %>
           <button
             phx-click="join_group"
@@ -676,7 +672,7 @@ defmodule GameServerWeb.GroupsLive do
             class="btn btn-primary btn-sm"
             id="group-join-btn"
           >
-            {dgettext("groups", "Join Group")}
+            {gettext("Join")}
           </button>
         <% @selected_group.type == "private" -> %>
           <button
@@ -685,13 +681,13 @@ defmodule GameServerWeb.GroupsLive do
             class="btn btn-outline btn-sm"
             id="group-request-btn"
           >
-            {dgettext("groups", "Request to Join")}
+            {gettext("Request")}
           </button>
         <% true -> %>
       <% end %>
     <% else %>
       <.link navigate={~p"/users/log-in"} class="btn btn-outline btn-sm">
-        {dgettext("groups", "Log in to join")}
+        {gettext("Log in")}
       </.link>
     <% end %>
     """

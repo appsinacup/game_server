@@ -199,6 +199,18 @@ defmodule GameServer.Accounts do
 
   defp maybe_make_first_user_admin(changeset, false), do: changeset
 
+  # When account activation is required, new non-admin users start deactivated.
+  # The first user (admin) is always activated.
+  defp maybe_deactivate_new_user(changeset, _is_first_user = true), do: changeset
+
+  defp maybe_deactivate_new_user(changeset, _is_first_user) do
+    if require_account_activation?() do
+      Ecto.Changeset.put_change(changeset, :is_activated, false)
+    else
+      changeset
+    end
+  end
+
   @doc """
   Count users with non-empty provider id for a given provider field (e.g. :google_id)
   """
@@ -277,6 +289,14 @@ defmodule GameServer.Accounts do
   @spec count_users_online() :: non_neg_integer()
   def count_users_online do
     Repo.one(from u in User, where: u.is_online == true, select: count(u.id)) || 0
+  end
+
+  @doc """
+  Count users who are not yet activated (is_activated == false).
+  """
+  @spec count_unactivated_users() :: non_neg_integer()
+  def count_unactivated_users do
+    Repo.one(from u in User, where: u.is_activated == false, select: count(u.id)) || 0
   end
 
   @decorate cacheable(
@@ -491,6 +511,7 @@ defmodule GameServer.Accounts do
          |> User.email_changeset(attrs)
          |> maybe_attach_device(attrs)
          |> maybe_make_first_user_admin(is_first_user)
+         |> maybe_deactivate_new_user(is_first_user)
          |> Repo.insert() do
       {:ok, user} = ok ->
         invalidate_users_count_cache()
@@ -540,6 +561,7 @@ defmodule GameServer.Accounts do
         |> User.email_changeset(attrs)
         |> maybe_attach_device(attrs)
         |> maybe_make_first_user_admin(is_first_user)
+        |> maybe_deactivate_new_user(is_first_user)
 
       case Repo.insert(changeset) do
         {:ok, %User{} = user} ->
@@ -850,6 +872,7 @@ defmodule GameServer.Accounts do
         case %User{}
              |> User.device_changeset(attrs)
              |> maybe_make_first_user_admin(is_first_user)
+             |> maybe_deactivate_new_user(is_first_user)
              |> User.attach_device_changeset(%{device_id: device_id})
              |> Repo.insert() do
           {:ok, user} = ok ->
@@ -915,6 +938,33 @@ defmodule GameServer.Accounts do
         end
     end
   end
+
+  @doc """
+  Returns true when new accounts require manual admin activation before
+  they can log in. Reads from application config
+  `:game_server_core, :require_account_activation` which is set at boot
+  from the `REQUIRE_ACCOUNT_ACTIVATION` environment variable in `runtime.exs`.
+  Defaults to `false` when not configured.
+  """
+  @spec require_account_activation?() :: boolean()
+  def require_account_activation? do
+    Application.get_env(:game_server_core, :require_account_activation, false) == true
+  end
+
+  @doc """
+  Returns true when the given user is activated or when account activation
+  is not required. Returns false only when activation is required **and**
+  the user's `is_activated` flag is `false`.
+  """
+  @spec user_activated?(User.t()) :: boolean()
+  def user_activated?(%User{is_activated: true}), do: true
+  def user_activated?(%User{is_admin: true}), do: true
+
+  def user_activated?(%User{is_activated: false}) do
+    not require_account_activation?()
+  end
+
+  def user_activated?(_), do: true
 
   # Generic OAuth find or create helper
   defp find_or_create_from_oauth(attrs, provider_id_field, changeset_fn) do
@@ -1012,7 +1062,12 @@ defmodule GameServer.Accounts do
     # passing a nil email into the changeset (update_change will crash).
     attrs = if Map.get(attrs, :email) in [nil, ""], do: Map.delete(attrs, :email), else: attrs
 
-    case %User{} |> changeset_fn.(attrs) |> Repo.insert() do
+    changeset =
+      %User{}
+      |> changeset_fn.(attrs)
+      |> maybe_deactivate_new_user(is_first_user)
+
+    case Repo.insert(changeset) do
       {:ok, user} = ok ->
         invalidate_users_count_cache()
 

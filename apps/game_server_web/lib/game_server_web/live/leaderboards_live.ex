@@ -16,7 +16,7 @@ defmodule GameServerWeb.LeaderboardsLive do
     socket =
       socket
       |> assign(:locale, Gettext.get_locale(GameServerWeb.Gettext))
-      |> assign(:page_title, dgettext("leaderboards", "Leaderboards"))
+      |> assign(:page_title, gettext("Leaderboards"))
       |> assign(:page, 1)
       |> assign(:page_size, 25)
       |> assign(:selected_leaderboard, nil)
@@ -35,7 +35,7 @@ defmodule GameServerWeb.LeaderboardsLive do
       nil ->
         {:noreply,
          socket
-         |> put_flash(:error, dgettext("leaderboards", "Leaderboard not found"))
+         |> put_flash(:error, gettext("Not found"))
          |> push_navigate(to: ~p"/leaderboards")}
 
       leaderboard ->
@@ -67,7 +67,7 @@ defmodule GameServerWeb.LeaderboardsLive do
           [] ->
             {:noreply,
              socket
-             |> put_flash(:error, dgettext("leaderboards", "Leaderboard not found"))
+             |> put_flash(:error, gettext("Not found"))
              |> push_navigate(to: ~p"/leaderboards")}
         end
 
@@ -92,9 +92,9 @@ defmodule GameServerWeb.LeaderboardsLive do
     <Layouts.app flash={@flash} current_scope={@current_scope} current_path={assigns[:current_path]}>
       <div class="space-y-6">
         <div>
-          <h1 class="text-3xl font-bold">{dgettext("leaderboards", "Leaderboards")}</h1>
+          <h1 class="text-3xl font-bold">{gettext("Leaderboards")}</h1>
           <p class="text-base-content/60 mt-1">
-            {dgettext("leaderboards", "%{count} leaderboards", count: @count)}
+            {@count}
           </p>
         </div>
 
@@ -143,19 +143,13 @@ defmodule GameServerWeb.LeaderboardsLive do
             <h3 class="card-title text-lg">{Leaderboard.localized_title(group, @locale)}</h3>
             <div class="flex flex-col items-end gap-1">
               <%= if group.active_id do %>
-                <span class="badge badge-success">{dgettext("leaderboards", "Active")}</span>
+                <span class="badge badge-success">{gettext("Online")}</span>
               <% else %>
-                <span class="badge badge-neutral">{dgettext("leaderboards", "Ended")}</span>
+                <span class="badge badge-neutral">{gettext("Close")}</span>
               <% end %>
               <%= if group.season_count > 1 do %>
                 <span class="badge badge-ghost badge-sm text-nowrap">
-                  {dngettext(
-                    "leaderboards",
-                    "%{count} season",
-                    "%{count} seasons",
-                    group.season_count,
-                    count: group.season_count
-                  )}
+                  {group.season_count}
                 </span>
               <% end %>
             </div>
@@ -171,7 +165,7 @@ defmodule GameServerWeb.LeaderboardsLive do
 
     <%= if @groups == [] do %>
       <div class="text-center py-12 text-base-content/60">
-        <p>{gettext("None available.")}</p>
+        <p>{gettext("No results.")}</p>
       </div>
     <% end %>
 
@@ -200,9 +194,9 @@ defmodule GameServerWeb.LeaderboardsLive do
           <h1 class="text-2xl font-bold">{Leaderboard.localized_title(@leaderboard, @locale)}</h1>
           <div class="flex items-center gap-2 mt-1">
             <%= if Leaderboard.active?(@leaderboard) do %>
-              <span class="badge badge-success">{dgettext("leaderboards", "Active")}</span>
+              <span class="badge badge-success">{gettext("Online")}</span>
             <% else %>
-              <span class="badge badge-neutral">{dgettext("leaderboards", "Ended")}</span>
+              <span class="badge badge-neutral">{gettext("Close")}</span>
             <% end %>
             <%= if @leaderboard.starts_at || @leaderboard.ends_at do %>
               <span class="text-sm text-base-content/60">
@@ -213,13 +207,9 @@ defmodule GameServerWeb.LeaderboardsLive do
                       "%b %d, %Y"
                     )}
                   <% @leaderboard.ends_at -> %>
-                    {dgettext("leaderboards", "Ends %{date}",
-                      date: Calendar.strftime(@leaderboard.ends_at, "%b %d, %Y")
-                    )}
+                    {Calendar.strftime(@leaderboard.ends_at, "%b %d, %Y")}
                   <% @leaderboard.starts_at -> %>
-                    {dgettext("leaderboards", "Started %{date}",
-                      date: Calendar.strftime(@leaderboard.starts_at, "%b %d, %Y")
-                    )}
+                    {Calendar.strftime(@leaderboard.starts_at, "%b %d, %Y")}
                   <% true -> %>
                 <% end %>
               </span>
@@ -236,16 +226,14 @@ defmodule GameServerWeb.LeaderboardsLive do
             class="btn btn-sm btn-ghost"
             disabled={@current_season_index >= length(@slug_leaderboards) - 1}
           >
-            {dgettext("leaderboards", "Older")}
+            {gettext("Older")}
           </button>
           <div class="text-sm">
             <span class="font-medium">
-              {dgettext("leaderboards", "Season %{number}",
-                number: length(@slug_leaderboards) - @current_season_index
-              )}
+              {"##{length(@slug_leaderboards) - @current_season_index}"}
             </span>
             <span class="text-base-content/60">
-              {dgettext("leaderboards", "of %{total}", total: length(@slug_leaderboards))}
+              {"/ #{length(@slug_leaderboards)}"}
             </span>
           </div>
           <button
@@ -253,7 +241,7 @@ defmodule GameServerWeb.LeaderboardsLive do
             class="btn btn-sm btn-ghost"
             disabled={@current_season_index <= 0}
           >
-            {dgettext("leaderboards", "Newer")}
+            {gettext("Newer")}
           </button>
         </div>
       <% end %>
@@ -270,13 +258,13 @@ defmodule GameServerWeb.LeaderboardsLive do
           <div class="flex items-center justify-between">
             <div>
               <span class="text-sm text-base-content/70">
-                {dgettext("leaderboards", "Your Rank")}
+                {gettext("Status")}
               </span>
               <div class="text-2xl font-bold">#{@user_record.rank}</div>
             </div>
             <div class="text-right">
               <span class="text-sm text-base-content/70">
-                {dgettext("leaderboards", "Your Score")}
+                {gettext("Title")}
               </span>
               <div class="text-2xl font-bold">{format_score(@user_record.score)}</div>
             </div>
@@ -287,15 +275,15 @@ defmodule GameServerWeb.LeaderboardsLive do
 
     <div class="card bg-base-200">
       <div class="card-body">
-        <h2 class="card-title">{dgettext("leaderboards", "Rankings")}</h2>
+        <h2 class="card-title">{gettext("Leaderboards")}</h2>
 
         <div class="overflow-x-auto">
           <table class="table">
             <thead>
               <tr>
-                <th class="w-16">{dgettext("leaderboards", "Rank")}</th>
-                <th>{dgettext("leaderboards", "Player")}</th>
-                <th class="text-right">{dgettext("leaderboards", "Score")}</th>
+                <th>{gettext("Status")}</th>
+                <th>{gettext("Name")}</th>
+                <th class="text-right">{gettext("Title")}</th>
               </tr>
             </thead>
             <tbody>
@@ -338,7 +326,7 @@ defmodule GameServerWeb.LeaderboardsLive do
 
         <%= if @records == [] do %>
           <div class="text-center py-8 text-base-content/60">
-            <p>{gettext("None available.")}</p>
+            <p>{gettext("No results.")}</p>
           </div>
         <% end %>
 

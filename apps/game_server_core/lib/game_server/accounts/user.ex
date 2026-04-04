@@ -39,6 +39,7 @@ defmodule GameServer.Accounts.User do
     field :google_id, :string
     field :facebook_id, :string
     field :is_admin, :boolean, default: false
+    field :is_activated, :boolean, default: true
     field :metadata, :map, default: %{}
     field :is_online, :boolean, default: false
     field :last_seen_at, :utc_datetime
@@ -342,7 +343,7 @@ defmodule GameServer.Accounts.User do
   """
   def admin_changeset(user, attrs) do
     user
-    |> cast(attrs, [:is_admin, :metadata, :display_name])
+    |> cast(attrs, [:is_admin, :is_activated, :metadata, :display_name])
     |> validate_required([:is_admin])
     |> validate_length(:display_name, max: GameServer.Limits.get(:max_display_name))
     |> GameServer.Limits.validate_metadata_size(:metadata)
@@ -397,6 +398,7 @@ defmodule GameServer.Accounts.User do
       profile_url: user.profile_url || "",
       metadata: user.metadata || %{},
       is_online: user.is_online || false,
+      is_activated: user.is_activated,
       last_seen_at: last_seen_at_or_fallback(user)
     }
   end
@@ -413,6 +415,7 @@ defimpl Jason.Encoder, for: GameServer.Accounts.User do
       lobby_id: user.lobby_id || -1,
       party_id: user.party_id || -1,
       is_online: user.is_online || false,
+      is_activated: user.is_activated,
       last_seen_at: GameServer.Accounts.User.last_seen_at_or_fallback(user),
       inserted_at: user.inserted_at,
       updated_at: user.updated_at

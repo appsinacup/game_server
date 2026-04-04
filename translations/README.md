@@ -1,20 +1,24 @@
 # Translations (gitignored)
 
-This folder holds CSV files exported by `mix gettext.export_csv`.
+Local working directory for translation CSV files.
 These files are **not committed** — they are working files for translators.
 
-## Usage
+| Strings | Domains | Languages |
+|---------|---------|-----------|
+| 148 | default (89), errors (29), notifications (30) | 30 |
+
+## CSV export / import
 
 ```bash
-# Export English translations to CSV (includes JSON config strings)
+# Export English strings to CSV
 mix gettext.export_csv en --output translations/en.csv
 
-# Export Spanish translations
+# Export any language
 mix gettext.export_csv es --output translations/es.csv
 
-# Import updated CSV back into PO files + JSON config
+# Import translated CSV back into PO files
 mix gettext.import_csv es translations/es.csv
 
-# Dry-run import (preview changes without writing)
+# Dry-run import (preview only)
 mix gettext.import_csv es translations/es.csv --dry-run
 ```

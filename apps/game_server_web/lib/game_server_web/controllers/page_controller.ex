@@ -21,19 +21,19 @@ defmodule GameServerWeb.PageController do
 
   def privacy(conn, _params) do
     conn
-    |> assign(:page_title, gettext("Privacy Policy"))
+    |> assign(:page_title, gettext("Account"))
     |> render(:privacy)
   end
 
   def data_deletion(conn, _params) do
     conn
-    |> assign(:page_title, gettext("Data Deletion"))
+    |> assign(:page_title, gettext("Delete"))
     |> render(:data_deletion)
   end
 
   def terms(conn, _params) do
     conn
-    |> assign(:page_title, gettext("Terms of Service"))
+    |> assign(:page_title, gettext("Account"))
     |> render(:terms)
   end
 end
