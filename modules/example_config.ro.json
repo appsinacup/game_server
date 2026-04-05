@@ -1,7 +1,7 @@
 {
   "title": "Gamend",
-  "tagline": "Joc + Backend",
-  "description": "Server de jocuri open source în Elixir pentru jocuri multiplayer în timp real.",
+  "tagline": "Game + Backend",
+  "description": "**Open source** Elixir game server for **real-time** multiplayer games.",
   "css": "",
   "logo": "/images/logo.png",
   "banner": "/images/banner.png",
@@ -11,33 +11,33 @@
   "roadmap": "/ROADMAP.md",
   "blog": "/blog",
   "useful_links": [
-    { "title": "Începe", "url": "/docs/setup#deployment", "icon": "hero-rocket-launch-solid", "style": "primary" },
-    { "title": "Video de prezentare", "url": "https://www.youtube.com/watch?v=KhjWyUVsTkE", "icon": "hero-play-solid", "external": true, "style": "primary" },
+    { "title": "Getting Started", "url": "/docs/setup#deployment", "icon": "hero-rocket-launch-solid", "style": "primary" },
+    { "title": "Presentation Video", "url": "https://www.youtube.com/watch?v=KhjWyUVsTkE", "icon": "hero-play-solid", "external": true, "style": "primary" },
     { "title": "Discord", "url": "https://discord.com/invite/v649emcpAu", "icon": "hero-chat-bubble-left-ellipsis-solid", "external": true },
     { "title": "Blog", "url": "/blog", "icon": "hero-newspaper-solid" },
-    { "title": "Ghiduri", "url": "/docs/setup", "icon": "hero-academic-cap-solid" },
-    { "title": "Documentație API", "url": "/api/docs", "icon": "hero-book-open-solid" }
+    { "title": "Guides", "url": "/docs/setup", "icon": "hero-academic-cap-solid" },
+    { "title": "API Docs", "url": "/api/docs", "icon": "hero-book-open-solid" }
   ],
   "nav_links": [
-    { "label": "Joacă", "href": "/play", "auth": "any", "icon": "hero-play-solid" }
+    { "label": "Play", "href": "/play", "auth": "any", "icon": "hero-play-solid" }
   ],
   "footer_links": [
-    { "label": "Politica de confidențialitate", "href": "/privacy" },
-    { "label": "Termeni și condiții", "href": "/terms" },
-    { "label": "Ghiduri", "href": "/docs/setup" },
-    { "label": "Documentație API", "href": "/api/docs" },
-    { "label": "Documentație Elixir", "href": "https://appsinacup.github.io/game_server/", "external": true },
-    { "label": "Jurnal de modificări", "href": "/changelog" },
-    { "label": "Foaie de parcurs", "href": "/roadmap" },
+    { "label": "Privacy Policy", "href": "/privacy" },
+    { "label": "Terms and Conditions", "href": "/terms" },
+    { "label": "Guides", "href": "/docs/setup" },
+    { "label": "API Docs", "href": "/api/docs" },
+    { "label": "Elixir Docs", "href": "https://appsinacup.github.io/game_server/", "external": true },
+    { "label": "Changelog", "href": "/changelog" },
+    { "label": "Roadmap", "href": "/roadmap" },
     { "label": "Blog", "href": "/blog" }
   ],
   "features": [
-    { "title": "Autentificare și utilizatori", "description": "E-mail, link magic, OAuth, JWT și sesiune. Înregistrare, autentificare, resetare parolă și verificare e-mail.", "icon": "hero-lock-closed-solid" },
-    { "title": "Camere, echipe și matchmaking", "description": "Camere în timp real și echipe efemere. Setări personalizabile cu actualizări în timp real.", "icon": "hero-home-solid" },
-    { "title": "Prieteni, grupuri și chat", "description": "Cereri de prietenie, blocare, prezență în timp real. Grupuri publice, private și ascunse. Mesagerie directă și de grup.", "icon": "hero-user-group-solid" },
-    { "title": "Realizări, clasamente și notificări", "description": "Realizări și clasamente gestionate de server. Notificări în timp real pentru toate funcționalitățile.", "icon": "hero-trophy-solid" },
-    { "title": "Scripting și planificare", "description": "Extinde logica serverului cu scripturi Elixir. Planifică sarcini automatizate și joburi cron.", "icon": "hero-computer-desktop-solid" },
-    { "title": "HTTP, WebSocket și WebRTC", "description": "API REST, canale WebSocket în timp real și DataChannels WebRTC cu latență scăzută. Portal de administrare și interfață web.", "icon": "hero-puzzle-piece-solid" }
+    { "title": "Authentication & Users", "description": "Email, Magic-link, OAuth, JWT and Session. Register, login, reset password and verify email.", "icon": "hero-lock-closed-solid" },
+    { "title": "Lobbies, Parties & Matchmaking", "description": "Real-time lobbies and ephemeral parties. Customizable settings with live updates.", "icon": "hero-home-solid" },
+    { "title": "Friends, Groups & Chat", "description": "Friend requests, blocking, real-time presence. Public, private and hidden groups. Direct and group messaging.", "icon": "hero-user-group-solid" },
+    { "title": "Achievements, Leaderboards & Notifications", "description": "Server-authoritative achievements and leaderboards. Real-time notifications across all features.", "icon": "hero-trophy-solid" },
+    { "title": "Server Scripting & Scheduling", "description": "Extend server logic with Elixir scripts. Schedule automated tasks and cron jobs.", "icon": "hero-computer-desktop-solid" },
+    { "title": "HTTP, WebSocket & WebRTC", "description": "REST API, real-time WebSocket channels and low-latency WebRTC DataChannels. Admin portal and web UI.", "icon": "hero-puzzle-piece-solid" }
   ],
   "background_icons": [
     "hero-lock-closed-solid", "hero-trophy-solid", "hero-user-group-solid",

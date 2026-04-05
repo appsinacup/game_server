@@ -1,7 +1,7 @@
 {
   "title": "Gamend",
-  "tagline": "Jeu + Backend",
-  "description": "Serveur de jeux open source en Elixir pour les jeux multijoueurs en temps réel.",
+  "tagline": "Game + Backend",
+  "description": "**Open source** Elixir game server for **real-time** multiplayer games.",
   "css": "",
   "logo": "/images/logo.png",
   "banner": "/images/banner.png",
@@ -11,33 +11,33 @@
   "roadmap": "/ROADMAP.md",
   "blog": "/blog",
   "useful_links": [
-    { "title": "Démarrer", "url": "/docs/setup#deployment", "icon": "hero-rocket-launch-solid", "style": "primary" },
-    { "title": "Vidéo de présentation", "url": "https://www.youtube.com/watch?v=KhjWyUVsTkE", "icon": "hero-play-solid", "external": true, "style": "primary" },
+    { "title": "Getting Started", "url": "/docs/setup#deployment", "icon": "hero-rocket-launch-solid", "style": "primary" },
+    { "title": "Presentation Video", "url": "https://www.youtube.com/watch?v=KhjWyUVsTkE", "icon": "hero-play-solid", "external": true, "style": "primary" },
     { "title": "Discord", "url": "https://discord.com/invite/v649emcpAu", "icon": "hero-chat-bubble-left-ellipsis-solid", "external": true },
     { "title": "Blog", "url": "/blog", "icon": "hero-newspaper-solid" },
     { "title": "Guides", "url": "/docs/setup", "icon": "hero-academic-cap-solid" },
-    { "title": "Documentation API", "url": "/api/docs", "icon": "hero-book-open-solid" }
+    { "title": "API Docs", "url": "/api/docs", "icon": "hero-book-open-solid" }
   ],
   "nav_links": [
-    { "label": "Jouer", "href": "/play", "auth": "any", "icon": "hero-play-solid" }
+    { "label": "Play", "href": "/play", "auth": "any", "icon": "hero-play-solid" }
   ],
   "footer_links": [
-    { "label": "Politique de confidentialité", "href": "/privacy" },
-    { "label": "Conditions générales", "href": "/terms" },
+    { "label": "Privacy Policy", "href": "/privacy" },
+    { "label": "Terms and Conditions", "href": "/terms" },
     { "label": "Guides", "href": "/docs/setup" },
-    { "label": "Documentation API", "href": "/api/docs" },
-    { "label": "Documentation Elixir", "href": "https://appsinacup.github.io/game_server/", "external": true },
-    { "label": "Journal des modifications", "href": "/changelog" },
-    { "label": "Feuille de route", "href": "/roadmap" },
+    { "label": "API Docs", "href": "/api/docs" },
+    { "label": "Elixir Docs", "href": "https://appsinacup.github.io/game_server/", "external": true },
+    { "label": "Changelog", "href": "/changelog" },
+    { "label": "Roadmap", "href": "/roadmap" },
     { "label": "Blog", "href": "/blog" }
   ],
   "features": [
-    { "title": "Authentification et utilisateurs", "description": "E-mail, lien magique, OAuth, JWT et session. Inscription, connexion, réinitialisation de mot de passe et vérification d'e-mail.", "icon": "hero-lock-closed-solid" },
-    { "title": "Salons, équipes et matchmaking", "description": "Salons en temps réel et équipes éphémères. Paramètres personnalisables avec mises à jour en direct.", "icon": "hero-home-solid" },
-    { "title": "Amis, groupes et chat", "description": "Demandes d'amis, blocage, présence en temps réel. Groupes publics, privés et cachés. Messagerie directe et de groupe.", "icon": "hero-user-group-solid" },
-    { "title": "Succès, classements et notifications", "description": "Succès et classements gérés par le serveur. Notifications en temps réel pour toutes les fonctionnalités.", "icon": "hero-trophy-solid" },
-    { "title": "Scripts et planification", "description": "Étendez la logique du serveur avec des scripts Elixir. Planifiez des tâches automatisées et des tâches cron.", "icon": "hero-computer-desktop-solid" },
-    { "title": "HTTP, WebSocket et WebRTC", "description": "API REST, canaux WebSocket en temps réel et DataChannels WebRTC à faible latence. Portail d'administration et interface web.", "icon": "hero-puzzle-piece-solid" }
+    { "title": "Authentication & Users", "description": "Email, Magic-link, OAuth, JWT and Session. Register, login, reset password and verify email.", "icon": "hero-lock-closed-solid" },
+    { "title": "Lobbies, Parties & Matchmaking", "description": "Real-time lobbies and ephemeral parties. Customizable settings with live updates.", "icon": "hero-home-solid" },
+    { "title": "Friends, Groups & Chat", "description": "Friend requests, blocking, real-time presence. Public, private and hidden groups. Direct and group messaging.", "icon": "hero-user-group-solid" },
+    { "title": "Achievements, Leaderboards & Notifications", "description": "Server-authoritative achievements and leaderboards. Real-time notifications across all features.", "icon": "hero-trophy-solid" },
+    { "title": "Server Scripting & Scheduling", "description": "Extend server logic with Elixir scripts. Schedule automated tasks and cron jobs.", "icon": "hero-computer-desktop-solid" },
+    { "title": "HTTP, WebSocket & WebRTC", "description": "REST API, real-time WebSocket channels and low-latency WebRTC DataChannels. Admin portal and web UI.", "icon": "hero-puzzle-piece-solid" }
   ],
   "background_icons": [
     "hero-lock-closed-solid", "hero-trophy-solid", "hero-user-group-solid",

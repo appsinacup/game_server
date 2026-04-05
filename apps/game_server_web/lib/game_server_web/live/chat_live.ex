@@ -401,8 +401,7 @@ defmodule GameServerWeb.ChatLive do
           {:noreply, put_flash(socket, :error, gettext("Failed"))}
 
         {:error, reason} ->
-          {:noreply,
-           put_flash(socket, :error, gettext("Failed") <> ": " <> inspect(reason))}
+          {:noreply, put_flash(socket, :error, gettext("Failed") <> ": " <> inspect(reason))}
       end
     else
       {:noreply, socket}

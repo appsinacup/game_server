@@ -12,15 +12,14 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
       mix gettext.export_csv es --output translations/es.csv
       mix gettext.export_csv es --config modules/example_config.json
 
-  The CSV has columns: `domain`, `msgid`, `msgid_plural`, `translation`,
-  `translation_plural`, `fuzzy`.
+  The CSV has columns: `domain`, `msgid`, `source`, `translation`, `fuzzy`.
 
-  - For PO singular messages: `msgid_plural` and `translation_plural` are empty.
-  - For PO plural messages: `translation` is msgstr[0], `translation_plural` is msgstr[1].
+  - For PO messages: `source` is empty (the `msgid` itself is the English
+    source text), `translation` is the `msgstr` value.
   - `fuzzy` is `"yes"` when the entry is marked fuzzy, otherwise empty.
   - For JSON config: domain is `_config`, `msgid` is the JSON key path,
-    `msgid_plural` shows the English reference text, `translation` is the
-    locale text. Edit `translation` to change the locale value.
+    `source` is the English reference text from the base config,
+    `translation` is the locale text. Edit `translation` to change.
 
   Empty `translation` cells indicate untranslated strings that need work.
   """
@@ -72,7 +71,7 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
   end
 
   defp header_row do
-    ["domain", "msgid", "msgid_plural", "translation", "translation_plural", "fuzzy"]
+    ["domain", "msgid", "source", "translation", "fuzzy"]
   end
 
   defp message_to_row(domain, %Expo.Message.Singular{} = msg) do
@@ -83,7 +82,6 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
       IO.iodata_to_binary(msg.msgid),
       "",
       IO.iodata_to_binary(msg.msgstr),
-      "",
       fuzzy
     ]
   end
@@ -94,9 +92,8 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
     [
       domain,
       IO.iodata_to_binary(msg.msgid),
-      IO.iodata_to_binary(msg.msgid_plural),
+      "",
       IO.iodata_to_binary(Map.get(msg.msgstr, 0, [])),
-      IO.iodata_to_binary(Map.get(msg.msgstr, 1, [])),
       fuzzy
     ]
   end
@@ -177,7 +174,7 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
       locale_val = Map.get(locale_data, key, "")
 
       if en_val != "" do
-        [["_config", key, en_val, locale_val, "", ""]]
+        [["_config", key, en_val, locale_val, ""]]
       else
         []
       end
@@ -197,7 +194,7 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
         path = "#{array_key}[#{idx}].#{text_field}"
         en_val = Map.get(en_item, text_field, "")
         locale_val = Map.get(locale_item, text_field, "")
-        ["_config", path, en_val, locale_val, "", ""]
+        ["_config", path, en_val, locale_val, ""]
       end)
     end)
   end

@@ -900,19 +900,20 @@ defmodule GameServerWeb.Layouts do
       <ul
         tabindex="0"
         class={[
-          "menu menu-sm dropdown-content mt-2 z-[1] p-2 shadow bg-base-100 rounded-box max-h-80 overflow-y-auto",
-          @mobile && "w-full min-w-full"
+          "dropdown-content mt-2 z-[1] p-2 shadow bg-base-100 rounded-box max-h-96 overflow-y-auto",
+          @mobile && "w-full min-w-full menu menu-sm",
+          !@mobile && "grid grid-cols-3 gap-0.5 w-[28rem]"
         ]}
       >
         <%= for link <- @locale_links do %>
-          <li>
+          <li class={!@mobile && "list-none"}>
             <a
               href={link.href}
               class={[
                 @mobile && "btn",
                 @mobile && if(link.locale == @locale, do: "btn-primary", else: "btn-ghost"),
-                !@mobile && "whitespace-nowrap",
-                !@mobile && link.locale == @locale && "active"
+                !@mobile && "block px-2 py-1.5 rounded text-sm whitespace-nowrap hover:bg-base-200 transition-colors",
+                !@mobile && link.locale == @locale && "bg-primary/10 font-semibold text-primary"
               ]}
             >
               {link.label}

@@ -1219,10 +1219,10 @@ defmodule GameServer.Accounts do
 
   @doc ~S"""
     Returns true when new accounts require manual admin activation before
-    they can log in. Checks the application config
-    `:game_server_core, :require_account_activation` and falls back to the
-    environment variable `REQUIRE_ACCOUNT_ACTIVATION`. If neither is set,
-    account activation is **not** required (default `false`).
+    they can log in. Reads from application config
+    `:game_server_core, :require_account_activation` which is set at boot
+    from the `REQUIRE_ACCOUNT_ACTIVATION` environment variable in `runtime.exs`.
+    Defaults to `false` when not configured.
     
   """
   @spec require_account_activation?() :: boolean()

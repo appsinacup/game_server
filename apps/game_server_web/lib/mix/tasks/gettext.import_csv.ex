@@ -13,7 +13,7 @@ defmodule Mix.Tasks.Gettext.ImportCsv do
       mix gettext.import_csv es translations_es.csv --config modules/example_config.json
 
   The CSV must have at minimum the columns: `domain`, `msgid`, `translation`.
-  Optional columns: `msgid_plural`, `translation_plural`, `fuzzy`.
+  Optional columns: `source`, `fuzzy`.
 
   Rows with domain `_config` are written to the theme JSON config file.
   All other rows update the corresponding PO files.
@@ -176,19 +176,10 @@ defmodule Mix.Tasks.Gettext.ImportCsv do
 
   defp apply_translation(%Expo.Message.Plural{} = msg, row) do
     new_0 = row[:translation] || ""
-    new_1 = row[:translation_plural] || ""
     current_0 = IO.iodata_to_binary(Map.get(msg.msgstr, 0, []))
-    current_1 = IO.iodata_to_binary(Map.get(msg.msgstr, 1, []))
 
-    changed_0? = new_0 != "" and new_0 != current_0
-    changed_1? = new_1 != "" and new_1 != current_1
-
-    if changed_0? or changed_1? do
-      new_msgstr =
-        msg.msgstr
-        |> then(fn m -> if changed_0?, do: Map.put(m, 0, [new_0]), else: m end)
-        |> then(fn m -> if changed_1?, do: Map.put(m, 1, [new_1]), else: m end)
-
+    if new_0 != "" and new_0 != current_0 do
+      new_msgstr = Map.put(msg.msgstr, 0, [new_0])
       new_msg = %{msg | msgstr: new_msgstr}
       new_msg = remove_fuzzy(new_msg)
       {:changed, new_msg}
@@ -226,8 +217,7 @@ defmodule Mix.Tasks.Gettext.ImportCsv do
     domain_idx = col_index.("domain") || raise_csv_error!("domain")
     msgid_idx = col_index.("msgid") || raise_csv_error!("msgid")
     translation_idx = col_index.("translation") || raise_csv_error!("translation")
-    msgid_plural_idx = col_index.("msgid_plural")
-    translation_plural_idx = col_index.("translation_plural")
+    source_idx = col_index.("source") || col_index.("msgid_plural")
 
     data_lines
     |> Enum.reject(&(String.trim(&1) == ""))
@@ -243,9 +233,8 @@ defmodule Mix.Tasks.Gettext.ImportCsv do
       else
         row = %{
           msgid: msgid,
-          msgid_plural: get.(msgid_plural_idx),
-          translation: get.(translation_idx),
-          translation_plural: get.(translation_plural_idx)
+          source: get.(source_idx),
+          translation: get.(translation_idx)
         }
 
         domain_map = Map.get(acc, domain, %{})
