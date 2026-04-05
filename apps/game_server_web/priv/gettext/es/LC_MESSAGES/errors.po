@@ -47,49 +47,31 @@ msgstr "aún están asociados con esta entrada"
 
 ## From Ecto.Changeset.validate_length/3
 msgid "should have %{count} item(s)"
-msgid_plural "should have %{count} item(s)"
-msgstr[0] "debe tener %{count} elemento"
-msgstr[1] "debe tener %{count} elementos"
+msgstr "debe tener %{count} elemento"
 
 msgid "should be %{count} character(s)"
-msgid_plural "should be %{count} character(s)"
-msgstr[0] "debe tener %{count} carácter"
-msgstr[1] "debe tener %{count} caracteres"
+msgstr "debe tener %{count} carácter"
 
 msgid "should be %{count} byte(s)"
-msgid_plural "should be %{count} byte(s)"
-msgstr[0] "debe tener %{count} byte"
-msgstr[1] "debe tener %{count} bytes"
+msgstr "debe tener %{count} byte"
 
 msgid "should have at least %{count} item(s)"
-msgid_plural "should have at least %{count} item(s)"
-msgstr[0] "debe tener al menos %{count} elemento"
-msgstr[1] "debe tener al menos %{count} elementos"
+msgstr "debe tener al menos %{count} elemento"
 
 msgid "should be at least %{count} character(s)"
-msgid_plural "should be at least %{count} character(s)"
-msgstr[0] "debe tener al menos %{count} carácter"
-msgstr[1] "debe tener al menos %{count} caracteres"
+msgstr "debe tener al menos %{count} carácter"
 
 msgid "should be at least %{count} byte(s)"
-msgid_plural "should be at least %{count} byte(s)"
-msgstr[0] "debe tener al menos %{count} byte"
-msgstr[1] "debe tener al menos %{count} bytes"
+msgstr "debe tener al menos %{count} byte"
 
 msgid "should have at most %{count} item(s)"
-msgid_plural "should have at most %{count} item(s)"
-msgstr[0] "debe tener como máximo %{count} elemento"
-msgstr[1] "debe tener como máximo %{count} elementos"
+msgstr "debe tener como máximo %{count} elemento"
 
 msgid "should be at most %{count} character(s)"
-msgid_plural "should be at most %{count} character(s)"
-msgstr[0] "debe tener como máximo %{count} carácter"
-msgstr[1] "debe tener como máximo %{count} caracteres"
+msgstr "debe tener como máximo %{count} carácter"
 
 msgid "should be at most %{count} byte(s)"
-msgid_plural "should be at most %{count} byte(s)"
-msgstr[0] "debe tener como máximo %{count} byte"
-msgstr[1] "debe tener como máximo %{count} bytes"
+msgstr "debe tener como máximo %{count} byte"
 
 ## From Ecto.Changeset.validate_number/3
 msgid "must be less than %{number}"
