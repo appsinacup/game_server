@@ -137,14 +137,16 @@ defmodule GameServerWeb.AchievementsLive do
         <%!-- Header --%>
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 class="text-3xl font-bold">{gettext("Achievements")}</h1>
-            <p class="text-base-content/60 mt-1">
-              <%= if @current_scope && @current_scope.user do %>
-                {gettext("Unlocked")}: {@unlocked_count} / {@total_count}
-              <% else %>
-                {gettext("Achievements")}: {@total_count}
-              <% end %>
-            </p>
+            <h1 class="text-3xl font-bold">
+              {gettext("Achievements")}
+              <span class="text-base-content/50 font-normal">
+                <%= if @current_scope && @current_scope.user do %>
+                  ({@unlocked_count}/{@total_count})
+                <% else %>
+                  ({@total_count})
+                <% end %>
+              </span>
+            </h1>
           </div>
 
           <%!-- Filter buttons (only for logged-in users) --%>

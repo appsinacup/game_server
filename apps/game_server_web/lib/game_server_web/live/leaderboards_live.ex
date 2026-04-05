@@ -92,10 +92,10 @@ defmodule GameServerWeb.LeaderboardsLive do
     <Layouts.app flash={@flash} current_scope={@current_scope} current_path={assigns[:current_path]}>
       <div class="space-y-6">
         <div>
-          <h1 class="text-3xl font-bold">{gettext("Leaderboards")}</h1>
-          <p class="text-base-content/60 mt-1">
-            {@count}
-          </p>
+          <h1 class="text-3xl font-bold">
+            {gettext("Leaderboards")}
+            <span class="text-base-content/50 font-normal">({@count})</span>
+          </h1>
         </div>
 
         <%= if @selected_leaderboard do %>
