@@ -71,3 +71,5 @@ apps/game_server_web/apps/game_server_web/priv/static/favicon.ico
 translations/google_sheets_translations.py
 translations/README.md
 translations/GOOGLE_SHEETS_README.md
+translations/credentials.json
+translations/token.json

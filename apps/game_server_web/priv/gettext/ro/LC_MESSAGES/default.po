@@ -15,28 +15,28 @@ msgstr ""
 #: lib/game_server_web/components/core_components.ex:346
 #: lib/game_server_web/live/user_live/settings.ex:841
 #: lib/game_server_web/live/user_live/settings.ex:841
-#: lib/game_server_web/live/user_live/settings.ex:1358
-#: lib/game_server_web/live/user_live/settings.ex:1358
-#: lib/game_server_web/live/user_live/settings.ex:1402
-#: lib/game_server_web/live/user_live/settings.ex:1402
+#: lib/game_server_web/live/user_live/settings.ex:1356
+#: lib/game_server_web/live/user_live/settings.ex:1356
+#: lib/game_server_web/live/user_live/settings.ex:1400
+#: lib/game_server_web/live/user_live/settings.ex:1400
 #, elixir-autogen, elixir-format
 msgid "Actions"
 msgstr "Acțiuni"
 
-#: lib/game_server_web/live/user_live/login.ex:49
-#: lib/game_server_web/live/user_live/login.ex:49
-#: lib/game_server_web/live/user_live/login.ex:55
-#: lib/game_server_web/live/user_live/login.ex:55
-#: lib/game_server_web/live/user_live/login.ex:73
-#: lib/game_server_web/live/user_live/login.ex:73
+#: lib/game_server_web/live/user_live/login.ex:51
+#: lib/game_server_web/live/user_live/login.ex:51
+#: lib/game_server_web/live/user_live/login.ex:57
+#: lib/game_server_web/live/user_live/login.ex:57
+#: lib/game_server_web/live/user_live/login.ex:75
+#: lib/game_server_web/live/user_live/login.ex:75
 #: lib/game_server_web/live/user_live/registration.ex:26
 #: lib/game_server_web/live/user_live/registration.ex:26
-#: lib/game_server_web/live/user_live/settings.ex:79
-#: lib/game_server_web/live/user_live/settings.ex:79
-#: lib/game_server_web/live/user_live/settings.ex:107
-#: lib/game_server_web/live/user_live/settings.ex:107
-#: lib/game_server_web/live/user_live/settings.ex:112
-#: lib/game_server_web/live/user_live/settings.ex:112
+#: lib/game_server_web/live/user_live/settings.ex:77
+#: lib/game_server_web/live/user_live/settings.ex:77
+#: lib/game_server_web/live/user_live/settings.ex:105
+#: lib/game_server_web/live/user_live/settings.ex:105
+#: lib/game_server_web/live/user_live/settings.ex:110
+#: lib/game_server_web/live/user_live/settings.ex:110
 #: lib/game_server_web/live/user_live/settings.ex:837
 #: lib/game_server_web/live/user_live/settings.ex:837
 #, elixir-autogen, elixir-format
@@ -71,10 +71,10 @@ msgstr "Clasamente"
 #: lib/game_server_web/live/auth_success_live.ex:42
 #: lib/game_server_web/live/auth_success_live.ex:52
 #: lib/game_server_web/live/auth_success_live.ex:52
-#: lib/game_server_web/live/groups_live.ex:545
-#: lib/game_server_web/live/groups_live.ex:545
-#: lib/game_server_web/live/groups_live.ex:691
-#: lib/game_server_web/live/groups_live.ex:691
+#: lib/game_server_web/live/groups_live.ex:544
+#: lib/game_server_web/live/groups_live.ex:544
+#: lib/game_server_web/live/groups_live.ex:690
+#: lib/game_server_web/live/groups_live.ex:690
 #: lib/game_server_web/live/user_live/confirmation.ex:56
 #: lib/game_server_web/live/user_live/confirmation.ex:56
 #: lib/game_server_web/live/user_live/confirmation.ex:65
@@ -83,34 +83,34 @@ msgstr "Clasamente"
 #: lib/game_server_web/live/user_live/confirmation.ex:71
 #: lib/game_server_web/live/user_live/login.ex:15
 #: lib/game_server_web/live/user_live/login.ex:15
-#: lib/game_server_web/live/user_live/login.ex:84
-#: lib/game_server_web/live/user_live/login.ex:84
-#: lib/game_server_web/live/user_live/login.ex:87
-#: lib/game_server_web/live/user_live/login.ex:87
-#: lib/game_server_web/live/user_live/login.ex:107
-#: lib/game_server_web/live/user_live/login.ex:107
-#: lib/game_server_web/live/user_live/login.ex:117
-#: lib/game_server_web/live/user_live/login.ex:117
-#: lib/game_server_web/live/user_live/login.ex:142
-#: lib/game_server_web/live/user_live/login.ex:142
-#: lib/game_server_web/live/user_live/login.ex:152
-#: lib/game_server_web/live/user_live/login.ex:152
-#: lib/game_server_web/live/user_live/login.ex:162
-#: lib/game_server_web/live/user_live/login.ex:162
-#: lib/game_server_web/live/user_live/login.ex:178
-#: lib/game_server_web/live/user_live/login.ex:178
+#: lib/game_server_web/live/user_live/login.ex:86
+#: lib/game_server_web/live/user_live/login.ex:86
+#: lib/game_server_web/live/user_live/login.ex:89
+#: lib/game_server_web/live/user_live/login.ex:89
+#: lib/game_server_web/live/user_live/login.ex:109
+#: lib/game_server_web/live/user_live/login.ex:109
+#: lib/game_server_web/live/user_live/login.ex:119
+#: lib/game_server_web/live/user_live/login.ex:119
+#: lib/game_server_web/live/user_live/login.ex:144
+#: lib/game_server_web/live/user_live/login.ex:144
+#: lib/game_server_web/live/user_live/login.ex:154
+#: lib/game_server_web/live/user_live/login.ex:154
+#: lib/game_server_web/live/user_live/login.ex:164
+#: lib/game_server_web/live/user_live/login.ex:164
+#: lib/game_server_web/live/user_live/login.ex:180
+#: lib/game_server_web/live/user_live/login.ex:180
 #: lib/game_server_web/live/user_live/registration.ex:17
 #: lib/game_server_web/live/user_live/registration.ex:17
-#: lib/game_server_web/live/user_live/settings.ex:178
-#: lib/game_server_web/live/user_live/settings.ex:178
-#: lib/game_server_web/live/user_live/settings.ex:208
-#: lib/game_server_web/live/user_live/settings.ex:208
-#: lib/game_server_web/live/user_live/settings.ex:238
-#: lib/game_server_web/live/user_live/settings.ex:238
-#: lib/game_server_web/live/user_live/settings.ex:268
-#: lib/game_server_web/live/user_live/settings.ex:268
-#: lib/game_server_web/live/user_live/settings.ex:298
-#: lib/game_server_web/live/user_live/settings.ex:298
+#: lib/game_server_web/live/user_live/settings.ex:176
+#: lib/game_server_web/live/user_live/settings.ex:176
+#: lib/game_server_web/live/user_live/settings.ex:206
+#: lib/game_server_web/live/user_live/settings.ex:206
+#: lib/game_server_web/live/user_live/settings.ex:236
+#: lib/game_server_web/live/user_live/settings.ex:236
+#: lib/game_server_web/live/user_live/settings.ex:266
+#: lib/game_server_web/live/user_live/settings.ex:266
+#: lib/game_server_web/live/user_live/settings.ex:296
+#: lib/game_server_web/live/user_live/settings.ex:296
 #, elixir-autogen, elixir-format
 msgid "Log in"
 msgstr "Conectare"
@@ -119,20 +119,20 @@ msgstr "Conectare"
 #: lib/game_server_web/live/lobby_live/index.ex:770
 #: lib/game_server_web/live/user_live/confirmation.ex:77
 #: lib/game_server_web/live/user_live/confirmation.ex:77
-#: lib/game_server_web/live/user_live/login.ex:80
-#: lib/game_server_web/live/user_live/login.ex:80
-#: lib/game_server_web/live/user_live/settings.ex:119
-#: lib/game_server_web/live/user_live/settings.ex:119
-#: lib/game_server_web/live/user_live/settings.ex:140
-#: lib/game_server_web/live/user_live/settings.ex:140
+#: lib/game_server_web/live/user_live/login.ex:82
+#: lib/game_server_web/live/user_live/login.ex:82
+#: lib/game_server_web/live/user_live/settings.ex:117
+#: lib/game_server_web/live/user_live/settings.ex:117
+#: lib/game_server_web/live/user_live/settings.ex:138
+#: lib/game_server_web/live/user_live/settings.ex:138
 #, elixir-autogen, elixir-format
 msgid "Password"
 msgstr "Parolă"
 
-#: lib/game_server_web/live/user_live/login.ex:59
-#: lib/game_server_web/live/user_live/login.ex:59
-#: lib/game_server_web/live/user_live/login.ex:92
-#: lib/game_server_web/live/user_live/login.ex:92
+#: lib/game_server_web/live/user_live/login.ex:61
+#: lib/game_server_web/live/user_live/login.ex:61
+#: lib/game_server_web/live/user_live/login.ex:94
+#: lib/game_server_web/live/user_live/login.ex:94
 #: lib/game_server_web/live/user_live/registration.ex:40
 #: lib/game_server_web/live/user_live/registration.ex:40
 #, elixir-autogen, elixir-format
@@ -143,8 +143,8 @@ msgstr "sau"
 #: lib/game_server_web/components/layouts.ex:482
 #: lib/game_server_web/components/layouts.ex:598
 #: lib/game_server_web/components/layouts.ex:598
-#: lib/game_server_web/live/groups_live.ex:624
-#: lib/game_server_web/live/groups_live.ex:624
+#: lib/game_server_web/live/groups_live.ex:623
+#: lib/game_server_web/live/groups_live.ex:623
 #: lib/game_server_web/live/lobby_live/index.ex:851
 #: lib/game_server_web/live/lobby_live/index.ex:851
 #: lib/game_server_web/live/lobby_live/index.ex:889
@@ -165,8 +165,8 @@ msgstr "Deconectare"
 #: lib/game_server_web/components/layouts.ex:361
 #: lib/game_server_web/components/layouts.ex:691
 #: lib/game_server_web/components/layouts.ex:691
-#: lib/game_server_web/live/user_live/login.ex:23
-#: lib/game_server_web/live/user_live/login.ex:23
+#: lib/game_server_web/live/user_live/login.ex:24
+#: lib/game_server_web/live/user_live/login.ex:24
 #: lib/game_server_web/live/user_live/registration.ex:14
 #: lib/game_server_web/live/user_live/registration.ex:14
 #: lib/game_server_web/live/user_live/registration.ex:36
@@ -189,18 +189,18 @@ msgstr "Înregistrare"
 
 #: lib/game_server_web/live/user_live/settings.ex:382
 #: lib/game_server_web/live/user_live/settings.ex:382
-#: lib/game_server_web/live/user_live/settings.ex:1327
-#: lib/game_server_web/live/user_live/settings.ex:1327
+#: lib/game_server_web/live/user_live/settings.ex:1325
+#: lib/game_server_web/live/user_live/settings.ex:1325
 #, elixir-autogen, elixir-format
 msgid "Accept"
 msgstr "Acceptă"
 
 #: lib/game_server_web/live/achievements_live.ex:156
 #: lib/game_server_web/live/achievements_live.ex:156
-#: lib/game_server_web/live/groups_live.ex:421
-#: lib/game_server_web/live/groups_live.ex:421
-#: lib/game_server_web/live/user_live/settings.ex:1194
-#: lib/game_server_web/live/user_live/settings.ex:1194
+#: lib/game_server_web/live/groups_live.ex:420
+#: lib/game_server_web/live/groups_live.ex:420
+#: lib/game_server_web/live/user_live/settings.ex:1192
+#: lib/game_server_web/live/user_live/settings.ex:1192
 #, elixir-autogen, elixir-format
 msgid "All"
 msgstr "Toate"
@@ -219,8 +219,8 @@ msgstr "Aprobă"
 
 #: lib/game_server_web/live/blog_live.ex:192
 #: lib/game_server_web/live/blog_live.ex:192
-#: lib/game_server_web/live/groups_live.ex:556
-#: lib/game_server_web/live/groups_live.ex:556
+#: lib/game_server_web/live/groups_live.ex:555
+#: lib/game_server_web/live/groups_live.ex:555
 #: lib/game_server_web/live/leaderboards_live.ex:191
 #: lib/game_server_web/live/leaderboards_live.ex:191
 #: lib/game_server_web/live/user_live/settings.ex:656
@@ -245,10 +245,10 @@ msgstr "Blochează"
 #: lib/game_server_web/live/user_live/settings.ex:667
 #: lib/game_server_web/live/user_live/settings.ex:762
 #: lib/game_server_web/live/user_live/settings.ex:762
-#: lib/game_server_web/live/user_live/settings.ex:1380
-#: lib/game_server_web/live/user_live/settings.ex:1380
-#: lib/game_server_web/live/user_live/settings.ex:1426
-#: lib/game_server_web/live/user_live/settings.ex:1426
+#: lib/game_server_web/live/user_live/settings.ex:1378
+#: lib/game_server_web/live/user_live/settings.ex:1378
+#: lib/game_server_web/live/user_live/settings.ex:1424
+#: lib/game_server_web/live/user_live/settings.ex:1424
 #, elixir-autogen, elixir-format
 msgid "Cancel"
 msgstr "Anulează"
@@ -257,8 +257,8 @@ msgstr "Anulează"
 #: lib/game_server_web/live/lobby_live/index.ex:822
 #: lib/game_server_web/live/user_live/settings.ex:589
 #: lib/game_server_web/live/user_live/settings.ex:589
-#: lib/game_server_web/live/user_live/settings.ex:1205
-#: lib/game_server_web/live/user_live/settings.ex:1205
+#: lib/game_server_web/live/user_live/settings.ex:1203
+#: lib/game_server_web/live/user_live/settings.ex:1203
 #, elixir-autogen, elixir-format
 msgid "Clear"
 msgstr "Șterge"
@@ -285,8 +285,8 @@ msgstr "Închide"
 #: lib/game_server_web/live/user_live/confirmation.ex:37
 #: lib/game_server_web/live/user_live/confirmation.ex:94
 #: lib/game_server_web/live/user_live/confirmation.ex:94
-#: lib/game_server_web/live/user_live/settings.ex:147
-#: lib/game_server_web/live/user_live/settings.ex:147
+#: lib/game_server_web/live/user_live/settings.ex:145
+#: lib/game_server_web/live/user_live/settings.ex:145
 #, elixir-autogen, elixir-format
 msgid "Confirm"
 msgstr "Confirmă"
@@ -319,18 +319,18 @@ msgstr "Creează"
 msgid "Daily"
 msgstr "Zilnic"
 
-#: lib/game_server_web/live/groups_live.ex:443
-#: lib/game_server_web/live/groups_live.ex:443
+#: lib/game_server_web/live/groups_live.ex:442
+#: lib/game_server_web/live/groups_live.ex:442
 #: lib/game_server_web/live/notifications_live.ex:43
 #: lib/game_server_web/live/notifications_live.ex:43
 #: lib/game_server_web/live/user_live/settings.ex:608
 #: lib/game_server_web/live/user_live/settings.ex:608
 #: lib/game_server_web/live/user_live/settings.ex:791
 #: lib/game_server_web/live/user_live/settings.ex:791
-#: lib/game_server_web/live/user_live/settings.ex:1303
-#: lib/game_server_web/live/user_live/settings.ex:1303
-#: lib/game_server_web/live/user_live/settings.ex:1401
-#: lib/game_server_web/live/user_live/settings.ex:1401
+#: lib/game_server_web/live/user_live/settings.ex:1301
+#: lib/game_server_web/live/user_live/settings.ex:1301
+#: lib/game_server_web/live/user_live/settings.ex:1399
+#: lib/game_server_web/live/user_live/settings.ex:1399
 #, elixir-autogen, elixir-format
 msgid "Date"
 msgstr "Dată"
@@ -345,12 +345,12 @@ msgstr "Dată"
 #: lib/game_server_web/live/notifications_live.ex:28
 #: lib/game_server_web/live/notifications_live.ex:86
 #: lib/game_server_web/live/notifications_live.ex:86
-#: lib/game_server_web/live/user_live/settings.ex:39
-#: lib/game_server_web/live/user_live/settings.ex:39
-#: lib/game_server_web/live/user_live/settings.ex:334
-#: lib/game_server_web/live/user_live/settings.ex:334
-#: lib/game_server_web/live/user_live/settings.ex:339
-#: lib/game_server_web/live/user_live/settings.ex:339
+#: lib/game_server_web/live/user_live/settings.ex:37
+#: lib/game_server_web/live/user_live/settings.ex:37
+#: lib/game_server_web/live/user_live/settings.ex:332
+#: lib/game_server_web/live/user_live/settings.ex:332
+#: lib/game_server_web/live/user_live/settings.ex:338
+#: lib/game_server_web/live/user_live/settings.ex:338
 #: lib/game_server_web/live/user_live/settings.ex:347
 #: lib/game_server_web/live/user_live/settings.ex:347
 #, elixir-autogen, elixir-format
@@ -365,10 +365,10 @@ msgstr "Retrogradează"
 
 #: lib/game_server_web/live/auth_success_live.ex:169
 #: lib/game_server_web/live/auth_success_live.ex:169
-#: lib/game_server_web/live/user_live/settings.ex:55
-#: lib/game_server_web/live/user_live/settings.ex:55
-#: lib/game_server_web/live/user_live/settings.ex:327
-#: lib/game_server_web/live/user_live/settings.ex:327
+#: lib/game_server_web/live/user_live/settings.ex:53
+#: lib/game_server_web/live/user_live/settings.ex:53
+#: lib/game_server_web/live/user_live/settings.ex:325
+#: lib/game_server_web/live/user_live/settings.ex:325
 #: lib/game_server_web/live/user_live/settings.ex:567
 #: lib/game_server_web/live/user_live/settings.ex:567
 #: lib/game_server_web/live/user_live/settings.ex:609
@@ -387,18 +387,18 @@ msgstr "Descriere"
 
 #: lib/game_server_web/live/notifications_live.ex:42
 #: lib/game_server_web/live/notifications_live.ex:42
-#: lib/game_server_web/live/user_live/settings.ex:1302
-#: lib/game_server_web/live/user_live/settings.ex:1302
+#: lib/game_server_web/live/user_live/settings.ex:1300
+#: lib/game_server_web/live/user_live/settings.ex:1300
 #, elixir-autogen, elixir-format
 msgid "From"
 msgstr "De la"
 
-#: lib/game_server_web/live/user_live/settings.ex:1301
-#: lib/game_server_web/live/user_live/settings.ex:1301
-#: lib/game_server_web/live/user_live/settings.ex:1355
-#: lib/game_server_web/live/user_live/settings.ex:1355
-#: lib/game_server_web/live/user_live/settings.ex:1399
-#: lib/game_server_web/live/user_live/settings.ex:1399
+#: lib/game_server_web/live/user_live/settings.ex:1299
+#: lib/game_server_web/live/user_live/settings.ex:1299
+#: lib/game_server_web/live/user_live/settings.ex:1353
+#: lib/game_server_web/live/user_live/settings.ex:1353
+#: lib/game_server_web/live/user_live/settings.ex:1397
+#: lib/game_server_web/live/user_live/settings.ex:1397
 #, elixir-autogen, elixir-format
 msgid "Group"
 msgstr "Grup"
@@ -417,10 +417,10 @@ msgstr "Grup"
 #: lib/game_server_web/live/groups_live.ex:40
 #: lib/game_server_web/live/groups_live.ex:94
 #: lib/game_server_web/live/groups_live.ex:94
-#: lib/game_server_web/live/groups_live.ex:391
-#: lib/game_server_web/live/groups_live.ex:391
-#: lib/game_server_web/live/user_live/settings.ex:54
-#: lib/game_server_web/live/user_live/settings.ex:54
+#: lib/game_server_web/live/groups_live.ex:390
+#: lib/game_server_web/live/groups_live.ex:390
+#: lib/game_server_web/live/user_live/settings.ex:52
+#: lib/game_server_web/live/user_live/settings.ex:52
 #: lib/game_server_web/live/user_live/settings.ex:651
 #: lib/game_server_web/live/user_live/settings.ex:651
 #: lib/game_server_web/live/user_live/settings.ex:1073
@@ -445,8 +445,8 @@ msgstr "Grupuri"
 msgid "Hidden"
 msgstr "Ascuns"
 
-#: lib/game_server_web/live/user_live/settings.ex:78
-#: lib/game_server_web/live/user_live/settings.ex:78
+#: lib/game_server_web/live/user_live/settings.ex:76
+#: lib/game_server_web/live/user_live/settings.ex:76
 #: lib/game_server_web/live/user_live/settings.ex:606
 #: lib/game_server_web/live/user_live/settings.ex:606
 #, elixir-autogen, elixir-format
@@ -459,44 +459,44 @@ msgstr "ID"
 #: lib/game_server_web/live/user_live/settings.ex:1013
 #: lib/game_server_web/live/user_live/settings.ex:1052
 #: lib/game_server_web/live/user_live/settings.ex:1052
-#: lib/game_server_web/live/user_live/settings.ex:1076
-#: lib/game_server_web/live/user_live/settings.ex:1076
-#: lib/game_server_web/live/user_live/settings.ex:1080
-#: lib/game_server_web/live/user_live/settings.ex:1080
-#: lib/game_server_web/live/user_live/settings.ex:1400
-#: lib/game_server_web/live/user_live/settings.ex:1400
+#: lib/game_server_web/live/user_live/settings.ex:1075
+#: lib/game_server_web/live/user_live/settings.ex:1075
+#: lib/game_server_web/live/user_live/settings.ex:1078
+#: lib/game_server_web/live/user_live/settings.ex:1078
+#: lib/game_server_web/live/user_live/settings.ex:1398
+#: lib/game_server_web/live/user_live/settings.ex:1398
 #, elixir-autogen, elixir-format
 msgid "Invite"
 msgstr "Invită"
 
-#: lib/game_server_web/live/groups_live.ex:531
-#: lib/game_server_web/live/groups_live.ex:531
-#: lib/game_server_web/live/groups_live.ex:676
-#: lib/game_server_web/live/groups_live.ex:676
+#: lib/game_server_web/live/groups_live.ex:530
+#: lib/game_server_web/live/groups_live.ex:530
+#: lib/game_server_web/live/groups_live.ex:675
+#: lib/game_server_web/live/groups_live.ex:675
 #: lib/game_server_web/live/lobby_live/index.ex:743
 #: lib/game_server_web/live/lobby_live/index.ex:743
 #: lib/game_server_web/live/lobby_live/index.ex:755
 #: lib/game_server_web/live/lobby_live/index.ex:755
-#: lib/game_server_web/live/user_live/settings.ex:198
-#: lib/game_server_web/live/user_live/settings.ex:198
-#: lib/game_server_web/live/user_live/settings.ex:228
-#: lib/game_server_web/live/user_live/settings.ex:228
-#: lib/game_server_web/live/user_live/settings.ex:258
-#: lib/game_server_web/live/user_live/settings.ex:258
-#: lib/game_server_web/live/user_live/settings.ex:288
-#: lib/game_server_web/live/user_live/settings.ex:288
-#: lib/game_server_web/live/user_live/settings.ex:318
-#: lib/game_server_web/live/user_live/settings.ex:318
-#: lib/game_server_web/live/user_live/settings.ex:1260
-#: lib/game_server_web/live/user_live/settings.ex:1260
+#: lib/game_server_web/live/user_live/settings.ex:196
+#: lib/game_server_web/live/user_live/settings.ex:196
+#: lib/game_server_web/live/user_live/settings.ex:226
+#: lib/game_server_web/live/user_live/settings.ex:226
+#: lib/game_server_web/live/user_live/settings.ex:256
+#: lib/game_server_web/live/user_live/settings.ex:256
+#: lib/game_server_web/live/user_live/settings.ex:286
+#: lib/game_server_web/live/user_live/settings.ex:286
+#: lib/game_server_web/live/user_live/settings.ex:316
+#: lib/game_server_web/live/user_live/settings.ex:316
+#: lib/game_server_web/live/user_live/settings.ex:1258
+#: lib/game_server_web/live/user_live/settings.ex:1258
 #, elixir-autogen, elixir-format
 msgid "Join"
 msgstr "Alătură-te"
 
 #: lib/game_server_web/live/user_live/settings.ex:839
 #: lib/game_server_web/live/user_live/settings.ex:839
-#: lib/game_server_web/live/user_live/settings.ex:1248
-#: lib/game_server_web/live/user_live/settings.ex:1248
+#: lib/game_server_web/live/user_live/settings.ex:1246
+#: lib/game_server_web/live/user_live/settings.ex:1246
 #, elixir-autogen, elixir-format
 msgid "Joined"
 msgstr "S-a alăturat"
@@ -509,16 +509,16 @@ msgstr "S-a alăturat"
 msgid "Kick"
 msgstr "Expulzează"
 
-#: lib/game_server_web/live/groups_live.ex:665
-#: lib/game_server_web/live/groups_live.ex:665
+#: lib/game_server_web/live/groups_live.ex:664
+#: lib/game_server_web/live/groups_live.ex:664
 #: lib/game_server_web/live/lobby_live/index.ex:858
 #: lib/game_server_web/live/lobby_live/index.ex:858
 #: lib/game_server_web/live/lobby_live/index.ex:894
 #: lib/game_server_web/live/lobby_live/index.ex:894
 #: lib/game_server_web/live/user_live/settings.ex:821
 #: lib/game_server_web/live/user_live/settings.ex:821
-#: lib/game_server_web/live/user_live/settings.ex:1163
-#: lib/game_server_web/live/user_live/settings.ex:1163
+#: lib/game_server_web/live/user_live/settings.ex:1161
+#: lib/game_server_web/live/user_live/settings.ex:1161
 #, elixir-autogen, elixir-format
 msgid "Leave"
 msgstr "Părăsește"
@@ -535,22 +535,22 @@ msgstr "Părăsește"
 msgid "Locked"
 msgstr "Blocat"
 
-#: lib/game_server_web/live/groups_live.ex:522
-#: lib/game_server_web/live/groups_live.ex:522
-#: lib/game_server_web/live/groups_live.ex:626
-#: lib/game_server_web/live/groups_live.ex:626
+#: lib/game_server_web/live/groups_live.ex:521
+#: lib/game_server_web/live/groups_live.ex:521
+#: lib/game_server_web/live/groups_live.ex:625
+#: lib/game_server_web/live/groups_live.ex:625
 #, elixir-autogen, elixir-format
 msgid "Member"
 msgstr "Membru"
 
-#: lib/game_server_web/live/groups_live.ex:446
-#: lib/game_server_web/live/groups_live.ex:446
-#: lib/game_server_web/live/groups_live.ex:490
-#: lib/game_server_web/live/groups_live.ex:490
-#: lib/game_server_web/live/groups_live.ex:583
-#: lib/game_server_web/live/groups_live.ex:583
-#: lib/game_server_web/live/groups_live.ex:596
-#: lib/game_server_web/live/groups_live.ex:596
+#: lib/game_server_web/live/groups_live.ex:445
+#: lib/game_server_web/live/groups_live.ex:445
+#: lib/game_server_web/live/groups_live.ex:489
+#: lib/game_server_web/live/groups_live.ex:489
+#: lib/game_server_web/live/groups_live.ex:582
+#: lib/game_server_web/live/groups_live.ex:582
+#: lib/game_server_web/live/groups_live.ex:595
+#: lib/game_server_web/live/groups_live.ex:595
 #: lib/game_server_web/live/lobby_live/index.ex:840
 #: lib/game_server_web/live/lobby_live/index.ex:840
 #: lib/game_server_web/live/lobby_live/index.ex:878
@@ -563,10 +563,10 @@ msgstr "Membru"
 #: lib/game_server_web/live/user_live/settings.ex:788
 #: lib/game_server_web/live/user_live/settings.ex:830
 #: lib/game_server_web/live/user_live/settings.ex:830
-#: lib/game_server_web/live/user_live/settings.ex:1109
-#: lib/game_server_web/live/user_live/settings.ex:1109
-#: lib/game_server_web/live/user_live/settings.ex:1218
-#: lib/game_server_web/live/user_live/settings.ex:1218
+#: lib/game_server_web/live/user_live/settings.ex:1107
+#: lib/game_server_web/live/user_live/settings.ex:1107
+#: lib/game_server_web/live/user_live/settings.ex:1216
+#: lib/game_server_web/live/user_live/settings.ex:1216
 #, elixir-autogen, elixir-format
 msgid "Members"
 msgstr "Membri"
@@ -577,16 +577,16 @@ msgstr "Membri"
 msgid "Monthly"
 msgstr "Lunar"
 
-#: lib/game_server_web/live/groups_live.ex:439
-#: lib/game_server_web/live/groups_live.ex:439
-#: lib/game_server_web/live/groups_live.ex:445
-#: lib/game_server_web/live/groups_live.ex:445
-#: lib/game_server_web/live/groups_live.ex:602
-#: lib/game_server_web/live/groups_live.ex:602
+#: lib/game_server_web/live/groups_live.ex:438
+#: lib/game_server_web/live/groups_live.ex:438
+#: lib/game_server_web/live/groups_live.ex:444
+#: lib/game_server_web/live/groups_live.ex:444
+#: lib/game_server_web/live/groups_live.ex:601
+#: lib/game_server_web/live/groups_live.ex:601
 #: lib/game_server_web/live/leaderboards_live.ex:285
 #: lib/game_server_web/live/leaderboards_live.ex:285
-#: lib/game_server_web/live/user_live/settings.ex:90
-#: lib/game_server_web/live/user_live/settings.ex:90
+#: lib/game_server_web/live/user_live/settings.ex:88
+#: lib/game_server_web/live/user_live/settings.ex:88
 #: lib/game_server_web/live/user_live/settings.ex:525
 #: lib/game_server_web/live/user_live/settings.ex:525
 #: lib/game_server_web/live/user_live/settings.ex:607
@@ -603,8 +603,8 @@ msgstr "Lunar"
 msgid "Name"
 msgstr "Nume"
 
-#: lib/game_server_web/live/groups_live.ex:444
-#: lib/game_server_web/live/groups_live.ex:444
+#: lib/game_server_web/live/groups_live.ex:443
+#: lib/game_server_web/live/groups_live.ex:443
 #, elixir-autogen, elixir-format
 msgid "Newest"
 msgstr "Cel mai recent"
@@ -625,18 +625,18 @@ msgstr "Următorul"
 msgid "Prev"
 msgstr "Ant"
 
-#: lib/game_server_web/live/groups_live.ex:423
-#: lib/game_server_web/live/groups_live.ex:423
-#: lib/game_server_web/live/groups_live.ex:475
-#: lib/game_server_web/live/groups_live.ex:475
-#: lib/game_server_web/live/groups_live.ex:564
-#: lib/game_server_web/live/groups_live.ex:564
+#: lib/game_server_web/live/groups_live.ex:422
+#: lib/game_server_web/live/groups_live.ex:422
+#: lib/game_server_web/live/groups_live.ex:474
+#: lib/game_server_web/live/groups_live.ex:474
+#: lib/game_server_web/live/groups_live.ex:563
+#: lib/game_server_web/live/groups_live.ex:563
 #: lib/game_server_web/live/user_live/settings.ex:703
 #: lib/game_server_web/live/user_live/settings.ex:703
 #: lib/game_server_web/live/user_live/settings.ex:746
 #: lib/game_server_web/live/user_live/settings.ex:746
-#: lib/game_server_web/live/user_live/settings.ex:1196
-#: lib/game_server_web/live/user_live/settings.ex:1196
+#: lib/game_server_web/live/user_live/settings.ex:1194
+#: lib/game_server_web/live/user_live/settings.ex:1194
 #, elixir-autogen, elixir-format
 msgid "Private"
 msgstr "Privat"
@@ -647,18 +647,18 @@ msgstr "Privat"
 msgid "Promote"
 msgstr "Promovează"
 
-#: lib/game_server_web/live/groups_live.ex:422
-#: lib/game_server_web/live/groups_live.ex:422
-#: lib/game_server_web/live/groups_live.ex:473
-#: lib/game_server_web/live/groups_live.ex:473
-#: lib/game_server_web/live/groups_live.ex:562
-#: lib/game_server_web/live/groups_live.ex:562
+#: lib/game_server_web/live/groups_live.ex:421
+#: lib/game_server_web/live/groups_live.ex:421
+#: lib/game_server_web/live/groups_live.ex:472
+#: lib/game_server_web/live/groups_live.ex:472
+#: lib/game_server_web/live/groups_live.ex:561
+#: lib/game_server_web/live/groups_live.ex:561
 #: lib/game_server_web/live/user_live/settings.ex:702
 #: lib/game_server_web/live/user_live/settings.ex:702
 #: lib/game_server_web/live/user_live/settings.ex:745
 #: lib/game_server_web/live/user_live/settings.ex:745
-#: lib/game_server_web/live/user_live/settings.ex:1195
-#: lib/game_server_web/live/user_live/settings.ex:1195
+#: lib/game_server_web/live/user_live/settings.ex:1193
+#: lib/game_server_web/live/user_live/settings.ex:1193
 #, elixir-autogen, elixir-format
 msgid "Public"
 msgstr "Public"
@@ -671,56 +671,56 @@ msgstr "Public"
 msgid "Reject"
 msgstr "Respinge"
 
-#: lib/game_server_web/live/user_live/settings.ex:189
-#: lib/game_server_web/live/user_live/settings.ex:189
-#: lib/game_server_web/live/user_live/settings.ex:193
-#: lib/game_server_web/live/user_live/settings.ex:193
-#: lib/game_server_web/live/user_live/settings.ex:219
-#: lib/game_server_web/live/user_live/settings.ex:219
-#: lib/game_server_web/live/user_live/settings.ex:223
-#: lib/game_server_web/live/user_live/settings.ex:223
-#: lib/game_server_web/live/user_live/settings.ex:249
-#: lib/game_server_web/live/user_live/settings.ex:249
-#: lib/game_server_web/live/user_live/settings.ex:253
-#: lib/game_server_web/live/user_live/settings.ex:253
-#: lib/game_server_web/live/user_live/settings.ex:279
-#: lib/game_server_web/live/user_live/settings.ex:279
-#: lib/game_server_web/live/user_live/settings.ex:283
-#: lib/game_server_web/live/user_live/settings.ex:283
-#: lib/game_server_web/live/user_live/settings.ex:309
-#: lib/game_server_web/live/user_live/settings.ex:309
-#: lib/game_server_web/live/user_live/settings.ex:313
-#: lib/game_server_web/live/user_live/settings.ex:313
+#: lib/game_server_web/live/user_live/settings.ex:187
+#: lib/game_server_web/live/user_live/settings.ex:187
+#: lib/game_server_web/live/user_live/settings.ex:191
+#: lib/game_server_web/live/user_live/settings.ex:191
+#: lib/game_server_web/live/user_live/settings.ex:217
+#: lib/game_server_web/live/user_live/settings.ex:217
+#: lib/game_server_web/live/user_live/settings.ex:221
+#: lib/game_server_web/live/user_live/settings.ex:221
+#: lib/game_server_web/live/user_live/settings.ex:247
+#: lib/game_server_web/live/user_live/settings.ex:247
+#: lib/game_server_web/live/user_live/settings.ex:251
+#: lib/game_server_web/live/user_live/settings.ex:251
+#: lib/game_server_web/live/user_live/settings.ex:277
+#: lib/game_server_web/live/user_live/settings.ex:277
+#: lib/game_server_web/live/user_live/settings.ex:281
+#: lib/game_server_web/live/user_live/settings.ex:281
+#: lib/game_server_web/live/user_live/settings.ex:307
+#: lib/game_server_web/live/user_live/settings.ex:307
+#: lib/game_server_web/live/user_live/settings.ex:311
+#: lib/game_server_web/live/user_live/settings.ex:311
 #: lib/game_server_web/live/user_live/settings.ex:460
 #: lib/game_server_web/live/user_live/settings.ex:460
 #, elixir-autogen, elixir-format
 msgid "Remove"
 msgstr "Elimină"
 
-#: lib/game_server_web/live/groups_live.ex:539
-#: lib/game_server_web/live/groups_live.ex:539
-#: lib/game_server_web/live/groups_live.ex:685
-#: lib/game_server_web/live/groups_live.ex:685
+#: lib/game_server_web/live/groups_live.ex:538
+#: lib/game_server_web/live/groups_live.ex:538
+#: lib/game_server_web/live/groups_live.ex:684
+#: lib/game_server_web/live/groups_live.ex:684
 #: lib/game_server_web/live/user_live/settings.ex:927
 #: lib/game_server_web/live/user_live/settings.ex:927
-#: lib/game_server_web/live/user_live/settings.ex:1078
-#: lib/game_server_web/live/user_live/settings.ex:1078
-#: lib/game_server_web/live/user_live/settings.ex:1268
-#: lib/game_server_web/live/user_live/settings.ex:1268
-#: lib/game_server_web/live/user_live/settings.ex:1357
-#: lib/game_server_web/live/user_live/settings.ex:1357
+#: lib/game_server_web/live/user_live/settings.ex:1076
+#: lib/game_server_web/live/user_live/settings.ex:1076
+#: lib/game_server_web/live/user_live/settings.ex:1266
+#: lib/game_server_web/live/user_live/settings.ex:1266
+#: lib/game_server_web/live/user_live/settings.ex:1355
+#: lib/game_server_web/live/user_live/settings.ex:1355
 #, elixir-autogen, elixir-format
 msgid "Request"
 msgstr "Cere"
 
-#: lib/game_server_web/live/groups_live.ex:603
-#: lib/game_server_web/live/groups_live.ex:603
+#: lib/game_server_web/live/groups_live.ex:602
+#: lib/game_server_web/live/groups_live.ex:602
 #: lib/game_server_web/live/user_live/settings.ex:799
 #: lib/game_server_web/live/user_live/settings.ex:799
 #: lib/game_server_web/live/user_live/settings.ex:838
 #: lib/game_server_web/live/user_live/settings.ex:838
-#: lib/game_server_web/live/user_live/settings.ex:1110
-#: lib/game_server_web/live/user_live/settings.ex:1110
+#: lib/game_server_web/live/user_live/settings.ex:1108
+#: lib/game_server_web/live/user_live/settings.ex:1108
 #, elixir-autogen, elixir-format
 msgid "Role"
 msgstr "Rol"
@@ -729,20 +729,20 @@ msgstr "Rol"
 #: lib/game_server_web/live/chat_live.ex:250
 #: lib/game_server_web/live/lobby_live/index.ex:826
 #: lib/game_server_web/live/lobby_live/index.ex:826
-#: lib/game_server_web/live/user_live/settings.ex:94
-#: lib/game_server_web/live/user_live/settings.ex:94
-#: lib/game_server_web/live/user_live/settings.ex:151
-#: lib/game_server_web/live/user_live/settings.ex:151
+#: lib/game_server_web/live/user_live/settings.ex:92
+#: lib/game_server_web/live/user_live/settings.ex:92
+#: lib/game_server_web/live/user_live/settings.ex:149
+#: lib/game_server_web/live/user_live/settings.ex:149
 #: lib/game_server_web/live/user_live/settings.ex:756
 #: lib/game_server_web/live/user_live/settings.ex:756
 #, elixir-autogen, elixir-format
 msgid "Save"
 msgstr "Salvează"
 
-#: lib/game_server_web/live/user_live/settings.ex:93
-#: lib/game_server_web/live/user_live/settings.ex:93
-#: lib/game_server_web/live/user_live/settings.ex:150
-#: lib/game_server_web/live/user_live/settings.ex:150
+#: lib/game_server_web/live/user_live/settings.ex:91
+#: lib/game_server_web/live/user_live/settings.ex:91
+#: lib/game_server_web/live/user_live/settings.ex:148
+#: lib/game_server_web/live/user_live/settings.ex:148
 #, elixir-autogen, elixir-format
 msgid "Saving..."
 msgstr "Se salvează..."
@@ -765,8 +765,8 @@ msgstr "Trimite"
 #: lib/game_server_web/live/leaderboards_live.ex:261
 #: lib/game_server_web/live/leaderboards_live.ex:284
 #: lib/game_server_web/live/leaderboards_live.ex:284
-#: lib/game_server_web/live/user_live/settings.ex:1356
-#: lib/game_server_web/live/user_live/settings.ex:1356
+#: lib/game_server_web/live/user_live/settings.ex:1354
+#: lib/game_server_web/live/user_live/settings.ex:1354
 #, elixir-autogen, elixir-format
 msgid "Status"
 msgstr "Stare"
@@ -781,12 +781,12 @@ msgstr "Stare"
 #: lib/game_server_web/live/notifications_live.ex:40
 #: lib/game_server_web/live/user_live/settings.ex:689
 #: lib/game_server_web/live/user_live/settings.ex:689
-#: lib/game_server_web/live/user_live/settings.ex:1107
-#: lib/game_server_web/live/user_live/settings.ex:1107
-#: lib/game_server_web/live/user_live/settings.ex:1186
-#: lib/game_server_web/live/user_live/settings.ex:1186
-#: lib/game_server_web/live/user_live/settings.ex:1216
-#: lib/game_server_web/live/user_live/settings.ex:1216
+#: lib/game_server_web/live/user_live/settings.ex:1105
+#: lib/game_server_web/live/user_live/settings.ex:1105
+#: lib/game_server_web/live/user_live/settings.ex:1184
+#: lib/game_server_web/live/user_live/settings.ex:1184
+#: lib/game_server_web/live/user_live/settings.ex:1214
+#: lib/game_server_web/live/user_live/settings.ex:1214
 #, elixir-autogen, elixir-format
 msgid "Title"
 msgstr "Titlu"
@@ -797,12 +797,12 @@ msgstr "Titlu"
 #: lib/game_server_web/live/user_live/settings.ex:742
 #: lib/game_server_web/live/user_live/settings.ex:775
 #: lib/game_server_web/live/user_live/settings.ex:775
-#: lib/game_server_web/live/user_live/settings.ex:1108
-#: lib/game_server_web/live/user_live/settings.ex:1108
-#: lib/game_server_web/live/user_live/settings.ex:1192
-#: lib/game_server_web/live/user_live/settings.ex:1192
-#: lib/game_server_web/live/user_live/settings.ex:1217
-#: lib/game_server_web/live/user_live/settings.ex:1217
+#: lib/game_server_web/live/user_live/settings.ex:1106
+#: lib/game_server_web/live/user_live/settings.ex:1106
+#: lib/game_server_web/live/user_live/settings.ex:1190
+#: lib/game_server_web/live/user_live/settings.ex:1190
+#: lib/game_server_web/live/user_live/settings.ex:1215
+#: lib/game_server_web/live/user_live/settings.ex:1215
 #, elixir-autogen, elixir-format
 msgid "Type"
 msgstr "Tip"
@@ -837,8 +837,8 @@ msgstr "Deblochează"
 #: lib/game_server_web/live/notifications_live.ex:248
 #: lib/game_server_web/live/notifications_live.ex:251
 #: lib/game_server_web/live/notifications_live.ex:251
-#: lib/game_server_web/live/user_live/settings.ex:1155
-#: lib/game_server_web/live/user_live/settings.ex:1155
+#: lib/game_server_web/live/user_live/settings.ex:1153
+#: lib/game_server_web/live/user_live/settings.ex:1153
 #, elixir-autogen, elixir-format
 msgid "View"
 msgstr "Vezi"
@@ -859,8 +859,8 @@ msgstr "Săptămânal"
 msgid "You"
 msgstr "Tu"
 
-#: lib/game_server_web/live/groups_live.ex:411
-#: lib/game_server_web/live/groups_live.ex:411
+#: lib/game_server_web/live/groups_live.ex:410
+#: lib/game_server_web/live/groups_live.ex:410
 #: lib/game_server_web/live/user_live/settings.ex:518
 #: lib/game_server_web/live/user_live/settings.ex:518
 #: lib/game_server_web/live/user_live/settings.ex:582
@@ -889,14 +889,14 @@ msgstr "(editat)"
 #: lib/game_server_web/controllers/page_controller.ex:36
 #: lib/game_server_web/live/user_live/settings.ex:15
 #: lib/game_server_web/live/user_live/settings.ex:15
-#: lib/game_server_web/live/user_live/settings.ex:52
-#: lib/game_server_web/live/user_live/settings.ex:52
-#: lib/game_server_web/live/user_live/settings.ex:76
-#: lib/game_server_web/live/user_live/settings.ex:76
-#: lib/game_server_web/live/user_live/settings.ex:158
-#: lib/game_server_web/live/user_live/settings.ex:158
-#: lib/game_server_web/live/user_live/settings.ex:1467
-#: lib/game_server_web/live/user_live/settings.ex:1467
+#: lib/game_server_web/live/user_live/settings.ex:50
+#: lib/game_server_web/live/user_live/settings.ex:50
+#: lib/game_server_web/live/user_live/settings.ex:74
+#: lib/game_server_web/live/user_live/settings.ex:74
+#: lib/game_server_web/live/user_live/settings.ex:156
+#: lib/game_server_web/live/user_live/settings.ex:156
+#: lib/game_server_web/live/user_live/settings.ex:1465
+#: lib/game_server_web/live/user_live/settings.ex:1465
 #, elixir-autogen, elixir-format
 msgid "Account"
 msgstr "Cont"
@@ -931,8 +931,8 @@ msgstr "Realizări"
 msgid "Chat"
 msgstr "Chat"
 
-#: lib/game_server_web/live/user_live/settings.ex:1334
-#: lib/game_server_web/live/user_live/settings.ex:1334
+#: lib/game_server_web/live/user_live/settings.ex:1332
+#: lib/game_server_web/live/user_live/settings.ex:1332
 #, elixir-autogen, elixir-format
 msgid "Decline"
 msgstr "Refuză"
@@ -957,8 +957,8 @@ msgstr "Editează"
 
 #: lib/game_server_web/live/chat_live.ex:125
 #: lib/game_server_web/live/chat_live.ex:125
-#: lib/game_server_web/live/user_live/settings.ex:53
-#: lib/game_server_web/live/user_live/settings.ex:53
+#: lib/game_server_web/live/user_live/settings.ex:51
+#: lib/game_server_web/live/user_live/settings.ex:51
 #: lib/game_server_web/live/user_live/settings.ex:359
 #: lib/game_server_web/live/user_live/settings.ex:359
 #: lib/game_server_web/live/user_live/settings.ex:365
@@ -1129,10 +1129,10 @@ msgstr "Foaie de parcurs"
 #: lib/game_server_web/live/groups_live.ex:172
 #: lib/game_server_web/live/groups_live.ex:201
 #: lib/game_server_web/live/groups_live.ex:201
-#: lib/game_server_web/live/groups_live.ex:205
-#: lib/game_server_web/live/groups_live.ex:205
-#: lib/game_server_web/live/groups_live.ex:212
-#: lib/game_server_web/live/groups_live.ex:212
+#: lib/game_server_web/live/groups_live.ex:204
+#: lib/game_server_web/live/groups_live.ex:204
+#: lib/game_server_web/live/groups_live.ex:211
+#: lib/game_server_web/live/groups_live.ex:211
 #: lib/game_server_web/live/lobby_live/index.ex:77
 #: lib/game_server_web/live/lobby_live/index.ex:77
 #: lib/game_server_web/live/lobby_live/index.ex:163
@@ -1153,24 +1153,24 @@ msgstr "Foaie de parcurs"
 #: lib/game_server_web/live/user_live/registration.ex:192
 #: lib/game_server_web/live/user_live/settings.ex:25
 #: lib/game_server_web/live/user_live/settings.ex:25
-#: lib/game_server_web/live/user_live/settings.ex:1453
-#: lib/game_server_web/live/user_live/settings.ex:1453
-#: lib/game_server_web/live/user_live/settings.ex:1870
-#: lib/game_server_web/live/user_live/settings.ex:1870
-#: lib/game_server_web/live/user_live/settings.ex:1875
-#: lib/game_server_web/live/user_live/settings.ex:1875
-#: lib/game_server_web/live/user_live/settings.ex:1894
-#: lib/game_server_web/live/user_live/settings.ex:1894
-#: lib/game_server_web/live/user_live/settings.ex:2019
-#: lib/game_server_web/live/user_live/settings.ex:2019
-#: lib/game_server_web/live/user_live/settings.ex:2442
-#: lib/game_server_web/live/user_live/settings.ex:2442
-#: lib/game_server_web/live/user_live/settings.ex:2713
-#: lib/game_server_web/live/user_live/settings.ex:2713
-#: lib/game_server_web/live/user_live/settings.ex:2727
-#: lib/game_server_web/live/user_live/settings.ex:2727
-#: lib/game_server_web/live/user_live/settings.ex:2748
-#: lib/game_server_web/live/user_live/settings.ex:2748
+#: lib/game_server_web/live/user_live/settings.ex:1451
+#: lib/game_server_web/live/user_live/settings.ex:1451
+#: lib/game_server_web/live/user_live/settings.ex:1868
+#: lib/game_server_web/live/user_live/settings.ex:1868
+#: lib/game_server_web/live/user_live/settings.ex:1872
+#: lib/game_server_web/live/user_live/settings.ex:1872
+#: lib/game_server_web/live/user_live/settings.ex:1891
+#: lib/game_server_web/live/user_live/settings.ex:1891
+#: lib/game_server_web/live/user_live/settings.ex:2016
+#: lib/game_server_web/live/user_live/settings.ex:2016
+#: lib/game_server_web/live/user_live/settings.ex:2439
+#: lib/game_server_web/live/user_live/settings.ex:2439
+#: lib/game_server_web/live/user_live/settings.ex:2710
+#: lib/game_server_web/live/user_live/settings.ex:2710
+#: lib/game_server_web/live/user_live/settings.ex:2724
+#: lib/game_server_web/live/user_live/settings.ex:2724
+#: lib/game_server_web/live/user_live/settings.ex:2745
+#: lib/game_server_web/live/user_live/settings.ex:2745
 #: lib/game_server_web/user_auth.ex:250
 #: lib/game_server_web/user_auth.ex:250
 #: lib/game_server_web/user_auth.ex:273
@@ -1185,18 +1185,18 @@ msgstr "Foaie de parcurs"
 msgid "Failed."
 msgstr ""
 
-#: lib/game_server_web/live/chat_live.ex:404
-#: lib/game_server_web/live/chat_live.ex:404
-#: lib/game_server_web/live/chat_live.ex:467
-#: lib/game_server_web/live/chat_live.ex:467
-#: lib/game_server_web/live/chat_live.ex:490
-#: lib/game_server_web/live/chat_live.ex:490
+#: lib/game_server_web/live/chat_live.ex:405
+#: lib/game_server_web/live/chat_live.ex:405
+#: lib/game_server_web/live/chat_live.ex:468
+#: lib/game_server_web/live/chat_live.ex:468
+#: lib/game_server_web/live/chat_live.ex:491
+#: lib/game_server_web/live/chat_live.ex:491
 #: lib/game_server_web/live/groups_live.ex:179
 #: lib/game_server_web/live/groups_live.ex:179
-#: lib/game_server_web/live/groups_live.ex:220
-#: lib/game_server_web/live/groups_live.ex:220
-#: lib/game_server_web/live/groups_live.ex:247
-#: lib/game_server_web/live/groups_live.ex:247
+#: lib/game_server_web/live/groups_live.ex:219
+#: lib/game_server_web/live/groups_live.ex:219
+#: lib/game_server_web/live/groups_live.ex:246
+#: lib/game_server_web/live/groups_live.ex:246
 #: lib/game_server_web/live/lobby_live/index.ex:120
 #: lib/game_server_web/live/lobby_live/index.ex:120
 #: lib/game_server_web/live/lobby_live/index.ex:281
@@ -1207,52 +1207,52 @@ msgstr ""
 #: lib/game_server_web/live/lobby_live/index.ex:412
 #: lib/game_server_web/live/lobby_live/index.ex:460
 #: lib/game_server_web/live/lobby_live/index.ex:460
-#: lib/game_server_web/live/user_live/settings.ex:1628
-#: lib/game_server_web/live/user_live/settings.ex:1628
-#: lib/game_server_web/live/user_live/settings.ex:1636
-#: lib/game_server_web/live/user_live/settings.ex:1636
-#: lib/game_server_web/live/user_live/settings.ex:1652
-#: lib/game_server_web/live/user_live/settings.ex:1652
-#: lib/game_server_web/live/user_live/settings.ex:1734
-#: lib/game_server_web/live/user_live/settings.ex:1734
-#: lib/game_server_web/live/user_live/settings.ex:1750
-#: lib/game_server_web/live/user_live/settings.ex:1750
-#: lib/game_server_web/live/user_live/settings.ex:1766
-#: lib/game_server_web/live/user_live/settings.ex:1766
-#: lib/game_server_web/live/user_live/settings.ex:1782
-#: lib/game_server_web/live/user_live/settings.ex:1782
-#: lib/game_server_web/live/user_live/settings.ex:1798
-#: lib/game_server_web/live/user_live/settings.ex:1798
-#: lib/game_server_web/live/user_live/settings.ex:2040
-#: lib/game_server_web/live/user_live/settings.ex:2040
-#: lib/game_server_web/live/user_live/settings.ex:2059
-#: lib/game_server_web/live/user_live/settings.ex:2059
-#: lib/game_server_web/live/user_live/settings.ex:2078
-#: lib/game_server_web/live/user_live/settings.ex:2078
-#: lib/game_server_web/live/user_live/settings.ex:2097
-#: lib/game_server_web/live/user_live/settings.ex:2097
-#: lib/game_server_web/live/user_live/settings.ex:2116
-#: lib/game_server_web/live/user_live/settings.ex:2116
-#: lib/game_server_web/live/user_live/settings.ex:2135
-#: lib/game_server_web/live/user_live/settings.ex:2135
-#: lib/game_server_web/live/user_live/settings.ex:2154
-#: lib/game_server_web/live/user_live/settings.ex:2154
-#: lib/game_server_web/live/user_live/settings.ex:2178
-#: lib/game_server_web/live/user_live/settings.ex:2178
-#: lib/game_server_web/live/user_live/settings.ex:2200
-#: lib/game_server_web/live/user_live/settings.ex:2200
-#: lib/game_server_web/live/user_live/settings.ex:2306
-#: lib/game_server_web/live/user_live/settings.ex:2306
-#: lib/game_server_web/live/user_live/settings.ex:2327
-#: lib/game_server_web/live/user_live/settings.ex:2327
-#: lib/game_server_web/live/user_live/settings.ex:2347
-#: lib/game_server_web/live/user_live/settings.ex:2347
-#: lib/game_server_web/live/user_live/settings.ex:2367
-#: lib/game_server_web/live/user_live/settings.ex:2367
-#: lib/game_server_web/live/user_live/settings.ex:2449
-#: lib/game_server_web/live/user_live/settings.ex:2449
-#: lib/game_server_web/live/user_live/settings.ex:2476
-#: lib/game_server_web/live/user_live/settings.ex:2476
+#: lib/game_server_web/live/user_live/settings.ex:1626
+#: lib/game_server_web/live/user_live/settings.ex:1626
+#: lib/game_server_web/live/user_live/settings.ex:1634
+#: lib/game_server_web/live/user_live/settings.ex:1634
+#: lib/game_server_web/live/user_live/settings.ex:1650
+#: lib/game_server_web/live/user_live/settings.ex:1650
+#: lib/game_server_web/live/user_live/settings.ex:1732
+#: lib/game_server_web/live/user_live/settings.ex:1732
+#: lib/game_server_web/live/user_live/settings.ex:1748
+#: lib/game_server_web/live/user_live/settings.ex:1748
+#: lib/game_server_web/live/user_live/settings.ex:1764
+#: lib/game_server_web/live/user_live/settings.ex:1764
+#: lib/game_server_web/live/user_live/settings.ex:1780
+#: lib/game_server_web/live/user_live/settings.ex:1780
+#: lib/game_server_web/live/user_live/settings.ex:1796
+#: lib/game_server_web/live/user_live/settings.ex:1796
+#: lib/game_server_web/live/user_live/settings.ex:2037
+#: lib/game_server_web/live/user_live/settings.ex:2037
+#: lib/game_server_web/live/user_live/settings.ex:2056
+#: lib/game_server_web/live/user_live/settings.ex:2056
+#: lib/game_server_web/live/user_live/settings.ex:2075
+#: lib/game_server_web/live/user_live/settings.ex:2075
+#: lib/game_server_web/live/user_live/settings.ex:2094
+#: lib/game_server_web/live/user_live/settings.ex:2094
+#: lib/game_server_web/live/user_live/settings.ex:2113
+#: lib/game_server_web/live/user_live/settings.ex:2113
+#: lib/game_server_web/live/user_live/settings.ex:2132
+#: lib/game_server_web/live/user_live/settings.ex:2132
+#: lib/game_server_web/live/user_live/settings.ex:2151
+#: lib/game_server_web/live/user_live/settings.ex:2151
+#: lib/game_server_web/live/user_live/settings.ex:2175
+#: lib/game_server_web/live/user_live/settings.ex:2175
+#: lib/game_server_web/live/user_live/settings.ex:2197
+#: lib/game_server_web/live/user_live/settings.ex:2197
+#: lib/game_server_web/live/user_live/settings.ex:2303
+#: lib/game_server_web/live/user_live/settings.ex:2303
+#: lib/game_server_web/live/user_live/settings.ex:2324
+#: lib/game_server_web/live/user_live/settings.ex:2324
+#: lib/game_server_web/live/user_live/settings.ex:2344
+#: lib/game_server_web/live/user_live/settings.ex:2344
+#: lib/game_server_web/live/user_live/settings.ex:2364
+#: lib/game_server_web/live/user_live/settings.ex:2364
+#: lib/game_server_web/live/user_live/settings.ex:2446
+#: lib/game_server_web/live/user_live/settings.ex:2446
+#: lib/game_server_web/live/user_live/settings.ex:2473
+#: lib/game_server_web/live/user_live/settings.ex:2473
 #, elixir-autogen, elixir-format
 msgid "Failed: %{reason}"
 msgstr ""
@@ -1289,10 +1289,10 @@ msgstr ""
 #: lib/game_server_web/live/auth_success_live.ex:110
 #: lib/game_server_web/live/auth_success_live.ex:205
 #: lib/game_server_web/live/auth_success_live.ex:205
-#: lib/game_server_web/live/groups_live.ex:524
-#: lib/game_server_web/live/groups_live.ex:524
-#: lib/game_server_web/live/groups_live.ex:668
-#: lib/game_server_web/live/groups_live.ex:668
+#: lib/game_server_web/live/groups_live.ex:523
+#: lib/game_server_web/live/groups_live.ex:523
+#: lib/game_server_web/live/groups_live.ex:667
+#: lib/game_server_web/live/groups_live.ex:667
 #: lib/game_server_web/live/user_live/confirmation.ex:28
 #: lib/game_server_web/live/user_live/confirmation.ex:28
 #: lib/game_server_web/live/user_live/confirmation.ex:34
@@ -1305,10 +1305,10 @@ msgstr ""
 #: lib/game_server_web/live/user_live/confirmation.ex:68
 #: lib/game_server_web/live/user_live/registration.ex:33
 #: lib/game_server_web/live/user_live/registration.ex:33
-#: lib/game_server_web/live/user_live/settings.ex:111
-#: lib/game_server_web/live/user_live/settings.ex:111
-#: lib/game_server_web/live/user_live/settings.ex:1252
-#: lib/game_server_web/live/user_live/settings.ex:1252
+#: lib/game_server_web/live/user_live/settings.ex:109
+#: lib/game_server_web/live/user_live/settings.ex:109
+#: lib/game_server_web/live/user_live/settings.ex:1250
+#: lib/game_server_web/live/user_live/settings.ex:1250
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Loading..."
 msgstr "Se salvează..."
@@ -1337,10 +1337,10 @@ msgstr "Se salvează..."
 #: lib/game_server_web/live/lobby_live/index.ex:160
 #: lib/game_server_web/live/lobby_live/index.ex:175
 #: lib/game_server_web/live/lobby_live/index.ex:175
-#: lib/game_server_web/live/user_live/settings.ex:1912
-#: lib/game_server_web/live/user_live/settings.ex:1912
-#: lib/game_server_web/live/user_live/settings.ex:2800
-#: lib/game_server_web/live/user_live/settings.ex:2800
+#: lib/game_server_web/live/user_live/settings.ex:1909
+#: lib/game_server_web/live/user_live/settings.ex:1909
+#: lib/game_server_web/live/user_live/settings.ex:2797
+#: lib/game_server_web/live/user_live/settings.ex:2797
 #, elixir-autogen, elixir-format
 msgid "Not found"
 msgstr ""
@@ -1395,84 +1395,84 @@ msgstr ""
 #: lib/game_server_web/live/groups_live.ex:164
 #: lib/game_server_web/live/groups_live.ex:197
 #: lib/game_server_web/live/groups_live.ex:197
-#: lib/game_server_web/live/groups_live.ex:238
-#: lib/game_server_web/live/groups_live.ex:238
+#: lib/game_server_web/live/groups_live.ex:237
+#: lib/game_server_web/live/groups_live.ex:237
 #: lib/game_server_web/live/lobby_live/index.ex:268
 #: lib/game_server_web/live/lobby_live/index.ex:268
 #: lib/game_server_web/live/notifications_live.ex:162
 #: lib/game_server_web/live/notifications_live.ex:162
 #: lib/game_server_web/live/notifications_live.ex:177
 #: lib/game_server_web/live/notifications_live.ex:177
-#: lib/game_server_web/live/user_live/login.ex:194
-#: lib/game_server_web/live/user_live/login.ex:194
+#: lib/game_server_web/live/user_live/login.ex:196
+#: lib/game_server_web/live/user_live/login.ex:196
 #: lib/game_server_web/live/user_live/registration.ex:162
 #: lib/game_server_web/live/user_live/registration.ex:162
 #: lib/game_server_web/live/user_live/registration.ex:172
 #: lib/game_server_web/live/user_live/registration.ex:172
-#: lib/game_server_web/live/user_live/settings.ex:1447
-#: lib/game_server_web/live/user_live/settings.ex:1447
-#: lib/game_server_web/live/user_live/settings.ex:1620
-#: lib/game_server_web/live/user_live/settings.ex:1620
-#: lib/game_server_web/live/user_live/settings.ex:1811
-#: lib/game_server_web/live/user_live/settings.ex:1811
-#: lib/game_server_web/live/user_live/settings.ex:1826
-#: lib/game_server_web/live/user_live/settings.ex:1826
-#: lib/game_server_web/live/user_live/settings.ex:1861
-#: lib/game_server_web/live/user_live/settings.ex:1861
-#: lib/game_server_web/live/user_live/settings.ex:1885
-#: lib/game_server_web/live/user_live/settings.ex:1885
-#: lib/game_server_web/live/user_live/settings.ex:2008
-#: lib/game_server_web/live/user_live/settings.ex:2008
-#: lib/game_server_web/live/user_live/settings.ex:2030
-#: lib/game_server_web/live/user_live/settings.ex:2030
-#: lib/game_server_web/live/user_live/settings.ex:2051
-#: lib/game_server_web/live/user_live/settings.ex:2051
-#: lib/game_server_web/live/user_live/settings.ex:2070
-#: lib/game_server_web/live/user_live/settings.ex:2070
-#: lib/game_server_web/live/user_live/settings.ex:2089
-#: lib/game_server_web/live/user_live/settings.ex:2089
-#: lib/game_server_web/live/user_live/settings.ex:2108
-#: lib/game_server_web/live/user_live/settings.ex:2108
-#: lib/game_server_web/live/user_live/settings.ex:2127
-#: lib/game_server_web/live/user_live/settings.ex:2127
-#: lib/game_server_web/live/user_live/settings.ex:2146
-#: lib/game_server_web/live/user_live/settings.ex:2146
-#: lib/game_server_web/live/user_live/settings.ex:2165
-#: lib/game_server_web/live/user_live/settings.ex:2165
-#: lib/game_server_web/live/user_live/settings.ex:2189
-#: lib/game_server_web/live/user_live/settings.ex:2189
-#: lib/game_server_web/live/user_live/settings.ex:2292
-#: lib/game_server_web/live/user_live/settings.ex:2292
-#: lib/game_server_web/live/user_live/settings.ex:2318
-#: lib/game_server_web/live/user_live/settings.ex:2318
-#: lib/game_server_web/live/user_live/settings.ex:2339
-#: lib/game_server_web/live/user_live/settings.ex:2339
-#: lib/game_server_web/live/user_live/settings.ex:2359
-#: lib/game_server_web/live/user_live/settings.ex:2359
-#: lib/game_server_web/live/user_live/settings.ex:2418
-#: lib/game_server_web/live/user_live/settings.ex:2418
-#: lib/game_server_web/live/user_live/settings.ex:2431
-#: lib/game_server_web/live/user_live/settings.ex:2431
-#: lib/game_server_web/live/user_live/settings.ex:2465
-#: lib/game_server_web/live/user_live/settings.ex:2465
-#: lib/game_server_web/live/user_live/settings.ex:2739
-#: lib/game_server_web/live/user_live/settings.ex:2739
+#: lib/game_server_web/live/user_live/settings.ex:1445
+#: lib/game_server_web/live/user_live/settings.ex:1445
+#: lib/game_server_web/live/user_live/settings.ex:1618
+#: lib/game_server_web/live/user_live/settings.ex:1618
+#: lib/game_server_web/live/user_live/settings.ex:1809
+#: lib/game_server_web/live/user_live/settings.ex:1809
+#: lib/game_server_web/live/user_live/settings.ex:1824
+#: lib/game_server_web/live/user_live/settings.ex:1824
+#: lib/game_server_web/live/user_live/settings.ex:1859
+#: lib/game_server_web/live/user_live/settings.ex:1859
+#: lib/game_server_web/live/user_live/settings.ex:1882
+#: lib/game_server_web/live/user_live/settings.ex:1882
+#: lib/game_server_web/live/user_live/settings.ex:2005
+#: lib/game_server_web/live/user_live/settings.ex:2005
+#: lib/game_server_web/live/user_live/settings.ex:2027
+#: lib/game_server_web/live/user_live/settings.ex:2027
+#: lib/game_server_web/live/user_live/settings.ex:2048
+#: lib/game_server_web/live/user_live/settings.ex:2048
+#: lib/game_server_web/live/user_live/settings.ex:2067
+#: lib/game_server_web/live/user_live/settings.ex:2067
+#: lib/game_server_web/live/user_live/settings.ex:2086
+#: lib/game_server_web/live/user_live/settings.ex:2086
+#: lib/game_server_web/live/user_live/settings.ex:2105
+#: lib/game_server_web/live/user_live/settings.ex:2105
+#: lib/game_server_web/live/user_live/settings.ex:2124
+#: lib/game_server_web/live/user_live/settings.ex:2124
+#: lib/game_server_web/live/user_live/settings.ex:2143
+#: lib/game_server_web/live/user_live/settings.ex:2143
+#: lib/game_server_web/live/user_live/settings.ex:2162
+#: lib/game_server_web/live/user_live/settings.ex:2162
+#: lib/game_server_web/live/user_live/settings.ex:2186
+#: lib/game_server_web/live/user_live/settings.ex:2186
+#: lib/game_server_web/live/user_live/settings.ex:2289
+#: lib/game_server_web/live/user_live/settings.ex:2289
+#: lib/game_server_web/live/user_live/settings.ex:2315
+#: lib/game_server_web/live/user_live/settings.ex:2315
+#: lib/game_server_web/live/user_live/settings.ex:2336
+#: lib/game_server_web/live/user_live/settings.ex:2336
+#: lib/game_server_web/live/user_live/settings.ex:2356
+#: lib/game_server_web/live/user_live/settings.ex:2356
+#: lib/game_server_web/live/user_live/settings.ex:2415
+#: lib/game_server_web/live/user_live/settings.ex:2415
+#: lib/game_server_web/live/user_live/settings.ex:2428
+#: lib/game_server_web/live/user_live/settings.ex:2428
+#: lib/game_server_web/live/user_live/settings.ex:2462
+#: lib/game_server_web/live/user_live/settings.ex:2462
+#: lib/game_server_web/live/user_live/settings.ex:2736
+#: lib/game_server_web/live/user_live/settings.ex:2736
 #, elixir-autogen, elixir-format
 msgid "Success."
 msgstr ""
 
-#: lib/game_server_web/live/user_live/settings.ex:1378
-#: lib/game_server_web/live/user_live/settings.ex:1378
-#: lib/game_server_web/live/user_live/settings.ex:1424
-#: lib/game_server_web/live/user_live/settings.ex:1424
+#: lib/game_server_web/live/user_live/settings.ex:1376
+#: lib/game_server_web/live/user_live/settings.ex:1376
+#: lib/game_server_web/live/user_live/settings.ex:1422
+#: lib/game_server_web/live/user_live/settings.ex:1422
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Cancel?"
 msgstr "Anulează"
 
-#: lib/game_server_web/live/chat_live.ex:471
-#: lib/game_server_web/live/chat_live.ex:471
-#: lib/game_server_web/live/user_live/settings.ex:2480
-#: lib/game_server_web/live/user_live/settings.ex:2480
+#: lib/game_server_web/live/chat_live.ex:472
+#: lib/game_server_web/live/chat_live.ex:472
+#: lib/game_server_web/live/user_live/settings.ex:2477
+#: lib/game_server_web/live/user_live/settings.ex:2477
 #, elixir-autogen, elixir-format
 msgid "Cannot be empty."
 msgstr ""
@@ -1481,16 +1481,16 @@ msgstr ""
 #: lib/game_server_web/live/chat_live.ex:277
 #: lib/game_server_web/live/notifications_live.ex:25
 #: lib/game_server_web/live/notifications_live.ex:25
-#: lib/game_server_web/live/user_live/settings.ex:36
-#: lib/game_server_web/live/user_live/settings.ex:36
+#: lib/game_server_web/live/user_live/settings.ex:35
+#: lib/game_server_web/live/user_live/settings.ex:35
 #: lib/game_server_web/live/user_live/settings.ex:345
 #: lib/game_server_web/live/user_live/settings.ex:345
 #: lib/game_server_web/live/user_live/settings.ex:819
 #: lib/game_server_web/live/user_live/settings.ex:819
 #: lib/game_server_web/live/user_live/settings.ex:899
 #: lib/game_server_web/live/user_live/settings.ex:899
-#: lib/game_server_web/live/user_live/settings.ex:1161
-#: lib/game_server_web/live/user_live/settings.ex:1161
+#: lib/game_server_web/live/user_live/settings.ex:1159
+#: lib/game_server_web/live/user_live/settings.ex:1159
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Delete?"
 msgstr "Șterge"
@@ -1509,10 +1509,10 @@ msgstr "Șterge"
 #: lib/game_server_web/live/chat_live.ex:157
 #: lib/game_server_web/live/chat_live.ex:209
 #: lib/game_server_web/live/chat_live.ex:209
-#: lib/game_server_web/live/groups_live.ex:499
-#: lib/game_server_web/live/groups_live.ex:499
-#: lib/game_server_web/live/groups_live.ex:636
-#: lib/game_server_web/live/groups_live.ex:636
+#: lib/game_server_web/live/groups_live.ex:498
+#: lib/game_server_web/live/groups_live.ex:498
+#: lib/game_server_web/live/groups_live.ex:635
+#: lib/game_server_web/live/groups_live.ex:635
 #: lib/game_server_web/live/leaderboards_live.ex:168
 #: lib/game_server_web/live/leaderboards_live.ex:168
 #: lib/game_server_web/live/leaderboards_live.ex:329
@@ -1525,16 +1525,16 @@ msgstr "Șterge"
 #: lib/game_server_web/live/user_live/settings.ex:1023
 #: lib/game_server_web/live/user_live/settings.ex:1059
 #: lib/game_server_web/live/user_live/settings.ex:1059
-#: lib/game_server_web/live/user_live/settings.ex:1100
-#: lib/game_server_web/live/user_live/settings.ex:1100
-#: lib/game_server_web/live/user_live/settings.ex:1226
-#: lib/game_server_web/live/user_live/settings.ex:1226
-#: lib/game_server_web/live/user_live/settings.ex:1294
-#: lib/game_server_web/live/user_live/settings.ex:1294
-#: lib/game_server_web/live/user_live/settings.ex:1348
-#: lib/game_server_web/live/user_live/settings.ex:1348
-#: lib/game_server_web/live/user_live/settings.ex:1393
-#: lib/game_server_web/live/user_live/settings.ex:1393
+#: lib/game_server_web/live/user_live/settings.ex:1098
+#: lib/game_server_web/live/user_live/settings.ex:1098
+#: lib/game_server_web/live/user_live/settings.ex:1224
+#: lib/game_server_web/live/user_live/settings.ex:1224
+#: lib/game_server_web/live/user_live/settings.ex:1292
+#: lib/game_server_web/live/user_live/settings.ex:1292
+#: lib/game_server_web/live/user_live/settings.ex:1346
+#: lib/game_server_web/live/user_live/settings.ex:1346
+#: lib/game_server_web/live/user_live/settings.ex:1391
+#: lib/game_server_web/live/user_live/settings.ex:1391
 #, elixir-autogen, elixir-format
 msgid "No results."
 msgstr ""

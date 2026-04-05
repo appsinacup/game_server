@@ -12,10 +12,36 @@ defmodule GameServerWeb.Layouts do
   @known_locales Gettext.known_locales(GameServerWeb.Gettext)
 
   @locale_labels %{
+    "ar" => "العربية",
+    "bg" => "български език",
+    "cs" => "čeština",
+    "da" => "Dansk",
+    "de" => "Deutsch",
+    "el" => "Ελληνικά",
     "en" => "English",
     "es" => "Español",
+    "es_ES" => "Español (España)",
+    "fi" => "suomi",
     "fr" => "Français",
-    "ro" => "Română"
+    "hu" => "magyar",
+    "id" => "Bahasa Indonesia",
+    "it" => "Italiano",
+    "ja" => "日本語",
+    "ko" => "한국어",
+    "nl" => "Nederlands",
+    "no" => "Norsk",
+    "pl" => "Polski",
+    "pt" => "Português",
+    "pt_BR" => "Português do Brasil",
+    "ro" => "Română",
+    "ru" => "Русский",
+    "sv" => "Svenska",
+    "th" => "ไทย",
+    "tr" => "Türkçe",
+    "uk" => "Українська",
+    "vi" => "Tiếng Việt",
+    "zh_CN" => "简体中文",
+    "zh_TW" => "繁體中文"
   }
 
   # Embed all files in layouts/* within this module.
@@ -511,7 +537,7 @@ defmodule GameServerWeb.Layouts do
               <.theme_toggle />
             </li>
           </ul>
-          
+
     <!-- Mobile Navigation -->
           <div class="xl:hidden">
             <div class="dropdown dropdown-end">
@@ -874,7 +900,7 @@ defmodule GameServerWeb.Layouts do
       <ul
         tabindex="0"
         class={[
-          "menu menu-sm dropdown-content mt-2 z-[1] p-2 shadow bg-base-100 rounded-box",
+          "menu menu-sm dropdown-content mt-2 z-[1] p-2 shadow bg-base-100 rounded-box max-h-80 overflow-y-auto",
           @mobile && "w-full min-w-full"
         ]}
       >
