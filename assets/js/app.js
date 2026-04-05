@@ -47,10 +47,12 @@ const Hooks = {
       const dismissed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]")
 
       if (dismissed.includes(hash)) {
-        // Already dismissed — hide immediately without animation
-        this.el.style.display = "none"
+        // Already dismissed — stay hidden
         return
       }
+
+      // Not dismissed — reveal the banner
+      this.el.classList.remove("hidden")
 
       // Wire up dismiss button
       const btn = this.el.querySelector("[data-dismiss-banner]")

@@ -10632,9 +10632,6 @@
   .bg-green-500 {
     background-color: var(--color-green-500);
   }
-  .bg-info {
-    background-color: var(--color-info);
-  }
   .bg-info\/10 {
     background-color: var(--color-info);
     @supports (color: color-mix(in lab, red, red)) {
@@ -11154,9 +11151,6 @@
   }
   .text-info {
     color: var(--color-info);
-  }
-  .text-info-content {
-    color: var(--color-info-content);
   }
   .text-orange-600 {
     color: var(--color-orange-600);

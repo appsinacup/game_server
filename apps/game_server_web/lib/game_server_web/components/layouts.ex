@@ -853,7 +853,7 @@ defmodule GameServerWeb.Layouts do
           id="site-banner"
           phx-hook="SiteBanner"
           data-message-hash={@site_message_hash}
-          class="relative z-40 bg-base-200/60 backdrop-blur-sm text-base-content/70 px-4 py-1.5 text-center text-xs transition-all duration-300 border-b border-base-300/40"
+          class="hidden relative z-40 bg-base-200/60 backdrop-blur-sm text-base-content/70 px-4 py-1.5 text-center text-xs transition-all duration-300 border-b border-base-300/40"
         >
           <span>{@site_message}</span>
           <button
