@@ -817,6 +817,16 @@ defmodule GameServerWeb.Layouts do
         </div>
       </header>
 
+      <%!-- Language modal rendered outside drawer for proper viewport positioning --%>
+      <%= if length(@known_locales) > 1 do %>
+        <.language_modal
+          locale={@locale}
+          current_path={@current_path}
+          current_query={@current_query}
+          known_locales={@known_locales}
+        />
+      <% end %>
+
       <%= if @flush do %>
         <div class="flex-1 min-h-0 relative">
           {render_slot(@inner_block)}
@@ -880,52 +890,95 @@ defmodule GameServerWeb.Layouts do
       )
 
     ~H"""
-    <div class={["dropdown dropdown-end", @mobile && "w-full"]}>
-      <a
-        href="#"
-        tabindex="0"
-        class={[
-          "btn",
-          @mobile && "btn-ghost btn-sm w-full relative",
-          !@mobile && "btn-outline"
-        ]}
-      >
+    <%= if @mobile do %>
+      <%!-- Mobile: label triggers the lang-modal rendered outside the drawer --%>
+      <label for="lang-modal" class="btn btn-ghost btn-sm w-full relative cursor-pointer">
         <.icon name="hero-globe-alt-solid" class="w-4 h-4" />
         {@label}
-        <.icon
-          name="hero-chevron-down-solid"
-          class={if(@mobile, do: "w-3 h-3 absolute right-3", else: "w-3 h-3")}
-        />
-      </a>
-      <ul
-        tabindex="0"
-        class={[
-          "dropdown-content mt-2 z-[1] p-2 shadow bg-base-100 rounded-box max-h-96 overflow-y-auto",
-          @mobile && "w-full min-w-full menu menu-sm",
-          !@mobile && "grid grid-cols-3 gap-0.5 w-[28rem]"
-        ]}
-      >
-        <%= for link <- @locale_links do %>
-          <li class={!@mobile && "list-none"}>
-            <a
-              href={link.href}
-              class={[
-                @mobile && "btn",
-                @mobile && if(link.locale == @locale, do: "btn-primary", else: "btn-ghost"),
-                !@mobile && "block px-2 py-1.5 rounded text-sm whitespace-nowrap hover:bg-base-200 transition-colors",
-                !@mobile && link.locale == @locale && "bg-primary/10 font-semibold text-primary"
-              ]}
-            >
-              {link.label}
-            </a>
-          </li>
-        <% end %>
-      </ul>
-    </div>
+        <.icon name="hero-chevron-down-solid" class="w-3 h-3 absolute right-3" />
+      </label>
+    <% else %>
+      <%!-- Desktop: dropdown --%>
+      <details class="dropdown dropdown-end">
+        <summary class="btn btn-outline list-none">
+          <.icon name="hero-globe-alt-solid" class="w-4 h-4" />
+          {@label}
+          <.icon name="hero-chevron-down-solid" class="w-3 h-3" />
+        </summary>
+        <ul class="dropdown-content mt-2 p-2 shadow bg-base-100 rounded-box overflow-y-auto grid grid-cols-3 gap-0.5 w-[28rem] z-[1] max-h-[60vh]">
+          <%= for link <- @locale_links do %>
+            <li class="list-none">
+              <a
+                href={link.href}
+                class={[
+                  "block px-2 py-1.5 rounded text-sm whitespace-nowrap hover:bg-base-200 transition-colors text-center",
+                  link.locale == @locale && "bg-primary/10 font-semibold text-primary"
+                ]}
+              >
+                {link.label}
+              </a>
+            </li>
+          <% end %>
+        </ul>
+      </details>
+    <% end %>
     """
   end
 
   def locale_labels, do: @locale_labels
+
+  defp language_modal(assigns) do
+    locale = assigns.locale
+    current_path = assigns.current_path || "/"
+    current_query = assigns.current_query || ""
+    known_locales = assigns.known_locales
+
+    base_path = strip_locale_prefix(current_path, known_locales)
+
+    query_suffix =
+      if is_binary(current_query) and current_query != "", do: "?" <> current_query, else: ""
+
+    locale_links =
+      Enum.map(known_locales, fn loc ->
+        href =
+          if(base_path == "/", do: "/" <> loc, else: "/" <> loc <> base_path) <> query_suffix
+
+        %{locale: loc, label: Map.get(@locale_labels, loc, loc), href: href}
+      end)
+
+    label = Map.get(@locale_labels, locale, locale)
+
+    assigns = assign(assigns, locale: locale, locale_links: locale_links, label: label)
+
+    ~H"""
+    <input type="checkbox" id="lang-modal" class="modal-toggle" />
+    <div class="modal modal-bottom sm:modal-middle z-[100]" role="dialog">
+      <div class="modal-box max-w-2xl">
+        <label for="lang-modal" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+          ✕
+        </label>
+        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+          <.icon name="hero-globe-alt-solid" class="w-5 h-5" />
+          {@label}
+        </h3>
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1">
+          <%= for link <- @locale_links do %>
+            <a
+              href={link.href}
+              class={[
+                "block px-2 py-2 rounded text-sm whitespace-nowrap hover:bg-base-200 transition-colors text-center",
+                link.locale == @locale && "bg-primary/10 font-semibold text-primary"
+              ]}
+            >
+              {link.label}
+            </a>
+          <% end %>
+        </div>
+      </div>
+      <label class="modal-backdrop" for="lang-modal">Close</label>
+    </div>
+    """
+  end
 
   def strip_locale_prefix(path, known_locales) when is_binary(path) do
     segments = String.split(path, "/", trim: true)
