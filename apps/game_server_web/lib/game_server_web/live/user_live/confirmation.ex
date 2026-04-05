@@ -96,7 +96,7 @@ defmodule GameServerWeb.UserLive.Confirmation do
     else
       {:ok,
        socket
-       |> put_flash(:error, gettext("Failed."))
+       |> put_flash(:error, gettext("Failed"))
        |> push_navigate(to: ~p"/users/log-in")}
     end
   end

@@ -69,9 +69,9 @@ defmodule GameServerWeb.AuthSuccessLive do
                   <% "completed" -> %>
                     {"🎉 " <> gettext("Success.")}
                   <% "conflict" -> %>
-                    {"⚠️ " <> gettext("Failed.")}
+                    {"⚠️ " <> gettext("Failed")}
                   <% "error" -> %>
-                    {"❌ " <> gettext("Failed.")}
+                    {"❌ " <> gettext("Failed")}
                   <% "not_found" -> %>
                     {"❓ " <> gettext("Not found")}
                   <% _ -> %>
@@ -134,11 +134,11 @@ defmodule GameServerWeb.AuthSuccessLive do
                         </div>
                         <div class="ml-3">
                           <h3 class="text-sm font-medium text-yellow-800">
-                            {gettext("Failed.")}
+                            {gettext("Failed")}
                           </h3>
                           <div class="mt-2 text-sm text-yellow-700">
                             <p>
-                              {gettext("Failed.")}
+                              {gettext("Failed")}
                             </p>
                           </div>
                         </div>
@@ -158,10 +158,10 @@ defmodule GameServerWeb.AuthSuccessLive do
                         </div>
                         <div class="ml-3">
                           <h3 class="text-sm font-medium text-red-800">
-                            {gettext("Failed.")}
+                            {gettext("Failed")}
                           </h3>
                           <div class="mt-2 text-sm text-red-700">
-                            <p>{gettext("Failed.")}</p>
+                            <p>{gettext("Failed")}</p>
                             <% details =
                               Map.get(@session_data, "details") || Map.get(@session_data, :details) %>
                             <%= if details do %>
@@ -191,7 +191,7 @@ defmodule GameServerWeb.AuthSuccessLive do
                           </h3>
                           <div class="mt-2 text-sm text-gray-700">
                             <p>
-                              {gettext("Failed.")}
+                              {gettext("Failed")}
                             </p>
                           </div>
                         </div>

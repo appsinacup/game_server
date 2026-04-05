@@ -74,7 +74,7 @@ defmodule GameServerWeb.LobbyLive.Index do
              put_flash(
                socket,
                :error,
-               gettext("Failed.")
+               gettext("Failed")
              )}
 
           _ ->
@@ -117,7 +117,7 @@ defmodule GameServerWeb.LobbyLive.Index do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -160,7 +160,7 @@ defmodule GameServerWeb.LobbyLive.Index do
             {:noreply, put_flash(socket, :error, gettext("Not found"))}
 
           %{} = l when l.is_locked ->
-            {:noreply, put_flash(socket, :error, gettext("Failed."))}
+            {:noreply, put_flash(socket, :error, gettext("Failed"))}
 
           %{} = l when l.password_hash != nil ->
             {:noreply, assign(socket, joining_lobby_id: l.id, join_password: "")}
@@ -278,7 +278,7 @@ defmodule GameServerWeb.LobbyLive.Index do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -314,7 +314,7 @@ defmodule GameServerWeb.LobbyLive.Index do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -365,7 +365,7 @@ defmodule GameServerWeb.LobbyLive.Index do
          put_flash(
            socket,
            :error,
-           gettext("Failed.")
+           gettext("Failed")
          )}
 
       {:error, _} ->
@@ -409,7 +409,7 @@ defmodule GameServerWeb.LobbyLive.Index do
          put_flash(
            socket,
            :error,
-           gettext("Failed: %{reason}", reason: inspect(reason))
+           gettext("Failed") <> ": " <> inspect(reason)
          )}
     end
   end
@@ -425,7 +425,7 @@ defmodule GameServerWeb.LobbyLive.Index do
 
   defp handle_start_join_for_user(socket, lobby, user) do
     if user.lobby_id == lobby.id do
-      {:noreply, put_flash(socket, :info, gettext("Failed."))}
+      {:noreply, put_flash(socket, :info, gettext("Failed"))}
     else
       case Lobbies.join_lobby(user, lobby.id) do
         {:ok, _member} ->
@@ -457,7 +457,7 @@ defmodule GameServerWeb.LobbyLive.Index do
            put_flash(
              socket,
              :error,
-             gettext("Failed: %{reason}", reason: inspect(reason))
+             gettext("Failed") <> ": " <> inspect(reason)
            )}
       end
     end
@@ -525,7 +525,7 @@ defmodule GameServerWeb.LobbyLive.Index do
         {:noreply,
          socket
          |> assign(current_scope: updated_scope, subscribed_lobby_id: nil, editing_lobby_id: nil)
-         |> put_flash(:error, gettext("Failed."))}
+         |> put_flash(:error, gettext("Failed"))}
 
       _ ->
         {:noreply, socket}
@@ -678,7 +678,7 @@ defmodule GameServerWeb.LobbyLive.Index do
                 <button type="submit" class="btn btn-primary">{gettext("Create")}</button>
                 <%= if @current_scope && @current_scope.user && @current_scope.user.lobby_id do %>
                   <span class="text-sm text-warning">
-                    {gettext("Failed.")}
+                    {gettext("Failed")}
                   </span>
                 <% end %>
               </div>

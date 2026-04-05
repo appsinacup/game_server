@@ -189,7 +189,7 @@ defmodule GameServerWeb.UserLive.Registration do
          socket
          |> put_flash(
            :error,
-           gettext("Failed.")
+           gettext("Failed")
          )
          |> assign(check_errors: true)
          |> assign_form(Map.put(changeset, :action, :insert))}

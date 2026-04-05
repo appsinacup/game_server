@@ -22,7 +22,7 @@ defmodule GameServerWeb.UserLive.Settings do
           <div class="card bg-warning/10 border-warning p-4 rounded-lg">
             <div class="flex items-start justify-between">
               <div>
-                <strong>{gettext("Failed.")}</strong>
+                <strong>{gettext("Failed")}</strong>
                 <div class="text-sm text-base-content/70">
                   {@conflict_provider} ({@conflict_user.id})
                 </div>
@@ -1448,7 +1448,7 @@ defmodule GameServerWeb.UserLive.Settings do
           put_flash(
             socket,
             :error,
-            gettext("Failed.")
+            gettext("Failed")
           )
       end
 
@@ -1623,7 +1623,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(cs.errors))
+               gettext("Failed") <> ": " <> inspect(cs.errors)
              )}
 
           {:error, reason} ->
@@ -1631,7 +1631,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -1647,7 +1647,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -1729,7 +1729,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -1745,7 +1745,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -1761,7 +1761,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -1777,7 +1777,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -1793,7 +1793,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -1865,11 +1865,11 @@ defmodule GameServerWeb.UserLive.Settings do
              socket
              |> put_flash(
                :error,
-               gettext("Failed.")
+               gettext("Failed")
              )}
 
           {:error, _} ->
-            {:noreply, socket |> put_flash(:error, gettext("Failed."))}
+            {:noreply, socket |> put_flash(:error, gettext("Failed"))}
         end
 
       {"delete_user", _} ->
@@ -1888,7 +1888,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Failed.")
+               gettext("Failed")
              )}
         end
 
@@ -2013,7 +2013,7 @@ defmodule GameServerWeb.UserLive.Settings do
 
             {:noreply,
              socket
-             |> put_flash(:error, gettext("Failed."))
+             |> put_flash(:error, gettext("Failed"))
              |> assign(create_group_form: to_form(changeset, as: :group))}
         end
 
@@ -2034,7 +2034,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -2053,7 +2053,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -2072,7 +2072,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -2091,7 +2091,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -2110,7 +2110,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -2129,7 +2129,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -2148,7 +2148,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -2172,7 +2172,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -2194,7 +2194,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -2300,7 +2300,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -2321,7 +2321,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -2341,7 +2341,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -2361,7 +2361,7 @@ defmodule GameServerWeb.UserLive.Settings do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -2436,14 +2436,14 @@ defmodule GameServerWeb.UserLive.Settings do
              )}
 
           {:error, :already_member} ->
-            {:noreply, put_flash(socket, :error, gettext("Failed."))}
+            {:noreply, put_flash(socket, :error, gettext("Failed"))}
 
           {:error, reason} ->
             {:noreply,
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -2470,7 +2470,7 @@ defmodule GameServerWeb.UserLive.Settings do
                put_flash(
                  socket,
                  :error,
-                 gettext("Failed: %{reason}", reason: inspect(reason))
+                 gettext("Failed") <> ": " <> inspect(reason)
                )}
           end
         else
@@ -2707,7 +2707,7 @@ defmodule GameServerWeb.UserLive.Settings do
          put_flash(
            socket,
            :error,
-           gettext("Failed.")
+           gettext("Failed")
          )}
 
       other_email == current_email and other_email != "" ->
@@ -2721,7 +2721,7 @@ defmodule GameServerWeb.UserLive.Settings do
          put_flash(
            socket,
            :error,
-           gettext("Failed.")
+           gettext("Failed")
          )}
     end
   end
@@ -2742,7 +2742,7 @@ defmodule GameServerWeb.UserLive.Settings do
          put_flash(
            socket,
            :error,
-           gettext("Failed.")
+           gettext("Failed")
          )}
     end
   end

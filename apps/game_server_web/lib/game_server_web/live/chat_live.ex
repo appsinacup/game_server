@@ -398,11 +398,11 @@ defmodule GameServerWeb.ChatLive do
           {:noreply, reload_messages(socket)}
 
         {:error, :slowdown} ->
-          {:noreply, put_flash(socket, :error, gettext("Failed."))}
+          {:noreply, put_flash(socket, :error, gettext("Failed"))}
 
         {:error, reason} ->
           {:noreply,
-           put_flash(socket, :error, gettext("Failed: %{reason}", reason: inspect(reason)))}
+           put_flash(socket, :error, gettext("Failed") <> ": " <> inspect(reason))}
       end
     else
       {:noreply, socket}
@@ -465,7 +465,7 @@ defmodule GameServerWeb.ChatLive do
            put_flash(
              socket,
              :error,
-             gettext("Failed: %{reason}", reason: inspect(reason))
+             gettext("Failed") <> ": " <> inspect(reason)
            )}
       end
     else
@@ -488,7 +488,7 @@ defmodule GameServerWeb.ChatLive do
          put_flash(
            socket,
            :error,
-           gettext("Failed: %{reason}", reason: inspect(reason))
+           gettext("Failed") <> ": " <> inspect(reason)
          )}
     end
   end

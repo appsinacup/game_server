@@ -247,7 +247,7 @@ defmodule GameServerWeb.UserAuth do
         socket
         |> Phoenix.LiveView.put_flash(
           :error,
-          gettext("Failed.")
+          gettext("Failed")
         )
         # This on_mount runs under the :require_authenticated_user live_session,
         # while the log-in LiveView lives under the :current_user live_session.
@@ -270,7 +270,7 @@ defmodule GameServerWeb.UserAuth do
         socket
         |> Phoenix.LiveView.put_flash(
           :error,
-          gettext("Failed.")
+          gettext("Failed")
         )
         |> Phoenix.LiveView.redirect(external: ~p"/")
 
@@ -288,7 +288,7 @@ defmodule GameServerWeb.UserAuth do
         socket
         |> Phoenix.LiveView.put_flash(
           :error,
-          gettext("Failed.")
+          gettext("Failed")
         )
         # See :require_authenticated above for why this must be an external redirect.
         |> Phoenix.LiveView.redirect(external: ~p"/users/log-in")
@@ -337,7 +337,7 @@ defmodule GameServerWeb.UserAuth do
       conn
     else
       conn
-      |> put_flash(:error, gettext("Failed."))
+      |> put_flash(:error, gettext("Failed"))
       |> maybe_store_return_to()
       |> redirect(to: ~p"/users/log-in")
       |> halt()
@@ -353,7 +353,7 @@ defmodule GameServerWeb.UserAuth do
       conn
     else
       conn
-      |> put_flash(:error, gettext("Failed."))
+      |> put_flash(:error, gettext("Failed"))
       |> redirect(to: ~p"/")
       |> halt()
     end

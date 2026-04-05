@@ -720,7 +720,7 @@ defmodule GameServerWeb.AuthController do
     )
 
     conn
-    |> put_flash(:error, gettext("Failed."))
+    |> put_flash(:error, gettext("Failed"))
     |> redirect(to: ~p"/users/log-in")
   end
 
@@ -1438,7 +1438,7 @@ defmodule GameServerWeb.AuthController do
             conn
             |> put_flash(
               :error,
-              gettext("Failed.")
+              gettext("Failed")
             )
             |> redirect(
               to: ~p"/users/settings?conflict_provider=google&conflict_user_id=#{other_user.id}"
@@ -1449,7 +1449,7 @@ defmodule GameServerWeb.AuthController do
             Logger.error("Failed to link Google: #{inspect(changeset.errors)}")
 
             conn
-            |> put_flash(:error, gettext("Failed."))
+            |> put_flash(:error, gettext("Failed"))
             |> redirect(to: ~p"/users/settings")
         end
 
@@ -1474,7 +1474,7 @@ defmodule GameServerWeb.AuthController do
             Logger.error("Failed to create user from Google: #{inspect(changeset.errors)}")
 
             conn
-            |> put_flash(:error, gettext("Failed."))
+            |> put_flash(:error, gettext("Failed"))
             |> redirect(to: ~p"/users/log-in")
         end
     end
@@ -1501,7 +1501,7 @@ defmodule GameServerWeb.AuthController do
             conn
             |> put_flash(
               :error,
-              gettext("Failed.")
+              gettext("Failed")
             )
             |> redirect(
               to: ~p"/users/settings?conflict_provider=facebook&conflict_user_id=#{other_user.id}"
@@ -1512,7 +1512,7 @@ defmodule GameServerWeb.AuthController do
             Logger.error("Failed to link Facebook: #{inspect(changeset.errors)}")
 
             conn
-            |> put_flash(:error, gettext("Failed."))
+            |> put_flash(:error, gettext("Failed"))
             |> redirect(to: ~p"/users/settings")
         end
 
@@ -1537,7 +1537,7 @@ defmodule GameServerWeb.AuthController do
             Logger.error("Failed to create user from Facebook: #{inspect(changeset.errors)}")
 
             conn
-            |> put_flash(:error, gettext("Failed."))
+            |> put_flash(:error, gettext("Failed"))
             |> redirect(to: ~p"/users/log-in")
         end
     end
@@ -1564,7 +1564,7 @@ defmodule GameServerWeb.AuthController do
             conn
             |> put_flash(
               :error,
-              gettext("Failed.")
+              gettext("Failed")
             )
             |> redirect(
               to: ~p"/users/settings?conflict_provider=apple&conflict_user_id=#{other_user.id}"
@@ -1575,7 +1575,7 @@ defmodule GameServerWeb.AuthController do
             Logger.error("Failed to link Apple: #{inspect(changeset.errors)}")
 
             conn
-            |> put_flash(:error, gettext("Failed."))
+            |> put_flash(:error, gettext("Failed"))
             |> redirect(to: ~p"/users/settings")
         end
 
@@ -1600,7 +1600,7 @@ defmodule GameServerWeb.AuthController do
             Logger.error("Failed to create user from Apple: #{inspect(changeset.errors)}")
 
             conn
-            |> put_flash(:error, gettext("Failed."))
+            |> put_flash(:error, gettext("Failed"))
             |> redirect(to: ~p"/users/log-in")
         end
     end
@@ -1627,7 +1627,7 @@ defmodule GameServerWeb.AuthController do
             conn
             |> put_flash(
               :error,
-              gettext("Failed.")
+              gettext("Failed")
             )
             |> redirect(
               to: ~p"/users/settings?conflict_provider=steam&conflict_user_id=#{other_user.id}"
@@ -1638,7 +1638,7 @@ defmodule GameServerWeb.AuthController do
             Logger.error("Failed to link Steam: #{inspect(changeset.errors)}")
 
             conn
-            |> put_flash(:error, gettext("Failed."))
+            |> put_flash(:error, gettext("Failed"))
             |> redirect(to: ~p"/users/settings")
         end
 
@@ -1663,7 +1663,7 @@ defmodule GameServerWeb.AuthController do
             Logger.error("Failed to create user from Steam: #{inspect(changeset.errors)}")
 
             conn
-            |> put_flash(:error, gettext("Failed."))
+            |> put_flash(:error, gettext("Failed"))
             |> redirect(to: ~p"/users/log-in")
         end
     end
@@ -1690,7 +1690,7 @@ defmodule GameServerWeb.AuthController do
             conn
             |> put_flash(
               :error,
-              gettext("Failed.")
+              gettext("Failed")
             )
             |> redirect(
               to: ~p"/users/settings?conflict_provider=discord&conflict_user_id=#{other_user.id}"
@@ -1701,7 +1701,7 @@ defmodule GameServerWeb.AuthController do
             Logger.error("Failed to link Discord: #{inspect(changeset.errors)}")
 
             conn
-            |> put_flash(:error, gettext("Failed."))
+            |> put_flash(:error, gettext("Failed"))
             |> redirect(to: ~p"/users/settings")
         end
 
@@ -1726,7 +1726,7 @@ defmodule GameServerWeb.AuthController do
             Logger.error("Failed to create user from Discord: #{inspect(changeset.errors)}")
 
             conn
-            |> put_flash(:error, gettext("Failed."))
+            |> put_flash(:error, gettext("Failed"))
             |> redirect(to: ~p"/users/log-in")
         end
     end

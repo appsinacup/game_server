@@ -33,7 +33,7 @@ defmodule GameServerWeb.UserSessionController do
 
       _ ->
         conn
-        |> put_flash(:error, gettext("Failed."))
+        |> put_flash(:error, gettext("Failed"))
         |> redirect(to: ~p"/users/log-in")
     end
   end
@@ -58,7 +58,7 @@ defmodule GameServerWeb.UserSessionController do
     else
       # In order to prevent user enumeration attacks, don't disclose whether the email is registered.
       conn
-      |> put_flash(:error, gettext("Failed."))
+      |> put_flash(:error, gettext("Failed"))
       |> put_flash(:email, String.slice(email, 0, 160))
       |> redirect(to: ~p"/users/log-in")
     end
@@ -78,7 +78,7 @@ defmodule GameServerWeb.UserSessionController do
       |> create(params, gettext("Success."))
     else
       conn
-      |> put_flash(:error, gettext("Failed."))
+      |> put_flash(:error, gettext("Failed"))
       |> redirect(to: ~p"/users/log-in")
     end
   end
@@ -106,7 +106,7 @@ defmodule GameServerWeb.UserSessionController do
 
       _ ->
         conn
-        |> put_flash(:error, gettext("Failed."))
+        |> put_flash(:error, gettext("Failed"))
         |> redirect(to: ~p"/users/log-in")
     end
   end

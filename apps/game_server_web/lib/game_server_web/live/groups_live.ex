@@ -166,17 +166,17 @@ defmodule GameServerWeb.GroupsLive do
              |> maybe_refresh_selected(group_id)}
 
           {:error, :already_member} ->
-            {:noreply, put_flash(socket, :info, gettext("Failed."))}
+            {:noreply, put_flash(socket, :info, gettext("Failed"))}
 
           {:error, :not_public} ->
-            {:noreply, put_flash(socket, :error, gettext("Failed."))}
+            {:noreply, put_flash(socket, :error, gettext("Failed"))}
 
           {:error, reason} ->
             {:noreply,
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -198,17 +198,17 @@ defmodule GameServerWeb.GroupsLive do
              |> update(:pending_request_ids, &MapSet.put(&1, group_id))}
 
           {:error, :already_member} ->
-            {:noreply, put_flash(socket, :info, gettext("Failed."))}
+            {:noreply, put_flash(socket, :info, gettext("Failed"))}
 
           {:error, :already_requested} ->
-            {:noreply, put_flash(socket, :info, gettext("Failed."))}
+            {:noreply, put_flash(socket, :info, gettext("Failed"))}
 
           {:error, :not_private} ->
             {:noreply,
              put_flash(
                socket,
                :error,
-               gettext("Failed.")
+               gettext("Failed")
              )}
 
           {:error, reason} ->
@@ -216,7 +216,7 @@ defmodule GameServerWeb.GroupsLive do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
@@ -243,7 +243,7 @@ defmodule GameServerWeb.GroupsLive do
              put_flash(
                socket,
                :error,
-               gettext("Failed: %{reason}", reason: inspect(reason))
+               gettext("Failed") <> ": " <> inspect(reason)
              )}
         end
 
