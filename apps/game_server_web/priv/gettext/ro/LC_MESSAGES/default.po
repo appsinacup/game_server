@@ -1119,9 +1119,9 @@ msgstr "Foaie de parcurs"
 #: lib/game_server_web/live/user_live/settings.ex:109
 #: lib/game_server_web/live/user_live/settings.ex:1250
 #: lib/game_server_web/live/user_live/settings.ex:1250
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Loading..."
-msgstr "Se salvează..."
+msgstr "Se încarcă..."
 
 #: lib/game_server_web/live/auth_success_live.ex:76
 #: lib/game_server_web/live/auth_success_live.ex:76
@@ -1153,7 +1153,7 @@ msgstr "Se salvează..."
 #: lib/game_server_web/live/user_live/settings.ex:2797
 #, elixir-autogen, elixir-format
 msgid "Not found"
-msgstr ""
+msgstr "Nu a fost găsit"
 
 #: lib/game_server_web/controllers/auth_controller.ex:729
 #: lib/game_server_web/controllers/auth_controller.ex:729
@@ -1269,15 +1269,15 @@ msgstr ""
 #: lib/game_server_web/live/user_live/settings.ex:2736
 #, elixir-autogen, elixir-format
 msgid "Success."
-msgstr ""
+msgstr "Succes"
 
 #: lib/game_server_web/live/user_live/settings.ex:1376
 #: lib/game_server_web/live/user_live/settings.ex:1376
 #: lib/game_server_web/live/user_live/settings.ex:1422
 #: lib/game_server_web/live/user_live/settings.ex:1422
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Cancel?"
-msgstr "Anulează"
+msgstr "Anulează?"
 
 #: lib/game_server_web/live/chat_live.ex:472
 #: lib/game_server_web/live/chat_live.ex:472
@@ -1285,7 +1285,7 @@ msgstr "Anulează"
 #: lib/game_server_web/live/user_live/settings.ex:2477
 #, elixir-autogen, elixir-format
 msgid "Cannot be empty."
-msgstr ""
+msgstr "Nu poate fi gol"
 
 #: lib/game_server_web/live/chat_live.ex:277
 #: lib/game_server_web/live/chat_live.ex:277
@@ -1301,9 +1301,9 @@ msgstr ""
 #: lib/game_server_web/live/user_live/settings.ex:899
 #: lib/game_server_web/live/user_live/settings.ex:1159
 #: lib/game_server_web/live/user_live/settings.ex:1159
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Delete?"
-msgstr "Șterge"
+msgstr "Șterge?"
 
 #: lib/game_server_web/live/achievements_live.ex:201
 #: lib/game_server_web/live/achievements_live.ex:201
@@ -1347,7 +1347,7 @@ msgstr "Șterge"
 #: lib/game_server_web/live/user_live/settings.ex:1391
 #, elixir-autogen, elixir-format
 msgid "No results."
-msgstr ""
+msgstr "Niciun rezultat"
 
 #: lib/game_server_web/controllers/page_html/home.html.heex:215
 #: lib/game_server_web/controllers/page_html/home.html.heex:215
@@ -1367,9 +1367,9 @@ msgstr ""
 #: lib/game_server_web/live/notifications_live.ex:235
 #: lib/game_server_web/live/notifications_live.ex:250
 #: lib/game_server_web/live/notifications_live.ex:250
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Open"
-msgstr "Joacă"
+msgstr "Deschide"
 
 #: lib/game_server_web/controllers/auth_controller.ex:723
 #: lib/game_server_web/controllers/auth_controller.ex:723
@@ -1553,6 +1553,6 @@ msgstr "Joacă"
 #: lib/game_server_web/user_auth.ex:340
 #: lib/game_server_web/user_auth.ex:356
 #: lib/game_server_web/user_auth.ex:356
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Failed"
-msgstr ""
+msgstr "A eșuat"
