@@ -43,14 +43,14 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
-#: lib/game_server_web/components/layouts.ex:240
-#: lib/game_server_web/components/layouts.ex:240
-#: lib/game_server_web/components/layouts.ex:305
-#: lib/game_server_web/components/layouts.ex:305
-#: lib/game_server_web/components/layouts.ex:640
-#: lib/game_server_web/components/layouts.ex:640
-#: lib/game_server_web/components/layouts.ex:732
-#: lib/game_server_web/components/layouts.ex:732
+#: lib/game_server_web/components/layouts.ex:265
+#: lib/game_server_web/components/layouts.ex:265
+#: lib/game_server_web/components/layouts.ex:330
+#: lib/game_server_web/components/layouts.ex:330
+#: lib/game_server_web/components/layouts.ex:665
+#: lib/game_server_web/components/layouts.ex:665
+#: lib/game_server_web/components/layouts.ex:757
+#: lib/game_server_web/components/layouts.ex:757
 #: lib/game_server_web/live/leaderboards_live.ex:19
 #: lib/game_server_web/live/leaderboards_live.ex:19
 #: lib/game_server_web/live/leaderboards_live.ex:95
@@ -61,10 +61,10 @@ msgstr ""
 msgid "Leaderboards"
 msgstr ""
 
-#: lib/game_server_web/components/layouts.ex:372
-#: lib/game_server_web/components/layouts.ex:372
-#: lib/game_server_web/components/layouts.ex:702
-#: lib/game_server_web/components/layouts.ex:702
+#: lib/game_server_web/components/layouts.ex:397
+#: lib/game_server_web/components/layouts.ex:397
+#: lib/game_server_web/components/layouts.ex:727
+#: lib/game_server_web/components/layouts.ex:727
 #: lib/game_server_web/live/auth_success_live.ex:30
 #: lib/game_server_web/live/auth_success_live.ex:30
 #: lib/game_server_web/live/auth_success_live.ex:42
@@ -137,28 +137,28 @@ msgstr ""
 msgid "or"
 msgstr ""
 
-#: lib/game_server_web/components/layouts.ex:508
-#: lib/game_server_web/components/layouts.ex:508
-#: lib/game_server_web/components/layouts.ex:624
-#: lib/game_server_web/components/layouts.ex:624
+#: lib/game_server_web/components/layouts.ex:533
+#: lib/game_server_web/components/layouts.ex:533
+#: lib/game_server_web/components/layouts.ex:649
+#: lib/game_server_web/components/layouts.ex:649
 #: lib/game_server_web/live/groups_live.ex:623
 #: lib/game_server_web/live/groups_live.ex:623
 #, elixir-autogen, elixir-format
 msgid "Admin"
 msgstr ""
 
-#: lib/game_server_web/components/layouts.ex:515
-#: lib/game_server_web/components/layouts.ex:515
-#: lib/game_server_web/components/layouts.ex:800
-#: lib/game_server_web/components/layouts.ex:800
+#: lib/game_server_web/components/layouts.ex:540
+#: lib/game_server_web/components/layouts.ex:540
+#: lib/game_server_web/components/layouts.ex:825
+#: lib/game_server_web/components/layouts.ex:825
 #, elixir-autogen, elixir-format
 msgid "Log out"
 msgstr ""
 
-#: lib/game_server_web/components/layouts.ex:387
-#: lib/game_server_web/components/layouts.ex:387
-#: lib/game_server_web/components/layouts.ex:717
-#: lib/game_server_web/components/layouts.ex:717
+#: lib/game_server_web/components/layouts.ex:412
+#: lib/game_server_web/components/layouts.ex:412
+#: lib/game_server_web/components/layouts.ex:742
+#: lib/game_server_web/components/layouts.ex:742
 #: lib/game_server_web/live/user_live/login.ex:24
 #: lib/game_server_web/live/user_live/login.ex:24
 #: lib/game_server_web/live/user_live/registration.ex:14
@@ -273,8 +273,8 @@ msgstr ""
 #: lib/game_server_web/live/user_live/confirmation.ex:31
 #: lib/game_server_web/live/user_live/confirmation.ex:37
 #: lib/game_server_web/live/user_live/confirmation.ex:37
-#: lib/game_server_web/live/user_live/confirmation.ex:91
-#: lib/game_server_web/live/user_live/confirmation.ex:91
+#: lib/game_server_web/live/user_live/confirmation.ex:90
+#: lib/game_server_web/live/user_live/confirmation.ex:90
 #: lib/game_server_web/live/user_live/login.ex:18
 #: lib/game_server_web/live/user_live/login.ex:18
 #: lib/game_server_web/live/user_live/settings.ex:145
@@ -395,14 +395,14 @@ msgstr ""
 msgid "Group"
 msgstr ""
 
-#: lib/game_server_web/components/layouts.ex:267
-#: lib/game_server_web/components/layouts.ex:267
-#: lib/game_server_web/components/layouts.ex:332
-#: lib/game_server_web/components/layouts.ex:332
-#: lib/game_server_web/components/layouts.ex:667
-#: lib/game_server_web/components/layouts.ex:667
-#: lib/game_server_web/components/layouts.ex:759
-#: lib/game_server_web/components/layouts.ex:759
+#: lib/game_server_web/components/layouts.ex:292
+#: lib/game_server_web/components/layouts.ex:292
+#: lib/game_server_web/components/layouts.ex:357
+#: lib/game_server_web/components/layouts.ex:357
+#: lib/game_server_web/components/layouts.ex:692
+#: lib/game_server_web/components/layouts.ex:692
+#: lib/game_server_web/components/layouts.ex:784
+#: lib/game_server_web/components/layouts.ex:784
 #: lib/game_server_web/live/chat_live.ex:154
 #: lib/game_server_web/live/chat_live.ex:154
 #: lib/game_server_web/live/groups_live.ex:40
@@ -871,10 +871,10 @@ msgstr ""
 msgid "(edited)"
 msgstr ""
 
-#: lib/game_server_web/components/layouts.ex:459
-#: lib/game_server_web/components/layouts.ex:459
-#: lib/game_server_web/components/layouts.ex:572
-#: lib/game_server_web/components/layouts.ex:572
+#: lib/game_server_web/components/layouts.ex:484
+#: lib/game_server_web/components/layouts.ex:484
+#: lib/game_server_web/components/layouts.ex:597
+#: lib/game_server_web/components/layouts.ex:597
 #: lib/game_server_web/live/user_live/settings.ex:15
 #: lib/game_server_web/live/user_live/settings.ex:15
 #: lib/game_server_web/live/user_live/settings.ex:50
@@ -889,14 +889,14 @@ msgstr ""
 msgid "Account"
 msgstr ""
 
-#: lib/game_server_web/components/layouts.ex:255
-#: lib/game_server_web/components/layouts.ex:255
-#: lib/game_server_web/components/layouts.ex:320
-#: lib/game_server_web/components/layouts.ex:320
-#: lib/game_server_web/components/layouts.ex:655
-#: lib/game_server_web/components/layouts.ex:655
-#: lib/game_server_web/components/layouts.ex:747
-#: lib/game_server_web/components/layouts.ex:747
+#: lib/game_server_web/components/layouts.ex:280
+#: lib/game_server_web/components/layouts.ex:280
+#: lib/game_server_web/components/layouts.ex:345
+#: lib/game_server_web/components/layouts.ex:345
+#: lib/game_server_web/components/layouts.ex:680
+#: lib/game_server_web/components/layouts.ex:680
+#: lib/game_server_web/components/layouts.ex:772
+#: lib/game_server_web/components/layouts.ex:772
 #: lib/game_server_web/live/achievements_live.ex:27
 #: lib/game_server_web/live/achievements_live.ex:27
 #: lib/game_server_web/live/achievements_live.ex:140
@@ -907,10 +907,10 @@ msgstr ""
 msgid "Achievements"
 msgstr ""
 
-#: lib/game_server_web/components/layouts.ex:493
-#: lib/game_server_web/components/layouts.ex:493
-#: lib/game_server_web/components/layouts.ex:608
-#: lib/game_server_web/components/layouts.ex:608
+#: lib/game_server_web/components/layouts.ex:518
+#: lib/game_server_web/components/layouts.ex:518
+#: lib/game_server_web/components/layouts.ex:633
+#: lib/game_server_web/components/layouts.ex:633
 #: lib/game_server_web/live/chat_live.ex:116
 #: lib/game_server_web/live/chat_live.ex:116
 #: lib/game_server_web/live/notifications_live.ex:62
@@ -971,10 +971,10 @@ msgstr ""
 msgid "Home"
 msgstr ""
 
-#: lib/game_server_web/components/layouts.ex:473
-#: lib/game_server_web/components/layouts.ex:473
-#: lib/game_server_web/components/layouts.ex:587
-#: lib/game_server_web/components/layouts.ex:587
+#: lib/game_server_web/components/layouts.ex:498
+#: lib/game_server_web/components/layouts.ex:498
+#: lib/game_server_web/components/layouts.ex:612
+#: lib/game_server_web/components/layouts.ex:612
 #: lib/game_server_web/live/notifications_live.ex:15
 #: lib/game_server_web/live/notifications_live.ex:15
 #: lib/game_server_web/live/notifications_live.ex:124
@@ -1047,14 +1047,14 @@ msgstr ""
 msgid "Roadmap"
 msgstr ""
 
-#: lib/game_server_web/components/layouts.ex:1029
-#: lib/game_server_web/components/layouts.ex:1029
-#: lib/game_server_web/components/layouts.ex:1036
-#: lib/game_server_web/components/layouts.ex:1036
-#: lib/game_server_web/components/layouts.ex:1043
-#: lib/game_server_web/components/layouts.ex:1043
-#: lib/game_server_web/components/layouts.ex:1050
-#: lib/game_server_web/components/layouts.ex:1050
+#: lib/game_server_web/components/layouts.ex:1074
+#: lib/game_server_web/components/layouts.ex:1074
+#: lib/game_server_web/components/layouts.ex:1081
+#: lib/game_server_web/components/layouts.ex:1081
+#: lib/game_server_web/components/layouts.ex:1088
+#: lib/game_server_web/components/layouts.ex:1088
+#: lib/game_server_web/components/layouts.ex:1095
+#: lib/game_server_web/components/layouts.ex:1095
 #: lib/game_server_web/live/auth_success_live.ex:78
 #: lib/game_server_web/live/auth_success_live.ex:78
 #: lib/game_server_web/live/auth_success_live.ex:110
@@ -1403,8 +1403,8 @@ msgstr ""
 #: lib/game_server_web/live/lobby_live/index.ex:412
 #: lib/game_server_web/live/lobby_live/index.ex:460
 #: lib/game_server_web/live/lobby_live/index.ex:460
-#: lib/game_server_web/live/user_live/confirmation.ex:96
-#: lib/game_server_web/live/user_live/confirmation.ex:96
+#: lib/game_server_web/live/user_live/confirmation.ex:95
+#: lib/game_server_web/live/user_live/confirmation.ex:95
 #: lib/game_server_web/live/user_live/registration.ex:192
 #: lib/game_server_web/live/user_live/registration.ex:192
 #: lib/game_server_web/live/user_live/settings.ex:25
@@ -1613,4 +1613,10 @@ msgstr ""
 #: lib/game_server_web/live/achievements_live.ex:334
 #, elixir-autogen, elixir-format
 msgid "Unlocked"
+msgstr ""
+
+#: lib/game_server_web/components/layouts.ex:863
+#: lib/game_server_web/components/layouts.ex:863
+#, elixir-autogen, elixir-format
+msgid "Dismiss"
 msgstr ""

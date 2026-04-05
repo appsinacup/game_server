@@ -150,6 +150,29 @@ defmodule GameServerWeb.Layouts do
     # Background floating icons from theme config JSON
     background_icons = Map.get(provider_theme, "background_icons") || []
 
+    # Site-wide dismissible banner message.
+    # The display text comes from the locale-specific config, falling back to
+    # the English source text when the locale version is empty/missing.
+    # The dismiss fingerprint is ALWAYS based on the English source text so
+    # dismissing in any language dismisses everywhere, and changing the English
+    # text automatically re-shows the banner.
+    en_theme = JSONConfig.get_theme("en") || %{}
+    site_message_source = Map.get(en_theme, "site_message", "")
+
+    site_message =
+      case Map.get(provider_theme, "site_message", "") do
+        "" -> site_message_source
+        msg -> msg
+      end
+
+    # Simple hash of the English source text — changes when the source changes.
+    site_message_hash =
+      if site_message_source != "" do
+        :erlang.phash2(site_message_source) |> Integer.to_string()
+      else
+        ""
+      end
+
     notif_unread_count =
       if assigns[:current_scope] do
         GameServer.Notifications.count_unread_notifications(assigns.current_scope.user.id)
@@ -167,6 +190,8 @@ defmodule GameServerWeb.Layouts do
         nav_links: nav_links,
         footer_links: footer_links,
         background_icons: background_icons,
+        site_message: site_message,
+        site_message_hash: site_message_hash,
         notif_unread_count: notif_unread_count
       )
 
@@ -537,7 +562,7 @@ defmodule GameServerWeb.Layouts do
               <.theme_toggle />
             </li>
           </ul>
-          
+
     <!-- Mobile Navigation -->
           <div class="xl:hidden">
             <div class="dropdown dropdown-end">
@@ -820,6 +845,26 @@ defmodule GameServerWeb.Layouts do
           current_query={@current_query}
           known_locales={@known_locales}
         />
+      <% end %>
+
+      <%!-- Site-wide dismissible banner --%>
+      <%= if @site_message != "" do %>
+        <div
+          id="site-banner"
+          phx-hook="SiteBanner"
+          data-message-hash={@site_message_hash}
+          class="relative z-40 bg-base-200/60 backdrop-blur-sm text-base-content/70 px-4 py-1.5 text-center text-xs transition-all duration-300 border-b border-base-300/40"
+        >
+          <span>{@site_message}</span>
+          <button
+            type="button"
+            data-dismiss-banner
+            class="absolute right-3 top-1/2 -translate-y-1/2 opacity-40 hover:opacity-80 transition-opacity cursor-pointer"
+            aria-label={gettext("Dismiss")}
+          >
+            <.icon name="hero-x-mark" class="w-3.5 h-3.5" />
+          </button>
+        </div>
       <% end %>
 
       <%= if @flush do %>

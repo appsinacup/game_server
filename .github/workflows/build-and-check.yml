@@ -406,7 +406,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      MIX_ENV: prod
       HEX_API_KEY: ${{ secrets.HEX_KEY }}
 
     steps:

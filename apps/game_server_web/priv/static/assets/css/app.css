@@ -1974,6 +1974,9 @@
   .top-0 {
     top: calc(var(--spacing) * 0);
   }
+  .top-1\/2 {
+    top: calc(1/2 * 100%);
+  }
   .top-2 {
     top: calc(var(--spacing) * 2);
   }
@@ -2091,6 +2094,9 @@
   }
   .z-10 {
     z-index: 10;
+  }
+  .z-40 {
+    z-index: 40;
   }
   .z-50 {
     z-index: 50;
@@ -9885,6 +9891,9 @@
   .h-3 {
     height: calc(var(--spacing) * 3);
   }
+  .h-3\.5 {
+    height: calc(var(--spacing) * 3.5);
+  }
   .h-4 {
     height: calc(var(--spacing) * 4);
   }
@@ -9962,6 +9971,9 @@
   }
   .w-3 {
     width: calc(var(--spacing) * 3);
+  }
+  .w-3\.5 {
+    width: calc(var(--spacing) * 3.5);
   }
   .w-4 {
     width: calc(var(--spacing) * 4);
@@ -10136,6 +10148,10 @@
   }
   .-translate-x-1\/2 {
     --tw-translate-x: calc(calc(1/2 * 100%) * -1);
+    translate: var(--tw-translate-x) var(--tw-translate-y);
+  }
+  .-translate-y-1\/2 {
+    --tw-translate-y: calc(calc(1/2 * 100%) * -1);
     translate: var(--tw-translate-x) var(--tw-translate-y);
   }
   .translate-y-0 {
@@ -10451,6 +10467,12 @@
   .border-base-300 {
     border-color: var(--color-base-300);
   }
+  .border-base-300\/40 {
+    border-color: var(--color-base-300);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in oklab, var(--color-base-300) 40%, transparent);
+    }
+  }
   .border-base-300\/60 {
     border-color: var(--color-base-300);
     @supports (color: color-mix(in lab, red, red)) {
@@ -10610,6 +10632,9 @@
   .bg-green-500 {
     background-color: var(--color-green-500);
   }
+  .bg-info {
+    background-color: var(--color-info);
+  }
   .bg-info\/10 {
     background-color: var(--color-info);
     @supports (color: color-mix(in lab, red, red)) {
@@ -10732,16 +10757,6 @@
   }
   .p-8 {
     padding: calc(var(--spacing) * 8);
-  }
-  .menu-title {
-    padding-inline: calc(0.25rem * 3);
-    padding-block: calc(0.25rem * 2);
-    color: var(--color-base-content);
-    @supports (color: color-mix(in lab, red, red)) {
-      color: color-mix(in oklab, var(--color-base-content) 40%, transparent);
-    }
-    font-size: 0.875rem;
-    font-weight: 600;
   }
   .table-sm {
     :not(thead, tfoot) tr {
@@ -11139,6 +11154,9 @@
   }
   .text-info {
     color: var(--color-info);
+  }
+  .text-info-content {
+    color: var(--color-info-content);
   }
   .text-orange-600 {
     color: var(--color-orange-600);
@@ -11673,6 +11691,13 @@
     &:hover {
       @media (hover: hover) {
         text-decoration-line: underline;
+      }
+    }
+  }
+  .hover\:opacity-80 {
+    &:hover {
+      @media (hover: hover) {
+        opacity: 80%;
       }
     }
   }
