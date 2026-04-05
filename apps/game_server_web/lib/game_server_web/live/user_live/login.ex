@@ -15,7 +15,7 @@ defmodule GameServerWeb.UserLive.Login do
           <h1 class="text-3xl font-bold">{gettext("Log in")}</h1>
           <p class="text-sm text-base-content/70 mt-2">
             <%= if @current_scope do %>
-              {gettext("Failed")}
+              {gettext("Confirm")}
             <% else %>
               <.link
                 navigate={~p"/users/register"}

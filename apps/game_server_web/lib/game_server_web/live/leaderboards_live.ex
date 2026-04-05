@@ -143,9 +143,9 @@ defmodule GameServerWeb.LeaderboardsLive do
             <h3 class="card-title text-lg">{Leaderboard.localized_title(group, @locale)}</h3>
             <div class="flex flex-col items-end gap-1">
               <%= if group.active_id do %>
-                <span class="badge badge-success">{gettext("Online")}</span>
+                <span class="badge badge-success">{gettext("Active")}</span>
               <% else %>
-                <span class="badge badge-neutral">{gettext("Close")}</span>
+                <span class="badge badge-neutral">{gettext("Ended")}</span>
               <% end %>
               <%= if group.season_count > 1 do %>
                 <span class="badge badge-ghost badge-sm text-nowrap">
@@ -194,9 +194,9 @@ defmodule GameServerWeb.LeaderboardsLive do
           <h1 class="text-2xl font-bold">{Leaderboard.localized_title(@leaderboard, @locale)}</h1>
           <div class="flex items-center gap-2 mt-1">
             <%= if Leaderboard.active?(@leaderboard) do %>
-              <span class="badge badge-success">{gettext("Online")}</span>
+              <span class="badge badge-success">{gettext("Active")}</span>
             <% else %>
-              <span class="badge badge-neutral">{gettext("Close")}</span>
+              <span class="badge badge-neutral">{gettext("Ended")}</span>
             <% end %>
             <%= if @leaderboard.starts_at || @leaderboard.ends_at do %>
               <span class="text-sm text-base-content/60">
@@ -258,13 +258,13 @@ defmodule GameServerWeb.LeaderboardsLive do
           <div class="flex items-center justify-between">
             <div>
               <span class="text-sm text-base-content/70">
-                {gettext("Status")}
+                {gettext("Rank")}
               </span>
               <div class="text-2xl font-bold">#{@user_record.rank}</div>
             </div>
             <div class="text-right">
               <span class="text-sm text-base-content/70">
-                {gettext("Title")}
+                {gettext("Score")}
               </span>
               <div class="text-2xl font-bold">{format_score(@user_record.score)}</div>
             </div>
@@ -281,9 +281,9 @@ defmodule GameServerWeb.LeaderboardsLive do
           <table class="table">
             <thead>
               <tr>
-                <th>{gettext("Status")}</th>
+                <th>{gettext("Rank")}</th>
                 <th>{gettext("Name")}</th>
-                <th class="text-right">{gettext("Title")}</th>
+                <th class="text-right">{gettext("Score")}</th>
               </tr>
             </thead>
             <tbody>

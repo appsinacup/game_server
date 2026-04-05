@@ -166,7 +166,7 @@ defmodule GameServerWeb.GroupsLive do
              |> maybe_refresh_selected(group_id)}
 
           {:error, :already_member} ->
-            {:noreply, put_flash(socket, :info, gettext("Failed"))}
+            {:noreply, put_flash(socket, :info, gettext("Joined"))}
 
           {:error, :not_public} ->
             {:noreply, put_flash(socket, :error, gettext("Failed"))}
@@ -198,10 +198,10 @@ defmodule GameServerWeb.GroupsLive do
              |> update(:pending_request_ids, &MapSet.put(&1, group_id))}
 
           {:error, :already_member} ->
-            {:noreply, put_flash(socket, :info, gettext("Failed"))}
+            {:noreply, put_flash(socket, :info, gettext("Joined"))}
 
           {:error, :already_requested} ->
-            {:noreply, put_flash(socket, :info, gettext("Failed"))}
+            {:noreply, put_flash(socket, :info, gettext("Pending"))}
 
           {:error, :not_private} ->
             {:noreply,
@@ -435,7 +435,7 @@ defmodule GameServerWeb.GroupsLive do
     </div>
 
     <div class="flex gap-2 items-center" id="groups-sort">
-      <span class="text-sm text-base-content/60">{gettext("Name")}</span>
+      <span class="text-sm text-base-content/60">{gettext("Status")}:</span>
       <button
         :for={
           {label, value} <- [

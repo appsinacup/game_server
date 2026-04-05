@@ -73,9 +73,6 @@ defmodule GameServerWeb.UserLive.Confirmation do
           <% end %>
         </.form>
 
-        <p :if={!@user.confirmed_at} class="alert alert-outline mt-8">
-          {gettext("Password")}
-        </p>
       </div>
     </Layouts.app>
     """

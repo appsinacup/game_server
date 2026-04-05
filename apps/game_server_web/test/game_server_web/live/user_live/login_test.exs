@@ -98,7 +98,7 @@ defmodule GameServerWeb.UserLive.LoginTest do
     test "shows login page with email filled in", %{conn: conn, user: user} do
       {:ok, _lv, html} = live(conn, ~p"/users/log-in")
 
-      assert html =~ "Failed"
+      assert html =~ "Confirm"
       refute html =~ "Register"
       assert html =~ "Email"
 

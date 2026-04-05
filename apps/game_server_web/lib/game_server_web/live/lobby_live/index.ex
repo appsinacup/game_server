@@ -42,7 +42,7 @@ defmodule GameServerWeb.LobbyLive.Index do
 
     {:ok,
      assign(socket,
-       page_title: gettext("Home"),
+       page_title: gettext("Lobbies"),
        lobbies: lobbies,
        memberships_map: memberships_map,
        lobbies_page: lobbies_page,
@@ -425,7 +425,7 @@ defmodule GameServerWeb.LobbyLive.Index do
 
   defp handle_start_join_for_user(socket, lobby, user) do
     if user.lobby_id == lobby.id do
-      {:noreply, put_flash(socket, :info, gettext("Failed"))}
+      {:noreply, put_flash(socket, :info, gettext("Joined"))}
     else
       case Lobbies.join_lobby(user, lobby.id) do
         {:ok, _member} ->
@@ -525,7 +525,7 @@ defmodule GameServerWeb.LobbyLive.Index do
         {:noreply,
          socket
          |> assign(current_scope: updated_scope, subscribed_lobby_id: nil, editing_lobby_id: nil)
-         |> put_flash(:error, gettext("Failed"))}
+         |> put_flash(:error, gettext("Removed"))}
 
       _ ->
         {:noreply, socket}
@@ -678,7 +678,7 @@ defmodule GameServerWeb.LobbyLive.Index do
                 <button type="submit" class="btn btn-primary">{gettext("Create")}</button>
                 <%= if @current_scope && @current_scope.user && @current_scope.user.lobby_id do %>
                   <span class="text-sm text-warning">
-                    {gettext("Failed")}
+                    {gettext("Joined")}
                   </span>
                 <% end %>
               </div>
@@ -686,7 +686,7 @@ defmodule GameServerWeb.LobbyLive.Index do
           </div>
 
           <div class="lg:col-span-2">
-            <div class="font-semibold">{gettext("Home")}</div>
+            <div class="font-semibold">{gettext("Lobbies")}</div>
             <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
               <div
                 :for={lobby <- @lobbies}
@@ -848,7 +848,7 @@ defmodule GameServerWeb.LobbyLive.Index do
                             <div class="flex items-center gap-2">
                               <%= if m.id == lobby.host_id do %>
                                 <span class="text-xs text-muted">
-                                  {gettext("Admin")}
+                                  {gettext("Host")}
                                 </span>
                               <% end %>
                               <%= cond do %>
@@ -886,7 +886,7 @@ defmodule GameServerWeb.LobbyLive.Index do
                             <div>
                               <%= if m.id == lobby.host_id do %>
                                 <span class="text-xs text-muted">
-                                  {gettext("Admin")}
+                                  {gettext("Host")}
                                 </span>
                               <% end %>
                               <%= if @current_scope && @current_scope.user && m.id == @current_scope.user.id do %>

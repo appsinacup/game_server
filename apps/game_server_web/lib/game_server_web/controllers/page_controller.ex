@@ -21,7 +21,7 @@ defmodule GameServerWeb.PageController do
 
   def privacy(conn, _params) do
     conn
-    |> assign(:page_title, gettext("Account"))
+    |> assign(:page_title, gettext("Privacy"))
     |> render(:privacy)
   end
 
@@ -33,7 +33,7 @@ defmodule GameServerWeb.PageController do
 
   def terms(conn, _params) do
     conn
-    |> assign(:page_title, gettext("Account"))
+    |> assign(:page_title, gettext("Terms"))
     |> render(:terms)
   end
 end

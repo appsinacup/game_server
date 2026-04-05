@@ -606,7 +606,7 @@ defmodule GameServerWeb.UserLive.Settings do
                   <th class="w-16">{gettext("ID")}</th>
                   <th class="font-mono text-sm break-all">{gettext("Name")}</th>
                   <th class="w-40">{gettext("Date")}</th>
-                  <th>{gettext("Description")}</th>
+                  <th>{gettext("Content")}</th>
                   <th>{gettext("Description")}</th>
                 </tr>
               </thead>
@@ -816,7 +816,7 @@ defmodule GameServerWeb.UserLive.Settings do
                         phx-click="group_leave"
                         phx-value-group_id={@group_detail.id}
                         class="btn btn-xs btn-outline btn-error"
-                        data-confirm={gettext("Delete?")}
+                        data-confirm={gettext("Leave?")}
                       >
                         {gettext("Leave")}
                       </button>
@@ -896,7 +896,7 @@ defmodule GameServerWeb.UserLive.Settings do
                                 phx-value-group_id={@group_detail.id}
                                 phx-value-user_id={m.user_id}
                                 class="btn btn-xs btn-outline btn-error"
-                                data-confirm={gettext("Delete?")}
+                                data-confirm={gettext("Kick?")}
                               >
                                 {gettext("Kick")}
                               </button>
@@ -1071,11 +1071,11 @@ defmodule GameServerWeb.UserLive.Settings do
                   :for={
                     {tab, label} <- [
                       {"my_groups", gettext("Groups") <> " (#{@groups_count})"},
-                      {"browse", gettext("Groups")},
+                      {"browse", gettext("Search...")},
                       {"invitations", gettext("Invite") <> " (#{length(@group_invitations)})"},
                       {"requests", gettext("Request") <> " (#{length(@group_pending_requests)})"},
                       {"sent_invitations",
-                       gettext("Invite") <>
+                       gettext("Send") <>
                          " (#{length(@group_sent_invitations)})"}
                     ]
                   }
@@ -1156,7 +1156,7 @@ defmodule GameServerWeb.UserLive.Settings do
                             phx-click="group_leave"
                             phx-value-group_id={group.id}
                             class="btn btn-xs btn-outline btn-error"
-                            data-confirm={gettext("Delete?")}
+                            data-confirm={gettext("Leave?")}
                           >
                             {gettext("Leave")}
                           </button>

@@ -140,7 +140,7 @@ defmodule GameServerWeb.AchievementsLive do
             <h1 class="text-3xl font-bold">{gettext("Achievements")}</h1>
             <p class="text-base-content/60 mt-1">
               <%= if @current_scope && @current_scope.user do %>
-                {gettext("Success.")}: {@unlocked_count} / {@total_count}
+                {gettext("Unlocked")}: {@unlocked_count} / {@total_count}
               <% else %>
                 {gettext("Achievements")}: {@total_count}
               <% end %>
@@ -154,7 +154,7 @@ defmodule GameServerWeb.AchievementsLive do
                 :for={
                   {label, value} <- [
                     {gettext("All"), "all"},
-                    {gettext("Success."), "unlocked"},
+                    {gettext("Unlocked"), "unlocked"},
                     {gettext("Locked"), "locked"},
                     {gettext("In Progress"), "in_progress"}
                   ]
@@ -331,7 +331,7 @@ defmodule GameServerWeb.AchievementsLive do
                 <div class="flex items-center gap-1.5 text-success">
                   <.icon name="hero-check-circle-solid" class="w-4 h-4" />
                   <span class="text-xs font-medium">
-                    {gettext("Success.")}
+                    {gettext("Unlocked")}
                     <span class="text-base-content/40 ml-1">
                       {Calendar.strftime(@unlocked_at, "%b %d, %Y")}
                     </span>
