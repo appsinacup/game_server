@@ -1,4 +1,4 @@
-# GameServer v1.0.873 - Table of Contents
+# GameServer v1.0.874 - Table of Contents
 
 ## Modules
 
