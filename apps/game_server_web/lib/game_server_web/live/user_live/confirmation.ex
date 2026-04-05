@@ -72,7 +72,6 @@ defmodule GameServerWeb.UserLive.Confirmation do
             </.button>
           <% end %>
         </.form>
-
       </div>
     </Layouts.app>
     """
