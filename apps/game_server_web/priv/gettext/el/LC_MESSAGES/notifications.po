@@ -15,67 +15,67 @@ msgstr ""
 #: lib/game_server_web/live/notifications_live.ex:327
 #, elixir-autogen, elixir-format
 msgid "Achievement Unlocked: %{name}"
-msgstr ""
+msgstr "Νέο Επίτευγμα! %{name}"
 
 #: lib/game_server_web/live/notifications_live.ex:308
 #: lib/game_server_web/live/notifications_live.ex:308
 #, elixir-autogen, elixir-format
 msgid "Demoted From Admin"
-msgstr ""
+msgstr "Υποβαθμίστηκε απο Διαχειριστή"
 
 #: lib/game_server_web/live/notifications_live.ex:284
 #: lib/game_server_web/live/notifications_live.ex:284
 #, elixir-autogen, elixir-format
 msgid "Friend Request Accepted"
-msgstr ""
+msgstr "Αποδοχή αιτήματος φιλίας"
 
 #: lib/game_server_web/live/notifications_live.ex:287
 #: lib/game_server_web/live/notifications_live.ex:287
 #, elixir-autogen, elixir-format
 msgid "Friend Request Declined"
-msgstr ""
+msgstr "Απόρριψη αιτήματος φιλίας"
 
 #: lib/game_server_web/live/notifications_live.ex:292
 #: lib/game_server_web/live/notifications_live.ex:292
 #, elixir-autogen, elixir-format
 msgid "Group Invite Accepted"
-msgstr ""
+msgstr "Αποδοχή πρόσκλησης"
 
 #: lib/game_server_web/live/notifications_live.ex:295
 #: lib/game_server_web/live/notifications_live.ex:295
 #, elixir-autogen, elixir-format
 msgid "Group Invite Declined"
-msgstr ""
+msgstr "Απόρριψη πρόσκλησης"
 
 #: lib/game_server_web/live/notifications_live.ex:301
 #: lib/game_server_web/live/notifications_live.ex:301
 #, elixir-autogen, elixir-format
 msgid "Group Join Request Approved"
-msgstr ""
+msgstr "Αποδοχή αιτήματος ομάδας"
 
 #: lib/game_server_web/live/notifications_live.ex:304
 #: lib/game_server_web/live/notifications_live.ex:304
 #, elixir-autogen, elixir-format
 msgid "Group Join Request Declined"
-msgstr ""
+msgstr "Απόρριψη αιτήματος ομάδας"
 
 #: lib/game_server_web/live/notifications_live.ex:281
 #: lib/game_server_web/live/notifications_live.ex:281
 #, elixir-autogen, elixir-format
 msgid "New Friend Request"
-msgstr ""
+msgstr "Νέο άιτημα φιλίας"
 
 #: lib/game_server_web/live/notifications_live.ex:289
 #: lib/game_server_web/live/notifications_live.ex:289
 #, elixir-autogen, elixir-format
 msgid "New Group Invite"
-msgstr ""
+msgstr "Νέα πρόσκληση ομάδας"
 
 #: lib/game_server_web/live/notifications_live.ex:298
 #: lib/game_server_web/live/notifications_live.ex:298
 #, elixir-autogen, elixir-format
 msgid "New Group Join Request"
-msgstr ""
+msgstr "Νέα αίτηση συμμετοχής σε ομάδα"
 
 #: lib/game_server_web/live/notifications_live.ex:309
 #: lib/game_server_web/live/notifications_live.ex:309
@@ -95,13 +95,13 @@ msgstr ""
 #: lib/game_server_web/live/notifications_live.ex:337
 #, elixir-autogen, elixir-format
 msgid "New messages from %{name}"
-msgstr ""
+msgstr "Νέα μηνύματα απο %{name}"
 
 #: lib/game_server_web/live/notifications_live.ex:321
 #: lib/game_server_web/live/notifications_live.ex:321
 #, elixir-autogen, elixir-format
 msgid "New messages from friends"
-msgstr ""
+msgstr "Νέα μηνύματα απο φίλους"
 
 #: lib/game_server_web/live/notifications_live.ex:312
 #: lib/game_server_web/live/notifications_live.ex:312
@@ -119,19 +119,19 @@ msgstr ""
 #: lib/game_server_web/live/notifications_live.ex:307
 #, elixir-autogen, elixir-format
 msgid "Promoted To Admin"
-msgstr ""
+msgstr "Προαγωγή σε Διαχειριστή"
 
 #: lib/game_server_web/live/notifications_live.ex:306
 #: lib/game_server_web/live/notifications_live.ex:306
 #, elixir-autogen, elixir-format
 msgid "Removed From Group"
-msgstr ""
+msgstr "Διαγράφηκε απο την ομάδα"
 
 #: lib/game_server_web/live/notifications_live.ex:318
 #: lib/game_server_web/live/notifications_live.ex:318
 #, elixir-autogen, elixir-format
 msgid "Removed From Lobby"
-msgstr ""
+msgstr "Διαγράφηκε απο την αίθουσα αναμονής"
 
 #: lib/game_server_web/live/notifications_live.ex:317
 #: lib/game_server_web/live/notifications_live.ex:317
@@ -143,19 +143,19 @@ msgstr ""
 #: lib/game_server_web/live/notifications_live.ex:351
 #, elixir-autogen, elixir-format
 msgid "You have a new friend request."
-msgstr ""
+msgstr "Έχεις ένα νέο αίτημα φιλίας"
 
 #: lib/game_server_web/live/notifications_live.ex:382
 #: lib/game_server_web/live/notifications_live.ex:382
 #, elixir-autogen, elixir-format
 msgid "You have been demoted to member in %{name}"
-msgstr ""
+msgstr "Υποβαθμίστηκες σε απλό μέλος στο %{name}"
 
 #: lib/game_server_web/live/notifications_live.ex:367
 #: lib/game_server_web/live/notifications_live.ex:367
 #, elixir-autogen, elixir-format
 msgid "You have been invited to join %{name}"
-msgstr ""
+msgstr "Έχεις πρόσκληση για %{name}"
 
 #: lib/game_server_web/live/notifications_live.ex:360
 #: lib/game_server_web/live/notifications_live.ex:360
@@ -167,7 +167,7 @@ msgstr ""
 #: lib/game_server_web/live/notifications_live.ex:377
 #, elixir-autogen, elixir-format
 msgid "You have been promoted to admin in %{name}"
-msgstr ""
+msgstr "Πήρες προαγωγή σε Διαχειριστής σε %{name}"
 
 #: lib/game_server_web/live/notifications_live.ex:372
 #: lib/game_server_web/live/notifications_live.ex:372
@@ -175,7 +175,7 @@ msgstr ""
 #: lib/game_server_web/live/notifications_live.ex:387
 #, elixir-autogen, elixir-format
 msgid "You have been removed from %{name}"
-msgstr ""
+msgstr "Διαγράφηκες απο %{name}"
 
 #: lib/game_server_web/live/notifications_live.ex:363
 #: lib/game_server_web/live/notifications_live.ex:363
@@ -187,10 +187,10 @@ msgstr ""
 #: lib/game_server_web/live/notifications_live.ex:354
 #, elixir-autogen, elixir-format
 msgid "Your friend request has been accepted."
-msgstr ""
+msgstr "Το αίτημα φιλίας σου έγινε δεκτό."
 
 #: lib/game_server_web/live/notifications_live.ex:357
 #: lib/game_server_web/live/notifications_live.ex:357
 #, elixir-autogen, elixir-format
 msgid "Your friend request has been declined."
-msgstr ""
+msgstr "Το αίτημα φιλίας σου απορρίφθηκε."

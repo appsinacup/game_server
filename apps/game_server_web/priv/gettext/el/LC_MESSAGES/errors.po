@@ -12,112 +12,112 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid "can't be blank"
-msgstr ""
+msgstr "δεν μπορεί να είναι κενό"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:21
 #: lib/game_server_web/i18n/errors_catalog.ex:21
 #, elixir-autogen
 msgid "has already been taken"
-msgstr ""
+msgstr "έχει ήδη χρησιμοποιηθεί απο άλλον"
 
 msgid "is invalid"
-msgstr ""
+msgstr "δεν είναι έγκυρο"
 
 msgid "must be accepted"
-msgstr ""
+msgstr "πρέπει να αποδεχτεί"
 
 msgid "has invalid format"
-msgstr ""
+msgstr "είναι σε λανθασμένη μορφή"
 
 msgid "has an invalid entry"
-msgstr ""
+msgstr "περιέχει μη έγκυρη μορφή"
 
 msgid "is reserved"
-msgstr ""
+msgstr "έχει κρατηθεί"
 
 msgid "does not match confirmation"
-msgstr ""
+msgstr "δεν ταιριάζει με την επιβεβαίωση"
 
 msgid "is still associated with this entry"
-msgstr ""
+msgstr "είναι ακόμα συνδεδεμένο με αυτήν την εγγραφή"
 
 msgid "are still associated with this entry"
-msgstr ""
+msgstr "είναι ακόμα συνδεδεμένα με αυτήν την εγγραφή"
 
 msgid "should have %{count} item(s)"
-msgstr ""
+msgstr "πρέπει να έχει %{count} αντικείμενα"
 
 msgid "should be %{count} character(s)"
-msgstr ""
+msgstr "πρέπει να έχει %{count} χαρακτήρες"
 
 msgid "should be %{count} byte(s)"
-msgstr ""
+msgstr "πρέπει να έχει %{count} byte(s)"
 
 msgid "should have at least %{count} item(s)"
-msgstr ""
+msgstr "πρέπει να έχει τουλάχιστον %{count} αντικείμενα"
 
 msgid "should be at least %{count} character(s)"
-msgstr ""
+msgstr "πρέπει να έχει ττουλάχιστον %{count} χαρακτήρες"
 
 msgid "should be at least %{count} byte(s)"
-msgstr ""
+msgstr "πρέπει να έχει τουλάχιστον %{count} bytes"
 
 msgid "should have at most %{count} item(s)"
-msgstr ""
+msgstr "πρέπει να έχει το πολύ %{count} αντικείμενα"
 
 msgid "should be at most %{count} character(s)"
-msgstr ""
+msgstr "πρέπει να έχει το πολύ %{count} χαρακτήρες"
 
 msgid "should be at most %{count} byte(s)"
-msgstr ""
+msgstr "πρέπει να έχει το πολύ %{count} bytes"
 
 msgid "must be less than %{number}"
-msgstr ""
+msgstr "πρέπει να είναι λιγότερο απο %{number}"
 
 msgid "must be greater than %{number}"
-msgstr ""
+msgstr "πρέπει να είναι μεγαλύτερο απο %{number}"
 
 msgid "must be less than or equal to %{number}"
-msgstr ""
+msgstr "πρέπει να είναι μικρότερο ή ίσο με %{number}"
 
 msgid "must be greater than or equal to %{number}"
-msgstr ""
+msgstr "πρέπει να είναι μεγαλύτερο ή ίσο με %{number}"
 
 msgid "must be equal to %{number}"
-msgstr ""
+msgstr "πρέπει να είναι ίσο με %{number}"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:18
 #: lib/game_server_web/i18n/errors_catalog.ex:18
 #, elixir-autogen, elixir-format
 msgid "cannot friend yourself"
-msgstr ""
+msgstr "δεν μπορείς να στείλεις αίτημα φιλίας στον εαυτό σου"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:19
 #: lib/game_server_web/i18n/errors_catalog.ex:19
 #, elixir-autogen, elixir-format
 msgid "did not change"
-msgstr ""
+msgstr "δεν άλλαξε"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:20
 #: lib/game_server_web/i18n/errors_catalog.ex:20
 #, elixir-autogen, elixir-format
 msgid "does not exist"
-msgstr ""
+msgstr "δεν υπάρχει"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:24
 #: lib/game_server_web/i18n/errors_catalog.ex:24
 #, elixir-autogen, elixir-format
 msgid "does not match password"
-msgstr ""
+msgstr "δεν ταιριάζει ο κωδικός"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:22
 #: lib/game_server_web/i18n/errors_catalog.ex:22
 #, elixir-autogen, elixir-format
 msgid "must be lowercase alphanumeric with underscores"
-msgstr ""
+msgstr "πρέπει να περιέχει μη-κεφαλαία γράμματα και αριθμούς και χαρακτήρες υπογράμμισης"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:23
 #: lib/game_server_web/i18n/errors_catalog.ex:23
 #, elixir-autogen, elixir-format
 msgid "must have the @ sign and no spaces"
-msgstr ""
+msgstr "πρέπει να έχει τον @ χαρακτήρα και κανένα κενό"
