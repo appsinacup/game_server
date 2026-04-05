@@ -356,6 +356,16 @@ defmodule Mix.Tasks.Gettext.ImportCsv do
     stem = String.replace_suffix(base_path, ext, "")
     locale_path = "#{stem}.#{locale}#{ext}"
 
+    # Read English config to build source-text → [paths] lookup
+    en_path = "#{stem}.en#{ext}"
+
+    en_data =
+      if File.exists?(en_path) do
+        en_path |> File.read!() |> Jason.decode!()
+      else
+        nil
+      end
+
     data =
       if File.exists?(locale_path) do
         locale_path |> File.read!() |> Jason.decode!()
@@ -363,19 +373,34 @@ defmodule Mix.Tasks.Gettext.ImportCsv do
         %{}
       end
 
+    # Build a map from source text → list of all config paths that have that text
+    source_to_paths = build_source_to_paths(en_data)
+
+    # Apply each CSV entry: resolve by source text to find ALL matching paths
     {updated_data, count} =
       Enum.reduce(entries, {data, 0}, fn {path_key, row}, {acc_data, acc_count} ->
         new_val = row[:translation] || ""
+        source_text = row[:source] || ""
 
-        cond do
-          new_val == "" ->
-            {acc_data, acc_count}
+        if new_val == "" do
+          {acc_data, acc_count}
+        else
+          # Find all paths that share this source text
+          all_paths =
+            if source_text != "" and en_data do
+              Map.get(source_to_paths, source_text, [path_key])
+            else
+              [path_key]
+            end
 
-          get_in_config(acc_data, path_key) == new_val ->
-            {acc_data, acc_count}
-
-          true ->
-            {put_in_config(acc_data, path_key, new_val), acc_count + 1}
+          # Apply translation to all matching paths
+          Enum.reduce(all_paths, {acc_data, acc_count}, fn p, {d, c} ->
+            if get_in_config(d, p) == new_val do
+              {d, c}
+            else
+              {put_in_config(d, p, new_val), c + 1}
+            end
+          end)
         end
       end)
 
@@ -390,6 +415,42 @@ defmodule Mix.Tasks.Gettext.ImportCsv do
     end
 
     %{updated: count}
+  end
+
+  # Build a map: %{english_text => [path1, path2, ...]} from the English config.
+  # This lets us apply a translation to ALL config paths sharing the same source text.
+  @config_top_keys ~w(title tagline description)
+  @config_array_fields [
+    {"useful_links", "title"},
+    {"nav_links", "label"},
+    {"footer_links", "label"},
+    {"features", "title"},
+    {"features", "description"}
+  ]
+
+  defp build_source_to_paths(nil), do: %{}
+
+  defp build_source_to_paths(en_data) do
+    top_pairs =
+      Enum.flat_map(@config_top_keys, fn key ->
+        val = Map.get(en_data, key, "")
+        if val != "", do: [{val, key}], else: []
+      end)
+
+    array_pairs =
+      Enum.flat_map(@config_array_fields, fn {array_key, text_field} ->
+        en_data
+        |> Map.get(array_key, [])
+        |> Enum.with_index()
+        |> Enum.flat_map(fn {item, idx} ->
+          val = Map.get(item, text_field, "")
+          path = "#{array_key}[#{idx}].#{text_field}"
+          if val != "", do: [{val, path}], else: []
+        end)
+      end)
+
+    (top_pairs ++ array_pairs)
+    |> Enum.group_by(fn {text, _path} -> text end, fn {_text, path} -> path end)
   end
 
   # Navigate into JSON using our path format: "key" or "array[idx].field"

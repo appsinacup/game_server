@@ -1505,13 +1505,13 @@ msgstr "A eșuat"
 #: lib/game_server_web/controllers/user_session_controller.ex:97
 #, elixir-autogen, elixir-format
 msgid "Your account is pending activation."
-msgstr ""
+msgstr "Contul dumneavoastră așteaptă să fie activat."
 
 #: lib/game_server_web/live/achievements_live.ex:159
 #: lib/game_server_web/live/achievements_live.ex:159
 #, elixir-autogen, elixir-format
 msgid "In Progress"
-msgstr ""
+msgstr "În curs"
 
 #: lib/game_server_web/live/groups_live.ex:204
 #: lib/game_server_web/live/groups_live.ex:204
@@ -1523,7 +1523,7 @@ msgstr ""
 #: lib/game_server_web/live/user_live/settings.ex:1250
 #, elixir-autogen, elixir-format
 msgid "Pending"
-msgstr ""
+msgstr "În așteptare"
 
 #: lib/game_server_web/live/leaderboards_live.ex:146
 #: lib/game_server_web/live/leaderboards_live.ex:146
@@ -1531,7 +1531,7 @@ msgstr ""
 #: lib/game_server_web/live/leaderboards_live.ex:197
 #, elixir-autogen, elixir-format
 msgid "Active"
-msgstr ""
+msgstr "Activ"
 
 #: lib/game_server_web/live/leaderboards_live.ex:148
 #: lib/game_server_web/live/leaderboards_live.ex:148
@@ -1539,7 +1539,7 @@ msgstr ""
 #: lib/game_server_web/live/leaderboards_live.ex:199
 #, elixir-autogen, elixir-format
 msgid "Ended"
-msgstr ""
+msgstr "Încheiat"
 
 #: lib/game_server_web/live/lobby_live/index.ex:851
 #: lib/game_server_web/live/lobby_live/index.ex:851
@@ -1547,21 +1547,21 @@ msgstr ""
 #: lib/game_server_web/live/lobby_live/index.ex:889
 #, elixir-autogen, elixir-format
 msgid "Host"
-msgstr ""
+msgstr "Gazdă"
 
 #: lib/game_server_web/live/user_live/settings.ex:899
 #: lib/game_server_web/live/user_live/settings.ex:899
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Kick?"
-msgstr "Expulzează"
+msgstr "Elimină?"
 
 #: lib/game_server_web/live/user_live/settings.ex:819
 #: lib/game_server_web/live/user_live/settings.ex:819
 #: lib/game_server_web/live/user_live/settings.ex:1159
 #: lib/game_server_web/live/user_live/settings.ex:1159
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Leave?"
-msgstr "Părăsește"
+msgstr "Părăsește?"
 
 #: lib/game_server_web/live/lobby_live/index.ex:45
 #: lib/game_server_web/live/lobby_live/index.ex:45
@@ -1569,13 +1569,13 @@ msgstr "Părăsește"
 #: lib/game_server_web/live/lobby_live/index.ex:689
 #, elixir-autogen, elixir-format
 msgid "Lobbies"
-msgstr ""
+msgstr "Lobbies"
 
 #: lib/game_server_web/controllers/page_controller.ex:24
 #: lib/game_server_web/controllers/page_controller.ex:24
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Privacy"
-msgstr "Privat"
+msgstr "Confidențialitate"
 
 #: lib/game_server_web/live/leaderboards_live.ex:261
 #: lib/game_server_web/live/leaderboards_live.ex:261
@@ -1583,13 +1583,13 @@ msgstr "Privat"
 #: lib/game_server_web/live/leaderboards_live.ex:284
 #, elixir-autogen, elixir-format
 msgid "Rank"
-msgstr ""
+msgstr "Rang"
 
 #: lib/game_server_web/live/lobby_live/index.ex:528
 #: lib/game_server_web/live/lobby_live/index.ex:528
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Removed"
-msgstr "Elimină"
+msgstr "Eliminat"
 
 #: lib/game_server_web/live/leaderboards_live.ex:267
 #: lib/game_server_web/live/leaderboards_live.ex:267
@@ -1597,13 +1597,13 @@ msgstr "Elimină"
 #: lib/game_server_web/live/leaderboards_live.ex:286
 #, elixir-autogen, elixir-format
 msgid "Score"
-msgstr ""
+msgstr "Scor"
 
 #: lib/game_server_web/controllers/page_controller.ex:36
 #: lib/game_server_web/controllers/page_controller.ex:36
 #, elixir-autogen, elixir-format
 msgid "Terms"
-msgstr ""
+msgstr "Termeni"
 
 #: lib/game_server_web/live/achievements_live.ex:143
 #: lib/game_server_web/live/achievements_live.ex:143
@@ -1611,6 +1611,6 @@ msgstr ""
 #: lib/game_server_web/live/achievements_live.ex:157
 #: lib/game_server_web/live/achievements_live.ex:334
 #: lib/game_server_web/live/achievements_live.ex:334
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Unlocked"
-msgstr "Deblochează"
+msgstr "Deblocat"

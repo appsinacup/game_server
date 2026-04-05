@@ -44,7 +44,7 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
     output_path = opts[:output] || "translations/#{locale}.csv"
 
     po_rows = export_po_rows(locale_dir)
-    config_rows = export_config_rows(locale, opts[:config])
+    config_rows = export_config_rows(locale, opts[:config]) |> dedup_config_rows()
 
     all_rows = po_rows ++ config_rows
     csv_content = encode_csv([header_row() | all_rows])
@@ -148,6 +148,25 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
     {"features", "title"},
     {"features", "description"}
   ]
+
+  # Deduplicate config rows that share the same English source text.
+  # Keeps only the first occurrence (by path). The import script uses
+  # source-text matching to apply translations to ALL matching paths.
+  defp dedup_config_rows(rows) do
+    {_seen, deduped} =
+      Enum.reduce(rows, {MapSet.new(), []}, fn row, {seen, acc} ->
+        # row = [domain, path, en_val, locale_val, fuzzy]
+        en_val = Enum.at(row, 2)
+
+        if MapSet.member?(seen, en_val) do
+          {seen, acc}
+        else
+          {MapSet.put(seen, en_val), [row | acc]}
+        end
+      end)
+
+    Enum.reverse(deduped)
+  end
 
   defp export_config_rows(locale, config_opt) do
     base_path = detect_config_base(config_opt)
