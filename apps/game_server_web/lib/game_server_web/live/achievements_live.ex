@@ -156,7 +156,7 @@ defmodule GameServerWeb.AchievementsLive do
                     {gettext("All"), "all"},
                     {gettext("Success."), "unlocked"},
                     {gettext("Locked"), "locked"},
-                    {gettext("Loading..."), "in_progress"}
+                    {gettext("In Progress"), "in_progress"}
                   ]
                 }
                 phx-click="filter"

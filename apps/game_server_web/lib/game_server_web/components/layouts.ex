@@ -537,7 +537,7 @@ defmodule GameServerWeb.Layouts do
               <.theme_toggle />
             </li>
           </ul>
-          
+
     <!-- Mobile Navigation -->
           <div class="xl:hidden">
             <div class="dropdown dropdown-end">
@@ -758,11 +758,6 @@ defmodule GameServerWeb.Layouts do
                       <.icon name="hero-user-group-solid" class="w-4 h-4" />
                       {gettext("Groups")}
                     </a>
-                  </li>
-                  <li class="menu-title">
-                    <div class="flex justify-end items-center w-full pr-2">
-                      <span class="text-xs opacity-60">v{app_version()}</span>
-                    </div>
                   </li>
                 <% end %>
                 <%= for link <- filtered_nav_links(@nav_links, if(@current_scope, do: :authenticated, else: :unauthenticated)) do %>

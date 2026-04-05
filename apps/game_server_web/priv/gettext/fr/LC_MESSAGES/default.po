@@ -155,8 +155,8 @@ msgstr "Admin"
 
 #: lib/game_server_web/components/layouts.ex:515
 #: lib/game_server_web/components/layouts.ex:515
-#: lib/game_server_web/components/layouts.ex:805
-#: lib/game_server_web/components/layouts.ex:805
+#: lib/game_server_web/components/layouts.ex:800
+#: lib/game_server_web/components/layouts.ex:800
 #, elixir-autogen, elixir-format
 msgid "Log out"
 msgstr "Se déconnecter"
@@ -1067,42 +1067,20 @@ msgstr "Plus ancien"
 msgid "Roadmap"
 msgstr "Feuille de route"
 
-#: lib/game_server_web/components/layouts.ex:980
-#: lib/game_server_web/components/layouts.ex:980
-#: lib/game_server_web/components/layouts.ex:987
-#: lib/game_server_web/components/layouts.ex:987
-#: lib/game_server_web/components/layouts.ex:994
-#: lib/game_server_web/components/layouts.ex:994
-#: lib/game_server_web/components/layouts.ex:1001
-#: lib/game_server_web/components/layouts.ex:1001
-#: lib/game_server_web/controllers/auth_controller.ex:1467
-#: lib/game_server_web/controllers/auth_controller.ex:1467
-#: lib/game_server_web/controllers/auth_controller.ex:1530
-#: lib/game_server_web/controllers/auth_controller.ex:1530
-#: lib/game_server_web/controllers/auth_controller.ex:1593
-#: lib/game_server_web/controllers/auth_controller.ex:1593
-#: lib/game_server_web/controllers/auth_controller.ex:1656
-#: lib/game_server_web/controllers/auth_controller.ex:1656
-#: lib/game_server_web/controllers/auth_controller.ex:1719
-#: lib/game_server_web/controllers/auth_controller.ex:1719
-#: lib/game_server_web/controllers/user_session_controller.ex:29
-#: lib/game_server_web/controllers/user_session_controller.ex:29
-#: lib/game_server_web/controllers/user_session_controller.ex:54
-#: lib/game_server_web/controllers/user_session_controller.ex:54
-#: lib/game_server_web/controllers/user_session_controller.ex:103
-#: lib/game_server_web/controllers/user_session_controller.ex:103
-#: lib/game_server_web/live/achievements_live.ex:159
-#: lib/game_server_web/live/achievements_live.ex:159
+#: lib/game_server_web/components/layouts.ex:1029
+#: lib/game_server_web/components/layouts.ex:1029
+#: lib/game_server_web/components/layouts.ex:1036
+#: lib/game_server_web/components/layouts.ex:1036
+#: lib/game_server_web/components/layouts.ex:1043
+#: lib/game_server_web/components/layouts.ex:1043
+#: lib/game_server_web/components/layouts.ex:1050
+#: lib/game_server_web/components/layouts.ex:1050
 #: lib/game_server_web/live/auth_success_live.ex:78
 #: lib/game_server_web/live/auth_success_live.ex:78
 #: lib/game_server_web/live/auth_success_live.ex:110
 #: lib/game_server_web/live/auth_success_live.ex:110
 #: lib/game_server_web/live/auth_success_live.ex:205
 #: lib/game_server_web/live/auth_success_live.ex:205
-#: lib/game_server_web/live/groups_live.ex:523
-#: lib/game_server_web/live/groups_live.ex:523
-#: lib/game_server_web/live/groups_live.ex:667
-#: lib/game_server_web/live/groups_live.ex:667
 #: lib/game_server_web/live/user_live/confirmation.ex:28
 #: lib/game_server_web/live/user_live/confirmation.ex:28
 #: lib/game_server_web/live/user_live/confirmation.ex:34
@@ -1117,8 +1095,6 @@ msgstr "Feuille de route"
 #: lib/game_server_web/live/user_live/registration.ex:33
 #: lib/game_server_web/live/user_live/settings.ex:109
 #: lib/game_server_web/live/user_live/settings.ex:109
-#: lib/game_server_web/live/user_live/settings.ex:1250
-#: lib/game_server_web/live/user_live/settings.ex:1250
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Loading..."
 msgstr "Enregistrement..."
@@ -1181,12 +1157,12 @@ msgstr ""
 #: lib/game_server_web/controllers/user_session_controller.ex:8
 #: lib/game_server_web/controllers/user_session_controller.ex:12
 #: lib/game_server_web/controllers/user_session_controller.ex:12
-#: lib/game_server_web/controllers/user_session_controller.ex:78
-#: lib/game_server_web/controllers/user_session_controller.ex:78
-#: lib/game_server_web/controllers/user_session_controller.ex:88
-#: lib/game_server_web/controllers/user_session_controller.ex:88
-#: lib/game_server_web/controllers/user_session_controller.ex:99
-#: lib/game_server_web/controllers/user_session_controller.ex:99
+#: lib/game_server_web/controllers/user_session_controller.ex:72
+#: lib/game_server_web/controllers/user_session_controller.ex:72
+#: lib/game_server_web/controllers/user_session_controller.ex:82
+#: lib/game_server_web/controllers/user_session_controller.ex:82
+#: lib/game_server_web/controllers/user_session_controller.ex:93
+#: lib/game_server_web/controllers/user_session_controller.ex:93
 #: lib/game_server_web/live/achievements_live.ex:143
 #: lib/game_server_web/live/achievements_live.ex:143
 #: lib/game_server_web/live/achievements_live.ex:157
@@ -1279,8 +1255,8 @@ msgstr ""
 msgid "Cancel?"
 msgstr "Annuler"
 
-#: lib/game_server_web/live/chat_live.ex:472
-#: lib/game_server_web/live/chat_live.ex:472
+#: lib/game_server_web/live/chat_live.ex:471
+#: lib/game_server_web/live/chat_live.ex:471
 #: lib/game_server_web/live/user_live/settings.ex:2477
 #: lib/game_server_web/live/user_live/settings.ex:2477
 #, elixir-autogen, elixir-format
@@ -1403,14 +1379,14 @@ msgstr "Jouer"
 #: lib/game_server_web/controllers/auth_controller.ex:1704
 #: lib/game_server_web/controllers/auth_controller.ex:1729
 #: lib/game_server_web/controllers/auth_controller.ex:1729
-#: lib/game_server_web/controllers/user_session_controller.ex:36
-#: lib/game_server_web/controllers/user_session_controller.ex:36
-#: lib/game_server_web/controllers/user_session_controller.ex:61
-#: lib/game_server_web/controllers/user_session_controller.ex:61
-#: lib/game_server_web/controllers/user_session_controller.ex:81
-#: lib/game_server_web/controllers/user_session_controller.ex:81
-#: lib/game_server_web/controllers/user_session_controller.ex:109
-#: lib/game_server_web/controllers/user_session_controller.ex:109
+#: lib/game_server_web/controllers/user_session_controller.ex:33
+#: lib/game_server_web/controllers/user_session_controller.ex:33
+#: lib/game_server_web/controllers/user_session_controller.ex:55
+#: lib/game_server_web/controllers/user_session_controller.ex:55
+#: lib/game_server_web/controllers/user_session_controller.ex:75
+#: lib/game_server_web/controllers/user_session_controller.ex:75
+#: lib/game_server_web/controllers/user_session_controller.ex:103
+#: lib/game_server_web/controllers/user_session_controller.ex:103
 #: lib/game_server_web/live/auth_success_live.ex:72
 #: lib/game_server_web/live/auth_success_live.ex:72
 #: lib/game_server_web/live/auth_success_live.ex:74
@@ -1427,12 +1403,12 @@ msgstr "Jouer"
 #: lib/game_server_web/live/auth_success_live.ex:194
 #: lib/game_server_web/live/chat_live.ex:401
 #: lib/game_server_web/live/chat_live.ex:401
-#: lib/game_server_web/live/chat_live.ex:405
-#: lib/game_server_web/live/chat_live.ex:405
-#: lib/game_server_web/live/chat_live.ex:468
-#: lib/game_server_web/live/chat_live.ex:468
-#: lib/game_server_web/live/chat_live.ex:491
-#: lib/game_server_web/live/chat_live.ex:491
+#: lib/game_server_web/live/chat_live.ex:404
+#: lib/game_server_web/live/chat_live.ex:404
+#: lib/game_server_web/live/chat_live.ex:467
+#: lib/game_server_web/live/chat_live.ex:467
+#: lib/game_server_web/live/chat_live.ex:490
+#: lib/game_server_web/live/chat_live.ex:490
 #: lib/game_server_web/live/groups_live.ex:169
 #: lib/game_server_web/live/groups_live.ex:169
 #: lib/game_server_web/live/groups_live.ex:172
@@ -1555,4 +1531,40 @@ msgstr "Jouer"
 #: lib/game_server_web/user_auth.ex:356
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Failed"
+msgstr ""
+
+#: lib/game_server_web/controllers/auth_controller.ex:1467
+#: lib/game_server_web/controllers/auth_controller.ex:1467
+#: lib/game_server_web/controllers/auth_controller.ex:1530
+#: lib/game_server_web/controllers/auth_controller.ex:1530
+#: lib/game_server_web/controllers/auth_controller.ex:1593
+#: lib/game_server_web/controllers/auth_controller.ex:1593
+#: lib/game_server_web/controllers/auth_controller.ex:1656
+#: lib/game_server_web/controllers/auth_controller.ex:1656
+#: lib/game_server_web/controllers/auth_controller.ex:1719
+#: lib/game_server_web/controllers/auth_controller.ex:1719
+#: lib/game_server_web/controllers/user_session_controller.ex:27
+#: lib/game_server_web/controllers/user_session_controller.ex:27
+#: lib/game_server_web/controllers/user_session_controller.ex:49
+#: lib/game_server_web/controllers/user_session_controller.ex:49
+#: lib/game_server_web/controllers/user_session_controller.ex:97
+#: lib/game_server_web/controllers/user_session_controller.ex:97
+#, elixir-autogen, elixir-format
+msgid "Your account is pending activation."
+msgstr ""
+
+#: lib/game_server_web/live/achievements_live.ex:159
+#: lib/game_server_web/live/achievements_live.ex:159
+#, elixir-autogen, elixir-format
+msgid "In Progress"
+msgstr ""
+
+#: lib/game_server_web/live/groups_live.ex:523
+#: lib/game_server_web/live/groups_live.ex:523
+#: lib/game_server_web/live/groups_live.ex:667
+#: lib/game_server_web/live/groups_live.ex:667
+#: lib/game_server_web/live/user_live/settings.ex:1250
+#: lib/game_server_web/live/user_live/settings.ex:1250
+#, elixir-autogen, elixir-format
+msgid "Pending"
 msgstr ""

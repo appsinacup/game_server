@@ -1464,7 +1464,7 @@ defmodule GameServerWeb.AuthController do
               conn
               |> put_flash(
                 :error,
-                gettext("Loading...")
+                gettext("Your account is pending activation.")
               )
               |> redirect(to: ~p"/users/log-in")
             end
@@ -1527,7 +1527,7 @@ defmodule GameServerWeb.AuthController do
               conn
               |> put_flash(
                 :error,
-                gettext("Loading...")
+                gettext("Your account is pending activation.")
               )
               |> redirect(to: ~p"/users/log-in")
             end
@@ -1590,7 +1590,7 @@ defmodule GameServerWeb.AuthController do
               conn
               |> put_flash(
                 :error,
-                gettext("Loading...")
+                gettext("Your account is pending activation.")
               )
               |> redirect(to: ~p"/users/log-in")
             end
@@ -1653,7 +1653,7 @@ defmodule GameServerWeb.AuthController do
               conn
               |> put_flash(
                 :error,
-                gettext("Loading...")
+                gettext("Your account is pending activation.")
               )
               |> redirect(to: ~p"/users/log-in")
             end
@@ -1716,7 +1716,7 @@ defmodule GameServerWeb.AuthController do
               conn
               |> put_flash(
                 :error,
-                gettext("Loading...")
+                gettext("Your account is pending activation.")
               )
               |> redirect(to: ~p"/users/log-in")
             end

@@ -520,7 +520,7 @@ defmodule GameServerWeb.GroupsLive do
         <% MapSet.member?(@member_group_ids, @group.id) -> %>
           <span class="badge badge-success badge-sm">{gettext("Member")}</span>
         <% MapSet.member?(@pending_request_ids, @group.id) -> %>
-          <span class="badge badge-warning badge-sm">{gettext("Loading...")}</span>
+          <span class="badge badge-warning badge-sm">{gettext("Pending")}</span>
         <% @group.type == "public" -> %>
           <button
             phx-click="join_group"
@@ -664,7 +664,7 @@ defmodule GameServerWeb.GroupsLive do
             {gettext("Leave")}
           </button>
         <% MapSet.member?(@pending_request_ids, @selected_group.id) -> %>
-          <span class="badge badge-warning">{gettext("Loading...")}</span>
+          <span class="badge badge-warning">{gettext("Pending")}</span>
         <% @selected_group.type == "public" -> %>
           <button
             phx-click="join_group"

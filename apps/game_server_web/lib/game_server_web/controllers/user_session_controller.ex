@@ -24,10 +24,7 @@ defmodule GameServerWeb.UserSessionController do
           |> UserAuth.log_in_user(user, user_params)
         else
           conn
-          |> put_flash(
-            :error,
-            gettext("Loading...")
-          )
+          |> put_flash(:error, gettext("Your account is pending activation."))
           |> redirect(to: ~p"/users/log-in")
         end
 
@@ -49,10 +46,7 @@ defmodule GameServerWeb.UserSessionController do
         |> UserAuth.log_in_user(user, user_params)
       else
         conn
-        |> put_flash(
-          :error,
-          gettext("Loading...")
-        )
+        |> put_flash(:error, gettext("Your account is pending activation."))
         |> redirect(to: ~p"/users/log-in")
       end
     else
@@ -100,7 +94,7 @@ defmodule GameServerWeb.UserSessionController do
           |> UserAuth.log_in_user(user, %{})
         else
           conn
-          |> put_flash(:info, gettext("Loading..."))
+          |> put_flash(:info, gettext("Your account is pending activation."))
           |> redirect(to: ~p"/users/log-in")
         end
 
