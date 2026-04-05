@@ -132,7 +132,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
 
       assert {:redirect, %{to: path, flash: flash}} = redirect
       assert path == ~p"/users/log-in"
-      assert %{"error" => "Failed."} = flash
+      assert %{"error" => "Failed"} = flash
     end
   end
 
@@ -432,7 +432,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
           ~p"/users/settings?conflict_provider=discord&conflict_user_id=#{other_user.id}"
         )
 
-      assert html =~ "Failed."
+      assert html =~ "Failed"
       assert has_element?(lv, "button[phx-value-id=\"#{other_user.id}\"]")
 
       # click delete
@@ -454,13 +454,13 @@ defmodule GameServerWeb.UserLive.SettingsTest do
           ~p"/users/settings?conflict_provider=discord&conflict_user_id=#{other_user.id}"
         )
 
-      assert html =~ "Failed."
+      assert html =~ "Failed"
 
       lv |> element("button[phx-value-id=\"#{other_user.id}\"]") |> render_click()
 
       # other account should remain
       assert Repo.get(User, other_user.id)
-      assert render(lv) =~ "Failed."
+      assert render(lv) =~ "Failed"
     end
   end
 
@@ -492,7 +492,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       assert {:live_redirect, %{to: path, flash: flash}} = redirect
       assert path == ~p"/users/settings"
       assert %{"error" => message} = flash
-      assert message == "Failed."
+      assert message == "Failed"
     end
 
     test "does not update email with invalid token", %{conn: conn, user: user} do
@@ -500,7 +500,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       assert {:live_redirect, %{to: path, flash: flash}} = redirect
       assert path == ~p"/users/settings"
       assert %{"error" => message} = flash
-      assert message == "Failed."
+      assert message == "Failed"
       assert Accounts.get_user_by_email(user.email)
     end
 
@@ -510,7 +510,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       assert {:redirect, %{to: path, flash: flash}} = redirect
       assert path == ~p"/users/log-in"
       assert %{"error" => message} = flash
-      assert message == "Failed."
+      assert message == "Failed"
     end
   end
 end

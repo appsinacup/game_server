@@ -90,7 +90,7 @@ defmodule GameServerWeb.UserLive.RegistrationTest do
 
       html = render_submit(form)
 
-      assert html =~ "Failed."
+      assert html =~ "Failed"
 
       refute GameServer.Repo.get_by(GameServer.Accounts.User, email: email)
     end

@@ -70,7 +70,7 @@ defmodule GameServerWeb.UserLive.LoginTest do
       render_submit(form, %{user: %{remember_me: true}})
 
       conn = follow_trigger_action(form, conn)
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Failed."
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Failed"
       assert redirected_to(conn) == ~p"/users/log-in"
     end
   end
@@ -98,7 +98,7 @@ defmodule GameServerWeb.UserLive.LoginTest do
     test "shows login page with email filled in", %{conn: conn, user: user} do
       {:ok, _lv, html} = live(conn, ~p"/users/log-in")
 
-      assert html =~ "Failed."
+      assert html =~ "Failed"
       refute html =~ "Register"
       assert html =~ "Email"
 

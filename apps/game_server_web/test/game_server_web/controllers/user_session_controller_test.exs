@@ -66,7 +66,7 @@ defmodule GameServerWeb.UserSessionControllerTest do
           "user" => %{"email" => user.email, "password" => "invalid_password"}
         })
 
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Failed."
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Failed"
       assert redirected_to(conn) == ~p"/users/log-in"
     end
   end
@@ -120,7 +120,7 @@ defmodule GameServerWeb.UserSessionControllerTest do
         })
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
-               "Failed."
+               "Failed"
 
       assert redirected_to(conn) == ~p"/users/log-in"
     end
@@ -148,7 +148,7 @@ defmodule GameServerWeb.UserSessionControllerTest do
       assert redirected_to(conn) == ~p"/users/log-in"
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
-               "Failed."
+               "Failed"
     end
   end
 

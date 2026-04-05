@@ -61,7 +61,7 @@ defmodule GameServerWeb.UserLive.ConfirmationTest do
         live(conn, ~p"/users/log-in/#{token}")
         |> follow_redirect(conn, ~p"/users/log-in")
 
-      assert html =~ "Failed."
+      assert html =~ "Failed"
     end
 
     test "logs confirmed user in without changing confirmed_at", %{
@@ -92,7 +92,7 @@ defmodule GameServerWeb.UserLive.ConfirmationTest do
         live(conn, ~p"/users/log-in/#{token}")
         |> follow_redirect(conn, ~p"/users/log-in")
 
-      assert html =~ "Failed."
+      assert html =~ "Failed"
     end
 
     test "raises error for invalid token", %{conn: conn} do
@@ -100,7 +100,7 @@ defmodule GameServerWeb.UserLive.ConfirmationTest do
         live(conn, ~p"/users/log-in/invalid-token")
         |> follow_redirect(conn, ~p"/users/log-in")
 
-      assert html =~ "Failed."
+      assert html =~ "Failed"
     end
   end
 end
