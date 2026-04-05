@@ -4,6 +4,7 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
 
   alias GameServer.Accounts
   alias GameServer.Accounts.User
+  alias GameServer.Async
   alias OpenApiSpex.Schema
 
   tags(["Admin – Users"])
@@ -71,13 +72,7 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
 
         case Accounts.update_user(user, attrs) do
           {:ok, updated} ->
-            # Send activation email if the user was just activated
-            if not user.is_activated and updated.is_activated do
-              GameServer.Async.run(fn ->
-                GameServer.Accounts.UserNotifier.deliver_account_activated(updated)
-              end)
-            end
-
+            maybe_notify_activation(user, updated)
             json(conn, %{data: serialize_user(updated)})
 
           {:error, %Ecto.Changeset{} = cs} ->
@@ -88,6 +83,15 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
               errors: Ecto.Changeset.traverse_errors(cs, & &1)
             })
         end
+    end
+  end
+
+  # Send activation email when user transitions from deactivated to activated
+  defp maybe_notify_activation(old_user, updated_user) do
+    if not old_user.is_activated and updated_user.is_activated do
+      Async.run(fn ->
+        Accounts.UserNotifier.deliver_account_activated(updated_user)
+      end)
     end
   end
 

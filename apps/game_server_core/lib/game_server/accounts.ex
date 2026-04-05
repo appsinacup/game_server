@@ -201,7 +201,7 @@ defmodule GameServer.Accounts do
 
   # When account activation is required, new non-admin users start deactivated.
   # The first user (admin) is always activated.
-  defp maybe_deactivate_new_user(changeset, _is_first_user = true), do: changeset
+  defp maybe_deactivate_new_user(changeset, true = _is_first_user), do: changeset
 
   defp maybe_deactivate_new_user(changeset, _is_first_user) do
     if require_account_activation?() do

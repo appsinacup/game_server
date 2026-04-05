@@ -68,45 +68,15 @@ defmodule GameServerWeb.Api.V1.SessionController do
 
   def create(conn, %{"email" => email, "password" => password}) do
     if user = Accounts.get_user_by_email_and_password(email, password) do
-      if not Accounts.user_activated?(user) do
+      if Accounts.user_activated?(user) do
+        maybe_attach_device(conn, user)
+        issue_tokens(conn, user)
+      else
         conn
         |> put_status(:forbidden)
         |> json(%{
           error: "account_not_activated",
           message: "Your account is pending activation by an administrator."
-        })
-      else
-        # If device_id provided and not already attached, attempt to attach it
-        case conn.body_params do
-          %{"device_id" => device_id} when is_binary(device_id) and is_nil(user.device_id) ->
-            # Attach only if device-based auth/attachment is enabled by config
-            if Accounts.device_auth_enabled?() do
-              # best-effort attach (ignore attach errors so standard login still succeeds)
-              _ = Accounts.attach_device_to_user(user, device_id)
-            end
-
-          _ ->
-            :ok
-        end
-
-        # Generate both access and refresh tokens
-        {:ok, access_token, _access_claims} =
-          Guardian.encode_and_sign(user, %{}, token_type: "access")
-
-        {:ok, refresh_token, _refresh_claims} =
-          Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
-
-        # Track login activity
-        Accounts.touch_last_seen(user)
-
-        json(conn, %{
-          data: %{
-            access_token: access_token,
-            refresh_token: refresh_token,
-            expires_in: 900,
-            user_id: user.id,
-            display_name: user.display_name || ""
-          }
         })
       end
     else
@@ -149,29 +119,14 @@ defmodule GameServerWeb.Api.V1.SessionController do
     if Accounts.device_auth_enabled?() do
       case Accounts.find_or_create_from_device(device_id) do
         {:ok, user} ->
-          if not Accounts.user_activated?(user) do
+          if Accounts.user_activated?(user) do
+            issue_tokens(conn, user)
+          else
             conn
             |> put_status(:forbidden)
             |> json(%{
               error: "account_not_activated",
               message: "Your account is pending activation by an administrator."
-            })
-          else
-            {:ok, access_token, _} = Guardian.encode_and_sign(user, %{}, token_type: "access")
-
-            {:ok, refresh_token, _} =
-              Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
-
-            Accounts.touch_last_seen(user)
-
-            json(conn, %{
-              data: %{
-                access_token: access_token,
-                refresh_token: refresh_token,
-                expires_in: 900,
-                user_id: user.id,
-                display_name: user.display_name || ""
-              }
             })
           end
 
@@ -297,5 +252,36 @@ defmodule GameServerWeb.Api.V1.SessionController do
     conn
     |> put_status(:bad_request)
     |> json(%{error: "refresh_token is required"})
+  end
+
+  # Best-effort device attachment when device_id is provided during email login
+  defp maybe_attach_device(conn, user) do
+    with %{"device_id" => device_id} when is_binary(device_id) <- conn.body_params,
+         true <- is_nil(user.device_id),
+         true <- Accounts.device_auth_enabled?() do
+      _ = Accounts.attach_device_to_user(user, device_id)
+    end
+
+    :ok
+  end
+
+  # Generate access + refresh JWTs and return the token response
+  defp issue_tokens(conn, user) do
+    {:ok, access_token, _} = Guardian.encode_and_sign(user, %{}, token_type: "access")
+
+    {:ok, refresh_token, _} =
+      Guardian.encode_and_sign(user, %{}, token_type: "refresh", ttl: {30, :days})
+
+    Accounts.touch_last_seen(user)
+
+    json(conn, %{
+      data: %{
+        access_token: access_token,
+        refresh_token: refresh_token,
+        expires_in: 900,
+        user_id: user.id,
+        display_name: user.display_name || ""
+      }
+    })
   end
 end

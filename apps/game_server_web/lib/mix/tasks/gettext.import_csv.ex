@@ -385,22 +385,8 @@ defmodule Mix.Tasks.Gettext.ImportCsv do
         if new_val == "" do
           {acc_data, acc_count}
         else
-          # Find all paths that share this source text
-          all_paths =
-            if source_text != "" and en_data do
-              Map.get(source_to_paths, source_text, [path_key])
-            else
-              [path_key]
-            end
-
-          # Apply translation to all matching paths
-          Enum.reduce(all_paths, {acc_data, acc_count}, fn p, {d, c} ->
-            if get_in_config(d, p) == new_val do
-              {d, c}
-            else
-              {put_in_config(d, p, new_val), c + 1}
-            end
-          end)
+          all_paths = resolve_config_paths(source_text, path_key, source_to_paths, en_data)
+          apply_to_all_paths(all_paths, new_val, acc_data, acc_count)
         end
       end)
 
@@ -415,6 +401,27 @@ defmodule Mix.Tasks.Gettext.ImportCsv do
     end
 
     %{updated: count}
+  end
+
+  # Find all config paths that share the same source text, falling back to
+  # the original path key when the English config is unavailable.
+  defp resolve_config_paths(source_text, path_key, source_to_paths, en_data) do
+    if source_text != "" and en_data do
+      Map.get(source_to_paths, source_text, [path_key])
+    else
+      [path_key]
+    end
+  end
+
+  # Apply a translation value to every matching config path.
+  defp apply_to_all_paths(paths, new_val, data, count) do
+    Enum.reduce(paths, {data, count}, fn p, {d, c} ->
+      if get_in_config(d, p) == new_val do
+        {d, c}
+      else
+        {put_in_config(d, p, new_val), c + 1}
+      end
+    end)
   end
 
   # Build a map: %{english_text => [path1, path2, ...]} from the English config.

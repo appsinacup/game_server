@@ -3,6 +3,7 @@ defmodule GameServerWeb.AdminLive.Users do
 
   alias GameServer.Accounts
   alias GameServer.Accounts.User
+  alias GameServer.Async
   alias GameServer.Repo
 
   import Ecto.Query
@@ -713,8 +714,8 @@ defmodule GameServerWeb.AdminLive.Users do
       {:ok, updated_user} ->
         # Send activation email if the user was just activated
         if not user.is_activated and updated_user.is_activated do
-          GameServer.Async.run(fn ->
-            GameServer.Accounts.UserNotifier.deliver_account_activated(updated_user)
+          Async.run(fn ->
+            Accounts.UserNotifier.deliver_account_activated(updated_user)
           end)
         end
 
