@@ -131,6 +131,14 @@ Returns {:error, :not_found} or {:error, :expired} when token is invalid/expired
 
 Count users matching a text query (email or display_name). Returns integer.
 
+# `count_unactivated_users`
+
+```elixir
+@spec count_unactivated_users() :: non_neg_integer()
+```
+
+Count users who are not yet activated (is_activated == false).
+
 # `count_user_tokens`
 
 ```elixir
@@ -629,6 +637,18 @@ that receives the encoded token and returns the confirmation URL string.
 If sending the confirmation email fails the transaction is rolled back and
 `{:error, reason}` is returned. On success it returns `{:ok, user}`.
 
+# `require_account_activation?`
+
+```elixir
+@spec require_account_activation?() :: boolean()
+```
+
+Returns true when new accounts require manual admin activation before
+they can log in. Reads from application config
+`:game_server_core, :require_account_activation` which is set at boot
+from the `REQUIRE_ACCOUNT_ACTIVATION` environment variable in `runtime.exs`.
+Defaults to `false` when not configured.
+
 # `revoke_all_user_sessions`
 
 ```elixir
@@ -812,6 +832,16 @@ Returns a tuple with the updated user, as well as a list of expired tokens.
 
     iex> update_user_password(user, %{password: "too short"})
     {:error, %Ecto.Changeset{}}
+
+# `user_activated?`
+
+```elixir
+@spec user_activated?(GameServer.Accounts.User.t()) :: boolean()
+```
+
+Returns true when the given user is activated or when account activation
+is not required. Returns false only when activation is required **and**
+the user's `is_activated` flag is `false`.
 
 ---
 

@@ -23,6 +23,7 @@ validations so other domains can reuse them safely.
   hashed_password: String.t() | nil,
   id: Ecto.UUID.t() | integer() | nil,
   inserted_at: term(),
+  is_activated: term(),
   is_admin: term(),
   is_online: boolean(),
   last_seen_at: DateTime.t() | nil,

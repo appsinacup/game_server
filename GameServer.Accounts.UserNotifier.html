@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.860">
+    <meta name="project" content="GameServer v1.0.869">
 
 
-    <title>GameServer.Accounts.UserNotifier — GameServer v1.0.860</title>
+    <title>GameServer.Accounts.UserNotifier — GameServer v1.0.869</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-FC1B757E.js"></script>
+    <script defer src="dist/sidebar_items-4E9D397D.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.860
+          v1.0.869
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Accounts.<wbr>UserNotifier</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.860)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.869)</small>
 
     </h1>
 
@@ -126,6 +126,17 @@ GameServer
   <h3>
     <a href="#functions">Functions</a>
   </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#deliver_account_activated/1" data-no-tooltip="" translate="no">deliver_account_activated(user)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Deliver a notification that the user's account has been activated by an admin.
+Silently returns <code class="inline">{:ok, :no_email}</code> if the user has no email address.</p></div>
+
+    </div>
 
     <div class="summary-row">
       <div class="summary-signature">
@@ -181,6 +192,25 @@ Returns the same shape as <code class="inline">deliver/3</code>.</p></div>
     </h2>
 
     <div class="functions-list">
+<section class="detail" id="deliver_account_activated/1">
+
+  <div class="detail-header">
+    <a href="#deliver_account_activated/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">deliver_account_activated(user)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+<p>Deliver a notification that the user's account has been activated by an admin.
+Silently returns <code class="inline">{:ok, :no_email}</code> if the user has no email address.</p>
+  </section>
+</section>
 <section class="detail" id="deliver_confirmation_instructions/2">
 
   <div class="detail-header">

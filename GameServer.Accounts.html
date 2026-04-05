@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.860">
+    <meta name="project" content="GameServer v1.0.869">
 
 
-    <title>GameServer.Accounts — GameServer v1.0.860</title>
+    <title>GameServer.Accounts — GameServer v1.0.869</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-FC1B757E.js"></script>
+    <script defer src="dist/sidebar_items-4E9D397D.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.860
+          v1.0.869
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Accounts</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.860)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.869)</small>
 
     </h1>
 
@@ -110,15 +110,15 @@ GameServer
 
     <section id="moduledoc">
 <p>The Accounts context.</p><h2 id="module-usage" class="section-heading"><a href="#module-usage" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Usage</span></h2><pre><code class="makeup elixir" translate="no"><span class="c1"># Lookup by id or email</span><span class="w">
-</span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Accounts</span><span class="o">.</span><span class="n">get_user</span><span class="p" data-group-id="5773519154-1">(</span><span class="mi">123</span><span class="p" data-group-id="5773519154-1">)</span><span class="w">
-</span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Accounts</span><span class="o">.</span><span class="n">get_user_by_email</span><span class="p" data-group-id="5773519154-2">(</span><span class="s">&quot;me@example.com&quot;</span><span class="p" data-group-id="5773519154-2">)</span><span class="w">
+</span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Accounts</span><span class="o">.</span><span class="n">get_user</span><span class="p" data-group-id="1841012006-1">(</span><span class="mi">123</span><span class="p" data-group-id="1841012006-1">)</span><span class="w">
+</span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Accounts</span><span class="o">.</span><span class="n">get_user_by_email</span><span class="p" data-group-id="1841012006-2">(</span><span class="s">&quot;me@example.com&quot;</span><span class="p" data-group-id="1841012006-2">)</span><span class="w">
 
 </span><span class="c1"># Update a user</span><span class="w">
-</span><span class="p" data-group-id="5773519154-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p" data-group-id="5773519154-3">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Accounts</span><span class="o">.</span><span class="n">update_user</span><span class="p" data-group-id="5773519154-4">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5773519154-5">%{</span><span class="ss">display_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;NewName&quot;</span><span class="p" data-group-id="5773519154-5">}</span><span class="p" data-group-id="5773519154-4">)</span><span class="w">
+</span><span class="p" data-group-id="1841012006-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="n">user</span><span class="p" data-group-id="1841012006-3">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Accounts</span><span class="o">.</span><span class="n">update_user</span><span class="p" data-group-id="1841012006-4">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="1841012006-5">%{</span><span class="ss">display_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;NewName&quot;</span><span class="p" data-group-id="1841012006-5">}</span><span class="p" data-group-id="1841012006-4">)</span><span class="w">
 
 </span><span class="c1"># Search (paginated) and count</span><span class="w">
-</span><span class="n">users</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Accounts</span><span class="o">.</span><span class="n">search_users</span><span class="p" data-group-id="5773519154-6">(</span><span class="s">&quot;bob&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p" data-group-id="5773519154-6">)</span><span class="w">
-</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Accounts</span><span class="o">.</span><span class="n">count_search_users</span><span class="p" data-group-id="5773519154-7">(</span><span class="s">&quot;bob&quot;</span><span class="p" data-group-id="5773519154-7">)</span></code></pre>
+</span><span class="n">users</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Accounts</span><span class="o">.</span><span class="n">search_users</span><span class="p" data-group-id="1841012006-6">(</span><span class="s">&quot;bob&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">page</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="ss">page_size</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p" data-group-id="1841012006-6">)</span><span class="w">
+</span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nc">GameServer.Accounts</span><span class="o">.</span><span class="n">count_search_users</span><span class="p" data-group-id="1841012006-7">(</span><span class="s">&quot;bob&quot;</span><span class="p" data-group-id="1841012006-7">)</span></code></pre>
     </section>
 
 </div>
@@ -233,6 +233,16 @@ metadata, etc.) in real-time.</p></div>
       </div>
 
         <div class="summary-synopsis"><p>Count users matching a text query (email or display_name). Returns integer.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#count_unactivated_users/0" data-no-tooltip="" translate="no">count_unactivated_users()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Count users who are not yet activated (is_activated == false).</p></div>
 
     </div>
 
@@ -643,6 +653,20 @@ authenticate using the device_id in addition to their OAuth providers.</p></div>
 
     <div class="summary-row">
       <div class="summary-signature">
+        <a href="#require_account_activation?/0" data-no-tooltip="" translate="no">require_account_activation?()</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns true when new accounts require manual admin activation before
+they can log in. Reads from application config
+<code class="inline">:game_server_core, :require_account_activation</code> which is set at boot
+from the <code class="inline">REQUIRE_ACCOUNT_ACTIVATION</code> environment variable in <code class="inline">runtime.exs</code>.
+Defaults to <code class="inline">false</code> when not configured.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
         <a href="#revoke_all_user_sessions/1" data-no-tooltip="" translate="no">revoke_all_user_sessions(user_id)</a>
 
       </div>
@@ -784,6 +808,18 @@ Fire-and-forget — errors are ignored.</p></div>
       </div>
 
         <div class="summary-synopsis"><p>Updates the user password.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#user_activated?/1" data-no-tooltip="" translate="no">user_activated?(arg1)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns true when the given user is activated or when account activation
+is not required. Returns false only when activation is required <strong>and</strong>
+the user's <code class="inline">is_activated</code> flag is <code class="inline">false</code>.</p></div>
 
     </div>
 
@@ -932,8 +968,8 @@ intended for client consumption through the <code class="inline">user:&lt;id&gt;
 
       </div>
 
-<p>Returns an <code class="inline">%Ecto.Changeset{}</code> for changing the user email.</p><p>See <a href="GameServer.Accounts.User.html#email_changeset/3"><code class="inline">GameServer.Accounts.User.email_changeset/3</code></a> for a list of supported options.</p><h2 id="change_user_email/3-examples" class="section-heading"><a href="#change_user_email/3-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">change_user_email</span><span class="p" data-group-id="3514699577-1">(</span><span class="n">user</span><span class="p" data-group-id="3514699577-1">)</span><span class="w">
-</span><span class="p" data-group-id="3514699577-2">%</span><span class="nc" data-group-id="3514699577-2">Ecto.Changeset</span><span class="p" data-group-id="3514699577-2">{</span><span class="ss">data</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="3514699577-3">%</span><span class="nc" data-group-id="3514699577-3">User</span><span class="p" data-group-id="3514699577-3">{</span><span class="p" data-group-id="3514699577-3">}</span><span class="p" data-group-id="3514699577-2">}</span></code></pre>
+<p>Returns an <code class="inline">%Ecto.Changeset{}</code> for changing the user email.</p><p>See <a href="GameServer.Accounts.User.html#email_changeset/3"><code class="inline">GameServer.Accounts.User.email_changeset/3</code></a> for a list of supported options.</p><h2 id="change_user_email/3-examples" class="section-heading"><a href="#change_user_email/3-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">change_user_email</span><span class="p" data-group-id="3980438181-1">(</span><span class="n">user</span><span class="p" data-group-id="3980438181-1">)</span><span class="w">
+</span><span class="p" data-group-id="3980438181-2">%</span><span class="nc" data-group-id="3980438181-2">Ecto.Changeset</span><span class="p" data-group-id="3980438181-2">{</span><span class="ss">data</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="3980438181-3">%</span><span class="nc" data-group-id="3980438181-3">User</span><span class="p" data-group-id="3980438181-3">{</span><span class="p" data-group-id="3980438181-3">}</span><span class="p" data-group-id="3980438181-2">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="change_user_password/3">
@@ -962,8 +998,8 @@ intended for client consumption through the <code class="inline">user:&lt;id&gt;
 
       </div>
 
-<p>Returns an <code class="inline">%Ecto.Changeset{}</code> for changing the user password.</p><p>See <a href="GameServer.Accounts.User.html#password_changeset/3"><code class="inline">GameServer.Accounts.User.password_changeset/3</code></a> for a list of supported options.</p><h2 id="change_user_password/3-examples" class="section-heading"><a href="#change_user_password/3-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">change_user_password</span><span class="p" data-group-id="7832682706-1">(</span><span class="n">user</span><span class="p" data-group-id="7832682706-1">)</span><span class="w">
-</span><span class="p" data-group-id="7832682706-2">%</span><span class="nc" data-group-id="7832682706-2">Ecto.Changeset</span><span class="p" data-group-id="7832682706-2">{</span><span class="ss">data</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="7832682706-3">%</span><span class="nc" data-group-id="7832682706-3">User</span><span class="p" data-group-id="7832682706-3">{</span><span class="p" data-group-id="7832682706-3">}</span><span class="p" data-group-id="7832682706-2">}</span></code></pre>
+<p>Returns an <code class="inline">%Ecto.Changeset{}</code> for changing the user password.</p><p>See <a href="GameServer.Accounts.User.html#password_changeset/3"><code class="inline">GameServer.Accounts.User.password_changeset/3</code></a> for a list of supported options.</p><h2 id="change_user_password/3-examples" class="section-heading"><a href="#change_user_password/3-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">change_user_password</span><span class="p" data-group-id="5672548473-1">(</span><span class="n">user</span><span class="p" data-group-id="5672548473-1">)</span><span class="w">
+</span><span class="p" data-group-id="5672548473-2">%</span><span class="nc" data-group-id="5672548473-2">Ecto.Changeset</span><span class="p" data-group-id="5672548473-2">{</span><span class="ss">data</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="5672548473-3">%</span><span class="nc" data-group-id="5672548473-3">User</span><span class="p" data-group-id="5672548473-3">{</span><span class="p" data-group-id="5672548473-3">}</span><span class="p" data-group-id="5672548473-2">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="change_user_registration/2">
@@ -1015,8 +1051,8 @@ intended for client consumption through the <code class="inline">user:&lt;id&gt;
 
       </div>
 
-<p>Confirms a user's email by setting confirmed_at timestamp.</p><h2 id="confirm_user/1-examples" class="section-heading"><a href="#confirm_user/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">confirm_user</span><span class="p" data-group-id="7265269229-1">(</span><span class="n">user</span><span class="p" data-group-id="7265269229-1">)</span><span class="w">
-</span><span class="p" data-group-id="7265269229-2">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="7265269229-3">%</span><span class="nc" data-group-id="7265269229-3">User</span><span class="p" data-group-id="7265269229-3">{</span><span class="p" data-group-id="7265269229-3">}</span><span class="p" data-group-id="7265269229-2">}</span></code></pre>
+<p>Confirms a user's email by setting confirmed_at timestamp.</p><h2 id="confirm_user/1-examples" class="section-heading"><a href="#confirm_user/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">confirm_user</span><span class="p" data-group-id="3956634582-1">(</span><span class="n">user</span><span class="p" data-group-id="3956634582-1">)</span><span class="w">
+</span><span class="p" data-group-id="3956634582-2">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3956634582-3">%</span><span class="nc" data-group-id="3956634582-3">User</span><span class="p" data-group-id="3956634582-3">{</span><span class="p" data-group-id="3956634582-3">}</span><span class="p" data-group-id="3956634582-2">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="confirm_user_by_token/1">
@@ -1067,6 +1103,30 @@ Returns {:error, :not_found} or {:error, :expired} when token is invalid/expired
       </div>
 
 <p>Count users matching a text query (email or display_name). Returns integer.</p>
+  </section>
+</section>
+<section class="detail" id="count_unactivated_users/0">
+
+  <div class="detail-header">
+    <a href="#count_unactivated_users/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">count_unactivated_users()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> count_unactivated_users() :: <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">non_neg_integer</a>()</pre>
+
+      </div>
+
+<p>Count users who are not yet activated (is_activated == false).</p>
   </section>
 </section>
 <section class="detail" id="count_user_tokens/1">
@@ -1367,8 +1427,8 @@ session-token based authentication.</p>
 
       </div>
 
-<p>Delivers the update email instructions to the given user.</p><h2 id="deliver_user_update_email_instructions/3-examples" class="section-heading"><a href="#deliver_user_update_email_instructions/3-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">deliver_user_update_email_instructions</span><span class="p" data-group-id="5974890066-1">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">current_email</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">url</span><span class="p" data-group-id="5974890066-2">(</span><span class="sx">~p&quot;/users/settings/confirm-email/</span><span class="si" data-group-id="5974890066-3">#{</span><span class="ni">&amp;1</span><span class="si" data-group-id="5974890066-3">}</span><span class="sx">&quot;</span><span class="p" data-group-id="5974890066-2">)</span><span class="p" data-group-id="5974890066-1">)</span><span class="w">
-</span><span class="p" data-group-id="5974890066-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5974890066-5">%{</span><span class="ss">to</span><span class="p">:</span><span class="w"> </span><span class="n">...</span><span class="p">,</span><span class="w"> </span><span class="ss">body</span><span class="p">:</span><span class="w"> </span><span class="n">...</span><span class="p" data-group-id="5974890066-5">}</span><span class="p" data-group-id="5974890066-4">}</span></code></pre>
+<p>Delivers the update email instructions to the given user.</p><h2 id="deliver_user_update_email_instructions/3-examples" class="section-heading"><a href="#deliver_user_update_email_instructions/3-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">deliver_user_update_email_instructions</span><span class="p" data-group-id="7579095821-1">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="n">current_email</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">url</span><span class="p" data-group-id="7579095821-2">(</span><span class="sx">~p&quot;/users/settings/confirm-email/</span><span class="si" data-group-id="7579095821-3">#{</span><span class="ni">&amp;1</span><span class="si" data-group-id="7579095821-3">}</span><span class="sx">&quot;</span><span class="p" data-group-id="7579095821-2">)</span><span class="p" data-group-id="7579095821-1">)</span><span class="w">
+</span><span class="p" data-group-id="7579095821-4">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="7579095821-5">%{</span><span class="ss">to</span><span class="p">:</span><span class="w"> </span><span class="n">...</span><span class="p">,</span><span class="w"> </span><span class="ss">body</span><span class="p">:</span><span class="w"> </span><span class="n">...</span><span class="p" data-group-id="7579095821-5">}</span><span class="p" data-group-id="7579095821-4">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="device_auth_enabled?/0">
@@ -1420,8 +1480,8 @@ is set, device auth is enabled by default.</p>
 
       </div>
 
-<p>Finds a user by Apple ID or creates a new user from OAuth data.</p><h2 id="find_or_create_from_apple/1-examples" class="section-heading"><a href="#find_or_create_from_apple/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">find_or_create_from_apple</span><span class="p" data-group-id="8859659087-1">(</span><span class="p" data-group-id="8859659087-2">%{</span><span class="ss">apple_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;123&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p" data-group-id="8859659087-2">}</span><span class="p" data-group-id="8859659087-1">)</span><span class="w">
-</span><span class="p" data-group-id="8859659087-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="8859659087-4">%</span><span class="nc" data-group-id="8859659087-4">User</span><span class="p" data-group-id="8859659087-4">{</span><span class="p" data-group-id="8859659087-4">}</span><span class="p" data-group-id="8859659087-3">}</span></code></pre>
+<p>Finds a user by Apple ID or creates a new user from OAuth data.</p><h2 id="find_or_create_from_apple/1-examples" class="section-heading"><a href="#find_or_create_from_apple/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">find_or_create_from_apple</span><span class="p" data-group-id="8810675130-1">(</span><span class="p" data-group-id="8810675130-2">%{</span><span class="ss">apple_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;123&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p" data-group-id="8810675130-2">}</span><span class="p" data-group-id="8810675130-1">)</span><span class="w">
+</span><span class="p" data-group-id="8810675130-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="8810675130-4">%</span><span class="nc" data-group-id="8810675130-4">User</span><span class="p" data-group-id="8810675130-4">{</span><span class="p" data-group-id="8810675130-4">}</span><span class="p" data-group-id="8810675130-3">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="find_or_create_from_device/2">
@@ -1475,8 +1535,8 @@ create an anonymous confirmed user and attach the device_id.</p>
 
       </div>
 
-<p>Finds a user by Discord ID or creates a new user from OAuth data.</p><h2 id="find_or_create_from_discord/1-examples" class="section-heading"><a href="#find_or_create_from_discord/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">find_or_create_from_discord</span><span class="p" data-group-id="5168800396-1">(</span><span class="p" data-group-id="5168800396-2">%{</span><span class="ss">discord_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;123&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p" data-group-id="5168800396-2">}</span><span class="p" data-group-id="5168800396-1">)</span><span class="w">
-</span><span class="p" data-group-id="5168800396-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="5168800396-4">%</span><span class="nc" data-group-id="5168800396-4">User</span><span class="p" data-group-id="5168800396-4">{</span><span class="p" data-group-id="5168800396-4">}</span><span class="p" data-group-id="5168800396-3">}</span></code></pre>
+<p>Finds a user by Discord ID or creates a new user from OAuth data.</p><h2 id="find_or_create_from_discord/1-examples" class="section-heading"><a href="#find_or_create_from_discord/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">find_or_create_from_discord</span><span class="p" data-group-id="6268421046-1">(</span><span class="p" data-group-id="6268421046-2">%{</span><span class="ss">discord_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;123&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p" data-group-id="6268421046-2">}</span><span class="p" data-group-id="6268421046-1">)</span><span class="w">
+</span><span class="p" data-group-id="6268421046-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6268421046-4">%</span><span class="nc" data-group-id="6268421046-4">User</span><span class="p" data-group-id="6268421046-4">{</span><span class="p" data-group-id="6268421046-4">}</span><span class="p" data-group-id="6268421046-3">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="find_or_create_from_facebook/1">
@@ -1501,8 +1561,8 @@ create an anonymous confirmed user and attach the device_id.</p>
 
       </div>
 
-<p>Finds a user by Facebook ID or creates a new user from OAuth data.</p><h2 id="find_or_create_from_facebook/1-examples" class="section-heading"><a href="#find_or_create_from_facebook/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">find_or_create_from_facebook</span><span class="p" data-group-id="6855313903-1">(</span><span class="p" data-group-id="6855313903-2">%{</span><span class="ss">facebook_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;123&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p" data-group-id="6855313903-2">}</span><span class="p" data-group-id="6855313903-1">)</span><span class="w">
-</span><span class="p" data-group-id="6855313903-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6855313903-4">%</span><span class="nc" data-group-id="6855313903-4">User</span><span class="p" data-group-id="6855313903-4">{</span><span class="p" data-group-id="6855313903-4">}</span><span class="p" data-group-id="6855313903-3">}</span></code></pre>
+<p>Finds a user by Facebook ID or creates a new user from OAuth data.</p><h2 id="find_or_create_from_facebook/1-examples" class="section-heading"><a href="#find_or_create_from_facebook/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">find_or_create_from_facebook</span><span class="p" data-group-id="8348691600-1">(</span><span class="p" data-group-id="8348691600-2">%{</span><span class="ss">facebook_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;123&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p" data-group-id="8348691600-2">}</span><span class="p" data-group-id="8348691600-1">)</span><span class="w">
+</span><span class="p" data-group-id="8348691600-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="8348691600-4">%</span><span class="nc" data-group-id="8348691600-4">User</span><span class="p" data-group-id="8348691600-4">{</span><span class="p" data-group-id="8348691600-4">}</span><span class="p" data-group-id="8348691600-3">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="find_or_create_from_google/1">
@@ -1527,8 +1587,8 @@ create an anonymous confirmed user and attach the device_id.</p>
 
       </div>
 
-<p>Finds a user by Google ID or creates a new user from OAuth data.</p><h2 id="find_or_create_from_google/1-examples" class="section-heading"><a href="#find_or_create_from_google/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">find_or_create_from_google</span><span class="p" data-group-id="3798789601-1">(</span><span class="p" data-group-id="3798789601-2">%{</span><span class="ss">google_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;123&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p" data-group-id="3798789601-2">}</span><span class="p" data-group-id="3798789601-1">)</span><span class="w">
-</span><span class="p" data-group-id="3798789601-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="3798789601-4">%</span><span class="nc" data-group-id="3798789601-4">User</span><span class="p" data-group-id="3798789601-4">{</span><span class="p" data-group-id="3798789601-4">}</span><span class="p" data-group-id="3798789601-3">}</span></code></pre>
+<p>Finds a user by Google ID or creates a new user from OAuth data.</p><h2 id="find_or_create_from_google/1-examples" class="section-heading"><a href="#find_or_create_from_google/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">find_or_create_from_google</span><span class="p" data-group-id="7743746366-1">(</span><span class="p" data-group-id="7743746366-2">%{</span><span class="ss">google_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;123&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p" data-group-id="7743746366-2">}</span><span class="p" data-group-id="7743746366-1">)</span><span class="w">
+</span><span class="p" data-group-id="7743746366-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="7743746366-4">%</span><span class="nc" data-group-id="7743746366-4">User</span><span class="p" data-group-id="7743746366-4">{</span><span class="p" data-group-id="7743746366-4">}</span><span class="p" data-group-id="7743746366-3">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="find_or_create_from_steam/1">
@@ -1553,8 +1613,8 @@ create an anonymous confirmed user and attach the device_id.</p>
 
       </div>
 
-<p>Finds a user by Steam ID or creates a new user from Steam OpenID data.</p><h2 id="find_or_create_from_steam/1-examples" class="section-heading"><a href="#find_or_create_from_steam/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">find_or_create_from_steam</span><span class="p" data-group-id="6475425535-1">(</span><span class="p" data-group-id="6475425535-2">%{</span><span class="ss">steam_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;12345&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p" data-group-id="6475425535-2">}</span><span class="p" data-group-id="6475425535-1">)</span><span class="w">
-</span><span class="p" data-group-id="6475425535-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6475425535-4">%</span><span class="nc" data-group-id="6475425535-4">User</span><span class="p" data-group-id="6475425535-4">{</span><span class="p" data-group-id="6475425535-4">}</span><span class="p" data-group-id="6475425535-3">}</span></code></pre>
+<p>Finds a user by Steam ID or creates a new user from Steam OpenID data.</p><h2 id="find_or_create_from_steam/1-examples" class="section-heading"><a href="#find_or_create_from_steam/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">find_or_create_from_steam</span><span class="p" data-group-id="8053505565-1">(</span><span class="p" data-group-id="8053505565-2">%{</span><span class="ss">steam_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;12345&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p" data-group-id="8053505565-2">}</span><span class="p" data-group-id="8053505565-1">)</span><span class="w">
+</span><span class="p" data-group-id="8053505565-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="8053505565-4">%</span><span class="nc" data-group-id="8053505565-4">User</span><span class="p" data-group-id="8053505565-4">{</span><span class="p" data-group-id="8053505565-4">}</span><span class="p" data-group-id="8053505565-3">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="generate_user_session_token/1">
@@ -1633,10 +1693,10 @@ create an anonymous confirmed user and attach the device_id.</p>
 
       </div>
 
-<p>Gets a single user by ID.</p><p>Returns <code class="inline">nil</code> if the User does not exist.</p><h2 id="get_user/1-examples" class="section-heading"><a href="#get_user/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">get_user</span><span class="p" data-group-id="7851234911-1">(</span><span class="mi">123</span><span class="p" data-group-id="7851234911-1">)</span><span class="w">
-</span><span class="p" data-group-id="7851234911-2">%</span><span class="nc" data-group-id="7851234911-2">User</span><span class="p" data-group-id="7851234911-2">{</span><span class="p" data-group-id="7851234911-2">}</span><span class="w">
+<p>Gets a single user by ID.</p><p>Returns <code class="inline">nil</code> if the User does not exist.</p><h2 id="get_user/1-examples" class="section-heading"><a href="#get_user/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">get_user</span><span class="p" data-group-id="0609493688-1">(</span><span class="mi">123</span><span class="p" data-group-id="0609493688-1">)</span><span class="w">
+</span><span class="p" data-group-id="0609493688-2">%</span><span class="nc" data-group-id="0609493688-2">User</span><span class="p" data-group-id="0609493688-2">{</span><span class="p" data-group-id="0609493688-2">}</span><span class="w">
 
-</span><span class="gp unselectable">iex&gt; </span><span class="n">get_user</span><span class="p" data-group-id="7851234911-3">(</span><span class="mi">456</span><span class="p" data-group-id="7851234911-3">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">get_user</span><span class="p" data-group-id="0609493688-3">(</span><span class="mi">456</span><span class="p" data-group-id="0609493688-3">)</span><span class="w">
 </span><span class="no">nil</span></code></pre>
   </section>
 </section>
@@ -1661,10 +1721,10 @@ create an anonymous confirmed user and attach the device_id.</p>
 
       </div>
 
-<p>Gets a single user.</p><p>Raises <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.NoResultsError.html"><code class="inline">Ecto.NoResultsError</code></a> if the User does not exist.</p><h2 id="get_user!/1-examples" class="section-heading"><a href="#get_user!/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">get_user!</span><span class="p" data-group-id="5906187486-1">(</span><span class="mi">123</span><span class="p" data-group-id="5906187486-1">)</span><span class="w">
-</span><span class="p" data-group-id="5906187486-2">%</span><span class="nc" data-group-id="5906187486-2">User</span><span class="p" data-group-id="5906187486-2">{</span><span class="p" data-group-id="5906187486-2">}</span><span class="w">
+<p>Gets a single user.</p><p>Raises <a href="https://hexdocs.pm/ecto/3.13.5/Ecto.NoResultsError.html"><code class="inline">Ecto.NoResultsError</code></a> if the User does not exist.</p><h2 id="get_user!/1-examples" class="section-heading"><a href="#get_user!/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">get_user!</span><span class="p" data-group-id="0931402006-1">(</span><span class="mi">123</span><span class="p" data-group-id="0931402006-1">)</span><span class="w">
+</span><span class="p" data-group-id="0931402006-2">%</span><span class="nc" data-group-id="0931402006-2">User</span><span class="p" data-group-id="0931402006-2">{</span><span class="p" data-group-id="0931402006-2">}</span><span class="w">
 
-</span><span class="gp unselectable">iex&gt; </span><span class="n">get_user!</span><span class="p" data-group-id="5906187486-3">(</span><span class="mi">456</span><span class="p" data-group-id="5906187486-3">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">get_user!</span><span class="p" data-group-id="0931402006-3">(</span><span class="mi">456</span><span class="p" data-group-id="0931402006-3">)</span><span class="w">
 </span><span class="gt">** (Ecto.NoResultsError)</span></code></pre>
   </section>
 </section>
@@ -1737,10 +1797,10 @@ create an anonymous confirmed user and attach the device_id.</p>
 
       </div>
 
-<p>Gets a user by email.</p><h2 id="get_user_by_email/1-examples" class="section-heading"><a href="#get_user_by_email/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">get_user_by_email</span><span class="p" data-group-id="1572268618-1">(</span><span class="s">&quot;foo@example.com&quot;</span><span class="p" data-group-id="1572268618-1">)</span><span class="w">
-</span><span class="p" data-group-id="1572268618-2">%</span><span class="nc" data-group-id="1572268618-2">User</span><span class="p" data-group-id="1572268618-2">{</span><span class="p" data-group-id="1572268618-2">}</span><span class="w">
+<p>Gets a user by email.</p><h2 id="get_user_by_email/1-examples" class="section-heading"><a href="#get_user_by_email/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">get_user_by_email</span><span class="p" data-group-id="1758192700-1">(</span><span class="s">&quot;foo@example.com&quot;</span><span class="p" data-group-id="1758192700-1">)</span><span class="w">
+</span><span class="p" data-group-id="1758192700-2">%</span><span class="nc" data-group-id="1758192700-2">User</span><span class="p" data-group-id="1758192700-2">{</span><span class="p" data-group-id="1758192700-2">}</span><span class="w">
 
-</span><span class="gp unselectable">iex&gt; </span><span class="n">get_user_by_email</span><span class="p" data-group-id="1572268618-3">(</span><span class="s">&quot;unknown@example.com&quot;</span><span class="p" data-group-id="1572268618-3">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">get_user_by_email</span><span class="p" data-group-id="1758192700-3">(</span><span class="s">&quot;unknown@example.com&quot;</span><span class="p" data-group-id="1758192700-3">)</span><span class="w">
 </span><span class="no">nil</span></code></pre>
   </section>
 </section>
@@ -1766,10 +1826,10 @@ create an anonymous confirmed user and attach the device_id.</p>
 
       </div>
 
-<p>Gets a user by email and password.</p><h2 id="get_user_by_email_and_password/2-examples" class="section-heading"><a href="#get_user_by_email_and_password/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">get_user_by_email_and_password</span><span class="p" data-group-id="3063470883-1">(</span><span class="s">&quot;foo@example.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;correct_password&quot;</span><span class="p" data-group-id="3063470883-1">)</span><span class="w">
-</span><span class="p" data-group-id="3063470883-2">%</span><span class="nc" data-group-id="3063470883-2">User</span><span class="p" data-group-id="3063470883-2">{</span><span class="p" data-group-id="3063470883-2">}</span><span class="w">
+<p>Gets a user by email and password.</p><h2 id="get_user_by_email_and_password/2-examples" class="section-heading"><a href="#get_user_by_email_and_password/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">get_user_by_email_and_password</span><span class="p" data-group-id="1971711049-1">(</span><span class="s">&quot;foo@example.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;correct_password&quot;</span><span class="p" data-group-id="1971711049-1">)</span><span class="w">
+</span><span class="p" data-group-id="1971711049-2">%</span><span class="nc" data-group-id="1971711049-2">User</span><span class="p" data-group-id="1971711049-2">{</span><span class="p" data-group-id="1971711049-2">}</span><span class="w">
 
-</span><span class="gp unselectable">iex&gt; </span><span class="n">get_user_by_email_and_password</span><span class="p" data-group-id="3063470883-3">(</span><span class="s">&quot;foo@example.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;invalid_password&quot;</span><span class="p" data-group-id="3063470883-3">)</span><span class="w">
+</span><span class="gp unselectable">iex&gt; </span><span class="n">get_user_by_email_and_password</span><span class="p" data-group-id="1971711049-3">(</span><span class="s">&quot;foo@example.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;invalid_password&quot;</span><span class="p" data-group-id="1971711049-3">)</span><span class="w">
 </span><span class="no">nil</span></code></pre>
   </section>
 </section>
@@ -2088,11 +2148,11 @@ source of security pitfalls. See the &quot;Mixing magic link and password regist
 
       </div>
 
-<p>Registers a user.</p><h2 id="register_user/1-attributes" class="section-heading"><a href="#register_user/1-attributes" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Attributes</span></h2><p>See <a href="GameServer.Types.html#t:user_registration_attrs/0"><code class="inline">GameServer.Types.user_registration_attrs/0</code></a> for available fields.</p><h2 id="register_user/1-examples" class="section-heading"><a href="#register_user/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">register_user</span><span class="p" data-group-id="1515191606-1">(</span><span class="p" data-group-id="1515191606-2">%{</span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;secret123&quot;</span><span class="p" data-group-id="1515191606-2">}</span><span class="p" data-group-id="1515191606-1">)</span><span class="w">
-</span><span class="p" data-group-id="1515191606-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="1515191606-4">%</span><span class="nc" data-group-id="1515191606-4">User</span><span class="p" data-group-id="1515191606-4">{</span><span class="p" data-group-id="1515191606-4">}</span><span class="p" data-group-id="1515191606-3">}</span><span class="w">
+<p>Registers a user.</p><h2 id="register_user/1-attributes" class="section-heading"><a href="#register_user/1-attributes" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Attributes</span></h2><p>See <a href="GameServer.Types.html#t:user_registration_attrs/0"><code class="inline">GameServer.Types.user_registration_attrs/0</code></a> for available fields.</p><h2 id="register_user/1-examples" class="section-heading"><a href="#register_user/1-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">register_user</span><span class="p" data-group-id="6782054499-1">(</span><span class="p" data-group-id="6782054499-2">%{</span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;user@example.com&quot;</span><span class="p">,</span><span class="w"> </span><span class="ss">password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;secret123&quot;</span><span class="p" data-group-id="6782054499-2">}</span><span class="p" data-group-id="6782054499-1">)</span><span class="w">
+</span><span class="p" data-group-id="6782054499-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6782054499-4">%</span><span class="nc" data-group-id="6782054499-4">User</span><span class="p" data-group-id="6782054499-4">{</span><span class="p" data-group-id="6782054499-4">}</span><span class="p" data-group-id="6782054499-3">}</span><span class="w">
 
-</span><span class="gp unselectable">iex&gt; </span><span class="n">register_user</span><span class="p" data-group-id="1515191606-5">(</span><span class="p" data-group-id="1515191606-6">%{</span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;invalid&quot;</span><span class="p" data-group-id="1515191606-6">}</span><span class="p" data-group-id="1515191606-5">)</span><span class="w">
-</span><span class="p" data-group-id="1515191606-7">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="1515191606-8">%</span><span class="nc" data-group-id="1515191606-8">Ecto.Changeset</span><span class="p" data-group-id="1515191606-8">{</span><span class="p" data-group-id="1515191606-8">}</span><span class="p" data-group-id="1515191606-7">}</span></code></pre>
+</span><span class="gp unselectable">iex&gt; </span><span class="n">register_user</span><span class="p" data-group-id="6782054499-5">(</span><span class="p" data-group-id="6782054499-6">%{</span><span class="ss">email</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;invalid&quot;</span><span class="p" data-group-id="6782054499-6">}</span><span class="p" data-group-id="6782054499-5">)</span><span class="w">
+</span><span class="p" data-group-id="6782054499-7">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6782054499-8">%</span><span class="nc" data-group-id="6782054499-8">Ecto.Changeset</span><span class="p" data-group-id="6782054499-8">{</span><span class="p" data-group-id="6782054499-8">}</span><span class="p" data-group-id="6782054499-7">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="register_user_and_deliver/3">
@@ -2125,6 +2185,34 @@ source of security pitfalls. See the &quot;Mixing magic link and password regist
 <p>Register a user and send the confirmation email inside a DB transaction.</p><p>The function accepts a <code class="inline">confirmation_url_fun</code> which must be a function of arity 1
 that receives the encoded token and returns the confirmation URL string.</p><p>If sending the confirmation email fails the transaction is rolled back and
 <code class="inline">{:error, reason}</code> is returned. On success it returns <code class="inline">{:ok, user}</code>.</p>
+  </section>
+</section>
+<section class="detail" id="require_account_activation?/0">
+
+  <div class="detail-header">
+    <a href="#require_account_activation?/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">require_account_activation?()</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> require_account_activation?() :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+
+      </div>
+
+<p>Returns true when new accounts require manual admin activation before
+they can log in. Reads from application config
+<code class="inline">:game_server_core, :require_account_activation</code> which is set at boot
+from the <code class="inline">REQUIRE_ACCOUNT_ACTIVATION</code> environment variable in <code class="inline">runtime.exs</code>.
+Defaults to <code class="inline">false</code> when not configured.</p>
   </section>
 </section>
 <section class="detail" id="revoke_all_user_sessions/1">
@@ -2418,11 +2506,11 @@ social logins unexpectedly.</p>
 
 <p>Updates a user with the given attributes.</p><p>This function applies the <code class="inline">User.admin_changeset/2</code> then updates the user and
 broadcasts the update on success. It returns the same tuple shape as
-<code class="inline">Repo.update/1</code> so callers can pattern-match as before.</p><h2 id="update_user/2-attributes" class="section-heading"><a href="#update_user/2-attributes" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Attributes</span></h2><p>See <a href="GameServer.Types.html#t:user_update_attrs/0"><code class="inline">GameServer.Types.user_update_attrs/0</code></a> for available fields.</p><h2 id="update_user/2-examples" class="section-heading"><a href="#update_user/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">update_user</span><span class="p" data-group-id="9632950293-1">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9632950293-2">%{</span><span class="ss">display_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;NewName&quot;</span><span class="p" data-group-id="9632950293-2">}</span><span class="p" data-group-id="9632950293-1">)</span><span class="w">
-</span><span class="p" data-group-id="9632950293-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9632950293-4">%</span><span class="nc" data-group-id="9632950293-4">User</span><span class="p" data-group-id="9632950293-4">{</span><span class="p" data-group-id="9632950293-4">}</span><span class="p" data-group-id="9632950293-3">}</span><span class="w">
+<code class="inline">Repo.update/1</code> so callers can pattern-match as before.</p><h2 id="update_user/2-attributes" class="section-heading"><a href="#update_user/2-attributes" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Attributes</span></h2><p>See <a href="GameServer.Types.html#t:user_update_attrs/0"><code class="inline">GameServer.Types.user_update_attrs/0</code></a> for available fields.</p><h2 id="update_user/2-examples" class="section-heading"><a href="#update_user/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">update_user</span><span class="p" data-group-id="9687459708-1">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9687459708-2">%{</span><span class="ss">display_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;NewName&quot;</span><span class="p" data-group-id="9687459708-2">}</span><span class="p" data-group-id="9687459708-1">)</span><span class="w">
+</span><span class="p" data-group-id="9687459708-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9687459708-4">%</span><span class="nc" data-group-id="9687459708-4">User</span><span class="p" data-group-id="9687459708-4">{</span><span class="p" data-group-id="9687459708-4">}</span><span class="p" data-group-id="9687459708-3">}</span><span class="w">
 
-</span><span class="gp unselectable">iex&gt; </span><span class="n">update_user</span><span class="p" data-group-id="9632950293-5">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9632950293-6">%{</span><span class="ss">metadata</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="9632950293-7">%{</span><span class="ss">level</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p" data-group-id="9632950293-7">}</span><span class="p" data-group-id="9632950293-6">}</span><span class="p" data-group-id="9632950293-5">)</span><span class="w">
-</span><span class="p" data-group-id="9632950293-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9632950293-9">%</span><span class="nc" data-group-id="9632950293-9">User</span><span class="p" data-group-id="9632950293-9">{</span><span class="p" data-group-id="9632950293-9">}</span><span class="p" data-group-id="9632950293-8">}</span></code></pre>
+</span><span class="gp unselectable">iex&gt; </span><span class="n">update_user</span><span class="p" data-group-id="9687459708-5">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9687459708-6">%{</span><span class="ss">metadata</span><span class="p">:</span><span class="w"> </span><span class="p" data-group-id="9687459708-7">%{</span><span class="ss">level</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p" data-group-id="9687459708-7">}</span><span class="p" data-group-id="9687459708-6">}</span><span class="p" data-group-id="9687459708-5">)</span><span class="w">
+</span><span class="p" data-group-id="9687459708-8">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="9687459708-9">%</span><span class="nc" data-group-id="9687459708-9">User</span><span class="p" data-group-id="9687459708-9">{</span><span class="p" data-group-id="9687459708-9">}</span><span class="p" data-group-id="9687459708-8">}</span></code></pre>
   </section>
 </section>
 <section class="detail" id="update_user_display_name/2">
@@ -2498,11 +2586,37 @@ broadcasts the update on success. It returns the same tuple shape as
 
       </div>
 
-<p>Updates the user password.</p><p>Returns a tuple with the updated user, as well as a list of expired tokens.</p><h2 id="update_user_password/2-examples" class="section-heading"><a href="#update_user_password/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">update_user_password</span><span class="p" data-group-id="6592112581-1">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6592112581-2">%{</span><span class="ss">password</span><span class="p">:</span><span class="w"> </span><span class="n">...</span><span class="p" data-group-id="6592112581-2">}</span><span class="p" data-group-id="6592112581-1">)</span><span class="w">
-</span><span class="p" data-group-id="6592112581-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6592112581-4">{</span><span class="p" data-group-id="6592112581-5">%</span><span class="nc" data-group-id="6592112581-5">User</span><span class="p" data-group-id="6592112581-5">{</span><span class="p" data-group-id="6592112581-5">}</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6592112581-6">[</span><span class="n">...</span><span class="p" data-group-id="6592112581-6">]</span><span class="p" data-group-id="6592112581-4">}</span><span class="p" data-group-id="6592112581-3">}</span><span class="w">
+<p>Updates the user password.</p><p>Returns a tuple with the updated user, as well as a list of expired tokens.</p><h2 id="update_user_password/2-examples" class="section-heading"><a href="#update_user_password/2-examples" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Examples</span></h2><pre><code class="makeup elixir" translate="no"><span class="gp unselectable">iex&gt; </span><span class="n">update_user_password</span><span class="p" data-group-id="6725075635-1">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6725075635-2">%{</span><span class="ss">password</span><span class="p">:</span><span class="w"> </span><span class="n">...</span><span class="p" data-group-id="6725075635-2">}</span><span class="p" data-group-id="6725075635-1">)</span><span class="w">
+</span><span class="p" data-group-id="6725075635-3">{</span><span class="ss">:ok</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6725075635-4">{</span><span class="p" data-group-id="6725075635-5">%</span><span class="nc" data-group-id="6725075635-5">User</span><span class="p" data-group-id="6725075635-5">{</span><span class="p" data-group-id="6725075635-5">}</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6725075635-6">[</span><span class="n">...</span><span class="p" data-group-id="6725075635-6">]</span><span class="p" data-group-id="6725075635-4">}</span><span class="p" data-group-id="6725075635-3">}</span><span class="w">
 
-</span><span class="gp unselectable">iex&gt; </span><span class="n">update_user_password</span><span class="p" data-group-id="6592112581-7">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6592112581-8">%{</span><span class="ss">password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;too short&quot;</span><span class="p" data-group-id="6592112581-8">}</span><span class="p" data-group-id="6592112581-7">)</span><span class="w">
-</span><span class="p" data-group-id="6592112581-9">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6592112581-10">%</span><span class="nc" data-group-id="6592112581-10">Ecto.Changeset</span><span class="p" data-group-id="6592112581-10">{</span><span class="p" data-group-id="6592112581-10">}</span><span class="p" data-group-id="6592112581-9">}</span></code></pre>
+</span><span class="gp unselectable">iex&gt; </span><span class="n">update_user_password</span><span class="p" data-group-id="6725075635-7">(</span><span class="n">user</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6725075635-8">%{</span><span class="ss">password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;too short&quot;</span><span class="p" data-group-id="6725075635-8">}</span><span class="p" data-group-id="6725075635-7">)</span><span class="w">
+</span><span class="p" data-group-id="6725075635-9">{</span><span class="ss">:error</span><span class="p">,</span><span class="w"> </span><span class="p" data-group-id="6725075635-10">%</span><span class="nc" data-group-id="6725075635-10">Ecto.Changeset</span><span class="p" data-group-id="6725075635-10">{</span><span class="p" data-group-id="6725075635-10">}</span><span class="p" data-group-id="6725075635-9">}</span></code></pre>
+  </section>
+</section>
+<section class="detail" id="user_activated?/1">
+
+  <div class="detail-header">
+    <a href="#user_activated?/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">user_activated?(arg1)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> user_activated?(<a href="GameServer.Accounts.User.html#t:t/0">GameServer.Accounts.User.t</a>()) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">boolean</a>()</pre>
+
+      </div>
+
+<p>Returns true when the given user is activated or when account activation
+is not required. Returns false only when activation is required <strong>and</strong>
+the user's <code class="inline">is_activated</code> flag is <code class="inline">false</code>.</p>
   </section>
 </section>
 
