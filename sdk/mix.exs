@@ -7,7 +7,7 @@ defmodule GameServerSdk.MixProject do
   def project do
     [
       app: :game_server_sdk,
-      version: @version,
+      version: System.get_env("APP_VERSION") || @version,
       elixir: "~> 1.19",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
