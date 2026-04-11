@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.Plugin.Bundle do
   use Mix.Task
 
-  @shortdoc "Builds a plugin bundle into ./ebin (and deps/*/ebin)"
+  @shortdoc "Builds a plugin bundle into ./ebin, ./priv, and deps/*/{ebin,priv}"
 
   @moduledoc """
   Builds a plugin bundle directory in the project root.
@@ -9,15 +9,19 @@ defmodule Mix.Tasks.Plugin.Bundle do
   This task:
   - runs `mix compile`
   - recreates `./ebin/`
+  - copies app `./priv/` when present
   - copies compiled BEAMs and the `.app` file from the build output
   - copies compiled *runtime* dependency BEAMs into `./deps/<dep>/ebin/`
+  - copies runtime dependency `priv/` directories into `./deps/<dep>/priv/`
 
   The result is suitable for dropping the plugin directory into the server's
   plugin directory (e.g. `modules/plugins/<plugin_name>`), where the server will
   load:
 
   - `<plugin>/ebin`
+  - `<plugin>/priv` (for NIFs and runtime assets)
   - `<plugin>/deps/*/ebin`
+  - `<plugin>/deps/*/priv`
 
   Options:
 
@@ -40,6 +44,7 @@ defmodule Mix.Tasks.Plugin.Bundle do
 
     build_app_path = Mix.Project.app_path()
     build_ebin = Path.join(build_app_path, "ebin")
+    build_priv = Path.join(build_app_path, "priv")
     build_lib_dir = Path.dirname(build_app_path)
 
     unless File.dir?(build_ebin) do
@@ -54,6 +59,8 @@ defmodule Mix.Tasks.Plugin.Bundle do
 
     copy_dir_contents!(build_ebin, dest_ebin)
 
+    copy_optional_dir!(build_priv, Path.expand("priv"), no_clean?)
+
     deps_to_bundle =
       Mix.Dep.load_and_cache()
       |> Enum.filter(fn dep ->
@@ -66,7 +73,9 @@ defmodule Mix.Tasks.Plugin.Bundle do
     Enum.each(deps_to_bundle, fn dep_app ->
       dep_name = Atom.to_string(dep_app)
       src_dep_ebin = Path.join([build_lib_dir, dep_name, "ebin"])
+      src_dep_priv = Path.join([build_lib_dir, dep_name, "priv"])
       dest_dep_ebin = Path.expand(Path.join(["deps", dep_name, "ebin"]))
+      dest_dep_priv = Path.expand(Path.join(["deps", dep_name, "priv"]))
 
       if File.dir?(src_dep_ebin) do
         if File.dir?(dest_dep_ebin) and not no_clean? do
@@ -76,9 +85,22 @@ defmodule Mix.Tasks.Plugin.Bundle do
         File.mkdir_p!(dest_dep_ebin)
         copy_dir_contents!(src_dep_ebin, dest_dep_ebin)
       end
+
+      copy_optional_dir!(src_dep_priv, dest_dep_priv, no_clean?)
     end)
 
     Mix.shell().info("Bundled plugin ebin to #{dest_ebin}")
+  end
+
+  defp copy_optional_dir!(src_dir, dest_dir, no_clean?) do
+    if File.dir?(src_dir) do
+      if File.dir?(dest_dir) and not no_clean? do
+        File.rm_rf!(dest_dir)
+      end
+
+      File.mkdir_p!(dest_dir)
+      copy_dir_contents!(src_dir, dest_dir)
+    end
   end
 
   defp copy_dir_contents!(src_dir, dest_dir) do

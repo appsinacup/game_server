@@ -8,7 +8,9 @@ defmodule GameServer.Hooks.PluginManager do
       modules/plugins/polyglot_hook/
         ebin/polyglot_hook.app
         ebin/Elixir.GameServer.Modules.PolyglotHook.beam
+        priv/**
         deps/*/ebin/*.beam
+        deps/*/priv/**
 
   The plugin's `.app` env must include the key `:hooks_module`, whose value is either a
   charlist or string module name like `'Elixir.GameServer.Modules.PolyglotHook'`.

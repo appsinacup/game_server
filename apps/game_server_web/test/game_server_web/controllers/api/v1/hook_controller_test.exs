@@ -79,6 +79,7 @@ defmodule GameServerWeb.Api.V1.HookControllerTest do
           end
 
           def echo(a), do: a
+          def boom, do: raise("boom")
         end,
         __ENV__
       )
@@ -117,5 +118,11 @@ defmodule GameServerWeb.Api.V1.HookControllerTest do
     conn2 = post(conn, "/api/v1/hooks/call", body2)
     id = user.id
     assert %{"data" => %{"greeted" => ^id}} = json_response(conn2, 200)
+
+    body3 = %{"plugin" => plugin_name, "fn" => "boom", "args" => []}
+    conn3 = post(conn, "/api/v1/hooks/call", body3)
+
+    assert %{"error" => "exception", "details" => details} = json_response(conn3, 400)
+    assert details =~ "boom"
   end
 end

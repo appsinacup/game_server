@@ -4,6 +4,7 @@ defmodule GameServerWeb.Api.V1.HookController do
 
   alias GameServer.Hooks.DynamicRpcs
   alias GameServer.Hooks.PluginManager
+  require Logger
 
   operation(:index,
     operation_id: "list_hooks",
@@ -169,8 +170,14 @@ defmodule GameServerWeb.Api.V1.HookController do
           {:error, :timeout} ->
             conn |> put_status(:bad_request) |> json(%{error: :timeout})
 
-          {:error, _other} ->
-            conn |> put_status(:bad_request) |> json(%{error: "unexpected_error"})
+          {:error, reason} ->
+            Logger.warning(
+              "hooks/call failed plugin=#{plugin} fn=#{fn_name} reason=#{inspect(reason)}"
+            )
+
+            conn
+            |> put_status(:bad_request)
+            |> json(normalize_hook_error(reason))
         end
     end
   end
@@ -182,5 +189,25 @@ defmodule GameServerWeb.Api.V1.HookController do
   defp reserved_hook_name?(fn_name) when is_binary(fn_name) do
     GameServer.Hooks.internal_hooks()
     |> Enum.any?(fn atom -> to_string(atom) == fn_name end)
+  end
+
+  defp normalize_hook_error({:function_clause, message}) when is_binary(message) do
+    %{error: "function_clause", details: message}
+  end
+
+  defp normalize_hook_error({:exception, message}) when is_binary(message) do
+    %{error: "exception", details: message}
+  end
+
+  defp normalize_hook_error({kind, reason}) when is_atom(kind) do
+    %{error: Atom.to_string(kind), details: inspect(reason)}
+  end
+
+  defp normalize_hook_error(reason) when is_atom(reason) do
+    %{error: Atom.to_string(reason)}
+  end
+
+  defp normalize_hook_error(reason) do
+    %{error: "unexpected_error", details: inspect(reason)}
   end
 end
