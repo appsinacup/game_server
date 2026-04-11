@@ -81,7 +81,7 @@ defmodule GameServer.Hooks.PluginBuilder do
       [
         {"mix deps.get", ["deps.get"]},
         {"mix compile", ["compile"]},
-        {"mix plugin.bundle", ["plugin.bundle"]}
+        {"mix plugin.bundle --verbose", ["plugin.bundle", "--verbose"]}
       ]
       |> Enum.map(fn {label, argv} ->
         {output, status} =

@@ -26,6 +26,7 @@ defmodule Mix.Tasks.Plugin.Bundle do
   Options:
 
     * `--no-clean` - do not delete the existing `./ebin` (and `deps/*/ebin`) first
+    * `--verbose` - print detailed dep resolution and priv file listing
 
   Notes:
 
@@ -35,11 +36,15 @@ defmodule Mix.Tasks.Plugin.Bundle do
 
   @impl true
   def run(args) do
-    {opts, _rest, _invalid} = OptionParser.parse(args, strict: [no_clean: :boolean])
+    {opts, _rest, _invalid} =
+      OptionParser.parse(args, strict: [no_clean: :boolean, verbose: :boolean])
+
     no_clean? = Keyword.get(opts, :no_clean, false)
+    verbose? = Keyword.get(opts, :verbose, false)
 
     Mix.Task.run("compile", [])
 
+    app_name = Mix.Project.config()[:app]
     dest_ebin = Path.expand("ebin")
 
     build_app_path = Mix.Project.app_path()
@@ -59,32 +64,68 @@ defmodule Mix.Tasks.Plugin.Bundle do
 
     copy_dir_contents!(build_ebin, dest_ebin)
 
-    copy_optional_dir!(build_priv, Path.expand("priv"), no_clean?)
+    app_has_priv? = copy_optional_dir!(build_priv, Path.expand("priv"), no_clean?)
+    info(verbose?, "App #{app_name}: ebin ✓, priv #{if app_has_priv?, do: "✓", else: "—"}")
 
-    deps_to_bundle =
-      Mix.Dep.load_and_cache()
-      |> runtime_dep_apps(Mix.Project.config()[:app])
+    all_deps = Mix.Dep.load_and_cache()
 
-    Enum.each(deps_to_bundle, fn dep_app ->
-      dep_name = Atom.to_string(dep_app)
-      src_dep_ebin = Path.join([build_lib_dir, dep_name, "ebin"])
-      src_dep_priv = Path.join([build_lib_dir, dep_name, "priv"])
-      dest_dep_ebin = Path.expand(Path.join(["deps", dep_name, "ebin"]))
-      dest_dep_priv = Path.expand(Path.join(["deps", dep_name, "priv"]))
+    deps_to_bundle = runtime_dep_apps(all_deps, app_name)
 
-      if File.dir?(src_dep_ebin) do
-        if File.dir?(dest_dep_ebin) and not no_clean? do
-          File.rm_rf!(dest_dep_ebin)
+    info(verbose?, "Build lib dir: #{build_lib_dir}")
+
+    info(
+      verbose?,
+      "All deps (#{length(all_deps)}): #{all_deps |> Enum.map(& &1.app) |> Enum.sort() |> Enum.join(", ")}"
+    )
+
+    info(verbose?, "Runtime deps to bundle (#{length(deps_to_bundle)}): #{Enum.join(deps_to_bundle, ", ")}")
+
+    priv_summary =
+      Enum.map(deps_to_bundle, fn dep_app ->
+        dep_name = Atom.to_string(dep_app)
+        src_dep_ebin = Path.join([build_lib_dir, dep_name, "ebin"])
+        src_dep_priv = Path.join([build_lib_dir, dep_name, "priv"])
+        dest_dep_ebin = Path.expand(Path.join(["deps", dep_name, "ebin"]))
+        dest_dep_priv = Path.expand(Path.join(["deps", dep_name, "priv"]))
+
+        has_ebin? = File.dir?(src_dep_ebin)
+
+        if has_ebin? do
+          if File.dir?(dest_dep_ebin) and not no_clean? do
+            File.rm_rf!(dest_dep_ebin)
+          end
+
+          File.mkdir_p!(dest_dep_ebin)
+          copy_dir_contents!(src_dep_ebin, dest_dep_ebin)
         end
 
-        File.mkdir_p!(dest_dep_ebin)
-        copy_dir_contents!(src_dep_ebin, dest_dep_ebin)
-      end
+        has_priv? = copy_optional_dir!(src_dep_priv, dest_dep_priv, no_clean?)
 
-      copy_optional_dir!(src_dep_priv, dest_dep_priv, no_clean?)
-    end)
+        if verbose? do
+          priv_files =
+            if has_priv? do
+              src_dep_priv
+              |> list_files_recursive()
+              |> Enum.join(", ")
+            else
+              ""
+            end
 
-    Mix.shell().info("Bundled plugin ebin to #{dest_ebin}")
+          info(
+            true,
+            "  #{dep_name}: ebin #{if has_ebin?, do: "✓", else: "✗"}, priv #{if has_priv?, do: "✓ (#{priv_files})", else: "—"}"
+          )
+        end
+
+        {dep_name, has_priv?}
+      end)
+
+    priv_deps = for {name, true} <- priv_summary, do: name
+
+    Mix.shell().info(
+      "Bundled plugin #{app_name}: ebin + #{length(deps_to_bundle)} deps" <>
+        if(priv_deps != [], do: " (priv: #{Enum.join(priv_deps, ", ")})", else: "")
+    )
   end
 
   defp copy_optional_dir!(src_dir, dest_dir, no_clean?) do
@@ -95,6 +136,9 @@ defmodule Mix.Tasks.Plugin.Bundle do
 
       File.mkdir_p!(dest_dir)
       copy_dir_contents!(src_dir, dest_dir)
+      true
+    else
+      false
     end
   end
 
@@ -142,4 +186,15 @@ defmodule Mix.Tasks.Plugin.Bundle do
       end
     end)
   end
+
+  defp list_files_recursive(dir) do
+    dir
+    |> Path.join("**/*")
+    |> Path.wildcard()
+    |> Enum.reject(&File.dir?/1)
+    |> Enum.map(&Path.relative_to(&1, dir))
+  end
+
+  defp info(true, msg), do: Mix.shell().info(msg)
+  defp info(false, _msg), do: :ok
 end

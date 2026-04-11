@@ -52,7 +52,7 @@ RUN if [ -d "${GAME_SERVER_PLUGINS_DIR}" ]; then \
         for plugin_path in ${GAME_SERVER_PLUGINS_DIR}/*; do \
             if [ -d "${plugin_path}" ] && [ -f "${plugin_path}/mix.exs" ]; then \
                 echo "Building plugin ${plugin_path}"; \
-                (cd "${plugin_path}" && mix deps.get && mix compile && mix plugin.bundle); \
+                (cd "${plugin_path}" && mix deps.get && mix compile && mix plugin.bundle --verbose); \
             fi; \
         done; \
     else \
