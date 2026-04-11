@@ -21,7 +21,7 @@ defmodule GameServerWeb.AdminLive.Config do
         <.link navigate={~p"/admin"} class="btn btn-outline mb-4">
           ← Back to Admin
         </.link>
-
+        
     <!-- Current Configuration Status -->
         <div class="card bg-base-100 shadow-sm" data-card-key="config_status">
           <div class="card-body">
@@ -1045,16 +1045,25 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                     <td class="text-sm break-words whitespace-normal">
                       <div class="font-mono text-sm">
-                        SSL_CERTFILE: <span class="break-all">{@config.ssl_certfile_env || "<unset>"}</span><br />
-                        SSL_KEYFILE: <span class="break-all">{@config.ssl_keyfile_env || "<unset>"}</span><br />
-                        HTTPS_PORT: <span class="break-all">{@config.https_port_env || "<unset> (default: 443)"}</span><br />
-                        FORCE_SSL: <span class="break-all">{@config.force_ssl_env || "<unset>"}</span><br />
-                        ACME_CHALLENGE_DIR: <span class="break-all">{@config.acme_challenge_dir_env || "<unset>"}</span>
+                        SSL_CERTFILE:
+                        <span class="break-all">{@config.ssl_certfile_env || "<unset>"}</span>
+                        <br /> SSL_KEYFILE:
+                        <span class="break-all">{@config.ssl_keyfile_env || "<unset>"}</span>
+                        <br /> HTTPS_PORT:
+                        <span class="break-all">
+                          {@config.https_port_env || "<unset> (default: 443)"}
+                        </span>
+                        <br /> FORCE_SSL:
+                        <span class="break-all">{@config.force_ssl_env || "<unset>"}</span>
+                        <br /> ACME_CHALLENGE_DIR:
+                        <span class="break-all">{@config.acme_challenge_dir_env || "<unset>"}</span>
                       </div>
 
                       <%= if @config.ssl_cert_info do %>
                         <div class="mt-3 pt-2 border-t border-base-300/60">
-                          <div class="text-xs font-semibold text-base-content/70 mb-1">Certificate details</div>
+                          <div class="text-xs font-semibold text-base-content/70 mb-1">
+                            Certificate details
+                          </div>
                           <div class="font-mono text-xs space-y-0.5">
                             <div>
                               Subject: <span class="break-all">{@config.ssl_cert_info.subject}</span>
@@ -1284,7 +1293,7 @@ defmodule GameServerWeb.AdminLive.Config do
                             <% end %>
                           </div>
                         </div>
-
+                        
     <!-- Full docs modal / pane -->
                         <%= if @hooks_full_doc do %>
                           <div class="mt-2 p-3 border rounded bg-base-100">
@@ -1311,7 +1320,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-
+        
     <!-- Limits & Validation -->
         <div class="card bg-base-100 shadow-sm collapsed" data-card-key="limits">
           <div class="card-body">
@@ -1380,7 +1389,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-
+        
     <!-- Admin Tools -->
         <div class="card bg-base-100 shadow-sm collapsed" data-card-key="admin_tools">
           <div class="card-body">
@@ -1437,7 +1446,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-
+        
     <!-- Scheduled Jobs -->
         <div class="card bg-base-100 shadow-sm collapsed" data-card-key="scheduled_jobs">
           <div class="card-body">
