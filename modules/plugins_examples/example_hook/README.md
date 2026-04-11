@@ -19,7 +19,7 @@ To create a bundle directory you can drop into `modules/plugins/`:
 
 - `mix plugin.bundle`
 
-This also copies:
+This also copies transitive runtime dependencies, including:
 
 - compiled dependency BEAMs into `deps/<dep>/ebin`
 - plugin/runtime `priv/` directories into `priv` and `deps/<dep>/priv`

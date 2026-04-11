@@ -5,7 +5,7 @@
 - [changed] Moved some menu items under dropdowns.
 - [changed] Add translation support for Achievements under metadata through admin portal (same as for Leaderboards).
 - [fixed] Dark mode flash (FOUC) on full page navigations — theme is now set server-side via cookie.
-- [fixed] Plugin bundles now include `priv/` assets for runtime dependencies, so NIF-based plugins work correctly in Docker/self-hosted deployments.
+- [fixed] Plugin bundles now include `priv/` assets for direct and transitive runtime dependencies, so NIF-based plugins work correctly in Docker/self-hosted deployments.
 - [added] **Roadmap** page.
 - [changed] Make min password configurable and default to 8 characters.
 

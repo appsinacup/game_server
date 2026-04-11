@@ -63,12 +63,7 @@ defmodule Mix.Tasks.Plugin.Bundle do
 
     deps_to_bundle =
       Mix.Dep.load_and_cache()
-      |> Enum.filter(fn dep ->
-        dep_app = dep.app
-        dep_app != Mix.Project.config()[:app] and dep.opts[:runtime] != false
-      end)
-      |> Enum.map(& &1.app)
-      |> Enum.uniq()
+      |> runtime_dep_apps(Mix.Project.config()[:app])
 
     Enum.each(deps_to_bundle, fn dep_app ->
       dep_name = Atom.to_string(dep_app)
@@ -102,6 +97,36 @@ defmodule Mix.Tasks.Plugin.Bundle do
       copy_dir_contents!(src_dir, dest_dir)
     end
   end
+
+  defp runtime_dep_apps(deps, root_app) when is_list(deps) do
+    deps
+    |> collect_runtime_dep_apps(root_app, MapSet.new())
+    |> MapSet.to_list()
+    |> Enum.sort()
+  end
+
+  defp collect_runtime_dep_apps([], _root_app, acc), do: acc
+
+  defp collect_runtime_dep_apps([dep | rest], root_app, acc) do
+    acc = collect_runtime_dep_app(dep, root_app, acc)
+    collect_runtime_dep_apps(rest, root_app, acc)
+  end
+
+  defp collect_runtime_dep_app(%{app: app, opts: opts, deps: deps}, root_app, acc) do
+    cond do
+      app == root_app ->
+        collect_runtime_dep_apps(deps || [], root_app, acc)
+
+      opts[:runtime] == false ->
+        collect_runtime_dep_apps(deps || [], root_app, acc)
+
+      true ->
+        acc = MapSet.put(acc, app)
+        collect_runtime_dep_apps(deps || [], root_app, acc)
+    end
+  end
+
+  defp collect_runtime_dep_app(_dep, _root_app, acc), do: acc
 
   defp copy_dir_contents!(src_dir, dest_dir) do
     src_dir
