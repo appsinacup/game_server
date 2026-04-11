@@ -5,10 +5,10 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.882">
+    <meta name="project" content="GameServer v1.0.883">
 
 
-    <title>GameServer.Hooks.PluginManager — GameServer v1.0.882</title>
+    <title>GameServer.Hooks.PluginManager — GameServer v1.0.883</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.882
+          v1.0.883
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Hooks.<wbr>PluginManager</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.882)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.883)</small>
 
     </h1>
 
@@ -113,7 +113,9 @@ GameServer
 containing:</p><pre><code class="makeup elixir" translate="no"><span class="n">modules</span><span class="o">/</span><span class="n">plugins</span><span class="o">/</span><span class="n">polyglot_hook</span><span class="o">/</span><span class="w">
   </span><span class="n">ebin</span><span class="o">/</span><span class="n">polyglot_hook</span><span class="o">.</span><span class="n">app</span><span class="w">
   </span><span class="n">ebin</span><span class="o">/</span><span class="nc">Elixir.GameServer.Modules.PolyglotHook</span><span class="o">.</span><span class="n">beam</span><span class="w">
-  </span><span class="n">deps</span><span class="o">/</span><span class="o">*</span><span class="o">/</span><span class="n">ebin</span><span class="o">/</span><span class="o">*</span><span class="o">.</span><span class="n">beam</span></code></pre><p>The plugin's <code class="inline">.app</code> env must include the key <code class="inline">:hooks_module</code>, whose value is either a
+  </span><span class="n">priv</span><span class="o">/</span><span class="o">*</span><span class="o">*</span><span class="w">
+  </span><span class="n">deps</span><span class="o">/</span><span class="o">*</span><span class="o">/</span><span class="n">ebin</span><span class="o">/</span><span class="o">*</span><span class="o">.</span><span class="n">beam</span><span class="w">
+  </span><span class="n">deps</span><span class="o">/</span><span class="o">*</span><span class="o">/</span><span class="n">priv</span><span class="o">/</span><span class="o">*</span><span class="o">*</span></code></pre><p>The plugin's <code class="inline">.app</code> env must include the key <code class="inline">:hooks_module</code>, whose value is either a
 charlist or string module name like <code class="inline">'Elixir.GameServer.Modules.PolyglotHook'</code>.</p><p>This manager is intentionally dependency-free: it only adds <code class="inline">ebin</code> directories to the code
 path and uses <a href="https://hexdocs.pm/elixir/Application.html#load/1"><code class="inline">Application.load/1</code></a> + <a href="https://hexdocs.pm/elixir/Application.html#ensure_all_started/1"><code class="inline">Application.ensure_all_started/1</code></a>.</p>
     </section>
