@@ -9,6 +9,19 @@ This cache uses a 2-level (near-cache) topology via
 - L2: either Redis (`GameServer.Cache.L2.Redis`) or a partitioned topology
   (`GameServer.Cache.L2.Partitioned`), selected via runtime config.
 
+# `cached`
+
+```elixir
+@spec cached(term(), keyword(), (-&gt; term())) :: term()
+```
+
+Cache-through helper: returns the cached value for `key`, or computes and
+caches the result of `fun`.
+
+## Options
+
+- `:ttl` — time-to-live in milliseconds
+
 # `count_all`
 
 # `count_all`

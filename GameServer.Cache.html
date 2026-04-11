@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.885">
+    <meta name="project" content="GameServer v1.0.886">
 
 
-    <title>GameServer.Cache — GameServer v1.0.885</title>
+    <title>GameServer.Cache — GameServer v1.0.886</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-4E9D397D.js"></script>
+    <script defer src="dist/sidebar_items-18FA09DC.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.885
+          v1.0.886
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Cache</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.885)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.886)</small>
 
     </h1>
 
@@ -127,6 +127,17 @@ GameServer
   <h3>
     <a href="#functions">Functions</a>
   </h3>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#cached/3" data-no-tooltip="" translate="no">cached(key, opts \\ [], fun)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Cache-through helper: returns the cached value for <code class="inline">key</code>, or computes and
+caches the result of <code class="inline">fun</code>.</p></div>
+
+    </div>
 
     <div class="summary-row">
       <div class="summary-signature">
@@ -1212,6 +1223,33 @@ GameServer
     </h2>
 
     <div class="functions-list">
+<section class="detail" id="cached/3">
+
+    <span id="cached/2"></span>
+
+  <div class="detail-header">
+    <a href="#cached/3" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">cached(key, opts \\ [], fun)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> cached(<a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>(), <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>(), (-&gt; <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>())) :: <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">term</a>()</pre>
+
+      </div>
+
+<p>Cache-through helper: returns the cached value for <code class="inline">key</code>, or computes and
+caches the result of <code class="inline">fun</code>.</p><h2 id="cached/3-options" class="section-heading"><a href="#cached/3-options" class="hover-link"><i class="ri-link-m" aria-hidden="true"></i></a><span class="text">Options</span></h2><ul><li><code class="inline">:ttl</code> — time-to-live in milliseconds</li></ul>
+  </section>
+</section>
 <section class="detail" id="count_all/2">
 
     <span id="count_all/0"></span>
