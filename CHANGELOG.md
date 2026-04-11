@@ -1,6 +1,7 @@
 # April 2026
 
-- [added] **Account Activation (Beta Mode)** — set `REQUIRE_ACCOUNT_ACTIVATION=true` to require admin approval for new accounts before they can log in. Admins can activate/deactivate users from the admin panel and API.
+- [added] **Native HTTPS support**: serve TLS directly from Phoenix/Bandit without a reverse proxy. Set `SSL_CERTFILE` and `SSL_KEYFILE` env vars to enable.
+- [added] **Account Activation (Beta Mode)**: set `REQUIRE_ACCOUNT_ACTIVATION=true` to require admin approval for new accounts before they can log in. Admins can activate/deactivate users from the admin panel and API.
 - [added] **Translations** for Spanish, French, Romanian.
 - [changed] Moved some menu items under dropdowns.
 - [changed] Add translation support for Achievements under metadata through admin portal (same as for Leaderboards).

@@ -18,6 +18,10 @@ defmodule GameServerWeb.Endpoint do
     websocket: [connect_info: [session: @session_options], log: false, compress: true],
     longpoll: [connect_info: [session: @session_options], log: false]
 
+  # Serve ACME HTTP-01 challenges for Let's Encrypt before anything else.
+  # This must come before force_ssl so challenges are served over plain HTTP.
+  plug GameServerWeb.Plugs.AcmeChallenge
+
   # Serve at "/" the static files from "priv/static" directory.
   #
   # When code reloading is disabled (e.g., in production),

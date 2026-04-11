@@ -68,8 +68,8 @@ RUN mix tailwind game_server_web --minify
 RUN mix esbuild game_server_web --minify
 RUN mix do --app game_server_web cmd mix phx.digest
 
-# Expose port
-EXPOSE 4000
+# Expose ports (HTTP + HTTPS)
+EXPOSE 4000 443
 
 # Default command - create DB (if needed), run migrations, and start server
 CMD ["sh", "-c", "mix do --app game_server_host ecto.create --quiet 2>/dev/null; mix do --app game_server_host ecto.migrate && mix do --app game_server_host phx.server"]

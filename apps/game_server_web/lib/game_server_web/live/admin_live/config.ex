@@ -21,7 +21,7 @@ defmodule GameServerWeb.AdminLive.Config do
         <.link navigate={~p"/admin"} class="btn btn-outline mb-4">
           ← Back to Admin
         </.link>
-        
+
     <!-- Current Configuration Status -->
         <div class="card bg-base-100 shadow-sm" data-card-key="config_status">
           <div class="card-body">
@@ -1035,6 +1035,75 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                   </tr>
                   <tr>
+                    <td class="font-semibold">HTTPS / TLS</td>
+                    <td>
+                      <%= if @config.ssl_enabled? do %>
+                        <span class="badge badge-success">Enabled</span>
+                      <% else %>
+                        <span class="badge badge-ghost">Disabled</span>
+                      <% end %>
+                    </td>
+                    <td class="text-sm break-words whitespace-normal">
+                      <div class="font-mono text-sm">
+                        SSL_CERTFILE: <span class="break-all">{@config.ssl_certfile_env || "<unset>"}</span><br />
+                        SSL_KEYFILE: <span class="break-all">{@config.ssl_keyfile_env || "<unset>"}</span><br />
+                        HTTPS_PORT: <span class="break-all">{@config.https_port_env || "<unset> (default: 443)"}</span><br />
+                        FORCE_SSL: <span class="break-all">{@config.force_ssl_env || "<unset>"}</span><br />
+                        ACME_CHALLENGE_DIR: <span class="break-all">{@config.acme_challenge_dir_env || "<unset>"}</span>
+                      </div>
+
+                      <%= if @config.ssl_cert_info do %>
+                        <div class="mt-3 pt-2 border-t border-base-300/60">
+                          <div class="text-xs font-semibold text-base-content/70 mb-1">Certificate details</div>
+                          <div class="font-mono text-xs space-y-0.5">
+                            <div>
+                              Subject: <span class="break-all">{@config.ssl_cert_info.subject}</span>
+                            </div>
+                            <div>
+                              Issuer: <span class="break-all">{@config.ssl_cert_info.issuer}</span>
+                            </div>
+                            <div>
+                              Valid from:
+                              <span class="break-all">{@config.ssl_cert_info.not_before}</span>
+                            </div>
+                            <div>
+                              Valid until:
+                              <span class={[
+                                "break-all font-semibold",
+                                if(@config.ssl_cert_info.expires_soon?,
+                                  do: "text-warning",
+                                  else: "text-success"
+                                )
+                              ]}>
+                                {@config.ssl_cert_info.not_after}
+                              </span>
+                              <%= if @config.ssl_cert_info.days_remaining != nil do %>
+                                <span class={[
+                                  "ml-1",
+                                  if(@config.ssl_cert_info.expires_soon?,
+                                    do: "text-warning",
+                                    else: "opacity-70"
+                                  )
+                                ]}>
+                                  ({@config.ssl_cert_info.days_remaining} days remaining)
+                                </span>
+                              <% end %>
+                            </div>
+                            <div>
+                              Serial: <span class="break-all">{@config.ssl_cert_info.serial}</span>
+                            </div>
+                          </div>
+                        </div>
+                      <% else %>
+                        <%= if @config.ssl_certfile_env do %>
+                          <div class="mt-2 text-xs text-warning">
+                            Could not read certificate file. Verify the path is correct and the file is readable.
+                          </div>
+                        <% end %>
+                      <% end %>
+                    </td>
+                  </tr>
+                  <tr>
                     <td class="font-semibold">Secret Key Base</td>
                     <td>
                       <%= if @config.secret_key_base do %>
@@ -1215,7 +1284,7 @@ defmodule GameServerWeb.AdminLive.Config do
                             <% end %>
                           </div>
                         </div>
-                        
+
     <!-- Full docs modal / pane -->
                         <%= if @hooks_full_doc do %>
                           <div class="mt-2 p-3 border rounded bg-base-100">
@@ -1242,7 +1311,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Limits & Validation -->
         <div class="card bg-base-100 shadow-sm collapsed" data-card-key="limits">
           <div class="card-body">
@@ -1311,7 +1380,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Admin Tools -->
         <div class="card bg-base-100 shadow-sm collapsed" data-card-key="admin_tools">
           <div class="card-body">
@@ -1368,7 +1437,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Scheduled Jobs -->
         <div class="card bg-base-100 shadow-sm collapsed" data-card-key="scheduled_jobs">
           <div class="card-body">
@@ -1578,6 +1647,15 @@ defmodule GameServerWeb.AdminLive.Config do
       # PHX/CORS runtime configuration (set via PHX_ALLOWED_ORIGINS)
       phx_allowed_origins_env: System.get_env("PHX_ALLOWED_ORIGINS"),
       cors_allowed_origins: Application.get_env(:game_server_web, :cors_allowed_origins, "*"),
+
+      # HTTPS / TLS certificate diagnostics
+      ssl_certfile_env: System.get_env("SSL_CERTFILE"),
+      ssl_keyfile_env: System.get_env("SSL_KEYFILE"),
+      https_port_env: System.get_env("HTTPS_PORT"),
+      force_ssl_env: System.get_env("FORCE_SSL"),
+      acme_challenge_dir_env: System.get_env("ACME_CHALLENGE_DIR"),
+      ssl_enabled?: ssl_enabled?(),
+      ssl_cert_info: ssl_cert_info(),
 
       # Rate Limiting runtime configuration
       rate_limit_enabled:
@@ -2244,6 +2322,154 @@ defmodule GameServerWeb.AdminLive.Config do
       end
     end)
   end
+
+  # ── SSL / TLS certificate helpers ─────────────────────────────────────────
+
+  defp ssl_enabled? do
+    endpoint_config = Application.get_env(:game_server_web, GameServerWeb.Endpoint, [])
+    Keyword.has_key?(endpoint_config, :https)
+  end
+
+  @doc false
+  defp ssl_cert_info do
+    certfile = System.get_env("SSL_CERTFILE")
+
+    if certfile do
+      case File.read(certfile) do
+        {:ok, pem_data} ->
+          parse_pem_certificate(pem_data)
+
+        {:error, _} ->
+          nil
+      end
+    else
+      nil
+    end
+  end
+
+  defp parse_pem_certificate(pem_data) do
+    case :public_key.pem_decode(pem_data) do
+      [{:Certificate, der, _} | _] ->
+        cert = :public_key.pkix_decode_cert(der, :otp)
+        tbs = elem(cert, 2)
+
+        # Extract validity
+        validity = elem(tbs, 5)
+        not_before = parse_asn1_time(elem(validity, 1))
+        not_after = parse_asn1_time(elem(validity, 2))
+
+        # Calculate days remaining
+        days_remaining =
+          case not_after do
+            nil ->
+              nil
+
+            dt ->
+              Date.diff(dt, Date.utc_today())
+          end
+
+        # Extract subject CN
+        subject =
+          tbs
+          |> elem(6)
+          |> extract_cn()
+
+        # Extract issuer CN
+        issuer =
+          tbs
+          |> elem(4)
+          |> extract_cn()
+
+        # Extract serial number
+        serial = elem(tbs, 2)
+
+        serial_hex =
+          if is_integer(serial) do
+            serial
+            |> Integer.to_string(16)
+            |> String.downcase()
+            |> String.graphemes()
+            |> Enum.chunk_every(2)
+            |> Enum.map_join(":", &Enum.join/1)
+          else
+            inspect(serial)
+          end
+
+        %{
+          subject: subject || "Unknown",
+          issuer: issuer || "Unknown",
+          not_before: format_cert_date(not_before),
+          not_after: format_cert_date(not_after),
+          days_remaining: days_remaining,
+          expires_soon?: days_remaining != nil and days_remaining <= 30,
+          serial: serial_hex
+        }
+
+      _ ->
+        nil
+    end
+  rescue
+    _ -> nil
+  end
+
+  defp parse_asn1_time({:utcTime, time}) when is_list(time) do
+    parse_asn1_time_string(List.to_string(time), :utc)
+  end
+
+  defp parse_asn1_time({:generalTime, time}) when is_list(time) do
+    parse_asn1_time_string(List.to_string(time), :general)
+  end
+
+  defp parse_asn1_time(_), do: nil
+
+  defp parse_asn1_time_string(str, :utc) do
+    # UTCTime format: YYMMDDHHMMSSZ
+    case Regex.run(~r/^(\d{2})(\d{2})(\d{2})/, str) do
+      [_, yy, mm, dd] ->
+        year = String.to_integer(yy)
+        # UTCTime: 00-49 => 2000-2049, 50-99 => 1950-1999
+        year = if year >= 50, do: year + 1900, else: year + 2000
+        Date.new!(year, String.to_integer(mm), String.to_integer(dd))
+
+      _ ->
+        nil
+    end
+  end
+
+  defp parse_asn1_time_string(str, :general) do
+    # GeneralizedTime format: YYYYMMDDHHMMSSZ
+    case Regex.run(~r/^(\d{4})(\d{2})(\d{2})/, str) do
+      [_, yyyy, mm, dd] ->
+        Date.new!(String.to_integer(yyyy), String.to_integer(mm), String.to_integer(dd))
+
+      _ ->
+        nil
+    end
+  end
+
+  defp extract_cn({:rdnSequence, rdn_seq}) do
+    Enum.find_value(rdn_seq, fn attrs ->
+      Enum.find_value(attrs, fn
+        {:AttributeTypeAndValue, {2, 5, 4, 3}, value} ->
+          extract_string_value(value)
+
+        _ ->
+          nil
+      end)
+    end)
+  end
+
+  defp extract_cn(_), do: nil
+
+  defp extract_string_value({:utf8String, v}) when is_binary(v), do: v
+  defp extract_string_value({:printableString, v}) when is_list(v), do: List.to_string(v)
+  defp extract_string_value({:printableString, v}) when is_binary(v), do: v
+  defp extract_string_value(v) when is_list(v), do: List.to_string(v)
+  defp extract_string_value(v) when is_binary(v), do: v
+  defp extract_string_value(_), do: nil
+
+  defp format_cert_date(nil), do: "Unknown"
+  defp format_cert_date(%Date{} = d), do: Date.to_iso8601(d)
 
   # Helpers for masking secrets shown in the admin UI.
   # We show the first 2 and last 2 characters for secrets longer than 6

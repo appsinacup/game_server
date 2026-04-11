@@ -173,7 +173,7 @@ docker compose logs -f game_server</pre>
         </h3>
         <div class="ml-8 space-y-3">
           <ul class="list-disc list-inside text-sm text-base-content/80 space-y-1">
-            <li>{doc_text("Use a reverse proxy (nginx, Caddy) with TLS termination")}</li>
+            <li>{doc_text("Enable HTTPS with automatic certificate renewal (see below)")}</li>
             <li>{doc_text("Set PHX_HOST to your actual domain")}</li>
             <li>
               {doc_text("Configure OAuth providers for social login (see provider guides above)")}
@@ -188,6 +188,241 @@ docker compose logs -f game_server</pre>
             </li>
             <li>{doc_text("Review rate limiting settings for your expected traffic")}</li>
           </ul>
+        </div>
+      </div>
+
+      <%!-- HTTPS / TLS --%>
+      <div class="step">
+        <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+          <svg
+            class="w-5 h-5 text-green-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+            />
+          </svg>
+          {doc_text("5. HTTPS with automatic certificate renewal")}
+        </h3>
+        <div class="ml-8 space-y-4">
+          <p class="text-sm text-base-content/80">
+            {doc_text(
+              "Gamend supports HTTPS directly — no nginx or reverse proxy required. TLS is handled natively by the Erlang/OTP runtime through Bandit. Certificates from Let's Encrypt are free and automatically renewed."
+            )}
+          </p>
+
+          <div class="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <p class="text-sm text-blue-800 dark:text-blue-200 font-medium mb-1">
+              {doc_text("How it works")}
+            </p>
+            <ul class="text-xs text-blue-700 dark:text-blue-300 space-y-1 list-disc list-inside">
+              <li>
+                {doc_text("Phoenix/Bandit serves HTTPS on port 443 using your certificate files")}
+              </li>
+              <li>
+                {doc_text(
+                  "Certbot obtains and renews certificates from Let's Encrypt automatically"
+                )}
+              </li>
+              <li>
+                {doc_text(
+                  "Erlang's :ssl reloads certificate files from disk — no restart needed on renewal"
+                )}
+              </li>
+              <li>
+                {doc_text(
+                  "HTTP remains available on port 4000 for ACME challenges and is redirected to HTTPS"
+                )}
+              </li>
+            </ul>
+          </div>
+
+          <%!-- Step 5a: Install certbot --%>
+          <h4 class="text-base font-medium">{doc_text("a) Install certbot")}</h4>
+          <div class="bg-base-200 p-4 rounded-lg font-mono text-sm highlight-code">
+            <pre phx-no-curly-interpolation><span class="code-comment"># Ubuntu/Debian</span>
+sudo apt install certbot
+
+<span class="code-comment"># macOS</span>
+brew install certbot</pre>
+          </div>
+
+          <%!-- Step 5b: Get initial certificate --%>
+          <h4 class="text-base font-medium">{doc_text("b) Obtain your first certificate")}</h4>
+          <p class="text-sm text-base-content/80">
+            {doc_text(
+              "Before enabling HTTPS, get your first certificate. Your server must be reachable on port 80 so Let's Encrypt can validate domain ownership."
+            )}
+          </p>
+          <div class="bg-base-200 p-4 rounded-lg font-mono text-sm highlight-code">
+            <pre phx-no-curly-interpolation><span class="code-comment"># Start the server first (HTTP only) so ACME challenges can be served</span>
+<span class="code-comment"># Make sure ACME_CHALLENGE_DIR is set in your .env:</span>
+ACME_CHALLENGE_DIR=/var/www/acme-challenge
+
+<span class="code-comment"># Request a certificate (webroot mode uses the running server)</span>
+sudo certbot certonly \
+  --webroot \
+  --webroot-path /var/www/acme-challenge \
+  --email admin@example.com \
+  --agree-tos \
+  --no-eff-email \
+  -d play.example.com</pre>
+          </div>
+          <p class="text-sm text-base-content/70">
+            {doc_text(
+              "Certbot writes certificates to /etc/letsencrypt/live/play.example.com/. The fullchain.pem and privkey.pem files are what Phoenix needs."
+            )}
+          </p>
+
+          <%!-- Step 5c: Enable HTTPS --%>
+          <h4 class="text-base font-medium">{doc_text("c) Enable HTTPS in your .env")}</h4>
+          <div class="bg-base-200 p-4 rounded-lg font-mono text-sm highlight-code">
+            <pre phx-no-curly-interpolation><span class="code-comment"># .env — add these variables</span>
+PHX_HOST=play.example.com
+SSL_CERTFILE=/etc/letsencrypt/live/play.example.com/fullchain.pem
+SSL_KEYFILE=/etc/letsencrypt/live/play.example.com/privkey.pem
+FORCE_SSL=true
+ACME_CHALLENGE_DIR=/var/www/acme-challenge</pre>
+          </div>
+
+          <p class="text-sm text-base-content/80">
+            {doc_text("Restart the server to enable HTTPS:")}
+          </p>
+          <div class="bg-base-200 p-4 rounded-lg font-mono text-sm highlight-code">
+            <pre phx-no-curly-interpolation><span class="code-comment"># If running with Docker</span>
+docker compose up -d
+
+<span class="code-comment"># Verify HTTPS</span>
+curl https://play.example.com/api/v1/health</pre>
+          </div>
+
+          <%!-- Step 5d: Automatic renewal --%>
+          <h4 class="text-base font-medium">{doc_text("d) Automatic certificate renewal")}</h4>
+          <p class="text-sm text-base-content/80">
+            {doc_text(
+              "Certbot sets up a systemd timer (or cron job) that checks for renewal twice daily. Since Erlang's :ssl automatically reloads certificate files, renewed certificates take effect without restarting the server."
+            )}
+          </p>
+          <div class="bg-base-200 p-4 rounded-lg font-mono text-sm highlight-code">
+            <pre phx-no-curly-interpolation><span class="code-comment"># Verify the renewal timer is active</span>
+sudo systemctl list-timers | grep certbot
+
+<span class="code-comment"># Test renewal (dry run)</span>
+sudo certbot renew --dry-run
+
+<span class="code-comment"># Manual renewal (if needed)</span>
+sudo certbot renew</pre>
+          </div>
+
+          <%!-- Docker-specific tip --%>
+          <h4 class="text-base font-medium">{doc_text("Docker setup")}</h4>
+          <p class="text-sm text-base-content/80">
+            {doc_text(
+              "When running in Docker, mount the certificate directory and ACME challenge directory as volumes:"
+            )}
+          </p>
+          <div class="bg-base-200 p-4 rounded-lg font-mono text-sm highlight-code">
+            <pre phx-no-curly-interpolation><span class="code-comment"># docker-compose.yml</span>
+services:
+  app:
+    ports:
+      - "4000:4000"
+      - "443:443"
+    environment:
+      PHX_HOST: play.example.com
+      SSL_CERTFILE: /etc/letsencrypt/live/play.example.com/fullchain.pem
+      SSL_KEYFILE: /etc/letsencrypt/live/play.example.com/privkey.pem
+      FORCE_SSL: "true"
+      ACME_CHALLENGE_DIR: /var/www/acme-challenge
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/acme-challenge:ro</pre>
+          </div>
+          <p class="text-sm text-base-content/70">
+            {doc_text(
+              "Run certbot on the host machine (not inside Docker). It writes to ./certbot/conf/ and ./certbot/www/ which are mounted into the container."
+            )}
+          </p>
+          <div class="bg-base-200 p-4 rounded-lg font-mono text-sm highlight-code">
+            <pre phx-no-curly-interpolation><span class="code-comment"># Host machine: obtain certificate with certbot</span>
+sudo certbot certonly \
+  --webroot \
+  --webroot-path ./certbot/www \
+  --email admin@example.com \
+  --agree-tos \
+  -d play.example.com \
+  --config-dir ./certbot/conf \
+  --work-dir ./certbot/work \
+  --logs-dir ./certbot/logs
+
+<span class="code-comment"># Set up a cron job for auto-renewal (every 12 hours)</span>
+echo "0 */12 * * * certbot renew --config-dir $(pwd)/certbot/conf --work-dir $(pwd)/certbot/work --logs-dir $(pwd)/certbot/logs --quiet" | sudo crontab -</pre>
+          </div>
+
+          <%!-- Environment variables reference --%>
+          <h4 class="text-base font-medium">{doc_text("Environment variables reference")}</h4>
+          <div class="overflow-x-auto">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>{doc_text("Variable")}</th>
+                  <th>{doc_text("Description")}</th>
+                  <th>{doc_text("Default")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="font-mono text-xs">SSL_CERTFILE</td>
+                  <td class="text-xs">
+                    {doc_text("Path to fullchain.pem (certificate + CA chain)")}
+                  </td>
+                  <td class="text-xs font-mono">{doc_text("—")}</td>
+                </tr>
+                <tr>
+                  <td class="font-mono text-xs">SSL_KEYFILE</td>
+                  <td class="text-xs">{doc_text("Path to privkey.pem")}</td>
+                  <td class="text-xs font-mono">{doc_text("—")}</td>
+                </tr>
+                <tr>
+                  <td class="font-mono text-xs">HTTPS_PORT</td>
+                  <td class="text-xs">{doc_text("Port for HTTPS listener")}</td>
+                  <td class="text-xs font-mono">443</td>
+                </tr>
+                <tr>
+                  <td class="font-mono text-xs">FORCE_SSL</td>
+                  <td class="text-xs">
+                    {doc_text("Redirect HTTP → HTTPS and enable HSTS")}
+                  </td>
+                  <td class="text-xs font-mono">
+                    {doc_text("true when SSL_CERTFILE is set")}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="font-mono text-xs">ACME_CHALLENGE_DIR</td>
+                  <td class="text-xs">
+                    {doc_text("Directory for Let's Encrypt HTTP-01 challenge files")}
+                  </td>
+                  <td class="text-xs font-mono">/var/www/acme-challenge</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+            <p class="text-sm text-amber-800 dark:text-amber-200 font-medium mb-1">
+              {doc_text("Port 443 access")}
+            </p>
+            <p class="text-xs text-amber-700 dark:text-amber-300">
+              {doc_text(
+                "Binding to port 443 requires root access or Linux capabilities. In Docker this works by default. On bare metal, use: sudo setcap 'cap_net_bind_service=+ep' $(which beam.smp) — or use iptables to redirect port 443 to a higher port."
+              )}
+            </p>
+          </div>
         </div>
       </div>
     </div>

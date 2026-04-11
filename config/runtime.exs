@@ -399,39 +399,71 @@ if config_env() == :prod do
       if check_origin == nil, do: cfg, else: Keyword.put(cfg, :check_origin, check_origin)
     end)
 
-  config :game_server_web, GameServerWeb.Endpoint, endpoint_config
+  # ── HTTPS / TLS ─────────────────────────────────────────────────────────────
+  # Enable native HTTPS directly in Phoenix/Bandit by setting SSL_CERTFILE and
+  # SSL_KEYFILE to the paths of your certificate and private key PEM files.
+  # Erlang's :ssl automatically reloads certificate files from disk, so
+  # renewed certificates (e.g. from certbot) are picked up without restart.
+  #
+  # Environment variables:
+  #   SSL_CERTFILE  — path to fullchain.pem (certificate + CA chain)
+  #   SSL_KEYFILE   — path to privkey.pem
+  #   HTTPS_PORT    — HTTPS listen port (default: 443)
+  #   FORCE_SSL     — set to "true" to redirect HTTP → HTTPS and enable HSTS
+  #   ACME_CHALLENGE_DIR — directory for Let's Encrypt HTTP-01 challenge files
+  #                        (default: /var/www/acme-challenge when SSL is enabled)
+  ssl_certfile = System.get_env("SSL_CERTFILE")
+  ssl_keyfile = System.get_env("SSL_KEYFILE")
 
-  # ## SSL Support
-  #
-  # To get SSL working, you will need to add the `https` key
-  # to your endpoint configuration:
-  #
-  #     config :game_server, GameServerWeb.Endpoint,
-  #       https: [
-  #         ...,
-  #         port: 443,
-  #         cipher_suite: :strong,
-  #         keyfile: System.get_env("SOME_APP_SSL_KEY_PATH"),
-  #         certfile: System.get_env("SOME_APP_SSL_CERT_PATH")
-  #       ]
-  #
-  # The `cipher_suite` is set to `:strong` to support only the
-  # latest and more secure SSL ciphers. This means old browsers
-  # and clients may not be supported. You can set it to
-  # `:compatible` for wider support.
-  #
-  # `:keyfile` and `:certfile` expect an absolute path to the key
-  # and cert in disk or a relative path inside priv, for example
-  # "priv/ssl/server.key". For all supported SSL configuration
-  # options, see https://hexdocs.pm/plug/Plug.SSL.html#configure/1
-  #
-  # We also recommend setting `force_ssl` in your config/prod.exs,
-  # ensuring no data is ever sent via http, always redirecting to https:
-  #
-  #     config :game_server, GameServerWeb.Endpoint,
-  #       force_ssl: [hsts: true]
-  #
-  # Check `Plug.SSL` for all available options in `force_ssl`.
+  endpoint_config =
+    if ssl_certfile && ssl_keyfile do
+      https_port = GameServer.Env.integer("HTTPS_PORT", 443)
+
+      https_opts = [
+        ip: {0, 0, 0, 0, 0, 0, 0, 0},
+        port: https_port,
+        cipher_suite: :strong,
+        certfile: ssl_certfile,
+        keyfile: ssl_keyfile
+      ]
+
+      Keyword.put(endpoint_config, :https, https_opts)
+    else
+      endpoint_config
+    end
+
+  # ACME challenge directory for Let's Encrypt HTTP-01 validation.
+  # Certbot (or any ACME client) writes challenge tokens here; the
+  # AcmeChallenge plug serves them over HTTP so the CA can verify ownership.
+  acme_dir =
+    System.get_env("ACME_CHALLENGE_DIR") ||
+      if(ssl_certfile, do: "/var/www/acme-challenge")
+
+  if acme_dir do
+    config :game_server_web, :acme_challenge_dir, acme_dir
+  end
+
+  # Force SSL — redirect all HTTP to HTTPS and set HSTS header.
+  # The ACME challenge path and health-check endpoints are excluded so
+  # certbot can complete HTTP-01 validation and load balancers can probe.
+  force_ssl = GameServer.Env.bool("FORCE_SSL", ssl_certfile != nil)
+
+  endpoint_config =
+    if force_ssl do
+      Keyword.put(endpoint_config, :force_ssl,
+        hsts: true,
+        expires: 31_536_000,
+        subdomains: false,
+        exclude: [
+          hosts: ["localhost", "127.0.0.1"],
+          paths: ["/.well-known/acme-challenge", "/api/v1/health"]
+        ]
+      )
+    else
+      endpoint_config
+    end
+
+  config :game_server_web, GameServerWeb.Endpoint, endpoint_config
 
   # ## Configuring the mailer
   #

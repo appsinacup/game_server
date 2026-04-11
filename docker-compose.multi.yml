@@ -50,10 +50,18 @@ services:
       CACHE_MODE: multi
       CACHE_L2: redis
       CACHE_REDIS_URL: redis://redis:6379/0
+      # ── HTTPS (uncomment to enable) ──
+      # SSL_CERTFILE: /etc/letsencrypt/live/${PHX_HOST:-localhost}/fullchain.pem
+      # SSL_KEYFILE: /etc/letsencrypt/live/${PHX_HOST:-localhost}/privkey.pem
+      # FORCE_SSL: "true"
+      # ACME_CHALLENGE_DIR: /var/www/acme-challenge
     volumes:
       - ./modules:/app/modules
       - ./priv/static/images:/app/priv/static/images
       - ./priv/static/assets/css/theme:/app/priv/static/assets/css/theme
+      # Uncomment for HTTPS — mount Let's Encrypt certs and ACME challenge dir
+      # - ./certbot/conf:/etc/letsencrypt:ro
+      # - ./certbot/www:/var/www/acme-challenge:ro
     depends_on:
       - db
       - redis
