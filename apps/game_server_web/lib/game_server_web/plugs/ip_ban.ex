@@ -21,13 +21,19 @@ defmodule GameServerWeb.Plugs.IpBan do
 
   @behaviour Plug
   @table :ip_bans
+  @log_table :ip_ban_log
+  @max_log_entries 100
 
   # ── Public API ────────────────────────────────────────────────────────────
 
-  @doc "Ensure the ETS table exists (called once at app startup)."
+  @doc "Ensure the ETS tables exist (called once at app startup)."
   def init_table do
     if :ets.whereis(@table) == :undefined do
       :ets.new(@table, [:set, :public, :named_table, read_concurrency: true])
+    end
+
+    if :ets.whereis(@log_table) == :undefined do
+      :ets.new(@log_table, [:ordered_set, :public, :named_table, read_concurrency: true])
     end
 
     :ok
@@ -47,6 +53,7 @@ defmodule GameServerWeb.Plugs.IpBan do
       end
 
     :ets.insert(@table, {ip, expires_at})
+    append_log(:ban, ip, ttl_ms)
     :ok
   end
 
@@ -54,6 +61,7 @@ defmodule GameServerWeb.Plugs.IpBan do
   def unban(ip) do
     init_table()
     :ets.delete(@table, ip)
+    append_log(:unban, ip, nil)
     :ok
   end
 
@@ -89,6 +97,42 @@ defmodule GameServerWeb.Plugs.IpBan do
       {_ip, :infinity} -> true
       {_ip, expires_at} -> expires_at > now
     end)
+  end
+
+  @doc """
+  Return recent ban/unban log entries as a list of maps, newest first.
+
+  Each entry: `%{action: :ban | :unban, ip: String.t(), ttl: term(), at: DateTime.t()}`
+  """
+  def list_log do
+    init_table()
+
+    :ets.tab2list(@log_table)
+    |> Enum.sort_by(fn {ts, _action, _ip, _ttl} -> ts end, :desc)
+    |> Enum.map(fn {_ts, action, ip, ttl} ->
+      %{action: action, ip: ip, ttl: ttl}
+    end)
+  end
+
+  defp append_log(action, ip, ttl) do
+    ts = System.monotonic_time(:nanosecond)
+    :ets.insert(@log_table, {ts, action, ip, ttl})
+    prune_log()
+  end
+
+  defp prune_log do
+    size = :ets.info(@log_table, :size)
+
+    if size > @max_log_entries do
+      # Remove oldest entries (smallest keys in ordered_set)
+      to_remove = size - @max_log_entries
+
+      @log_table
+      |> :ets.tab2list()
+      |> Enum.sort_by(fn {ts, _, _, _} -> ts end)
+      |> Enum.take(to_remove)
+      |> Enum.each(fn {ts, _, _, _} -> :ets.delete(@log_table, ts) end)
+    end
   end
 
   # ── Plug callbacks ────────────────────────────────────────────────────────
