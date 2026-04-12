@@ -63,6 +63,9 @@ defmodule GameServerWeb.AdminLive.Index do
           <.link navigate={~p"/admin/connections"} class="btn btn-outline">
             Connections ({@conn_stats.total_connections})
           </.link>
+          <.link navigate={~p"/admin/rate-limiting"} class="btn btn-outline">
+            Rate Limiting
+          </.link>
           <.link navigate={~p"/admin/system"} class="btn btn-outline">
             System
           </.link>
@@ -343,7 +346,7 @@ defmodule GameServerWeb.AdminLive.Index do
               <div class="card bg-base-100 p-4">
                 <div class="flex items-center justify-between mb-2">
                   <div class="text-sm font-semibold">Rate Limiting</div>
-                  <.link navigate={~p"/admin/system"} class="link link-primary text-xs">
+                  <.link navigate={~p"/admin/rate-limiting"} class="link link-primary text-xs">
                     View →
                   </.link>
                 </div>

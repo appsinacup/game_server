@@ -22,7 +22,7 @@ defmodule GameServerWeb.AdminLive.Config do
         <.link navigate={~p"/admin"} class="btn btn-outline mb-4">
           ← Back to Admin
         </.link>
-        
+
     <!-- Current Configuration Status -->
         <div class="card bg-base-100 shadow-sm" data-card-key="config_status">
           <div class="card-body">
@@ -625,48 +625,9 @@ defmodule GameServerWeb.AdminLive.Config do
                       <% end %>
                     </td>
                     <td class="font-mono text-sm break-all whitespace-normal">
-                      <%= if @ip_bans == [] do %>
-                        No IPs currently banned
-                      <% else %>
-                        <%= for {ip, expires} <- @ip_bans do %>
-                          <div class="flex items-center gap-2 py-0.5">
-                            <span>{ip}</span>
-                            <span class="text-xs text-base-content/60">
-                              <%= if expires == :infinity do %>
-                                (permanent)
-                              <% else %>
-                                (expires in {format_ban_ttl(expires)})
-                              <% end %>
-                            </span>
-                            <button
-                              type="button"
-                              phx-click="unban_ip"
-                              phx-value-ip={ip}
-                              class="btn btn-ghost btn-xs text-error"
-                            >
-                              Unban
-                            </button>
-                          </div>
-                        <% end %>
-                      <% end %>
-                      <div class="mt-2">
-                        <form phx-submit="ban_ip" class="flex items-center gap-2">
-                          <input
-                            type="text"
-                            name="ip"
-                            placeholder="IP to ban (e.g. 1.2.3.4)"
-                            class="input input-bordered input-sm w-48"
-                          />
-                          <select name="duration" class="select select-bordered select-sm">
-                            <option value="permanent">Permanent</option>
-                            <option value="1h">1 hour</option>
-                            <option value="24h">24 hours</option>
-                            <option value="7d">7 days</option>
-                            <option value="30d">30 days</option>
-                          </select>
-                          <button type="submit" class="btn btn-warning btn-sm">Ban</button>
-                        </form>
-                      </div>
+                      <.link navigate={~p"/admin/rate-limiting"} class="link link-primary text-sm">
+                        Manage IP Bans →
+                      </.link>
                     </td>
                   </tr>
                   <tr>
@@ -1351,7 +1312,7 @@ defmodule GameServerWeb.AdminLive.Config do
                             <% end %>
                           </div>
                         </div>
-                        
+
     <!-- Full docs modal / pane -->
                         <%= if @hooks_full_doc do %>
                           <div class="mt-2 p-3 border rounded bg-base-100">
@@ -1378,7 +1339,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Limits & Validation -->
         <div class="card bg-base-100 shadow-sm collapsed" data-card-key="limits">
           <div class="card-body">
@@ -1447,7 +1408,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Admin Tools -->
         <div class="card bg-base-100 shadow-sm collapsed" data-card-key="admin_tools">
           <div class="card-body">
@@ -1504,7 +1465,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Scheduled Jobs -->
         <div class="card bg-base-100 shadow-sm collapsed" data-card-key="scheduled_jobs">
           <div class="card-body">
@@ -1980,41 +1941,6 @@ defmodule GameServerWeb.AdminLive.Config do
 
   defp ecto_ipv6_recommended(true), do: "true"
   defp ecto_ipv6_recommended(false), do: ""
-
-  @impl true
-  def handle_event("ban_ip", %{"ip" => ip_str, "duration" => duration}, socket) do
-    ip_str = String.trim(ip_str)
-
-    if ip_str == "" do
-      {:noreply, put_flash(socket, :error, "IP address is required")}
-    else
-      ttl =
-        case duration do
-          "1h" -> :timer.hours(1)
-          "24h" -> :timer.hours(24)
-          "7d" -> :timer.hours(24 * 7)
-          "30d" -> :timer.hours(24 * 30)
-          _ -> :infinity
-        end
-
-      IpBan.ban(ip_str, ttl)
-
-      {:noreply,
-       socket
-       |> assign(:ip_bans, IpBan.list_bans())
-       |> put_flash(:info, "Banned IP #{ip_str}")}
-    end
-  end
-
-  @impl true
-  def handle_event("unban_ip", %{"ip" => ip_str}, socket) do
-    IpBan.unban(ip_str)
-
-    {:noreply,
-     socket
-     |> assign(:ip_bans, IpBan.list_bans())
-     |> put_flash(:info, "Unbanned IP #{ip_str}")}
-  end
 
   @impl true
   def handle_event("reload_plugins", _params, socket) do
@@ -2680,28 +2606,4 @@ defmodule GameServerWeb.AdminLive.Config do
   end
 
   defp format_limit_value(v), do: to_string(v)
-
-  # Format remaining ban TTL from monotonic expiry to human-readable string
-  defp format_ban_ttl(expires_mono) do
-    remaining_ms = div(expires_mono - System.monotonic_time(:millisecond), 1)
-    remaining_ms = max(remaining_ms, 0)
-
-    cond do
-      remaining_ms >= 86_400_000 ->
-        days = div(remaining_ms, 86_400_000)
-        "#{days}d"
-
-      remaining_ms >= 3_600_000 ->
-        hours = div(remaining_ms, 3_600_000)
-        "#{hours}h"
-
-      remaining_ms >= 60_000 ->
-        mins = div(remaining_ms, 60_000)
-        "#{mins}m"
-
-      true ->
-        secs = div(remaining_ms, 1000)
-        "#{secs}s"
-    end
-  end
 end
