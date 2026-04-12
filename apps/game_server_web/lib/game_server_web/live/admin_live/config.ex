@@ -12,6 +12,7 @@ defmodule GameServerWeb.AdminLive.Config do
   alias GameServer.Repo.AdvisoryLock
   alias GameServer.Schedule
   alias GameServer.Theme.JSONConfig
+  alias GameServerWeb.Plugs.IpBan
 
   @impl true
   def render(assigns) do
@@ -606,9 +607,66 @@ defmodule GameServerWeb.AdminLive.Config do
                       Auth (login/register): {@config.rate_limit_auth_limit} req / {@config.rate_limit_auth_window}ms<br />
                       WebSocket: {@config.rate_limit_ws_limit} msg / {@config.rate_limit_ws_window}ms<br />
                       WebRTC DC: {@config.rate_limit_dc_limit} msg / {@config.rate_limit_dc_window}ms<br />
+                      ICE Candidates: {@config.rate_limit_ice_limit} / {@config.rate_limit_ice_window}ms<br />
+                      Max DataChannels per peer: {@config.webrtc_max_channels}<br />
+                      Max DC message size: {@config.webrtc_max_message_size} bytes<br />
                       <span class="text-xs text-base-content/60">
                         Set via RATE_LIMIT_* env vars
                       </span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="font-semibold">IP Bans</td>
+                    <td>
+                      <%= if @ip_bans == [] do %>
+                        <span class="badge badge-ghost">None</span>
+                      <% else %>
+                        <span class="badge badge-warning">{length(@ip_bans)} active</span>
+                      <% end %>
+                    </td>
+                    <td class="font-mono text-sm break-all whitespace-normal">
+                      <%= if @ip_bans == [] do %>
+                        No IPs currently banned
+                      <% else %>
+                        <%= for {ip, expires} <- @ip_bans do %>
+                          <div class="flex items-center gap-2 py-0.5">
+                            <span>{ip}</span>
+                            <span class="text-xs text-base-content/60">
+                              <%= if expires == :infinity do %>
+                                (permanent)
+                              <% else %>
+                                (expires in {format_ban_ttl(expires)})
+                              <% end %>
+                            </span>
+                            <button
+                              type="button"
+                              phx-click="unban_ip"
+                              phx-value-ip={ip}
+                              class="btn btn-ghost btn-xs text-error"
+                            >
+                              Unban
+                            </button>
+                          </div>
+                        <% end %>
+                      <% end %>
+                      <div class="mt-2">
+                        <form phx-submit="ban_ip" class="flex items-center gap-2">
+                          <input
+                            type="text"
+                            name="ip"
+                            placeholder="IP to ban (e.g. 1.2.3.4)"
+                            class="input input-bordered input-sm w-48"
+                          />
+                          <select name="duration" class="select select-bordered select-sm">
+                            <option value="permanent">Permanent</option>
+                            <option value="1h">1 hour</option>
+                            <option value="24h">24 hours</option>
+                            <option value="7d">7 days</option>
+                            <option value="30d">30 days</option>
+                          </select>
+                          <button type="submit" class="btn btn-warning btn-sm">Ban</button>
+                        </form>
+                      </div>
                     </td>
                   </tr>
                   <tr>
@@ -1720,12 +1778,27 @@ defmodule GameServerWeb.AdminLive.Config do
           Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, []),
           :dc_window,
           10_000
-        )
+        ),
+      rate_limit_ice_limit:
+        Keyword.get(
+          Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, []),
+          :ice_limit,
+          50
+        ),
+      rate_limit_ice_window:
+        Keyword.get(
+          Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, []),
+          :ice_window,
+          30_000
+        ),
+      webrtc_max_channels: 1,
+      webrtc_max_message_size: 65_536
     }
 
     socket =
       assign(socket,
         config: config,
+        ip_bans: IpBan.list_bans(),
         limits_grouped: limits_grouped(),
         scheduled_jobs: Schedule.list(),
         hooks_plugin_prefill: %{value: "", seq: 0},
@@ -1907,6 +1980,41 @@ defmodule GameServerWeb.AdminLive.Config do
 
   defp ecto_ipv6_recommended(true), do: "true"
   defp ecto_ipv6_recommended(false), do: ""
+
+  @impl true
+  def handle_event("ban_ip", %{"ip" => ip_str, "duration" => duration}, socket) do
+    ip_str = String.trim(ip_str)
+
+    if ip_str == "" do
+      {:noreply, put_flash(socket, :error, "IP address is required")}
+    else
+      ttl =
+        case duration do
+          "1h" -> :timer.hours(1)
+          "24h" -> :timer.hours(24)
+          "7d" -> :timer.hours(24 * 7)
+          "30d" -> :timer.hours(24 * 30)
+          _ -> :infinity
+        end
+
+      IpBan.ban(ip_str, ttl)
+
+      {:noreply,
+       socket
+       |> assign(:ip_bans, IpBan.list_bans())
+       |> put_flash(:info, "Banned IP #{ip_str}")}
+    end
+  end
+
+  @impl true
+  def handle_event("unban_ip", %{"ip" => ip_str}, socket) do
+    IpBan.unban(ip_str)
+
+    {:noreply,
+     socket
+     |> assign(:ip_bans, IpBan.list_bans())
+     |> put_flash(:info, "Unbanned IP #{ip_str}")}
+  end
 
   @impl true
   def handle_event("reload_plugins", _params, socket) do
@@ -2572,4 +2680,28 @@ defmodule GameServerWeb.AdminLive.Config do
   end
 
   defp format_limit_value(v), do: to_string(v)
+
+  # Format remaining ban TTL from monotonic expiry to human-readable string
+  defp format_ban_ttl(expires_mono) do
+    remaining_ms = div(expires_mono - System.monotonic_time(:millisecond), 1)
+    remaining_ms = max(remaining_ms, 0)
+
+    cond do
+      remaining_ms >= 86_400_000 ->
+        days = div(remaining_ms, 86_400_000)
+        "#{days}d"
+
+      remaining_ms >= 3_600_000 ->
+        hours = div(remaining_ms, 3_600_000)
+        "#{hours}h"
+
+      remaining_ms >= 60_000 ->
+        mins = div(remaining_ms, 60_000)
+        "#{mins}m"
+
+      true ->
+        secs = div(remaining_ms, 1000)
+        "#{secs}s"
+    end
+  end
 end

@@ -22,6 +22,9 @@ defmodule GameServerWeb.Endpoint do
   # This must come before force_ssl so challenges are served over plain HTTP.
   plug GameServerWeb.Plugs.AcmeChallenge
 
+  # Set baseline security headers on every response (static, API, browser).
+  plug GameServerWeb.Plugs.SecurityHeaders
+
   # Serve at "/" the static files from "priv/static" directory.
   #
   # When code reloading is disabled (e.g., in production),
