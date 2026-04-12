@@ -33,7 +33,8 @@ defmodule GameServerUmbrella.MixProject do
         "format",
         "gen.sdk",
         "test",
-        "credo --strict"
+        "credo --strict",
+        "deps.audit"
       ],
       "assets.setup": ["do --app game_server_host assets.setup"],
       "assets.build": ["do --app game_server_host assets.build"],
@@ -50,7 +51,8 @@ defmodule GameServerUmbrella.MixProject do
 
   defp deps do
     [
-      {:ex_doc, "~> 0.40", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.40", only: :dev, runtime: false},
+      {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false}
     ]
   end
 
