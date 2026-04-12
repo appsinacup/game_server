@@ -69,12 +69,16 @@ defmodule GameServerWeb.AdminLive.RateLimiting do
                   <div class="flex items-center gap-2 mb-1">
                     <span class={["badge badge-xs font-bold", badge_class]}>{label}</span>
                   </div>
-                  <div class="text-lg font-bold">{bucket.count} <span class="text-xs font-normal text-base-content/60">IPs</span></div>
+                  <div class="text-lg font-bold">
+                    {bucket.count} <span class="text-xs font-normal text-base-content/60">IPs</span>
+                  </div>
                   <div class="text-xs text-base-content/60">
                     {bucket.total_hits} total hits
                   </div>
                   <%= if bucket.limited > 0 do %>
-                    <div class="text-xs text-warning font-semibold">{bucket.limited} rate limited</div>
+                    <div class="text-xs text-warning font-semibold">
+                      {bucket.limited} rate limited
+                    </div>
                   <% end %>
                 </div>
               <% end %>

@@ -47,9 +47,35 @@ defmodule GameServerWeb.Plugs.RateLimiter do
 
         conn
         |> put_resp_header("retry-after", to_string(retry_secs))
-        |> send_resp(429, "Too Many Requests")
+        |> send_rate_limit_response(retry_secs)
         |> halt()
     end
+  end
+
+  defp send_rate_limit_response(%{path_info: ["api" | _]} = conn, _retry_secs) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(429, Jason.encode!(%{error: "Too Many Requests"}))
+  end
+
+  defp send_rate_limit_response(conn, retry_secs) do
+    conn
+    |> put_resp_content_type("text/html")
+    |> send_resp(429, rate_limit_html(retry_secs))
+  end
+
+  defp rate_limit_html(retry_secs) do
+    """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head><meta charset="utf-8"><title>429 Too Many Requests</title>
+    <style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f9fafb;color:#111827}
+    .c{text-align:center;max-width:400px;padding:2rem}.h{font-size:3rem;font-weight:700;color:#dc2626;margin:0}.m{margin-top:1rem;color:#6b7280}</style>
+    </head>
+    <body><div class="c"><p class="h">429</p><h1>Too Many Requests</h1>
+    <p class="m">You have made too many requests. Please try again in #{retry_secs} seconds.</p>
+    </div></body></html>
+    """
   end
 
   # API login/registration — stricter auth bucket

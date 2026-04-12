@@ -20,6 +20,9 @@
 - [added] **Feature gating**: set `OPENAPI_ENABLED=false` to disable Swagger UI and OpenAPI JSON endpoints; set `DOCS_ENABLED=false` to disable the public docs page.
 - [added] **Security headers**: baseline headers (X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy, CORP, X-Permitted-Cross-Domain-Policies) on all responses via SecurityHeaders plug. Conditional HSTS over HTTPS.
 - [added] **Admin Rate Limiting page** (`/admin/rate-limiting`): dedicated dashboard for managing IP bans and monitoring rate limit load in real-time with auto-refreshing stats.
+- [changed] `x-request-time` response header no longer exposed in production (prevents server timing side-channel).
+- [changed] `x-request-id` response header stripped in production (request ID still available in logs via `conn.assigns`).
+- [changed] Rate limiter now returns proper HTML error page for browser requests and JSON `{"error":"Too Many Requests"}` for API requests instead of plain text.
 
 # March 2026
 

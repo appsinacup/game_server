@@ -16,11 +16,17 @@ defmodule GameServerWeb.Plugs.SecurityHeaders do
   | `Permissions-Policy` | (restrictive) | Limits browser feature access |
   | `Cross-Origin-Resource-Policy` | `same-origin` | Prevents cross-origin embedding |
   | `X-Permitted-Cross-Domain-Policies` | `none` | Prevents Flash/PDF cross-domain |
+
+  In production, the `x-request-id` response header is stripped to avoid
+  leaking internal correlation identifiers. The request ID remains available
+  in `conn.assigns[:request_id]` for logging.
   """
 
   import Plug.Conn
 
   @behaviour Plug
+
+  @strip_request_id Mix.env() == :prod
 
   @impl true
   def init(opts), do: opts
@@ -35,6 +41,19 @@ defmodule GameServerWeb.Plugs.SecurityHeaders do
     |> put_resp_header("cross-origin-resource-policy", "same-origin")
     |> put_resp_header("x-permitted-cross-domain-policies", "none")
     |> maybe_hsts()
+    |> maybe_strip_request_id()
+  end
+
+  # In production, strip x-request-id from response headers to avoid leaking
+  # internal identifiers. The value is still in conn.assigns for log correlation.
+  defp maybe_strip_request_id(conn) do
+    if @strip_request_id do
+      register_before_send(conn, fn conn ->
+        delete_resp_header(conn, "x-request-id")
+      end)
+    else
+      conn
+    end
   end
 
   # Set HSTS when the connection is over HTTPS (or behind a proxy that
