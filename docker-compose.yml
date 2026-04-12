@@ -22,14 +22,14 @@ services:
       # SSL_CERTFILE: /etc/letsencrypt/live/${PHX_HOST:-localhost}/fullchain.pem
       # SSL_KEYFILE: /etc/letsencrypt/live/${PHX_HOST:-localhost}/privkey.pem
       # FORCE_SSL: "true"
-      # ACME_CHALLENGE_DIR: /var/www/acme-challenge
+      # ACME_WEBROOT: /var/www/acme
     volumes:
       - ./modules:/app/modules
       - ./priv/static/images:/app/priv/static/images
       - ./priv/static/assets/css/theme:/app/priv/static/assets/css/theme
       - ./db:/app/db
-      # Uncomment for HTTPS — mount Let's Encrypt certs and ACME challenge dir
+      # Uncomment for HTTPS — mount Let's Encrypt certs and ACME webroot
       # - ./certbot/conf:/etc/letsencrypt:ro
-      # - ./certbot/www:/var/www/acme-challenge:ro
+      # - ./certbot/www:/var/www/acme:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"

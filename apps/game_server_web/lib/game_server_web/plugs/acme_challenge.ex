@@ -3,18 +3,22 @@ defmodule GameServerWeb.Plugs.AcmeChallenge do
   Plug to serve ACME HTTP-01 challenge files for Let's Encrypt certificate validation.
 
   When a Let's Encrypt client (certbot, lego, etc.) requests a certificate, it
-  places a token file in a directory and the CA verifies ownership by requesting
-  `http://your-domain/.well-known/acme-challenge/<token>`.
+  places a token file in a webroot directory and the CA verifies ownership by
+  requesting `http://your-domain/.well-known/acme-challenge/<token>`.
 
-  This plug serves those files from a configurable directory, allowing Phoenix
-  to handle ACME challenges directly without nginx or other reverse proxies.
+  This plug serves those files from a configurable **webroot** directory, allowing
+  Phoenix to handle ACME challenges directly without nginx or other reverse proxies.
+
+  The plug reads tokens from `<webroot>/.well-known/acme-challenge/<token>`, which
+  matches the directory structure created by certbot's `--webroot` mode.
 
   ## Configuration
 
-      config :game_server_web, :acme_challenge_dir, "/var/www/acme-challenge"
+      # Set the webroot (same path you pass to certbot --webroot-path)
+      config :game_server_web, :acme_webroot, "/var/www/acme"
 
-  Or via the `ACME_CHALLENGE_DIR` environment variable (set in runtime.exs).
-  When the directory is not configured or does not exist, this plug is a no-op.
+  Or via the `ACME_WEBROOT` environment variable (set in runtime.exs).
+  When the webroot is not configured or does not exist, this plug is a no-op.
   """
 
   import Plug.Conn
@@ -29,16 +33,18 @@ defmodule GameServerWeb.Plugs.AcmeChallenge do
         %Plug.Conn{request_path: "/.well-known/acme-challenge/" <> token} = conn,
         _opts
       ) do
-    challenge_dir = Application.get_env(:game_server_web, :acme_challenge_dir)
+    webroot = Application.get_env(:game_server_web, :acme_webroot)
 
-    if challenge_dir && token != "" do
+    if webroot && token != "" do
       # Prevent directory traversal — only allow simple token filenames
       if String.contains?(token, "/") or String.contains?(token, "..") do
         conn
         |> send_resp(400, "Invalid token")
         |> halt()
       else
-        file_path = Path.join(challenge_dir, token)
+        # Read from <webroot>/.well-known/acme-challenge/<token>
+        # This matches the directory structure created by certbot --webroot
+        file_path = Path.join([webroot, ".well-known", "acme-challenge", token])
 
         case File.read(file_path) do
           {:ok, content} ->

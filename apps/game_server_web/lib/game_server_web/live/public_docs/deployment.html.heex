@@ -261,13 +261,13 @@ brew install certbot</pre>
           </p>
           <div class="bg-base-200 p-4 rounded-lg font-mono text-sm highlight-code">
             <pre phx-no-curly-interpolation><span class="code-comment"># Start the server first (HTTP only) so ACME challenges can be served</span>
-<span class="code-comment"># Make sure ACME_CHALLENGE_DIR is set in your .env:</span>
-ACME_CHALLENGE_DIR=/var/www/acme-challenge
+<span class="code-comment"># Make sure the ACME webroot exists:</span>
+sudo mkdir -p /var/www/acme
 
 <span class="code-comment"># Request a certificate (webroot mode uses the running server)</span>
 sudo certbot certonly \
   --webroot \
-  --webroot-path /var/www/acme-challenge \
+  --webroot-path /var/www/acme \
   --email admin@example.com \
   --agree-tos \
   --no-eff-email \
@@ -287,7 +287,7 @@ PHX_HOST=play.example.com
 SSL_CERTFILE=/etc/letsencrypt/live/play.example.com/fullchain.pem
 SSL_KEYFILE=/etc/letsencrypt/live/play.example.com/privkey.pem
 FORCE_SSL=true
-ACME_CHALLENGE_DIR=/var/www/acme-challenge</pre>
+ACME_WEBROOT=/var/www/acme</pre>
           </div>
 
           <p class="text-sm text-base-content/80">
@@ -338,10 +338,10 @@ services:
       SSL_CERTFILE: /etc/letsencrypt/live/play.example.com/fullchain.pem
       SSL_KEYFILE: /etc/letsencrypt/live/play.example.com/privkey.pem
       FORCE_SSL: "true"
-      ACME_CHALLENGE_DIR: /var/www/acme-challenge
+      ACME_WEBROOT: /var/www/acme
     volumes:
       - ./certbot/conf:/etc/letsencrypt:ro
-      - ./certbot/www:/var/www/acme-challenge:ro</pre>
+      - ./certbot/www:/var/www/acme:ro</pre>
           </div>
           <p class="text-sm text-base-content/80 mt-3">
             {doc_text(
@@ -413,11 +413,11 @@ docker compose up -d
                   </td>
                 </tr>
                 <tr>
-                  <td class="font-mono text-xs">ACME_CHALLENGE_DIR</td>
+                  <td class="font-mono text-xs">ACME_WEBROOT</td>
                   <td class="text-xs">
-                    {doc_text("Directory for Let's Encrypt HTTP-01 challenge files")}
+                    {doc_text("Webroot directory for Let's Encrypt HTTP-01 challenges (same as certbot --webroot-path)")}
                   </td>
-                  <td class="text-xs font-mono">/var/www/acme-challenge</td>
+                  <td class="text-xs font-mono">/var/www/acme</td>
                 </tr>
               </tbody>
             </table>

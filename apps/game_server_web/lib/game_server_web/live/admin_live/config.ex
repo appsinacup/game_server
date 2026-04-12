@@ -1055,8 +1055,8 @@ defmodule GameServerWeb.AdminLive.Config do
                         </span>
                         <br /> FORCE_SSL:
                         <span class="break-all">{@config.force_ssl_env || "<unset>"}</span>
-                        <br /> ACME_CHALLENGE_DIR:
-                        <span class="break-all">{@config.acme_challenge_dir_env || "<unset>"}</span>
+                        <br /> ACME_WEBROOT:
+                        <span class="break-all">{@config.acme_webroot_env || "<unset>"}</span>
                       </div>
 
                       <%= if @config.ssl_cert_info do %>
@@ -1662,7 +1662,7 @@ defmodule GameServerWeb.AdminLive.Config do
       ssl_keyfile_env: System.get_env("SSL_KEYFILE"),
       https_port_env: System.get_env("HTTPS_PORT"),
       force_ssl_env: System.get_env("FORCE_SSL"),
-      acme_challenge_dir_env: System.get_env("ACME_CHALLENGE_DIR"),
+      acme_webroot_env: System.get_env("ACME_WEBROOT"),
       ssl_enabled?: ssl_enabled?(),
       ssl_cert_info: ssl_cert_info(),
 

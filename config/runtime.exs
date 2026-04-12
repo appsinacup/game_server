@@ -410,8 +410,9 @@ if config_env() == :prod do
   #   SSL_KEYFILE   — path to privkey.pem
   #   HTTPS_PORT    — HTTPS listen port (default: 443)
   #   FORCE_SSL     — set to "true" to redirect HTTP → HTTPS and enable HSTS
-  #   ACME_CHALLENGE_DIR — directory for Let's Encrypt HTTP-01 challenge files
-  #                        (default: /var/www/acme-challenge when SSL is enabled)
+  #   ACME_WEBROOT  — webroot directory for Let's Encrypt HTTP-01 challenge files
+  #                   (default: /var/www/acme when SSL is enabled; same path you
+  #                   pass to certbot --webroot-path)
   ssl_certfile = System.get_env("SSL_CERTFILE")
   ssl_keyfile = System.get_env("SSL_KEYFILE")
 
@@ -465,25 +466,27 @@ if config_env() == :prod do
       endpoint_config
     end
 
-  # ACME challenge directory for Let's Encrypt HTTP-01 validation.
-  # Certbot (or any ACME client) writes challenge tokens here; the
-  # AcmeChallenge plug serves them over HTTP so the CA can verify ownership.
-  # This is enabled whenever SSL_CERTFILE is set (even if the file doesn't
-  # exist yet) so certbot can complete its first challenge.
-  acme_dir =
-    System.get_env("ACME_CHALLENGE_DIR") ||
-      if(ssl_certfile, do: "/var/www/acme-challenge")
+  # ACME webroot for Let's Encrypt HTTP-01 validation.
+  # Certbot (or any ACME client) writes challenge tokens to
+  # <webroot>/.well-known/acme-challenge/<token>; the AcmeChallenge plug
+  # serves them over HTTP so the CA can verify domain ownership.
+  # This is the same path you pass to `certbot --webroot-path`.
+  # Enabled whenever SSL_CERTFILE is set (even if the file doesn't exist yet)
+  # so certbot can complete its first challenge.
+  acme_webroot =
+    System.get_env("ACME_WEBROOT") ||
+      if(ssl_certfile, do: "/var/www/acme")
 
-  if acme_dir do
-    # Ensure the ACME challenge directory exists. If it doesn't, try to create
+  if acme_webroot do
+    # Ensure the ACME webroot directory exists. If it doesn't, try to create
     # it so certbot can write challenge tokens before its first run. If creation
     # fails (e.g. permission denied), log a warning and skip the config so the
     # server doesn't emit confusing errors when serving challenge requests.
     acme_dir_ready? =
-      if File.dir?(acme_dir) do
+      if File.dir?(acme_webroot) do
         true
       else
-        case File.mkdir_p(acme_dir) do
+        case File.mkdir_p(acme_webroot) do
           :ok ->
             true
 
@@ -491,9 +494,9 @@ if config_env() == :prod do
             require Logger
 
             Logger.warning(
-              "ACME challenge directory #{acme_dir} does not exist and could not be created " <>
+              "ACME webroot directory #{acme_webroot} does not exist and could not be created " <>
                 "(#{reason}). ACME HTTP-01 challenges will not be served. " <>
-                "Create the directory manually: sudo mkdir -p #{acme_dir}"
+                "Create the directory manually: sudo mkdir -p #{acme_webroot}"
             )
 
             false
@@ -501,7 +504,7 @@ if config_env() == :prod do
       end
 
     if acme_dir_ready? do
-      config :game_server_web, :acme_challenge_dir, acme_dir
+      config :game_server_web, :acme_webroot, acme_webroot
     end
   end
 
