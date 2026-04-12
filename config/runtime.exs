@@ -475,7 +475,34 @@ if config_env() == :prod do
       if(ssl_certfile, do: "/var/www/acme-challenge")
 
   if acme_dir do
-    config :game_server_web, :acme_challenge_dir, acme_dir
+    # Ensure the ACME challenge directory exists. If it doesn't, try to create
+    # it so certbot can write challenge tokens before its first run. If creation
+    # fails (e.g. permission denied), log a warning and skip the config so the
+    # server doesn't emit confusing errors when serving challenge requests.
+    acme_dir_ready? =
+      if File.dir?(acme_dir) do
+        true
+      else
+        case File.mkdir_p(acme_dir) do
+          :ok ->
+            true
+
+          {:error, reason} ->
+            require Logger
+
+            Logger.warning(
+              "ACME challenge directory #{acme_dir} does not exist and could not be created " <>
+                "(#{reason}). ACME HTTP-01 challenges will not be served. " <>
+                "Create the directory manually: sudo mkdir -p #{acme_dir}"
+            )
+
+            false
+        end
+      end
+
+    if acme_dir_ready? do
+      config :game_server_web, :acme_challenge_dir, acme_dir
+    end
   end
 
   # Force SSL — redirect all HTTP to HTTPS and set HSTS header.
