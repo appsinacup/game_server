@@ -415,8 +415,41 @@ if config_env() == :prod do
   ssl_certfile = System.get_env("SSL_CERTFILE")
   ssl_keyfile = System.get_env("SSL_KEYFILE")
 
-  endpoint_config =
+  # Validate that certificate files actually exist before enabling HTTPS.
+  # This prevents a crash on startup when SSL_CERTFILE/SSL_KEYFILE are set
+  # but the files haven't been created yet (e.g. before running certbot).
+  ssl_files_ready? =
     if ssl_certfile && ssl_keyfile do
+      cert_exists? = File.exists?(ssl_certfile)
+      key_exists? = File.exists?(ssl_keyfile)
+
+      unless cert_exists? do
+        require Logger
+
+        Logger.warning(
+          "SSL_CERTFILE is set to #{ssl_certfile} but the file does not exist. " <>
+            "HTTPS will NOT be enabled. Run certbot to generate the certificate first, " <>
+            "then restart the server."
+        )
+      end
+
+      unless key_exists? do
+        require Logger
+
+        Logger.warning(
+          "SSL_KEYFILE is set to #{ssl_keyfile} but the file does not exist. " <>
+            "HTTPS will NOT be enabled. Run certbot to generate the certificate first, " <>
+            "then restart the server."
+        )
+      end
+
+      cert_exists? and key_exists?
+    else
+      false
+    end
+
+  endpoint_config =
+    if ssl_files_ready? do
       https_port = GameServer.Env.integer("HTTPS_PORT", 443)
 
       https_opts = [
@@ -435,6 +468,8 @@ if config_env() == :prod do
   # ACME challenge directory for Let's Encrypt HTTP-01 validation.
   # Certbot (or any ACME client) writes challenge tokens here; the
   # AcmeChallenge plug serves them over HTTP so the CA can verify ownership.
+  # This is enabled whenever SSL_CERTFILE is set (even if the file doesn't
+  # exist yet) so certbot can complete its first challenge.
   acme_dir =
     System.get_env("ACME_CHALLENGE_DIR") ||
       if(ssl_certfile, do: "/var/www/acme-challenge")
@@ -444,9 +479,11 @@ if config_env() == :prod do
   end
 
   # Force SSL — redirect all HTTP to HTTPS and set HSTS header.
+  # Only enabled when cert files actually exist (ssl_files_ready?), otherwise
+  # we'd redirect to HTTPS that isn't listening and break the server.
   # The ACME challenge path and health-check endpoints are excluded so
   # certbot can complete HTTP-01 validation and load balancers can probe.
-  force_ssl = GameServer.Env.bool("FORCE_SSL", ssl_certfile != nil)
+  force_ssl = GameServer.Env.bool("FORCE_SSL", ssl_files_ready?)
 
   endpoint_config =
     if force_ssl do

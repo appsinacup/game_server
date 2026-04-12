@@ -323,11 +323,11 @@ sudo certbot renew</pre>
           <h4 class="text-base font-medium">{doc_text("Docker setup")}</h4>
           <p class="text-sm text-base-content/80">
             {doc_text(
-              "When running in Docker, mount the certificate directory and ACME challenge directory as volumes:"
+              "When running in Docker, mount the certificate directory and ACME challenge directory as volumes. Add these to your docker-compose.yml:"
             )}
           </p>
           <div class="bg-base-200 p-4 rounded-lg font-mono text-sm highlight-code">
-            <pre phx-no-curly-interpolation><span class="code-comment"># docker-compose.yml</span>
+            <pre phx-no-curly-interpolation><span class="code-comment"># docker-compose.yml — add HTTPS support</span>
 services:
   app:
     ports:
@@ -343,26 +343,38 @@ services:
       - ./certbot/conf:/etc/letsencrypt:ro
       - ./certbot/www:/var/www/acme-challenge:ro</pre>
           </div>
-          <p class="text-sm text-base-content/70">
+          <p class="text-sm text-base-content/80 mt-3">
             {doc_text(
-              "Run certbot on the host machine (not inside Docker). It writes to ./certbot/conf/ and ./certbot/www/ which are mounted into the container."
+              "Run certbot on the host machine (not inside Docker). It writes to ./certbot/conf/ and ./certbot/www/ which are mounted into the container:"
             )}
           </p>
           <div class="bg-base-200 p-4 rounded-lg font-mono text-sm highlight-code">
-            <pre phx-no-curly-interpolation><span class="code-comment"># Host machine: obtain certificate with certbot</span>
+            <pre phx-no-curly-interpolation><span class="code-comment"># 1. Create cert directories</span>
+mkdir -p certbot/conf certbot/www
+
+<span class="code-comment"># 2. Start the server (HTTP only — certs don't exist yet)</span>
+docker compose up -d
+
+<span class="code-comment"># 3. Get your first certificate (run on the HOST)</span>
 sudo certbot certonly \
-  --webroot \
-  --webroot-path ./certbot/www \
-  --email admin@example.com \
-  --agree-tos \
+  --webroot --webroot-path ./certbot/www \
+  --email admin@example.com --agree-tos \
   -d play.example.com \
   --config-dir ./certbot/conf \
   --work-dir ./certbot/work \
   --logs-dir ./certbot/logs
 
-<span class="code-comment"># Set up a cron job for auto-renewal (every 12 hours)</span>
-echo "0 */12 * * * certbot renew --config-dir $(pwd)/certbot/conf --work-dir $(pwd)/certbot/work --logs-dir $(pwd)/certbot/logs --quiet" | sudo crontab -</pre>
+<span class="code-comment"># 4. Restart to enable HTTPS (cert files now exist)</span>
+docker compose up -d
+
+<span class="code-comment"># 5. Set up auto-renewal cron on the host (every 12 hours)</span>
+(crontab -l 2>/dev/null; echo "0 */12 * * * certbot renew --config-dir $(pwd)/certbot/conf --work-dir $(pwd)/certbot/work --logs-dir $(pwd)/certbot/logs --quiet") | crontab -</pre>
           </div>
+          <p class="text-sm text-base-content/70">
+            {doc_text(
+              "Renewed certs are picked up automatically — no container restart needed."
+            )}
+          </p>
 
           <%!-- Environment variables reference --%>
           <h4 class="text-base font-medium">{doc_text("Environment variables reference")}</h4>
