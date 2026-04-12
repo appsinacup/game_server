@@ -126,14 +126,33 @@ defmodule GameServerWeb.UserLive.Registration do
   def mount(_params, _session, socket) do
     changeset = Accounts.change_user_email(%User{}, %{}, validate_unique: false)
 
+    client_ip = GameServerWeb.LiveHelpers.client_ip(socket)
+
     {:ok,
      socket
      |> assign(:page_title, gettext("Register"))
+     |> assign(:client_ip, client_ip)
      |> assign_form(changeset), temporary_assigns: [form: nil]}
   end
 
   @impl true
   def handle_event("save", %{"user" => user_params}, socket) do
+    case GameServerWeb.LiveHelpers.check_rate_limit(socket.assigns.client_ip, :auth) do
+      :ok ->
+        do_save(user_params, socket)
+
+      {:error, _retry_after} ->
+        {:noreply,
+         put_flash(socket, :error, gettext("Too many attempts. Please try again later."))}
+    end
+  end
+
+  def handle_event("validate", %{"user" => user_params}, socket) do
+    changeset = Accounts.change_user_registration(%User{}, user_params)
+    {:noreply, assign_form(socket, Map.put(changeset, :action, :validate))}
+  end
+
+  defp do_save(user_params, socket) do
     notifier =
       Application.get_env(:game_server_web, :user_notifier, GameServer.Accounts.UserNotifier)
 
@@ -194,11 +213,6 @@ defmodule GameServerWeb.UserLive.Registration do
          |> assign(check_errors: true)
          |> assign_form(Map.put(changeset, :action, :insert))}
     end
-  end
-
-  def handle_event("validate", %{"user" => user_params}, socket) do
-    changeset = Accounts.change_user_registration(%User{}, user_params)
-    {:noreply, assign_form(socket, Map.put(changeset, :action, :validate))}
   end
 
   defp assign_form(socket, %Ecto.Changeset{} = changeset) do

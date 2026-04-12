@@ -15,7 +15,7 @@ defmodule GameServerWeb.Endpoint do
     longpoll: false
 
   socket "/live", Phoenix.LiveView.Socket,
-    websocket: [connect_info: [session: @session_options], log: false, compress: true],
+    websocket: [connect_info: [:peer_data, session: @session_options], log: false, compress: true],
     longpoll: [connect_info: [session: @session_options], log: false]
 
   # Serve ACME HTTP-01 challenges for Let's Encrypt before anything else.
@@ -62,6 +62,8 @@ defmodule GameServerWeb.Endpoint do
     cookie_key: "request_logger"
 
   plug Plug.RequestId
+  plug GameServerWeb.Plugs.RealIp
+  plug GameServerWeb.Plugs.IpBan
   plug GameServerWeb.Plugs.RequestTimer
 
   plug Plug.Telemetry,

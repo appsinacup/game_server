@@ -85,8 +85,10 @@ defmodule GameServerWeb.UserSocket do
         end
 
       _ ->
-        GameServerWeb.ConnectionTracker.register(:ws_socket, %{authenticated: false})
-        {:ok, socket}
+        # Reject unauthenticated WebSocket connections to prevent
+        # connection-exhaustion DoS. All channel functionality requires
+        # a valid JWT token.
+        :error
     end
   end
 
@@ -99,16 +101,15 @@ defmodule GameServerWeb.UserSocket do
   defp extract_token(%{token: token}), do: token
   defp extract_token(_), do: nil
 
-  # Socket IDs are topics that allow you to identify all sockets for a given user:
+  # Return a user-scoped socket ID so we can force-disconnect a specific user:
   #
-  #     def id(socket), do: "user_socket:#{socket.assigns.user_id}"
+  #     GameServerWeb.Endpoint.broadcast("user_socket:#{user.id}", "disconnect", %{})
   #
-  # Would allow you to broadcast a "disconnect" event and terminate
-  # all active sockets and channels for a given user:
-  #
-  #     Elixir.GameServerWeb.Endpoint.broadcast("user_socket:#{user.id}", "disconnect", %{})
-  #
-  # Returning `nil` makes this socket anonymous.
   @impl true
-  def id(_socket), do: nil
+  def id(socket) do
+    case socket.assigns[:current_scope] do
+      %{user: %{id: user_id}} -> "user_socket:#{user_id}"
+      _ -> nil
+    end
+  end
 end

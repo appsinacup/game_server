@@ -48,6 +48,11 @@ defmodule GameServerWeb.UserChannel do
   @default_ws_rate_limit 60
   @default_ws_rate_window :timer.seconds(10)
 
+  # Separate ICE candidate budget — prevents ICE flooding from starving
+  # other channel events. A typical WebRTC session sends 5–30 candidates.
+  @default_ice_rate_limit 50
+  @default_ice_rate_window :timer.seconds(30)
+
   # Interval for periodic presence refresh (keeps StalePresenceSweeper from
   # marking actively connected users as offline).  Default: 3 minutes.
   @presence_refresh_interval :timer.minutes(3)
@@ -134,7 +139,8 @@ defmodule GameServerWeb.UserChannel do
 
   @impl true
   def handle_in("webrtc:ice", %{"candidate" => _} = candidate_json, socket) do
-    with :ok <- check_ws_rate_limit(socket) do
+    with :ok <- check_ws_rate_limit(socket),
+         :ok <- check_ice_rate_limit(socket) do
       case Map.get(socket.assigns, :webrtc_peer) do
         nil ->
           {:reply, {:error, %{error: "no_webrtc_session"}}, socket}
@@ -148,13 +154,15 @@ defmodule GameServerWeb.UserChannel do
 
   @impl true
   def handle_in("webrtc:close", _payload, socket) do
-    case Map.get(socket.assigns, :webrtc_peer) do
-      nil ->
-        {:reply, {:ok, %{}}, socket}
+    with :ok <- check_ws_rate_limit(socket) do
+      case Map.get(socket.assigns, :webrtc_peer) do
+        nil ->
+          {:reply, {:ok, %{}}, socket}
 
-      peer ->
-        if Process.alive?(peer), do: GameServerWeb.WebRTCPeer.close(peer)
-        {:reply, {:ok, %{}}, assign(socket, :webrtc_peer, nil)}
+        peer ->
+          if Process.alive?(peer), do: GameServerWeb.WebRTCPeer.close(peer)
+          {:reply, {:ok, %{}}, assign(socket, :webrtc_peer, nil)}
+      end
     end
   end
 
@@ -514,6 +522,29 @@ defmodule GameServerWeb.UserChannel do
       :ok
     else
       {:error, %{error: "webrtc_disabled"}}
+    end
+  end
+
+  # Separate ICE candidate rate limit — prevents ICE flooding from consuming
+  # the entire WS rate budget and starving other events.
+  defp check_ice_rate_limit(socket) do
+    config = Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, [])
+
+    if Keyword.get(config, :enabled, true) do
+      user_id = socket.assigns.user_id
+      limit = Keyword.get(config, :ice_limit, @default_ice_rate_limit)
+      window = Keyword.get(config, :ice_window, @default_ice_rate_window)
+
+      case GameServerWeb.RateLimit.hit("ice:#{user_id}", window, limit) do
+        {:allow, _count} ->
+          :ok
+
+        {:deny, _retry_after} ->
+          Logger.warning("UserChannel: ICE rate limit exceeded for user=#{user_id}")
+          {:reply, {:error, %{error: "ice_rate_limited"}}, socket}
+      end
+    else
+      :ok
     end
   end
 

@@ -52,12 +52,26 @@ defmodule GameServerWeb.Plugs.RateLimiter do
     end
   end
 
+  # API login/registration — stricter auth bucket
   defp bucket_for(%{path_info: ["api", "v1", path | _]} = _conn, ip)
        when path in ~w(login register) do
-    config = config()
+    auth_bucket(ip)
+  end
 
-    {"auth:#{ip}", Keyword.get(config, :auth_window, @default_auth_window),
-     Keyword.get(config, :auth_limit, @default_auth_limit)}
+  # API OAuth endpoints — also auth bucket
+  defp bucket_for(%{path_info: ["api", "v1", "auth" | _]} = _conn, ip) do
+    auth_bucket(ip)
+  end
+
+  # Browser login POST — same strict bucket as API login
+  defp bucket_for(%{path_info: ["users", action | _], method: method} = _conn, ip)
+       when action in ~w(log-in register) and method in ["POST", "GET"] do
+    auth_bucket(ip)
+  end
+
+  # Browser OAuth request/callback
+  defp bucket_for(%{path_info: ["auth" | _]} = _conn, ip) do
+    auth_bucket(ip)
   end
 
   defp bucket_for(_conn, ip) do
@@ -67,25 +81,21 @@ defmodule GameServerWeb.Plugs.RateLimiter do
      Keyword.get(config, :general_limit, @default_general_limit)}
   end
 
+  defp auth_bucket(ip) do
+    config = config()
+
+    {"auth:#{ip}", Keyword.get(config, :auth_window, @default_auth_window),
+     Keyword.get(config, :auth_limit, @default_auth_limit)}
+  end
+
   defp config do
     Application.get_env(:game_server_web, __MODULE__, [])
   end
 
-  # Prefer Cloudflare's CF-Connecting-IP, then Fly-Client-IP, then remote_ip.
+  # Real client IP is already extracted by the RealIp plug earlier in the
+  # endpoint pipeline, so we just format conn.remote_ip.
   defp client_ip(conn) do
-    cond do
-      cf = get_req_header(conn, "cf-connecting-ip") |> List.first() ->
-        cf
-
-      fly = get_req_header(conn, "fly-client-ip") |> List.first() ->
-        fly
-
-      xff = get_req_header(conn, "x-forwarded-for") |> List.first() ->
-        xff |> String.split(",") |> List.first() |> String.trim()
-
-      true ->
-        conn.remote_ip |> :inet.ntoa() |> to_string()
-    end
+    conn.remote_ip |> :inet.ntoa() |> to_string()
   end
 
   defp enabled? do

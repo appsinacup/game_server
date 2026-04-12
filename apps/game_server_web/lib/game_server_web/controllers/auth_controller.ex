@@ -15,6 +15,55 @@ defmodule GameServerWeb.AuthController do
   alias GameServerWeb.Schemas.OAuthSessionData
   alias GameServerWeb.UserAuth
 
+  @browser_state_prefix "browser:"
+
+  # ── Browser OAuth CSRF helpers ──────────────────────────────────────────
+
+  # Generate a random nonce, store it in the session, and return the state
+  # string to append to the OAuth authorization URL.
+  defp put_oauth_state(conn) do
+    nonce = :crypto.strong_rand_bytes(16) |> Base.url_encode64(padding: false)
+    state = @browser_state_prefix <> nonce
+    conn = Plug.Conn.put_session(conn, :oauth_state, nonce)
+    {conn, state}
+  end
+
+  # Classify an OAuth callback as :browser, :api, or :csrf_error.
+  #
+  # Returns:
+  #   {:browser, conn}           — validated browser CSRF nonce
+  #   {:api, session_id}         — valid OAuthSession for API polling flow
+  #   {:csrf_error, conn}        — browser nonce mismatch or missing
+  defp dispatch_oauth_state(conn, state) do
+    case state do
+      nil ->
+        # No state at all — could be a very old client. Reject for safety.
+        {:csrf_error, conn}
+
+      @browser_state_prefix <> nonce ->
+        stored = Plug.Conn.get_session(conn, :oauth_state)
+
+        if stored != nil and Plug.Crypto.secure_compare(stored, nonce) do
+          # Clear the nonce so it can't be replayed
+          conn = Plug.Conn.delete_session(conn, :oauth_state)
+          {:browser, conn}
+        else
+          {:csrf_error, conn}
+        end
+
+      session_id ->
+        # Not a browser state — check if it's a valid API OAuthSession
+        case OAuthSessions.get_session(session_id) do
+          nil ->
+            # No matching session — invalid state
+            {:csrf_error, conn}
+
+          _session ->
+            {:api, session_id}
+        end
+    end
+  end
+
   # Optionally extract current user from JWT in Authorization header.
   # Returns {:ok, user} if valid JWT present, or {:ok, nil} if no JWT or invalid.
   # This allows the same endpoint to handle both login and linking.
@@ -268,9 +317,10 @@ defmodule GameServerWeb.AuthController do
     base = GameServerWeb.Endpoint.url()
     redirect_uri = cfg[:redirect_uri] || "#{base}/auth/discord/callback"
     scope = "identify email"
+    {conn, state} = put_oauth_state(conn)
 
     url =
-      "https://discord.com/oauth2/authorize?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}"
+      "https://discord.com/oauth2/authorize?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}&state=#{URI.encode_www_form(state)}"
 
     redirect(conn, external: url)
   end
@@ -285,9 +335,10 @@ defmodule GameServerWeb.AuthController do
     base = GameServerWeb.Endpoint.url()
     redirect_uri = cfg[:redirect_uri] || "#{base}/auth/google/callback"
     scope = "email profile"
+    {conn, state} = put_oauth_state(conn)
 
     url =
-      "https://accounts.google.com/o/oauth2/v2/auth?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}&access_type=offline"
+      "https://accounts.google.com/o/oauth2/v2/auth?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}&access_type=offline&state=#{URI.encode_www_form(state)}"
 
     redirect(conn, external: url)
   end
@@ -298,9 +349,10 @@ defmodule GameServerWeb.AuthController do
     base = GameServerWeb.Endpoint.url()
     redirect_uri = cfg[:redirect_uri] || "#{base}/auth/facebook/callback"
     scope = "email"
+    {conn, state} = put_oauth_state(conn)
 
     url =
-      "https://www.facebook.com/v18.0/dialog/oauth?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}"
+      "https://www.facebook.com/v18.0/dialog/oauth?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&scope=#{URI.encode_www_form(scope)}&state=#{URI.encode_www_form(state)}"
 
     redirect(conn, external: url)
   end
@@ -314,9 +366,10 @@ defmodule GameServerWeb.AuthController do
     base = GameServerWeb.Endpoint.url()
     redirect_uri = cfg[:redirect_uri] || "#{base}/auth/apple/callback"
     scope = "name email"
+    {conn, state} = put_oauth_state(conn)
 
     url =
-      "https://appleid.apple.com/auth/authorize?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&response_mode=form_post&scope=#{URI.encode_www_form(scope)}"
+      "https://appleid.apple.com/auth/authorize?client_id=#{client_id}&redirect_uri=#{URI.encode_www_form(redirect_uri)}&response_type=code&response_mode=form_post&scope=#{URI.encode_www_form(scope)}&state=#{URI.encode_www_form(state)}"
 
     redirect(conn, external: url)
   end
@@ -410,41 +463,32 @@ defmodule GameServerWeb.AuthController do
             )
         }
 
-        case params["state"] do
-          nil ->
-            # Browser flow - no state parameter
+        case dispatch_oauth_state(conn, params["state"]) do
+          {:browser, conn} ->
             handle_browser_discord_callback(conn, user_params)
 
-          session_id ->
-            case OAuthSessions.get_session(session_id) do
-              nil ->
-                # No matching session -> treat like browser flow
-                handle_browser_discord_callback(conn, user_params)
+          {:api, session_id} ->
+            do_find_or_create_discord_for_session(conn, user_params, session_id)
 
-              _ ->
-                # API flow - has valid session_id
-                do_find_or_create_discord_for_session(conn, user_params, session_id)
-            end
+          {:csrf_error, conn} ->
+            browser_oauth_error_redirect(conn, "discord", "csrf_validation_failed")
         end
 
       {:error, error} ->
-        case params["state"] do
-          nil ->
+        case dispatch_oauth_state(conn, params["state"]) do
+          {:browser, conn} ->
             browser_oauth_error_redirect(conn, "discord", error)
 
-          session_id ->
-            case OAuthSessions.get_session(session_id) do
-              nil ->
-                browser_oauth_error_redirect(conn, "discord", error)
+          {:api, session_id} ->
+            GameServer.OAuthSessions.create_session(session_id, %{
+              status: "error",
+              data: %{details: "authentication_failed"}
+            })
 
-              _ ->
-                GameServer.OAuthSessions.create_session(session_id, %{
-                  status: "error",
-                  data: %{details: "authentication_failed"}
-                })
+            redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
 
-                redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
-            end
+          {:csrf_error, conn} ->
+            browser_oauth_error_redirect(conn, "discord", "csrf_validation_failed")
         end
     end
   end
@@ -472,41 +516,32 @@ defmodule GameServerWeb.AuthController do
           %{email: email, google_id: google_id, display_name: name}
           |> Map.merge(if(picture, do: %{profile_url: picture}, else: %{}))
 
-        case params["state"] do
-          nil ->
-            # Browser flow
+        case dispatch_oauth_state(conn, params["state"]) do
+          {:browser, conn} ->
             handle_browser_google_callback(conn, user_params)
 
-          session_id ->
-            case OAuthSessions.get_session(session_id) do
-              nil ->
-                # No matching session -> treat as browser flow
-                handle_browser_google_callback(conn, user_params)
+          {:api, session_id} ->
+            do_find_or_create_google_for_session(conn, user_params, session_id)
 
-              _ ->
-                # API flow
-                do_find_or_create_google_for_session(conn, user_params, session_id)
-            end
+          {:csrf_error, conn} ->
+            browser_oauth_error_redirect(conn, "google", "csrf_validation_failed")
         end
 
       {:error, error} ->
-        case params["state"] do
-          nil ->
+        case dispatch_oauth_state(conn, params["state"]) do
+          {:browser, conn} ->
             browser_oauth_error_redirect(conn, "google", error)
 
-          session_id ->
-            case OAuthSessions.get_session(session_id) do
-              nil ->
-                browser_oauth_error_redirect(conn, "google", error)
+          {:api, session_id} ->
+            GameServer.OAuthSessions.create_session(session_id, %{
+              status: "error",
+              data: %{details: "authentication_failed"}
+            })
 
-              _ ->
-                GameServer.OAuthSessions.create_session(session_id, %{
-                  status: "error",
-                  data: %{details: "authentication_failed"}
-                })
+            redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
 
-                redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
-            end
+          {:csrf_error, conn} ->
+            browser_oauth_error_redirect(conn, "google", "csrf_validation_failed")
         end
     end
   end
@@ -542,41 +577,32 @@ defmodule GameServerWeb.AuthController do
         user_params =
           if(profile_url, do: Map.put(user_params, :profile_url, profile_url), else: user_params)
 
-        case params["state"] do
-          nil ->
-            # Browser flow
+        case dispatch_oauth_state(conn, params["state"]) do
+          {:browser, conn} ->
             handle_browser_facebook_callback(conn, user_params)
 
-          session_id ->
-            case OAuthSessions.get_session(session_id) do
-              nil ->
-                # No matching session -> treat as browser flow
-                handle_browser_facebook_callback(conn, user_params)
+          {:api, session_id} ->
+            do_find_or_create_facebook_for_session(conn, user_params, session_id)
 
-              _ ->
-                # API flow
-                do_find_or_create_facebook_for_session(conn, user_params, session_id)
-            end
+          {:csrf_error, conn} ->
+            browser_oauth_error_redirect(conn, "facebook", "csrf_validation_failed")
         end
 
       {:error, error} ->
-        case params["state"] do
-          nil ->
+        case dispatch_oauth_state(conn, params["state"]) do
+          {:browser, conn} ->
             browser_oauth_error_redirect(conn, "facebook", error)
 
-          session_id ->
-            case OAuthSessions.get_session(session_id) do
-              nil ->
-                browser_oauth_error_redirect(conn, "facebook", error)
+          {:api, session_id} ->
+            GameServer.OAuthSessions.create_session(session_id, %{
+              status: "error",
+              data: %{details: "authentication_failed"}
+            })
 
-              _ ->
-                GameServer.OAuthSessions.create_session(session_id, %{
-                  status: "error",
-                  data: %{details: "authentication_failed"}
-                })
+            redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
 
-                redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
-            end
+          {:csrf_error, conn} ->
+            browser_oauth_error_redirect(conn, "facebook", "csrf_validation_failed")
         end
     end
   end
@@ -609,40 +635,32 @@ defmodule GameServerWeb.AuthController do
 
         user_params = %{email: email, apple_id: apple_id, display_name: name}
 
-        case params["state"] do
-          nil ->
-            # Browser flow
+        case dispatch_oauth_state(conn, params["state"]) do
+          {:browser, conn} ->
             handle_browser_apple_callback(conn, user_params)
 
-          session_id ->
-            case OAuthSessions.get_session(session_id) do
-              nil ->
-                handle_browser_apple_callback(conn, user_params)
+          {:api, session_id} ->
+            do_find_or_create_apple_for_session(conn, user_params, session_id)
 
-              _ ->
-                # API flow
-                do_find_or_create_apple_for_session(conn, user_params, session_id)
-            end
+          {:csrf_error, conn} ->
+            browser_oauth_error_redirect(conn, "apple", "csrf_validation_failed")
         end
 
       {:error, error} ->
-        case params["state"] do
-          nil ->
+        case dispatch_oauth_state(conn, params["state"]) do
+          {:browser, conn} ->
             browser_oauth_error_redirect(conn, "apple", error)
 
-          session_id ->
-            case OAuthSessions.get_session(session_id) do
-              nil ->
-                browser_oauth_error_redirect(conn, "apple", error)
+          {:api, session_id} ->
+            GameServer.OAuthSessions.create_session(session_id, %{
+              status: "error",
+              data: %{details: "authentication_failed"}
+            })
 
-              _ ->
-                GameServer.OAuthSessions.create_session(session_id, %{
-                  status: "error",
-                  data: %{details: "authentication_failed"}
-                })
+            redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
 
-                redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
-            end
+          {:csrf_error, conn} ->
+            browser_oauth_error_redirect(conn, "apple", "csrf_validation_failed")
         end
     end
   end

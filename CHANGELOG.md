@@ -9,6 +9,15 @@
 - [fixed] Plugin bundles now include `priv/` assets for direct and transitive runtime dependencies, so NIF-based plugins work correctly in Docker/self-hosted deployments.
 - [added] **Roadmap** page.
 - [changed] Make min password configurable and default to 8 characters.
+- [added] **Security hardening**: RealIp plug extracts true client IP from proxy headers (CF-Connecting-IP, Fly-Client-IP, X-Forwarded-For) with CIDR-based trusted proxy validation.
+- [added] **IP ban enforcement**: ETS-based IP ban plug with permanent and time-limited bans via `GameServerWeb.Plugs.IpBan.ban/2`.
+- [added] **OAuth CSRF protection**: browser OAuth flows (Discord, Google, Facebook, Apple) now include a `state` nonce validated against the session to prevent login CSRF attacks.
+- [added] **LiveView rate limiting**: magic link login and registration form submissions are rate limited per client IP.
+- [added] **WebRTC hardening**: DataChannel count limit (1), message size limit (64KB), separate ICE candidate rate limit (50/30s).
+- [changed] WebSocket connections now require authentication — anonymous socket connections are rejected.
+- [changed] Socket ID set to `"user_socket:<user_id>"` for force-disconnect capability.
+- [changed] Auth rate limiting expanded to cover browser login, registration, and OAuth routes.
+- [added] **Feature gating**: set `OPENAPI_ENABLED=false` to disable Swagger UI and OpenAPI JSON endpoints; set `DOCS_ENABLED=false` to disable the public docs page.
 
 # March 2026
 

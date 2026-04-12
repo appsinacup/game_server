@@ -16,8 +16,10 @@ defmodule GameServerWeb.LobbiesChannelTest do
     host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
     member = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
 
-    # anonymous socket should be able to subscribe to global lobbies
-    {:ok, socket} = connect(GameServerWeb.UserSocket, %{})
+    # Authenticated socket to subscribe to global lobbies
+    observer = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+    {:ok, token, _} = GameServerWeb.Auth.Guardian.encode_and_sign(observer)
+    {:ok, socket} = connect(GameServerWeb.UserSocket, %{"token" => token})
     {:ok, _, _socket} = subscribe_and_join(socket, "lobbies", %{})
 
     # create lobby (this should broadcast a lobby_created event)

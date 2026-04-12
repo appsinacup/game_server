@@ -53,6 +53,12 @@ defmodule GameServerWeb.WebRTCPeer do
   @default_dc_rate_limit 300
   @default_dc_rate_window :timer.seconds(10)
 
+  # Max open DataChannels per peer (clients create named channels)
+  @max_data_channels 1
+
+  # Max inbound DataChannel message size (bytes) — prevents memory spikes
+  @max_dc_message_size 65_536
+
   # ── Public API ────────────────────────────────────────────────────────────
 
   @doc """
@@ -202,16 +208,25 @@ defmodule GameServerWeb.WebRTCPeer do
         {:ex_webrtc, _pc, {:data_channel, %ExWebRTC.DataChannel{ref: ref, label: label}}},
         state
       ) do
-    Logger.info("WebRTCPeer user=#{state.user_id} DataChannel opened: #{label}")
-    send(state.channel_pid, {:webrtc_channel_open, ref, label})
+    # Enforce max open DataChannels to prevent resource exhaustion
+    if map_size(state.channels) >= @max_data_channels do
+      Logger.warning(
+        "WebRTCPeer user=#{state.user_id} max DataChannels (#{@max_data_channels}) reached, rejecting: #{label}"
+      )
 
-    state = %{
-      state
-      | channels: Map.put(state.channels, ref, label),
-        channels_by_label: Map.put(state.channels_by_label, label, ref)
-    }
+      {:noreply, state}
+    else
+      Logger.info("WebRTCPeer user=#{state.user_id} DataChannel opened: #{label}")
+      send(state.channel_pid, {:webrtc_channel_open, ref, label})
 
-    {:noreply, state}
+      state = %{
+        state
+        | channels: Map.put(state.channels, ref, label),
+          channels_by_label: Map.put(state.channels_by_label, label, ref)
+      }
+
+      {:noreply, state}
+    end
   end
 
   @impl true
@@ -244,14 +259,23 @@ defmodule GameServerWeb.WebRTCPeer do
 
   @impl true
   def handle_info({:ex_webrtc, _pc, {:data, ref, data}}, state) do
-    if dc_rate_limit_allowed?(state.user_id) do
-      label = Map.get(state.channels, ref, "unknown")
-      maybe_handle_rpc(label, data, state)
-      {:noreply, state}
-    else
-      Logger.warning("WebRTCPeer user=#{state.user_id} DataChannel rate limit exceeded")
-      send(state.channel_pid, {:webrtc_connection_state, :rate_limited})
-      {:stop, {:shutdown, :rate_limited}, state}
+    cond do
+      byte_size(data) > @max_dc_message_size ->
+        Logger.warning(
+          "WebRTCPeer user=#{state.user_id} oversized DC message (#{byte_size(data)} bytes), dropping"
+        )
+
+        {:noreply, state}
+
+      not dc_rate_limit_allowed?(state.user_id) ->
+        Logger.warning("WebRTCPeer user=#{state.user_id} DataChannel rate limit exceeded")
+        send(state.channel_pid, {:webrtc_connection_state, :rate_limited})
+        {:stop, {:shutdown, :rate_limited}, state}
+
+      true ->
+        label = Map.get(state.channels, ref, "unknown")
+        maybe_handle_rpc(label, data, state)
+        {:noreply, state}
     end
   end
 

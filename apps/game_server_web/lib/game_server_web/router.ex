@@ -76,6 +76,10 @@ defmodule GameServerWeb.Router do
     plug GameServerWeb.Plugs.SentryContext
   end
 
+  pipeline :openapi_gate do
+    plug GameServerWeb.Plugs.FeatureGate, env: "OPENAPI_ENABLED", default: true
+  end
+
   # Lightweight pipeline for content assets (blog/changelog images).
   # No session, CSRF, or user auth needed — avoids DB contention
   # from concurrent image requests.
@@ -93,13 +97,13 @@ defmodule GameServerWeb.Router do
   end
 
   scope "/api" do
-    pipe_through :api
+    pipe_through [:api, :openapi_gate]
 
     get "/openapi", OpenApiSpex.Plug.RenderSpec, []
   end
 
   scope "/api" do
-    pipe_through :swagger_browser
+    pipe_through [:swagger_browser, :openapi_gate]
 
     get "/docs", GameServerWeb.SwaggerController, :index
   end

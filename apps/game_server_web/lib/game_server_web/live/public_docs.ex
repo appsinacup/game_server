@@ -64,6 +64,20 @@ defmodule GameServerWeb.PublicDocs do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, :page_title, gettext("Documentation"))}
+    if docs_enabled?() do
+      {:ok, assign(socket, :page_title, gettext("Documentation"))}
+    else
+      {:ok,
+       socket
+       |> put_flash(:error, gettext("Documentation is not available."))
+       |> push_navigate(to: ~p"/")}
+    end
+  end
+
+  defp docs_enabled? do
+    case System.get_env("DOCS_ENABLED") do
+      nil -> true
+      val -> val not in ["false", "0", "no"]
+    end
   end
 end

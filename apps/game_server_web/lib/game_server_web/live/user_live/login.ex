@@ -177,7 +177,15 @@ defmodule GameServerWeb.UserLive.Login do
 
     form = to_form(%{"email" => email}, as: "user")
 
-    {:ok, assign(socket, form: form, trigger_submit: false, page_title: gettext("Log in"))}
+    client_ip = GameServerWeb.LiveHelpers.client_ip(socket)
+
+    {:ok,
+     assign(socket,
+       form: form,
+       trigger_submit: false,
+       page_title: gettext("Log in"),
+       client_ip: client_ip
+     )}
   end
 
   @impl true
@@ -186,19 +194,26 @@ defmodule GameServerWeb.UserLive.Login do
   end
 
   def handle_event("submit_magic", %{"user" => %{"email" => email}}, socket) do
-    if user = Accounts.get_user_by_email(email) do
-      Accounts.deliver_login_instructions(
-        user,
-        &url(~p"/users/log-in/#{&1}")
-      )
+    case GameServerWeb.LiveHelpers.check_rate_limit(socket.assigns.client_ip, :auth) do
+      :ok ->
+        if user = Accounts.get_user_by_email(email) do
+          Accounts.deliver_login_instructions(
+            user,
+            &url(~p"/users/log-in/#{&1}")
+          )
+        end
+
+        info = gettext("Success.")
+
+        {:noreply,
+         socket
+         |> put_flash(:info, info)
+         |> push_navigate(to: ~p"/users/log-in")}
+
+      {:error, _retry_after} ->
+        {:noreply,
+         put_flash(socket, :error, gettext("Too many attempts. Please try again later."))}
     end
-
-    info = gettext("Success.")
-
-    {:noreply,
-     socket
-     |> put_flash(:info, info)
-     |> push_navigate(to: ~p"/users/log-in")}
   end
 
   # Only show the local-mailbox helper in development builds.

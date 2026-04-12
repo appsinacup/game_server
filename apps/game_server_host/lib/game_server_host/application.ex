@@ -17,6 +17,9 @@ defmodule GameServerHost.Application do
     # Initialize ETS table for Schedule callbacks (before Scheduler starts)
     GameServer.Schedule.start_link()
 
+    # Initialize ETS table for IP bans
+    GameServerWeb.Plugs.IpBan.init_table()
+
     children = [
       GameServerWeb.Telemetry,
       GameServer.Repo,
