@@ -371,9 +371,7 @@ docker compose up -d
 (crontab -l 2>/dev/null; echo "0 */12 * * * certbot renew --config-dir $(pwd)/certbot/conf --work-dir $(pwd)/certbot/work --logs-dir $(pwd)/certbot/logs --quiet") | crontab -</pre>
           </div>
           <p class="text-sm text-base-content/70">
-            {doc_text(
-              "Renewed certs are picked up automatically — no container restart needed."
-            )}
+            {doc_text("Renewed certs are picked up automatically — no container restart needed.")}
           </p>
 
           <%!-- Environment variables reference --%>
