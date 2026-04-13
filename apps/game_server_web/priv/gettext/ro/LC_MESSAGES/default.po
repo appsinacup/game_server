@@ -1617,15 +1617,15 @@ msgstr ""
 
 #: lib/game_server_web/live/user_live/settings.ex:567
 #: lib/game_server_web/live/user_live/settings.ex:567
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Data"
-msgstr "Dată"
+msgstr "Date"
 
 #: lib/game_server_web/live/public_docs.ex:72
 #: lib/game_server_web/live/public_docs.ex:72
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Documentation is not available."
-msgstr "Documentație"
+msgstr "Documentația nu este disponibilă."
 
 #: lib/game_server_web/live/user_live/login.ex:215
 #: lib/game_server_web/live/user_live/login.ex:215

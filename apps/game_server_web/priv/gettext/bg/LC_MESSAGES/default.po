@@ -1479,7 +1479,7 @@ msgstr ""
 #: lib/game_server_web/user_auth.ex:340
 #: lib/game_server_web/user_auth.ex:356
 #: lib/game_server_web/user_auth.ex:356
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Failed"
 msgstr ""
 
@@ -1547,7 +1547,7 @@ msgstr ""
 
 #: lib/game_server_web/live/user_live/settings.ex:899
 #: lib/game_server_web/live/user_live/settings.ex:899
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Kick?"
 msgstr ""
 
@@ -1555,7 +1555,7 @@ msgstr ""
 #: lib/game_server_web/live/user_live/settings.ex:819
 #: lib/game_server_web/live/user_live/settings.ex:1159
 #: lib/game_server_web/live/user_live/settings.ex:1159
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Leave?"
 msgstr ""
 
@@ -1569,7 +1569,7 @@ msgstr ""
 
 #: lib/game_server_web/controllers/page_controller.ex:24
 #: lib/game_server_web/controllers/page_controller.ex:24
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Privacy"
 msgstr ""
 
@@ -1583,7 +1583,7 @@ msgstr ""
 
 #: lib/game_server_web/live/lobby_live/index.ex:528
 #: lib/game_server_web/live/lobby_live/index.ex:528
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Removed"
 msgstr ""
 
@@ -1605,7 +1605,7 @@ msgstr ""
 #: lib/game_server_web/live/achievements_live.ex:159
 #: lib/game_server_web/live/achievements_live.ex:336
 #: lib/game_server_web/live/achievements_live.ex:336
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Unlocked"
 msgstr ""
 
@@ -1617,13 +1617,13 @@ msgstr ""
 
 #: lib/game_server_web/live/user_live/settings.ex:567
 #: lib/game_server_web/live/user_live/settings.ex:567
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Data"
 msgstr ""
 
 #: lib/game_server_web/live/public_docs.ex:72
 #: lib/game_server_web/live/public_docs.ex:72
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Documentation is not available."
 msgstr ""
 

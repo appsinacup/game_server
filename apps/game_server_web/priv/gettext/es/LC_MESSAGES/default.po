@@ -1063,9 +1063,9 @@ msgstr "Hoja de ruta"
 #: lib/game_server_web/live/user_live/registration.ex:33
 #: lib/game_server_web/live/user_live/settings.ex:109
 #: lib/game_server_web/live/user_live/settings.ex:109
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Loading..."
-msgstr "Guardando..."
+msgstr "Cargando..."
 
 #: lib/game_server_web/live/auth_success_live.ex:76
 #: lib/game_server_web/live/auth_success_live.ex:76
@@ -1213,9 +1213,9 @@ msgstr ""
 #: lib/game_server_web/live/user_live/settings.ex:1376
 #: lib/game_server_web/live/user_live/settings.ex:1422
 #: lib/game_server_web/live/user_live/settings.ex:1422
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Cancel?"
-msgstr "Cancelar"
+msgstr "¿Cancelar?"
 
 #: lib/game_server_web/live/chat_live.ex:471
 #: lib/game_server_web/live/chat_live.ex:471
@@ -1233,9 +1233,9 @@ msgstr ""
 #: lib/game_server_web/live/user_live/settings.ex:35
 #: lib/game_server_web/live/user_live/settings.ex:345
 #: lib/game_server_web/live/user_live/settings.ex:345
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Delete?"
-msgstr "Eliminar Cuenta"
+msgstr "¿Eliminar?"
 
 #: lib/game_server_web/live/achievements_live.ex:203
 #: lib/game_server_web/live/achievements_live.ex:203
@@ -1299,9 +1299,9 @@ msgstr ""
 #: lib/game_server_web/live/notifications_live.ex:235
 #: lib/game_server_web/live/notifications_live.ex:250
 #: lib/game_server_web/live/notifications_live.ex:250
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Open"
-msgstr "Jugar"
+msgstr "Abrir"
 
 #: lib/game_server_web/controllers/auth_controller.ex:741
 #: lib/game_server_web/controllers/auth_controller.ex:741
@@ -1471,9 +1471,9 @@ msgstr "Jugar"
 #: lib/game_server_web/user_auth.ex:340
 #: lib/game_server_web/user_auth.ex:356
 #: lib/game_server_web/user_auth.ex:356
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Failed"
-msgstr ""
+msgstr "Fallido"
 
 #: lib/game_server_web/controllers/auth_controller.ex:1485
 #: lib/game_server_web/controllers/auth_controller.ex:1485
@@ -1539,17 +1539,17 @@ msgstr ""
 
 #: lib/game_server_web/live/user_live/settings.ex:899
 #: lib/game_server_web/live/user_live/settings.ex:899
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Kick?"
-msgstr "Expulsar"
+msgstr "¿Expulsar?"
 
 #: lib/game_server_web/live/user_live/settings.ex:819
 #: lib/game_server_web/live/user_live/settings.ex:819
 #: lib/game_server_web/live/user_live/settings.ex:1159
 #: lib/game_server_web/live/user_live/settings.ex:1159
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Leave?"
-msgstr "Salir"
+msgstr "¿Salir?"
 
 #: lib/game_server_web/live/lobby_live/index.ex:45
 #: lib/game_server_web/live/lobby_live/index.ex:45
@@ -1561,9 +1561,9 @@ msgstr ""
 
 #: lib/game_server_web/controllers/page_controller.ex:24
 #: lib/game_server_web/controllers/page_controller.ex:24
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Privacy"
-msgstr "Privado"
+msgstr "Privacidad"
 
 #: lib/game_server_web/live/leaderboards_live.ex:261
 #: lib/game_server_web/live/leaderboards_live.ex:261
@@ -1575,9 +1575,9 @@ msgstr ""
 
 #: lib/game_server_web/live/lobby_live/index.ex:528
 #: lib/game_server_web/live/lobby_live/index.ex:528
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Removed"
-msgstr "Eliminar"
+msgstr "Eliminado"
 
 #: lib/game_server_web/live/leaderboards_live.ex:267
 #: lib/game_server_web/live/leaderboards_live.ex:267
@@ -1597,9 +1597,9 @@ msgstr ""
 #: lib/game_server_web/live/achievements_live.ex:159
 #: lib/game_server_web/live/achievements_live.ex:336
 #: lib/game_server_web/live/achievements_live.ex:336
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Unlocked"
-msgstr "Desbloquear"
+msgstr "Desbloqueado"
 
 #: lib/game_server_web/components/layouts.ex:863
 #: lib/game_server_web/components/layouts.ex:863
@@ -1609,15 +1609,15 @@ msgstr ""
 
 #: lib/game_server_web/live/user_live/settings.ex:567
 #: lib/game_server_web/live/user_live/settings.ex:567
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Data"
-msgstr "Fecha"
+msgstr "Datos"
 
 #: lib/game_server_web/live/public_docs.ex:72
 #: lib/game_server_web/live/public_docs.ex:72
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Documentation is not available."
-msgstr "Documentación"
+msgstr "La documentación no está disponible."
 
 #: lib/game_server_web/live/user_live/login.ex:215
 #: lib/game_server_web/live/user_live/login.ex:215

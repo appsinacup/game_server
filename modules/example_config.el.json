@@ -1,127 +1,4 @@
 {
-  "title": "Gamend",
-  "tagline": "Game + Backend",
-  "site_message": "",
-  "description": "**Open source** Elixir game server for **real-time** multiplayer games.",
-  "css": "",
-  "logo": "/images/logo.png",
-  "banner": "/images/banner.png",
-  "banner_link": "/docs/setup",
-  "favicon": "/favicon.ico",
-  "changelog": "/CHANGELOG.md",
-  "roadmap": "/ROADMAP.md",
-  "blog": "/blog",
-  "useful_links": [
-    {
-      "title": "Getting Started",
-      "url": "/docs/setup#deployment",
-      "icon": "hero-rocket-launch-solid",
-      "style": "primary"
-    },
-    {
-      "title": "Presentation Video",
-      "url": "https://www.youtube.com/watch?v=KhjWyUVsTkE",
-      "icon": "hero-play-solid",
-      "external": true,
-      "style": "primary"
-    },
-    {
-      "title": "Discord",
-      "url": "https://discord.com/invite/v649emcpAu",
-      "icon": "hero-chat-bubble-left-ellipsis-solid",
-      "external": true
-    },
-    {
-      "title": "Blog",
-      "url": "/blog",
-      "icon": "hero-newspaper-solid"
-    },
-    {
-      "title": "Guides",
-      "url": "/docs/setup",
-      "icon": "hero-academic-cap-solid"
-    },
-    {
-      "title": "API Docs",
-      "url": "/api/docs",
-      "icon": "hero-book-open-solid"
-    }
-  ],
-  "nav_links": [
-    {
-      "label": "Play",
-      "href": "/play",
-      "auth": "any",
-      "icon": "hero-play-solid"
-    }
-  ],
-  "footer_links": [
-    {
-      "label": "Privacy Policy",
-      "href": "/privacy"
-    },
-    {
-      "label": "Terms and Conditions",
-      "href": "/terms"
-    },
-    {
-      "label": "Guides",
-      "href": "/docs/setup"
-    },
-    {
-      "label": "API Docs",
-      "href": "/api/docs"
-    },
-    {
-      "label": "Elixir Docs",
-      "href": "https://appsinacup.github.io/game_server/",
-      "external": true
-    },
-    {
-      "label": "Changelog",
-      "href": "/changelog"
-    },
-    {
-      "label": "Roadmap",
-      "href": "/roadmap"
-    },
-    {
-      "label": "Blog",
-      "href": "/blog"
-    }
-  ],
-  "features": [
-    {
-      "title": "Authentication & Users",
-      "description": "Email, Magic-link, OAuth, JWT and Session. Register, login, reset password and verify email.",
-      "icon": "hero-lock-closed-solid"
-    },
-    {
-      "title": "Lobbies, Parties & Matchmaking",
-      "description": "Real-time lobbies and ephemeral parties. Customizable settings with live updates.",
-      "icon": "hero-home-solid"
-    },
-    {
-      "title": "Friends, Groups & Chat",
-      "description": "Friend requests, blocking, real-time presence. Public, private and hidden groups. Direct and group messaging.",
-      "icon": "hero-user-group-solid"
-    },
-    {
-      "title": "Achievements, Leaderboards & Notifications",
-      "description": "Server-authoritative achievements and leaderboards. Real-time notifications across all features.",
-      "icon": "hero-trophy-solid"
-    },
-    {
-      "title": "Server Scripting & Scheduling",
-      "description": "Extend server logic with Elixir scripts. Schedule automated tasks and cron jobs.",
-      "icon": "hero-computer-desktop-solid"
-    },
-    {
-      "title": "HTTP, WebSocket & WebRTC",
-      "description": "REST API, real-time WebSocket channels and low-latency WebRTC DataChannels. Admin portal and web UI.",
-      "icon": "hero-puzzle-piece-solid"
-    }
-  ],
   "background_icons": [
     "hero-lock-closed-solid",
     "hero-trophy-solid",
@@ -135,5 +12,128 @@
     "hero-shield-check-solid",
     "hero-computer-desktop-solid",
     "hero-globe-alt-solid"
+  ],
+  "banner": "/images/banner.png",
+  "banner_link": "/docs/setup",
+  "blog": "/blog",
+  "changelog": "/CHANGELOG.md",
+  "css": "",
+  "description": "**Ανοικτός κώδικας** Elixir game server for **real-time** multiplayer games.",
+  "favicon": "/favicon.ico",
+  "features": [
+    {
+      "description": "Email, Magic-link, OAuth, JWT and Session. Register, login, reset password and verify email.",
+      "icon": "hero-lock-closed-solid",
+      "title": "Αυθεντικοποίηση & Χρήστες"
+    },
+    {
+      "description": "Αίθουσες αναμονής και προσωρινές ομάδες. Τροποποιήσιμες ρυθμίσεις με ζωντανές ενημερώσεις",
+      "icon": "hero-home-solid",
+      "title": "Lobbies, Parties & Matchmaking"
+    },
+    {
+      "description": "Αιτήματα φιλίας, αποκλεισμοί, ζωντανή συνδεσιμότητα. Δημόσια, ιδιωτικά, κρυμμένες ομάδες. Άμεσες ή ομαδικές συνομιλίες.",
+      "icon": "hero-user-group-solid",
+      "title": "Φίλοι, Ομάδες & Συνομιλίες"
+    },
+    {
+      "description": "Server-authoritative achievements and leaderboards. Real-time notifications across all features.",
+      "icon": "hero-trophy-solid",
+      "title": "Επιτεύγματα, Πίνακες Κατάταξης & Ειδοποιήσεις"
+    },
+    {
+      "description": "Extend server logic with Elixir scripts. Schedule automated tasks and cron jobs.",
+      "icon": "hero-computer-desktop-solid",
+      "title": "Server Scripting & Scheduling"
+    },
+    {
+      "description": "REST API, real-time WebSocket channels and low-latency WebRTC DataChannels. Admin portal and web UI.",
+      "icon": "hero-puzzle-piece-solid",
+      "title": "HTTP, WebSocket & WebRTC"
+    }
+  ],
+  "footer_links": [
+    {
+      "href": "/privacy",
+      "label": "Πολιτική Απορρήτου"
+    },
+    {
+      "href": "/terms",
+      "label": "Όροι και προϋποθέσεις"
+    },
+    {
+      "href": "/docs/setup",
+      "label": "Οδηγοί"
+    },
+    {
+      "href": "/api/docs",
+      "label": "API Docs"
+    },
+    {
+      "external": true,
+      "href": "https://appsinacup.github.io/game_server/",
+      "label": "Elixir Docs"
+    },
+    {
+      "href": "/changelog",
+      "label": "Αρχείο Αλλαγών"
+    },
+    {
+      "href": "/roadmap",
+      "label": "Σχέδιο Ανάπτυξης"
+    },
+    {
+      "href": "/blog",
+      "label": "Blog"
+    }
+  ],
+  "logo": "/images/logo.png",
+  "nav_links": [
+    {
+      "auth": "any",
+      "href": "/play",
+      "icon": "hero-play-solid",
+      "label": "Play"
+    }
+  ],
+  "roadmap": "/ROADMAP.md",
+  "site_message": "",
+  "tagline": "Game + Backend",
+  "title": "Gamend",
+  "useful_links": [
+    {
+      "icon": "hero-rocket-launch-solid",
+      "style": "primary",
+      "title": "Ξεκινώντας με το back-end",
+      "url": "/docs/setup#deployment"
+    },
+    {
+      "external": true,
+      "icon": "hero-play-solid",
+      "style": "primary",
+      "title": "Βίντεο Παρουσίασης",
+      "url": "https://www.youtube.com/watch?v=KhjWyUVsTkE"
+    },
+    {
+      "external": true,
+      "icon": "hero-chat-bubble-left-ellipsis-solid",
+      "title": "Discord",
+      "url": "https://discord.com/invite/v649emcpAu"
+    },
+    {
+      "icon": "hero-newspaper-solid",
+      "title": "Blog",
+      "url": "/blog"
+    },
+    {
+      "icon": "hero-academic-cap-solid",
+      "title": "Οδηγοί",
+      "url": "/docs/setup"
+    },
+    {
+      "icon": "hero-book-open-solid",
+      "title": "API Docs",
+      "url": "/api/docs"
+    }
   ]
 }
