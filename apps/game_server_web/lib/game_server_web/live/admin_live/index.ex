@@ -448,141 +448,123 @@ defmodule GameServerWeb.AdminLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    users_count = Repo.aggregate(User, :count)
-    sessions_count = Repo.aggregate(UserToken, :count)
-    lobbies_count = Repo.aggregate(Lobby, :count)
-    notifications_count = Notifications.count_all_notifications()
-    leaderboards_count = Repo.aggregate(Leaderboard, :count)
-    kv_count = KV.count_entries()
-    kv_global = KV.count_entries(global_only: true)
-    kv_user = kv_count - kv_global
+    # Fire all independent DB queries in parallel for fast mount
+    tasks = %{
+      users_count: Task.async(fn -> Repo.aggregate(User, :count) end),
+      sessions_count: Task.async(fn -> Repo.aggregate(UserToken, :count) end),
+      lobbies_count: Task.async(fn -> Repo.aggregate(Lobby, :count) end),
+      notifications_count: Task.async(fn -> Notifications.count_all_notifications() end),
+      leaderboards_count: Task.async(fn -> Repo.aggregate(Leaderboard, :count) end),
+      kv_count: Task.async(fn -> KV.count_entries() end),
+      kv_global: Task.async(fn -> KV.count_entries(global_only: true) end),
+      users_google: Task.async(fn -> Accounts.count_users_with_provider(:google_id) end),
+      users_facebook: Task.async(fn -> Accounts.count_users_with_provider(:facebook_id) end),
+      users_discord: Task.async(fn -> Accounts.count_users_with_provider(:discord_id) end),
+      users_apple: Task.async(fn -> Accounts.count_users_with_provider(:apple_id) end),
+      users_steam: Task.async(fn -> Accounts.count_users_with_provider(:steam_id) end),
+      users_device: Task.async(fn -> Accounts.count_users_with_provider(:device_id) end),
+      users_password: Task.async(fn -> Accounts.count_users_with_password() end),
+      lobbies_hostless: Task.async(fn -> GameServer.Lobbies.count_hostless_lobbies() end),
+      lobbies_hidden: Task.async(fn -> GameServer.Lobbies.count_hidden_lobbies() end),
+      lobbies_locked: Task.async(fn -> GameServer.Lobbies.count_locked_lobbies() end),
+      lobbies_passworded: Task.async(fn -> GameServer.Lobbies.count_passworded_lobbies() end),
+      leaderboard_records: Task.async(fn -> GameServer.Leaderboards.count_all_records() end),
+      groups_count: Task.async(fn -> Groups.count_all_groups() end),
+      groups_public: Task.async(fn -> Groups.count_groups_by_type("public") end),
+      groups_private: Task.async(fn -> Groups.count_groups_by_type("private") end),
+      groups_hidden: Task.async(fn -> Groups.count_groups_by_type("hidden") end),
+      groups_members: Task.async(fn -> Groups.count_all_members() end),
+      parties_count: Task.async(fn -> Parties.count_all_parties() end),
+      parties_members: Task.async(fn -> Parties.count_all_party_members() end),
+      chat_count: Task.async(fn -> GameServer.Chat.count_all_messages() end),
+      chat_senders: Task.async(fn -> GameServer.Chat.count_unique_senders() end),
+      chat_by_type: Task.async(fn -> GameServer.Chat.count_messages_by_type() end),
+      achievements_count: Task.async(fn -> Achievements.count_all_achievements() end),
+      achievements_unlocks: Task.async(fn -> Achievements.count_all_unlocks() end),
+      achievement_stats: Task.async(fn -> Achievements.dashboard_stats() end),
+      translation_stats: Task.async(fn -> TranslationStats.all_completeness() end),
+      content_i18n_stats: Task.async(fn -> compute_content_i18n_stats() end),
+      users_registered_1d: Task.async(fn -> Accounts.count_users_registered_since(1) end),
+      users_registered_7d: Task.async(fn -> Accounts.count_users_registered_since(7) end),
+      users_registered_30d: Task.async(fn -> Accounts.count_users_registered_since(30) end),
+      users_active_1d: Task.async(fn -> Accounts.count_users_active_since(1) end),
+      users_active_7d: Task.async(fn -> Accounts.count_users_active_since(7) end),
+      users_active_30d: Task.async(fn -> Accounts.count_users_active_since(30) end),
+      users_unactivated: Task.async(fn -> Accounts.count_unactivated_users() end)
+    }
 
-    # finer-grained stats
-    users_google = Accounts.count_users_with_provider(:google_id)
-    users_facebook = Accounts.count_users_with_provider(:facebook_id)
-    users_discord = Accounts.count_users_with_provider(:discord_id)
-    users_apple = Accounts.count_users_with_provider(:apple_id)
-    users_steam = Accounts.count_users_with_provider(:steam_id)
-    users_device = Accounts.count_users_with_provider(:device_id)
-    users_password = Accounts.count_users_with_password()
+    # Await all tasks (the DB pool handles concurrency)
+    r = Map.new(tasks, fn {key, task} -> {key, Task.await(task, 10_000)} end)
 
-    lobbies_hostless = GameServer.Lobbies.count_hostless_lobbies()
-    lobbies_hidden = GameServer.Lobbies.count_hidden_lobbies()
-    lobbies_locked = GameServer.Lobbies.count_locked_lobbies()
-    lobbies_passworded = GameServer.Lobbies.count_passworded_lobbies()
-
-    leaderboard_records = GameServer.Leaderboards.count_all_records()
-
-    # group stats
-    groups_count = Groups.count_all_groups()
-    groups_public = Groups.count_groups_by_type("public")
-    groups_private = Groups.count_groups_by_type("private")
-    groups_hidden = Groups.count_groups_by_type("hidden")
-    groups_members = Groups.count_all_members()
-
-    # party stats
-    parties_count = Parties.count_all_parties()
-    parties_members = Parties.count_all_party_members()
-
-    # chat stats
-    chat_count = GameServer.Chat.count_all_messages()
-    chat_senders = GameServer.Chat.count_unique_senders()
-    chat_by_type = GameServer.Chat.count_messages_by_type()
-
-    # translation stats
-    translation_stats = TranslationStats.all_completeness()
-    content_i18n_stats = compute_content_i18n_stats()
-
-    # achievement stats
-    achievements_count = Achievements.count_all_achievements()
-    achievements_unlocks = Achievements.count_all_unlocks()
-    achievement_stats = Achievements.dashboard_stats()
-
-    # live connection & system stats (refreshed periodically)
+    # In-memory stats (ETS / GenServer — instant, no DB)
     conn_stats = GameServerWeb.ConnectionTracker.cluster_counts()
     sys_stats = GameServerWeb.ConnectionTracker.system_stats()
     rate_stats = build_rate_limit_stats()
-
-    # geo-country stats (refreshed periodically)
-    geo_stats = GameServerWeb.Plugs.GeoCountry.country_stats()
-    geo_total = GameServerWeb.Plugs.GeoCountry.total_requests()
-    geo_total_1h = GameServerWeb.Plugs.GeoCountry.total_requests(window: :hour)
-    geo_stats_1h = GameServerWeb.Plugs.GeoCountry.country_stats(window: :hour)
-
-    # log stats (refreshed periodically)
+    geo = GameServerWeb.Plugs.GeoCountry.dashboard_stats()
     log_level_counts = safe_log_count_by_level()
     log_total_buffered = Enum.reduce(log_level_counts, 0, fn {_, v}, acc -> acc + v end)
     log_recent_errors = safe_log_recent_errors()
 
     if connected?(socket), do: schedule_live_refresh()
 
-    # time-based metrics
-    users_registered_1d = Accounts.count_users_registered_since(1)
-    users_registered_7d = Accounts.count_users_registered_since(7)
-    users_registered_30d = Accounts.count_users_registered_since(30)
-    users_active_1d = Accounts.count_users_active_since(1)
-    users_active_7d = Accounts.count_users_active_since(7)
-    users_active_30d = Accounts.count_users_active_since(30)
-    users_unactivated = Accounts.count_unactivated_users()
-
     {:ok,
      assign(socket,
-       users_count: users_count,
-       sessions_count: sessions_count,
-       lobbies_count: lobbies_count,
-       leaderboards_count: leaderboards_count,
-       kv_count: kv_count,
-       kv_global: kv_global,
-       kv_user: kv_user,
-       users_google: users_google,
-       users_facebook: users_facebook,
-       users_discord: users_discord,
-       users_apple: users_apple,
-       users_steam: users_steam,
-       users_device: users_device,
-       users_password: users_password,
-       lobbies_hostless: lobbies_hostless,
-       lobbies_hidden: lobbies_hidden,
-       lobbies_locked: lobbies_locked,
-       lobbies_passworded: lobbies_passworded,
-       notifications_count: notifications_count,
-       leaderboard_records: leaderboard_records,
-       groups_count: groups_count,
-       groups_public: groups_public,
-       groups_private: groups_private,
-       groups_hidden: groups_hidden,
-       groups_members: groups_members,
-       parties_count: parties_count,
-       parties_members: parties_members,
-       chat_count: chat_count,
-       chat_senders: chat_senders,
-       chat_silent: max(users_count - chat_senders, 0),
-       chat_by_lobby: Map.get(chat_by_type, "lobby", 0),
-       chat_by_group: Map.get(chat_by_type, "group", 0),
-       chat_by_friend: Map.get(chat_by_type, "friend", 0),
-       translation_stats: translation_stats,
-       content_i18n_stats: content_i18n_stats,
-       achievements_count: achievements_count,
-       achievements_unlocks: achievements_unlocks,
-       achievement_stats: achievement_stats,
+       users_count: r.users_count,
+       sessions_count: r.sessions_count,
+       lobbies_count: r.lobbies_count,
+       leaderboards_count: r.leaderboards_count,
+       kv_count: r.kv_count,
+       kv_global: r.kv_global,
+       kv_user: r.kv_count - r.kv_global,
+       users_google: r.users_google,
+       users_facebook: r.users_facebook,
+       users_discord: r.users_discord,
+       users_apple: r.users_apple,
+       users_steam: r.users_steam,
+       users_device: r.users_device,
+       users_password: r.users_password,
+       lobbies_hostless: r.lobbies_hostless,
+       lobbies_hidden: r.lobbies_hidden,
+       lobbies_locked: r.lobbies_locked,
+       lobbies_passworded: r.lobbies_passworded,
+       notifications_count: r.notifications_count,
+       leaderboard_records: r.leaderboard_records,
+       groups_count: r.groups_count,
+       groups_public: r.groups_public,
+       groups_private: r.groups_private,
+       groups_hidden: r.groups_hidden,
+       groups_members: r.groups_members,
+       parties_count: r.parties_count,
+       parties_members: r.parties_members,
+       chat_count: r.chat_count,
+       chat_senders: r.chat_senders,
+       chat_silent: max(r.users_count - r.chat_senders, 0),
+       chat_by_lobby: Map.get(r.chat_by_type, "lobby", 0),
+       chat_by_group: Map.get(r.chat_by_type, "group", 0),
+       chat_by_friend: Map.get(r.chat_by_type, "friend", 0),
+       translation_stats: r.translation_stats,
+       content_i18n_stats: r.content_i18n_stats,
+       achievements_count: r.achievements_count,
+       achievements_unlocks: r.achievements_unlocks,
+       achievement_stats: r.achievement_stats,
        conn_stats: conn_stats,
        sys_stats: sys_stats,
        rate_stats: rate_stats,
-       geo_stats: geo_stats,
-       geo_total: geo_total,
-       geo_total_1h: geo_total_1h,
-       geo_stats_1h: geo_stats_1h,
+       geo_stats: geo.stats_all,
+       geo_total: geo.total_all,
+       geo_total_1h: geo.total_1h,
+       geo_stats_1h: geo.stats_1h,
        geoip_available?: GameServerWeb.Plugs.GeoCountry.geoip_available?(),
        log_level_counts: log_level_counts,
        log_total_buffered: log_total_buffered,
        log_recent_errors: log_recent_errors,
-       users_registered_1d: users_registered_1d,
-       users_registered_7d: users_registered_7d,
-       users_registered_30d: users_registered_30d,
-       users_active_1d: users_active_1d,
-       users_active_7d: users_active_7d,
-       users_active_30d: users_active_30d,
-       users_unactivated: users_unactivated,
+       users_registered_1d: r.users_registered_1d,
+       users_registered_7d: r.users_registered_7d,
+       users_registered_30d: r.users_registered_30d,
+       users_active_1d: r.users_active_1d,
+       users_active_7d: r.users_active_7d,
+       users_active_30d: r.users_active_30d,
+       users_unactivated: r.users_unactivated,
        dev_routes?: @dev_routes?
      )}
   end
@@ -596,15 +578,17 @@ defmodule GameServerWeb.AdminLive.Index do
   def handle_info(:refresh_live_stats, socket) do
     schedule_live_refresh()
 
+    geo = GameServerWeb.Plugs.GeoCountry.dashboard_stats()
+
     {:noreply,
      assign(socket,
        conn_stats: GameServerWeb.ConnectionTracker.cluster_counts(),
        sys_stats: GameServerWeb.ConnectionTracker.system_stats(),
        rate_stats: build_rate_limit_stats(),
-       geo_stats: GameServerWeb.Plugs.GeoCountry.country_stats(),
-       geo_total: GameServerWeb.Plugs.GeoCountry.total_requests(),
-       geo_total_1h: GameServerWeb.Plugs.GeoCountry.total_requests(window: :hour),
-       geo_stats_1h: GameServerWeb.Plugs.GeoCountry.country_stats(window: :hour),
+       geo_stats: geo.stats_all,
+       geo_total: geo.total_all,
+       geo_total_1h: geo.total_1h,
+       geo_stats_1h: geo.stats_1h,
        log_recent_errors: safe_log_recent_errors()
      )}
   end

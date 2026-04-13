@@ -228,6 +228,55 @@ defmodule GameServerWeb.Plugs.GeoCountry do
     length(country_stats(opts))
   end
 
+  @doc """
+  Single-pass dashboard stats. Returns a map with all-time and 1h data in
+  one ETS scan, avoiding multiple `tab2list` / `foldl` calls.
+
+  Returns:
+
+      %{
+        stats_all: [{country, count}, ...],
+        total_all: integer,
+        stats_1h: [{country, count}, ...],
+        total_1h: integer
+      }
+  """
+  def dashboard_stats do
+    if :ets.whereis(@table) == :undefined do
+      %{stats_all: [], total_all: 0, stats_1h: [], total_1h: 0}
+    else
+      cutoff_1h = minute_cutoff(:hour)
+
+      {by_country_all, by_country_1h, total_all, total_1h} =
+        :ets.foldl(
+          fn {{country, minute}, count}, {all, h1, t_all, t_1h} ->
+            all = Map.update(all, country, count, &(&1 + count))
+            t_all = t_all + count
+
+            if minute >= cutoff_1h do
+              h1 = Map.update(h1, country, count, &(&1 + count))
+              {all, h1, t_all, t_1h + count}
+            else
+              {all, h1, t_all, t_1h}
+            end
+          end,
+          {%{}, %{}, 0, 0},
+          @table
+        )
+
+      sort_desc = fn map ->
+        map |> Enum.sort_by(fn {_, c} -> c end, :desc)
+      end
+
+      %{
+        stats_all: sort_desc.(by_country_all),
+        total_all: total_all,
+        stats_1h: sort_desc.(by_country_1h),
+        total_1h: total_1h
+      }
+    end
+  end
+
   # --- Internal ---
 
   defp current_minute, do: System.system_time(:second) |> div(60)
