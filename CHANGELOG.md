@@ -1,5 +1,6 @@
 # April 2026
 
+- [added] **Browser theme color**: new `theme_color` field in theme JSON config tints the browser chrome (address bar / tab bar) in Safari and Chrome. Supports a single color string or separate light/dark variants.
 - [added] **Native HTTPS support**: serve TLS directly from Phoenix/Bandit without a reverse proxy. Set `SSL_CERTFILE` and `SSL_KEYFILE` env vars to enable.
 - [added] **Account Activation (Beta Mode)**: set `REQUIRE_ACCOUNT_ACTIVATION=true` to require admin approval for new accounts before they can log in. Admins can activate/deactivate users from the admin panel and API.
 - [added] **Translations** for Spanish, French, Romanian.

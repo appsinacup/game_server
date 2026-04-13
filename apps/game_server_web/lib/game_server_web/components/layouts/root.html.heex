@@ -11,6 +11,7 @@
       content="width=device-width, initial-scale=1"
     />
     <meta name="csrf-token" content={get_csrf_token()} />
+    <meta name="color-scheme" content="light dark" />
     <%!-- Tiny synchronous script to set data-theme before CSS loads (prevents FOUC) --%>
     <script
       phx-track-static
@@ -73,6 +74,25 @@
     <%= if Map.get(provider_theme, "favicon") do %>
       <link rel="icon" type="image/x-icon" href={Map.get(provider_theme, "favicon")} />
     <% end %>
+    <% theme_color = Map.get(provider_theme, "theme_color") %>
+    <%= cond do %>
+      <% is_map(theme_color) -> %>
+        <meta
+          name="theme-color"
+          content={Map.get(theme_color, "light", "#ffffff")}
+          media="(prefers-color-scheme: light)"
+        />
+        <meta
+          name="theme-color"
+          content={Map.get(theme_color, "dark", "#000000")}
+          media="(prefers-color-scheme: dark)"
+        />
+      <% is_binary(theme_color) and theme_color != "" -> %>
+        <meta name="theme-color" content={theme_color} />
+      <% true -> %>
+    <% end %>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <script
       defer
       phx-track-static

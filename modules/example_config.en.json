@@ -8,6 +8,10 @@
   "banner": "/images/banner.png",
   "banner_link": "/docs/setup",
   "favicon": "/favicon.ico",
+  "theme_color": {
+    "light": "#ffffff",
+    "dark": "#1a1a2e"
+  },
   "changelog": "/CHANGELOG.md",
   "roadmap": "/ROADMAP.md",
   "blog": "/blog",

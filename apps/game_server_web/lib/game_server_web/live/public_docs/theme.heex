@@ -61,6 +61,7 @@
   "css": "/assets/css/theme/theme.css",
   "logo": "/theme/logo.png",
   "banner": "/theme/banner.png",
+  "theme_color": { "light": "#ffffff", "dark": "#1a1a2e" },
   "nav_links": [
     { "label": "Discord", "href": "https://discord.gg/example", "external": true, "auth": "any" },
     { "label": "Dashboard", "href": "/dashboard", "auth": "authenticated" },
@@ -68,6 +69,25 @@
   ]
 }</pre>
         </div>
+      </div>
+    </div>
+    
+<!-- Theme color (browser chrome) -->
+    <div class="step">
+      <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+        <span class="badge badge-secondary">Tip</span> {doc_text("Browser theme color")}
+      </h3>
+      <div class="ml-8 space-y-3">
+        <p class="text-sm text-base-content/80">
+          {doc_text(
+            "The theme_color field tints the browser chrome (address bar, tab bar) in Safari and Chrome. You can set a single color string or an object with light and dark variants:"
+          )}
+        </p>
+        <pre phx-no-curly-interpolation class="rounded bg-base-200 p-3 text-xs overflow-auto">// Single color for all modes:
+"theme_color": "#1a1a2e"
+
+// Separate light and dark:
+"theme_color": { "light": "#ffffff", "dark": "#1a1a2e" }</pre>
       </div>
     </div>
     
