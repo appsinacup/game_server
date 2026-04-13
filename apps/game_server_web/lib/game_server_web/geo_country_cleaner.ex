@@ -10,6 +10,8 @@ defmodule GameServerWeb.GeoCountryCleaner do
 
   use GenServer
 
+  alias GameServerWeb.Plugs.GeoCountry
+
   # Run cleanup every hour
   @cleanup_interval :timer.hours(1)
 
@@ -25,7 +27,7 @@ defmodule GameServerWeb.GeoCountryCleaner do
 
   @impl true
   def handle_info(:cleanup, state) do
-    removed = GameServerWeb.Plugs.GeoCountry.cleanup_old_buckets()
+    removed = GeoCountry.cleanup_old_buckets()
 
     if removed > 0 do
       require Logger

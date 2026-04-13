@@ -5,6 +5,8 @@ defmodule GameServerHost.Application do
 
   alias GameServer.Hooks.PluginManager
   alias GameServer.Repo.AdvisoryLock
+  alias GameServerWeb.Plugs.GeoCountry
+  alias GameServerWeb.Plugs.IpBan
 
   @impl true
   def start(_type, _args) do
@@ -18,10 +20,10 @@ defmodule GameServerHost.Application do
     GameServer.Schedule.start_link()
 
     # Initialize ETS table for IP bans
-    GameServerWeb.Plugs.IpBan.init_table()
+    IpBan.init_table()
 
     # Initialize ETS table for geo-country request stats
-    GameServerWeb.Plugs.GeoCountry.init_table()
+    GeoCountry.init_table()
 
     children = [
       GameServerWeb.Telemetry,

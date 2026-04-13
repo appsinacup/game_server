@@ -12,7 +12,9 @@ defmodule GameServerWeb.AdminLive.Index do
   alias GameServer.Notifications
   alias GameServer.Parties
   alias GameServer.Repo
+  alias GameServerWeb.ConnectionTracker
   alias GameServerWeb.Gettext.Stats, as: TranslationStats
+  alias GameServerWeb.Plugs.GeoCountry
 
   @dev_routes? Application.compile_env(:game_server_web, :dev_routes, false)
 
@@ -497,10 +499,10 @@ defmodule GameServerWeb.AdminLive.Index do
     r = Map.new(tasks, fn {key, task} -> {key, Task.await(task, 10_000)} end)
 
     # In-memory stats (ETS / GenServer — instant, no DB)
-    conn_stats = GameServerWeb.ConnectionTracker.cluster_counts()
-    sys_stats = GameServerWeb.ConnectionTracker.system_stats()
+    conn_stats = ConnectionTracker.cluster_counts()
+    sys_stats = ConnectionTracker.system_stats()
     rate_stats = build_rate_limit_stats()
-    geo = GameServerWeb.Plugs.GeoCountry.dashboard_stats()
+    geo = GeoCountry.dashboard_stats()
     log_level_counts = safe_log_count_by_level()
     log_total_buffered = Enum.reduce(log_level_counts, 0, fn {_, v}, acc -> acc + v end)
     log_recent_errors = safe_log_recent_errors()
@@ -554,7 +556,7 @@ defmodule GameServerWeb.AdminLive.Index do
        geo_total: geo.total_all,
        geo_total_1h: geo.total_1h,
        geo_stats_1h: geo.stats_1h,
-       geoip_available?: GameServerWeb.Plugs.GeoCountry.geoip_available?(),
+       geoip_available?: GeoCountry.geoip_available?(),
        log_level_counts: log_level_counts,
        log_total_buffered: log_total_buffered,
        log_recent_errors: log_recent_errors,
@@ -578,12 +580,12 @@ defmodule GameServerWeb.AdminLive.Index do
   def handle_info(:refresh_live_stats, socket) do
     schedule_live_refresh()
 
-    geo = GameServerWeb.Plugs.GeoCountry.dashboard_stats()
+    geo = GeoCountry.dashboard_stats()
 
     {:noreply,
      assign(socket,
-       conn_stats: GameServerWeb.ConnectionTracker.cluster_counts(),
-       sys_stats: GameServerWeb.ConnectionTracker.system_stats(),
+       conn_stats: ConnectionTracker.cluster_counts(),
+       sys_stats: ConnectionTracker.system_stats(),
        rate_stats: build_rate_limit_stats(),
        geo_stats: geo.stats_all,
        geo_total: geo.total_all,
