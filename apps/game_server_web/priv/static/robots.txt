@@ -1,5 +1,203 @@
-# See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
-#
-# To ban all spiders from the entire site uncomment the next two lines:
-# User-agent: *
-# Disallow: /
+# ============================================================
+# robots.txt — Bot access policy
+# ============================================================
+# Allow legitimate search engines, block AI scrapers/crawlers,
+# vulnerability scanners, and aggressive bots.
+# ============================================================
+
+# -----------------------------------------------------------
+# AI Crawlers / LLM Training Bots — BLOCK ALL
+# -----------------------------------------------------------
+
+# OpenAI
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: OAI-SearchBot
+Disallow: /
+
+# Google AI (Gemini training)
+User-agent: Google-Extended
+Disallow: /
+
+# Anthropic
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+# Meta / Facebook AI
+User-agent: FacebookBot
+Disallow: /
+
+User-agent: Meta-ExternalAgent
+Disallow: /
+
+User-agent: Meta-ExternalFetcher
+Disallow: /
+
+# Apple AI (Applebot-Extended for training, not search)
+User-agent: Applebot-Extended
+Disallow: /
+
+# Common Crawl (used for LLM training datasets)
+User-agent: CCBot
+Disallow: /
+
+# Perplexity AI
+User-agent: PerplexityBot
+Disallow: /
+
+# Cohere AI
+User-agent: cohere-ai
+Disallow: /
+
+# Bytedance / TikTok
+User-agent: Bytespider
+Disallow: /
+
+User-agent: ByteDance
+Disallow: /
+
+# Amazon / Alexa
+User-agent: Amazonbot
+Disallow: /
+
+# Diffbot (web scraping service)
+User-agent: Diffbot
+Disallow: /
+
+# Omgili / Webz.io
+User-agent: omgili
+Disallow: /
+
+User-agent: omgilibot
+Disallow: /
+
+# Timpi (AI search)
+User-agent: Timpibot
+Disallow: /
+
+# YouBot (You.com AI)
+User-agent: YouBot
+Disallow: /
+
+# Webz.io
+User-agent: Webzio-Extended
+Disallow: /
+
+# AI2 (Allen Institute for AI)
+User-agent: AI2Bot
+Disallow: /
+
+# iask.ai
+User-agent: iaskspider
+Disallow: /
+
+# -----------------------------------------------------------
+# Aggressive / Unwanted Crawlers — BLOCK
+# -----------------------------------------------------------
+
+# SEMrush
+User-agent: SemrushBot
+Disallow: /
+
+# AhrefsBot (aggressive SEO crawler)
+User-agent: AhrefsBot
+Disallow: /
+
+# MJ12bot (Majestic SEO)
+User-agent: MJ12bot
+Disallow: /
+
+# DotBot (Moz)
+User-agent: DotBot
+Disallow: /
+
+# BLEXBot
+User-agent: BLEXBot
+Disallow: /
+
+# PetalBot (Ahrefs)
+User-agent: PetalBot
+Disallow: /
+
+# Sogou
+User-agent: Sogou
+Disallow: /
+
+# Yandex
+User-agent: Yandex
+Disallow: /
+
+User-agent: YandexBot
+Disallow: /
+
+# Baidu
+User-agent: Baiduspider
+Disallow: /
+
+# -----------------------------------------------------------
+# Legitimate Search Engines — ALLOW (with limits)
+# -----------------------------------------------------------
+
+# Google
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /metrics
+Disallow: /content/
+Disallow: /users/settings
+Disallow: /users/confirm/
+Disallow: /users/update-password
+Disallow: /users/log-out
+
+# Bing
+User-agent: Bingbot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /metrics
+Disallow: /content/
+Disallow: /users/settings
+Disallow: /users/confirm/
+Disallow: /users/update-password
+Disallow: /users/log-out
+
+# DuckDuckGo
+User-agent: DuckDuckBot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /metrics
+Disallow: /content/
+Disallow: /users/settings
+Disallow: /users/confirm/
+Disallow: /users/update-password
+Disallow: /users/log-out
+
+# Apple (search, not training)
+User-agent: Applebot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /metrics
+Disallow: /content/
+Disallow: /users/settings
+Disallow: /users/confirm/
+Disallow: /users/update-password
+Disallow: /users/log-out
+
+# -----------------------------------------------------------
+# Default rule — block everything else
+# -----------------------------------------------------------
+User-agent: *
+Disallow: /

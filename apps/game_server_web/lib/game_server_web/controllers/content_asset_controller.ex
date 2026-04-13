@@ -11,7 +11,8 @@ defmodule GameServerWeb.ContentAssetController do
 
   alias GameServer.Content
 
-  def show(conn, %{"type" => type, "path" => path_parts}) do
+  def show(conn, %{"type" => type, "path" => path_parts})
+      when is_list(path_parts) and path_parts != [] do
     relative = Path.join(path_parts)
 
     case Content.content_asset_path(type, relative) do
@@ -27,5 +28,11 @@ defmodule GameServerWeb.ContentAssetController do
         |> put_resp_content_type(content_type)
         |> send_file(200, abs_path)
     end
+  end
+
+  def show(conn, _params) do
+    conn
+    |> put_status(:not_found)
+    |> text("Not found")
   end
 end
