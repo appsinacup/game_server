@@ -372,27 +372,25 @@ defmodule GameServerWeb.AdminLive.Index do
               <div class="card bg-base-100 p-4">
                 <div class="flex items-center justify-between mb-2">
                   <div class="text-sm font-semibold">Geo Traffic</div>
-                  <span class="badge badge-sm badge-ghost font-mono">{@geo_total} reqs</span>
+                  <.link navigate={~p"/admin/geo"} class="link link-primary text-xs">
+                    View →
+                  </.link>
                 </div>
-                <div class="text-xs text-base-content/60 mb-2">
-                  Source: {if(@geoip_available?, do: "MMDB database", else: "CF-IPCountry header")}
+                <div class="text-2xl font-bold font-mono">{format_number(@geo_total)}</div>
+                <div class="text-xs text-base-content/60 mt-1">
+                  {length(@geo_stats)} countries &middot;
+                  {if(@geoip_available?, do: "MMDB", else: "CF header")}
                 </div>
-                <div class="text-xs text-base-content/60 space-y-1">
-                  <%= if @geo_stats == [] do %>
-                    <div class="text-center py-2 opacity-50">No geo data yet</div>
-                  <% else %>
-                    <%= for {country, count} <- Enum.take(@geo_stats, 8) do %>
-                      <div class="flex justify-between items-center">
-                        <span class="font-mono">{country_flag(country)} {country}</span>
-                        <span class="font-mono">{format_number(count)}</span>
-                      </div>
-                    <% end %>
-                    <%= if length(@geo_stats) > 8 do %>
-                      <div class="text-center opacity-50">
-                        +{length(@geo_stats) - 8} more countries
-                      </div>
-                    <% end %>
+                <div :if={@geo_stats != []} class="text-xs text-base-content/60 mt-2 space-y-1">
+                  <%= for {country, count} <- Enum.take(@geo_stats, 3) do %>
+                    <div class="flex justify-between items-center">
+                      <span class="font-mono">{country_flag(country)} {country}</span>
+                      <span class="font-mono">{format_number(count)}</span>
+                    </div>
                   <% end %>
+                  <div :if={length(@geo_stats) > 3} class="text-center opacity-50">
+                    +{length(@geo_stats) - 3} more
+                  </div>
                 </div>
               </div>
 

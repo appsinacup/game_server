@@ -39,9 +39,8 @@ defmodule GameServerWeb.Plugs.GeoCountry do
   def call(conn, _opts) do
     country = resolve_country(conn)
 
-    if country do
-      increment(country)
-    end
+    # Always count — use "XX" (ISO "Unknown") when country can't be resolved
+    increment(country || "XX")
 
     assign(conn, :country, country)
   end

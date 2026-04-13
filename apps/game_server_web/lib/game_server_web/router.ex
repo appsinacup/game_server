@@ -379,6 +379,7 @@ defmodule GameServerWeb.Router do
       live "/admin/connections", AdminLive.Connections, :index
       live "/admin/rate-limiting", AdminLive.RateLimiting, :index
       live "/admin/logs", AdminLive.Logs, :index
+      live "/admin/geo", AdminLive.Geo, :index
       live "/admin/system", AdminLive.System, :index
     end
   end
