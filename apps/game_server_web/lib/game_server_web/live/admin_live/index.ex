@@ -378,8 +378,10 @@ defmodule GameServerWeb.AdminLive.Index do
                 </div>
                 <div class="text-2xl font-bold font-mono">{format_number(@geo_total)}</div>
                 <div class="text-xs text-base-content/60 mt-1">
-                  {length(@geo_stats)} countries &middot;
-                  {if(@geoip_available?, do: "MMDB", else: "CF header")}
+                  {length(@geo_stats)} countries &middot; {if(@geoip_available?,
+                    do: "MMDB",
+                    else: "CF header"
+                  )}
                 </div>
                 <div :if={@geo_stats != []} class="text-xs text-base-content/60 mt-2 space-y-1">
                   <%= for {country, count} <- Enum.take(@geo_stats, 3) do %>

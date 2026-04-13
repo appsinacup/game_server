@@ -68,7 +68,10 @@ defmodule GameServerWeb.AdminLive.Geo do
           </div>
           <div class="card bg-base-100 p-3 text-center">
             <div class="text-2xl font-bold font-mono">
-              {if(@top_country, do: "#{country_flag(elem(@top_country, 0))} #{elem(@top_country, 0)}", else: "—")}
+              {if(@top_country,
+                do: "#{country_flag(elem(@top_country, 0))} #{elem(@top_country, 0)}",
+                else: "—"
+              )}
             </div>
             <div class="text-xs text-base-content/60">Top Country</div>
           </div>
@@ -92,7 +95,8 @@ defmodule GameServerWeb.AdminLive.Geo do
               >
                 GeoLite2-Country.mmdb
               </a>
-              and set <code class="bg-base-200 px-1 rounded">GEOIP_DB_PATH</code> to enable country resolution.
+              and set <code class="bg-base-200 px-1 rounded">GEOIP_DB_PATH</code>
+              to enable country resolution.
             </div>
           </div>
         </div>
@@ -144,14 +148,19 @@ defmodule GameServerWeb.AdminLive.Geo do
                   </td>
                 </tr>
               <% else %>
-                <tr :for={{idx, country, count, pct} <- @filtered_stats} class={[
-                  country == "XX" && "opacity-60"
-                ]}>
+                <tr
+                  :for={{idx, country, count, pct} <- @filtered_stats}
+                  class={[
+                    country == "XX" && "opacity-60"
+                  ]}
+                >
                   <td class="font-mono text-base-content/40">{idx}</td>
                   <td>
                     <span class="text-lg mr-1">{country_flag(country)}</span>
                     <span class="font-mono font-semibold">{country}</span>
-                    <span :if={country == "XX"} class="text-xs text-base-content/40 ml-1">(Unknown)</span>
+                    <span :if={country == "XX"} class="text-xs text-base-content/40 ml-1">
+                      (Unknown)
+                    </span>
                   </td>
                   <td class="text-right font-mono">{format_number(count)}</td>
                   <td class="text-right font-mono text-base-content/60">{pct}%</td>
@@ -178,7 +187,8 @@ defmodule GameServerWeb.AdminLive.Geo do
           Auto-refreshes every {div(@refresh_interval, 1000)}s &middot;
           7-day retention &middot;
           Data is in-memory (ETS) &middot;
-          Exported to Prometheus as <code class="bg-base-200 px-1 rounded">game_server_geo_requests_total</code>
+          Exported to Prometheus as
+          <code class="bg-base-200 px-1 rounded">game_server_geo_requests_total</code>
         </div>
       </div>
     </Layouts.app>

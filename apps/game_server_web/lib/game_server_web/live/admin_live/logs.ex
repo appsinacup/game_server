@@ -60,7 +60,12 @@ defmodule GameServerWeb.AdminLive.Logs do
         </div>
 
         <%!-- Filters --%>
-        <.form for={%{}} id="log-filters" phx-change="update_filters" class="flex flex-col sm:flex-row gap-2">
+        <.form
+          for={%{}}
+          id="log-filters"
+          phx-change="update_filters"
+          class="flex flex-col sm:flex-row gap-2"
+        >
           <input
             id="log-module-filter"
             name="module"
@@ -99,11 +104,15 @@ defmodule GameServerWeb.AdminLive.Logs do
                 No logs match the current filters.
               </div>
             <% else %>
-              <div :for={entry <- Enum.reverse(@logs)} id={"log-#{entry_id(entry)}"} class={[
-                "flex gap-2 py-0.5 px-1 rounded hover:bg-base-200 transition-colors",
-                entry.level == :error && "bg-error/5",
-                entry.level == :warning && "bg-warning/5"
-              ]}>
+              <div
+                :for={entry <- Enum.reverse(@logs)}
+                id={"log-#{entry_id(entry)}"}
+                class={[
+                  "flex gap-2 py-0.5 px-1 rounded hover:bg-base-200 transition-colors",
+                  entry.level == :error && "bg-error/5",
+                  entry.level == :warning && "bg-warning/5"
+                ]}
+              >
                 <span class="text-base-content/40 whitespace-nowrap shrink-0">
                   {format_log_ts(entry.timestamp)}
                 </span>
@@ -113,7 +122,11 @@ defmodule GameServerWeb.AdminLive.Logs do
                 ]}>
                   [{entry.level}]
                 </span>
-                <span :if={entry.module} class="text-primary/60 whitespace-nowrap shrink-0 max-w-48 truncate" title={inspect(entry.module)}>
+                <span
+                  :if={entry.module}
+                  class="text-primary/60 whitespace-nowrap shrink-0 max-w-48 truncate"
+                  title={inspect(entry.module)}
+                >
                   {format_module(entry.module)}
                 </span>
                 <span class="break-all">{entry.message}</span>
@@ -197,11 +210,12 @@ defmodule GameServerWeb.AdminLive.Logs do
 
   @impl true
   def handle_event("filter_level", %{"level" => level}, socket) do
-    logs = AdminLogBuffer.list(
-      module: socket.assigns.module_filter,
-      level: level,
-      limit: @page_size
-    )
+    logs =
+      AdminLogBuffer.list(
+        module: socket.assigns.module_filter,
+        level: level,
+        limit: @page_size
+      )
 
     {:noreply, assign(socket, level_filter: level, logs: logs)}
   end
@@ -210,11 +224,12 @@ defmodule GameServerWeb.AdminLive.Logs do
     module = Map.get(params, "module", "")
     auto_scroll = Map.get(params, "auto_scroll") == "true"
 
-    logs = AdminLogBuffer.list(
-      module: module,
-      level: socket.assigns.level_filter,
-      limit: @page_size
-    )
+    logs =
+      AdminLogBuffer.list(
+        module: module,
+        level: socket.assigns.level_filter,
+        limit: @page_size
+      )
 
     {:noreply,
      assign(socket,
@@ -246,7 +261,9 @@ defmodule GameServerWeb.AdminLive.Logs do
 
     module_ok? =
       case String.trim(assigns.module_filter) do
-        "" -> true
+        "" ->
+          true
+
         filter ->
           mod_str = if entry.module, do: Atom.to_string(entry.module), else: ""
           String.contains?(mod_str, filter)

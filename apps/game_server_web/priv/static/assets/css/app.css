@@ -12130,11 +12130,6 @@
       padding-right: calc(var(--spacing) * 4);
     }
   }
-  .md\:whitespace-nowrap {
-    @media (width >= 48rem) {
-      white-space: nowrap;
-    }
-  }
   .lg\:col-span-2 {
     @media (width >= 64rem) {
       grid-column: span 2 / span 2;

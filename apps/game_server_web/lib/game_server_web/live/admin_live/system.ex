@@ -260,8 +260,6 @@ defmodule GameServerWeb.AdminLive.System do
             </div>
           </div>
         <% end %>
-
-
       </div>
     </Layouts.app>
     """
