@@ -98,6 +98,7 @@ defmodule GameServerWeb.Router do
     get "/privacy", PageController, :privacy
     get "/data-deletion", PageController, :data_deletion
     get "/terms", PageController, :terms
+    get "/sitemap.xml", SitemapController, :index
   end
 
   scope "/api" do

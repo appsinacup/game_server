@@ -1,6 +1,10 @@
 # April 2026
 
 - [added] **Browser theme color**: new `theme_color` field in theme JSON config tints the browser chrome (address bar / tab bar) in Safari and Chrome. Supports a single color string or separate light/dark variants.
+- [added] **Dynamic sitemap.xml**: auto-generated sitemap listing all public pages and blog posts for search engine discovery.
+- [added] **Comprehensive robots.txt**: blocks AI crawlers (GPTBot, ClaudeBot, CCBot, etc.), aggressive SEO bots, and restricts search engines to public pages only.
+- [fixed] `ContentAssetController` crash when bots request `/content/:type` with no path segments (`Path.join([])` error).
+- [added] **CSP blob: support**: `frame-src 'self' blob:` added to Content Security Policy to allow PDF viewers in iframes.
 - [added] **Native HTTPS support**: serve TLS directly from Phoenix/Bandit without a reverse proxy. Set `SSL_CERTFILE` and `SSL_KEYFILE` env vars to enable.
 - [added] **Account Activation (Beta Mode)**: set `REQUIRE_ACCOUNT_ACTIVATION=true` to require admin approval for new accounts before they can log in. Admins can activate/deactivate users from the admin panel and API.
 - [added] **Translations** for Spanish, French, Romanian.
