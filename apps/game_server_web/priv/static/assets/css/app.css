@@ -10014,6 +10014,9 @@
   .w-12 {
     width: calc(var(--spacing) * 12);
   }
+  .w-14 {
+    width: calc(var(--spacing) * 14);
+  }
   .w-16 {
     width: calc(var(--spacing) * 16);
   }
@@ -10639,6 +10642,12 @@
   .bg-error {
     background-color: var(--color-error);
   }
+  .bg-error\/5 {
+    background-color: var(--color-error);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-error) 5%, transparent);
+    }
+  }
   .bg-error\/10 {
     background-color: var(--color-error);
     @supports (color: color-mix(in lab, red, red)) {
@@ -10707,6 +10716,12 @@
   }
   .bg-warning {
     background-color: var(--color-warning);
+  }
+  .bg-warning\/5 {
+    background-color: var(--color-warning);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-warning) 5%, transparent);
+    }
   }
   .bg-warning\/10 {
     background-color: var(--color-warning);
@@ -11067,6 +11082,10 @@
   .whitespace-pre-wrap {
     white-space: pre-wrap;
   }
+  .checkbox-primary {
+    color: var(--color-primary-content);
+    --input-color: var(--color-primary);
+  }
   .link-primary {
     color: var(--color-primary);
     @media (hover: hover) {
@@ -11204,6 +11223,12 @@
   .text-primary-content {
     color: var(--color-primary-content);
   }
+  .text-primary\/60 {
+    color: var(--color-primary);
+    @supports (color: color-mix(in lab, red, red)) {
+      color: color-mix(in oklab, var(--color-primary) 60%, transparent);
+    }
+  }
   .text-purple-600 {
     color: var(--color-purple-600);
   }
@@ -11316,6 +11341,10 @@
   }
   .ring-primary {
     --tw-ring-color: var(--color-primary);
+  }
+  .ring-offset-1 {
+    --tw-ring-offset-width: 1px;
+    --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
   }
   .outline {
     outline-style: var(--tw-outline-style);

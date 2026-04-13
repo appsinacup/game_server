@@ -22,7 +22,7 @@ defmodule GameServerWeb.AdminLive.Config do
         <.link navigate={~p"/admin"} class="btn btn-outline mb-4">
           ← Back to Admin
         </.link>
-        
+
     <!-- Current Configuration Status -->
         <div class="card bg-base-100 shadow-sm" data-card-key="config_status">
           <div class="card-body">
@@ -1302,44 +1302,11 @@ defmodule GameServerWeb.AdminLive.Config do
                         </div>
 
                         <div class="mt-4">
-                          <div class="text-sm font-semibold mb-2">Logs (realtime)</div>
-
-                          <.form for={%{}} id="admin-logs-filter" phx-change="set_log_filter">
-                            <div class="flex flex-col md:flex-row gap-2 md:items-center">
-                              <input
-                                id="admin-logs-module-input"
-                                name="module"
-                                value={@admin_logs_module_filter}
-                                placeholder="Filter by module (eg Elixir.GameServer.Hooks)"
-                                class="input input-sm w-full md:flex-1"
-                              />
-                              <div class="text-xs text-muted md:whitespace-nowrap">
-                                showing last {length(@admin_logs)}
-                              </div>
-                            </div>
-                          </.form>
-
-                          <div
-                            id="admin-logs-panel"
-                            class="mt-2 p-3 border rounded bg-base-100 font-mono text-xs max-h-64 overflow-auto"
-                          >
-                            <%= if @admin_logs == [] do %>
-                              <div class="text-muted">No logs yet</div>
-                            <% else %>
-                              <%= for entry <- @admin_logs do %>
-                                <div>
-                                  <span class="text-muted">{format_log_ts(entry.timestamp)}</span>
-                                  <span class="text-muted">[{entry.level}]</span>
-                                  <%= if entry.module do %>
-                                    <span class="text-muted">{entry.module}</span>
-                                  <% end %>
-                                  <span>{entry.message}</span>
-                                </div>
-                              <% end %>
-                            <% end %>
-                          </div>
+                          <.link navigate={~p"/admin/logs"} class="btn btn-outline btn-sm">
+                            View Logs →
+                          </.link>
                         </div>
-                        
+
     <!-- Full docs modal / pane -->
                         <%= if @hooks_full_doc do %>
                           <div class="mt-2 p-3 border rounded bg-base-100">
@@ -1366,7 +1333,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Limits & Validation -->
         <div class="card bg-base-100 shadow-sm collapsed" data-card-key="limits">
           <div class="card-body">
@@ -1435,7 +1402,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Admin Tools -->
         <div class="card bg-base-100 shadow-sm collapsed" data-card-key="admin_tools">
           <div class="card-body">
@@ -1492,7 +1459,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Scheduled Jobs -->
         <div class="card bg-base-100 shadow-sm collapsed" data-card-key="scheduled_jobs">
           <div class="card-body">
@@ -1797,8 +1764,6 @@ defmodule GameServerWeb.AdminLive.Config do
         hooks_args_prefill: %{value: "", seq: 0},
         hooks_full_doc: nil,
         hooks_full_name: nil,
-        admin_logs_module_filter: "",
-        admin_logs: [],
         plugins: PluginManager.list(),
         plugins_counts: plugin_counts(PluginManager.list()),
         plugins_last_reloaded_at: nil,
@@ -1812,8 +1777,6 @@ defmodule GameServerWeb.AdminLive.Config do
 
     socket =
       if connected?(socket) do
-        Phoenix.PubSub.subscribe(GameServer.PubSub, GameServerWeb.AdminLogBuffer.topic())
-
         # The LiveView is rendered once over HTTP (disconnected) and then
         # mounts again after the websocket connects. In production, it is
         # also possible for the endpoint to accept traffic briefly before
@@ -1822,10 +1785,7 @@ defmodule GameServerWeb.AdminLive.Config do
         # Refresh once shortly after connect so the Hooks Plugins section and
         # exported hooks list are consistent without manual page refreshes.
         Process.send_after(self(), :refresh_hooks_plugins, 250)
-
-        assign(socket,
-          admin_logs: GameServerWeb.AdminLogBuffer.list(module: "", limit: 1000)
-        )
+        socket
       else
         socket
       end
@@ -1845,30 +1805,6 @@ defmodule GameServerWeb.AdminLive.Config do
        :config,
        Map.put(socket.assigns.config, :hooks_exported_functions, exported_plugin_functions())
      )}
-  end
-
-  @impl true
-  def handle_info({:admin_log, entry}, socket) do
-    filter = socket.assigns.admin_logs_module_filter
-
-    should_include? =
-      case String.trim(filter) do
-        "" ->
-          true
-
-        f ->
-          entry_mod = entry.module && Atom.to_string(entry.module)
-          entry_mod && String.contains?(entry_mod, f)
-      end
-
-    socket =
-      if should_include? do
-        assign(socket, :admin_logs, [entry | socket.assigns.admin_logs] |> Enum.take(100))
-      else
-        socket
-      end
-
-    {:noreply, socket}
   end
 
   @impl true
@@ -2051,20 +1987,6 @@ defmodule GameServerWeb.AdminLive.Config do
     {:noreply, assign(socket, :config, config)}
   end
 
-  @impl true
-  def handle_event("set_log_filter", %{"module" => module_filter}, socket)
-      when is_binary(module_filter) do
-    logs = GameServerWeb.AdminLogBuffer.list(module: module_filter, limit: 100)
-
-    {:noreply,
-     assign(socket,
-       admin_logs_module_filter: module_filter,
-       admin_logs: logs
-     )}
-  end
-
-  def handle_event("set_log_filter", _params, socket), do: {:noreply, socket}
-
   def handle_event("send_test_email", _params, socket) do
     user = socket.assigns.current_scope && socket.assigns.current_scope.user
 
@@ -2188,14 +2110,6 @@ defmodule GameServerWeb.AdminLive.Config do
         "#{Float.round(s, 2)}s"
     end
   end
-
-  defp format_log_ts(%DateTime{} = dt) do
-    dt
-    |> DateTime.truncate(:second)
-    |> DateTime.to_iso8601()
-  end
-
-  defp format_log_ts(_), do: ""
 
   defp plugin_build_options do
     PluginBuilder.list_buildable_plugins()

@@ -292,6 +292,27 @@ const Hooks = {
       if (this.timer) clearTimeout(this.timer)
       this.timer = setTimeout(() => this.hideNavbar(), this.delay)
     }
+  },
+
+  /**
+   * AutoScroll — keeps a scrollable container pinned to the bottom
+   * as new content is added (e.g. live log viewer).
+   */
+  AutoScroll: {
+    mounted() {
+      this._scroll = () => {
+        this.el.scrollTop = this.el.scrollHeight
+      }
+      this._observer = new MutationObserver(this._scroll)
+      this._observer.observe(this.el, { childList: true, subtree: true })
+      this._scroll()
+    },
+    updated() {
+      this._scroll()
+    },
+    destroyed() {
+      if (this._observer) this._observer.disconnect()
+    }
   }
 }
 

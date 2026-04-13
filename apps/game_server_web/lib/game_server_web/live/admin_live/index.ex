@@ -395,6 +395,37 @@ defmodule GameServerWeb.AdminLive.Index do
                   <% end %>
                 </div>
               </div>
+
+              <%!-- 16. Logs --%>
+              <div class="card bg-base-100 p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-sm font-semibold">Logs</div>
+                  <.link navigate={~p"/admin/logs"} class="link link-primary text-xs">
+                    View →
+                  </.link>
+                </div>
+                <div class="text-2xl font-bold">
+                  <span :if={@log_recent_errors > 0} class="text-error">{@log_recent_errors}</span>
+                  <span :if={@log_recent_errors == 0} class="text-success">0</span>
+                  <span class="text-sm font-normal text-base-content/60 ml-1">errors (1h)</span>
+                </div>
+                <div class="text-xs text-base-content/60 mt-2 space-y-1">
+                  <div class="flex justify-between">
+                    <span>Buffered</span>
+                    <span class="font-mono">{@log_total_buffered}</span>
+                  </div>
+                  <div :for={{level, count} <- @log_level_counts} class="flex justify-between">
+                    <span>{level}</span>
+                    <span class={[
+                      "font-mono",
+                      level == :error && "text-error",
+                      level == :warning && "text-warning"
+                    ]}>
+                      {count}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -464,6 +495,11 @@ defmodule GameServerWeb.AdminLive.Index do
     geo_stats = GameServerWeb.Plugs.GeoCountry.country_stats()
     geo_total = GameServerWeb.Plugs.GeoCountry.total_requests()
 
+    # log stats (refreshed periodically)
+    log_level_counts = safe_log_count_by_level()
+    log_total_buffered = Enum.reduce(log_level_counts, 0, fn {_, v}, acc -> acc + v end)
+    log_recent_errors = safe_log_recent_errors()
+
     if connected?(socket), do: schedule_live_refresh()
 
     # time-based metrics
@@ -521,6 +557,9 @@ defmodule GameServerWeb.AdminLive.Index do
        geo_stats: geo_stats,
        geo_total: geo_total,
        geoip_available?: GameServerWeb.Plugs.GeoCountry.geoip_available?(),
+       log_level_counts: log_level_counts,
+       log_total_buffered: log_total_buffered,
+       log_recent_errors: log_recent_errors,
        users_registered_1d: users_registered_1d,
        users_registered_7d: users_registered_7d,
        users_registered_30d: users_registered_30d,
@@ -547,7 +586,8 @@ defmodule GameServerWeb.AdminLive.Index do
        sys_stats: GameServerWeb.ConnectionTracker.system_stats(),
        rate_stats: build_rate_limit_stats(),
        geo_stats: GameServerWeb.Plugs.GeoCountry.country_stats(),
-       geo_total: GameServerWeb.Plugs.GeoCountry.total_requests()
+       geo_total: GameServerWeb.Plugs.GeoCountry.total_requests(),
+       log_recent_errors: safe_log_recent_errors()
      )}
   end
 
@@ -656,5 +696,17 @@ defmodule GameServerWeb.AdminLive.Index do
         ]
       }
     end
+  end
+
+  defp safe_log_count_by_level do
+    GameServerWeb.AdminLogBuffer.count_by_level()
+  rescue
+    _ -> %{}
+  end
+
+  defp safe_log_recent_errors do
+    GameServerWeb.AdminLogBuffer.count_recent_errors(3600)
+  rescue
+    _ -> 0
   end
 end
