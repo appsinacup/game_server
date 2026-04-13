@@ -215,34 +215,30 @@ defmodule GameServerWeb.AdminLive.Index do
               </div>
 
               <%!-- 9. Translations --%>
-              <div :for={stats <- @translation_stats} class="card bg-base-100 p-4">
+              <div class="card bg-base-100 p-4">
                 <div class="flex items-center justify-between mb-2">
-                  <div class="text-sm font-semibold">
-                    Translations ({String.upcase(stats.locale)})
-                  </div>
+                  <div class="text-sm font-semibold">Translations</div>
                   <.link navigate={~p"/admin/translations"} class="link link-primary text-xs">
                     View →
                   </.link>
                 </div>
                 <div class="text-2xl font-bold">
-                  {stats.percent}%
-                </div>
-                <div class="mt-2">
-                  <div class="w-full bg-base-300 rounded-full h-2">
-                    <div
-                      class={[
-                        "h-2 rounded-full transition-all",
-                        if(stats.percent == 100.0, do: "bg-success", else: "bg-warning")
-                      ]}
-                      style={"width: #{stats.percent}%"}
-                    >
-                    </div>
-                  </div>
+                  {length(@translation_stats)} languages
                 </div>
                 <div class="text-xs text-base-content/60 mt-2 space-y-1">
-                  <div>{stats.translated}/{stats.total} strings</div>
-                  <div :for={d <- stats.domains}>
-                    {d.domain}: {d.translated}/{d.total}
+                  <div :for={stats <- @translation_stats} class="flex items-center gap-2">
+                    <span class="font-mono font-semibold w-6">{String.upcase(stats.locale)}</span>
+                    <div class="flex-1 bg-base-300 rounded-full h-1.5">
+                      <div
+                        class={[
+                          "h-1.5 rounded-full transition-all",
+                          if(stats.percent == 100.0, do: "bg-success", else: "bg-warning")
+                        ]}
+                        style={"width: #{stats.percent}%"}
+                      >
+                      </div>
+                    </div>
+                    <span class="font-mono text-[0.65rem] w-10 text-right">{stats.percent}%</span>
                   </div>
                 </div>
               </div>

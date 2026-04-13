@@ -73,3 +73,8 @@ translations/README.md
 translations/GOOGLE_SHEETS_README.md
 translations/credentials.json
 translations/token.json
+
+# GeoIP MMDB databases (large binary files, download separately)
+data/*.mmdb
+data/COPYRIGHT.txt
+data/LICENSE.txt

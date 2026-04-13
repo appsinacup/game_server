@@ -23,11 +23,17 @@ services:
       # SSL_KEYFILE: /etc/letsencrypt/live/${PHX_HOST:-localhost}/privkey.pem
       # FORCE_SSL: "true"
       # ACME_WEBROOT: /var/www/acme
+      # ── GeoIP (country lookup from IP) ──
+      # Download GeoLite2-Country.mmdb from MaxMind (free account required):
+      # https://dev.maxmind.com/geoip/geolite2-free-geolocation-data
+      # Place it at ./data/GeoLite2-Country.mmdb
+      GEOIP_DB_PATH: /app/data/GeoLite2-Country.mmdb
     volumes:
       - ./modules:/app/modules
       - ./priv/static/images:/app/priv/static/images
       - ./priv/static/assets/css/theme:/app/priv/static/assets/css/theme
       - ./db:/app/db
+      - ./data:/app/data:ro
       # Uncomment for HTTPS — mount Let's Encrypt certs and ACME webroot
       # - ./certbot/conf:/etc/letsencrypt:ro
       # - ./certbot/www:/var/www/acme:ro

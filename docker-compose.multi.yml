@@ -55,10 +55,13 @@ services:
       # SSL_KEYFILE: /etc/letsencrypt/live/${PHX_HOST:-localhost}/privkey.pem
       # FORCE_SSL: "true"
       # ACME_WEBROOT: /var/www/acme
+      # ── GeoIP (country lookup from IP) ──
+      GEOIP_DB_PATH: /app/data/GeoLite2-Country.mmdb
     volumes:
       - ./modules:/app/modules
       - ./priv/static/images:/app/priv/static/images
       - ./priv/static/assets/css/theme:/app/priv/static/assets/css/theme
+      - ./data:/app/data:ro
       # Uncomment for HTTPS — mount Let's Encrypt certs and ACME webroot
       # - ./certbot/conf:/etc/letsencrypt:ro
       # - ./certbot/www:/var/www/acme:ro
