@@ -461,7 +461,6 @@ if config_env() == :prod do
         keyfile: ssl_keyfile,
         # Suppress noisy TLS handshake notices from bots/scanners
         # probing with old TLS versions or unsupported cipher suites.
-        log_level: :warning
       ]
 
       Keyword.put(endpoint_config, :https, https_opts)
