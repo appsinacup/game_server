@@ -27,12 +27,17 @@ defmodule GameServerWeb.Plugs.RateLimiter do
   def init(opts), do: opts
 
   def call(conn, _opts) do
-    if enabled?() do
+    if enabled?() and not skip_path?(conn) do
       do_rate_limit(conn)
     else
       conn
     end
   end
+
+  # Skip rate limiting for internal/infrastructure endpoints
+  defp skip_path?(%{path_info: ["metrics"]}), do: true
+  defp skip_path?(%{path_info: ["health"]}), do: true
+  defp skip_path?(_conn), do: false
 
   defp do_rate_limit(conn) do
     ip = client_ip(conn)

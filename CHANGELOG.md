@@ -23,6 +23,9 @@
 - [changed] `x-request-time` response header no longer exposed in production (prevents server timing side-channel).
 - [changed] `x-request-id` response header stripped in production (request ID still available in logs via `conn.assigns`).
 - [changed] Rate limiter now returns proper HTML error page for browser requests and JSON `{"error":"Too Many Requests"}` for API requests instead of plain text.
+- [added] **Prometheus metrics** via PromEx: auto-instruments Phoenix routes (request count, duration, status), Ecto queries, BEAM VM stats. Exposes `/metrics` endpoint for Prometheus/Grafana scraping.
+- [added] **Geo traffic analytics**: reads Cloudflare `CF-IPCountry` header to track request origins by country. Admin dashboard shows top countries with flag emojis, auto-refreshing.
+- [added] **Dependency vulnerability audit**: `mix_audit` added to precommit — `mix deps.audit` now runs automatically to check for known CVEs.
 
 # March 2026
 

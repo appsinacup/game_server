@@ -371,6 +371,34 @@ defmodule GameServerWeb.AdminLive.Index do
                   </div>
                 </div>
               </div>
+
+              <%!-- 15. Geo Traffic --%>
+              <div class="card bg-base-100 p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-sm font-semibold">Geo Traffic</div>
+                  <span class="badge badge-sm badge-ghost font-mono">{@geo_total} reqs</span>
+                </div>
+                <div class="text-xs text-base-content/60 mb-2">
+                  Source: {if(@geoip_available?, do: "MMDB database", else: "CF-IPCountry header")}
+                </div>
+                <div class="text-xs text-base-content/60 space-y-1">
+                  <%= if @geo_stats == [] do %>
+                    <div class="text-center py-2 opacity-50">No geo data yet</div>
+                  <% else %>
+                    <%= for {country, count} <- Enum.take(@geo_stats, 8) do %>
+                      <div class="flex justify-between items-center">
+                        <span class="font-mono">{country_flag(country)} {country}</span>
+                        <span class="font-mono">{format_number(count)}</span>
+                      </div>
+                    <% end %>
+                    <%= if length(@geo_stats) > 8 do %>
+                      <div class="text-center opacity-50">
+                        +{length(@geo_stats) - 8} more countries
+                      </div>
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -436,6 +464,10 @@ defmodule GameServerWeb.AdminLive.Index do
     sys_stats = GameServerWeb.ConnectionTracker.system_stats()
     rate_stats = build_rate_limit_stats()
 
+    # geo-country stats (refreshed periodically)
+    geo_stats = GameServerWeb.Plugs.GeoCountry.country_stats()
+    geo_total = GameServerWeb.Plugs.GeoCountry.total_requests()
+
     if connected?(socket), do: schedule_live_refresh()
 
     # time-based metrics
@@ -490,6 +522,9 @@ defmodule GameServerWeb.AdminLive.Index do
        conn_stats: conn_stats,
        sys_stats: sys_stats,
        rate_stats: rate_stats,
+       geo_stats: geo_stats,
+       geo_total: geo_total,
+       geoip_available?: GameServerWeb.Plugs.GeoCountry.geoip_available?(),
        users_registered_1d: users_registered_1d,
        users_registered_7d: users_registered_7d,
        users_registered_30d: users_registered_30d,
@@ -514,7 +549,9 @@ defmodule GameServerWeb.AdminLive.Index do
      assign(socket,
        conn_stats: GameServerWeb.ConnectionTracker.cluster_counts(),
        sys_stats: GameServerWeb.ConnectionTracker.system_stats(),
-       rate_stats: build_rate_limit_stats()
+       rate_stats: build_rate_limit_stats(),
+       geo_stats: GameServerWeb.Plugs.GeoCountry.country_stats(),
+       geo_total: GameServerWeb.Plugs.GeoCountry.total_requests()
      )}
   end
 
@@ -556,6 +593,20 @@ defmodule GameServerWeb.AdminLive.Index do
   end
 
   defp format_number(n), do: to_string(n)
+
+  # Convert ISO 3166-1 alpha-2 country code to its flag emoji.
+  # Works by offseting each letter into the Regional Indicator Symbol range.
+  defp country_flag(code) when is_binary(code) and byte_size(code) == 2 do
+    code
+    |> String.upcase()
+    |> String.to_charlist()
+    |> Enum.map(fn c -> c - ?A + 0x1F1E6 end)
+    |> List.to_string()
+  rescue
+    _ -> "🌐"
+  end
+
+  defp country_flag(_), do: "🌐"
 
   defp compute_content_i18n_stats do
     locales = Gettext.known_locales(GameServerWeb.Gettext) -- ["en"]

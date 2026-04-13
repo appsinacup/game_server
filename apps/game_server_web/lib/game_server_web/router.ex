@@ -80,6 +80,10 @@ defmodule GameServerWeb.Router do
     plug GameServerWeb.Plugs.FeatureGate, env: "OPENAPI_ENABLED", default: true
   end
 
+  pipeline :metrics_auth do
+    plug GameServerWeb.Plugs.MetricsAuth
+  end
+
   # Lightweight pipeline for content assets (blog/changelog images).
   # No session, CSRF, or user auth needed — avoids DB contention
   # from concurrent image requests.
@@ -335,6 +339,14 @@ defmodule GameServerWeb.Router do
     pipe_through [:browser, :require_admin_user]
 
     live_dashboard "/admin/dashboard", metrics: GameServerWeb.Telemetry
+  end
+
+  # Prometheus metrics endpoint — PromEx exposes scraped metrics here.
+  # Set METRICS_AUTH_TOKEN env var to require Bearer token authentication.
+  scope "/" do
+    pipe_through [:metrics_auth]
+
+    get "/metrics", PromEx.Plug, prom_ex_module: GameServerWeb.PromEx
   end
 
   ## Authentication routes

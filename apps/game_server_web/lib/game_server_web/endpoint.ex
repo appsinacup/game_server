@@ -66,6 +66,7 @@ defmodule GameServerWeb.Endpoint do
 
   plug Plug.RequestId
   plug GameServerWeb.Plugs.RealIp
+  plug GameServerWeb.Plugs.GeoCountry
   plug GameServerWeb.Plugs.IpBan
   plug GameServerWeb.Plugs.RequestTimer
 

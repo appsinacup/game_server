@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: "gamend"
+    # Scrape the Phoenix /metrics endpoint
+    static_configs:
+      - targets: ["app:4000"]
+    metrics_path: "/metrics"
+    scheme: "http"

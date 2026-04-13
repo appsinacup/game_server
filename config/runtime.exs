@@ -628,4 +628,25 @@ if config_env() == :prod do
       "SENTRY_DSN not set - Sentry will be disabled. Set SENTRY_DSN in production to enable error monitoring and log forwarding."
     )
   end
+
+  # ── Metrics auth ──
+  # Set METRICS_AUTH_TOKEN to require Bearer token for /metrics endpoint.
+  # Without it, the endpoint is open (suitable for internal Docker networks).
+  if token = System.get_env("METRICS_AUTH_TOKEN") do
+    config :game_server_web, :metrics_auth_token, token
+  end
+
+  # ── GeoIP database ──
+  # Path to MaxMind GeoLite2-Country.mmdb (or compatible MMDB file).
+  # Download free from: https://dev.maxmind.com/geoip/geolite2-free-geolocation-data
+  if geoip_db = System.get_env("GEOIP_DB_PATH") do
+    config :geolix,
+      databases: [
+        %{
+          id: :country,
+          adapter: Geolix.Adapter.MMDB2,
+          source: geoip_db
+        }
+      ]
+  end
 end

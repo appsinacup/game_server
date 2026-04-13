@@ -88,7 +88,10 @@ defmodule GameServerWeb.MixProject do
       {:hammer, "~> 7.2"},
       {:earmark, "~> 1.4"},
       {:ex_webrtc, "~> 0.16.0"},
-      {:ex_sctp, "~> 0.1.2"}
+      {:ex_sctp, "~> 0.1.2"},
+      {:prom_ex, "~> 1.11"},
+      {:geolix, "~> 2.0"},
+      {:geolix_adapter_mmdb2, "~> 0.6"}
     ]
   end
 

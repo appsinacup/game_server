@@ -1182,6 +1182,32 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                   </tr>
                   <tr>
+                    <td class="font-semibold">GeoIP</td>
+                    <td colspan="2">
+                      <%= if @config.geoip_available? do %>
+                        <span class="badge badge-success badge-sm">MMDB database loaded</span>
+                        <span class="text-xs text-base-content/60 ml-2">
+                          GEOIP_DB_PATH: {@config.geoip_db_path || "configured"}
+                        </span>
+                      <% else %>
+                        <span class="badge badge-warning badge-sm">MMDB not configured</span>
+                        <span class="text-xs text-base-content/60 ml-2">
+                          Falling back to CF-IPCountry header (Cloudflare only). Set GEOIP_DB_PATH for local lookup.
+                        </span>
+                      <% end %>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="font-semibold">Metrics</td>
+                    <td colspan="2">
+                      <span class="badge badge-success badge-sm">PromEx enabled</span>
+                      <span class="text-xs text-base-content/60 ml-2">
+                        /metrics endpoint — local/Docker IPs always allowed
+                        {if @config.metrics_auth_token, do: ", external requires token", else: " (no token set — open to all)"}
+                      </span>
+                    </td>
+                  </tr>
+                  <tr>
                     <td class="font-semibold">Hooks - Test RPC</td>
                     <td colspan="2">
                       <div class="space-y-2">
@@ -1753,7 +1779,10 @@ defmodule GameServerWeb.AdminLive.Config do
           30_000
         ),
       webrtc_max_channels: 1,
-      webrtc_max_message_size: 65_536
+      webrtc_max_message_size: 65_536,
+      geoip_available?: GameServerWeb.Plugs.GeoCountry.geoip_available?(),
+      geoip_db_path: System.get_env("GEOIP_DB_PATH"),
+      metrics_auth_token: Application.get_env(:game_server_web, :metrics_auth_token)
     }
 
     socket =

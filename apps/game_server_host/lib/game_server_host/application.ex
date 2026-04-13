@@ -20,8 +20,12 @@ defmodule GameServerHost.Application do
     # Initialize ETS table for IP bans
     GameServerWeb.Plugs.IpBan.init_table()
 
+    # Initialize ETS table for geo-country request stats
+    GameServerWeb.Plugs.GeoCountry.init_table()
+
     children = [
       GameServerWeb.Telemetry,
+      GameServerWeb.PromEx,
       GameServer.Repo,
       {GameServer.Cache, []},
       {Task.Supervisor, name: GameServer.TaskSupervisor},
