@@ -64,7 +64,13 @@ defmodule GameServerWeb.AdminLive.Index do
             Connections ({@conn_stats.total_connections})
           </.link>
           <.link navigate={~p"/admin/rate-limiting"} class="btn btn-outline">
-            Rate Limiting
+            Rate Limiting ({@rate_stats.limited})
+          </.link>
+          <.link navigate={~p"/admin/logs"} class="btn btn-outline">
+            Logs ({@log_recent_errors} errors/1h)
+          </.link>
+          <.link navigate={~p"/admin/geo"} class="btn btn-outline">
+            Geo Traffic ({format_number(@geo_total_1h)}/1h)
           </.link>
           <.link navigate={~p"/admin/system"} class="btn btn-outline">
             System
@@ -383,15 +389,21 @@ defmodule GameServerWeb.AdminLive.Index do
                     else: "CF header"
                   )}
                 </div>
-                <div :if={@geo_stats != []} class="text-xs text-base-content/60 mt-2 space-y-1">
-                  <%= for {country, count} <- Enum.take(@geo_stats, 3) do %>
+                <div class="text-xs text-base-content/60 mt-2 flex justify-between items-center">
+                  <span>Last hour</span>
+                  <span class="font-mono font-semibold">
+                    {format_number(@geo_total_1h)} reqs &middot; {length(@geo_stats_1h)} countries
+                  </span>
+                </div>
+                <div :if={@geo_stats_1h != []} class="text-xs text-base-content/60 mt-1 space-y-1">
+                  <%= for {country, count} <- Enum.take(@geo_stats_1h, 3) do %>
                     <div class="flex justify-between items-center">
                       <span class="font-mono">{country_flag(country)} {country}</span>
-                      <span class="font-mono">{format_number(count)}</span>
+                      <span class="font-mono">{format_number(count)} (1h)</span>
                     </div>
                   <% end %>
-                  <div :if={length(@geo_stats) > 3} class="text-center opacity-50">
-                    +{length(@geo_stats) - 3} more
+                  <div :if={length(@geo_stats_1h) > 3} class="text-center opacity-50">
+                    +{length(@geo_stats_1h) - 3} more
                   </div>
                 </div>
               </div>
@@ -494,6 +506,8 @@ defmodule GameServerWeb.AdminLive.Index do
     # geo-country stats (refreshed periodically)
     geo_stats = GameServerWeb.Plugs.GeoCountry.country_stats()
     geo_total = GameServerWeb.Plugs.GeoCountry.total_requests()
+    geo_total_1h = GameServerWeb.Plugs.GeoCountry.total_requests(window: :hour)
+    geo_stats_1h = GameServerWeb.Plugs.GeoCountry.country_stats(window: :hour)
 
     # log stats (refreshed periodically)
     log_level_counts = safe_log_count_by_level()
@@ -556,6 +570,8 @@ defmodule GameServerWeb.AdminLive.Index do
        rate_stats: rate_stats,
        geo_stats: geo_stats,
        geo_total: geo_total,
+       geo_total_1h: geo_total_1h,
+       geo_stats_1h: geo_stats_1h,
        geoip_available?: GameServerWeb.Plugs.GeoCountry.geoip_available?(),
        log_level_counts: log_level_counts,
        log_total_buffered: log_total_buffered,
@@ -587,6 +603,8 @@ defmodule GameServerWeb.AdminLive.Index do
        rate_stats: build_rate_limit_stats(),
        geo_stats: GameServerWeb.Plugs.GeoCountry.country_stats(),
        geo_total: GameServerWeb.Plugs.GeoCountry.total_requests(),
+       geo_total_1h: GameServerWeb.Plugs.GeoCountry.total_requests(window: :hour),
+       geo_stats_1h: GameServerWeb.Plugs.GeoCountry.country_stats(window: :hour),
        log_recent_errors: safe_log_recent_errors()
      )}
   end
