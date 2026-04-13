@@ -43,7 +43,7 @@ defmodule GameServerWeb.Endpoint do
     from: :game_server_web,
     gzip: not code_reloading?,
     only: GameServerWeb.static_paths(),
-    cache_control_for_etags: "public, max-age=3600",
+    cache_control_for_etags: "public, max-age=604800",
     cache_control_for_vsn_requests: "public, max-age=31536000, immutable"
 
   # Serve blog/changelog images early, before the code-reloader

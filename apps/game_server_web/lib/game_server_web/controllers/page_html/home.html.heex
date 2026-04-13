@@ -39,6 +39,9 @@
       <img
         src="/images/fullscreen.png"
         alt=""
+        width="940"
+        height="2048"
+        loading="eager"
         class={[
           "absolute inset-0 z-0 w-full h-full object-cover",
           fullscreen_dark_exists? && "[[data-theme=dark]_&]:hidden"
@@ -48,6 +51,9 @@
         <img
           src="/images/fullscreen_dark.png"
           alt=""
+          width="940"
+          height="2048"
+          loading="eager"
           class="absolute inset-0 z-0 w-full h-full object-cover hidden [[data-theme=dark]_&]:block"
         />
       <% end %>
@@ -83,12 +89,18 @@
               <img
                 src={Map.get(provider_theme, "banner")}
                 alt="Banner"
+                width="1280"
+                height="480"
+                fetchpriority="high"
                 class={banner_img_classes}
               />
               <%= if banner_dark_exists? do %>
                 <img
                   src={banner_dark_path}
                   alt="Banner"
+                  width="1280"
+                  height="480"
+                  fetchpriority="high"
                   class="max-w-[90vw] sm:max-w-[380px] md:max-w-[460px] lg:max-w-[540px] xl:max-w-[620px] h-auto block hidden [[data-theme=dark]_&]:block"
                 />
               <% end %>
@@ -99,12 +111,18 @@
               <img
                 src={Map.get(provider_theme, "banner")}
                 alt="Banner"
+                width="1280"
+                height="480"
+                fetchpriority="high"
                 class={banner_img_classes}
               />
               <%= if banner_dark_exists? do %>
                 <img
                   src={banner_dark_path}
                   alt="Banner"
+                  width="1280"
+                  height="480"
+                  fetchpriority="high"
                   class="max-w-[90vw] sm:max-w-[380px] md:max-w-[460px] lg:max-w-[540px] xl:max-w-[620px] h-auto block hidden [[data-theme=dark]_&]:block"
                 />
               <% end %>

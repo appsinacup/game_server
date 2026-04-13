@@ -24,7 +24,10 @@
     <% locale = Gettext.get_locale(GameServerWeb.Gettext) %>
     <% provider_theme = GameServer.Theme.JSONConfig.get_theme(locale) || %{} %>
     <% title = assigns[:page_title] || Map.get(provider_theme, "title") %>
-    <% description = assigns[:meta_description] || Map.get(provider_theme, "tagline") %>
+    <% description_raw =
+      assigns[:meta_description] || Map.get(provider_theme, "description") ||
+        Map.get(provider_theme, "tagline") || "" %>
+    <% description = String.replace(description_raw, ~r/\*+/, "") %>
     <% banner_path = Map.get(provider_theme, "banner", "") %>
     <% static_dir = Application.app_dir(:game_server_web, "priv/static") %>
     <% banner_dark_path = String.replace(banner_path, ~r/\.(\w+)$/, "_dark.\\1") %>
@@ -34,6 +37,7 @@
         File.exists?(Path.join(static_dir, String.trim_leading(banner_dark_path, "/"))) %>
     <% image_path = if banner_dark_exists?, do: banner_dark_path, else: banner_path %>
 
+    <meta name="description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -56,8 +60,8 @@
       integrity={SRI.integrity(~p"/assets/css/app.css")}
       crossorigin="anonymous"
     />
-    <%= if Map.get(provider_theme, "css") do %>
-      <% theme_css = Map.get(provider_theme, "css") %>
+    <% theme_css = Map.get(provider_theme, "css") %>
+    <%= if theme_css != nil and theme_css != "" do %>
       <link
         rel="stylesheet"
         phx-track-static

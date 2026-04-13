@@ -27,8 +27,8 @@ defmodule GameServerWeb.SRI do
   The `path` should be the URL path as returned by the `~p` sigil
   (e.g. `"/assets/js/app.js"` or `"/assets/js/app-ABC123.js"` after digest).
   """
-  @spec integrity(String.t()) :: String.t() | nil
-  def integrity(path) when is_binary(path) do
+  @spec integrity(String.t() | nil) :: String.t() | nil
+  def integrity(path) when is_binary(path) and path != "" do
     key = {@pt_namespace, path}
 
     case :persistent_term.get(key, :miss) do
@@ -47,14 +47,16 @@ defmodule GameServerWeb.SRI do
       |> URI.parse()
       |> Map.get(:path)
 
-    static_dir = Application.app_dir(:game_server_web, "priv/static")
-    file_path = Path.join(static_dir, clean)
-
     hash =
-      if File.exists?(file_path) do
-        content = File.read!(file_path)
-        digest = :crypto.hash(:sha384, content) |> Base.encode64()
-        "sha384-#{digest}"
+      if is_binary(clean) and clean != "" do
+        static_dir = Application.app_dir(:game_server_web, "priv/static")
+        file_path = Path.join(static_dir, clean)
+
+        if File.exists?(file_path) do
+          content = File.read!(file_path)
+          digest = :crypto.hash(:sha384, content) |> Base.encode64()
+          "sha384-#{digest}"
+        end
       end
 
     :persistent_term.put(key, hash)

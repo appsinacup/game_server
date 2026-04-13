@@ -23,7 +23,7 @@ defmodule GameServerWeb.AdminLive.Config do
         <.link navigate={~p"/admin"} class="btn btn-outline mb-4">
           ← Back to Admin
         </.link>
-
+        
     <!-- Current Configuration Status -->
         <div class="card bg-base-100 shadow-sm" data-card-key="config_status">
           <div class="card-body">
@@ -1307,7 +1307,7 @@ defmodule GameServerWeb.AdminLive.Config do
                             View Logs →
                           </.link>
                         </div>
-
+                        
     <!-- Full docs modal / pane -->
                         <%= if @hooks_full_doc do %>
                           <div class="mt-2 p-3 border rounded bg-base-100">
@@ -1334,7 +1334,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-
+        
     <!-- Limits & Validation -->
         <div class="card bg-base-100 shadow-sm collapsed" data-card-key="limits">
           <div class="card-body">
@@ -1403,7 +1403,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-
+        
     <!-- Admin Tools -->
         <div class="card bg-base-100 shadow-sm collapsed" data-card-key="admin_tools">
           <div class="card-body">
@@ -1460,7 +1460,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-
+        
     <!-- Scheduled Jobs -->
         <div class="card bg-base-100 shadow-sm collapsed" data-card-key="scheduled_jobs">
           <div class="card-body">

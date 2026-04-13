@@ -29,6 +29,7 @@ defmodule GameServerWeb.Plugs.ContentStatic do
         content_type = MIME.from_path(abs_path)
 
         conn
+        |> Plug.Conn.put_resp_header("cache-control", "public, max-age=604800")
         |> Plug.Conn.put_resp_content_type(content_type, nil)
         |> Plug.Conn.send_file(200, abs_path)
         |> Plug.Conn.halt()
