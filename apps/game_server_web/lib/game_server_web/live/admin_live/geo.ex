@@ -5,6 +5,13 @@ defmodule GameServerWeb.AdminLive.Geo do
 
   @refresh_interval 5_000
 
+  @windows [
+    {"1h", :hour},
+    {"24h", :day},
+    {"7d", :week},
+    {"All", :all}
+  ]
+
   @impl true
   def render(assigns) do
     ~H"""
@@ -34,11 +41,26 @@ defmodule GameServerWeb.AdminLive.Geo do
           </div>
         </div>
 
+        <%!-- Time window selector --%>
+        <div class="flex flex-wrap gap-2">
+          <button
+            :for={{label, window} <- @windows}
+            phx-click="set_window"
+            phx-value-window={window}
+            class={[
+              "btn btn-sm",
+              if(@window == window, do: "btn-primary", else: "btn-ghost")
+            ]}
+          >
+            {label}
+          </button>
+        </div>
+
         <%!-- Summary stats --%>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div class="card bg-base-100 p-3 text-center">
             <div class="text-2xl font-bold font-mono">{format_number(@total)}</div>
-            <div class="text-xs text-base-content/60">Total Requests</div>
+            <div class="text-xs text-base-content/60">Requests</div>
           </div>
           <div class="card bg-base-100 p-3 text-center">
             <div class="text-2xl font-bold font-mono">{length(@stats)}</div>
@@ -75,7 +97,7 @@ defmodule GameServerWeb.AdminLive.Geo do
           </div>
         </div>
 
-        <%!-- Filter --%>
+        <%!-- Filter & sort --%>
         <div class="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
           <.form for={%{}} id="geo-filter" phx-change="update_filter" class="flex-1 w-full sm:w-auto">
             <input
@@ -154,8 +176,9 @@ defmodule GameServerWeb.AdminLive.Geo do
         <%!-- Footer --%>
         <div class="text-xs text-base-content/40 text-center">
           Auto-refreshes every {div(@refresh_interval, 1000)}s &middot;
-          Counters reset on server restart &middot;
-          Data is in-memory (ETS)
+          7-day retention &middot;
+          Data is in-memory (ETS) &middot;
+          Exported to Prometheus as <code class="bg-base-200 px-1 rounded">game_server_geo_requests_total</code>
         </div>
       </div>
     </Layouts.app>
@@ -166,19 +189,34 @@ defmodule GameServerWeb.AdminLive.Geo do
   def mount(_params, _session, socket) do
     if connected?(socket), do: schedule_refresh()
 
-    stats = GeoCountry.country_stats()
-    total = GeoCountry.total_requests()
+    window = :all
+    stats = GeoCountry.country_stats(window: window)
+    total = GeoCountry.total_requests(window: window)
 
     {:ok,
      socket
      |> assign(
        stats: stats,
        total: total,
+       window: window,
+       windows: @windows,
        geoip_available?: GeoCountry.geoip_available?(),
        search: "",
        sort: :count,
        refresh_interval: @refresh_interval
      )
+     |> compute_derived()}
+  end
+
+  @impl true
+  def handle_event("set_window", %{"window" => window_str}, socket) do
+    window = String.to_existing_atom(window_str)
+    stats = GeoCountry.country_stats(window: window)
+    total = GeoCountry.total_requests(window: window)
+
+    {:noreply,
+     socket
+     |> assign(stats: stats, total: total, window: window)
      |> compute_derived()}
   end
 
@@ -208,8 +246,9 @@ defmodule GameServerWeb.AdminLive.Geo do
   def handle_info(:refresh, socket) do
     schedule_refresh()
 
-    stats = GeoCountry.country_stats()
-    total = GeoCountry.total_requests()
+    window = socket.assigns.window
+    stats = GeoCountry.country_stats(window: window)
+    total = GeoCountry.total_requests(window: window)
 
     {:noreply,
      socket

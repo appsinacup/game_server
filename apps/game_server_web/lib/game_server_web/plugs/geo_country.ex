@@ -13,8 +13,12 @@ defmodule GameServerWeb.Plugs.GeoCountry do
 
   3. **`nil`** — when neither source is available (local dev without DB).
 
-  Also maintains an **in-memory ETS aggregate** of request counts by country
-  for the admin dashboard.
+  Also maintains an **in-memory ETS aggregate** of request counts by country,
+  bucketed by minute, for the admin dashboard. Supports time-windowed queries
+  (last 1h, 24h, 7d, or all-time).
+
+  Emits a `:telemetry` event `[:game_server, :geo, :request]` with the
+  country code as metadata for Prometheus export.
 
   ## Configuration
 
@@ -31,6 +35,8 @@ defmodule GameServerWeb.Plugs.GeoCountry do
   @behaviour Plug
 
   @table :geo_country_stats
+  # Keep 7 days of minute buckets
+  @retention_minutes 7 * 24 * 60
 
   @impl true
   def init(opts), do: opts
@@ -38,9 +44,17 @@ defmodule GameServerWeb.Plugs.GeoCountry do
   @impl true
   def call(conn, _opts) do
     country = resolve_country(conn)
+    code = country || "XX"
 
-    # Always count — use "XX" (ISO "Unknown") when country can't be resolved
-    increment(country || "XX")
+    # Increment minute-bucketed counter
+    increment(code)
+
+    # Emit telemetry for Prometheus
+    :telemetry.execute(
+      [:game_server, :geo, :request],
+      %{count: 1},
+      %{country: code}
+    )
 
     assign(conn, :country, country)
   end
@@ -88,25 +102,76 @@ defmodule GameServerWeb.Plugs.GeoCountry do
 
   @doc """
   Returns a sorted list of `{country_code, count}` tuples, descending by count.
+
+  ## Options
+
+    * `:window` — one of `:all`, `:hour`, `:day`, `:week` (default: `:all`)
   """
-  def country_stats do
-    if :ets.whereis(@table) != :undefined do
+  def country_stats(opts \\ []) do
+    if :ets.whereis(@table) == :undefined do
+      []
+    else
+      cutoff = minute_cutoff(opts[:window] || :all)
+
       @table
       |> :ets.tab2list()
+      |> Enum.reduce(%{}, fn
+        {{country, minute}, count}, acc when minute >= cutoff ->
+          Map.update(acc, country, count, &(&1 + count))
+
+        _, acc ->
+          acc
+      end)
       |> Enum.sort_by(fn {_country, count} -> count end, :desc)
-    else
-      []
     end
   end
 
   @doc """
   Returns the total number of tracked requests across all countries.
+
+  ## Options
+
+    * `:window` — one of `:all`, `:hour`, `:day`, `:week` (default: `:all`)
   """
-  def total_requests do
-    if :ets.whereis(@table) != :undefined do
-      :ets.foldl(fn {_country, count}, acc -> acc + count end, 0, @table)
-    else
+  def total_requests(opts \\ []) do
+    if :ets.whereis(@table) == :undefined do
       0
+    else
+      cutoff = minute_cutoff(opts[:window] || :all)
+
+      :ets.foldl(
+        fn
+          {{_country, minute}, count}, acc when minute >= cutoff -> acc + count
+          _, acc -> acc
+        end,
+        0,
+        @table
+      )
+    end
+  end
+
+  @doc """
+  Returns a time series of `{minute_ts, count}` for the given country and window.
+  Useful for sparklines in the UI. Each entry is a Unix minute timestamp.
+  """
+  def time_series(country, opts \\ []) do
+    if :ets.whereis(@table) == :undefined do
+      []
+    else
+      cutoff = minute_cutoff(opts[:window] || :hour)
+
+      :ets.foldl(
+        fn
+          {{^country, minute}, count}, acc when minute >= cutoff ->
+            [{minute, count} | acc]
+
+          _, acc ->
+            acc
+        end,
+        [],
+        @table
+      )
+      |> Enum.sort_by(fn {m, _} -> m end)
     end
   end
 
@@ -122,6 +187,31 @@ defmodule GameServerWeb.Plugs.GeoCountry do
   end
 
   @doc """
+  Remove minute buckets older than the retention period (#{@retention_minutes} minutes).
+  Called periodically by `GameServerWeb.GeoCountryCleaner`.
+  """
+  def cleanup_old_buckets do
+    if :ets.whereis(@table) != :undefined do
+      cutoff = current_minute() - @retention_minutes
+
+      :ets.foldl(
+        fn
+          {{_country, minute} = key, _count}, acc when minute < cutoff ->
+            :ets.delete(@table, key)
+            acc + 1
+
+          _, acc ->
+            acc
+        end,
+        0,
+        @table
+      )
+    else
+      0
+    end
+  end
+
+  @doc """
   Returns whether Geolix has a country database loaded.
   """
   def geoip_available? do
@@ -131,11 +221,26 @@ defmodule GameServerWeb.Plugs.GeoCountry do
     end
   end
 
+  @doc """
+  Returns the number of distinct countries seen in the given window.
+  """
+  def country_count(opts \\ []) do
+    length(country_stats(opts))
+  end
+
   # --- Internal ---
+
+  defp current_minute, do: System.system_time(:second) |> div(60)
+
+  defp minute_cutoff(:all), do: 0
+  defp minute_cutoff(:hour), do: current_minute() - 60
+  defp minute_cutoff(:day), do: current_minute() - 1440
+  defp minute_cutoff(:week), do: current_minute() - 10_080
 
   defp increment(country) do
     if :ets.whereis(@table) != :undefined do
-      :ets.update_counter(@table, country, {2, 1}, {country, 0})
+      minute = current_minute()
+      :ets.update_counter(@table, {country, minute}, {2, 1}, {{country, minute}, 0})
     end
   end
 end

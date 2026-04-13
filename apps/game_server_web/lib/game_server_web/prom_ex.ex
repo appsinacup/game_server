@@ -38,7 +38,10 @@ defmodule GameServerWeb.PromEx do
       {PromEx.Plugins.Ecto, repos: [GameServer.Repo]},
 
       # Application info & uptime
-      {PromEx.Plugins.Application, otp_app: :game_server_web}
+      {PromEx.Plugins.Application, otp_app: :game_server_web},
+
+      # Geo traffic metrics (request count by country)
+      GameServerWeb.PromEx.GeoPlugin
     ]
   end
 

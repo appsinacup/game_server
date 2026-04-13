@@ -35,6 +35,8 @@ defmodule GameServerHost.Application do
       {GameServerWeb.RateLimit, clean_period: :timer.minutes(5)},
       GameServer.Lobbies.SpectatorTracker,
       GameServerWeb.AdminLogBuffer,
+      # Periodic cleanup of old geo-country minute buckets
+      GameServerWeb.GeoCountryCleaner,
       # Load hook plugins (OTP apps) shipped under modules/plugins/*
       GameServer.Hooks.PluginManager,
       GameServerWeb.Endpoint,
