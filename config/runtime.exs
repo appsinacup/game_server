@@ -458,7 +458,7 @@ if config_env() == :prod do
         port: https_port,
         cipher_suite: :strong,
         certfile: ssl_certfile,
-        keyfile: ssl_keyfile,
+        keyfile: ssl_keyfile
         # Suppress noisy TLS handshake notices from bots/scanners
         # probing with old TLS versions or unsupported cipher suites.
       ]
