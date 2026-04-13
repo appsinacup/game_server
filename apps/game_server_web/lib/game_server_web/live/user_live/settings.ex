@@ -524,7 +524,7 @@ defmodule GameServerWeb.UserLive.Settings do
               <div class="text-xs text-base-content/70 mb-2">
                 {gettext("Name")}
               </div>
-              
+
     <!-- Render search results as a responsive grid so multiple items show side-by-side -->
               <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <div :for={s <- @search_results} id={"search-" <> Integer.to_string(s.id)}>
@@ -564,7 +564,7 @@ defmodule GameServerWeb.UserLive.Settings do
         <div class="card bg-base-200 p-4 rounded-lg mt-6">
           <div class="flex items-center justify-between">
             <div>
-              <div class="font-semibold text-lg">{gettext("Description")}</div>
+              <div class="font-semibold text-lg">{gettext("Data")}</div>
             </div>
           </div>
 
