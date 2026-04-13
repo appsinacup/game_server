@@ -53,8 +53,8 @@ msgstr "E-mail"
 #: lib/game_server_web/components/layouts.ex:757
 #: lib/game_server_web/live/leaderboards_live.ex:19
 #: lib/game_server_web/live/leaderboards_live.ex:19
-#: lib/game_server_web/live/leaderboards_live.ex:95
-#: lib/game_server_web/live/leaderboards_live.ex:95
+#: lib/game_server_web/live/leaderboards_live.ex:96
+#: lib/game_server_web/live/leaderboards_live.ex:96
 #: lib/game_server_web/live/leaderboards_live.ex:278
 #: lib/game_server_web/live/leaderboards_live.ex:278
 #, elixir-autogen, elixir-format
@@ -97,8 +97,8 @@ msgstr "Clasamente"
 #: lib/game_server_web/live/user_live/login.ex:154
 #: lib/game_server_web/live/user_live/login.ex:164
 #: lib/game_server_web/live/user_live/login.ex:164
-#: lib/game_server_web/live/user_live/login.ex:180
-#: lib/game_server_web/live/user_live/login.ex:180
+#: lib/game_server_web/live/user_live/login.ex:186
+#: lib/game_server_web/live/user_live/login.ex:186
 #: lib/game_server_web/live/user_live/registration.ex:17
 #: lib/game_server_web/live/user_live/registration.ex:17
 #: lib/game_server_web/live/user_live/settings.ex:176
@@ -175,8 +175,8 @@ msgstr "Deconectare"
 #: lib/game_server_web/live/user_live/registration.ex:100
 #: lib/game_server_web/live/user_live/registration.ex:110
 #: lib/game_server_web/live/user_live/registration.ex:110
-#: lib/game_server_web/live/user_live/registration.ex:131
-#: lib/game_server_web/live/user_live/registration.ex:131
+#: lib/game_server_web/live/user_live/registration.ex:133
+#: lib/game_server_web/live/user_live/registration.ex:133
 #, elixir-autogen, elixir-format
 msgid "Register"
 msgstr "Înregistrare"
@@ -189,8 +189,8 @@ msgstr "Înregistrare"
 msgid "Accept"
 msgstr "Acceptă"
 
-#: lib/game_server_web/live/achievements_live.ex:156
-#: lib/game_server_web/live/achievements_live.ex:156
+#: lib/game_server_web/live/achievements_live.ex:158
+#: lib/game_server_web/live/achievements_live.ex:158
 #: lib/game_server_web/live/groups_live.ex:420
 #: lib/game_server_web/live/groups_live.ex:420
 #: lib/game_server_web/live/user_live/settings.ex:1192
@@ -307,8 +307,8 @@ msgstr "Conținut"
 msgid "Create"
 msgstr "Creează"
 
-#: lib/game_server_web/controllers/page_html/home.html.heex:184
-#: lib/game_server_web/controllers/page_html/home.html.heex:184
+#: lib/game_server_web/controllers/page_html/home.html.heex:202
+#: lib/game_server_web/controllers/page_html/home.html.heex:202
 #, elixir-autogen, elixir-format
 msgid "Daily"
 msgstr "Zilnic"
@@ -363,8 +363,6 @@ msgstr "Retrogradează"
 #: lib/game_server_web/live/user_live/settings.ex:53
 #: lib/game_server_web/live/user_live/settings.ex:325
 #: lib/game_server_web/live/user_live/settings.ex:325
-#: lib/game_server_web/live/user_live/settings.ex:567
-#: lib/game_server_web/live/user_live/settings.ex:567
 #: lib/game_server_web/live/user_live/settings.ex:610
 #: lib/game_server_web/live/user_live/settings.ex:610
 #: lib/game_server_web/live/user_live/settings.ex:695
@@ -421,10 +419,10 @@ msgstr "Grup"
 msgid "Groups"
 msgstr "Grupuri"
 
-#: lib/game_server_web/live/achievements_live.ex:320
-#: lib/game_server_web/live/achievements_live.ex:320
-#: lib/game_server_web/live/achievements_live.ex:344
-#: lib/game_server_web/live/achievements_live.ex:344
+#: lib/game_server_web/live/achievements_live.ex:322
+#: lib/game_server_web/live/achievements_live.ex:322
+#: lib/game_server_web/live/achievements_live.ex:346
+#: lib/game_server_web/live/achievements_live.ex:346
 #: lib/game_server_web/live/lobby_live/index.ex:817
 #: lib/game_server_web/live/lobby_live/index.ex:817
 #: lib/game_server_web/live/user_live/settings.ex:704
@@ -519,8 +517,8 @@ msgstr "Expulzează"
 msgid "Leave"
 msgstr "Părăsește"
 
-#: lib/game_server_web/live/achievements_live.ex:158
-#: lib/game_server_web/live/achievements_live.ex:158
+#: lib/game_server_web/live/achievements_live.ex:160
+#: lib/game_server_web/live/achievements_live.ex:160
 #: lib/game_server_web/live/lobby_live/index.ex:736
 #: lib/game_server_web/live/lobby_live/index.ex:736
 #: lib/game_server_web/live/lobby_live/index.ex:748
@@ -567,8 +565,8 @@ msgstr "Membru"
 msgid "Members"
 msgstr "Membri"
 
-#: lib/game_server_web/controllers/page_html/home.html.heex:200
-#: lib/game_server_web/controllers/page_html/home.html.heex:200
+#: lib/game_server_web/controllers/page_html/home.html.heex:218
+#: lib/game_server_web/controllers/page_html/home.html.heex:218
 #, elixir-autogen, elixir-format
 msgid "Monthly"
 msgstr "Lunar"
@@ -753,10 +751,10 @@ msgstr "Se salvează..."
 msgid "Send"
 msgstr "Trimite"
 
-#: lib/game_server_web/live/achievements_live.ex:180
-#: lib/game_server_web/live/achievements_live.ex:180
-#: lib/game_server_web/live/achievements_live.ex:351
-#: lib/game_server_web/live/achievements_live.ex:351
+#: lib/game_server_web/live/achievements_live.ex:182
+#: lib/game_server_web/live/achievements_live.ex:182
+#: lib/game_server_web/live/achievements_live.ex:353
+#: lib/game_server_web/live/achievements_live.ex:353
 #: lib/game_server_web/live/groups_live.ex:438
 #: lib/game_server_web/live/groups_live.ex:438
 #: lib/game_server_web/live/user_live/settings.ex:1354
@@ -833,8 +831,8 @@ msgstr "Deblochează"
 msgid "View"
 msgstr "Vezi"
 
-#: lib/game_server_web/controllers/page_html/home.html.heex:192
-#: lib/game_server_web/controllers/page_html/home.html.heex:192
+#: lib/game_server_web/controllers/page_html/home.html.heex:210
+#: lib/game_server_web/controllers/page_html/home.html.heex:210
 #, elixir-autogen, elixir-format
 msgid "Weekly"
 msgstr "Săptămânal"
@@ -899,10 +897,8 @@ msgstr "Cont"
 #: lib/game_server_web/components/layouts.ex:772
 #: lib/game_server_web/live/achievements_live.ex:27
 #: lib/game_server_web/live/achievements_live.ex:27
-#: lib/game_server_web/live/achievements_live.ex:140
-#: lib/game_server_web/live/achievements_live.ex:140
-#: lib/game_server_web/live/achievements_live.ex:145
-#: lib/game_server_web/live/achievements_live.ex:145
+#: lib/game_server_web/live/achievements_live.ex:141
+#: lib/game_server_web/live/achievements_live.ex:141
 #, elixir-autogen, elixir-format
 msgid "Achievements"
 msgstr "Realizări"
@@ -925,8 +921,8 @@ msgstr "Chat"
 msgid "Decline"
 msgstr "Refuză"
 
-#: lib/game_server_web/live/public_docs.ex:67
-#: lib/game_server_web/live/public_docs.ex:67
+#: lib/game_server_web/live/public_docs.ex:68
+#: lib/game_server_web/live/public_docs.ex:68
 #, elixir-autogen, elixir-format
 msgid "Documentation"
 msgstr "Documentație"
@@ -965,8 +961,8 @@ msgstr "Prieteni"
 
 #: lib/game_server_web/controllers/page_controller.ex:18
 #: lib/game_server_web/controllers/page_controller.ex:18
-#: lib/game_server_web/controllers/page_html/home.html.heex:228
-#: lib/game_server_web/controllers/page_html/home.html.heex:228
+#: lib/game_server_web/controllers/page_html/home.html.heex:246
+#: lib/game_server_web/controllers/page_html/home.html.heex:246
 #, elixir-autogen, elixir-format
 msgid "Home"
 msgstr "Acasă"
@@ -983,10 +979,10 @@ msgstr "Acasă"
 msgid "Notifications"
 msgstr "Notificări"
 
-#: lib/game_server_web/controllers/page_html/home.html.heex:168
-#: lib/game_server_web/controllers/page_html/home.html.heex:168
-#: lib/game_server_web/controllers/page_html/home.html.heex:176
-#: lib/game_server_web/controllers/page_html/home.html.heex:176
+#: lib/game_server_web/controllers/page_html/home.html.heex:186
+#: lib/game_server_web/controllers/page_html/home.html.heex:186
+#: lib/game_server_web/controllers/page_html/home.html.heex:194
+#: lib/game_server_web/controllers/page_html/home.html.heex:194
 #, elixir-autogen, elixir-format
 msgid "Online"
 msgstr "Online"
@@ -1111,28 +1107,28 @@ msgstr "Se încarcă..."
 msgid "Not found"
 msgstr "Nu a fost găsit"
 
-#: lib/game_server_web/controllers/auth_controller.ex:729
-#: lib/game_server_web/controllers/auth_controller.ex:729
-#: lib/game_server_web/controllers/auth_controller.ex:1431
-#: lib/game_server_web/controllers/auth_controller.ex:1431
-#: lib/game_server_web/controllers/auth_controller.ex:1461
-#: lib/game_server_web/controllers/auth_controller.ex:1461
-#: lib/game_server_web/controllers/auth_controller.ex:1494
-#: lib/game_server_web/controllers/auth_controller.ex:1494
-#: lib/game_server_web/controllers/auth_controller.ex:1524
-#: lib/game_server_web/controllers/auth_controller.ex:1524
-#: lib/game_server_web/controllers/auth_controller.ex:1557
-#: lib/game_server_web/controllers/auth_controller.ex:1557
-#: lib/game_server_web/controllers/auth_controller.ex:1587
-#: lib/game_server_web/controllers/auth_controller.ex:1587
-#: lib/game_server_web/controllers/auth_controller.ex:1620
-#: lib/game_server_web/controllers/auth_controller.ex:1620
-#: lib/game_server_web/controllers/auth_controller.ex:1650
-#: lib/game_server_web/controllers/auth_controller.ex:1650
-#: lib/game_server_web/controllers/auth_controller.ex:1683
-#: lib/game_server_web/controllers/auth_controller.ex:1683
-#: lib/game_server_web/controllers/auth_controller.ex:1713
-#: lib/game_server_web/controllers/auth_controller.ex:1713
+#: lib/game_server_web/controllers/auth_controller.ex:747
+#: lib/game_server_web/controllers/auth_controller.ex:747
+#: lib/game_server_web/controllers/auth_controller.ex:1449
+#: lib/game_server_web/controllers/auth_controller.ex:1449
+#: lib/game_server_web/controllers/auth_controller.ex:1479
+#: lib/game_server_web/controllers/auth_controller.ex:1479
+#: lib/game_server_web/controllers/auth_controller.ex:1512
+#: lib/game_server_web/controllers/auth_controller.ex:1512
+#: lib/game_server_web/controllers/auth_controller.ex:1542
+#: lib/game_server_web/controllers/auth_controller.ex:1542
+#: lib/game_server_web/controllers/auth_controller.ex:1575
+#: lib/game_server_web/controllers/auth_controller.ex:1575
+#: lib/game_server_web/controllers/auth_controller.ex:1605
+#: lib/game_server_web/controllers/auth_controller.ex:1605
+#: lib/game_server_web/controllers/auth_controller.ex:1638
+#: lib/game_server_web/controllers/auth_controller.ex:1638
+#: lib/game_server_web/controllers/auth_controller.ex:1668
+#: lib/game_server_web/controllers/auth_controller.ex:1668
+#: lib/game_server_web/controllers/auth_controller.ex:1701
+#: lib/game_server_web/controllers/auth_controller.ex:1701
+#: lib/game_server_web/controllers/auth_controller.ex:1731
+#: lib/game_server_web/controllers/auth_controller.ex:1731
 #: lib/game_server_web/controllers/user_session_controller.ex:8
 #: lib/game_server_web/controllers/user_session_controller.ex:8
 #: lib/game_server_web/controllers/user_session_controller.ex:12
@@ -1163,12 +1159,12 @@ msgstr "Nu a fost găsit"
 #: lib/game_server_web/live/notifications_live.ex:162
 #: lib/game_server_web/live/notifications_live.ex:177
 #: lib/game_server_web/live/notifications_live.ex:177
-#: lib/game_server_web/live/user_live/login.ex:196
-#: lib/game_server_web/live/user_live/login.ex:196
-#: lib/game_server_web/live/user_live/registration.ex:162
-#: lib/game_server_web/live/user_live/registration.ex:162
-#: lib/game_server_web/live/user_live/registration.ex:172
-#: lib/game_server_web/live/user_live/registration.ex:172
+#: lib/game_server_web/live/user_live/login.ex:206
+#: lib/game_server_web/live/user_live/login.ex:206
+#: lib/game_server_web/live/user_live/registration.ex:181
+#: lib/game_server_web/live/user_live/registration.ex:181
+#: lib/game_server_web/live/user_live/registration.ex:191
+#: lib/game_server_web/live/user_live/registration.ex:191
 #: lib/game_server_web/live/user_live/settings.ex:1445
 #: lib/game_server_web/live/user_live/settings.ex:1445
 #: lib/game_server_web/live/user_live/settings.ex:1618
@@ -1249,8 +1245,8 @@ msgstr "Nu poate fi gol"
 msgid "Delete?"
 msgstr "Șterge?"
 
-#: lib/game_server_web/live/achievements_live.ex:201
-#: lib/game_server_web/live/achievements_live.ex:201
+#: lib/game_server_web/live/achievements_live.ex:203
+#: lib/game_server_web/live/achievements_live.ex:203
 #: lib/game_server_web/live/blog_live.ex:82
 #: lib/game_server_web/live/blog_live.ex:82
 #: lib/game_server_web/live/blog_live.ex:133
@@ -1293,8 +1289,8 @@ msgstr "Șterge?"
 msgid "No results."
 msgstr "Niciun rezultat"
 
-#: lib/game_server_web/controllers/page_html/home.html.heex:215
-#: lib/game_server_web/controllers/page_html/home.html.heex:215
+#: lib/game_server_web/controllers/page_html/home.html.heex:233
+#: lib/game_server_web/controllers/page_html/home.html.heex:233
 #: lib/game_server_web/live/notifications_live.ex:205
 #: lib/game_server_web/live/notifications_live.ex:205
 #: lib/game_server_web/live/notifications_live.ex:218
@@ -1315,38 +1311,38 @@ msgstr "Niciun rezultat"
 msgid "Open"
 msgstr "Deschide"
 
-#: lib/game_server_web/controllers/auth_controller.ex:723
-#: lib/game_server_web/controllers/auth_controller.ex:723
-#: lib/game_server_web/controllers/auth_controller.ex:1441
-#: lib/game_server_web/controllers/auth_controller.ex:1441
-#: lib/game_server_web/controllers/auth_controller.ex:1452
-#: lib/game_server_web/controllers/auth_controller.ex:1452
-#: lib/game_server_web/controllers/auth_controller.ex:1477
-#: lib/game_server_web/controllers/auth_controller.ex:1477
-#: lib/game_server_web/controllers/auth_controller.ex:1504
-#: lib/game_server_web/controllers/auth_controller.ex:1504
-#: lib/game_server_web/controllers/auth_controller.ex:1515
-#: lib/game_server_web/controllers/auth_controller.ex:1515
-#: lib/game_server_web/controllers/auth_controller.ex:1540
-#: lib/game_server_web/controllers/auth_controller.ex:1540
-#: lib/game_server_web/controllers/auth_controller.ex:1567
-#: lib/game_server_web/controllers/auth_controller.ex:1567
-#: lib/game_server_web/controllers/auth_controller.ex:1578
-#: lib/game_server_web/controllers/auth_controller.ex:1578
-#: lib/game_server_web/controllers/auth_controller.ex:1603
-#: lib/game_server_web/controllers/auth_controller.ex:1603
-#: lib/game_server_web/controllers/auth_controller.ex:1630
-#: lib/game_server_web/controllers/auth_controller.ex:1630
-#: lib/game_server_web/controllers/auth_controller.ex:1641
-#: lib/game_server_web/controllers/auth_controller.ex:1641
-#: lib/game_server_web/controllers/auth_controller.ex:1666
-#: lib/game_server_web/controllers/auth_controller.ex:1666
-#: lib/game_server_web/controllers/auth_controller.ex:1693
-#: lib/game_server_web/controllers/auth_controller.ex:1693
-#: lib/game_server_web/controllers/auth_controller.ex:1704
-#: lib/game_server_web/controllers/auth_controller.ex:1704
-#: lib/game_server_web/controllers/auth_controller.ex:1729
-#: lib/game_server_web/controllers/auth_controller.ex:1729
+#: lib/game_server_web/controllers/auth_controller.ex:741
+#: lib/game_server_web/controllers/auth_controller.ex:741
+#: lib/game_server_web/controllers/auth_controller.ex:1459
+#: lib/game_server_web/controllers/auth_controller.ex:1459
+#: lib/game_server_web/controllers/auth_controller.ex:1470
+#: lib/game_server_web/controllers/auth_controller.ex:1470
+#: lib/game_server_web/controllers/auth_controller.ex:1495
+#: lib/game_server_web/controllers/auth_controller.ex:1495
+#: lib/game_server_web/controllers/auth_controller.ex:1522
+#: lib/game_server_web/controllers/auth_controller.ex:1522
+#: lib/game_server_web/controllers/auth_controller.ex:1533
+#: lib/game_server_web/controllers/auth_controller.ex:1533
+#: lib/game_server_web/controllers/auth_controller.ex:1558
+#: lib/game_server_web/controllers/auth_controller.ex:1558
+#: lib/game_server_web/controllers/auth_controller.ex:1585
+#: lib/game_server_web/controllers/auth_controller.ex:1585
+#: lib/game_server_web/controllers/auth_controller.ex:1596
+#: lib/game_server_web/controllers/auth_controller.ex:1596
+#: lib/game_server_web/controllers/auth_controller.ex:1621
+#: lib/game_server_web/controllers/auth_controller.ex:1621
+#: lib/game_server_web/controllers/auth_controller.ex:1648
+#: lib/game_server_web/controllers/auth_controller.ex:1648
+#: lib/game_server_web/controllers/auth_controller.ex:1659
+#: lib/game_server_web/controllers/auth_controller.ex:1659
+#: lib/game_server_web/controllers/auth_controller.ex:1684
+#: lib/game_server_web/controllers/auth_controller.ex:1684
+#: lib/game_server_web/controllers/auth_controller.ex:1711
+#: lib/game_server_web/controllers/auth_controller.ex:1711
+#: lib/game_server_web/controllers/auth_controller.ex:1722
+#: lib/game_server_web/controllers/auth_controller.ex:1722
+#: lib/game_server_web/controllers/auth_controller.ex:1747
+#: lib/game_server_web/controllers/auth_controller.ex:1747
 #: lib/game_server_web/controllers/user_session_controller.ex:33
 #: lib/game_server_web/controllers/user_session_controller.ex:33
 #: lib/game_server_web/controllers/user_session_controller.ex:55
@@ -1405,8 +1401,8 @@ msgstr "Deschide"
 #: lib/game_server_web/live/lobby_live/index.ex:460
 #: lib/game_server_web/live/user_live/confirmation.ex:95
 #: lib/game_server_web/live/user_live/confirmation.ex:95
-#: lib/game_server_web/live/user_live/registration.ex:192
-#: lib/game_server_web/live/user_live/registration.ex:192
+#: lib/game_server_web/live/user_live/registration.ex:211
+#: lib/game_server_web/live/user_live/registration.ex:211
 #: lib/game_server_web/live/user_live/settings.ex:25
 #: lib/game_server_web/live/user_live/settings.ex:25
 #: lib/game_server_web/live/user_live/settings.ex:1451
@@ -1487,16 +1483,16 @@ msgstr "Deschide"
 msgid "Failed"
 msgstr "A eșuat"
 
-#: lib/game_server_web/controllers/auth_controller.ex:1467
-#: lib/game_server_web/controllers/auth_controller.ex:1467
-#: lib/game_server_web/controllers/auth_controller.ex:1530
-#: lib/game_server_web/controllers/auth_controller.ex:1530
-#: lib/game_server_web/controllers/auth_controller.ex:1593
-#: lib/game_server_web/controllers/auth_controller.ex:1593
-#: lib/game_server_web/controllers/auth_controller.ex:1656
-#: lib/game_server_web/controllers/auth_controller.ex:1656
-#: lib/game_server_web/controllers/auth_controller.ex:1719
-#: lib/game_server_web/controllers/auth_controller.ex:1719
+#: lib/game_server_web/controllers/auth_controller.ex:1485
+#: lib/game_server_web/controllers/auth_controller.ex:1485
+#: lib/game_server_web/controllers/auth_controller.ex:1548
+#: lib/game_server_web/controllers/auth_controller.ex:1548
+#: lib/game_server_web/controllers/auth_controller.ex:1611
+#: lib/game_server_web/controllers/auth_controller.ex:1611
+#: lib/game_server_web/controllers/auth_controller.ex:1674
+#: lib/game_server_web/controllers/auth_controller.ex:1674
+#: lib/game_server_web/controllers/auth_controller.ex:1737
+#: lib/game_server_web/controllers/auth_controller.ex:1737
 #: lib/game_server_web/controllers/user_session_controller.ex:27
 #: lib/game_server_web/controllers/user_session_controller.ex:27
 #: lib/game_server_web/controllers/user_session_controller.ex:49
@@ -1507,8 +1503,8 @@ msgstr "A eșuat"
 msgid "Your account is pending activation."
 msgstr "Contul dumneavoastră așteaptă să fie activat."
 
-#: lib/game_server_web/live/achievements_live.ex:159
-#: lib/game_server_web/live/achievements_live.ex:159
+#: lib/game_server_web/live/achievements_live.ex:161
+#: lib/game_server_web/live/achievements_live.ex:161
 #, elixir-autogen, elixir-format
 msgid "In Progress"
 msgstr "În curs"
@@ -1605,12 +1601,10 @@ msgstr "Scor"
 msgid "Terms"
 msgstr "Termeni"
 
-#: lib/game_server_web/live/achievements_live.ex:143
-#: lib/game_server_web/live/achievements_live.ex:143
-#: lib/game_server_web/live/achievements_live.ex:157
-#: lib/game_server_web/live/achievements_live.ex:157
-#: lib/game_server_web/live/achievements_live.ex:334
-#: lib/game_server_web/live/achievements_live.ex:334
+#: lib/game_server_web/live/achievements_live.ex:159
+#: lib/game_server_web/live/achievements_live.ex:159
+#: lib/game_server_web/live/achievements_live.ex:336
+#: lib/game_server_web/live/achievements_live.ex:336
 #, elixir-autogen, elixir-format
 msgid "Unlocked"
 msgstr "Deblocat"
@@ -1619,4 +1613,24 @@ msgstr "Deblocat"
 #: lib/game_server_web/components/layouts.ex:863
 #, elixir-autogen, elixir-format
 msgid "Dismiss"
+msgstr ""
+
+#: lib/game_server_web/live/user_live/settings.ex:567
+#: lib/game_server_web/live/user_live/settings.ex:567
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Data"
+msgstr "Dată"
+
+#: lib/game_server_web/live/public_docs.ex:72
+#: lib/game_server_web/live/public_docs.ex:72
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Documentation is not available."
+msgstr "Documentație"
+
+#: lib/game_server_web/live/user_live/login.ex:215
+#: lib/game_server_web/live/user_live/login.ex:215
+#: lib/game_server_web/live/user_live/registration.ex:146
+#: lib/game_server_web/live/user_live/registration.ex:146
+#, elixir-autogen, elixir-format
+msgid "Too many attempts. Please try again later."
 msgstr ""
