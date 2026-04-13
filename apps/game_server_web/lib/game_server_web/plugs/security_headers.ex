@@ -68,8 +68,12 @@ defmodule GameServerWeb.Plugs.SecurityHeaders do
       end
 
     if scheme == :https or forwarded_proto == "https" do
-      # max-age=1 year, no includeSubDomains (subdomains may serve different content)
-      put_resp_header(conn, "strict-transport-security", "max-age=31536000")
+      # max-age=1 year, includeSubDomains + preload for HSTS preload list eligibility
+      put_resp_header(
+        conn,
+        "strict-transport-security",
+        "max-age=31536000; includeSubDomains; preload"
+      )
     else
       conn
     end

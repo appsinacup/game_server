@@ -4,11 +4,13 @@ defmodule GameServerWeb.Endpoint do
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
   # Set :encryption_salt if you would also like to encrypt it.
+  # In production the Secure flag ensures the cookie is only sent over HTTPS.
   @session_options [
     store: :cookie,
     key: "_game_server_key",
     signing_salt: "G8u1px36",
-    same_site: "Lax"
+    same_site: "Lax",
+    secure: Mix.env() == :prod
   ]
   socket "/socket", GameServerWeb.UserSocket,
     websocket: [log: false, compress: true, max_frame_size: 131_072],
