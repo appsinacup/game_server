@@ -4,6 +4,8 @@ defmodule GameServerWeb.LobbiesChannelTest do
 
   alias GameServer.AccountsFixtures
   alias GameServer.Lobbies
+  alias GameServerWeb.Auth.Guardian
+  alias GameServerWeb.UserSocket
 
   setup tags do
     GameServer.DataCase.setup_sandbox(tags)
@@ -18,8 +20,8 @@ defmodule GameServerWeb.LobbiesChannelTest do
 
     # Authenticated socket to subscribe to global lobbies
     observer = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
-    {:ok, token, _} = GameServerWeb.Auth.Guardian.encode_and_sign(observer)
-    {:ok, socket} = connect(GameServerWeb.UserSocket, %{"token" => token})
+    {:ok, token, _} = Guardian.encode_and_sign(observer)
+    {:ok, socket} = connect(UserSocket, %{"token" => token})
     {:ok, _, _socket} = subscribe_and_join(socket, "lobbies", %{})
 
     # create lobby (this should broadcast a lobby_created event)

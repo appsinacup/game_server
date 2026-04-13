@@ -12,8 +12,8 @@ defmodule GameServerWeb.AdminLive.Config do
   alias GameServer.Repo.AdvisoryLock
   alias GameServer.Schedule
   alias GameServer.Theme.JSONConfig
-  alias GameServerWeb.Plugs.IpBan
   alias GameServerWeb.Plugs.GeoCountry
+  alias GameServerWeb.Plugs.IpBan
 
   @impl true
   def render(assigns) do
