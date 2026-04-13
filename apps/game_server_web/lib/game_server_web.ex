@@ -97,6 +97,7 @@ defmodule GameServerWeb do
 
       # Common modules used in templates
       alias GameServerWeb.Layouts
+      alias GameServerWeb.SRI
       alias Phoenix.LiveView.JS
 
       # Routes generation with the ~p sigil

@@ -520,13 +520,15 @@ if config_env() == :prod do
   endpoint_config =
     if force_ssl do
       Keyword.put(endpoint_config, :force_ssl,
+        rewrite_on: [:x_forwarded_proto, :x_forwarded_port],
         hsts: true,
         expires: 31_536_000,
         subdomains: false,
-        exclude: [
-          hosts: ["localhost", "127.0.0.1"],
-          paths: ["/.well-known/acme-challenge", "/api/v1/health"]
-        ]
+        exclude: fn conn ->
+          conn.host in ["localhost", "127.0.0.1"] or
+            String.starts_with?(conn.request_path, "/.well-known/acme-challenge") or
+            conn.request_path == "/api/v1/health"
+        end
       )
     else
       endpoint_config

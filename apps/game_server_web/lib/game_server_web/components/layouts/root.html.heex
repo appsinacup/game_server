@@ -12,7 +12,13 @@
     />
     <meta name="csrf-token" content={get_csrf_token()} />
     <%!-- Tiny synchronous script to set data-theme before CSS loads (prevents FOUC) --%>
-    <script phx-track-static type="text/javascript" src={~p"/assets/js/theme-init.js"}>
+    <script
+      phx-track-static
+      type="text/javascript"
+      src={~p"/assets/js/theme-init.js"}
+      integrity={SRI.integrity(~p"/assets/js/theme-init.js")}
+      crossorigin="anonymous"
+    >
     </script>
     <!-- Open Graph / Twitter meta defaults -->
     <% locale = Gettext.get_locale(GameServerWeb.Gettext) %>
@@ -43,14 +49,34 @@
     >
       {assigns[:page_title]}
     </.live_title>
-    <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
+    <link
+      phx-track-static
+      rel="stylesheet"
+      href={~p"/assets/css/app.css"}
+      integrity={SRI.integrity(~p"/assets/css/app.css")}
+      crossorigin="anonymous"
+    />
     <%= if Map.get(provider_theme, "css") do %>
-      <link rel="stylesheet" phx-track-static href={Map.get(provider_theme, "css")} />
+      <% theme_css = Map.get(provider_theme, "css") %>
+      <link
+        rel="stylesheet"
+        phx-track-static
+        href={theme_css}
+        integrity={SRI.integrity(theme_css)}
+        crossorigin="anonymous"
+      />
     <% end %>
     <%= if Map.get(provider_theme, "favicon") do %>
       <link rel="icon" type="image/x-icon" href={Map.get(provider_theme, "favicon")} />
     <% end %>
-    <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
+    <script
+      defer
+      phx-track-static
+      type="text/javascript"
+      src={~p"/assets/js/app.js"}
+      integrity={SRI.integrity(~p"/assets/js/app.js")}
+      crossorigin="anonymous"
+    >
     </script>
   </head>
   <body>
