@@ -1202,8 +1202,9 @@ defmodule GameServerWeb.AdminLive.Config do
                     <td colspan="2">
                       <span class="badge badge-success badge-sm">PromEx enabled</span>
                       <span class="text-xs text-base-content/60 ml-2">
-                        /metrics endpoint — local/Docker IPs always allowed
-                        {if @config.metrics_auth_token, do: ", external requires token", else: " (no token set — open to all)"}
+                        /metrics endpoint — local/Docker IPs always allowed {if @config.metrics_auth_token,
+                          do: ", external requires token",
+                          else: " (no token set — open to all)"}
                       </span>
                     </td>
                   </tr>

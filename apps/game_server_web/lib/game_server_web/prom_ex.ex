@@ -32,17 +32,13 @@ defmodule GameServerWeb.PromEx do
       PromEx.Plugins.Beam,
 
       # Phoenix HTTP request metrics (count, duration, status by route)
-      {PromEx.Plugins.Phoenix,
-       router: GameServerWeb.Router,
-       endpoint: GameServerWeb.Endpoint},
+      {PromEx.Plugins.Phoenix, router: GameServerWeb.Router, endpoint: GameServerWeb.Endpoint},
 
       # Ecto database metrics (query count, duration, queue time)
-      {PromEx.Plugins.Ecto,
-       repos: [GameServer.Repo]},
+      {PromEx.Plugins.Ecto, repos: [GameServer.Repo]},
 
       # Application info & uptime
-      {PromEx.Plugins.Application,
-       otp_app: :game_server_web}
+      {PromEx.Plugins.Application, otp_app: :game_server_web}
     ]
   end
 
