@@ -285,8 +285,6 @@ msgstr "Confirmă"
 
 #: lib/game_server_web/live/auth_success_live.ex:116
 #: lib/game_server_web/live/auth_success_live.ex:116
-#: lib/game_server_web/live/notifications_live.ex:41
-#: lib/game_server_web/live/notifications_live.ex:41
 #: lib/game_server_web/live/user_live/settings.ex:609
 #: lib/game_server_web/live/user_live/settings.ex:609
 #, elixir-autogen, elixir-format
@@ -315,8 +313,8 @@ msgstr "Zilnic"
 
 #: lib/game_server_web/live/groups_live.ex:442
 #: lib/game_server_web/live/groups_live.ex:442
-#: lib/game_server_web/live/notifications_live.ex:43
-#: lib/game_server_web/live/notifications_live.ex:43
+#: lib/game_server_web/live/notifications_live.ex:42
+#: lib/game_server_web/live/notifications_live.ex:42
 #: lib/game_server_web/live/user_live/settings.ex:608
 #: lib/game_server_web/live/user_live/settings.ex:608
 #: lib/game_server_web/live/user_live/settings.ex:791
@@ -337,8 +335,8 @@ msgstr "Dată"
 #: lib/game_server_web/live/chat_live.ex:281
 #: lib/game_server_web/live/notifications_live.ex:28
 #: lib/game_server_web/live/notifications_live.ex:28
-#: lib/game_server_web/live/notifications_live.ex:86
-#: lib/game_server_web/live/notifications_live.ex:86
+#: lib/game_server_web/live/notifications_live.ex:82
+#: lib/game_server_web/live/notifications_live.ex:82
 #: lib/game_server_web/live/user_live/settings.ex:37
 #: lib/game_server_web/live/user_live/settings.ex:37
 #: lib/game_server_web/live/user_live/settings.ex:332
@@ -375,8 +373,8 @@ msgstr "Retrogradează"
 msgid "Description"
 msgstr "Descriere"
 
-#: lib/game_server_web/live/notifications_live.ex:42
-#: lib/game_server_web/live/notifications_live.ex:42
+#: lib/game_server_web/live/notifications_live.ex:41
+#: lib/game_server_web/live/notifications_live.ex:41
 #: lib/game_server_web/live/user_live/settings.ex:1300
 #: lib/game_server_web/live/user_live/settings.ex:1300
 #, elixir-autogen, elixir-format
@@ -805,26 +803,26 @@ msgstr "Deblochează"
 #: lib/game_server_web/live/lobby_live/index.ex:724
 #: lib/game_server_web/live/lobby_live/index.ex:733
 #: lib/game_server_web/live/lobby_live/index.ex:733
+#: lib/game_server_web/live/notifications_live.ex:196
+#: lib/game_server_web/live/notifications_live.ex:196
+#: lib/game_server_web/live/notifications_live.ex:197
+#: lib/game_server_web/live/notifications_live.ex:197
 #: lib/game_server_web/live/notifications_live.ex:200
 #: lib/game_server_web/live/notifications_live.ex:200
-#: lib/game_server_web/live/notifications_live.ex:201
-#: lib/game_server_web/live/notifications_live.ex:201
-#: lib/game_server_web/live/notifications_live.ex:204
-#: lib/game_server_web/live/notifications_live.ex:204
-#: lib/game_server_web/live/notifications_live.ex:206
-#: lib/game_server_web/live/notifications_live.ex:206
-#: lib/game_server_web/live/notifications_live.ex:209
-#: lib/game_server_web/live/notifications_live.ex:209
-#: lib/game_server_web/live/notifications_live.ex:212
-#: lib/game_server_web/live/notifications_live.ex:212
-#: lib/game_server_web/live/notifications_live.ex:242
-#: lib/game_server_web/live/notifications_live.ex:242
-#: lib/game_server_web/live/notifications_live.ex:245
-#: lib/game_server_web/live/notifications_live.ex:245
-#: lib/game_server_web/live/notifications_live.ex:248
-#: lib/game_server_web/live/notifications_live.ex:248
-#: lib/game_server_web/live/notifications_live.ex:251
-#: lib/game_server_web/live/notifications_live.ex:251
+#: lib/game_server_web/live/notifications_live.ex:202
+#: lib/game_server_web/live/notifications_live.ex:202
+#: lib/game_server_web/live/notifications_live.ex:205
+#: lib/game_server_web/live/notifications_live.ex:205
+#: lib/game_server_web/live/notifications_live.ex:208
+#: lib/game_server_web/live/notifications_live.ex:208
+#: lib/game_server_web/live/notifications_live.ex:238
+#: lib/game_server_web/live/notifications_live.ex:238
+#: lib/game_server_web/live/notifications_live.ex:241
+#: lib/game_server_web/live/notifications_live.ex:241
+#: lib/game_server_web/live/notifications_live.ex:244
+#: lib/game_server_web/live/notifications_live.ex:244
+#: lib/game_server_web/live/notifications_live.ex:247
+#: lib/game_server_web/live/notifications_live.ex:247
 #: lib/game_server_web/live/user_live/settings.ex:1153
 #: lib/game_server_web/live/user_live/settings.ex:1153
 #, elixir-autogen, elixir-format
@@ -909,8 +907,8 @@ msgstr "Realizări"
 #: lib/game_server_web/components/layouts.ex:633
 #: lib/game_server_web/live/chat_live.ex:116
 #: lib/game_server_web/live/chat_live.ex:116
-#: lib/game_server_web/live/notifications_live.ex:62
-#: lib/game_server_web/live/notifications_live.ex:62
+#: lib/game_server_web/live/notifications_live.ex:58
+#: lib/game_server_web/live/notifications_live.ex:58
 #, elixir-autogen, elixir-format
 msgid "Chat"
 msgstr "Chat"
@@ -973,8 +971,8 @@ msgstr "Acasă"
 #: lib/game_server_web/components/layouts.ex:612
 #: lib/game_server_web/live/notifications_live.ex:15
 #: lib/game_server_web/live/notifications_live.ex:15
-#: lib/game_server_web/live/notifications_live.ex:124
-#: lib/game_server_web/live/notifications_live.ex:124
+#: lib/game_server_web/live/notifications_live.ex:120
+#: lib/game_server_web/live/notifications_live.ex:120
 #, elixir-autogen, elixir-format
 msgid "Notifications"
 msgstr "Notificări"
@@ -1155,10 +1153,10 @@ msgstr "Nu a fost găsit"
 #: lib/game_server_web/live/groups_live.ex:237
 #: lib/game_server_web/live/lobby_live/index.ex:268
 #: lib/game_server_web/live/lobby_live/index.ex:268
-#: lib/game_server_web/live/notifications_live.ex:162
-#: lib/game_server_web/live/notifications_live.ex:162
-#: lib/game_server_web/live/notifications_live.ex:177
-#: lib/game_server_web/live/notifications_live.ex:177
+#: lib/game_server_web/live/notifications_live.ex:158
+#: lib/game_server_web/live/notifications_live.ex:158
+#: lib/game_server_web/live/notifications_live.ex:173
+#: lib/game_server_web/live/notifications_live.ex:173
 #: lib/game_server_web/live/user_live/login.ex:206
 #: lib/game_server_web/live/user_live/login.ex:206
 #: lib/game_server_web/live/user_live/registration.ex:181
@@ -1291,22 +1289,22 @@ msgstr "Niciun rezultat"
 
 #: lib/game_server_web/controllers/page_html/home.html.heex:233
 #: lib/game_server_web/controllers/page_html/home.html.heex:233
-#: lib/game_server_web/live/notifications_live.ex:205
-#: lib/game_server_web/live/notifications_live.ex:205
-#: lib/game_server_web/live/notifications_live.ex:218
-#: lib/game_server_web/live/notifications_live.ex:218
-#: lib/game_server_web/live/notifications_live.ex:219
-#: lib/game_server_web/live/notifications_live.ex:219
-#: lib/game_server_web/live/notifications_live.ex:226
-#: lib/game_server_web/live/notifications_live.ex:226
-#: lib/game_server_web/live/notifications_live.ex:227
-#: lib/game_server_web/live/notifications_live.ex:227
-#: lib/game_server_web/live/notifications_live.ex:234
-#: lib/game_server_web/live/notifications_live.ex:234
-#: lib/game_server_web/live/notifications_live.ex:235
-#: lib/game_server_web/live/notifications_live.ex:235
-#: lib/game_server_web/live/notifications_live.ex:250
-#: lib/game_server_web/live/notifications_live.ex:250
+#: lib/game_server_web/live/notifications_live.ex:201
+#: lib/game_server_web/live/notifications_live.ex:201
+#: lib/game_server_web/live/notifications_live.ex:214
+#: lib/game_server_web/live/notifications_live.ex:214
+#: lib/game_server_web/live/notifications_live.ex:215
+#: lib/game_server_web/live/notifications_live.ex:215
+#: lib/game_server_web/live/notifications_live.ex:222
+#: lib/game_server_web/live/notifications_live.ex:222
+#: lib/game_server_web/live/notifications_live.ex:223
+#: lib/game_server_web/live/notifications_live.ex:223
+#: lib/game_server_web/live/notifications_live.ex:230
+#: lib/game_server_web/live/notifications_live.ex:230
+#: lib/game_server_web/live/notifications_live.ex:231
+#: lib/game_server_web/live/notifications_live.ex:231
+#: lib/game_server_web/live/notifications_live.ex:246
+#: lib/game_server_web/live/notifications_live.ex:246
 #, elixir-autogen, elixir-format
 msgid "Open"
 msgstr "Deschide"
