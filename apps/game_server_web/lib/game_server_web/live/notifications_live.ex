@@ -38,7 +38,6 @@ defmodule GameServerWeb.NotificationsLive do
                 <thead>
                   <tr>
                     <th>{gettext("Title")}</th>
-                    <th>{gettext("Content")}</th>
                     <th>{gettext("From")}</th>
                     <th>{gettext("Date")}</th>
                     <th></th>
@@ -51,9 +50,6 @@ defmodule GameServerWeb.NotificationsLive do
                   >
                     <td class="text-sm">
                       {translate_notification_title(n)}
-                    </td>
-                    <td class="text-sm max-w-xs truncate">
-                      {translate_notification_content(n)}
                     </td>
                     <td class="text-sm">
                       <%= cond do %>
@@ -271,51 +267,12 @@ defmodule GameServerWeb.NotificationsLive do
   # ---------------------------------------------------------------------------
   # Notification display-time translation
   #
-  # Dispatches on metadata["type"] via function heads so each type is a small,
-  # simple clause. Falls back to the DB-stored English strings for unknown
-  # types or missing metadata.
+  # Most notification types now store the full descriptive title in the DB
+  # (e.g. "Alice joined Chess Club"), so we just return n.title directly.
+  # Chat and achievement types still use gettext for translatable patterns.
   # ---------------------------------------------------------------------------
 
   defp translate_notification_title(n), do: title_for_type(n.metadata["type"], n)
-
-  defp title_for_type("friend_request", _n), do: dgettext("notifications", "New Friend Request")
-
-  defp title_for_type("friend_accepted", _n),
-    do: dgettext("notifications", "Friend Request Accepted")
-
-  defp title_for_type("friend_declined", _n),
-    do: dgettext("notifications", "Friend Request Declined")
-
-  defp title_for_type("group_invite", _n), do: dgettext("notifications", "New Group Invite")
-
-  defp title_for_type("group_invite_accepted", _n),
-    do: dgettext("notifications", "Group Invite Accepted")
-
-  defp title_for_type("group_invite_declined", _n),
-    do: dgettext("notifications", "Group Invite Declined")
-
-  defp title_for_type("group_join_request", _n),
-    do: dgettext("notifications", "New Group Join Request")
-
-  defp title_for_type("group_join_approved", _n),
-    do: dgettext("notifications", "Group Join Request Approved")
-
-  defp title_for_type("group_join_declined", _n),
-    do: dgettext("notifications", "Group Join Request Declined")
-
-  defp title_for_type("group_kicked", _n), do: dgettext("notifications", "Removed From Group")
-  defp title_for_type("group_promoted", _n), do: dgettext("notifications", "Promoted To Admin")
-  defp title_for_type("group_demoted", _n), do: dgettext("notifications", "Demoted From Admin")
-  defp title_for_type("party_invite", _n), do: dgettext("notifications", "New Party Invite")
-
-  defp title_for_type("party_invite_accepted", _n),
-    do: dgettext("notifications", "Party Invite Accepted")
-
-  defp title_for_type("party_invite_declined", _n),
-    do: dgettext("notifications", "Party Invite Declined")
-
-  defp title_for_type("party_kicked", _n), do: dgettext("notifications", "Removed From Party")
-  defp title_for_type("lobby_kicked", _n), do: dgettext("notifications", "Removed From Lobby")
 
   defp title_for_type("chat_friend", _n),
     do: dgettext("notifications", "New messages from friends")
@@ -337,55 +294,6 @@ defmodule GameServerWeb.NotificationsLive do
     dgettext("notifications", "New messages from %{name}", name: name)
   end
 
-  defp title_for_type(_unknown, n), do: n.title
-
-  # Content translation — dispatches on type, with message_count special case.
-
-  defp translate_notification_content(%{metadata: %{"message_count" => count}})
-       when is_integer(count),
-       do: "#{count}"
-
-  defp translate_notification_content(n), do: content_for_type(n.metadata["type"], n)
-
-  defp content_for_type("friend_request", _n),
-    do: dgettext("notifications", "You have a new friend request.")
-
-  defp content_for_type("friend_accepted", _n),
-    do: dgettext("notifications", "Your friend request has been accepted.")
-
-  defp content_for_type("friend_declined", _n),
-    do: dgettext("notifications", "Your friend request has been declined.")
-
-  defp content_for_type("party_invite", _n),
-    do: dgettext("notifications", "You have been invited to join a party")
-
-  defp content_for_type("party_kicked", _n),
-    do: dgettext("notifications", "You have been removed from the party")
-
-  defp content_for_type("group_invite", n) do
-    name = n.metadata["group_title"] || ""
-    dgettext("notifications", "You have been invited to join %{name}", name: name)
-  end
-
-  defp content_for_type("group_kicked", n) do
-    name = n.metadata["group_title"] || ""
-    dgettext("notifications", "You have been removed from %{name}", name: name)
-  end
-
-  defp content_for_type("group_promoted", n) do
-    name = n.metadata["group_title"] || ""
-    dgettext("notifications", "You have been promoted to admin in %{name}", name: name)
-  end
-
-  defp content_for_type("group_demoted", n) do
-    name = n.metadata["group_title"] || ""
-    dgettext("notifications", "You have been demoted to member in %{name}", name: name)
-  end
-
-  defp content_for_type("lobby_kicked", n) do
-    name = n.metadata["lobby_title"] || ""
-    dgettext("notifications", "You have been removed from %{name}", name: name)
-  end
-
-  defp content_for_type(_type, n), do: n.content || "-"
+  # All other types: the DB title already contains the full descriptive text
+  defp title_for_type(_type, n), do: n.title
 end

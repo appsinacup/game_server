@@ -41,13 +41,14 @@ defmodule GameServer.Notifications.FriendNotifier do
 
   @impl true
   def handle_info({:friend_created, friendship}, state) do
-    # A new friend request was created: notify the target
+    requester_name = user_display_name(friendship.requester_id)
+
     Notifications.admin_create_notification(
       friendship.requester_id,
       friendship.target_id,
       %{
-        "title" => "New Friend Request",
-        "content" => "You have a new friend request.",
+        "title" => "#{requester_name} sent you a friend request",
+        "content" => "",
         "metadata" => %{"type" => "friend_request", "friendship_id" => friendship.id}
       }
     )
@@ -57,13 +58,14 @@ defmodule GameServer.Notifications.FriendNotifier do
 
   @impl true
   def handle_info({:friend_accepted, friendship}, state) do
-    # Friend request was accepted: notify the requester
+    target_name = user_display_name(friendship.target_id)
+
     Notifications.admin_create_notification(
       friendship.target_id,
       friendship.requester_id,
       %{
-        "title" => "Friend Request Accepted",
-        "content" => "Your friend request has been accepted.",
+        "title" => "#{target_name} accepted your friend request",
+        "content" => "",
         "metadata" => %{"type" => "friend_accepted", "friendship_id" => friendship.id}
       }
     )
@@ -73,11 +75,12 @@ defmodule GameServer.Notifications.FriendNotifier do
 
   @impl true
   def handle_info({:request_cancelled, friendship}, state) do
-    # The requester cancelled their outgoing request: retract the "New Friend Request" notification
+    requester_name = user_display_name(friendship.requester_id)
+
     Notifications.delete_notification_by(
       friendship.requester_id,
       friendship.target_id,
-      "New Friend Request"
+      "#{requester_name} sent you a friend request"
     )
 
     {:noreply, state}
@@ -85,20 +88,21 @@ defmodule GameServer.Notifications.FriendNotifier do
 
   @impl true
   def handle_info({:friend_rejected, friendship}, state) do
-    # Friend request was rejected: retract the "New Friend Request" notification
-    # and notify the requester
+    requester_name = user_display_name(friendship.requester_id)
+    target_name = user_display_name(friendship.target_id)
+
     Notifications.delete_notification_by(
       friendship.requester_id,
       friendship.target_id,
-      "New Friend Request"
+      "#{requester_name} sent you a friend request"
     )
 
     Notifications.admin_create_notification(
       friendship.target_id,
       friendship.requester_id,
       %{
-        "title" => "Friend Request Declined",
-        "content" => "Your friend request has been declined.",
+        "title" => "#{target_name} declined your friend request",
+        "content" => "",
         "metadata" => %{"type" => "friend_declined", "friendship_id" => friendship.id}
       }
     )
@@ -110,5 +114,12 @@ defmodule GameServer.Notifications.FriendNotifier do
   @impl true
   def handle_info(_msg, state) do
     {:noreply, state}
+  end
+
+  defp user_display_name(user_id) do
+    case GameServer.Accounts.get_user(user_id) do
+      %{display_name: name} when is_binary(name) and name != "" -> name
+      _ -> "User ##{user_id}"
+    end
   end
 end

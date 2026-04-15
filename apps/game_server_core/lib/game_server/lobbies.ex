@@ -1163,8 +1163,8 @@ defmodule GameServer.Lobbies do
               host_id,
               membership.id,
               %{
-                "title" => "Removed From Lobby",
-                "content" => "You have been removed from #{lobby_title}",
+                "title" => "Removed from #{lobby_title}",
+                "content" => "",
                 "metadata" => %{
                   "type" => "lobby_kicked",
                   "lobby_id" => lobby.id,

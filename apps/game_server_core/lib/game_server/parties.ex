@@ -344,8 +344,8 @@ defmodule GameServer.Parties do
         {:ok, invite} ->
           # Send an informational notification (independent of the invite record)
           GameServer.Notifications.admin_create_notification(leader.id, target_user_id, %{
-            "title" => "New Party Invite",
-            "content" => "You have been invited to join a party",
+            "title" => "Party invite from #{leader.display_name || ""}",
+            "content" => "",
             "metadata" => %{
               "type" => "party_invite",
               "party_id" => party.id,
@@ -407,10 +407,12 @@ defmodule GameServer.Parties do
       # a spurious party_invite_cancelled event to the recipient even when no
       # prior invite existed.
       if deleted_count > 0 do
+        leader_name = leader.display_name || ""
+
         GameServer.Notifications.delete_notification_by(
           leader.id,
           target_user_id,
-          "New Party Invite"
+          "Party invite from #{leader_name}"
         )
 
         Phoenix.PubSub.broadcast(
@@ -488,10 +490,13 @@ defmodule GameServer.Parties do
     invalidate_party_invite_cache(invite.sender_id)
 
     # Retract the original invite notification
+    sender = GameServer.Accounts.get_user(invite.sender_id)
+    sender_name = (sender && sender.display_name) || ""
+
     GameServer.Notifications.delete_notification_by(
       invite.sender_id,
       user.id,
-      "New Party Invite"
+      "Party invite from #{sender_name}"
     )
 
     # Notify the sender that the invite was declined because the party is full
@@ -499,8 +504,8 @@ defmodule GameServer.Parties do
       user.id,
       invite.sender_id,
       %{
-        "title" => "Party Invite Declined",
-        "content" => "#{user_name} could not join — the party is full",
+        "title" => "#{user_name} couldn't join — party full",
+        "content" => "",
         "metadata" => %{
           "type" => "party_invite_declined",
           "party_id" => party_id,
@@ -548,11 +553,14 @@ defmodule GameServer.Parties do
     # Cancel pending invites to this user from OTHER parties
     cancel_other_pending_invites_for_user(user.id, party_id)
 
-    # Retract the "New Party Invite" notification for the accepting user
+    # Retract the invite notification for the accepting user
+    sender = GameServer.Accounts.get_user(invite.sender_id)
+    sender_name = (sender && sender.display_name) || ""
+
     GameServer.Notifications.delete_notification_by(
       invite.sender_id,
       user.id,
-      "New Party Invite"
+      "Party invite from #{sender_name}"
     )
 
     # Notify the leader that the invite was accepted
@@ -562,8 +570,8 @@ defmodule GameServer.Parties do
       user.id,
       invite.sender_id,
       %{
-        "title" => "Party Invite Accepted",
-        "content" => "#{user_name} accepted your party invite",
+        "title" => "#{user_name} joined your party",
+        "content" => "",
         "metadata" => %{
           "type" => "party_invite_accepted",
           "party_id" => party_id,
@@ -618,11 +626,14 @@ defmodule GameServer.Parties do
     user_name = user.display_name || ""
 
     Enum.each(sender_ids, fn sender_id ->
-      # Retract the "New Party Invite" notification
+      # Retract the invite notification
+      sender = GameServer.Accounts.get_user(sender_id)
+      sender_name = (sender && sender.display_name) || ""
+
       GameServer.Notifications.delete_notification_by(
         sender_id,
         user.id,
-        "New Party Invite"
+        "Party invite from #{sender_name}"
       )
 
       # Notify the leader that the invite was declined
@@ -630,8 +641,8 @@ defmodule GameServer.Parties do
         user.id,
         sender_id,
         %{
-          "title" => "Party Invite Declined",
-          "content" => "#{user_name} declined your party invite",
+          "title" => "#{user_name} declined your party invite",
+          "content" => "",
           "metadata" => %{
             "type" => "party_invite_declined",
             "party_id" => party_id,
@@ -961,8 +972,8 @@ defmodule GameServer.Parties do
           party.leader_id,
           target.id,
           %{
-            "title" => "Removed From Party",
-            "content" => "You have been removed from the party",
+            "title" => "Removed from party",
+            "content" => "",
             "metadata" => %{
               "type" => "party_kicked",
               "party_id" => party.id

@@ -487,7 +487,7 @@ defmodule GameServer.GroupsTest do
       # invite_to_group now returns a GroupInvite struct;
       # verify the informational notification was also created
       notifications =
-        GameServer.Notifications.list_notifications_by_title(other.id, "New Group Invite")
+        GameServer.Notifications.list_notifications_by_title(other.id, "Invited to MetaGrp")
 
       assert length(notifications) == 1
       notification = hd(notifications)

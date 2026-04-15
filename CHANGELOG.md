@@ -1,5 +1,7 @@
 # April 2026
 
+- [changed] **Notification titles now include full context**: system notification titles contain all relevant info (user names, group/lobby/party names) instead of generic labels. The separate content/subtitle field is no longer used for system notifications. The notifications LiveView table no longer displays the Content column.
+
 - [added] **Browser theme color**: new `theme_color` field in theme JSON config tints the browser chrome (address bar / tab bar) in Safari and Chrome. Supports a single color string or separate light/dark variants.
 - [added] **Dynamic sitemap.xml**: auto-generated sitemap listing all public pages and blog posts for search engine discovery.
 - [added] **Comprehensive robots.txt**: blocks AI crawlers (GPTBot, ClaudeBot, CCBot, etc.), aggressive SEO bots, and restricts search engines to public pages only.

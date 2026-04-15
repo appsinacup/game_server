@@ -205,7 +205,7 @@ defmodule GameServer.Chat do
 
         Notifications.create_chat_notification(recipient_id, recipient_id, %{
           "title" => "New messages from friends",
-          "content" => "1 new message",
+          "content" => "",
           "metadata" => %{"type" => "chat_friend", "chat_type" => "friend"}
         })
 
@@ -220,7 +220,7 @@ defmodule GameServer.Chat do
           # Use recipient's own ID as sender_id so upsert groups all group messages together
           Notifications.create_chat_notification(member.user_id, member.user_id, %{
             "title" => "New messages from #{group_name}",
-            "content" => "1 new message",
+            "content" => "",
             "metadata" => %{
               "type" => "chat_group",
               "chat_type" => "group",
@@ -239,7 +239,7 @@ defmodule GameServer.Chat do
           # Consolidated: one notification per recipient per lobby
           Notifications.create_chat_notification(user.id, user.id, %{
             "title" => "New messages from #{lobby_name}",
-            "content" => "1 new message",
+            "content" => "",
             "metadata" => %{
               "type" => "chat_lobby",
               "chat_type" => "lobby",
@@ -268,7 +268,7 @@ defmodule GameServer.Chat do
     for member <- members, member.id != message.sender_id do
       Notifications.create_chat_notification(member.id, member.id, %{
         "title" => "New message in party",
-        "content" => "1 new message",
+        "content" => "",
         "metadata" => %{
           "type" => "chat_party",
           "chat_type" => "party",
