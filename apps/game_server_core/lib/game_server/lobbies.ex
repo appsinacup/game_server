@@ -990,6 +990,10 @@ defmodule GameServer.Lobbies do
       {:error, reason} ->
         {:error, {:hook_rejected, reason}}
     end
+  rescue
+    Ecto.StaleEntryError ->
+      # Race condition: user was concurrently removed (double leave, kicked, etc.)
+      {:error, :not_in_lobby}
   end
 
   defp handle_host_transfer(lobby, user_id, membership_id) do
@@ -1005,13 +1009,13 @@ defmodule GameServer.Lobbies do
 
       case remaining do
         [%GameServer.Accounts.User{id: new_host_id} | _] ->
-          _ = Repo.update!(Ecto.Changeset.change(lobby, %{host_id: new_host_id}))
+          _ = Repo.update(Ecto.Changeset.change(lobby, %{host_id: new_host_id}))
           _ = invalidate_lobby_cache(lobby.id)
           {:host_changed, new_host_id}
 
         [] ->
           # no members left - delete lobby
-          _ = Repo.delete!(lobby)
+          _ = Repo.delete(lobby)
           _ = invalidate_lobby_cache(lobby.id)
           :lobby_deleted
       end

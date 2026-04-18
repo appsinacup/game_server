@@ -886,16 +886,16 @@ defmodule GameServer.Groups do
         |> Repo.one()
 
       if next_member do
-        next_member
-        |> Ecto.Changeset.change(%{role: "admin"})
-        |> Repo.update!()
+        case next_member |> Ecto.Changeset.change(%{role: "admin"}) |> Repo.update() do
+          {:ok, _} -> :ok
+          {:error, _} -> :ok
+        end
 
         # Transfer creator_id if the leaving user is the group creator
         case Repo.get(Group, group_id) do
           %Group{creator_id: ^user_id} = group ->
-            group
-            |> Ecto.Changeset.change(%{creator_id: next_member.user_id})
-            |> Repo.update!()
+            _ =
+              group |> Ecto.Changeset.change(%{creator_id: next_member.user_id}) |> Repo.update()
 
           _ ->
             :ok
@@ -924,9 +924,7 @@ defmodule GameServer.Groups do
             |> Repo.one()
 
           if next_admin do
-            group
-            |> Ecto.Changeset.change(%{creator_id: next_admin.user_id})
-            |> Repo.update!()
+            _ = group |> Ecto.Changeset.change(%{creator_id: next_admin.user_id}) |> Repo.update()
           end
 
         _ ->

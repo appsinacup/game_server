@@ -1455,6 +1455,10 @@ defmodule GameServer.Parties do
       {:error, reason} ->
         {:error, reason}
     end
+  rescue
+    Ecto.StaleEntryError ->
+      # Race condition: party was concurrently disbanded by another operation
+      {:ok, :disbanded}
   end
 
   defp remove_member(%User{} = user, party_id) do
