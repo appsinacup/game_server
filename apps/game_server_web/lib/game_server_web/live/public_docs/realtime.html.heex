@@ -89,7 +89,6 @@
                                         chat_message_updated,
                                         chat_message_deleted,
                                         achievement_unlocked,
-                                        achievement_progress,
                                         group_invite_accepted,
                                         group_invite_cancelled,
                                         group_join_approved,
@@ -200,13 +199,6 @@
             <tr>
               <td class="font-mono">achievement_unlocked</td>
               <td>{doc_text("Achievement fully unlocked")}</td>
-              <td class="font-mono" phx-no-curly-interpolation>
-                {id, user_id, achievement_id, progress, unlocked_at, metadata, inserted_at, updated_at}
-              </td>
-            </tr>
-            <tr>
-              <td class="font-mono">achievement_progress</td>
-              <td>{doc_text("Progress incremented toward an achievement")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
                 {id, user_id, achievement_id, progress, unlocked_at, metadata, inserted_at, updated_at}
               </td>

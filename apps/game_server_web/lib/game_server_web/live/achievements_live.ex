@@ -80,10 +80,6 @@ defmodule GameServerWeb.AchievementsLive do
     {:noreply, load_achievements(socket)}
   end
 
-  def handle_info({:achievement_progress, _ua}, socket) do
-    {:noreply, load_achievements(socket)}
-  end
-
   def handle_info({:achievements_changed}, socket) do
     {:noreply, load_achievements(socket)}
   end

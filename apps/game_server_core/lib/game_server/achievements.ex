@@ -78,13 +78,6 @@ defmodule GameServer.Achievements do
     })
   end
 
-  defp broadcast_achievement_progress(user_id, user_achievement) do
-    Phoenix.PubSub.broadcast(@pubsub, "user:#{user_id}", {
-      :achievement_progress,
-      user_achievement
-    })
-  end
-
   defp broadcast_achievement_change do
     invalidate_achievements_cache()
     Phoenix.PubSub.broadcast(@pubsub, "achievements", {:achievements_changed})
@@ -599,8 +592,6 @@ defmodule GameServer.Achievements do
       [updated_ua] ->
         if updated_ua.unlocked_at do
           on_unlock(user_id, updated_ua, achievement)
-        else
-          broadcast_achievement_progress(user_id, updated_ua)
         end
 
         {:ok, updated_ua}

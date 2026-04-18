@@ -310,12 +310,6 @@ defmodule GameServerWeb.UserChannel do
     {:noreply, socket}
   end
 
-  @impl true
-  def handle_info({:achievement_progress, user_achievement}, socket) do
-    push(socket, "achievement_progress", serialize_user_achievement(user_achievement))
-    {:noreply, socket}
-  end
-
   # ── WebRTC peer messages ────────────────────────────────────────────────────
 
   @impl true

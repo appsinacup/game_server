@@ -78,7 +78,6 @@ signal group_chat_message_deleted(payload: Dictionary)
 
 ## Achievement events
 signal achievement_unlocked(user_achievement: Dictionary)  ## achievement fully unlocked
-signal achievement_progress(user_achievement: Dictionary)  ## progress incremented toward an achievement
 
 ## Groups collection events (group browser)
 signal group_created(group: Dictionary)   ## new group created (excludes hidden)
@@ -389,8 +388,6 @@ func _handle_user_event(event: String, payload: Dictionary):
 			friend_rejected.emit(payload)
 		"achievement_unlocked":
 			achievement_unlocked.emit(payload)
-		"achievement_progress":
-			achievement_progress.emit(payload)
 
 func _handle_lobby_event(event: String, payload: Dictionary):
 	match event:
