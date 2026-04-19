@@ -1,6 +1,8 @@
 # April 2026
 
 - [changed] **Notification titles now include full context**: system notification titles contain all relevant info (user names, group/lobby/party names) instead of generic labels. The separate content/subtitle field is no longer used for system notifications. The notifications LiveView table no longer displays the Content column.
+- [added] **CI/CD Hex publish**: the existing `publish-hex` job in `build-and-check.yml` now also publishes `game_server_core` and `game_server_web` to Hex.pm on main branch pushes.
+- [changed] Include `priv/` in Hex package files for both core (migrations) and web (static assets, translations).
 
 - [added] **Browser theme color**: new `theme_color` field in theme JSON config tints the browser chrome (address bar / tab bar) in Safari and Chrome. Supports a single color string or separate light/dark variants.
 - [added] **Dynamic sitemap.xml**: auto-generated sitemap listing all public pages and blog posts for search engine discovery.

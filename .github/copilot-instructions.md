@@ -30,9 +30,7 @@ Routing is host-controlled without making `game_server_web` depend on `game_serv
 Fork guidance:
 
 - Add/remove routes by editing `apps/game_server_host/lib/game_server_host/router.ex`.
-- If you *remove* upstream routes but the upstream UI still uses route helpers (`~p"..."`) pointing at `GameServerWeb.Router`, you can end up generating links for routes that the host no longer serves. If you want strict route removal, forks should adjust the UI accordingly (or provide replacement routes that match the UI’s expectations).
-
-### Phoenix v1.8 guidelines
+- If you *remove* upstream routes but the upstream UI still uses route helpers (`~p"..."`) pointing at `GameServerWeb.Router`, you can end up generating links for routes that the host no longer serves. If you want strict route removal, forks should adjust the UI accordingly (or provide replacement routes that match the UI’s expectations).### Phoenix v1.8 guidelines
 
 - **Always** begin your LiveView templates with `<Layouts.app flash={@flash} ...>` which wraps all inner content
 - The `MyAppWeb.Layouts` module is aliased in the `my_app_web.ex` file, so you can use it without needing to alias it again

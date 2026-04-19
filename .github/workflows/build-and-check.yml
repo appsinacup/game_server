@@ -447,6 +447,30 @@ jobs:
           mix deps.get
           mix hex.publish --yes 2>&1 || echo "⚠️ game_server_plugin_tools: already published or failed"
 
+      - name: Rewrite in_umbrella deps and stamp version for core/web
+        run: |
+          sed -i "s|{:game_server_core, in_umbrella: true}|{:game_server_core, \"~> 1.0\"}|g" \
+            apps/game_server_web/mix.exs
+          sed -i "s|@version \"[^\"]*\"|@version \"${APP_VERSION}\"|g" \
+            apps/game_server_core/mix.exs \
+            apps/game_server_web/mix.exs
+
+      - name: Publish game_server_core
+        working-directory: apps/game_server_core
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+          mix deps.get
+          mix hex.publish --yes 2>&1 || echo "⚠️ game_server_core: already published or failed"
+
+      - name: Publish game_server_web
+        working-directory: apps/game_server_web
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+          mix deps.get
+          mix hex.publish --yes 2>&1 || echo "⚠️ game_server_web: already published or failed"
+
   docs:
     runs-on: ubuntu-latest
 
