@@ -35,11 +35,22 @@ defmodule GameServerWeb.Endpoint do
   # Ensure certain well-known files are handled with strict headers before
   # Plug.Static decides how to serve them (files without extensions need
   # special handling for content-type and compression).
-  plug GameServerWeb.Plugs.WellKnown
+  plug GameServerHost.Plugs.WellKnown
 
   # Add COOP/COEP headers for Godot 4 web exports (SharedArrayBuffer)
   plug GameServerWeb.Plugs.GameHeaders
 
+  # Serve host-owned static files (branding, game exports, robots.txt, .well-known)
+  # directly from the host app.
+  plug Plug.Static,
+    at: "/",
+    from: :game_server_host,
+    gzip: not code_reloading?,
+    only: ~w(images game favicon.ico robots.txt .well-known),
+    cache_control_for_etags: "public, max-age=604800",
+    cache_control_for_vsn_requests: "public, max-age=31536000, immutable"
+
+  # Serve UI library static files (compiled JS/CSS, fonts) from game_server_web.
   plug Plug.Static,
     at: "/",
     from: :game_server_web,
@@ -49,7 +60,7 @@ defmodule GameServerWeb.Endpoint do
     cache_control_for_vsn_requests: "public, max-age=31536000, immutable"
 
   # Serve blog/changelog images early, before the code-reloader
-  # and session/CSRF plugs.  This prevents concurrent image requests
+  # and session/CSRF plugs. This prevents concurrent image requests
   # from being serialized in dev mode.
   plug GameServerWeb.Plugs.ContentStatic
 
@@ -99,26 +110,7 @@ defmodule GameServerWeb.Endpoint do
 
   plug GameServerWeb.Plugs.RateLimiter
 
-  plug :dispatch_router
-
-  # Cache the router + compiled init opts in persistent_term to avoid
-  # calling router.init([]) on every single request.
-  @router_pt_key {__MODULE__, :dispatch_router}
-  defp dispatch_router(conn, _opts) do
-    {router, init_opts} =
-      case :persistent_term.get(@router_pt_key, nil) do
-        nil ->
-          router = Application.get_env(:game_server_web, :router, GameServerWeb.Router)
-          opts = router.init([])
-          :persistent_term.put(@router_pt_key, {router, opts})
-          {router, opts}
-
-        cached ->
-          cached
-      end
-
-    router.call(conn, init_opts)
-  end
+  plug GameServerHost.Router
 
   # Cache the access log level in persistent_term to avoid
   # Application.get_env on every request.

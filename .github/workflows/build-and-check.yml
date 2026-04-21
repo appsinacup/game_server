@@ -451,6 +451,9 @@ jobs:
         run: |
           sed -i "s|{:game_server_core, in_umbrella: true}|{:game_server_core, \"~> 1.0\"}|g" \
             apps/game_server_web/mix.exs
+          # Remove heroicons GitHub dep for Hex packaging (Hex only allows Hex deps).
+          # Host/consumer apps must provide icon CSS generation for `hero-*` classes.
+          sed -i '/{:heroicons/,/depth: 1}/d' apps/game_server_web/mix.exs
           sed -i "s|@version \"[^\"]*\"|@version \"${APP_VERSION}\"|g" \
             apps/game_server_core/mix.exs \
             apps/game_server_web/mix.exs

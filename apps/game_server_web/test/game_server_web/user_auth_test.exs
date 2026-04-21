@@ -14,7 +14,7 @@ defmodule GameServerWeb.UserAuthTest do
   setup %{conn: conn} do
     conn =
       conn
-      |> Map.replace!(:secret_key_base, GameServerWeb.Endpoint.config(:secret_key_base))
+      |> Map.replace!(:secret_key_base, GameServerWeb.endpoint().config(:secret_key_base))
       |> init_test_session(%{})
 
     %{user: %{user_fixture() | authenticated_at: DateTime.utc_now(:second)}, conn: conn}
@@ -243,7 +243,7 @@ defmodule GameServerWeb.UserAuthTest do
       conn =
         conn
         |> recycle()
-        |> Map.replace!(:secret_key_base, GameServerWeb.Endpoint.config(:secret_key_base))
+        |> Map.replace!(:secret_key_base, GameServerWeb.endpoint().config(:secret_key_base))
         |> fetch_cookies()
         |> init_test_session(%{user_remember_me: true})
 
@@ -278,7 +278,7 @@ defmodule GameServerWeb.UserAuthTest do
 
     test "broadcasts to the given live_socket_id", %{conn: conn} do
       live_socket_id = "users_sessions:abcdef-token"
-      GameServerWeb.Endpoint.subscribe(live_socket_id)
+      GameServerWeb.endpoint().subscribe(live_socket_id)
 
       conn
       |> put_session(:live_socket_id, live_socket_id)
@@ -523,7 +523,7 @@ defmodule GameServerWeb.UserAuthTest do
       tokens = [%{token: "token1"}, %{token: "token2"}]
 
       for %{token: token} <- tokens do
-        GameServerWeb.Endpoint.subscribe("users_sessions:#{Base.url_encode64(token)}")
+        GameServerWeb.endpoint().subscribe("users_sessions:#{Base.url_encode64(token)}")
       end
 
       UserAuth.disconnect_sessions(tokens)

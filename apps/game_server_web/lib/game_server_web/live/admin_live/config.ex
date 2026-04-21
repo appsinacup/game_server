@@ -1598,7 +1598,7 @@ defmodule GameServerWeb.AdminLive.Config do
         Application.get_env(:game_server_web, GameServerWeb.Endpoint)[:live_reload] != nil,
       log_level: Logger.level(),
       log_level_env: System.get_env("LOG_LEVEL"),
-      access_log_level: GameServerWeb.Endpoint.access_log_level(nil),
+      access_log_level: GameServerWeb.endpoint().access_log_level(nil),
       access_log_level_env: System.get_env("ACCESS_LOG_LEVEL"),
       release_distribution_env: System.get_env("RELEASE_DISTRIBUTION"),
       release_node_env: System.get_env("RELEASE_NODE"),

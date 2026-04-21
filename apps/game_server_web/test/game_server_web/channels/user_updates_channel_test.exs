@@ -72,7 +72,7 @@ defmodule GameServerWeb.UserChannelTest do
 
     payload = %{id: user.id, metadata: %{"display_name" => "Updated"}}
 
-    GameServerWeb.Endpoint.broadcast("user:#{user.id}", "updated", payload)
+    GameServerWeb.endpoint().broadcast("user:#{user.id}", "updated", payload)
 
     # The test process receives the push
     assert_push "updated", ^payload

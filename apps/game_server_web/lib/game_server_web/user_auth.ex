@@ -68,7 +68,7 @@ defmodule GameServerWeb.UserAuth do
     user_token && Accounts.delete_user_session_token(user_token)
 
     if live_socket_id = get_session(conn, :live_socket_id) do
-      GameServerWeb.Endpoint.broadcast(live_socket_id, "disconnect", %{})
+      GameServerWeb.endpoint().broadcast(live_socket_id, "disconnect", %{})
     end
 
     conn
@@ -195,7 +195,7 @@ defmodule GameServerWeb.UserAuth do
   """
   def disconnect_sessions(tokens) do
     Enum.each(tokens, fn %{token: token} ->
-      GameServerWeb.Endpoint.broadcast(user_session_topic(token), "disconnect", %{})
+      GameServerWeb.endpoint().broadcast(user_session_topic(token), "disconnect", %{})
     end)
   end
 

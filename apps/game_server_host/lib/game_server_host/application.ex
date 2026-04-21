@@ -12,10 +12,6 @@ defmodule GameServerHost.Application do
   def start(_type, _args) do
     Application.start(:os_mon)
 
-    # Host-owned extension point:
-    # tell the endpoint which router to dispatch to at runtime.
-    Application.put_env(:game_server_web, :router, GameServerHost.Router, persistent: true)
-
     # Initialize ETS table for Schedule callbacks (before Scheduler starts)
     GameServer.Schedule.start_link()
 

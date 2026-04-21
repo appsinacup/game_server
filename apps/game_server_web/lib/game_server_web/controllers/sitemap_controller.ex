@@ -24,7 +24,7 @@ defmodule GameServerWeb.SitemapController do
   ]
 
   def index(conn, _params) do
-    base_url = GameServerWeb.Endpoint.url()
+    base_url = GameServerWeb.endpoint().url()
     blog_posts = Content.list_blog_posts()
 
     urls =

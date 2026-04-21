@@ -21,7 +21,16 @@ defmodule GameServerWeb do
   # Adding ".well-known" allows hosting files like
   # /.well-known/apple-app-site-association from priv/static/.well-known
   # so they can be placed/replaced at build time.
-  def static_paths, do: ~w(assets fonts images game favicon.ico robots.txt .well-known)
+  # Resolve the endpoint module at runtime so game_server_web can compile
+  # before the runnable host app provides the GameServerWeb.Endpoint
+  # implementation.
+  def endpoint,
+    do: Module.concat([GameServerWeb, Endpoint])
+
+  # Only the UI library's own compiled output and fonts.
+  # Host-owned paths (images, game, favicon.ico, robots.txt, .well-known)
+  # are served directly by the host endpoint.
+  def static_paths, do: ~w(assets fonts)
 
   def router do
     quote do

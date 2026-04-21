@@ -33,7 +33,7 @@ defmodule GameServerWeb.LobbyChannelTest do
 
     payload = %{event: "hello", message: "hi"}
 
-    GameServerWeb.Endpoint.broadcast("lobby:#{lobby.id}", "event", payload)
+    GameServerWeb.endpoint().broadcast("lobby:#{lobby.id}", "event", payload)
 
     assert_push "event", ^payload
   end

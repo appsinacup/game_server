@@ -13,3 +13,37 @@ def deps do
   ]
 end
 ```
+
+The package includes `priv/gettext` (translations), `priv/static/fonts` (Inter woff2), `priv/static/images` (logos/banners), `priv/static/.well-known` (app association examples), `robots.txt`, and `favicon.ico`. Compiled JS/CSS (`priv/static/assets/`) and game assets (`priv/static/game/`) are excluded — host apps compile their own assets.
+
+## Icons when consuming from Hex
+
+`game_server_web` templates use `<.icon name="hero-..." />`, which renders CSS classes like `hero-x-mark`.
+
+When publishing to Hex, CI strips the GitHub `:heroicons` dependency from the package metadata (Hex only accepts Hex deps), so host apps should provide icon generation themselves.
+
+Recommended setup in your host app:
+
+1. Add Heroicons to host deps:
+
+```elixir
+{:heroicons,
+ github: "tailwindlabs/heroicons",
+ tag: "v2.2.0",
+ sparse: "optimized",
+ app: false,
+ compile: false,
+ depth: 1}
+```
+
+2. Ensure your Tailwind CSS includes the Heroicons plugin (for `hero-*` classes), for example in `assets/css/app.css`:
+
+```css
+@plugin "../vendor/heroicons";
+```
+
+3. Keep a `vendor/heroicons.js` plugin in your host app that reads from `deps/heroicons/optimized`.
+
+If you want your own icon set, keep compatibility by either:
+- providing CSS for the same `hero-*` class names used by templates, or
+- replacing icon names/component usage in your fork.

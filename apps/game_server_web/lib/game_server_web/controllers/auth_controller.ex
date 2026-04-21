@@ -314,7 +314,7 @@ defmodule GameServerWeb.AuthController do
   def request(conn, %{"provider" => "discord"}) do
     cfg = Application.get_env(:ueberauth, Ueberauth.Strategy.Discord.OAuth, [])
     client_id = cfg[:client_id] || System.get_env("DISCORD_CLIENT_ID")
-    base = GameServerWeb.Endpoint.url()
+    base = GameServerWeb.endpoint().url()
     redirect_uri = cfg[:redirect_uri] || "#{base}/auth/discord/callback"
     scope = "identify email"
     {conn, state} = put_oauth_state(conn)
@@ -332,7 +332,7 @@ defmodule GameServerWeb.AuthController do
   def request(conn, %{"provider" => "google"}) do
     cfg = Application.get_env(:ueberauth, Ueberauth.Strategy.Google.OAuth, [])
     client_id = cfg[:client_id] || System.get_env("GOOGLE_CLIENT_ID")
-    base = GameServerWeb.Endpoint.url()
+    base = GameServerWeb.endpoint().url()
     redirect_uri = cfg[:redirect_uri] || "#{base}/auth/google/callback"
     scope = "email profile"
     {conn, state} = put_oauth_state(conn)
@@ -346,7 +346,7 @@ defmodule GameServerWeb.AuthController do
   def request(conn, %{"provider" => "facebook"}) do
     cfg = Application.get_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth, [])
     client_id = cfg[:client_id] || System.get_env("FACEBOOK_CLIENT_ID")
-    base = GameServerWeb.Endpoint.url()
+    base = GameServerWeb.endpoint().url()
     redirect_uri = cfg[:redirect_uri] || "#{base}/auth/facebook/callback"
     scope = "email"
     {conn, state} = put_oauth_state(conn)
@@ -363,7 +363,7 @@ defmodule GameServerWeb.AuthController do
     client_id =
       cfg[:client_id] || System.get_env("APPLE_WEB_CLIENT_ID")
 
-    base = GameServerWeb.Endpoint.url()
+    base = GameServerWeb.endpoint().url()
     redirect_uri = cfg[:redirect_uri] || "#{base}/auth/apple/callback"
     scope = "name email"
     {conn, state} = put_oauth_state(conn)
@@ -443,7 +443,7 @@ defmodule GameServerWeb.AuthController do
 
     client_id = System.get_env("DISCORD_CLIENT_ID")
     secret = System.get_env("DISCORD_CLIENT_SECRET")
-    base = GameServerWeb.Endpoint.url()
+    base = GameServerWeb.endpoint().url()
     redirect_uri = "#{base}/auth/discord/callback"
 
     case exchanger.exchange_discord_code(code, client_id, secret, redirect_uri) do
@@ -501,7 +501,7 @@ defmodule GameServerWeb.AuthController do
 
     client_id = System.get_env("GOOGLE_CLIENT_ID")
     secret = System.get_env("GOOGLE_CLIENT_SECRET")
-    base = GameServerWeb.Endpoint.url()
+    base = GameServerWeb.endpoint().url()
     redirect_uri = "#{base}/auth/google/callback"
 
     case exchanger.exchange_google_code(code, client_id, secret, redirect_uri) do
@@ -554,7 +554,7 @@ defmodule GameServerWeb.AuthController do
 
     client_id = System.get_env("FACEBOOK_CLIENT_ID")
     secret = System.get_env("FACEBOOK_CLIENT_SECRET")
-    base = GameServerWeb.Endpoint.url()
+    base = GameServerWeb.endpoint().url()
     redirect_uri = "#{base}/auth/facebook/callback"
 
     case exchanger.exchange_facebook_code(code, client_id, secret, redirect_uri) do
@@ -624,7 +624,7 @@ defmodule GameServerWeb.AuthController do
           nil
       end
 
-    base = GameServerWeb.Endpoint.url()
+    base = GameServerWeb.endpoint().url()
     redirect_uri = "#{base}/auth/apple/callback"
 
     case exchanger.exchange_apple_code(code, client_id, client_secret, redirect_uri) do
@@ -839,7 +839,7 @@ defmodule GameServerWeb.AuthController do
 
     # Generate the Discord OAuth URL with state parameter
     client_id = System.get_env("DISCORD_CLIENT_ID")
-    base = GameServerWeb.Endpoint.url()
+    base = GameServerWeb.endpoint().url()
     redirect_uri = "#{base}/auth/discord/callback"
     scope = "identify email"
 
@@ -855,7 +855,7 @@ defmodule GameServerWeb.AuthController do
 
     # Generate the Apple OAuth URL
     client_id = System.get_env("APPLE_WEB_CLIENT_ID")
-    base = GameServerWeb.Endpoint.url()
+    base = GameServerWeb.endpoint().url()
     redirect_uri = "#{base}/auth/apple/callback"
     scope = "name email"
 
@@ -871,7 +871,7 @@ defmodule GameServerWeb.AuthController do
 
     # Generate the Google OAuth URL
     client_id = System.get_env("GOOGLE_CLIENT_ID")
-    base = GameServerWeb.Endpoint.url()
+    base = GameServerWeb.endpoint().url()
     redirect_uri = "#{base}/auth/google/callback"
     scope = "email profile"
 
@@ -887,7 +887,7 @@ defmodule GameServerWeb.AuthController do
 
     # Generate the Facebook OAuth URL
     client_id = System.get_env("FACEBOOK_CLIENT_ID")
-    base = GameServerWeb.Endpoint.url()
+    base = GameServerWeb.endpoint().url()
     redirect_uri = "#{base}/auth/facebook/callback"
     scope = "email"
 
@@ -901,7 +901,7 @@ defmodule GameServerWeb.AuthController do
     # Create session (with optional link_user_id if JWT is present)
     session_id = create_api_oauth_session(conn, "steam")
 
-    base = GameServerWeb.Endpoint.url()
+    base = GameServerWeb.endpoint().url()
 
     # For Steam OpenID, include the session_id in the return_to callback so
     # the callback handler can treat this as an API/session flow when the
@@ -1026,7 +1026,7 @@ defmodule GameServerWeb.AuthController do
 
     client_id = System.get_env("DISCORD_CLIENT_ID")
     secret = System.get_env("DISCORD_CLIENT_SECRET")
-    base = GameServerWeb.Endpoint.url()
+    base = GameServerWeb.endpoint().url()
     redirect_uri = "#{base}/auth/discord/callback"
 
     case exchanger.exchange_discord_code(code, client_id, secret, redirect_uri) do
@@ -1079,7 +1079,7 @@ defmodule GameServerWeb.AuthController do
 
     client_id = System.get_env("GOOGLE_CLIENT_ID")
     secret = System.get_env("GOOGLE_CLIENT_SECRET")
-    base = GameServerWeb.Endpoint.url()
+    base = GameServerWeb.endpoint().url()
     redirect_uri = "#{base}/auth/google/callback"
 
     case exchanger.exchange_google_code(code, client_id, secret, redirect_uri) do
@@ -1120,7 +1120,7 @@ defmodule GameServerWeb.AuthController do
 
     client_id = System.get_env("FACEBOOK_CLIENT_ID")
     secret = System.get_env("FACEBOOK_CLIENT_SECRET")
-    base = GameServerWeb.Endpoint.url()
+    base = GameServerWeb.endpoint().url()
     redirect_uri = "#{base}/auth/facebook/callback"
 
     case exchanger.exchange_facebook_code(code, client_id, secret, redirect_uri) do
@@ -1176,7 +1176,7 @@ defmodule GameServerWeb.AuthController do
           nil
       end
 
-    base = GameServerWeb.Endpoint.url()
+    base = GameServerWeb.endpoint().url()
     redirect_uri = "#{base}/auth/apple/callback"
 
     case exchanger.exchange_apple_code(code, client_id, client_secret, redirect_uri) do
@@ -1322,7 +1322,7 @@ defmodule GameServerWeb.AuthController do
           nil
       end
 
-    base = GameServerWeb.Endpoint.url()
+    base = GameServerWeb.endpoint().url()
     redirect_uri = "#{base}/auth/apple/callback"
 
     case exchanger.exchange_apple_code(code, client_id, client_secret, redirect_uri) do

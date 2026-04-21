@@ -54,13 +54,11 @@ defmodule GameServerWeb.MixProject do
       {:phoenix_live_dashboard, "~> 0.8.3"},
       {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.3", runtime: Mix.env() == :dev},
-      {:heroicons,
-       github: "tailwindlabs/heroicons",
-       tag: "v2.2.0",
-       sparse: "optimized",
-       app: false,
-       compile: false,
-       depth: 1},
+      # heroicons is intentionally NOT listed here.
+      # It is a GitHub-only dep (not on Hex) so it cannot be declared in a
+      # library that is published to Hex. The host/consumer app must declare
+      # heroicons in its own mix.exs and run `assets.setup` to make the icon
+      # CSS available to the tailwind plugin in assets/vendor/heroicons.
       {:swoosh, "~> 1.20"},
       {:castore, "~> 1.0"},
       {:gen_smtp, "~> 1.0"},
@@ -134,7 +132,8 @@ defmodule GameServerWeb.MixProject do
         "GitHub" => @source_url,
         "Changelog" => "#{@source_url}/blob/main/CHANGELOG.md"
       },
-      files: ~w(lib priv .formatter.exs mix.exs README.md LICENSE)
+      files:
+        ~w(lib priv/gettext priv/static/fonts .formatter.exs mix.exs README.md LICENSE)
     ]
   end
 

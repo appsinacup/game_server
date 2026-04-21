@@ -1,22 +1,20 @@
 defmodule GameServerWeb.WellKnownPlugTest do
   use GameServerWeb.ConnCase, async: true
 
-  @aasa_path "priv/static/.well-known/apple-app-site-association"
-
   setup do
-    # Ensure directory exists and write a known file for the endpoint to serve
-    :ok = File.mkdir_p!(Path.dirname(@aasa_path))
-    File.write!(@aasa_path, "{\"applinks\":{\"apps\":[],\"details\":[]}}")
+    # The host endpoint owns .well-known files directly under game_server_host.
+    host_app = :game_server_host
+    well_known_dir = Path.join(:code.priv_dir(host_app), "static/.well-known")
+    aasa_path = Path.join(well_known_dir, "apple-app-site-association")
+    assetlinks_path = Path.join(well_known_dir, "assetlinks.json")
 
-    # create both known files
-    assetlinks = Path.join(Path.dirname(@aasa_path), "assetlinks.json")
-
-    File.write!(assetlinks, "[{\"f\":1}]")
+    :ok = File.mkdir_p!(well_known_dir)
+    File.write!(aasa_path, "{\"applinks\":{\"apps\":[],\"details\":[]}}")
+    File.write!(assetlinks_path, "[{\"f\":1}]")
 
     on_exit(fn ->
-      # cleanup
-      File.rm(@aasa_path)
-      File.rm(assetlinks)
+      File.rm(aasa_path)
+      File.rm(assetlinks_path)
     end)
 
     :ok

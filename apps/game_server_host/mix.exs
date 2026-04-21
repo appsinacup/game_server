@@ -68,7 +68,17 @@ defmodule GameServerHost.MixProject do
       {:guardian, "~> 2.3"},
       {:ueberauth_steam_strategy, "~> 0.1"},
       {:quantum, "~> 3.5"},
-      {:corsica, "~> 2.0"}
+      {:corsica, "~> 2.0"},
+      # heroicons provides the `hero-*` CSS classes used throughout game_server_web.
+      # Declared here (not in game_server_web) because it's a GitHub dep and
+      # Hex only allows Hex deps in published libraries.
+      {:heroicons,
+       github: "tailwindlabs/heroicons",
+       tag: "v2.2.0",
+       sparse: "optimized",
+       app: false,
+       compile: false,
+       depth: 1}
     ]
   end
 

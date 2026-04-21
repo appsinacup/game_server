@@ -52,8 +52,9 @@
   game_server_core/     # Domain logic (schemas, contexts, migrations)
 <span class="code-comment"># No web dependency. Reusable across hosts.</span>
   game_server_web/      # UI library (controllers, LiveViews, components,
-<span class="code-comment"># channels, endpoint). Does NOT start itself.</span>
-  game_server_host/     # Default runnable host. Starts the supervision tree.
+<span class="code-comment"># channels, reusable plugs). Does NOT start itself.</span>
+  game_server_host/     # Default runnable host. Starts the supervision tree,
+<span class="code-comment"># owns the endpoint implementation and runtime config.</span>
 <span class="code-comment"># Extension point for forks.</span></code></pre>
         </div>
       </div>
@@ -64,20 +65,23 @@
         <div class="ml-8 space-y-3">
           <p class="text-sm text-base-content/80">
             {doc_text(
-              "The endpoint doesn't hardcode a router. Instead, it reads the router module from application config at runtime:"
+              "The host owns the endpoint directly. The endpoint plugs the host router, and the host router lists routes explicitly while referencing controllers and LiveViews from the reusable web app:"
             )}
           </p>
           <pre
             class="bg-base-200 p-4 rounded-lg overflow-x-auto text-xs"
             phx-no-curly-interpolation
-          ><code># GameServerWeb.Endpoint reads this at request time:
-router = Application.get_env(:game_server_web, :router, GameServerWeb.Router)
+          ><code># Endpoint implementation lives in the host app:
+plug MyHost.Router
 
-<span class="code-comment"># The host app sets it at boot:</span>
-Application.put_env(:game_server_web, :router, MyHost.Router, persistent: true)</code></pre>
+<span class="code-comment"># Routes live in the host router and reference reusable web modules:</span>
+scope "/", GameServerWeb do
+  get "/", PageController, :home
+  live "/blog", BlogLive, :index
+end</code></pre>
           <p class="text-sm text-base-content/80">
             {doc_text(
-              "This means the host controls routing without game_server_web knowing about it. You can add, remove, or replace any routes."
+              "This keeps ownership visible in the host without runtime forwarding or hidden route indirection."
             )}
           </p>
         </div>

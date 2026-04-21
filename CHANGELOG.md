@@ -1,5 +1,6 @@
 # April 2026
 
+- [changed] Host-owned static files and the endpoint implementation now live directly in the host app. The host router now owns the route table directly and references reusable web modules explicitly. Hex-incompatible `heroicons` ownership also moved to the host.
 - [changed] **Notification titles now include full context**: system notification titles contain all relevant info (user names, group/lobby/party names) instead of generic labels. The separate content/subtitle field is no longer used for system notifications. The notifications LiveView table no longer displays the Content column.
 - [added] **CI/CD Hex publish**: the existing `publish-hex` job in `build-and-check.yml` now also publishes `game_server_core` and `game_server_web` to Hex.pm on main branch pushes.
 - [changed] Include `priv/` in Hex package files for both core (migrations) and web (static assets, translations).

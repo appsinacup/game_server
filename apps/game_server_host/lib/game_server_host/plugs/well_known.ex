@@ -1,20 +1,22 @@
-defmodule GameServerWeb.Plugs.WellKnown do
+defmodule GameServerHost.Plugs.WellKnown do
   @moduledoc """
-  Plug to serve special `.well-known` files with strict headers.
+  Serves host-owned `.well-known` files with strict headers.
 
   Currently used to ensure `/.well-known/apple-app-site-association` is
-  always served with Content-Type: application/json and **without** any
+  always served with Content-Type: application/json and without any
   `Content-Encoding` header (Apple requires the file to be uncompressed).
   """
 
   import Plug.Conn
 
-  @aasa_rel_path "static/.well-known/apple-app-site-association"
-
   def init(opts), do: opts
 
   def call(%Plug.Conn{request_path: "/.well-known/apple-app-site-association"} = conn, _opts) do
-    path = Path.join(:code.priv_dir(:game_server_web), @aasa_rel_path)
+    path =
+      Path.join(
+        :code.priv_dir(:game_server_host),
+        "static/.well-known/apple-app-site-association"
+      )
 
     case File.read(path) do
       {:ok, body} when is_binary(body) ->
@@ -26,13 +28,12 @@ defmodule GameServerWeb.Plugs.WellKnown do
         |> halt()
 
       _ ->
-        # Let Plug.Static (or other plugs) handle the request if file missing
         conn
     end
   end
 
   def call(%Plug.Conn{request_path: "/.well-known/assetlinks.json"} = conn, _opts) do
-    path = Path.join(:code.priv_dir(:game_server_web), "static/.well-known/assetlinks.json")
+    path = Path.join(:code.priv_dir(:game_server_host), "static/.well-known/assetlinks.json")
 
     case File.read(path) do
       {:ok, body} when is_binary(body) ->
