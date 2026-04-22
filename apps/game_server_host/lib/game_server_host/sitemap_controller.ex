@@ -1,9 +1,9 @@
-defmodule GameServerWeb.SitemapController do
+defmodule GameServerHost.SitemapController do
   @moduledoc """
-  Generates a dynamic `sitemap.xml` listing all public pages.
+  Host-owned `sitemap.xml` controller.
 
-  Includes static pages (home, blog index, changelog, roadmap, docs, legal)
-  plus dynamic blog post URLs.
+  Edit `@static_pages` here to advertise host-specific public pages such as
+  custom docs, landing pages, or host-only routes.
   """
 
   use GameServerWeb, :controller
