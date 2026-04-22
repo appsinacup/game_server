@@ -51,6 +51,25 @@
       "icon": "hero-book-open-solid"
     }
   ],
+  "navigation": {
+    "primary_links": [
+      {
+        "label": "Leaderboards",
+        "href": "/leaderboards",
+        "icon": "hero-chart-bar-solid"
+      },
+      {
+        "label": "Achievements",
+        "href": "/achievements",
+        "icon": "hero-trophy-solid"
+      },
+      {
+        "label": "Groups",
+        "href": "/groups",
+        "icon": "hero-user-group-solid"
+      }
+    ]
+  },
   "nav_links": [
     {
       "label": "Play",

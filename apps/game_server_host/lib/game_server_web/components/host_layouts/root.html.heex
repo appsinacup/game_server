@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html
   lang={Gettext.get_locale(GameServerWeb.Gettext) || "en"}
-  class="scroll-smooth"
+  class="scroll-smooth bg-base-100"
   data-theme={assigns[:color_mode]}
 >
   <head>
@@ -11,7 +11,6 @@
       content="width=device-width, initial-scale=1"
     />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <meta name="color-scheme" content="light dark" />
     <%!-- Tiny synchronous script to set data-theme before CSS loads (prevents FOUC) --%>
     <script
       phx-track-static
@@ -78,22 +77,31 @@
       <link rel="icon" type="image/x-icon" href={Map.get(provider_theme, "favicon")} />
     <% end %>
     <% theme_color = Map.get(provider_theme, "theme_color") %>
-    <%= cond do %>
-      <% is_map(theme_color) -> %>
-        <meta
-          name="theme-color"
-          content={Map.get(theme_color, "light", "#ffffff")}
-          media="(prefers-color-scheme: light)"
-        />
-        <meta
-          name="theme-color"
-          content={Map.get(theme_color, "dark", "#000000")}
-          media="(prefers-color-scheme: dark)"
-        />
-      <% is_binary(theme_color) and theme_color != "" -> %>
-        <meta name="theme-color" content={theme_color} />
-      <% true -> %>
-    <% end %>
+    <% current_color_mode = assigns[:color_mode] || "light" %>
+    <% {light_theme_color, dark_theme_color} =
+      cond do
+        is_map(theme_color) ->
+          {
+            Map.get(theme_color, "light", "#ffffff"),
+            Map.get(theme_color, "dark", Map.get(theme_color, "light", "#1a1a2e"))
+          }
+
+        is_binary(theme_color) and theme_color != "" ->
+          {theme_color, theme_color}
+
+        true ->
+          {"#ffffff", "#1a1a2e"}
+      end %>
+    <% active_theme_color =
+      if current_color_mode == "dark", do: dark_theme_color, else: light_theme_color %>
+    <meta name="color-scheme" content={current_color_mode} />
+    <meta
+      id="theme-color-meta"
+      name="theme-color"
+      content={active_theme_color}
+      data-light-color={light_theme_color}
+      data-dark-color={dark_theme_color}
+    />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <script
@@ -106,7 +114,7 @@
     >
     </script>
   </head>
-  <body>
+  <body class="min-h-screen bg-base-100 text-base-content antialiased">
     {@inner_content}
   </body>
 </html>

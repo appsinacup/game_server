@@ -7,6 +7,19 @@
     (window.matchMedia("(prefers-color-scheme: dark)").matches
       ? "dark"
       : "light");
+
+  var themeColorMeta = document.querySelector('meta[name="theme-color"]');
+  if (themeColorMeta) {
+    var lightColor = themeColorMeta.dataset.lightColor || themeColorMeta.content;
+    var darkColor = themeColorMeta.dataset.darkColor || lightColor;
+    themeColorMeta.setAttribute("content", d === "dark" ? darkColor : lightColor);
+  }
+
+  var colorSchemeMeta = document.querySelector('meta[name="color-scheme"]');
+  if (colorSchemeMeta) {
+    colorSchemeMeta.setAttribute("content", d);
+  }
+
   document.documentElement.setAttribute("data-theme", d);
   // Sync a cookie so the server can set data-theme on the next full page load
   document.cookie =

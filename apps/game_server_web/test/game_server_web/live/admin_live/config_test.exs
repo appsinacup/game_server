@@ -345,7 +345,19 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     en_path = String.trim_trailing(base, ".json") <> ".en.json"
 
     json =
-      ~s({"title":"Test Theme","logo":"/theme/test-logo.png","banner":"/theme/test-banner.png"})
+      Jason.encode!(%{
+        "title" => "Test Theme",
+        "logo" => "/theme/test-logo.png",
+        "banner" => "/theme/test-banner.png",
+        "navigation" => %{
+          "primary_links" => [
+            %{"label" => "Status", "href" => "/status"}
+          ],
+          "account_links" => [
+            %{"label" => "Billing", "href" => "/billing"}
+          ]
+        }
+      })
 
     File.write!(en_path, json)
 
@@ -365,7 +377,7 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
       |> User.admin_changeset(%{"is_admin" => true})
       |> Repo.update()
 
-    {:ok, _lv, html} =
+    {:ok, lv, html} =
       conn
       |> log_in_user(user)
       |> live(~p"/admin/config")
@@ -375,6 +387,9 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     # raw JSON content should be present in the page
     assert html =~ "Test Theme"
     assert html =~ "/theme/test-logo.png"
+    assert html =~ "Primary Nav"
+    assert has_element?(lv, "#main-navbar a[href='/status']")
+    assert has_element?(lv, "#main-navbar a[href='/billing']")
   end
 
   test "renders default theme diagnostics when THEME_CONFIG is unset", %{conn: conn} do

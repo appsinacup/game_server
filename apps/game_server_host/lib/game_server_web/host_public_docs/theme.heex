@@ -62,11 +62,22 @@
   "logo": "/theme/logo.png",
   "banner": "/theme/banner.png",
   "theme_color": { "light": "#ffffff", "dark": "#1a1a2e" },
-  "nav_links": [
-    { "label": "Discord", "href": "https://discord.gg/example", "external": true, "auth": "any" },
-    { "label": "Dashboard", "href": "/dashboard", "auth": "authenticated" },
-    { "label": "Admin Tools", "href": "/admin/tools", "auth": "admin" }
-  ]
+  "navigation": {
+    "primary_links": [
+      { "label": "Status", "href": "/status" },
+      { "label": "Leaderboards", "href": "/leaderboards", "icon": "hero-chart-bar-solid" }
+    ],
+    "guest_links": [
+      { "label": "Guides", "href": "/docs/setup" }
+    ],
+    "authenticated_links": [
+      { "label": "Dashboard", "href": "/dashboard" }
+    ],
+    "account_links": [
+      { "label": "Billing", "href": "/billing" },
+      { "label": "Support", "href": "https://discord.gg/example", "external": true }
+    ]
+  }
 }</pre>
         </div>
       </div>
@@ -113,14 +124,49 @@
 <!-- Step 3: Navigation links -->
     <div class="step">
       <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-        <span class="badge badge-primary">3</span> {doc_text("Add navigation links")}
+        <span class="badge badge-primary">3</span> {doc_text("Configure navigation")}
       </h3>
       <div class="ml-8 space-y-3">
         <p>
           {doc_text(
-            "The nav_links array in your theme JSON lets you add custom links to the navigation bar. Each link appears in both the desktop and mobile navs."
+            "Use the navigation object to move non-behavioral nav structure into config. primary_links render in the main nav for everyone, guest_links render only for signed-out visitors, authenticated_links render only for signed-in users, and account_links render inside the account dropdown. Notifications, admin, locale switching, theme toggling, and logout stay code-owned."
           )}
         </p>
+
+        <p class="text-sm text-base-content/80">
+          {doc_text(
+            "The older top-level nav_links array still works for compatibility, but the structured navigation object is the preferred shape for new configs because it keeps sections explicit."
+          )}
+        </p>
+
+        <div class="overflow-x-auto">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>{doc_text("Section")}</th>
+                <th>{doc_text("Description")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>primary_links</code></td>
+                <td>{doc_text("Always-visible main nav links")}</td>
+              </tr>
+              <tr>
+                <td><code>guest_links</code></td>
+                <td>{doc_text("Additional links shown only to signed-out visitors")}</td>
+              </tr>
+              <tr>
+                <td><code>authenticated_links</code></td>
+                <td>{doc_text("Additional links shown only to signed-in users")}</td>
+              </tr>
+              <tr>
+                <td><code>account_links</code></td>
+                <td>{doc_text("Custom links inserted into the account dropdown")}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
         <div class="overflow-x-auto">
           <table class="table table-sm">
@@ -159,6 +205,10 @@
                   <ul class="list-disc ml-4 mt-1">
                     <li><code>"any"</code> — {doc_text("visible to everyone (default)")}</li>
                     <li>
+                      <code>"unauthenticated"</code>
+                      — {doc_text("visible only to signed-out visitors")}
+                    </li>
+                    <li>
                       <code>"authenticated"</code> — {doc_text("visible only to logged-in users")}
                     </li>
                     <li><code>"admin"</code> — {doc_text("visible only to admin users")}</li>
@@ -170,14 +220,20 @@
         </div>
 
         <p class="text-sm text-base-content/80">
-          {doc_text(
-            "Example: adding a Discord link visible to everyone and a dashboard link visible only to logged-in users:"
-          )}
+          {doc_text("Example: adding public links plus a custom account dropdown entry:")}
         </p>
-        <pre phx-no-curly-interpolation class="rounded bg-base-200 p-3 text-xs overflow-auto">"nav_links": [
-  { "label": "Discord", "href": "https://discord.gg/example", "external": true, "auth": "any" },
-  { "label": "Dashboard", "href": "/dashboard", "auth": "authenticated" }
-]</pre>
+        <pre phx-no-curly-interpolation class="rounded bg-base-200 p-3 text-xs overflow-auto">"navigation": {
+  "primary_links": [
+    { "label": "Status", "href": "/status" },
+    { "label": "Discord", "href": "https://discord.gg/example", "external": true }
+  ],
+  "authenticated_links": [
+    { "label": "Dashboard", "href": "/dashboard" }
+  ],
+  "account_links": [
+    { "label": "Billing", "href": "/billing" }
+  ]
+}</pre>
       </div>
     </div>
   </div>

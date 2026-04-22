@@ -110,7 +110,10 @@ defmodule GameServerWeb.HostLayouts do
     current_query = if conn, do: conn.query_string, else: ""
     locale = Gettext.get_locale(GameServerWeb.Gettext) || "en"
 
-    provider_theme = Map.get(assigns, :theme) || JSONConfig.get_theme(locale) || %{}
+    full_theme = JSONConfig.get_theme(locale) || %{}
+    assigned_theme = Map.get(assigns, :theme, %{})
+    provider_theme = merge_assigned_theme(full_theme, assigned_theme)
+    en_theme = JSONConfig.get_theme("en") || %{}
     missing? = provider_theme == %{}
 
     theme = %{
@@ -121,11 +124,9 @@ defmodule GameServerWeb.HostLayouts do
       "css" => Map.get(provider_theme, "css")
     }
 
-    nav_links = Map.get(provider_theme, "nav_links") || []
-    footer_links = Map.get(provider_theme, "footer_links") || []
-    background_icons = Map.get(provider_theme, "background_icons") || []
-
-    en_theme = JSONConfig.get_theme("en") || %{}
+    navigation = navigation_config(provider_theme, en_theme)
+    footer_links = theme_list(provider_theme, en_theme, "footer_links")
+    background_icons = theme_list(provider_theme, en_theme, "background_icons")
     site_message_source = Map.get(en_theme, "site_message", "")
 
     site_message =
@@ -154,7 +155,7 @@ defmodule GameServerWeb.HostLayouts do
       locale: locale,
       known_locales: @known_locales,
       theme: theme,
-      nav_links: nav_links,
+      navigation: navigation,
       footer_links: footer_links,
       background_icons: background_icons,
       site_message: site_message,
@@ -162,6 +163,82 @@ defmodule GameServerWeb.HostLayouts do
       notif_unread_count: notif_unread_count,
       app_version: app_version()
     )
+  end
+
+  defp merge_assigned_theme(full_theme, assigned_theme) when is_map(assigned_theme) do
+    Enum.reduce(assigned_theme, full_theme, fn
+      {_key, nil}, acc -> acc
+      {_key, ""}, acc -> acc
+      {key, value}, acc -> Map.put(acc, key, value)
+    end)
+  end
+
+  defp merge_assigned_theme(full_theme, _assigned_theme), do: full_theme
+
+  defp navigation_config(provider_theme, en_theme) do
+    provider_navigation = Map.get(provider_theme, "navigation") || %{}
+    en_navigation = Map.get(en_theme, "navigation") || %{}
+
+    %{
+      "primary_links" =>
+        navigation_links(
+          provider_navigation,
+          en_navigation,
+          "primary_links",
+          default_primary_nav_links()
+        ),
+      "guest_links" => navigation_links(provider_navigation, en_navigation, "guest_links"),
+      "authenticated_links" =>
+        navigation_links(provider_navigation, en_navigation, "authenticated_links"),
+      "account_links" => navigation_links(provider_navigation, en_navigation, "account_links"),
+      "legacy_links" => theme_list(provider_theme, en_theme, "nav_links")
+    }
+  end
+
+  defp navigation_links(provider_navigation, en_navigation, key, default \\ []) do
+    case Map.get(provider_navigation, key) do
+      links when is_list(links) ->
+        links
+
+      _ ->
+        case Map.get(en_navigation, key) do
+          links when is_list(links) -> links
+          _ -> default
+        end
+    end
+  end
+
+  defp theme_list(provider_theme, en_theme, key, default \\ []) do
+    case Map.get(provider_theme, key) do
+      links when is_list(links) ->
+        links
+
+      _ ->
+        case Map.get(en_theme, key) do
+          links when is_list(links) -> links
+          _ -> default
+        end
+    end
+  end
+
+  defp default_primary_nav_links do
+    [
+      %{
+        "label" => gettext("Leaderboards"),
+        "href" => "/leaderboards",
+        "icon" => "hero-chart-bar-solid"
+      },
+      %{
+        "label" => gettext("Achievements"),
+        "href" => "/achievements",
+        "icon" => "hero-trophy-solid"
+      },
+      %{
+        "label" => gettext("Groups"),
+        "href" => "/groups",
+        "icon" => "hero-user-group-solid"
+      }
+    ]
   end
 
   def locale_labels, do: @locale_labels

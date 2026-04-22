@@ -32,6 +32,7 @@
 @source "../css";
 @source "../js";
 @source "../../apps/game_server_web/lib";
+@source "../../apps/game_server_host/lib";
 
 /* Float animation for background icons — drift with increased movement range */
 @keyframes float {

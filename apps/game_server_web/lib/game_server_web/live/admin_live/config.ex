@@ -443,26 +443,49 @@ defmodule GameServerWeb.AdminLive.Config do
                           </div>
                         <% end %>
 
-                        <%!-- Nav Links --%>
-                        <% nav_links = Map.get(@config.theme_map, "nav_links", []) %>
-                        <%= if nav_links != [] do %>
+                        <%!-- Navigation --%>
+                        <% navigation = Map.get(@config.theme_map, "navigation", %{}) %>
+                        <%= for {title, key} <- [
+                              {"Primary Nav", "primary_links"},
+                              {"Guest Nav", "guest_links"},
+                              {"Authenticated Nav", "authenticated_links"},
+                              {"Account Menu", "account_links"}
+                            ] do %>
+                          <% links = Map.get(navigation, key, []) %>
+                          <%= if links != [] do %>
+                            <div class="mt-3">
+                              <span class="text-xs font-semibold opacity-70">
+                                {title} ({length(links)})
+                              </span>
+                              <div class="mt-1 flex flex-wrap gap-2">
+                                <%= for link <- links do %>
+                                  <div class="badge badge-ghost gap-1 py-3">
+                                    <span class="text-xs">{link["label"]}</span>
+                                    <span class="text-[10px] opacity-50">{link["href"]}</span>
+                                    <%= if link["auth"] do %>
+                                      <span class="text-[10px] opacity-40">({link["auth"]})</span>
+                                    <% end %>
+                                  </div>
+                                <% end %>
+                              </div>
+                            </div>
+                          <% end %>
+                        <% end %>
+
+                        <%!-- Legacy Nav Links --%>
+                        <% legacy_nav_links = Map.get(@config.theme_map, "nav_links", []) %>
+                        <%= if legacy_nav_links != [] do %>
                           <div class="mt-3">
                             <span class="text-xs font-semibold opacity-70">
-                              Nav Links ({length(nav_links)})
+                              Legacy Nav Links ({length(legacy_nav_links)})
                             </span>
                             <div class="mt-1 flex flex-wrap gap-2">
-                              <%= for link <- nav_links do %>
+                              <%= for link <- legacy_nav_links do %>
                                 <div class="badge badge-ghost gap-1 py-3">
-                                  <span class="text-xs">
-                                    {link["label"]}
-                                  </span>
-                                  <span class="text-[10px] opacity-50">
-                                    {link["href"]}
-                                  </span>
+                                  <span class="text-xs">{link["label"]}</span>
+                                  <span class="text-[10px] opacity-50">{link["href"]}</span>
                                   <%= if link["auth"] do %>
-                                    <span class="text-[10px] opacity-40">
-                                      ({link["auth"]})
-                                    </span>
+                                    <span class="text-[10px] opacity-40">({link["auth"]})</span>
                                   <% end %>
                                 </div>
                               <% end %>

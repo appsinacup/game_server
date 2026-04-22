@@ -1,5 +1,6 @@
 # April 2026
 
+- [changed] Theme JSON navigation now supports structured `navigation.primary_links`, `guest_links`, `authenticated_links`, and `account_links`, so non-behavioral navbar and account-menu links can live in config while legacy `nav_links` remains supported for compatibility.
 - [changed] Public docs at `/docs/setup` are now served by a host-owned LiveView and templates, so forks can replace or remove the docs surface from the host app without changing the reusable web package.
 - [changed] Host-owned static files and the endpoint implementation now live directly in the host app. The host router now owns the route table directly and references reusable web modules explicitly. Hex-incompatible `heroicons` ownership also moved to the host.
 - [changed] **Notification titles now include full context**: system notification titles contain all relevant info (user names, group/lobby/party names) instead of generic labels. The separate content/subtitle field is no longer used for system notifications. The notifications LiveView table no longer displays the Content column.

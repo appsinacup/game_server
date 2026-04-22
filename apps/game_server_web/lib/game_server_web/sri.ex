@@ -3,8 +3,8 @@ defmodule GameServerWeb.SRI do
   Computes Subresource Integrity (SRI) hashes for static assets.
 
   Returns a `sha384-<base64>` string suitable for the `integrity` attribute
-  on `<script>` and `<link>` tags. Hashes are computed once per path and
-  cached in `persistent_term` for the lifetime of the BEAM node.
+  on `<script>` and `<link>` tags. In environments without code reloading,
+  hashes are cached in `persistent_term` for the lifetime of the BEAM node.
 
   Returns `nil` when the file doesn't exist (e.g. in dev before digest),
   so the attribute is safely omitted from the rendered HTML.
@@ -29,17 +29,28 @@ defmodule GameServerWeb.SRI do
   """
   @spec integrity(String.t() | nil) :: String.t() | nil
   def integrity(path) when is_binary(path) and path != "" do
-    key = {@pt_namespace, path}
+    if cache_enabled?() do
+      key = {@pt_namespace, path}
 
-    case :persistent_term.get(key, :miss) do
-      :miss -> compute_and_cache(key, path)
-      result -> result
+      case :persistent_term.get(key, :miss) do
+        :miss -> compute_and_cache(key, path)
+        result -> result
+      end
+    else
+      compute(path)
     end
   end
 
   def integrity(_), do: nil
 
   defp compute_and_cache(key, path) do
+    hash = compute(path)
+
+    :persistent_term.put(key, hash)
+    hash
+  end
+
+  defp compute(path) do
     # Strip leading slash and any query string / fragment
     clean =
       path
@@ -47,19 +58,20 @@ defmodule GameServerWeb.SRI do
       |> URI.parse()
       |> Map.get(:path)
 
-    hash =
-      if is_binary(clean) and clean != "" do
-        static_dir = Application.app_dir(:game_server_web, "priv/static")
-        file_path = Path.join(static_dir, clean)
+    if is_binary(clean) and clean != "" do
+      static_dir = Application.app_dir(:game_server_web, "priv/static")
+      file_path = Path.join(static_dir, clean)
 
-        if File.exists?(file_path) do
-          content = File.read!(file_path)
-          digest = :crypto.hash(:sha384, content) |> Base.encode64()
-          "sha384-#{digest}"
-        end
+      if File.exists?(file_path) do
+        content = File.read!(file_path)
+        digest = :crypto.hash(:sha384, content) |> Base.encode64()
+        "sha384-#{digest}"
       end
+    end
+  end
 
-    :persistent_term.put(key, hash)
-    hash
+  defp cache_enabled? do
+    endpoint_config = Application.get_env(:game_server_web, GameServerWeb.Endpoint, [])
+    not Keyword.get(endpoint_config, :code_reloader, false)
   end
 end

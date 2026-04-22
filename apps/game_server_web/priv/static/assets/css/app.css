@@ -1893,12 +1893,6 @@
       opacity: 20%;
     }
   }
-  .drawer {
-    position: relative;
-    display: grid;
-    width: 100%;
-    grid-auto-columns: max-content auto;
-  }
   .stats {
     position: relative;
     display: inline-grid;
@@ -10204,19 +10198,6 @@
   .transform {
     transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
   }
-  .skeleton {
-    border-radius: var(--radius-box);
-    background-color: var(--color-base-300);
-    @media (prefers-reduced-motion: reduce) {
-      transition-duration: 15s;
-    }
-    will-change: background-position;
-    animation: skeleton 1.8s ease-in-out infinite;
-    background-image: linear-gradient( 105deg, #0000 0% 40%, var(--color-base-100) 50%, #0000 60% 100% );
-    background-size: 200% auto;
-    background-repeat: no-repeat;
-    background-position-x: -50%;
-  }
   .animate-bounce {
     animation: var(--animate-bounce);
   }
@@ -10533,6 +10514,12 @@
       border-color: color-mix(in oklab, var(--color-base-300) 60%, transparent);
     }
   }
+  .border-base-300\/85 {
+    border-color: var(--color-base-300);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in oklab, var(--color-base-300) 85%, transparent);
+    }
+  }
   .border-base-300\/100 {
     border-color: var(--color-base-300);
   }
@@ -10609,6 +10596,12 @@
     background-color: var(--color-base-100);
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-base-100) 60%, transparent);
+    }
+  }
+  .bg-base-100\/88 {
+    background-color: var(--color-base-100);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--color-base-100) 88%, transparent);
     }
   }
   .bg-base-100\/90 {
@@ -11312,6 +11305,10 @@
   .underline {
     text-decoration-line: underline;
   }
+  .antialiased {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
   .opacity-0 {
     opacity: 0%;
   }
@@ -11361,6 +11358,12 @@
   .ring-2 {
     --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  }
+  .shadow-black\/6 {
+    --tw-shadow-color: color-mix(in srgb, #000 6%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      --tw-shadow-color: color-mix(in oklab, color-mix(in oklab, var(--color-black) 6%, transparent) var(--tw-shadow-alpha), transparent);
+    }
   }
   .ring-primary {
     --tw-ring-color: var(--color-primary);
@@ -11658,13 +11661,10 @@
       }
     }
   }
-  .hover\:border-base-300\/70 {
+  .hover\:border-base-300 {
     &:hover {
       @media (hover: hover) {
         border-color: var(--color-base-300);
-        @supports (color: color-mix(in lab, red, red)) {
-          border-color: color-mix(in oklab, var(--color-base-300) 70%, transparent);
-        }
       }
     }
   }
@@ -11688,22 +11688,19 @@
       }
     }
   }
+  .hover\:bg-base-100 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--color-base-100);
+      }
+    }
+  }
   .hover\:bg-base-100\/60 {
     &:hover {
       @media (hover: hover) {
         background-color: var(--color-base-100);
         @supports (color: color-mix(in lab, red, red)) {
           background-color: color-mix(in oklab, var(--color-base-100) 60%, transparent);
-        }
-      }
-    }
-  }
-  .hover\:bg-base-100\/95 {
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-base-100);
-        @supports (color: color-mix(in lab, red, red)) {
-          background-color: color-mix(in oklab, var(--color-base-100) 95%, transparent);
         }
       }
     }
@@ -12338,11 +12335,27 @@
       display: none;
     }
   }
+  .\[\[data-theme\=dark\]_\&\]\:border-white\/14 {
+    [data-theme=dark] & {
+      border-color: color-mix(in srgb, #fff 14%, transparent);
+      @supports (color: color-mix(in lab, red, red)) {
+        border-color: color-mix(in oklab, var(--color-white) 14%, transparent);
+      }
+    }
+  }
   .\[\[data-theme\=dark\]_\&\]\:border-white\/20 {
     [data-theme=dark] & {
       border-color: color-mix(in srgb, #fff 20%, transparent);
       @supports (color: color-mix(in lab, red, red)) {
         border-color: color-mix(in oklab, var(--color-white) 20%, transparent);
+      }
+    }
+  }
+  .\[\[data-theme\=dark\]_\&\]\:bg-base-100\/72 {
+    [data-theme=dark] & {
+      background-color: var(--color-base-100);
+      @supports (color: color-mix(in lab, red, red)) {
+        background-color: color-mix(in oklab, var(--color-base-100) 72%, transparent);
       }
     }
   }
@@ -12396,6 +12409,14 @@
       opacity: 0.10;
     }
   }
+  .\[\[data-theme\=dark\]_\&\]\:shadow-black\/26 {
+    [data-theme=dark] & {
+      --tw-shadow-color: color-mix(in srgb, #000 26%, transparent);
+      @supports (color: color-mix(in lab, red, red)) {
+        --tw-shadow-color: color-mix(in oklab, color-mix(in oklab, var(--color-black) 26%, transparent) var(--tw-shadow-alpha), transparent);
+      }
+    }
+  }
   .\[\[data-theme\=dark\]_\&\]\:drop-shadow {
     [data-theme=dark] & {
       --tw-drop-shadow-size: drop-shadow(0 1px 2px var(--tw-drop-shadow-color, rgb(0 0 0 / 0.1))) drop-shadow(0 1px 1px var(--tw-drop-shadow-color, rgb(0 0 0 / 0.06)));
@@ -12415,13 +12436,25 @@
       }
     }
   }
-  .\[\[data-theme\=dark\]_\&\]\:hover\:border-white\/30 {
+  .\[\[data-theme\=dark\]_\&\]\:hover\:border-white\/22 {
     [data-theme=dark] & {
       &:hover {
         @media (hover: hover) {
-          border-color: color-mix(in srgb, #fff 30%, transparent);
+          border-color: color-mix(in srgb, #fff 22%, transparent);
           @supports (color: color-mix(in lab, red, red)) {
-            border-color: color-mix(in oklab, var(--color-white) 30%, transparent);
+            border-color: color-mix(in oklab, var(--color-white) 22%, transparent);
+          }
+        }
+      }
+    }
+  }
+  .\[\[data-theme\=dark\]_\&\]\:hover\:bg-base-100\/84 {
+    [data-theme=dark] & {
+      &:hover {
+        @media (hover: hover) {
+          background-color: var(--color-base-100);
+          @supports (color: color-mix(in lab, red, red)) {
+            background-color: color-mix(in oklab, var(--color-base-100) 84%, transparent);
           }
         }
       }

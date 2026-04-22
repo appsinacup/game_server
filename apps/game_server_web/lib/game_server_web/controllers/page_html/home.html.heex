@@ -6,16 +6,20 @@
   <% banner_link = Map.get(provider_theme, "banner_link") %>
   <% background_icons = Map.get(provider_theme, "background_icons") || [] %>
   <% # Compute dark variant paths for hero and banner images
-  static_dir = Application.app_dir(:game_server_web, "priv/static")
+  host_static_dir = Application.app_dir(:game_server_host, "priv/static")
+  web_static_dir = Application.app_dir(:game_server_web, "priv/static")
 
-  fullscreen_dark_exists? = File.exists?(Path.join(static_dir, "images/fullscreen_dark.png"))
+  fullscreen_dark_exists? =
+    File.exists?(Path.join(host_static_dir, "images/fullscreen_dark.png")) or
+      File.exists?(Path.join(web_static_dir, "images/fullscreen_dark.png"))
 
   banner_path = Map.get(provider_theme, "banner", "")
   banner_dark_path = String.replace(banner_path, ~r/\.(\w+)$/, "_dark.\\1")
 
   banner_dark_exists? =
     banner_dark_path != "" and
-      File.exists?(Path.join(static_dir, String.trim_leading(banner_dark_path, "/"))) %>
+      (File.exists?(Path.join(host_static_dir, String.trim_leading(banner_dark_path, "/"))) or
+         File.exists?(Path.join(web_static_dir, String.trim_leading(banner_dark_path, "/")))) %>
 
   <%!-- Full-bleed hero section — breaks out of the layout container, extends behind navbar --%>
   <div class="relative w-screen left-1/2 -translate-x-1/2 -mt-20">
@@ -156,7 +160,7 @@
                               do:
                                 "bg-accent text-accent-content shadow-lg hover:bg-accent/90 active:scale-[0.98]",
                               else:
-                                "bg-base-100/40 [[data-theme=dark]_&]:bg-white/10 backdrop-blur-sm border border-base-300/100 [[data-theme=dark]_&]:border-white/20 text-base-content [[data-theme=dark]_&]:text-white hover:bg-base-100/95 [[data-theme=dark]_&]:hover:bg-white/20 hover:border-base-300/70 [[data-theme=dark]_&]:hover:border-white/30"
+                                "bg-base-100/88 [[data-theme=dark]_&]:bg-base-100/72 backdrop-blur-md border border-base-300/85 [[data-theme=dark]_&]:border-white/14 text-base-content [[data-theme=dark]_&]:text-white shadow-lg shadow-black/6 [[data-theme=dark]_&]:shadow-black/26 hover:bg-base-100 [[data-theme=dark]_&]:hover:bg-base-100/84 hover:border-base-300 [[data-theme=dark]_&]:hover:border-white/22 active:scale-[0.98]"
                             )
                         )
                     )

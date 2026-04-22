@@ -4,6 +4,27 @@
 const getSystemTheme = () =>
   window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 
+const syncThemeChrome = (theme) => {
+  const actualTheme = theme === "system" ? getSystemTheme() : theme;
+  const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+
+  if (themeColorMeta) {
+    const lightColor = themeColorMeta.dataset.lightColor || themeColorMeta.content;
+    const darkColor = themeColorMeta.dataset.darkColor || lightColor;
+
+    themeColorMeta.setAttribute(
+      "content",
+      actualTheme === "dark" ? darkColor : lightColor
+    );
+  }
+
+  const colorSchemeMeta = document.querySelector('meta[name="color-scheme"]');
+
+  if (colorSchemeMeta) {
+    colorSchemeMeta.setAttribute("content", actualTheme);
+  }
+};
+
 const setTheme = (theme) => {
   const actualTheme = theme === "system" ? getSystemTheme() : theme;
   if (theme !== "system") {
@@ -12,6 +33,7 @@ const setTheme = (theme) => {
     localStorage.removeItem("phx:theme");
   }
   document.documentElement.setAttribute("data-theme", actualTheme);
+  syncThemeChrome(actualTheme);
   // Sync a cookie so the server can render data-theme on full page loads
   document.cookie =
     "phx_theme=" + actualTheme + "; path=/; max-age=31536000; SameSite=Lax";

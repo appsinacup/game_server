@@ -140,13 +140,17 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
   # Translatable top-level keys
   @config_top_keys ~w(title tagline description)
 
-  # Translatable array fields: {json_key, object_field_for_text}
+  # Translatable array fields: {json_path_segments, object_field_for_text}
   @config_array_fields [
-    {"useful_links", "title"},
-    {"nav_links", "label"},
-    {"footer_links", "label"},
-    {"features", "title"},
-    {"features", "description"}
+    {["useful_links"], "title"},
+    {["nav_links"], "label"},
+    {["footer_links"], "label"},
+    {["features"], "title"},
+    {["features"], "description"},
+    {["navigation", "primary_links"], "label"},
+    {["navigation", "guest_links"], "label"},
+    {["navigation", "authenticated_links"], "label"},
+    {["navigation", "account_links"], "label"}
   ]
 
   # Deduplicate config rows that share the same English source text.
@@ -202,20 +206,32 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
 
   defp config_array_rows(en_data, locale_data) do
     @config_array_fields
-    |> Enum.flat_map(fn {array_key, text_field} ->
-      en_items = Map.get(en_data, array_key, [])
-      locale_items = Map.get(locale_data, array_key, [])
+    |> Enum.flat_map(fn {array_path, text_field} ->
+      en_items = config_items_at_path(en_data, array_path)
+      locale_items = config_items_at_path(locale_data, array_path)
+      path_prefix = Enum.join(array_path, ".")
 
       en_items
       |> Enum.with_index()
       |> Enum.map(fn {en_item, idx} ->
         locale_item = Enum.at(locale_items, idx) || %{}
-        path = "#{array_key}[#{idx}].#{text_field}"
+        path = "#{path_prefix}[#{idx}].#{text_field}"
         en_val = Map.get(en_item, text_field, "")
         locale_val = Map.get(locale_item, text_field, "")
         ["_config", path, en_val, locale_val, ""]
       end)
     end)
+  end
+
+  defp config_items_at_path(data, path_segments) when is_list(path_segments) do
+    path_segments
+    |> Enum.reduce(data, fn segment, acc ->
+      if is_map(acc), do: Map.get(acc, segment, []), else: []
+    end)
+    |> case do
+      items when is_list(items) -> items
+      _ -> []
+    end
   end
 
   defp detect_config_base(nil) do

@@ -428,11 +428,15 @@ defmodule Mix.Tasks.Gettext.ImportCsv do
   # This lets us apply a translation to ALL config paths sharing the same source text.
   @config_top_keys ~w(title tagline description)
   @config_array_fields [
-    {"useful_links", "title"},
-    {"nav_links", "label"},
-    {"footer_links", "label"},
-    {"features", "title"},
-    {"features", "description"}
+    {["useful_links"], "title"},
+    {["nav_links"], "label"},
+    {["footer_links"], "label"},
+    {["features"], "title"},
+    {["features"], "description"},
+    {["navigation", "primary_links"], "label"},
+    {["navigation", "guest_links"], "label"},
+    {["navigation", "authenticated_links"], "label"},
+    {["navigation", "account_links"], "label"}
   ]
 
   defp build_source_to_paths(nil), do: %{}
@@ -445,19 +449,32 @@ defmodule Mix.Tasks.Gettext.ImportCsv do
       end)
 
     array_pairs =
-      Enum.flat_map(@config_array_fields, fn {array_key, text_field} ->
+      Enum.flat_map(@config_array_fields, fn {array_path, text_field} ->
+        path_prefix = Enum.join(array_path, ".")
+
         en_data
-        |> Map.get(array_key, [])
+        |> config_items_at_path(array_path)
         |> Enum.with_index()
         |> Enum.flat_map(fn {item, idx} ->
           val = Map.get(item, text_field, "")
-          path = "#{array_key}[#{idx}].#{text_field}"
+          path = "#{path_prefix}[#{idx}].#{text_field}"
           if val != "", do: [{val, path}], else: []
         end)
       end)
 
     (top_pairs ++ array_pairs)
     |> Enum.group_by(fn {text, _path} -> text end, fn {_text, path} -> path end)
+  end
+
+  defp config_items_at_path(data, path_segments) when is_list(path_segments) do
+    path_segments
+    |> Enum.reduce(data, fn segment, acc ->
+      if is_map(acc), do: Map.get(acc, segment, []), else: []
+    end)
+    |> case do
+      items when is_list(items) -> items
+      _ -> []
+    end
   end
 
   # Navigate into JSON using our path format: "key" or "array[idx].field"

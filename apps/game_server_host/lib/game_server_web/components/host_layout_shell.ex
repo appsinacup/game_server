@@ -9,7 +9,7 @@ defmodule GameServerWeb.HostLayoutShell do
   attr :current_query, :string, default: ""
   attr :flush, :boolean, default: false
   attr :theme, :map, required: true
-  attr :nav_links, :list, default: []
+  attr :navigation, :map, default: %{}
   attr :footer_links, :list, default: []
   attr :background_icons, :list, default: []
   attr :site_message, :string, default: ""
@@ -63,7 +63,7 @@ defmodule GameServerWeb.HostLayoutShell do
             current_scope={@current_scope}
             current_path={@current_path}
             current_query={@current_query}
-            nav_links={@nav_links}
+            navigation={@navigation}
             notif_unread_count={@notif_unread_count}
             locale={@locale}
             known_locales={@known_locales}
@@ -73,7 +73,7 @@ defmodule GameServerWeb.HostLayoutShell do
             current_scope={@current_scope}
             current_path={@current_path}
             current_query={@current_query}
-            nav_links={@nav_links}
+            navigation={@navigation}
             notif_unread_count={@notif_unread_count}
             locale={@locale}
             known_locales={@known_locales}
