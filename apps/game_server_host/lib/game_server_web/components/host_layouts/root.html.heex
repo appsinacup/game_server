@@ -30,12 +30,15 @@
         Map.get(provider_theme, "tagline") || "" %>
     <% description = String.replace(description_raw, ~r/\*+/, "") %>
     <% banner_path = Map.get(provider_theme, "banner", "") %>
-    <% static_dir = Application.app_dir(:game_server_web, "priv/static") %>
+    <% host_static_dir = Application.app_dir(:game_server_host, "priv/static") %>
+    <% web_static_dir = Application.app_dir(:game_server_web, "priv/static") %>
     <% banner_dark_path = String.replace(banner_path, ~r/\.(\w+)$/, "_dark.\\1") %>
+    <% banner_dark_rel = String.trim_leading(banner_dark_path, "/") %>
     <% banner_dark_exists? =
       banner_dark_path != "" and
         banner_dark_path != banner_path and
-        File.exists?(Path.join(static_dir, String.trim_leading(banner_dark_path, "/"))) %>
+        (File.exists?(Path.join(host_static_dir, banner_dark_rel)) or
+           File.exists?(Path.join(web_static_dir, banner_dark_rel))) %>
     <% image_path = if banner_dark_exists?, do: banner_dark_path, else: banner_path %>
 
     <meta name="description" content={description} />

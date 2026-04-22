@@ -180,8 +180,21 @@ end</code></pre>
     end
   end
 
-<span class="code-comment"># Delegate all standard routes to the upstream router</span>
-  forward "/", GameServerWeb.Router
+<span class="code-comment"># Reuse upstream pages directly from your host router</span>
+  scope "/", GameServerWeb do
+    pipe_through [:browser]
+
+    live_session :current_user,
+      on_mount: [
+        {GameServerWeb.OnMount.Locale, :default},
+        {GameServerWeb.UserAuth, :mount_current_scope},
+        {GameServerWeb.OnMount.Theme, :mount_theme},
+        {GameServerWeb.OnMount.TrackConnection, :default}
+      ] do
+      live "/leaderboards", LeaderboardsLive, :index
+      live "/achievements", AchievementsLive, :index
+    end
+  end
 end</code></pre>
           </div>
 
@@ -189,7 +202,7 @@ end</code></pre>
             <h4 class="font-semibold text-sm mb-2">{doc_text("4. Define the application")}</h4>
             <p class="text-sm text-base-content/80 mb-2">
               {doc_text(
-                "Copy the supervision tree from GameServerHost.Application and add your own children. The key line is the put_env that sets your router."
+                "Copy the supervision tree from GameServerHost.Application and add your own children. The host owns the router and endpoint directly now, so you start the shared endpoint from your host supervision tree without any router indirection."
               )}
             </p>
             <pre
@@ -200,8 +213,7 @@ end</code></pre>
 
   @impl true
   def start(_type, _args) do
-<span class="code-comment"># Tell the endpoint to use YOUR router</span>
-    Application.put_env(:game_server_web, :router, MyWordGame.Router, persistent: true)
+<span class="code-comment"># The host owns the router and starts the shared endpoint directly</span>
 
 <span class="code-comment"># Initialize ETS for schedule callbacks</span>
     GameServer.Schedule.start_link()

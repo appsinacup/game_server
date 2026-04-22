@@ -1,5 +1,6 @@
 # April 2026
 
+- [changed] Public docs at `/docs/setup` are now served by a host-owned LiveView and templates, so forks can replace or remove the docs surface from the host app without changing the reusable web package.
 - [changed] Host-owned static files and the endpoint implementation now live directly in the host app. The host router now owns the route table directly and references reusable web modules explicitly. Hex-incompatible `heroicons` ownership also moved to the host.
 - [changed] **Notification titles now include full context**: system notification titles contain all relevant info (user names, group/lobby/party names) instead of generic labels. The separate content/subtitle field is no longer used for system notifications. The notifications LiveView table no longer displays the Content column.
 - [added] **CI/CD Hex publish**: the existing `publish-hex` job in `build-and-check.yml` now also publishes `game_server_core` and `game_server_web` to Hex.pm on main branch pushes.
@@ -27,7 +28,7 @@
 - [changed] WebSocket connections now require authentication — anonymous socket connections are rejected.
 - [changed] Socket ID set to `"user_socket:<user_id>"` for force-disconnect capability.
 - [changed] Auth rate limiting expanded to cover browser login, registration, and OAuth routes.
-- [added] **Feature gating**: set `OPENAPI_ENABLED=false` to disable Swagger UI and OpenAPI JSON endpoints; set `DOCS_ENABLED=false` to disable the public docs page.
+- [added] **Feature gating**: set `OPENAPI_ENABLED=false` to disable Swagger UI and OpenAPI JSON endpoints.
 - [added] **Security headers**: baseline headers (X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy, CORP, X-Permitted-Cross-Domain-Policies) on all responses via SecurityHeaders plug. Conditional HSTS over HTTPS.
 - [added] **Admin Rate Limiting page** (`/admin/rate-limiting`): dedicated dashboard for managing IP bans and monitoring rate limit load in real-time with auto-refreshing stats.
 - [changed] `x-request-time` response header no longer exposed in production (prevents server timing side-channel).

@@ -19,7 +19,7 @@ defmodule GameServerWeb.ThemeLiveTest do
       Content.reload()
     end)
 
-    {:ok, _lv, html} = live(conn, ~p"/docs/setup")
+    {:ok, _lv, html} = live(conn, "/docs/setup")
 
     # Page should render without crashing even with no theme
     assert html =~ "<html"

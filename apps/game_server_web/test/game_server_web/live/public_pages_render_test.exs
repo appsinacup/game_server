@@ -23,7 +23,7 @@ defmodule GameServerWeb.PublicPagesRenderTest do
     end
 
     test "GET /docs/setup renders", %{conn: conn} do
-      {:ok, _view, html} = live(conn, ~p"/docs/setup")
+      {:ok, _view, html} = live(conn, "/docs/setup")
       assert html =~ "Documentation"
     end
 

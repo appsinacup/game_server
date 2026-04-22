@@ -384,7 +384,7 @@ defmodule GameServerHost.Router do
       live "/users/log-in", UserLive.Login, :new
       live "/users/log-in/:token", UserLive.Confirmation, :new
       get "/users/confirm/:token", UserSessionController, :confirm
-      live "/docs/setup", PublicDocs, :index
+      live "/docs/setup", HostPublicDocs, :index
       live "/changelog", ChangelogLive, :index
       live "/roadmap", RoadmapLive, :index
       live "/blog", BlogLive, :index

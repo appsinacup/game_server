@@ -4,7 +4,7 @@ defmodule GameServerWeb.Plugs.FeatureGate do
 
   ## Usage
 
-      plug GameServerWeb.Plugs.FeatureGate, env: "DOCS_ENABLED", default: true
+      plug GameServerWeb.Plugs.FeatureGate, env: "OPENAPI_ENABLED", default: true
 
   When the feature is disabled (env var is `"false"` / `"0"` / `"no"`),
   requests are rejected with `404 Not Found`.
