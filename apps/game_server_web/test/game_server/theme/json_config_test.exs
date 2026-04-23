@@ -34,9 +34,7 @@ defmodule GameServer.Theme.JSONConfigTest do
     System.put_env("THEME_CONFIG", base)
 
     theme = JSONConfig.get_theme()
-    assert %{"title" => "My Test", "logo" => "/theme/logo.png"} = theme
-    # No merging with defaults — only keys from the file are present
-    refute Map.has_key?(theme, "css")
+    assert theme == %{"title" => "My Test", "logo" => "/theme/logo.png"}
   end
 
   test "prefers locale-specific config when present" do
@@ -90,11 +88,16 @@ defmodule GameServer.Theme.JSONConfigTest do
 
     json =
       Jason.encode!(%{
+        "description" => "Path Test",
         "title" => "Path Test",
         "css" => "custom/example_theme.css",
         "logo" => "custom/example_logo.png",
         "banner" => "custom/example_banner.png",
-        "favicon" => "custom/favicon.ico"
+        "banner_link" => "/docs/setup",
+        "favicon" => "custom/favicon.ico",
+        "changelog" => "/CHANGELOG.md",
+        "roadmap" => "/ROADMAP.md",
+        "blog" => "/blog"
       })
 
     File.write!(en_path, json)
@@ -105,9 +108,15 @@ defmodule GameServer.Theme.JSONConfigTest do
 
     theme = JSONConfig.get_theme()
 
+    assert Map.get(theme, "description") == "Path Test"
+    assert Map.get(theme, "title") == "Path Test"
     assert Map.get(theme, "css") == "/custom/example_theme.css"
     assert Map.get(theme, "logo") == "/custom/example_logo.png"
     assert Map.get(theme, "banner") == "/custom/example_banner.png"
+    assert Map.get(theme, "banner_link") == "/docs/setup"
     assert Map.get(theme, "favicon") == "/custom/favicon.ico"
+    assert Map.get(theme, "changelog") == "/CHANGELOG.md"
+    assert Map.get(theme, "roadmap") == "/ROADMAP.md"
+    assert Map.get(theme, "blog") == "/blog"
   end
 end

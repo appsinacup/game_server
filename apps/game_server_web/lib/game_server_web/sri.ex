@@ -43,6 +43,23 @@ defmodule GameServerWeb.SRI do
 
   def integrity(_), do: nil
 
+  @doc """
+  Returns a cache-busted version of the given static path by appending a
+  content-derived `v` query parameter.
+
+  This avoids browsers reusing a stale `/assets/...` response under a newer
+  integrity hash when assets change locally without a full browser cache clear.
+  """
+  @spec versioned_path(String.t() | nil) :: String.t() | nil
+  def versioned_path(path) when is_binary(path) and path != "" do
+    case integrity(path) do
+      nil -> path
+      sri -> append_version_query(path, sri)
+    end
+  end
+
+  def versioned_path(_), do: nil
+
   defp compute_and_cache(key, path) do
     hash = compute(path)
 
@@ -73,5 +90,24 @@ defmodule GameServerWeb.SRI do
   defp cache_enabled? do
     endpoint_config = Application.get_env(:game_server_web, GameServerWeb.Endpoint, [])
     not Keyword.get(endpoint_config, :code_reloader, false)
+  end
+
+  defp append_version_query(path, sri) do
+    uri = URI.parse(path)
+    version = String.trim_leading(sri, "sha384-")
+    query = merge_query(uri.query, "v", version)
+
+    uri
+    |> Map.put(:query, query)
+    |> URI.to_string()
+  end
+
+  defp merge_query(nil, key, value), do: URI.encode_query(%{key => value})
+
+  defp merge_query(query, key, value) when is_binary(query) do
+    query
+    |> URI.decode_query()
+    |> Map.put(key, value)
+    |> URI.encode_query()
   end
 end

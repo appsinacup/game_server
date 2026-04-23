@@ -54,12 +54,21 @@ defmodule GameServerWeb.Plugs.LoadThemeTest do
 
     assert conn.assigns[:theme]["title"] == "Test Title"
     assert conn.assigns[:theme]["tagline"] == "Test Tag"
-    assert conn.assigns[:theme]["logo"] == "/logo.png"
+    assert conn.assigns[:theme]["logo"] == "/images/logo.png"
+    assert conn.assigns[:theme]["banner"] == "/images/banner.png"
+    assert conn.assigns[:theme]["favicon"] == "/favicon.ico"
+    assert conn.assigns[:theme]["css"] == nil
   end
 
   test "returns nil values when provider returns empty map", %{conn: conn} do
     orig_mod = Application.get_env(:game_server_web, :theme_module)
     Application.put_env(:game_server_web, :theme_module, __MODULE__.EmptyThemeMock)
+
+    on_exit(fn ->
+      if orig_mod,
+        do: Application.put_env(:game_server_web, :theme_module, orig_mod),
+        else: Application.delete_env(:game_server_web, :theme_module)
+    end)
 
     defmodule __MODULE__.EmptyThemeMock do
       def get_theme, do: %{}
@@ -67,14 +76,9 @@ defmodule GameServerWeb.Plugs.LoadThemeTest do
 
     conn = LoadTheme.call(conn, [])
 
-    # No merging with defaults — empty provider means nil values
-    assert conn.assigns[:theme]["title"] == nil
-    assert conn.assigns[:theme]["tagline"] == nil
-
-    # restore app env
-    if orig_mod,
-      do: Application.put_env(:game_server_web, :theme_module, orig_mod),
-      else: Application.delete_env(:game_server_web, :theme_module)
+    assert conn.assigns[:theme]["title"] == "MISSING_CONFIG"
+    assert conn.assigns[:theme]["tagline"] == "Set THEME_CONFIG env"
+    assert conn.assigns[:theme]["logo"] == "/images/logo.png"
   end
 
   test "prefers locale-specific THEME_CONFIG when locale is assigned", %{conn: conn} do

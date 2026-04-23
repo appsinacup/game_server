@@ -38,7 +38,7 @@
       <div class="text-sm font-semibold">{doc_text("Runtime theming (JSON)")}</div>
       <p class="text-sm text-base-content/80">
         {doc_text(
-          "You can provide simple runtime theming configuration using a JSON file. This lets you customize basic branding (title, tagline) and reference an external stylesheet (css) plus assets (logo, banner)."
+          "You can provide simple runtime theming configuration using a JSON file for copy and navigation. Host-owned branding assets such as logo, banner, favicon, and CSS live in the host app instead of JSON."
         )}
       </p>
     </div>
@@ -58,9 +58,6 @@
           <pre phx-no-curly-interpolation class="rounded bg-base-200 p-3 text-xs overflow-auto">{
   "title": "My Game",
   "tagline": "Play together",
-  "css": "/assets/css/theme/theme.css",
-  "logo": "/theme/logo.png",
-  "banner": "/theme/banner.png",
   "theme_color": { "light": "#ffffff", "dark": "#1a1a2e" },
   "navigation": {
     "primary_links": [
@@ -116,7 +113,27 @@
 
         <p class="text-sm text-base-content/80">
           {doc_text(
-            "Only locale-suffixed config files are loaded. For example, if THEME_CONFIG is set to theme/my_config.json, the server will load theme/my_config.en.json for English, theme/my_config.es.json for Spanish, etc. The base file (without locale suffix) is never loaded directly — it serves only as a naming template. When THEME_CONFIG is not set, no theme is loaded."
+            "Only locale-suffixed config files are loaded. For example, if THEME_CONFIG is set to theme/my_config.json, the server will load theme/my_config.en.json for English, theme/my_config.es.json for Spanish, etc. The base file (without locale suffix) is never loaded directly — it serves only as a naming template. When THEME_CONFIG is not set, host branding still loads, but text and navigation config stay empty."
+          )}
+        </p>
+      </div>
+    </div>
+
+    <div class="step">
+      <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+        <span class="badge badge-secondary">Host</span> {doc_text(
+          "Host-owned branding and content"
+        )}
+      </h3>
+      <div class="ml-8 space-y-3 text-sm text-base-content/80">
+        <p>
+          {doc_text(
+            "Branding behavior is host-owned. The host layout decides which logo, banner, favicon, and CSS are used at runtime."
+          )}
+        </p>
+        <p>
+          {doc_text(
+            "Changelog, roadmap, and blog pages are host-owned, but their Markdown files can stay at the repository root. They are no longer configured through THEME_CONFIG."
           )}
         </p>
       </div>

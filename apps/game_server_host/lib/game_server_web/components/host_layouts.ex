@@ -60,6 +60,15 @@ defmodule GameServerWeb.HostLayouts do
     %{top: 88, right: 15, size: "size-7 sm:size-10", dur: 9, delay: 2.8}
   ]
 
+  @host_theme_settings %{
+    "css" => nil,
+    "logo" => "/images/logo.png",
+    "banner" => "/images/banner.png",
+    "favicon" => "/favicon.ico"
+  }
+
+  @home_banner_link "/docs/setup"
+
   @app_version_fallback Mix.Project.config()[:version] || "1.0.0"
 
   @doc false
@@ -100,6 +109,23 @@ defmodule GameServerWeb.HostLayouts do
     HostLayoutShell.app(assigns)
   end
 
+  @doc false
+  def resolve_theme(locale \\ nil, assigned_theme \\ %{}) do
+    theme = merge_assigned_theme(fetch_theme(locale), assigned_theme)
+    missing? = Map.drop(theme, Map.keys(@host_theme_settings)) == %{}
+
+    theme
+    |> Map.put("title", Map.get(theme, "title") || if(missing?, do: "MISSING_CONFIG"))
+    |> Map.put(
+      "tagline",
+      Map.get(theme, "tagline") || if(missing?, do: "Set THEME_CONFIG env")
+    )
+    |> Map.merge(@host_theme_settings)
+  end
+
+  @doc false
+  def home_banner_link, do: @home_banner_link
+
   defp prepare_app_assigns(assigns) do
     conn = Map.get(assigns, :conn)
 
@@ -110,27 +136,16 @@ defmodule GameServerWeb.HostLayouts do
     current_query = if conn, do: conn.query_string, else: ""
     locale = Gettext.get_locale(GameServerWeb.Gettext) || "en"
 
-    full_theme = JSONConfig.get_theme(locale) || %{}
-    assigned_theme = Map.get(assigns, :theme, %{})
-    provider_theme = merge_assigned_theme(full_theme, assigned_theme)
-    en_theme = JSONConfig.get_theme("en") || %{}
-    missing? = provider_theme == %{}
+    theme = resolve_theme(locale, Map.get(assigns, :theme, %{}))
+    en_theme = resolve_theme("en")
 
-    theme = %{
-      "title" => Map.get(provider_theme, "title") || if(missing?, do: "MISSING_CONFIG"),
-      "tagline" => Map.get(provider_theme, "tagline") || if(missing?, do: "Set THEME_CONFIG env"),
-      "logo" => Map.get(provider_theme, "logo"),
-      "banner" => Map.get(provider_theme, "banner"),
-      "css" => Map.get(provider_theme, "css")
-    }
-
-    navigation = navigation_config(provider_theme, en_theme)
-    footer_links = theme_list(provider_theme, en_theme, "footer_links")
-    background_icons = theme_list(provider_theme, en_theme, "background_icons")
+    navigation = navigation_config(theme, en_theme)
+    footer_links = theme_list(theme, en_theme, "footer_links")
+    background_icons = theme_list(theme, en_theme, "background_icons")
     site_message_source = Map.get(en_theme, "site_message", "")
 
     site_message =
-      case Map.get(provider_theme, "site_message", "") do
+      case Map.get(theme, "site_message", "") do
         "" -> site_message_source
         message -> message
       end
@@ -163,6 +178,53 @@ defmodule GameServerWeb.HostLayouts do
       notif_unread_count: notif_unread_count,
       app_version: app_version()
     )
+  end
+
+  defp fetch_theme(locale) do
+    theme_mod = Application.get_env(:game_server_web, :theme_module, JSONConfig)
+
+    _ = Code.ensure_loaded?(theme_mod)
+
+    if is_binary(locale) and function_exported?(theme_mod, :get_theme, 1) do
+      case safe_get_theme_1(theme_mod, locale) do
+        theme when is_map(theme) and map_size(theme) > 0 -> theme
+        _ -> try_primary_or_fallback(theme_mod, locale)
+      end
+    else
+      safe_get_theme_0(theme_mod)
+    end
+  rescue
+    _ -> %{}
+  end
+
+  defp try_primary_or_fallback(theme_mod, locale) do
+    primary =
+      locale
+      |> String.trim()
+      |> String.downcase()
+      |> String.split(~r/[-_]/, parts: 2)
+      |> List.first()
+
+    if is_binary(primary) and primary != locale and function_exported?(theme_mod, :get_theme, 1) do
+      case safe_get_theme_1(theme_mod, primary) do
+        theme when is_map(theme) and map_size(theme) > 0 -> theme
+        _ -> safe_get_theme_0(theme_mod)
+      end
+    else
+      safe_get_theme_0(theme_mod)
+    end
+  end
+
+  defp safe_get_theme_1(theme_mod, locale) do
+    theme_mod.get_theme(locale) || %{}
+  rescue
+    _ -> %{}
+  end
+
+  defp safe_get_theme_0(theme_mod) do
+    if function_exported?(theme_mod, :get_theme, 0), do: theme_mod.get_theme() || %{}, else: %{}
+  rescue
+    _ -> %{}
   end
 
   defp merge_assigned_theme(full_theme, assigned_theme) when is_map(assigned_theme) do

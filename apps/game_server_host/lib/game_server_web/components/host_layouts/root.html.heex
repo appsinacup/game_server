@@ -12,23 +12,24 @@
     />
     <meta name="csrf-token" content={get_csrf_token()} />
     <%!-- Tiny synchronous script to set data-theme before CSS loads (prevents FOUC) --%>
+    <% theme_init_src = SRI.versioned_path(~p"/assets/js/theme-init.js") %>
     <script
       phx-track-static
       type="text/javascript"
-      src={~p"/assets/js/theme-init.js"}
+      src={theme_init_src}
       integrity={SRI.integrity(~p"/assets/js/theme-init.js")}
       crossorigin="anonymous"
     >
     </script>
     <!-- Open Graph / Twitter meta defaults -->
     <% locale = Gettext.get_locale(GameServerWeb.Gettext) %>
-    <% provider_theme = GameServer.Theme.JSONConfig.get_theme(locale) || %{} %>
-    <% title = assigns[:page_title] || Map.get(provider_theme, "title") %>
+    <% theme = GameServerWeb.HostLayouts.resolve_theme(locale, Map.get(assigns, :theme, %{})) %>
+    <% title = assigns[:page_title] || Map.get(theme, "title") %>
     <% description_raw =
-      assigns[:meta_description] || Map.get(provider_theme, "description") ||
-        Map.get(provider_theme, "tagline") || "" %>
+      assigns[:meta_description] || Map.get(theme, "description") ||
+        Map.get(theme, "tagline") || "" %>
     <% description = String.replace(description_raw, ~r/\*+/, "") %>
-    <% banner_path = Map.get(provider_theme, "banner", "") %>
+    <% banner_path = Map.get(theme, "banner", "") %>
     <% host_static_dir = Application.app_dir(:game_server_host, "priv/static") %>
     <% web_static_dir = Application.app_dir(:game_server_web, "priv/static") %>
     <% banner_dark_path = String.replace(banner_path, ~r/\.(\w+)$/, "_dark.\\1") %>
@@ -51,19 +52,20 @@
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={image_path} />
     <.live_title
-      default={Map.get(provider_theme, "title")}
-      prefix={"#{Map.get(provider_theme, "title")} — "}
+      default={Map.get(theme, "title")}
+      prefix={"#{Map.get(theme, "title")} — "}
     >
       {assigns[:page_title]}
     </.live_title>
+    <% app_css_href = SRI.versioned_path(~p"/assets/css/app.css") %>
     <link
       phx-track-static
       rel="stylesheet"
-      href={~p"/assets/css/app.css"}
+      href={app_css_href}
       integrity={SRI.integrity(~p"/assets/css/app.css")}
       crossorigin="anonymous"
     />
-    <% theme_css = Map.get(provider_theme, "css") %>
+    <% theme_css = Map.get(theme, "css") %>
     <%= if theme_css != nil and theme_css != "" do %>
       <link
         rel="stylesheet"
@@ -73,10 +75,10 @@
         crossorigin="anonymous"
       />
     <% end %>
-    <%= if Map.get(provider_theme, "favicon") do %>
-      <link rel="icon" type="image/x-icon" href={Map.get(provider_theme, "favicon")} />
+    <%= if Map.get(theme, "favicon") do %>
+      <link rel="icon" type="image/x-icon" href={Map.get(theme, "favicon")} />
     <% end %>
-    <% theme_color = Map.get(provider_theme, "theme_color") %>
+    <% theme_color = Map.get(theme, "theme_color") %>
     <% current_color_mode = assigns[:color_mode] || "light" %>
     <% {light_theme_color, dark_theme_color} =
       cond do
@@ -104,11 +106,12 @@
     />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <% app_js_src = SRI.versioned_path(~p"/assets/js/app.js") %>
     <script
       defer
       phx-track-static
       type="text/javascript"
-      src={~p"/assets/js/app.js"}
+      src={app_js_src}
       integrity={SRI.integrity(~p"/assets/js/app.js")}
       crossorigin="anonymous"
     >

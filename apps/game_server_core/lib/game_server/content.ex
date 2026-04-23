@@ -1,17 +1,32 @@
 defmodule GameServer.Content do
   @moduledoc """
-  Reads and renders Markdown content from files/directories configured
-  in the theme JSON config (`"changelog"`, `"roadmap"`, and `"blog"` keys).
+  Reads and renders Markdown content from project files and directories.
 
-  Paths are resolved relative to the project working directory.
+  Lookup is path-based rather than theme-config driven. By default, content is
+  resolved from the repository root (`CHANGELOG.md`, `ROADMAP.md`, `blog/`).
+  Forks can optionally override those files from `apps/game_server_host/content/*`.
 
   All content is cached in `:persistent_term` after the first read.
   Call `reload/0` to invalidate everything (e.g. after a config change).
   """
 
-  alias GameServer.Theme.JSONConfig
-
   @cache_key {__MODULE__, :cache}
+  @host_content_dir Path.join(["apps", "game_server_host", "content"])
+
+  @changelog_candidates [
+    "CHANGELOG.md",
+    Path.join(@host_content_dir, "CHANGELOG.md")
+  ]
+
+  @roadmap_candidates [
+    "ROADMAP.md",
+    Path.join(@host_content_dir, "ROADMAP.md")
+  ]
+
+  @blog_candidates [
+    "blog",
+    Path.join(@host_content_dir, "blog")
+  ]
 
   # ---------------------------------------------------------------------------
   # Cache management
@@ -82,10 +97,7 @@ defmodule GameServer.Content do
   """
   @spec changelog_path() :: String.t() | nil
   def changelog_path do
-    case JSONConfig.get_setting(:changelog) do
-      p when is_binary(p) and p != "" -> resolve_path(p)
-      _ -> nil
-    end
+    find_existing_file(@changelog_candidates)
   end
 
   # ---------------------------------------------------------------------------
@@ -117,10 +129,7 @@ defmodule GameServer.Content do
   """
   @spec roadmap_path() :: String.t() | nil
   def roadmap_path do
-    case JSONConfig.get_setting(:roadmap) do
-      p when is_binary(p) and p != "" -> resolve_path(p)
-      _ -> nil
-    end
+    find_existing_file(@roadmap_candidates)
   end
 
   # ---------------------------------------------------------------------------
@@ -204,10 +213,7 @@ defmodule GameServer.Content do
   """
   @spec blog_dir() :: String.t() | nil
   def blog_dir do
-    case JSONConfig.get_setting(:blog) do
-      p when is_binary(p) and p != "" -> resolve_path(p)
-      _ -> nil
-    end
+    find_existing_dir(@blog_candidates)
   end
 
   @doc """
@@ -263,19 +269,20 @@ defmodule GameServer.Content do
     end
   end
 
-  defp resolve_path(path) do
-    # Strip leading "/" since config paths like "/blog" should be relative
-    # to the project root, not absolute filesystem paths (matching the
-    # convention used for logo/banner which are web URL paths).
-    clean = String.trim_leading(path, "/")
-    expanded = Path.expand(clean, File.cwd!())
+  defp find_existing_file(paths) when is_list(paths) do
+    Enum.find_value(paths, fn path ->
+      expanded = Path.expand(path, File.cwd!())
 
-    cond do
-      File.exists?(expanded) -> expanded
-      File.exists?(clean) -> Path.expand(clean)
-      File.exists?(path) -> Path.expand(path)
-      true -> nil
-    end
+      if File.regular?(expanded), do: expanded, else: nil
+    end)
+  end
+
+  defp find_existing_dir(paths) when is_list(paths) do
+    Enum.find_value(paths, fn path ->
+      expanded = Path.expand(path, File.cwd!())
+
+      if File.dir?(expanded), do: expanded, else: nil
+    end)
   end
 
   defp render_markdown_file(path, content_type) do

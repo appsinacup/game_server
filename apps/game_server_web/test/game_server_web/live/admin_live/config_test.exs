@@ -386,8 +386,8 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     assert html =~ "THEME_CONFIG: #{base}"
     # raw JSON content should be present in the page
     assert html =~ "Test Theme"
-    assert html =~ "/theme/test-logo.png"
     assert html =~ "Primary Nav"
+    assert html =~ "/theme/test-logo.png"
     assert has_element?(lv, "#main-navbar a[href='/status']")
     assert has_element?(lv, "#main-navbar a[href='/billing']")
   end

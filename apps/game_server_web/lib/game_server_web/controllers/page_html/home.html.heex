@@ -1,10 +1,10 @@
 <Layouts.app flash={@flash} current_scope={@current_scope}>
   <% locale = Gettext.get_locale(GameServerWeb.Gettext) %>
-  <% provider_theme = GameServer.Theme.JSONConfig.get_theme(locale) || %{} %>
-  <% useful_links = Map.get(provider_theme, "useful_links", []) %>
-  <% features = Map.get(provider_theme, "features", []) %>
-  <% banner_link = Map.get(provider_theme, "banner_link") %>
-  <% background_icons = Map.get(provider_theme, "background_icons") || [] %>
+  <% theme = GameServerWeb.Layouts.resolve_theme(locale, assigns[:theme] || %{}) %>
+  <% useful_links = Map.get(theme, "useful_links", []) %>
+  <% features = Map.get(theme, "features", []) %>
+  <% banner_link = GameServerWeb.Layouts.home_banner_link() %>
+  <% background_icons = Map.get(theme, "background_icons") || [] %>
   <% # Compute dark variant paths for hero and banner images
   host_static_dir = Application.app_dir(:game_server_host, "priv/static")
   web_static_dir = Application.app_dir(:game_server_web, "priv/static")
@@ -13,7 +13,7 @@
     File.exists?(Path.join(host_static_dir, "images/fullscreen_dark.png")) or
       File.exists?(Path.join(web_static_dir, "images/fullscreen_dark.png"))
 
-  banner_path = Map.get(provider_theme, "banner", "")
+  banner_path = Map.get(theme, "banner", "")
   banner_dark_path = String.replace(banner_path, ~r/\.(\w+)$/, "_dark.\\1")
 
   banner_dark_exists? =
@@ -91,7 +91,7 @@
           <%= if banner_link do %>
             <a href={banner_link} class={banner_wrapper}>
               <img
-                src={Map.get(provider_theme, "banner")}
+                src={Map.get(theme, "banner")}
                 alt="Banner"
                 width="1280"
                 height="480"
@@ -113,7 +113,7 @@
           <% else %>
             <div class={banner_wrapper}>
               <img
-                src={Map.get(provider_theme, "banner")}
+                src={Map.get(theme, "banner")}
                 alt="Banner"
                 width="1280"
                 height="480"
@@ -136,7 +136,7 @@
 
           <%!-- Description --%>
           <p class="max-w-2xl text-center text-base-content [[data-theme=dark]_&]:text-white/90 text-base sm:text-lg lg:text-xl leading-relaxed drop-shadow-sm [[data-theme=dark]_&]:drop-shadow">
-            {GameServerWeb.PageHTML.format_description(Map.get(provider_theme, "description", ""))}
+            {GameServerWeb.PageHTML.format_description(Map.get(theme, "description", ""))}
           </p>
 
           <%!-- Useful links --%>

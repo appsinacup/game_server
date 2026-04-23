@@ -192,21 +192,21 @@ defmodule GameServer.Theme.JSONConfig do
   defp normalize_asset_paths(map) when is_map(map) do
     Enum.reduce(["css", "logo", "banner", "favicon"], map, fn key, acc ->
       case Map.get(acc, key) do
-        v when is_binary(v) -> Map.put(acc, key, normalize_path(v))
+        value when is_binary(value) -> Map.put(acc, key, normalize_path(value))
         _ -> acc
       end
     end)
   end
 
   defp normalize_path(value) when is_binary(value) do
-    v = String.trim(value)
+    trimmed = String.trim(value)
 
     cond do
-      v == "" -> v
-      String.starts_with?(v, "/") -> v
-      String.starts_with?(v, "data:") -> v
-      Regex.match?(~r/^https?:\/\//i, v) -> v
-      true -> "/" <> v
+      trimmed == "" -> trimmed
+      String.starts_with?(trimmed, "/") -> trimmed
+      String.starts_with?(trimmed, "data:") -> trimmed
+      Regex.match?(~r/^https?:\/\//i, trimmed) -> trimmed
+      true -> "/" <> trimmed
     end
   end
 end

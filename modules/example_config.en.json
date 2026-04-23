@@ -3,18 +3,10 @@
   "tagline": "Game + Backend",
   "site_message": "Gamend is in beta!",
   "description": "**Open source** Elixir game server for **real-time** multiplayer games.",
-  "css": "",
-  "logo": "/images/logo.png",
-  "banner": "/images/banner.png",
-  "banner_link": "/docs/setup",
-  "favicon": "/favicon.ico",
   "theme_color": {
     "light": "#ffffff",
     "dark": "#1a1a2e"
   },
-  "changelog": "/CHANGELOG.md",
-  "roadmap": "/ROADMAP.md",
-  "blog": "/blog",
   "useful_links": [
     {
       "title": "Getting Started",

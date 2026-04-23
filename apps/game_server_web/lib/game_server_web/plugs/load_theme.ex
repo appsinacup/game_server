@@ -1,11 +1,8 @@
 defmodule GameServerWeb.Plugs.LoadTheme do
   @moduledoc """
-  Plug that assigns the currently configured Theme provider's theme map as
-  `conn.assigns.theme` so templates and LiveViews can render config-driven
-  values like title, logo, banner and a `css` path (external stylesheet).
-
-  The active theme provider module is configured through:
-    Application.get_env(:game_server_web, :theme_module) || GameServer.Theme.JSONConfig
+  Plug that assigns the resolved theme map into `conn.assigns.theme` so
+  templates and LiveViews can render provider-driven copy alongside the
+  host-owned branding assets.
   """
 
   @log_theme Mix.env() in [:dev, :test]
@@ -16,21 +13,9 @@ defmodule GameServerWeb.Plugs.LoadTheme do
 
   def call(conn, _opts) do
     require Logger
-    theme_mod = Application.get_env(:game_server_web, :theme_module, GameServer.Theme.JSONConfig)
 
     locale = Map.get(conn.assigns, :locale) || Gettext.get_locale(GameServerWeb.Gettext)
-
-    theme_map = fetch_theme(theme_mod, locale)
-
-    # Only expose the simple, safe keys that the application uses for UI
-    theme = %{
-      "title" => Map.get(theme_map, "title"),
-      "tagline" => Map.get(theme_map, "tagline"),
-      "logo" => Map.get(theme_map, "logo"),
-      "banner" => Map.get(theme_map, "banner"),
-      "favicon" => Map.get(theme_map, "favicon"),
-      "css" => Map.get(theme_map, "css")
-    }
+    theme = GameServerWeb.Layouts.resolve_theme(locale)
 
     # In development & test environments log the resolved theme_map to make
     # runtime debugging easier when things appear blank in the UI.
@@ -41,57 +26,5 @@ defmodule GameServerWeb.Plugs.LoadTheme do
     end
 
     assign(conn, :theme, theme)
-  end
-
-  defp fetch_theme(mod, locale) do
-    # Ensure the module is loaded before checking exports to avoid false
-    # negatives that skip the locale-aware API.
-    _ = Code.ensure_loaded?(mod)
-
-    # Prefer locale-aware API when available, but fall back to the 0-arity
-    # provider when the locale-specific call returns an empty map or nil.
-    if is_binary(locale) and function_exported?(mod, :get_theme, 1) do
-      res = safe_get_theme_1(mod, locale)
-
-      if is_map(res) and map_size(res) > 0 do
-        res
-      else
-        try_primary_or_fallback(mod, locale)
-      end
-    else
-      safe_get_theme_0(mod)
-    end
-  rescue
-    _ -> %{}
-  end
-
-  defp try_primary_or_fallback(mod, locale) do
-    primary =
-      locale
-      |> String.trim()
-      |> String.downcase()
-      |> String.split(~r/[-_]/, parts: 2)
-      |> List.first()
-
-    if is_binary(primary) and primary != locale and function_exported?(mod, :get_theme, 1) do
-      case safe_get_theme_1(mod, primary) do
-        m when is_map(m) and map_size(m) > 0 -> m
-        _ -> safe_get_theme_0(mod)
-      end
-    else
-      safe_get_theme_0(mod)
-    end
-  end
-
-  defp safe_get_theme_1(mod, arg) do
-    mod.get_theme(arg) || %{}
-  rescue
-    _ -> %{}
-  end
-
-  defp safe_get_theme_0(mod) do
-    if function_exported?(mod, :get_theme, 0), do: mod.get_theme() || %{}, else: %{}
-  rescue
-    _ -> %{}
   end
 end

@@ -29,6 +29,16 @@ defmodule GameServerWeb.Layouts do
     host_layouts.root(assigns)
   end
 
+  def resolve_theme(locale \\ nil, assigned_theme \\ %{}) do
+    host_layouts = host_layouts()
+    host_layouts.resolve_theme(locale, assigned_theme)
+  end
+
+  def home_banner_link do
+    host_layouts = host_layouts()
+    host_layouts.home_banner_link()
+  end
+
   def icon_placements(icons) do
     host_layouts = host_layouts()
     host_layouts.icon_placements(icons)

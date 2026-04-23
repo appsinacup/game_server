@@ -5,6 +5,7 @@ defmodule GameServerWeb.AdminLive.Config do
 
   alias GameServer.Accounts.User
   alias GameServer.Accounts.UserNotifier
+  alias GameServer.Content
   alias GameServer.Hooks
   alias GameServer.Hooks.DynamicRpcs
   alias GameServer.Hooks.PluginBuilder
@@ -404,7 +405,8 @@ defmodule GameServerWeb.AdminLive.Config do
                               CSS
                             </span>
                             <span class="text-xs font-mono">
-                              {Map.get(@config.theme_map, "css", "—")}
+                              {Map.get(@config.theme_map, "css") ||
+                                "/assets/css/app.css (loaded by host layout)"}
                             </span>
                           </div>
                           <div class="flex items-baseline gap-2">
@@ -412,7 +414,7 @@ defmodule GameServerWeb.AdminLive.Config do
                               Blog
                             </span>
                             <span class="text-xs font-mono">
-                              {Map.get(@config.theme_map, "blog", "—")}
+                              {@config.content_paths.blog || "—"}
                             </span>
                           </div>
                           <div class="flex items-baseline gap-2">
@@ -420,7 +422,15 @@ defmodule GameServerWeb.AdminLive.Config do
                               Changelog
                             </span>
                             <span class="text-xs font-mono">
-                              {Map.get(@config.theme_map, "changelog", "—")}
+                              {@config.content_paths.changelog || "—"}
+                            </span>
+                          </div>
+                          <div class="flex items-baseline gap-2">
+                            <span class="text-xs font-semibold opacity-70 w-20 shrink-0">
+                              Roadmap
+                            </span>
+                            <span class="text-xs font-mono">
+                              {@config.content_paths.roadmap || "—"}
                             </span>
                           </div>
                         </div>
@@ -519,7 +529,7 @@ defmodule GameServerWeb.AdminLive.Config do
                           <summary class="text-xs font-semibold opacity-70 cursor-pointer">
                             Raw JSON
                           </summary>
-                          <pre class="mt-1 text-xs font-mono whitespace-pre-wrap max-h-48 overflow-auto bg-base-200/60 rounded-lg p-2">{Jason.encode!(@config.theme_map, pretty: true)}</pre>
+                          <pre class="mt-1 text-xs font-mono whitespace-pre-wrap max-h-48 overflow-auto bg-base-200/60 rounded-lg p-2">{Jason.encode!(@config.theme_raw_map, pretty: true)}</pre>
                         </details>
                       <% end %>
                     </td>
@@ -1653,15 +1663,21 @@ defmodule GameServerWeb.AdminLive.Config do
       # implementation so behavior is consistent across the app. We expose three
       # keys used by the template:
       #  - :theme_config -> the runtime THEME_CONFIG env value (path) or nil
-      #  - :theme_map -> resolved theme map (locale-specific, no merging)
-      #  - :theme_json -> raw JSON shown in the UI (runtime file contents or packaged default)
-      theme_map: JSONConfig.get_theme(),
+      #  - :theme_map -> resolved theme map with host-owned branding assets
+      #  - :theme_raw_map -> raw runtime JSON theme values (locale-specific)
+      theme_map: GameServerWeb.Layouts.resolve_theme(),
+      theme_raw_map: JSONConfig.get_theme(),
       # Only rely on JSONConfig for decisions about runtime vs default and raw
       # content. Keep logic inside the provider instead of duplicating parsing
       # here.
       theme_config: JSONConfig.runtime_path(),
       # Dark variant / fullscreen image diagnostics (convention-based)
-      theme_dark: theme_dark_variants(JSONConfig.get_theme()),
+      theme_dark: theme_dark_variants(GameServerWeb.Layouts.resolve_theme()),
+      content_paths: %{
+        blog: Content.blog_dir(),
+        changelog: Content.changelog_path(),
+        roadmap: Content.roadmap_path()
+      },
       device_auth_enabled_app: Application.get_env(:game_server_core, :device_auth_enabled),
       device_auth_enabled_env: System.get_env("DEVICE_AUTH_ENABLED"),
       require_account_activation: GameServer.Accounts.require_account_activation?(),
@@ -2149,7 +2165,10 @@ defmodule GameServerWeb.AdminLive.Config do
   # Compute dark-variant and fullscreen image existence for theme diagnostics.
   # Convention: `file.ext` → `file_dark.ext`, detected via File.exists? on priv/static.
   defp theme_dark_variants(theme_map) do
-    static_dir = Application.app_dir(:game_server_web, "priv/static")
+    static_dirs = [
+      Application.app_dir(:game_server_host, "priv/static"),
+      Application.app_dir(:game_server_web, "priv/static")
+    ]
 
     banner_path = (theme_map && Map.get(theme_map, "banner")) || ""
     banner_dark_path = derive_dark_path(banner_path)
@@ -2162,23 +2181,27 @@ defmodule GameServerWeb.AdminLive.Config do
 
     %{
       banner_dark_path: banner_dark_path,
-      banner_dark_exists?: file_exists_in_static?(static_dir, banner_dark_path),
+      banner_dark_exists?: file_exists_in_static?(static_dirs, banner_dark_path),
       logo_dark_path: logo_dark_path,
-      logo_dark_exists?: file_exists_in_static?(static_dir, logo_dark_path),
+      logo_dark_exists?: file_exists_in_static?(static_dirs, logo_dark_path),
       favicon_dark_path: favicon_dark_path,
-      favicon_dark_exists?: file_exists_in_static?(static_dir, favicon_dark_path),
-      fullscreen_exists?: File.exists?(Path.join(static_dir, "images/fullscreen.png")),
-      fullscreen_dark_exists?: File.exists?(Path.join(static_dir, "images/fullscreen_dark.png"))
+      favicon_dark_exists?: file_exists_in_static?(static_dirs, favicon_dark_path),
+      fullscreen_exists?: file_exists_in_static?(static_dirs, "/images/fullscreen.png"),
+      fullscreen_dark_exists?: file_exists_in_static?(static_dirs, "/images/fullscreen_dark.png")
     }
   end
 
   defp derive_dark_path(""), do: ""
   defp derive_dark_path(path), do: String.replace(path, ~r/\.(\w+)$/, "_dark.\\1")
 
-  defp file_exists_in_static?(_static_dir, ""), do: false
+  defp file_exists_in_static?(_static_dirs, ""), do: false
 
-  defp file_exists_in_static?(static_dir, path) do
-    File.exists?(Path.join(static_dir, String.trim_leading(path, "/")))
+  defp file_exists_in_static?(static_dirs, path) do
+    relative_path = String.trim_leading(path, "/")
+
+    Enum.any?(static_dirs, fn static_dir ->
+      File.exists?(Path.join(static_dir, relative_path))
+    end)
   end
 
   defp exported_plugin_functions do

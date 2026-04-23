@@ -13,13 +13,7 @@
     "hero-computer-desktop-solid",
     "hero-globe-alt-solid"
   ],
-  "banner": "/images/banner.png",
-  "banner_link": "/docs/setup",
-  "blog": "/blog",
-  "changelog": "/CHANGELOG.md",
-  "css": "",
   "description": "**Ανοικτός κώδικας** Elixir game server for **real-time** multiplayer games.",
-  "favicon": "/favicon.ico",
   "features": [
     {
       "description": "Email, Magic-link, OAuth, JWT and Session. Register, login, reset password and verify email.",
@@ -87,7 +81,6 @@
       "label": "Blog"
     }
   ],
-  "logo": "/images/logo.png",
   "navigation": {
     "primary_links": [
       {
@@ -112,7 +105,6 @@
       }
     ]
   },
-  "roadmap": "/ROADMAP.md",
   "site_message": "",
   "tagline": "Game + Backend",
   "title": "Gamend",

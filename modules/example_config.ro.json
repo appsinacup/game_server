@@ -13,13 +13,7 @@
     "hero-computer-desktop-solid",
     "hero-globe-alt-solid"
   ],
-  "banner": "/images/banner.png",
-  "banner_link": "/docs/setup",
-  "blog": "/blog",
-  "changelog": "/CHANGELOG.md",
-  "css": "",
   "description": "Server de jocuri Elixir **open source** pentru jocuri multiplayer **în timp real**.",
-  "favicon": "/favicon.ico",
   "features": [
     {
       "description": "E-mail, Magic-link, OAuth, JWT și Sesiune. Înregistrare, conectare, resetare parolă și verificare e-mail.",
@@ -87,7 +81,6 @@
       "label": "Blog"
     }
   ],
-  "logo": "/images/logo.png",
   "navigation": {
     "primary_links": [
       {
@@ -112,7 +105,6 @@
       }
     ]
   },
-  "roadmap": "/ROADMAP.md",
   "tagline": "Joc + Backend",
   "site_message": "",
   "title": "Gamend",

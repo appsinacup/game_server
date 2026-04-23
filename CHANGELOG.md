@@ -1,6 +1,7 @@
 # April 2026
 
 
+- [changed] **Host-owned branding and content paths**: logo, banner, favicon, banner link, extra theme CSS, changelog, roadmap, and blog path settings are no longer read from theme JSON. Branding now comes from the host app and content is resolved from host-relative defaults.
 - [added] **Browser theme color**: new `theme_color` field in theme JSON config tints the browser chrome (address bar / tab bar) in Safari and Chrome. Supports a single color string or separate light/dark variants.
 - [added] **Dynamic sitemap.xml**: auto-generated sitemap listing all public pages and blog posts for search engine discovery.
 - [added] **Comprehensive robots.txt**: blocks AI crawlers (GPTBot, ClaudeBot, CCBot, etc.), aggressive SEO bots, and restricts search engines to public pages only.

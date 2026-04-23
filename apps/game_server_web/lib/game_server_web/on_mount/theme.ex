@@ -27,28 +27,7 @@ defmodule GameServerWeb.OnMount.Theme do
   end
 
   defp compute_theme do
-    theme_mod = Application.get_env(:game_server_web, :theme_module, GameServer.Theme.JSONConfig)
-    _ = Code.ensure_loaded?(theme_mod)
     locale = Gettext.get_locale(GameServerWeb.Gettext)
-
-    theme_map =
-      try do
-        if is_binary(locale) and function_exported?(theme_mod, :get_theme, 1) do
-          theme_mod.get_theme(locale) || %{}
-        else
-          theme_mod.get_theme() || %{}
-        end
-      rescue
-        _ -> %{}
-      end
-
-    %{
-      "title" => Map.get(theme_map, "title"),
-      "tagline" => Map.get(theme_map, "tagline"),
-      "logo" => Map.get(theme_map, "logo"),
-      "banner" => Map.get(theme_map, "banner"),
-      "favicon" => Map.get(theme_map, "favicon"),
-      "css" => Map.get(theme_map, "css")
-    }
+    GameServerWeb.Layouts.resolve_theme(locale)
   end
 end
