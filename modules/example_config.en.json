@@ -54,6 +54,11 @@
   "navigation": {
     "primary_links": [
       {
+        "label": "Play",
+        "href": "/play",
+        "icon": "hero-play-solid"
+      },
+      {
         "label": "Leaderboards",
         "href": "/leaderboards",
         "icon": "hero-chart-bar-solid"
@@ -70,14 +75,6 @@
       }
     ]
   },
-  "nav_links": [
-    {
-      "label": "Play",
-      "href": "/play",
-      "auth": "any",
-      "icon": "hero-play-solid"
-    }
-  ],
   "footer_links": [
     {
       "label": "Privacy Policy",

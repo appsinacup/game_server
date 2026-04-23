@@ -472,27 +472,6 @@ defmodule GameServerWeb.AdminLive.Config do
                           <% end %>
                         <% end %>
 
-                        <%!-- Legacy Nav Links --%>
-                        <% legacy_nav_links = Map.get(@config.theme_map, "nav_links", []) %>
-                        <%= if legacy_nav_links != [] do %>
-                          <div class="mt-3">
-                            <span class="text-xs font-semibold opacity-70">
-                              Legacy Nav Links ({length(legacy_nav_links)})
-                            </span>
-                            <div class="mt-1 flex flex-wrap gap-2">
-                              <%= for link <- legacy_nav_links do %>
-                                <div class="badge badge-ghost gap-1 py-3">
-                                  <span class="text-xs">{link["label"]}</span>
-                                  <span class="text-[10px] opacity-50">{link["href"]}</span>
-                                  <%= if link["auth"] do %>
-                                    <span class="text-[10px] opacity-40">({link["auth"]})</span>
-                                  <% end %>
-                                </div>
-                              <% end %>
-                            </div>
-                          </div>
-                        <% end %>
-
                         <%!-- Footer Links --%>
                         <% footer_links = Map.get(@config.theme_map, "footer_links", []) %>
                         <%= if footer_links != [] do %>

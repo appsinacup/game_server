@@ -23,19 +23,19 @@ defmodule GameServerWeb.HostLayoutNavigation do
       />
 
       <%= if @current_scope do %>
-        <%= if @legacy_links != [] or @authenticated_links != [] do %>
+        <%= if @authenticated_links != [] do %>
           <.nav_divider />
           <.main_nav_links
-            links={@legacy_links ++ @authenticated_links}
+            links={@authenticated_links}
             current_path={@current_path}
             inactive_class="btn-outline"
           />
         <% end %>
       <% else %>
-        <%= if @guest_links != [] or @legacy_links != [] do %>
+        <%= if @guest_links != [] do %>
           <.nav_divider />
           <.main_nav_links
-            links={@guest_links ++ @legacy_links}
+            links={@guest_links}
             current_path={@current_path}
             inactive_class="btn-outline"
           />
@@ -318,13 +318,13 @@ defmodule GameServerWeb.HostLayoutNavigation do
             <% end %>
 
             <.mobile_nav_links
-              links={@primary_links ++ @legacy_links ++ @authenticated_links}
+              links={@primary_links ++ @authenticated_links}
               current_path={@current_path}
               inactive_class="btn-ghost"
             />
           <% else %>
             <.mobile_nav_links
-              links={@guest_links ++ @legacy_links}
+              links={@guest_links}
               current_path={@current_path}
               inactive_class="btn-ghost"
             />
@@ -579,8 +579,7 @@ defmodule GameServerWeb.HostLayoutNavigation do
       authenticated_links:
         section_links(assigns.navigation, "authenticated_links", auth_level, "authenticated"),
       account_links:
-        section_links(assigns.navigation, "account_links", auth_level, "authenticated"),
-      legacy_links: section_links(assigns.navigation, "legacy_links", auth_level, "any")
+        section_links(assigns.navigation, "account_links", auth_level, "authenticated")
     )
   end
 

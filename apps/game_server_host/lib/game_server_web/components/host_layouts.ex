@@ -190,8 +190,7 @@ defmodule GameServerWeb.HostLayouts do
       "guest_links" => navigation_links(provider_navigation, en_navigation, "guest_links"),
       "authenticated_links" =>
         navigation_links(provider_navigation, en_navigation, "authenticated_links"),
-      "account_links" => navigation_links(provider_navigation, en_navigation, "account_links"),
-      "legacy_links" => theme_list(provider_theme, en_theme, "nav_links")
+      "account_links" => navigation_links(provider_navigation, en_navigation, "account_links")
     }
   end
 

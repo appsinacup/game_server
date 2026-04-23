@@ -143,7 +143,6 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
   # Translatable array fields: {json_path_segments, object_field_for_text}
   @config_array_fields [
     {["useful_links"], "title"},
-    {["nav_links"], "label"},
     {["footer_links"], "label"},
     {["features"], "title"},
     {["features"], "description"},

@@ -47,14 +47,30 @@
       "icon": "hero-book-open-solid"
     }
   ],
-  "nav_links": [
-    {
-      "label": "Play",
-      "href": "/play",
-      "auth": "any",
-      "icon": "hero-play-solid"
-    }
-  ],
+  "navigation": {
+    "primary_links": [
+      {
+        "label": "Play",
+        "href": "/play",
+        "icon": "hero-play-solid"
+      },
+      {
+        "label": "Classements",
+        "href": "/leaderboards",
+        "icon": "hero-chart-bar-solid"
+      },
+      {
+        "label": "Succès",
+        "href": "/achievements",
+        "icon": "hero-trophy-solid"
+      },
+      {
+        "label": "Groupes",
+        "href": "/groups",
+        "icon": "hero-user-group-solid"
+      }
+    ]
+  },
   "footer_links": [
     {
       "label": "Privacy Policy",

@@ -429,7 +429,6 @@ defmodule Mix.Tasks.Gettext.ImportCsv do
   @config_top_keys ~w(title tagline description)
   @config_array_fields [
     {["useful_links"], "title"},
-    {["nav_links"], "label"},
     {["footer_links"], "label"},
     {["features"], "title"},
     {["features"], "description"},

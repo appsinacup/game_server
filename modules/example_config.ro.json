@@ -88,14 +88,30 @@
     }
   ],
   "logo": "/images/logo.png",
-  "nav_links": [
-    {
-      "auth": "any",
-      "href": "/play",
-      "icon": "hero-play-solid",
-      "label": "Joacă"
-    }
-  ],
+  "navigation": {
+    "primary_links": [
+      {
+        "label": "Joacă",
+        "href": "/play",
+        "icon": "hero-play-solid"
+      },
+      {
+        "label": "Clasamente",
+        "href": "/leaderboards",
+        "icon": "hero-chart-bar-solid"
+      },
+      {
+        "label": "Realizări",
+        "href": "/achievements",
+        "icon": "hero-trophy-solid"
+      },
+      {
+        "label": "Grupuri",
+        "href": "/groups",
+        "icon": "hero-user-group-solid"
+      }
+    ]
+  },
   "roadmap": "/ROADMAP.md",
   "tagline": "Joc + Backend",
   "site_message": "",

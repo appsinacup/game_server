@@ -88,14 +88,30 @@
     }
   ],
   "logo": "/images/logo.png",
-  "nav_links": [
-    {
-      "auth": "any",
-      "href": "/play",
-      "icon": "hero-play-solid",
-      "label": "Play"
-    }
-  ],
+  "navigation": {
+    "primary_links": [
+      {
+        "label": "Play",
+        "href": "/play",
+        "icon": "hero-play-solid"
+      },
+      {
+        "label": "Πίνακες Κατάταξης",
+        "href": "/leaderboards",
+        "icon": "hero-chart-bar-solid"
+      },
+      {
+        "label": "Επιτεύγματα",
+        "href": "/achievements",
+        "icon": "hero-trophy-solid"
+      },
+      {
+        "label": "Ομάδες",
+        "href": "/groups",
+        "icon": "hero-user-group-solid"
+      }
+    ]
+  },
   "roadmap": "/ROADMAP.md",
   "site_message": "",
   "tagline": "Game + Backend",

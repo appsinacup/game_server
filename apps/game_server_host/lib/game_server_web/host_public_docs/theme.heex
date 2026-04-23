@@ -47,7 +47,7 @@
       <!-- Step 1: Configure theming JSON -->
       <div class="step">
         <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
-          <span class="badge badge-primary">2</span> {doc_text("Configure theming JSON")}
+          <span class="badge badge-primary">1</span> {doc_text("Configure theming JSON")}
         </h3>
         <div class="ml-8 space-y-3">
           <p>{doc_text("Place a JSON file somewhere in your project, for example:")}</p>
@@ -64,6 +64,7 @@
   "theme_color": { "light": "#ffffff", "dark": "#1a1a2e" },
   "navigation": {
     "primary_links": [
+      { "label": "Play", "href": "/play", "icon": "hero-play-solid" },
       { "label": "Status", "href": "/status" },
       { "label": "Leaderboards", "href": "/leaderboards", "icon": "hero-chart-bar-solid" }
     ],
@@ -130,12 +131,6 @@
         <p>
           {doc_text(
             "Use the navigation object to move non-behavioral nav structure into config. primary_links render in the main nav for everyone, guest_links render only for signed-out visitors, authenticated_links render only for signed-in users, and account_links render inside the account dropdown. Notifications, admin, locale switching, theme toggling, and logout stay code-owned."
-          )}
-        </p>
-
-        <p class="text-sm text-base-content/80">
-          {doc_text(
-            "The older top-level nav_links array still works for compatibility, but the structured navigation object is the preferred shape for new configs because it keeps sections explicit."
           )}
         </p>
 

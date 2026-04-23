@@ -14,36 +14,59 @@ defmodule GameServerWeb.PageControllerTest do
       Path.join(System.tmp_dir!(), "theme_page_test_#{System.unique_integer([:positive])}.json")
 
     en_path = String.trim_trailing(base, ".json") <> ".en.json"
+    ro_path = String.trim_trailing(base, ".json") <> ".ro.json"
 
-    json =
-      Jason.encode!(%{
-        "title" => "Gamend",
-        "tagline" => "Game + Backend",
-        "logo" => "/images/logo.png",
-        "banner" => "/images/banner.png",
-        "favicon" => "/favicon.ico",
-        "features" => [
-          %{
-            "title" => "Persistence & Caching",
-            "description" => "SQLite (in memory) and PostgreSQL.",
-            "icon" => "hero-server-stack"
-          }
-        ],
-        "useful_links" => [
-          %{
-            "title" => "Discord",
-            "url" => "https://discord.com/invite/example",
-            "icon" => "hero-chat-bubble-left-ellipsis",
-            "external" => true
-          }
-        ],
-        "footer_links" => [
-          %{"label" => "Privacy Policy", "href" => "/privacy"},
-          %{"label" => "Terms and Conditions", "href" => "/terms"}
-        ]
-      })
+    theme = %{
+      "title" => "Gamend",
+      "tagline" => "Game + Backend",
+      "logo" => "/images/logo.png",
+      "banner" => "/images/banner.png",
+      "favicon" => "/favicon.ico",
+      "features" => [
+        %{
+          "title" => "Persistence & Caching",
+          "description" => "SQLite (in memory) and PostgreSQL.",
+          "icon" => "hero-server-stack"
+        }
+      ],
+      "useful_links" => [
+        %{
+          "title" => "Discord",
+          "url" => "https://discord.com/invite/example",
+          "icon" => "hero-chat-bubble-left-ellipsis",
+          "external" => true
+        }
+      ],
+      "footer_links" => [
+        %{"label" => "Privacy Policy", "href" => "/privacy"},
+        %{"label" => "Terms and Conditions", "href" => "/terms"}
+      ]
+    }
+
+    json = Jason.encode!(theme)
+
+    ro_json =
+      Jason.encode!(
+        Map.put(theme, "navigation", %{
+          "primary_links" => [
+            %{"label" => "Joacă", "href" => "/play", "icon" => "hero-play-solid"},
+            %{
+              "label" => "Leaderboards",
+              "href" => "/leaderboards",
+              "icon" => "hero-chart-bar-solid"
+            },
+            %{
+              "label" => "Achievements",
+              "href" => "/achievements",
+              "icon" => "hero-trophy-solid"
+            },
+            %{"label" => "Groups", "href" => "/groups", "icon" => "hero-user-group-solid"}
+          ]
+        })
+      )
 
     File.write!(en_path, json)
+    File.write!(ro_path, ro_json)
     System.put_env("THEME_CONFIG", base)
     JSONConfig.reload()
     Content.reload()
@@ -53,6 +76,7 @@ defmodule GameServerWeb.PageControllerTest do
       JSONConfig.reload()
       Content.reload()
       File.rm(en_path)
+      File.rm(ro_path)
     end)
 
     :ok
@@ -66,6 +90,19 @@ defmodule GameServerWeb.PageControllerTest do
     assert body =~ "Online"
     assert body =~ "Discord"
     assert body =~ "SQLite"
+  end
+
+  test "home uses localized primary nav labels from locale theme config", %{conn: conn} do
+    conn = get(conn, "/ro")
+    assert redirected_to(conn) == "/"
+
+    conn = get(recycle(conn), "/")
+    body = html_response(conn, 200)
+
+    assert body =~ "Joacă"
+    assert body =~ "Clasamente"
+    assert body =~ "Realizări"
+    assert body =~ "Grupuri"
   end
 
   test "home renders without errors when THEME_CONFIG is unset", %{conn: conn} do
