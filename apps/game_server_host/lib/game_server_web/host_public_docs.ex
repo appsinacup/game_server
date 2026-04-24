@@ -21,10 +21,10 @@ defmodule GameServerWeb.HostPublicDocs do
 
         <.guide_category_heading title="Core Setup" />
         {GameServerWeb.HostPublicDocsTemplates.deployment(assigns)}
+        {GameServerWeb.HostPublicDocsTemplates.elixir_app_starter(assigns)}
         {GameServerWeb.HostPublicDocsTemplates.architecture(assigns)}
         {GameServerWeb.HostPublicDocsTemplates.data_schema(assigns)}
         {GameServerWeb.HostPublicDocsTemplates.theme(assigns)}
-        {GameServerWeb.HostPublicDocsTemplates.custom_host(assigns)}
 
         <.guide_category_heading title="Authentication & Providers" />
         {GameServerWeb.HostPublicDocsTemplates.authentication(assigns)}

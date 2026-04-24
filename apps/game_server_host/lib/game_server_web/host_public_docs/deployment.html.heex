@@ -38,14 +38,30 @@
     <div class="space-y-4">
       <p class="text-sm text-base-content/80">
         {doc_text(
-          "Deploy your own game server instance using the starter repository. The quickest path is Docker Compose — clone, configure, and run."
+          "Deploy your own game server instance using the starter repository. The quickest path is Docker Compose — clone, configure, and run. If you want a full Elixir host app that you can edit directly, see the Elixir App Starter guide below."
         )}
       </p>
+
+      <div class="rounded-xl border border-base-300/70 bg-base-200/50 p-4 text-sm text-base-content/80">
+        <p class="font-semibold text-base-content">{doc_text("Two supported starting paths")}</p>
+        <ul class="mt-2 list-disc list-inside space-y-1">
+          <li>
+            {doc_text(
+              "Docker starter: fastest path to running a server with minimal code changes"
+            )}
+          </li>
+          <li>
+            {doc_text(
+              "Elixir app starter: best path when you want to own the host app, routes, branding, and runtime policy in code"
+            )}
+          </li>
+        </ul>
+      </div>
 
       <%!-- Step 1: Clone --%>
       <div class="step">
         <h3 class="text-lg font-semibold mb-3">
-          {doc_text("1. Clone the starter repository")}
+          {doc_text("1. Clone the Docker starter repository")}
         </h3>
         <div class="ml-8 space-y-3">
           <p class="text-sm text-base-content/80">
