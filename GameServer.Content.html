@@ -5,10 +5,10 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.935">
+    <meta name="project" content="GameServer v1.0.936">
 
 
-    <title>GameServer.Content — GameServer v1.0.935</title>
+    <title>GameServer.Content — GameServer v1.0.936</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.935
+          v1.0.936
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Content</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.935)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.936)</small>
 
     </h1>
 
@@ -109,8 +109,9 @@ GameServer
 
 
     <section id="moduledoc">
-<p>Reads and renders Markdown content from files/directories configured
-in the theme JSON config (<code class="inline">&quot;changelog&quot;</code>, <code class="inline">&quot;roadmap&quot;</code>, and <code class="inline">&quot;blog&quot;</code> keys).</p><p>Paths are resolved relative to the project working directory.</p><p>All content is cached in <code class="inline">:persistent_term</code> after the first read.
+<p>Reads and renders Markdown content from project files and directories.</p><p>Lookup is path-based rather than theme-config driven. By default, content is
+resolved from the repository root (<code class="inline">CHANGELOG.md</code>, <code class="inline">ROADMAP.md</code>, <code class="inline">blog/</code>).
+Forks can optionally override those files from <code class="inline">apps/game_server_host/content/*</code>.</p><p>All content is cached in <code class="inline">:persistent_term</code> after the first read.
 Call <a href="#reload/0"><code class="inline">reload/0</code></a> to invalidate everything (e.g. after a config change).</p>
     </section>
 

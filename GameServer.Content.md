@@ -1,9 +1,10 @@
 # `GameServer.Content`
 
-Reads and renders Markdown content from files/directories configured
-in the theme JSON config (`"changelog"`, `"roadmap"`, and `"blog"` keys).
+Reads and renders Markdown content from project files and directories.
 
-Paths are resolved relative to the project working directory.
+Lookup is path-based rather than theme-config driven. By default, content is
+resolved from the repository root (`CHANGELOG.md`, `ROADMAP.md`, `blog/`).
+Forks can optionally override those files from `apps/game_server_host/content/*`.
 
 All content is cached in `:persistent_term` after the first read.
 Call `reload/0` to invalidate everything (e.g. after a config change).

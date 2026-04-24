@@ -9,9 +9,11 @@ implementation that reads a JSON file (see GameServer.Theme.JSONConfig).
 Recommended keys in the theme map:
   - "title" (string)
   - "tagline" (string)
-  - "css" (string: public path to a CSS file such as "/theme/theme.css")
-  - "logo" (public URL path)
-  - "banner" (public URL path)
+  - "description" (string)
+  - "theme_color" (string or map with light/dark keys)
+  - "navigation" (map of nav link arrays)
+  - "useful_links" (list)
+  - "features" (list)
   - "metadata" (map)
 
 # `get_setting`
