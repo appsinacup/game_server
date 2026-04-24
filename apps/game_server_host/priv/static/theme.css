@@ -1,0 +1,18 @@
+/* Host-owned theme overrides.
+   Keep this file small and focused on tokens/brand tweaks.
+   Edit the variables below to recolor the app without forking the full app.css. */
+
+:root {
+  /* Example overrides:
+  --color-primary: oklch(72% 0.17 200);
+  --color-secondary: oklch(62% 0.12 245);
+  --color-accent: oklch(78% 0.15 85);
+  */
+}
+
+[data-theme="dark"] {
+  /* Example dark-mode overrides:
+  --color-primary: oklch(78% 0.16 200);
+  --color-base-100: oklch(24% 0.01 250);
+  */
+}

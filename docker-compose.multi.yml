@@ -59,8 +59,8 @@ services:
       GEOIP_DB_PATH: /app/data/GeoLite2-Country.mmdb
     volumes:
       - ./modules:/app/modules
-      - ./priv/static/images:/app/priv/static/images
-      - ./priv/static/assets/css/theme:/app/priv/static/assets/css/theme
+      - ./apps/game_server_host/priv/static/images:/app/apps/game_server_host/priv/static/images
+      - ./apps/game_server_host/priv/static/theme.css:/app/apps/game_server_host/priv/static/theme.css
       - ./data:/app/data:ro
       # Uncomment for HTTPS — mount Let's Encrypt certs and ACME webroot
       # - ./certbot/conf:/etc/letsencrypt:ro

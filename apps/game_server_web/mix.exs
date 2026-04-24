@@ -14,9 +14,9 @@ defmodule GameServerWeb.MixProject do
       listeners: [Phoenix.CodeReloader],
       aliases: aliases(),
       deps: deps(),
-      # Share build artifacts and config with the umbrella root.
+      # Share build artifacts with the umbrella root and load host-owned config.
       build_path: "../../_build",
-      config_path: "../../config/config.exs",
+      config_path: "../game_server_host/config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
       compilers: [:phoenix_live_view] ++ Mix.compilers(),
@@ -58,7 +58,7 @@ defmodule GameServerWeb.MixProject do
       # It is a GitHub-only dep (not on Hex) so it cannot be declared in a
       # library that is published to Hex. The host/consumer app must declare
       # heroicons in its own mix.exs and run `assets.setup` to make the icon
-      # CSS available to the tailwind plugin in assets/vendor/heroicons.
+      # CSS available to the shared tailwind plugin in apps/game_server_web/assets/vendor/heroicons.
       {:swoosh, "~> 1.20"},
       {:castore, "~> 1.0"},
       {:gen_smtp, "~> 1.0"},

@@ -23,12 +23,16 @@ if System.get_env("DATABASE_URL") ||
     timeout: 15_000
 else
   # Fallback to SQLite when no PostgreSQL config
+  database_path =
+    Path.expand(
+      "../db/game_server_test#{System.get_env("MIX_TEST_PARTITION")}.db",
+      __DIR__
+    )
+
+  File.mkdir_p!(Path.dirname(database_path))
+
   config :game_server_core, GameServer.Repo,
-    database:
-      Path.expand(
-        "../db/game_server_test#{System.get_env("MIX_TEST_PARTITION")}.db",
-        __DIR__
-      ),
+    database: database_path,
     adapter: Ecto.Adapters.SQLite3,
     pool: Ecto.Adapters.SQL.Sandbox,
     pool_size: 1,

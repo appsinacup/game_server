@@ -11,6 +11,13 @@ if [ -f .env ]; then
   set +a
 fi
 
+host_css=apps/game_server_host/priv/static/assets/css/app.css
+web_js=apps/game_server_web/priv/static/assets/js/app.js
+
+if [ ! -f "$host_css" ] || [ ! -f "$web_js" ]; then
+  MIX_ENV=dev mix do --app game_server_host assets.build
+fi
+
 # Ensure the runnable host is compiled (so adapter configuration loaded from .env/config files)
 MIX_ENV=dev mix do --app game_server_host compile
 

@@ -11,9 +11,9 @@ defmodule GameServerHost.MixProject do
       listeners: [Phoenix.CodeReloader],
       aliases: aliases(),
       deps: deps(),
-      # Share build artifacts and config with the umbrella root.
+      # Share build artifacts with the umbrella root, but keep config owned by the host app.
       build_path: "../../_build",
-      config_path: "../../config/config.exs",
+      config_path: "config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock"
     ]
@@ -93,6 +93,7 @@ defmodule GameServerHost.MixProject do
       "assets.deploy": [
         "tailwind game_server_web --minify",
         "esbuild game_server_web --minify",
+        "do --app game_server_host cmd mix phx.digest",
         "do --app game_server_web cmd mix phx.digest"
       ],
       lint: ["format --check-formatted", "credo --strict"],

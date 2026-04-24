@@ -188,10 +188,8 @@
   game_server/
   ├── apps/
   │   ├── game_server_core/    # Domain: contexts, schemas, migrations
-  │   ├── game_server_web/     # Web: controllers, LiveViews, channels, components
-  │   └── game_server_host/    # Host: supervision tree, routing, boot config
-  ├── assets/                  # JS, CSS, vendor deps
-  ├── config/                  # Env configs (dev, test, prod, runtime)
+  │   ├── game_server_web/     # Web: controllers, LiveViews, channels, components, shared frontend source
+  │   └── game_server_host/    # Host: supervision tree, routing, boot config, host-owned CSS and env config
   ├── modules/                 # Runtime hook scripts (server scripting)
   ├── clients/                 # Godot SDK, JS SDK
   └── sdk/                     # Elixir SDK stubs for hooks</pre>

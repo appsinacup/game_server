@@ -76,10 +76,9 @@ defmodule GameServerWeb.SRI do
       |> Map.get(:path)
 
     if is_binary(clean) and clean != "" do
-      static_dir = Application.app_dir(:game_server_web, "priv/static")
-      file_path = Path.join(static_dir, clean)
+      file_path = static_file_path(clean)
 
-      if File.exists?(file_path) do
+      if file_path do
         content = File.read!(file_path)
         digest = :crypto.hash(:sha384, content) |> Base.encode64()
         "sha384-#{digest}"
@@ -90,6 +89,17 @@ defmodule GameServerWeb.SRI do
   defp cache_enabled? do
     endpoint_config = Application.get_env(:game_server_web, GameServerWeb.Endpoint, [])
     not Keyword.get(endpoint_config, :code_reloader, false)
+  end
+
+  defp static_file_path(clean) do
+    [
+      Application.app_dir(:game_server_host, "priv/static"),
+      Application.app_dir(:game_server_web, "priv/static")
+    ]
+    |> Enum.find_value(fn static_dir ->
+      file_path = Path.join(static_dir, clean)
+      if File.exists?(file_path), do: file_path
+    end)
   end
 
   defp append_version_query(path, sri) do

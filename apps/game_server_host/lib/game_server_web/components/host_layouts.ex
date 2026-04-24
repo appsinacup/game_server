@@ -60,12 +60,13 @@ defmodule GameServerWeb.HostLayouts do
     %{top: 88, right: 15, size: "size-7 sm:size-10", dur: 9, delay: 2.8}
   ]
 
-  @host_theme_settings %{
-    "css" => nil,
+  @host_base_theme_settings %{
     "logo" => "/images/logo.png",
     "banner" => "/images/banner.png",
     "favicon" => "/favicon.ico"
   }
+
+  @host_theme_css_path "/theme.css"
 
   @home_banner_link "/docs/setup"
 
@@ -111,8 +112,9 @@ defmodule GameServerWeb.HostLayouts do
 
   @doc false
   def resolve_theme(locale \\ nil, assigned_theme \\ %{}) do
+    host_theme_settings = host_theme_settings()
     theme = merge_assigned_theme(fetch_theme(locale), assigned_theme)
-    missing? = Map.drop(theme, Map.keys(@host_theme_settings)) == %{}
+    missing? = Map.drop(theme, Map.keys(host_theme_settings)) == %{}
 
     theme
     |> Map.put("title", Map.get(theme, "title") || if(missing?, do: "MISSING_CONFIG"))
@@ -120,7 +122,7 @@ defmodule GameServerWeb.HostLayouts do
       "tagline",
       Map.get(theme, "tagline") || if(missing?, do: "Set THEME_CONFIG env")
     )
-    |> Map.merge(@host_theme_settings)
+    |> Map.merge(host_theme_settings)
   end
 
   @doc false
@@ -178,6 +180,19 @@ defmodule GameServerWeb.HostLayouts do
       notif_unread_count: notif_unread_count,
       app_version: app_version()
     )
+  end
+
+  defp host_theme_settings do
+    Map.put(@host_base_theme_settings, "css", host_theme_css_path())
+  end
+
+  defp host_theme_css_path do
+    host_static_dir = Application.app_dir(:game_server_host, "priv/static")
+    theme_css_rel = String.trim_leading(@host_theme_css_path, "/")
+
+    if File.exists?(Path.join(host_static_dir, theme_css_rel)) do
+      @host_theme_css_path
+    end
   end
 
   defp fetch_theme(locale) do

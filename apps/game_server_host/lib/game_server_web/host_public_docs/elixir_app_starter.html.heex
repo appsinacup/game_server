@@ -95,7 +95,9 @@
                   </td>
                 </tr>
                 <tr>
-                  <td>{doc_text("assets/, config/, and release/deploy files")}</td>
+                  <td>
+                    {doc_text("Host app assets/config plus release and deploy files")}
+                  </td>
                   <td>{doc_text("Schema/context updates from upstream releases")}</td>
                 </tr>
               </tbody>
@@ -143,7 +145,9 @@ end</code></pre>
           <ul class="list-disc list-inside text-sm text-base-content/80 space-y-1">
             <li>{doc_text("Copy the current host app as the starting runtime shell")}</li>
             <li>
-              {doc_text("Copy config/, assets/, and the static files your host actually serves")}
+              {doc_text(
+                "Copy apps/game_server_host/config/, apps/game_server_host/assets/, and the static files your host actually serves"
+              )}
             </li>
             <li>
               {doc_text(

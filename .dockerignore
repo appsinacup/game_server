@@ -17,6 +17,7 @@ deps/
 # Don't copy node modules and build artifacts
 node_modules/
 assets/node_modules/
+apps/game_server_web/assets/node_modules/
 
 # Don't copy test artifacts
 cover/

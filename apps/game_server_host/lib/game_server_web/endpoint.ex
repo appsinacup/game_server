@@ -46,7 +46,7 @@ defmodule GameServerWeb.Endpoint do
     at: "/",
     from: :game_server_host,
     gzip: not code_reloading?,
-    only: ~w(images game favicon.ico robots.txt .well-known),
+    only: ~w(images game favicon.ico robots.txt .well-known theme.css assets),
     cache_control_for_etags: "public, max-age=604800",
     cache_control_for_vsn_requests: "public, max-age=31536000, immutable"
 

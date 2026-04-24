@@ -1,0 +1,155 @@
+# This file is responsible for configuring your application
+# and its dependencies with the aid of the Config module.
+#
+# This configuration file is loaded before any dependency and
+# is restricted to this project.
+
+# General application configuration
+import Config
+
+config :game_server_web, :scopes,
+  user: [
+    default: true,
+    module: GameServer.Accounts.Scope,
+    assign_key: :current_scope,
+    access_path: [:user, :id],
+    schema_key: :user_id,
+    schema_type: :id,
+    schema_table: :users,
+    test_data_fixture: GameServer.AccountsFixtures,
+    test_setup_helper: :register_and_log_in_user
+  ]
+
+config :game_server_core, ecto_repos: [GameServer.Repo]
+
+config :game_server_web,
+  ecto_repos: [GameServer.Repo],
+  generators: [timestamp_type: :utc_datetime]
+
+# Adapter selection (compile-time). Override with DATABASE_ADAPTER=postgres
+# at build time for production Postgres deployments.
+default_adapter =
+  if System.get_env("DATABASE_ADAPTER") == "postgres",
+    do: Ecto.Adapters.Postgres,
+    else: Ecto.Adapters.SQLite3
+
+config :game_server_core, GameServer.Repo, adapter: default_adapter
+
+# Configures the endpoint
+config :game_server_web, GameServerWeb.Endpoint,
+  url: [host: "localhost"],
+  adapter: Bandit.PhoenixAdapter,
+  render_errors: [
+    formats: [html: GameServerWeb.ErrorHTML, json: GameServerWeb.ErrorJSON],
+    layout: false
+  ],
+  pubsub_server: GameServer.PubSub,
+  live_view: [signing_salt: "ZPmggGLv"]
+
+# Extend Phoenix's default gzippable extensions to include Godot web export formats.
+# Default list: .js .map .css .txt .text .html .json .svg .eot .ttf
+# Added: .wasm .pck (binary but highly compressible, ~60-70% reduction)
+# NOT added: .png (already compressed, gzip makes it larger)
+config :phoenix,
+  gzippable_exts: ~w(.js .map .css .txt .text .html .json .svg .eot .ttf .wasm .pck)
+
+# Configures the mailer
+#
+# By default it uses the "Local" adapter which stores the emails
+# locally. You can see the emails in your browser, at "/dev/mailbox".
+#
+# For production it's recommended to configure a different adapter
+# at the `config/runtime.exs`.
+config :game_server_core, GameServer.Mailer, adapter: Swoosh.Adapters.Local
+
+# Cache defaults (can be overridden in env-specific configs).
+# Default to a single-level local cache for dev simplicity.
+config :game_server_core, GameServer.Cache,
+  inclusion_policy: :inclusive,
+  levels: [
+    {GameServer.Cache.L1, []}
+  ]
+
+# Configure esbuild (the version is required)
+config :esbuild,
+  version: "0.25.4",
+  game_server_web: [
+    args:
+      ~w(js/app.js js/theme-init.js --bundle --target=es2022 --outdir=../priv/static/assets/js --external:/fonts/* --external:/images/* --alias:@=.),
+    cd: Path.expand("../../game_server_web/assets", __DIR__),
+    env: %{
+      "NODE_PATH" => [
+        Path.expand("../../../deps", __DIR__),
+        Mix.Project.build_path(),
+        Path.join(Mix.Project.build_path(), Atom.to_string(Mix.env()))
+      ]
+    }
+  ]
+
+# Configure tailwind (the version is required)
+config :tailwind,
+  version: "4.1.7",
+  game_server_web: [
+    args: ~w(
+      --input=assets/css/app.css
+      --output=priv/static/assets/css/app.css
+    ),
+    cd: Path.expand("..", __DIR__)
+  ]
+
+# Configures Elixir's Logger
+config :logger, :default_formatter,
+  format: "$time $metadata[$level] $message\n",
+  metadata: [:request_id]
+
+# Use Jason for JSON parsing in Phoenix
+config :phoenix, :json_library, Jason
+
+# Filter sensitive parameters from logs
+config :phoenix, :filter_parameters, ["password", "token", "secret", "authorization", "api_key"]
+
+# Configure Guardian for JWT authentication
+config :game_server_web, GameServerWeb.Auth.Guardian,
+  issuer: "game_server",
+  secret_key: "REPLACE_THIS_IN_RUNTIME_CONFIG"
+
+# WebRTC DataChannel support (requires ex_webrtc + ex_sctp deps)
+config :game_server_web, :webrtc,
+  enabled: true,
+  ice_servers: [%{urls: "stun:stun.l.google.com:19302"}]
+
+# Import environment specific config. This must remain at the bottom
+# of this file so it overrides the configuration defined above.
+import_config "#{config_env()}.exs"
+
+# Custom MIME types for Godot web exports
+config :mime, :types, %{
+  "application/octet-stream" => ["pck"]
+}
+
+config :ueberauth, Ueberauth,
+  providers: [
+    discord: {Ueberauth.Strategy.Discord, [default_scope: "identify email"]},
+    apple: {Ueberauth.Strategy.Apple, []},
+    google: {Ueberauth.Strategy.Google, []},
+    facebook: {Ueberauth.Strategy.Facebook, []},
+    steam: {Ueberauth.Strategy.Steam, []}
+  ]
+
+config :ueberauth, Ueberauth.Strategy.Discord.OAuth,
+  client_id: System.get_env("DISCORD_CLIENT_ID"),
+  client_secret: System.get_env("DISCORD_CLIENT_SECRET")
+
+config :ueberauth, Ueberauth.Strategy.Apple.OAuth,
+  client_id: System.get_env("APPLE_WEB_CLIENT_ID"),
+  client_secret: {GameServer.Apple, :client_secret}
+
+config :ueberauth, Ueberauth.Strategy.Google.OAuth,
+  client_id: System.get_env("GOOGLE_CLIENT_ID"),
+  client_secret: System.get_env("GOOGLE_CLIENT_SECRET")
+
+config :ueberauth, Ueberauth.Strategy.Facebook.OAuth,
+  client_id: System.get_env("FACEBOOK_CLIENT_ID"),
+  client_secret: System.get_env("FACEBOOK_CLIENT_SECRET")
+
+config :ueberauth, Ueberauth.Strategy.Steam, api_key: System.get_env("STEAM_API_KEY")

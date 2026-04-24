@@ -16,5 +16,13 @@ if [ -z "$SECRET_KEY_BASE" ]; then
   export SECRET_KEY_BASE=$(mix phx.gen.secret)
   echo "Generated SECRET_KEY_BASE: $SECRET_KEY_BASE"
 fi
+
+host_css=apps/game_server_host/priv/static/assets/css/app.css
+web_js=apps/game_server_web/priv/static/assets/js/app.js
+
+if [ ! -f "$host_css" ] || [ ! -f "$web_js" ]; then
+  MIX_ENV=prod mix do --app game_server_host assets.deploy
+fi
+
 MIX_ENV=prod mix ecto.setup
 MIX_ENV=prod mix do --app game_server_host phx.server

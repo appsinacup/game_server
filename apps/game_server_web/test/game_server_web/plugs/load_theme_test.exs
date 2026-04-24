@@ -57,7 +57,7 @@ defmodule GameServerWeb.Plugs.LoadThemeTest do
     assert conn.assigns[:theme]["logo"] == "/images/logo.png"
     assert conn.assigns[:theme]["banner"] == "/images/banner.png"
     assert conn.assigns[:theme]["favicon"] == "/favicon.ico"
-    assert conn.assigns[:theme]["css"] == nil
+    assert conn.assigns[:theme]["css"] == "/theme.css"
   end
 
   test "returns nil values when provider returns empty map", %{conn: conn} do

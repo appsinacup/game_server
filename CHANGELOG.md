@@ -1,6 +1,8 @@
 # April 2026
 
 
+- [changed] **Host-owned config entrypoint**: the real Mix/Phoenix config files now live under `apps/game_server_host/config/`, while the umbrella-root config files are thin compatibility shims.
+- [changed] **Host-local SQLite defaults**: local dev/test/prod SQLite files now default to `apps/game_server_host/db/` instead of the umbrella-root `db/` directory, and the single-node Docker setup mounts that host-local path.
 - [changed] **Host-owned branding and content paths**: logo, banner, favicon, banner link, extra theme CSS, changelog, roadmap, and blog path settings are no longer read from theme JSON. Branding now comes from the host app and content is resolved from host-relative defaults.
 - [added] **Browser theme color**: new `theme_color` field in theme JSON config tints the browser chrome (address bar / tab bar) in Safari and Chrome. Supports a single color string or separate light/dark variants.
 - [added] **Dynamic sitemap.xml**: auto-generated sitemap listing all public pages and blog posts for search engine discovery.

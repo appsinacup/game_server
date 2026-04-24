@@ -12,7 +12,9 @@ for suffix, subdir in [("", "24/outline"), ("-solid", "24/solid")]:
             name = f[:-4] + suffix
             classes.append(f"hero-{name}")
 
-output = os.path.join("assets", "css", "heroicons-safelist.html")
+# Host-owned CSS is built from apps/game_server_host/assets/css, so keep the
+# generated safelist there as well.
+output = os.path.join("apps", "game_server_host", "assets", "css", "heroicons-safelist.html")
 with open(output, "w") as fh:
     fh.write("<!-- Auto-generated: all outline + solid heroicons for Tailwind bundling -->\n")
     for c in classes:

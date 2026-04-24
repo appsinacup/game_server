@@ -67,10 +67,11 @@
     />
     <% theme_css = Map.get(theme, "css") %>
     <%= if theme_css != nil and theme_css != "" do %>
+      <% theme_css_href = SRI.versioned_path(theme_css) || theme_css %>
       <link
         rel="stylesheet"
         phx-track-static
-        href={theme_css}
+        href={theme_css_href}
         integrity={SRI.integrity(theme_css)}
         crossorigin="anonymous"
       />

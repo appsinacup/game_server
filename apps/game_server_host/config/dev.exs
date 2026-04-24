@@ -17,8 +17,11 @@ if System.get_env("DATABASE_URL") ||
     pool_size: 10
 else
   # Fallback to SQLite when no PostgreSQL config
+  database_path = Path.expand("../db/game_server_dev.db", __DIR__)
+  File.mkdir_p!(Path.dirname(database_path))
+
   config :game_server_core, GameServer.Repo,
-    database: "db/game_server_dev.db",
+    database: database_path,
     adapter: Ecto.Adapters.SQLite3,
     stacktrace: true,
     show_sensitive_data_on_connection_error: true,

@@ -24,7 +24,7 @@
     "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
-      "*": ["../deps/*"]
+      "*": ["../../../deps/*"]
     },
     "allowJs": true,
     "noEmit": true

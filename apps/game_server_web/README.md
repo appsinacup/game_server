@@ -36,13 +36,13 @@ Recommended setup in your host app:
  depth: 1}
 ```
 
-2. Ensure your Tailwind CSS includes the Heroicons plugin (for `hero-*` classes), for example in `assets/css/app.css`:
+2. Ensure your Tailwind CSS includes the Heroicons plugin. In this repo, the shared plugin now lives in `apps/game_server_web/assets/vendor/heroicons.js`, and the host base CSS references it from `apps/game_server_host/assets/css/app.css`:
 
 ```css
-@plugin "../vendor/heroicons";
+@plugin "../../../game_server_web/assets/vendor/heroicons";
 ```
 
-3. Keep a `vendor/heroicons.js` plugin in your host app that reads from `deps/heroicons/optimized`.
+3. If you extract this into a standalone host app, keep the shared JS/vendor asset tree with the reusable web package or copy the same `vendor/heroicons.js` plugin alongside your web assets so it can still read from `deps/heroicons/optimized`.
 
 If you want your own icon set, keep compatibility by either:
 - providing CSS for the same `hero-*` class names used by templates, or
