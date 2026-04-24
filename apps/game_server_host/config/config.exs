@@ -35,6 +35,24 @@ default_adapter =
 
 config :game_server_core, GameServer.Repo, adapter: default_adapter
 
+host_root = Path.expand("..", __DIR__)
+repo_root = Path.expand("../..", host_root)
+host_content_root = Path.join(host_root, "content")
+
+config :game_server_core, GameServer.Content,
+  changelog_candidates: [
+    Path.join(host_content_root, "CHANGELOG.md"),
+    Path.join(repo_root, "CHANGELOG.md")
+  ],
+  roadmap_candidates: [
+    Path.join(host_content_root, "ROADMAP.md"),
+    Path.join(repo_root, "ROADMAP.md")
+  ],
+  blog_candidates: [
+    Path.join(host_content_root, "blog"),
+    Path.join(repo_root, "blog")
+  ]
+
 # Configures the endpoint
 config :game_server_web, GameServerWeb.Endpoint,
   url: [host: "localhost"],

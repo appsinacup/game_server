@@ -11,6 +11,7 @@ defmodule GameServerHost.Application do
   @impl true
   def start(_type, _args) do
     Application.start(:os_mon)
+    GameServerHost.ContentPaths.register_defaults()
 
     # Initialize ETS table for Schedule callbacks (before Scheduler starts)
     GameServer.Schedule.start_link()

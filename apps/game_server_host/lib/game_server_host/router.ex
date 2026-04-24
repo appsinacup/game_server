@@ -91,7 +91,7 @@ defmodule GameServerHost.Router do
   end
 
   scope "/content", GameServerWeb do
-    get "/:type/*path", ContentAssetController, :show
+    get "/:type/*path", HostContentAssetController, :show
   end
 
   scope "/", GameServerWeb do

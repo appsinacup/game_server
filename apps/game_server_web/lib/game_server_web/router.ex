@@ -84,13 +84,6 @@ defmodule GameServerWeb.Router do
     plug GameServerWeb.Plugs.MetricsAuth
   end
 
-  # Lightweight pipeline for content assets (blog/changelog images).
-  # No session, CSRF, or user auth needed — avoids DB contention
-  # from concurrent image requests.
-  scope "/content", GameServerWeb do
-    get "/:type/*path", ContentAssetController, :show
-  end
-
   scope "/", GameServerWeb do
     pipe_through :browser
 

@@ -649,9 +649,15 @@ if config_env() == :prod do
   end
 
   # ── GeoIP database ──
-  # Path to MaxMind GeoLite2-Country.mmdb (or compatible MMDB file).
-  # Download free from: https://dev.maxmind.com/geoip/geolite2-free-geolocation-data
-  if geoip_db = System.get_env("GEOIP_DB_PATH") do
+  # Prefer the host-owned default path under apps/game_server_host/data, but
+  # still allow GEOIP_DB_PATH to override it for custom deployments.
+  default_geoip_db = Path.expand("../data/GeoLite2-Country.mmdb", __DIR__)
+
+  geoip_db =
+    System.get_env("GEOIP_DB_PATH") ||
+      if File.exists?(default_geoip_db), do: default_geoip_db, else: nil
+
+  if geoip_db do
     config :geolix,
       databases: [
         %{

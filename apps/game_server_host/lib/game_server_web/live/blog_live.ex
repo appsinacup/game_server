@@ -15,9 +15,9 @@ defmodule GameServerWeb.HostBlogLive do
     {:ok,
      socket
      |> assign(:page_title, "Blog")
-     |> assign(:blog_available?, Content.blog_dir() != nil)
-     |> assign(:changelog_available?, Content.changelog_path() != nil)
-     |> assign(:roadmap_available?, Content.roadmap_path() != nil)}
+      |> assign(:blog_available?, Content.path(:blog) != nil)
+      |> assign(:changelog_available?, Content.path(:changelog) != nil)
+      |> assign(:roadmap_available?, Content.path(:roadmap) != nil)}
   end
 
   @impl true
@@ -26,7 +26,7 @@ defmodule GameServerWeb.HostBlogLive do
   end
 
   defp apply_action(socket, :index, _params) do
-    grouped = Content.blog_posts_grouped()
+    grouped = group_blog_posts(Content.list_blog_posts())
 
     socket
     |> assign(:page_title, "Blog")
@@ -56,6 +56,16 @@ defmodule GameServerWeb.HostBlogLive do
       |> put_flash(:error, "Blog post not found")
       |> push_navigate(to: ~p"/blog")
     end
+  end
+
+  defp group_blog_posts(posts) do
+    posts
+    |> Enum.group_by(fn post -> {post.date.year, post.date.month} end)
+    |> Enum.sort_by(fn {{year, month}, _posts} -> {year, month} end, :desc)
+    |> Enum.group_by(fn {{year, _month}, _posts} -> year end, fn {{_year, month}, month_posts} ->
+      {month, month_posts}
+    end)
+    |> Enum.sort_by(fn {year, _months} -> year end, :desc)
   end
 
   @impl true

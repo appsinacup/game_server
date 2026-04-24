@@ -22,7 +22,12 @@ defmodule GameServerWeb.Plugs.GeoCountry do
 
   ## Configuration
 
-  To enable Geolix lookup, set in your environment:
+    To enable Geolix lookup, either place the MMDB file under the host-owned
+    default path:
+
+      apps/game_server_host/data/GeoLite2-Country.mmdb
+
+    or set a custom path in your environment:
 
       GEOIP_DB_PATH=/path/to/GeoLite2-Country.mmdb
 

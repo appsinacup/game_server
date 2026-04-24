@@ -95,8 +95,9 @@ defmodule GameServerWeb.AdminLive.Geo do
               >
                 GeoLite2-Country.mmdb
               </a>
-              and set <code class="bg-base-200 px-1 rounded">GEOIP_DB_PATH</code>
-              to enable country resolution.
+              under <code class="bg-base-200 px-1 rounded">apps/game_server_host/data</code>
+              or set <code class="bg-base-200 px-1 rounded">GEOIP_DB_PATH</code>
+              to a custom location to enable country resolution.
             </div>
           </div>
         </div>

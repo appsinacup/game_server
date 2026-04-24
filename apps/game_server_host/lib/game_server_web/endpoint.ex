@@ -62,7 +62,7 @@ defmodule GameServerWeb.Endpoint do
   # Serve blog/changelog images early, before the code-reloader
   # and session/CSRF plugs. This prevents concurrent image requests
   # from being serialized in dev mode.
-  plug GameServerWeb.Plugs.ContentStatic
+  plug GameServerWeb.HostContentStatic
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.

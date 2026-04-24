@@ -24,7 +24,7 @@ defmodule GameServerWeb.AdminLive.Config do
         <.link navigate={~p"/admin"} class="btn btn-outline mb-4">
           ← Back to Admin
         </.link>
-        
+
     <!-- Current Configuration Status -->
         <div class="card bg-base-100 shadow-sm" data-card-key="config_status">
           <div class="card-body">
@@ -1205,7 +1205,7 @@ defmodule GameServerWeb.AdminLive.Config do
                       <% else %>
                         <span class="badge badge-warning badge-sm">MMDB not configured</span>
                         <span class="text-xs text-base-content/60 ml-2">
-                          Falling back to CF-IPCountry header (Cloudflare only). Set GEOIP_DB_PATH for local lookup.
+                          Falling back to CF-IPCountry header (Cloudflare only). Place GeoLite2-Country.mmdb under apps/game_server_host/data or set GEOIP_DB_PATH for a custom lookup path.
                         </span>
                       <% end %>
                     </td>
@@ -1319,7 +1319,7 @@ defmodule GameServerWeb.AdminLive.Config do
                             View Logs →
                           </.link>
                         </div>
-                        
+
     <!-- Full docs modal / pane -->
                         <%= if @hooks_full_doc do %>
                           <div class="mt-2 p-3 border rounded bg-base-100">
@@ -1346,7 +1346,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Limits & Validation -->
         <div class="card bg-base-100 shadow-sm collapsed" data-card-key="limits">
           <div class="card-body">
@@ -1415,7 +1415,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Admin Tools -->
         <div class="card bg-base-100 shadow-sm collapsed" data-card-key="admin_tools">
           <div class="card-body">
@@ -1472,7 +1472,7 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
+
     <!-- Scheduled Jobs -->
         <div class="card bg-base-100 shadow-sm collapsed" data-card-key="scheduled_jobs">
           <div class="card-body">
@@ -1674,9 +1674,9 @@ defmodule GameServerWeb.AdminLive.Config do
       # Dark variant / fullscreen image diagnostics (convention-based)
       theme_dark: theme_dark_variants(GameServerWeb.Layouts.resolve_theme()),
       content_paths: %{
-        blog: Content.blog_dir(),
-        changelog: Content.changelog_path(),
-        roadmap: Content.roadmap_path()
+        blog: Content.path(:blog),
+        changelog: Content.path(:changelog),
+        roadmap: Content.path(:roadmap)
       },
       device_auth_enabled_app: Application.get_env(:game_server_core, :device_auth_enabled),
       device_auth_enabled_env: System.get_env("DEVICE_AUTH_ENABLED"),

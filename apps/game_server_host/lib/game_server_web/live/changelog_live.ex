@@ -16,8 +16,8 @@ defmodule GameServerWeb.HostChangelogLive do
      |> assign(:page_title, "Changelog")
      |> assign(:changelog_html, html)
      |> assign(:changelog_available?, html != nil)
-     |> assign(:roadmap_available?, Content.roadmap_path() != nil)
-     |> assign(:blog_available?, Content.blog_dir() != nil)}
+      |> assign(:roadmap_available?, Content.path(:roadmap) != nil)
+      |> assign(:blog_available?, Content.path(:blog) != nil)}
   end
 
   @impl true

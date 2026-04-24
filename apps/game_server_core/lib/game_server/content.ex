@@ -2,35 +2,21 @@ defmodule GameServer.Content do
   @moduledoc """
   Reads and renders Markdown content from project files and directories.
 
-  Lookup is path-based rather than theme-config driven. Content is resolved
-  from `apps/game_server_host/content/*` first, with repository-root fallbacks
-  kept for compatibility where those files still exist.
+  Lookup is path-based rather than theme-config driven. Hosts register named
+  content sources, and this module resolves whichever configured files or
+  directories exist for those sources.
 
   All content is cached in `:persistent_term` after the first read.
   Call `reload/0` to invalidate everything (e.g. after a config change).
   """
 
   @cache_key {__MODULE__, :cache}
-  @host_content_dir Path.join(["apps", "game_server_host", "content"])
-
-  @changelog_candidates [
-    Path.join(@host_content_dir, "CHANGELOG.md"),
-    "CHANGELOG.md"
+  @registered_paths_key {__MODULE__, :registered_paths}
+  @default_content_config [
+    changelog_candidates: ["CHANGELOG.md"],
+    roadmap_candidates: ["ROADMAP.md"],
+    blog_candidates: ["blog"]
   ]
-
-  @roadmap_candidates [
-    Path.join(@host_content_dir, "ROADMAP.md"),
-    "ROADMAP.md"
-  ]
-
-  @blog_candidates [
-    Path.join(@host_content_dir, "blog"),
-    "blog"
-  ]
-
-  # ---------------------------------------------------------------------------
-  # Cache management
-  # ---------------------------------------------------------------------------
 
   @doc """
   Clears all cached content so the next call re-reads from disk.
@@ -39,6 +25,64 @@ defmodule GameServer.Content do
   def reload do
     :persistent_term.put(@cache_key, %{})
     :ok
+  end
+
+  @doc """
+  Registers a named content source.
+
+  Supported options:
+    * `:kind` - `:file` or `:dir`
+    * `:path` - single candidate path
+    * `:candidates` - ordered candidate paths
+    * `:asset_root` - `:self` or `:dirname` when serving assets
+  """
+  @spec register_path(atom() | String.t(), keyword()) :: :ok
+  def register_path(name, opts) when is_atom(name) or is_binary(name) do
+    normalized_name = normalize_registered_name(name)
+    entry = normalize_registered_entry!(opts)
+
+    :persistent_term.put(
+      @registered_paths_key,
+      Map.put(registered_path_overrides(), normalized_name, entry)
+    )
+
+    reload()
+  end
+
+  @doc """
+  Returns the resolved absolute path for a registered content source, or `nil`.
+  """
+  @spec path(atom() | String.t()) :: String.t() | nil
+  def path(name) when is_atom(name) or is_binary(name) do
+    case Map.get(registered_paths(), normalize_registered_name(name)) do
+      %{kind: :file, candidates: candidates} -> find_existing_file(candidates)
+      %{kind: :dir, candidates: candidates} -> find_existing_dir(candidates)
+      nil -> nil
+    end
+  end
+
+  @doc """
+  Returns the absolute path for an asset relative to a registered content
+  source. Returns `nil` when not found or path traversal is attempted.
+  """
+  @spec asset_path(atom() | String.t(), String.t()) :: String.t() | nil
+  def asset_path(name, relative) when is_atom(name) or is_binary(name) do
+    case {Map.get(registered_paths(), normalize_registered_name(name)), path(name)} do
+      {nil, _resolved_path} ->
+        nil
+
+      {%{asset_root: :self}, resolved_path} ->
+        serve_asset(resolved_path, relative)
+
+      {%{asset_root: :dirname}, nil} ->
+        nil
+
+      {%{asset_root: :dirname}, resolved_path} ->
+        serve_asset(Path.dirname(resolved_path), relative)
+
+      {_entry, _resolved_path} ->
+        nil
+    end
   end
 
   defp get_cache, do: :persistent_term.get(@cache_key, %{})
@@ -79,7 +123,7 @@ defmodule GameServer.Content do
   @spec changelog_html() :: String.t() | nil
   def changelog_html do
     cached(:changelog_html, fn ->
-      case changelog_path() do
+      case path(:changelog) do
         nil ->
           nil
 
@@ -90,14 +134,6 @@ defmodule GameServer.Content do
           end
       end
     end)
-  end
-
-  @doc """
-  Returns the resolved absolute path to the changelog file, or `nil`.
-  """
-  @spec changelog_path() :: String.t() | nil
-  def changelog_path do
-    find_existing_file(@changelog_candidates)
   end
 
   # ---------------------------------------------------------------------------
@@ -111,7 +147,7 @@ defmodule GameServer.Content do
   @spec roadmap_html() :: String.t() | nil
   def roadmap_html do
     cached(:roadmap_html, fn ->
-      case roadmap_path() do
+      case path(:roadmap) do
         nil ->
           nil
 
@@ -122,14 +158,6 @@ defmodule GameServer.Content do
           end
       end
     end)
-  end
-
-  @doc """
-  Returns the resolved absolute path to the roadmap file, or `nil`.
-  """
-  @spec roadmap_path() :: String.t() | nil
-  def roadmap_path do
-    find_existing_file(@roadmap_candidates)
   end
 
   # ---------------------------------------------------------------------------
@@ -149,7 +177,7 @@ defmodule GameServer.Content do
   @spec list_blog_posts() :: [map()]
   def list_blog_posts do
     cached(:blog_posts, fn ->
-      case blog_dir() do
+      case path(:blog) do
         nil ->
           []
 
@@ -209,14 +237,6 @@ defmodule GameServer.Content do
   end
 
   @doc """
-  Returns the resolved absolute path to the blog directory, or `nil`.
-  """
-  @spec blog_dir() :: String.t() | nil
-  def blog_dir do
-    find_existing_dir(@blog_candidates)
-  end
-
-  @doc """
   Groups blog posts by `{year, month}` (newest first).
   Returns a list of `{year, [{month, [posts]}]}`.
   """
@@ -233,28 +253,73 @@ defmodule GameServer.Content do
   # Content asset serving
   # ---------------------------------------------------------------------------
 
-  @doc """
-  Returns the absolute path for a content asset (image etc.) relative to the
-  blog or changelog directory. Returns `nil` when not found or path traversal
-  is attempted.
-  """
-  @spec content_asset_path(String.t(), String.t()) :: String.t() | nil
-  def content_asset_path("blog", relative) do
-    serve_asset(blog_dir(), relative)
-  end
-
-  def content_asset_path("changelog", relative) do
-    case changelog_path() do
-      nil -> nil
-      path -> serve_asset(Path.dirname(path), relative)
-    end
-  end
-
-  def content_asset_path(_, _), do: nil
-
   # ---------------------------------------------------------------------------
   # Private helpers
   # ---------------------------------------------------------------------------
+
+  defp registered_paths do
+    defaults = %{
+      "changelog" => %{
+        kind: :file,
+        candidates: configured_candidates(:changelog_candidates),
+        asset_root: :dirname
+      },
+      "roadmap" => %{
+        kind: :file,
+        candidates: configured_candidates(:roadmap_candidates)
+      },
+      "blog" => %{
+        kind: :dir,
+        candidates: configured_candidates(:blog_candidates),
+        asset_root: :self
+      }
+    }
+
+    Map.merge(defaults, registered_path_overrides())
+  end
+
+  defp registered_path_overrides, do: :persistent_term.get(@registered_paths_key, %{})
+
+  defp normalize_registered_entry!(opts) do
+    kind = Keyword.fetch!(opts, :kind)
+
+    if kind not in [:file, :dir] do
+      raise ArgumentError, "registered content path kind must be :file or :dir"
+    end
+
+    candidates =
+      opts
+      |> Keyword.get(:candidates, Keyword.get(opts, :path))
+      |> List.wrap()
+      |> Enum.reject(&(&1 in [nil, ""]))
+
+    if candidates == [] do
+      raise ArgumentError, "registered content path must include :path or :candidates"
+    end
+
+    asset_root =
+      Keyword.get_lazy(opts, :asset_root, fn ->
+        if kind == :file, do: :dirname, else: :self
+      end)
+
+    if asset_root not in [:self, :dirname] do
+      raise ArgumentError, "registered content path asset_root must be :self or :dirname"
+    end
+
+    %{
+      kind: kind,
+      candidates: candidates,
+      asset_root: asset_root
+    }
+  end
+
+  defp normalize_registered_name(name) when is_atom(name), do: Atom.to_string(name)
+  defp normalize_registered_name(name) when is_binary(name), do: name
+
+  defp configured_candidates(key) do
+    (Application.get_env(:game_server_core, __MODULE__, []) || [])
+    |> Keyword.get(key, Keyword.fetch!(@default_content_config, key))
+  end
 
   defp serve_asset(nil, _relative), do: nil
 
@@ -349,7 +414,7 @@ defmodule GameServer.Content do
   end
 
   # Rewrite image `src` attributes so they point to `/content/<type>/…`,
-  # which is served by ContentAssetController.
+  # which is served by the host content asset route.
   #
   # Handles three conventions authors may use:
   #   1. Relative:     `gamend/auth.png`        → `/content/blog/gamend/auth.png`
