@@ -2,20 +2,21 @@
 
 Reads and renders Markdown content from project files and directories.
 
-Lookup is path-based rather than theme-config driven. By default, content is
-resolved from the repository root (`CHANGELOG.md`, `ROADMAP.md`, `blog/`).
-Forks can optionally override those files from `apps/game_server_host/content/*`.
+Lookup is path-based rather than theme-config driven. Hosts register named
+content sources, and this module resolves whichever configured files or
+directories exist for those sources.
 
 All content is cached in `:persistent_term` after the first read.
 Call `reload/0` to invalidate everything (e.g. after a config change).
 
-# `blog_dir`
+# `asset_path`
 
 ```elixir
-@spec blog_dir() :: String.t() | nil
+@spec asset_path(atom() | String.t(), String.t()) :: String.t() | nil
 ```
 
-Returns the resolved absolute path to the blog directory, or `nil`.
+Returns the absolute path for an asset relative to a registered content
+source. Returns `nil` when not found or path traversal is attempted.
 
 # `blog_neighbours`
 
@@ -52,24 +53,6 @@ Returns a list of `{year, [{month, [posts]}]}`.
 Returns the rendered changelog HTML, or `nil` when the changelog path is
 not configured or the file doesn't exist.
 
-# `changelog_path`
-
-```elixir
-@spec changelog_path() :: String.t() | nil
-```
-
-Returns the resolved absolute path to the changelog file, or `nil`.
-
-# `content_asset_path`
-
-```elixir
-@spec content_asset_path(String.t(), String.t()) :: String.t() | nil
-```
-
-Returns the absolute path for a content asset (image etc.) relative to the
-blog or changelog directory. Returns `nil` when not found or path traversal
-is attempted.
-
 # `get_blog_post`
 
 ```elixir
@@ -93,6 +76,31 @@ Each post is a map with keys:
   * `:path`  – absolute path to the `.md` file
   * `:excerpt` – first non-heading paragraph (≤ 200 chars)
 
+# `path`
+
+```elixir
+@spec path(atom() | String.t()) :: String.t() | nil
+```
+
+Returns the resolved absolute path for a registered content source, or `nil`.
+
+# `register_path`
+
+```elixir
+@spec register_path(
+  atom() | String.t(),
+  keyword()
+) :: :ok
+```
+
+Registers a named content source.
+
+Supported options:
+  * `:kind` - `:file` or `:dir`
+  * `:path` - single candidate path
+  * `:candidates` - ordered candidate paths
+  * `:asset_root` - `:self` or `:dirname` when serving assets
+
 # `reload`
 
 ```elixir
@@ -109,14 +117,6 @@ Clears all cached content so the next call re-reads from disk.
 
 Returns the rendered roadmap HTML, or `nil` when the roadmap path is
 not configured or the file doesn't exist.
-
-# `roadmap_path`
-
-```elixir
-@spec roadmap_path() :: String.t() | nil
-```
-
-Returns the resolved absolute path to the roadmap file, or `nil`.
 
 ---
 

@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.938">
+    <meta name="project" content="GameServer v1.0.940">
 
 
-    <title>GameServer.Content — GameServer v1.0.938</title>
+    <title>GameServer.Content — GameServer v1.0.940</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-18FA09DC.js"></script>
+    <script defer src="dist/sidebar_items-C7EBB04A.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.938
+          v1.0.940
         </div>
       </div>
     </div>
@@ -94,7 +94,7 @@ GameServer
   <div class="heading-with-actions top-heading">
     <h1>
       <span translate="no">GameServer.<wbr>Content</span> 
-      <small class="app-vsn" translate="no">(GameServer v1.0.938)</small>
+      <small class="app-vsn" translate="no">(GameServer v1.0.940)</small>
 
     </h1>
 
@@ -109,9 +109,9 @@ GameServer
 
 
     <section id="moduledoc">
-<p>Reads and renders Markdown content from project files and directories.</p><p>Lookup is path-based rather than theme-config driven. By default, content is
-resolved from the repository root (<code class="inline">CHANGELOG.md</code>, <code class="inline">ROADMAP.md</code>, <code class="inline">blog/</code>).
-Forks can optionally override those files from <code class="inline">apps/game_server_host/content/*</code>.</p><p>All content is cached in <code class="inline">:persistent_term</code> after the first read.
+<p>Reads and renders Markdown content from project files and directories.</p><p>Lookup is path-based rather than theme-config driven. Hosts register named
+content sources, and this module resolves whichever configured files or
+directories exist for those sources.</p><p>All content is cached in <code class="inline">:persistent_term</code> after the first read.
 Call <a href="#reload/0"><code class="inline">reload/0</code></a> to invalidate everything (e.g. after a config change).</p>
     </section>
 
@@ -131,11 +131,12 @@ Call <a href="#reload/0"><code class="inline">reload/0</code></a> to invalidate 
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#blog_dir/0" data-no-tooltip="" translate="no">blog_dir()</a>
+        <a href="#asset_path/2" data-no-tooltip="" translate="no">asset_path(name, relative)</a>
 
       </div>
 
-        <div class="summary-synopsis"><p>Returns the resolved absolute path to the blog directory, or <code class="inline">nil</code>.</p></div>
+        <div class="summary-synopsis"><p>Returns the absolute path for an asset relative to a registered content
+source. Returns <code class="inline">nil</code> when not found or path traversal is attempted.</p></div>
 
     </div>
 
@@ -184,28 +185,6 @@ not configured or the file doesn't exist.</p></div>
 
     <div class="summary-row">
       <div class="summary-signature">
-        <a href="#changelog_path/0" data-no-tooltip="" translate="no">changelog_path()</a>
-
-      </div>
-
-        <div class="summary-synopsis"><p>Returns the resolved absolute path to the changelog file, or <code class="inline">nil</code>.</p></div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#content_asset_path/2" data-no-tooltip="" translate="no">content_asset_path(arg1, relative)</a>
-
-      </div>
-
-        <div class="summary-synopsis"><p>Returns the absolute path for a content asset (image etc.) relative to the
-blog or changelog directory. Returns <code class="inline">nil</code> when not found or path traversal
-is attempted.</p></div>
-
-    </div>
-
-    <div class="summary-row">
-      <div class="summary-signature">
         <a href="#get_blog_post/1" data-no-tooltip="" translate="no">get_blog_post(slug)</a>
 
       </div>
@@ -221,6 +200,26 @@ is attempted.</p></div>
       </div>
 
         <div class="summary-synopsis"><p>Lists all blog posts sorted newest-first.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#path/1" data-no-tooltip="" translate="no">path(name)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Returns the resolved absolute path for a registered content source, or <code class="inline">nil</code>.</p></div>
+
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-signature">
+        <a href="#register_path/2" data-no-tooltip="" translate="no">register_path(name, opts)</a>
+
+      </div>
+
+        <div class="summary-synopsis"><p>Registers a named content source.</p></div>
 
     </div>
 
@@ -245,16 +244,6 @@ not configured or the file doesn't exist.</p></div>
 
     </div>
 
-    <div class="summary-row">
-      <div class="summary-signature">
-        <a href="#roadmap_path/0" data-no-tooltip="" translate="no">roadmap_path()</a>
-
-      </div>
-
-        <div class="summary-synopsis"><p>Returns the resolved absolute path to the roadmap file, or <code class="inline">nil</code>.</p></div>
-
-    </div>
-
 </div>
 
   </section>
@@ -269,14 +258,14 @@ not configured or the file doesn't exist.</p></div>
     </h2>
 
     <div class="functions-list">
-<section class="detail" id="blog_dir/0">
+<section class="detail" id="asset_path/2">
 
   <div class="detail-header">
-    <a href="#blog_dir/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+    <a href="#asset_path/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
       <i class="ri-link-m" aria-hidden="true"></i>
     </a>
     <div class="heading-with-actions">
-      <h1 class="signature" translate="no">blog_dir()</h1>
+      <h1 class="signature" translate="no">asset_path(name, relative)</h1>
 
 
     </div>
@@ -286,11 +275,12 @@ not configured or the file doesn't exist.</p></div>
 
       <div class="specs">
 
-          <pre translate="no"><span class="attribute">@spec</span> blog_dir() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil</pre>
+          <pre translate="no"><span class="attribute">@spec</span> asset_path(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>() | <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil</pre>
 
       </div>
 
-<p>Returns the resolved absolute path to the blog directory, or <code class="inline">nil</code>.</p>
+<p>Returns the absolute path for an asset relative to a registered content
+source. Returns <code class="inline">nil</code> when not found or path traversal is attempted.</p>
   </section>
 </section>
 <section class="detail" id="blog_neighbours/1">
@@ -392,56 +382,6 @@ Returns a list of <code class="inline">{year, [{month, [posts]}]}</code>.</p>
 not configured or the file doesn't exist.</p>
   </section>
 </section>
-<section class="detail" id="changelog_path/0">
-
-  <div class="detail-header">
-    <a href="#changelog_path/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">changelog_path()</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> changelog_path() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil</pre>
-
-      </div>
-
-<p>Returns the resolved absolute path to the changelog file, or <code class="inline">nil</code>.</p>
-  </section>
-</section>
-<section class="detail" id="content_asset_path/2">
-
-  <div class="detail-header">
-    <a href="#content_asset_path/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">content_asset_path(arg1, relative)</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> content_asset_path(<a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(), <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil</pre>
-
-      </div>
-
-<p>Returns the absolute path for a content asset (image etc.) relative to the
-blog or changelog directory. Returns <code class="inline">nil</code> when not found or path traversal
-is attempted.</p>
-  </section>
-</section>
 <section class="detail" id="get_blog_post/1">
 
   <div class="detail-header">
@@ -488,6 +428,57 @@ is attempted.</p>
       </div>
 
 <p>Lists all blog posts sorted newest-first.</p><p>Each post is a map with keys:</p><ul><li><code class="inline">:slug</code>  – URL-safe identifier derived from the filename</li><li><code class="inline">:title</code> – extracted from the first <code class="inline">#</code> heading (or humanised slug)</li><li><code class="inline">:date</code>  – <code class="inline">Date.t()</code> parsed from filename prefix or file mtime</li><li><code class="inline">:path</code>  – absolute path to the <code class="inline">.md</code> file</li><li><code class="inline">:excerpt</code> – first non-heading paragraph (≤ 200 chars)</li></ul>
+  </section>
+</section>
+<section class="detail" id="path/1">
+
+  <div class="detail-header">
+    <a href="#path/1" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">path(name)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> path(<a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>() | <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>()) :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil</pre>
+
+      </div>
+
+<p>Returns the resolved absolute path for a registered content source, or <code class="inline">nil</code>.</p>
+  </section>
+</section>
+<section class="detail" id="register_path/2">
+
+  <div class="detail-header">
+    <a href="#register_path/2" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
+      <i class="ri-link-m" aria-hidden="true"></i>
+    </a>
+    <div class="heading-with-actions">
+      <h1 class="signature" translate="no">register_path(name, opts)</h1>
+
+
+    </div>
+  </div>
+
+  <section class="docstring">
+
+      <div class="specs">
+
+          <pre translate="no"><span class="attribute">@spec</span> register_path(
+  <a href="https://hexdocs.pm/elixir/typespecs.html#basic-types">atom</a>() | <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>(),
+  <a href="https://hexdocs.pm/elixir/typespecs.html#built-in-types">keyword</a>()
+) :: :ok</pre>
+
+      </div>
+
+<p>Registers a named content source.</p><p>Supported options:</p><ul><li><code class="inline">:kind</code> - <code class="inline">:file</code> or <code class="inline">:dir</code></li><li><code class="inline">:path</code> - single candidate path</li><li><code class="inline">:candidates</code> - ordered candidate paths</li><li><code class="inline">:asset_root</code> - <code class="inline">:self</code> or <code class="inline">:dirname</code> when serving assets</li></ul>
   </section>
 </section>
 <section class="detail" id="reload/0">
@@ -537,30 +528,6 @@ is attempted.</p>
 
 <p>Returns the rendered roadmap HTML, or <code class="inline">nil</code> when the roadmap path is
 not configured or the file doesn't exist.</p>
-  </section>
-</section>
-<section class="detail" id="roadmap_path/0">
-
-  <div class="detail-header">
-    <a href="#roadmap_path/0" class="detail-link" data-no-tooltip="" aria-label="Link to this function">
-      <i class="ri-link-m" aria-hidden="true"></i>
-    </a>
-    <div class="heading-with-actions">
-      <h1 class="signature" translate="no">roadmap_path()</h1>
-
-
-    </div>
-  </div>
-
-  <section class="docstring">
-
-      <div class="specs">
-
-          <pre translate="no"><span class="attribute">@spec</span> roadmap_path() :: <a href="https://hexdocs.pm/elixir/String.html#t:t/0">String.t</a>() | nil</pre>
-
-      </div>
-
-<p>Returns the resolved absolute path to the roadmap file, or <code class="inline">nil</code>.</p>
   </section>
 </section>
 
