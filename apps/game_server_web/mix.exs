@@ -44,7 +44,7 @@ defmodule GameServerWeb.MixProject do
 
   defp deps do
     [
-      {:game_server_core, core_dep()},
+      {:game_server_core, in_umbrella: true},
       {:phoenix, "~> 1.8.3"},
       {:phoenix_ecto, "~> 4.5"},
       {:phoenix_html, "~> 4.1"},
@@ -91,15 +91,6 @@ defmodule GameServerWeb.MixProject do
       {:geolix, "~> 2.0"},
       {:geolix_adapter_mmdb2, "~> 0.6"}
     ]
-  end
-
-
-  defp core_dep do
-    if File.exists?("../game_server_core/mix.exs") do
-      [in_umbrella: true]
-    else
-      [github: "appsinacup/game_server", sparse: "apps/game_server_core"]
-    end
   end
 
   defp aliases do
