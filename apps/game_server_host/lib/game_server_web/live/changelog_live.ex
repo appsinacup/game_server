@@ -55,7 +55,7 @@ defmodule GameServerWeb.HostChangelogLive do
               {gettext("No results.")}
             </h2>
             <p class="text-base-content/40">
-              Add a changelog file at the project root to display it here.
+              Add a changelog file under apps/game_server_host/content/CHANGELOG.md to display it here.
             </p>
           </div>
         <% end %>

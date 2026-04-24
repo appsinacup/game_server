@@ -2,9 +2,9 @@ defmodule GameServer.Content do
   @moduledoc """
   Reads and renders Markdown content from project files and directories.
 
-  Lookup is path-based rather than theme-config driven. By default, content is
-  resolved from the repository root (`CHANGELOG.md`, `ROADMAP.md`, `blog/`).
-  Forks can optionally override those files from `apps/game_server_host/content/*`.
+  Lookup is path-based rather than theme-config driven. Content is resolved
+  from `apps/game_server_host/content/*` first, with repository-root fallbacks
+  kept for compatibility where those files still exist.
 
   All content is cached in `:persistent_term` after the first read.
   Call `reload/0` to invalidate everything (e.g. after a config change).
@@ -14,18 +14,18 @@ defmodule GameServer.Content do
   @host_content_dir Path.join(["apps", "game_server_host", "content"])
 
   @changelog_candidates [
-    "CHANGELOG.md",
-    Path.join(@host_content_dir, "CHANGELOG.md")
+    Path.join(@host_content_dir, "CHANGELOG.md"),
+    "CHANGELOG.md"
   ]
 
   @roadmap_candidates [
-    "ROADMAP.md",
-    Path.join(@host_content_dir, "ROADMAP.md")
+    Path.join(@host_content_dir, "ROADMAP.md"),
+    "ROADMAP.md"
   ]
 
   @blog_candidates [
-    "blog",
-    Path.join(@host_content_dir, "blog")
+    Path.join(@host_content_dir, "blog"),
+    "blog"
   ]
 
   # ---------------------------------------------------------------------------
