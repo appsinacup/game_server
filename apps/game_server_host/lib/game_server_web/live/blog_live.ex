@@ -15,9 +15,9 @@ defmodule GameServerWeb.HostBlogLive do
     {:ok,
      socket
      |> assign(:page_title, "Blog")
-      |> assign(:blog_available?, Content.path(:blog) != nil)
-      |> assign(:changelog_available?, Content.path(:changelog) != nil)
-      |> assign(:roadmap_available?, Content.path(:roadmap) != nil)}
+     |> assign(:blog_available?, Content.path(:blog) != nil)
+     |> assign(:changelog_available?, Content.path(:changelog) != nil)
+     |> assign(:roadmap_available?, Content.path(:roadmap) != nil)}
   end
 
   @impl true

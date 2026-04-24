@@ -16,8 +16,8 @@ defmodule GameServerWeb.HostRoadmapLive do
      |> assign(:page_title, "Roadmap")
      |> assign(:roadmap_html, html)
      |> assign(:roadmap_available?, html != nil)
-      |> assign(:changelog_available?, Content.path(:changelog) != nil)
-      |> assign(:blog_available?, Content.path(:blog) != nil)}
+     |> assign(:changelog_available?, Content.path(:changelog) != nil)
+     |> assign(:blog_available?, Content.path(:blog) != nil)}
   end
 
   @impl true
