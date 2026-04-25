@@ -36,8 +36,8 @@ defmodule GameServerHost.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:game_server_core, in_umbrella: true},
-      {:game_server_web, in_umbrella: true},
+      {:game_server_core, path: "../game_server_core"},
+      {:game_server_web, path: "../game_server_web"},
       {:phoenix, "~> 1.8.3"},
       {:phoenix_ecto, "~> 4.5"},
       {:phoenix_html, "~> 4.1"},
@@ -65,6 +65,7 @@ defmodule GameServerHost.MixProject do
       {:ueberauth, "~> 0.10"},
       {:open_api_spex, "~> 3.22"},
       {:credo, ">= 1.7.16", only: [:dev, :test], runtime: false},
+      {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
       {:guardian, "~> 2.3"},
       {:ueberauth_steam_strategy, "~> 0.1"},
       {:quantum, "~> 3.5"},
@@ -85,25 +86,31 @@ defmodule GameServerHost.MixProject do
   defp aliases do
     [
       setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
-      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
+      "ecto.setup": [
+        "ecto.create",
+        "ecto.migrate",
+        "cmd --cd ../game_server_web mix run priv/repo/seeds.exs"
+      ],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
+      "ecto.migrate": ["host.migrate"],
+      "ecto.rollback": ["host.rollback"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["compile", "tailwind game_server_web", "esbuild game_server_web"],
       "assets.deploy": [
         "tailwind game_server_web --minify",
         "esbuild game_server_web --minify",
-        "do --app game_server_host cmd mix phx.digest",
-        "do --app game_server_web cmd mix phx.digest"
+        "phx.digest",
+        "cmd --cd ../game_server_web mix phx.digest"
       ],
       lint: ["format --check-formatted", "credo --strict"],
       precommit: [
         "compile --warning-as-errors",
-        "deps.unlock --unused",
         "format",
         "gen.sdk",
         "test",
-        "credo --strict"
+        "credo --strict",
+        "deps.audit"
       ]
     ]
   end

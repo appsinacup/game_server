@@ -38,7 +38,7 @@
       <div class="text-sm font-semibold">{doc_text("Runtime theming (JSON)")}</div>
       <p class="text-sm text-base-content/80">
         {doc_text(
-          "You can provide simple runtime theming configuration using a JSON file for copy and navigation. Host-owned branding assets such as logo, banner, favicon, and CSS live in the host app instead of JSON."
+          "The host ships a default theme JSON for copy and navigation, and you can optionally override it at runtime with a different JSON file. Host-owned branding assets such as logo, banner, favicon, and CSS live in the host app instead of JSON."
         )}
       </p>
     </div>
@@ -50,7 +50,11 @@
           <span class="badge badge-primary">1</span> {doc_text("Configure theming JSON")}
         </h3>
         <div class="ml-8 space-y-3">
-          <p>{doc_text("Place a JSON file somewhere in your project, for example:")}</p>
+          <p>
+            {doc_text(
+              "Edit the packaged host default theme at apps/game_server_host/theme/config.en.json, or place an override JSON file somewhere in your project. For example:"
+            )}
+          </p>
           <div class="bg-base-200 p-4 rounded-lg">
             <pre class="text-sm text-wrap"><code phx-no-curly-interpolation>theme/my_config.en.json</code></pre>
           </div>
@@ -106,14 +110,14 @@
         <span class="badge badge-primary">2</span> {doc_text("Configure the app to use it")}
       </h3>
       <div class="ml-8 space-y-3">
-        <p>{doc_text("Point the runtime configuration at the JSON file:")}</p>
+        <p>{doc_text("Optional: point the runtime override at a different JSON file:")}</p>
         <div class="bg-base-200 p-4 rounded-lg">
           <pre class="text-sm text-wrap"><code phx-no-curly-interpolation>THEME_CONFIG=theme/my_config.json</code></pre>
         </div>
 
         <p class="text-sm text-base-content/80">
           {doc_text(
-            "Only locale-suffixed config files are loaded. For example, if THEME_CONFIG is set to theme/my_config.json, the server will load theme/my_config.en.json for English, theme/my_config.es.json for Spanish, etc. The base file (without locale suffix) is never loaded directly — it serves only as a naming template. When THEME_CONFIG is not set, host branding still loads, but text and navigation config stay empty."
+            "Only locale-suffixed config files are loaded. For example, if THEME_CONFIG is set to theme/my_config.json, the server will load theme/my_config.en.json for English, theme/my_config.es.json for Spanish, etc. The base file (without locale suffix) is never loaded directly — it serves only as a naming template. When THEME_CONFIG is not set, the host falls back to its packaged default theme under apps/game_server_host/theme/."
           )}
         </p>
       </div>

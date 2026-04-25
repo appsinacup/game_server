@@ -117,10 +117,10 @@ defmodule GameServerWeb.HostLayouts do
     missing? = Map.drop(theme, Map.keys(host_theme_settings)) == %{}
 
     theme
-    |> Map.put("title", Map.get(theme, "title") || if(missing?, do: "MISSING_CONFIG"))
+    |> Map.put("title", Map.get(theme, "title") || if(missing?, do: "MISSING_THEME"))
     |> Map.put(
       "tagline",
-      Map.get(theme, "tagline") || if(missing?, do: "Set THEME_CONFIG env")
+      Map.get(theme, "tagline") || if(missing?, do: "Add host theme config or set THEME_CONFIG")
     )
     |> Map.merge(host_theme_settings)
   end

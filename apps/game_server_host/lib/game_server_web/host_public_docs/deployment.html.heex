@@ -58,6 +58,95 @@
         </ul>
       </div>
 
+      <div class="step">
+        <h3 class="text-lg font-semibold mb-3">
+          {doc_text("What each project owns")}
+        </h3>
+        <div class="ml-8 space-y-3">
+          <p class="text-sm text-base-content/80">
+            {doc_text(
+              "The repository is split by responsibility. Treat host as the runtime shell you customize, and core/web as reusable packages that you update from upstream."
+            )}
+          </p>
+          <div class="overflow-x-auto">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>{doc_text("Project")}</th>
+                  <th>{doc_text("Owns")}</th>
+                  <th>{doc_text("Typical changes")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="font-mono text-xs">game_server_core</td>
+                  <td class="text-xs">
+                    {doc_text(
+                      "Shared domain logic, Ecto schemas, contexts, and upstream migrations"
+                    )}
+                  </td>
+                  <td class="text-xs">
+                    {doc_text(
+                      "New shared features, shared data model changes, reusable business rules"
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="font-mono text-xs">game_server_web</td>
+                  <td class="text-xs">
+                    {doc_text(
+                      "Shared controllers, LiveViews, channels, components, and shared frontend source"
+                    )}
+                  </td>
+                  <td class="text-xs">
+                    {doc_text("Reusable API/UI behavior that multiple hosts should inherit")}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="font-mono text-xs">game_server_host</td>
+                  <td class="text-xs">
+                    {doc_text(
+                      "The runnable app: router, endpoint boot, supervision tree, env/config, branding, docs, startup scripts, and host-only migrations"
+                    )}
+                  </td>
+                  <td class="text-xs">
+                    {doc_text(
+                      "Routes you add or remove, deployment policy, assets, host-owned pages, integrations, and data that only your host needs"
+                    )}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <h3 class="text-lg font-semibold mb-3">
+          {doc_text("Host-only migrations")}
+        </h3>
+        <div class="ml-8 space-y-3">
+          <p class="text-sm text-base-content/80">
+            {doc_text(
+              "Put upstream shared schema changes in game_server_core, but put host-specific tables or columns in apps/game_server_host/priv/repo/migrations. The host migration command runs both core and host paths together."
+            )}
+          </p>
+          <div class="bg-base-200 p-4 rounded-lg font-mono text-sm highlight-code">
+            <pre phx-no-curly-interpolation><span class="code-comment"># <%= doc_text("Create a host-specific migration") %></span>
+cd apps/game_server_host
+mix ecto.gen.migration add_custom_host_table
+
+<span class="code-comment"># <%= doc_text("Apply both upstream core migrations and your host migrations") %></span>
+mix ecto.migrate</pre>
+          </div>
+          <p class="text-sm text-base-content/80">
+            {doc_text(
+              "Migration versions from core and host are sorted together, so give host migrations a normal timestamp and keep host-only schema/modules in the host project unless you intentionally want to upstream them into core."
+            )}
+          </p>
+        </div>
+      </div>
+
       <%!-- Step 1: Clone --%>
       <div class="step">
         <h3 class="text-lg font-semibold mb-3">

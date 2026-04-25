@@ -44,7 +44,7 @@ defmodule GameServerWeb.MixProject do
 
   defp deps do
     [
-      {:game_server_core, in_umbrella: true},
+      {:game_server_core, path: "../game_server_core"},
       {:phoenix, "~> 1.8.3"},
       {:phoenix_ecto, "~> 4.5"},
       {:phoenix_html, "~> 4.1"},
@@ -96,9 +96,19 @@ defmodule GameServerWeb.MixProject do
   defp aliases do
     [
       setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
-      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
+      "ecto.setup": [
+        "ecto.create",
+        "cmd --cd ../game_server_host mix ecto.migrate",
+        "run priv/repo/seeds.exs"
+      ],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
+      test: [
+        "cmd --cd ../game_server_host mix compile",
+        "ecto.create --quiet",
+        "cmd --cd ../game_server_host mix ecto.migrate --quiet",
+        "cmd --cd . env MIX_ENV=test mix compile --force",
+        "test"
+      ],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["compile", "tailwind game_server_web", "esbuild game_server_web"],
       "assets.deploy": [
@@ -108,8 +118,8 @@ defmodule GameServerWeb.MixProject do
       ],
       lint: ["format --check-formatted", "credo --strict"],
       precommit: [
+        "cmd --cd ../game_server_host mix compile",
         "compile --warning-as-errors",
-        "deps.unlock --unused",
         "format",
         "gen.sdk",
         "test",

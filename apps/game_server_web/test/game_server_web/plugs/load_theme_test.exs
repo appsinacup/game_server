@@ -20,7 +20,7 @@ defmodule GameServerWeb.Plugs.LoadThemeTest do
   end
 
   test "assigns theme map with expected keys into conn", %{conn: conn} do
-    # Explicitly unset to verify the shape of the theme map
+    # Explicitly unset to verify the host default theme is loaded
     System.delete_env("THEME_CONFIG")
     JSONConfig.reload()
 
@@ -28,10 +28,11 @@ defmodule GameServerWeb.Plugs.LoadThemeTest do
 
     assert conn.assigns[:theme]
     assert is_map(conn.assigns[:theme])
-
-    # Only the allowed keys should be exposed to templates
-    keys = Map.keys(conn.assigns[:theme]) |> Enum.sort()
-    assert keys == ["banner", "css", "favicon", "logo", "tagline", "title"]
+    assert conn.assigns[:theme]["title"] == "Gamend"
+    assert conn.assigns[:theme]["tagline"] == "Game + Backend"
+    assert conn.assigns[:theme]["logo"] == "/images/logo.png"
+    assert is_list(conn.assigns[:theme]["footer_links"])
+    assert is_map(conn.assigns[:theme]["navigation"])
   end
 
   test "populates theme values from THEME_CONFIG", %{conn: conn} do
@@ -60,7 +61,7 @@ defmodule GameServerWeb.Plugs.LoadThemeTest do
     assert conn.assigns[:theme]["css"] == "/theme.css"
   end
 
-  test "returns nil values when provider returns empty map", %{conn: conn} do
+  test "uses generic missing-theme fallback when provider returns empty map", %{conn: conn} do
     orig_mod = Application.get_env(:game_server_web, :theme_module)
     Application.put_env(:game_server_web, :theme_module, __MODULE__.EmptyThemeMock)
 
@@ -76,8 +77,8 @@ defmodule GameServerWeb.Plugs.LoadThemeTest do
 
     conn = LoadTheme.call(conn, [])
 
-    assert conn.assigns[:theme]["title"] == "MISSING_CONFIG"
-    assert conn.assigns[:theme]["tagline"] == "Set THEME_CONFIG env"
+    assert conn.assigns[:theme]["title"] == "MISSING_THEME"
+    assert conn.assigns[:theme]["tagline"] == "Add host theme config or set THEME_CONFIG"
     assert conn.assigns[:theme]["logo"] == "/images/logo.png"
   end
 

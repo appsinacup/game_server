@@ -7,12 +7,9 @@ defmodule GameServerUmbrella.MixProject do
       name: "GameServer",
       version: System.get_env("APP_VERSION") || "1.0.0",
       elixir: "~> 1.19",
-      apps_path: "apps",
       start_permanent: Mix.env() == :prod,
       listeners: [Phoenix.CodeReloader],
-      docs: docs(),
-      aliases: aliases(),
-      deps: deps()
+      aliases: aliases()
     ]
   end
 
@@ -24,41 +21,34 @@ defmodule GameServerUmbrella.MixProject do
 
   defp aliases do
     [
-      setup: ["do --app game_server_host setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      lint: ["format --check-formatted", "credo --strict"],
+      "deps.get": [host_cmd("deps.get")],
+      "deps.audit": [host_cmd("deps.audit")],
+      setup: [host_cmd("setup")],
+      compile: [host_cmd("compile")],
+      test: [host_cmd("test"), web_cmd("test")],
+      lint: [host_cmd("lint"), web_cmd("lint")],
       precommit: [
-        "compile --warning-as-errors",
-        "deps.unlock --unused",
-        "format",
-        "gen.sdk",
-        "test",
-        "credo --strict",
-        "deps.audit"
+        host_test_cmd("precommit"),
+        web_cmd("format"),
+        web_test_cmd("compile --warning-as-errors"),
+        web_test_cmd("test"),
+        web_cmd("credo --strict")
       ],
-      "assets.setup": ["do --app game_server_host assets.setup"],
-      "assets.build": ["do --app game_server_host assets.build"],
-      "assets.deploy": ["do --app game_server_host assets.deploy"],
-      "ecto.setup": ["do --app game_server_host ecto.setup"],
-      "ecto.reset": ["do --app game_server_host ecto.reset"],
-      "ecto.migrate": ["do --app game_server_host ecto.migrate"],
-      "ecto.rollback": ["do --app game_server_host ecto.rollback"],
-      "phx.server": ["do --app game_server_host phx.server"],
-      "phx.routes": ["do --app game_server_host phx.routes"],
-      "phx.gen.secret": ["do --app game_server_host phx.gen.secret"]
+      "assets.setup": [host_cmd("assets.setup")],
+      "assets.build": [host_cmd("assets.build")],
+      "assets.deploy": [host_cmd("assets.deploy")],
+      "ecto.setup": [host_cmd("ecto.setup")],
+      "ecto.reset": [host_cmd("ecto.reset")],
+      "ecto.migrate": [host_cmd("ecto.migrate")],
+      "ecto.rollback": [host_cmd("ecto.rollback")],
+      "phx.server": [host_cmd("phx.server")],
+      "phx.routes": [host_cmd("phx.routes")],
+      "phx.gen.secret": [host_cmd("phx.gen.secret")]
     ]
   end
 
-  defp deps do
-    [
-      {:ex_doc, "~> 0.40", only: :dev, runtime: false},
-      {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false}
-    ]
-  end
-
-  defp docs do
-    [
-      ignore_apps: [:game_server_web, :game_server_host]
-    ]
-  end
+  defp host_cmd(task), do: "cmd --cd apps/game_server_host mix #{task}"
+  defp web_cmd(task), do: "cmd --cd apps/game_server_web mix #{task}"
+  defp host_test_cmd(task), do: "cmd --cd apps/game_server_host env MIX_ENV=test mix #{task}"
+  defp web_test_cmd(task), do: "cmd --cd apps/game_server_web env MIX_ENV=test mix #{task}"
 end

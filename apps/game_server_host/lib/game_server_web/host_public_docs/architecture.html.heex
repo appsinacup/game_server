@@ -179,7 +179,12 @@
              └──── users_tokens, oauth_sessions</pre>
       </div>
 
-      <h3 class="font-semibold mt-3">{doc_text("Umbrella structure")}</h3>
+      <h3 class="font-semibold mt-3">{doc_text("Repository layout")}</h3>
+      <p class="text-sm text-base-content/80">
+        {doc_text(
+          "These projects live in one repository, but the runtime split is intentional: core and web are reusable packages, while host is the runnable shell you own."
+        )}
+      </p>
       <div
         class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto"
         phx-no-curly-interpolation
@@ -187,9 +192,9 @@
         <pre>
   game_server/
   ├── apps/
-  │   ├── game_server_core/    # Domain: contexts, schemas, migrations
-  │   ├── game_server_web/     # Web: controllers, LiveViews, channels, components, shared frontend source
-  │   └── game_server_host/    # Host: supervision tree, routing, boot config, host-owned CSS and env config
+  │   ├── game_server_core/    # Shared domain: contexts, schemas, upstream migrations
+  │   ├── game_server_web/     # Shared web package: controllers, LiveViews, channels, components, frontend source
+  │   └── game_server_host/    # Runnable host: router, supervision tree, boot config, branding, host-only docs/migrations
   ├── modules/                 # Runtime hook scripts (server scripting)
   ├── clients/                 # Godot SDK, JS SDK
   └── sdk/                     # Elixir SDK stubs for hooks</pre>

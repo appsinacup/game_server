@@ -21,6 +21,7 @@ config :game_server_web, :scopes,
   ]
 
 config :game_server_core, ecto_repos: [GameServer.Repo]
+config :game_server_host, ecto_repos: [GameServer.Repo]
 
 config :game_server_web,
   ecto_repos: [GameServer.Repo],
@@ -38,6 +39,10 @@ config :game_server_core, GameServer.Repo, adapter: default_adapter
 host_root = Path.expand("..", __DIR__)
 repo_root = Path.expand("../..", host_root)
 host_content_root = Path.join(host_root, "content")
+host_theme_root = Path.join(host_root, "theme")
+
+config :game_server_core, GameServer.Theme.JSONConfig,
+  default_config_path: Path.join(host_theme_root, "config.json")
 
 config :game_server_core, GameServer.Content,
   changelog_candidates: [

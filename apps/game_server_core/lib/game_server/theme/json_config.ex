@@ -1,16 +1,16 @@
 defmodule GameServer.Theme.JSONConfig do
   @moduledoc """
-  JSON-backed Theme provider. Reads a locale-specific JSON file specified by the
-  THEME_CONFIG environment variable — e.g. THEME_CONFIG=modules/example_config.json
+  JSON-backed Theme provider. Reads a locale-specific JSON file from either the
+  THEME_CONFIG environment variable override or the host-owned default path
+  configured by the runnable host application.
 
   Only locale-suffixed files are loaded (e.g. `example_config.en.json`,
   `example_config.es.json`). The base path itself (without a locale suffix) is
   never loaded directly — it serves only as a naming template to derive
   locale-specific paths.
 
-  When THEME_CONFIG is not set, an empty map is returned. There is no implicit
-  fallback to packaged defaults — the UI will display blanks until you configure
-  a THEME_CONFIG path.
+  When THEME_CONFIG is not set, the provider falls back to the host-owned
+  default path configured under `GameServer.Theme.JSONConfig`.
 
   Theme configs are cached in `:persistent_term` after the first read so
   subsequent requests never hit the filesystem. Call `reload/0` to clear the
@@ -39,8 +39,8 @@ defmodule GameServer.Theme.JSONConfig do
       :not_cached ->
         result = do_get_theme(locale)
 
-        # Only cache non-empty results, OR cache empty when THEME_CONFIG is
-        # genuinely unset. This prevents a startup race condition where the
+        # Only cache non-empty results, OR cache empty when no theme source is
+        # configured at all. This prevents a startup race condition where the
         # config file isn't available yet — an empty map would be cached
         # permanently, even after the file becomes available.
         if result != %{} or config_path() == nil do
@@ -56,13 +56,13 @@ defmodule GameServer.Theme.JSONConfig do
 
   # Performs the actual file-based theme resolution (uncached).
   #
-  # When THEME_CONFIG is not set → empty map.
-  # When THEME_CONFIG is set → resolve locale-specific file, load directly
-  # (no merging with packaged defaults). Only locale-suffixed files are tried.
+  # When a theme source is configured → resolve locale-specific file, load
+  # directly (no merging with packaged defaults). Only locale-suffixed files are
+  # tried.
   defp do_get_theme(locale) do
     case config_path() do
       nil ->
-        # No THEME_CONFIG configured → return empty.
+        # No runtime override or host default configured → return empty.
         %{}
 
       base_path ->
@@ -106,31 +106,38 @@ defmodule GameServer.Theme.JSONConfig do
   end
 
   defp config_path do
-    # The single canonical runtime configuration source is the THEME_CONFIG
-    # environment variable. Treat blank/empty values as unset so accidental
-    # empty env vars don't cause the loader to attempt invalid file reads.
-    case System.get_env("THEME_CONFIG") do
-      p when is_binary(p) ->
-        if String.trim(p) == "", do: nil, else: p
-
-      _ ->
-        nil
-    end
+    runtime_path() || default_path()
   end
 
   @doc """
-  Returns the runtime THEME_CONFIG path if present and non-blank, otherwise nil.
-  This function intentionally treats blank env values as unset.
+  Returns the runtime THEME_CONFIG override if present and non-blank,
+  otherwise nil. This intentionally excludes the host default path so admin
+  diagnostics can distinguish explicit overrides from host defaults.
   """
   def runtime_path do
-    case System.get_env("THEME_CONFIG") do
-      p when is_binary(p) ->
-        if String.trim(p) == "", do: nil, else: p
-
-      _ ->
-        nil
-    end
+    normalize_path_env(System.get_env("THEME_CONFIG"))
   end
+
+  @doc """
+  Returns the effective theme config path, preferring THEME_CONFIG when set and
+  otherwise falling back to the host-owned default path.
+  """
+  def active_path do
+    config_path()
+  end
+
+  defp default_path do
+    :game_server_core
+    |> Application.get_env(__MODULE__, [])
+    |> Keyword.get(:default_config_path)
+    |> normalize_path_env()
+  end
+
+  defp normalize_path_env(value) when is_binary(value) do
+    if String.trim(value) == "", do: nil, else: value
+  end
+
+  defp normalize_path_env(_value), do: nil
 
   defp locale_variants(nil), do: []
 

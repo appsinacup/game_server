@@ -4,6 +4,8 @@ if repo_config[:adapter] == Ecto.Adapters.SQLite3 do
   ExUnit.configure(max_cases: 1)
 end
 
+GameServerWeb.TestSupport.Runtime.ensure_started()
+
 ExUnit.start()
 Ecto.Adapters.SQL.Sandbox.mode(GameServer.Repo, :manual)
 

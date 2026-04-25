@@ -34,7 +34,7 @@ defmodule Mix.Tasks.Gen.Sdk do
   def run(_args) do
     Mix.Task.run("compile")
 
-    sdk_dir = Path.join([File.cwd!(), "sdk", "lib", "game_server"])
+    sdk_dir = Path.join([output_root(), "sdk", "lib", "game_server"])
     File.mkdir_p!(sdk_dir)
 
     for {module, filename} <- @sdk_modules do
@@ -77,6 +77,17 @@ defmodule Mix.Tasks.Gen.Sdk do
     path = Path.join(sdk_dir, filename)
     File.write!(path, stub_content)
     Mix.shell().info("Generated #{path}")
+  end
+
+  defp output_root do
+    cwd = Path.expand(File.cwd!())
+    parent = Path.dirname(cwd)
+
+    if Path.basename(parent) == "apps" do
+      Path.dirname(parent)
+    else
+      cwd
+    end
   end
 
   defp get_specs(module) do
