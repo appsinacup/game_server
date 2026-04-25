@@ -15,13 +15,13 @@ defmodule GameServerWeb.Plugs.LocalePath do
 
   @session_key :preferred_locale
   @default_locale "en"
-  @known_locales Gettext.known_locales(GameServerWeb.Gettext)
+  @known_locales GameServerWeb.GettextSync.known_locales()
 
   def init(opts), do: opts
 
   def call(%Plug.Conn{path_info: ["api" | _]} = conn, _opts) do
     # API routes never use locale prefixes or sessions — skip entirely
-    Gettext.put_locale(GameServerWeb.Gettext, @default_locale)
+    GameServerWeb.GettextSync.put_locale(@default_locale)
     Plug.Conn.assign(conn, :locale, @default_locale)
   end
 
@@ -55,29 +55,36 @@ defmodule GameServerWeb.Plugs.LocalePath do
   end
 
   defp maybe_extract_locale_prefix(%Plug.Conn{path_info: [first | rest]} = conn)
-       when first in @known_locales do
-    clean_path =
-      case rest do
-        [] -> "/"
-        _ -> "/" <> Enum.join(rest, "/")
-      end
+       when is_binary(first) do
+    case GameServerWeb.GettextSync.normalize_locale(first) do
+      locale when is_binary(locale) and locale in @known_locales ->
+        clean_path =
+          case rest do
+            [] -> "/"
+            _ -> "/" <> Enum.join(rest, "/")
+          end
 
-    query = conn.query_string
-    redirect_path = if query != "", do: clean_path <> "?" <> query, else: clean_path
+        query = conn.query_string
+        redirect_path = if query != "", do: clean_path <> "?" <> query, else: clean_path
 
-    {:redirect, conn, first, redirect_path}
+        {:redirect, conn, locale, redirect_path}
+
+      _ ->
+        {:ok, conn}
+    end
   end
 
   defp maybe_extract_locale_prefix(conn), do: {:ok, conn}
 
   # Read locale from session (set by a prior redirect) or fall back to default.
   defp apply_session_locale(conn) do
-    locale = get_session(conn, @session_key) || @default_locale
-
     locale =
-      if locale in @known_locales, do: locale, else: @default_locale
+      conn
+      |> get_session(@session_key)
+      |> GameServerWeb.GettextSync.normalize_locale()
+      |> Kernel.||(@default_locale)
 
-    Gettext.put_locale(GameServerWeb.Gettext, locale)
+    GameServerWeb.GettextSync.put_locale(locale)
     assign(conn, :locale, locale)
   end
 end

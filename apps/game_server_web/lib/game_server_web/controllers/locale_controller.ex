@@ -18,13 +18,7 @@ defmodule GameServerWeb.LocaleController do
   end
 
   defp normalize_locale(locale) when is_binary(locale) do
-    locale = String.downcase(locale)
-
-    if locale in Gettext.known_locales(GameServerWeb.Gettext) do
-      locale
-    else
-      "en"
-    end
+    GameServerWeb.GettextSync.normalize_locale(locale) || "en"
   end
 
   defp normalize_locale(_), do: "en"
@@ -38,7 +32,7 @@ defmodule GameServerWeb.LocaleController do
   defp split_path_and_query(_), do: {"/", nil}
 
   defp strip_locale_prefix(path) when is_binary(path) do
-    known_locales = Gettext.known_locales(GameServerWeb.Gettext)
+    known_locales = GameServerWeb.GettextSync.known_locales()
 
     segments = String.split(path, "/", trim: true)
 

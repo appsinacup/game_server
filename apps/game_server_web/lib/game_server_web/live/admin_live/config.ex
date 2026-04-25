@@ -2165,10 +2165,15 @@ defmodule GameServerWeb.AdminLive.Config do
   # Compute dark-variant and fullscreen image existence for theme diagnostics.
   # Convention: `file.ext` → `file_dark.ext`, detected via File.exists? on priv/static.
   defp theme_dark_variants(theme_map) do
-    static_dirs = [
-      Application.app_dir(:game_server_host, "priv/static"),
-      Application.app_dir(:game_server_web, "priv/static")
-    ]
+    static_dirs =
+      [
+        Application.get_env(:game_server_web, :host_static_app, :game_server_web),
+        Application.get_env(:game_server_web, :asset_static_app, :game_server_web),
+        :game_server_web
+      ]
+      |> Enum.uniq()
+      |> Enum.map(&static_dir_for_app/1)
+      |> Enum.reject(&is_nil/1)
 
     banner_path = (theme_map && Map.get(theme_map, "banner")) || ""
     banner_dark_path = derive_dark_path(banner_path)
@@ -2203,6 +2208,14 @@ defmodule GameServerWeb.AdminLive.Config do
       File.exists?(Path.join(static_dir, relative_path))
     end)
   end
+
+  defp static_dir_for_app(app) when is_atom(app) do
+    if Application.spec(app, :vsn) do
+      Application.app_dir(app, "priv/static")
+    end
+  end
+
+  defp static_dir_for_app(_app), do: nil
 
   defp exported_plugin_functions do
     plugins = PluginManager.hook_modules()

@@ -2,8 +2,13 @@ defmodule GameServerWeb.WellKnownPlugTest do
   use GameServerWeb.ConnCase, async: true
 
   setup do
-    # The host endpoint owns .well-known files directly under game_server_host.
-    host_app = :game_server_host
+    host_app =
+      Application.get_env(
+        :game_server_web,
+        :well_known_static_app,
+        Application.get_env(:game_server_web, :host_static_app, :game_server_web)
+      )
+
     well_known_dir = Path.join(:code.priv_dir(host_app), "static/.well-known")
     aasa_path = Path.join(well_known_dir, "apple-app-site-association")
     assetlinks_path = Path.join(well_known_dir, "assetlinks.json")

@@ -9,20 +9,8 @@ defmodule GameServerWeb.OnMount.Locale do
   @session_key "preferred_locale"
 
   def on_mount(:default, _params, session, socket) do
-    locale = normalize_locale(session[@session_key]) || "en"
-    Gettext.put_locale(GameServerWeb.Gettext, locale)
+    locale = GameServerWeb.GettextSync.normalize_locale(session[@session_key]) || "en"
+    GameServerWeb.GettextSync.put_locale(locale)
     {:cont, Phoenix.Component.assign(socket, :locale, locale)}
   end
-
-  defp normalize_locale(locale) when is_binary(locale) do
-    locale = String.downcase(locale)
-
-    if locale in Gettext.known_locales(GameServerWeb.Gettext) do
-      locale
-    else
-      nil
-    end
-  end
-
-  defp normalize_locale(_), do: nil
 end

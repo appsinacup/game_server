@@ -5,13 +5,34 @@ defmodule GameServerWeb.ChangelogLive do
 
   @impl true
   def mount(params, session, socket) do
-    host_live().mount(params, session, socket)
+    if host_live_available?(:mount, 3) do
+      host_live().mount(params, session, socket)
+    else
+      {:ok, assign(socket, :page_title, "Changelog")}
+    end
   end
 
   @impl true
   def render(assigns) do
-    host_live().render(assigns)
+    if host_live_available?(:render, 1) do
+      host_live().render(assigns)
+    else
+      ~H"""
+      <Layouts.app flash={@flash} current_scope={@current_scope}>
+        <section id="standalone-changelog" class="space-y-4">
+          <h1 class="text-3xl font-semibold">Changelog</h1>
+          <p class="text-base-content/70">
+            Host changelog content is unavailable in standalone web mode.
+          </p>
+        </section>
+      </Layouts.app>
+      """
+    end
   end
 
   defp host_live, do: Module.concat(GameServerWeb, HostChangelogLive)
+
+  defp host_live_available?(function_name, arity) do
+    Code.ensure_loaded?(host_live()) and function_exported?(host_live(), function_name, arity)
+  end
 end

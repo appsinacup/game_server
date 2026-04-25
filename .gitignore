@@ -81,3 +81,7 @@ translations/token.json
 data/*.mmdb
 data/COPYRIGHT.txt
 data/LICENSE.txt
+apps/game_server_core/_build/
+apps/game_server_core/deps/
+apps/game_server_web/_build/
+apps/game_server_web/deps/

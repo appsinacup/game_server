@@ -93,14 +93,26 @@ defmodule GameServerWeb.SRI do
 
   defp static_file_path(clean) do
     [
-      Application.app_dir(:game_server_host, "priv/static"),
-      Application.app_dir(:game_server_web, "priv/static")
+      Application.get_env(:game_server_web, :asset_static_app, :game_server_web),
+      Application.get_env(:game_server_web, :host_static_app, :game_server_web),
+      :game_server_web
     ]
+    |> Enum.uniq()
+    |> Enum.map(&app_static_dir/1)
+    |> Enum.reject(&is_nil/1)
     |> Enum.find_value(fn static_dir ->
       file_path = Path.join(static_dir, clean)
       if File.exists?(file_path), do: file_path
     end)
   end
+
+  defp app_static_dir(app) when is_atom(app) do
+    if Application.spec(app, :vsn) do
+      Application.app_dir(app, "priv/static")
+    end
+  end
+
+  defp app_static_dir(_app), do: nil
 
   defp append_version_query(path, sri) do
     uri = URI.parse(path)

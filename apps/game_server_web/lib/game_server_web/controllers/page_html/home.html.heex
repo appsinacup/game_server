@@ -6,7 +6,8 @@
   <% banner_link = GameServerWeb.Layouts.home_banner_link() %>
   <% background_icons = Map.get(theme, "background_icons") || [] %>
   <% # Compute dark variant paths for hero and banner images
-  host_static_dir = Application.app_dir(:game_server_host, "priv/static")
+  host_static_app = Application.get_env(:game_server_web, :host_static_app, :game_server_web)
+  host_static_dir = Application.app_dir(host_static_app, "priv/static")
   web_static_dir = Application.app_dir(:game_server_web, "priv/static")
 
   fullscreen_dark_exists? =

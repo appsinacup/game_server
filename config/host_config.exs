@@ -27,6 +27,16 @@ config :game_server_web,
   ecto_repos: [GameServer.Repo],
   generators: [timestamp_type: :utc_datetime]
 
+config :game_server_web,
+  router: GameServerHost.Router,
+  host_router: GameServerHost.Router,
+  host_gettext_backend: GameServerHost.Gettext,
+  home_banner_link: "/docs/setup",
+  host_static_app: :game_server_host,
+  asset_static_app: :game_server_host,
+  well_known_static_app: :game_server_host,
+  host_static_paths: ~w(images game favicon.ico robots.txt .well-known theme.css)
+
 # Adapter selection (compile-time). Override with DATABASE_ADAPTER=postgres
 # at build time for production Postgres deployments.
 default_adapter =

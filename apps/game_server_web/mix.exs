@@ -14,11 +14,6 @@ defmodule GameServerWeb.MixProject do
       listeners: [Phoenix.CodeReloader],
       aliases: aliases(),
       deps: deps(),
-      # Share build artifacts with the root host app and load host-owned config.
-      build_path: "../../_build",
-      config_path: "../../config/config.exs",
-      deps_path: "../../deps",
-      lockfile: "../../mix.lock",
       compilers: [:phoenix_live_view] ++ Mix.compilers(),
       description: description(),
       package: package(),
@@ -98,15 +93,14 @@ defmodule GameServerWeb.MixProject do
       setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
       "ecto.setup": [
         "ecto.create",
-        "cmd --cd ../.. mix ecto.migrate",
+        "ecto.migrate",
         "run priv/repo/seeds.exs"
       ],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: [
-        "cmd --cd ../.. mix compile",
         "ecto.create --quiet",
-        "cmd --cd ../.. mix ecto.migrate --quiet",
-        "cmd --cd . env MIX_ENV=test mix compile --force",
+        "ecto.migrate --quiet",
+        "compile --force",
         "test"
       ],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
@@ -118,7 +112,6 @@ defmodule GameServerWeb.MixProject do
       ],
       lint: ["format --check-formatted", "credo --strict"],
       precommit: [
-        "cmd --cd ../.. mix compile",
         "compile --warning-as-errors",
         "format",
         "gen.sdk",

@@ -6,7 +6,7 @@ defmodule GameServerHost.SitemapController do
   custom docs, landing pages, or host-only routes.
   """
 
-  use GameServerWeb, :controller
+  use GameServerHostWeb, :controller
 
   alias GameServer.Content
 

@@ -6,7 +6,7 @@ defmodule GameServerHost.Router do
   LiveViews, and plugs from `game_server_web`.
   """
 
-  use GameServerWeb, :router
+  use GameServerHostWeb, :router
 
   import GameServerWeb.UserAuth
   import Phoenix.LiveDashboard.Router

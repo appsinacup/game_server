@@ -22,11 +22,9 @@ defmodule GameServerWeb.PublicPagesRenderTest do
       assert html =~ "Groups"
     end
 
-    test "GET /docs/setup renders", %{conn: conn} do
-      {:ok, _view, html} = live(conn, "/docs/setup")
-      assert html =~ "Documentation"
-      assert html =~ "Core Setup"
-      assert html =~ "Elixir App Starter"
+    test "GET /roadmap renders", %{conn: conn} do
+      {:ok, _view, html} = live(conn, ~p"/roadmap")
+      assert html =~ "Roadmap"
     end
 
     test "GET /changelog renders", %{conn: conn} do

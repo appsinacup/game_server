@@ -12,26 +12,21 @@ msgstr ""
 "Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5);\n"
 
 #: lib/game_server_web/live/notifications_live.ex:284
-#: lib/game_server_web/live/notifications_live.ex:284
 #, elixir-autogen, elixir-format
 msgid "Achievement Unlocked: %{name}"
 msgstr ""
 
-#: lib/game_server_web/live/notifications_live.ex:280
 #: lib/game_server_web/live/notifications_live.ex:280
 #, elixir-autogen, elixir-format
 msgid "New message in party"
 msgstr ""
 
 #: lib/game_server_web/live/notifications_live.ex:289
-#: lib/game_server_web/live/notifications_live.ex:289
-#: lib/game_server_web/live/notifications_live.ex:294
 #: lib/game_server_web/live/notifications_live.ex:294
 #, elixir-autogen, elixir-format
 msgid "New messages from %{name}"
 msgstr ""
 
-#: lib/game_server_web/live/notifications_live.ex:278
 #: lib/game_server_web/live/notifications_live.ex:278
 #, elixir-autogen, elixir-format
 msgid "New messages from friends"

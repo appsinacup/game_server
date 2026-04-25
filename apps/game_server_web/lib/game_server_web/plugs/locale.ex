@@ -22,7 +22,7 @@ defmodule GameServerWeb.Plugs.Locale do
   def init(opts), do: opts
 
   def call(conn, _opts) do
-    known_locales = Gettext.known_locales(GameServerWeb.Gettext)
+    known_locales = GameServerWeb.GettextSync.known_locales()
     param_locale = conn.params["locale"]
     session_locale = get_session(conn, @session_key)
 
@@ -40,7 +40,7 @@ defmodule GameServerWeb.Plugs.Locale do
 
     conn =
       if locale do
-        Gettext.put_locale(GameServerWeb.Gettext, locale)
+        GameServerWeb.GettextSync.put_locale(locale)
 
         conn
         |> assign(:locale, locale)

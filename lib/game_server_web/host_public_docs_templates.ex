@@ -3,7 +3,7 @@ defmodule GameServerWeb.HostPublicDocsTemplates do
   Embedded HEEx templates used by the host-owned public docs LiveView.
   """
 
-  use GameServerWeb, :html
+  use GameServerHostWeb, :html
 
   embed_templates "host_public_docs/*"
 end

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html
+  lang={GameServerWeb.HostLayouts.current_locale()}
+  class="scroll-smooth bg-base-100"
+  data-theme={assigns[:color_mode]}
+>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+    />
+    <meta name="csrf-token" content={get_csrf_token()} />
+    <%!-- Tiny synchronous script to set data-theme before CSS loads (prevents FOUC) --%>
+    <% theme_init_src = SRI.versioned_path(~p"/assets/js/theme-init.js") %>
+    <script
+      phx-track-static
+      type="text/javascript"
+      src={theme_init_src}
+      integrity={SRI.integrity(~p"/assets/js/theme-init.js")}
+      crossorigin="anonymous"
+    >
+    </script>
+    <!-- Open Graph / Twitter meta defaults -->
+    <% locale = GameServerWeb.HostLayouts.current_locale() %>
+    <% theme = GameServerWeb.HostLayouts.resolve_theme(locale, Map.get(assigns, :theme, %{})) %>
+    <% title = assigns[:page_title] || Map.get(theme, "title") %>
+    <% description_raw =
+      assigns[:meta_description] || Map.get(theme, "description") ||
+        Map.get(theme, "tagline") || "" %>
+    <% description = String.replace(description_raw, ~r/\*+/, "") %>
+    <% banner_path = Map.get(theme, "banner", "") %>
+    <% host_static_app = Application.get_env(:game_server_web, :host_static_app, :game_server_web) %>
+    <% host_static_dir = Application.app_dir(host_static_app, "priv/static") %>
+    <% web_static_dir = Application.app_dir(:game_server_web, "priv/static") %>
+    <% banner_dark_path = String.replace(banner_path, ~r/\.(\w+)$/, "_dark.\\1") %>
+    <% banner_dark_rel = String.trim_leading(banner_dark_path, "/") %>
+    <% banner_dark_exists? =
+      banner_dark_path != "" and
+        banner_dark_path != banner_path and
+        (File.exists?(Path.join(host_static_dir, banner_dark_rel)) or
+           File.exists?(Path.join(web_static_dir, banner_dark_rel))) %>
+    <% image_path = if banner_dark_exists?, do: banner_dark_path, else: banner_path %>
+
+    <meta name="description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={image_path} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image_path} />
+    <.live_title
+      default={Map.get(theme, "title")}
+      prefix={"#{Map.get(theme, "title")} — "}
+    >
+      {assigns[:page_title]}
+    </.live_title>
+    <% app_css_href = SRI.versioned_path(~p"/assets/css/app.css") %>
+    <link
+      phx-track-static
+      rel="stylesheet"
+      href={app_css_href}
+      integrity={SRI.integrity(~p"/assets/css/app.css")}
+      crossorigin="anonymous"
+    />
+    <% theme_css = Map.get(theme, "css") %>
+    <%= if theme_css != nil and theme_css != "" do %>
+      <% theme_css_href = SRI.versioned_path(theme_css) || theme_css %>
+      <link
+        rel="stylesheet"
+        phx-track-static
+        href={theme_css_href}
+        integrity={SRI.integrity(theme_css)}
+        crossorigin="anonymous"
+      />
+    <% end %>
+    <%= if Map.get(theme, "favicon") do %>
+      <link rel="icon" type="image/x-icon" href={Map.get(theme, "favicon")} />
+    <% end %>
+    <% theme_color = Map.get(theme, "theme_color") %>
+    <% current_color_mode = assigns[:color_mode] || "light" %>
+    <% {light_theme_color, dark_theme_color} =
+      cond do
+        is_map(theme_color) ->
+          {
+            Map.get(theme_color, "light", "#ffffff"),
+            Map.get(theme_color, "dark", Map.get(theme_color, "light", "#1a1a2e"))
+          }
+
+        is_binary(theme_color) and theme_color != "" ->
+          {theme_color, theme_color}
+
+        true ->
+          {"#ffffff", "#1a1a2e"}
+      end %>
+    <% active_theme_color =
+      if current_color_mode == "dark", do: dark_theme_color, else: light_theme_color %>
+    <meta name="color-scheme" content={current_color_mode} />
+    <meta
+      id="theme-color-meta"
+      name="theme-color"
+      content={active_theme_color}
+      data-light-color={light_theme_color}
+      data-dark-color={dark_theme_color}
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <% app_js_src = SRI.versioned_path(~p"/assets/js/app.js") %>
+    <script
+      defer
+      phx-track-static
+      type="text/javascript"
+      src={app_js_src}
+      integrity={SRI.integrity(~p"/assets/js/app.js")}
+      crossorigin="anonymous"
+    >
+    </script>
+  </head>
+  <body class="min-h-screen bg-base-100 text-base-content antialiased">
+    {@inner_content}
+  </body>
+</html>

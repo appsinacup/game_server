@@ -11,11 +11,6 @@ defmodule GameServerCore.MixProject do
       elixir: "~> 1.19",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      # Share build artifacts with the root host app and load host-owned config.
-      build_path: "../../_build",
-      config_path: "../../config/config.exs",
-      deps_path: "../../deps",
-      lockfile: "../../mix.lock",
       description: description(),
       package: package(),
       docs: docs(),

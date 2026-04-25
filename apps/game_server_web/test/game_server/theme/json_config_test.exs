@@ -66,28 +66,23 @@ defmodule GameServer.Theme.JSONConfigTest do
     assert theme == %{}
   end
 
-  test "falls back to the host default theme when THEME_CONFIG is unset" do
+  test "returns an empty theme when THEME_CONFIG is unset in standalone web mode" do
     System.delete_env("THEME_CONFIG")
 
-    theme = JSONConfig.get_theme()
-    assert theme["title"] == "Gamend"
-    assert is_list(theme["footer_links"])
-    assert is_map(theme["navigation"])
+    assert JSONConfig.get_theme() == %{}
   end
 
-  test "treats blank THEME_CONFIG as unset and uses the host default theme" do
+  test "treats blank THEME_CONFIG as unset in standalone web mode" do
     System.put_env("THEME_CONFIG", "")
 
-    theme = JSONConfig.get_theme()
-    assert theme["title"] == "Gamend"
-    assert is_list(theme["footer_links"])
+    assert JSONConfig.get_theme() == %{}
   end
 
-  test "runtime_path reports only the env override while active_path includes host default" do
+  test "runtime_path reports only the env override when no standalone default is configured" do
     System.delete_env("THEME_CONFIG")
 
     assert JSONConfig.runtime_path() == nil
-    assert String.ends_with?(JSONConfig.active_path(), "/theme/config.json")
+    assert JSONConfig.active_path() == nil
   end
 
   test "normalizes relative asset paths from runtime JSON" do

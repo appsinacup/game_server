@@ -7,7 +7,7 @@ defmodule GameServerWeb.HostContentAssetController do
     GET /content/changelog/*path
   """
 
-  use GameServerWeb, :controller
+  use GameServerHostWeb, :controller
 
   alias GameServer.Content
 

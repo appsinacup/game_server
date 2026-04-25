@@ -3,7 +3,7 @@ defmodule GameServerWeb.HostRoadmapLive do
   Host-owned LiveView that renders the project roadmap from Markdown content.
   """
 
-  use GameServerWeb, :live_view
+  use GameServerHostWeb, :live_view
 
   alias GameServer.Content
 
