@@ -1205,7 +1205,7 @@ defmodule GameServerWeb.AdminLive.Config do
                       <% else %>
                         <span class="badge badge-warning badge-sm">MMDB not configured</span>
                         <span class="text-xs text-base-content/60 ml-2">
-                          Falling back to CF-IPCountry header (Cloudflare only). Place GeoLite2-Country.mmdb under apps/game_server_host/data or set GEOIP_DB_PATH for a custom lookup path.
+                          Falling back to CF-IPCountry header (Cloudflare only). Place GeoLite2-Country.mmdb under data or set GEOIP_DB_PATH for a custom lookup path.
                         </span>
                       <% end %>
                     </td>

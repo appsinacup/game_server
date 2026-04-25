@@ -87,7 +87,7 @@ defmodule GameServer.Theme.JSONConfigTest do
     System.delete_env("THEME_CONFIG")
 
     assert JSONConfig.runtime_path() == nil
-    assert String.ends_with?(JSONConfig.active_path(), "/apps/game_server_host/theme/config.json")
+    assert String.ends_with?(JSONConfig.active_path(), "/theme/config.json")
   end
 
   test "normalizes relative asset paths from runtime JSON" do

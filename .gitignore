@@ -30,6 +30,8 @@ game_server-*.tar
 
 # Ignore digested assets cache.
 /priv/static/cache_manifest.json
+/priv/static/**/*.gz
+/priv/static/**/*-????????????????????????????????.*
 
 # Umbrella layout: ignore generated/digested static assets in the web app
 /apps/game_server_web/priv/static/
@@ -39,12 +41,6 @@ game_server-*.tar
 !/apps/game_server_web/priv/static/favicon.ico
 !/apps/game_server_web/priv/static/robots.txt
 /apps/game_server_web/apps/game_server_web/priv/static/
-
-# Host-owned generated bundles should not be tracked either.
-/apps/game_server_host/priv/static/assets/
-/apps/game_server_host/priv/static/cache_manifest.json
-/apps/game_server_host/priv/static/**/*.gz
-/apps/game_server_host/priv/static/**/*-????????????????????????????????.*
 
 # In case you use Node.js/npm, you want to ignore these.
 npm-debug.log
@@ -58,7 +54,7 @@ npm-debug.log
 .env
 
 redis/
-/apps/game_server_host/db/
+/db/
 clients/javascript/
 clients/node_modules/
 clients/godot/

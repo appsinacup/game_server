@@ -649,7 +649,7 @@ if config_env() == :prod do
   end
 
   # ── GeoIP database ──
-  # Prefer the host-owned default path under apps/game_server_host/data, but
+  # Prefer the host-owned default path under data/, but
   # still allow GEOIP_DB_PATH to override it for custom deployments.
   default_geoip_db = Path.expand("../data/GeoLite2-Country.mmdb", __DIR__)
 

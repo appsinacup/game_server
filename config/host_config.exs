@@ -37,26 +37,10 @@ default_adapter =
 config :game_server_core, GameServer.Repo, adapter: default_adapter
 
 host_root = Path.expand("..", __DIR__)
-repo_root = Path.expand("../..", host_root)
-host_content_root = Path.join(host_root, "content")
 host_theme_root = Path.join(host_root, "theme")
 
 config :game_server_core, GameServer.Theme.JSONConfig,
   default_config_path: Path.join(host_theme_root, "config.json")
-
-config :game_server_core, GameServer.Content,
-  changelog_candidates: [
-    Path.join(host_content_root, "CHANGELOG.md"),
-    Path.join(repo_root, "CHANGELOG.md")
-  ],
-  roadmap_candidates: [
-    Path.join(host_content_root, "ROADMAP.md"),
-    Path.join(repo_root, "ROADMAP.md")
-  ],
-  blog_candidates: [
-    Path.join(host_content_root, "blog"),
-    Path.join(repo_root, "blog")
-  ]
 
 # Configures the endpoint
 config :game_server_web, GameServerWeb.Endpoint,
@@ -99,10 +83,10 @@ config :esbuild,
   game_server_web: [
     args:
       ~w(js/app.js js/theme-init.js --bundle --target=es2022 --outdir=../priv/static/assets/js --external:/fonts/* --external:/images/* --alias:@=.),
-    cd: Path.expand("../../game_server_web/assets", __DIR__),
+    cd: Path.expand("../apps/game_server_web/assets", __DIR__),
     env: %{
       "NODE_PATH" => [
-        Path.expand("../../../deps", __DIR__),
+        Path.expand("../deps", __DIR__),
         Mix.Project.build_path(),
         Path.join(Mix.Project.build_path(), Atom.to_string(Mix.env()))
       ]

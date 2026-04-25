@@ -9,7 +9,7 @@ defmodule Mix.Tasks.Host.Migrate do
 
   @migration_args [
     "--migrations-path",
-    "../game_server_core/priv/repo/migrations",
+    "apps/game_server_core/priv/repo/migrations",
     "--migrations-path",
     "priv/repo/migrations"
   ]

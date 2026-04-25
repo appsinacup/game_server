@@ -128,12 +128,11 @@
         <div class="ml-8 space-y-3">
           <p class="text-sm text-base-content/80">
             {doc_text(
-              "Put upstream shared schema changes in game_server_core, but put host-specific tables or columns in apps/game_server_host/priv/repo/migrations. The host migration command runs both core and host paths together."
+              "Put upstream shared schema changes in game_server_core, but put host-specific tables or columns in priv/repo/migrations at the repository root. The host migration command runs both core and host paths together."
             )}
           </p>
           <div class="bg-base-200 p-4 rounded-lg font-mono text-sm highlight-code">
             <pre phx-no-curly-interpolation><span class="code-comment"># <%= doc_text("Create a host-specific migration") %></span>
-cd apps/game_server_host
 mix ecto.gen.migration add_custom_host_table
 
 <span class="code-comment"># <%= doc_text("Apply both upstream core migrations and your host migrations") %></span>

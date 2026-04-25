@@ -80,7 +80,7 @@ defmodule GameServerWeb.HostBlogLive do
               {gettext("No results.")}
             </h2>
             <p class="text-base-content/40">
-              Add blog Markdown files under apps/game_server_host/content/blog to display posts here.
+              Add blog Markdown files under blog to display posts here.
             </p>
           </div>
         <% else %>

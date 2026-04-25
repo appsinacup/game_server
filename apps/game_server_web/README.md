@@ -36,7 +36,7 @@ Recommended setup in your host app:
  depth: 1}
 ```
 
-2. Ensure your Tailwind CSS includes the Heroicons plugin. In this repo, the shared plugin now lives in `apps/game_server_web/assets/vendor/heroicons.js`, and the host base CSS references it from `apps/game_server_host/assets/css/app.css`:
+2. Ensure your Tailwind CSS includes the Heroicons plugin. In this repo, the shared plugin now lives in `apps/game_server_web/assets/vendor/heroicons.js`, and the host base CSS references it from `assets/css/app.css`:
 
 ```css
 @plugin "../../../game_server_web/assets/vendor/heroicons";

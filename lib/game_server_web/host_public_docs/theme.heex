@@ -52,7 +52,7 @@
         <div class="ml-8 space-y-3">
           <p>
             {doc_text(
-              "Edit the packaged host default theme at apps/game_server_host/theme/config.en.json, or place an override JSON file somewhere in your project. For example:"
+              "Edit the packaged host default theme at theme/config.en.json, or place an override JSON file somewhere in your project. For example:"
             )}
           </p>
           <div class="bg-base-200 p-4 rounded-lg">
@@ -117,7 +117,7 @@
 
         <p class="text-sm text-base-content/80">
           {doc_text(
-            "Only locale-suffixed config files are loaded. For example, if THEME_CONFIG is set to theme/my_config.json, the server will load theme/my_config.en.json for English, theme/my_config.es.json for Spanish, etc. The base file (without locale suffix) is never loaded directly — it serves only as a naming template. When THEME_CONFIG is not set, the host falls back to its packaged default theme under apps/game_server_host/theme/."
+            "Only locale-suffixed config files are loaded. For example, if THEME_CONFIG is set to theme/my_config.json, the server will load theme/my_config.en.json for English, theme/my_config.es.json for Spanish, etc. The base file (without locale suffix) is never loaded directly — it serves only as a naming template. When THEME_CONFIG is not set, the host falls back to its packaged default theme under theme/."
           )}
         </p>
       </div>
@@ -137,12 +137,12 @@
         </p>
         <p>
           {doc_text(
-            "Edit apps/game_server_host/assets/css/app.css when you want to change the full base stylesheet. The compiled bundle is written to apps/game_server_host/priv/static/assets/css/app.css. Use apps/game_server_host/priv/static/theme.css for a small layer of token or color overrides without forking the whole base CSS."
+            "Edit assets/css/app.css when you want to change the full base stylesheet. The compiled bundle is written to priv/static/assets/css/app.css. Use priv/static/theme.css for a small layer of token or color overrides without forking the whole base CSS."
           )}
         </p>
         <p>
           {doc_text(
-            "Changelog, roadmap, and blog pages are host-owned, and their Markdown content now lives under apps/game_server_host/content/. Repository-root paths remain only as compatibility fallbacks. They are no longer configured through THEME_CONFIG."
+            "Changelog, roadmap, and blog pages are host-owned, and their Markdown content now lives at the repository root as CHANGELOG.md, ROADMAP.md, and blog/. They are no longer configured through THEME_CONFIG."
           )}
         </p>
       </div>

@@ -5,7 +5,7 @@
 set -e
 
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
-HOST_DIR="$ROOT_DIR/apps/game_server_host"
+HOST_DIR="$ROOT_DIR"
 
 export POSTGRES_HOST=localhost
 export POSTGRES_USER=postgres

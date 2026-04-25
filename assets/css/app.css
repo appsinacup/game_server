@@ -26,15 +26,15 @@
 }
 
 /* Host-owned base stylesheet. Keep broad structural styling here.
-  Use apps/game_server_host/priv/static/theme.css for small color/token overrides. */
+  Use priv/static/theme.css for small color/token overrides. */
 
 /* See the Tailwind configuration guide for advanced usage
   https://tailwindcss.com/docs/configuration */
 
 @import "tailwindcss" source(none);
 @source "../css";
-@source "../../../game_server_web/assets/js";
-@source "../../../game_server_web/lib";
+@source "../../apps/game_server_web/assets/js";
+@source "../../apps/game_server_web/lib";
 @source "../../lib";
 
 /* Float animation for background icons — drift with increased movement range */
@@ -57,12 +57,12 @@
 
 /* A Tailwind plugin that makes "hero-#{ICON}" classes available.
    The heroicons installation itself is managed by your mix.exs */
-@plugin "../../../game_server_web/assets/vendor/heroicons";
+@plugin "../../apps/game_server_web/assets/vendor/heroicons";
 
 /* daisyUI Tailwind Plugin. You can update this file by fetching the latest version with:
    curl -sLO https://github.com/saadeghi/daisyui/releases/latest/download/daisyui.js
    Make sure to look at the daisyUI changelog: https://daisyui.com/docs/changelog/ */
-@plugin "../../../game_server_web/assets/vendor/daisyui" {
+@plugin "../../apps/game_server_web/assets/vendor/daisyui" {
   themes: false;
 }
 
@@ -70,7 +70,7 @@
   curl -sLO https://github.com/saadeghi/daisyui/releases/latest/download/daisyui-theme.js
   We ship with two themes, a light one inspired on Phoenix colors and a dark one inspired
   on Elixir colors. Build your own at: https://daisyui.com/theme-generator/ */
-@plugin "../../../game_server_web/assets/vendor/daisyui-theme" {
+@plugin "../../apps/game_server_web/assets/vendor/daisyui-theme" {
   name: "dark";
   default: false;
   prefersdark: false;
@@ -105,7 +105,7 @@
   --noise: 0;
 }
 
-@plugin "../../../game_server_web/assets/vendor/daisyui-theme" {
+@plugin "../../apps/game_server_web/assets/vendor/daisyui-theme" {
   name: "light";
   default: true;
   prefersdark: false;

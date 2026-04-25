@@ -4,7 +4,7 @@
 set -e
 
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
-HOST_DIR="$ROOT_DIR/apps/game_server_host"
+HOST_DIR="$ROOT_DIR"
 HOST_CSS="$HOST_DIR/priv/static/assets/css/app.css"
 WEB_JS="$ROOT_DIR/apps/game_server_web/priv/static/assets/js/app.js"
 

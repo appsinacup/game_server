@@ -26,14 +26,14 @@ services:
       # ── GeoIP (country lookup from IP) ──
       # Download GeoLite2-Country.mmdb from MaxMind (free account required):
       # https://dev.maxmind.com/geoip/geolite2-free-geolocation-data
-      # Place it at ./apps/game_server_host/data/GeoLite2-Country.mmdb
-      GEOIP_DB_PATH: /app/apps/game_server_host/data/GeoLite2-Country.mmdb
+      # Place it at ./data/GeoLite2-Country.mmdb
+      GEOIP_DB_PATH: /app/data/GeoLite2-Country.mmdb
     volumes:
       - ./modules:/app/modules
-      - ./apps/game_server_host/priv/static/images:/app/apps/game_server_host/priv/static/images
-      - ./apps/game_server_host/priv/static/theme.css:/app/apps/game_server_host/priv/static/theme.css
-      - ./apps/game_server_host/db:/app/apps/game_server_host/db
-      - ./apps/game_server_host/data:/app/apps/game_server_host/data:ro
+      - ./priv/static/images:/app/priv/static/images
+      - ./priv/static/theme.css:/app/priv/static/theme.css
+      - ./db:/app/db
+      - ./data:/app/data:ro
       # Uncomment for HTTPS — mount Let's Encrypt certs and ACME webroot
       # - ./certbot/conf:/etc/letsencrypt:ro
       # - ./certbot/www:/var/www/acme:ro

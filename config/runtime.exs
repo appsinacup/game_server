@@ -1,5 +1,4 @@
 import Config
 
-# Compatibility shim for umbrella-root Mix commands and release tooling.
-# The real runtime config now lives under the host app.
-Code.require_file(Path.expand("../apps/game_server_host/config/runtime.exs", __DIR__))
+# Root host-app runtime config entrypoint.
+Code.require_file(Path.expand("host_runtime.exs", __DIR__))

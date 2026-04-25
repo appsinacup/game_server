@@ -55,7 +55,7 @@ defmodule GameServerWeb.HostRoadmapLive do
               {gettext("No results.")}
             </h2>
             <p class="text-base-content/40">
-              Add a roadmap file under apps/game_server_host/content/ROADMAP.md to display it here.
+              Add a roadmap file at ROADMAP.md to display it here.
             </p>
           </div>
         <% end %>
