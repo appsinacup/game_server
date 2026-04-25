@@ -92,7 +92,7 @@ config :esbuild,
   version: "0.25.4",
   game_server_web: [
     args:
-      ~w(js/app.js js/theme-init.js --bundle --target=es2022 --outdir=../priv/static/assets/js --external:/fonts/* --external:/images/* --alias:@=.),
+      ~w(js/app.js js/theme-init.js --bundle --target=es2022 --outdir=../../priv/static/assets/js --external:/fonts/* --external:/images/* --alias:@=.),
     cd: Path.expand("../apps/game_server_web/assets", __DIR__),
     env: %{
       "NODE_PATH" => [

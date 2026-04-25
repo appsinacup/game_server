@@ -259,11 +259,11 @@ const Hooks = {
     },
     destroyed() {
       if (this.timer) clearTimeout(this.timer)
-      if (this.dismissBtn && this.dismissBtn.parentNode) {
-        this.dismissBtn.parentNode.removeChild(this.dismissBtn)
+      if (this.dismissBtn) {
+        this.dismissBtn.remove()
       }
-      if (this.toggleBtn && this.toggleBtn.parentNode) {
-        this.toggleBtn.parentNode.removeChild(this.toggleBtn)
+      if (this.toggleBtn) {
+        this.toggleBtn.remove()
       }
     },
     hideNavbar() {
