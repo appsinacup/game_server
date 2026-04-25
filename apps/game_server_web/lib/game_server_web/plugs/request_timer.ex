@@ -9,8 +9,6 @@ defmodule GameServerWeb.Plugs.RequestTimer do
   import Plug.Conn
   require Logger
 
-  @expose_header Mix.env() != :prod
-
   def init(opts), do: opts
 
   def call(conn, _opts) do
@@ -25,11 +23,15 @@ defmodule GameServerWeb.Plugs.RequestTimer do
         Logger.warning("Slow Request: #{conn.method} #{conn.request_path} took #{duration_ms}ms")
       end
 
-      if @expose_header do
+      if expose_header?() do
         put_resp_header(conn, "x-request-time", "#{duration_ms}ms")
       else
         conn
       end
     end)
+  end
+
+  defp expose_header? do
+    Application.get_env(:game_server_web, :environment, :prod) != :prod
   end
 end

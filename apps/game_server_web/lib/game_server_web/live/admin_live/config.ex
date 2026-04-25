@@ -1,8 +1,6 @@
 defmodule GameServerWeb.AdminLive.Config do
   use GameServerWeb, :live_view
 
-  @mix_env Mix.env()
-
   alias GameServer.Accounts.User
   alias GameServer.Accounts.UserNotifier
   alias GameServer.Content
@@ -1585,7 +1583,7 @@ defmodule GameServerWeb.AdminLive.Config do
       smtp_tls: System.get_env("SMTP_TLS"),
       sentry_dsn: System.get_env("SENTRY_DSN"),
       sentry_log_level: System.get_env("SENTRY_LOG_LEVEL"),
-      env: to_string(Application.get_env(:game_server_web, :environment, @mix_env)),
+      env: to_string(Application.get_env(:game_server_web, :environment, :prod)),
       repo_conf: Application.get_env(:game_server_core, GameServer.Repo) || %{},
       database: Application.get_env(:game_server_core, GameServer.Repo)[:database] || "N/A",
       # Database environment diagnostics (don't show raw passwords)

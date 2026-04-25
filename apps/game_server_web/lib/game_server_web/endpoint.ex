@@ -6,7 +6,7 @@ defmodule GameServerWeb.Endpoint do
     key: "_game_server_key",
     signing_salt: "G8u1px36",
     same_site: "Lax",
-    secure: Mix.env() == :prod
+    secure: Application.compile_env(:game_server_web, :session_secure, false)
   ]
 
   socket "/socket", GameServerWeb.UserSocket,
@@ -153,5 +153,7 @@ defmodule GameServerWeb.Endpoint do
     )
   end
 
-  defp gzip_static?, do: Mix.env() != :dev
+  defp gzip_static? do
+    Application.get_env(:game_server_web, :gzip_static, false)
+  end
 end

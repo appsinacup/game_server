@@ -1,8 +1,6 @@
 defmodule GameServerWeb.UserLive.Login do
   use GameServerWeb, :live_view
 
-  @mix_env Mix.env()
-
   alias GameServer.Accounts
   alias GameServer.Env
 
@@ -226,6 +224,10 @@ defmodule GameServerWeb.UserLive.Login do
     mailbox_preview_enabled? =
       Env.bool("MAILBOX_PREVIEW_ENABLED", false)
 
-    adapter_is_local? and (@mix_env == :dev or mailbox_preview_enabled?)
+    adapter_is_local? and (dev_env?() or mailbox_preview_enabled?)
+  end
+
+  defp dev_env? do
+    Application.get_env(:game_server_web, :environment, :prod) == :dev
   end
 end

@@ -2,8 +2,6 @@ defmodule GameServerWeb.AuthController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
-  @mix_env Mix.env()
-
   # Only use Ueberauth for Steam (OpenID), other providers use custom implementation
   plug Ueberauth, only: [:request, :callback], providers: [:steam]
 
@@ -278,7 +276,7 @@ defmodule GameServerWeb.AuthController do
     )
 
     msg =
-      if @mix_env == :dev do
+      if dev_env?() do
         "Failed to authenticate with #{String.capitalize(provider)}: #{inspect(error)}"
       else
         "Failed to authenticate with #{String.capitalize(provider)}."
@@ -287,6 +285,10 @@ defmodule GameServerWeb.AuthController do
     conn
     |> put_flash(:error, msg)
     |> redirect(to: ~p"/users/log-in")
+  end
+
+  defp dev_env? do
+    Application.get_env(:game_server_web, :environment, :prod) == :dev
   end
 
   # Browser OAuth request - redirects to provider

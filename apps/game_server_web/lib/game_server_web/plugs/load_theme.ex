@@ -5,8 +5,6 @@ defmodule GameServerWeb.Plugs.LoadTheme do
   host-owned branding assets.
   """
 
-  @log_theme Mix.env() in [:dev, :test]
-
   import Plug.Conn
 
   def init(opts), do: opts
@@ -19,12 +17,16 @@ defmodule GameServerWeb.Plugs.LoadTheme do
 
     # In development & test environments log the resolved theme_map to make
     # runtime debugging easier when things appear blank in the UI.
-    if @log_theme do
+    if log_theme?() do
       Logger.debug(
         "LoadTheme: assigned theme=#{inspect(theme)} (THEME_CONFIG=#{inspect(System.get_env("THEME_CONFIG"))})"
       )
     end
 
     assign(conn, :theme, theme)
+  end
+
+  defp log_theme? do
+    Application.get_env(:game_server_web, :environment, :prod) in [:dev, :test]
   end
 end

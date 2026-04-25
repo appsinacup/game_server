@@ -47,6 +47,10 @@ config :game_server_web, GameServerWeb.Endpoint,
     tailwind: {Tailwind, :install_and_run, [:game_server_web, ~w(--watch)]}
   ]
 
+config :game_server_web,
+  session_secure: false,
+  gzip_static: false
+
 # ## SSL Support
 #
 # In order to use HTTPS in development, a self-signed

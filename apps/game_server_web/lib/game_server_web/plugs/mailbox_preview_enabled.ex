@@ -5,8 +5,6 @@ defmodule GameServerWeb.Plugs.MailboxPreviewEnabled do
 
   alias GameServer.Env
 
-  @mix_env Mix.env()
-
   @behaviour Plug
 
   @impl Plug
@@ -14,7 +12,7 @@ defmodule GameServerWeb.Plugs.MailboxPreviewEnabled do
 
   @impl Plug
   def call(conn, _opts) do
-    enabled? = @mix_env == :dev or Env.bool("MAILBOX_PREVIEW_ENABLED", false)
+    enabled? = dev_env?() or Env.bool("MAILBOX_PREVIEW_ENABLED", false)
 
     adapter_is_local? =
       Application.get_env(:game_server_core, GameServer.Mailer, [])[:adapter] ==
@@ -30,5 +28,9 @@ defmodule GameServerWeb.Plugs.MailboxPreviewEnabled do
       |> send_resp(:not_found, "Not found")
       |> halt()
     end
+  end
+
+  defp dev_env? do
+    Application.get_env(:game_server_web, :environment, :prod) == :dev
   end
 end

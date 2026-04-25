@@ -25,7 +25,8 @@ config :game_server_host, ecto_repos: [GameServer.Repo]
 
 config :game_server_web,
   ecto_repos: [GameServer.Repo],
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  environment: config_env()
 
 config :game_server_web,
   router: GameServerHost.Router,
@@ -98,7 +99,7 @@ config :esbuild,
       "NODE_PATH" => [
         Path.expand("../deps", __DIR__),
         Mix.Project.build_path(),
-        Path.join(Mix.Project.build_path(), Atom.to_string(Mix.env()))
+        Path.join(Mix.Project.build_path(), Atom.to_string(config_env()))
       ]
     }
   ]

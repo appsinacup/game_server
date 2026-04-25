@@ -8,6 +8,10 @@ import Config
 config :game_server_web, GameServerWeb.Endpoint,
   cache_static_manifest: "priv/static/cache_manifest.json"
 
+config :game_server_web,
+  session_secure: true,
+  gzip_static: true
+
 # Configures Swoosh API Client
 config :swoosh, api_client: Swoosh.ApiClient.Req
 
