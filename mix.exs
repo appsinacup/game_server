@@ -32,8 +32,8 @@ defmodule GameServerHost.MixProject do
 
   defp deps do
     [
-      {:game_server_core, path: "apps/game_server_core"},
-      {:game_server_web, path: "apps/game_server_web"},
+      shared_dep(:game_server_core, "apps/game_server_core"),
+      shared_dep(:game_server_web, "apps/game_server_web"),
       {:phoenix, "~> 1.8.3"},
       {:phoenix_ecto, "~> 4.5"},
       {:phoenix_html, "~> 4.1"},
@@ -80,57 +80,82 @@ defmodule GameServerHost.MixProject do
   defp aliases do
     [
       setup: ["deps.get", "db.setup", "assets.setup", "assets.build"],
-      "dev.start": ["ecto.create --quiet -r GameServer.Repo", "db.migrate", "assets.build", "phx.server"],
+      "dev.start": [
+        "ecto.create --quiet -r GameServer.Repo",
+        "db.migrate",
+        "assets.build",
+        "phx.server"
+      ],
       "prod.start": ["assets.deploy", "db.setup", "phx.server"],
       "db.migrate": ["host.migrate -r GameServer.Repo"],
       "db.rollback": ["host.rollback -r GameServer.Repo"],
       "db.setup": [
         "ecto.create -r GameServer.Repo",
         "db.migrate",
-        web_seed_cmd()
+        "run --if-present priv/repo/seeds.exs"
       ],
       "db.reset": ["ecto.drop -r GameServer.Repo", "db.setup"],
-      test: [
-        "ecto.create --quiet -r GameServer.Repo",
-        "host.migrate --quiet -r GameServer.Repo",
-        "test",
-        web_test_cmd("deps.get"),
-        web_test_cmd("test")
-      ],
-      lint: [
-        "format --check-formatted",
-        "credo --strict",
-        web_cmd("format --check-formatted"),
-        web_cmd("credo --strict")
-      ],
-      precommit: [
-        "compile --warning-as-errors",
-        "format",
-        "gen.sdk",
-        "test",
-        "credo --strict",
-        web_test_cmd("deps.get"),
-        web_test_cmd("compile --warning-as-errors"),
-        web_cmd("format"),
-        web_cmd("credo --strict"),
-        "deps.audit"
-      ],
+      test:
+        [
+          "ecto.create --quiet -r GameServer.Repo",
+          "host.migrate --quiet -r GameServer.Repo",
+          "test"
+        ] ++ local_web_commands([web_test_cmd("deps.get"), web_test_cmd("test")]),
+      lint:
+        ["format --check-formatted", "credo --strict"] ++
+          local_web_commands([web_cmd("format --check-formatted"), web_cmd("credo --strict")]),
+      precommit:
+        [
+          "compile --warning-as-errors",
+          "format",
+          "gen.sdk",
+          "test",
+          "credo --strict"
+        ] ++
+          local_web_commands([
+            web_test_cmd("deps.get"),
+            web_test_cmd("compile --warning-as-errors"),
+            web_cmd("format"),
+            web_cmd("credo --strict")
+          ]) ++ ["deps.audit"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["compile", "tailwind game_server_web", "esbuild game_server_web"],
       "assets.deploy": [
         "tailwind game_server_web --minify",
         "esbuild game_server_web --minify",
-        "phx.digest",
-        web_cmd("phx.digest")
+        "phx.digest"
       ]
     ]
   end
 
   defp web_cmd(task), do: "cmd --cd #{web_app_path()} mix #{task}"
   defp web_test_cmd(task), do: "cmd --cd #{web_app_path()} env MIX_ENV=test mix #{task}"
-  defp web_seed_cmd, do: "cmd --cd #{web_app_path()} sh -c 'test -f priv/repo/seeds.exs && mix run priv/repo/seeds.exs || true'"
 
-  defp web_app_path, do: dep_path(:game_server_web, "apps/game_server_web")
+  defp local_web_commands(commands) do
+    if local_web_source?(), do: commands, else: []
+  end
 
-  defp dep_path(app, fallback), do: Mix.Project.deps_paths()[app] || fallback
+  defp local_web_source?, do: File.dir?("apps/game_server_web")
+
+  defp web_app_path, do: shared_app_path(:game_server_web, "apps/game_server_web")
+
+  defp shared_app_path(app, fallback) do
+    dep_root = Mix.Project.deps_paths()[app]
+    nested_dep_path = dep_root && Path.join(dep_root, fallback)
+
+    cond do
+      File.dir?(fallback) -> fallback
+      nested_dep_path && File.dir?(nested_dep_path) -> nested_dep_path
+      dep_root -> dep_root
+      true -> fallback
+    end
+  end
+
+  defp shared_dep(app, local_path) do
+    if File.dir?(local_path) do
+      {app, path: local_path}
+    else
+      {app, github: "appsinacup/game_server", sparse: local_path, override: true}
+    end
+  end
 end

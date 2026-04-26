@@ -40,6 +40,8 @@
    so both sets are safe to keep — only the one that resolves will be scanned. */
 @source "../../deps/game_server_web/assets/js";
 @source "../../deps/game_server_web/lib";
+@source "../../deps/game_server_web/apps/game_server_web/assets/js";
+@source "../../deps/game_server_web/apps/game_server_web/lib";
 @source "../../lib";
 
 /* Float animation for background icons — drift with increased movement range */
@@ -60,28 +62,22 @@
 
 /* Navbar auto-hide toggle button styling is handled in app.js NavbarAutohide hook */
 
-/* A Tailwind plugin that makes "hero-#{ICON}" classes available.
-   The heroicons installation itself is managed by your mix.exs.
-   Monorepo layout: @plugin "../../apps/game_server_web/assets/vendor/heroicons";
-   Starter/fork layout: @plugin "../../deps/game_server_web/assets/vendor/heroicons"; */
-@plugin "../../apps/game_server_web/assets/vendor/heroicons";
+/* Stable host-side wrappers in assets/vendor resolve shared Tailwind plugins
+   from either apps/game_server_web or deps/game_server_web. */
+@plugin "../vendor/heroicons";
 
 /* daisyUI Tailwind Plugin. You can update this file by fetching the latest version with:
    curl -sLO https://github.com/saadeghi/daisyui/releases/latest/download/daisyui.js
-   Make sure to look at the daisyUI changelog: https://daisyui.com/docs/changelog/
-   Monorepo layout: @plugin "../../apps/game_server_web/assets/vendor/daisyui" {...}
-   Starter/fork layout: @plugin "../../deps/game_server_web/assets/vendor/daisyui" {...} */
-@plugin "../../apps/game_server_web/assets/vendor/daisyui" {
+   Make sure to look at the daisyUI changelog: https://daisyui.com/docs/changelog/ */
+@plugin "../vendor/daisyui" {
   themes: false;
 }
 
 /* daisyUI theme plugin. You can update this file by fetching the latest version with:
   curl -sLO https://github.com/saadeghi/daisyui/releases/latest/download/daisyui-theme.js
   We ship with two themes, a light one inspired on Phoenix colors and a dark one inspired
-  on Elixir colors. Build your own at: https://daisyui.com/theme-generator/
-  Monorepo layout: @plugin "../../apps/game_server_web/assets/vendor/daisyui-theme" {...}
-  Starter/fork layout: @plugin "../../deps/game_server_web/assets/vendor/daisyui-theme" {...} */
-@plugin "../../apps/game_server_web/assets/vendor/daisyui-theme" {
+  on Elixir colors. Build your own at: https://daisyui.com/theme-generator/ */
+@plugin "../vendor/daisyui-theme" {
   name: "dark";
   default: false;
   prefersdark: false;
@@ -116,7 +112,7 @@
   --noise: 0;
 }
 
-@plugin "../../apps/game_server_web/assets/vendor/daisyui-theme" {
+@plugin "../vendor/daisyui-theme" {
   name: "light";
   default: true;
   prefersdark: false;

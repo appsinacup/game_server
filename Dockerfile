@@ -61,14 +61,11 @@ RUN if [ -d "${GAME_SERVER_PLUGINS_DIR}" ]; then \
 # Compile the application FIRST (generates phoenix-colocated hooks)
 RUN mix compile
 
-# Build and digest static assets for production for both the root host and game_server_web.
-# The root alias invokes `cmd --cd apps/game_server_web mix phx.digest`, so
-# fetch that subproject's deps explicitly in-image first.
-RUN cd apps/game_server_web && mix deps.get
+# Build and digest static assets for production for the root host app.
 RUN mix assets.deploy
 
 # Expose ports (HTTP + HTTPS)
 EXPOSE 4000 443
 
 # Default command - create DB (if needed), run migrations, and start server
-CMD ["sh", "-c", "mix ecto.create --quiet 2>/dev/null; mix ecto.migrate && mix phx.server"]
+CMD ["sh", "-c", "mix ecto.create --quiet -r GameServer.Repo 2>/dev/null; mix db.migrate && mix phx.server"]

@@ -49,6 +49,25 @@ config :game_server_core, GameServer.Repo, adapter: default_adapter
 
 host_root = Path.expand("..", __DIR__)
 host_theme_root = Path.join(host_root, "theme")
+web_dep_root = Mix.Project.deps_paths()[:game_server_web]
+
+web_app_root =
+  cond do
+    File.dir?(Path.join(host_root, "apps/game_server_web")) ->
+      Path.join(host_root, "apps/game_server_web")
+
+    is_binary(web_dep_root) && File.dir?(Path.join(web_dep_root, "apps/game_server_web")) ->
+      Path.join(web_dep_root, "apps/game_server_web")
+
+    is_binary(web_dep_root) ->
+      web_dep_root
+
+    true ->
+      Path.join(host_root, "apps/game_server_web")
+  end
+
+web_assets_root = Path.join(web_app_root, "assets")
+host_assets_output_root = Path.join(host_root, "priv/static/assets/js")
 
 config :game_server_core, GameServer.Theme.JSONConfig,
   default_config_path: Path.join(host_theme_root, "config.json")
@@ -92,12 +111,20 @@ config :game_server_core, GameServer.Cache,
 config :esbuild,
   version: "0.25.4",
   game_server_web: [
-    args:
-      ~w(js/app.js js/theme-init.js --bundle --target=es2022 --outdir=../../priv/static/assets/js --external:/fonts/* --external:/images/* --alias:@=.),
-    cd: Path.expand("../apps/game_server_web/assets", __DIR__),
+    args: [
+      "js/app.js",
+      "js/theme-init.js",
+      "--bundle",
+      "--target=es2022",
+      "--outdir=#{host_assets_output_root}",
+      "--external:/fonts/*",
+      "--external:/images/*",
+      "--alias:@=."
+    ],
+    cd: web_assets_root,
     env: %{
       "NODE_PATH" => [
-        Path.expand("../deps", __DIR__),
+        Path.join(host_root, "deps"),
         Mix.Project.build_path(),
         Path.join(Mix.Project.build_path(), Atom.to_string(config_env()))
       ]
@@ -112,7 +139,7 @@ config :tailwind,
       --input=assets/css/app.css
       --output=priv/static/assets/css/app.css
     ),
-    cd: Path.expand("..", __DIR__)
+    cd: host_root
   ]
 
 # Configures Elixir's Logger
