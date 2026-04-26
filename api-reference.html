@@ -5,14 +5,14 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.40.1">
-    <meta name="project" content="GameServer v1.0.943">
+    <meta name="project" content="GameServer v1.0.950">
 
 
-    <title>API Reference — GameServer v1.0.943</title>
+    <title>API Reference — GameServer v1.0.950</title>
 
     <link rel="stylesheet" href="dist/html-elixir-YJO4MOOW.css" />
 
-    <script defer src="dist/sidebar_items-C7EBB04A.js"></script>
+    <script defer src="dist/sidebar_items-6576C2A2.js"></script>
     <script defer src="docs_config.js"></script>
     <script defer src="dist/html-YU4BZFVS.js"></script>
 
@@ -37,7 +37,7 @@
 GameServer
         </a>
         <div class="sidebar-projectVersion" translate="no">
-          v1.0.943
+          v1.0.950
         </div>
       </div>
     </div>
@@ -92,7 +92,7 @@ GameServer
 
 <div id="top-content">
   <div class="heading-with-actions top-heading">
-    <h1>API Reference <small class="app-vsn">GameServer v#1.0.943</small></h1>
+    <h1>API Reference <small class="app-vsn">GameServer v#1.0.950</small></h1>
 <a href="api-reference.md" title="Copy Markdown (hold Ctrl/Cmd and click it to open as Markdown)" class="copy-markdown icon-action" rel="help">
   <i class="ri-markdown-line" aria-hidden="true"></i>
   <span class="sr-only">Copy Markdown</span>
@@ -106,596 +106,80 @@ GameServer
       <div class="summary">
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="GameServer.html" translate="no">GameServer</a>
+    <a href="GameServerHost.Router.html" translate="no">GameServerHost.<wbr>Router</a>
 
   </div>
 
-    <div class="summary-synopsis"><p>GameServer keeps the contexts that define your domain
-and business logic.</p></div>
+    <div class="summary-synopsis"><p>Host-owned router for the running application.</p></div>
 
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="GameServer.Accounts.html" translate="no">GameServer.<wbr>Accounts</a>
+    <a href="GameServerHost.SitemapController.html" translate="no">GameServerHost.<wbr>SitemapController</a>
 
   </div>
 
-    <div class="summary-synopsis"><p>The Accounts context.</p></div>
+    <div class="summary-synopsis"><p>Host-owned <code class="inline">sitemap.xml</code> controller.</p></div>
 
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="GameServer.Accounts.Scope.html" translate="no">GameServer.<wbr>Accounts.<wbr>Scope</a>
+    <a href="GameServerWeb.HostBlogLive.html" translate="no">GameServerWeb.<wbr>HostBlogLive</a>
 
   </div>
 
-    <div class="summary-synopsis"><p>Defines the scope of the caller to be used throughout the app.</p></div>
+    <div class="summary-synopsis"><p>Host-owned LiveView for the blog section.</p></div>
 
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="GameServer.Accounts.StalePresenceSweeper.html" translate="no">GameServer.<wbr>Accounts.<wbr>StalePresenceSweeper</a>
+    <a href="GameServerWeb.HostChangelogLive.html" translate="no">GameServerWeb.<wbr>HostChangelogLive</a>
 
   </div>
 
-    <div class="summary-synopsis"><p>Periodically sweeps users whose <code class="inline">is_online</code> flag is <code class="inline">true</code> but whose
-<code class="inline">last_seen_at</code> timestamp is older than a configurable threshold.</p></div>
+    <div class="summary-synopsis"><p>Host-owned LiveView that renders the project changelog from Markdown content.</p></div>
 
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="GameServer.Accounts.User.html" translate="no">GameServer.<wbr>Accounts.<wbr>User</a>
+    <a href="GameServerWeb.HostContentAssetController.html" translate="no">GameServerWeb.<wbr>HostContentAssetController</a>
 
   </div>
 
-    <div class="summary-synopsis"><p>The User schema and associated changeset functions used across the
-application (registration, OAuth, and admin changes).</p></div>
+    <div class="summary-synopsis"><p>Serves static assets (images, etc.) from host-registered content sources.</p></div>
 
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="GameServer.Accounts.UserNotifier.html" translate="no">GameServer.<wbr>Accounts.<wbr>UserNotifier</a>
+    <a href="GameServerWeb.HostPublicDocs.html" translate="no">GameServerWeb.<wbr>HostPublicDocs</a>
 
   </div>
 
-    <div class="summary-synopsis"><p>Small helpers used to deliver transactional emails for the Accounts flow
-(confirmation, magic link, and email change instructions).</p></div>
+    <div class="summary-synopsis"><p>Host-owned static LiveView that renders setup guides and product docs.</p></div>
 
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="GameServer.Accounts.UserToken.html" translate="no">GameServer.<wbr>Accounts.<wbr>UserToken</a>
+    <a href="GameServerWeb.HostPublicDocsTemplates.html" translate="no">GameServerWeb.<wbr>HostPublicDocsTemplates</a>
 
   </div>
 
-    <div class="summary-synopsis"><p>Functions and schema for persistent user tokens used by sessions, magic links,
-and email-change workflows.</p></div>
+    <div class="summary-synopsis"><p>Embedded HEEx templates used by the host-owned public docs LiveView.</p></div>
 
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="GameServer.Achievements.html" translate="no">GameServer.<wbr>Achievements</a>
+    <a href="GameServerWeb.HostRoadmapLive.html" translate="no">GameServerWeb.<wbr>HostRoadmapLive</a>
 
   </div>
 
-    <div class="summary-synopsis"><p>The Achievements context.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Achievements.Achievement.html" translate="no">GameServer.<wbr>Achievements.<wbr>Achievement</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Ecto schema for the <code class="inline">achievements</code> table.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Achievements.UserAchievement.html" translate="no">GameServer.<wbr>Achievements.<wbr>UserAchievement</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Ecto schema for the <code class="inline">user_achievements</code> table.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Apple.html" translate="no">GameServer.<wbr>Apple</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Apple OAuth client secret generation for Ueberauth.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Async.html" translate="no">GameServer.<wbr>Async</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Utilities for running best-effort background work.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Cache.html" translate="no">GameServer.<wbr>Cache</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Application cache backed by Nebulex.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Cache.L1.html" translate="no">GameServer.<wbr>Cache.<wbr>L1</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>L1 cache (local, in-memory).</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Cache.L2.Partitioned.html" translate="no">GameServer.<wbr>Cache.<wbr>L2.<wbr>Partitioned</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>L2 cache (partitioned topology).</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Cache.L2.Partitioned.Primary.html" translate="no">GameServer.<wbr>Cache.<wbr>L2.<wbr>Partitioned.<wbr>Primary</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>This is the cache for the primary storage.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Cache.L2.Redis.html" translate="no">GameServer.<wbr>Cache.<wbr>L2.<wbr>Redis</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>L2 cache backed by Redis.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Chat.html" translate="no">GameServer.<wbr>Chat</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Context for chat messaging across lobbies, groups, and friend DMs.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Chat.Message.html" translate="no">GameServer.<wbr>Chat.<wbr>Message</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Ecto schema for the <code class="inline">chat_messages</code> table.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Chat.ReadCursor.html" translate="no">GameServer.<wbr>Chat.<wbr>ReadCursor</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Ecto schema for the <code class="inline">chat_read_cursors</code> table.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Content.html" translate="no">GameServer.<wbr>Content</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Reads and renders Markdown content from project files and directories.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Env.html" translate="no">GameServer.<wbr>Env</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Helpers for reading and parsing environment variables.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Friends.html" translate="no">GameServer.<wbr>Friends</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Friends context - handles friend requests and relationships.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Friends.Friendship.html" translate="no">GameServer.<wbr>Friends.<wbr>Friendship</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Ecto schema representing a friendship/request between two users.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Groups.html" translate="no">GameServer.<wbr>Groups</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Context module for group management: creating, updating, listing, joining,
-leaving, kicking, promoting/demoting members, and handling join requests.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Groups.Group.html" translate="no">GameServer.<wbr>Groups.<wbr>Group</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Ecto schema for the <code class="inline">groups</code> table.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Groups.GroupInvite.html" translate="no">GameServer.<wbr>Groups.<wbr>GroupInvite</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Ecto schema for the <code class="inline">group_invites</code> table.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Groups.GroupJoinRequest.html" translate="no">GameServer.<wbr>Groups.<wbr>GroupJoinRequest</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Ecto schema for the <code class="inline">group_join_requests</code> table.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Groups.GroupMember.html" translate="no">GameServer.<wbr>Groups.<wbr>GroupMember</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Ecto schema for the <code class="inline">group_members</code> join table.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Hooks.html" translate="no">GameServer.<wbr>Hooks</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Behaviour for application-level hooks / callbacks.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Hooks.Default.html" translate="no">GameServer.<wbr>Hooks.<wbr>Default</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Default no-op implementation for GameServer.Hooks</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Hooks.DynamicRpcs.html" translate="no">GameServer.<wbr>Hooks.<wbr>DynamicRpcs</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Runtime registry for <em>dynamic</em> RPC function names exported by hook plugins.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Hooks.PluginBuilder.html" translate="no">GameServer.<wbr>Hooks.<wbr>PluginBuilder</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Builds an OTP plugin bundle from plugin source code on disk.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Hooks.PluginManager.html" translate="no">GameServer.<wbr>Hooks.<wbr>PluginManager</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Loads and manages hook plugins shipped as OTP applications under <code class="inline">modules/plugins/*</code>.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Hooks.PluginManager.Plugin.html" translate="no">GameServer.<wbr>Hooks.<wbr>PluginManager.<wbr>Plugin</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>A loaded plugin descriptor.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.KV.html" translate="no">GameServer.<wbr>KV</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Generic key/value storage.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Leaderboards.html" translate="no">GameServer.<wbr>Leaderboards</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>The Leaderboards context.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Leaderboards.Leaderboard.html" translate="no">GameServer.<wbr>Leaderboards.<wbr>Leaderboard</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Ecto schema for the <code class="inline">leaderboards</code> table.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Leaderboards.Record.html" translate="no">GameServer.<wbr>Leaderboards.<wbr>Record</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Ecto schema for the <code class="inline">leaderboard_records</code> table.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Limits.html" translate="no">GameServer.<wbr>Limits</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Central module for configurable validation limits.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Lobbies.html" translate="no">GameServer.<wbr>Lobbies</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Context module for lobby management: creating, updating, listing and searching lobbies.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Lobbies.Lobby.html" translate="no">GameServer.<wbr>Lobbies.<wbr>Lobby</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Ecto schema for the <code class="inline">lobbies</code> table and changeset helpers.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Lobbies.SpectatorTracker.html" translate="no">GameServer.<wbr>Lobbies.<wbr>SpectatorTracker</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Lightweight ETS-based tracker for lobby spectators.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Lock.html" translate="no">GameServer.<wbr>Lock</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Serialized execution using database-level advisory locks.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Mailer.html" translate="no">GameServer.<wbr>Mailer</a>
-
-  </div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Notifications.html" translate="no">GameServer.<wbr>Notifications</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Notifications context – create, list, and delete persisted user-to-user
-notifications.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Notifications.FriendNotifier.html" translate="no">GameServer.<wbr>Notifications.<wbr>FriendNotifier</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Subscribes to the global <code class="inline">&quot;friends&quot;</code> PubSub topic and automatically creates
-notifications for key friend events</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Notifications.Notification.html" translate="no">GameServer.<wbr>Notifications.<wbr>Notification</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Ecto schema representing a notification sent from one user to another.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.OAuth.Exchanger.html" translate="no">GameServer.<wbr>OAuth.<wbr>Exchanger</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Default implementation for exchanging OAuth codes with providers.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.OAuth.GoogleIDToken.html" translate="no">GameServer.<wbr>OAuth.<wbr>GoogleIDToken</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Verifies Google OpenID Connect <code class="inline">id_token</code>s for native/mobile sign-in flows.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.OAuthSession.html" translate="no">GameServer.<wbr>OAuthSession</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Simple Ecto schema for OAuth session polling used by client SDKs.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.OAuthSessions.html" translate="no">GameServer.<wbr>OAuthSessions</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Helpers for creating and retrieving short-lived OAuth sessions.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Parties.html" translate="no">GameServer.<wbr>Parties</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Context module for party management.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Parties.Party.html" translate="no">GameServer.<wbr>Parties.<wbr>Party</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Ecto schema for the <code class="inline">parties</code> table.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Parties.PartyInvite.html" translate="no">GameServer.<wbr>Parties.<wbr>PartyInvite</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Ecto schema for the <code class="inline">party_invites</code> table.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Repo.html" translate="no">GameServer.<wbr>Repo</a>
-
-  </div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Repo.AdvisoryLock.html" translate="no">GameServer.<wbr>Repo.<wbr>AdvisoryLock</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Advisory locking for protecting TOCTOU (Time-of-Check-Time-of-Use) patterns.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Schedule.html" translate="no">GameServer.<wbr>Schedule</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Dynamic cron-like job scheduling for hooks.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Schedule.Lock.html" translate="no">GameServer.<wbr>Schedule.<wbr>Lock</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Schema for schedule job locks.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Schedule.Scheduler.html" translate="no">GameServer.<wbr>Schedule.<wbr>Scheduler</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Defines a quantum Scheduler.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Theme.html" translate="no">GameServer.<wbr>Theme</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Behaviour for pluggable site theming providers.</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Theme.JSONConfig.html" translate="no">GameServer.<wbr>Theme.<wbr>JSONConfig</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>JSON-backed Theme provider. Reads a locale-specific JSON file specified by the
-THEME_CONFIG environment variable — e.g. THEME_CONFIG=modules/example_config.json</p></div>
-
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="GameServer.Types.html" translate="no">GameServer.<wbr>Types</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Shared types used across GameServer contexts.</p></div>
+    <div class="summary-synopsis"><p>Host-owned LiveView that renders the project roadmap from Markdown content.</p></div>
 
 </div>
 
       </div>
     </section>
 
-
-    <section class="details-list">
-      <h2 id="tasks" class="section-heading">Mix Tasks</h2>
-      <div class="summary">
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="Mix.Tasks.Gen.Sdk.html" translate="no">mix gen.<wbr>sdk</a>
-
-  </div>
-
-    <div class="summary-synopsis"><p>Generates SDK stub modules from the real GameServer modules.</p></div>
-
-</div>
-
-      </div>
-    </section>
 
 </div>
     <footer class="footer">
