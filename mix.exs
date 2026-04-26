@@ -80,6 +80,9 @@ defmodule GameServerHost.MixProject do
   defp aliases do
     [
       setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
+      "dev.start": ["ecto.create --quiet", "ecto.migrate", "assets.build", "phx.server"],
+      "prod.start": ["assets.deploy", "ecto.setup", "phx.server"],
+      "db.migrate": ["ecto.migrate"],
       "ecto.setup": [
         "ecto.create",
         "ecto.migrate",

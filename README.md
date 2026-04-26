@@ -34,7 +34,7 @@ Game + Backend = Gamend
 
 ```sh
 cp .env.example .env
-./start.sh
+mix dev.start
 ```
 
 Visit [localhost:4000](http://localhost:4000).

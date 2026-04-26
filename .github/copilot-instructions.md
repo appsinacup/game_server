@@ -15,7 +15,7 @@ This repo keeps `game_server_core` and `game_server_web` reusable under `apps/`,
 
 ### Running the app
 
-- Dev entrypoint is the root host app: `./start.sh` starts the repository-root `game_server_host` project.
+- Dev entrypoint is the root host app: `mix dev.start` starts the repository-root `game_server_host` project.
 - The Phoenix endpoint module is still `GameServerWeb.Endpoint` for compatibility (static paths, existing modules, UI library), but it is started by the host OTP application.
 
 ### Routing ownership / extension point
