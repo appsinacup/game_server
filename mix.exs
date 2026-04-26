@@ -61,6 +61,7 @@ defmodule GameServerHost.MixProject do
       {:ueberauth, "~> 0.10"},
       {:open_api_spex, "~> 3.22"},
       {:credo, ">= 1.7.16", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.40", only: :dev, runtime: false},
       {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
       {:guardian, "~> 2.3"},
       {:ueberauth_steam_strategy, "~> 0.1"},
@@ -87,7 +88,13 @@ defmodule GameServerHost.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       "ecto.migrate": ["host.migrate"],
       "ecto.rollback": ["host.rollback"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test", web_test_cmd("test")],
+      test: [
+        "ecto.create --quiet",
+        "ecto.migrate --quiet",
+        "test",
+        web_test_cmd("deps.get"),
+        web_test_cmd("test")
+      ],
       lint: [
         "format --check-formatted",
         "credo --strict",
@@ -100,6 +107,7 @@ defmodule GameServerHost.MixProject do
         "gen.sdk",
         "test",
         "credo --strict",
+        web_test_cmd("deps.get"),
         web_test_cmd("compile --warning-as-errors"),
         web_cmd("format"),
         web_cmd("credo --strict"),
