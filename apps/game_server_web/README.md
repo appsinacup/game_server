@@ -36,10 +36,18 @@ Recommended setup in your host app:
  depth: 1}
 ```
 
-2. Ensure your Tailwind CSS includes the Heroicons plugin. In this repo, the shared plugin now lives in `apps/game_server_web/assets/vendor/heroicons.js`, and the host base CSS references it from `assets/css/app.css`:
+2. Ensure your Tailwind CSS includes the Heroicons plugin. The shared plugin lives in `apps/game_server_web/assets/vendor/heroicons.js`.
+
+For this monorepo layout (host app at repo root):
 
 ```css
-@plugin "../../../game_server_web/assets/vendor/heroicons";
+@plugin "../../apps/game_server_web/assets/vendor/heroicons";
+```
+
+For starter/fork layouts where `game_server_web` is installed as a dependency:
+
+```css
+@plugin "../../deps/game_server_web/assets/vendor/heroicons";
 ```
 
 3. If you extract this into a standalone host app, keep the shared JS/vendor asset tree with the reusable web package or copy the same `vendor/heroicons.js` plugin alongside your web assets so it can still read from `deps/heroicons/optimized`.

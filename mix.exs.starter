@@ -1,3 +1,6 @@
+# Rename this module to match your project, e.g. MyGame.MixProject
+# Also update: app: :my_game, name: "MyGame"
+# and the Application module reference in application/0 below.
 defmodule GameServerHost.MixProject do
   use Mix.Project
 
@@ -32,8 +35,15 @@ defmodule GameServerHost.MixProject do
 
   defp deps do
     [
-      {:game_server_core, path: "apps/game_server_core"},
-      {:game_server_web, path: "apps/game_server_web"},
+      # Pin to a specific tag for production stability, e.g. tag: "v1.2.0"
+      {:game_server_core,
+       github: "appsinacup/game_server",
+       sparse: "apps/game_server_core",
+       override: true},
+      {:game_server_web,
+       github: "appsinacup/game_server",
+       sparse: "apps/game_server_web",
+       override: true},
       {:phoenix, "~> 1.8.3"},
       {:phoenix_ecto, "~> 4.5"},
       {:phoenix_html, "~> 4.1"},
@@ -87,32 +97,23 @@ defmodule GameServerHost.MixProject do
       "db.setup": [
         "ecto.create -r GameServer.Repo",
         "db.migrate",
-        web_seed_cmd()
+        "run --if-present priv/repo/seeds.exs"
       ],
       "db.reset": ["ecto.drop -r GameServer.Repo", "db.setup"],
       test: [
         "ecto.create --quiet -r GameServer.Repo",
         "host.migrate --quiet -r GameServer.Repo",
-        "test",
-        web_test_cmd("deps.get"),
-        web_test_cmd("test")
+        "test"
       ],
       lint: [
         "format --check-formatted",
-        "credo --strict",
-        web_cmd("format --check-formatted"),
-        web_cmd("credo --strict")
+        "credo --strict"
       ],
       precommit: [
         "compile --warning-as-errors",
         "format",
-        "gen.sdk",
         "test",
         "credo --strict",
-        web_test_cmd("deps.get"),
-        web_test_cmd("compile --warning-as-errors"),
-        web_cmd("format"),
-        web_cmd("credo --strict"),
         "deps.audit"
       ],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
@@ -120,17 +121,8 @@ defmodule GameServerHost.MixProject do
       "assets.deploy": [
         "tailwind game_server_web --minify",
         "esbuild game_server_web --minify",
-        "phx.digest",
-        web_cmd("phx.digest")
+        "phx.digest"
       ]
     ]
   end
-
-  defp web_cmd(task), do: "cmd --cd #{web_app_path()} mix #{task}"
-  defp web_test_cmd(task), do: "cmd --cd #{web_app_path()} env MIX_ENV=test mix #{task}"
-  defp web_seed_cmd, do: "cmd --cd #{web_app_path()} sh -c 'test -f priv/repo/seeds.exs && mix run priv/repo/seeds.exs || true'"
-
-  defp web_app_path, do: dep_path(:game_server_web, "apps/game_server_web")
-
-  defp dep_path(app, fallback), do: Mix.Project.deps_paths()[app] || fallback
 end
