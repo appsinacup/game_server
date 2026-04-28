@@ -10,7 +10,7 @@ Add `game_server_sdk` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:game_server_sdk, "~> 0.1.0"}
+    {:game_server_sdk, "~> 0.1.0", runtime: false, optional: true}
   ]
 end
 ```

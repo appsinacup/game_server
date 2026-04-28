@@ -28,7 +28,10 @@ defmodule Mix.Tasks.Gettext.ImportCsv do
 
   @shortdoc "Import translations from CSV into PO files and theme config"
 
-  @gettext_dir "apps/game_server_web/priv/gettext"
+  @gettext_dirs [
+    "priv/gettext",
+    "apps/game_server_web/priv/gettext"
+  ]
 
   @impl Mix.Task
   def run(args) do
@@ -44,7 +47,7 @@ defmodule Mix.Tasks.Gettext.ImportCsv do
   end
 
   defp do_import(locale, csv_path, dry_run?, config_opt) do
-    locale_dir = Path.join([@gettext_dir, locale, "LC_MESSAGES"])
+    locale_dir = Path.join([gettext_dir(), locale, "LC_MESSAGES"])
 
     unless File.dir?(locale_dir) do
       Mix.raise("Locale directory not found: #{locale_dir}")
@@ -327,6 +330,10 @@ defmodule Mix.Tasks.Gettext.ImportCsv do
     Example: mix gettext.import_csv es translations_es.csv
              mix gettext.import_csv es translations_es.csv --config modules/example_config.json
     """)
+  end
+
+  defp gettext_dir do
+    Enum.find(@gettext_dirs, "priv/gettext", &File.dir?/1)
   end
 
   # ------------------------------------------------------------------

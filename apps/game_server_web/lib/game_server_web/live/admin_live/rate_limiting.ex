@@ -352,7 +352,7 @@ defmodule GameServerWeb.AdminLive.RateLimiting do
     rl_config = Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, [])
 
     config = %{
-      general_limit: Keyword.get(rl_config, :general_limit, 120),
+      general_limit: Keyword.get(rl_config, :general_limit, 240),
       general_window: Keyword.get(rl_config, :general_window, 60_000),
       auth_limit: Keyword.get(rl_config, :auth_limit, 10),
       auth_window: Keyword.get(rl_config, :auth_window, 60_000),

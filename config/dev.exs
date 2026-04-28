@@ -88,7 +88,9 @@ config :game_server_web, GameServerWeb.Endpoint,
 # Enable dev routes for dashboard and mailbox
 config :game_server_web, dev_routes: true
 
-# Do not include metadata nor timestamps in development logs
+# Keep local development logs readable by default. Set LOG_LEVEL=debug when
+# request/SQL traces are needed.
+config :logger, level: :info
 config :logger, :default_formatter, format: "[$level] $message\n"
 
 # Set a higher stacktrace during development. Avoid configuring such

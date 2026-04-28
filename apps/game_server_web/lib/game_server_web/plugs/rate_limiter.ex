@@ -9,7 +9,7 @@ defmodule GameServerWeb.Plugs.RateLimiter do
   ## Configuration
 
       config :game_server_web, GameServerWeb.Plugs.RateLimiter,
-        general_limit: 120,          # requests per window
+        general_limit: 240,          # requests per window
         general_window: 60_000,     # 60 seconds
         auth_limit: 10,             # login/registration
         auth_window: 60_000
@@ -19,7 +19,7 @@ defmodule GameServerWeb.Plugs.RateLimiter do
 
   import Plug.Conn
 
-  @default_general_limit 120
+  @default_general_limit 240
   @default_general_window :timer.seconds(60)
   @default_auth_limit 10
   @default_auth_window :timer.seconds(60)

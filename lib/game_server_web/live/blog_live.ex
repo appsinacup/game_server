@@ -6,7 +6,7 @@ defmodule GameServerWeb.HostBlogLive do
   - `:show` renders an individual post with next/prev navigation
   """
 
-  use GameServerHostWeb, :live_view
+  use GameServerWeb, :live_view
 
   alias GameServer.Content
 

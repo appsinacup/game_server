@@ -20,7 +20,6 @@ defmodule GameServer.Modules.ExampleHook do
   alias GameServer.KV
   alias GameServer.Lock
 
-
   @impl true
   def after_startup do
     Logger.info("[ExampleHook] after_startup called")
@@ -45,6 +44,12 @@ defmodule GameServer.Modules.ExampleHook do
 
   @impl true
   def after_user_login(_user), do: :ok
+
+  @impl true
+  def after_user_online(_user), do: :ok
+
+  @impl true
+  def after_user_offline(_user), do: :ok
 
   @impl true
   def before_lobby_create(attrs) do

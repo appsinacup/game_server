@@ -380,7 +380,7 @@ if config_env() == :prod do
 
   # Rate Limiting — configurable per-IP request throttling via RATE_LIMIT_* env vars.
   rate_limit_opts = [
-    general_limit: String.to_integer(System.get_env("RATE_LIMIT_HTTP_GENERAL_LIMIT", "120")),
+    general_limit: String.to_integer(System.get_env("RATE_LIMIT_HTTP_GENERAL_LIMIT", "240")),
     general_window: String.to_integer(System.get_env("RATE_LIMIT_HTTP_GENERAL_WINDOW", "60000")),
     auth_limit: String.to_integer(System.get_env("RATE_LIMIT_HTTP_AUTH_LIMIT", "10")),
     auth_window: String.to_integer(System.get_env("RATE_LIMIT_HTTP_AUTH_WINDOW", "60000")),

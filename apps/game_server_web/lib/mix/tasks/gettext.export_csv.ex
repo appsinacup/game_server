@@ -27,7 +27,10 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
 
   @shortdoc "Export PO translations and theme config for a locale to CSV"
 
-  @gettext_dir "apps/game_server_web/priv/gettext"
+  @gettext_dirs [
+    "priv/gettext",
+    "apps/game_server_web/priv/gettext"
+  ]
 
   @impl Mix.Task
   def run(args) do
@@ -35,7 +38,7 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
       OptionParser.parse(args, strict: [output: :string, config: :string])
 
     locale = List.first(positional) || raise_usage!()
-    locale_dir = Path.join([@gettext_dir, locale, "LC_MESSAGES"])
+    locale_dir = Path.join([gettext_dir(), locale, "LC_MESSAGES"])
 
     unless File.dir?(locale_dir) do
       Mix.raise("Locale directory not found: #{locale_dir}")
@@ -48,6 +51,7 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
 
     all_rows = po_rows ++ config_rows
     csv_content = encode_csv([header_row() | all_rows])
+    File.mkdir_p!(Path.dirname(output_path))
     File.write!(output_path, csv_content)
 
     Mix.shell().info(
@@ -131,6 +135,10 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
     Example: mix gettext.export_csv es
              mix gettext.export_csv es --config modules/example_config.json
     """)
+  end
+
+  defp gettext_dir do
+    Enum.find(@gettext_dirs, "priv/gettext", &File.dir?/1)
   end
 
   # ------------------------------------------------------------------

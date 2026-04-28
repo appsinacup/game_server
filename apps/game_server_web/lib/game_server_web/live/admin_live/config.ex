@@ -1707,7 +1707,7 @@ defmodule GameServerWeb.AdminLive.Config do
         Keyword.get(
           Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, []),
           :general_limit,
-          120
+          240
         ),
       rate_limit_general_window:
         Keyword.get(

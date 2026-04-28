@@ -70,6 +70,19 @@ defmodule GameServerWeb.HostLayouts do
 
   @app_version_fallback Mix.Project.config()[:version] || "1.0.0"
 
+  @theme_translatable_top_keys ~w(title tagline description site_message)
+
+  @theme_translatable_array_fields [
+    {["useful_links"], "title"},
+    {["footer_links"], "label"},
+    {["features"], "title"},
+    {["features"], "description"},
+    {["navigation", "primary_links"], "label"},
+    {["navigation", "guest_links"], "label"},
+    {["navigation", "authenticated_links"], "label"},
+    {["navigation", "account_links"], "label"}
+  ]
+
   @doc false
   def icon_placements(icons) when is_list(icons) do
     unique_icons = Enum.uniq(icons)
@@ -121,11 +134,22 @@ defmodule GameServerWeb.HostLayouts do
       Map.get(theme, "tagline") || if(missing?, do: "Add host theme config or set THEME_CONFIG")
     )
     |> Map.merge(host_theme_settings)
+    |> translate_theme(locale)
   end
 
   @doc false
   def home_banner_link do
     Application.get_env(:game_server_web, :home_banner_link)
+  end
+
+  @doc false
+  def extra_hook_modules do
+    :game_server_web
+    |> Application.get_env(:extra_hook_modules, [])
+    |> List.wrap()
+    |> Enum.map(&to_string/1)
+    |> Enum.reject(&(&1 == ""))
+    |> Enum.map(fn path -> GameServerWeb.SRI.versioned_path(path) || path end)
   end
 
   @doc false
@@ -139,6 +163,68 @@ defmodule GameServerWeb.HostLayouts do
   end
 
   def translate(message), do: message
+
+  defp translate_theme(theme, locale) when is_map(theme) do
+    backend = GameServerWeb.GettextSync.host_backend()
+    locale = translation_locale(locale)
+
+    Gettext.with_locale(backend, locale, fn ->
+      theme
+      |> translate_top_level_theme_fields()
+      |> translate_nested_theme_fields()
+    end)
+  end
+
+  defp translate_theme(theme, _locale), do: theme
+
+  defp translation_locale(locale) when is_binary(locale) do
+    GameServerWeb.GettextSync.normalize_locale(locale) || current_locale()
+  end
+
+  defp translation_locale(_locale), do: current_locale()
+
+  defp translate_top_level_theme_fields(theme) do
+    Enum.reduce(@theme_translatable_top_keys, theme, fn key, acc ->
+      translate_map_field(acc, key)
+    end)
+  end
+
+  defp translate_nested_theme_fields(theme) do
+    Enum.reduce(@theme_translatable_array_fields, theme, fn {path, field}, acc ->
+      translate_list_field_at_path(acc, path, field)
+    end)
+  end
+
+  defp translate_list_field_at_path(map, [key], field) when is_map(map) do
+    case Map.get(map, key) do
+      items when is_list(items) ->
+        Map.put(map, key, Enum.map(items, &translate_map_field(&1, field)))
+
+      _ ->
+        map
+    end
+  end
+
+  defp translate_list_field_at_path(map, [key | rest], field) when is_map(map) do
+    case Map.get(map, key) do
+      nested when is_map(nested) ->
+        Map.put(map, key, translate_list_field_at_path(nested, rest, field))
+
+      _ ->
+        map
+    end
+  end
+
+  defp translate_list_field_at_path(map, _path, _field), do: map
+
+  defp translate_map_field(map, key) when is_map(map) do
+    case Map.get(map, key) do
+      value when is_binary(value) and value != "" -> Map.put(map, key, translate(value))
+      _ -> map
+    end
+  end
+
+  defp translate_map_field(value, _key), do: value
 
   defp prepare_app_assigns(assigns) do
     conn = Map.get(assigns, :conn)

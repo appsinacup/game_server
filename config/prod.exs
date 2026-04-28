@@ -6,7 +6,9 @@ import Config
 # which you should run after static files are built and
 # before starting your production server.
 config :game_server_web, GameServerWeb.Endpoint,
-  cache_static_manifest: "priv/static/cache_manifest.json"
+  # Host app builds and serves /assets from root priv/static, not from
+  # game_server_web package priv/static.
+  cache_static_manifest: {:game_server_host, "priv/static/cache_manifest.json"}
 
 config :game_server_web,
   session_secure: true,

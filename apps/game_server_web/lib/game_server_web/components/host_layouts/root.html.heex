@@ -108,6 +108,12 @@
     />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <%= if GameServerWeb.HostLayouts.extra_hook_modules() != [] do %>
+      <meta
+        name="game-server-extra-hooks"
+        content={Enum.join(GameServerWeb.HostLayouts.extra_hook_modules(), ",")}
+      />
+    <% end %>
     <% app_js_src = SRI.versioned_path(~p"/assets/js/app.js") %>
     <script
       defer

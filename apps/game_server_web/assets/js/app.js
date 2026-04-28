@@ -316,26 +316,70 @@ const Hooks = {
   }
 }
 
-const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
-const liveSocket = new LiveSocket("/live", Socket, {
-  longPollFallbackMs: 2500,
-  params: {_csrf_token: csrfToken},
-  hooks: {...colocatedHooks, ...Hooks},
-})
+function configuredExtraHookModules() {
+  const meta = document.querySelector("meta[name='game-server-extra-hooks']")
+  const content = meta && meta.getAttribute("content")
+
+  if (!content) return []
+
+  return content
+    .split(",")
+    .map((value) => value.trim())
+    .filter((value) => value !== "")
+}
+
+function extractHookMap(loadedModule) {
+  if (loadedModule && typeof loadedModule.hooks === "object") return loadedModule.hooks
+  if (loadedModule && loadedModule.default && typeof loadedModule.default === "object") {
+    return loadedModule.default
+  }
+
+  return {}
+}
+
+async function loadExtraHooks() {
+  const modules = configuredExtraHookModules()
+  const mergedHooks = {}
+
+  for (const modulePath of modules) {
+    try {
+      const loadedModule = await import(/* @vite-ignore */ modulePath)
+      Object.assign(mergedHooks, extractHookMap(loadedModule))
+    } catch (error) {
+      console.error(`Failed to load extra hooks from ${modulePath}`, error)
+    }
+  }
+
+  return mergedHooks
+}
+
+function createLiveSocket(extraHooks) {
+  const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+
+  return new LiveSocket("/live", Socket, {
+    longPollFallbackMs: 2500,
+    params: {_csrf_token: csrfToken},
+    hooks: {...colocatedHooks, ...Hooks, ...extraHooks},
+  })
+}
 
 // Show progress bar on live navigation and form submits
 topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
 window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
 window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
 
-// connect if there are any LiveViews on the page
-liveSocket.connect()
+loadExtraHooks().then((extraHooks) => {
+  const liveSocket = createLiveSocket(extraHooks)
 
-// expose liveSocket on window for web console debug logs and latency simulation:
-// >> liveSocket.enableDebug()
-// >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
-// >> liveSocket.disableLatencySim()
-window.liveSocket = liveSocket
+  // connect if there are any LiveViews on the page
+  liveSocket.connect()
+
+  // expose liveSocket on window for web console debug logs and latency simulation:
+  // >> liveSocket.enableDebug()
+  // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
+  // >> liveSocket.disableLatencySim()
+  window.liveSocket = liveSocket
+})
 
 // The lines below enable quality of life phoenix_live_reload
 // development features:
@@ -371,4 +415,3 @@ if (process.env.NODE_ENV === "development") {
     window.liveReloader = reloader
   })
 }
-

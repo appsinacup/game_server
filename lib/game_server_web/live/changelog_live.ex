@@ -3,7 +3,7 @@ defmodule GameServerWeb.HostChangelogLive do
   Host-owned LiveView that renders the project changelog from Markdown content.
   """
 
-  use GameServerHostWeb, :live_view
+  use GameServerWeb, :live_view
 
   alias GameServer.Content
 

@@ -3,7 +3,7 @@ defmodule GameServerWeb.HostPublicDocs do
   Host-owned static LiveView that renders setup guides and product docs.
   """
 
-  use GameServerHostWeb, :live_view
+  use GameServerWeb, :live_view
 
   @impl true
   def render(assigns) do

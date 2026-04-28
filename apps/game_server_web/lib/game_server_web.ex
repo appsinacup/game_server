@@ -17,6 +17,20 @@ defmodule GameServerWeb do
   those modules here.
   """
 
+  @host_gettext_backend Application.compile_env(
+                          :game_server_web,
+                          :host_gettext_backend,
+                          GameServerWeb.Gettext
+                        )
+  @configured_host_router Application.compile_env(
+                            :game_server_web,
+                            :host_router,
+                            GameServerWeb.Router
+                          )
+  @host_router if Code.ensure_loaded?(@configured_host_router),
+                 do: @configured_host_router,
+                 else: GameServerWeb.Router
+
   # Add directories that should be served as static at the web root.
   # Adding ".well-known" allows hosting files like
   # /.well-known/apple-app-site-association from priv/static/.well-known
@@ -50,10 +64,12 @@ defmodule GameServerWeb do
   end
 
   def controller do
+    backend = @host_gettext_backend
+
     quote do
       use Phoenix.Controller, formats: [:html, :json]
 
-      use Gettext, backend: GameServerWeb.Gettext
+      use Gettext, backend: unquote(backend)
 
       import Plug.Conn
 
@@ -91,9 +107,11 @@ defmodule GameServerWeb do
   end
 
   defp html_helpers do
+    backend = @host_gettext_backend
+
     quote do
       # Translation
-      use Gettext, backend: GameServerWeb.Gettext
+      use Gettext, backend: unquote(backend)
 
       import GameServerWeb.DocText, only: [doc_text: 1, doc_text: 2]
 
@@ -115,10 +133,12 @@ defmodule GameServerWeb do
   end
 
   def verified_routes do
+    host_router = @host_router
+
     quote do
       use Phoenix.VerifiedRoutes,
         endpoint: GameServerWeb.Endpoint,
-        router: GameServerWeb.Router,
+        router: unquote(host_router),
         statics: GameServerWeb.static_paths()
     end
   end
