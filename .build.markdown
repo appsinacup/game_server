@@ -1,5 +1,6 @@
 GameServerHost.Router.md
 GameServerHost.SitemapController.md
+GameServerWeb.HostAboutLive.md
 GameServerWeb.HostBlogLive.md
 GameServerWeb.HostChangelogLive.md
 GameServerWeb.HostContentAssetController.md

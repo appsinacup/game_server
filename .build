@@ -1,6 +1,7 @@
 404.html
 GameServerHost.Router.html
 GameServerHost.SitemapController.html
+GameServerWeb.HostAboutLive.html
 GameServerWeb.HostBlogLive.html
 GameServerWeb.HostChangelogLive.html
 GameServerWeb.HostContentAssetController.html
@@ -15,7 +16,7 @@ dist/lato-latin-700-normal-2XVSBPG4.woff2
 dist/lato-latin-ext-400-normal-N27NCBWW.woff2
 dist/lato-latin-ext-700-normal-Q2L5DVMW.woff2
 dist/remixicon-ZWU5GQ4X.woff2
-dist/search_data-0BD72FF5.js
-dist/sidebar_items-6576C2A2.js
+dist/search_data-84D94BC5.js
+dist/sidebar_items-AB0FD160.js
 index.html
 search.html
