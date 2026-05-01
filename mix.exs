@@ -100,7 +100,7 @@ defmodule GameServerHost.MixProject do
           "ecto.create --quiet -r GameServer.Repo",
           "host.migrate --quiet -r GameServer.Repo",
           "test"
-        ] ++ local_web_commands([web_test_cmd("deps.get"), web_test_cmd("test")]),
+        ] ++ local_web_commands([web_test_cmd("test")]),
       lint:
         ["format --check-formatted", "credo --strict"] ++
           local_web_commands([web_cmd("format --check-formatted"), web_cmd("credo --strict")]),
@@ -113,11 +113,10 @@ defmodule GameServerHost.MixProject do
           "credo --strict"
         ] ++
           local_web_commands([
-            web_test_cmd("deps.get"),
             web_test_cmd("compile --warning-as-errors"),
             web_cmd("format"),
             web_cmd("credo --strict")
-          ]) ++ ["deps.audit"],
+          ]),
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["compile", "tailwind game_server_web", "esbuild game_server_web"],
       "assets.deploy": [

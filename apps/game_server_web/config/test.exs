@@ -74,3 +74,7 @@ config :game_server_web, GameServerWeb.Auth.Guardian,
   ttl: {15, :minutes}
 
 config :game_server_web, GameServerWeb.Plugs.RateLimiter, enabled: false
+
+# Background presence sweeping fights with sandbox ownership in tests and can
+# keep logging after the test task itself is done.
+config :game_server_core, GameServer.Accounts.StalePresenceSweeper, enabled: false

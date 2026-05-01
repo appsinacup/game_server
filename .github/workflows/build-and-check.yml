@@ -183,6 +183,10 @@ jobs:
       - name: Install dependencies
         run: MIX_ENV=test mix deps.get
 
+      - name: Install web test dependencies
+        working-directory: apps/game_server_web
+        run: MIX_ENV=test mix deps.get
+
       - name: Compile
         run: MIX_ENV=test mix compile --warnings-as-errors
 
@@ -238,6 +242,10 @@ jobs:
       - name: Install dependencies
         run: MIX_ENV=test mix deps.get
 
+      - name: Install web test dependencies
+        working-directory: apps/game_server_web
+        run: MIX_ENV=test mix deps.get
+
       - name: Compile
         run: MIX_ENV=test mix compile --warnings-as-errors
 
@@ -277,6 +285,8 @@ jobs:
         with:
           elixir-version: '1.19'
           otp-version: '28'
+          install-hex: false
+          install-rebar: false
 
       - name: Install Java (for openapi generator)
         uses: actions/setup-java@v4
@@ -370,6 +380,8 @@ jobs:
         with:
           elixir-version: '1.19'
           otp-version: '28'
+          install-hex: false
+          install-rebar: false
 
       - name: Set up Elixir helpers
         working-directory: /tmp
@@ -442,6 +454,8 @@ jobs:
         with:
           otp-version: '28'
           elixir-version: '1.19'
+          install-hex: false
+          install-rebar: false
 
       - name: Set up Elixir helpers
         working-directory: /tmp
@@ -512,6 +526,8 @@ jobs:
         with:
           elixir-version: '1.19.3'
           otp-version: '26.2'
+          install-hex: false
+          install-rebar: false
 
       - name: Set up Elixir helpers
         working-directory: /tmp
