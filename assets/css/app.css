@@ -65,6 +65,7 @@
 /* Stable host-side wrappers in assets/vendor resolve shared Tailwind plugins
    from either apps/game_server_web or deps/game_server_web. */
 @plugin "../vendor/heroicons";
+@plugin "../vendor/flag-icons";
 
 /* daisyUI Tailwind Plugin. You can update this file by fetching the latest version with:
    curl -sLO https://github.com/saadeghi/daisyui/releases/latest/download/daisyui.js

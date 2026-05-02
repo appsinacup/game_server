@@ -229,6 +229,7 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
       "#{prefix}.hero.title",
       "#{prefix}.hero.text"
     ] ++
+      image_alt_path("#{prefix}.hero", hero) ++
       button_label_paths("#{prefix}.hero", hero) ++
       section_text_paths(prefix, Map.get(page, "sections", []))
   end
@@ -244,11 +245,20 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
       [
         "#{section_prefix}.title",
         "#{section_prefix}.text"
-      ] ++ button_label_paths(section_prefix, section)
+      ] ++ image_alt_path(section_prefix, section) ++ button_label_paths(section_prefix, section)
     end)
   end
 
   defp section_text_paths(_prefix, _sections), do: []
+
+  defp image_alt_path(prefix, item) when is_map(item) do
+    case get_in(item, ["image", "alt"]) do
+      value when is_binary(value) and value != "" -> ["#{prefix}.image.alt"]
+      _ -> []
+    end
+  end
+
+  defp image_alt_path(_prefix, _item), do: []
 
   defp button_label_paths(prefix, item) when is_map(item) do
     item

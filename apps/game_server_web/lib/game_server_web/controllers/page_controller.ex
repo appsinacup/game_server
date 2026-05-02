@@ -52,8 +52,10 @@ defmodule GameServerWeb.PageController do
       "hero" => %{
         "title" => Map.get(theme, "title", ""),
         "text" => Map.get(theme, "description", ""),
-        "image" => Map.get(theme, "banner", "/images/banner.png"),
-        "image_alt" => Map.get(theme, "title", "")
+        "image" => %{
+          "light" => Map.get(theme, "banner", "/images/banner.png"),
+          "alt" => Map.get(theme, "title", "")
+        }
       },
       "sections" => []
     }

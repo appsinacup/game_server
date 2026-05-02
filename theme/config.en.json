@@ -13,10 +13,10 @@
       "hero": {
         "title": "Gamend",
         "text": "**Open source** Elixir game server for **real-time** multiplayer games.",
-        "image": "/images/banner.png",
-        "image_alt": "Gamend",
-        "media_href": "/docs/setup#deployment",
-        "media_label": "Open getting started",
+        "image": {
+          "light": "/images/banner.png",
+          "alt": "Gamend"
+        },
         "image_position_desktop": "left",
         "image_position_mobile": "top",
         "media_width": "half",
@@ -36,16 +36,12 @@
           }
         ]
       },
-      "sections_columns": 2,
       "sections_height": "half",
       "sections": [
         {
           "title": "Authentication & Users",
           "text": "Email, Magic-link, OAuth, JWT and Session. Register, login, reset password and verify email.",
           "icon": "hero-lock-closed-solid",
-          "media_href": "/users/register",
-          "media_label": "Open registration",
-          "width": "1x",
           "media_width": "third",
           "image_position_desktop": "left",
           "image_position_mobile": "top",
@@ -67,9 +63,6 @@
           "title": "Lobbies, Parties & Matchmaking",
           "text": "Real-time lobbies and ephemeral parties. Customizable settings with live updates.",
           "icon": "hero-home-solid",
-          "media_href": "/api/docs",
-          "media_label": "Open API docs",
-          "width": "1x",
           "media_width": "third",
           "image_position_desktop": "right",
           "image_position_mobile": "top",
@@ -86,9 +79,6 @@
           "title": "Friends, Groups & Chat",
           "text": "Friend requests, blocking, real-time presence. Public, private and hidden groups. Direct and group messaging.",
           "icon": "hero-user-group-solid",
-          "media_href": "/groups",
-          "media_label": "Open groups",
-          "width": "1x",
           "media_width": "third",
           "image_position_desktop": "left",
           "image_position_mobile": "top",
@@ -105,9 +95,6 @@
           "title": "Achievements, Leaderboards & Notifications",
           "text": "Server-authoritative achievements and leaderboards. Real-time notifications across all features.",
           "icon": "hero-trophy-solid",
-          "media_href": "/leaderboards",
-          "media_label": "Open leaderboards",
-          "width": "1x",
           "media_width": "third",
           "image_position_desktop": "right",
           "image_position_mobile": "top",
@@ -124,9 +111,6 @@
           "title": "Server Scripting & Scheduling",
           "text": "Extend server logic with Elixir scripts. Schedule automated tasks and cron jobs.",
           "icon": "hero-puzzle-piece-solid",
-          "media_href": "/docs/setup",
-          "media_label": "Open guides",
-          "width": "1x",
           "media_width": "third",
           "image_position_desktop": "left",
           "image_position_mobile": "top",
@@ -148,7 +132,6 @@
           "title": "HTTP, WebSocket & WebRTC",
           "text": "REST API, real-time WebSocket channels and low-latency WebRTC DataChannels. Admin portal and web UI.",
           "icon": "hero-globe-alt-solid",
-          "width": "1x",
           "media_width": "third",
           "image_position_desktop": "right",
           "image_position_mobile": "top",
@@ -161,8 +144,10 @@
       "hero": {
         "title": "About Gamend",
         "text": "Gamend is a **batteries-included** Elixir backend for multiplayer games, with auth, social systems, real-time channels, and admin tooling.",
-        "image": "/images/logo.png",
-        "image_alt": "Gamend",
+        "image": {
+          "light": "/images/logo.png",
+          "alt": "Gamend"
+        },
         "image_position_desktop": "left",
         "image_position_mobile": "top",
         "media_width": "half",
@@ -183,14 +168,14 @@
           }
         ]
       },
-      "sections_columns": 2,
       "sections": [
         {
           "title": "Built For Real-Time Games",
           "text": "Use channels, lobbies, parties, presence, and WebRTC data channels without rebuilding common multiplayer infrastructure.",
-          "image": "/images/logo.png",
-          "image_alt": "Real-time games",
-          "width": "1x",
+          "image": {
+            "light": "/images/logo.png",
+            "alt": "Real-time games"
+          },
           "media_width": "third",
           "image_position_desktop": "right",
           "image_position_mobile": "top",
@@ -206,9 +191,10 @@
         {
           "title": "Open Source Foundation",
           "text": "The project is designed to be forked, themed, hosted, and extended by game teams.",
-          "image": "/images/logo.png",
-          "image_alt": "Open source foundation",
-          "width": "1x",
+          "image": {
+            "light": "/images/logo.png",
+            "alt": "Open source foundation"
+          },
           "media_width": "third",
           "image_position_desktop": "left",
           "image_position_mobile": "top",

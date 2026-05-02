@@ -31,7 +31,10 @@ defmodule GameServerWeb.PageControllerTest do
           "hero" => %{
             "title" => "Gamend",
             "text" => "**Open source** backend for real-time games.",
-            "image" => "/images/banner.png",
+            "image" => %{
+              "light" => "/images/banner.png",
+              "alt" => "Gamend"
+            },
             "buttons" => [
               %{
                 "label" => "Discord",
@@ -41,22 +44,19 @@ defmodule GameServerWeb.PageControllerTest do
               }
             ]
           },
-          "sections_columns" => 2,
           "sections_height" => "half",
           "sections" => [
             %{
               "title" => "Authentication & Users",
               "text" =>
                 "Email, Magic-link, OAuth, JWT and Session. Register, login, reset password and verify email.",
-              "icon" => "hero-lock-closed-solid",
-              "width" => "1x"
+              "icon" => "hero-lock-closed-solid"
             },
             %{
               "title" => "Server Scripting & Scheduling",
               "text" =>
                 "Extend server logic with Elixir scripts. Schedule automated tasks and cron jobs.",
-              "icon" => "hero-puzzle-piece-solid",
-              "width" => "1x"
+              "icon" => "hero-puzzle-piece-solid"
             }
           ]
         },
@@ -65,7 +65,7 @@ defmodule GameServerWeb.PageControllerTest do
           "hero" => %{
             "title" => "About Gamend",
             "text" => "Reusable **presentation** page.",
-            "image" => "/images/logo.png",
+            "image" => %{"light" => "/images/logo.png", "alt" => "Gamend"},
             "buttons" => [
               %{"label" => "Docs", "href" => "/docs/setup", "icon" => "hero-book-open-solid"}
             ]
@@ -74,7 +74,7 @@ defmodule GameServerWeb.PageControllerTest do
             %{
               "title" => "Built For Teams",
               "text" => "Fork, theme, host, and extend.",
-              "image" => "/images/logo.png"
+              "image" => %{"light" => "/images/logo.png", "alt" => "Built For Teams"}
             }
           ]
         },
@@ -83,7 +83,7 @@ defmodule GameServerWeb.PageControllerTest do
           "hero" => %{
             "title" => "Brand Page",
             "text" => "Configured from pages map.",
-            "image" => "/images/logo.png"
+            "image" => %{"light" => "/images/logo.png", "alt" => "Brand Page"}
           },
           "sections" => []
         }
@@ -226,6 +226,7 @@ defmodule GameServerWeb.PageControllerTest do
     assert body =~ "Clasamente"
     assert body =~ "Realizări"
     assert body =~ "Grupuri"
+    assert body =~ "fi-ro"
   end
 
   test "home renders without errors when THEME_CONFIG is unset", %{conn: conn} do

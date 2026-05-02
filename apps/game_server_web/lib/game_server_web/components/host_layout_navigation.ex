@@ -406,7 +406,14 @@ defmodule GameServerWeb.HostLayoutNavigation do
                   link.locale == @locale && "bg-primary/10 font-semibold text-primary"
                 ]}
               >
-                <span class="text-base leading-none" aria-hidden="true">{link.flag}</span>
+                <span
+                  class={[
+                    "fi shrink-0 rounded-[2px] shadow-sm ring-1 ring-base-content/10",
+                    "fi-#{link.flag_code}"
+                  ]}
+                  aria-hidden="true"
+                >
+                </span>
                 <span class="truncate">{link.label}</span>
               </a>
             </li>
@@ -450,7 +457,14 @@ defmodule GameServerWeb.HostLayoutNavigation do
                 link.locale == @locale && "bg-primary/10 font-semibold text-primary"
               ]}
             >
-              <span class="text-base leading-none" aria-hidden="true">{link.flag}</span>
+              <span
+                class={[
+                  "fi shrink-0 rounded-[2px] shadow-sm ring-1 ring-base-content/10",
+                  "fi-#{link.flag_code}"
+                ]}
+                aria-hidden="true"
+              >
+              </span>
               <span class="truncate">{link.label}</span>
             </a>
           <% end %>
@@ -752,7 +766,7 @@ defmodule GameServerWeb.HostLayoutNavigation do
         locale: locale,
         label: Map.get(locale_labels, locale, locale),
         href: href,
-        flag: locale_flag(locale)
+        flag_code: locale_flag_code(locale)
       }
     end)
   end
@@ -762,37 +776,37 @@ defmodule GameServerWeb.HostLayoutNavigation do
     |> then(&Map.get(GameServerWeb.HostLayouts.locale_labels(), &1, &1))
   end
 
-  defp locale_flag("ar"), do: "🇸🇦"
-  defp locale_flag("bg"), do: "🇧🇬"
-  defp locale_flag("cs"), do: "🇨🇿"
-  defp locale_flag("da"), do: "🇩🇰"
-  defp locale_flag("de"), do: "🇩🇪"
-  defp locale_flag("el"), do: "🇬🇷"
-  defp locale_flag("en"), do: "🇬🇧"
-  defp locale_flag("es"), do: "🇪🇸"
-  defp locale_flag("es_ES"), do: "🇪🇸"
-  defp locale_flag("fi"), do: "🇫🇮"
-  defp locale_flag("fr"), do: "🇫🇷"
-  defp locale_flag("hu"), do: "🇭🇺"
-  defp locale_flag("id"), do: "🇮🇩"
-  defp locale_flag("it"), do: "🇮🇹"
-  defp locale_flag("ja"), do: "🇯🇵"
-  defp locale_flag("ko"), do: "🇰🇷"
-  defp locale_flag("nl"), do: "🇳🇱"
-  defp locale_flag("no"), do: "🇳🇴"
-  defp locale_flag("pl"), do: "🇵🇱"
-  defp locale_flag("pt"), do: "🇵🇹"
-  defp locale_flag("pt_BR"), do: "🇧🇷"
-  defp locale_flag("ro"), do: "🇷🇴"
-  defp locale_flag("ru"), do: "🇷🇺"
-  defp locale_flag("sv"), do: "🇸🇪"
-  defp locale_flag("th"), do: "🇹🇭"
-  defp locale_flag("tr"), do: "🇹🇷"
-  defp locale_flag("uk"), do: "🇺🇦"
-  defp locale_flag("vi"), do: "🇻🇳"
-  defp locale_flag("zh_CN"), do: "🇨🇳"
-  defp locale_flag("zh_TW"), do: "🇹🇼"
-  defp locale_flag(_locale), do: "🌐"
+  defp locale_flag_code("ar"), do: "sa"
+  defp locale_flag_code("bg"), do: "bg"
+  defp locale_flag_code("cs"), do: "cz"
+  defp locale_flag_code("da"), do: "dk"
+  defp locale_flag_code("de"), do: "de"
+  defp locale_flag_code("el"), do: "gr"
+  defp locale_flag_code("en"), do: "gb"
+  defp locale_flag_code("es"), do: "es"
+  defp locale_flag_code("es_ES"), do: "es"
+  defp locale_flag_code("fi"), do: "fi"
+  defp locale_flag_code("fr"), do: "fr"
+  defp locale_flag_code("hu"), do: "hu"
+  defp locale_flag_code("id"), do: "id"
+  defp locale_flag_code("it"), do: "it"
+  defp locale_flag_code("ja"), do: "jp"
+  defp locale_flag_code("ko"), do: "kr"
+  defp locale_flag_code("nl"), do: "nl"
+  defp locale_flag_code("no"), do: "no"
+  defp locale_flag_code("pl"), do: "pl"
+  defp locale_flag_code("pt"), do: "pt"
+  defp locale_flag_code("pt_BR"), do: "br"
+  defp locale_flag_code("ro"), do: "ro"
+  defp locale_flag_code("ru"), do: "ru"
+  defp locale_flag_code("sv"), do: "se"
+  defp locale_flag_code("th"), do: "th"
+  defp locale_flag_code("tr"), do: "tr"
+  defp locale_flag_code("uk"), do: "ua"
+  defp locale_flag_code("vi"), do: "vn"
+  defp locale_flag_code("zh_CN"), do: "cn"
+  defp locale_flag_code("zh_TW"), do: "tw"
+  defp locale_flag_code(_locale), do: "xx"
 
   defp display_name(user) do
     cond do

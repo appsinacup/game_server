@@ -223,12 +223,32 @@ defmodule GameServerWeb.HostLayouts do
       hero
       |> translate_map_field("title")
       |> translate_map_field("text")
+      |> update_map_at_path(["image"], &translate_map_field(&1, "alt"))
       |> translate_list_field_at_path(["buttons"], "label")
     end)
     |> translate_list_field_at_path(["sections"], "title")
     |> translate_list_field_at_path(["sections"], "text")
     |> translate_list_field_at_path(["sections", "buttons"], "label")
+    |> update_list_at_path(["sections"], fn section ->
+      update_map_at_path(section, ["image"], &translate_map_field(&1, "alt"))
+    end)
   end
+
+  defp update_list_at_path(map, [key], fun) when is_map(map) do
+    case Map.get(map, key) do
+      items when is_list(items) -> Map.put(map, key, Enum.map(items, fun))
+      _ -> map
+    end
+  end
+
+  defp update_list_at_path(map, [key | rest], fun) when is_map(map) do
+    case Map.get(map, key) do
+      value when is_map(value) -> Map.put(map, key, update_list_at_path(value, rest, fun))
+      _ -> map
+    end
+  end
+
+  defp update_list_at_path(map, _path, _fun), do: map
 
   defp update_map_at_path(map, [key], fun) when is_map(map) do
     case Map.get(map, key) do

@@ -45,84 +45,109 @@ defmodule GameServerWeb.PresentationPage do
   attr :full_bleed_hero, :boolean, default: true
 
   def page(assigns) do
+    sections = sections_with_page_defaults(assigns.page)
+
     assigns =
       assign(assigns,
         hero: Map.get(assigns.page, "hero", %{}),
-        sections: sections_with_page_defaults(assigns.page),
-        sections_columns: Map.get(assigns.page, "sections_columns", 2)
+        sections: sections,
+        background_icon_bands: background_icon_bands(sections)
       )
 
     ~H"""
     <div class={
       if(@full_bleed_hero, do: "relative w-screen left-1/2 -translate-x-1/2 -mt-20", else: "")
     }>
-      <section class="relative min-h-screen overflow-hidden">
-        <.background_icons icons={@background_icons} />
-        <div class="relative z-10 flex min-h-screen items-center px-6 pb-12 pt-24 sm:px-8 lg:px-12">
-          <div class={[
-            "mx-auto grid w-full max-w-6xl items-center gap-8 lg:gap-12",
-            grid_class(@hero, "hero")
-          ]}>
-            <div class={media_order_class(@hero)}>
-              <.media item={@hero} variant="hero" />
-            </div>
+      <div class="relative overflow-hidden">
+        <.background_icons icons={@background_icons} bands={@background_icon_bands} />
+        <section class="relative min-h-screen">
+          <div class="relative z-10 flex min-h-screen items-center px-6 pb-12 pt-24 sm:px-8 lg:px-12">
             <div class={[
-              "flex flex-col gap-5",
-              text_order_class(@hero),
-              text_align_class(@hero)
+              "mx-auto grid w-full items-center gap-8 lg:gap-12",
+              content_width_class(),
+              grid_class(@hero, "hero")
             ]}>
-              <h1 class="text-4xl font-extrabold tracking-normal sm:text-5xl lg:text-6xl">
-                {Map.get(@hero, "title", "")}
-              </h1>
-              <div class="max-w-2xl text-base leading-relaxed text-base-content/75 sm:text-lg lg:text-xl">
-                {rich_text(Map.get(@hero, "text", ""))}
+              <div class={media_order_class(@hero)}>
+                <.media item={@hero} variant="hero" />
               </div>
-              <.buttons buttons={Map.get(@hero, "buttons", [])} />
+              <div class={[
+                "flex flex-col gap-5",
+                text_order_class(@hero),
+                text_align_class(@hero)
+              ]}>
+                <h1 class="text-4xl font-extrabold tracking-normal sm:text-5xl lg:text-6xl">
+                  {Map.get(@hero, "title", "")}
+                </h1>
+                <div class="max-w-2xl text-base leading-relaxed text-base-content/75 sm:text-lg lg:text-xl">
+                  {rich_text(Map.get(@hero, "text", ""))}
+                </div>
+                <.buttons buttons={Map.get(@hero, "buttons", [])} />
+              </div>
             </div>
           </div>
-        </div>
-        <a
+          <a
+            :if={@sections != []}
+            href="#more-content"
+            aria-label="Scroll to content"
+            class="absolute bottom-6 left-1/2 z-20 -translate-x-1/2 text-base-content/55 transition hover:text-base-content motion-safe:animate-bounce"
+          >
+            <.dynamic_icon name="hero-chevron-down-solid" class="size-9" />
+          </a>
+        </section>
+
+        <div id="more-content" class="scroll-mt-20"></div>
+
+        <div
           :if={@sections != []}
-          href="#more-content"
-          aria-label="Scroll to content"
-          class="absolute bottom-6 left-1/2 z-20 -translate-x-1/2 text-base-content/55 transition hover:text-base-content motion-safe:animate-bounce"
+          class={[
+            "relative z-10 mx-auto grid w-full gap-y-4 px-4 sm:px-6 lg:px-8",
+            content_width_class()
+          ]}
         >
-          <.dynamic_icon name="hero-chevron-down-solid" class="size-9" />
-        </a>
-      </section>
-    </div>
-
-    <div id="more-content" class="scroll-mt-20"></div>
-
-    <div
-      :if={@sections != []}
-      class={["grid gap-x-8 gap-y-4", sections_grid_class(@sections_columns)]}
-    >
-      <%= for section <- @sections do %>
-        <.section section={section} />
-      <% end %>
+          <%= for section <- @sections do %>
+            <.section section={section} />
+          <% end %>
+        </div>
+      </div>
     </div>
     """
   end
 
   attr :icons, :list, default: []
+  attr :bands, :integer, default: 1
 
   def background_icons(assigns) do
+    icons = if is_list(assigns.icons), do: assigns.icons, else: []
+    bands = max(assigns.bands, 1)
+
+    assigns =
+      assign(assigns,
+        placements: GameServerWeb.Layouts.icon_placements(icons),
+        bands: Enum.to_list(0..(bands - 1))
+      )
+
     ~H"""
     <div
-      :if={@icons != []}
+      :if={@placements != []}
       class="absolute inset-0 overflow-hidden pointer-events-none z-[1]"
       aria-hidden="true"
     >
-      <%= for placement <- GameServerWeb.Layouts.icon_placements(@icons) do %>
+      <%= for band <- @bands do %>
         <div
-          class={[
-            "absolute text-base-content [[data-theme=dark]_&]:text-white opacity-[0.08] [[data-theme=dark]_&]:opacity-[0.10]",
-            placement.size
-          ]}
-          style={"top: #{placement.top}%; #{if Map.has_key?(placement, :left), do: "left: #{placement.left}%", else: "right: #{placement.right}%"}; animation: float #{placement.dur}s ease-in-out infinite #{placement.delay}s;"}
+          class="absolute left-0 top-0 h-dvh w-full"
+          style={"transform: translateY(#{band * 100}dvh);"}
         >
-          <.dynamic_icon name={placement.name} class={placement.size} />
+          <%= for placement <- @placements do %>
+            <div
+              class={[
+                "absolute text-base-content [[data-theme=dark]_&]:text-white opacity-[0.08] [[data-theme=dark]_&]:opacity-[0.10]",
+                placement.size
+              ]}
+              style={"top: #{placement.top}%; #{placement_side_style(placement)}; animation: float #{placement.dur}s ease-in-out infinite #{background_icon_delay(placement, band)}s;"}
+            >
+              <.dynamic_icon name={placement.name} class={placement.size} />
+            </div>
+          <% end %>
         </div>
       <% end %>
     </div>
@@ -162,56 +187,56 @@ defmodule GameServerWeb.PresentationPage do
   attr :variant, :string, default: "section"
 
   def media(assigns) do
+    image = image_config(assigns.item)
+
     assigns =
       assign(assigns,
-        src: media_src(assigns.item),
-        alt: Map.get(assigns.item, "image_alt", ""),
-        icon: Map.get(assigns.item, "icon"),
-        href: media_href(assigns.item),
-        label: media_label(assigns.item),
-        external: Map.get(assigns.item, "media_external") == true
+        image: image,
+        icon: Map.get(assigns.item, "icon")
       )
 
     ~H"""
     <div class="flex w-full items-center justify-center">
-      <a
-        :if={@href}
-        href={@href}
-        target={if @external, do: "_blank"}
-        rel={if @external, do: "noopener noreferrer"}
-        aria-label={@label}
-        class={media_shell_class(true)}
-      >
-        <.media_visual src={@src} alt={@alt} icon={@icon} variant={@variant} />
-      </a>
-      <div
-        :if={!@href}
-        class={media_shell_class(false)}
-      >
-        <.media_visual src={@src} alt={@alt} icon={@icon} variant={@variant} />
+      <div class={media_shell_class()}>
+        <.media_visual image={@image} icon={@icon} variant={@variant} />
       </div>
     </div>
     """
   end
 
-  attr :src, :string, default: nil
-  attr :alt, :string, default: ""
+  attr :image, :map, default: %{}
   attr :icon, :string, default: nil
   attr :variant, :string, default: "section"
 
   def media_visual(assigns) do
     ~H"""
     <img
-      :if={@src}
-      src={@src}
-      alt={@alt}
+      :if={@image.light && !@image.dark}
+      src={@image.light}
+      alt={@image.alt}
       loading={if(@variant == "hero", do: "eager", else: "lazy")}
       fetchpriority={if(@variant == "hero", do: "high", else: nil)}
       class={media_class(@variant)}
     />
+    <div :if={@image.light && @image.dark} class="contents">
+      <img
+        src={@image.light}
+        alt={@image.alt}
+        loading={if(@variant == "hero", do: "eager", else: "lazy")}
+        fetchpriority={if(@variant == "hero", do: "high", else: nil)}
+        class={[media_class(@variant), "[[data-theme=dark]_&]:hidden"]}
+      />
+      <img
+        src={@image.dark}
+        alt={@image.alt}
+        loading={if(@variant == "hero", do: "eager", else: "lazy")}
+        fetchpriority={if(@variant == "hero", do: "high", else: nil)}
+        class={[media_class(@variant), "hidden [[data-theme=dark]_&]:block"]}
+      />
+    </div>
     <div
-      :if={!@src && @icon}
-      class="grid aspect-square w-full max-w-48 place-items-center rounded-lg border border-base-300/70 bg-base-100/70 text-base-content/70 shadow-sm"
+      :if={!@image.light && @icon}
+      class="grid aspect-square w-full max-w-48 place-items-center rounded-lg bg-base-100/70 text-base-content/70 shadow-sm"
     >
       <.dynamic_icon name={@icon} class="size-16" />
     </div>
@@ -223,33 +248,27 @@ defmodule GameServerWeb.PresentationPage do
   def section(assigns) do
     ~H"""
     <section class={[
-      "flex",
-      "items-start",
+      "grid w-full gap-6 md:gap-x-8 md:gap-y-4",
+      "items-center",
       section_height_class(@section),
-      section_span_class(@section)
+      grid_class(@section, "section")
     ]}>
+      <div class={["flex items-center", media_order_class(@section)]}>
+        <.media item={@section} variant="section" />
+      </div>
       <div class={[
-        "grid w-full gap-6 md:gap-8",
-        "items-start",
-        grid_class(@section, "section")
+        "flex flex-col gap-4 md:justify-between",
+        section_text_frame_class(@section),
+        text_order_class(@section),
+        text_align_class(@section)
       ]}>
-        <div class={media_order_class(@section)}>
-          <.media item={@section} variant="section" />
+        <h2 class="text-2xl font-bold tracking-normal sm:text-3xl">
+          {Map.get(@section, "title", "")}
+        </h2>
+        <div class="text-base leading-relaxed text-base-content/75 md:flex-1">
+          {rich_text(Map.get(@section, "text", ""))}
         </div>
-        <div class={[
-          "grid gap-4",
-          section_text_grid_class(@section),
-          text_order_class(@section),
-          text_align_class(@section)
-        ]}>
-          <h2 class="text-2xl font-bold tracking-normal sm:text-3xl">
-            {Map.get(@section, "title", "")}
-          </h2>
-          <div class="text-base leading-relaxed text-base-content/75">
-            {rich_text(Map.get(@section, "text", ""))}
-          </div>
-          <.buttons buttons={Map.get(@section, "buttons", [])} />
-        </div>
+        <.buttons buttons={Map.get(@section, "buttons", [])} />
       </div>
     </section>
     """
@@ -275,6 +294,8 @@ defmodule GameServerWeb.PresentationPage do
 
   def rich_text(_), do: Phoenix.HTML.raw("")
 
+  defp content_width_class, do: "max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-6xl"
+
   defp grid_class(item, variant) do
     width = media_width(item, variant)
     desktop_position = desktop_image_position(item)
@@ -288,32 +309,24 @@ defmodule GameServerWeb.PresentationPage do
     end
   end
 
-  defp sections_grid_class(columns) when columns in [1, "1", "1x"], do: "md:grid-cols-1"
-  defp sections_grid_class(_columns), do: "md:grid-cols-2"
-
-  defp section_span_class(section) do
-    case Map.get(section, "width", "1x") do
-      value when value in [2, "2", "2x", "full"] -> "md:col-span-2"
-      _ -> "md:col-span-1"
-    end
-  end
-
   defp section_height_class(section) do
     case section_height(section) do
       value when value in ["compact", "sm", "small"] -> "py-8"
       value when value in ["half", "50", "50%"] -> "min-h-[calc(50dvh-2.5rem)] py-8"
-      _ -> "min-h-[calc(100dvh-5rem)] py-12"
+      value when value in ["full", "screen", "100", "100%"] -> "min-h-[calc(100dvh-5rem)] py-12"
+      _ -> "py-8"
     end
   end
 
-  defp section_text_grid_class(section) do
-    case section_height(section) do
-      value when value in ["compact", "sm", "small"] -> "md:grid-rows-[5rem_6rem_auto]"
-      _ -> "md:grid-rows-[5.5rem_6.5rem_auto]"
-    end
-  end
+  defp section_height(section), do: Map.get(section, "height", "compact")
 
-  defp section_height(section), do: Map.get(section, "height", "full")
+  defp background_icon_bands(sections) when is_list(sections), do: max(3, length(sections) + 2)
+
+  defp placement_side_style(%{left: left}), do: "left: #{left}%"
+  defp placement_side_style(%{right: right}), do: "right: #{right}%"
+
+  defp background_icon_delay(%{delay: delay}, band) when is_number(delay), do: delay + band * 0.35
+  defp background_icon_delay(_placement, band), do: band * 0.35
 
   defp sections_with_page_defaults(page) do
     default_height = Map.get(page, "sections_height")
@@ -324,7 +337,7 @@ defmodule GameServerWeb.PresentationPage do
       sections when is_list(sections) ->
         Enum.map(sections, fn
           section when is_map(section) ->
-            Map.put_new(section, "height", default_height || "full")
+            Map.put_new(section, "height", default_height || "compact")
 
           section ->
             section
@@ -363,21 +376,30 @@ defmodule GameServerWeb.PresentationPage do
     end
   end
 
-  defp media_src(item), do: Map.get(item, "image")
+  defp image_config(item) do
+    case Map.get(item, "image") do
+      image when is_map(image) ->
+        %{
+          light: non_empty_string(Map.get(image, "light")),
+          dark: non_empty_string(Map.get(image, "dark")),
+          alt: Map.get(image, "alt", "")
+        }
 
-  defp media_href(item) do
-    case Map.get(item, "media_href") do
-      href when is_binary(href) and href != "" -> if safe_href?(href), do: href
-      _ -> nil
+      _ ->
+        %{light: nil, dark: nil, alt: ""}
     end
   end
 
-  defp media_label(item) do
-    Map.get(item, "media_label") ||
-      Map.get(item, "image_alt") ||
-      Map.get(item, "title") ||
-      "Open media link"
+  defp section_text_frame_class(section) do
+    if image_config(section).light do
+      "md:min-h-[min(42dvh,24rem)]"
+    else
+      "md:min-h-48"
+    end
   end
+
+  defp non_empty_string(value) when is_binary(value) and value != "", do: value
+  defp non_empty_string(_value), do: nil
 
   defp media_width(item, "hero"), do: Map.get(item, "media_width", "half")
   defp media_width(item, _variant), do: Map.get(item, "media_width", "third")
@@ -389,13 +411,9 @@ defmodule GameServerWeb.PresentationPage do
   defp media_class(_variant),
     do: "block aspect-square max-h-[42dvh] w-full rounded-lg object-contain"
 
-  defp media_shell_class(true) do
-    "group flex w-full items-center justify-center transition-transform duration-300 ease-out motion-safe:hover:scale-[1.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
-  end
-
-  defp media_shell_class(false) do
-    "flex w-full items-center justify-center transition-transform duration-300 ease-out motion-safe:hover:scale-[1.02]"
-  end
+  defp media_shell_class,
+    do:
+      "flex w-full items-center justify-center transition-transform duration-300 ease-out motion-safe:hover:scale-[1.04]"
 
   defp button_class(button) do
     base =
