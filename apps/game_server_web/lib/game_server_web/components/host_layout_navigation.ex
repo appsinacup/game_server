@@ -115,7 +115,7 @@ defmodule GameServerWeb.HostLayoutNavigation do
   def user_menu(assigns) do
     assigns =
       assign(assigns,
-        custom_link_active?: any_link_active?(assigns.account_links, assigns.current_path)
+        custom_link_active?: any_entry_active?(assigns.account_links, assigns.current_path)
       )
 
     ~H"""
@@ -128,8 +128,7 @@ defmodule GameServerWeb.HostLayoutNavigation do
             @custom_link_active? or
               String.starts_with?(@current_path, "/users/settings") or
               String.starts_with?(@current_path, "/notifications") or
-              String.starts_with?(@current_path, "/chat") or
-              String.starts_with?(@current_path, "/admin"),
+              String.starts_with?(@current_path, "/chat"),
             do: "btn-primary",
             else: "btn-outline"
           )
@@ -160,8 +159,7 @@ defmodule GameServerWeb.HostLayoutNavigation do
             {GameServerWeb.HostLayouts.translate("Account")}
           </.link>
         </li>
-
-        <.account_menu_links links={@account_links} current_path={@current_path} />
+        <.dropdown_menu_entries entries={@account_links} current_path={@current_path} />
 
         <li>
           <.link
@@ -189,17 +187,6 @@ defmodule GameServerWeb.HostLayoutNavigation do
             {GameServerWeb.HostLayouts.translate("Chat")}
           </.link>
         </li>
-        <%= if @current_scope.user.is_admin do %>
-          <li>
-            <.link
-              href={~p"/admin"}
-              class={[if(String.starts_with?(@current_path, "/admin"), do: "active", else: "")]}
-            >
-              <.icon name="hero-cog-6-tooth-solid" class="w-4 h-4" />
-              {GameServerWeb.HostLayouts.translate("Admin")}
-            </.link>
-          </li>
-        <% end %>
         <li class="border-t border-base-300 mt-1 pt-1">
           <.link href={~p"/users/log-out"} method="delete">
             <.icon name="hero-arrow-left-on-rectangle-solid" class="w-4 h-4" />
@@ -245,7 +232,7 @@ defmodule GameServerWeb.HostLayoutNavigation do
               <a
                 href={~p"/users/settings"}
                 class={[
-                  "btn",
+                  "btn w-full",
                   if(String.starts_with?(@current_path, "/users/settings"),
                     do: "btn-primary",
                     else: "btn-ghost"
@@ -267,7 +254,7 @@ defmodule GameServerWeb.HostLayoutNavigation do
               <a
                 href={~p"/notifications"}
                 class={[
-                  "btn",
+                  "btn w-full",
                   if(String.starts_with?(@current_path, "/notifications"),
                     do: "btn-primary",
                     else: "btn-ghost"
@@ -288,7 +275,7 @@ defmodule GameServerWeb.HostLayoutNavigation do
               <a
                 href={~p"/chat"}
                 class={[
-                  "btn",
+                  "btn w-full",
                   if(String.starts_with?(@current_path, "/chat"),
                     do: "btn-primary",
                     else: "btn-ghost"
@@ -299,24 +286,6 @@ defmodule GameServerWeb.HostLayoutNavigation do
                 {GameServerWeb.HostLayouts.translate("Chat")}
               </a>
             </li>
-            <%= if @current_scope.user.is_admin do %>
-              <li>
-                <a
-                  href={~p"/admin"}
-                  class={[
-                    "btn",
-                    if(String.starts_with?(@current_path, "/admin"),
-                      do: "btn-primary",
-                      else: "btn-ghost"
-                    )
-                  ]}
-                >
-                  <.icon name="hero-cog-6-tooth-solid" class="w-4 h-4" />
-                  {GameServerWeb.HostLayouts.translate("Admin")}
-                </a>
-              </li>
-            <% end %>
-
             <.mobile_nav_links
               links={@primary_links ++ @authenticated_links}
               current_path={@current_path}
@@ -333,7 +302,7 @@ defmodule GameServerWeb.HostLayoutNavigation do
               <a
                 href={~p"/users/log-in"}
                 class={[
-                  "btn",
+                  "btn w-full",
                   if(String.starts_with?(@current_path, "/users/log-in"),
                     do: "btn-primary",
                     else: "btn-ghost"
@@ -348,7 +317,7 @@ defmodule GameServerWeb.HostLayoutNavigation do
               <a
                 href={~p"/users/register"}
                 class={[
-                  "btn",
+                  "btn w-full",
                   if(String.starts_with?(@current_path, "/users/register"),
                     do: "btn-primary",
                     else: "btn-ghost"
@@ -381,7 +350,7 @@ defmodule GameServerWeb.HostLayoutNavigation do
 
           <%= if @current_scope do %>
             <li class="mt-3">
-              <.link href={~p"/users/log-out"} method="delete" class="btn btn-ghost">
+              <.link href={~p"/users/log-out"} method="delete" class="btn btn-ghost w-full">
                 <.icon name="hero-arrow-left-on-rectangle-solid" class="w-4 h-4" />
                 {GameServerWeb.HostLayouts.translate("Log out")}
               </.link>
@@ -421,7 +390,7 @@ defmodule GameServerWeb.HostLayoutNavigation do
         <.icon name="hero-chevron-down-solid" class="w-3 h-3 absolute right-3" />
       </label>
     <% else %>
-      <details class="dropdown dropdown-end">
+      <details class="dropdown dropdown-end" data-navbar-dropdown>
         <summary class="btn btn-outline list-none">
           <.icon name="hero-globe-alt-solid" class="w-4 h-4" />
           {@label}
@@ -433,11 +402,12 @@ defmodule GameServerWeb.HostLayoutNavigation do
               <a
                 href={link.href}
                 class={[
-                  "block px-2 py-1.5 rounded text-sm whitespace-nowrap hover:bg-base-200 transition-colors text-center",
+                  "flex items-center gap-2 px-2 py-1.5 rounded text-sm whitespace-nowrap hover:bg-base-200 transition-colors",
                   link.locale == @locale && "bg-primary/10 font-semibold text-primary"
                 ]}
               >
-                {link.label}
+                <span class="text-base leading-none" aria-hidden="true">{link.flag}</span>
+                <span class="truncate">{link.label}</span>
               </a>
             </li>
           <% end %>
@@ -476,11 +446,12 @@ defmodule GameServerWeb.HostLayoutNavigation do
             <a
               href={link.href}
               class={[
-                "block px-2 py-2 rounded text-sm whitespace-nowrap hover:bg-base-200 transition-colors text-center",
+                "flex items-center gap-2 px-2 py-2 rounded text-sm whitespace-nowrap hover:bg-base-200 transition-colors",
                 link.locale == @locale && "bg-primary/10 font-semibold text-primary"
               ]}
             >
-              {link.label}
+              <span class="text-base leading-none" aria-hidden="true">{link.flag}</span>
+              <span class="truncate">{link.label}</span>
             </a>
           <% end %>
         </div>
@@ -496,10 +467,10 @@ defmodule GameServerWeb.HostLayoutNavigation do
 
   defp main_nav_links(assigns) do
     ~H"""
-    <%= for link <- @links do %>
+    <%= for entry <- @links do %>
       <li>
         <.main_nav_link_item
-          link={link}
+          link={entry}
           current_path={@current_path}
           inactive_class={@inactive_class}
         />
@@ -514,10 +485,10 @@ defmodule GameServerWeb.HostLayoutNavigation do
 
   defp mobile_nav_links(assigns) do
     ~H"""
-    <%= for link <- @links do %>
-      <li>
-        <.main_nav_link_item
-          link={link}
+    <%= for entry <- @links do %>
+      <li class="w-full">
+        <.mobile_nav_link_item
+          link={entry}
           current_path={@current_path}
           inactive_class={@inactive_class}
         />
@@ -531,38 +502,128 @@ defmodule GameServerWeb.HostLayoutNavigation do
   attr :inactive_class, :string, required: true
 
   defp main_nav_link_item(assigns) do
-    active? = link_active?(assigns.link, assigns.current_path)
+    active? = entry_active?(assigns.link, assigns.current_path)
 
     assigns = assign(assigns, active?: active?)
 
     ~H"""
-    <a
-      href={@link["href"]}
-      target={if(@link["external"], do: "_blank", else: nil)}
-      rel={if(@link["external"], do: "noopener noreferrer", else: nil)}
-      class={["btn", if(@active?, do: "btn-primary", else: @inactive_class)]}
-    >
-      <.icon :if={@link["icon"]} name={@link["icon"]} class="w-4 h-4" />
-      {translate_label(@link["label"])}
-    </a>
+    <%= if dropdown_entry?(@link) do %>
+      <details class="dropdown" data-navbar-dropdown>
+        <summary class={[
+          "btn list-none",
+          if(@active?, do: "btn-primary", else: @inactive_class)
+        ]}>
+          <.icon :if={@link["icon"]} name={@link["icon"]} class="w-4 h-4" />
+          {translate_label(@link["label"])}
+          <.icon name="hero-chevron-down-solid" class="w-3 h-3" />
+        </summary>
+        <ul class="menu menu-sm dropdown-content mt-2 z-[1] p-2 shadow-lg bg-base-100 rounded-box w-64">
+          <.dropdown_menu_entries entries={@link["items"]} current_path={@current_path} />
+        </ul>
+      </details>
+    <% else %>
+      <a
+        href={@link["href"]}
+        target={if(@link["external"], do: "_blank", else: nil)}
+        rel={if(@link["external"], do: "noopener noreferrer", else: nil)}
+        class={["btn", if(@active?, do: "btn-primary", else: @inactive_class)]}
+      >
+        <.icon :if={@link["icon"]} name={@link["icon"]} class="w-4 h-4" />
+        {translate_label(@link["label"])}
+      </a>
+    <% end %>
     """
   end
 
-  attr :links, :list, default: []
+  attr :link, :map, required: true
+  attr :current_path, :string, default: nil
+  attr :inactive_class, :string, required: true
+
+  defp mobile_nav_link_item(assigns) do
+    active? = entry_active?(assigns.link, assigns.current_path)
+
+    assigns = assign(assigns, active?: active?)
+
+    ~H"""
+    <%= if dropdown_entry?(@link) do %>
+      <details open={@active?} class="group w-full">
+        <summary class={[
+          "btn w-full relative cursor-pointer list-none summary-no-marker",
+          if(@active?, do: "btn-primary", else: @inactive_class)
+        ]}>
+          <span class="flex items-center gap-2">
+            <.icon :if={@link["icon"]} name={@link["icon"]} class="w-4 h-4" />
+            <span>{translate_label(@link["label"])}</span>
+          </span>
+          <.icon
+            name="hero-chevron-down-solid"
+            class="w-3 h-3 absolute right-3 transition-transform group-open:rotate-180"
+          />
+        </summary>
+        <ul class="ml-4 mt-1 w-full">
+          <.mobile_nav_links
+            links={@link["items"]}
+            current_path={@current_path}
+            inactive_class={@inactive_class}
+          />
+        </ul>
+      </details>
+    <% else %>
+      <a
+        href={@link["href"]}
+        target={if(@link["external"], do: "_blank", else: nil)}
+        rel={if(@link["external"], do: "noopener noreferrer", else: nil)}
+        class={["btn w-full", if(@active?, do: "btn-primary", else: @inactive_class)]}
+      >
+        <.icon :if={@link["icon"]} name={@link["icon"]} class="w-4 h-4" />
+        {translate_label(@link["label"])}
+      </a>
+    <% end %>
+    """
+  end
+
+  attr :entries, :list, default: []
   attr :current_path, :string, default: nil
 
-  defp account_menu_links(assigns) do
+  defp dropdown_menu_entries(assigns) do
     ~H"""
-    <%= for link <- @links do %>
+    <%= for entry <- @entries do %>
+      <.dropdown_menu_entry entry={entry} current_path={@current_path} />
+    <% end %>
+    """
+  end
+
+  attr :entry, :map, required: true
+  attr :current_path, :string, default: nil
+
+  defp dropdown_menu_entry(assigns) do
+    active? = entry_active?(assigns.entry, assigns.current_path)
+
+    assigns = assign(assigns, active?: active?)
+
+    ~H"""
+    <%= if dropdown_entry?(@entry) do %>
+      <li>
+        <details open={@active?}>
+          <summary class={[if(@active?, do: "active", else: "")]}>
+            <.icon :if={@entry["icon"]} name={@entry["icon"]} class="w-4 h-4" />
+            {translate_label(@entry["label"])}
+          </summary>
+          <ul>
+            <.dropdown_menu_entries entries={@entry["items"]} current_path={@current_path} />
+          </ul>
+        </details>
+      </li>
+    <% else %>
       <li>
         <a
-          href={link["href"]}
-          target={if(link["external"], do: "_blank", else: nil)}
-          rel={if(link["external"], do: "noopener noreferrer", else: nil)}
-          class={[if(link_active?(link, @current_path), do: "active", else: "")]}
+          href={@entry["href"]}
+          target={if(@entry["external"], do: "_blank", else: nil)}
+          rel={if(@entry["external"], do: "noopener noreferrer", else: nil)}
+          class={[if(@active?, do: "active", else: "")]}
         >
-          <.icon :if={link["icon"]} name={link["icon"]} class="w-4 h-4" />
-          {translate_label(link["label"])}
+          <.icon :if={@entry["icon"]} name={@entry["icon"]} class="w-4 h-4" />
+          {translate_label(@entry["label"])}
         </a>
       </li>
     <% end %>
@@ -573,23 +634,45 @@ defmodule GameServerWeb.HostLayoutNavigation do
     auth_level = auth_level(assigns.current_scope)
 
     assign(assigns,
-      primary_links: section_links(assigns.navigation, "primary_links", auth_level, "any"),
+      primary_links: section_entries(assigns.navigation, "primary_links", auth_level, "any"),
       guest_links:
-        section_links(assigns.navigation, "guest_links", auth_level, "unauthenticated"),
+        section_entries(assigns.navigation, "guest_links", auth_level, "unauthenticated"),
       authenticated_links:
-        section_links(assigns.navigation, "authenticated_links", auth_level, "authenticated"),
+        section_entries(assigns.navigation, "authenticated_links", auth_level, "authenticated"),
       account_links:
-        section_links(assigns.navigation, "account_links", auth_level, "authenticated")
+        section_entries(assigns.navigation, "account_links", auth_level, "authenticated")
     )
   end
 
-  defp section_links(navigation, key, auth_level, default_auth) do
+  defp section_entries(navigation, key, auth_level, default_auth) do
     navigation
     |> Map.get(key, [])
-    |> Enum.filter(fn link ->
-      valid_link?(link) and link_visible?(link, auth_level, default_auth)
-    end)
+    |> Enum.map(&normalize_navigation_entry(&1, auth_level, default_auth))
+    |> Enum.reject(&is_nil/1)
   end
+
+  defp normalize_navigation_entry(%{"items" => items} = entry, auth_level, default_auth)
+       when is_list(items) do
+    visible_items =
+      items
+      |> Enum.map(&normalize_navigation_entry(&1, auth_level, default_auth))
+      |> Enum.reject(&is_nil/1)
+
+    if valid_group?(entry) and visible_items != [] and
+         link_visible?(entry, auth_level, default_auth) do
+      Map.put(entry, "items", visible_items)
+    end
+  end
+
+  defp normalize_navigation_entry(entry, auth_level, default_auth) do
+    if valid_link?(entry) and link_visible?(entry, auth_level, default_auth), do: entry
+  end
+
+  defp valid_group?(%{"label" => label, "items" => items}) do
+    is_binary(label) and label != "" and is_list(items)
+  end
+
+  defp valid_group?(_entry), do: false
 
   defp valid_link?(%{"label" => label, "href" => href}) do
     is_binary(label) and label != "" and is_binary(href) and href != ""
@@ -598,7 +681,7 @@ defmodule GameServerWeb.HostLayoutNavigation do
   defp valid_link?(_link), do: false
 
   defp link_visible?(link, auth_level, default_auth) do
-    required = Map.get(link, "auth", default_auth)
+    required = required_auth(link, default_auth)
 
     case {required, auth_level} do
       {"any", _} -> true
@@ -610,14 +693,31 @@ defmodule GameServerWeb.HostLayoutNavigation do
     end
   end
 
+  defp required_auth(entry, default_auth) do
+    cond do
+      Map.get(entry, "admin_only") == true -> "admin"
+      is_binary(Map.get(entry, "auth")) -> Map.get(entry, "auth")
+      true -> default_auth
+    end
+  end
+
   defp auth_level(nil), do: :unauthenticated
   defp auth_level(%{user: %{is_admin: true}}), do: :admin
   defp auth_level(%{user: _user}), do: :authenticated
   defp auth_level(_), do: :unauthenticated
 
-  defp any_link_active?(links, current_path) do
-    Enum.any?(links, &link_active?(&1, current_path))
+  defp any_entry_active?(entries, current_path) do
+    Enum.any?(entries, &entry_active?(&1, current_path))
   end
+
+  defp entry_active?(%{"items" => items}, current_path) when is_list(items) do
+    Enum.any?(items, &entry_active?(&1, current_path))
+  end
+
+  defp entry_active?(entry, current_path), do: link_active?(entry, current_path)
+
+  defp dropdown_entry?(%{"items" => items}) when is_list(items), do: true
+  defp dropdown_entry?(_entry), do: false
 
   defp link_active?(%{"href" => href} = link, current_path)
        when is_binary(href) and is_binary(current_path) do
@@ -648,7 +748,12 @@ defmodule GameServerWeb.HostLayoutNavigation do
       href =
         if(base_path == "/", do: "/" <> locale, else: "/" <> locale <> base_path) <> query_suffix
 
-      %{locale: locale, label: Map.get(locale_labels, locale, locale), href: href}
+      %{
+        locale: locale,
+        label: Map.get(locale_labels, locale, locale),
+        href: href,
+        flag: locale_flag(locale)
+      }
     end)
   end
 
@@ -656,6 +761,38 @@ defmodule GameServerWeb.HostLayoutNavigation do
     locale
     |> then(&Map.get(GameServerWeb.HostLayouts.locale_labels(), &1, &1))
   end
+
+  defp locale_flag("ar"), do: "🇸🇦"
+  defp locale_flag("bg"), do: "🇧🇬"
+  defp locale_flag("cs"), do: "🇨🇿"
+  defp locale_flag("da"), do: "🇩🇰"
+  defp locale_flag("de"), do: "🇩🇪"
+  defp locale_flag("el"), do: "🇬🇷"
+  defp locale_flag("en"), do: "🇬🇧"
+  defp locale_flag("es"), do: "🇪🇸"
+  defp locale_flag("es_ES"), do: "🇪🇸"
+  defp locale_flag("fi"), do: "🇫🇮"
+  defp locale_flag("fr"), do: "🇫🇷"
+  defp locale_flag("hu"), do: "🇭🇺"
+  defp locale_flag("id"), do: "🇮🇩"
+  defp locale_flag("it"), do: "🇮🇹"
+  defp locale_flag("ja"), do: "🇯🇵"
+  defp locale_flag("ko"), do: "🇰🇷"
+  defp locale_flag("nl"), do: "🇳🇱"
+  defp locale_flag("no"), do: "🇳🇴"
+  defp locale_flag("pl"), do: "🇵🇱"
+  defp locale_flag("pt"), do: "🇵🇹"
+  defp locale_flag("pt_BR"), do: "🇧🇷"
+  defp locale_flag("ro"), do: "🇷🇴"
+  defp locale_flag("ru"), do: "🇷🇺"
+  defp locale_flag("sv"), do: "🇸🇪"
+  defp locale_flag("th"), do: "🇹🇭"
+  defp locale_flag("tr"), do: "🇹🇷"
+  defp locale_flag("uk"), do: "🇺🇦"
+  defp locale_flag("vi"), do: "🇻🇳"
+  defp locale_flag("zh_CN"), do: "🇨🇳"
+  defp locale_flag("zh_TW"), do: "🇹🇼"
+  defp locale_flag(_locale), do: "🌐"
 
   defp display_name(user) do
     cond do

@@ -11,6 +11,7 @@ defmodule GameServerWeb.UserLive.LoginTest do
       assert html =~ "Log in"
       assert html =~ "Register"
       assert html =~ "Email"
+      assert html =~ "Log in and remember me"
     end
   end
 

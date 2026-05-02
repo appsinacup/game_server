@@ -344,7 +344,12 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
         "banner" => "/theme/test-banner.png",
         "navigation" => %{
           "primary_links" => [
-            %{"label" => "Status", "href" => "/status"}
+            %{
+              "label" => "Social",
+              "items" => [
+                %{"label" => "Status", "href" => "/status"}
+              ]
+            }
           ],
           "account_links" => [
             %{"label" => "Billing", "href" => "/billing"}
@@ -380,6 +385,7 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     # raw JSON content should be present in the page
     assert html =~ "Test Theme"
     assert html =~ "Primary Nav"
+    assert html =~ "Social"
     assert html =~ "/theme/test-logo.png"
     assert has_element?(lv, "#main-navbar a[href='/status']")
     assert has_element?(lv, "#main-navbar a[href='/billing']")

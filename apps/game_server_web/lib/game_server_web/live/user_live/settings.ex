@@ -50,7 +50,7 @@ defmodule GameServerWeb.UserLive.Settings do
               {"account", gettext("Account")},
               {"friends", gettext("Friends")},
               {"groups", gettext("Groups")},
-              {"data", gettext("Description")}
+              {"data", gettext("Data")}
             ]
           }
           phx-click="settings_tab"
@@ -107,7 +107,7 @@ defmodule GameServerWeb.UserLive.Settings do
                   required
                 />
                 <.button variant="primary" phx-disable-with={gettext("Loading...")}>
-                  {gettext("Email")}
+                  {gettext("Save")}
                 </.button>
               </.form>
             </div>
@@ -193,7 +193,7 @@ defmodule GameServerWeb.UserLive.Settings do
                   <% end %>
                 <% else %>
                   <.link href={~p"/auth/discord"} class="btn btn-primary btn-sm">
-                    {gettext("Join")}
+                    {gettext("Link")}
                   </.link>
                 <% end %>
               </div>
@@ -223,7 +223,7 @@ defmodule GameServerWeb.UserLive.Settings do
                   <% end %>
                 <% else %>
                   <.link href={~p"/auth/google"} class="btn btn-primary btn-sm">
-                    {gettext("Join")}
+                    {gettext("Link")}
                   </.link>
                 <% end %>
               </div>
@@ -253,7 +253,7 @@ defmodule GameServerWeb.UserLive.Settings do
                   <% end %>
                 <% else %>
                   <.link href={~p"/auth/facebook"} class="btn btn-primary btn-sm">
-                    {gettext("Join")}
+                    {gettext("Link")}
                   </.link>
                 <% end %>
               </div>
@@ -283,7 +283,7 @@ defmodule GameServerWeb.UserLive.Settings do
                   <% end %>
                 <% else %>
                   <.link href={~p"/auth/apple"} class="btn btn-primary btn-sm">
-                    {gettext("Join")}
+                    {gettext("Link")}
                   </.link>
                 <% end %>
               </div>
@@ -313,7 +313,7 @@ defmodule GameServerWeb.UserLive.Settings do
                   <% end %>
                 <% else %>
                   <.link href={~p"/auth/steam"} class="btn btn-primary btn-sm">
-                    {gettext("Join")}
+                    {gettext("Link")}
                   </.link>
                 <% end %>
               </div>
@@ -322,20 +322,20 @@ defmodule GameServerWeb.UserLive.Settings do
         </div>
 
         <div class="card bg-base-200 p-4 rounded-lg mt-6">
-          <div class="font-semibold">{gettext("Description")}</div>
+          <div class="font-semibold">{gettext("Metadata")}</div>
           <div class="text-sm mt-2 font-mono text-xs bg-base-300 p-3 rounded-lg overflow-auto text-base-content/80">
             <pre phx-no-curly-interpolation><%= Jason.encode!(@user.metadata || %{}, pretty: true) %></pre>
           </div>
         </div>
 
         <div class="card bg-error/10 border-error p-4 rounded-lg mt-6">
-          <div class="font-semibold text-error">{gettext("Delete")}</div>
+          <div class="font-semibold text-error">{gettext("Danger zone")}</div>
           <div class="text-sm mt-2 text-base-content/80">
             <.link
               href={~p"/data-deletion"}
               class="link link-primary"
             >
-              {gettext("Delete")}
+              {gettext("Read data deletion instructions")}
             </.link>
           </div>
           <div class="mt-4">
@@ -344,7 +344,7 @@ defmodule GameServerWeb.UserLive.Settings do
               class="btn btn-error"
               data-confirm={gettext("Delete?")}
             >
-              {gettext("Delete")}
+              {gettext("Delete account")}
             </button>
           </div>
         </div>
@@ -362,7 +362,7 @@ defmodule GameServerWeb.UserLive.Settings do
 
           <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <h4 class="font-semibold">{gettext("Friends")}</h4>
+              <h4 class="font-semibold">{gettext("Incoming requests")}</h4>
               <div
                 :for={req <- @incoming}
                 id={"request-" <> Integer.to_string(req.id)}
@@ -406,7 +406,7 @@ defmodule GameServerWeb.UserLive.Settings do
             </div>
 
             <div>
-              <h4 class="font-semibold">{gettext("Friends")}</h4>
+              <h4 class="font-semibold">{gettext("Sent requests")}</h4>
               <div
                 :for={req <- @outgoing}
                 id={"outgoing-" <> Integer.to_string(req.id)}
@@ -478,7 +478,7 @@ defmodule GameServerWeb.UserLive.Settings do
 
           <div class="mt-2">
             <div :if={length(@blocked) > 0} class="mt-4">
-              <div class="text-xs text-base-content/70">{gettext("Friends")}</div>
+              <div class="text-xs text-base-content/70">{gettext("Blocked users")}</div>
               <div
                 :for={b <- @blocked}
                 id={"blocked-" <> Integer.to_string(b.id)}
@@ -607,7 +607,7 @@ defmodule GameServerWeb.UserLive.Settings do
                   <th class="font-mono text-sm break-all">{gettext("Name")}</th>
                   <th class="w-40">{gettext("Date")}</th>
                   <th>{gettext("Content")}</th>
-                  <th>{gettext("Description")}</th>
+                  <th>{gettext("Metadata")}</th>
                 </tr>
               </thead>
               <tbody>

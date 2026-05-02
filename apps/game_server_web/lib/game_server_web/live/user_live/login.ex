@@ -81,7 +81,7 @@ defmodule GameServerWeb.UserLive.Login do
               autocomplete="current-password"
             />
             <.button class="btn btn-primary w-full" name={@form[:remember_me].name} value="true">
-              {gettext("Log in")} <span aria-hidden="true">→</span>
+              {gettext("Log in and remember me")} <span aria-hidden="true">→</span>
             </.button>
             <.button class="btn btn-primary btn-soft w-full mt-2">
               {gettext("Log in")}

@@ -1,7 +1,10 @@
 defmodule GameServerWeb.PageControllerTest do
   use GameServerWeb.ConnCase, async: false
 
+  alias GameServer.Accounts.User
+  alias GameServer.AccountsFixtures
   alias GameServer.Content
+  alias GameServer.Repo
   alias GameServer.Theme.JSONConfig
 
   setup do
@@ -40,7 +43,39 @@ defmodule GameServerWeb.PageControllerTest do
       "footer_links" => [
         %{"label" => "Privacy Policy", "href" => "/privacy"},
         %{"label" => "Terms and Conditions", "href" => "/terms"}
-      ]
+      ],
+      "navigation" => %{
+        "primary_links" => [
+          %{"label" => "Play", "href" => "/play", "icon" => "hero-play-solid"},
+          %{
+            "label" => "Social",
+            "icon" => "hero-user-group-solid",
+            "items" => [
+              %{
+                "label" => "Leaderboards",
+                "href" => "/leaderboards",
+                "icon" => "hero-chart-bar-solid"
+              },
+              %{
+                "label" => "Achievements",
+                "href" => "/achievements",
+                "icon" => "hero-trophy-solid"
+              },
+              %{"label" => "Groups", "href" => "/groups", "icon" => "hero-user-group-solid"},
+              %{
+                "label" => "Parties",
+                "href" => "/parties",
+                "icon" => "hero-user-plus-solid",
+                "auth" => "authenticated"
+              }
+            ]
+          }
+        ],
+        "account_links" => [
+          %{"label" => "Billing", "href" => "/billing"},
+          %{"label" => "Admin Console", "href" => "/admin", "admin_only" => true}
+        ]
+      }
     }
 
     json = Jason.encode!(theme)
@@ -51,16 +86,32 @@ defmodule GameServerWeb.PageControllerTest do
           "primary_links" => [
             %{"label" => "Joacă", "href" => "/play", "icon" => "hero-play-solid"},
             %{
-              "label" => "Leaderboards",
-              "href" => "/leaderboards",
-              "icon" => "hero-chart-bar-solid"
-            },
-            %{
-              "label" => "Achievements",
-              "href" => "/achievements",
-              "icon" => "hero-trophy-solid"
-            },
-            %{"label" => "Groups", "href" => "/groups", "icon" => "hero-user-group-solid"}
+              "label" => "Social",
+              "icon" => "hero-user-group-solid",
+              "items" => [
+                %{
+                  "label" => "Clasamente",
+                  "href" => "/leaderboards",
+                  "icon" => "hero-chart-bar-solid"
+                },
+                %{
+                  "label" => "Realizări",
+                  "href" => "/achievements",
+                  "icon" => "hero-trophy-solid"
+                },
+                %{
+                  "label" => "Grupuri",
+                  "href" => "/groups",
+                  "icon" => "hero-user-group-solid"
+                },
+                %{
+                  "label" => "Petreceri",
+                  "href" => "/parties",
+                  "icon" => "hero-user-plus-solid",
+                  "auth" => "authenticated"
+                }
+              ]
+            }
           ]
         })
       )
@@ -113,6 +164,64 @@ defmodule GameServerWeb.PageControllerTest do
     conn = get(conn, "/")
     # Page should render without crashing even with no theme configured
     assert html_response(conn, 200) =~ "<html"
+  end
+
+  test "home hides admin-only account links for non-admin users", %{conn: conn} do
+    user =
+      AccountsFixtures.user_fixture()
+      |> User.admin_changeset(%{"is_admin" => false})
+      |> Repo.update!()
+
+    body =
+      conn
+      |> log_in_user(user)
+      |> get("/")
+      |> html_response(200)
+
+    assert body =~ "href=\"/billing\""
+    refute body =~ "href=\"/admin\""
+  end
+
+  test "home hides auth-only dropdown items from guests", %{conn: conn} do
+    body =
+      conn
+      |> get("/")
+      |> html_response(200)
+
+    assert body =~ "href=\"/leaderboards\""
+    refute body =~ "href=\"/parties\""
+  end
+
+  test "home shows auth-only dropdown items to signed-in users", %{conn: conn} do
+    user =
+      AccountsFixtures.user_fixture()
+      |> User.admin_changeset(%{"is_admin" => false})
+      |> Repo.update!()
+
+    body =
+      conn
+      |> log_in_user(user)
+      |> get("/")
+      |> html_response(200)
+
+    assert body =~ "href=\"/leaderboards\""
+    assert body =~ "href=\"/parties\""
+  end
+
+  test "home shows admin-only account links for admin users", %{conn: conn} do
+    user =
+      AccountsFixtures.user_fixture()
+      |> User.admin_changeset(%{"is_admin" => true})
+      |> Repo.update!()
+
+    body =
+      conn
+      |> log_in_user(user)
+      |> get("/")
+      |> html_response(200)
+
+    assert body =~ "href=\"/billing\""
+    assert body =~ "href=\"/admin\""
   end
 
   test "privacy page present", %{conn: conn} do

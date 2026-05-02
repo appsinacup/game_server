@@ -43,6 +43,153 @@
       "icon": "hero-book-open-solid"
     }
   ],
+  "home": {
+    "hero": {
+      "title": "Gamend",
+      "text": "**Open source** Elixir game server for **real-time** multiplayer games.",
+      "image": "/images/banner.png",
+      "image_alt": "Gamend",
+      "image_position_desktop": "left",
+      "image_position_mobile": "top",
+      "media_width": "half",
+      "text_align": "center",
+      "buttons": [
+        {
+          "title": "Getting Started",
+          "url": "/docs/setup#deployment",
+          "icon": "hero-rocket-launch-solid",
+          "style": "primary"
+        },
+        {
+          "title": "Presentation Video",
+          "url": "https://www.youtube.com/watch?v=KhjWyUVsTkE",
+          "icon": "hero-play-solid",
+          "external": true,
+          "style": "primary"
+        },
+        {
+          "title": "Discord",
+          "url": "https://discord.com/invite/v649emcpAu",
+          "icon": "hero-chat-bubble-left-ellipsis-solid",
+          "external": true
+        },
+        {
+          "title": "Blog",
+          "url": "/blog",
+          "icon": "hero-newspaper-solid"
+        },
+        {
+          "title": "Guides",
+          "url": "/docs/setup",
+          "icon": "hero-academic-cap-solid"
+        },
+        {
+          "title": "API Docs",
+          "url": "/api/docs",
+          "icon": "hero-book-open-solid"
+        }
+      ]
+    },
+    "sections_columns": 2,
+    "sections": [
+      {
+        "title": "Authentication & Users",
+        "text": "Email, magic-link, OAuth, JWT and sessions. Register, log in, reset password, and verify email.",
+        "image": "/images/logo.png",
+        "image_alt": "Authentication",
+        "width": "1x",
+        "media_width": "third",
+        "image_position_desktop": "left",
+        "image_position_mobile": "top",
+        "text_align": "left",
+        "buttons": [
+          {
+            "title": "Auth Docs",
+            "url": "/api/docs",
+            "icon": "hero-book-open-solid"
+          }
+        ]
+      },
+      {
+        "title": "Lobbies, Parties & Matchmaking",
+        "text": "Real-time lobbies and ephemeral parties. Custom settings with live updates.",
+        "image": "/images/logo.png",
+        "image_alt": "Lobbies",
+        "width": "1x",
+        "media_width": "third",
+        "image_position_desktop": "right",
+        "image_position_mobile": "top",
+        "text_align": "left",
+        "buttons": [
+          {
+            "title": "Play",
+            "url": "/play",
+            "icon": "hero-play-solid",
+            "style": "primary"
+          }
+        ]
+      },
+      {
+        "title": "Friends, Groups & Chat",
+        "text": "Friend requests, blocking, real-time presence, public/private/hidden groups, and direct or group messaging.",
+        "image": "/images/logo.png",
+        "image_alt": "Social features",
+        "width": "2x",
+        "media_width": "third",
+        "image_position_desktop": "left",
+        "image_position_mobile": "top",
+        "text_align": "left",
+        "buttons": [
+          {
+            "title": "Groups",
+            "url": "/groups",
+            "icon": "hero-user-group-solid"
+          }
+        ]
+      },
+      {
+        "title": "Achievements & Leaderboards",
+        "text": "Server-authoritative achievements and leaderboards with hidden achievement support and seasonal rankings.",
+        "image": "/images/logo.png",
+        "image_alt": "Achievements",
+        "width": "1x",
+        "media_width": "third",
+        "image_position_desktop": "right",
+        "image_position_mobile": "top",
+        "text_align": "left",
+        "buttons": [
+          {
+            "title": "Leaderboards",
+            "url": "/leaderboards",
+            "icon": "hero-chart-bar-solid"
+          },
+          {
+            "title": "Achievements",
+            "url": "/achievements",
+            "icon": "hero-trophy-solid"
+          }
+        ]
+      },
+      {
+        "title": "HTTP, WebSocket & WebRTC",
+        "text": "REST API, WebSocket channels, and low-latency WebRTC DataChannels. See the [API docs](/api/docs).",
+        "image": "/images/logo.png",
+        "image_alt": "Realtime APIs",
+        "width": "1x",
+        "media_width": "third",
+        "image_position_desktop": "left",
+        "image_position_mobile": "top",
+        "text_align": "left",
+        "buttons": [
+          {
+            "title": "Guides",
+            "url": "/docs/setup",
+            "icon": "hero-academic-cap-solid"
+          }
+        ]
+      }
+    ]
+  },
   "navigation": {
     "primary_links": [
       {
@@ -51,19 +198,25 @@
         "icon": "hero-play-solid"
       },
       {
-        "label": "Leaderboards",
-        "href": "/leaderboards",
-        "icon": "hero-chart-bar-solid"
-      },
-      {
-        "label": "Achievements",
-        "href": "/achievements",
-        "icon": "hero-trophy-solid"
-      },
-      {
-        "label": "Groups",
-        "href": "/groups",
-        "icon": "hero-user-group-solid"
+        "label": "Social",
+        "icon": "hero-user-group-solid",
+        "items": [
+          {
+            "label": "Leaderboards",
+            "href": "/leaderboards",
+            "icon": "hero-chart-bar-solid"
+          },
+          {
+            "label": "Achievements",
+            "href": "/achievements",
+            "icon": "hero-trophy-solid"
+          },
+          {
+            "label": "Groups",
+            "href": "/groups",
+            "icon": "hero-user-group-solid"
+          }
+        ]
       }
     ]
   },
@@ -116,38 +269,6 @@
     "linkedin_url": "https://www.linkedin.com/in/your-handle/",
     "linkedin_label": "linkedin.com/in/your-handle/"
   },
-  "features": [
-    {
-      "title": "Authentication & Users",
-      "description": "Email, Magic-link, OAuth, JWT and Session. Register, login, reset password and verify email.",
-      "icon": "hero-lock-closed-solid"
-    },
-    {
-      "title": "Lobbies, Parties & Matchmaking",
-      "description": "Real-time lobbies and ephemeral parties. Customizable settings with live updates.",
-      "icon": "hero-home-solid"
-    },
-    {
-      "title": "Friends, Groups & Chat",
-      "description": "Friend requests, blocking, real-time presence. Public, private and hidden groups. Direct and group messaging.",
-      "icon": "hero-user-group-solid"
-    },
-    {
-      "title": "Achievements, Leaderboards & Notifications",
-      "description": "Server-authoritative achievements and leaderboards. Real-time notifications across all features.",
-      "icon": "hero-trophy-solid"
-    },
-    {
-      "title": "Server Scripting & Scheduling",
-      "description": "Extend server logic with Elixir scripts. Schedule automated tasks and cron jobs.",
-      "icon": "hero-computer-desktop-solid"
-    },
-    {
-      "title": "HTTP, WebSocket & WebRTC",
-      "description": "REST API, real-time WebSocket channels and low-latency WebRTC DataChannels. Admin portal and web UI.",
-      "icon": "hero-puzzle-piece-solid"
-    }
-  ],
   "background_icons": [
     "hero-lock-closed-solid",
     "hero-trophy-solid",

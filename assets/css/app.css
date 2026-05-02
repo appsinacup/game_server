@@ -167,6 +167,22 @@
   transform: rotate(180deg);
 }
 
+.summary-no-marker {
+  list-style: none;
+}
+
+.summary-no-marker::-webkit-details-marker {
+  display: none;
+}
+
+.summary-no-marker::marker {
+  content: "";
+}
+
+.summary-no-marker::after {
+  display: none;
+}
+
 /* ─── Markdown content (changelog & blog) ─── */
 .markdown-content {
   line-height: 1.75;

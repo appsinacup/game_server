@@ -38,7 +38,7 @@
       <div class="text-sm font-semibold">{doc_text("Runtime theming (JSON)")}</div>
       <p class="text-sm text-base-content/80">
         {doc_text(
-          "The host ships a default theme JSON for copy and navigation, and you can optionally override it at runtime with a different JSON file. Host-owned branding assets such as logo, banner, favicon, and CSS live in the host app instead of JSON."
+          "The host ships a default theme JSON for copy, navigation, and the home presentation page. You can optionally override it at runtime with a different JSON file. Image fields may point at host-owned static assets, including GIFs."
         )}
       </p>
     </div>
@@ -63,11 +63,54 @@
   "title": "My Game",
   "tagline": "Play together",
   "theme_color": { "light": "#ffffff", "dark": "#1a1a2e" },
+  "home": {
+    "hero": {
+      "title": "My Game",
+      "text": "**Fast** multiplayer backend for [your game](/play).",
+      "image": "/images/banner.gif",
+      "image_position_desktop": "left",
+      "image_position_mobile": "top",
+      "media_width": "half",
+      "buttons": [
+        { "title": "Play", "url": "/play", "icon": "hero-play-solid", "style": "primary" }
+      ]
+    },
+    "sections_columns": 2,
+    "sections": [
+      {
+        "title": "Matchmaking",
+        "text": "Real-time lobbies, parties, and custom rules.",
+        "image": "/images/matchmaking.gif",
+        "width": "1x",
+        "media_width": "third",
+        "image_position_desktop": "right",
+        "image_position_mobile": "top",
+        "buttons": [
+          { "title": "Docs", "url": "/docs/setup", "icon": "hero-book-open-solid" }
+        ]
+      },
+      {
+        "title": "Social",
+        "text": "Friends, groups, chat, **leaderboards**, and achievements.",
+        "image": "/images/social.png",
+        "width": "2x",
+        "media_width": "third",
+        "image_position_desktop": "left"
+      }
+    ]
+  },
   "navigation": {
     "primary_links": [
       { "label": "Play", "href": "/play", "icon": "hero-play-solid" },
-      { "label": "Status", "href": "/status" },
-      { "label": "Leaderboards", "href": "/leaderboards", "icon": "hero-chart-bar-solid" }
+      {
+        "label": "Social",
+        "icon": "hero-user-group-solid",
+        "items": [
+          { "label": "Leaderboards", "href": "/leaderboards", "icon": "hero-chart-bar-solid" },
+          { "label": "Achievements", "href": "/achievements", "icon": "hero-trophy-solid" },
+          { "label": "Groups", "href": "/groups", "icon": "hero-user-group-solid" }
+        ]
+      }
     ],
     "guest_links": [
       { "label": "Guides", "href": "/docs/setup" }
@@ -77,6 +120,7 @@
     ],
     "account_links": [
       { "label": "Billing", "href": "/billing" },
+      { "label": "Admin", "href": "/admin", "auth": "admin" },
       { "label": "Support", "href": "https://discord.gg/example", "external": true }
     ]
   }
@@ -156,7 +200,7 @@
       <div class="ml-8 space-y-3">
         <p>
           {doc_text(
-            "Use the navigation object to move non-behavioral nav structure into config. primary_links render in the main nav for everyone, guest_links render only for signed-out visitors, authenticated_links render only for signed-in users, and account_links render inside the account dropdown. Notifications, admin, locale switching, theme toggling, and logout stay code-owned."
+            "Use the navigation object to move nav structure into config. Each section accepts normal links, or dropdown groups with an items array. primary_links render in the main nav for everyone, guest_links render only for signed-out visitors, authenticated_links render only for signed-in users, and account_links render inside the account dropdown. Notifications, locale switching, theme toggling, and logout stay code-owned."
           )}
         </p>
 
@@ -205,6 +249,15 @@
                 <td>{doc_text("Text displayed in the nav bar")}</td>
               </tr>
               <tr>
+                <td><code>items</code></td>
+                <td>{doc_text("array")}</td>
+                <td>
+                  {doc_text(
+                    "Optional child links. When present, entry renders as a dropdown group instead of a direct link."
+                  )}
+                </td>
+              </tr>
+              <tr>
                 <td><code>href</code></td>
                 <td>{doc_text("string")}</td>
                 <td>
@@ -236,23 +289,37 @@
                   </ul>
                 </td>
               </tr>
+              <tr>
+                <td><code>admin_only</code></td>
+                <td>{doc_text("boolean")}</td>
+                <td>
+                  {doc_text("Shortcut for auth=\"admin\" on links or dropdown groups.")}
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
 
         <p class="text-sm text-base-content/80">
-          {doc_text("Example: adding public links plus a custom account dropdown entry:")}
+          {doc_text("Example: grouped public links plus admin-only account entry:")}
         </p>
         <pre phx-no-curly-interpolation class="rounded bg-base-200 p-3 text-xs overflow-auto">"navigation": {
   "primary_links": [
     { "label": "Status", "href": "/status" },
-    { "label": "Discord", "href": "https://discord.gg/example", "external": true }
+    {
+      "label": "Social",
+      "items": [
+        { "label": "Leaderboards", "href": "/leaderboards" },
+        { "label": "Groups", "href": "/groups" }
+      ]
+    }
   ],
   "authenticated_links": [
     { "label": "Dashboard", "href": "/dashboard" }
   ],
   "account_links": [
-    { "label": "Billing", "href": "/billing" }
+    { "label": "Billing", "href": "/billing" },
+    { "label": "Admin", "href": "/admin", "admin_only": true }
   ]
 }</pre>
       </div>

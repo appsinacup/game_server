@@ -433,15 +433,17 @@ defmodule GameServerWeb.AdminLive.Config do
                           </div>
                         </div>
 
-                        <%!-- Features --%>
-                        <% features = Map.get(@config.theme_map, "features", []) %>
-                        <%= if features != [] do %>
+                        <%!-- Home sections --%>
+                        <% home = Map.get(@config.theme_map, "home", %{}) %>
+                        <% sections =
+                          Map.get(home, "sections", Map.get(@config.theme_map, "features", [])) %>
+                        <%= if sections != [] do %>
                           <div class="mt-4">
                             <span class="text-xs font-semibold opacity-70">
-                              Features ({length(features)})
+                              Home Sections ({length(sections)})
                             </span>
                             <div class="mt-1 flex flex-wrap gap-2">
-                              <%= for feat <- features do %>
+                              <%= for feat <- sections do %>
                                 <div class="badge badge-outline gap-1 py-3">
                                   <span class={"#{feat["icon"]} size-3.5"}></span>
                                   <span class="text-xs">{feat["title"]}</span>
@@ -468,10 +470,16 @@ defmodule GameServerWeb.AdminLive.Config do
                               <div class="mt-1 flex flex-wrap gap-2">
                                 <%= for link <- links do %>
                                   <div class="badge badge-ghost gap-1 py-3">
-                                    <span class="text-xs">{link["label"]}</span>
-                                    <span class="text-[10px] opacity-50">{link["href"]}</span>
-                                    <%= if link["auth"] do %>
-                                      <span class="text-[10px] opacity-40">({link["auth"]})</span>
+                                    <span class="text-xs">
+                                      {theme_nav_entry_label(link)}
+                                    </span>
+                                    <span class="text-[10px] opacity-50">
+                                      {theme_nav_entry_path(link)}
+                                    </span>
+                                    <%= if theme_nav_entry_auth(link) do %>
+                                      <span class="text-[10px] opacity-40">
+                                        ({theme_nav_entry_auth(link)})
+                                      </span>
                                     <% end %>
                                   </div>
                                 <% end %>
@@ -2124,6 +2132,22 @@ defmodule GameServerWeb.AdminLive.Config do
   end
 
   defp parse_hook_args(_), do: []
+
+  defp theme_nav_entry_label(%{"label" => label, "items" => items})
+       when is_binary(label) and is_list(items) do
+    "#{label} (#{length(items)})"
+  end
+
+  defp theme_nav_entry_label(%{"label" => label}) when is_binary(label), do: label
+  defp theme_nav_entry_label(_entry), do: "Unnamed"
+
+  defp theme_nav_entry_path(%{"items" => _items}), do: "dropdown"
+  defp theme_nav_entry_path(%{"href" => href}) when is_binary(href), do: href
+  defp theme_nav_entry_path(_entry), do: "—"
+
+  defp theme_nav_entry_auth(%{"admin_only" => true}), do: "admin"
+  defp theme_nav_entry_auth(%{"auth" => auth}) when is_binary(auth) and auth != "", do: auth
+  defp theme_nav_entry_auth(_entry), do: nil
 
   # Compute dark-variant and fullscreen image existence for theme diagnostics.
   # Convention: `file.ext` → `file_dark.ext`, detected via File.exists? on priv/static.

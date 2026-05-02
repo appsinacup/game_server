@@ -224,6 +224,78 @@ const Hooks = {
       this.el.setAttribute("hidden", "")
     }
   },
+  NavbarDropdowns: {
+    mounted() {
+      this.boundDropdowns = []
+      this.boundSummaries = []
+
+      this.closeOpenDropdowns = (except = null) => {
+        this.el.querySelectorAll("[data-navbar-dropdown][open]").forEach((dropdown) => {
+          if (dropdown !== except) dropdown.open = false
+        })
+      }
+
+      this.onSummaryPointerDown = (event) => {
+        const summary = event.currentTarget
+        const dropdown = summary.closest("[data-navbar-dropdown]")
+        if (dropdown instanceof HTMLDetailsElement && !dropdown.open) {
+          this.closeOpenDropdowns(dropdown)
+        }
+      }
+
+      this.onToggle = (event) => {
+        const dropdown = event.currentTarget
+        if (dropdown instanceof HTMLDetailsElement && dropdown.open) {
+          requestAnimationFrame(() => this.closeOpenDropdowns(dropdown))
+        }
+      }
+
+      this.onDocumentClick = (event) => {
+        if (!this.el.contains(event.target)) this.closeOpenDropdowns()
+      }
+
+      this.onEscape = (event) => {
+        if (event.key === "Escape") this.closeOpenDropdowns()
+      }
+
+      this.bindDropdowns = () => {
+        this.boundDropdowns.forEach((dropdown) => {
+          dropdown.removeEventListener("toggle", this.onToggle)
+        })
+        this.boundSummaries.forEach((summary) => {
+          summary.removeEventListener("pointerdown", this.onSummaryPointerDown)
+        })
+
+        this.boundDropdowns = Array.from(this.el.querySelectorAll("[data-navbar-dropdown]"))
+        this.boundDropdowns.forEach((dropdown) => {
+          dropdown.addEventListener("toggle", this.onToggle)
+        })
+        this.boundSummaries = this.boundDropdowns
+          .map((dropdown) => dropdown.querySelector("summary"))
+          .filter(Boolean)
+        this.boundSummaries.forEach((summary) => {
+          summary.addEventListener("pointerdown", this.onSummaryPointerDown)
+        })
+      }
+
+      this.bindDropdowns()
+      document.addEventListener("click", this.onDocumentClick)
+      document.addEventListener("keydown", this.onEscape)
+    },
+    updated() {
+      this.bindDropdowns()
+    },
+    destroyed() {
+      this.boundDropdowns.forEach((dropdown) => {
+        dropdown.removeEventListener("toggle", this.onToggle)
+      })
+      this.boundSummaries.forEach((summary) => {
+        summary.removeEventListener("pointerdown", this.onSummaryPointerDown)
+      })
+      document.removeEventListener("click", this.onDocumentClick)
+      document.removeEventListener("keydown", this.onEscape)
+    }
+  },
   NavbarAutohide: {
     mounted() {
       const targetId = this.el.dataset.target || "main-navbar"

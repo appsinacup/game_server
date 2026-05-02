@@ -78,9 +78,13 @@ defmodule GameServerWeb.HostLayouts do
     {["features"], "title"},
     {["features"], "description"},
     {["navigation", "primary_links"], "label"},
+    {["navigation", "primary_links", "items"], "label"},
     {["navigation", "guest_links"], "label"},
+    {["navigation", "guest_links", "items"], "label"},
     {["navigation", "authenticated_links"], "label"},
-    {["navigation", "account_links"], "label"}
+    {["navigation", "authenticated_links", "items"], "label"},
+    {["navigation", "account_links"], "label"},
+    {["navigation", "account_links", "items"], "label"}
   ]
 
   @doc false
@@ -207,6 +211,9 @@ defmodule GameServerWeb.HostLayouts do
 
   defp translate_list_field_at_path(map, [key | rest], field) when is_map(map) do
     case Map.get(map, key) do
+      nested when is_list(nested) ->
+        Map.put(map, key, Enum.map(nested, &translate_list_field_at_path(&1, rest, field)))
+
       nested when is_map(nested) ->
         Map.put(map, key, translate_list_field_at_path(nested, rest, field))
 
@@ -366,7 +373,11 @@ defmodule GameServerWeb.HostLayouts do
       "guest_links" => navigation_links(provider_navigation, en_navigation, "guest_links"),
       "authenticated_links" =>
         navigation_links(provider_navigation, en_navigation, "authenticated_links"),
-      "account_links" => navigation_links(provider_navigation, en_navigation, "account_links")
+      "account_links" =>
+        merge_default_navigation_links(
+          navigation_links(provider_navigation, en_navigation, "account_links"),
+          default_account_nav_links()
+        )
     }
   end
 
@@ -399,21 +410,64 @@ defmodule GameServerWeb.HostLayouts do
   defp default_primary_nav_links do
     [
       %{
-        "label" => translate("Leaderboards"),
-        "href" => "/leaderboards",
-        "icon" => "hero-chart-bar-solid"
+        "label" => translate("Play"),
+        "href" => "/play",
+        "icon" => "hero-play-solid"
       },
       %{
-        "label" => translate("Achievements"),
-        "href" => "/achievements",
-        "icon" => "hero-trophy-solid"
-      },
-      %{
-        "label" => translate("Groups"),
-        "href" => "/groups",
-        "icon" => "hero-user-group-solid"
+        "label" => translate("Social"),
+        "icon" => "hero-user-group-solid",
+        "items" => [
+          %{
+            "label" => translate("Leaderboards"),
+            "href" => "/leaderboards",
+            "icon" => "hero-chart-bar-solid"
+          },
+          %{
+            "label" => translate("Achievements"),
+            "href" => "/achievements",
+            "icon" => "hero-trophy-solid"
+          },
+          %{
+            "label" => translate("Groups"),
+            "href" => "/groups",
+            "icon" => "hero-user-group-solid"
+          }
+        ]
       }
     ]
+  end
+
+  defp default_account_nav_links do
+    [
+      %{
+        "label" => translate("Admin"),
+        "href" => "/admin",
+        "icon" => "hero-cog-6-tooth-solid",
+        "auth" => "admin"
+      }
+    ]
+  end
+
+  defp merge_default_navigation_links(configured, defaults)
+       when is_list(configured) and is_list(defaults) do
+    Enum.reduce(defaults, configured, fn default, acc ->
+      if navigation_entry_href?(acc, default["href"]) do
+        acc
+      else
+        acc ++ [default]
+      end
+    end)
+  end
+
+  defp merge_default_navigation_links(_configured, defaults), do: defaults
+
+  defp navigation_entry_href?(entries, href) when is_list(entries) and is_binary(href) do
+    Enum.any?(entries, fn
+      %{"href" => ^href} -> true
+      %{"items" => items} when is_list(items) -> navigation_entry_href?(items, href)
+      _ -> false
+    end)
   end
 
   def locale_labels, do: @locale_labels

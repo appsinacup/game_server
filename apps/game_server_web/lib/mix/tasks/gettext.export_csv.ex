@@ -154,10 +154,20 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
     {["footer_links"], "label"},
     {["features"], "title"},
     {["features"], "description"},
+    {["home", "hero"], "title"},
+    {["home", "hero"], "text"},
+    {["home", "hero", "buttons"], "title"},
+    {["home", "sections"], "title"},
+    {["home", "sections"], "text"},
+    {["home", "sections", "buttons"], "title"},
     {["navigation", "primary_links"], "label"},
+    {["navigation", "primary_links", "items"], "label"},
     {["navigation", "guest_links"], "label"},
+    {["navigation", "guest_links", "items"], "label"},
     {["navigation", "authenticated_links"], "label"},
-    {["navigation", "account_links"], "label"}
+    {["navigation", "authenticated_links", "items"], "label"},
+    {["navigation", "account_links"], "label"},
+    {["navigation", "account_links", "items"], "label"}
   ]
 
   # Deduplicate config rows that share the same English source text.
@@ -231,15 +241,20 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
   end
 
   defp config_items_at_path(data, path_segments) when is_list(path_segments) do
-    path_segments
-    |> Enum.reduce(data, fn segment, acc ->
-      if is_map(acc), do: Map.get(acc, segment, []), else: []
-    end)
-    |> case do
-      items when is_list(items) -> items
-      _ -> []
-    end
+    collect_config_items(data, path_segments)
   end
+
+  defp collect_config_items(data, []), do: if(is_list(data), do: data, else: [])
+
+  defp collect_config_items(data, [segment | rest]) when is_map(data) do
+    collect_config_items(Map.get(data, segment, []), rest)
+  end
+
+  defp collect_config_items(data, path) when is_list(data) do
+    Enum.flat_map(data, &collect_config_items(&1, path))
+  end
+
+  defp collect_config_items(_data, _path), do: []
 
   defp detect_config_base(nil) do
     # Auto-detect: check THEME_CONFIG env, then common patterns

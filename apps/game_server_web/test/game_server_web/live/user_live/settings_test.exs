@@ -27,6 +27,9 @@ defmodule GameServerWeb.UserLive.SettingsTest do
         |> live(~p"/users/settings")
 
       assert html =~ "Email"
+      assert html =~ "Data"
+      assert html =~ "Save"
+      assert html =~ "Link"
       assert has_element?(lv, "#password_form")
       assert html =~ "Tester"
     end
@@ -48,7 +51,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       |> render_click()
 
       # incoming should be present
-      assert render(view) =~ "Friends"
+      assert render(view) =~ "Incoming requests"
 
       f =
         Repo.one(
@@ -116,7 +119,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       assert render_click(block_btn)
 
       # blocked list should show entry
-      assert render(view) =~ "Friends"
+      assert render(view) =~ "Blocked users"
       assert has_element?(view, "#blocked-#{f.id}")
 
       # unblock using UI
@@ -404,7 +407,7 @@ defmodule GameServerWeb.UserLive.SettingsTest do
       lv |> element("button[phx-value-provider=\"discord\"]") |> render_click()
 
       # page should show link button for discord (now unlinked)
-      assert render(lv) =~ "Join"
+      assert render(lv) =~ "Link"
       # google is now the last linked provider and unlink is disabled
       refute has_element?(lv, "button[phx-value-provider=\"google\"]")
       assert render(lv) =~ "btn-disabled"

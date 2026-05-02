@@ -23,7 +23,7 @@ defmodule GameServerWeb.UserLive.SettingsKVTest do
     lv |> element(~s(button[phx-click="settings_tab"][phx-value-tab="data"])) |> render_click()
 
     rendered = render(lv)
-    assert rendered =~ "Description"
+    assert rendered =~ "Metadata"
     assert rendered =~ "my-kv:own"
     refute rendered =~ "my-kv:other"
     refute rendered =~ "my-kv:global"

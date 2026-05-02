@@ -28,7 +28,7 @@ defmodule GameServerWeb.UserLive.Confirmation do
             phx-disable-with={gettext("Loading...")}
             class="btn btn-primary w-full"
           >
-            {gettext("Confirm")}
+            {gettext("Confirm and remember me")}
           </.button>
           <.button
             phx-disable-with={gettext("Loading...")}
@@ -62,7 +62,7 @@ defmodule GameServerWeb.UserLive.Confirmation do
               phx-disable-with={gettext("Loading...")}
               class="btn btn-primary w-full"
             >
-              {gettext("Log in")}
+              {gettext("Log in and remember me")}
             </.button>
             <.button
               phx-disable-with={gettext("Loading...")}

@@ -35,6 +35,7 @@ defmodule GameServerWeb.HostLayoutShell do
       />
       <header
         id="main-navbar"
+        phx-hook="NavbarDropdowns"
         class={[
           "navbar px-4 sm:px-6 lg:px-8 z-50",
           if(@flush,
