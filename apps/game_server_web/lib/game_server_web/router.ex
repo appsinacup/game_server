@@ -440,4 +440,10 @@ defmodule GameServerWeb.Router do
     get "/:provider", AuthController, :request
     get "/:provider/callback", AuthController, :callback
   end
+
+  scope "/", GameServerWeb do
+    pipe_through :browser
+
+    get "/*path", PageController, :configured_page
+  end
 end

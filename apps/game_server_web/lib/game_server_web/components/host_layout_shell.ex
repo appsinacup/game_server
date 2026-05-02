@@ -10,14 +10,13 @@ defmodule GameServerWeb.HostLayoutShell do
   attr :flush, :boolean, default: false
   attr :theme, :map, required: true
   attr :navigation, :map, default: %{}
-  attr :footer_links, :list, default: []
+  attr :footer, :map, default: %{}
   attr :background_icons, :list, default: []
   attr :site_message, :string, default: ""
   attr :site_message_hash, :string, default: ""
   attr :notif_unread_count, :integer, default: 0
   attr :locale, :string, required: true
   attr :known_locales, :list, default: []
-  attr :app_version, :string, required: true
 
   slot :inner_block, required: true
 
@@ -105,25 +104,33 @@ defmodule GameServerWeb.HostLayoutShell do
         </main>
 
         <GameServerWeb.HostLayouts.flash_group flash={@flash} />
-        <footer class="px-4 py-6 sm:px-6 lg:px-8 text-center text-sm text-base-content/70">
-          <div class="mx-auto max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-6xl flex flex-wrap justify-center gap-x-4 gap-y-1">
-            <%= for link <- @footer_links do %>
-              <a
-                href={link["href"]}
-                target={if(link["external"], do: "_blank", else: nil)}
-                rel={if(link["external"], do: "noopener noreferrer", else: nil)}
-                class="hover:underline"
-              >
-                {link["label"]}
-              </a>
-            <% end %>
-            <span class="text-xs opacity-60">v{@app_version}</span>
+        <footer class="px-4 py-8 sm:px-6 lg:px-8 text-sm text-base-content/70">
+          <div class="mx-auto grid max-w-2xl gap-6 md:max-w-3xl md:grid-cols-2 lg:max-w-4xl xl:max-w-6xl xl:grid-cols-4">
+            <section :for={section <- footer_sections(@footer)} class="space-y-2">
+              <h2 class="text-sm font-semibold text-base-content">
+                {section["title"]}
+              </h2>
+              <nav class="flex flex-col gap-1.5">
+                <a
+                  :for={link <- Map.get(section, "links", [])}
+                  href={link["href"]}
+                  target={if(link["external"], do: "_blank", else: nil)}
+                  rel={if(link["external"], do: "noopener noreferrer", else: nil)}
+                  class="w-fit hover:text-base-content hover:underline"
+                >
+                  {link["label"]}
+                </a>
+              </nav>
+            </section>
           </div>
         </footer>
       <% end %>
     </div>
     """
   end
+
+  defp footer_sections(%{"sections" => sections}) when is_list(sections), do: sections
+  defp footer_sections(_footer), do: []
 
   attr :background_icons, :list, default: []
   attr :current_path, :string, default: nil

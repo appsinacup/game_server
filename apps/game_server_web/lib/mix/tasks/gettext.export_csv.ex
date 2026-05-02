@@ -145,30 +145,7 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
   # Theme JSON config export
   # ------------------------------------------------------------------
 
-  # Translatable top-level keys
-  @config_top_keys ~w(title tagline description)
-
-  # Translatable array fields: {json_path_segments, object_field_for_text}
-  @config_array_fields [
-    {["useful_links"], "title"},
-    {["footer_links"], "label"},
-    {["features"], "title"},
-    {["features"], "description"},
-    {["home", "hero"], "title"},
-    {["home", "hero"], "text"},
-    {["home", "hero", "buttons"], "title"},
-    {["home", "sections"], "title"},
-    {["home", "sections"], "text"},
-    {["home", "sections", "buttons"], "title"},
-    {["navigation", "primary_links"], "label"},
-    {["navigation", "primary_links", "items"], "label"},
-    {["navigation", "guest_links"], "label"},
-    {["navigation", "guest_links", "items"], "label"},
-    {["navigation", "authenticated_links"], "label"},
-    {["navigation", "authenticated_links", "items"], "label"},
-    {["navigation", "account_links"], "label"},
-    {["navigation", "account_links", "items"], "label"}
-  ]
+  @config_top_keys ~w(title tagline description site_message)
 
   # Deduplicate config rows that share the same English source text.
   # Keeps only the first occurrence (by path). The import script uses
@@ -197,9 +174,7 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
       locale_data = if locale == "en", do: en_data, else: read_config_json(base_path, locale)
 
       if en_data do
-        top_rows = config_top_rows(en_data, locale_data || %{})
-        array_rows = config_array_rows(en_data, locale_data || %{})
-        top_rows ++ array_rows
+        config_text_rows(en_data, locale_data || %{})
       else
         []
       end
@@ -208,53 +183,144 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
     end
   end
 
-  defp config_top_rows(en_data, locale_data) do
-    Enum.flat_map(@config_top_keys, fn key ->
-      en_val = Map.get(en_data, key, "")
-      locale_val = Map.get(locale_data, key, "")
+  defp config_text_rows(en_data, locale_data) do
+    en_data
+    |> config_text_paths()
+    |> Enum.flat_map(fn path ->
+      en_val = get_in_config(en_data, path)
+      locale_val = get_in_config(locale_data, path) || ""
 
-      if en_val != "" do
-        [["_config", key, en_val, locale_val, ""]]
+      if is_binary(en_val) and en_val != "" do
+        [["_config", path, en_val, locale_val, ""]]
       else
         []
       end
     end)
   end
 
-  defp config_array_rows(en_data, locale_data) do
-    @config_array_fields
-    |> Enum.flat_map(fn {array_path, text_field} ->
-      en_items = config_items_at_path(en_data, array_path)
-      locale_items = config_items_at_path(locale_data, array_path)
-      path_prefix = Enum.join(array_path, ".")
+  defp config_text_paths(data) when is_map(data) do
+    top_paths =
+      @config_top_keys
+      |> Enum.filter(&(Map.get(data, &1, "") != ""))
 
-      en_items
+    top_paths ++ page_text_paths(data) ++ footer_text_paths(data) ++ navigation_text_paths(data)
+  end
+
+  defp config_text_paths(_data), do: []
+
+  defp page_text_paths(data) do
+    data
+    |> Map.get("pages", %{})
+    |> case do
+      pages when is_map(pages) ->
+        pages
+        |> Enum.sort_by(fn {key, _page} -> key end)
+        |> Enum.flat_map(fn {key, page} -> presentation_page_text_paths("pages.#{key}", page) end)
+
+      _ ->
+        []
+    end
+  end
+
+  defp presentation_page_text_paths(prefix, page) when is_map(page) do
+    hero = Map.get(page, "hero", %{})
+
+    [
+      "#{prefix}.hero.title",
+      "#{prefix}.hero.text"
+    ] ++
+      button_label_paths("#{prefix}.hero", hero) ++
+      section_text_paths(prefix, Map.get(page, "sections", []))
+  end
+
+  defp presentation_page_text_paths(_prefix, _page), do: []
+
+  defp section_text_paths(prefix, sections) when is_list(sections) do
+    sections
+    |> Enum.with_index()
+    |> Enum.flat_map(fn {section, index} ->
+      section_prefix = "#{prefix}.sections[#{index}]"
+
+      [
+        "#{section_prefix}.title",
+        "#{section_prefix}.text"
+      ] ++ button_label_paths(section_prefix, section)
+    end)
+  end
+
+  defp section_text_paths(_prefix, _sections), do: []
+
+  defp button_label_paths(prefix, item) when is_map(item) do
+    item
+    |> Map.get("buttons", [])
+    |> list_field_paths("#{prefix}.buttons", "label")
+  end
+
+  defp button_label_paths(_prefix, _item), do: []
+
+  defp footer_text_paths(data) do
+    sections = get_in(data, ["footer", "sections"]) || []
+
+    sections
+    |> Enum.with_index()
+    |> Enum.flat_map(fn {section, index} ->
+      prefix = "footer.sections[#{index}]"
+
+      ["#{prefix}.title"] ++
+        list_field_paths(Map.get(section, "links", []), "#{prefix}.links", "label")
+    end)
+  end
+
+  defp navigation_text_paths(data) do
+    navigation = Map.get(data, "navigation", %{})
+
+    ~w(primary_links guest_links authenticated_links account_links)
+    |> Enum.flat_map(fn key ->
+      navigation
+      |> Map.get(key, [])
       |> Enum.with_index()
-      |> Enum.map(fn {en_item, idx} ->
-        locale_item = Enum.at(locale_items, idx) || %{}
-        path = "#{path_prefix}[#{idx}].#{text_field}"
-        en_val = Map.get(en_item, text_field, "")
-        locale_val = Map.get(locale_item, text_field, "")
-        ["_config", path, en_val, locale_val, ""]
+      |> Enum.flat_map(fn {link, index} ->
+        prefix = "navigation.#{key}[#{index}]"
+
+        ["#{prefix}.label"] ++
+          list_field_paths(Map.get(link, "items", []), "#{prefix}.items", "label")
       end)
     end)
   end
 
-  defp config_items_at_path(data, path_segments) when is_list(path_segments) do
-    collect_config_items(data, path_segments)
+  defp list_field_paths(items, prefix, field) when is_list(items) do
+    items
+    |> Enum.with_index()
+    |> Enum.map(fn {_item, index} -> "#{prefix}[#{index}].#{field}" end)
   end
 
-  defp collect_config_items(data, []), do: if(is_list(data), do: data, else: [])
+  defp list_field_paths(_items, _prefix, _field), do: []
 
-  defp collect_config_items(data, [segment | rest]) when is_map(data) do
-    collect_config_items(Map.get(data, segment, []), rest)
+  defp get_in_config(data, path) do
+    path
+    |> parse_config_path()
+    |> Enum.reduce(data, fn
+      {key, idx}, acc when is_map(acc) ->
+        acc |> Map.get(key, []) |> Enum.at(idx)
+
+      key, acc when is_map(acc) ->
+        Map.get(acc, key)
+
+      _key, nil ->
+        nil
+    end)
   end
 
-  defp collect_config_items(data, path) when is_list(data) do
-    Enum.flat_map(data, &collect_config_items(&1, path))
+  defp parse_config_path(path) do
+    path
+    |> String.split(".")
+    |> Enum.map(fn segment ->
+      case Regex.run(~r/^(.+)\[(\d+)\]$/, segment) do
+        [_, key, idx] -> {key, String.to_integer(idx)}
+        nil -> segment
+      end
+    end)
   end
-
-  defp collect_config_items(_data, _path), do: []
 
   defp detect_config_base(nil) do
     # Auto-detect: check THEME_CONFIG env, then common patterns

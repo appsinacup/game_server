@@ -30,7 +30,7 @@ defmodule GameServerWeb.Plugs.LoadThemeTest do
     assert conn.assigns[:theme]["title"] == "MISSING_THEME"
     assert conn.assigns[:theme]["tagline"] == "Add host theme config or set THEME_CONFIG"
     assert conn.assigns[:theme]["logo"] == "/images/logo.png"
-    assert conn.assigns[:theme]["footer_links"] in [nil, []]
+    assert conn.assigns[:theme]["footer"] in [nil, %{}]
     assert conn.assigns[:theme]["navigation"] in [nil, %{}]
   end
 

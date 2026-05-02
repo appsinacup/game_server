@@ -68,15 +68,11 @@ defmodule GameServerWeb.HostLayouts do
 
   @host_theme_css_path "/theme.css"
 
-  @app_version_fallback Mix.Project.config()[:version] || "1.0.0"
-
   @theme_translatable_top_keys ~w(title tagline description site_message)
 
   @theme_translatable_array_fields [
-    {["useful_links"], "title"},
-    {["footer_links"], "label"},
-    {["features"], "title"},
-    {["features"], "description"},
+    {["footer", "sections"], "title"},
+    {["footer", "sections", "links"], "label"},
     {["navigation", "primary_links"], "label"},
     {["navigation", "primary_links", "items"], "label"},
     {["navigation", "guest_links"], "label"},
@@ -194,9 +190,58 @@ defmodule GameServerWeb.HostLayouts do
   end
 
   defp translate_nested_theme_fields(theme) do
-    Enum.reduce(@theme_translatable_array_fields, theme, fn {path, field}, acc ->
-      translate_list_field_at_path(acc, path, field)
+    theme
+    |> translate_presentation_pages()
+    |> then(fn translated ->
+      Enum.reduce(@theme_translatable_array_fields, translated, fn {path, field}, acc ->
+        translate_list_field_at_path(acc, path, field)
+      end)
     end)
+  end
+
+  defp translate_presentation_pages(theme) when is_map(theme) do
+    case Map.get(theme, "pages") do
+      pages when is_map(pages) ->
+        translated_pages =
+          Map.new(pages, fn
+            {key, page} when is_map(page) -> {key, translate_presentation_page(page)}
+            {key, page} -> {key, page}
+          end)
+
+        Map.put(theme, "pages", translated_pages)
+
+      _ ->
+        theme
+    end
+  end
+
+  defp translate_presentation_pages(theme), do: theme
+
+  defp translate_presentation_page(page) do
+    page
+    |> update_map_at_path(["hero"], fn hero ->
+      hero
+      |> translate_map_field("title")
+      |> translate_map_field("text")
+      |> translate_list_field_at_path(["buttons"], "label")
+    end)
+    |> translate_list_field_at_path(["sections"], "title")
+    |> translate_list_field_at_path(["sections"], "text")
+    |> translate_list_field_at_path(["sections", "buttons"], "label")
+  end
+
+  defp update_map_at_path(map, [key], fun) when is_map(map) do
+    case Map.get(map, key) do
+      value when is_map(value) -> Map.put(map, key, fun.(value))
+      _ -> map
+    end
+  end
+
+  defp update_map_at_path(map, [key | rest], fun) when is_map(map) do
+    case Map.get(map, key) do
+      value when is_map(value) -> Map.put(map, key, update_map_at_path(value, rest, fun))
+      _ -> map
+    end
   end
 
   defp translate_list_field_at_path(map, [key], field) when is_map(map) do
@@ -247,7 +292,6 @@ defmodule GameServerWeb.HostLayouts do
     en_theme = resolve_theme("en")
 
     navigation = navigation_config(theme, en_theme)
-    footer_links = theme_list(theme, en_theme, "footer_links")
     background_icons = theme_list(theme, en_theme, "background_icons")
     site_message_source = Map.get(en_theme, "site_message", "")
 
@@ -278,12 +322,11 @@ defmodule GameServerWeb.HostLayouts do
       known_locales: @known_locales,
       theme: theme,
       navigation: navigation,
-      footer_links: footer_links,
+      footer: Map.get(theme, "footer", %{}),
       background_icons: background_icons,
       site_message: site_message,
       site_message_hash: site_message_hash,
-      notif_unread_count: notif_unread_count,
-      app_version: app_version()
+      notif_unread_count: notif_unread_count
     )
   end
 
@@ -492,13 +535,6 @@ defmodule GameServerWeb.HostLayouts do
   end
 
   def strip_locale_prefix(_, _known_locales), do: "/"
-
-  defp app_version do
-    case System.get_env("APP_VERSION") || Application.spec(:game_server, :vsn) do
-      nil -> @app_version_fallback
-      vsn -> to_string(vsn)
-    end
-  end
 
   @doc """
   Shows the flash group with standard titles and content.

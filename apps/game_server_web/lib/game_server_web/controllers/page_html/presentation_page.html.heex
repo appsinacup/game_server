@@ -1,0 +1,7 @@
+<Layouts.app flash={@flash} current_scope={@current_scope}>
+  <% background_icons = Map.get(@theme, "background_icons") || [] %>
+  <GameServerWeb.PresentationPage.page
+    page={@presentation_page}
+    background_icons={background_icons}
+  />
+</Layouts.app>

@@ -433,20 +433,29 @@ defmodule GameServerWeb.AdminLive.Config do
                           </div>
                         </div>
 
-                        <%!-- Home sections --%>
-                        <% home = Map.get(@config.theme_map, "home", %{}) %>
-                        <% sections =
-                          Map.get(home, "sections", Map.get(@config.theme_map, "features", [])) %>
-                        <%= if sections != [] do %>
+                        <%!-- Presentation pages --%>
+                        <% pages =
+                          case Map.get(@config.theme_map, "pages", %{}) do
+                            value when is_map(value) -> value
+                            _ -> %{}
+                          end %>
+
+                        <%= if pages != %{} do %>
                           <div class="mt-4">
                             <span class="text-xs font-semibold opacity-70">
-                              Home Sections ({length(sections)})
+                              Pages ({map_size(pages)})
                             </span>
                             <div class="mt-1 flex flex-wrap gap-2">
-                              <%= for feat <- sections do %>
+                              <%= for {key, page} <- Enum.sort_by(pages, fn {key, _page} -> key end) do %>
+                                <% sections = Map.get(page, "sections", []) %>
                                 <div class="badge badge-outline gap-1 py-3">
-                                  <span class={"#{feat["icon"]} size-3.5"}></span>
-                                  <span class="text-xs">{feat["title"]}</span>
+                                  <span class="text-xs">{key}</span>
+                                  <span class="text-[10px] opacity-50">
+                                    {Map.get(page, "path", "—")}
+                                  </span>
+                                  <span class="text-[10px] opacity-40">
+                                    ({length(sections)} sections)
+                                  </span>
                                 </div>
                               <% end %>
                             </div>
@@ -488,42 +497,20 @@ defmodule GameServerWeb.AdminLive.Config do
                           <% end %>
                         <% end %>
 
-                        <%!-- Footer Links --%>
-                        <% footer_links = Map.get(@config.theme_map, "footer_links", []) %>
-                        <%= if footer_links != [] do %>
+                        <%!-- Footer --%>
+                        <% footer_sections = get_in(@config.theme_map, ["footer", "sections"]) || [] %>
+                        <%= if footer_sections != [] do %>
                           <div class="mt-3">
                             <span class="text-xs font-semibold opacity-70">
-                              Footer Links ({length(footer_links)})
+                              Footer Sections ({length(footer_sections)})
                             </span>
                             <div class="mt-1 flex flex-wrap gap-2">
-                              <%= for link <- footer_links do %>
+                              <%= for section <- footer_sections do %>
                                 <div class="badge badge-ghost gap-1 py-3">
-                                  <span class="text-xs">{link["label"]}</span>
-                                  <span class="text-[10px] opacity-50">{link["href"]}</span>
-                                  <%= if link["external"] do %>
-                                    <span class="text-[10px] opacity-40">↗</span>
-                                  <% end %>
-                                </div>
-                              <% end %>
-                            </div>
-                          </div>
-                        <% end %>
-
-                        <%!-- Useful Links --%>
-                        <% useful_links = Map.get(@config.theme_map, "useful_links", []) %>
-                        <%= if useful_links != [] do %>
-                          <div class="mt-3">
-                            <span class="text-xs font-semibold opacity-70">
-                              Useful Links ({length(useful_links)})
-                            </span>
-                            <div class="mt-1 flex flex-wrap gap-2">
-                              <%= for link <- useful_links do %>
-                                <div class="badge badge-ghost gap-1 py-3">
-                                  <%= if link["icon"] do %>
-                                    <span class={"#{link["icon"]} size-3.5"}></span>
-                                  <% end %>
-                                  <span class="text-xs">{link["title"]}</span>
-                                  <span class="text-[10px] opacity-50">{link["url"]}</span>
+                                  <span class="text-xs">{section["title"]}</span>
+                                  <span class="text-[10px] opacity-50">
+                                    {length(Map.get(section, "links", []))} links
+                                  </span>
                                 </div>
                               <% end %>
                             </div>

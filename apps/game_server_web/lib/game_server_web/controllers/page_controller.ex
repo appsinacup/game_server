@@ -1,22 +1,14 @@
 defmodule GameServerWeb.PageController do
   use GameServerWeb, :controller
 
-  alias GameServer.Accounts
-  alias GameServer.Accounts.User
-  alias GameServer.Repo
+  alias GameServerWeb.PresentationPage
 
   def home(conn, _params) do
-    stats = %{
-      users_count: Repo.aggregate(User, :count),
-      users_online_now: Accounts.count_users_online(),
-      users_active_1d: Accounts.count_users_active_since(1),
-      users_active_7d: Accounts.count_users_active_since(7),
-      users_active_30d: Accounts.count_users_active_since(30)
-    }
+    render_presentation_page(conn, "/", gettext("Home"))
+  end
 
-    conn
-    |> assign(:page_title, gettext("Home"))
-    |> render(:home, stats: stats)
+  def configured_page(conn, %{"path" => path}) do
+    render_presentation_page(conn, "/" <> Enum.join(path, "/"), gettext("Page"))
   end
 
   def privacy(conn, _params) do
@@ -36,4 +28,36 @@ defmodule GameServerWeb.PageController do
     |> assign(:page_title, gettext("Terms"))
     |> render(:terms)
   end
+
+  defp render_presentation_page(conn, path, fallback_title) do
+    locale = Gettext.get_locale(GameServerWeb.Gettext)
+    theme = GameServerWeb.Layouts.resolve_theme(locale, conn.assigns[:theme] || %{})
+
+    case PresentationPage.page_for_path(theme, path) || missing_home_page(theme, path) do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> text("Not Found")
+
+      page ->
+        conn
+        |> assign(:page_title, PresentationPage.page_title(page, fallback_title))
+        |> render(:presentation_page, presentation_page: page, theme: theme)
+    end
+  end
+
+  defp missing_home_page(theme, "/") do
+    %{
+      "path" => "/",
+      "hero" => %{
+        "title" => Map.get(theme, "title", ""),
+        "text" => Map.get(theme, "description", ""),
+        "image" => Map.get(theme, "banner", "/images/banner.png"),
+        "image_alt" => Map.get(theme, "title", "")
+      },
+      "sections" => []
+    }
+  end
+
+  defp missing_home_page(_theme, _path), do: nil
 end

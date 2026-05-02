@@ -38,7 +38,7 @@
       <div class="text-sm font-semibold">{doc_text("Runtime theming (JSON)")}</div>
       <p class="text-sm text-base-content/80">
         {doc_text(
-          "The host ships a default theme JSON for copy, navigation, and the home presentation page. You can optionally override it at runtime with a different JSON file. Image fields may point at host-owned static assets, including GIFs."
+          "The host ships a default theme JSON for copy, navigation, footer sections, and reusable presentation pages. You can optionally override it at runtime with a different JSON file. Image fields may point at host-owned static assets, including GIFs."
         )}
       </p>
     </div>
@@ -59,45 +59,62 @@
             <pre class="text-sm text-wrap"><code phx-no-curly-interpolation>theme/my_config.en.json</code></pre>
           </div>
           <p>{doc_text("With the following:")}</p>
+          <p class="text-sm text-base-content/80">
+            {doc_text(
+              "Add presentation pages under pages. Each page needs a path; existing code-owned routes keep priority, and unmatched configured paths render through the shared presentation layout."
+            )}
+          </p>
           <pre phx-no-curly-interpolation class="rounded bg-base-200 p-3 text-xs overflow-auto">{
   "title": "My Game",
   "tagline": "Play together",
   "theme_color": { "light": "#ffffff", "dark": "#1a1a2e" },
-  "home": {
-    "hero": {
-      "title": "My Game",
-      "text": "**Fast** multiplayer backend for [your game](/play).",
-      "image": "/images/banner.gif",
-      "image_position_desktop": "left",
-      "image_position_mobile": "top",
-      "media_width": "half",
-      "buttons": [
-        { "title": "Play", "url": "/play", "icon": "hero-play-solid", "style": "primary" }
-      ]
-    },
-    "sections_columns": 2,
-    "sections": [
-      {
-        "title": "Matchmaking",
-        "text": "Real-time lobbies, parties, and custom rules.",
-        "image": "/images/matchmaking.gif",
-        "width": "1x",
-        "media_width": "third",
-        "image_position_desktop": "right",
+  "pages": {
+    "home": {
+      "path": "/",
+      "hero": {
+        "title": "My Game",
+        "text": "**Fast** multiplayer backend for [your game](/play).",
+        "image": "/images/banner.gif",
+        "image_position_desktop": "left",
         "image_position_mobile": "top",
+        "media_width": "half",
         "buttons": [
-          { "title": "Docs", "url": "/docs/setup", "icon": "hero-book-open-solid" }
+          { "label": "Play", "href": "/play", "icon": "hero-play-solid", "style": "primary" }
         ]
       },
-      {
-        "title": "Social",
-        "text": "Friends, groups, chat, **leaderboards**, and achievements.",
-        "image": "/images/social.png",
-        "width": "2x",
-        "media_width": "third",
-        "image_position_desktop": "left"
-      }
-    ]
+      "sections_columns": 2,
+      "sections": [
+        {
+          "title": "Matchmaking",
+          "text": "Real-time lobbies, parties, and custom rules.",
+          "image": "/images/matchmaking.gif",
+          "width": "1x",
+          "media_width": "third",
+          "image_position_desktop": "right",
+          "image_position_mobile": "top",
+          "buttons": [
+            { "label": "Docs", "href": "/docs/setup", "icon": "hero-book-open-solid" }
+          ]
+        },
+        {
+          "title": "Social",
+          "text": "Friends, groups, chat, **leaderboards**, and achievements.",
+          "image": "/images/social.png",
+          "width": "2x",
+          "media_width": "third",
+          "image_position_desktop": "left"
+        }
+      ]
+    },
+    "brand": {
+      "path": "/brand",
+      "hero": {
+        "title": "Brand",
+        "text": "Another page using the same hero and sections renderer.",
+        "image": "/images/banner.gif"
+      },
+      "sections": []
+    }
   },
   "navigation": {
     "primary_links": [
@@ -122,6 +139,24 @@
       { "label": "Billing", "href": "/billing" },
       { "label": "Admin", "href": "/admin", "auth": "admin" },
       { "label": "Support", "href": "https://discord.gg/example", "external": true }
+    ]
+  },
+  "footer": {
+    "sections": [
+      {
+        "title": "Social",
+        "links": [
+          { "label": "Discord", "href": "https://discord.gg/example", "external": true },
+          { "label": "Blog", "href": "/blog" }
+        ]
+      },
+      {
+        "title": "Privacy & Terms",
+        "links": [
+          { "label": "Privacy Policy", "href": "/privacy" },
+          { "label": "Terms and Conditions", "href": "/terms" }
+        ]
+      }
     ]
   }
 }</pre>

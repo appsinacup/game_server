@@ -68,6 +68,8 @@ defmodule GameServerWeb.Router.BrowserRoutes do
         post "/users/log-in", UserSessionController, :create
         delete "/users/log-out", UserSessionController, :delete
       end
+
+      get "/*path", PageController, :configured_page
     end
   end
 end

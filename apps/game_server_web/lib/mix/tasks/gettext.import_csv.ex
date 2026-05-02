@@ -433,70 +433,119 @@ defmodule Mix.Tasks.Gettext.ImportCsv do
 
   # Build a map: %{english_text => [path1, path2, ...]} from the English config.
   # This lets us apply a translation to ALL config paths sharing the same source text.
-  @config_top_keys ~w(title tagline description)
-  @config_array_fields [
-    {["useful_links"], "title"},
-    {["footer_links"], "label"},
-    {["features"], "title"},
-    {["features"], "description"},
-    {["home", "hero"], "title"},
-    {["home", "hero"], "text"},
-    {["home", "hero", "buttons"], "title"},
-    {["home", "sections"], "title"},
-    {["home", "sections"], "text"},
-    {["home", "sections", "buttons"], "title"},
-    {["navigation", "primary_links"], "label"},
-    {["navigation", "primary_links", "items"], "label"},
-    {["navigation", "guest_links"], "label"},
-    {["navigation", "guest_links", "items"], "label"},
-    {["navigation", "authenticated_links"], "label"},
-    {["navigation", "authenticated_links", "items"], "label"},
-    {["navigation", "account_links"], "label"},
-    {["navigation", "account_links", "items"], "label"}
-  ]
+  @config_top_keys ~w(title tagline description site_message)
 
   defp build_source_to_paths(nil), do: %{}
 
   defp build_source_to_paths(en_data) do
-    top_pairs =
-      Enum.flat_map(@config_top_keys, fn key ->
-        val = Map.get(en_data, key, "")
-        if val != "", do: [{val, key}], else: []
-      end)
-
-    array_pairs =
-      Enum.flat_map(@config_array_fields, fn {array_path, text_field} ->
-        path_prefix = Enum.join(array_path, ".")
-
-        en_data
-        |> config_items_at_path(array_path)
-        |> Enum.with_index()
-        |> Enum.flat_map(fn {item, idx} ->
-          val = Map.get(item, text_field, "")
-          path = "#{path_prefix}[#{idx}].#{text_field}"
-          if val != "", do: [{val, path}], else: []
-        end)
-      end)
-
-    (top_pairs ++ array_pairs)
+    en_data
+    |> config_text_paths()
+    |> Enum.flat_map(fn path ->
+      case get_in_config(en_data, path) do
+        value when is_binary(value) and value != "" -> [{value, path}]
+        _ -> []
+      end
+    end)
     |> Enum.group_by(fn {text, _path} -> text end, fn {_text, path} -> path end)
   end
 
-  defp config_items_at_path(data, path_segments) when is_list(path_segments) do
-    collect_config_items(data, path_segments)
+  defp config_text_paths(data) when is_map(data) do
+    top_paths =
+      @config_top_keys
+      |> Enum.filter(&(Map.get(data, &1, "") != ""))
+
+    top_paths ++ page_text_paths(data) ++ footer_text_paths(data) ++ navigation_text_paths(data)
   end
 
-  defp collect_config_items(data, []), do: if(is_list(data), do: data, else: [])
+  defp config_text_paths(_data), do: []
 
-  defp collect_config_items(data, [segment | rest]) when is_map(data) do
-    collect_config_items(Map.get(data, segment, []), rest)
+  defp page_text_paths(data) do
+    data
+    |> Map.get("pages", %{})
+    |> case do
+      pages when is_map(pages) ->
+        pages
+        |> Enum.sort_by(fn {key, _page} -> key end)
+        |> Enum.flat_map(fn {key, page} -> presentation_page_text_paths("pages.#{key}", page) end)
+
+      _ ->
+        []
+    end
   end
 
-  defp collect_config_items(data, path) when is_list(data) do
-    Enum.flat_map(data, &collect_config_items(&1, path))
+  defp presentation_page_text_paths(prefix, page) when is_map(page) do
+    hero = Map.get(page, "hero", %{})
+
+    [
+      "#{prefix}.hero.title",
+      "#{prefix}.hero.text"
+    ] ++
+      button_label_paths("#{prefix}.hero", hero) ++
+      section_text_paths(prefix, Map.get(page, "sections", []))
   end
 
-  defp collect_config_items(_data, _path), do: []
+  defp presentation_page_text_paths(_prefix, _page), do: []
+
+  defp section_text_paths(prefix, sections) when is_list(sections) do
+    sections
+    |> Enum.with_index()
+    |> Enum.flat_map(fn {section, index} ->
+      section_prefix = "#{prefix}.sections[#{index}]"
+
+      [
+        "#{section_prefix}.title",
+        "#{section_prefix}.text"
+      ] ++ button_label_paths(section_prefix, section)
+    end)
+  end
+
+  defp section_text_paths(_prefix, _sections), do: []
+
+  defp button_label_paths(prefix, item) when is_map(item) do
+    item
+    |> Map.get("buttons", [])
+    |> list_field_paths("#{prefix}.buttons", "label")
+  end
+
+  defp button_label_paths(_prefix, _item), do: []
+
+  defp footer_text_paths(data) do
+    sections = get_in(data, ["footer", "sections"]) || []
+
+    sections
+    |> Enum.with_index()
+    |> Enum.flat_map(fn {section, index} ->
+      prefix = "footer.sections[#{index}]"
+
+      ["#{prefix}.title"] ++
+        list_field_paths(Map.get(section, "links", []), "#{prefix}.links", "label")
+    end)
+  end
+
+  defp navigation_text_paths(data) do
+    navigation = Map.get(data, "navigation", %{})
+
+    ~w(primary_links guest_links authenticated_links account_links)
+    |> Enum.flat_map(fn key ->
+      navigation
+      |> Map.get(key, [])
+      |> Enum.with_index()
+      |> Enum.flat_map(fn {link, index} ->
+        prefix = "navigation.#{key}[#{index}]"
+
+        ["#{prefix}.label"] ++
+          list_field_paths(Map.get(link, "items", []), "#{prefix}.items", "label")
+      end)
+    end)
+  end
+
+  defp list_field_paths(items, prefix, field) when is_list(items) do
+    items
+    |> Enum.with_index()
+    |> Enum.map(fn {_item, index} -> "#{prefix}[#{index}].#{field}" end)
+  end
+
+  defp list_field_paths(_items, _prefix, _field), do: []
 
   # Navigate into JSON using our path format: "key" or "array[idx].field"
   defp get_in_config(data, path) do
@@ -540,7 +589,7 @@ defmodule Mix.Tasks.Gettext.ImportCsv do
 
   defp do_put_in_config(data, _rest, _value), do: data
 
-  # Parse "useful_links[0].title" → [{"useful_links", 0}, "title"]
+  # Parse "pages.home.sections[0].title" → ["pages", "home", {"sections", 0}, "title"]
   # Parse "title" → ["title"]
   defp parse_config_path(path) do
     path

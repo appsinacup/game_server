@@ -25,25 +25,71 @@ defmodule GameServerWeb.PageControllerTest do
       "logo" => "/images/logo.png",
       "banner" => "/images/banner.png",
       "favicon" => "/favicon.ico",
-      "features" => [
-        %{
-          "title" => "Persistence & Caching",
-          "description" => "SQLite (in memory) and PostgreSQL.",
-          "icon" => "hero-server-stack"
+      "pages" => %{
+        "home" => %{
+          "path" => "/",
+          "hero" => %{
+            "title" => "Gamend",
+            "text" => "**Open source** backend for real-time games.",
+            "image" => "/images/banner.png",
+            "buttons" => [
+              %{
+                "label" => "Discord",
+                "href" => "https://discord.com/invite/example",
+                "icon" => "hero-chat-bubble-left-ellipsis-solid",
+                "external" => true
+              }
+            ]
+          },
+          "sections_columns" => 2,
+          "sections" => [
+            %{
+              "title" => "Persistence & Caching",
+              "text" => "SQLite (in memory) and PostgreSQL.",
+              "image" => "/images/logo.png",
+              "width" => "1x"
+            }
+          ]
+        },
+        "about" => %{
+          "path" => "/about",
+          "hero" => %{
+            "title" => "About Gamend",
+            "text" => "Reusable **presentation** page.",
+            "image" => "/images/logo.png",
+            "buttons" => [
+              %{"label" => "Docs", "href" => "/docs/setup", "icon" => "hero-book-open-solid"}
+            ]
+          },
+          "sections" => [
+            %{
+              "title" => "Built For Teams",
+              "text" => "Fork, theme, host, and extend.",
+              "image" => "/images/logo.png"
+            }
+          ]
+        },
+        "brand" => %{
+          "path" => "/brand",
+          "hero" => %{
+            "title" => "Brand Page",
+            "text" => "Configured from pages map.",
+            "image" => "/images/logo.png"
+          },
+          "sections" => []
         }
-      ],
-      "useful_links" => [
-        %{
-          "title" => "Discord",
-          "url" => "https://discord.com/invite/example",
-          "icon" => "hero-chat-bubble-left-ellipsis",
-          "external" => true
-        }
-      ],
-      "footer_links" => [
-        %{"label" => "Privacy Policy", "href" => "/privacy"},
-        %{"label" => "Terms and Conditions", "href" => "/terms"}
-      ],
+      },
+      "footer" => %{
+        "sections" => [
+          %{
+            "title" => "Privacy & Terms",
+            "links" => [
+              %{"label" => "Privacy Policy", "href" => "/privacy"},
+              %{"label" => "Terms and Conditions", "href" => "/terms"}
+            ]
+          }
+        ]
+      },
       "navigation" => %{
         "primary_links" => [
           %{"label" => "Play", "href" => "/play", "icon" => "hero-play-solid"},
@@ -133,14 +179,30 @@ defmodule GameServerWeb.PageControllerTest do
     :ok
   end
 
-  test "home shows features", %{conn: conn} do
+  test "home shows configured presentation sections", %{conn: conn} do
     conn = get(conn, "/")
     body = html_response(conn, 200)
 
-    assert body =~ "Home"
-    assert body =~ "Online"
+    assert body =~ "Gamend"
     assert body =~ "Discord"
     assert body =~ "SQLite"
+    assert body =~ "Persistence &amp; Caching"
+    assert body =~ "Privacy &amp; Terms"
+    refute body =~ "Online"
+  end
+
+  test "configured pages render by path from pages map", %{conn: conn} do
+    conn = get(conn, "/brand")
+    body = html_response(conn, 200)
+
+    assert body =~ "Brand Page"
+    assert body =~ "Configured from pages map."
+  end
+
+  test "unconfigured page path returns 404", %{conn: conn} do
+    conn = get(conn, "/missing-page")
+
+    assert text_response(conn, 404) == "Not Found"
   end
 
   test "home uses localized primary nav labels from locale theme config", %{conn: conn} do
