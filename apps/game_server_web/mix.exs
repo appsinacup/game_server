@@ -54,10 +54,8 @@ defmodule GameServerWeb.MixProject do
       # heroicons in its own mix.exs and run `assets.setup` to make the icon
       # CSS available to the shared tailwind plugin in apps/game_server_web/assets/vendor/heroicons.
       {:swoosh, "~> 1.20"},
-      {:castore, "~> 1.0"},
       {:gen_smtp, "~> 1.0"},
       {:req, "~> 0.5"},
-      {:hackney, "~> 1.18"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 1.0"},
