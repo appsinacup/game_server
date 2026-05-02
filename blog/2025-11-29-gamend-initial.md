@@ -60,7 +60,6 @@ e. **Guides**
 f. **Admin dashboard**
 
 - User management, lobby overview, basic analytics
-- Integrated Sentry error tracking
 
 ![](gamend/config.png)
 

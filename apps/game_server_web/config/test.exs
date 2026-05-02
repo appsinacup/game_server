@@ -52,8 +52,6 @@ config :game_server_web, GameServerWeb.Endpoint,
 config :game_server_core, GameServer.Mailer, adapter: Swoosh.Adapters.Test
 config :swoosh, :api_client, false
 
-config :sentry, dsn: nil
-
 config :logger, level: :warning
 
 config :game_server_core, GameServer.Cache,

@@ -15,7 +15,7 @@ defmodule GameServerWeb.HostPublicDocs do
             {"Setup & Guides"}
           </h1>
           <:subtitle>
-            {"Platform setup, OAuth providers, email, error monitoring, and server hooks"}
+            {"Platform setup, OAuth providers, email, and server hooks"}
           </:subtitle>
         </.header>
 
@@ -50,7 +50,6 @@ defmodule GameServerWeb.HostPublicDocs do
         {GameServerWeb.HostPublicDocsTemplates.server_scripting(assigns)}
 
         <.guide_category_heading title="Operations & Infrastructure" />
-        {GameServerWeb.HostPublicDocsTemplates.sentry_setup(assigns)}
         {GameServerWeb.HostPublicDocsTemplates.cache_setup(assigns)}
         {GameServerWeb.HostPublicDocsTemplates.scaling(assigns)}
         {GameServerWeb.HostPublicDocsTemplates.postgresql_setup(assigns)}

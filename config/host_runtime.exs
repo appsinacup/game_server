@@ -606,41 +606,6 @@ if config_env() == :prod do
     config :swoosh, :api_client, false
   end
 
-  # ## Configuring Sentry
-  #
-  # Configure Sentry for error tracking and monitoring
-  if dsn = System.get_env("SENTRY_DSN") do
-    # Determine which log levels to send to Sentry (default: :error only)
-    # Set SENTRY_LOG_LEVEL to capture more: info, warning, error
-    sentry_log_level =
-      case System.get_env("SENTRY_LOG_LEVEL") do
-        "info" -> :info
-        "warning" -> :warning
-        "error" -> :error
-        # default to error only
-        _ -> :error
-      end
-
-    config :sentry,
-      dsn: dsn,
-      environment_name: :prod,
-      enable_source_code_context: true,
-      root_source_code_path: File.cwd!(),
-      tags: %{
-        env: "production"
-      },
-      # Set the minimum log level for Sentry to capture
-      log_level: sentry_log_level
-  end
-
-  unless System.get_env("SENTRY_DSN") do
-    require Logger
-
-    Logger.warning(
-      "SENTRY_DSN not set - Sentry will be disabled. Set SENTRY_DSN in production to enable error monitoring and log forwarding."
-    )
-  end
-
   # ── Metrics auth ──
   # Set METRICS_AUTH_TOKEN to require Bearer token for /metrics endpoint.
   # Without it, the endpoint is open (suitable for internal Docker networks).

@@ -73,7 +73,6 @@ defmodule GameServerHost.Application do
       jwt_info(),
       oauth_info(),
       clustering_info(),
-      sentry_info(),
       plugins_info(),
       channels_info(),
       endpoint_info()
@@ -193,16 +192,6 @@ defmodule GameServerHost.Application do
       else
         "Clustering: node #{node}"
       end
-    end
-  end
-
-  defp sentry_info do
-    sentry_config = Application.get_env(:sentry, :dsn)
-
-    if sentry_config do
-      "Sentry: enabled"
-    else
-      "Sentry: disabled"
     end
   end
 

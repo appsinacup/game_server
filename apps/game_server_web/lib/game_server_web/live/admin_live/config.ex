@@ -1160,39 +1160,6 @@ defmodule GameServerWeb.AdminLive.Config do
                     </td>
                   </tr>
                   <tr>
-                    <td class="font-semibold">Sentry Error Monitoring</td>
-                    <td>
-                      <%= if @config.sentry_dsn do %>
-                        <span class="badge badge-success">Configured</span>
-                      <% else %>
-                        <span class="badge badge-error">Not Configured</span>
-                      <% end %>
-                    </td>
-                    <td class="text-sm break-words whitespace-normal">
-                      <%= if @config.sentry_dsn do %>
-                        <span class="font-mono text-sm">
-                          SENTRY_LOG_LEVEL:
-                          <span class={[
-                            "font-semibold",
-                            case @config.sentry_log_level do
-                              "info" -> "text-info"
-                              "warning" -> "text-warning"
-                              _ -> "text-error"
-                            end
-                          ]}>
-                            {@config.sentry_log_level || "error"}
-                          </span>
-                          <div class="mt-1 break-all">
-                            SENTRY_DSN:
-                            <span class="font-mono">{mask_secret(@config.sentry_dsn)}</span>
-                          </div>
-                        </span>
-                      <% else %>
-                        <span class="text-error">SENTRY_DSN not set - errors won't be monitored</span>
-                      <% end %>
-                    </td>
-                  </tr>
-                  <tr>
                     <td class="font-semibold">GeoIP</td>
                     <td colspan="2">
                       <%= if @config.geoip_available? do %>
@@ -1581,8 +1548,6 @@ defmodule GameServerWeb.AdminLive.Config do
       smtp_from_email: System.get_env("SMTP_FROM_EMAIL"),
       smtp_sni: System.get_env("SMTP_SNI"),
       smtp_tls: System.get_env("SMTP_TLS"),
-      sentry_dsn: System.get_env("SENTRY_DSN"),
-      sentry_log_level: System.get_env("SENTRY_LOG_LEVEL"),
       env: to_string(Application.get_env(:game_server_web, :environment, :prod)),
       repo_conf: Application.get_env(:game_server_core, GameServer.Repo) || %{},
       database: Application.get_env(:game_server_core, GameServer.Repo)[:database] || "N/A",

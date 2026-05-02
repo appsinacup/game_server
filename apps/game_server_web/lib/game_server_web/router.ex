@@ -17,9 +17,6 @@ defmodule GameServerWeb.Router do
 
     plug GameServerWeb.Plugs.ColorMode
     plug :fetch_current_scope_for_user
-    # Attach Sentry context information (user id, path, request id) to
-    # Sentry's per-request scope so events are enriched with user info.
-    plug GameServerWeb.Plugs.SentryContext
   end
 
   pipeline :api do
@@ -40,12 +37,10 @@ defmodule GameServerWeb.Router do
 
     plug GameServerWeb.Plugs.ColorMode
     plug :fetch_current_scope_for_user
-    plug GameServerWeb.Plugs.SentryContext
   end
 
   pipeline :api_auth do
     plug GameServerWeb.Auth.Pipeline
-    plug GameServerWeb.Plugs.SentryContext
   end
 
   pipeline :api_optional_auth do
@@ -73,7 +68,6 @@ defmodule GameServerWeb.Router do
     }
 
     plug :fetch_current_scope_for_user
-    plug GameServerWeb.Plugs.SentryContext
   end
 
   pipeline :openapi_gate do

@@ -17,14 +17,13 @@ defmodule GameServerWeb.MixProject do
       compilers: [:phoenix_live_view] ++ Mix.compilers(),
       description: description(),
       package: package(),
-      docs: docs(),
+      docs: docs()
     ]
   end
 
   def application do
     [
-      extra_applications:
-        [:logger]
+      extra_applications: [:logger]
     ]
   end
 
@@ -58,7 +57,6 @@ defmodule GameServerWeb.MixProject do
       {:castore, "~> 1.0"},
       {:gen_smtp, "~> 1.0"},
       {:req, "~> 0.5"},
-      {:sentry, "~> 11.0"},
       {:hackney, "~> 1.18"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
@@ -135,8 +133,7 @@ defmodule GameServerWeb.MixProject do
         "GitHub" => @source_url,
         "Changelog" => "#{@source_url}/blob/main/CHANGELOG.md"
       },
-      files:
-        ~w(lib priv/gettext priv/static/fonts .formatter.exs mix.exs README.md LICENSE)
+      files: ~w(lib priv/gettext priv/static/fonts .formatter.exs mix.exs README.md LICENSE)
     ]
   end
 

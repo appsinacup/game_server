@@ -13,7 +13,7 @@ defmodule GameServerCore.MixProject do
       deps: deps(),
       description: description(),
       package: package(),
-      docs: docs(),
+      docs: docs()
     ]
   end
 
@@ -40,7 +40,6 @@ defmodule GameServerCore.MixProject do
       {:castore, "~> 1.0"},
       {:gen_smtp, "~> 1.0"},
       {:req, "~> 0.5"},
-      {:sentry, "~> 11.0"},
       {:hackney, "~> 1.18"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},

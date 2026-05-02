@@ -44,8 +44,6 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     System.put_env("GOOGLE_CLIENT_ID", "go123456")
     System.put_env("GOOGLE_CLIENT_SECRET", "goSecret987")
     System.put_env("SECRET_KEY_BASE", "myverylongsecret_key_value_here")
-    System.put_env("SENTRY_DSN", "https://abcdef@o123.ingest")
-    System.put_env("SENTRY_LOG_LEVEL", "info")
     System.put_env("SMTP_USERNAME", "smtpuser")
     System.put_env("SMTP_PASSWORD", "smtppass")
     System.put_env("SMTP_PORT", "465")
@@ -66,8 +64,6 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
             "GOOGLE_CLIENT_ID",
             "GOOGLE_CLIENT_SECRET",
             "SECRET_KEY_BASE",
-            "SENTRY_DSN",
-            "SENTRY_LOG_LEVEL",
             "SMTP_USERNAME",
             "SMTP_PASSWORD",
             "SMTP_PORT",
@@ -121,14 +117,11 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
     assert html =~ mask.("go123456")
     assert html =~ mask.("goSecret987")
     assert html =~ mask.("myverylongsecret_key_value_here")
-    assert html =~ mask.("https://abcdef@o123.ingest")
     assert html =~ mask.("smtppass")
     assert html =~ mask.("pg_secret_very_long")
 
-    # ensure secret and sentry env label presence
+    # ensure secret env label presence
     assert html =~ "SECRET_KEY_BASE"
-    assert html =~ "SENTRY_DSN"
-    assert html =~ "SENTRY_LOG_LEVEL"
 
     # ensure we've rendered env-var style labels for client config and hooks/device env names
     assert html =~ "DISCORD_CLIENT_ID"

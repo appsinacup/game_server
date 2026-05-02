@@ -19,7 +19,7 @@ defmodule GameServerHost.MixProject do
     [
       mod: {GameServerHost.Application, []},
       extra_applications:
-        [:logger, :runtime_tools, :swoosh, :sentry] ++
+        [:logger, :runtime_tools, :swoosh] ++
           if(Mix.env() == :prod, do: [:os_mon], else: [])
     ]
   end
@@ -46,7 +46,6 @@ defmodule GameServerHost.MixProject do
       {:castore, "~> 1.0"},
       {:gen_smtp, "~> 1.0"},
       {:req, "~> 0.5"},
-      {:sentry, "~> 11.0"},
       {:hackney, "~> 1.18"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
