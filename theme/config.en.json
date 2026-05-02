@@ -15,6 +15,8 @@
         "text": "**Open source** Elixir game server for **real-time** multiplayer games.",
         "image": "/images/banner.png",
         "image_alt": "Gamend",
+        "media_href": "/docs/setup#deployment",
+        "media_label": "Open getting started",
         "image_position_desktop": "left",
         "image_position_mobile": "top",
         "media_width": "half",
@@ -30,39 +32,19 @@
             "label": "Presentation Video",
             "href": "https://www.youtube.com/watch?v=KhjWyUVsTkE",
             "icon": "hero-play-solid",
-            "external": true,
-            "style": "primary"
-          },
-          {
-            "label": "Discord",
-            "href": "https://discord.com/invite/v649emcpAu",
-            "icon": "hero-chat-bubble-left-ellipsis-solid",
             "external": true
-          },
-          {
-            "label": "Blog",
-            "href": "/blog",
-            "icon": "hero-newspaper-solid"
-          },
-          {
-            "label": "Guides",
-            "href": "/docs/setup",
-            "icon": "hero-academic-cap-solid"
-          },
-          {
-            "label": "API Docs",
-            "href": "/api/docs",
-            "icon": "hero-book-open-solid"
           }
         ]
       },
       "sections_columns": 2,
+      "sections_height": "half",
       "sections": [
         {
           "title": "Authentication & Users",
-          "text": "Email, magic-link, OAuth, JWT and sessions. Register, log in, reset password, and verify email.",
-          "image": "/images/logo.png",
-          "image_alt": "Authentication",
+          "text": "Email, Magic-link, OAuth, JWT and Session. Register, login, reset password and verify email.",
+          "icon": "hero-lock-closed-solid",
+          "media_href": "/users/register",
+          "media_label": "Open registration",
           "width": "1x",
           "media_width": "third",
           "image_position_desktop": "left",
@@ -70,17 +52,23 @@
           "text_align": "left",
           "buttons": [
             {
-              "label": "Auth Docs",
-              "href": "/api/docs",
-              "icon": "hero-book-open-solid"
+              "label": "Log in",
+              "href": "/users/log-in",
+              "icon": "hero-arrow-right-on-rectangle-solid"
+            },
+            {
+              "label": "Register",
+              "href": "/users/register",
+              "icon": "hero-user-plus-solid"
             }
           ]
         },
         {
           "title": "Lobbies, Parties & Matchmaking",
-          "text": "Real-time lobbies and ephemeral parties. Custom settings with live updates.",
-          "image": "/images/logo.png",
-          "image_alt": "Lobbies",
+          "text": "Real-time lobbies and ephemeral parties. Customizable settings with live updates.",
+          "icon": "hero-home-solid",
+          "media_href": "/api/docs",
+          "media_label": "Open API docs",
           "width": "1x",
           "media_width": "third",
           "image_position_desktop": "right",
@@ -88,19 +76,19 @@
           "text_align": "left",
           "buttons": [
             {
-              "label": "Play",
-              "href": "/play",
-              "icon": "hero-play-solid",
-              "style": "primary"
+              "label": "API Docs",
+              "href": "/api/docs",
+              "icon": "hero-book-open-solid"
             }
           ]
         },
         {
           "title": "Friends, Groups & Chat",
-          "text": "Friend requests, blocking, real-time presence, public/private/hidden groups, and direct or group messaging.",
-          "image": "/images/logo.png",
-          "image_alt": "Social features",
-          "width": "2x",
+          "text": "Friend requests, blocking, real-time presence. Public, private and hidden groups. Direct and group messaging.",
+          "icon": "hero-user-group-solid",
+          "media_href": "/groups",
+          "media_label": "Open groups",
+          "width": "1x",
           "media_width": "third",
           "image_position_desktop": "left",
           "image_position_mobile": "top",
@@ -114,10 +102,11 @@
           ]
         },
         {
-          "title": "Achievements & Leaderboards",
-          "text": "Server-authoritative achievements and leaderboards with hidden achievement support and seasonal rankings.",
-          "image": "/images/logo.png",
-          "image_alt": "Achievements",
+          "title": "Achievements, Leaderboards & Notifications",
+          "text": "Server-authoritative achievements and leaderboards. Real-time notifications across all features.",
+          "icon": "hero-trophy-solid",
+          "media_href": "/leaderboards",
+          "media_label": "Open leaderboards",
           "width": "1x",
           "media_width": "third",
           "image_position_desktop": "right",
@@ -128,19 +117,15 @@
               "label": "Leaderboards",
               "href": "/leaderboards",
               "icon": "hero-chart-bar-solid"
-            },
-            {
-              "label": "Achievements",
-              "href": "/achievements",
-              "icon": "hero-trophy-solid"
             }
           ]
         },
         {
-          "title": "HTTP, WebSocket & WebRTC",
-          "text": "REST API, WebSocket channels, and low-latency WebRTC DataChannels. See the [API docs](/api/docs).",
-          "image": "/images/logo.png",
-          "image_alt": "Realtime APIs",
+          "title": "Server Scripting & Scheduling",
+          "text": "Extend server logic with Elixir scripts. Schedule automated tasks and cron jobs.",
+          "icon": "hero-puzzle-piece-solid",
+          "media_href": "/docs/setup",
+          "media_label": "Open guides",
           "width": "1x",
           "media_width": "third",
           "image_position_desktop": "left",
@@ -151,8 +136,23 @@
               "label": "Guides",
               "href": "/docs/setup",
               "icon": "hero-academic-cap-solid"
+            },
+            {
+              "label": "API Docs",
+              "href": "/api/docs",
+              "icon": "hero-book-open-solid"
             }
           ]
+        },
+        {
+          "title": "HTTP, WebSocket & WebRTC",
+          "text": "REST API, real-time WebSocket channels and low-latency WebRTC DataChannels. Admin portal and web UI.",
+          "icon": "hero-globe-alt-solid",
+          "width": "1x",
+          "media_width": "third",
+          "image_position_desktop": "right",
+          "image_position_mobile": "top",
+          "text_align": "left"
         }
       ]
     },

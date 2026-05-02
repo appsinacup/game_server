@@ -75,6 +75,8 @@
         "title": "My Game",
         "text": "**Fast** multiplayer backend for [your game](/play).",
         "image": "/images/banner.gif",
+        "media_href": "/play",
+        "media_label": "Open game",
         "image_position_desktop": "left",
         "image_position_mobile": "top",
         "media_width": "half",
@@ -83,11 +85,13 @@
         ]
       },
       "sections_columns": 2,
+      "sections_height": "half",
       "sections": [
         {
           "title": "Matchmaking",
           "text": "Real-time lobbies, parties, and custom rules.",
           "image": "/images/matchmaking.gif",
+          "media_href": "/docs/setup",
           "width": "1x",
           "media_width": "third",
           "image_position_desktop": "right",
@@ -99,7 +103,8 @@
         {
           "title": "Social",
           "text": "Friends, groups, chat, **leaderboards**, and achievements.",
-          "image": "/images/social.png",
+          "icon": "hero-user-group-solid",
+          "height": "compact",
           "width": "2x",
           "media_width": "third",
           "image_position_desktop": "left"
@@ -211,7 +216,12 @@
       <div class="ml-8 space-y-3 text-sm text-base-content/80">
         <p>
           {doc_text(
-            "Branding behavior is host-owned. The host layout decides which logo, banner, favicon, and CSS are used at runtime."
+            "Branding behavior is host-owned. The host layout decides which logo, banner, favicon, and CSS are used at runtime. Presentation media can use image for PNG/JPG/GIF assets, or omit image and set icon to render a plain icon."
+          )}
+        </p>
+        <p>
+          {doc_text(
+            "Set media_href on a hero or section when the image/icon should be clickable. Add media_external true for off-site links."
           )}
         </p>
         <p>

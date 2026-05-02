@@ -1,5 +1,6 @@
 defmodule GameServerWeb.PresentationPageTest do
   use ExUnit.Case, async: true
+  import Phoenix.LiveViewTest
 
   alias GameServerWeb.PresentationPage
 
@@ -78,6 +79,133 @@ defmodule GameServerWeb.PresentationPageTest do
       result = PresentationPage.rich_text("No bold here at all.")
       html = Phoenix.HTML.safe_to_string(result)
       assert html == "No bold here at all."
+    end
+  end
+
+  describe "page/1" do
+    test "supports page-level section height defaults" do
+      html =
+        render_component(&PresentationPage.page/1,
+          page: %{
+            "hero" => %{"title" => "Demo"},
+            "sections_height" => "half",
+            "sections" => [
+              %{"title" => "One", "text" => "First", "icon" => "hero-home-solid"}
+            ]
+          },
+          background_icons: [],
+          full_bleed_hero: false
+        )
+
+      assert html =~ "min-h-[calc(50dvh-2.5rem)]"
+      assert html =~ ~s|class="flex items-start min-h-[calc(50dvh-2.5rem)] py-8 md:col-span-1"|
+      assert html =~ "md:grid-rows-[5.5rem_6.5rem_auto]"
+    end
+
+    test "renders animated scroll cue when sections follow hero" do
+      html =
+        render_component(&PresentationPage.page/1,
+          page: %{
+            "hero" => %{"title" => "Demo"},
+            "sections" => [
+              %{"title" => "One", "text" => "First", "icon" => "hero-home-solid"}
+            ]
+          },
+          background_icons: [],
+          full_bleed_hero: false
+        )
+
+      assert html =~ ~s(href="#more-content")
+      assert html =~ ~s(aria-label="Scroll to content")
+      assert html =~ "motion-safe:animate-bounce"
+    end
+
+    test "does not render scroll cue when no sections follow hero" do
+      html =
+        render_component(&PresentationPage.page/1,
+          page: %{"hero" => %{"title" => "Demo"}},
+          background_icons: [],
+          full_bleed_hero: false
+        )
+
+      refute html =~ ~s(aria-label="Scroll to content")
+    end
+
+    test "media supports configurable links" do
+      html =
+        render_component(&PresentationPage.page/1,
+          page: %{
+            "hero" => %{
+              "title" => "Demo",
+              "image" => "/images/banner.png",
+              "media_href" => "/play",
+              "media_label" => "Open play"
+            },
+            "sections" => [
+              %{
+                "title" => "One",
+                "text" => "First",
+                "icon" => "hero-home-solid",
+                "media_href" => "/groups",
+                "media_label" => "Open groups"
+              }
+            ]
+          },
+          background_icons: [],
+          full_bleed_hero: false
+        )
+
+      assert html =~ ~s(href="/play")
+      assert html =~ ~s(aria-label="Open play")
+      assert html =~ ~s(href="/groups")
+      assert html =~ ~s(aria-label="Open groups")
+      assert html =~ "motion-safe:hover:scale-[1.04]"
+    end
+
+    test "media ignores unsafe link targets" do
+      html =
+        render_component(&PresentationPage.page/1,
+          page: %{
+            "hero" => %{
+              "title" => "Demo",
+              "image" => "/images/banner.png",
+              "media_href" => "javascript:alert(1)"
+            }
+          },
+          background_icons: [],
+          full_bleed_hero: false
+        )
+
+      refute html =~ "javascript:alert"
+      assert html =~ "motion-safe:hover:scale-[1.02]"
+    end
+
+    test "compact section height uses content size" do
+      html =
+        render_component(&PresentationPage.page/1,
+          page: %{
+            "hero" => %{"title" => "Demo"},
+            "sections" => [
+              %{
+                "title" => "One",
+                "text" => "First",
+                "icon" => "hero-home-solid",
+                "height" => "compact"
+              }
+            ]
+          },
+          background_icons: [],
+          full_bleed_hero: false
+        )
+
+      assert html =~ ~s(class="flex items-start py-8 md:col-span-1")
+
+      assert html =~
+               ~s|class="grid w-full gap-6 md:gap-8 items-start md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]"|
+
+      assert html =~ "md:grid-rows-[5rem_6rem_auto]"
+
+      refute html =~ "min-h-[18rem]"
     end
   end
 end

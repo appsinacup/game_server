@@ -48,7 +48,7 @@ defmodule GameServerWeb.PresentationPage do
     assigns =
       assign(assigns,
         hero: Map.get(assigns.page, "hero", %{}),
-        sections: Map.get(assigns.page, "sections", []),
+        sections: sections_with_page_defaults(assigns.page),
         sections_columns: Map.get(assigns.page, "sections_columns", 2)
       )
 
@@ -81,6 +81,14 @@ defmodule GameServerWeb.PresentationPage do
             </div>
           </div>
         </div>
+        <a
+          :if={@sections != []}
+          href="#more-content"
+          aria-label="Scroll to content"
+          class="absolute bottom-6 left-1/2 z-20 -translate-x-1/2 text-base-content/55 transition hover:text-base-content motion-safe:animate-bounce"
+        >
+          <.dynamic_icon name="hero-chevron-down-solid" class="size-9" />
+        </a>
       </section>
     </div>
 
@@ -158,25 +166,54 @@ defmodule GameServerWeb.PresentationPage do
       assign(assigns,
         src: media_src(assigns.item),
         alt: Map.get(assigns.item, "image_alt", ""),
-        icon: Map.get(assigns.item, "icon")
+        icon: Map.get(assigns.item, "icon"),
+        href: media_href(assigns.item),
+        label: media_label(assigns.item),
+        external: Map.get(assigns.item, "media_external") == true
       )
 
     ~H"""
     <div class="flex w-full items-center justify-center">
-      <img
-        :if={@src}
-        src={@src}
-        alt={@alt}
-        loading={if(@variant == "hero", do: "eager", else: "lazy")}
-        fetchpriority={if(@variant == "hero", do: "high", else: nil)}
-        class={media_class(@variant)}
-      />
-      <div
-        :if={!@src && @icon}
-        class="grid aspect-square w-full max-w-48 place-items-center rounded-lg border border-base-300/70 bg-base-100/70 text-base-content/70 shadow-sm"
+      <a
+        :if={@href}
+        href={@href}
+        target={if @external, do: "_blank"}
+        rel={if @external, do: "noopener noreferrer"}
+        aria-label={@label}
+        class={media_shell_class(true)}
       >
-        <.dynamic_icon name={@icon} class="size-16" />
+        <.media_visual src={@src} alt={@alt} icon={@icon} variant={@variant} />
+      </a>
+      <div
+        :if={!@href}
+        class={media_shell_class(false)}
+      >
+        <.media_visual src={@src} alt={@alt} icon={@icon} variant={@variant} />
       </div>
+    </div>
+    """
+  end
+
+  attr :src, :string, default: nil
+  attr :alt, :string, default: ""
+  attr :icon, :string, default: nil
+  attr :variant, :string, default: "section"
+
+  def media_visual(assigns) do
+    ~H"""
+    <img
+      :if={@src}
+      src={@src}
+      alt={@alt}
+      loading={if(@variant == "hero", do: "eager", else: "lazy")}
+      fetchpriority={if(@variant == "hero", do: "high", else: nil)}
+      class={media_class(@variant)}
+    />
+    <div
+      :if={!@src && @icon}
+      class="grid aspect-square w-full max-w-48 place-items-center rounded-lg border border-base-300/70 bg-base-100/70 text-base-content/70 shadow-sm"
+    >
+      <.dynamic_icon name={@icon} class="size-16" />
     </div>
     """
   end
@@ -186,14 +223,25 @@ defmodule GameServerWeb.PresentationPage do
   def section(assigns) do
     ~H"""
     <section class={[
-      "flex min-h-[calc(100dvh-5rem)] items-center py-12",
+      "flex",
+      "items-start",
+      section_height_class(@section),
       section_span_class(@section)
     ]}>
-      <div class={["grid w-full items-center gap-6 md:gap-8", grid_class(@section, "section")]}>
+      <div class={[
+        "grid w-full gap-6 md:gap-8",
+        "items-start",
+        grid_class(@section, "section")
+      ]}>
         <div class={media_order_class(@section)}>
           <.media item={@section} variant="section" />
         </div>
-        <div class={["flex flex-col gap-4", text_order_class(@section), text_align_class(@section)]}>
+        <div class={[
+          "grid gap-4",
+          section_text_grid_class(@section),
+          text_order_class(@section),
+          text_align_class(@section)
+        ]}>
           <h2 class="text-2xl font-bold tracking-normal sm:text-3xl">
             {Map.get(@section, "title", "")}
           </h2>
@@ -250,6 +298,43 @@ defmodule GameServerWeb.PresentationPage do
     end
   end
 
+  defp section_height_class(section) do
+    case section_height(section) do
+      value when value in ["compact", "sm", "small"] -> "py-8"
+      value when value in ["half", "50", "50%"] -> "min-h-[calc(50dvh-2.5rem)] py-8"
+      _ -> "min-h-[calc(100dvh-5rem)] py-12"
+    end
+  end
+
+  defp section_text_grid_class(section) do
+    case section_height(section) do
+      value when value in ["compact", "sm", "small"] -> "md:grid-rows-[5rem_6rem_auto]"
+      _ -> "md:grid-rows-[5.5rem_6.5rem_auto]"
+    end
+  end
+
+  defp section_height(section), do: Map.get(section, "height", "full")
+
+  defp sections_with_page_defaults(page) do
+    default_height = Map.get(page, "sections_height")
+
+    page
+    |> Map.get("sections", [])
+    |> case do
+      sections when is_list(sections) ->
+        Enum.map(sections, fn
+          section when is_map(section) ->
+            Map.put_new(section, "height", default_height || "full")
+
+          section ->
+            section
+        end)
+
+      _ ->
+        []
+    end
+  end
+
   defp media_order_class(item) do
     [
       if(Map.get(item, "image_position_mobile", "top") == "bottom",
@@ -280,6 +365,20 @@ defmodule GameServerWeb.PresentationPage do
 
   defp media_src(item), do: Map.get(item, "image")
 
+  defp media_href(item) do
+    case Map.get(item, "media_href") do
+      href when is_binary(href) and href != "" -> if safe_href?(href), do: href
+      _ -> nil
+    end
+  end
+
+  defp media_label(item) do
+    Map.get(item, "media_label") ||
+      Map.get(item, "image_alt") ||
+      Map.get(item, "title") ||
+      "Open media link"
+  end
+
   defp media_width(item, "hero"), do: Map.get(item, "media_width", "half")
   defp media_width(item, _variant), do: Map.get(item, "media_width", "third")
 
@@ -289,6 +388,14 @@ defmodule GameServerWeb.PresentationPage do
 
   defp media_class(_variant),
     do: "block aspect-square max-h-[42dvh] w-full rounded-lg object-contain"
+
+  defp media_shell_class(true) do
+    "group flex w-full items-center justify-center transition-transform duration-300 ease-out motion-safe:hover:scale-[1.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+  end
+
+  defp media_shell_class(false) do
+    "flex w-full items-center justify-center transition-transform duration-300 ease-out motion-safe:hover:scale-[1.02]"
+  end
 
   defp button_class(button) do
     base =

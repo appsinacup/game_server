@@ -42,11 +42,20 @@ defmodule GameServerWeb.PageControllerTest do
             ]
           },
           "sections_columns" => 2,
+          "sections_height" => "half",
           "sections" => [
             %{
-              "title" => "Persistence & Caching",
-              "text" => "SQLite (in memory) and PostgreSQL.",
-              "image" => "/images/logo.png",
+              "title" => "Authentication & Users",
+              "text" =>
+                "Email, Magic-link, OAuth, JWT and Session. Register, login, reset password and verify email.",
+              "icon" => "hero-lock-closed-solid",
+              "width" => "1x"
+            },
+            %{
+              "title" => "Server Scripting & Scheduling",
+              "text" =>
+                "Extend server logic with Elixir scripts. Schedule automated tasks and cron jobs.",
+              "icon" => "hero-puzzle-piece-solid",
               "width" => "1x"
             }
           ]
@@ -185,8 +194,9 @@ defmodule GameServerWeb.PageControllerTest do
 
     assert body =~ "Gamend"
     assert body =~ "Discord"
-    assert body =~ "SQLite"
-    assert body =~ "Persistence &amp; Caching"
+    assert body =~ "Email, Magic-link, OAuth, JWT and Session."
+    assert body =~ "Authentication &amp; Users"
+    assert body =~ "Server Scripting &amp; Scheduling"
     assert body =~ "Privacy &amp; Terms"
     refute body =~ "Online"
   end
