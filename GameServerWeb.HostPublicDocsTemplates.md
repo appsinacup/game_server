@@ -42,8 +42,6 @@ Embedded HEEx templates used by the host-owned public docs LiveView.
 
 # `scaling`
 
-# `sentry_setup`
-
 # `server_scripting`
 
 # `steam_openid`
