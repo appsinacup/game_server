@@ -494,13 +494,15 @@ defmodule GameServerWeb.HostLayouts do
 
   defp merge_default_navigation_links(configured, defaults)
        when is_list(configured) and is_list(defaults) do
-    Enum.reduce(defaults, configured, fn default, acc ->
+    defaults
+    |> Enum.reduce(Enum.reverse(configured), fn default, acc ->
       if navigation_entry_href?(acc, default["href"]) do
         acc
       else
-        acc ++ [default]
+        [default | acc]
       end
     end)
+    |> Enum.reverse()
   end
 
   defp merge_default_navigation_links(_configured, defaults), do: defaults
