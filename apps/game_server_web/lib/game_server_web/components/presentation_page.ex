@@ -163,7 +163,7 @@ defmodule GameServerWeb.PresentationPage do
     ~H"""
     <div
       :if={@buttons != []}
-      class="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center"
+      class="flex w-full flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap"
     >
       <a
         :for={button <- @buttons}
@@ -257,7 +257,7 @@ defmodule GameServerWeb.PresentationPage do
         <.media item={@section} variant="section" />
       </div>
       <div class={[
-        "flex flex-col gap-4 md:justify-between",
+        "flex flex-col gap-4 md:justify-center md:gap-5 md:pt-6",
         section_text_frame_class(@section),
         text_order_class(@section),
         text_align_class(@section)
@@ -265,10 +265,12 @@ defmodule GameServerWeb.PresentationPage do
         <h2 class="text-2xl font-bold tracking-normal sm:text-3xl">
           {Map.get(@section, "title", "")}
         </h2>
-        <div class="text-base leading-relaxed text-base-content/75 md:flex-1">
+        <div class="text-base leading-relaxed text-base-content/75">
           {rich_text(Map.get(@section, "text", ""))}
         </div>
-        <.buttons buttons={Map.get(@section, "buttons", [])} />
+        <div :if={has_buttons?(@section)} class="pt-1 md:pt-2">
+          <.buttons buttons={Map.get(@section, "buttons", [])} />
+        </div>
       </div>
     </section>
     """
@@ -398,6 +400,17 @@ defmodule GameServerWeb.PresentationPage do
     end
   end
 
+  defp has_buttons?(item) when is_map(item) do
+    item
+    |> Map.get("buttons", [])
+    |> case do
+      buttons when is_list(buttons) -> Enum.any?(buttons, &valid_button?/1)
+      _ -> false
+    end
+  end
+
+  defp has_buttons?(_item), do: false
+
   defp non_empty_string(value) when is_binary(value) and value != "", do: value
   defp non_empty_string(_value), do: nil
 
@@ -417,7 +430,7 @@ defmodule GameServerWeb.PresentationPage do
 
   defp button_class(button) do
     base =
-      "group flex min-h-11 w-full items-center justify-center gap-2.5 rounded-lg px-5 py-2.5 text-base font-semibold transition hover:scale-[1.02] active:scale-[0.98] sm:w-auto sm:flex-1 lg:flex-none"
+      "group flex min-h-11 w-full items-center justify-center gap-2.5 rounded-lg px-5 py-2.5 text-base font-semibold transition hover:scale-[1.02] active:scale-[0.98] sm:w-auto sm:min-w-36"
 
     style =
       case Map.get(button, "style", "default") do
