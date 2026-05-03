@@ -192,13 +192,14 @@ defmodule GameServerWeb.PresentationPage do
     assigns =
       assign(assigns,
         image: image,
-        icon: Map.get(assigns.item, "icon")
+        icon: Map.get(assigns.item, "icon"),
+        size: media_size(assigns.item, assigns.variant)
       )
 
     ~H"""
     <div class="flex w-full items-center justify-center">
       <div class={media_shell_class()}>
-        <.media_visual image={@image} icon={@icon} variant={@variant} />
+        <.media_visual image={@image} icon={@icon} variant={@variant} size={@size} />
       </div>
     </div>
     """
@@ -207,6 +208,7 @@ defmodule GameServerWeb.PresentationPage do
   attr :image, :map, default: %{}
   attr :icon, :string, default: nil
   attr :variant, :string, default: "section"
+  attr :size, :string, default: "section"
 
   def media_visual(assigns) do
     ~H"""
@@ -216,7 +218,7 @@ defmodule GameServerWeb.PresentationPage do
       alt={@image.alt}
       loading={if(@variant == "hero", do: "eager", else: "lazy")}
       fetchpriority={if(@variant == "hero", do: "high", else: nil)}
-      class={media_class(@variant)}
+      class={media_class(@size)}
     />
     <div :if={@image.light && @image.dark} class="contents">
       <img
@@ -224,14 +226,14 @@ defmodule GameServerWeb.PresentationPage do
         alt={@image.alt}
         loading={if(@variant == "hero", do: "eager", else: "lazy")}
         fetchpriority={if(@variant == "hero", do: "high", else: nil)}
-        class={[media_class(@variant), "[[data-theme=dark]_&]:hidden"]}
+        class={[media_class(@size), "[[data-theme=dark]_&]:hidden"]}
       />
       <img
         src={@image.dark}
         alt={@image.alt}
         loading={if(@variant == "hero", do: "eager", else: "lazy")}
         fetchpriority={if(@variant == "hero", do: "high", else: nil)}
-        class={[media_class(@variant), "hidden [[data-theme=dark]_&]:block"]}
+        class={[media_class(@size), "hidden [[data-theme=dark]_&]:block"]}
       />
     </div>
     <div
@@ -417,16 +419,22 @@ defmodule GameServerWeb.PresentationPage do
   defp media_width(item, "hero"), do: Map.get(item, "media_width", "half")
   defp media_width(item, _variant), do: Map.get(item, "media_width", "third")
 
+  defp media_size(item, variant) do
+    case Map.get(item, "media_size", variant) do
+      value when value in ["hero", "section"] -> value
+      _ -> variant
+    end
+  end
+
   defp desktop_image_position(item), do: Map.get(item, "image_position_desktop", "left")
 
   defp media_class("hero"), do: "block max-h-[58dvh] w-full rounded-lg object-contain"
 
-  defp media_class(_variant),
+  defp media_class("section"),
     do: "block aspect-square max-h-[42dvh] w-full rounded-lg object-contain"
 
   defp media_shell_class,
-    do:
-      "flex w-full items-center justify-center transition-transform duration-300 ease-out motion-safe:hover:scale-[1.04]"
+    do: "flex w-full items-center justify-center"
 
   defp button_class(button) do
     base =

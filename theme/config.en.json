@@ -20,6 +20,7 @@
         "image_position_desktop": "left",
         "image_position_mobile": "top",
         "media_width": "half",
+        "media_size": "section",
         "text_align": "center",
         "buttons": [
           {

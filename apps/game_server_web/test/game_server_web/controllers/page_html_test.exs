@@ -177,7 +177,26 @@ defmodule GameServerWeb.PresentationPageTest do
         )
 
       refute html =~ "<a"
-      assert html =~ "motion-safe:hover:scale-[1.04]"
+      refute html =~ "motion-safe:hover:scale"
+      assert html =~ "max-h-[58dvh]"
+    end
+
+    test "hero media can use section sizing" do
+      html =
+        render_component(&PresentationPage.page/1,
+          page: %{
+            "hero" => %{
+              "title" => "Demo",
+              "image" => %{"light" => "/images/banner.png", "alt" => "Demo banner"},
+              "media_size" => "section"
+            }
+          },
+          background_icons: [],
+          full_bleed_hero: false
+        )
+
+      assert html =~ "aspect-square max-h-[42dvh]"
+      refute html =~ "max-h-[58dvh]"
     end
 
     test "media supports light and dark image variants" do
@@ -240,7 +259,7 @@ defmodule GameServerWeb.PresentationPageTest do
       refute html =~ "<a"
       refute html =~ "border-base"
       assert html =~ "rounded-lg bg-base-100/70"
-      assert html =~ "motion-safe:hover:scale-[1.04]"
+      refute html =~ "motion-safe:hover:scale"
     end
 
     test "compact section height uses content size" do
