@@ -437,7 +437,7 @@ defmodule GameServer.Content do
             full
 
           String.starts_with?(src, "/content/") ->
-            full
+            add_lazy_image_attrs(full)
 
           true ->
             clean =
@@ -448,9 +448,24 @@ defmodule GameServer.Content do
               |> strip_content_type_prefix(content_type)
 
             ~s(<img#{before} src="/content/#{content_type}/#{clean}"#{after_attr}>)
+            |> add_lazy_image_attrs()
         end
       end
     )
+  end
+
+  defp add_lazy_image_attrs(tag) do
+    tag
+    |> ensure_image_attr("loading", "lazy")
+    |> ensure_image_attr("decoding", "async")
+  end
+
+  defp ensure_image_attr(tag, attr, value) do
+    if Regex.match?(~r/\s#{Regex.escape(attr)}=/, tag) do
+      tag
+    else
+      String.replace(tag, ~r/<img\b/, ~s(<img #{attr}="#{value}"), global: false)
+    end
   end
 
   defp strip_content_type_prefix(path, content_type) do

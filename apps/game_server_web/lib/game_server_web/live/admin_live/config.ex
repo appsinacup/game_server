@@ -1667,7 +1667,7 @@ defmodule GameServerWeb.AdminLive.Config do
         Keyword.get(
           Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, []),
           :general_limit,
-          240
+          1200
         ),
       rate_limit_general_window:
         Keyword.get(
@@ -1679,7 +1679,7 @@ defmodule GameServerWeb.AdminLive.Config do
         Keyword.get(
           Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, []),
           :auth_limit,
-          10
+          30
         ),
       rate_limit_auth_window:
         Keyword.get(
@@ -1691,7 +1691,7 @@ defmodule GameServerWeb.AdminLive.Config do
         Keyword.get(
           Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, []),
           :ws_limit,
-          60
+          300
         ),
       rate_limit_ws_window:
         Keyword.get(
@@ -1703,7 +1703,7 @@ defmodule GameServerWeb.AdminLive.Config do
         Keyword.get(
           Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, []),
           :dc_limit,
-          300
+          600
         ),
       rate_limit_dc_window:
         Keyword.get(
@@ -1715,7 +1715,7 @@ defmodule GameServerWeb.AdminLive.Config do
         Keyword.get(
           Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, []),
           :ice_limit,
-          50
+          150
         ),
       rate_limit_ice_window:
         Keyword.get(

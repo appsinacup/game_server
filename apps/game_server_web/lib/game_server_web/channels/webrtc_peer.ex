@@ -50,7 +50,7 @@ defmodule GameServerWeb.WebRTCPeer do
   alias GameServer.Hooks.PluginManager
 
   # DataChannel message rate limits (per user) — defaults, overridden by config
-  @default_dc_rate_limit 300
+  @default_dc_rate_limit 600
   @default_dc_rate_window :timer.seconds(10)
 
   # Max open DataChannels per peer (clients create named channels)

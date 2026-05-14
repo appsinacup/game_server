@@ -212,7 +212,12 @@ defmodule GameServerWeb.HostLayoutNavigation do
     ~H"""
     <div class="xl:hidden">
       <div class="dropdown dropdown-end">
-        <button tabindex="0" class="btn btn-ghost btn-circle">
+        <button
+          type="button"
+          tabindex="0"
+          aria-label={GameServerWeb.HostLayouts.translate("Open navigation menu")}
+          class="btn btn-ghost btn-circle"
+        >
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
@@ -438,10 +443,19 @@ defmodule GameServerWeb.HostLayoutNavigation do
     assigns = assign(assigns, locale_links: locale_links, label: label)
 
     ~H"""
-    <input type="checkbox" id="lang-modal" class="modal-toggle" />
+    <input
+      type="checkbox"
+      id="lang-modal"
+      class="modal-toggle"
+      aria-label={GameServerWeb.HostLayouts.translate("Choose language")}
+    />
     <div class="modal modal-bottom sm:modal-middle z-[100]" role="dialog">
       <div class="modal-box max-w-2xl">
-        <label for="lang-modal" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+        <label
+          for="lang-modal"
+          aria-label={GameServerWeb.HostLayouts.translate("Close language picker")}
+          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+        >
           ✕
         </label>
         <h3 class="font-bold text-lg mb-4 flex items-center gap-2">

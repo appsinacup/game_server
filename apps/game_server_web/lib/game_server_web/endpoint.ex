@@ -125,7 +125,7 @@ defmodule GameServerWeb.Endpoint do
             from: from,
             gzip: gzip_static?(),
             only: only,
-            cache_control_for_etags: "public, max-age=604800",
+            cache_control_for_etags: "public, max-age=31536000, immutable",
             cache_control_for_vsn_requests: "public, max-age=31536000, immutable"
           )
 

@@ -49,9 +49,16 @@ defmodule GameServerWeb.HostLayoutShell do
       >
         <% title = Map.get(@theme, "title") %>
         <% tagline = Map.get(@theme, "tagline") %>
+        <% logo = Map.get(@theme, "logo") %>
         <div class="flex-1">
           <a href={~p"/"} class="flex-1 flex w-fit items-center gap-2">
-            <img src={Map.get(@theme, "logo")} width="36" height="36" alt={title} />
+            <img
+              src={GameServerWeb.SRI.versioned_path(logo) || logo}
+              width="36"
+              height="36"
+              alt={title}
+              decoding="async"
+            />
             <span class="text-lg font-bold">{title}</span>
             <%= if tagline && tagline != "" do %>
               <span class="text-sm opacity-80 ml-1 hidden xl:inline">{tagline}</span>

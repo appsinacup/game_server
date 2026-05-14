@@ -216,23 +216,32 @@ defmodule GameServerWeb.PresentationPage do
       :if={@image.light && !@image.dark}
       src={@image.light}
       alt={@image.alt}
+      width={@image.width}
+      height={@image.height}
       loading={if(@variant == "hero", do: "eager", else: "lazy")}
       fetchpriority={if(@variant == "hero", do: "high", else: nil)}
+      decoding="async"
       class={media_class(@size)}
     />
     <div :if={@image.light && @image.dark} class="contents">
       <img
         src={@image.light}
         alt={@image.alt}
+        width={@image.width}
+        height={@image.height}
         loading={if(@variant == "hero", do: "eager", else: "lazy")}
         fetchpriority={if(@variant == "hero", do: "high", else: nil)}
+        decoding="async"
         class={[media_class(@size), "[[data-theme=dark]_&]:hidden"]}
       />
       <img
         src={@image.dark}
         alt={@image.alt}
+        width={@image.width}
+        height={@image.height}
         loading={if(@variant == "hero", do: "eager", else: "lazy")}
         fetchpriority={if(@variant == "hero", do: "high", else: nil)}
+        decoding="async"
         class={[media_class(@size), "hidden [[data-theme=dark]_&]:block"]}
       />
     </div>
@@ -383,14 +392,20 @@ defmodule GameServerWeb.PresentationPage do
   defp image_config(item) do
     case Map.get(item, "image") do
       image when is_map(image) ->
+        light = non_empty_string(Map.get(image, "light"))
+        dark = non_empty_string(Map.get(image, "dark"))
+        {natural_width, natural_height} = image_dimensions(light || dark)
+
         %{
-          light: non_empty_string(Map.get(image, "light")),
-          dark: non_empty_string(Map.get(image, "dark")),
-          alt: Map.get(image, "alt", "")
+          light: image_src(light),
+          dark: image_src(dark),
+          alt: Map.get(image, "alt", ""),
+          width: positive_int(Map.get(image, "width")) || natural_width,
+          height: positive_int(Map.get(image, "height")) || natural_height
         }
 
       _ ->
-        %{light: nil, dark: nil, alt: ""}
+        %{light: nil, dark: nil, alt: "", width: nil, height: nil}
     end
   end
 
@@ -415,6 +430,99 @@ defmodule GameServerWeb.PresentationPage do
 
   defp non_empty_string(value) when is_binary(value) and value != "", do: value
   defp non_empty_string(_value), do: nil
+
+  defp positive_int(value) when is_integer(value) and value > 0, do: value
+
+  defp positive_int(value) when is_binary(value) do
+    case Integer.parse(value) do
+      {int, ""} when int > 0 -> int
+      _ -> nil
+    end
+  end
+
+  defp positive_int(_value), do: nil
+
+  defp image_src(path) do
+    path = non_empty_string(path)
+
+    cond do
+      is_nil(path) ->
+        nil
+
+      generated = generated_image_path(path) ->
+        if GameServerWeb.SRI.integrity(generated) do
+          GameServerWeb.SRI.versioned_path(generated) || generated
+        else
+          GameServerWeb.SRI.versioned_path(path) || path
+        end
+
+      true ->
+        GameServerWeb.SRI.versioned_path(path) || path
+    end
+  end
+
+  defp generated_image_path(path) do
+    clean_path = URI.parse(path).path || path
+
+    with true <- String.starts_with?(clean_path, "/images/"),
+         false <- String.contains?(clean_path, "/generated/"),
+         ext when ext in [".png", ".jpg", ".jpeg"] <-
+           clean_path |> Path.extname() |> String.downcase() do
+      rel =
+        clean_path
+        |> String.trim_leading("/images/")
+        |> Path.rootname()
+
+      "/images/generated/#{rel}.webp"
+    else
+      _ -> nil
+    end
+  end
+
+  defp image_dimensions(path) do
+    path = non_empty_string(path)
+    clean_path = path && (URI.parse(path).path || path)
+
+    with clean when is_binary(clean) <- clean_path,
+         file_path when is_binary(file_path) <- static_file_path(clean) do
+      read_image_dimensions(file_path)
+    else
+      _ -> {nil, nil}
+    end
+  end
+
+  defp static_file_path(clean_path) do
+    [
+      Application.get_env(:game_server_web, :asset_static_app, :game_server_web),
+      Application.get_env(:game_server_web, :host_static_app, :game_server_web),
+      :game_server_web
+    ]
+    |> Enum.uniq()
+    |> Enum.map(&app_static_dir/1)
+    |> Enum.reject(&is_nil/1)
+    |> Enum.find_value(fn static_dir ->
+      file_path = Path.join(static_dir, String.trim_leading(clean_path, "/"))
+      if File.exists?(file_path), do: file_path
+    end)
+  end
+
+  defp app_static_dir(app) when is_atom(app) do
+    if Application.spec(app, :vsn) do
+      Application.app_dir(app, "priv/static")
+    end
+  end
+
+  defp app_static_dir(_app), do: nil
+
+  defp read_image_dimensions(file_path) do
+    with {:ok,
+          <<0x89, "PNG\r\n", 0x1A, "\n", _length::32, "IHDR", width::32, height::32, _::binary>>} <-
+           File.read(file_path) do
+      {width, height}
+    else
+      _ -> {nil, nil}
+    end
+  end
 
   defp media_width(item, "hero"), do: Map.get(item, "media_width", "half")
   defp media_width(item, _variant), do: Map.get(item, "media_width", "third")

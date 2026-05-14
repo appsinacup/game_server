@@ -287,6 +287,8 @@ defmodule GameServerWeb.AchievementsLive do
                 <img
                   src={@achievement.icon_url}
                   alt={@achievement.title}
+                  loading="lazy"
+                  decoding="async"
                   class={["w-8 h-8 object-contain", if(!@unlocked?, do: "opacity-40 grayscale")]}
                 />
               <% else %>

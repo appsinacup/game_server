@@ -77,8 +77,8 @@
         crossorigin="anonymous"
       />
     <% end %>
-    <%= if Map.get(theme, "favicon") do %>
-      <link rel="icon" type="image/x-icon" href={Map.get(theme, "favicon")} />
+    <%= if favicon = Map.get(theme, "favicon") do %>
+      <link rel="icon" type="image/x-icon" href={SRI.versioned_path(favicon) || favicon} />
     <% end %>
     <% theme_color = Map.get(theme, "theme_color") %>
     <% current_color_mode = assigns[:color_mode] || "light" %>
@@ -108,10 +108,21 @@
     />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <%= if GameServerWeb.HostLayouts.extra_hook_modules() != [] do %>
+    <% extra_hook_modules = GameServerWeb.HostLayouts.extra_hook_modules() %>
+    <%= for hook_module <- extra_hook_modules do %>
+      <% hook_module_href = SRI.versioned_path(hook_module) || hook_module %>
+      <link
+        rel="modulepreload"
+        phx-track-static
+        href={hook_module_href}
+        integrity={SRI.integrity(hook_module)}
+        crossorigin="anonymous"
+      />
+    <% end %>
+    <%= if extra_hook_modules != [] do %>
       <meta
         name="game-server-extra-hooks"
-        content={Enum.join(GameServerWeb.HostLayouts.extra_hook_modules(), ",")}
+        content={Enum.join(extra_hook_modules, ",")}
       />
     <% end %>
     <% app_js_src = SRI.versioned_path(~p"/assets/js/app.js") %>

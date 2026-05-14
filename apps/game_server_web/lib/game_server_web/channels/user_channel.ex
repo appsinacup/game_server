@@ -45,12 +45,12 @@ defmodule GameServerWeb.UserChannel do
   alias GameServer.Parties
 
   # WebSocket message rate limits (per user) — defaults, overridden by config
-  @default_ws_rate_limit 60
+  @default_ws_rate_limit 300
   @default_ws_rate_window :timer.seconds(10)
 
   # Separate ICE candidate budget — prevents ICE flooding from starving
   # other channel events. A typical WebRTC session sends 5–30 candidates.
-  @default_ice_rate_limit 50
+  @default_ice_rate_limit 150
   @default_ice_rate_window :timer.seconds(30)
 
   # Interval for periodic presence refresh (keeps StalePresenceSweeper from

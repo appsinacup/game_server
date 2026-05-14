@@ -20,8 +20,8 @@ defmodule GameServerWeb.LiveHelpers do
   Check a rate limit bucket for the given IP.
 
   Bucket types:
-    - `:auth` — 10 requests per 60 seconds (matches the HTTP auth bucket)
-    - `:general` — 120 requests per 60 seconds
+    - `:auth` — 30 requests per 60 seconds (matches the HTTP auth bucket)
+    - `:general` — 1200 requests per 60 seconds
 
   Returns `:ok` or `{:error, retry_after_ms}`.
   """
@@ -48,15 +48,15 @@ defmodule GameServerWeb.LiveHelpers do
 
   defp auth_limits do
     config = Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, [])
-    limit = Keyword.get(config, :auth_limit, 10)
+    limit = Keyword.get(config, :auth_limit, 30)
     window = Keyword.get(config, :auth_window, :timer.seconds(60))
     {limit, window}
   end
 
   defp general_limits do
     config = Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, [])
-    limit = Keyword.get(config, :limit, 120)
-    window = Keyword.get(config, :window, :timer.seconds(60))
+    limit = Keyword.get(config, :general_limit, 1200)
+    window = Keyword.get(config, :general_window, :timer.seconds(60))
     {limit, window}
   end
 end
