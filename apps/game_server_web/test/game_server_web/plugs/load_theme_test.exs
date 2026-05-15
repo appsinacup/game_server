@@ -54,7 +54,7 @@ defmodule GameServerWeb.Plugs.LoadThemeTest do
 
     assert conn.assigns[:theme]["title"] == "Test Title"
     assert conn.assigns[:theme]["tagline"] == "Test Tag"
-    assert conn.assigns[:theme]["logo"] == "/images/logo.png"
+    assert conn.assigns[:theme]["logo"] == "/logo.png"
     assert conn.assigns[:theme]["banner"] == "/images/banner.png"
     assert conn.assigns[:theme]["favicon"] == "/favicon.ico"
     assert is_nil(conn.assigns[:theme]["css"])

@@ -133,7 +133,7 @@ defmodule GameServerWeb.HostLayouts do
       "tagline",
       Map.get(theme, "tagline") || if(missing?, do: "Add host theme config or set THEME_CONFIG")
     )
-    |> Map.merge(host_theme_settings)
+    |> then(&Map.merge(host_theme_settings, &1))
     |> translate_theme(locale)
   end
 
