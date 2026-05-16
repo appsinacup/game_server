@@ -3,6 +3,7 @@ defmodule GameServer.LobbiesTest do
 
   alias GameServer.Accounts
   alias GameServer.AccountsFixtures
+  alias GameServer.KV
   alias GameServer.Lobbies
 
   describe "lobbies and memberships" do
@@ -218,6 +219,30 @@ defmodule GameServer.LobbiesTest do
 
       lobbies_after = Lobbies.list_lobbies_for_user(host)
       refute Enum.any?(lobbies_after, &(&1.id == lobby.id))
+    end
+
+    test "delete_lobby clears members and lobby scoped kv", %{host: host, other: other} do
+      {:ok, lobby} = Lobbies.create_lobby(%{title: "delete-room", host_id: host.id, max_users: 2})
+      assert {:ok, _} = Lobbies.join_lobby(other, lobby)
+
+      assert {:ok, _} = KV.put("cleanup_test", %{"value" => 1}, %{}, lobby_id: lobby.id)
+
+      assert {:ok, _} =
+               KV.put("cleanup_user_test", %{"value" => 2}, %{},
+                 user_id: other.id,
+                 lobby_id: lobby.id
+               )
+
+      assert {:ok, _} = KV.get("cleanup_test", lobby_id: lobby.id)
+      assert {:ok, _} = KV.get("cleanup_user_test", user_id: other.id, lobby_id: lobby.id)
+
+      assert {:ok, _} = Lobbies.delete_lobby(lobby)
+
+      refute Lobbies.get_lobby(lobby.id)
+      assert is_nil(Accounts.get_user!(host.id).lobby_id)
+      assert is_nil(Accounts.get_user!(other.id).lobby_id)
+      assert :error = KV.get("cleanup_test", lobby_id: lobby.id)
+      assert :error = KV.get("cleanup_user_test", user_id: other.id, lobby_id: lobby.id)
     end
 
     test "search by metadata", %{host: host} do

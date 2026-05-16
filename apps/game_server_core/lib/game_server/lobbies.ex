@@ -50,6 +50,8 @@ defmodule GameServer.Lobbies do
   alias Ecto.Multi
   alias GameServer.Accounts
   alias GameServer.Accounts.User
+  alias GameServer.KV
+  alias GameServer.KV.Entry, as: KVEntry
   alias GameServer.Lobbies.Lobby
   alias GameServer.Lobbies.SpectatorTracker
   alias GameServer.Repo
@@ -851,23 +853,17 @@ defmodule GameServer.Lobbies do
 
   @spec delete_lobby(Lobby.t()) :: {:ok, Lobby.t()} | {:error, Ecto.Changeset.t() | term()}
   def delete_lobby(%Lobby{} = lobby) do
-    # Fetch member IDs before deletion — the DB on_delete: :nilify_all will
-    # clear their lobby_id, but we need to invalidate the Nebulex cache too.
-    member_ids = Repo.all(from u in User, where: u.lobby_id == ^lobby.id, select: u.id)
-
     case GameServer.Hooks.internal_call(:before_lobby_delete, [lobby]) do
       {:ok, _} ->
-        case Repo.delete(lobby) do
-          {:ok, deleted} ->
+        case do_delete_lobby(lobby) do
+          {:ok, {deleted, member_ids}} ->
             GameServer.Async.run(fn ->
               GameServer.Chat.cleanup_chat("lobby", deleted.id)
               GameServer.Hooks.internal_call(:after_lobby_delete, [deleted])
             end)
 
-            # Invalidate cached users whose lobby_id was just nullified by the DB
             Enum.each(member_ids, &invalidate_accounts_user_cache/1)
 
-            # Clean up spectator tracking for this lobby
             SpectatorTracker.untrack_all(deleted.id)
 
             _ = invalidate_lobby_cache(deleted.id)
@@ -881,6 +877,42 @@ defmodule GameServer.Lobbies do
       {:error, reason} ->
         {:error, {:hook_rejected, reason}}
     end
+  end
+
+  defp do_delete_lobby(%Lobby{id: lobby_id} = lobby) when is_integer(lobby_id) do
+    Repo.transaction(fn ->
+      AdvisoryLock.lock(:lobby, lobby_id)
+
+      member_ids = Repo.all(from u in User, where: u.lobby_id == ^lobby_id, select: u.id)
+
+      _ =
+        Repo.update_all(
+          from(u in User, where: u.lobby_id == ^lobby_id),
+          set: [lobby_id: nil]
+        )
+
+      delete_lobby_kv_entries(lobby_id)
+
+      case Repo.delete(lobby) do
+        {:ok, deleted} -> {deleted, member_ids}
+        {:error, reason} -> Repo.rollback(reason)
+      end
+    end)
+  rescue
+    exception -> {:error, exception}
+  catch
+    kind, reason -> {:error, {kind, reason}}
+  end
+
+  defp delete_lobby_kv_entries(lobby_id) when is_integer(lobby_id) do
+    from(e in KVEntry,
+      where: e.lobby_id == ^lobby_id,
+      select: {e.key, e.user_id, e.lobby_id}
+    )
+    |> Repo.all()
+    |> Enum.each(fn {key, user_id, entry_lobby_id} ->
+      KV.delete(key, user_id: user_id, lobby_id: entry_lobby_id)
+    end)
   end
 
   @spec change_lobby(Lobby.t()) :: Ecto.Changeset.t()
