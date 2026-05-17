@@ -115,7 +115,7 @@ defmodule GameServerWeb.Endpoint do
   end
 
   defp configurable_static_opts(kind, from, only) do
-    key = {__MODULE__, kind, from, only, gzip_static?()}
+    key = {__MODULE__, kind, from, only, gzip_static?(), brotli_static?()}
 
     case :persistent_term.get(key, :not_set) do
       :not_set ->
@@ -123,6 +123,7 @@ defmodule GameServerWeb.Endpoint do
           Plug.Static.init(
             at: "/",
             from: from,
+            brotli: brotli_static?(),
             gzip: gzip_static?(),
             only: only,
             cache_control_for_etags: "public, max-age=31536000, immutable",
@@ -155,5 +156,9 @@ defmodule GameServerWeb.Endpoint do
 
   defp gzip_static? do
     Application.get_env(:game_server_web, :gzip_static, false)
+  end
+
+  defp brotli_static? do
+    Application.get_env(:game_server_web, :brotli_static, false)
   end
 end
