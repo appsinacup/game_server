@@ -58,7 +58,8 @@ defmodule GameServerWeb.PlayLive do
 
         <iframe
           id="game-frame"
-          src={@game_src}
+          src="about:blank"
+          data-game-src={@game_src}
           class="w-full h-full border-0"
           allow="autoplay; fullscreen"
           allowfullscreen
