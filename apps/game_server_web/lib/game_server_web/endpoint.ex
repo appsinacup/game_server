@@ -21,6 +21,7 @@ defmodule GameServerWeb.Endpoint do
   plug GameServerWeb.Plugs.SecurityHeaders
   plug GameServerWeb.Plugs.WellKnown
   plug GameServerWeb.Plugs.GameHeaders
+  plug :serve_game_static
   plug :serve_host_static
   plug :serve_asset_static
   plug :serve_web_font_static
@@ -91,7 +92,18 @@ defmodule GameServerWeb.Endpoint do
   defp serve_host_static(conn, _opts) do
     Plug.Static.call(
       conn,
-      configurable_static_opts(:host_static_opts, host_static_app(), host_static_paths())
+      configurable_static_opts(
+        :host_static_opts,
+        host_static_app(),
+        host_static_paths() -- ~w(game)
+      )
+    )
+  end
+
+  defp serve_game_static(conn, _opts) do
+    Plug.Static.call(
+      conn,
+      configurable_static_opts(:game_static_opts, host_static_app(), ~w(game))
     )
   end
 
@@ -126,8 +138,8 @@ defmodule GameServerWeb.Endpoint do
             brotli: brotli_static?(),
             gzip: gzip_static?(),
             only: only,
-            cache_control_for_etags: "public, max-age=31536000, immutable",
-            cache_control_for_vsn_requests: "public, max-age=31536000, immutable"
+            cache_control_for_etags: static_cache_control(kind),
+            cache_control_for_vsn_requests: static_cache_control(kind)
           )
 
         :persistent_term.put(key, opts)
@@ -136,6 +148,22 @@ defmodule GameServerWeb.Endpoint do
       opts ->
         opts
     end
+  end
+
+  defp static_cache_control(:game_static_opts) do
+    Application.get_env(
+      :game_server_web,
+      :game_static_cache_control,
+      "public, max-age=0, must-revalidate"
+    )
+  end
+
+  defp static_cache_control(_kind) do
+    Application.get_env(
+      :game_server_web,
+      :static_cache_control,
+      "public, max-age=31536000, immutable"
+    )
   end
 
   defp host_static_app do
