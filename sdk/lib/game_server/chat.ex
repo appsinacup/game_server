@@ -44,6 +44,21 @@ defmodule GameServer.Chat do
 
 
   @doc ~S"""
+    Returns `:ok` when user can access the chat conversation.
+  """
+  @spec authorize_access(integer(), String.t(), integer()) :: :ok | {:error, atom()}
+  def authorize_access(_user_id, _chat_type, _chat_ref_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        :ok
+
+      _ ->
+        raise "GameServer.Chat.authorize_access/3 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Delete all chat data (messages + read cursors) for a given conversation.
   """
   @spec cleanup_chat(String.t(), integer()) :: :ok
