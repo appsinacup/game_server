@@ -2,6 +2,7 @@ defmodule GameServerWeb.GroupsLive do
   use GameServerWeb, :live_view
 
   alias GameServer.Groups
+  alias GameServerWeb.LiveHelpers
 
   @page_size 12
 
@@ -161,7 +162,7 @@ defmodule GameServerWeb.GroupsLive do
           {:ok, _member} ->
             {:noreply,
              socket
-             |> put_flash(:info, gettext("Success."))
+             |> put_success_flash()
              |> update(:member_group_ids, &MapSet.put(&1, group_id))
              |> maybe_refresh_selected(group_id)}
 
@@ -172,12 +173,7 @@ defmodule GameServerWeb.GroupsLive do
             {:noreply, put_flash(socket, :error, gettext("Failed"))}
 
           {:error, reason} ->
-            {:noreply,
-             put_flash(
-               socket,
-               :error,
-               gettext("Failed") <> ": " <> inspect(reason)
-             )}
+            {:noreply, put_failure_flash(socket, reason)}
         end
 
       _ ->
@@ -194,7 +190,7 @@ defmodule GameServerWeb.GroupsLive do
           {:ok, _request} ->
             {:noreply,
              socket
-             |> put_flash(:info, gettext("Success."))
+             |> put_success_flash()
              |> update(:pending_request_ids, &MapSet.put(&1, group_id))}
 
           {:error, :already_member} ->
@@ -212,12 +208,7 @@ defmodule GameServerWeb.GroupsLive do
              )}
 
           {:error, reason} ->
-            {:noreply,
-             put_flash(
-               socket,
-               :error,
-               gettext("Failed") <> ": " <> inspect(reason)
-             )}
+            {:noreply, put_failure_flash(socket, reason)}
         end
 
       _ ->
@@ -234,17 +225,12 @@ defmodule GameServerWeb.GroupsLive do
           {:ok, _} ->
             {:noreply,
              socket
-             |> put_flash(:info, gettext("Success."))
+             |> put_success_flash()
              |> update(:member_group_ids, &MapSet.delete(&1, group_id))
              |> maybe_refresh_selected(group_id)}
 
           {:error, reason} ->
-            {:noreply,
-             put_flash(
-               socket,
-               :error,
-               gettext("Failed") <> ": " <> inspect(reason)
-             )}
+            {:noreply, put_failure_flash(socket, reason)}
         end
 
       _ ->
@@ -301,6 +287,12 @@ defmodule GameServerWeb.GroupsLive do
   def handle_info(_msg, socket), do: {:noreply, socket}
 
   # ── Helpers ─────────────────────────────────────────────────────────────────
+
+  defp put_success_flash(socket), do: LiveHelpers.put_success(socket, gettext("Success."))
+
+  defp put_failure_flash(socket, reason) do
+    LiveHelpers.put_failure(socket, LiveHelpers.failure_message(gettext("Failed"), reason))
+  end
 
   defp build_filters(socket) do
     filters = %{}

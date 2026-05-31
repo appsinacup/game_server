@@ -2,7 +2,10 @@ defmodule GameServerWeb.Api.V1.ChatController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
+  import GameServerWeb.Helpers.ParamParser
+
   alias GameServer.Chat
+  alias GameServerWeb.Serializers
   alias OpenApiSpex.Schema
 
   tags(["Chat"])
@@ -82,7 +85,7 @@ defmodule GameServerWeb.Api.V1.ChatController do
 
     attrs = %{
       "chat_type" => params["chat_type"],
-      "chat_ref_id" => parse_int(params["chat_ref_id"]),
+      "chat_ref_id" => parse_id(params["chat_ref_id"]),
       "content" => params["content"],
       "metadata" => params["metadata"] || %{}
     }
@@ -148,7 +151,7 @@ defmodule GameServerWeb.Api.V1.ChatController do
   )
 
   def show(conn, %{"id" => id}) do
-    message_id = parse_int(id)
+    message_id = parse_id(id)
     user = conn.assigns.current_scope.user
 
     case Chat.get_message(message_id) do
@@ -233,9 +236,9 @@ defmodule GameServerWeb.Api.V1.ChatController do
     scope = conn.assigns[:current_scope]
     user_id = scope.user.id
     chat_type = params["chat_type"]
-    chat_ref_id = parse_int(params["chat_ref_id"])
-    page = parse_int(params["page"]) || 1
-    page_size = min(parse_int(params["page_size"]) || 25, 100)
+    chat_ref_id = parse_id(params["chat_ref_id"])
+    page = parse_id(params["page"]) || 1
+    page_size = min(parse_id(params["page_size"]) || 25, 100)
 
     case authorize_conversation(conn, user_id, chat_type, chat_ref_id) do
       :ok ->
@@ -292,8 +295,8 @@ defmodule GameServerWeb.Api.V1.ChatController do
   def mark_read(conn, params) do
     user_id = conn.assigns[:current_scope].user.id
     chat_type = params["chat_type"]
-    chat_ref_id = parse_int(params["chat_ref_id"])
-    message_id = parse_int(params["message_id"])
+    chat_ref_id = parse_id(params["chat_ref_id"])
+    message_id = parse_id(params["message_id"])
 
     case Chat.mark_read(user_id, chat_type, chat_ref_id, message_id) do
       {:ok, cursor} ->
@@ -357,7 +360,7 @@ defmodule GameServerWeb.Api.V1.ChatController do
   def unread(conn, params) do
     user_id = conn.assigns[:current_scope].user.id
     chat_type = params["chat_type"]
-    chat_ref_id = parse_int(params["chat_ref_id"])
+    chat_ref_id = parse_id(params["chat_ref_id"])
 
     case authorize_conversation(conn, user_id, chat_type, chat_ref_id) do
       :ok ->
@@ -406,7 +409,7 @@ defmodule GameServerWeb.Api.V1.ChatController do
 
   def update(conn, %{"id" => id} = params) do
     user_id = conn.assigns[:current_scope].user.id
-    message_id = parse_int(id)
+    message_id = parse_id(id)
 
     attrs =
       params
@@ -454,7 +457,7 @@ defmodule GameServerWeb.Api.V1.ChatController do
 
   def delete(conn, %{"id" => id}) do
     user_id = conn.assigns[:current_scope].user.id
-    message_id = parse_int(id)
+    message_id = parse_id(id)
 
     case Chat.delete_own_message(user_id, message_id) do
       {:ok, _message} ->
@@ -475,21 +478,8 @@ defmodule GameServerWeb.Api.V1.ChatController do
   # Helpers
   # ---------------------------------------------------------------------------
 
-  defp serialize_message(msg) do
-    sender = if Ecto.assoc_loaded?(msg.sender), do: msg.sender, else: nil
-
-    %{
-      id: msg.id,
-      content: msg.content,
-      metadata: msg.metadata || %{},
-      sender_id: msg.sender_id,
-      sender_name: if(sender, do: sender.display_name || "", else: ""),
-      chat_type: msg.chat_type,
-      chat_ref_id: msg.chat_ref_id,
-      inserted_at: msg.inserted_at,
-      updated_at: msg.updated_at
-    }
-  end
+  defp serialize_message(msg),
+    do: Serializers.serialize_chat_message(msg, include_updated_at: true)
 
   defp authorize_conversation(conn, user_id, chat_type, chat_ref_id) do
     case Chat.authorize_access(user_id, chat_type, chat_ref_id) do
@@ -501,16 +491,6 @@ defmodule GameServerWeb.Api.V1.ChatController do
 
       {:error, reason} ->
         {:error, conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})}
-    end
-  end
-
-  defp parse_int(nil), do: nil
-  defp parse_int(val) when is_integer(val), do: val
-
-  defp parse_int(val) when is_binary(val) do
-    case Integer.parse(val) do
-      {int, ""} -> int
-      _ -> nil
     end
   end
 

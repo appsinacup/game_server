@@ -33,6 +33,7 @@ defmodule GameServerWeb.GroupChannel do
   alias GameServer.Chat
   alias GameServer.Groups
   alias GameServerWeb.PayloadDelta
+  alias GameServerWeb.Serializers
 
   @impl true
   def join("group:" <> group_id_str, _payload, socket) do
@@ -69,14 +70,14 @@ defmodule GameServerWeb.GroupChannel do
 
   @impl true
   def handle_info({:after_join, group}, socket) do
-    payload = serialize_group(group)
+    payload = Serializers.serialize_group(group)
     push(socket, "updated", payload)
     {:noreply, assign(socket, :last_group_payload, payload)}
   end
 
   @impl true
   def handle_info({:group_updated, group}, socket) do
-    payload = serialize_group(group)
+    payload = Serializers.serialize_group(group)
     last_payload = Map.get(socket.assigns, :last_group_payload)
 
     case PayloadDelta.payload_delta(last_payload, payload) do
@@ -94,7 +95,7 @@ defmodule GameServerWeb.GroupChannel do
     push(socket, "member_joined", %{
       group_id: group_id,
       user_id: user_id,
-      display_name: resolve_display_name(user_id)
+      display_name: Serializers.display_name(user_id)
     })
 
     {:noreply, socket}
@@ -105,7 +106,7 @@ defmodule GameServerWeb.GroupChannel do
     push(socket, "member_left", %{
       group_id: group_id,
       user_id: user_id,
-      display_name: resolve_display_name(user_id)
+      display_name: Serializers.display_name(user_id)
     })
 
     {:noreply, socket}
@@ -116,7 +117,7 @@ defmodule GameServerWeb.GroupChannel do
     push(socket, "member_kicked", %{
       group_id: group_id,
       user_id: user_id,
-      display_name: resolve_display_name(user_id)
+      display_name: Serializers.display_name(user_id)
     })
 
     {:noreply, socket}
@@ -127,7 +128,7 @@ defmodule GameServerWeb.GroupChannel do
     push(socket, "member_promoted", %{
       group_id: group_id,
       user_id: user_id,
-      display_name: resolve_display_name(user_id)
+      display_name: Serializers.display_name(user_id)
     })
 
     {:noreply, socket}
@@ -138,7 +139,7 @@ defmodule GameServerWeb.GroupChannel do
     push(socket, "member_demoted", %{
       group_id: group_id,
       user_id: user_id,
-      display_name: resolve_display_name(user_id)
+      display_name: Serializers.display_name(user_id)
     })
 
     {:noreply, socket}
@@ -149,7 +150,7 @@ defmodule GameServerWeb.GroupChannel do
     push(socket, "join_request_approved", %{
       group_id: group_id,
       user_id: user_id,
-      display_name: resolve_display_name(user_id)
+      display_name: Serializers.display_name(user_id)
     })
 
     {:noreply, socket}
@@ -160,7 +161,7 @@ defmodule GameServerWeb.GroupChannel do
     push(socket, "join_request_rejected", %{
       group_id: group_id,
       user_id: user_id,
-      display_name: resolve_display_name(user_id)
+      display_name: Serializers.display_name(user_id)
     })
 
     {:noreply, socket}
@@ -168,13 +169,13 @@ defmodule GameServerWeb.GroupChannel do
 
   @impl true
   def handle_info({:new_chat_message, message}, socket) do
-    push(socket, "new_chat_message", serialize_chat_message(message))
+    push(socket, "new_chat_message", Serializers.serialize_chat_message(message))
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:chat_message_updated, message}, socket) do
-    push(socket, "chat_message_updated", serialize_chat_message(message))
+    push(socket, "chat_message_updated", Serializers.serialize_chat_message(message))
     {:noreply, socket}
   end
 
@@ -236,56 +237,5 @@ defmodule GameServerWeb.GroupChannel do
       _ ->
         :ok
     end
-  end
-
-  # ── Helpers ────────────────────────────────────────────────────────────────
-
-  defp serialize_group(group) do
-    creator_name =
-      cond do
-        is_nil(group.creator_id) ->
-          ""
-
-        Ecto.assoc_loaded?(group.creator) and group.creator != nil ->
-          group.creator.display_name || ""
-
-        true ->
-          resolve_display_name(group.creator_id)
-      end
-
-    %{
-      id: group.id,
-      title: group.title,
-      description: group.description || "",
-      type: group.type,
-      max_members: group.max_members,
-      creator_id: group.creator_id,
-      creator_name: creator_name,
-      metadata: group.metadata || %{}
-    }
-  end
-
-  defp resolve_display_name(nil), do: ""
-
-  defp resolve_display_name(user_id) do
-    case Accounts.get_user(user_id) do
-      %{display_name: name} when is_binary(name) -> name
-      _ -> ""
-    end
-  end
-
-  defp serialize_chat_message(msg) do
-    sender = if Ecto.assoc_loaded?(msg.sender), do: msg.sender, else: nil
-
-    %{
-      id: msg.id,
-      content: msg.content,
-      metadata: msg.metadata || %{},
-      sender_id: msg.sender_id,
-      sender_name: if(sender, do: sender.display_name || "", else: ""),
-      chat_type: msg.chat_type,
-      chat_ref_id: msg.chat_ref_id,
-      inserted_at: msg.inserted_at
-    }
   end
 end

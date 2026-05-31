@@ -5,6 +5,7 @@ defmodule GameServerWeb.ChatLive do
   alias GameServer.Chat
   alias GameServer.Friends
   alias GameServer.Groups
+  alias GameServerWeb.LiveHelpers
 
   @page_size 25
 
@@ -401,7 +402,7 @@ defmodule GameServerWeb.ChatLive do
           {:noreply, put_flash(socket, :error, gettext("Failed"))}
 
         {:error, reason} ->
-          {:noreply, put_flash(socket, :error, gettext("Failed") <> ": " <> inspect(reason))}
+          {:noreply, put_failure_flash(socket, reason)}
       end
     else
       {:noreply, socket}
@@ -460,12 +461,7 @@ defmodule GameServerWeb.ChatLive do
            |> reload_messages()}
 
         {:error, reason} ->
-          {:noreply,
-           put_flash(
-             socket,
-             :error,
-             gettext("Failed") <> ": " <> inspect(reason)
-           )}
+          {:noreply, put_failure_flash(socket, reason)}
       end
     else
       {:noreply, put_flash(socket, :error, gettext("Cannot be empty."))}
@@ -483,18 +479,17 @@ defmodule GameServerWeb.ChatLive do
          |> reload_messages()}
 
       {:error, reason} ->
-        {:noreply,
-         put_flash(
-           socket,
-           :error,
-           gettext("Failed") <> ": " <> inspect(reason)
-         )}
+        {:noreply, put_failure_flash(socket, reason)}
     end
   end
 
   # ---------------------------------------------------------------------------
   # PubSub handlers
   # ---------------------------------------------------------------------------
+
+  defp put_failure_flash(socket, reason) do
+    LiveHelpers.put_failure(socket, LiveHelpers.failure_message(gettext("Failed"), reason))
+  end
 
   @impl true
   def handle_info({:new_chat_message, msg}, socket) do

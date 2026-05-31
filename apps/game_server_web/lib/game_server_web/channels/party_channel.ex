@@ -30,6 +30,7 @@ defmodule GameServerWeb.PartyChannel do
   alias GameServer.Chat
   alias GameServer.Parties
   alias GameServerWeb.PayloadDelta
+  alias GameServerWeb.Serializers
 
   @impl true
   def join("party:" <> party_id_str, _payload, socket) do
@@ -96,13 +97,17 @@ defmodule GameServerWeb.PartyChannel do
 
   @impl true
   def handle_info({:party_member_left, _party_id, user_id}, socket) do
-    push(socket, "member_left", %{user_id: user_id, display_name: resolve_display_name(user_id)})
+    push(socket, "member_left", %{
+      user_id: user_id,
+      display_name: Serializers.display_name(user_id)
+    })
+
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:party_updated, %GameServer.Parties.Party{} = party}, socket) do
-    payload = serialize_party(party)
+    payload = Serializers.serialize_party(party)
     last_payload = Map.get(socket.assigns, :last_party_payload)
 
     case PayloadDelta.payload_delta(last_payload, payload) do
@@ -122,7 +127,7 @@ defmodule GameServerWeb.PartyChannel do
         {:noreply, socket}
 
       party ->
-        payload = serialize_party(party)
+        payload = Serializers.serialize_party(party)
         last_payload = Map.get(socket.assigns, :last_party_payload)
 
         case PayloadDelta.payload_delta(last_payload, payload) do
@@ -146,13 +151,13 @@ defmodule GameServerWeb.PartyChannel do
 
   @impl true
   def handle_info({:new_chat_message, message}, socket) do
-    push(socket, "new_chat_message", serialize_chat_message(message))
+    push(socket, "new_chat_message", Serializers.serialize_chat_message(message))
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:chat_message_updated, message}, socket) do
-    push(socket, "chat_message_updated", serialize_chat_message(message))
+    push(socket, "chat_message_updated", Serializers.serialize_chat_message(message))
     {:noreply, socket}
   end
 
@@ -211,7 +216,7 @@ defmodule GameServerWeb.PartyChannel do
 
   @impl true
   def handle_info({:after_join, party}, socket) do
-    payload = serialize_party(party)
+    payload = Serializers.serialize_party(party)
     push(socket, "updated", payload)
     {:noreply, assign(socket, :last_party_payload, payload)}
   end
@@ -232,55 +237,6 @@ defmodule GameServerWeb.PartyChannel do
 
       _ ->
         :ok
-    end
-  end
-
-  defp serialize_chat_message(msg) do
-    sender = if Ecto.assoc_loaded?(msg.sender), do: msg.sender, else: nil
-
-    %{
-      id: msg.id,
-      content: msg.content,
-      metadata: msg.metadata || %{},
-      sender_id: msg.sender_id,
-      sender_name: if(sender, do: sender.display_name || "", else: ""),
-      chat_type: msg.chat_type,
-      chat_ref_id: msg.chat_ref_id,
-      inserted_at: msg.inserted_at
-    }
-  end
-
-  defp serialize_party(party) do
-    members = Parties.get_party_members(party.id)
-
-    leader_name =
-      cond do
-        is_nil(party.leader_id) ->
-          ""
-
-        Ecto.assoc_loaded?(party.leader) and party.leader != nil ->
-          party.leader.display_name || ""
-
-        true ->
-          resolve_display_name(party.leader_id)
-      end
-
-    %{
-      id: party.id,
-      leader_id: party.leader_id,
-      leader_name: leader_name,
-      max_size: party.max_size,
-      metadata: party.metadata || %{},
-      members: Enum.map(members, &User.serialize_brief/1)
-    }
-  end
-
-  defp resolve_display_name(nil), do: ""
-
-  defp resolve_display_name(user_id) do
-    case Accounts.get_user(user_id) do
-      %{display_name: name} when is_binary(name) -> name
-      _ -> ""
     end
   end
 end

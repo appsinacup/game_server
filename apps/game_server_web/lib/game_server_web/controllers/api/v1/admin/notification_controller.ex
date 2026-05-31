@@ -2,8 +2,11 @@ defmodule GameServerWeb.Api.V1.Admin.NotificationController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
+  import GameServerWeb.Helpers.ParamParser
+
   alias GameServer.Notifications
   alias GameServerWeb.Pagination
+  alias GameServerWeb.Serializers
   alias OpenApiSpex.Schema
 
   @error_schema %Schema{type: :object, properties: %{error: %Schema{type: :string}}}
@@ -161,14 +164,14 @@ defmodule GameServerWeb.Api.V1.Admin.NotificationController do
     count = length(notifications)
 
     json(conn, %{
-      data: Enum.map(notifications, &serialize_notification/1),
+      data: Enum.map(notifications, &Serializers.serialize_notification/1),
       meta: Pagination.meta(page, page_size, count, total_count)
     })
   end
 
   def create(conn, params) do
-    sender_id = parse_int(params["sender_id"])
-    recipient_id = parse_int(params["recipient_id"])
+    sender_id = parse_id(params["sender_id"])
+    recipient_id = parse_id(params["recipient_id"])
 
     cond do
       is_nil(sender_id) ->
@@ -182,7 +185,7 @@ defmodule GameServerWeb.Api.V1.Admin.NotificationController do
           {:ok, notification} ->
             conn
             |> put_status(:created)
-            |> json(serialize_notification(notification))
+            |> json(Serializers.serialize_notification(notification))
 
           {:error, %Ecto.Changeset{} = cs} ->
             conn
@@ -204,7 +207,7 @@ defmodule GameServerWeb.Api.V1.Admin.NotificationController do
   end
 
   def delete(conn, %{"id" => id}) do
-    notification_id = parse_int(id)
+    notification_id = parse_id(id)
 
     case Notifications.admin_delete_notification(notification_id) do
       {:ok, _} ->
@@ -221,39 +224,4 @@ defmodule GameServerWeb.Api.V1.Admin.NotificationController do
   # ---------------------------------------------------------------------------
   # Helpers
   # ---------------------------------------------------------------------------
-
-  defp parse_page_params(params) do
-    page = GameServer.Limits.clamp_page(params["page"])
-    page_size = GameServer.Limits.clamp_page_size(params["page_size"])
-    {page, page_size}
-  end
-
-  defp maybe_put_filter(filters, _key, nil), do: filters
-  defp maybe_put_filter(filters, _key, ""), do: filters
-  defp maybe_put_filter(filters, key, value), do: Map.put(filters, key, value)
-
-  defp parse_int(nil), do: nil
-  defp parse_int(v) when is_integer(v), do: v
-
-  defp parse_int(v) when is_binary(v) do
-    case Integer.parse(v) do
-      {i, ""} -> i
-      _ -> nil
-    end
-  end
-
-  defp serialize_notification(n) do
-    sender = if Ecto.assoc_loaded?(n.sender), do: n.sender, else: nil
-
-    %{
-      id: n.id,
-      sender_id: n.sender_id,
-      sender_name: if(sender, do: sender.display_name || "", else: ""),
-      recipient_id: n.recipient_id,
-      title: n.title,
-      content: n.content || "",
-      metadata: n.metadata || %{},
-      inserted_at: n.inserted_at
-    }
-  end
 end

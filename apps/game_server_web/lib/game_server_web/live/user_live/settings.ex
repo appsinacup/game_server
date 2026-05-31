@@ -6,6 +6,7 @@ defmodule GameServerWeb.UserLive.Settings do
   alias GameServer.Groups
   alias GameServer.Groups.Group
   alias GameServer.KV
+  alias GameServerWeb.LiveHelpers
 
   @impl true
   def render(assigns) do
@@ -2002,7 +2003,7 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _group} ->
             {:noreply,
              socket
-             |> put_flash(:info, gettext("Success."))
+             |> put_success_flash()
              |> assign(:groups_show_create, false)
              |> assign(:create_group_form, to_form(Groups.change_group(%Group{}), as: :group))
              |> assign(:groups_tab, "my_groups")
@@ -2024,18 +2025,13 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _} ->
             {:noreply,
              socket
-             |> put_flash(:info, gettext("Success."))
+             |> put_success_flash()
              |> assign(:group_detail, nil)
              |> assign(:group_detail_role, nil)
              |> reload_groups()}
 
           {:error, reason} ->
-            {:noreply,
-             put_flash(
-               socket,
-               :error,
-               gettext("Failed") <> ": " <> inspect(reason)
-             )}
+            {:noreply, put_failure_flash(socket, reason)}
         end
 
       {"group_join", %{"group_id" => gid}} ->
@@ -2045,16 +2041,11 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _} ->
             {:noreply,
              socket
-             |> put_flash(:info, gettext("Success."))
+             |> put_success_flash()
              |> reload_groups()}
 
           {:error, reason} ->
-            {:noreply,
-             put_flash(
-               socket,
-               :error,
-               gettext("Failed") <> ": " <> inspect(reason)
-             )}
+            {:noreply, put_failure_flash(socket, reason)}
         end
 
       {"group_request_join", %{"group_id" => gid}} ->
@@ -2064,16 +2055,11 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _} ->
             {:noreply,
              socket
-             |> put_flash(:info, gettext("Success."))
+             |> put_success_flash()
              |> reload_groups()}
 
           {:error, reason} ->
-            {:noreply,
-             put_flash(
-               socket,
-               :error,
-               gettext("Failed") <> ": " <> inspect(reason)
-             )}
+            {:noreply, put_failure_flash(socket, reason)}
         end
 
       {"group_accept_invite", %{"invite_id" => iid}} ->
@@ -2083,16 +2069,11 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _} ->
             {:noreply,
              socket
-             |> put_flash(:info, gettext("Success."))
+             |> put_success_flash()
              |> reload_groups()}
 
           {:error, reason} ->
-            {:noreply,
-             put_flash(
-               socket,
-               :error,
-               gettext("Failed") <> ": " <> inspect(reason)
-             )}
+            {:noreply, put_failure_flash(socket, reason)}
         end
 
       {"group_decline_invite", %{"invite_id" => iid}} ->
@@ -2102,16 +2083,11 @@ defmodule GameServerWeb.UserLive.Settings do
           :ok ->
             {:noreply,
              socket
-             |> put_flash(:info, gettext("Success."))
+             |> put_success_flash()
              |> reload_groups()}
 
           {:error, reason} ->
-            {:noreply,
-             put_flash(
-               socket,
-               :error,
-               gettext("Failed") <> ": " <> inspect(reason)
-             )}
+            {:noreply, put_failure_flash(socket, reason)}
         end
 
       {"group_cancel_request", %{"request_id" => rid}} ->
@@ -2121,16 +2097,11 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _} ->
             {:noreply,
              socket
-             |> put_flash(:info, gettext("Success."))
+             |> put_success_flash()
              |> reload_groups()}
 
           {:error, reason} ->
-            {:noreply,
-             put_flash(
-               socket,
-               :error,
-               gettext("Failed") <> ": " <> inspect(reason)
-             )}
+            {:noreply, put_failure_flash(socket, reason)}
         end
 
       {"group_cancel_invite", %{"invite_id" => iid}} ->
@@ -2140,16 +2111,11 @@ defmodule GameServerWeb.UserLive.Settings do
           :ok ->
             {:noreply,
              socket
-             |> put_flash(:info, gettext("Success."))
+             |> put_success_flash()
              |> reload_groups()}
 
           {:error, reason} ->
-            {:noreply,
-             put_flash(
-               socket,
-               :error,
-               gettext("Failed") <> ": " <> inspect(reason)
-             )}
+            {:noreply, put_failure_flash(socket, reason)}
         end
 
       {"group_approve_request", %{"request_id" => rid}} ->
@@ -2159,7 +2125,7 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _} ->
             {:noreply,
              socket
-             |> put_flash(:info, gettext("Success."))
+             |> put_success_flash()
              |> assign(
                :group_join_requests,
                Enum.reject(socket.assigns.group_join_requests, &(&1.id == rid))
@@ -2168,12 +2134,7 @@ defmodule GameServerWeb.UserLive.Settings do
              |> reload_groups()}
 
           {:error, reason} ->
-            {:noreply,
-             put_flash(
-               socket,
-               :error,
-               gettext("Failed") <> ": " <> inspect(reason)
-             )}
+            {:noreply, put_failure_flash(socket, reason)}
         end
 
       {"group_reject_request", %{"request_id" => rid}} ->
@@ -2183,19 +2144,14 @@ defmodule GameServerWeb.UserLive.Settings do
           {:ok, _} ->
             {:noreply,
              socket
-             |> put_flash(:info, gettext("Success."))
+             |> put_success_flash()
              |> assign(
                :group_join_requests,
                Enum.reject(socket.assigns.group_join_requests, &(&1.id == rid))
              )}
 
           {:error, reason} ->
-            {:noreply,
-             put_flash(
-               socket,
-               :error,
-               gettext("Failed") <> ": " <> inspect(reason)
-             )}
+            {:noreply, put_failure_flash(socket, reason)}
         end
 
       {"browse_groups_filter", %{"browse_groups" => filter_params}} ->
@@ -2750,6 +2706,12 @@ defmodule GameServerWeb.UserLive.Settings do
   # ---------------------------------------------------------------------------
   # Groups helpers
   # ---------------------------------------------------------------------------
+
+  defp put_success_flash(socket), do: LiveHelpers.put_success(socket, gettext("Success."))
+
+  defp put_failure_flash(socket, reason) do
+    LiveHelpers.put_failure(socket, LiveHelpers.failure_message(gettext("Failed"), reason))
+  end
 
   defp reload_groups(socket) do
     user = get_user_from_scope(socket.assigns)

@@ -2,7 +2,10 @@ defmodule GameServerWeb.Api.V1.Admin.ChatController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
+  import GameServerWeb.Helpers.ParamParser
+
   alias GameServer.Chat
+  alias GameServerWeb.Serializers
   alias OpenApiSpex.Schema
 
   tags(["Admin – Chat"])
@@ -122,10 +125,10 @@ defmodule GameServerWeb.Api.V1.Admin.ChatController do
   def index(conn, params) do
     filters =
       %{}
-      |> maybe_put(:sender_id, params)
-      |> maybe_put(:chat_type, params)
-      |> maybe_put(:chat_ref_id, params)
-      |> maybe_put(:content, params)
+      |> maybe_put_param_filter(:sender_id, params)
+      |> maybe_put_param_filter(:chat_type, params)
+      |> maybe_put_param_filter(:chat_ref_id, params)
+      |> maybe_put_param_filter(:content, params)
 
     {page, page_size} = parse_page_params(params)
     sort_by = Map.get(params, "sort_by")
@@ -179,46 +182,10 @@ defmodule GameServerWeb.Api.V1.Admin.ChatController do
   # Helpers
   # ---------------------------------------------------------------------------
 
-  defp serialize_message(message) do
-    sender = if Ecto.assoc_loaded?(message.sender), do: message.sender, else: nil
-
-    %{
-      id: message.id,
-      sender_id: message.sender_id,
-      sender_name: if(sender, do: sender.display_name || "", else: ""),
-      sender_email: if(sender, do: sender.email, else: ""),
-      content: message.content,
-      metadata: message.metadata || %{},
-      chat_type: message.chat_type,
-      chat_ref_id: message.chat_ref_id,
-      inserted_at: message.inserted_at,
-      updated_at: message.updated_at
-    }
-  end
-
-  defp parse_id(nil), do: nil
-  defp parse_id(id) when is_integer(id), do: id
-
-  defp parse_id(id) when is_binary(id) do
-    case Integer.parse(id) do
-      {i, ""} -> i
-      _ -> nil
-    end
-  end
-
-  defp parse_page_params(params) do
-    page = GameServer.Limits.clamp_page(params["page"] || params[:page])
-    page_size = GameServer.Limits.clamp_page_size(params["page_size"] || params[:page_size])
-    {page, page_size}
-  end
-
-  defp maybe_put(filters, key, params) do
-    string_key = Atom.to_string(key)
-
-    case Map.get(params, string_key) || Map.get(params, key) do
-      nil -> filters
-      "" -> filters
-      v -> Map.put(filters, key, v)
-    end
-  end
+  defp serialize_message(message),
+    do:
+      Serializers.serialize_chat_message(message,
+        include_updated_at: true,
+        include_sender_email: true
+      )
 end

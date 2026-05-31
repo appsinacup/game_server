@@ -8,29 +8,7 @@ defmodule GameServer.LobbiesTest do
 
   describe "lobbies and memberships" do
     defmodule CaptureHook do
-      @behaviour GameServer.Hooks
-
-      @impl true
-      def after_startup, do: :ok
-
-      @impl true
-      def before_stop, do: :ok
-
-      @impl true
-      def after_user_register(_user), do: :ok
-
-      @impl true
-      def after_user_login(_user), do: :ok
-
-      # Lobby lifecycle hooks - implement minimal no-ops and capture after_lobby_join
-      @impl true
-      def before_lobby_create(attrs), do: {:ok, attrs}
-
-      @impl true
-      def after_lobby_create(_lobby), do: :ok
-
-      @impl true
-      def before_lobby_join(user, lobby, opts), do: {:ok, {user, lobby, opts}}
+      use GameServerWeb.TestSupport.NoopHooks
 
       @impl true
       def after_lobby_join(_user, lobby) do
@@ -40,107 +18,6 @@ defmodule GameServer.LobbiesTest do
 
         :ok
       end
-
-      @impl true
-      def before_lobby_leave(user, lobby), do: {:ok, {user, lobby}}
-
-      @impl true
-      def after_lobby_leave(_user, _lobby), do: :ok
-
-      @impl true
-      def before_lobby_update(_lobby, attrs), do: {:ok, attrs}
-
-      @impl true
-      def after_lobby_update(_lobby), do: :ok
-
-      @impl true
-      def before_lobby_delete(lobby), do: {:ok, lobby}
-
-      @impl true
-      def after_lobby_delete(_lobby), do: :ok
-
-      @impl true
-      def before_user_kicked(host, target, lobby), do: {:ok, {host, target, lobby}}
-
-      @impl true
-      def after_user_kicked(_host, _target, _lobby), do: :ok
-
-      @impl true
-      def after_lobby_host_change(_lobby, _new_host_id), do: :ok
-
-      @impl true
-      def after_user_updated(_user), do: :ok
-      @impl true
-      def after_user_online(_user), do: :ok
-      @impl true
-      def after_user_offline(_user), do: :ok
-      @impl true
-      def before_user_update(_user, attrs), do: {:ok, attrs}
-
-      @impl true
-      def before_group_create(_user, attrs), do: {:ok, attrs}
-
-      @impl true
-      def after_group_create(_group), do: :ok
-
-      @impl true
-      def before_group_join(_user, _group, opts), do: {:ok, opts}
-
-      @impl true
-      def before_group_update(_group, attrs), do: {:ok, attrs}
-
-      @impl true
-      def after_group_update(_group), do: :ok
-
-      @impl true
-      def after_group_join(_user_id, _group), do: :ok
-
-      @impl true
-      def after_group_leave(_user_id, _group_id), do: :ok
-
-      @impl true
-      def after_group_delete(_group), do: :ok
-
-      @impl true
-      def after_group_kick(_admin_id, _target_id, _group_id), do: :ok
-
-      @impl true
-      def before_party_create(_user, attrs), do: {:ok, attrs}
-
-      @impl true
-      def after_party_create(_party), do: :ok
-
-      @impl true
-      def before_party_update(_party, attrs), do: {:ok, attrs}
-
-      @impl true
-      def after_party_update(_party), do: :ok
-
-      @impl true
-      def after_party_join(_user, _party), do: :ok
-
-      @impl true
-      def after_party_leave(_user, _party_id), do: :ok
-
-      @impl true
-      def after_party_kick(_target, _leader, _party), do: :ok
-
-      @impl true
-      def after_party_disband(_party), do: :ok
-
-      @impl true
-      def before_chat_message(_user, attrs), do: {:ok, attrs}
-
-      @impl true
-      def after_chat_message(_message), do: :ok
-
-      @impl true
-      def before_kv_get(_key, _opts), do: :public
-
-      @impl true
-      def on_custom_hook(_hook, _args), do: {:error, :not_implemented}
-      @impl true
-      def after_achievement_unlocked(_user_id, _achievement), do: :ok
     end
 
     setup do

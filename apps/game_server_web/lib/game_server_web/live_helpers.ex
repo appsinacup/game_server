@@ -59,4 +59,35 @@ defmodule GameServerWeb.LiveHelpers do
     window = Keyword.get(config, :general_window, :timer.seconds(60))
     {limit, window}
   end
+
+  @doc """
+  Put a standard success flash on a LiveView socket.
+  """
+  def put_success(socket, message), do: Phoenix.LiveView.put_flash(socket, :info, message)
+
+  @doc """
+  Put a standard error flash on a LiveView socket.
+  """
+  def put_failure(socket, message), do: Phoenix.LiveView.put_flash(socket, :error, message)
+
+  @doc """
+  Format a common `Failed: reason` message for LiveViews.
+  """
+  def failure_message(prefix, reason), do: prefix <> ": " <> inspect(reason)
+
+  @doc """
+  Handle `:ok`/`{:ok, value}` success and `{:error, reason}` failure tuples.
+  """
+  def handle_result(socket, result, success_message, failure_prefix, on_success) do
+    case result do
+      {:ok, value} ->
+        {:noreply, socket |> put_success(success_message) |> on_success.(value)}
+
+      :ok ->
+        {:noreply, socket |> put_success(success_message) |> on_success.(nil)}
+
+      {:error, reason} ->
+        {:noreply, put_failure(socket, failure_message(failure_prefix, reason))}
+    end
+  end
 end

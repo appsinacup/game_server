@@ -2,7 +2,10 @@ defmodule GameServerWeb.Api.V1.Admin.GroupController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
+  import GameServerWeb.Helpers.ParamParser
+
   alias GameServer.Groups
+  alias GameServerWeb.Serializers
   alias OpenApiSpex.Schema
 
   tags(["Admin – Groups"])
@@ -138,10 +141,10 @@ defmodule GameServerWeb.Api.V1.Admin.GroupController do
   def index(conn, params) do
     filters =
       %{}
-      |> maybe_put(:title, params)
-      |> maybe_put(:type, params)
-      |> maybe_put(:min_members, params)
-      |> maybe_put(:max_members, params)
+      |> maybe_put_param_filter(:title, params)
+      |> maybe_put_param_filter(:type, params)
+      |> maybe_put_param_filter(:min_members, params)
+      |> maybe_put_param_filter(:max_members, params)
 
     {page, page_size} = parse_page_params(params)
     sort_by = Map.get(params, "sort_by")
@@ -208,69 +211,11 @@ defmodule GameServerWeb.Api.V1.Admin.GroupController do
   # Helpers
   # ---------------------------------------------------------------------------
 
-  defp serialize_group(group) do
-    member_count = Groups.count_group_members(group.id)
-
-    creator_name =
-      cond do
-        is_nil(group.creator_id) ->
-          ""
-
-        Ecto.assoc_loaded?(group.creator) and group.creator != nil ->
-          group.creator.display_name || ""
-
-        true ->
-          resolve_display_name(group.creator_id)
-      end
-
-    %{
-      id: group.id,
-      title: group.title,
-      description: group.description || "",
-      type: group.type,
-      max_members: group.max_members,
-      metadata: group.metadata || %{},
-      creator_id: group.creator_id,
-      creator_name: creator_name,
-      member_count: member_count,
-      slowdown: group.slowdown,
-      inserted_at: group.inserted_at,
-      updated_at: group.updated_at
-    }
-  end
-
-  defp resolve_display_name(nil), do: ""
-
-  defp resolve_display_name(user_id) do
-    case GameServer.Accounts.get_user(user_id) do
-      %{display_name: name} when is_binary(name) -> name
-      _ -> ""
-    end
-  end
-
-  defp parse_id(nil), do: nil
-  defp parse_id(id) when is_integer(id), do: id
-
-  defp parse_id(id) when is_binary(id) do
-    case Integer.parse(id) do
-      {i, ""} -> i
-      _ -> nil
-    end
-  end
-
-  defp parse_page_params(params) do
-    page = GameServer.Limits.clamp_page(params["page"] || params[:page])
-    page_size = GameServer.Limits.clamp_page_size(params["page_size"] || params[:page_size])
-    {page, page_size}
-  end
-
-  defp maybe_put(filters, key, params) do
-    string_key = Atom.to_string(key)
-
-    case Map.get(params, string_key) || Map.get(params, key) do
-      nil -> filters
-      "" -> filters
-      v -> Map.put(filters, key, v)
-    end
-  end
+  defp serialize_group(group),
+    do:
+      Serializers.serialize_group(group,
+        include_member_count: true,
+        include_slowdown: true,
+        include_timestamps: true
+      )
 end

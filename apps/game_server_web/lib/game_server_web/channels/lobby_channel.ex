@@ -36,6 +36,7 @@ defmodule GameServerWeb.LobbyChannel do
   alias GameServer.Lobbies
   alias GameServer.Lobbies.SpectatorTracker
   alias GameServerWeb.PayloadDelta
+  alias GameServerWeb.Serializers
 
   @impl true
   def join("lobby:" <> lobby_id_str, _payload, socket) do
@@ -119,19 +120,24 @@ defmodule GameServerWeb.LobbyChannel do
 
   @impl true
   def handle_info({:user_left, _lobby_id, user_id}, socket) do
-    push(socket, "user_left", %{user_id: user_id, display_name: resolve_display_name(user_id)})
+    push(socket, "user_left", %{user_id: user_id, display_name: Serializers.display_name(user_id)})
+
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:user_kicked, _lobby_id, user_id}, socket) do
-    push(socket, "user_kicked", %{user_id: user_id, display_name: resolve_display_name(user_id)})
+    push(socket, "user_kicked", %{
+      user_id: user_id,
+      display_name: Serializers.display_name(user_id)
+    })
+
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:lobby_updated, lobby}, socket) do
-    payload = serialize_lobby(lobby)
+    payload = Serializers.serialize_lobby(lobby, include_members: true)
     last_payload = Map.get(socket.assigns, :last_lobby_payload)
 
     case PayloadDelta.payload_delta(last_payload, payload) do
@@ -148,7 +154,7 @@ defmodule GameServerWeb.LobbyChannel do
   def handle_info({:host_changed, _lobby_id, new_host_id}, socket) do
     push(socket, "host_changed", %{
       new_host_id: new_host_id,
-      display_name: resolve_display_name(new_host_id)
+      display_name: Serializers.display_name(new_host_id)
     })
 
     {:noreply, socket}
@@ -156,20 +162,24 @@ defmodule GameServerWeb.LobbyChannel do
 
   @impl true
   def handle_info({:after_join, lobby}, socket) do
-    payload = serialize_lobby(lobby) |> Map.put(:spectator, socket.assigns[:spectator] || false)
+    payload =
+      lobby
+      |> Serializers.serialize_lobby(include_members: true)
+      |> Map.put(:spectator, socket.assigns[:spectator] || false)
+
     push(socket, "updated", payload)
     {:noreply, assign(socket, :last_lobby_payload, payload)}
   end
 
   @impl true
   def handle_info({:new_chat_message, message}, socket) do
-    push(socket, "new_chat_message", serialize_chat_message(message))
+    push(socket, "new_chat_message", Serializers.serialize_chat_message(message))
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:chat_message_updated, message}, socket) do
-    push(socket, "chat_message_updated", serialize_chat_message(message))
+    push(socket, "chat_message_updated", Serializers.serialize_chat_message(message))
     {:noreply, socket}
   end
 
@@ -244,57 +254,5 @@ defmodule GameServerWeb.LobbyChannel do
       _ ->
         :ok
     end
-  end
-
-  defp serialize_lobby(lobby) do
-    host_id = if is_nil(lobby.host_id), do: -1, else: lobby.host_id
-
-    host_name =
-      cond do
-        is_nil(lobby.host_id) -> ""
-        Ecto.assoc_loaded?(lobby.host) and lobby.host != nil -> lobby.host.display_name || ""
-        true -> resolve_display_name(lobby.host_id)
-      end
-
-    members =
-      Lobbies.get_lobby_members(lobby)
-      |> Enum.map(&User.serialize_brief/1)
-
-    %{
-      id: lobby.id,
-      title: lobby.title,
-      host_id: host_id,
-      host_name: host_name,
-      hostless: lobby.hostless,
-      max_users: lobby.max_users,
-      is_hidden: lobby.is_hidden,
-      is_locked: lobby.is_locked,
-      metadata: lobby.metadata || %{},
-      members: members
-    }
-  end
-
-  defp resolve_display_name(nil), do: ""
-
-  defp resolve_display_name(user_id) do
-    case Accounts.get_user(user_id) do
-      %{display_name: name} when is_binary(name) -> name
-      _ -> ""
-    end
-  end
-
-  defp serialize_chat_message(msg) do
-    sender = if Ecto.assoc_loaded?(msg.sender), do: msg.sender, else: nil
-
-    %{
-      id: msg.id,
-      content: msg.content,
-      metadata: msg.metadata || %{},
-      sender_id: msg.sender_id,
-      sender_name: if(sender, do: sender.display_name || "", else: ""),
-      chat_type: msg.chat_type,
-      chat_ref_id: msg.chat_ref_id,
-      inserted_at: msg.inserted_at
-    }
   end
 end

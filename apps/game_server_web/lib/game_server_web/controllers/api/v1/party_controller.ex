@@ -4,8 +4,8 @@ defmodule GameServerWeb.Api.V1.PartyController do
 
   import GameServerWeb.Helpers.ParamParser
 
-  alias GameServer.Accounts.User
   alias GameServer.Parties
+  alias GameServerWeb.Serializers
   alias OpenApiSpex.Schema
 
   tags(["Parties"])
@@ -811,62 +811,10 @@ defmodule GameServerWeb.Api.V1.PartyController do
   # ---------------------------------------------------------------------------
 
   defp serialize_party(party) do
-    members = Parties.get_party_members(party.id)
-
-    leader_name =
-      cond do
-        is_nil(party.leader_id) ->
-          ""
-
-        Ecto.assoc_loaded?(party.leader) and party.leader != nil ->
-          party.leader.display_name || ""
-
-        true ->
-          resolve_display_name(party.leader_id)
-      end
-
-    %{
-      id: party.id,
-      leader_id: party.leader_id,
-      leader_name: leader_name,
-      max_size: party.max_size,
-      metadata: party.metadata || %{},
-      members: Enum.map(members, &User.serialize_brief/1),
-      inserted_at: party.inserted_at,
-      updated_at: party.updated_at
-    }
+    Serializers.serialize_party(party, include_timestamps: true)
   end
 
   defp serialize_lobby(lobby) do
-    host_id = if is_nil(lobby.host_id), do: -1, else: lobby.host_id
-
-    host_name =
-      cond do
-        is_nil(lobby.host_id) -> ""
-        Ecto.assoc_loaded?(lobby.host) and lobby.host != nil -> lobby.host.display_name || ""
-        true -> resolve_display_name(lobby.host_id)
-      end
-
-    %{
-      id: lobby.id,
-      title: lobby.title,
-      host_id: host_id,
-      host_name: host_name,
-      hostless: lobby.hostless,
-      max_users: lobby.max_users,
-      is_hidden: lobby.is_hidden,
-      is_locked: lobby.is_locked,
-      metadata: lobby.metadata || %{},
-      is_passworded: lobby.password_hash != nil
-    }
-  end
-
-  defp resolve_display_name(nil), do: ""
-
-  defp resolve_display_name(user_id) do
-    case GameServer.Accounts.get_user(user_id) do
-      %{display_name: name} when is_binary(name) -> name
-      _ -> ""
-    end
+    Serializers.serialize_lobby(lobby, include_passworded: true)
   end
 end

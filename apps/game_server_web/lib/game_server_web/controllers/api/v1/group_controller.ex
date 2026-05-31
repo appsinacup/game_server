@@ -2,8 +2,11 @@ defmodule GameServerWeb.Api.V1.GroupController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
+  import GameServerWeb.Helpers.ParamParser
+
   alias GameServer.Accounts.User
   alias GameServer.Groups
+  alias GameServerWeb.Serializers
   alias OpenApiSpex.Schema
 
   tags(["Groups"])
@@ -1368,43 +1371,11 @@ defmodule GameServerWeb.Api.V1.GroupController do
   end
 
   defp serialize_group(group, member_counts \\ %{}) do
-    member_count = Map.get(member_counts, group.id) || Groups.count_group_members(group.id)
-
-    creator_name =
-      cond do
-        is_nil(group.creator_id) ->
-          ""
-
-        Ecto.assoc_loaded?(group.creator) and group.creator != nil ->
-          group.creator.display_name || ""
-
-        true ->
-          resolve_display_name(group.creator_id)
-      end
-
-    %{
-      id: group.id,
-      title: group.title,
-      description: group.description || "",
-      type: group.type,
-      max_members: group.max_members,
-      metadata: group.metadata || %{},
-      creator_id: group.creator_id,
-      creator_name: creator_name,
-      member_count: member_count,
-      slowdown: group.slowdown,
-      inserted_at: group.inserted_at,
-      updated_at: group.updated_at
-    }
-  end
-
-  defp resolve_display_name(nil), do: ""
-
-  defp resolve_display_name(user_id) do
-    case GameServer.Accounts.get_user(user_id) do
-      %{display_name: name} when is_binary(name) -> name
-      _ -> ""
-    end
+    Serializers.serialize_group(group,
+      member_counts: member_counts,
+      include_slowdown: true,
+      include_timestamps: true
+    )
   end
 
   defp serialize_member(member) do
@@ -1449,42 +1420,4 @@ defmodule GameServerWeb.Api.V1.GroupController do
       inserted_at: request.inserted_at
     }
   end
-
-  defp parse_id(nil), do: nil
-
-  defp parse_id(id) when is_integer(id), do: id
-
-  defp parse_id(id) when is_binary(id) do
-    case Integer.parse(id) do
-      {i, ""} -> i
-      _ -> nil
-    end
-  end
-
-  defp parse_page_params(params) do
-    page = GameServer.Limits.clamp_page(params["page"] || params[:page])
-    page_size = GameServer.Limits.clamp_page_size(params["page_size"] || params[:page_size])
-    {page, page_size}
-  end
-
-  defp param_value(params, string_key, atom_key) when is_map(params) do
-    Map.get(params, string_key) || Map.get(params, atom_key)
-  end
-
-  defp maybe_put_string_filter(filters, _key, nil), do: filters
-  defp maybe_put_string_filter(filters, _key, ""), do: filters
-  defp maybe_put_string_filter(filters, key, v) when is_binary(v), do: Map.put(filters, key, v)
-  defp maybe_put_string_filter(filters, _key, _v), do: filters
-
-  defp maybe_put_int_filter(filters, _key, nil), do: filters
-
-  defp maybe_put_int_filter(filters, key, v) when is_binary(v) do
-    case Integer.parse(v) do
-      {i, _} -> Map.put(filters, key, i)
-      _ -> filters
-    end
-  end
-
-  defp maybe_put_int_filter(filters, key, v) when is_integer(v), do: Map.put(filters, key, v)
-  defp maybe_put_int_filter(filters, _key, _v), do: filters
 end

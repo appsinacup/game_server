@@ -2,9 +2,11 @@ defmodule GameServerWeb.Api.V1.Admin.LobbyController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
+  import GameServerWeb.Helpers.ParamParser
+
   alias GameServer.Lobbies
-  alias GameServer.Lobbies.SpectatorTracker
   alias GameServerWeb.Pagination
+  alias GameServerWeb.Serializers
   alias OpenApiSpex.Schema
 
   tags(["Admin – Lobbies"])
@@ -213,73 +215,10 @@ defmodule GameServerWeb.Api.V1.Admin.LobbyController do
   end
 
   defp serialize_lobby(lobby) do
-    host_id = if is_nil(lobby.host_id), do: -1, else: lobby.host_id
-
-    host_name =
-      cond do
-        is_nil(lobby.host_id) -> ""
-        Ecto.assoc_loaded?(lobby.host) and lobby.host != nil -> lobby.host.display_name || ""
-        true -> resolve_display_name(lobby.host_id)
-      end
-
-    %{
-      id: lobby.id,
-      title: lobby.title,
-      host_id: host_id,
-      host_name: host_name,
-      hostless: lobby.hostless,
-      max_users: lobby.max_users,
-      is_hidden: lobby.is_hidden,
-      is_locked: lobby.is_locked,
-      is_passworded: not is_nil(lobby.password_hash),
-      metadata: lobby.metadata || %{},
-      slowdown: lobby.slowdown,
-      spectator_count: SpectatorTracker.count(lobby.id)
-    }
+    Serializers.serialize_lobby(lobby,
+      include_passworded: true,
+      include_slowdown: true,
+      include_spectator_count: true
+    )
   end
-
-  defp resolve_display_name(nil), do: ""
-
-  defp resolve_display_name(user_id) do
-    case GameServer.Accounts.get_user(user_id) do
-      %{display_name: name} when is_binary(name) -> name
-      _ -> ""
-    end
-  end
-
-  defp parse_page_params(params) do
-    page = GameServer.Limits.clamp_page(params["page"] || params[:page])
-    page_size = GameServer.Limits.clamp_page_size(params["page_size"] || params[:page_size])
-    {page, page_size}
-  end
-
-  defp maybe_put_string_filter(filters, _key, nil), do: filters
-  defp maybe_put_string_filter(filters, _key, ""), do: filters
-  defp maybe_put_string_filter(filters, key, v) when is_binary(v), do: Map.put(filters, key, v)
-  defp maybe_put_string_filter(filters, _key, _v), do: filters
-
-  defp maybe_put_bool_filter(filters, _key, nil), do: filters
-
-  defp maybe_put_bool_filter(filters, key, v) when is_binary(v) do
-    case String.downcase(v) do
-      "true" -> Map.put(filters, key, true)
-      "false" -> Map.put(filters, key, false)
-      _ -> filters
-    end
-  end
-
-  defp maybe_put_bool_filter(filters, key, v) when is_boolean(v), do: Map.put(filters, key, v)
-  defp maybe_put_bool_filter(filters, _key, _v), do: filters
-
-  defp maybe_put_int_filter(filters, _key, nil), do: filters
-
-  defp maybe_put_int_filter(filters, key, v) when is_binary(v) do
-    case Integer.parse(v) do
-      {i, _} -> Map.put(filters, key, i)
-      _ -> filters
-    end
-  end
-
-  defp maybe_put_int_filter(filters, key, v) when is_integer(v), do: Map.put(filters, key, v)
-  defp maybe_put_int_filter(filters, _key, _v), do: filters
 end

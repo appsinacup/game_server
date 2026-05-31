@@ -12,6 +12,7 @@ defmodule GameServerWeb.LobbiesChannel do
 
   alias GameServer.Lobbies
   alias GameServerWeb.PayloadDelta
+  alias GameServerWeb.Serializers
 
   @impl true
   def join("lobbies", _payload, socket) do
@@ -27,14 +28,14 @@ defmodule GameServerWeb.LobbiesChannel do
 
   @impl true
   def handle_info({:lobby_created, lobby}, socket) do
-    payload = serialize_lobby(lobby)
+    payload = Serializers.serialize_lobby(lobby, include_passworded: true)
     push(socket, "lobby_created", payload)
     {:noreply, put_lobby_payload(socket, payload)}
   end
 
   @impl true
   def handle_info({:lobby_updated, lobby}, socket) do
-    payload = serialize_lobby(lobby)
+    payload = Serializers.serialize_lobby(lobby, include_passworded: true)
     last_payload = get_lobby_payload(socket, payload.id)
 
     case PayloadDelta.payload_delta(last_payload, payload) do
@@ -71,38 +72,5 @@ defmodule GameServerWeb.LobbiesChannel do
   defp put_lobby_payload(socket, payload) do
     payloads = Map.get(socket.assigns, :last_lobby_payloads, %{})
     assign(socket, :last_lobby_payloads, Map.put(payloads, payload.id, payload))
-  end
-
-  defp serialize_lobby(lobby) do
-    host_id = if is_nil(lobby.host_id), do: -1, else: lobby.host_id
-
-    host_name =
-      cond do
-        is_nil(lobby.host_id) -> ""
-        Ecto.assoc_loaded?(lobby.host) and lobby.host != nil -> lobby.host.display_name || ""
-        true -> resolve_display_name(lobby.host_id)
-      end
-
-    %{
-      id: lobby.id,
-      title: lobby.title,
-      host_id: host_id,
-      host_name: host_name,
-      hostless: lobby.hostless,
-      max_users: lobby.max_users,
-      is_hidden: lobby.is_hidden,
-      is_locked: lobby.is_locked,
-      metadata: lobby.metadata || %{},
-      is_passworded: lobby.password_hash != nil
-    }
-  end
-
-  defp resolve_display_name(nil), do: ""
-
-  defp resolve_display_name(user_id) do
-    case GameServer.Accounts.get_user(user_id) do
-      %{display_name: name} when is_binary(name) -> name
-      _ -> ""
-    end
   end
 end

@@ -5,6 +5,7 @@ defmodule GameServerWeb.Api.V1.NotificationController do
   import GameServerWeb.Helpers.ParamParser
 
   alias GameServer.Notifications
+  alias GameServerWeb.Serializers
   alias OpenApiSpex.Schema
 
   @error_schema %Schema{type: :object, properties: %{error: %Schema{type: :string}}}
@@ -174,7 +175,7 @@ defmodule GameServerWeb.Api.V1.NotificationController do
         count = length(notifications)
 
         json(conn, %{
-          data: Enum.map(notifications, &serialize_notification/1),
+          data: Enum.map(notifications, &Serializers.serialize_notification/1),
           meta: %{
             page: page,
             page_size: page_size,
@@ -197,7 +198,7 @@ defmodule GameServerWeb.Api.V1.NotificationController do
           {:ok, notification} ->
             conn
             |> put_status(:created)
-            |> json(serialize_notification(notification))
+            |> json(Serializers.serialize_notification(notification))
 
           {:error, :missing_recipient} ->
             conn |> put_status(:bad_request) |> json(%{error: "missing_recipient"})
@@ -253,25 +254,4 @@ defmodule GameServerWeb.Api.V1.NotificationController do
   # ---------------------------------------------------------------------------
   # Helpers
   # ---------------------------------------------------------------------------
-
-  defp parse_page_params(params) do
-    page = GameServer.Limits.clamp_page(params["page"] || params[:page])
-    page_size = GameServer.Limits.clamp_page_size(params["page_size"] || params[:page_size])
-    {page, page_size}
-  end
-
-  defp serialize_notification(notification) do
-    sender = if Ecto.assoc_loaded?(notification.sender), do: notification.sender, else: nil
-
-    %{
-      id: notification.id,
-      sender_id: notification.sender_id,
-      sender_name: if(sender, do: sender.display_name || "", else: ""),
-      recipient_id: notification.recipient_id,
-      title: notification.title,
-      content: notification.content || "",
-      metadata: notification.metadata || %{},
-      inserted_at: notification.inserted_at
-    }
-  end
 end

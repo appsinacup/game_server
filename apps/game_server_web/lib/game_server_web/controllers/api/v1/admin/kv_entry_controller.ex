@@ -2,6 +2,8 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
   use GameServerWeb, :controller
   use OpenApiSpex.ControllerSpecs
 
+  import GameServerWeb.Helpers.ParamParser
+
   alias GameServer.KV
   alias GameServerWeb.Pagination
   alias OpenApiSpex.Schema
@@ -225,43 +227,6 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
       updated_at: entry.updated_at
     }
   end
-
-  defp parse_page_params(params) do
-    page = GameServer.Limits.clamp_page(params["page"] || params[:page])
-    page_size = GameServer.Limits.clamp_page_size(params["page_size"] || params[:page_size])
-    {page, page_size}
-  end
-
-  defp maybe_put_int_opt(opts, _key, nil), do: opts
-
-  defp maybe_put_int_opt(opts, key, v) when is_binary(v) do
-    case Integer.parse(v) do
-      {i, _} -> Keyword.put(opts, key, i)
-      _ -> opts
-    end
-  end
-
-  defp maybe_put_int_opt(opts, key, v) when is_integer(v), do: Keyword.put(opts, key, v)
-  defp maybe_put_int_opt(opts, _key, _v), do: opts
-
-  defp maybe_put_string_opt(opts, _key, nil), do: opts
-  defp maybe_put_string_opt(opts, _key, ""), do: opts
-  defp maybe_put_string_opt(opts, key, v) when is_binary(v), do: Keyword.put(opts, key, v)
-  defp maybe_put_string_opt(opts, _key, _v), do: opts
-
-  defp maybe_put_bool_opt(opts, _key, nil), do: opts
-  defp maybe_put_bool_opt(opts, key, true), do: Keyword.put(opts, key, true)
-  defp maybe_put_bool_opt(opts, key, false), do: Keyword.put(opts, key, false)
-
-  defp maybe_put_bool_opt(opts, key, v) when is_binary(v) do
-    case String.downcase(v) do
-      "true" -> Keyword.put(opts, key, true)
-      "false" -> Keyword.put(opts, key, false)
-      _ -> opts
-    end
-  end
-
-  defp maybe_put_bool_opt(opts, _key, _v), do: opts
 
   defp normalize_entry_attrs(params) when is_map(params) do
     params

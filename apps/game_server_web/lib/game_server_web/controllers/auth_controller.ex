@@ -153,6 +153,19 @@ defmodule GameServerWeb.AuthController do
 
   # Handle the session-based OAuth callback (browser redirect flow).
   # If link_user_id is present in the session data, links the provider instead of login.
+  defp handle_session_oauth_callback(conn, session_id, user_params, provider) do
+    config = oauth_provider!(provider)
+
+    handle_session_oauth_callback(
+      conn,
+      session_id,
+      user_params,
+      config.id_field,
+      config.changeset,
+      config.finder
+    )
+  end
+
   defp handle_session_oauth_callback(
          conn,
          session_id,
@@ -330,6 +343,273 @@ defmodule GameServerWeb.AuthController do
     |> redirect(to: ~p"/users/log-in")
   end
 
+  defp oauth_provider(provider) do
+    case provider do
+      "discord" ->
+        {:ok,
+         %{
+           label: "Discord",
+           id_field: :discord_id,
+           changeset: &User.discord_oauth_changeset/2,
+           finder: &Accounts.find_or_create_from_discord/1
+         }}
+
+      "google" ->
+        {:ok,
+         %{
+           label: "Google",
+           id_field: :google_id,
+           changeset: &User.google_oauth_changeset/2,
+           finder: &Accounts.find_or_create_from_google/1
+         }}
+
+      "facebook" ->
+        {:ok,
+         %{
+           label: "Facebook",
+           id_field: :facebook_id,
+           changeset: &User.facebook_oauth_changeset/2,
+           finder: &Accounts.find_or_create_from_facebook/1
+         }}
+
+      "apple" ->
+        {:ok,
+         %{
+           label: "Apple",
+           id_field: :apple_id,
+           changeset: &User.apple_oauth_changeset/2,
+           finder: &Accounts.find_or_create_from_apple/1
+         }}
+
+      "steam" ->
+        {:ok,
+         %{
+           label: "Steam",
+           id_field: :steam_id,
+           changeset: &User.steam_oauth_changeset/2,
+           finder: &Accounts.find_or_create_from_steam/1
+         }}
+
+      _ ->
+        {:error, :unsupported_provider}
+    end
+  end
+
+  defp oauth_provider!(provider) do
+    {:ok, config} = oauth_provider(provider)
+    config
+  end
+
+  defp exchange_oauth_code(provider, code, client_type \\ :web) do
+    with {:ok, _config} <- oauth_provider(provider),
+         {:ok, user_info} <- exchange_provider_code(provider, code, client_type),
+         {:ok, user_params} <- oauth_user_params(provider, user_info) do
+      {:ok, user_params}
+    end
+  end
+
+  defp exchange_provider_code("discord", code, :web) do
+    exchanger = oauth_exchanger()
+
+    exchanger.exchange_discord_code(
+      code,
+      System.get_env("DISCORD_CLIENT_ID"),
+      System.get_env("DISCORD_CLIENT_SECRET"),
+      oauth_redirect_uri("discord")
+    )
+  end
+
+  defp exchange_provider_code("google", code, :web) do
+    exchanger = oauth_exchanger()
+
+    exchanger.exchange_google_code(
+      code,
+      System.get_env("GOOGLE_CLIENT_ID"),
+      System.get_env("GOOGLE_CLIENT_SECRET"),
+      oauth_redirect_uri("google")
+    )
+  end
+
+  defp exchange_provider_code("facebook", code, :web) do
+    exchanger = oauth_exchanger()
+
+    exchanger.exchange_facebook_code(
+      code,
+      System.get_env("FACEBOOK_CLIENT_ID"),
+      System.get_env("FACEBOOK_CLIENT_SECRET"),
+      oauth_redirect_uri("facebook")
+    )
+  end
+
+  defp exchange_provider_code("apple", code, client_type) when client_type in [:web, :ios] do
+    exchanger = oauth_exchanger()
+    client_id = if client_type == :ios, do: apple_ios_client_id(), else: apple_web_client_id()
+    client_secret = apple_client_secret(client_id)
+    exchanger.exchange_apple_code(code, client_id, client_secret, oauth_redirect_uri("apple"))
+  end
+
+  defp oauth_exchanger do
+    Application.get_env(:game_server_web, :oauth_exchanger, GameServer.OAuth.Exchanger)
+  end
+
+  defp oauth_redirect_uri(provider) do
+    "#{GameServerWeb.endpoint().url()}/auth/#{provider}/callback"
+  end
+
+  defp apple_client_secret(client_id) do
+    try do
+      GameServer.Apple.client_secret(client_id: client_id)
+    rescue
+      _ -> nil
+    end
+  end
+
+  defp oauth_user_params("discord", %{"id" => discord_id, "email" => email} = response) do
+    avatar = response["avatar"]
+    display_name = Map.get(response, "global_name") || Map.get(response, "username")
+
+    {:ok,
+     %{
+       email: email,
+       discord_id: discord_id,
+       display_name: display_name,
+       profile_url:
+         if(avatar,
+           do: "https://cdn.discordapp.com/avatars/#{discord_id}/#{avatar}.png",
+           else: nil
+         )
+     }}
+  end
+
+  defp oauth_user_params("google", %{"id" => google_id, "email" => email} = user_info) do
+    picture = Map.get(user_info, "picture")
+    name = Map.get(user_info, "name") || Map.get(user_info, "given_name")
+
+    user_params = %{email: email, google_id: google_id, display_name: name}
+
+    {:ok, if(picture, do: Map.put(user_params, :profile_url, picture), else: user_params)}
+  end
+
+  defp oauth_user_params("facebook", %{"id" => facebook_id} = user_info) do
+    profile_url =
+      user_info
+      |> Map.get("picture", %{})
+      |> Map.get("data", %{})
+      |> Map.get("url")
+
+    user_params = %{
+      email: user_info["email"],
+      facebook_id: facebook_id,
+      display_name: Map.get(user_info, "name")
+    }
+
+    {:ok, if(profile_url, do: Map.put(user_params, :profile_url, profile_url), else: user_params)}
+  end
+
+  defp oauth_user_params("apple", %{"sub" => apple_id} = user_info) do
+    {:ok,
+     %{
+       email: user_info["email"],
+       apple_id: apple_id,
+       display_name: Map.get(user_info, "name")
+     }}
+  end
+
+  defp oauth_user_params("steam", %{"id" => steam_id} = profile_info) do
+    {:ok,
+     %{
+       steam_id: steam_id,
+       display_name: Map.get(profile_info, "display_name"),
+       profile_url: Map.get(profile_info, "profile_url")
+     }}
+  end
+
+  defp oauth_user_params(_provider, _user_info), do: {:error, :missing_user_info}
+
+  defp handle_api_oauth_result(conn, provider, user_params) do
+    config = oauth_provider!(provider)
+
+    case maybe_load_user_from_jwt(conn) do
+      {:ok, %User{} = current_user} ->
+        handle_api_link(
+          conn,
+          current_user,
+          user_params,
+          config.id_field,
+          config.changeset
+        )
+
+      {:ok, nil} ->
+        handle_api_login(conn, config.finder, user_params)
+    end
+  end
+
+  defp handle_browser_oauth_callback(conn, provider, user_params) do
+    config = oauth_provider!(provider)
+
+    case conn.assigns[:current_scope] do
+      %{:user => current_user} ->
+        case Accounts.link_account(
+               current_user,
+               user_params,
+               config.id_field,
+               config.changeset
+             ) do
+          {:ok, _user} ->
+            conn
+            |> put_flash(:info, gettext("Success."))
+            |> redirect(to: ~p"/users/settings")
+
+          {:error, {:conflict, other_user}} ->
+            require Logger
+            Logger.warning("#{config.label} already linked to another user id=#{other_user.id}")
+
+            conn
+            |> put_flash(:error, gettext("Failed"))
+            |> redirect(
+              to:
+                ~p"/users/settings?conflict_provider=#{provider}&conflict_user_id=#{other_user.id}"
+            )
+
+          {:error, changeset} ->
+            require Logger
+            Logger.error("Failed to link #{config.label}: #{inspect(changeset.errors)}")
+
+            conn
+            |> put_flash(:error, gettext("Failed"))
+            |> redirect(to: ~p"/users/settings")
+        end
+
+      _ ->
+        case config.finder.(user_params) do
+          {:ok, user} ->
+            if Accounts.user_activated?(user) do
+              conn
+              |> put_flash(:info, gettext("Success."))
+              |> UserAuth.log_in_user(user)
+            else
+              conn
+              |> put_flash(
+                :error,
+                gettext("Your account is pending activation.")
+              )
+              |> redirect(to: ~p"/users/log-in")
+            end
+
+          {:error, changeset} ->
+            require Logger
+
+            Logger.error(
+              "Failed to create user from #{config.label}: #{inspect(changeset.errors)}"
+            )
+
+            conn
+            |> put_flash(:error, gettext("Failed"))
+            |> redirect(to: ~p"/users/log-in")
+        end
+    end
+  end
+
   defp dev_env? do
     Application.get_env(:game_server_web, :environment, :prod) == :dev
   end
@@ -480,233 +760,14 @@ defmodule GameServerWeb.AuthController do
   # Unified OAuth callback - handles both browser and API flows
   # API flows include a 'state' parameter with session_id
   # Browser flows don't have state
-  def callback(conn, %{"provider" => "discord", "code" => code} = params) do
-    require Logger
-
-    exchanger =
-      Application.get_env(:game_server_web, :oauth_exchanger, GameServer.OAuth.Exchanger)
-
-    client_id = System.get_env("DISCORD_CLIENT_ID")
-    secret = System.get_env("DISCORD_CLIENT_SECRET")
-    base = GameServerWeb.endpoint().url()
-    redirect_uri = "#{base}/auth/discord/callback"
-
-    case exchanger.exchange_discord_code(code, client_id, secret, redirect_uri) do
-      {:ok, %{"id" => discord_id, "email" => email} = response} ->
-        avatar = response["avatar"]
-
-        display_name = Map.get(response, "global_name") || Map.get(response, "username")
-
-        user_params = %{
-          email: email,
-          discord_id: discord_id,
-          display_name: display_name,
-          profile_url:
-            if(avatar,
-              do: "https://cdn.discordapp.com/avatars/#{discord_id}/#{avatar}.png",
-              else: nil
-            )
-        }
-
-        case dispatch_oauth_state(conn, params["state"]) do
-          {:browser, conn} ->
-            handle_browser_discord_callback(conn, user_params)
-
-          {:api, session_id} ->
-            do_find_or_create_discord_for_session(conn, user_params, session_id)
-
-          {:csrf_error, conn} ->
-            browser_oauth_error_redirect(conn, "discord", "csrf_validation_failed")
-        end
+  def callback(conn, %{"provider" => provider, "code" => code} = params)
+      when provider in ["discord", "google", "facebook", "apple"] do
+    case exchange_oauth_code(provider, code) do
+      {:ok, user_params} ->
+        handle_oauth_state_success(conn, provider, user_params, params["state"])
 
       {:error, error} ->
-        case dispatch_oauth_state(conn, params["state"]) do
-          {:browser, conn} ->
-            browser_oauth_error_redirect(conn, "discord", error)
-
-          {:api, session_id} ->
-            GameServer.OAuthSessions.create_session(session_id, %{
-              status: "error",
-              data: %{details: "authentication_failed"}
-            })
-
-            redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
-
-          {:csrf_error, conn} ->
-            browser_oauth_error_redirect(conn, "discord", "csrf_validation_failed")
-        end
-    end
-  end
-
-  def callback(conn, %{"provider" => "google", "code" => code} = params) do
-    require Logger
-
-    exchanger =
-      Application.get_env(:game_server_web, :oauth_exchanger, GameServer.OAuth.Exchanger)
-
-    client_id = System.get_env("GOOGLE_CLIENT_ID")
-    secret = System.get_env("GOOGLE_CLIENT_SECRET")
-    base = GameServerWeb.endpoint().url()
-    redirect_uri = "#{base}/auth/google/callback"
-
-    case exchanger.exchange_google_code(code, client_id, secret, redirect_uri) do
-      {:ok, %{"id" => google_id, "email" => email} = user_info} ->
-        # Google userinfo often contains a `picture` field with a profile image URL
-        picture = Map.get(user_info, "picture")
-
-        # Google userinfo commonly includes the full name under `name`.
-        name = Map.get(user_info, "name") || Map.get(user_info, "given_name")
-
-        user_params =
-          %{email: email, google_id: google_id, display_name: name}
-          |> Map.merge(if(picture, do: %{profile_url: picture}, else: %{}))
-
-        case dispatch_oauth_state(conn, params["state"]) do
-          {:browser, conn} ->
-            handle_browser_google_callback(conn, user_params)
-
-          {:api, session_id} ->
-            do_find_or_create_google_for_session(conn, user_params, session_id)
-
-          {:csrf_error, conn} ->
-            browser_oauth_error_redirect(conn, "google", "csrf_validation_failed")
-        end
-
-      {:error, error} ->
-        case dispatch_oauth_state(conn, params["state"]) do
-          {:browser, conn} ->
-            browser_oauth_error_redirect(conn, "google", error)
-
-          {:api, session_id} ->
-            GameServer.OAuthSessions.create_session(session_id, %{
-              status: "error",
-              data: %{details: "authentication_failed"}
-            })
-
-            redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
-
-          {:csrf_error, conn} ->
-            browser_oauth_error_redirect(conn, "google", "csrf_validation_failed")
-        end
-    end
-  end
-
-  def callback(conn, %{"provider" => "facebook", "code" => code} = params) do
-    require Logger
-
-    exchanger =
-      Application.get_env(:game_server_web, :oauth_exchanger, GameServer.OAuth.Exchanger)
-
-    client_id = System.get_env("FACEBOOK_CLIENT_ID")
-    secret = System.get_env("FACEBOOK_CLIENT_SECRET")
-    base = GameServerWeb.endpoint().url()
-    redirect_uri = "#{base}/auth/facebook/callback"
-
-    case exchanger.exchange_facebook_code(code, client_id, secret, redirect_uri) do
-      {:ok, %{"id" => facebook_id} = user_info} ->
-        # Facebook may not return email if user hasn't granted permission
-        email = user_info["email"]
-
-        # Facebook returns picture in nested structure: %{"picture" => %{"data" => %{"url" => url}}}
-        profile_url =
-          user_info
-          |> Map.get("picture", %{})
-          |> Map.get("data", %{})
-          |> Map.get("url")
-
-        # Facebook exposes a `name` field for the user's full name
-        name = Map.get(user_info, "name")
-
-        user_params = %{email: email, facebook_id: facebook_id, display_name: name}
-
-        user_params =
-          if(profile_url, do: Map.put(user_params, :profile_url, profile_url), else: user_params)
-
-        case dispatch_oauth_state(conn, params["state"]) do
-          {:browser, conn} ->
-            handle_browser_facebook_callback(conn, user_params)
-
-          {:api, session_id} ->
-            do_find_or_create_facebook_for_session(conn, user_params, session_id)
-
-          {:csrf_error, conn} ->
-            browser_oauth_error_redirect(conn, "facebook", "csrf_validation_failed")
-        end
-
-      {:error, error} ->
-        case dispatch_oauth_state(conn, params["state"]) do
-          {:browser, conn} ->
-            browser_oauth_error_redirect(conn, "facebook", error)
-
-          {:api, session_id} ->
-            GameServer.OAuthSessions.create_session(session_id, %{
-              status: "error",
-              data: %{details: "authentication_failed"}
-            })
-
-            redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
-
-          {:csrf_error, conn} ->
-            browser_oauth_error_redirect(conn, "facebook", "csrf_validation_failed")
-        end
-    end
-  end
-
-  def callback(conn, %{"provider" => "apple", "code" => code} = params) do
-    exchanger =
-      Application.get_env(:game_server_web, :oauth_exchanger, GameServer.OAuth.Exchanger)
-
-    client_id = apple_web_client_id()
-
-    client_secret =
-      try do
-        GameServer.Apple.client_secret(client_id: client_id)
-      rescue
-        _ ->
-          # In tests the APPLE_PRIVATE_KEY may be invalid, avoid blowing up the
-          # request lifecycle - exchanger implementations / mocks can handle
-          # a nil client_secret as needed.
-          nil
-      end
-
-    base = GameServerWeb.endpoint().url()
-    redirect_uri = "#{base}/auth/apple/callback"
-
-    case exchanger.exchange_apple_code(code, client_id, client_secret, redirect_uri) do
-      {:ok, %{"sub" => apple_id} = user_info} ->
-        email = user_info["email"]
-        # Apple may include name payload in the id_token on first authentication
-        name = Map.get(user_info, "name")
-
-        user_params = %{email: email, apple_id: apple_id, display_name: name}
-
-        case dispatch_oauth_state(conn, params["state"]) do
-          {:browser, conn} ->
-            handle_browser_apple_callback(conn, user_params)
-
-          {:api, session_id} ->
-            do_find_or_create_apple_for_session(conn, user_params, session_id)
-
-          {:csrf_error, conn} ->
-            browser_oauth_error_redirect(conn, "apple", "csrf_validation_failed")
-        end
-
-      {:error, error} ->
-        case dispatch_oauth_state(conn, params["state"]) do
-          {:browser, conn} ->
-            browser_oauth_error_redirect(conn, "apple", error)
-
-          {:api, session_id} ->
-            GameServer.OAuthSessions.create_session(session_id, %{
-              status: "error",
-              data: %{details: "authentication_failed"}
-            })
-
-            redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
-
-          {:csrf_error, conn} ->
-            browser_oauth_error_redirect(conn, "apple", "csrf_validation_failed")
-        end
+        handle_oauth_state_error(conn, provider, error, params["state"])
     end
   end
 
@@ -737,15 +798,15 @@ defmodule GameServerWeb.AuthController do
 
     case params["state"] do
       nil ->
-        handle_browser_steam_callback(conn, user_params)
+        handle_browser_oauth_callback(conn, "steam", user_params)
 
       session_id ->
         case OAuthSessions.get_session(session_id) do
           nil ->
-            handle_browser_steam_callback(conn, user_params)
+            handle_browser_oauth_callback(conn, "steam", user_params)
 
           _ ->
-            do_find_or_create_steam_for_session(conn, user_params, session_id)
+            handle_session_oauth_callback(conn, session_id, user_params, "steam")
         end
     end
   end
@@ -785,6 +846,37 @@ defmodule GameServerWeb.AuthController do
     conn
     |> put_flash(:error, gettext("Failed"))
     |> redirect(to: ~p"/users/log-in")
+  end
+
+  defp handle_oauth_state_success(conn, provider, user_params, state) do
+    case dispatch_oauth_state(conn, state) do
+      {:browser, conn} ->
+        handle_browser_oauth_callback(conn, provider, user_params)
+
+      {:api, session_id} ->
+        handle_session_oauth_callback(conn, session_id, user_params, provider)
+
+      {:csrf_error, conn} ->
+        browser_oauth_error_redirect(conn, provider, "csrf_validation_failed")
+    end
+  end
+
+  defp handle_oauth_state_error(conn, provider, error, state) do
+    case dispatch_oauth_state(conn, state) do
+      {:browser, conn} ->
+        browser_oauth_error_redirect(conn, provider, error)
+
+      {:api, session_id} ->
+        GameServer.OAuthSessions.create_session(session_id, %{
+          status: "error",
+          data: %{details: "authentication_failed"}
+        })
+
+        redirect(conn, to: ~p"/auth/success?session_id=#{session_id}")
+
+      {:csrf_error, conn} ->
+        browser_oauth_error_redirect(conn, provider, "csrf_validation_failed")
+    end
   end
 
   def delete(conn, _params) do
@@ -1065,186 +1157,16 @@ defmodule GameServerWeb.AuthController do
     |> json(%{error: "missing_param", message: "id_token is required"})
   end
 
-  def api_callback(conn, %{"provider" => "discord", "code" => code}) do
-    exchanger =
-      Application.get_env(:game_server_web, :oauth_exchanger, GameServer.OAuth.Exchanger)
+  def api_callback(conn, %{"provider" => provider, "code" => code})
+      when provider in ["discord", "google", "facebook", "apple"] do
+    case exchange_oauth_code(provider, code) do
+      {:ok, user_params} ->
+        handle_api_oauth_result(conn, provider, user_params)
 
-    client_id = System.get_env("DISCORD_CLIENT_ID")
-    secret = System.get_env("DISCORD_CLIENT_SECRET")
-    base = GameServerWeb.endpoint().url()
-    redirect_uri = "#{base}/auth/discord/callback"
-
-    case exchanger.exchange_discord_code(code, client_id, secret, redirect_uri) do
-      {:ok, %{"id" => discord_id, "email" => email} = response} ->
-        avatar = response["avatar"]
-
-        display_name = Map.get(response, "global_name") || Map.get(response, "username")
-
-        user_params = %{
-          email: email,
-          discord_id: discord_id,
-          display_name: display_name,
-          profile_url:
-            if(avatar,
-              do: "https://cdn.discordapp.com/avatars/#{discord_id}/#{avatar}.png",
-              else: nil
-            )
-        }
-
-        # Check if user is authenticated (linking) or not (login)
-        case maybe_load_user_from_jwt(conn) do
-          {:ok, %User{} = current_user} ->
-            handle_api_link(
-              conn,
-              current_user,
-              user_params,
-              :discord_id,
-              &User.discord_oauth_changeset/2
-            )
-
-          {:ok, nil} ->
-            handle_api_login(conn, &Accounts.find_or_create_from_discord/1, user_params)
-        end
-
-      {:error, _err} ->
-        conn
-        |> put_status(:bad_request)
-        |> json(%{error: "exchange_failed", details: "authentication_failed"})
-
-      _ ->
+      {:error, :missing_user_info} ->
         conn
         |> put_status(:bad_request)
         |> json(%{error: "exchange_failed", details: "missing id/email"})
-    end
-  end
-
-  def api_callback(conn, %{"provider" => "google", "code" => code}) do
-    exchanger =
-      Application.get_env(:game_server_web, :oauth_exchanger, GameServer.OAuth.Exchanger)
-
-    client_id = System.get_env("GOOGLE_CLIENT_ID")
-    secret = System.get_env("GOOGLE_CLIENT_SECRET")
-    base = GameServerWeb.endpoint().url()
-    redirect_uri = "#{base}/auth/google/callback"
-
-    case exchanger.exchange_google_code(code, client_id, secret, redirect_uri) do
-      {:ok, %{"id" => google_id, "email" => email} = user_info} ->
-        picture = Map.get(user_info, "picture")
-        name = Map.get(user_info, "name") || Map.get(user_info, "given_name")
-
-        user_params = %{email: email, google_id: google_id, display_name: name}
-
-        user_params =
-          if(picture, do: Map.put(user_params, :profile_url, picture), else: user_params)
-
-        # Check if user is authenticated (linking) or not (login)
-        case maybe_load_user_from_jwt(conn) do
-          {:ok, %User{} = current_user} ->
-            handle_api_link(
-              conn,
-              current_user,
-              user_params,
-              :google_id,
-              &User.google_oauth_changeset/2
-            )
-
-          {:ok, nil} ->
-            handle_api_login(conn, &Accounts.find_or_create_from_google/1, user_params)
-        end
-
-      {:error, _err} ->
-        conn
-        |> put_status(:bad_request)
-        |> json(%{error: "exchange_failed", details: "authentication_failed"})
-    end
-  end
-
-  def api_callback(conn, %{"provider" => "facebook", "code" => code}) do
-    exchanger =
-      Application.get_env(:game_server_web, :oauth_exchanger, GameServer.OAuth.Exchanger)
-
-    client_id = System.get_env("FACEBOOK_CLIENT_ID")
-    secret = System.get_env("FACEBOOK_CLIENT_SECRET")
-    base = GameServerWeb.endpoint().url()
-    redirect_uri = "#{base}/auth/facebook/callback"
-
-    case exchanger.exchange_facebook_code(code, client_id, secret, redirect_uri) do
-      {:ok, %{"id" => facebook_id} = user_info} ->
-        email = user_info["email"]
-
-        profile_url =
-          user_info
-          |> Map.get("picture", %{})
-          |> Map.get("data", %{})
-          |> Map.get("url")
-
-        name = Map.get(user_info, "name")
-
-        user_params = %{email: email, facebook_id: facebook_id, display_name: name}
-
-        user_params =
-          if(profile_url, do: Map.put(user_params, :profile_url, profile_url), else: user_params)
-
-        # Check if user is authenticated (linking) or not (login)
-        case maybe_load_user_from_jwt(conn) do
-          {:ok, %User{} = current_user} ->
-            handle_api_link(
-              conn,
-              current_user,
-              user_params,
-              :facebook_id,
-              &User.facebook_oauth_changeset/2
-            )
-
-          {:ok, nil} ->
-            handle_api_login(conn, &Accounts.find_or_create_from_facebook/1, user_params)
-        end
-
-      {:error, _err} ->
-        conn
-        |> put_status(:bad_request)
-        |> json(%{error: "exchange_failed", details: "authentication_failed"})
-    end
-  end
-
-  def api_callback(conn, %{"provider" => "apple", "code" => code}) do
-    exchanger =
-      Application.get_env(:game_server_web, :oauth_exchanger, GameServer.OAuth.Exchanger)
-
-    client_id = apple_web_client_id()
-
-    client_secret =
-      try do
-        GameServer.Apple.client_secret(client_id: client_id)
-      rescue
-        _ ->
-          nil
-      end
-
-    base = GameServerWeb.endpoint().url()
-    redirect_uri = "#{base}/auth/apple/callback"
-
-    case exchanger.exchange_apple_code(code, client_id, client_secret, redirect_uri) do
-      {:ok, %{"sub" => apple_id} = user_info} ->
-        email = user_info["email"]
-        name = Map.get(user_info, "name")
-
-        user_params = %{email: email, apple_id: apple_id, display_name: name}
-
-        # Check if user is authenticated (linking) or not (login)
-        case maybe_load_user_from_jwt(conn) do
-          {:ok, %User{} = current_user} ->
-            handle_api_link(
-              conn,
-              current_user,
-              user_params,
-              :apple_id,
-              &User.apple_oauth_changeset/2
-            )
-
-          {:ok, nil} ->
-            handle_api_login(conn, &Accounts.find_or_create_from_apple/1, user_params)
-        end
 
       {:error, _err} ->
         conn
@@ -1261,9 +1183,6 @@ defmodule GameServerWeb.AuthController do
   # verifies the client-provided ticket via the Steam Web API. Otherwise fall back to
   # exchange_steam_code which validates a steam id or steam-specific code.
   def api_callback(conn, %{"provider" => "steam"} = params) do
-    exchanger =
-      Application.get_env(:game_server_web, :oauth_exchanger, GameServer.OAuth.Exchanger)
-
     # For API Steam flows, the 'code' field MUST be a Steam auth ticket
     # issued by the client (AuthenticateUserTicket). We prefer the stronger
     # AuthenticateUserTicket verification and explicitly DO NOT accept plain
@@ -1271,30 +1190,19 @@ defmodule GameServerWeb.AuthController do
     exchange_result =
       case params["code"] do
         nil -> {:error, :missing_param}
-        code -> exchanger.exchange_steam_ticket(code, fetch_profile: true)
+        code -> oauth_exchanger().exchange_steam_ticket(code, fetch_profile: true)
       end
 
     case exchange_result do
-      {:ok, %{"id" => steam_id} = profile_info} ->
-        user_params = %{
-          steam_id: steam_id,
-          display_name: Map.get(profile_info, "display_name"),
-          profile_url: Map.get(profile_info, "profile_url")
-        }
+      {:ok, profile_info} ->
+        case oauth_user_params("steam", profile_info) do
+          {:ok, user_params} ->
+            handle_api_oauth_result(conn, "steam", user_params)
 
-        # Check if user is authenticated (linking) or not (login)
-        case maybe_load_user_from_jwt(conn) do
-          {:ok, %User{} = current_user} ->
-            handle_api_link(
-              conn,
-              current_user,
-              user_params,
-              :steam_id,
-              &User.steam_oauth_changeset/2
-            )
-
-          {:ok, nil} ->
-            handle_api_login(conn, &Accounts.find_or_create_from_steam/1, user_params)
+          {:error, _} ->
+            conn
+            |> put_status(:bad_request)
+            |> json(%{error: "exchange_failed", details: "authentication_failed"})
         end
 
       {:error, :missing_param} ->
@@ -1354,43 +1262,9 @@ defmodule GameServerWeb.AuthController do
   )
 
   def api_apple_ios_callback(conn, %{"code" => code}) do
-    exchanger =
-      Application.get_env(:game_server_web, :oauth_exchanger, GameServer.OAuth.Exchanger)
-
-    client_id = apple_ios_client_id()
-
-    client_secret =
-      try do
-        GameServer.Apple.client_secret(client_id: client_id)
-      rescue
-        _ ->
-          nil
-      end
-
-    base = GameServerWeb.endpoint().url()
-    redirect_uri = "#{base}/auth/apple/callback"
-
-    case exchanger.exchange_apple_code(code, client_id, client_secret, redirect_uri) do
-      {:ok, %{"sub" => apple_id} = user_info} ->
-        email = user_info["email"]
-        name = Map.get(user_info, "name")
-
-        user_params = %{email: email, apple_id: apple_id, display_name: name}
-
-        # Check if user is authenticated (linking) or not (login)
-        case maybe_load_user_from_jwt(conn) do
-          {:ok, %User{} = current_user} ->
-            handle_api_link(
-              conn,
-              current_user,
-              user_params,
-              :apple_id,
-              &User.apple_oauth_changeset/2
-            )
-
-          {:ok, nil} ->
-            handle_api_login(conn, &Accounts.find_or_create_from_apple/1, user_params)
-        end
+    case exchange_oauth_code("apple", code, :ios) do
+      {:ok, user_params} ->
+        handle_api_oauth_result(conn, "apple", user_params)
 
       {:error, _err} ->
         conn
@@ -1478,375 +1352,5 @@ defmodule GameServerWeb.AuthController do
       |> Map.delete(:message)
 
     {message, cleaned}
-  end
-
-  defp handle_browser_google_callback(conn, user_params) do
-    case conn.assigns[:current_scope] do
-      %{:user => current_user} ->
-        case Accounts.link_account(
-               current_user,
-               user_params,
-               :google_id,
-               &User.google_oauth_changeset/2
-             ) do
-          {:ok, _user} ->
-            conn
-            |> put_flash(:info, gettext("Success."))
-            |> redirect(to: ~p"/users/settings")
-
-          {:error, {:conflict, other_user}} ->
-            require Logger
-            Logger.warning("Google already linked to another user id=#{other_user.id}")
-
-            conn
-            |> put_flash(
-              :error,
-              gettext("Failed")
-            )
-            |> redirect(
-              to: ~p"/users/settings?conflict_provider=google&conflict_user_id=#{other_user.id}"
-            )
-
-          {:error, changeset} ->
-            require Logger
-            Logger.error("Failed to link Google: #{inspect(changeset.errors)}")
-
-            conn
-            |> put_flash(:error, gettext("Failed"))
-            |> redirect(to: ~p"/users/settings")
-        end
-
-      _ ->
-        case Accounts.find_or_create_from_google(user_params) do
-          {:ok, user} ->
-            if Accounts.user_activated?(user) do
-              conn
-              |> put_flash(:info, gettext("Success."))
-              |> UserAuth.log_in_user(user)
-            else
-              conn
-              |> put_flash(
-                :error,
-                gettext("Your account is pending activation.")
-              )
-              |> redirect(to: ~p"/users/log-in")
-            end
-
-          {:error, changeset} ->
-            require Logger
-            Logger.error("Failed to create user from Google: #{inspect(changeset.errors)}")
-
-            conn
-            |> put_flash(:error, gettext("Failed"))
-            |> redirect(to: ~p"/users/log-in")
-        end
-    end
-  end
-
-  defp handle_browser_facebook_callback(conn, user_params) do
-    case conn.assigns[:current_scope] do
-      %{:user => current_user} ->
-        case Accounts.link_account(
-               current_user,
-               user_params,
-               :facebook_id,
-               &User.facebook_oauth_changeset/2
-             ) do
-          {:ok, _user} ->
-            conn
-            |> put_flash(:info, gettext("Success."))
-            |> redirect(to: ~p"/users/settings")
-
-          {:error, {:conflict, other_user}} ->
-            require Logger
-            Logger.warning("Facebook already linked to another user id=#{other_user.id}")
-
-            conn
-            |> put_flash(
-              :error,
-              gettext("Failed")
-            )
-            |> redirect(
-              to: ~p"/users/settings?conflict_provider=facebook&conflict_user_id=#{other_user.id}"
-            )
-
-          {:error, changeset} ->
-            require Logger
-            Logger.error("Failed to link Facebook: #{inspect(changeset.errors)}")
-
-            conn
-            |> put_flash(:error, gettext("Failed"))
-            |> redirect(to: ~p"/users/settings")
-        end
-
-      _ ->
-        case Accounts.find_or_create_from_facebook(user_params) do
-          {:ok, user} ->
-            if Accounts.user_activated?(user) do
-              conn
-              |> put_flash(:info, gettext("Success."))
-              |> UserAuth.log_in_user(user)
-            else
-              conn
-              |> put_flash(
-                :error,
-                gettext("Your account is pending activation.")
-              )
-              |> redirect(to: ~p"/users/log-in")
-            end
-
-          {:error, changeset} ->
-            require Logger
-            Logger.error("Failed to create user from Facebook: #{inspect(changeset.errors)}")
-
-            conn
-            |> put_flash(:error, gettext("Failed"))
-            |> redirect(to: ~p"/users/log-in")
-        end
-    end
-  end
-
-  defp handle_browser_apple_callback(conn, user_params) do
-    case conn.assigns[:current_scope] do
-      %{:user => current_user} ->
-        case Accounts.link_account(
-               current_user,
-               user_params,
-               :apple_id,
-               &User.apple_oauth_changeset/2
-             ) do
-          {:ok, _user} ->
-            conn
-            |> put_flash(:info, gettext("Success."))
-            |> redirect(to: ~p"/users/settings")
-
-          {:error, {:conflict, other_user}} ->
-            require Logger
-            Logger.warning("Apple already linked to another user id=#{other_user.id}")
-
-            conn
-            |> put_flash(
-              :error,
-              gettext("Failed")
-            )
-            |> redirect(
-              to: ~p"/users/settings?conflict_provider=apple&conflict_user_id=#{other_user.id}"
-            )
-
-          {:error, changeset} ->
-            require Logger
-            Logger.error("Failed to link Apple: #{inspect(changeset.errors)}")
-
-            conn
-            |> put_flash(:error, gettext("Failed"))
-            |> redirect(to: ~p"/users/settings")
-        end
-
-      _ ->
-        case Accounts.find_or_create_from_apple(user_params) do
-          {:ok, user} ->
-            if Accounts.user_activated?(user) do
-              conn
-              |> put_flash(:info, gettext("Success."))
-              |> UserAuth.log_in_user(user)
-            else
-              conn
-              |> put_flash(
-                :error,
-                gettext("Your account is pending activation.")
-              )
-              |> redirect(to: ~p"/users/log-in")
-            end
-
-          {:error, changeset} ->
-            require Logger
-            Logger.error("Failed to create user from Apple: #{inspect(changeset.errors)}")
-
-            conn
-            |> put_flash(:error, gettext("Failed"))
-            |> redirect(to: ~p"/users/log-in")
-        end
-    end
-  end
-
-  defp handle_browser_steam_callback(conn, user_params) do
-    case conn.assigns[:current_scope] do
-      %{:user => current_user} ->
-        case Accounts.link_account(
-               current_user,
-               user_params,
-               :steam_id,
-               &User.steam_oauth_changeset/2
-             ) do
-          {:ok, _user} ->
-            conn
-            |> put_flash(:info, gettext("Success."))
-            |> redirect(to: ~p"/users/settings")
-
-          {:error, {:conflict, other_user}} ->
-            require Logger
-            Logger.warning("Steam already linked to another user id=#{other_user.id}")
-
-            conn
-            |> put_flash(
-              :error,
-              gettext("Failed")
-            )
-            |> redirect(
-              to: ~p"/users/settings?conflict_provider=steam&conflict_user_id=#{other_user.id}"
-            )
-
-          {:error, changeset} ->
-            require Logger
-            Logger.error("Failed to link Steam: #{inspect(changeset.errors)}")
-
-            conn
-            |> put_flash(:error, gettext("Failed"))
-            |> redirect(to: ~p"/users/settings")
-        end
-
-      _ ->
-        case Accounts.find_or_create_from_steam(user_params) do
-          {:ok, user} ->
-            if Accounts.user_activated?(user) do
-              conn
-              |> put_flash(:info, gettext("Success."))
-              |> UserAuth.log_in_user(user)
-            else
-              conn
-              |> put_flash(
-                :error,
-                gettext("Your account is pending activation.")
-              )
-              |> redirect(to: ~p"/users/log-in")
-            end
-
-          {:error, changeset} ->
-            require Logger
-            Logger.error("Failed to create user from Steam: #{inspect(changeset.errors)}")
-
-            conn
-            |> put_flash(:error, gettext("Failed"))
-            |> redirect(to: ~p"/users/log-in")
-        end
-    end
-  end
-
-  defp handle_browser_discord_callback(conn, user_params) do
-    case conn.assigns[:current_scope] do
-      %{:user => current_user} ->
-        case Accounts.link_account(
-               current_user,
-               user_params,
-               :discord_id,
-               &User.discord_oauth_changeset/2
-             ) do
-          {:ok, _user} ->
-            conn
-            |> put_flash(:info, gettext("Success."))
-            |> redirect(to: ~p"/users/settings")
-
-          {:error, {:conflict, other_user}} ->
-            require Logger
-            Logger.warning("Discord already linked to another user id=#{other_user.id}")
-
-            conn
-            |> put_flash(
-              :error,
-              gettext("Failed")
-            )
-            |> redirect(
-              to: ~p"/users/settings?conflict_provider=discord&conflict_user_id=#{other_user.id}"
-            )
-
-          {:error, changeset} ->
-            require Logger
-            Logger.error("Failed to link Discord: #{inspect(changeset.errors)}")
-
-            conn
-            |> put_flash(:error, gettext("Failed"))
-            |> redirect(to: ~p"/users/settings")
-        end
-
-      _ ->
-        case Accounts.find_or_create_from_discord(user_params) do
-          {:ok, user} ->
-            if Accounts.user_activated?(user) do
-              conn
-              |> put_flash(:info, gettext("Success."))
-              |> UserAuth.log_in_user(user)
-            else
-              conn
-              |> put_flash(
-                :error,
-                gettext("Your account is pending activation.")
-              )
-              |> redirect(to: ~p"/users/log-in")
-            end
-
-          {:error, changeset} ->
-            require Logger
-            Logger.error("Failed to create user from Discord: #{inspect(changeset.errors)}")
-
-            conn
-            |> put_flash(:error, gettext("Failed"))
-            |> redirect(to: ~p"/users/log-in")
-        end
-    end
-  end
-
-  defp do_find_or_create_discord_for_session(conn, user_params, session_id) do
-    handle_session_oauth_callback(
-      conn,
-      session_id,
-      user_params,
-      :discord_id,
-      &User.discord_oauth_changeset/2,
-      &Accounts.find_or_create_from_discord/1
-    )
-  end
-
-  defp do_find_or_create_google_for_session(conn, user_params, session_id) do
-    handle_session_oauth_callback(
-      conn,
-      session_id,
-      user_params,
-      :google_id,
-      &User.google_oauth_changeset/2,
-      &Accounts.find_or_create_from_google/1
-    )
-  end
-
-  defp do_find_or_create_facebook_for_session(conn, user_params, session_id) do
-    handle_session_oauth_callback(
-      conn,
-      session_id,
-      user_params,
-      :facebook_id,
-      &User.facebook_oauth_changeset/2,
-      &Accounts.find_or_create_from_facebook/1
-    )
-  end
-
-  defp do_find_or_create_apple_for_session(conn, user_params, session_id) do
-    handle_session_oauth_callback(
-      conn,
-      session_id,
-      user_params,
-      :apple_id,
-      &User.apple_oauth_changeset/2,
-      &Accounts.find_or_create_from_apple/1
-    )
-  end
-
-  defp do_find_or_create_steam_for_session(conn, user_params, session_id) do
-    handle_session_oauth_callback(
-      conn,
-      session_id,
-      user_params,
-      :steam_id,
-      &User.steam_oauth_changeset/2,
-      &Accounts.find_or_create_from_steam/1
-    )
   end
 end

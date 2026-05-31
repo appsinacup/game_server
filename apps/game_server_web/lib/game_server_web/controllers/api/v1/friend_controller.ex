@@ -400,12 +400,6 @@ defmodule GameServerWeb.Api.V1.FriendController do
     end
   end
 
-  defp parse_page_params(params) do
-    page = GameServer.Limits.clamp_page(params["page"] || params[:page])
-    page_size = GameServer.Limits.clamp_page_size(params["page_size"] || params[:page_size])
-    {page, page_size}
-  end
-
   def block(conn, %{"id" => id}) do
     case conn.assigns.current_scope do
       %{user: user} when user != nil ->

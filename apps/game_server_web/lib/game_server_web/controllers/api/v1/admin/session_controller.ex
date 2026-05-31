@@ -3,6 +3,7 @@ defmodule GameServerWeb.Api.V1.Admin.SessionController do
   use OpenApiSpex.ControllerSpecs
 
   import Ecto.Query
+  import GameServerWeb.Helpers.ParamParser
 
   alias GameServer.Accounts
   alias GameServer.Accounts.UserToken
@@ -153,11 +154,5 @@ defmodule GameServerWeb.Api.V1.Admin.SessionController do
       inserted_at: token.inserted_at,
       authenticated_at: token.authenticated_at
     }
-  end
-
-  defp parse_page_params(params) do
-    page = GameServer.Limits.clamp_page(params["page"] || params[:page])
-    page_size = GameServer.Limits.clamp_page_size(params["page_size"] || params[:page_size])
-    {page, page_size}
   end
 end

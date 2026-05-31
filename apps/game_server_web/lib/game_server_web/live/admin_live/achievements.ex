@@ -3,6 +3,7 @@ defmodule GameServerWeb.AdminLive.Achievements do
 
   alias GameServer.Achievements
   alias GameServer.Achievements.Achievement
+  alias GameServerWeb.AdminLive.TranslationMetadata
 
   @impl true
   def mount(_params, _session, socket) do
@@ -101,7 +102,7 @@ defmodule GameServerWeb.AdminLive.Achievements do
                     <td class="text-sm">{a.sort_order}</td>
                     <td class="text-sm">{Achievements.unlock_percentage(a.id)}%</td>
                     <td class="text-sm">
-                      <% pct = translation_completeness(a.metadata) %>
+                      <% pct = TranslationMetadata.completeness(a.metadata) %>
                       <span class={[
                         "badge badge-sm",
                         cond do
@@ -420,7 +421,7 @@ defmodule GameServerWeb.AdminLive.Achievements do
     {:noreply,
      socket
      |> assign(:selected_achievement, ach)
-     |> assign(:translation_values, extract_translation_values(ach.metadata))
+     |> assign(:translation_values, TranslationMetadata.extract(ach.metadata))
      |> assign(:form, form)}
   end
 
@@ -436,7 +437,7 @@ defmodule GameServerWeb.AdminLive.Achievements do
     params = parse_metadata(params)
 
     # Merge translations into metadata
-    params = merge_translations_into_metadata(params, Map.get(all_params, "translations", %{}))
+    params = TranslationMetadata.merge(params, Map.get(all_params, "translations", %{}))
 
     if socket.assigns.selected_achievement do
       case Achievements.update_achievement(socket.assigns.selected_achievement, params) do
@@ -610,73 +611,6 @@ defmodule GameServerWeb.AdminLive.Achievements do
 
       _ ->
         params
-    end
-  end
-
-  defp extract_translation_values(nil), do: %{}
-
-  defp extract_translation_values(metadata) when is_map(metadata) do
-    titles = Map.get(metadata, "titles", %{})
-    descriptions = Map.get(metadata, "descriptions", %{})
-
-    locales = MapSet.union(MapSet.new(Map.keys(titles)), MapSet.new(Map.keys(descriptions)))
-
-    Map.new(locales, fn locale ->
-      {locale,
-       %{
-         "title" => Map.get(titles, locale, ""),
-         "description" => Map.get(descriptions, locale, "")
-       }}
-    end)
-  end
-
-  defp merge_translations_into_metadata(params, translations) when translations == %{}, do: params
-
-  defp merge_translations_into_metadata(params, translations) do
-    metadata = Map.get(params, "metadata", %{})
-
-    {titles, descriptions} =
-      Enum.reduce(translations, {%{}, %{}}, fn {locale, fields}, {titles_acc, descs_acc} ->
-        title = String.trim(Map.get(fields, "title", ""))
-        desc = String.trim(Map.get(fields, "description", ""))
-
-        titles_acc = if title != "", do: Map.put(titles_acc, locale, title), else: titles_acc
-        descs_acc = if desc != "", do: Map.put(descs_acc, locale, desc), else: descs_acc
-
-        {titles_acc, descs_acc}
-      end)
-
-    metadata =
-      metadata
-      |> then(fn m ->
-        if titles == %{}, do: Map.delete(m, "titles"), else: Map.put(m, "titles", titles)
-      end)
-      |> then(fn m ->
-        if descriptions == %{},
-          do: Map.delete(m, "descriptions"),
-          else: Map.put(m, "descriptions", descriptions)
-      end)
-
-    Map.put(params, "metadata", metadata)
-  end
-
-  defp translation_completeness(nil), do: 0
-
-  defp translation_completeness(metadata) when is_map(metadata) do
-    locales = Gettext.known_locales(GameServerWeb.Gettext) -- ["en"]
-
-    if locales == [] do
-      100
-    else
-      titles = Map.get(metadata, "titles", %{})
-
-      translated =
-        Enum.count(locales, fn locale ->
-          title = Map.get(titles, locale, "")
-          is_binary(title) and String.trim(title) != ""
-        end)
-
-      trunc(translated / length(locales) * 100)
     end
   end
 end

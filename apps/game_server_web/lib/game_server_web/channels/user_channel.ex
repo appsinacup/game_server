@@ -44,6 +44,7 @@ defmodule GameServerWeb.UserChannel do
   alias GameServer.Notifications
   alias GameServer.Parties
   alias GameServerWeb.PayloadDelta
+  alias GameServerWeb.Serializers
 
   # WebSocket message rate limits (per user) — defaults, overridden by config
   @default_ws_rate_limit 300
@@ -243,19 +244,19 @@ defmodule GameServerWeb.UserChannel do
 
   @impl true
   def handle_info({:new_notification, notification}, socket) do
-    push(socket, "notification", serialize_notification(notification))
+    push(socket, "notification", Serializers.serialize_notification(notification))
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:new_chat_message, message}, socket) do
-    push(socket, "new_chat_message", serialize_chat_message(message))
+    push(socket, "new_chat_message", Serializers.serialize_chat_message(message))
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:chat_message_updated, message}, socket) do
-    push(socket, "chat_message_updated", serialize_chat_message(message))
+    push(socket, "chat_message_updated", Serializers.serialize_chat_message(message))
     {:noreply, socket}
   end
 
@@ -309,7 +310,7 @@ defmodule GameServerWeb.UserChannel do
 
   @impl true
   def handle_info({:achievement_unlocked, user_achievement}, socket) do
-    push(socket, "achievement_unlocked", serialize_user_achievement(user_achievement))
+    push(socket, "achievement_unlocked", Serializers.serialize_user_achievement(user_achievement))
     {:noreply, socket}
   end
 
@@ -397,7 +398,7 @@ defmodule GameServerWeb.UserChannel do
     notifications = Notifications.list_notifications(user_id, page: 1, page_size: 1000)
 
     Enum.each(notifications, fn notification ->
-      push(socket, "notification", serialize_notification(notification))
+      push(socket, "notification", Serializers.serialize_notification(notification))
     end)
   end
 
@@ -424,49 +425,6 @@ defmodule GameServerWeb.UserChannel do
         %Phoenix.Socket.Broadcast{topic: topic, event: event, payload: payload}
       )
     end)
-  end
-
-  defp serialize_notification(notification) do
-    sender = if Ecto.assoc_loaded?(notification.sender), do: notification.sender, else: nil
-
-    %{
-      id: notification.id,
-      sender_id: notification.sender_id,
-      sender_name: if(sender, do: sender.display_name || "", else: ""),
-      recipient_id: notification.recipient_id,
-      title: notification.title,
-      content: notification.content || "",
-      metadata: notification.metadata || %{},
-      inserted_at: notification.inserted_at
-    }
-  end
-
-  defp serialize_chat_message(msg) do
-    sender = if Ecto.assoc_loaded?(msg.sender), do: msg.sender, else: nil
-
-    %{
-      id: msg.id,
-      content: msg.content,
-      metadata: msg.metadata || %{},
-      sender_id: msg.sender_id,
-      sender_name: if(sender, do: sender.display_name || "", else: ""),
-      chat_type: msg.chat_type,
-      chat_ref_id: msg.chat_ref_id,
-      inserted_at: msg.inserted_at
-    }
-  end
-
-  defp serialize_user_achievement(ua) do
-    %{
-      id: ua.id,
-      user_id: ua.user_id,
-      achievement_id: ua.achievement_id,
-      progress: ua.progress,
-      unlocked_at: ua.unlocked_at,
-      metadata: ua.metadata || %{},
-      inserted_at: ua.inserted_at,
-      updated_at: ua.updated_at
-    }
   end
 
   # Broadcast member_online/member_offline to the user's current lobby, party, and group channels.
