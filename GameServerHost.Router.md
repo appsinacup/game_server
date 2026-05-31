@@ -1,9 +1,8 @@
 # `GameServerHost.Router`
 
-Host-owned router for the running application.
+Host-owned router for running application.
 
-Routes are defined directly here and reference reusable controllers,
-LiveViews, and plugs from `game_server_web`.
+Routes reference reusable controllers, LiveViews, and plugs from `game_server_web`.
 
 # `api`
 

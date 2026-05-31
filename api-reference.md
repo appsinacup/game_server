@@ -1,8 +1,8 @@
-# GameServer v1.0.983 - API Reference
+# GameServer v1.0.984 - API Reference
 
 ## Modules
 
-- [GameServerHost.Router](GameServerHost.Router.md): Host-owned router for the running application.
+- [GameServerHost.Router](GameServerHost.Router.md): Host-owned router for running application.
 - [GameServerHost.SitemapController](GameServerHost.SitemapController.md): Host-owned `sitemap.xml` controller.
 - [GameServerWeb.HostBlogLive](GameServerWeb.HostBlogLive.md): Host-owned LiveView for the blog section.
 - [GameServerWeb.HostChangelogLive](GameServerWeb.HostChangelogLive.md): Host-owned LiveView that renders the project changelog from Markdown content.
