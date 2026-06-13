@@ -56,6 +56,7 @@ func _after_lobby_host_change(_lobby: Dictionary, _new_host_id: String) -> void:
 	pass
 
 var websocket_server: WebSocketServer
+var enable_logs := false
 
 # Called when the node enters the scene tree for the first time.
 func _init() -> void:
@@ -64,11 +65,13 @@ func _init() -> void:
 	websocket_server.message_received.connect(_message_received)
 	websocket_server.client_connected.connect(_client_connected)
 	websocket_server.client_disconnected.connect(_client_disconnected)
-	print("Gamend Server Godot Started")
+	if enable_logs:
+		print("Gamend Server Godot Started")
 	for i in 50:
 		var err = websocket_server.listen(4010)
 		if err != OK:
-			print("Errored: ", str(err))
+			if enable_logs:
+				print("Errored: ", str(err))
 		else:
 			break
 		await get_tree().create_timer(1.0).timeout
@@ -83,6 +86,8 @@ func _send_result(peer_id: int, request_id, result):
 
 func _message_received(peer_id: int, message: String):
 	var json = JSON.parse_string(message)
+	if json == null:
+		return
 	#print(json)
 	#print("Messaged: ", peer_id, " ", json)
 	var args :Array= json.get("args", [])
@@ -199,6 +204,8 @@ func _get_custom_hooks():
 	return hooks
 
 func _client_connected(peer_id: int):
-	print("Client Connected: ", peer_id)
+	if enable_logs:
+		print("Client Connected: ", peer_id)
 func _client_disconnected(peer_id: int):
-	print("Client Disconnected: ", peer_id)
+	if enable_logs:
+		print("Client Disconnected: ", peer_id)

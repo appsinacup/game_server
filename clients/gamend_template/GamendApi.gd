@@ -78,6 +78,7 @@ signal group_chat_message_deleted(payload: Dictionary)
 
 ## Achievement events
 signal achievement_unlocked(user_achievement: Dictionary)  ## achievement fully unlocked
+signal achievement_progress(user_achievement: Dictionary)  ## progress incremented toward an achievement
 
 ## Groups collection events (group browser)
 signal group_created(group: Dictionary)   ## new group created (excludes hidden)
@@ -89,19 +90,40 @@ signal latency_updated(latency_ms: int)
 signal auth_failed()  ## Refresh token expired or 403 — controller should force logout
 signal token_refreshed()  ## Access token was refreshed — controller should re-persist
 signal debug_message(severity: String, category: String, message: String)
+signal socket_connected()   ## WebSocket opened (or re-opened after reconnect)
+signal socket_disconnected()  ## WebSocket closed or errored
+signal user_channel_joined()  ## User channel joined (or rejoined after reconnect)
+signal user_channel_disconnected()  ## User channel closed or errored
+signal lobby_channel_join_failed(lobby_id: int, reason: String)
 
 var _config := ApiApiConfigClient.new()
 var _realtime: GamendRealtime
-var enable_logs := true
+var _realtime_start_result: GamendResult
+var _realtime_start_finished := false
+var _realtime_start_revision := 0
+var _shutting_down := false
+var enable_logs := false
 var enable_ssl := false
 var TIME_TO_WAIT_RECONNECT = 5000
 @export var http_client_pool_size := 4
+@export var http_request_timeout_sec := 15.0
+@export var http_client_pool_timeout_sec := 5.0
 
 const PROVIDER_DISCORD = "discord"
 const PROVIDER_APPLE = "apple"
 const PROVIDER_FACEBOOK = "facebook"
 const PROVIDER_GOOGLE = "google"
 const PROVIDER_STEAM = "steam"
+const LOG_REDACTED := "[redacted]"
+const SENSITIVE_LOG_KEYS := {
+	"access_token": true,
+	"authorization": true,
+	"cookie": true,
+	"password": true,
+	"refresh_token": true,
+	"set-cookie": true,
+	"token": true,
+}
 
 var _access_token := ""
 var _refresh_token := ""
@@ -114,6 +136,7 @@ var _has_reloaded_for_auth := false
 var _http_clients: Array = []
 var _http_clients_in_flight: Array = []
 var _http_client_pool_index := 0
+var _refresh_timer: Timer
 
 func _init(host: String = "127.0.0.1", port: int = 4000, enable_ssl := false):
 	_config.host = host
@@ -123,6 +146,10 @@ func _init(host: String = "127.0.0.1", port: int = 4000, enable_ssl := false):
 	_config.polling_interval_ms = 1
 	_config.headers_override["Connection"] = "keep-alive"
 	_ensure_http_client_pool()
+	_refresh_timer = Timer.new()
+	_refresh_timer.one_shot = true
+	_refresh_timer.timeout.connect(_on_refresh_timer_timeout)
+	add_child.call_deferred(_refresh_timer)
 
 func _ensure_http_client_pool() -> void:
 	var desired := max(1, int(http_client_pool_size))
@@ -138,7 +165,8 @@ func _acquire_http_client() -> int:
 	_ensure_http_client_pool()
 	var size := _http_clients.size()
 	var wait_start := Time.get_ticks_msec()
-	while Time.get_ticks_msec() - wait_start < 30000:
+	var timeout_ms := int(max(0.1, http_client_pool_timeout_sec) * 1000.0)
+	while Time.get_ticks_msec() - wait_start < timeout_ms:
 		for offset in range(size):
 			var idx := (_http_client_pool_index + offset) % size
 			if not _http_clients_in_flight[idx]:
@@ -146,12 +174,19 @@ func _acquire_http_client() -> int:
 				_http_client_pool_index = (idx + 1) % size
 				return idx
 		await get_tree().process_frame
-	push_warning("GamendApi: HTTP client pool exhausted after 30s")
+	push_warning("GamendApi: HTTP client pool exhausted after %.1fs" % http_client_pool_timeout_sec)
 	return -1
 
 func _release_http_client(idx: int) -> void:
 	if idx >= 0 and idx < _http_clients_in_flight.size():
 		_http_clients_in_flight[idx] = false
+
+func _discard_http_client(idx: int) -> void:
+	if idx < 0 or idx >= _http_clients.size():
+		return
+	_http_clients[idx].close()
+	_http_clients[idx] = HTTPClient.new()
+	_release_http_client(idx)
 
 func _verify_token_expired():
 	# Only one refreshes at a time
@@ -163,7 +198,7 @@ func _verify_token_expired():
 		_refreshing_token = true
 		var result :GamendResult= await authenticate_refresh_token(_refresh_token)
 		if result.error:
-			debug_message.emit("err", "auth", "Token refresh failed (verify): %s" % str(result.error))
+			debug_message.emit("err", "auth", "Token refresh failed (verify): %s" % _redact_text_for_log(str(result.error)))
 			auth_failed.emit()
 		else:
 			_has_reloaded_for_auth = false
@@ -179,51 +214,205 @@ func _try_refresh_or_logout() -> void:
 	var refresh_result := await authenticate_refresh_token(_refresh_token)
 	_refreshing_token = false
 	if refresh_result.error:
-		debug_message.emit("err", "auth", "Token refresh failed (background): %s" % str(refresh_result.error))
+		debug_message.emit("err", "auth", "Token refresh failed (background): %s" % _redact_text_for_log(str(refresh_result.error)))
 		auth_failed.emit()
 	else:
 		_has_reloaded_for_auth = false
 		token_refreshed.emit()
 		debug_message.emit("info", "auth", "Token refreshed (background refresh)")
+		_reconnect_socket_if_needed()
 
 func _call_api(api: ApiApiBeeClient, method_name: String, params: Array = []) -> GamendResult:
 	# Check if it's close to expiring first, if so make a refresh_call if we already have access token
 	var start_request_time = Time.get_ticks_msec()
 	if enable_logs:
-		print("Requesting: ", api._bzz_name, " ", method_name, " ", params)
+		print("Requesting: ", api._bzz_name, " ", method_name, " ", _redact_for_log(params))
 	if method_name != "refresh_token":
 		await _verify_token_expired()
 	api._bzz_keep_alive = true
 	var client_idx := await _acquire_http_client()
-	if client_idx >= 0:
-		api._bzz_client = _http_clients[client_idx]
 	var result = GamendResult.new()
+	if client_idx < 0:
+		result.error = _make_api_error(
+			"gamend.client_pool.timeout",
+			"%s.%s could not acquire an HTTP client after %.1fs" % [api._bzz_name, method_name, http_client_pool_timeout_sec],
+			ERR_TIMEOUT
+		)
+		debug_message.emit("err", "network", result.error.message)
+		return result
+	api._bzz_client = _http_clients[client_idx]
+	var request_state := {"finished": false}
+	var finish_timeout := func() -> void:
+		if bool(request_state["finished"]):
+			return
+		request_state["finished"] = true
+		_discard_http_client(client_idx)
+		result.error = _make_api_error(
+			"gamend.request.timeout",
+			"%s.%s timed out after %.1fs" % [api._bzz_name, method_name, http_request_timeout_sec],
+			ERR_TIMEOUT
+		)
+		debug_message.emit("err", "network", result.error.message)
+		result.finished.emit(result)
+	if http_request_timeout_sec > 0.0:
+		var timeout_timer := _create_request_timeout_timer(http_request_timeout_sec)
+		if timeout_timer:
+			timeout_timer.timeout.connect(finish_timeout)
+		else:
+			push_warning("GamendApi: cannot create timeout timer for %s.%s" % [api._bzz_name, method_name])
 	var callables = [
 		func(response: ApiApiResponseClient):
+			if bool(request_state["finished"]):
+				return
+			request_state["finished"] = true
 			_release_http_client(client_idx)
 			result.response = response
 			_verify_login_result(method_name, response.data)
 			if enable_logs:
-				print(api._bzz_name, " ", method_name, " ", response.body, " t: ", (Time.get_ticks_msec() - start_request_time) / 1000.0)
+				print(api._bzz_name, " ", method_name, " ", _format_log_body(response.body), " t: ", (Time.get_ticks_msec() - start_request_time) / 1000.0)
 			result.finished.emit(result)
 			,
 		func(error):
+			if bool(request_state["finished"]):
+				return
+			request_state["finished"] = true
 			_release_http_client(client_idx)
 			if error.response_code in [401, 403] and method_name != "refresh_token":
 				_expires_at_ms = -1
 				_try_refresh_or_logout()
 			result.error = error
 			if error.response_code not in [400, 404]:
-				debug_message.emit("err", "network", "API error %s.%s code=%d: %s" % [api._bzz_name, method_name, error.response_code, str(error)])
+				debug_message.emit("err", "network", "API error %s.%s code=%d: %s" % [api._bzz_name, method_name, error.response_code, _redact_text_for_log(str(error))])
 			if enable_logs:
-				print(api._bzz_name, " ", method_name, " ", result.error, " t: ", (Time.get_ticks_msec() - start_request_time) / 1000.0)
+				print(api._bzz_name, " ", method_name, " ", _redact_for_log(result.error), " t: ", (Time.get_ticks_msec() - start_request_time) / 1000.0)
 			result.finished.emit(result)]
 	params.append_array(callables)
 	api.callv(method_name, params)
 	return await result.finished
 
+func _format_log_body(body: Variant) -> String:
+	var safe := _redact_for_log(body)
+	var body_str := safe if safe is String else JSON.stringify(safe)
+	return body_str if body_str.length() <= 256 else body_str.left(256) + "... (%d chars truncated)" % (body_str.length() - 256)
+
+func _redact_for_log(value: Variant, depth: int = 0) -> Variant:
+	if depth > 8:
+		return "<max-depth>"
+	match typeof(value):
+		TYPE_DICTIONARY:
+			var redacted := {}
+			for key in value:
+				if _is_sensitive_log_key(str(key)):
+					redacted[key] = LOG_REDACTED
+				else:
+					redacted[key] = _redact_for_log(value[key], depth + 1)
+			return redacted
+		TYPE_ARRAY:
+			var redacted_array := []
+			for item in value:
+				redacted_array.append(_redact_for_log(item, depth + 1))
+			return redacted_array
+		TYPE_OBJECT:
+			if value == null:
+				return null
+			if value.has_method("bzz_normalize"):
+				return _redact_for_log(value.bzz_normalize(), depth + 1)
+			return _redact_text_for_log(str(value))
+		TYPE_STRING:
+			return _redact_text_for_log(value)
+		_:
+			return value
+
+func _redact_text_for_log(text: String) -> String:
+	var stripped := text.strip_edges()
+	if stripped.begins_with("{") or stripped.begins_with("["):
+		var parsed := JSON.parse_string(stripped)
+		if parsed != null:
+			return JSON.stringify(_redact_for_log(parsed, 1))
+	if stripped.begins_with("Bearer "):
+		return "Bearer " + LOG_REDACTED
+	return text
+
+func _is_sensitive_log_key(key: String) -> bool:
+	var normalized := key.to_lower()
+	if SENSITIVE_LOG_KEYS.has(normalized):
+		return true
+	return normalized.ends_with("_token") or normalized.contains("password")
+
+func _make_api_error(identifier: String, message: String, internal_code: int) -> ApiApiErrorClient:
+	var error := ApiApiErrorClient.new()
+	error.identifier = identifier
+	error.message = message
+	error.internal_code = internal_code
+	error.response_code = 0
+	return error
+
+func _create_request_timeout_timer(timeout_sec: float) -> SceneTreeTimer:
+	var tree := get_tree()
+	if tree == null and Engine.get_main_loop() is SceneTree:
+		tree = Engine.get_main_loop()
+	if tree == null:
+		return null
+	return tree.create_timer(timeout_sec)
+
 func is_authenticated():
 	return _access_token != ""
+
+func _notification(what: int) -> void:
+	if _shutting_down:
+		return
+	if what == NOTIFICATION_APPLICATION_FOCUS_IN:
+		# Refresh the token on focus-in if it is expired or near expiry,
+		# then reconnect the socket. If the token is still valid, reconnect
+		# the socket immediately.
+		if not _refresh_token.is_empty() and _expires_at_ms > 0:
+			var remaining_ms := _expires_at_ms - Time.get_ticks_msec()
+			if remaining_ms < 60_000:
+				# Token expired or about to — refresh first, then reconnect.
+				# _try_refresh_or_logout emits token_refreshed which triggers
+				# _reconnect_socket_if_needed.
+				_try_refresh_or_logout()
+				return
+		# Token is still valid — reconnect immediately.
+		_reconnect_socket_if_needed()
+
+func _exit_tree() -> void:
+	_shutting_down = true
+	realtime_stop()
+	if _refresh_timer != null:
+		_refresh_timer.stop()
+	for client: HTTPClient in _http_clients:
+		client.close()
+	_http_clients.clear()
+	_http_clients_in_flight.clear()
+
+func _on_refresh_timer_timeout() -> void:
+	_try_refresh_or_logout()
+
+func _refresh_token_if_expired() -> void:
+	if not _refresh_token.is_empty() and _expires_at_ms > 0:
+		var remaining_ms := _expires_at_ms - Time.get_ticks_msec()
+		if remaining_ms < 60_000:
+			_try_refresh_or_logout()
+
+func _reconnect_socket_if_needed() -> void:
+	if _realtime and _realtime.socket:
+		if not _realtime.socket.is_connected and not _realtime.socket.is_connecting:
+			# Reset reconnect backoff so the attempt happens immediately.
+			_realtime.socket._last_reconnect_try_at = -1
+			_realtime.socket._reconnect_after_pos = 0
+			_realtime.socket.connect_socket()
+
+func _schedule_token_refresh() -> void:
+	if not _refresh_timer or not _refresh_timer.is_inside_tree():
+		return
+	_refresh_timer.stop()
+	if _expires_at_ms > 0:
+		var remaining_s := (_expires_at_ms - Time.get_ticks_msec()) / 1000.0
+		var refresh_in_s := remaining_s * 0.75  # Refresh at 75% of remaining time
+		if refresh_in_s > 1.0:
+			_refresh_timer.wait_time = refresh_in_s
+			_refresh_timer.start()
 
 func _verify_login_result(method_name: String, data):
 	if data && method_name in ["oauth_session_status", "oauth_api_callback", "login", "device_login", "refresh_token", "oauth_callback_api_apple_ios"]:
@@ -234,6 +423,7 @@ func _verify_login_result(method_name: String, data):
 			_refresh_token = data["refresh_token"]
 		if data.get("expires_in"):
 			_expires_at_ms = Time.get_ticks_msec() + data.get("expires_in") * 1000
+			_schedule_token_refresh()
 		if data.get("user_id"):
 			_user_id = data["user_id"]
 		authorize()
@@ -245,25 +435,93 @@ func _verify_login_result(method_name: String, data):
 
 func realtime_start():
 	realtime_stop()
-	var result := GamendResult.new()
+	_realtime_start_revision += 1
+	_realtime_start_result = GamendResult.new()
+	_realtime_start_finished = false
 	var protocol = "ws://"
 	if _config.tls_enabled:
 		protocol = "wss://"
-	_realtime = GamendRealtime.new(func(): return _access_token, protocol + _config.host + ":" + str(_config.port) + "/socket")
+	_realtime = GamendRealtime.new(_get_realtime_access_token, protocol + _config.host + ":" + str(_config.port) + "/socket")
 	_realtime.enable_logs = enable_logs
-	_realtime.socket_opened.connect(func (): if result: result.finished.emit())
-	_realtime.socket_closed.connect(func (): if result: result.finished.emit())
-	_realtime.socket_errored.connect(func (): if result: result.finished.emit())
+	_realtime.socket_opened.connect(_on_realtime_socket_opened)
+	_realtime.socket_closed.connect(_on_realtime_socket_closed)
+	_realtime.socket_errored.connect(_on_realtime_socket_errored)
 	_realtime.channel_event.connect(_on_channel_event)
-	_realtime.latency_updated.connect(func(ms: int): latency_updated.emit(ms))
-	_realtime.debug_message.connect(func(s, c, m): debug_message.emit(s, c, m))
+	_realtime.channel_join_failed.connect(_on_channel_join_failed)
+	_realtime.latency_updated.connect(_on_realtime_latency_updated)
+	_realtime.debug_message.connect(_on_realtime_debug_message)
+	_realtime.user_channel_joined.connect(_on_realtime_user_channel_joined)
+	_realtime.user_channel_closed.connect(_on_realtime_user_channel_disconnected)
+	_realtime.user_channel_error.connect(_on_realtime_user_channel_disconnected)
 	add_child(_realtime)
-	return await result.finished
+	if http_request_timeout_sec > 0.0:
+		var timeout_timer := _create_request_timeout_timer(http_request_timeout_sec)
+		if timeout_timer:
+			timeout_timer.timeout.connect(_on_realtime_start_timeout.bind(_realtime_start_revision))
+	return await _realtime_start_result.finished
 
 func realtime_stop():
 	if _realtime:
+		_realtime.shutdown()
 		_realtime.queue_free()
 	_realtime = null
+
+func _get_realtime_access_token() -> String:
+	return _access_token
+
+func _finish_realtime_start(error = null) -> void:
+	if _realtime_start_result == null:
+		return
+	if _realtime_start_finished:
+		return
+	_realtime_start_finished = true
+	if error:
+		_realtime_start_result.error = error
+	_realtime_start_result.finished.emit(_realtime_start_result)
+
+func _on_realtime_socket_opened() -> void:
+	_finish_realtime_start()
+	socket_connected.emit()
+
+func _on_realtime_socket_closed() -> void:
+	_finish_realtime_start()
+	socket_disconnected.emit()
+	if not _shutting_down:
+		_refresh_token_if_expired()
+
+func _on_realtime_socket_errored() -> void:
+	_finish_realtime_start()
+	socket_disconnected.emit()
+	if not _shutting_down:
+		_refresh_token_if_expired()
+
+func _on_realtime_latency_updated(ms: int) -> void:
+	latency_updated.emit(ms)
+
+func _on_realtime_debug_message(severity: String, category: String, message: String) -> void:
+	debug_message.emit(severity, category, message)
+
+func _on_realtime_user_channel_joined() -> void:
+	user_channel_joined.emit()
+
+func _on_realtime_user_channel_disconnected() -> void:
+	user_channel_disconnected.emit()
+
+func _on_realtime_start_timeout(revision: int) -> void:
+	if revision != _realtime_start_revision:
+		return
+	if _realtime_start_finished:
+		return
+	var error := _make_api_error(
+		"gamend.realtime.timeout",
+		"GamendRealtime.start timed out after %.1fs" % http_request_timeout_sec,
+		ERR_TIMEOUT
+	)
+	_finish_realtime_start(error)
+	debug_message.emit("err", "network", error.message)
+
+func is_realtime_connected() -> bool:
+	return _realtime != null and _realtime.socket != null and _realtime.socket.is_connected
 
 func listen_to_user():
 	_realtime.add_channel("user:" + str(int(_user_id)))
@@ -313,6 +571,16 @@ func _on_channel_event(event: String, payload: Dictionary, status, topic: String
 	elif topic.begins_with("group:"):
 		payload["group_id"] = int(topic.substr(6))
 		_handle_group_event(event, payload)
+
+func _on_channel_join_failed(topic: String, reason: String, _payload: Dictionary) -> void:
+	if not topic.begins_with("lobby:"):
+		return
+	var failed_lobby_id := int(topic.substr(6))
+	if _realtime:
+		_realtime.remove_channel(topic)
+	if failed_lobby_id == int(_lobby_id):
+		_lobby_id = -1
+	lobby_channel_join_failed.emit(failed_lobby_id, reason)
 
 func _handle_user_event(event: String, payload: Dictionary):
 	match event:
@@ -388,6 +656,8 @@ func _handle_user_event(event: String, payload: Dictionary):
 			friend_rejected.emit(payload)
 		"achievement_unlocked":
 			achievement_unlocked.emit(payload)
+		"achievement_progress":
+			achievement_progress.emit(payload)
 
 func _handle_lobby_event(event: String, payload: Dictionary):
 	match event:
@@ -500,9 +770,16 @@ func health_index() -> GamendResult:
 
 ### HOOKS
 
-## Invoke a hook function
+## Invoke a hook function via HTTP
 func hooks_call_hook(hook_request: CallHookRequest) -> GamendResult:
 	return await _call_api(HooksApi.new(_config), "call_hook", [hook_request])
+
+## Invoke a hook function via WebSocket push. Fire-and-forget.
+## If topic is empty, pushes on the user channel.
+func hooks_call_hook_ws(plugin: String, fn_name: String, args: Array = [], topic: String = "") -> bool:
+	if not _realtime:
+		return false
+	return _realtime.call_hook(plugin, fn_name, args, topic)
 
 ## List available hook functions
 func hooks_list_hooks() -> GamendResult:
