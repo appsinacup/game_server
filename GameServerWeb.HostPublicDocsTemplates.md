@@ -36,6 +36,8 @@ Embedded HEEx templates used by the host-owned public docs LiveView.
 
 # `notifications`
 
+# `payments`
+
 # `postgresql_setup`
 
 # `realtime`
