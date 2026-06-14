@@ -1,4 +1,4 @@
-# GameServer v1.0.995 - API Reference
+# GameServer v1.0.996 - API Reference
 
 ## Modules
 
