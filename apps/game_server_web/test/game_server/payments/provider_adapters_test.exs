@@ -3,10 +3,10 @@ defmodule GameServer.Payments.ProviderAdaptersTest do
 
   alias GameServer.Payments.Product
   alias GameServer.Payments.ProviderProduct
-  alias GameServer.Payments.Purchase
   alias GameServer.Payments.Providers.Apple
   alias GameServer.Payments.Providers.Google
   alias GameServer.Payments.Providers.Steam
+  alias GameServer.Payments.Purchase
 
   defmodule GoogleHTTP do
     def get(url, opts) do

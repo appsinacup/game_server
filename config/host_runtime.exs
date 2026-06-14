@@ -7,6 +7,71 @@ import Config
 # any compile-time configuration in here, as it won't be applied.
 # The block below contains prod specific runtime configuration.
 
+if config_env() == :dev do
+  env_path = Path.expand("../.env", __DIR__)
+
+  if File.exists?(env_path) do
+    env_path
+    |> File.read!()
+    |> String.split("\n")
+    |> Enum.reduce({nil, []}, fn line, {current, entries} ->
+      cond do
+        current ->
+          {key, value_lines} = current
+          trimmed = String.trim_trailing(line)
+
+          if String.ends_with?(trimmed, "\"") do
+            value =
+              [String.trim_trailing(trimmed, "\"") | value_lines]
+              |> Enum.reverse()
+              |> Enum.join("\n")
+
+            {nil, [{key, value} | entries]}
+          else
+            {{key, [line | value_lines]}, entries}
+          end
+
+        String.trim(line) == "" or String.starts_with?(String.trim_leading(line), "#") ->
+          {nil, entries}
+
+        true ->
+          case String.split(line, "=", parts: 2) do
+            [key, value] ->
+              key = String.trim(key)
+              value = String.trim(value)
+
+              cond do
+                key == "" ->
+                  {nil, entries}
+
+                String.starts_with?(value, "\"") and not String.ends_with?(value, "\"") ->
+                  {{key, [String.trim_leading(value, "\"")]}, entries}
+
+                true ->
+                  value =
+                    value
+                    |> String.trim_leading("\"")
+                    |> String.trim_trailing("\"")
+                    |> String.replace("\\n", "\n")
+
+                  {nil, [{key, value} | entries]}
+              end
+
+            _ ->
+              {nil, entries}
+          end
+      end
+    end)
+    |> elem(1)
+    |> Enum.reverse()
+    |> Enum.each(fn {key, value} ->
+      if is_nil(System.get_env(key)) do
+        System.put_env(key, value)
+      end
+    end)
+  end
+end
+
 # ## Using releases
 #
 # If you use `mix release`, you need to explicitly enable the server

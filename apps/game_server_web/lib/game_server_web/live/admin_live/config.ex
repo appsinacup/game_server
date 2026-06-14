@@ -8,6 +8,7 @@ defmodule GameServerWeb.AdminLive.Config do
   alias GameServer.Hooks.DynamicRpcs
   alias GameServer.Hooks.PluginBuilder
   alias GameServer.Hooks.PluginManager
+  alias GameServer.Payments
   alias GameServer.Repo.AdvisoryLock
   alias GameServer.Schedule
   alias GameServer.Theme.JSONConfig
@@ -669,6 +670,37 @@ defmodule GameServerWeb.AdminLive.Config do
                       <% else %>
                         <span class="text-error">STEAM_API_KEY: unset</span>
                       <% end %>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="font-semibold">Payment Providers</td>
+                    <td>
+                      <span class="badge badge-info">
+                        {@config.payment_provider_configured_count}/{length(
+                          @config.payment_provider_configs
+                        )} configured
+                      </span>
+                    </td>
+                    <td class="text-sm break-words whitespace-normal">
+                      <div class="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                        <div
+                          :for={provider <- @config.payment_provider_configs}
+                          class="bg-base-200/70 rounded-lg p-3"
+                        >
+                          <div class="flex items-center justify-between gap-2">
+                            <span class="font-semibold">{provider.name}</span>
+                            <span class={[
+                              "badge badge-sm",
+                              if(provider.configured, do: "badge-success", else: "badge-warning")
+                            ]}>
+                              {if(provider.configured, do: "Configured", else: "Missing")}
+                            </span>
+                          </div>
+                          <div class="font-mono text-xs mt-2 space-y-1">
+                            <div :for={line <- provider.details}>{line}</div>
+                          </div>
+                        </div>
+                      </div>
                     </td>
                   </tr>
                   <tr>
@@ -1533,6 +1565,8 @@ defmodule GameServerWeb.AdminLive.Config do
       steam_api_key:
         Application.get_env(:ueberauth, Ueberauth.Strategy.Steam)[:api_key] ||
           System.get_env("STEAM_API_KEY"),
+      payment_provider_configs: payment_provider_configs(),
+      payment_provider_configured_count: payment_provider_configured_count(),
       email_configured: System.get_env("SMTP_PASSWORD") != nil,
       smtp_username: System.get_env("SMTP_USERNAME"),
       smtp_password: System.get_env("SMTP_PASSWORD"),
@@ -2470,6 +2504,106 @@ defmodule GameServerWeb.AdminLive.Config do
 
   defp format_cert_date(nil), do: "Unknown"
   defp format_cert_date(%Date{} = d), do: Date.to_iso8601(d)
+
+  defp payment_provider_configured_count do
+    Enum.count(payment_provider_configs(), & &1.configured)
+  end
+
+  defp payment_provider_configs do
+    stripe = Payments.stripe_config_status()
+    google = GameServer.Payments.Providers.Google.config_status()
+    apple = GameServer.Payments.Providers.Apple.config_status()
+    steam = GameServer.Payments.Providers.Steam.config_status()
+
+    [
+      %{
+        name: "Stripe",
+        configured: stripe.configured,
+        details: [
+          "Detected mode: #{stripe.mode}",
+          env_line("STRIPE_SECRET_KEY", stripe_secret_key(), secret: true),
+          env_line("STRIPE_WEBHOOK_SECRET", stripe_webhook_secret(), secret: true),
+          env_line("PAYMENTS_ENVIRONMENT", payments_environment())
+        ]
+      },
+      %{
+        name: "Google Play",
+        configured: google.configured,
+        details: [
+          env_line("GOOGLE_PLAY_PACKAGE_NAME", System.get_env("GOOGLE_PLAY_PACKAGE_NAME")),
+          env_line(
+            "GOOGLE_PLAY_SERVICE_ACCOUNT_JSON",
+            System.get_env("GOOGLE_PLAY_SERVICE_ACCOUNT_JSON"),
+            secret: true
+          ),
+          env_line(
+            "GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_PATH",
+            System.get_env("GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_PATH")
+          ),
+          env_line("GOOGLE_PLAY_ACCESS_TOKEN", System.get_env("GOOGLE_PLAY_ACCESS_TOKEN"),
+            secret: true
+          ),
+          env_line("GOOGLE_PLAY_RTDN_TOKEN", System.get_env("GOOGLE_PLAY_RTDN_TOKEN"),
+            secret: true
+          ),
+          env_line("GOOGLE_PLAY_AUTO_ACKNOWLEDGE", System.get_env("GOOGLE_PLAY_AUTO_ACKNOWLEDGE"))
+        ]
+      },
+      %{
+        name: "App Store",
+        configured: apple.configured,
+        details: [
+          env_line("APPLE_BUNDLE_ID", System.get_env("APPLE_BUNDLE_ID")),
+          env_line("APPLE_ISSUER_ID", System.get_env("APPLE_ISSUER_ID"), secret: true),
+          env_line("APPLE_KEY_ID", System.get_env("APPLE_KEY_ID")),
+          env_line("APPLE_PRIVATE_KEY", System.get_env("APPLE_PRIVATE_KEY"), secret: true),
+          env_line("APPLE_PRIVATE_KEY_PATH", System.get_env("APPLE_PRIVATE_KEY_PATH")),
+          env_line("APPLE_ENVIRONMENT", System.get_env("APPLE_ENVIRONMENT"))
+        ]
+      },
+      %{
+        name: "Steam MicroTxn",
+        configured: steam.configured,
+        details: [
+          env_line("STEAM_WEB_API_KEY", System.get_env("STEAM_WEB_API_KEY"), secret: true),
+          env_line("STEAM_API_KEY fallback", System.get_env("STEAM_API_KEY"), secret: true),
+          env_line("STEAM_APP_ID", System.get_env("STEAM_APP_ID")),
+          env_line("STEAM_PAYMENTS_ENVIRONMENT", System.get_env("STEAM_PAYMENTS_ENVIRONMENT"))
+        ]
+      }
+    ]
+  end
+
+  defp stripe_secret_key do
+    System.get_env("STRIPE_SECRET_KEY") ||
+      Application.get_env(:game_server_core, :stripe_secret_key)
+  end
+
+  defp stripe_webhook_secret do
+    System.get_env("STRIPE_WEBHOOK_SECRET") ||
+      Application.get_env(:game_server_core, :stripe_webhook_secret)
+  end
+
+  defp payments_environment do
+    System.get_env("PAYMENTS_ENVIRONMENT") ||
+      Application.get_env(:game_server_core, :payments_environment, "production")
+  end
+
+  defp env_line(key, value, opts \\ []) do
+    display =
+      cond do
+        Keyword.get(opts, :secret, false) ->
+          mask_secret(value)
+
+        is_nil(value) or value == "" ->
+          "<unset>"
+
+        true ->
+          to_string(value)
+      end
+
+    "#{key}: #{display}"
+  end
 
   # Helpers for masking secrets shown in the admin UI.
   # We show the first 2 and last 2 characters for secrets longer than 6

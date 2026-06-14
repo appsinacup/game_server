@@ -156,7 +156,7 @@ STEAM_PAYMENTS_ENVIRONMENT=sandbox
 PAYMENTS_ENVIRONMENT=test
 ```
 
-Use `STEAM_PAYMENTS_ENVIRONMENT=production` when ready for real transactions.
+Use `STEAM_PAYMENTS_ENVIRONMENT=production` when ready for real transactions. If `STEAM_WEB_API_KEY` is unset, payments reuse `STEAM_API_KEY` from Steam OpenID config.
 
 Setup:
 
@@ -202,8 +202,7 @@ The server rejects cross-user receipt reuse and returns `seen_before: true` for 
 
 Use `/admin/payments` to view:
 
-- Stripe config status and detected mode
-- Store adapter status
+- Payment provider status and detected Stripe mode
 - Internal products
 - Provider SKU mappings
 - Purchases
@@ -211,3 +210,5 @@ Use `/admin/payments` to view:
 - Wallet ledger entries
 - Provider webhook/event history
 - Reconciliation cursors
+
+Use `/admin/config` to view masked environment/config values for Stripe, Google Play, App Store, and Steam payments.

@@ -19,9 +19,9 @@ defmodule GameServer.Hooks do
   alias GameServer.Hooks.Default, as: Default
   alias GameServer.Hooks.PluginManager
   alias GameServer.Lobbies.Lobby
+  alias GameServer.Parties.Party
   alias GameServer.Payments.Entitlement
   alias GameServer.Payments.Purchase
-  alias GameServer.Parties.Party
   require Logger
 
   @type hook_result(attrs_or_user) :: {:ok, attrs_or_user} | {:error, term()}

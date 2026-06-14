@@ -35,9 +35,8 @@ defmodule GameServer.Payments.Providers.Apple do
   def verify_notification(raw_body) when is_binary(raw_body) do
     with {:ok, body} <- Jason.decode(raw_body),
          {:ok, signed_payload} <- required_binary(body, "signedPayload"),
-         {:ok, notification} <- jws_verifier().verify_and_decode(signed_payload),
-         {:ok, notification} <- decode_notification_data(notification) do
-      {:ok, notification}
+         {:ok, notification} <- jws_verifier().verify_and_decode(signed_payload) do
+      decode_notification_data(notification)
     end
   end
 
@@ -125,8 +124,8 @@ defmodule GameServer.Payments.Providers.Apple do
     }
   end
 
-  defp apple_transaction_status(%{"revocationDate" => value}) when not is_nil(value),
-    do: "revoked"
+  defp apple_transaction_status(%{"revocationDate" => nil}), do: "completed"
+  defp apple_transaction_status(%{"revocationDate" => _value}), do: "revoked"
 
   defp apple_transaction_status(_transaction), do: "completed"
 

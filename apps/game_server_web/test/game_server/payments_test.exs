@@ -26,11 +26,40 @@ defmodule GameServer.PaymentsTest do
        }}
     end
 
+    def verify_webhook(raw_body, _authorization), do: Jason.decode(raw_body)
+    def verify_notification(raw_body), do: Jason.decode(raw_body)
+
     defp normalize(attrs) do
       Map.new(attrs, fn
         {key, value} when is_atom(key) -> {Atom.to_string(key), value}
         pair -> pair
       end)
+    end
+  end
+
+  defmodule CapturePaymentHooks do
+    def after_purchase_fulfilled(purchase) do
+      send(hook_pid(), {:payment_purchase_fulfilled, purchase.id, purchase.user_id})
+      send(hook_pid(), {:payment_hook_item_grant, purchase.user_id, purchase.product_id})
+      :ok
+    end
+
+    def after_purchase_revoked(purchase) do
+      send(hook_pid(), {:payment_purchase_revoked, purchase.id, purchase.user_id})
+      :ok
+    end
+
+    def after_entitlement_changed(entitlement) do
+      send(
+        hook_pid(),
+        {:payment_entitlement_changed, entitlement.key, entitlement.status, entitlement.user_id}
+      )
+
+      :ok
+    end
+
+    defp hook_pid do
+      :persistent_term.get({__MODULE__, :pid})
     end
   end
 
@@ -119,6 +148,71 @@ defmodule GameServer.PaymentsTest do
     end
   end
 
+  describe "provider webhook processing and hooks" do
+    test "fake Google subscription events grant, hook, dedupe, and revoke subscription" do
+      capture_payment_hooks()
+
+      user = AccountsFixtures.user_fixture()
+
+      {_product, provider_product} =
+        create_subscription_provider_product("google", "premium_monthly")
+
+      {:ok, purchase} =
+        Payments.create_purchase(user, provider_product, %{
+          "provider_transaction_id" => "GPA.subscription.1",
+          "provider_original_transaction_id" => "google_sub_token_1"
+        })
+
+      activated_body =
+        Jason.encode!(%{
+          "message_id" => "google_msg_subscription_activated",
+          "subscriptionNotification" => %{
+            "purchaseToken" => "google_sub_token_1",
+            "notificationType" => 2
+          }
+        })
+
+      assert {:ok, :processed} = Payments.handle_google_webhook(activated_body, nil)
+
+      completed = Payments.get_purchase(purchase.id)
+      assert completed.status == "completed"
+      assert Payments.has_entitlement?(user.id, "premium_subscription") == true
+
+      assert_receive {:payment_purchase_fulfilled, purchase_id, user_id}, 1_000
+      assert purchase_id == purchase.id
+      assert user_id == user.id
+
+      assert_receive {:payment_entitlement_changed, "premium_subscription", "active", ^user_id},
+                     1_000
+
+      assert_receive {:payment_hook_item_grant, ^user_id, product_id}, 1_000
+      assert product_id == provider_product.product_id
+
+      assert {:ok, :duplicate} = Payments.handle_google_webhook(activated_body, nil)
+      assert Repo.aggregate(Entitlement, :count, :id) == 1
+
+      revoked_body =
+        Jason.encode!(%{
+          "message_id" => "google_msg_subscription_revoked",
+          "subscriptionNotification" => %{
+            "purchaseToken" => "google_sub_token_1",
+            "notificationType" => 13
+          }
+        })
+
+      assert {:ok, :processed} = Payments.handle_google_webhook(revoked_body, nil)
+
+      revoked = Payments.get_purchase(purchase.id)
+      assert revoked.status == "revoked"
+      assert Payments.has_entitlement?(user.id, "premium_subscription") == false
+
+      assert_receive {:payment_purchase_revoked, ^purchase_id, ^user_id}, 1_000
+
+      assert_receive {:payment_entitlement_changed, "premium_subscription", "revoked", ^user_id},
+                     1_000
+    end
+  end
+
   describe "store validation" do
     test "validated receipts create fulfilled purchases and reject replay across users" do
       user = AccountsFixtures.user_fixture()
@@ -197,6 +291,42 @@ defmodule GameServer.PaymentsTest do
       })
 
     {product, provider_product}
+  end
+
+  defp create_subscription_provider_product(provider, external_id) do
+    sku = unique_sku("premium")
+
+    {:ok, product} =
+      Payments.create_product(%{
+        "sku" => sku,
+        "title" => "Premium Monthly",
+        "kind" => "subscription",
+        "grant_config" => %{
+          "entitlement_key" => "premium_subscription",
+          "duration_seconds" => 2_592_000
+        }
+      })
+
+    {:ok, provider_product} =
+      Payments.create_provider_product(%{
+        "product_id" => product.id,
+        "provider" => provider,
+        "external_id" =>
+          external_id <> "_" <> Integer.to_string(System.unique_integer([:positive])),
+        "currency" => "USD",
+        "unit_amount" => 499
+      })
+
+    {product, provider_product}
+  end
+
+  defp capture_payment_hooks do
+    :persistent_term.put({CapturePaymentHooks, :pid}, self())
+    Application.put_env(:game_server_core, :hooks_module, CapturePaymentHooks)
+
+    on_exit(fn ->
+      :persistent_term.erase({CapturePaymentHooks, :pid})
+    end)
   end
 
   defp unique_sku(prefix), do: "#{prefix}_#{System.unique_integer([:positive])}"

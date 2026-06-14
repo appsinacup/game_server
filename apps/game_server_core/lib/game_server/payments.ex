@@ -539,23 +539,34 @@ defmodule GameServer.Payments do
   @spec provider_adapter_statuses() :: [map()]
   def provider_adapter_statuses do
     adapters = Application.get_env(:game_server_core, :payment_provider_adapters, [])
+    stripe_status = stripe_config_status()
 
-    for {provider, default_module} <- [
-          {"apple", GameServer.Payments.Providers.Apple},
-          {"google", GameServer.Payments.Providers.Google},
-          {"steam", GameServer.Payments.Providers.Steam}
-        ] do
-      key = String.to_existing_atom(provider)
-      module = Keyword.get(adapters, key, default_module)
-      status = provider_module_status(module)
+    stripe = %{
+      provider: "stripe",
+      module: GameServer.Payments.Providers.Stripe,
+      configured: stripe_status.configured,
+      status: Map.put(stripe_status, :provider, "stripe")
+    }
 
-      %{
-        provider: provider,
-        module: module,
-        configured: Map.get(status, :configured, module != default_module),
-        status: status
-      }
-    end
+    store_adapters =
+      for {provider, default_module} <- [
+            {"apple", GameServer.Payments.Providers.Apple},
+            {"google", GameServer.Payments.Providers.Google},
+            {"steam", GameServer.Payments.Providers.Steam}
+          ] do
+        key = String.to_existing_atom(provider)
+        module = Keyword.get(adapters, key, default_module)
+        status = provider_module_status(module)
+
+        %{
+          provider: provider,
+          module: module,
+          configured: Map.get(status, :configured, module != default_module),
+          status: status
+        }
+      end
+
+    [stripe | store_adapters]
   end
 
   @spec list_admin_products(keyword()) :: [Product.t()]

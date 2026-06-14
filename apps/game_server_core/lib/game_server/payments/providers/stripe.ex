@@ -47,9 +47,8 @@ defmodule GameServer.Payments.Providers.Stripe do
     with {:ok, secret} <- webhook_secret(),
          {:ok, timestamp, signatures} <- parse_signature_header(signature_header),
          :ok <- validate_timestamp(timestamp),
-         :ok <- validate_signature(raw_body, secret, timestamp, signatures),
-         {:ok, event} <- Jason.decode(raw_body) do
-      {:ok, event}
+         :ok <- validate_signature(raw_body, secret, timestamp, signatures) do
+      Jason.decode(raw_body)
     end
   end
 

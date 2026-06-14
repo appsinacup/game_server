@@ -119,8 +119,8 @@
             </div>
           </div>
           <p class="text-sm text-base-content/70">
-            {doc_text("Detected Stripe mode and masked keys are visible in")}
-            <a href="/admin/payments" class="link link-primary">{doc_text("Admin > Payments")}</a>.
+            {doc_text("Detected Stripe mode and masked provider variables are visible in")}
+            <a href="/admin/config" class="link link-primary">{doc_text("Admin > Config")}</a>.
           </p>
           <div class="flex flex-wrap gap-2">
             <a href="https://docs.stripe.com/keys" target="_blank" class="btn btn-sm btn-outline">
@@ -371,6 +371,13 @@ APPLE_ENVIRONMENT=sandbox</pre>
 STEAM_APP_ID=480
 STEAM_PAYMENTS_ENVIRONMENT=sandbox</pre>
             </div>
+            <p class="text-sm text-base-content/70 mt-3">
+              {doc_text("If")}
+              <code class="font-mono">STEAM_WEB_API_KEY</code>
+              {doc_text("is unset, payments reuse")}
+              <code class="font-mono">STEAM_API_KEY</code>
+              {doc_text("from Steam OpenID config.")}
+            </p>
             <ol class="list-decimal list-inside text-sm text-base-content/80 space-y-2 mt-3">
               <li>
                 {doc_text("Create provider SKUs with provider")}
@@ -416,7 +423,7 @@ STEAM_PAYMENTS_ENVIRONMENT=sandbox</pre>
         <div class="ml-8 space-y-3">
           <p>
             {doc_text(
-              "Use Admin > Payments to view Stripe configuration, adapter status, products, provider SKUs, purchases, entitlements, wallet ledger entries, webhook events, and reconciliation cursors."
+              "Use Admin > Payments to view provider status, products, provider SKUs, purchases, entitlements, wallet ledger entries, webhook events, and reconciliation cursors. Use Admin > Config to view masked provider environment variables."
             )}
           </p>
           <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto highlight-code">

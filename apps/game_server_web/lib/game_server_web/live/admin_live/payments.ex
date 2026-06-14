@@ -42,6 +42,7 @@ defmodule GameServerWeb.AdminLive.Payments do
           </div>
           <div class="flex flex-wrap gap-2">
             <a href="/api/docs" class="btn btn-outline btn-sm">OpenAPI</a>
+            <a href="/admin/config" class="btn btn-outline btn-sm">Provider config</a>
             <a
               href="https://docs.stripe.com/keys"
               target="_blank"
@@ -61,42 +62,10 @@ defmodule GameServerWeb.AdminLive.Payments do
           </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div class="card bg-base-200">
             <div class="card-body">
-              <h2 class="card-title">Stripe</h2>
-              <div class="space-y-2 text-sm">
-                <div>
-                  <span class={[
-                    "badge",
-                    if(@stripe_config.configured, do: "badge-success", else: "badge-warning")
-                  ]}>
-                    {if(@stripe_config.configured, do: "configured", else: "missing")}
-                  </span>
-                  <span class={["badge ml-2", mode_badge_class(@stripe_config.mode)]}>
-                    {@stripe_config.mode}
-                  </span>
-                </div>
-                <div>
-                  Secret key: <span class="font-mono">{@stripe_config.masked_secret_key}</span>
-                </div>
-                <div>
-                  Webhook secret:
-                  <span class="font-mono">{@stripe_config.masked_webhook_secret}</span>
-                </div>
-                <div>
-                  Ledger environment: <span class="font-mono">{@stripe_config.environment}</span>
-                </div>
-                <div class="text-xs text-base-content/60">
-                  Test mode uses Stripe test/sandbox keys. Live mode uses live keys.
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="card bg-base-200">
-            <div class="card-body">
-              <h2 class="card-title">Store Adapters</h2>
+              <h2 class="card-title">Payment Providers</h2>
               <div class="space-y-2 text-sm">
                 <div :for={adapter <- @store_adapters} class="flex items-center justify-between gap-3">
                   <div>
@@ -108,12 +77,23 @@ defmodule GameServerWeb.AdminLive.Payments do
                       {adapter_status_summary(adapter.status)}
                     </div>
                   </div>
-                  <span class={[
-                    "badge",
-                    if(adapter.configured, do: "badge-success", else: "badge-warning")
-                  ]}>
-                    {if(adapter.configured, do: "configured", else: "missing")}
-                  </span>
+                  <div class="flex flex-wrap justify-end gap-2">
+                    <span
+                      :if={adapter.provider == "stripe"}
+                      class={["badge", mode_badge_class(adapter.status.mode)]}
+                    >
+                      {adapter.status.mode}
+                    </span>
+                    <span class={[
+                      "badge",
+                      if(adapter.configured, do: "badge-success", else: "badge-warning")
+                    ]}>
+                      {if(adapter.configured, do: "configured", else: "missing")}
+                    </span>
+                  </div>
+                </div>
+                <div class="text-xs text-base-content/60">
+                  Provider secrets and exact environment variables live in Admin > Config.
                 </div>
               </div>
             </div>
@@ -641,37 +621,39 @@ defmodule GameServerWeb.AdminLive.Payments do
 
   @impl true
   def handle_event("save_product", %{"product" => params}, socket) do
-    with {:ok, attrs} <- product_attrs(params) do
-      result =
-        case parse_int(params["id"]) do
-          nil ->
-            Payments.create_product(attrs)
+    case product_attrs(params) do
+      {:ok, attrs} ->
+        result =
+          case parse_int(params["id"]) do
+            nil ->
+              Payments.create_product(attrs)
 
-          id ->
-            case Payments.get_product(id) do
-              nil -> {:error, :not_found}
-              product -> Payments.update_product(product, attrs)
-            end
+            id ->
+              case Payments.get_product(id) do
+                nil -> {:error, :not_found}
+                product -> Payments.update_product(product, attrs)
+              end
+          end
+
+        case result do
+          {:ok, _product} ->
+            {:noreply,
+             socket
+             |> put_flash(:info, "Product saved")
+             |> assign(:product_form, nil)
+             |> assign(:selected_product, nil)
+             |> reload_all()}
+
+          {:error, %Ecto.Changeset{} = changeset} ->
+            {:noreply,
+             put_flash(socket, :error, "Save failed: #{changeset_error_summary(changeset)}")}
+
+          {:error, :not_found} ->
+            {:noreply, put_flash(socket, :error, "Product not found")}
         end
 
-      case result do
-        {:ok, _product} ->
-          {:noreply,
-           socket
-           |> put_flash(:info, "Product saved")
-           |> assign(:product_form, nil)
-           |> assign(:selected_product, nil)
-           |> reload_all()}
-
-        {:error, %Ecto.Changeset{} = changeset} ->
-          {:noreply,
-           put_flash(socket, :error, "Save failed: #{changeset_error_summary(changeset)}")}
-
-        {:error, :not_found} ->
-          {:noreply, put_flash(socket, :error, "Product not found")}
-      end
-    else
-      {:error, reason} -> {:noreply, put_flash(socket, :error, reason)}
+      {:error, reason} ->
+        {:noreply, put_flash(socket, :error, reason)}
     end
   end
 
@@ -700,37 +682,39 @@ defmodule GameServerWeb.AdminLive.Payments do
 
   @impl true
   def handle_event("save_provider_product", %{"provider_product" => params}, socket) do
-    with {:ok, attrs} <- provider_product_attrs(params) do
-      result =
-        case parse_int(params["id"]) do
-          nil ->
-            Payments.create_provider_product(attrs)
+    case provider_product_attrs(params) do
+      {:ok, attrs} ->
+        result =
+          case parse_int(params["id"]) do
+            nil ->
+              Payments.create_provider_product(attrs)
 
-          id ->
-            case Payments.get_provider_product(id) do
-              nil -> {:error, :not_found}
-              provider_product -> Payments.update_provider_product(provider_product, attrs)
-            end
+            id ->
+              case Payments.get_provider_product(id) do
+                nil -> {:error, :not_found}
+                provider_product -> Payments.update_provider_product(provider_product, attrs)
+              end
+          end
+
+        case result do
+          {:ok, _provider_product} ->
+            {:noreply,
+             socket
+             |> put_flash(:info, "Provider SKU saved")
+             |> assign(:provider_product_form, nil)
+             |> assign(:selected_provider_product, nil)
+             |> reload_all()}
+
+          {:error, %Ecto.Changeset{} = changeset} ->
+            {:noreply,
+             put_flash(socket, :error, "Save failed: #{changeset_error_summary(changeset)}")}
+
+          {:error, :not_found} ->
+            {:noreply, put_flash(socket, :error, "Provider SKU not found")}
         end
 
-      case result do
-        {:ok, _provider_product} ->
-          {:noreply,
-           socket
-           |> put_flash(:info, "Provider SKU saved")
-           |> assign(:provider_product_form, nil)
-           |> assign(:selected_provider_product, nil)
-           |> reload_all()}
-
-        {:error, %Ecto.Changeset{} = changeset} ->
-          {:noreply,
-           put_flash(socket, :error, "Save failed: #{changeset_error_summary(changeset)}")}
-
-        {:error, :not_found} ->
-          {:noreply, put_flash(socket, :error, "Provider SKU not found")}
-      end
-    else
-      {:error, reason} -> {:noreply, put_flash(socket, :error, reason)}
+      {:error, reason} ->
+        {:noreply, put_flash(socket, :error, reason)}
     end
   end
 
@@ -768,7 +752,6 @@ defmodule GameServerWeb.AdminLive.Payments do
 
   defp reload_all(socket) do
     socket
-    |> assign(:stripe_config, Payments.stripe_config_status())
     |> assign(:store_adapters, Payments.provider_adapter_statuses())
     |> assign(:stats, Payments.admin_stats())
     |> assign(:all_products, Payments.list_products(include_inactive: true))
@@ -988,6 +971,10 @@ defmodule GameServerWeb.AdminLive.Payments do
   defp provider_badge_class("steam"), do: "badge-info"
   defp provider_badge_class(_provider), do: "badge-ghost"
 
+  defp adapter_status_summary(%{provider: "stripe"} = status) do
+    "checkout=#{yes_no(status.secret_key_configured)} webhook=#{yes_no(status.webhook_secret_configured)} env=#{status.environment}"
+  end
+
   defp adapter_status_summary(%{provider: "google"} = status) do
     "package=#{yes_no(status.package_name_configured)} service_account=#{yes_no(status.service_account_configured)} rtdn=#{yes_no(status.rtdn_token_configured)} auto_ack=#{yes_no(status.auto_acknowledge)}"
   end
@@ -1024,7 +1011,6 @@ defmodule GameServerWeb.AdminLive.Payments do
   defp changeset_error_summary(changeset) do
     changeset
     |> Ecto.Changeset.traverse_errors(fn {msg, _opts} -> msg end)
-    |> Enum.map(fn {field, messages} -> "#{field} #{Enum.join(messages, ", ")}" end)
-    |> Enum.join("; ")
+    |> Enum.map_join("; ", fn {field, messages} -> "#{field} #{Enum.join(messages, ", ")}" end)
   end
 end

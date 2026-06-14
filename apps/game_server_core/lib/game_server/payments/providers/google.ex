@@ -158,8 +158,8 @@ defmodule GameServer.Payments.Providers.Google do
   defp google_product_environment(%{"purchaseType" => 0}), do: "test"
   defp google_product_environment(_body), do: default_environment()
 
-  defp google_subscription_environment(%{"testPurchase" => value}) when not is_nil(value),
-    do: "test"
+  defp google_subscription_environment(%{"testPurchase" => nil}), do: default_environment()
+  defp google_subscription_environment(%{"testPurchase" => _value}), do: "test"
 
   defp google_subscription_environment(_body), do: default_environment()
 

@@ -37,10 +37,11 @@ defmodule GameServerWeb.AdminLive.PaymentsTest do
     {:ok, _view, html} = conn |> log_in_user(admin) |> live(~p"/admin/payments")
 
     assert html =~ "Payments"
+    assert html =~ "Payment Providers"
     assert html =~ "configured"
-    assert html =~ "sk_test"
-    assert html =~ "whsec"
     assert html =~ "test"
+    refute html =~ "sk_test_admin_payments"
+    refute html =~ "whsec_admin_payments"
     assert html =~ product.sku
     assert html =~ provider_product.external_id
     assert html =~ purchase.order_id

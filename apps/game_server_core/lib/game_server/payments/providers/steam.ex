@@ -257,9 +257,13 @@ defmodule GameServer.Payments.Providers.Steam do
   defp steam_item_id(_value), do: {:error, :invalid_steam_item_id}
 
   defp maybe_put_form(form, _key, value) when value in [nil, ""], do: form
-  defp maybe_put_form(form, key, value), do: form ++ [{key, to_string(value)}]
+  defp maybe_put_form(form, key, value), do: List.keystore(form, key, 0, {key, to_string(value)})
 
-  defp api_key, do: config_value("STEAM_WEB_API_KEY", :steam_web_api_key)
+  defp api_key do
+    config_value("STEAM_WEB_API_KEY", :steam_web_api_key) ||
+      config_value("STEAM_API_KEY", :steam_api_key)
+  end
+
   defp app_id, do: config_value("STEAM_APP_ID", :steam_app_id)
 
   defp steam_environment do
