@@ -7,7 +7,7 @@ defmodule GameServerWeb.PaymentDownloadController do
     user = conn.assigns.current_scope.user
 
     with {entitlement_id, ""} <- Integer.parse(id),
-         entitlement when not is_nil(entitlement) <- find_entitlement(user.id, entitlement_id),
+         %{} = entitlement <- find_entitlement(user.id, entitlement_id),
          {:ok, path, filename} <- download_file(entitlement) do
       send_download(conn, {:file, path}, filename: filename)
     else

@@ -10,6 +10,9 @@ defmodule GameServerWeb.AdminLive.Config do
   alias GameServer.Hooks.PluginManager
   alias GameServer.Payments
   alias GameServer.Payments.ProviderConfig
+  alias GameServer.Payments.Providers.Apple
+  alias GameServer.Payments.Providers.Google
+  alias GameServer.Payments.Providers.Steam
   alias GameServer.Repo.AdvisoryLock
   alias GameServer.Schedule
   alias GameServer.Theme.JSONConfig
@@ -2512,9 +2515,9 @@ defmodule GameServerWeb.AdminLive.Config do
 
   defp payment_provider_configs do
     stripe = Payments.stripe_config_status()
-    google = GameServer.Payments.Providers.Google.config_status()
-    apple = GameServer.Payments.Providers.Apple.config_status()
-    steam = GameServer.Payments.Providers.Steam.config_status()
+    google = Google.config_status()
+    apple = Apple.config_status()
+    steam = Steam.config_status()
 
     [
       %{

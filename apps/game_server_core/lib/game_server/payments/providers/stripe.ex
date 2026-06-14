@@ -157,12 +157,15 @@ defmodule GameServer.Payments.Providers.Stripe do
   defmodule Client do
     @moduledoc false
 
+    alias Stripe.Checkout.Session
+    alias Stripe.Webhook
+
     def create_checkout_session(params, opts) do
-      Stripe.Checkout.Session.create(params, opts)
+      Session.create(params, opts)
     end
 
     def construct_webhook_event(raw_body, signature_header, secret, tolerance_seconds) do
-      Stripe.Webhook.construct_event(raw_body, signature_header, secret, tolerance_seconds)
+      Webhook.construct_event(raw_body, signature_header, secret, tolerance_seconds)
     end
   end
 end

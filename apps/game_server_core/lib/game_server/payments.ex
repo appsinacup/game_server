@@ -12,8 +12,8 @@ defmodule GameServer.Payments do
   alias GameServer.Accounts.User
   alias GameServer.Payments.Entitlement
   alias GameServer.Payments.Product
-  alias GameServer.Payments.ProviderEvent
   alias GameServer.Payments.ProviderConfig
+  alias GameServer.Payments.ProviderEvent
   alias GameServer.Payments.ProviderProduct
   alias GameServer.Payments.Purchase
   alias GameServer.Payments.ReconciliationCursor
@@ -761,9 +761,9 @@ defmodule GameServer.Payments do
          %ProviderProduct{product: %Product{} = product},
          attrs
        ) do
-    with :ok <- ensure_single_ownership_quantity(product, attrs),
-         :ok <- ensure_single_ownership_available(user, product) do
-      :ok
+    case ensure_single_ownership_quantity(product, attrs) do
+      :ok -> ensure_single_ownership_available(user, product)
+      other -> other
     end
   end
 
