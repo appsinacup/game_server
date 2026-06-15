@@ -1,6 +1,7 @@
 defmodule GameServer.PaymentsTest do
   use GameServer.DataCase
 
+  alias GameServer.Accounts
   alias GameServer.AccountsFixtures
   alias GameServer.Payments
   alias GameServer.Payments.Entitlement
@@ -36,18 +37,27 @@ defmodule GameServer.PaymentsTest do
     end
   end
 
+  defmodule NoopPaymentHooks do
+    use GameServerWeb.TestSupport.NoopHooks
+  end
+
   defmodule CapturePaymentHooks do
+    use GameServerWeb.TestSupport.NoopHooks
+
+    @impl true
     def after_purchase_fulfilled(purchase) do
       send(hook_pid(), {:payment_purchase_fulfilled, purchase.id, purchase.user_id})
       send(hook_pid(), {:payment_hook_item_grant, purchase.user_id, purchase.product_id})
       :ok
     end
 
+    @impl true
     def after_purchase_revoked(purchase) do
       send(hook_pid(), {:payment_purchase_revoked, purchase.id, purchase.user_id})
       :ok
     end
 
+    @impl true
     def after_entitlement_changed(entitlement) do
       send(
         hook_pid(),
@@ -72,7 +82,7 @@ defmodule GameServer.PaymentsTest do
       steam: StoreAdapter
     )
 
-    Application.put_env(:game_server_core, :hooks_module, GameServer.Hooks.Default)
+    Application.put_env(:game_server_core, :hooks_module, NoopPaymentHooks)
 
     on_exit(fn ->
       restore_env(:payment_provider_adapters, original_adapters)
@@ -127,6 +137,78 @@ defmodule GameServer.PaymentsTest do
       assert {:ok, revoked} = Payments.revoke_purchase(completed, %{"reason" => "refund"})
       assert revoked.status == "revoked"
       assert Payments.has_entitlement?(user.id, "battle_pass") == false
+    end
+
+    test "default payment hooks mirror purchase and entitlement state into user metadata" do
+      use_default_payment_hooks()
+
+      user = AccountsFixtures.user_fixture()
+      {_product, provider_product} = create_entitlement_provider_product("stripe", "battle_pass")
+
+      {:ok, purchase} =
+        Payments.create_purchase(user, provider_product, %{
+          "provider_transaction_id" => "cs_metadata_entitlement"
+        })
+
+      assert {:ok, completed} = Payments.fulfill_purchase(purchase)
+
+      entitlement = Repo.get_by!(Entitlement, user_id: user.id, key: "battle_pass")
+      purchase_id = to_string(purchase.id)
+      entitlement_id = to_string(entitlement.id)
+
+      eventually(fn ->
+        metadata = Accounts.get_user!(user.id).metadata || %{}
+
+        assert get_in(metadata, ["payments", "purchase_ids", purchase_id]) == true
+        assert get_in(metadata, ["payments", "entitlements", "battle_pass"]) == true
+        assert get_in(metadata, ["payments", "entitlement_ids", entitlement_id]) == true
+
+        assert get_in(metadata, ["payments", "entitlement_details", "battle_pass", "active"]) ==
+                 true
+
+        assert get_in(metadata, ["payments", "entitlement_details", "battle_pass", "status"]) ==
+                 "active"
+      end)
+
+      assert {:ok, _revoked} = Payments.revoke_purchase(completed, %{"reason" => "refund"})
+
+      eventually(fn ->
+        metadata = Accounts.get_user!(user.id).metadata || %{}
+
+        assert get_in(metadata, ["payments", "purchase_ids", purchase_id]) == false
+        assert get_in(metadata, ["payments", "entitlements", "battle_pass"]) == false
+        assert get_in(metadata, ["payments", "entitlement_ids", entitlement_id]) == false
+
+        assert get_in(metadata, ["payments", "entitlement_details", "battle_pass", "active"]) ==
+                 false
+
+        assert get_in(metadata, ["payments", "entitlement_details", "battle_pass", "status"]) ==
+                 "revoked"
+      end)
+    end
+
+    test "subscription purchases create entitlement metadata with expiry" do
+      use_default_payment_hooks()
+
+      user = AccountsFixtures.user_fixture()
+      {_product, provider_product} = create_subscription_provider_product("stripe", "premium")
+
+      {:ok, purchase} =
+        Payments.create_purchase(user, provider_product, %{
+          "provider_transaction_id" => "cs_metadata_subscription"
+        })
+
+      assert {:ok, _completed} = Payments.fulfill_purchase(purchase)
+
+      eventually(fn ->
+        metadata = Accounts.get_user!(user.id).metadata || %{}
+        details = get_in(metadata, ["payments", "entitlement_details", "premium_subscription"])
+
+        assert get_in(metadata, ["payments", "entitlements", "premium_subscription"]) == true
+        assert details["active"] == true
+        assert details["status"] == "active"
+        assert is_binary(details["expires_at"])
+      end)
     end
   end
 
@@ -248,6 +330,33 @@ defmodule GameServer.PaymentsTest do
       assert {:error, :receipt_already_used} =
                Payments.validate_store_purchase(other_user, "apple", attrs)
     end
+
+    test "validated entitlement receipts reject already-owned entitlement across providers" do
+      user = AccountsFixtures.user_fixture()
+
+      {_apple_product, apple_provider_product} =
+        create_entitlement_provider_product("apple", "pass")
+
+      {_google_product, google_provider_product} =
+        create_entitlement_provider_product("google", "pass")
+
+      assert {:ok, %{purchase: %Purchase{} = purchase, seen_before: false}} =
+               Payments.validate_store_purchase(user, "apple", %{
+                 "product_id" => apple_provider_product.external_id,
+                 "transaction_id" => "apple_tx_pass_1",
+                 "environment" => "test"
+               })
+
+      assert purchase.status == "completed"
+      assert Payments.has_entitlement?(user.id, "battle_pass") == true
+
+      assert {:error, :already_owned} =
+               Payments.validate_store_purchase(user, "google", %{
+                 "product_id" => google_provider_product.external_id,
+                 "transaction_id" => "google_tx_pass_1",
+                 "environment" => "test"
+               })
+    end
   end
 
   defp create_consumable_provider_product(provider, external_id) do
@@ -332,6 +441,24 @@ defmodule GameServer.PaymentsTest do
     on_exit(fn ->
       :persistent_term.erase({CapturePaymentHooks, :pid})
     end)
+  end
+
+  defp use_default_payment_hooks do
+    Application.put_env(:game_server_core, :hooks_module, GameServer.Hooks.Default)
+  end
+
+  defp eventually(fun, attempts \\ 20)
+
+  defp eventually(fun, attempts) when attempts > 0 do
+    fun.()
+  rescue
+    error ->
+      if attempts == 1 do
+        reraise error, __STACKTRACE__
+      else
+        Process.sleep(50)
+        eventually(fun, attempts - 1)
+      end
   end
 
   defp unique_sku(prefix), do: "#{prefix}_#{System.unique_integer([:positive])}"

@@ -16,6 +16,44 @@ defmodule GameServer.Payments.ProviderAdaptersTest do
       {:ok, %{id: "cs_test_sdk", url: "https://checkout.stripe.test/session"}}
     end
 
+    def retrieve_checkout_session(session_id, params, opts) do
+      send(self(), {:stripe_retrieve_checkout_session, session_id, params, opts})
+
+      {:ok,
+       %{
+         id: session_id,
+         object: "checkout.session",
+         status: "complete",
+         payment_status: "paid"
+       }}
+    end
+
+    def retrieve_subscription(subscription_id, params, opts) do
+      send(self(), {:stripe_retrieve_subscription, subscription_id, params, opts})
+
+      {:ok,
+       %{
+         id: subscription_id,
+         object: "subscription",
+         status: "active",
+         current_period_end: 1_900_000_000,
+         cancel_at_period_end: false
+       }}
+    end
+
+    def update_subscription(subscription_id, params, opts) do
+      send(self(), {:stripe_update_subscription, subscription_id, params, opts})
+
+      {:ok,
+       %{
+         id: subscription_id,
+         object: "subscription",
+         status: "active",
+         current_period_end: 1_900_000_000,
+         cancel_at_period_end: params[:cancel_at_period_end]
+       }}
+    end
+
     def construct_webhook_event(raw_body, signature_header, secret, tolerance_seconds) do
       send(
         self(),
@@ -242,6 +280,41 @@ defmodule GameServer.Payments.ProviderAdaptersTest do
     assert opts[:api_key] == "sk_test_sdk_123"
     assert opts[:api_version] == "2024-06-20"
     assert opts[:idempotency_key] == "order_42"
+  end
+
+  test "Stripe retrieves checkout session through SDK client with pinned API options" do
+    Application.put_env(:game_server_core, :stripe_client, StripeClient)
+    System.put_env("PAYMENTS_ENVIRONMENT", "sandbox")
+    System.put_env("STRIPE_SANDBOX_SECRET_KEY", "sk_test_sdk_123")
+    System.put_env("STRIPE_API_VERSION", "2024-06-20")
+
+    assert {:ok, session} = Stripe.retrieve_checkout_session("cs_test_reconcile")
+
+    assert session["id"] == "cs_test_reconcile"
+    assert session["payment_status"] == "paid"
+
+    assert_received {:stripe_retrieve_checkout_session, "cs_test_reconcile", params, opts}
+    assert params == %{expand: ["payment_intent", "subscription"]}
+    assert opts[:api_key] == "sk_test_sdk_123"
+    assert opts[:api_version] == "2024-06-20"
+    refute Keyword.has_key?(opts, :idempotency_key)
+  end
+
+  test "Stripe cancels subscription at period end through SDK client" do
+    Application.put_env(:game_server_core, :stripe_client, StripeClient)
+    System.put_env("PAYMENTS_ENVIRONMENT", "sandbox")
+    System.put_env("STRIPE_SANDBOX_SECRET_KEY", "sk_test_sdk_123")
+    System.put_env("STRIPE_API_VERSION", "2024-06-20")
+
+    assert {:ok, subscription} = Stripe.cancel_subscription_at_period_end("sub_test_cancel")
+
+    assert subscription["id"] == "sub_test_cancel"
+    assert subscription["cancel_at_period_end"] == true
+
+    assert_received {:stripe_update_subscription, "sub_test_cancel", params, opts}
+    assert params == %{cancel_at_period_end: true}
+    assert opts[:api_key] == "sk_test_sdk_123"
+    assert opts[:api_version] == "2024-06-20"
   end
 
   test "Stripe sends subscription metadata through subscription data" do

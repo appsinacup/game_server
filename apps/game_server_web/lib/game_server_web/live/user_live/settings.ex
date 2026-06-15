@@ -669,12 +669,29 @@ defmodule GameServerWeb.UserLive.Settings do
                     <div>{payment_entitlement_kind(entitlement)}</div>
                   </div>
                   <div>
-                    <div class="text-xs uppercase text-base-content/50">{gettext("Expires")}</div>
-                    <div>{payment_datetime(entitlement.expires_at)}</div>
+                    <div class="text-xs uppercase text-base-content/50">
+                      {payment_entitlement_period_label(entitlement)}
+                    </div>
+                    <div>{payment_entitlement_period_value(entitlement)}</div>
                   </div>
                 </div>
 
-                <div class="mt-4 flex justify-end">
+                <div class="mt-4 flex flex-wrap justify-end gap-2">
+                  <button
+                    :if={payment_stripe_subscription_cancelable?(entitlement)}
+                    type="button"
+                    phx-click="cancel_stripe_subscription"
+                    phx-value-id={entitlement.id}
+                    class="btn btn-sm btn-outline btn-warning"
+                  >
+                    {gettext("Cancel renewal")}
+                  </button>
+                  <span
+                    :if={payment_subscription_cancel_scheduled?(entitlement)}
+                    class="badge badge-warning"
+                  >
+                    {gettext("Cancels at period end")}
+                  </span>
                   <.link
                     :if={payment_downloadable?(entitlement)}
                     href={~p"/payments/downloads/#{entitlement.id}"}
@@ -1702,6 +1719,23 @@ defmodule GameServerWeb.UserLive.Settings do
       when tab in ~w(account friends groups payments data) ->
         {:noreply, push_patch(socket, to: ~p"/users/settings?tab=#{tab}")}
 
+      {"cancel_stripe_subscription", %{"id" => id}} ->
+        case Payments.cancel_stripe_subscription_at_period_end(user, parse_payment_id(id)) do
+          {:ok, _result} ->
+            {:noreply,
+             socket
+             |> put_flash(:info, gettext("Subscription will cancel at the end of the period."))
+             |> assign_payment_data()}
+
+          {:error, reason} ->
+            {:noreply,
+             put_flash(
+               socket,
+               :error,
+               gettext("Failed") <> ": " <> payment_error(reason)
+             )}
+        end
+
       {"validate_email", %{"user" => user_params}} ->
         email_form =
           user
@@ -2705,6 +2739,29 @@ defmodule GameServerWeb.UserLive.Settings do
   defp payment_entitlement_kind(%{product: %{kind: kind}}) when is_binary(kind), do: kind
   defp payment_entitlement_kind(_entitlement), do: "-"
 
+  defp payment_entitlement_period_label(entitlement) do
+    cond do
+      payment_subscription_cancel_scheduled?(entitlement) ->
+        gettext("Cancels")
+
+      payment_entitlement_kind(entitlement) == "subscription" ->
+        gettext("Renews")
+
+      true ->
+        gettext("Expires")
+    end
+  end
+
+  defp payment_entitlement_period_value(entitlement) do
+    cond do
+      payment_entitlement_kind(entitlement) == "subscription" and is_nil(entitlement.expires_at) ->
+        gettext("Auto-renews")
+
+      true ->
+        payment_datetime(entitlement.expires_at)
+    end
+  end
+
   defp payment_amount(%{amount: nil}), do: "-"
   defp payment_amount(%{currency: nil, amount: amount}), do: Integer.to_string(amount)
 
@@ -2735,6 +2792,54 @@ defmodule GameServerWeb.UserLive.Settings do
 
   defp payment_downloadable?(entitlement), do: is_map(payment_download_config(entitlement))
 
+  defp payment_stripe_subscription_cancelable?(entitlement) do
+    ((payment_entitlement_kind(entitlement) == "subscription" and
+        payment_current_entitlement?(entitlement) and
+        entitlement.source_purchase) &&
+       entitlement.source_purchase.provider == "stripe") and
+      payment_stripe_subscription_id(entitlement.source_purchase) != nil and
+      not payment_subscription_cancel_scheduled?(entitlement)
+  end
+
+  defp payment_current_entitlement?(%{status: "active", expires_at: nil}), do: true
+
+  defp payment_current_entitlement?(%{status: "active", expires_at: %DateTime{} = expires_at}) do
+    DateTime.compare(expires_at, DateTime.utc_now(:second)) == :gt
+  end
+
+  defp payment_current_entitlement?(_entitlement), do: false
+
+  defp payment_subscription_cancel_scheduled?(entitlement) do
+    payment_map_value(entitlement.metadata, "stripe_subscription_cancel_at_period_end") == true or
+      payment_map_value(
+        entitlement.source_purchase && entitlement.source_purchase.metadata,
+        "stripe_subscription_cancel_at_period_end"
+      ) ==
+        true
+  end
+
+  defp payment_stripe_subscription_id(purchase) do
+    payment_map_value(purchase.metadata, "stripe_subscription_id") ||
+      payment_map_value(purchase.raw_provider_payload, "stripe_subscription_id") ||
+      payment_nested_stripe_subscription_id(purchase.raw_provider_payload)
+  end
+
+  defp payment_nested_stripe_subscription_id(%{"stripe_subscription" => %{"id" => id}})
+       when is_binary(id),
+       do: id
+
+  defp payment_nested_stripe_subscription_id(%{
+         "stripe_session" => %{"subscription" => %{"id" => id}}
+       })
+       when is_binary(id),
+       do: id
+
+  defp payment_nested_stripe_subscription_id(%{"stripe_session" => %{"subscription" => id}})
+       when is_binary(id),
+       do: id
+
+  defp payment_nested_stripe_subscription_id(_payload), do: nil
+
   defp payment_download_config(entitlement) do
     entitlement.metadata
     |> payment_map_value("download")
@@ -2754,10 +2859,34 @@ defmodule GameServerWeb.UserLive.Settings do
   defp payment_map_value(_value, _key), do: nil
 
   defp payment_atom_map_value(map, "download"), do: map[:download]
+  defp payment_atom_map_value(map, "stripe_subscription_id"), do: map[:stripe_subscription_id]
+
+  defp payment_atom_map_value(map, "stripe_subscription_cancel_at_period_end"),
+    do: map[:stripe_subscription_cancel_at_period_end]
+
   defp payment_atom_map_value(_map, _key), do: nil
 
   defp payment_fallback(nil, value), do: value
   defp payment_fallback(value, _fallback), do: value
+
+  defp parse_payment_id(id) when is_integer(id), do: id
+
+  defp parse_payment_id(id) when is_binary(id) do
+    case Integer.parse(id) do
+      {int, ""} -> int
+      _ -> nil
+    end
+  end
+
+  defp parse_payment_id(_id), do: nil
+
+  defp payment_error(%Ecto.Changeset{}), do: gettext("Invalid payment state")
+
+  defp payment_error({:stripe_error, %{"message" => message}}) when is_binary(message),
+    do: message
+
+  defp payment_error(reason) when is_atom(reason), do: Atom.to_string(reason)
+  defp payment_error(reason), do: inspect(reason)
 
   # PubSub handlers
   @impl true

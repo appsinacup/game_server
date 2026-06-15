@@ -72,7 +72,10 @@ Recommended Stripe webhook events:
 
 - `checkout.session.completed`
 - `checkout.session.async_payment_succeeded`
+- `checkout.session.async_payment_failed`
 - `checkout.session.expired`
+- `customer.subscription.updated`
+- `customer.subscription.deleted`
 - `charge.succeeded`
 - `charge.refunded`
 - `refund.created`
@@ -83,7 +86,23 @@ Recommended Stripe webhook events:
 
 For products with kind `entitlement` or `subscription`, checkout quantity must be `1`. A user with an active entitlement, or an in-progress checkout for that product, cannot start another Stripe/Steam checkout for it. Products with kind `consumable` can be purchased repeatedly.
 
+The same ownership guard is applied after Apple, Google, and Steam receipt replay checks and before creating a new purchase. If one item is sold through multiple providers, all provider SKUs must map to the same internal product, or those internal products must share the same `grant_config.entitlement_key`. Otherwise the server cannot know those provider SKUs unlock the same thing.
+
 Currency display and charge currency are controlled by Stripe Checkout. For local currency, enable Stripe Adaptive Pricing in the Stripe Dashboard, or create multi-currency Prices with `currency_options` in Stripe. The provider SKU still stores the Stripe Price ID (`price_...`); Stripe decides which supported currency to present during Checkout.
+
+## Stripe Subscriptions
+
+Stripe subscription products create the same server-side entitlement as one-time entitlement products. While the Stripe subscription is active and auto-renewing, the entitlement remains active. The account payments tab shows:
+
+- `Renews <date>` when Stripe has provided `current_period_end`
+- `Auto-renews` when the subscription is active but no provider period end has been stored yet
+- `Cancels <date>` after the user schedules cancellation at period end
+
+Users can schedule cancellation from `/users/settings?tab=payments` for Stripe subscriptions. The server calls Stripe to set `cancel_at_period_end=true`; it does not revoke the entitlement immediately. The entitlement remains active until Stripe sends the final subscription deletion event, or until the stored `expires_at` passes.
+
+If a subscription row shows `EXPIRES -` or `Auto-renews`, no period end has been stored yet. Configure the Stripe webhook events above, then use Admin > Payments > Reconcile Stripe on the purchase to fetch the Checkout Session/subscription and backfill the period end. As a fallback for non-Stripe or custom adapters, subscription products may set `grant_config.duration_seconds`; provider period data still wins when present.
+
+`refund.failed` is not enabled by default. A failed refund means Stripe did not complete the refund; this app does not automatically regrant access because that requires a business decision about the original revocation. Reconcile or adjust manually if you add that policy.
 
 ## Refunds And Disputes
 
@@ -94,6 +113,8 @@ Hooks:
 - `after_purchase_fulfilled/1`
 - `after_purchase_revoked/1`
 - `after_entitlement_changed/1`
+
+Default payment hooks mirror payment state into user metadata under `payments`. Purchase IDs are tracked in `payments.purchase_ids`, entitlement keys in `payments.entitlements`, and entitlement IDs in `payments.entitlement_ids`. Subscription products use the same entitlement metadata and include `expires_at` in `payments.entitlement_details`.
 
 ## User Store, Purchases, And Downloads
 
@@ -259,5 +280,7 @@ Use `/admin/payments` to view:
 - Entitlements
 - Provider webhook/event history
 - Reconciliation cursors
+
+Stripe purchases with a Checkout Session ID (`cs_...`) show a Reconcile Stripe action while pending, stuck, or completed. It retrieves the session from Stripe and fulfills paid sessions, cancels expired sessions, leaves open/processing sessions pending, or backfills subscription period metadata on completed subscriptions.
 
 Use `/admin/config` to view masked environment/config values for Stripe, Google Play, App Store, and Steam payments.

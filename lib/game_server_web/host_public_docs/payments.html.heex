@@ -174,7 +174,10 @@
             <div class="bg-base-200 p-4 rounded-lg font-mono text-sm overflow-auto">
               <pre phx-no-curly-interpolation>checkout.session.completed
 checkout.session.async_payment_succeeded
+checkout.session.async_payment_failed
 checkout.session.expired
+customer.subscription.updated
+customer.subscription.deleted
 charge.succeeded
 charge.refunded
 refund.created
@@ -204,6 +207,11 @@ charge.dispute.funds_withdrawn</pre>
             <p class="text-sm text-base-content/70">
               {doc_text(
                 "Do not enable all Stripe events. Extra events add webhook traffic, stored provider events, retries, and logs without changing purchase fulfillment."
+              )}
+            </p>
+            <p class="text-sm text-base-content/70">
+              {doc_text(
+                "refund.failed is not enabled by default because a failed refund does not mean access should be automatically regranted; add that only with an explicit ops policy."
               )}
             </p>
             <p class="text-sm text-base-content/70">
@@ -284,6 +292,11 @@ stripe listen --forward-to localhost:4000/api/v1/payments/webhooks/stripe
           </p>
           <p class="text-sm text-base-content/70">
             {doc_text(
+              "Apple, Google, Steam, and Stripe products that unlock the same thing must point to the same internal product, or their internal products must share the same grant_config.entitlement_key. Ownership checks use that entitlement key across providers."
+            )}
+          </p>
+          <p class="text-sm text-base-content/70">
+            {doc_text(
               "Currency display is handled by Stripe Checkout. Enable Stripe Adaptive Pricing in Stripe Dashboard, or configure multi-currency Prices with currency options. The provider SKU still stores the Stripe Price ID."
             )}
           </p>
@@ -311,7 +324,9 @@ stripe listen --forward-to localhost:4000/api/v1/payments/webhooks/stripe
           <ul class="list-disc list-inside text-sm text-base-content/80 space-y-2">
             <li>
               <code class="font-mono">/users/settings?tab=payments</code>
-              {doc_text("shows order history, active entitlements, and downloads.")}
+              {doc_text(
+                "shows order history, active entitlements, Stripe subscription cancellation, and downloads."
+              )}
             </li>
             <li>
               {doc_text(
@@ -319,6 +334,22 @@ stripe listen --forward-to localhost:4000/api/v1/payments/webhooks/stripe
               )}
             </li>
           </ul>
+          <div class="bg-base-200 p-4 rounded-lg font-mono text-sm overflow-auto">
+            <pre phx-no-curly-interpolation>{
+  "entitlement_key": "premium",
+  "duration_seconds": 2592000
+}</pre>
+          </div>
+          <p class="text-sm text-base-content/70">
+            {doc_text(
+              "Stripe subscription entitlements stay active while the subscription auto-renews. The account page shows Renews with Stripe current_period_end when known, Auto-renews when no provider period end is stored yet, and Cancels after cancel_at_period_end is scheduled."
+            )}
+          </p>
+          <p class="text-sm text-base-content/70">
+            {doc_text(
+              "Cancel renewal calls Stripe and schedules cancellation at period end; it does not revoke access immediately. If a subscription shows no expiry, configure Stripe subscription webhook events and use Admin > Payments > Reconcile Stripe to backfill period data. duration_seconds is only a fallback for custom/non-Stripe flows."
+            )}
+          </p>
           <div class="bg-base-200 p-4 rounded-lg font-mono text-sm overflow-auto">
             <pre phx-no-curly-interpolation>{
   "entitlement_key": "starter_pack",
@@ -381,7 +412,7 @@ stripe listen --forward-to localhost:4000/api/v1/payments/webhooks/stripe
           </div>
           <p class="text-sm text-base-content/70">
             {doc_text("Recommended webhook events also include")}
-            <code class="font-mono">checkout.session.completed</code>, <code class="font-mono">checkout.session.async_payment_succeeded</code>, <code class="font-mono">checkout.session.expired</code>, {doc_text(
+            <code class="font-mono">checkout.session.completed</code>, <code class="font-mono">checkout.session.async_payment_succeeded</code>, <code class="font-mono">checkout.session.async_payment_failed</code>, <code class="font-mono">checkout.session.expired</code>, <code class="font-mono">customer.subscription.updated</code>, <code class="font-mono">customer.subscription.deleted</code>, {doc_text(
               "and"
             )}
             <code class="font-mono">charge.succeeded</code>.
@@ -578,11 +609,21 @@ STEAM_APP_ID=480</pre>
               "Use Admin > Payments to view provider status, products, provider SKUs, purchases, entitlements, webhook events, and reconciliation cursors. Use Admin > Config to view masked provider environment variables."
             )}
           </p>
+          <p class="text-sm text-base-content/70">
+            {doc_text(
+              "Stripe purchases with a Checkout Session ID show a Reconcile Stripe action while pending, stuck, or completed. It retrieves the session from Stripe and fulfills paid sessions, cancels expired sessions, leaves open/processing sessions pending, or backfills subscription period metadata on completed subscriptions."
+            )}
+          </p>
           <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto highlight-code">
             <pre phx-no-curly-interpolation>after_purchase_fulfilled(purchase)
 after_purchase_revoked(purchase)
 after_entitlement_changed(entitlement)</pre>
           </div>
+          <p class="text-sm text-base-content/70">
+            {doc_text(
+              "Default payment hooks mirror payment state into user metadata under payments. Purchase IDs are tracked in payments.purchase_ids, entitlement keys in payments.entitlements, and entitlement IDs in payments.entitlement_ids. Subscription products use the same entitlement metadata and include expires_at in payments.entitlement_details."
+            )}
+          </p>
           <p class="text-sm text-base-content/70">
             {doc_text(
               "Use these hooks for analytics, custom fulfillment, notifications, or external sync."

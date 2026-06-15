@@ -30,6 +30,50 @@ defmodule GameServer.Payments.Providers.Stripe do
     end
   end
 
+  def retrieve_checkout_session(session_id) when is_binary(session_id) do
+    with {:ok, secret_key} <- secret_key() do
+      case retrieve_checkout_session_with_sdk(
+             session_id,
+             %{expand: ["payment_intent", "subscription"]},
+             stripe_request_opts(secret_key)
+           ) do
+        {:ok, session} ->
+          {:ok, normalize_stripe_payload(session)}
+
+        {:error, reason} ->
+          {:error, {:stripe_error, normalize_stripe_payload(reason)}}
+      end
+    end
+  end
+
+  def retrieve_subscription(subscription_id) when is_binary(subscription_id) do
+    with {:ok, secret_key} <- secret_key() do
+      case retrieve_subscription_with_sdk(subscription_id, %{}, stripe_request_opts(secret_key)) do
+        {:ok, subscription} ->
+          {:ok, normalize_stripe_payload(subscription)}
+
+        {:error, reason} ->
+          {:error, {:stripe_error, normalize_stripe_payload(reason)}}
+      end
+    end
+  end
+
+  def cancel_subscription_at_period_end(subscription_id) when is_binary(subscription_id) do
+    with {:ok, secret_key} <- secret_key() do
+      case update_subscription_with_sdk(
+             subscription_id,
+             %{cancel_at_period_end: true},
+             stripe_request_opts(secret_key)
+           ) do
+        {:ok, subscription} ->
+          {:ok, normalize_stripe_payload(subscription)}
+
+        {:error, reason} ->
+          {:error, {:stripe_error, normalize_stripe_payload(reason)}}
+      end
+    end
+  end
+
   def verify_webhook(_raw_body, nil), do: {:error, :missing_stripe_signature}
 
   def verify_webhook(raw_body, signature_header)
@@ -96,6 +140,13 @@ defmodule GameServer.Payments.Providers.Stripe do
     ]
   end
 
+  defp stripe_request_opts(secret_key) do
+    [
+      api_key: secret_key,
+      api_version: ProviderConfig.stripe_api_version()
+    ]
+  end
+
   defp secret_key do
     case ProviderConfig.stripe_secret_key() do
       key when is_binary(key) and key != "" -> {:ok, key}
@@ -123,6 +174,24 @@ defmodule GameServer.Payments.Providers.Stripe do
 
   defp create_checkout_session_with_sdk(params, opts) do
     stripe_client().create_checkout_session(params, opts)
+  rescue
+    exception -> {:error, exception}
+  end
+
+  defp retrieve_checkout_session_with_sdk(session_id, params, opts) do
+    stripe_client().retrieve_checkout_session(session_id, params, opts)
+  rescue
+    exception -> {:error, exception}
+  end
+
+  defp retrieve_subscription_with_sdk(subscription_id, params, opts) do
+    stripe_client().retrieve_subscription(subscription_id, params, opts)
+  rescue
+    exception -> {:error, exception}
+  end
+
+  defp update_subscription_with_sdk(subscription_id, params, opts) do
+    stripe_client().update_subscription(subscription_id, params, opts)
   rescue
     exception -> {:error, exception}
   end
@@ -158,10 +227,23 @@ defmodule GameServer.Payments.Providers.Stripe do
     @moduledoc false
 
     alias Stripe.Checkout.Session
+    alias Stripe.Subscription
     alias Stripe.Webhook
 
     def create_checkout_session(params, opts) do
       Session.create(params, opts)
+    end
+
+    def retrieve_checkout_session(session_id, params, opts) do
+      Session.retrieve(session_id, params, opts)
+    end
+
+    def retrieve_subscription(subscription_id, params, opts) do
+      Subscription.retrieve(subscription_id, params, opts)
+    end
+
+    def update_subscription(subscription_id, params, opts) do
+      Subscription.update(subscription_id, params, opts)
     end
 
     def construct_webhook_event(raw_body, signature_header, secret, tolerance_seconds) do

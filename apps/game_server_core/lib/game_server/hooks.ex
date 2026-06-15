@@ -1035,6 +1035,10 @@ defmodule GameServer.Hooks.Default do
   @moduledoc "Default no-op implementation for GameServer.Hooks"
   @behaviour GameServer.Hooks
 
+  alias GameServer.Accounts.User
+  alias GameServer.Payments.Entitlement
+  alias GameServer.Payments.Purchase
+
   @impl true
   def after_startup, do: :ok
 
@@ -1165,14 +1169,120 @@ defmodule GameServer.Hooks.Default do
   def after_achievement_unlocked(_user_id, _achievement), do: :ok
 
   @impl true
-  def after_purchase_fulfilled(_purchase), do: :ok
+  def after_purchase_fulfilled(%Purchase{} = purchase) do
+    update_user_payment_metadata(purchase.user_id, fn metadata ->
+      purchase_active = purchase.status == "completed"
+      purchase_id = to_string(purchase.id)
+
+      metadata
+      |> put_payment_child("purchase_ids", purchase_id, purchase_active)
+      |> put_payment_child(
+        "purchase_details",
+        purchase_id,
+        purchase_metadata(purchase, purchase_active)
+      )
+    end)
+  end
 
   @impl true
-  def after_purchase_revoked(_purchase), do: :ok
+  def after_purchase_revoked(%Purchase{} = purchase) do
+    update_user_payment_metadata(purchase.user_id, fn metadata ->
+      purchase_id = to_string(purchase.id)
+
+      metadata
+      |> put_payment_child("purchase_ids", purchase_id, false)
+      |> put_payment_child("purchase_details", purchase_id, purchase_metadata(purchase, false))
+    end)
+  end
 
   @impl true
-  def after_entitlement_changed(_entitlement), do: :ok
+  def after_entitlement_changed(%Entitlement{} = entitlement) do
+    active = entitlement_active?(entitlement)
+
+    update_user_payment_metadata(entitlement.user_id, fn metadata ->
+      entitlement_id = to_string(entitlement.id)
+
+      metadata
+      |> put_payment_child("entitlements", entitlement.key, active)
+      |> put_payment_child("entitlement_ids", entitlement_id, active)
+      |> put_payment_child(
+        "entitlement_details",
+        entitlement.key,
+        entitlement_metadata(entitlement, active)
+      )
+    end)
+  end
 
   @impl true
   def on_custom_hook(_hook, _args), do: {:error, :not_implemented}
+
+  defp update_user_payment_metadata(user_id, fun)
+       when is_integer(user_id) and is_function(fun, 1) do
+    case GameServer.Lock.serialize("user_payment_metadata", user_id, fn ->
+           with %User{} = user <- GameServer.Accounts.get_user(user_id),
+                metadata <- fun.(user.metadata || %{}),
+                {:ok, _user} <- GameServer.Accounts.update_user(user, %{metadata: metadata}) do
+             :ok
+           else
+             nil -> {:error, :user_not_found}
+             {:error, reason} -> {:error, reason}
+           end
+         end) do
+      {:ok, :ok} -> :ok
+      {:ok, {:error, reason}} -> {:error, reason}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  defp update_user_payment_metadata(_user_id, _fun), do: :ok
+
+  defp put_payment_child(metadata, child_key, item_key, value) do
+    payments = metadata |> Map.get("payments") |> map_or_empty()
+    child = payments |> Map.get(child_key) |> map_or_empty()
+
+    Map.put(metadata, "payments", Map.put(payments, child_key, Map.put(child, item_key, value)))
+  end
+
+  defp map_or_empty(value) when is_map(value), do: value
+  defp map_or_empty(_value), do: %{}
+
+  defp purchase_metadata(%Purchase{} = purchase, active) do
+    %{
+      "active" => active,
+      "amount" => purchase.amount,
+      "currency" => purchase.currency,
+      "order_id" => purchase.order_id,
+      "product_id" => purchase.product_id,
+      "provider" => purchase.provider,
+      "provider_product_id" => purchase.provider_product_id,
+      "provider_transaction_id" => purchase.provider_transaction_id,
+      "status" => purchase.status,
+      "purchased_at" => datetime_iso(purchase.purchased_at),
+      "revoked_at" => datetime_iso(purchase.revoked_at)
+    }
+  end
+
+  defp entitlement_metadata(%Entitlement{} = entitlement, active) do
+    %{
+      "active" => active,
+      "expires_at" => datetime_iso(entitlement.expires_at),
+      "id" => entitlement.id,
+      "key" => entitlement.key,
+      "product_id" => entitlement.product_id,
+      "revoked_at" => datetime_iso(entitlement.revoked_at),
+      "source_purchase_id" => entitlement.source_purchase_id,
+      "status" => entitlement.status
+    }
+  end
+
+  defp entitlement_active?(%Entitlement{status: "active", expires_at: nil}), do: true
+
+  defp entitlement_active?(%Entitlement{status: "active", expires_at: %DateTime{} = expires_at}) do
+    DateTime.compare(expires_at, DateTime.utc_now(:second)) == :gt
+  end
+
+  defp entitlement_active?(_entitlement), do: false
+
+  defp datetime_iso(%DateTime{} = value), do: DateTime.to_iso8601(value)
+  defp datetime_iso(_value), do: nil
 end

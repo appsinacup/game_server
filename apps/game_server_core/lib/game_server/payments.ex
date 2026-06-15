@@ -287,7 +287,9 @@ defmodule GameServer.Payments do
           {:error, :receipt_already_used}
 
         nil ->
-          create_validated_store_purchase(user, provider_product, validation)
+          with :ok <- ensure_checkout_allowed(user, provider_product, validation) do
+            create_validated_store_purchase(user, provider_product, validation)
+          end
       end
     else
       nil -> {:error, :provider_product_not_found}
@@ -343,6 +345,78 @@ defmodule GameServer.Payments do
       {:error, reason} -> {:error, reason}
     end
   end
+
+  @spec reconcile_stripe_purchase(Purchase.t() | integer()) ::
+          {:ok, %{purchase: Purchase.t(), result: atom(), stripe_session: map()}}
+          | {:error, term()}
+  def reconcile_stripe_purchase(id) when is_integer(id) do
+    case get_purchase(id) do
+      %Purchase{} = purchase -> reconcile_stripe_purchase(purchase)
+      nil -> {:error, :purchase_not_found}
+    end
+  end
+
+  def reconcile_stripe_purchase(
+        %Purchase{
+          provider: "stripe",
+          provider_transaction_id: "cs_" <> _rest = session_id
+        } = purchase
+      ) do
+    with {:ok, session} <- stripe_adapter().retrieve_checkout_session(session_id),
+         session <- normalize_params(session),
+         :ok <- ensure_stripe_session_matches_purchase(purchase, session),
+         {:ok, updated_purchase, result} <-
+           reconcile_stripe_purchase_from_session(purchase, session) do
+      {:ok, %{purchase: updated_purchase, result: result, stripe_session: session}}
+    end
+  end
+
+  def reconcile_stripe_purchase(%Purchase{provider: "stripe"}),
+    do: {:error, :missing_stripe_session_id}
+
+  def reconcile_stripe_purchase(%Purchase{}), do: {:error, :not_stripe_purchase}
+
+  @spec cancel_stripe_subscription_at_period_end(User.t(), integer()) ::
+          {:ok,
+           %{purchase: Purchase.t(), entitlement: Entitlement.t(), stripe_subscription: map()}}
+          | {:error, term()}
+  def cancel_stripe_subscription_at_period_end(%User{} = user, entitlement_id)
+      when is_integer(entitlement_id) do
+    with {:ok, %Entitlement{} = entitlement} <-
+           get_user_subscription_entitlement(user, entitlement_id),
+         %Purchase{} = purchase <- entitlement.source_purchase,
+         {:ok, subscription_id} <- stripe_subscription_id(purchase),
+         {:ok, subscription} <-
+           stripe_adapter().cancel_subscription_at_period_end(subscription_id),
+         subscription <- normalize_params(subscription),
+         {:ok, updated_purchase} <-
+           update_purchase_from_stripe_subscription(
+             purchase,
+             subscription,
+             "cancel_at_period_end"
+           ),
+         {:ok, updated_entitlements} <-
+           update_entitlements_from_stripe_subscription(updated_purchase, subscription) do
+      updated_entitlement =
+        Enum.find(updated_entitlements, &(&1.id == entitlement.id)) ||
+          Entitlement
+          |> Repo.get(entitlement_id)
+          |> Repo.preload([:product, :source_purchase])
+
+      {:ok,
+       %{
+         purchase: updated_purchase,
+         entitlement: updated_entitlement,
+         stripe_subscription: subscription
+       }}
+    else
+      %Purchase{} -> {:error, :not_stripe_subscription}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  def cancel_stripe_subscription_at_period_end(%User{}, _entitlement_id),
+    do: {:error, :invalid_entitlement_id}
 
   # ---------------------------------------------------------------------------
   # Steam
@@ -788,7 +862,7 @@ defmodule GameServer.Payments do
       has_entitlement?(user.id, key) ->
         {:error, :already_owned}
 
-      purchase_in_progress?(user.id, product.id) ->
+      purchase_in_progress?(user.id, key) ->
         {:error, :purchase_already_in_progress}
 
       true ->
@@ -798,15 +872,15 @@ defmodule GameServer.Payments do
 
   defp ensure_single_ownership_available(_user, _product), do: :ok
 
-  defp purchase_in_progress?(user_id, product_id) do
+  defp purchase_in_progress?(user_id, entitlement_key) do
     from(p in Purchase,
-      where:
-        p.user_id == ^user_id and p.product_id == ^product_id and
-          p.status == "requires_action",
-      select: count(p.id)
+      where: p.user_id == ^user_id and p.status == "requires_action",
+      preload: [:product]
     )
-    |> Repo.one()
-    |> Kernel.>(0)
+    |> Repo.all()
+    |> Enum.any?(fn %Purchase{product: product} ->
+      product_entitlement_key(product) == entitlement_key
+    end)
   end
 
   defp mark_purchase_failed(%Purchase{} = purchase, reason, provider_reason) do
@@ -991,12 +1065,43 @@ defmodule GameServer.Payments do
 
   defp maybe_fulfill_validated_purchase(%Purchase{} = purchase, _status), do: {:ok, purchase}
 
-  defp process_stripe_event(%{"type" => type, "data" => %{"object" => object}})
-       when type in ["checkout.session.completed", "checkout.session.async_payment_succeeded"] and
-              is_map(object) do
+  defp process_stripe_event(%{
+         "type" => "checkout.session.completed",
+         "data" => %{"object" => object}
+       })
+       when is_map(object) do
+    with {:ok, purchase} <- purchase_from_provider_object(object),
+         {:ok, updated} <- update_purchase_from_stripe_session(purchase, object) do
+      if stripe_session_paid?(object) do
+        with {:ok, _purchase} <- fulfill_purchase(updated, %{"stripe_session" => object}) do
+          {:ok, :processed}
+        end
+      else
+        {:ok, :processed}
+      end
+    end
+  end
+
+  defp process_stripe_event(%{
+         "type" => "checkout.session.async_payment_succeeded",
+         "data" => %{"object" => object}
+       })
+       when is_map(object) do
     with {:ok, purchase} <- purchase_from_provider_object(object),
          {:ok, updated} <- update_purchase_from_stripe_session(purchase, object),
          {:ok, _purchase} <- fulfill_purchase(updated, %{"stripe_session" => object}) do
+      {:ok, :processed}
+    end
+  end
+
+  defp process_stripe_event(%{
+         "type" => "checkout.session.async_payment_failed",
+         "data" => %{"object" => object}
+       })
+       when is_map(object) do
+    with {:ok, purchase} <- purchase_from_provider_object(object),
+         {:ok, _purchase, :failed} <-
+           update_purchase_from_stripe_reconciliation(purchase, object, "failed", :failed) do
       {:ok, :processed}
     end
   end
@@ -1048,6 +1153,43 @@ defmodule GameServer.Payments do
              "status" => stripe_reversal_status(type),
              "reason" => type,
              "payload" => %{"stripe_event_object" => object}
+           }) do
+      {:ok, :processed}
+    else
+      {:error, :purchase_not_found} -> {:ok, :ignored}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  defp process_stripe_event(%{
+         "type" => "customer.subscription.updated",
+         "data" => %{"object" => object}
+       })
+       when is_map(object) do
+    with {:ok, purchase} <- purchase_from_provider_object(object),
+         {:ok, updated} <-
+           update_purchase_from_stripe_subscription(purchase, object, "subscription_updated"),
+         {:ok, _entitlements} <- update_entitlements_from_stripe_subscription(updated, object) do
+      {:ok, :processed}
+    else
+      {:error, :purchase_not_found} -> {:ok, :ignored}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  defp process_stripe_event(%{
+         "type" => "customer.subscription.deleted",
+         "data" => %{"object" => object}
+       })
+       when is_map(object) do
+    with {:ok, purchase} <- purchase_from_provider_object(object),
+         {:ok, updated} <-
+           update_purchase_from_stripe_subscription(purchase, object, "subscription_deleted"),
+         {:ok, _purchase} <-
+           revoke_purchase(updated, %{
+             "status" => "cancelled",
+             "reason" => "customer.subscription.deleted",
+             "payload" => %{"stripe_subscription" => object}
            }) do
       {:ok, :processed}
     else
@@ -1239,23 +1381,252 @@ defmodule GameServer.Payments do
     end
   end
 
+  defp get_user_subscription_entitlement(%User{} = user, entitlement_id) do
+    Entitlement
+    |> Repo.get(entitlement_id)
+    |> Repo.preload([:product, source_purchase: [:product, :provider_product]])
+    |> case do
+      %Entitlement{
+        user_id: user_id,
+        product: %Product{kind: "subscription"},
+        source_purchase: %Purchase{provider: "stripe"}
+      } = entitlement
+      when user_id == user.id ->
+        {:ok, entitlement}
+
+      %Entitlement{user_id: user_id, product: %Product{kind: "subscription"}}
+      when user_id == user.id ->
+        {:error, :not_stripe_subscription}
+
+      %Entitlement{user_id: user_id} when user_id == user.id ->
+        {:error, :not_subscription_entitlement}
+
+      _ ->
+        {:error, :entitlement_not_found}
+    end
+  end
+
+  defp ensure_stripe_session_matches_purchase(%Purchase{} = purchase, session) do
+    metadata = session["metadata"] || %{}
+
+    cond do
+      stripe_metadata_purchase_mismatch?(metadata["purchase_id"], purchase.id) ->
+        {:error, :stripe_session_purchase_mismatch}
+
+      is_binary(metadata["order_id"]) and metadata["order_id"] != purchase.order_id ->
+        {:error, :stripe_session_order_mismatch}
+
+      true ->
+        :ok
+    end
+  end
+
+  defp stripe_metadata_purchase_mismatch?(nil, _purchase_id), do: false
+  defp stripe_metadata_purchase_mismatch?("", _purchase_id), do: false
+  defp stripe_metadata_purchase_mismatch?(purchase_id, purchase_id), do: false
+
+  defp stripe_metadata_purchase_mismatch?(purchase_id, expected_id)
+       when is_binary(purchase_id) do
+    parse_int(purchase_id) != expected_id
+  end
+
+  defp stripe_metadata_purchase_mismatch?(_purchase_id, _expected_id), do: true
+
+  defp reconcile_stripe_purchase_from_session(%Purchase{status: "completed"} = purchase, session) do
+    if stripe_session_paid?(session) do
+      with {:ok, updated} <- update_purchase_from_stripe_session(purchase, session),
+           {:ok, _entitlements} <- maybe_update_entitlements_from_stripe_purchase(updated) do
+        {:ok, preload_purchase(updated), :already_completed}
+      end
+    else
+      {:ok, preload_purchase(purchase), :already_completed}
+    end
+  end
+
+  defp reconcile_stripe_purchase_from_session(%Purchase{status: status} = purchase, _session)
+       when status in ["refunded", "revoked"] do
+    {:ok, preload_purchase(purchase), :unchanged}
+  end
+
+  defp reconcile_stripe_purchase_from_session(%Purchase{} = purchase, session) do
+    cond do
+      stripe_session_paid?(session) ->
+        with {:ok, updated} <- update_purchase_from_stripe_session(purchase, session),
+             {:ok, fulfilled} <-
+               fulfill_purchase(updated, stripe_reconciliation_payload(session, "fulfilled")) do
+          {:ok, fulfilled, :fulfilled}
+        end
+
+      session["status"] == "expired" ->
+        update_purchase_from_stripe_reconciliation(purchase, session, "cancelled", :cancelled)
+
+      stripe_payment_failed?(session) ->
+        update_purchase_from_stripe_reconciliation(purchase, session, "failed", :failed)
+
+      session["status"] == "open" ->
+        update_purchase_from_stripe_reconciliation(
+          purchase,
+          session,
+          "requires_action",
+          :still_open
+        )
+
+      true ->
+        update_purchase_from_stripe_reconciliation(
+          purchase,
+          session,
+          "requires_action",
+          :payment_processing
+        )
+    end
+  end
+
+  defp stripe_session_paid?(%{"payment_status" => status})
+       when status in ["paid", "no_payment_required"],
+       do: true
+
+  defp stripe_session_paid?(_session), do: false
+
+  defp stripe_payment_failed?(session) do
+    session["status"] == "complete" and
+      stripe_payment_intent_status(session) in ["canceled", "requires_payment_method"]
+  end
+
+  defp stripe_payment_intent_status(%{"payment_intent" => %{"status" => status}}), do: status
+  defp stripe_payment_intent_status(_session), do: nil
+
+  defp update_purchase_from_stripe_reconciliation(%Purchase{} = purchase, session, status, result) do
+    purchase
+    |> Purchase.changeset(%{
+      status: status,
+      raw_provider_payload:
+        merge_payload(
+          purchase.raw_provider_payload,
+          stripe_reconciliation_payload(session, result)
+        )
+    })
+    |> Repo.update()
+    |> case do
+      {:ok, updated} -> {:ok, preload_purchase(updated), result}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  defp stripe_reconciliation_payload(session, result) do
+    %{
+      "stripe_session" => session,
+      "stripe_reconciliation" => %{
+        "result" => to_string(result),
+        "reconciled_at" => DateTime.utc_now(:second) |> DateTime.to_iso8601()
+      }
+    }
+  end
+
   defp update_purchase_from_stripe_session(%Purchase{} = purchase, object) do
+    subscription = stripe_session_subscription(purchase, object)
     amount = object["amount_total"] || purchase.amount
     currency = object["currency"] |> normalize_currency() || purchase.currency
-    metadata = stripe_purchase_metadata(purchase, object)
+
+    metadata =
+      purchase
+      |> stripe_purchase_metadata(object)
+      |> stripe_subscription_metadata(subscription)
 
     purchase
     |> Purchase.changeset(%{
       provider_transaction_id: object["id"] || purchase.provider_transaction_id,
       amount: amount,
       currency: currency,
+      expires_at: stripe_subscription_period_end(subscription) || purchase.expires_at,
+      metadata: metadata,
+      raw_provider_payload:
+        stripe_payload_with_subscription(
+          purchase.raw_provider_payload,
+          %{"stripe_session" => object},
+          subscription
+        )
+    })
+    |> Repo.update()
+  end
+
+  defp update_purchase_from_stripe_subscription(
+         %Purchase{} = purchase,
+         subscription,
+         reconciliation_result
+       )
+       when is_map(subscription) do
+    metadata =
+      purchase
+      |> stripe_purchase_metadata(%{})
+      |> stripe_subscription_metadata(subscription)
+
+    purchase
+    |> Purchase.changeset(%{
+      expires_at: stripe_subscription_period_end(subscription) || purchase.expires_at,
       metadata: metadata,
       raw_provider_payload:
         merge_payload(purchase.raw_provider_payload, %{
-          "stripe_session" => object
+          "stripe_subscription" => subscription,
+          "stripe_subscription_reconciliation" => %{
+            "result" => reconciliation_result,
+            "reconciled_at" => DateTime.utc_now(:second) |> DateTime.to_iso8601()
+          }
         })
     })
     |> Repo.update()
+    |> case do
+      {:ok, updated} -> {:ok, preload_purchase(updated)}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  defp update_entitlements_from_stripe_subscription(%Purchase{} = purchase, subscription)
+       when is_map(subscription) do
+    metadata = stripe_entitlement_subscription_metadata(subscription)
+    expires_at = stripe_subscription_period_end(subscription)
+
+    from(e in Entitlement, where: e.source_purchase_id == ^purchase.id)
+    |> Repo.all()
+    |> Enum.reduce_while({:ok, []}, fn entitlement, {:ok, updated_entitlements} ->
+      attrs = %{
+        metadata: merge_payload(entitlement.metadata || %{}, metadata)
+      }
+
+      attrs =
+        if expires_at do
+          Map.put(attrs, :expires_at, expires_at)
+        else
+          attrs
+        end
+
+      case entitlement |> Entitlement.changeset(attrs) |> Repo.update() do
+        {:ok, updated} ->
+          after_entitlement_changed(updated)
+
+          {:cont,
+           {:ok, [Repo.preload(updated, [:product, :source_purchase]) | updated_entitlements]}}
+
+        {:error, reason} ->
+          {:halt, {:error, reason}}
+      end
+    end)
+    |> case do
+      {:ok, entitlements} -> {:ok, Enum.reverse(entitlements)}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  defp maybe_update_entitlements_from_stripe_purchase(%Purchase{} = purchase) do
+    case subscription_object_id((purchase.raw_provider_payload || %{})["stripe_subscription"]) do
+      nil ->
+        {:ok, []}
+
+      _subscription_id ->
+        update_entitlements_from_stripe_subscription(
+          purchase,
+          purchase.raw_provider_payload["stripe_subscription"]
+        )
+    end
   end
 
   defp update_purchase_from_stripe_charge(%Purchase{} = purchase, object) do
@@ -1300,7 +1671,136 @@ defmodule GameServer.Payments do
     |> put_if_present("stripe_session_id", object["id"], object["object"] == "checkout.session")
     |> put_if_present("stripe_payment_intent_id", object["payment_intent"], true)
     |> put_if_present("stripe_charge_id", object["id"], object["object"] == "charge")
+    |> put_if_present("stripe_subscription_id", stripe_session_subscription_id(object), true)
   end
+
+  defp stripe_subscription_metadata(metadata, nil), do: metadata
+
+  defp stripe_subscription_metadata(metadata, subscription) when is_map(subscription) do
+    metadata
+    |> put_if_present("stripe_subscription_id", subscription["id"], true)
+    |> put_if_present("stripe_subscription_status", subscription["status"], true)
+    |> put_if_present(
+      "stripe_subscription_current_period_end",
+      datetime_iso(stripe_subscription_period_end(subscription)),
+      true
+    )
+    |> Map.put(
+      "stripe_subscription_cancel_at_period_end",
+      subscription["cancel_at_period_end"] == true
+    )
+  end
+
+  defp stripe_entitlement_subscription_metadata(subscription) when is_map(subscription) do
+    %{
+      "stripe_subscription_id" => subscription["id"],
+      "stripe_subscription_status" => subscription["status"],
+      "stripe_subscription_cancel_at_period_end" => subscription["cancel_at_period_end"] == true,
+      "stripe_subscription_current_period_end" =>
+        datetime_iso(stripe_subscription_period_end(subscription))
+    }
+  end
+
+  defp stripe_session_subscription(%Purchase{product: %Product{kind: "subscription"}}, object) do
+    case object["subscription"] do
+      %{} = subscription ->
+        subscription
+
+      subscription_id when is_binary(subscription_id) and subscription_id != "" ->
+        case stripe_adapter().retrieve_subscription(subscription_id) do
+          {:ok, subscription} ->
+            normalize_params(subscription)
+
+          {:error, reason} ->
+            Logger.warning("Stripe subscription retrieve failed",
+              subscription_id: subscription_id,
+              reason: inspect(reason)
+            )
+
+            %{"id" => subscription_id}
+        end
+
+      _ ->
+        nil
+    end
+  end
+
+  defp stripe_session_subscription(_purchase, _object), do: nil
+
+  defp stripe_session_subscription_id(%{"subscription" => %{"id" => id}}) when is_binary(id),
+    do: id
+
+  defp stripe_session_subscription_id(%{"subscription" => id}) when is_binary(id), do: id
+  defp stripe_session_subscription_id(_object), do: nil
+
+  defp stripe_subscription_id(%Purchase{} = purchase) do
+    metadata = purchase.metadata || %{}
+    payload = purchase.raw_provider_payload || %{}
+
+    candidates = [
+      metadata["stripe_subscription_id"],
+      stripe_session_subscription_id(payload["stripe_session"] || %{}),
+      subscription_object_id(payload["stripe_subscription"]),
+      purchase.provider_original_transaction_id
+    ]
+
+    case Enum.find(candidates, &stripe_subscription_id?/1) do
+      nil -> {:error, :missing_stripe_subscription_id}
+      subscription_id -> {:ok, subscription_id}
+    end
+  end
+
+  defp subscription_object_id(%{"id" => id}) when is_binary(id), do: id
+  defp subscription_object_id(_subscription), do: nil
+
+  defp stripe_subscription_id?("sub_" <> _rest), do: true
+  defp stripe_subscription_id?(_value), do: false
+
+  defp stripe_payload_with_subscription(existing, incoming, nil),
+    do: merge_payload(existing, incoming)
+
+  defp stripe_payload_with_subscription(existing, incoming, subscription)
+       when is_map(subscription) do
+    merge_payload(existing, Map.put(incoming, "stripe_subscription", subscription))
+  end
+
+  defp stripe_subscription_period_end(nil), do: nil
+
+  defp stripe_subscription_period_end(subscription) when is_map(subscription) do
+    top_level_period_end =
+      unix_seconds_to_datetime(subscription["current_period_end"]) ||
+        unix_seconds_to_datetime(subscription["cancel_at"])
+
+    top_level_period_end || stripe_subscription_item_period_end(subscription)
+  end
+
+  defp stripe_subscription_item_period_end(%{"items" => %{"data" => items}})
+       when is_list(items) do
+    items
+    |> Enum.map(&unix_seconds_to_datetime(&1["current_period_end"]))
+    |> Enum.reject(&is_nil/1)
+    |> Enum.max_by(&DateTime.to_unix/1, fn -> nil end)
+  end
+
+  defp stripe_subscription_item_period_end(_subscription), do: nil
+
+  defp unix_seconds_to_datetime(value) when is_integer(value) do
+    case DateTime.from_unix(value, :second) do
+      {:ok, datetime} -> DateTime.truncate(datetime, :second)
+      {:error, _reason} -> nil
+    end
+  end
+
+  defp unix_seconds_to_datetime(value) when is_binary(value) do
+    value
+    |> parse_int()
+    |> unix_seconds_to_datetime()
+  end
+
+  defp unix_seconds_to_datetime(_value), do: nil
+
+  defp datetime_iso(%DateTime{} = value), do: DateTime.to_iso8601(value)
+  defp datetime_iso(_value), do: nil
 
   defp put_if_present(metadata, key, value, true) when is_binary(value) and value != "" do
     Map.put(metadata, key, value)

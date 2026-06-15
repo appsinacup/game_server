@@ -256,6 +256,7 @@ defmodule GameServerWeb.AdminLive.Payments do
                     <th>Provider TX</th>
                     <th>Purchased</th>
                     <th>Revoked</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -272,6 +273,17 @@ defmodule GameServerWeb.AdminLive.Payments do
                     <td class="font-mono text-xs break-all">{p.provider_transaction_id}</td>
                     <td class="font-mono text-xs">{format_dt(p.purchased_at || p.inserted_at)}</td>
                     <td class="font-mono text-xs">{format_dt(p.revoked_at)}</td>
+                    <td>
+                      <button
+                        :if={stripe_reconcile_available?(p)}
+                        type="button"
+                        phx-click="reconcile_stripe_purchase"
+                        phx-value-id={p.id}
+                        class="btn btn-xs btn-outline btn-primary"
+                      >
+                        Reconcile Stripe
+                      </button>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -678,6 +690,31 @@ defmodule GameServerWeb.AdminLive.Payments do
     end
   end
 
+  @impl true
+  def handle_event("reconcile_stripe_purchase", %{"id" => id}, socket) do
+    result =
+      id
+      |> parse_int()
+      |> case do
+        nil -> {:error, :purchase_not_found}
+        purchase_id -> Payments.reconcile_stripe_purchase(purchase_id)
+      end
+
+    case result do
+      {:ok, %{result: reconcile_result}} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, stripe_reconcile_message(reconcile_result))
+         |> reload_all()}
+
+      {:error, reason} ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "Stripe reconcile failed: #{admin_error(reason)}")
+         |> reload_all()}
+    end
+  end
+
   defp section_pager(assigns) do
     ~H"""
     <div class="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm">
@@ -955,6 +992,34 @@ defmodule GameServerWeb.AdminLive.Payments do
     do: "badge-warning"
 
   defp status_badge_class(_status), do: "badge-ghost"
+
+  defp stripe_reconcile_available?(
+         %{provider: "stripe", provider_transaction_id: "cs_" <> _rest} = p
+       ) do
+    p.status in ["pending", "requires_action", "failed", "cancelled"] or
+      stripe_completed_subscription?(p)
+  end
+
+  defp stripe_reconcile_available?(_purchase), do: false
+
+  defp stripe_completed_subscription?(%{status: "completed", product: %{kind: "subscription"}}),
+    do: true
+
+  defp stripe_completed_subscription?(_purchase), do: false
+
+  defp stripe_reconcile_message(:fulfilled), do: "Stripe purchase fulfilled"
+  defp stripe_reconcile_message(:cancelled), do: "Stripe purchase cancelled"
+  defp stripe_reconcile_message(:failed), do: "Stripe purchase failed"
+  defp stripe_reconcile_message(:still_open), do: "Stripe checkout still open"
+  defp stripe_reconcile_message(:payment_processing), do: "Stripe payment still processing"
+  defp stripe_reconcile_message(:already_completed), do: "Stripe purchase already completed"
+  defp stripe_reconcile_message(:unchanged), do: "Stripe purchase left unchanged"
+  defp stripe_reconcile_message(result), do: "Stripe reconcile finished: #{result}"
+
+  defp admin_error(%Ecto.Changeset{} = changeset), do: changeset_error_summary(changeset)
+  defp admin_error({:stripe_error, %{"message" => message}}) when is_binary(message), do: message
+  defp admin_error(reason) when is_atom(reason), do: Atom.to_string(reason)
+  defp admin_error(reason), do: inspect(reason)
 
   defp entitlement_badge_class("active"), do: "badge-success"
   defp entitlement_badge_class("revoked"), do: "badge-error"

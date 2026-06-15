@@ -66,11 +66,7 @@ defmodule GameServerWeb.StoreLive.Index do
             <div>
               <div class="font-semibold">{gettext("Checkout returned.")}</div>
               <div class="text-sm">
-                <%= if @success_purchase do %>
-                  {gettext("Order")} {@success_purchase.order_id}: {@success_purchase.status}
-                <% else %>
-                  {gettext("Payment is still being processed. Refresh after webhook delivery.")}
-                <% end %>
+                {success_purchase_message(@success_purchase)}
               </div>
             </div>
           </div>
@@ -197,7 +193,48 @@ defmodule GameServerWeb.StoreLive.Index do
 
   defp assign_success_purchase(socket, _params), do: assign(socket, :success_purchase, nil)
 
+  defp success_purchase_message(nil) do
+    gettext("Payment is still being processed. Refresh after webhook delivery.")
+  end
+
+  defp success_purchase_message(%{order_id: order_id, status: "completed"}) do
+    gettext("Order %{order_id} completed.", order_id: order_id)
+  end
+
+  defp success_purchase_message(%{order_id: order_id, status: status})
+       when status in ["pending", "requires_action"] do
+    gettext("Order %{order_id} is waiting for Stripe webhook confirmation.", order_id: order_id)
+  end
+
+  defp success_purchase_message(%{order_id: order_id, status: "failed"}) do
+    gettext("Order %{order_id} failed before payment was completed.", order_id: order_id)
+  end
+
+  defp success_purchase_message(%{order_id: order_id}) do
+    gettext("Order %{order_id} returned from checkout.", order_id: order_id)
+  end
+
   defp checkout_error(%Ecto.Changeset{}), do: gettext("Checkout failed.")
+
+  defp checkout_error(:already_owned), do: gettext("You already own this item.")
+
+  defp checkout_error(:purchase_already_in_progress) do
+    gettext("Checkout is already open for this item. Finish or cancel that checkout first.")
+  end
+
+  defp checkout_error(:quantity_not_allowed), do: gettext("This item can only be bought once.")
+  defp checkout_error(:stripe_not_configured), do: gettext("Stripe is not configured.")
+
+  defp checkout_error({:stripe_error, %{"message" => message}}) when is_binary(message) do
+    gettext("Checkout failed: %{reason}", reason: message)
+  end
+
+  defp checkout_error({:stripe_error, %{"user_message" => message}}) when is_binary(message) do
+    gettext("Checkout failed: %{reason}", reason: message)
+  end
+
+  defp checkout_error({reason, _details}) when is_atom(reason),
+    do: gettext("Checkout failed: %{reason}", reason: Atom.to_string(reason))
 
   defp checkout_error(reason) when is_atom(reason),
     do: gettext("Checkout failed: %{reason}", reason: Atom.to_string(reason))

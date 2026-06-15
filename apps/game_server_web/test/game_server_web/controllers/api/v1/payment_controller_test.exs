@@ -5,6 +5,10 @@ defmodule GameServerWeb.Api.V1.PaymentControllerTest do
   alias GameServer.Payments
   alias GameServerWeb.Auth.Guardian
 
+  defmodule NoopPaymentHooks do
+    use GameServerWeb.TestSupport.NoopHooks
+  end
+
   defmodule StripeAdapter do
     def create_checkout_session(_purchase, %{external_id: "price_fail" <> _rest}, _attrs) do
       {:error, :stripe_not_configured}
@@ -85,7 +89,7 @@ defmodule GameServerWeb.Api.V1.PaymentControllerTest do
       steam: StoreAdapter
     )
 
-    Application.put_env(:game_server_core, :hooks_module, GameServer.Hooks.Default)
+    Application.put_env(:game_server_core, :hooks_module, NoopPaymentHooks)
 
     on_exit(fn ->
       restore_env(:stripe_adapter, original_stripe)
@@ -293,6 +297,7 @@ defmodule GameServerWeb.Api.V1.PaymentControllerTest do
           "data" => %{
             "object" => %{
               "id" => "cs_paid",
+              "payment_status" => "paid",
               "amount_total" => 199,
               "currency" => "usd",
               "metadata" => %{
@@ -362,6 +367,134 @@ defmodule GameServerWeb.Api.V1.PaymentControllerTest do
         |> json_response(200)
 
       assert duplicate_response == %{"ok" => true, "status" => "duplicate"}
+    end
+
+    test "marks async checkout payment failure without fulfilling", %{conn: conn} do
+      user = AccountsFixtures.user_fixture()
+      {_product, provider_product} = create_entitlement_provider_product("stripe", "price_async")
+
+      {:ok, purchase} =
+        Payments.create_purchase(user, provider_product, %{
+          "status" => "requires_action",
+          "provider_transaction_id" => "cs_async_failed"
+        })
+
+      body =
+        Jason.encode!(%{
+          "id" => "evt_checkout_async_failed",
+          "type" => "checkout.session.async_payment_failed",
+          "data" => %{
+            "object" => %{
+              "id" => "cs_async_failed",
+              "payment_status" => "unpaid",
+              "metadata" => %{
+                "purchase_id" => to_string(purchase.id),
+                "order_id" => purchase.order_id
+              }
+            }
+          }
+        })
+
+      response =
+        conn
+        |> json_webhook_conn()
+        |> post("/api/v1/payments/webhooks/stripe", body)
+        |> json_response(200)
+
+      assert response == %{"ok" => true, "status" => "processed"}
+      assert Payments.get_purchase(purchase.id).status == "failed"
+      assert Payments.list_user_entitlements(user.id) == []
+    end
+
+    test "refreshes and revokes Stripe subscription from subscription events", %{conn: conn} do
+      user = AccountsFixtures.user_fixture()
+      {_product, provider_product} = create_subscription_provider_product("stripe", "price_sub")
+
+      {:ok, purchase} =
+        Payments.create_purchase(user, provider_product, %{
+          "status" => "requires_action",
+          "provider_transaction_id" => "cs_sub"
+        })
+
+      checkout_body =
+        Jason.encode!(%{
+          "id" => "evt_checkout_sub_paid",
+          "type" => "checkout.session.completed",
+          "data" => %{
+            "object" => %{
+              "id" => "cs_sub",
+              "payment_status" => "paid",
+              "subscription" => %{
+                "id" => "sub_webhook",
+                "status" => "active",
+                "cancel_at_period_end" => false,
+                "current_period_end" => 1_900_000_000
+              },
+              "metadata" => %{
+                "purchase_id" => to_string(purchase.id),
+                "order_id" => purchase.order_id
+              }
+            }
+          }
+        })
+
+      assert %{"ok" => true, "status" => "processed"} =
+               conn
+               |> json_webhook_conn()
+               |> post("/api/v1/payments/webhooks/stripe", checkout_body)
+               |> json_response(200)
+
+      [entitlement] = Payments.list_user_entitlements(user.id)
+      assert entitlement.expires_at == DateTime.from_unix!(1_900_000_000, :second)
+
+      update_body =
+        Jason.encode!(%{
+          "id" => "evt_sub_updated",
+          "type" => "customer.subscription.updated",
+          "data" => %{
+            "object" => %{
+              "id" => "sub_webhook",
+              "status" => "active",
+              "cancel_at_period_end" => true,
+              "current_period_end" => 1_901_000_000,
+              "metadata" => %{"purchase_id" => to_string(purchase.id)}
+            }
+          }
+        })
+
+      assert %{"ok" => true, "status" => "processed"} =
+               build_conn()
+               |> json_webhook_conn()
+               |> post("/api/v1/payments/webhooks/stripe", update_body)
+               |> json_response(200)
+
+      [entitlement] = Payments.list_user_entitlements(user.id)
+      assert entitlement.expires_at == DateTime.from_unix!(1_901_000_000, :second)
+      assert entitlement.metadata["stripe_subscription_cancel_at_period_end"] == true
+
+      deleted_body =
+        Jason.encode!(%{
+          "id" => "evt_sub_deleted",
+          "type" => "customer.subscription.deleted",
+          "data" => %{
+            "object" => %{
+              "id" => "sub_webhook",
+              "status" => "canceled",
+              "cancel_at_period_end" => true,
+              "current_period_end" => 1_901_000_000,
+              "metadata" => %{"purchase_id" => to_string(purchase.id)}
+            }
+          }
+        })
+
+      assert %{"ok" => true, "status" => "processed"} =
+               build_conn()
+               |> json_webhook_conn()
+               |> post("/api/v1/payments/webhooks/stripe", deleted_body)
+               |> json_response(200)
+
+      assert Payments.get_purchase(purchase.id).status == "cancelled"
+      assert Payments.list_user_entitlements(user.id) == []
     end
   end
 
@@ -488,6 +621,30 @@ defmodule GameServerWeb.Api.V1.PaymentControllerTest do
         "title" => "Digital Artbook",
         "kind" => "entitlement",
         "grant_config" => %{"entitlement_key" => sku}
+      })
+
+    {:ok, provider_product} =
+      Payments.create_provider_product(%{
+        "product_id" => product.id,
+        "provider" => provider,
+        "external_id" =>
+          external_id <> "_" <> Integer.to_string(System.unique_integer([:positive])),
+        "currency" => "USD",
+        "unit_amount" => 999
+      })
+
+    {product, provider_product}
+  end
+
+  defp create_subscription_provider_product(provider, external_id) do
+    sku = "premium_#{System.unique_integer([:positive])}"
+
+    {:ok, product} =
+      Payments.create_product(%{
+        "sku" => sku,
+        "title" => "Premium Monthly",
+        "kind" => "subscription",
+        "grant_config" => %{"entitlement_key" => "premium"}
       })
 
     {:ok, provider_product} =
