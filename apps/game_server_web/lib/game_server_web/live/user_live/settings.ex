@@ -513,7 +513,7 @@ defmodule GameServerWeb.UserLive.Settings do
             </div>
 
             <div class="flex items-center gap-2">
-              <form phx-change="search_users" class="w-full">
+              <form id="settings-search-users-form" phx-change="search_users" class="w-full">
                 <input
                   type="text"
                   name="q"
@@ -527,8 +527,8 @@ defmodule GameServerWeb.UserLive.Settings do
               <div class="text-xs text-base-content/70 mb-2">
                 {gettext("Name")}
               </div>
-              
-    <!-- Render search results as a responsive grid so multiple items show side-by-side -->
+
+              <!-- Render search results as a responsive grid so multiple items show side-by-side -->
               <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <div :for={s <- @search_results} id={"search-" <> Integer.to_string(s.id)}>
                   <div class="p-2 border rounded bg-base-100 flex items-center justify-between">

@@ -527,7 +527,7 @@ defmodule GameServerWeb.CoreComponents do
         {gettext("Next")}
       </button>
       <%= if @on_page_size && @page_size do %>
-        <form phx-change={@on_page_size} class="inline">
+        <form id={"#{@on_page_size}-form"} phx-change={@on_page_size} class="inline">
           <select
             name="size"
             class="select select-xs select-bordered w-18 ml-2"
