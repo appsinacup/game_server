@@ -21,6 +21,8 @@ defmodule GameServer.Parties.Party do
 
   alias GameServer.Accounts.User
 
+  @type t :: %__MODULE__{}
+
   @derive {Jason.Encoder,
            only: [
              :id,

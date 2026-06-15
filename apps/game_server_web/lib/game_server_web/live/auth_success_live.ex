@@ -21,7 +21,7 @@ defmodule GameServerWeb.AuthSuccessLive do
     case session_lookup do
       %GameServer.OAuthSession{} = s ->
         # session data is stored in the `data` map on the schema
-        session_data = Map.merge(%{status: s.status}, s.data || %{})
+        session_data = Map.merge(%{status: s.status}, s.data)
 
         {:ok,
          assign(socket,

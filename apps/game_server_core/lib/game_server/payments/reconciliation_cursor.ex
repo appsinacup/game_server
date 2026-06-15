@@ -6,6 +6,8 @@ defmodule GameServer.Payments.ReconciliationCursor do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{}
+
   @providers ~w(apple google steam stripe)
 
   schema "reconciliation_cursors" do

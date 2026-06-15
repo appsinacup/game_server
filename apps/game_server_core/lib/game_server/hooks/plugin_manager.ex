@@ -89,8 +89,11 @@ defmodule GameServer.Hooks.PluginManager do
   def hook_modules do
     list()
     |> Enum.flat_map(fn
-      %Plugin{name: name, hooks_module: mod, status: :ok} when is_atom(mod) -> [{name, mod}]
-      _ -> []
+      %Plugin{name: name, hooks_module: mod, status: :ok} when is_atom(mod) and not is_nil(mod) ->
+        [{name, mod}]
+
+      _ ->
+        []
     end)
   end
 
@@ -122,7 +125,7 @@ defmodule GameServer.Hooks.PluginManager do
 
   defp do_call_rpc(plugin, fn_name, args, opts) do
     case lookup(plugin) do
-      {:ok, %Plugin{status: :ok, hooks_module: mod}} when is_atom(mod) ->
+      {:ok, %Plugin{status: :ok, hooks_module: mod}} when is_atom(mod) and not is_nil(mod) ->
         timeout = Keyword.get(opts, :timeout_ms, @timeout_ms)
 
         case resolve_function_atom(mod, fn_name, length(args)) do
@@ -134,9 +137,6 @@ defmodule GameServer.Hooks.PluginManager do
 
           {:error, _} = err ->
             err
-
-          other ->
-            {:error, other}
         end
 
       {:ok, %Plugin{status: {:error, reason}}} ->
@@ -147,9 +147,6 @@ defmodule GameServer.Hooks.PluginManager do
 
       {:error, _} = err ->
         err
-
-      other ->
-        {:error, other}
     end
   end
 
@@ -347,7 +344,7 @@ defmodule GameServer.Hooks.PluginManager do
 
     ebin_paths =
       [Path.join(plugin_dir, "ebin")] ++
-        (Path.wildcard(Path.join(plugin_dir, "deps/*/ebin")) || [])
+        Path.wildcard(Path.join(plugin_dir, "deps/*/ebin"))
 
     Enum.each(ebin_paths, fn p ->
       if File.dir?(p) do
@@ -400,11 +397,8 @@ defmodule GameServer.Hooks.PluginManager do
 
   defp app_vsn(app) do
     case :application.get_key(app, :vsn) do
-      {:ok, vsn} when is_list(vsn) -> {:ok, List.to_string(vsn)}
-      {:ok, vsn} when is_binary(vsn) -> {:ok, vsn}
-      {:ok, other} -> {:ok, to_string(other)}
+      {:ok, vsn} -> {:ok, to_string(vsn)}
       :undefined -> {:ok, nil}
-      other -> {:error, {:vsn_failed, other}}
     end
   end
 
@@ -412,7 +406,6 @@ defmodule GameServer.Hooks.PluginManager do
     case :application.get_key(app, :modules) do
       {:ok, mods} when is_list(mods) -> {:ok, mods}
       :undefined -> {:ok, []}
-      other -> {:error, {:modules_failed, other}}
     end
   end
 
@@ -445,10 +438,6 @@ defmodule GameServer.Hooks.PluginManager do
         false
       end
     end)
-    |> case do
-      false -> {:error, :not_implemented}
-      other -> other
-    end
   end
 
   defp safe_apply_with_caller(mod, fun, args, opts, timeout)

@@ -27,8 +27,8 @@ defmodule GameServerWeb.AdminLive.Config do
         <.link navigate={~p"/admin"} class="btn btn-outline mb-4">
           ← Back to Admin
         </.link>
-        
-    <!-- Current Configuration Status -->
+
+        <!-- Current Configuration Status -->
         <div class="card bg-base-100 shadow-sm" data-card-key="config_status">
           <div class="card-body">
             <h2 class="card-title text-xl mb-4 flex items-center gap-3">
@@ -1315,8 +1315,8 @@ defmodule GameServerWeb.AdminLive.Config do
                             View Logs →
                           </.link>
                         </div>
-                        
-    <!-- Full docs modal / pane -->
+
+                        <!-- Full docs modal / pane -->
                         <%= if @hooks_full_doc do %>
                           <div class="mt-2 p-3 border rounded bg-base-100">
                             <div class="flex items-center justify-between">
@@ -1342,8 +1342,8 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
-    <!-- Limits & Validation -->
+
+        <!-- Limits & Validation -->
         <div class="card bg-base-100 shadow-sm collapsed" data-card-key="limits">
           <div class="card-body">
             <h2 class="card-title text-xl mb-4 flex items-center gap-3">
@@ -1411,8 +1411,8 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
-    <!-- Admin Tools -->
+
+        <!-- Admin Tools -->
         <div class="card bg-base-100 shadow-sm collapsed" data-card-key="admin_tools">
           <div class="card-body">
             <h2 class="card-title text-xl mb-4 flex items-center gap-3">
@@ -1468,8 +1468,8 @@ defmodule GameServerWeb.AdminLive.Config do
             </div>
           </div>
         </div>
-        
-    <!-- Scheduled Jobs -->
+
+        <!-- Scheduled Jobs -->
         <div class="card bg-base-100 shadow-sm collapsed" data-card-key="scheduled_jobs">
           <div class="card-body">
             <h2 class="card-title text-xl mb-4 flex items-center gap-3">

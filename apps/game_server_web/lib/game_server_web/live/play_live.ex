@@ -63,8 +63,7 @@ defmodule GameServerWeb.PlayLive do
           allow="autoplay; fullscreen"
           allowfullscreen
           phx-update="ignore"
-        >
-        </iframe>
+        ></iframe>
 
         <button
           id="fullscreen-btn"

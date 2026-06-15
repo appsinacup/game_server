@@ -103,8 +103,6 @@ defmodule GameServerWeb.AuthController do
     end
   end
 
-  defp maybe_restore_browser_link_scope(conn, _session), do: conn
-
   # Optionally extract current user from JWT in Authorization header.
   # Returns {:ok, user} if valid JWT present, or {:ok, nil} if no JWT or invalid.
   # This allows the same endpoint to handle both login and linking.
@@ -1336,8 +1334,6 @@ defmodule GameServerWeb.AuthController do
   end
 
   defp pop_session_message(data) do
-    data = if is_map(data), do: data, else: %{}
-
     message =
       Map.get(data, "message") ||
         Map.get(data, :message) ||

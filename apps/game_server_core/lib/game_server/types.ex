@@ -100,11 +100,7 @@ defmodule GameServer.Types do
       })
 
   """
-  @type user_update_attrs :: %{
-          optional(:display_name) => String.t() | nil,
-          optional(:metadata) => map(),
-          optional(:is_admin) => boolean()
-        }
+  @type user_update_attrs :: %{optional(atom() | String.t()) => term()}
 
   # ---------------------------------------------------------------------------
   # Leaderboard Attributes
@@ -209,16 +205,7 @@ defmodule GameServer.Types do
       })
 
   """
-  @type lobby_create_attrs :: %{
-          required(:name) => String.t(),
-          required(:title) => String.t(),
-          optional(:max_users) => pos_integer(),
-          optional(:is_hidden) => boolean(),
-          optional(:is_locked) => boolean(),
-          optional(:password) => String.t(),
-          optional(:hostless) => boolean(),
-          optional(:metadata) => map()
-        }
+  @type lobby_create_attrs :: %{optional(atom() | String.t()) => term()}
 
   @typedoc """
   Attributes for updating an existing lobby.

@@ -154,7 +154,7 @@ defmodule GameServerWeb.HostLayouts do
 
   @doc false
   def current_locale do
-    GameServerWeb.GettextSync.current_locale() || "en"
+    GameServerWeb.GettextSync.current_locale()
   end
 
   @doc false
@@ -174,8 +174,6 @@ defmodule GameServerWeb.HostLayouts do
       |> translate_nested_theme_fields()
     end)
   end
-
-  defp translate_theme(theme, _locale), do: theme
 
   defp translation_locale(locale) when is_binary(locale) do
     GameServerWeb.GettextSync.normalize_locale(locale) || current_locale()

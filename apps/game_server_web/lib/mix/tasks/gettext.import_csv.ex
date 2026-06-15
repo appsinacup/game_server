@@ -319,10 +319,12 @@ defmodule Mix.Tasks.Gettext.ImportCsv do
     do_split_fields(rest, acc, current <> <<ch::utf8>>, in_quote)
   end
 
+  @spec raise_csv_error!(String.t()) :: no_return()
   defp raise_csv_error!(column) do
     Mix.raise("CSV file must have a '#{column}' column header")
   end
 
+  @spec raise_usage!() :: no_return()
   defp raise_usage! do
     Mix.raise("""
     Usage: mix gettext.import_csv LOCALE FILE [--dry-run] [--config BASE_PATH]

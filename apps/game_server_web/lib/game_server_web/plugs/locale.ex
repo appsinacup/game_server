@@ -90,6 +90,5 @@ defmodule GameServerWeb.Plugs.Locale do
   end
 
   defp query_suffix(""), do: ""
-  defp query_suffix(nil), do: ""
   defp query_suffix(qs), do: "?" <> qs
 end

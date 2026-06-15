@@ -739,6 +739,7 @@ defmodule GameServer.Lobbies do
 
   defp normalize_hostless_lobby(%Lobby{} = lobby), do: lobby
 
+  @spec validate_host_not_in_lobby(map()) :: {:ok, :ok} | {:error, :already_in_lobby}
   defp validate_host_not_in_lobby(attrs) do
     host_id = Map.get(attrs, "host_id") || Map.get(attrs, :host_id)
 
@@ -755,6 +756,7 @@ defmodule GameServer.Lobbies do
     end
   end
 
+  @spec maybe_add_host_membership(Ecto.Multi.t(), map()) :: Ecto.Multi.t()
   defp maybe_add_host_membership(multi, %{"host_id" => host_id}) when host_id != nil do
     multi
     |> Multi.run(:membership, fn repo, %{lobby: lobby} ->

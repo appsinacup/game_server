@@ -48,6 +48,7 @@ defmodule GameServer.Lobbies.Lobby do
   @required_fields ~w(title)a
   @optional_fields ~w(host_id hostless max_users is_hidden is_locked password_hash metadata slowdown)a
 
+  @spec changeset(t(), map()) :: Ecto.Changeset.t()
   def changeset(lobby, attrs) do
     lobby
     |> cast(attrs, @required_fields ++ @optional_fields)

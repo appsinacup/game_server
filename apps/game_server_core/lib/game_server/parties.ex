@@ -49,6 +49,7 @@ defmodule GameServer.Parties do
   alias GameServer.Friends
   alias GameServer.Groups
   alias GameServer.Lobbies
+  alias GameServer.Lobbies.Lobby
   alias GameServer.Parties.Party
   alias GameServer.Parties.PartyInvite
   alias GameServer.Repo

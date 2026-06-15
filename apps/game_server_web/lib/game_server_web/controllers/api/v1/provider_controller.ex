@@ -39,11 +39,6 @@ defmodule GameServerWeb.Api.V1.ProviderController do
         conn
         |> put_status(:bad_request)
         |> json(%{error: "Failed to link device_id", details: errors})
-
-      {:error, _} ->
-        conn
-        |> put_status(:bad_request)
-        |> json(%{error: "Failed to link device_id"})
     end
   end
 

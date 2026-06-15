@@ -1108,11 +1108,8 @@ defmodule GameServerWeb.Api.V1.GroupController do
             {:error, :full} ->
               conn |> put_status(:forbidden) |> json(%{error: "full"})
 
-            {:error, reason} when is_atom(reason) ->
-              conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
-
             {:error, reason} ->
-              conn |> put_status(:unprocessable_entity) |> json(%{error: to_string(reason)})
+              conn |> put_status(:forbidden) |> json(%{error: to_string(reason)})
           end
       end
     end)

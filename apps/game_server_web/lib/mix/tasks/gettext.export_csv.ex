@@ -128,6 +128,7 @@ defmodule Mix.Tasks.Gettext.ExportCsv do
 
   defp csv_escape(value), do: csv_escape(to_string(value))
 
+  @spec raise_usage!() :: no_return()
   defp raise_usage! do
     Mix.raise("""
     Usage: mix gettext.export_csv LOCALE [--output FILE] [--config BASE_PATH]

@@ -320,6 +320,7 @@ defmodule GameServer.Hooks do
   end
 
   @doc "Returns the set of internal lifecycle hook names that are not callable\n  through the public RPC interface."
+  @spec internal_hooks() :: MapSet.t(atom())
   def internal_hooks do
     MapSet.new([
       :after_startup,
@@ -375,10 +376,7 @@ defmodule GameServer.Hooks do
     base = module()
 
     plugin_mods =
-      case PluginManager.hook_modules() do
-        list when is_list(list) -> Enum.map(list, fn {_name, mod} -> mod end)
-        _ -> []
-      end
+      Enum.map(PluginManager.hook_modules(), fn {_name, mod} -> mod end)
 
     [base | plugin_mods]
     |> Enum.uniq()
@@ -914,7 +912,11 @@ defmodule GameServer.Hooks do
         # Also exclude internal hooks and scheduled callbacks
         internal = internal_hooks()
         scheduled = GameServer.Schedule.registered_callbacks()
-        excluded = MapSet.union(default_names, MapSet.union(internal, scheduled))
+
+        excluded =
+          [default_names, internal, scheduled]
+          |> Enum.flat_map(&MapSet.to_list/1)
+          |> MapSet.new()
 
         # Group functions by name -> arities and then filter out the excluded set
         func_map =
@@ -1218,14 +1220,7 @@ defmodule GameServer.Hooks.Default do
   defp update_user_payment_metadata(user_id, fun)
        when is_integer(user_id) and is_function(fun, 1) do
     case GameServer.Lock.serialize("user_payment_metadata", user_id, fn ->
-           with %User{} = user <- GameServer.Accounts.get_user(user_id),
-                metadata <- fun.(user.metadata || %{}),
-                {:ok, _user} <- GameServer.Accounts.update_user(user, %{metadata: metadata}) do
-             :ok
-           else
-             nil -> {:error, :user_not_found}
-             {:error, reason} -> {:error, reason}
-           end
+           apply_user_payment_metadata(user_id, fun)
          end) do
       {:ok, :ok} -> :ok
       {:ok, {:error, reason}} -> {:error, reason}
@@ -1234,6 +1229,22 @@ defmodule GameServer.Hooks.Default do
   end
 
   defp update_user_payment_metadata(_user_id, _fun), do: :ok
+
+  defp apply_user_payment_metadata(user_id, fun) do
+    case GameServer.Accounts.get_user(user_id) do
+      %User{} = user -> update_loaded_user_payment_metadata(user, fun)
+      nil -> {:error, :user_not_found}
+    end
+  end
+
+  defp update_loaded_user_payment_metadata(%User{} = user, fun) do
+    metadata = fun.(user.metadata)
+
+    case GameServer.Accounts.update_user(user, %{metadata: metadata}) do
+      {:ok, _user} -> :ok
+      {:error, reason} -> {:error, reason}
+    end
+  end
 
   defp put_payment_child(metadata, child_key, item_key, value) do
     payments = metadata |> Map.get("payments") |> map_or_empty()

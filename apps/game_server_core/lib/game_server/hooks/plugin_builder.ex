@@ -21,7 +21,7 @@ defmodule GameServer.Hooks.PluginBuilder do
           steps: [step_result()]
         }
 
-  @spec sources_dir() :: String.t()
+  @spec sources_dir() :: String.t() | nil
   def sources_dir do
     System.get_env("GAME_SERVER_PLUGINS_DIR")
   end

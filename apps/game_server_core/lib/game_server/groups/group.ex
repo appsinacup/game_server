@@ -53,6 +53,7 @@ defmodule GameServer.Groups.Group do
   @required_fields ~w(title)a
   @optional_fields ~w(description type max_members metadata slowdown)a
 
+  @spec changeset(t(), map()) :: Ecto.Changeset.t()
   def changeset(group, attrs) do
     group
     |> cast(attrs, @required_fields ++ @optional_fields)

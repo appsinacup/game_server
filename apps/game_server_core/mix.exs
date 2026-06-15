@@ -10,6 +10,7 @@ defmodule GameServerCore.MixProject do
       version: System.get_env("APP_VERSION") || @version,
       elixir: "~> 1.20",
       start_permanent: Mix.env() == :prod,
+      dialyzer: [plt_add_apps: [:mix]],
       deps: deps(),
       description: description(),
       package: package(),
@@ -56,6 +57,7 @@ defmodule GameServerCore.MixProject do
       {:quantum, "~> 3.5"},
       {:corsica, "~> 2.0"},
       {:earmark, "~> 1.4"},
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.40", only: :dev, runtime: false}
     ]
   end

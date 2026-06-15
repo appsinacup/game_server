@@ -417,8 +417,7 @@ defmodule GameServerWeb.HostLayoutNavigation do
                     "fi-#{link.flag_code}"
                   ]}
                   aria-hidden="true"
-                >
-                </span>
+                ></span>
                 <span class="truncate">{link.label}</span>
               </a>
             </li>
@@ -477,8 +476,7 @@ defmodule GameServerWeb.HostLayoutNavigation do
                   "fi-#{link.flag_code}"
                 ]}
                 aria-hidden="true"
-              >
-              </span>
+              ></span>
               <span class="truncate">{link.label}</span>
             </a>
           <% end %>

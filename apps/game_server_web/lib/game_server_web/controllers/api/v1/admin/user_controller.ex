@@ -148,10 +148,10 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
       display_name: user.display_name || "",
       is_admin: user.is_admin,
       is_activated: user.is_activated,
-      metadata: user.metadata || %{},
+      metadata: user.metadata,
       lobby_id: user.lobby_id || -1,
       party_id: user.party_id || -1,
-      is_online: user.is_online || false,
+      is_online: user.is_online,
       last_seen_at: User.last_seen_at_or_fallback(user),
       inserted_at: user.inserted_at,
       updated_at: user.updated_at

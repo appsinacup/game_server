@@ -4,6 +4,8 @@ defmodule GameServer.KV.Entry do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{}
+
   schema "kv_entries" do
     field :key, :string
     belongs_to :user, GameServer.Accounts.User

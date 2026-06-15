@@ -11,6 +11,8 @@ permissions:
 
 env:
   IMAGE: ghcr.io/${{ github.repository }}
+  ELIXIR_VERSION: "1.20.1"
+  OTP_VERSION: "29.0.2"
 
 jobs:
   build:
@@ -76,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: elixir:1.19.3-otp-28
+      image: elixir:1.20.1-otp-29
 
     steps:
       - name: Checkout
@@ -109,7 +111,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: elixir:1.19.3-otp-28
+      image: elixir:1.20.1-otp-29
 
     steps:
       - name: Checkout
@@ -158,7 +160,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: elixir:1.19.3-otp-28
+      image: elixir:1.20.1-otp-29
 
     steps:
       - name: Checkout
@@ -211,7 +213,7 @@ jobs:
           --health-retries 5
 
     container:
-      image: elixir:1.19.3-otp-28
+      image: elixir:1.20.1-otp-29
 
     env:
       POSTGRES_HOST: postgres
@@ -283,8 +285,8 @@ jobs:
       - name: Set up Elixir
         uses: erlef/setup-beam@v1
         with:
-          elixir-version: '1.19'
-          otp-version: '28'
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
           install-hex: false
           install-rebar: false
 
@@ -376,10 +378,10 @@ jobs:
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Set up Elixir (for mix openapi task)
-        uses: erlef/setup-elixir@v1
+        uses: erlef/setup-beam@v1
         with:
-          elixir-version: '1.19'
-          otp-version: '28'
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
           install-hex: false
           install-rebar: false
 
@@ -452,8 +454,8 @@ jobs:
       - name: Set up Elixir
         uses: erlef/setup-beam@v1
         with:
-          otp-version: '28'
-          elixir-version: '1.19'
+          otp-version: ${{ env.OTP_VERSION }}
+          elixir-version: ${{ env.ELIXIR_VERSION }}
           install-hex: false
           install-rebar: false
 
@@ -522,10 +524,10 @@ jobs:
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Setup Elixir
-        uses: erlef/setup-elixir@v1
+        uses: erlef/setup-beam@v1
         with:
-          elixir-version: '1.19.3'
-          otp-version: '26.2'
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
           install-hex: false
           install-rebar: false
 

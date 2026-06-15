@@ -10,6 +10,7 @@ defmodule GameServerHost.MixProject do
       elixirc_paths: ["lib"],
       start_permanent: Mix.env() == :prod,
       listeners: [Phoenix.CodeReloader],
+      dialyzer: [plt_add_apps: [:mix]],
       aliases: aliases(),
       deps: deps()
     ]
@@ -58,6 +59,7 @@ defmodule GameServerHost.MixProject do
       {:ueberauth, "~> 0.10"},
       {:open_api_spex, "~> 3.22"},
       {:credo, ">= 1.7.16", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.40", only: :dev, runtime: false},
       {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
       {:guardian, "~> 2.3"},

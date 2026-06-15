@@ -1,9 +1,6 @@
 defmodule GameServerWeb.AdminLive.System do
   use GameServerWeb, :live_view
 
-  # :scheduler is an Erlang runtime_tools module loaded at runtime
-  @compile {:no_warn_undefined, :scheduler}
-
   alias GameServerWeb.ConnectionTracker
 
   @refresh_interval 5_000
@@ -305,8 +302,7 @@ defmodule GameServerWeb.AdminLive.System do
 
     ets_tables = build_ets_tables()
 
-    # Scheduler utilization: capture a 1-second sample
-    scheduler_util = get_scheduler_utilization(socket)
+    {scheduler_util, scheduler_sample} = get_scheduler_utilization(socket)
 
     assign(socket,
       sys: sys,
@@ -325,7 +321,7 @@ defmodule GameServerWeb.AdminLive.System do
       ets_tables: ets_tables,
       cluster_nodes: Node.list(),
       scheduler_util: scheduler_util,
-      scheduler_sample: :scheduler.sample()
+      scheduler_sample: scheduler_sample
     )
   end
 
@@ -407,21 +403,41 @@ defmodule GameServerWeb.AdminLive.System do
 
   defp format_bytes(bytes), do: "#{bytes} B"
 
-  # Scheduler utilization via :scheduler.utilization/1
-  # Uses a diff between samples stored in socket assigns
   defp get_scheduler_utilization(socket) do
-    current_sample = :scheduler.sample()
+    current_sample = scheduler_wall_time_sample()
     prev_sample = socket.assigns[:scheduler_sample]
 
-    if prev_sample do
-      :scheduler.utilization(prev_sample, current_sample)
-      |> Enum.reduce(0.0, fn
-        {:total, pct, _}, _acc -> pct * 100
-        _, acc -> acc
+    {scheduler_utilization(prev_sample, current_sample), current_sample}
+  end
+
+  defp scheduler_wall_time_sample do
+    _ = :erlang.system_flag(:scheduler_wall_time, true)
+    :erlang.statistics(:scheduler_wall_time)
+  end
+
+  defp scheduler_utilization(prev_sample, current_sample)
+       when is_list(prev_sample) and is_list(current_sample) do
+    prev_by_id = Map.new(prev_sample, fn {id, active, total} -> {id, {active, total}} end)
+
+    {active_delta, total_delta} =
+      Enum.reduce(current_sample, {0, 0}, fn {id, active, total}, {active_acc, total_acc} ->
+        case Map.get(prev_by_id, id) do
+          {prev_active, prev_total} when total >= prev_total and active >= prev_active ->
+            {active_acc + active - prev_active, total_acc + total - prev_total}
+
+          _ ->
+            {active_acc, total_acc}
+        end
       end)
-      |> Float.round(1)
+
+    if total_delta > 0 do
+      Float.round(active_delta / total_delta * 100, 1)
     else
       0.0
     end
+  end
+
+  defp scheduler_utilization(_prev_sample, _current_sample) do
+    0.0
   end
 end

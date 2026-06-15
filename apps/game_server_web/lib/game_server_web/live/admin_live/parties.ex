@@ -665,7 +665,7 @@ defmodule GameServerWeb.AdminLive.Parties do
     leader = GameServer.Accounts.get_user(party.leader_id)
 
     case Parties.kick_member(leader, user_id) do
-      :ok ->
+      {:ok, _updated} ->
         members = Parties.get_party_members(party.id)
 
         {:noreply,

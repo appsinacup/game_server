@@ -213,7 +213,6 @@ defmodule GameServer.OAuth.Exchanger do
       {:ok, claims}
     else
       {:error, reason} -> {:error, reason}
-      _ -> {:error, "Invalid JWT token"}
     end
   end
 

@@ -715,8 +715,6 @@ defmodule Mix.Tasks.Gen.Sdk do
     |> Enum.map_join("\n", &(indent <> &1))
   end
 
-  defp indent_doc(_, _), do: ""
-
   defp escape_doc(doc) when is_binary(doc) do
     # Prevent docs that include "\"\"\"" from terminating the heredoc in generated files.
     String.replace(doc, "\"\"\"", "\\\"\\\"\\\"")

@@ -40,6 +40,7 @@ defmodule GameServer.Groups.GroupMember do
   @required_fields ~w(group_id user_id)a
   @optional_fields ~w(role)a
 
+  @spec changeset(t(), map()) :: Ecto.Changeset.t()
   def changeset(member, attrs) do
     member
     |> cast(attrs, @required_fields ++ @optional_fields)

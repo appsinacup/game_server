@@ -464,11 +464,12 @@ defmodule GameServer.Parties do
     Returns `{:ok, lobby}` on success.
     
   """
-  @spec quick_join_with_party(GameServer.Accounts.User.t(), map()) :: {:ok, Lobby.t()} | {:error, term()}
+  @spec quick_join_with_party(GameServer.Accounts.User.t(), map()) ::
+  {:ok, GameServer.Lobbies.Lobby.t()} | {:error, term()}
   def quick_join_with_party(_user, _params) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, nil}
+        {:ok, %GameServer.Lobbies.Lobby{id: 0, title: "", host_id: nil, hostless: false, max_users: 0, is_hidden: false, is_locked: false, metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Parties.quick_join_with_party/2 is a stub - only available at runtime on GameServer"
