@@ -43,6 +43,28 @@ defmodule GameServerWeb.AdminLive.System do
           </div>
         </div>
 
+        <%!-- External metrics --%>
+        <div class="card bg-base-200 shadow">
+          <div class="card-body">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <h2 class="card-title text-lg">Metrics</h2>
+                <p class="text-sm text-base-content/60">
+                  Grafana contains host, container, app, and log history.
+                </p>
+              </div>
+              <.link
+                href={@grafana_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-primary"
+              >
+                Open Grafana
+              </.link>
+            </div>
+          </div>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <%!-- Memory breakdown --%>
           <div class="card bg-base-200 shadow">
@@ -321,8 +343,15 @@ defmodule GameServerWeb.AdminLive.System do
       ets_tables: ets_tables,
       cluster_nodes: Node.list(),
       scheduler_util: scheduler_util,
-      scheduler_sample: scheduler_sample
+      scheduler_sample: scheduler_sample,
+      grafana_url: grafana_url()
     )
+  end
+
+  defp grafana_url do
+    Application.get_env(:game_server_web, :grafana_url) ||
+      System.get_env("GRAFANA_PUBLIC_URL") ||
+      "http://localhost:3130"
   end
 
   defp build_memory_breakdown(memory, total_bytes) do
