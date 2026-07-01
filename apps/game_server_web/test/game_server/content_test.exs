@@ -23,4 +23,36 @@ defmodule GameServer.ContentTest do
     assert Content.asset_path(name, "image.png") == Path.join(base, "image.png")
     assert Content.asset_path(name, "../blog_secret/secret.txt") == nil
   end
+
+  test "markdown rendering strips unsafe HTML and link attributes" do
+    root =
+      Path.join(System.tmp_dir!(), "game_server_content_#{System.unique_integer([:positive])}")
+
+    path = Path.join(root, "CHANGELOG.md")
+    original_changelog_path = Content.path(:changelog) || "CHANGELOG.md"
+
+    File.mkdir_p!(root)
+
+    File.write!(path, """
+    # Changelog
+
+    [click](http://example.com/?a=x " onerror="alert(1))
+
+    <script>alert(2)</script>
+    """)
+
+    on_exit(fn ->
+      Content.register_path(:changelog, kind: :file, path: original_changelog_path)
+      File.rm_rf(root)
+    end)
+
+    Content.register_path(:changelog, kind: :file, path: path)
+
+    html = Content.changelog_html()
+
+    assert html =~ "Click"
+    refute html =~ ~r/<[^>]+onerror/i
+    refute html =~ "<script"
+    refute html =~ ~r/<[^>]+alert/i
+  end
 end

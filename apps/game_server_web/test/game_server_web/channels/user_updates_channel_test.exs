@@ -371,6 +371,119 @@ defmodule GameServerWeb.UserChannelTest do
     assert refreshed_a.last_seen_at != nil
   end
 
+  test "user channel broadcasts friend_updated to accepted friends" do
+    a = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+    b = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+
+    {:ok, f} = GameServer.Friends.create_request(a.id, b.id)
+    {:ok, _} = GameServer.Friends.accept_friend_request(f.id, b)
+
+    {:ok, token_b, _} = Guardian.encode_and_sign(b)
+    {:ok, socket_b} = connect(GameServerWeb.UserSocket, %{"token" => token_b})
+    {:ok, _, _socket_b} = subscribe_and_join(socket_b, "user:#{b.id}", %{})
+
+    assert_push "updated", _b_initial
+
+    {:ok, _updated_a} =
+      GameServer.Accounts.update_user(a, %{
+        metadata: %{"map_country_id" => "ro", "map_city_id" => "sighetu-marmatiei"}
+      })
+
+    assert_push "friend_updated", friend_payload, 1000
+    assert friend_payload.user_id == a.id
+
+    assert friend_payload.metadata == %{
+             "map_country_id" => "ro",
+             "map_city_id" => "sighetu-marmatiei"
+           }
+  end
+
+  test "friend_updated is not pushed to the updated user's own channel" do
+    a = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+    b = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+
+    {:ok, f} = GameServer.Friends.create_request(a.id, b.id)
+    {:ok, _} = GameServer.Friends.accept_friend_request(f.id, b)
+
+    {:ok, token_a, _} = Guardian.encode_and_sign(a)
+    {:ok, socket_a} = connect(GameServerWeb.UserSocket, %{"token" => token_a})
+    {:ok, _, _socket_a} = subscribe_and_join(socket_a, "user:#{a.id}", %{})
+
+    assert_push "updated", _a_initial
+
+    {:ok, _updated_a} =
+      GameServer.Accounts.update_user(a, %{
+        metadata: %{"map_country_id" => "ro"}
+      })
+
+    assert_push "updated", self_payload
+    assert self_payload.id == a.id
+    refute_push "friend_updated", _, 100
+  end
+
+  test "friend_updated is not pushed for pending friend requests" do
+    a = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+    b = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+
+    {:ok, _f} = GameServer.Friends.create_request(a.id, b.id)
+
+    {:ok, token_b, _} = Guardian.encode_and_sign(b)
+    {:ok, socket_b} = connect(GameServerWeb.UserSocket, %{"token" => token_b})
+    {:ok, _, _socket_b} = subscribe_and_join(socket_b, "user:#{b.id}", %{})
+
+    assert_push "updated", _b_initial
+
+    {:ok, _updated_a} =
+      GameServer.Accounts.update_user(a, %{
+        metadata: %{"map_country_id" => "ro"}
+      })
+
+    refute_push "friend_updated", _, 100
+  end
+
+  test "friend_updated is not pushed for blocked friend requests" do
+    a = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+    b = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+
+    {:ok, f} = GameServer.Friends.create_request(a.id, b.id)
+    {:ok, _blocked} = GameServer.Friends.block_friend_request(f.id, b)
+
+    {:ok, token_b, _} = Guardian.encode_and_sign(b)
+    {:ok, socket_b} = connect(GameServerWeb.UserSocket, %{"token" => token_b})
+    {:ok, _, _socket_b} = subscribe_and_join(socket_b, "user:#{b.id}", %{})
+
+    assert_push "updated", _b_initial
+
+    {:ok, _updated_a} =
+      GameServer.Accounts.update_user(a, %{
+        metadata: %{"map_country_id" => "ro"}
+      })
+
+    refute_push "friend_updated", _, 100
+  end
+
+  test "friend_updated is not pushed after friendship removal" do
+    a = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+    b = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+
+    {:ok, f} = GameServer.Friends.create_request(a.id, b.id)
+    {:ok, _} = GameServer.Friends.accept_friend_request(f.id, b)
+    {:ok, _} = GameServer.Friends.remove_friend(a.id, b.id)
+
+    {:ok, token_b, _} = Guardian.encode_and_sign(b)
+    {:ok, socket_b} = connect(GameServerWeb.UserSocket, %{"token" => token_b})
+    {:ok, _, _socket_b} = subscribe_and_join(socket_b, "user:#{b.id}", %{})
+
+    assert_push "updated", _b_initial
+
+    {:ok, _updated_a} =
+      GameServer.Accounts.update_user(a, %{
+        metadata: %{"map_country_id" => "ro"}
+      })
+
+    refute_push "friend_updated", _, 100
+  end
+
   test "deleting a user who is online sends friend_offline to friends" do
     a = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
     b = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()

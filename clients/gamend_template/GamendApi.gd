@@ -44,6 +44,7 @@ signal party_chat_message_deleted(payload: Dictionary)
 ## Friend online / offline status (pushed to all accepted friends)
 signal friend_online(payload: Dictionary)         ## {user_id, is_online: true}
 signal friend_offline(payload: Dictionary)        ## {user_id, is_online: false}
+signal friend_updated(payload: Dictionary)        ## accepted friend public data changed
 ## Friend requests
 signal friend_request_outgoing(payload: Dictionary)   ## {id, requester_id, target_id, status}
 signal friend_request_incoming(payload: Dictionary)   ## {id, requester_id, target_id, status}
@@ -606,6 +607,8 @@ func _handle_user_event(event: String, payload: Dictionary):
 			friend_online.emit(payload)
 		"friend_offline":
 			friend_offline.emit(payload)
+		"friend_updated":
+			friend_updated.emit(payload)
 		"outgoing_request":
 			if payload.get("status", "") == "accepted":
 				# Emit friend_added only — don't also emit friend_request_outgoing,

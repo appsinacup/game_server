@@ -1780,6 +1780,30 @@ defmodule GameServer.Accounts do
       )
     end
 
+    broadcast_friend_update(user)
+    :ok
+  end
+
+  @doc """
+  Broadcast a `friend_updated` event to all accepted friends.
+
+  Used when public user data changes: map presence, display name, avatar,
+  player metadata, ship metadata, lobby/party state, etc.
+  """
+  @spec broadcast_friend_update(User.t()) :: :ok
+  def broadcast_friend_update(%User{} = user) do
+    payload = User.serialize_brief(user) |> Map.put(:user_id, user.id)
+
+    for friend_id <- GameServer.Friends.friend_ids(user.id) do
+      topic = "user:#{friend_id}"
+
+      Phoenix.PubSub.broadcast(
+        GameServer.PubSub,
+        topic,
+        %Phoenix.Socket.Broadcast{topic: topic, event: "friend_updated", payload: payload}
+      )
+    end
+
     :ok
   end
 

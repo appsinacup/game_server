@@ -361,9 +361,9 @@ defmodule GameServer.Content do
       {:ok, content} ->
         content = fix_table_separators(content)
 
-        case Earmark.as_html(content, smartypants: false) do
-          {:ok, html, _warnings} -> rewrite_relative_images(html, content_type)
-          {:error, _html, _msgs} -> nil
+        case MDEx.to_html(content, markdown_options()) do
+          {:ok, html} -> rewrite_relative_images(html, content_type)
+          {:error, _reason} -> nil
         end
 
       _ ->
@@ -371,9 +371,8 @@ defmodule GameServer.Content do
     end
   end
 
-  # Earmark requires the separator row column count to match the header row
-  # exactly, otherwise the table is rendered as plain text. This helper
-  # scans for pipe-table patterns and adjusts separator rows to match.
+  # Markdown tables require separator rows to match the header row exactly.
+  # This helper scans for pipe-table patterns and adjusts separator rows.
   defp fix_table_separators(content) do
     content
     |> String.split("\n")
@@ -395,6 +394,19 @@ defmodule GameServer.Content do
   end
 
   defp fix_table_lines([line], acc), do: [line | acc]
+
+  defp markdown_options do
+    [
+      extension: [
+        autolink: true,
+        strikethrough: true,
+        table: true,
+        tasklist: true
+      ],
+      parse: [smart: false],
+      sanitize: MDEx.Document.default_sanitize_options()
+    ]
+  end
 
   defp table_header?(line) do
     trimmed = String.trim(line)
