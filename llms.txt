@@ -1,4 +1,4 @@
-# GameServer v1.0.1022 - Table of Contents
+# GameServer v1.0.1023 - Table of Contents
 
 ## Modules
 
