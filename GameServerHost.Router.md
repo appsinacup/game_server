@@ -25,7 +25,11 @@ Callback invoked by Plug on every request.
 Callback required by Plug that initializes the router
 for serving web requests.
 
+# `list_achievements_gate`
+
 # `list_groups_gate`
+
+# `list_leaderboards_gate`
 
 # `list_lobbies_gate`
 
