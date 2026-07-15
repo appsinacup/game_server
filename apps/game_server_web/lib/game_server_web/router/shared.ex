@@ -94,6 +94,26 @@ defmodule GameServerWeb.Router.Shared do
         plug GameServerWeb.Plugs.FeatureGate, env: "OPENAPI_ENABLED", default: true
       end
 
+      pipeline :list_users_gate do
+        plug GameServerWeb.Plugs.FeatureGate, env: "LIST_USERS_ENABLED", default: true
+      end
+
+      pipeline :list_lobbies_gate do
+        plug GameServerWeb.Plugs.FeatureGate, env: "LIST_LOBBIES_ENABLED", default: true
+      end
+
+      pipeline :list_groups_gate do
+        plug GameServerWeb.Plugs.FeatureGate, env: "LIST_GROUPS_ENABLED", default: true
+      end
+
+      pipeline :list_leaderboards_gate do
+        plug GameServerWeb.Plugs.FeatureGate, env: "LIST_LEADERBOARDS_ENABLED", default: true
+      end
+
+      pipeline :list_achievements_gate do
+        plug GameServerWeb.Plugs.FeatureGate, env: "LIST_ACHIEVEMENTS_ENABLED", default: true
+      end
+
       pipeline :metrics_auth do
         plug GameServerWeb.Plugs.MetricsAuth
       end
@@ -152,23 +172,43 @@ defmodule GameServerWeb.Router.Shared do
         pipe_through :api
 
         get "/health", HealthController, :index
-        get "/users", UserController, :index
-        get "/users/:id", UserController, :show
         post "/login", SessionController, :create
         post "/login/device", SessionController, :create_device
         post "/refresh", SessionController, :refresh
         delete "/logout", SessionController, :delete
+        get "/payments/catalog", PaymentController, :catalog
+        post "/payments/webhooks/stripe", PaymentWebhookController, :stripe
+        post "/payments/webhooks/google", PaymentWebhookController, :google
+        post "/payments/webhooks/apple", PaymentWebhookController, :apple
+      end
+
+      scope "/api/v1", GameServerWeb.Api.V1, as: :api_v1 do
+        pipe_through [:api, :list_users_gate]
+
+        get "/users", UserController, :index
+        get "/users/:id", UserController, :show
+      end
+
+      scope "/api/v1", GameServerWeb.Api.V1, as: :api_v1 do
+        pipe_through [:api, :list_lobbies_gate]
+
         get "/lobbies", LobbyController, :index
+      end
+
+      scope "/api/v1", GameServerWeb.Api.V1, as: :api_v1 do
+        pipe_through [:api, :list_groups_gate]
+
+        get "/groups", GroupController, :index
+      end
+
+      scope "/api/v1", GameServerWeb.Api.V1, as: :api_v1 do
+        pipe_through [:api, :list_leaderboards_gate]
+
         get "/leaderboards", LeaderboardController, :index
         post "/leaderboards/resolve", LeaderboardController, :resolve
         get "/leaderboards/:id", LeaderboardController, :show
         get "/leaderboards/:id/records", LeaderboardController, :records
         get "/leaderboards/:id/records/around/:user_id", LeaderboardController, :around
-        get "/groups", GroupController, :index
-        get "/payments/catalog", PaymentController, :catalog
-        post "/payments/webhooks/stripe", PaymentWebhookController, :stripe
-        post "/payments/webhooks/google", PaymentWebhookController, :google
-        post "/payments/webhooks/apple", PaymentWebhookController, :apple
       end
     end
   end
@@ -182,7 +222,7 @@ defmodule GameServerWeb.Router.Shared do
       end
 
       scope "/api/v1", GameServerWeb.Api.V1, as: :api_v1 do
-        pipe_through [:api, :api_optional_auth]
+        pipe_through [:api, :api_optional_auth, :list_achievements_gate]
 
         get "/achievements", AchievementController, :index
         get "/achievements/user/:user_id", AchievementController, :user_achievements
@@ -205,7 +245,7 @@ defmodule GameServerWeb.Router.Shared do
       end
 
       scope "/api/v1", GameServerWeb.Api.V1, as: :api_v1 do
-        pipe_through :api
+        pipe_through [:api, :list_groups_gate]
 
         get "/groups/:id", GroupController, :show
         get "/groups/:id/members", GroupController, :members

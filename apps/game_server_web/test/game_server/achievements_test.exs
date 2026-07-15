@@ -70,7 +70,7 @@ defmodule GameServer.AchievementsTest do
     end
 
     test "get_achievement/1 returns nil for non-existent id" do
-      assert Achievements.get_achievement(999_999) == nil
+      assert Achievements.get_achievement(Ecto.UUID.generate()) == nil
     end
 
     test "get_achievement_by_slug/1 returns achievement by slug" do
@@ -200,7 +200,9 @@ defmodule GameServer.AchievementsTest do
 
     test "unlock_achievement/2 returns error for non-existent id" do
       user = AccountsFixtures.user_fixture()
-      assert {:error, :achievement_not_found} = Achievements.unlock_achievement(user.id, 999_999)
+
+      assert {:error, :achievement_not_found} =
+               Achievements.unlock_achievement(user.id, Ecto.UUID.generate())
     end
   end
 
@@ -296,7 +298,7 @@ defmodule GameServer.AchievementsTest do
 
     test "revoke_achievement/2 returns error for non-existent" do
       user = AccountsFixtures.user_fixture()
-      assert {:error, :not_found} = Achievements.revoke_achievement(user.id, 999_999)
+      assert {:error, :not_found} = Achievements.revoke_achievement(user.id, Ecto.UUID.generate())
     end
 
     test "reset_user_achievement/2 deletes progress" do

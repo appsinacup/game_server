@@ -202,7 +202,7 @@ defmodule GameServerWeb.AdminLive.Chat do
 
   @impl true
   def handle_event("toggle_select", %{"id" => id}, socket) do
-    {id, ""} = Integer.parse(to_string(id))
+    id = to_string(id)
     selected = socket.assigns.selected_ids
 
     selected =
@@ -265,7 +265,7 @@ defmodule GameServerWeb.AdminLive.Chat do
 
   @impl true
   def handle_event("delete_message", %{"id" => id}, socket) do
-    {message_id, ""} = Integer.parse(to_string(id))
+    message_id = to_string(id)
 
     case Chat.admin_delete_message(message_id) do
       {:ok, _} ->

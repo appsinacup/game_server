@@ -227,6 +227,12 @@ defmodule GameServerWeb.AdminLive.ConfigTest do
       def after_user_online(_user), do: :ok
       def after_user_offline(_user), do: :ok
       def before_user_update(_user, attrs), do: {:ok, attrs}
+      def after_user_deleted(_user), do: :ok
+      def after_score_submitted(_record), do: :ok
+      def before_group_delete(group), do: {:ok, group}
+      def before_group_kick(a, t, g), do: {:ok, {a, t, g}}
+      def before_party_join(user, party), do: {:ok, {user, party}}
+      def before_party_kick(target, leader, party), do: {:ok, {target, leader, party}}
 
       def before_lobby_create(attrs), do: {:ok, attrs}
       def after_lobby_create(_lobby), do: :ok

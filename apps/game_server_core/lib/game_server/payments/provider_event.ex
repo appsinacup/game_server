@@ -3,7 +3,7 @@ defmodule GameServer.Payments.ProviderEvent do
   Dedupe record for webhook and store notification events.
   """
 
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Changeset
 
   @type t :: %__MODULE__{}

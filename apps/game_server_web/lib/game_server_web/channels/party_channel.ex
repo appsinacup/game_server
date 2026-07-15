@@ -36,7 +36,7 @@ defmodule GameServerWeb.PartyChannel do
   def join("party:" <> party_id_str, _payload, socket) do
     current_scope = Map.get(socket.assigns, :current_scope)
 
-    with {party_id, ""} <- Integer.parse(party_id_str),
+    with {:ok, party_id} <- Ecto.UUID.cast(party_id_str),
          %Scope{user: %{id: user_id}} <- current_scope do
       case Accounts.get_user(user_id) do
         %User{party_id: ^party_id} ->
@@ -121,7 +121,7 @@ defmodule GameServerWeb.PartyChannel do
   end
 
   @impl true
-  def handle_info({:party_updated, party_id}, socket) when is_integer(party_id) do
+  def handle_info({:party_updated, party_id}, socket) when is_binary(party_id) do
     case Parties.get_party(party_id) do
       nil ->
         {:noreply, socket}
@@ -230,7 +230,7 @@ defmodule GameServerWeb.PartyChannel do
   @impl true
   def terminate(_reason, socket) do
     case socket.assigns do
-      %{party_id: party_id} when is_integer(party_id) ->
+      %{party_id: party_id} when is_binary(party_id) ->
         _ = Chat.unsubscribe_party_chat(party_id)
         _ = Parties.unsubscribe_party(party_id)
         :ok

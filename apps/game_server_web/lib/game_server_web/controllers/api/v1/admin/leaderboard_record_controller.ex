@@ -13,9 +13,9 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardRecordController do
   @record_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :integer},
-      leaderboard_id: %Schema{type: :integer},
-      user_id: %Schema{type: :integer, nullable: true},
+      id: %Schema{type: :string, format: :uuid},
+      leaderboard_id: %Schema{type: :string, format: :uuid},
+      user_id: %Schema{type: :string, format: :uuid, nullable: true},
       label: %Schema{type: :string, nullable: true},
       score: %Schema{type: :integer},
       rank: %Schema{type: :integer, nullable: true},
@@ -30,7 +30,7 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardRecordController do
     summary: "Submit score (admin)",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, required: true]
+      id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true]
     ],
     request_body: {
       "Score submission",
@@ -38,7 +38,11 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardRecordController do
       %Schema{
         type: :object,
         properties: %{
-          user_id: %Schema{type: :integer, description: "User ID (for user-based records)"},
+          user_id: %Schema{
+            type: :string,
+            format: :uuid,
+            description: "User ID (for user-based records)"
+          },
           label: %Schema{
             type: :string,
             description: "Label (for non-user records, e.g. \"English\")"
@@ -62,7 +66,7 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardRecordController do
 
   def create(conn, %{"id" => leaderboard_id, "label" => label, "score" => score} = params)
       when is_binary(label) and label != "" do
-    leaderboard_id = String.to_integer(to_string(leaderboard_id))
+    leaderboard_id = to_string(leaderboard_id)
 
     score =
       case score do
@@ -90,8 +94,8 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardRecordController do
   end
 
   def create(conn, %{"id" => leaderboard_id, "user_id" => user_id, "score" => score} = params) do
-    leaderboard_id = String.to_integer(to_string(leaderboard_id))
-    user_id = String.to_integer(to_string(user_id))
+    leaderboard_id = to_string(leaderboard_id)
+    user_id = to_string(user_id)
 
     score =
       case score do
@@ -123,8 +127,8 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardRecordController do
     summary: "Update leaderboard record (admin)",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, required: true],
-      record_id: [in: :path, schema: %Schema{type: :integer}, required: true]
+      id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true],
+      record_id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true]
     ],
     request_body: {
       "Record patch",
@@ -149,7 +153,7 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardRecordController do
   )
 
   def update(conn, %{"record_id" => record_id} = params) do
-    record_id = String.to_integer(to_string(record_id))
+    record_id = to_string(record_id)
 
     case get_record(record_id) do
       nil ->
@@ -178,8 +182,8 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardRecordController do
     summary: "Delete leaderboard record (admin)",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, required: true],
-      record_id: [in: :path, schema: %Schema{type: :integer}, required: true]
+      id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true],
+      record_id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true]
     ],
     responses: [
       ok: {"Deleted", "application/json", %Schema{type: :object}},
@@ -190,7 +194,7 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardRecordController do
   )
 
   def delete(conn, %{"record_id" => record_id}) do
-    record_id = String.to_integer(to_string(record_id))
+    record_id = to_string(record_id)
 
     case get_record(record_id) do
       nil ->
@@ -217,8 +221,8 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardRecordController do
     summary: "Delete a user's record (admin)",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, required: true],
-      user_id: [in: :path, schema: %Schema{type: :integer}, required: true]
+      id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true],
+      user_id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true]
     ],
     responses: [
       ok: {"Deleted", "application/json", %Schema{type: :object}},
@@ -228,8 +232,8 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardRecordController do
   )
 
   def delete_user(conn, %{"id" => leaderboard_id, "user_id" => user_id}) do
-    leaderboard_id = String.to_integer(to_string(leaderboard_id))
-    user_id = String.to_integer(to_string(user_id))
+    leaderboard_id = to_string(leaderboard_id)
+    user_id = to_string(user_id)
 
     _ = Leaderboards.delete_user_record(leaderboard_id, user_id)
     json(conn, %{})

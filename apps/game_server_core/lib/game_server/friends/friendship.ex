@@ -6,7 +6,7 @@ defmodule GameServer.Friends.Friendship do
   a status field which can be "pending", "accepted", "rejected" or
   "blocked".
   """
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Changeset
 
   alias GameServer.Accounts.User

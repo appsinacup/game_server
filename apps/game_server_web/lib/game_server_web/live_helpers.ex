@@ -82,15 +82,11 @@ defmodule GameServerWeb.LiveHelpers do
 
   def public_user_name(%{display_name: name}) when is_binary(name) and name != "", do: name
   def public_user_name(%{"display_name" => name}) when is_binary(name) and name != "", do: name
-  def public_user_name(%{id: id}) when is_integer(id), do: "User #{id}"
-  def public_user_name(%{"id" => id}) when is_integer(id), do: "User #{id}"
-  def public_user_name(%{user_id: id}) when is_integer(id), do: "User #{id}"
-  def public_user_name(%{"user_id" => id}) when is_integer(id), do: "User #{id}"
   def public_user_name(%{id: id}) when is_binary(id) and id != "", do: "User #{id}"
   def public_user_name(%{"id" => id}) when is_binary(id) and id != "", do: "User #{id}"
   def public_user_name(%{user_id: id}) when is_binary(id) and id != "", do: "User #{id}"
   def public_user_name(%{"user_id" => id}) when is_binary(id) and id != "", do: "User #{id}"
-  def public_user_name(id) when is_integer(id), do: "User #{id}"
+  def public_user_name(id) when is_binary(id), do: "User #{id}"
   def public_user_name(_), do: "User"
 
   @doc """

@@ -351,7 +351,7 @@ defmodule GameServerWeb.AdminLive.Parties do
           <.form for={@create_form} id="party-create-form" phx-submit="create_party">
             <.input
               field={@create_form[:leader_id]}
-              type="number"
+              type="text"
               label="Leader User ID"
               required
             />
@@ -391,11 +391,11 @@ defmodule GameServerWeb.AdminLive.Parties do
 
   @impl true
   def handle_event("create_party", %{"party" => params}, socket) do
-    leader_id = parse_create_int(params["leader_id"])
+    leader_id = GameServer.UUIDv7.cast_or_nil(params["leader_id"])
 
     case leader_id do
       nil ->
-        {:noreply, put_flash(socket, :error, "Leader ID must be a valid integer")}
+        {:noreply, put_flash(socket, :error, "Leader ID must be a valid user ID")}
 
       id ->
         case GameServer.Accounts.get_user(id) do
@@ -450,7 +450,7 @@ defmodule GameServerWeb.AdminLive.Parties do
 
   @impl true
   def handle_event("toggle_select", %{"id" => id}, socket) do
-    {id, ""} = Integer.parse(to_string(id))
+    id = to_string(id)
     selected = socket.assigns[:selected_ids] || MapSet.new()
 
     selected =
@@ -513,7 +513,7 @@ defmodule GameServerWeb.AdminLive.Parties do
 
   @impl true
   def handle_event("edit_party", %{"id" => id}, socket) do
-    {party_id, ""} = Integer.parse(to_string(id))
+    party_id = to_string(id)
     party = Parties.get_party!(party_id)
     changeset = Parties.change_party(party)
     form = to_form(changeset, as: "party")
@@ -572,7 +572,7 @@ defmodule GameServerWeb.AdminLive.Parties do
 
   @impl true
   def handle_event("delete_party", %{"id" => id}, socket) do
-    {party_id, ""} = Integer.parse(to_string(id))
+    party_id = to_string(id)
 
     case Parties.admin_delete_party(party_id) do
       {:ok, _} ->
@@ -588,7 +588,7 @@ defmodule GameServerWeb.AdminLive.Parties do
 
   @impl true
   def handle_event("view_members", %{"id" => id}, socket) do
-    {party_id, ""} = Integer.parse(to_string(id))
+    party_id = to_string(id)
     party = Parties.get_party!(party_id)
     members = Parties.get_party_members(party_id)
 
@@ -621,7 +621,7 @@ defmodule GameServerWeb.AdminLive.Parties do
     party = socket.assigns.selected_party
     raw = socket.assigns.add_member_id
 
-    case parse_create_int(raw) do
+    case GameServer.UUIDv7.cast_or_nil(raw) do
       nil ->
         {:noreply, put_flash(socket, :error, "Invalid user ID")}
 
@@ -656,8 +656,8 @@ defmodule GameServerWeb.AdminLive.Parties do
 
   @impl true
   def handle_event("kick_member", %{"party-id" => pid, "user-id" => uid}, socket) do
-    {_party_id, ""} = Integer.parse(to_string(pid))
-    {user_id, ""} = Integer.parse(to_string(uid))
+    _party_id = to_string(pid)
+    user_id = to_string(uid)
 
     party = socket.assigns.selected_party
 

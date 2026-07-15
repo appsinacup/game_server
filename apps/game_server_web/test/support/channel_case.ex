@@ -12,7 +12,7 @@ defmodule GameServerWeb.ChannelCase do
   using do
     quote do
       # Use the channel test helpers provided by Phoenix
-      use Phoenix.ChannelTest
+      import Phoenix.ChannelTest
 
       # The default endpoint for testing
       @endpoint GameServerWeb.Endpoint

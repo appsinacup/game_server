@@ -50,7 +50,7 @@ defmodule GameServerWeb.Api.V1.FriendControllerTest do
     resp = get(conn_a2, "/api/v1/me/friends") |> json_response(200)
     assert Enum.any?(resp["data"], fn r -> r["id"] == b.id end)
     entry = Enum.find(resp["data"], fn r -> r["id"] == b.id end)
-    assert is_integer(entry["friendship_id"])
+    assert is_binary(entry["friendship_id"])
     refute Map.has_key?(entry, "email")
     # verify the returned friendship_id can be used to delete the friendship
     del = delete(conn_a2, "/api/v1/friends/#{entry["friendship_id"]}")
@@ -185,15 +185,15 @@ defmodule GameServerWeb.Api.V1.FriendControllerTest do
     conn_a = put_req_header(conn, "authorization", "Bearer " <> token_a)
 
     # accept nonexistent
-    resp = post(conn_a, "/api/v1/friends/999999/accept")
+    resp = post(conn_a, "/api/v1/friends/00000000-0000-0000-0000-000000000000/accept")
     assert resp.status == 404
 
     # reject nonexistent
-    resp2 = post(conn_a, "/api/v1/friends/999999/reject")
+    resp2 = post(conn_a, "/api/v1/friends/00000000-0000-0000-0000-000000000000/reject")
     assert resp2.status == 404
 
     # delete nonexistent
-    resp3 = delete(conn_a, "/api/v1/friends/999999")
+    resp3 = delete(conn_a, "/api/v1/friends/00000000-0000-0000-0000-000000000000")
     assert resp3.status == 404
   end
 

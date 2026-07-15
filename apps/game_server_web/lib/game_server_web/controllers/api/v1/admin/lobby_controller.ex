@@ -16,9 +16,9 @@ defmodule GameServerWeb.Api.V1.Admin.LobbyController do
   @lobby_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :integer},
+      id: %Schema{type: :string, format: :uuid},
       title: %Schema{type: :string},
-      host_id: %Schema{type: :integer, nullable: true},
+      host_id: %Schema{type: :string, format: :uuid, nullable: true},
       host_name: %Schema{type: :string},
       hostless: %Schema{type: :boolean},
       max_users: %Schema{type: :integer},
@@ -107,7 +107,7 @@ defmodule GameServerWeb.Api.V1.Admin.LobbyController do
     summary: "Update lobby by id (admin)",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, required: true]
+      id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true]
     ],
     request_body: {
       "Lobby patch",
@@ -140,8 +140,6 @@ defmodule GameServerWeb.Api.V1.Admin.LobbyController do
   )
 
   def update(conn, %{"id" => id} = params) do
-    id = String.to_integer(to_string(id))
-
     case Lobbies.get_lobby(id) do
       nil ->
         conn |> put_status(:not_found) |> json(%{error: "not_found"})
@@ -175,7 +173,7 @@ defmodule GameServerWeb.Api.V1.Admin.LobbyController do
     summary: "Delete lobby by id (admin)",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, required: true]
+      id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true]
     ],
     responses: [
       ok: {"Deleted", "application/json", %Schema{type: :object}},
@@ -186,8 +184,6 @@ defmodule GameServerWeb.Api.V1.Admin.LobbyController do
   )
 
   def delete(conn, %{"id" => id}) do
-    id = String.to_integer(to_string(id))
-
     case Lobbies.get_lobby(id) do
       nil ->
         conn |> put_status(:not_found) |> json(%{error: "not_found"})

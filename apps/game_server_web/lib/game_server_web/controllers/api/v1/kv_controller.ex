@@ -43,41 +43,8 @@ defmodule GameServerWeb.Api.V1.KvController do
   )
 
   def show(conn, %{"key" => key} = params) do
-    user_id =
-      case params["user_id"] do
-        nil ->
-          nil
-
-        s when is_binary(s) ->
-          case Integer.parse(s) do
-            {i, _} -> i
-            _ -> nil
-          end
-
-        i when is_integer(i) ->
-          i
-
-        _ ->
-          nil
-      end
-
-    lobby_id =
-      case params["lobby_id"] do
-        nil ->
-          nil
-
-        s when is_binary(s) ->
-          case Integer.parse(s) do
-            {i, _} -> i
-            _ -> nil
-          end
-
-        i when is_integer(i) ->
-          i
-
-        _ ->
-          nil
-      end
+    user_id = GameServer.UUIDv7.cast_or_nil(params["user_id"])
+    lobby_id = GameServer.UUIDv7.cast_or_nil(params["lobby_id"])
 
     # Use caller scope assigned by plugs (route is authenticated via :api_auth)
     caller = Map.get(conn.assigns, :current_scope)
@@ -113,12 +80,12 @@ defmodule GameServerWeb.Api.V1.KvController do
   defp kv_access_allowed?(_access, _caller, _user_id, _lobby_id), do: false
 
   defp caller_owns?(%Scope{user: %{id: caller_id}}, user_id),
-    do: is_integer(user_id) and caller_id == user_id
+    do: is_binary(user_id) and caller_id == user_id
 
   defp caller_owns?(_caller, _user_id), do: false
 
   defp caller_in_lobby?(%Scope{user: %{lobby_id: caller_lobby_id}}, lobby_id),
-    do: is_integer(lobby_id) and caller_lobby_id == lobby_id
+    do: is_binary(lobby_id) and caller_lobby_id == lobby_id
 
   defp caller_in_lobby?(_caller, _lobby_id), do: false
 

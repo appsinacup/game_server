@@ -86,7 +86,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
     end
 
     test "returns 404 for missing group", %{conn: conn} do
-      conn = get(conn, "/api/v1/groups/999999")
+      conn = get(conn, "/api/v1/groups/00000000-0000-0000-0000-000000000000")
       assert json_response(conn, 404)
     end
 
@@ -637,7 +637,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
       conn =
         conn
         |> auth_conn(user)
-        |> post("/api/v1/groups/invitations/999999/accept")
+        |> post("/api/v1/groups/invitations/00000000-0000-0000-0000-000000000000/accept")
 
       assert %{"error" => "not_found"} = json_response(conn, 404)
     end
@@ -665,7 +665,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
       conn =
         conn
         |> auth_conn(user)
-        |> post("/api/v1/groups/invitations/999999/decline")
+        |> post("/api/v1/groups/invitations/00000000-0000-0000-0000-000000000000/decline")
 
       assert %{"error" => "not_found"} = json_response(conn, 404)
     end
@@ -749,7 +749,7 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
       conn =
         conn
         |> auth_conn(user)
-        |> delete("/api/v1/groups/sent_invitations/999999")
+        |> delete("/api/v1/groups/sent_invitations/00000000-0000-0000-0000-000000000000")
 
       assert json_response(conn, 404)
     end
@@ -798,7 +798,9 @@ defmodule GameServerWeb.Api.V1.GroupControllerTest do
       conn =
         conn
         |> auth_conn(user)
-        |> post("/api/v1/groups/999999/notify", %{content: "Missing"})
+        |> post("/api/v1/groups/00000000-0000-0000-0000-000000000000/notify", %{
+          content: "Missing"
+        })
 
       assert json_response(conn, 404)
     end

@@ -29,8 +29,13 @@ defmodule GameServerWeb.Auth.GuardianTest do
       assert retrieved_user.email == user.email
     end
 
-    test "returns error for invalid user id" do
-      assert {:error, :user_not_found} = Guardian.resource_from_claims(%{"sub" => "999999"})
+    test "returns error for unknown user id" do
+      assert {:error, :user_not_found} =
+               Guardian.resource_from_claims(%{"sub" => Ecto.UUID.generate()})
+    end
+
+    test "returns error for non-UUID user id" do
+      assert {:error, :invalid_id} = Guardian.resource_from_claims(%{"sub" => "999999"})
     end
 
     test "returns error for missing subject" do

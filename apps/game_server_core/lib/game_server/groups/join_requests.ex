@@ -16,8 +16,8 @@ defmodule GameServer.Groups.JoinRequests do
   alias GameServer.Repo.AdvisoryLock
 
   @doc "List pending join requests sent by a user."
-  @spec list_user_pending_requests(integer()) :: [GroupJoinRequest.t()]
-  def list_user_pending_requests(user_id) when is_integer(user_id) do
+  @spec list_user_pending_requests(String.t()) :: [GroupJoinRequest.t()]
+  def list_user_pending_requests(user_id) when is_binary(user_id) do
     from(r in GroupJoinRequest,
       where: r.user_id == ^user_id and r.status == "pending",
       join: g in assoc(r, :group),
@@ -30,10 +30,10 @@ defmodule GameServer.Groups.JoinRequests do
   @doc """
   Request to join a private group. Creates a pending join request.
   """
-  @spec request_join(integer(), integer()) ::
+  @spec request_join(String.t(), String.t()) ::
           {:ok, GroupJoinRequest.t()} | {:error, atom()}
   def request_join(user_id, group_id)
-      when is_integer(user_id) and is_integer(group_id) do
+      when is_binary(user_id) and is_binary(group_id) do
     group = Groups.get_group(group_id)
 
     cond do
@@ -109,10 +109,10 @@ defmodule GameServer.Groups.JoinRequests do
   end
 
   @doc "List pending join requests for a group (admin only)."
-  @spec list_join_requests(integer(), integer(), keyword()) ::
+  @spec list_join_requests(String.t(), String.t(), keyword()) ::
           {:ok, [GroupJoinRequest.t()]} | {:error, atom()}
   def list_join_requests(admin_id, group_id, opts \\ [])
-      when is_integer(admin_id) and is_integer(group_id) do
+      when is_binary(admin_id) and is_binary(group_id) do
     if Groups.admin?(group_id, admin_id) do
       page = Keyword.get(opts, :page, 1)
       page_size = Keyword.get(opts, :page_size, 25)
@@ -134,8 +134,8 @@ defmodule GameServer.Groups.JoinRequests do
     end
   end
 
-  @spec count_join_requests(integer()) :: non_neg_integer()
-  def count_join_requests(group_id) when is_integer(group_id) do
+  @spec count_join_requests(String.t()) :: non_neg_integer()
+  def count_join_requests(group_id) when is_binary(group_id) do
     Repo.one(
       from(r in GroupJoinRequest,
         where: r.group_id == ^group_id and r.status == "pending",
@@ -145,10 +145,10 @@ defmodule GameServer.Groups.JoinRequests do
   end
 
   @doc "Approve a pending join request. Admin only."
-  @spec approve_join_request(integer(), integer()) ::
+  @spec approve_join_request(String.t(), String.t()) ::
           {:ok, GroupMember.t()} | {:error, atom()}
   def approve_join_request(admin_id, request_id)
-      when is_integer(admin_id) and is_integer(request_id) do
+      when is_binary(admin_id) and is_binary(request_id) do
     case Repo.get(GroupJoinRequest, request_id) do
       nil ->
         {:error, :not_found}
@@ -246,10 +246,10 @@ defmodule GameServer.Groups.JoinRequests do
   end
 
   @doc "Reject a pending join request. Admin only."
-  @spec reject_join_request(integer(), integer()) ::
+  @spec reject_join_request(String.t(), String.t()) ::
           {:ok, GroupJoinRequest.t()} | {:error, atom()}
   def reject_join_request(admin_id, request_id)
-      when is_integer(admin_id) and is_integer(request_id) do
+      when is_binary(admin_id) and is_binary(request_id) do
     case Repo.get(GroupJoinRequest, request_id) do
       nil ->
         {:error, :not_found}
@@ -305,10 +305,10 @@ defmodule GameServer.Groups.JoinRequests do
   end
 
   @doc "Cancel (delete) a pending join request. Only the requesting user can cancel."
-  @spec cancel_join_request(integer(), integer()) ::
+  @spec cancel_join_request(String.t(), String.t()) ::
           {:ok, GroupJoinRequest.t()} | {:error, atom()}
   def cancel_join_request(user_id, request_id)
-      when is_integer(user_id) and is_integer(request_id) do
+      when is_binary(user_id) and is_binary(request_id) do
     case Repo.get(GroupJoinRequest, request_id) do
       nil ->
         {:error, :not_found}

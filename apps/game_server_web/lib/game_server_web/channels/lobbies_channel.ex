@@ -12,14 +12,19 @@ defmodule GameServerWeb.LobbiesChannel do
 
   alias GameServer.Lobbies
   alias GameServerWeb.PayloadDelta
+  alias GameServerWeb.Plugs.FeatureGate
   alias GameServerWeb.Serializers
 
   @impl true
   def join("lobbies", _payload, socket) do
-    # allow anonymous or authenticated sockets to subscribe to global lobby events
-    GameServerWeb.ConnectionTracker.register(:lobbies_channel)
-    Lobbies.subscribe_lobbies()
-    {:ok, socket}
+    # Same flag as GET /api/v1/lobbies — the feed must not outlive the API.
+    if FeatureGate.enabled?("LIST_LOBBIES_ENABLED", true) do
+      GameServerWeb.ConnectionTracker.register(:lobbies_channel)
+      Lobbies.subscribe_lobbies()
+      {:ok, socket}
+    else
+      {:error, %{reason: "listing_disabled"}}
+    end
   end
 
   @impl true

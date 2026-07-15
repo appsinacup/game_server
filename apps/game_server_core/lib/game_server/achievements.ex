@@ -131,8 +131,8 @@ defmodule GameServer.Achievements do
   end
 
   @doc "Get an achievement by ID."
-  @spec get_achievement(integer()) :: Achievement.t() | nil
-  def get_achievement(id) when is_integer(id), do: Repo.get(Achievement, id)
+  @spec get_achievement(String.t()) :: Achievement.t() | nil
+  def get_achievement(id), do: Repo.get_uuid(Achievement, id)
 
   @doc "Get an achievement by slug."
   @spec get_achievement_by_slug(String.t()) :: Achievement.t() | nil
@@ -435,9 +435,9 @@ defmodule GameServer.Achievements do
   end
 
   @doc "Lists all achievements unlocked by a user."
-  @spec list_user_achievements(integer()) :: [UserAchievement.t()]
-  @spec list_user_achievements(integer(), keyword()) :: [UserAchievement.t()]
-  def list_user_achievements(user_id, opts \\ []) when is_integer(user_id) do
+  @spec list_user_achievements(String.t()) :: [UserAchievement.t()]
+  @spec list_user_achievements(String.t(), keyword()) :: [UserAchievement.t()]
+  def list_user_achievements(user_id, opts \\ []) when is_binary(user_id) do
     page = max(Keyword.get(opts, :page, 1), 1)
     page_size = min(max(Keyword.get(opts, :page_size, 25), 1), 200)
     offset = (page - 1) * page_size
@@ -454,8 +454,8 @@ defmodule GameServer.Achievements do
   end
 
   @doc "Count unlocked achievements for a user."
-  @spec count_user_achievements(integer()) :: non_neg_integer()
-  def count_user_achievements(user_id) when is_integer(user_id) do
+  @spec count_user_achievements(String.t()) :: non_neg_integer()
+  def count_user_achievements(user_id) when is_binary(user_id) do
     from(ua in UserAchievement,
       where: ua.user_id == ^user_id and not is_nil(ua.unlocked_at)
     )
@@ -472,21 +472,17 @@ defmodule GameServer.Achievements do
 
   Returns `{:ok, user_achievement}` or `{:error, reason}`.
   """
-  @spec unlock_achievement(integer(), String.t() | integer()) ::
+  @spec unlock_achievement(String.t(), String.t()) ::
           {:ok, UserAchievement.t()} | {:error, atom()}
-  def unlock_achievement(user_id, slug) when is_integer(user_id) and is_binary(slug) do
-    case get_achievement_by_slug(slug) do
-      nil ->
-        {:error, :achievement_not_found}
+  def unlock_achievement(user_id, slug_or_id)
+      when is_binary(user_id) and is_binary(slug_or_id) do
+    achievement =
+      case Ecto.UUID.cast(slug_or_id) do
+        {:ok, id} -> get_achievement(id)
+        :error -> get_achievement_by_slug(slug_or_id)
+      end
 
-      achievement ->
-        do_unlock(user_id, achievement)
-    end
-  end
-
-  def unlock_achievement(user_id, achievement_id)
-      when is_integer(user_id) and is_integer(achievement_id) do
-    case get_achievement(achievement_id) do
+    case achievement do
       nil ->
         {:error, :achievement_not_found}
 
@@ -529,11 +525,12 @@ defmodule GameServer.Achievements do
 
   Returns `{:ok, user_achievement}`.
   """
-  @spec increment_progress(integer(), String.t()) :: {:ok, UserAchievement.t()} | {:error, atom()}
-  @spec increment_progress(integer(), String.t(), pos_integer()) ::
+  @spec increment_progress(String.t(), String.t()) ::
+          {:ok, UserAchievement.t()} | {:error, atom()}
+  @spec increment_progress(String.t(), String.t(), pos_integer()) ::
           {:ok, UserAchievement.t()} | {:error, atom()}
   def increment_progress(user_id, slug, amount \\ 1)
-      when is_integer(user_id) and is_binary(slug) and is_integer(amount) and amount > 0 do
+      when is_binary(user_id) and is_binary(slug) and is_integer(amount) and amount > 0 do
     case get_achievement_by_slug(slug) do
       nil ->
         {:error, :achievement_not_found}
@@ -602,17 +599,17 @@ defmodule GameServer.Achievements do
   end
 
   @doc "Get a user's progress on a specific achievement."
-  @spec get_user_achievement(integer(), integer()) :: UserAchievement.t() | nil
+  @spec get_user_achievement(String.t(), String.t()) :: UserAchievement.t() | nil
   def get_user_achievement(user_id, achievement_id)
-      when is_integer(user_id) and is_integer(achievement_id) do
+      when is_binary(user_id) and is_binary(achievement_id) do
     Repo.get_by(UserAchievement, user_id: user_id, achievement_id: achievement_id)
   end
 
   @doc "Reset a user's progress on a specific achievement (admin use)."
-  @spec reset_user_achievement(integer(), integer()) ::
+  @spec reset_user_achievement(String.t(), String.t()) ::
           {:ok, UserAchievement.t() | :not_found} | {:error, Ecto.Changeset.t()}
   def reset_user_achievement(user_id, achievement_id)
-      when is_integer(user_id) and is_integer(achievement_id) do
+      when is_binary(user_id) and is_binary(achievement_id) do
     case get_user_achievement(user_id, achievement_id) do
       nil -> {:ok, :not_found}
       ua -> Repo.delete(ua)
@@ -620,17 +617,18 @@ defmodule GameServer.Achievements do
   end
 
   @doc "Grant achievement to user by slug (admin convenience, calls unlock_achievement)."
-  @spec grant_achievement(integer(), String.t()) :: {:ok, UserAchievement.t()} | {:error, atom()}
-  def grant_achievement(user_id, slug) when is_integer(user_id) and is_binary(slug) do
+  @spec grant_achievement(String.t(), String.t()) :: {:ok, UserAchievement.t()} | {:error, atom()}
+  def grant_achievement(user_id, slug) when is_binary(user_id) and is_binary(slug) do
     unlock_achievement(user_id, slug)
   end
 
   @doc """
   Revoke an achievement from a user. Deletes the user_achievement record entirely.
   """
-  @spec revoke_achievement(integer(), integer()) :: {:ok, UserAchievement.t()} | {:error, atom()}
+  @spec revoke_achievement(String.t(), String.t()) ::
+          {:ok, UserAchievement.t()} | {:error, atom()}
   def revoke_achievement(user_id, achievement_id)
-      when is_integer(user_id) and is_integer(achievement_id) do
+      when is_binary(user_id) and is_binary(achievement_id) do
     case get_user_achievement(user_id, achievement_id) do
       nil -> {:error, :not_found}
       ua -> Repo.delete(ua)
@@ -642,8 +640,8 @@ defmodule GameServer.Achievements do
   # ---------------------------------------------------------------------------
 
   @doc "Get unlock percentage for an achievement (0.0 to 100.0)."
-  @spec unlock_percentage(integer()) :: float()
-  def unlock_percentage(achievement_id) when is_integer(achievement_id) do
+  @spec unlock_percentage(String.t()) :: float()
+  def unlock_percentage(achievement_id) when is_binary(achievement_id) do
     total_users = GameServer.Repo.aggregate(GameServer.Accounts.User, :count)
 
     if total_users == 0 do

@@ -33,7 +33,7 @@ Initial state remains full snapshot:
 
 ```json
 {
-  "id": 123,
+  "id": "0198c0de-...",
   "metadata": {
     "game_state": "playing",
     "boat_adventure": {
@@ -48,7 +48,7 @@ Update after baseline sends identity fields plus generic payload delta:
 
 ```json
 {
-  "id": 123,
+  "id": "0198c0de-...",
   "u": {
     "player_count": 3,
     "metadata": {

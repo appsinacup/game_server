@@ -10,9 +10,14 @@ defmodule GameServerWeb.LeaderboardsLive do
 
   alias GameServer.Leaderboards
   alias GameServer.Leaderboards.Leaderboard
+  alias GameServerWeb.Plugs.FeatureGate
 
   @impl true
   def mount(_params, _session, socket) do
+    unless FeatureGate.enabled?("LIST_LEADERBOARDS_ENABLED", true) do
+      raise GameServerWeb.NotFoundError
+    end
+
     socket =
       socket
       |> assign(:locale, Gettext.get_locale(GameServerWeb.Gettext))
@@ -31,7 +36,7 @@ defmodule GameServerWeb.LeaderboardsLive do
 
   @impl true
   def handle_params(%{"slug" => slug, "id" => id}, _uri, socket) do
-    case Leaderboards.get_leaderboard(String.to_integer(id)) do
+    case Leaderboards.get_leaderboard(id) do
       nil ->
         {:noreply,
          socket
@@ -440,7 +445,7 @@ defmodule GameServerWeb.LeaderboardsLive do
 
   defp get_user_record(socket, leaderboard_id) do
     case socket.assigns[:current_scope] do
-      %{user: %{id: user_id}} when is_integer(user_id) ->
+      %{user: %{id: user_id}} when is_binary(user_id) ->
         case Leaderboards.get_user_record(leaderboard_id, user_id) do
           {:ok, record} -> record
           _ -> nil

@@ -578,7 +578,7 @@ defmodule GameServerWeb.AdminLive.Payments do
 
   @impl true
   def handle_event("edit_product", %{"id" => id}, socket) do
-    product_id = parse_int(id)
+    product_id = parse_id(id)
 
     case product_id && Payments.get_product(product_id) do
       nil -> {:noreply, put_flash(socket, :error, "Product not found")}
@@ -596,7 +596,7 @@ defmodule GameServerWeb.AdminLive.Payments do
     case product_attrs(params) do
       {:ok, attrs} ->
         result =
-          case parse_int(params["id"]) do
+          case parse_id(params["id"]) do
             nil ->
               Payments.create_product(attrs)
 
@@ -636,7 +636,7 @@ defmodule GameServerWeb.AdminLive.Payments do
 
   @impl true
   def handle_event("edit_provider_product", %{"id" => id}, socket) do
-    provider_product_id = parse_int(id)
+    provider_product_id = GameServer.UUIDv7.cast_or_nil(id)
 
     case provider_product_id && Payments.get_provider_product(provider_product_id) do
       nil -> {:noreply, put_flash(socket, :error, "Provider SKU not found")}
@@ -657,7 +657,7 @@ defmodule GameServerWeb.AdminLive.Payments do
     case provider_product_attrs(params) do
       {:ok, attrs} ->
         result =
-          case parse_int(params["id"]) do
+          case parse_id(params["id"]) do
             nil ->
               Payments.create_provider_product(attrs)
 
@@ -693,7 +693,7 @@ defmodule GameServerWeb.AdminLive.Payments do
   @impl true
   def handle_event("reconcile_stripe_purchase", %{"id" => id}, socket) do
     result =
-      with purchase_id when is_integer(purchase_id) <- parse_int(id),
+      with purchase_id when is_binary(purchase_id) <- parse_id(id),
            %Payments.Purchase{} = purchase <- Payments.get_purchase(purchase_id) do
         Payments.reconcile_stripe_purchase(purchase)
       else
@@ -884,7 +884,7 @@ defmodule GameServerWeb.AdminLive.Payments do
     with {:ok, metadata} <- decode_json_object(params["metadata_json"], "Metadata") do
       {:ok,
        %{
-         "product_id" => parse_int(params["product_id"]),
+         "product_id" => parse_id(params["product_id"]),
          "provider" => params["provider"],
          "external_id" => params["external_id"],
          "currency" => normalize_blank(params["currency"]),
@@ -902,6 +902,8 @@ defmodule GameServerWeb.AdminLive.Payments do
   defp section_atom(section) when is_binary(section) do
     String.to_existing_atom(section)
   end
+
+  defp parse_id(value), do: GameServer.UUIDv7.cast_or_nil(value)
 
   defp parse_int(nil), do: nil
   defp parse_int(""), do: nil

@@ -26,7 +26,7 @@ defmodule GameServerWeb.Api.V1.MeController do
         %Schema{
           type: :object,
           properties: %{
-            id: %Schema{type: :integer},
+            id: %Schema{type: :string, format: :uuid},
             email: %Schema{type: :string},
             profile_url: %Schema{type: :string},
             display_name: %Schema{type: :string},
@@ -79,8 +79,8 @@ defmodule GameServerWeb.Api.V1.MeController do
           profile_url: user.profile_url || "",
           metadata: user.metadata || %{},
           display_name: user.display_name || "",
-          lobby_id: user.lobby_id || -1,
-          party_id: user.party_id || -1,
+          lobby_id: user.lobby_id || "",
+          party_id: user.party_id || "",
           is_online: user.is_online || false,
           last_seen_at: User.last_seen_at_or_fallback(user),
           linked_providers: GameServer.Accounts.get_linked_providers(user),

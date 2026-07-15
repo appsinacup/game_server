@@ -53,6 +53,22 @@ defmodule GameServer.Hooks.GroupPartyHooksTest do
     @impl true
     def on_custom_hook(_hook, _args), do: {:error, :not_implemented}
 
+    @impl true
+    def after_score_submitted(_record), do: :ok
+
+    @impl true
+    def before_group_delete(group), do: {:ok, group}
+
+    @impl true
+    def before_group_kick(admin_id, target_id, group_id),
+      do: {:ok, {admin_id, target_id, group_id}}
+
+    @impl true
+    def before_party_join(user, party), do: {:ok, {user, party}}
+
+    @impl true
+    def before_party_kick(target, leader, party), do: {:ok, {target, leader, party}}
+
     # Lobby stubs
     @impl true
     def before_lobby_create(attrs), do: {:ok, attrs}
@@ -62,8 +78,6 @@ defmodule GameServer.Hooks.GroupPartyHooksTest do
     def before_lobby_join(user, lobby, opts), do: {:ok, {user, lobby, opts}}
     @impl true
     def after_lobby_join(_user, _lobby), do: :ok
-    @impl true
-    def before_lobby_leave(user, lobby), do: {:ok, {user, lobby}}
     @impl true
     def after_lobby_leave(_user, _lobby), do: :ok
     @impl true

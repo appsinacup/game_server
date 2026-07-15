@@ -15,7 +15,7 @@ defmodule GameServer.Groups.Group do
   - `metadata` – arbitrary server-managed key/value map
   - `creator_id` – the user who originally created the group
   """
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Changeset
 
   alias GameServer.Accounts.User

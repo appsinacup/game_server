@@ -2,7 +2,12 @@ name: Build and publish Docker image (GHCR)
 
 on:
   push:
+    branches: [main]
   pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: write
@@ -314,6 +319,42 @@ jobs:
       - name: Run tests
         run: MIX_ENV=test mix test
 
+  commands:
+    name: Mix commands (setup, db.reset)
+    runs-on: ubuntu-latest
+
+    container:
+      image: elixir:1.20.1-otp-29
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          apt update
+          apt install -y build-essential erlang-dev curl
+
+      - name: Install Rust toolchain (for ex_sctp WebRTC DataChannels)
+        run: |
+          curl https://sh.rustup.rs -sSf | sh -s -- -y
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Set up Elixir helpers
+        working-directory: /tmp
+        run: |
+          mix local.hex --force
+          mix local.rebar --force
+
+      # Exercise the documented developer commands end-to-end (SQLite dev
+      # database), so alias/task breakage is caught even though tests bypass
+      # these aliases.
+      - name: mix setup
+        run: mix setup
+
+      - name: mix db.reset
+        run: mix db.reset
+
   publish-js-sdk:
     name: Publish JS SDK
     if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
@@ -485,6 +526,7 @@ jobs:
         run: |
           zip -r "godot_addons.zip" godot_addons
       - name: Release
+        if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
@@ -619,6 +661,7 @@ jobs:
           MIX_ENV=dev mix docs
 
       - name: Publish to gh-pages
+        if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

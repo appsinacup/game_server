@@ -84,7 +84,7 @@ defmodule GameServerWeb.Api.V1.LeaderboardControllerTest do
     end
 
     test "returns 404 for non-existent leaderboard", %{conn: conn} do
-      conn = get(conn, "/api/v1/leaderboards/999999")
+      conn = get(conn, "/api/v1/leaderboards/00000000-0000-0000-0000-000000000000")
       assert json_response(conn, 404)
     end
   end
@@ -210,7 +210,7 @@ defmodule GameServerWeb.Api.V1.LeaderboardControllerTest do
     end
 
     test "returns 404 for non-existent leaderboard", %{conn: conn} do
-      conn = get(conn, "/api/v1/leaderboards/999999/records")
+      conn = get(conn, "/api/v1/leaderboards/00000000-0000-0000-0000-000000000000/records")
       assert json_response(conn, 404)
     end
   end
@@ -252,7 +252,12 @@ defmodule GameServerWeb.Api.V1.LeaderboardControllerTest do
     end
 
     test "returns 404 for non-existent leaderboard", %{conn: conn} do
-      conn = get(conn, "/api/v1/leaderboards/999999/records/around/1")
+      conn =
+        get(
+          conn,
+          "/api/v1/leaderboards/00000000-0000-0000-0000-000000000000/records/around/00000000-0000-0000-0000-000000000000"
+        )
+
       assert json_response(conn, 404)
     end
 
@@ -326,7 +331,7 @@ defmodule GameServerWeb.Api.V1.LeaderboardControllerTest do
       conn =
         conn
         |> put_req_header("authorization", "Bearer " <> token)
-        |> get("/api/v1/leaderboards/999999/records/me")
+        |> get("/api/v1/leaderboards/00000000-0000-0000-0000-000000000000/records/me")
 
       assert json_response(conn, 404)
     end
@@ -388,7 +393,7 @@ defmodule GameServerWeb.Api.V1.LeaderboardControllerTest do
       assert lb_data["sort_order"] == "asc"
       assert lb_data["operator"] == "incr"
       assert lb_data["is_active"] == true
-      assert is_integer(lb_data["id"])
+      assert is_binary(lb_data["id"])
     end
   end
 end

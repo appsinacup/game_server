@@ -58,15 +58,13 @@ defmodule GameServerWeb.AdminLive.KV do
                   />
                   <.input
                     field={@filter_form[:user_id]}
-                    type="number"
+                    type="text"
                     label="User ID"
-                    inputmode="numeric"
                   />
                   <.input
                     field={@filter_form[:lobby_id]}
-                    type="number"
+                    type="text"
                     label="Lobby ID"
-                    inputmode="numeric"
                   />
                   <.input
                     field={@filter_form[:global_only]}
@@ -201,15 +199,13 @@ defmodule GameServerWeb.AdminLive.KV do
               <.input field={@form[:key]} type="text" label="Key" required />
               <.input
                 field={@form[:user_id]}
-                type="number"
+                type="text"
                 label="User ID (optional)"
-                inputmode="numeric"
               />
               <.input
                 field={@form[:lobby_id]}
-                type="number"
+                type="text"
                 label="Lobby ID (optional)"
-                inputmode="numeric"
               />
             </div>
 
@@ -291,7 +287,7 @@ defmodule GameServerWeb.AdminLive.KV do
 
   @impl true
   def handle_event("toggle_select", %{"id" => id}, socket) do
-    id = parse_int(id)
+    id = parse_id(id)
     selected = socket.assigns[:selected_ids] || MapSet.new()
 
     selected =
@@ -414,7 +410,7 @@ defmodule GameServerWeb.AdminLive.KV do
 
   @impl true
   def handle_event("edit_entry", %{"id" => id}, socket) do
-    id = parse_int(id)
+    id = parse_id(id)
 
     case id && KV.get_entry(id) do
       nil ->
@@ -438,7 +434,7 @@ defmodule GameServerWeb.AdminLive.KV do
 
   @impl true
   def handle_event("delete_entry", %{"id" => id}, socket) do
-    id = parse_int(id)
+    id = parse_id(id)
 
     if id do
       :ok = KV.delete_entry(id)
@@ -606,12 +602,12 @@ defmodule GameServerWeb.AdminLive.KV do
   end
 
   defp attrs_from_form_params(params) when is_map(params) do
-    id = parse_int(Map.get(params, "id"))
+    id = parse_id(Map.get(params, "id"))
     key = (Map.get(params, "key") || "") |> String.trim()
 
     with true <- key != "" || {:error, "Key is required"},
-         {:ok, user_id} <- parse_optional_int(Map.get(params, "user_id")),
-         {:ok, lobby_id} <- parse_optional_int(Map.get(params, "lobby_id")),
+         {:ok, user_id} <- parse_optional_id(Map.get(params, "user_id")),
+         {:ok, lobby_id} <- parse_optional_id(Map.get(params, "lobby_id")),
          {:ok, value} <- decode_json_object(Map.get(params, "value_json"), "Value"),
          {:ok, metadata} <- decode_json_object(Map.get(params, "metadata_json"), "Metadata") do
       attrs = %{key: key, user_id: user_id, lobby_id: lobby_id, value: value, metadata: metadata}
@@ -636,30 +632,25 @@ defmodule GameServerWeb.AdminLive.KV do
     end
   end
 
-  defp parse_optional_int(nil), do: {:ok, nil}
+  defp parse_optional_id(nil), do: {:ok, nil}
 
-  defp parse_optional_int(raw) when is_binary(raw) do
+  defp parse_optional_id(raw) when is_binary(raw) do
     raw = String.trim(raw)
 
     if raw == "" do
       {:ok, nil}
     else
-      case Integer.parse(raw) do
-        {int, ""} when int > 0 -> {:ok, int}
-        _ -> {:error, "User ID must be a positive integer"}
+      case Ecto.UUID.cast(raw) do
+        {:ok, uuid} -> {:ok, uuid}
+        :error -> {:error, "ID must be a valid UUID"}
       end
     end
   end
 
-  defp parse_int(nil), do: nil
+  defp parse_id(nil), do: nil
 
-  defp parse_int(raw) when is_binary(raw) do
-    raw = String.trim(raw)
-
-    case Integer.parse(raw) do
-      {int, ""} when int > 0 -> int
-      _ -> nil
-    end
+  defp parse_id(raw) when is_binary(raw) do
+    GameServer.UUIDv7.cast_or_nil(String.trim(raw))
   end
 
   defp changeset_error_summary(%Ecto.Changeset{} = changeset) do
@@ -678,8 +669,8 @@ defmodule GameServerWeb.AdminLive.KV do
 
     global_only = parse_bool(Map.get(params, "global_only"))
 
-    with {:ok, user_id} <- parse_optional_int(Map.get(params, "user_id")),
-         {:ok, lobby_id} <- parse_optional_int(Map.get(params, "lobby_id")) do
+    with {:ok, user_id} <- parse_optional_id(Map.get(params, "user_id")),
+         {:ok, lobby_id} <- parse_optional_id(Map.get(params, "lobby_id")) do
       user_id = if(global_only, do: nil, else: user_id)
       lobby_id = if(global_only, do: nil, else: lobby_id)
 

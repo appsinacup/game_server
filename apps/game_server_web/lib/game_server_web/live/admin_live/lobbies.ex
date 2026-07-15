@@ -411,7 +411,7 @@ defmodule GameServerWeb.AdminLive.Lobbies do
           <.form for={@create_form} id="lobby-create-form" phx-submit="create_lobby">
             <.input
               field={@create_form[:host_id]}
-              type="number"
+              type="text"
               label="Host User ID (optional)"
             />
             <.input
@@ -480,7 +480,7 @@ defmodule GameServerWeb.AdminLive.Lobbies do
       max_users: parse_admin_int(params["max_users"]) || 10
     }
 
-    host_id = parse_admin_int(params["host_id"])
+    host_id = GameServer.UUIDv7.cast_or_nil(params["host_id"])
 
     attrs = if host_id, do: Map.put(attrs, :host_id, host_id), else: attrs
 
@@ -502,7 +502,7 @@ defmodule GameServerWeb.AdminLive.Lobbies do
 
   @impl true
   def handle_event("view_members", %{"id" => id}, socket) do
-    {lobby_id, ""} = Integer.parse(to_string(id))
+    lobby_id = to_string(id)
     lobby = Lobbies.get_lobby!(lobby_id)
     members = lobby_members(lobby_id)
 
@@ -533,7 +533,7 @@ defmodule GameServerWeb.AdminLive.Lobbies do
   def handle_event("add_member", _params, socket) do
     lobby = socket.assigns.selected_lobby
 
-    case parse_admin_int(socket.assigns.add_member_id) do
+    case GameServer.UUIDv7.cast_or_nil(socket.assigns.add_member_id) do
       nil ->
         {:noreply, put_flash(socket, :error, "Enter a valid user ID")}
 
@@ -563,8 +563,8 @@ defmodule GameServerWeb.AdminLive.Lobbies do
 
   @impl true
   def handle_event("kick_member", %{"lobby-id" => lid, "user-id" => uid}, socket) do
-    {_lobby_id, ""} = Integer.parse(to_string(lid))
-    {user_id, ""} = Integer.parse(to_string(uid))
+    _lobby_id = to_string(lid)
+    user_id = to_string(uid)
 
     lobby = socket.assigns.selected_lobby
 
@@ -590,7 +590,7 @@ defmodule GameServerWeb.AdminLive.Lobbies do
 
   @impl true
   def handle_event("toggle_select", %{"id" => id}, socket) do
-    {id, ""} = Integer.parse(to_string(id))
+    id = to_string(id)
     selected = socket.assigns[:selected_ids] || MapSet.new()
 
     selected =
@@ -659,7 +659,7 @@ defmodule GameServerWeb.AdminLive.Lobbies do
   end
 
   def handle_event("edit_lobby", %{"id" => id}, socket) do
-    {lobby_id, ""} = Integer.parse(to_string(id))
+    lobby_id = to_string(id)
     lobby = Lobbies.get_lobby!(lobby_id)
     changeset = Lobbies.change_lobby(lobby)
     form = to_form(changeset, as: "lobby")
@@ -743,7 +743,7 @@ defmodule GameServerWeb.AdminLive.Lobbies do
   end
 
   def handle_event("delete_lobby", %{"id" => id}, socket) do
-    {lobby_id, ""} = Integer.parse(to_string(id))
+    lobby_id = to_string(id)
     lobby = Lobbies.get_lobby!(lobby_id)
 
     case Lobbies.delete_lobby(lobby) do
@@ -760,7 +760,7 @@ defmodule GameServerWeb.AdminLive.Lobbies do
 
   @impl true
   def handle_info({event, _payload}, socket)
-      when event in [:lobby_created, :lobby_updated, :lobby_deleted] do
+      when event in [:lobby_created, :lobby_updated, :lobby_deleted, :lobby_membership_changed] do
     {:noreply, reload_lobbies(socket)}
   end
 

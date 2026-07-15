@@ -394,9 +394,12 @@ defmodule GameServerWeb.ChatLive do
         "content" => content
       }
 
-      case Chat.send_message(%{user: user}, attrs) do
-        {:ok, _msg} ->
-          {:noreply, reload_messages(socket)}
+      with :ok <- GameServerWeb.RateLimit.check_chat_daily(user.id),
+           {:ok, _msg} <- Chat.send_message(%{user: user}, attrs) do
+        {:noreply, reload_messages(socket)}
+      else
+        {:error, :chat_daily_limit} ->
+          {:noreply, put_flash(socket, :error, gettext("Failed"))}
 
         {:error, :slowdown} ->
           {:noreply, put_flash(socket, :error, gettext("Failed"))}
@@ -640,6 +643,5 @@ defmodule GameServerWeb.ChatLive do
     Calendar.strftime(t1, "%Y-%m-%d %H:%M") != Calendar.strftime(t2, "%Y-%m-%d %H:%M")
   end
 
-  defp parse_id(id) when is_binary(id), do: String.to_integer(id)
-  defp parse_id(id) when is_integer(id), do: id
+  defp parse_id(id) when is_binary(id), do: id
 end

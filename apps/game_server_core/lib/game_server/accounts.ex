@@ -96,11 +96,11 @@ defmodule GameServer.Accounts do
     end
   end
 
-  # If `q` is all digits, attempt a direct ID lookup and prepend the result
+  # If `q` looks like a UUID, attempt a direct ID lookup and prepend the result
   # (deduplicated) to `results`.  Returns `results` unchanged otherwise.
   defp maybe_prepend_id_match(results, q) do
-    if Regex.match?(~r/^\d+$/, q) do
-      id = String.to_integer(q)
+    if match?({:ok, _}, Ecto.UUID.cast(q)) do
+      id = q
 
       case get_user(id) do
         nil -> results
@@ -148,11 +148,11 @@ defmodule GameServer.Accounts do
     end
   end
 
-  # If `q` is all digits, check for an ID match and add 1 to the count
+  # If `q` looks like a UUID, check for an ID match and add 1 to the count
   # only if the user isn't already included in the text results.
   defp maybe_add_id_match_count(text_count, q) do
-    if Regex.match?(~r/^\d+$/, q) do
-      id = String.to_integer(q)
+    if match?({:ok, _}, Ecto.UUID.cast(q)) do
+      id = q
 
       case get_user(id) do
         nil -> text_count
@@ -338,8 +338,8 @@ defmodule GameServer.Accounts do
   `last_seen_at` to now and `is_online` to true, then invalidates the cache.
   Fire-and-forget — errors are ignored.
   """
-  @spec touch_last_seen_by_id(integer()) :: :ok
-  def touch_last_seen_by_id(user_id) when is_integer(user_id) do
+  @spec touch_last_seen_by_id(String.t()) :: :ok
+  def touch_last_seen_by_id(user_id) when is_binary(user_id) do
     now = DateTime.utc_now(:second)
 
     from(u in User, where: u.id == ^user_id)
@@ -382,7 +382,7 @@ defmodule GameServer.Accounts do
       ** (Ecto.NoResultsError)
 
   """
-  @spec get_user!(integer()) :: User.t()
+  @spec get_user!(String.t()) :: User.t()
   def get_user!(id) do
     case get_user(id) do
       %User{} = user ->
@@ -403,17 +403,17 @@ defmodule GameServer.Accounts do
       iex> get_user(123)
       %User{}
 
-      iex> get_user(456)
+      iex> get_user(Ecto.UUID.generate())
       nil
 
   """
-  @spec get_user(integer()) :: User.t() | nil
+  @spec get_user(String.t()) :: User.t() | nil
   @decorate cacheable(
               key: {:accounts, :user, id},
               match: &cache_match/1,
               opts: [ttl: @user_cache_ttl_ms]
             )
-  def get_user(id), do: Repo.get(User, id)
+  def get_user(id), do: Repo.get_uuid(User, id)
 
   @decorate cacheable(
               key: {:accounts, :user_by, field, value},
@@ -488,8 +488,8 @@ defmodule GameServer.Accounts do
   Public cache invalidation for cross-module use (lobbies, parties, groups).
   Accepts a user ID and clears both the primary and all index caches.
   """
-  @spec invalidate_user_cache_by_id(integer()) :: :ok
-  def invalidate_user_cache_by_id(user_id) when is_integer(user_id) do
+  @spec invalidate_user_cache_by_id(String.t()) :: :ok
+  def invalidate_user_cache_by_id(user_id) when is_binary(user_id) do
     case Repo.get(User, user_id) do
       %User{} = user -> invalidate_user_cache(user)
       nil -> _ = GameServer.Cache.invalidate({:accounts, :user, user_id})
@@ -1573,19 +1573,19 @@ defmodule GameServer.Accounts do
   end
 
   @doc false
-  @spec get_user_token(integer()) :: UserToken.t() | nil
+  @spec get_user_token(String.t()) :: UserToken.t() | nil
   @decorate cacheable(
               key: {:accounts, :user_token, id},
               match: &cache_match/1,
               opts: [ttl: 60_000]
             )
-  def get_user_token(id) when is_integer(id) do
-    Repo.get(UserToken, id)
+  def get_user_token(id) do
+    Repo.get_uuid(UserToken, id)
   end
 
   @doc false
-  @spec get_user_token!(integer()) :: UserToken.t()
-  def get_user_token!(id) when is_integer(id) do
+  @spec get_user_token!(String.t()) :: UserToken.t()
+  def get_user_token!(id) do
     case get_user_token(id) do
       %UserToken{} = token -> token
       nil -> raise Ecto.NoResultsError, queryable: UserToken
@@ -1608,8 +1608,8 @@ defmodule GameServer.Accounts do
   @doc """
   Lists tokens for a given user, optionally filtered by context.
   """
-  @spec list_user_tokens(integer(), keyword()) :: [UserToken.t()]
-  def list_user_tokens(user_id, opts \\ []) when is_integer(user_id) do
+  @spec list_user_tokens(String.t(), keyword()) :: [UserToken.t()]
+  def list_user_tokens(user_id, opts \\ []) when is_binary(user_id) do
     context = Keyword.get(opts, :context)
 
     from(t in UserToken, where: t.user_id == ^user_id, order_by: [desc: t.inserted_at])
@@ -1622,8 +1622,8 @@ defmodule GameServer.Accounts do
   @doc """
   Counts tokens for a given user.
   """
-  @spec count_user_tokens(integer()) :: non_neg_integer()
-  def count_user_tokens(user_id) when is_integer(user_id) do
+  @spec count_user_tokens(String.t()) :: non_neg_integer()
+  def count_user_tokens(user_id) when is_binary(user_id) do
     from(t in UserToken, where: t.user_id == ^user_id, select: count())
     |> Repo.one()
   end
@@ -1631,8 +1631,8 @@ defmodule GameServer.Accounts do
   @doc """
   Revokes all session tokens for a user (mass logout).
   """
-  @spec revoke_all_user_sessions(integer()) :: {non_neg_integer(), nil}
-  def revoke_all_user_sessions(user_id) when is_integer(user_id) do
+  @spec revoke_all_user_sessions(String.t()) :: {non_neg_integer(), nil}
+  def revoke_all_user_sessions(user_id) when is_binary(user_id) do
     token_ids =
       from(t in UserToken,
         where: t.user_id == ^user_id and t.context == "session",
@@ -1845,8 +1845,8 @@ defmodule GameServer.Accounts do
       profile_url: user.profile_url || "",
       metadata: user.metadata || %{},
       display_name: user.display_name || "",
-      lobby_id: user.lobby_id || -1,
-      party_id: user.party_id || -1,
+      lobby_id: user.lobby_id || "",
+      party_id: user.party_id || "",
       is_online: user.is_online || false,
       last_seen_at: User.last_seen_at_or_fallback(user),
       linked_providers: get_linked_providers(user),
@@ -2024,8 +2024,8 @@ defmodule GameServer.Accounts do
 
   Returns {:ok, user} on success.
   """
-  @spec set_user_online(integer()) :: {:ok, User.t()} | {:error, term()}
-  def set_user_online(user_id) when is_integer(user_id) do
+  @spec set_user_online(String.t()) :: {:ok, User.t()} | {:error, term()}
+  def set_user_online(user_id) when is_binary(user_id) do
     now = DateTime.utc_now(:second)
 
     case Repo.get(User, user_id) do
@@ -2063,8 +2063,8 @@ defmodule GameServer.Accounts do
 
   Returns {:ok, user} on success.
   """
-  @spec set_user_offline(integer()) :: {:ok, User.t()} | {:error, term()}
-  def set_user_offline(user_id) when is_integer(user_id) do
+  @spec set_user_offline(String.t()) :: {:ok, User.t()} | {:error, term()}
+  def set_user_offline(user_id) when is_binary(user_id) do
     now = DateTime.utc_now(:second)
 
     case Repo.get(User, user_id) do

@@ -151,8 +151,7 @@ defmodule GameServerWeb.NotificationsLive do
 
   def handle_event("delete", %{"id" => id}, socket) do
     user = socket.assigns.current_scope.user
-    notif_id = if is_binary(id), do: String.to_integer(id), else: id
-    Notifications.delete_notifications(user.id, [notif_id])
+    Notifications.delete_notifications(user.id, [id])
 
     {:noreply,
      socket
@@ -241,7 +240,7 @@ defmodule GameServerWeb.NotificationsLive do
   defp action_for_metadata(%{"leaderboard_id" => _}),
     do: {gettext("View"), ~p"/leaderboards"}
 
-  defp action_for_metadata(%{"group_id" => group_id}) when is_integer(group_id),
+  defp action_for_metadata(%{"group_id" => group_id}) when is_binary(group_id),
     do: {gettext("View"), ~p"/groups/#{group_id}"}
 
   defp action_for_metadata(%{"lobby_id" => _}), do: {gettext("Open"), ~p"/play"}

@@ -18,13 +18,19 @@ defmodule GameServerWeb.GroupsChannel do
 
   alias GameServer.Groups
   alias GameServerWeb.PayloadDelta
+  alias GameServerWeb.Plugs.FeatureGate
   alias GameServerWeb.Serializers
 
   @impl true
   def join("groups", _payload, socket) do
-    GameServerWeb.ConnectionTracker.register(:groups_channel)
-    Groups.subscribe_groups()
-    {:ok, socket}
+    # Same flag as GET /api/v1/groups — the feed must not outlive the API.
+    if FeatureGate.enabled?("LIST_GROUPS_ENABLED", true) do
+      GameServerWeb.ConnectionTracker.register(:groups_channel)
+      Groups.subscribe_groups()
+      {:ok, socket}
+    else
+      {:error, %{reason: "listing_disabled"}}
+    end
   end
 
   @impl true

@@ -12,7 +12,7 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardController do
   @leaderboard_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :integer},
+      id: %Schema{type: :string, format: :uuid},
       slug: %Schema{type: :string},
       title: %Schema{type: :string},
       description: %Schema{type: :string, nullable: true},
@@ -75,7 +75,7 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardController do
     summary: "Update leaderboard (admin)",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, required: true]
+      id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true]
     ],
     request_body: {
       "Leaderboard patch",
@@ -103,7 +103,7 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardController do
   )
 
   def update(conn, %{"id" => id} = params) do
-    id = String.to_integer(to_string(id))
+    id = to_string(id)
 
     case Leaderboards.get_leaderboard(id) do
       nil ->
@@ -132,7 +132,7 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardController do
     summary: "End leaderboard (admin)",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, required: true]
+      id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true]
     ],
     responses: [
       ok:
@@ -146,7 +146,7 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardController do
   )
 
   def end_leaderboard(conn, %{"id" => id}) do
-    id = String.to_integer(to_string(id))
+    id = to_string(id)
 
     case Leaderboards.end_leaderboard(id) do
       {:ok, lb} ->
@@ -167,7 +167,7 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardController do
     summary: "Delete leaderboard (admin)",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, required: true]
+      id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true]
     ],
     responses: [
       ok: {"Deleted", "application/json", %Schema{type: :object}},
@@ -178,7 +178,7 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardController do
   )
 
   def delete(conn, %{"id" => id}) do
-    id = String.to_integer(to_string(id))
+    id = to_string(id)
 
     case Leaderboards.get_leaderboard(id) do
       nil ->

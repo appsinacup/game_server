@@ -41,6 +41,27 @@ defmodule GameServerWeb.RateLimit do
     end
   end
 
+  @doc """
+  Daily chat quota for one user (`GameServer.Limits` `:max_chat_messages_per_day`,
+  rolling 24h window). Returns `:ok` or `{:error, :chat_daily_limit}`.
+
+  Skipped when rate limiting is disabled or the limit is 0.
+  """
+  @spec check_chat_daily(term()) :: :ok | {:error, :chat_daily_limit}
+  def check_chat_daily(user_id) do
+    limiter_config = Application.get_env(:game_server_web, GameServerWeb.Plugs.RateLimiter, [])
+    limit = GameServer.Limits.get(:max_chat_messages_per_day)
+
+    if Keyword.get(limiter_config, :enabled, true) and is_integer(limit) and limit > 0 do
+      case hit("chatd:#{user_id}", :timer.hours(24), limit) do
+        {:allow, _count} -> :ok
+        {:deny, _retry_after} -> {:error, :chat_daily_limit}
+      end
+    else
+      :ok
+    end
+  end
+
   # Bucket keys look like "auth:1.2.3.4" / "general:..." / "ws:..." — the
   # part before the first colon is the scope used for metrics.
   defp scope_of(key) when is_binary(key) do

@@ -14,7 +14,7 @@ defmodule GameServer.Achievements.Achievement do
   - `progress_target` — number of steps to complete (1 = one-shot, >1 = incremental)
   - `metadata` — arbitrary JSON data
   """
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Changeset
 
   @type t :: %__MODULE__{}

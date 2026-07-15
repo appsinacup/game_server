@@ -72,11 +72,11 @@ defmodule GameServer.Lock do
     ## Parameters
     
     - `namespace` — atom (`:lobby`, `:group`, `:party`) or any string
-    - `resource_id` — integer identifying the specific resource (e.g. lobby id)
+    - `resource_id` — id of the specific resource (e.g. lobby id)
     - `fun` — zero-arity function to execute while holding the lock
     
   """
-  @spec serialize(atom() | String.t(), integer(), (-> result)) :: {:ok, result} | {:error, term()}
+  @spec serialize(atom() | String.t(), String.t(), (-> result)) :: {:ok, result} | {:error, term()}
 when result: term()
   def serialize(_namespace, _resource_id, _fun) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do

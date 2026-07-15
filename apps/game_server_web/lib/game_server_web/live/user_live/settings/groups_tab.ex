@@ -894,7 +894,7 @@ defmodule GameServerWeb.UserLive.Settings.GroupsTab do
 
   def handle_event("group_leave", %{"group_id" => gid}, socket) do
     user = Shared.current_user(socket)
-    gid = if is_binary(gid), do: String.to_integer(gid), else: gid
+    gid = to_string(gid)
 
     case Groups.leave_group(user.id, gid) do
       {:ok, _} ->
@@ -912,7 +912,7 @@ defmodule GameServerWeb.UserLive.Settings.GroupsTab do
 
   def handle_event("group_join", %{"group_id" => gid}, socket) do
     user = Shared.current_user(socket)
-    gid = if is_binary(gid), do: String.to_integer(gid), else: gid
+    gid = to_string(gid)
 
     case Groups.join_group(user.id, gid) do
       {:ok, _} ->
@@ -925,7 +925,7 @@ defmodule GameServerWeb.UserLive.Settings.GroupsTab do
 
   def handle_event("group_request_join", %{"group_id" => gid}, socket) do
     user = Shared.current_user(socket)
-    gid = if is_binary(gid), do: String.to_integer(gid), else: gid
+    gid = to_string(gid)
 
     case Groups.request_join(user.id, gid) do
       {:ok, _} ->
@@ -938,7 +938,7 @@ defmodule GameServerWeb.UserLive.Settings.GroupsTab do
 
   def handle_event("group_accept_invite", %{"invite_id" => iid}, socket) do
     user = Shared.current_user(socket)
-    iid = if is_binary(iid), do: String.to_integer(iid), else: iid
+    iid = to_string(iid)
 
     case Groups.accept_invite(user.id, iid) do
       {:ok, _} ->
@@ -951,7 +951,7 @@ defmodule GameServerWeb.UserLive.Settings.GroupsTab do
 
   def handle_event("group_decline_invite", %{"invite_id" => iid}, socket) do
     user = Shared.current_user(socket)
-    iid = if is_binary(iid), do: String.to_integer(iid), else: iid
+    iid = to_string(iid)
 
     case Groups.decline_invite(user.id, iid) do
       :ok ->
@@ -964,7 +964,7 @@ defmodule GameServerWeb.UserLive.Settings.GroupsTab do
 
   def handle_event("group_cancel_request", %{"request_id" => rid}, socket) do
     user = Shared.current_user(socket)
-    rid = if is_binary(rid), do: String.to_integer(rid), else: rid
+    rid = to_string(rid)
 
     case Groups.cancel_join_request(user.id, rid) do
       {:ok, _} ->
@@ -977,7 +977,7 @@ defmodule GameServerWeb.UserLive.Settings.GroupsTab do
 
   def handle_event("group_cancel_invite", %{"invite_id" => iid}, socket) do
     user = Shared.current_user(socket)
-    iid = if is_binary(iid), do: String.to_integer(iid), else: iid
+    iid = to_string(iid)
 
     case Groups.cancel_invite(user.id, iid) do
       :ok ->
@@ -990,7 +990,7 @@ defmodule GameServerWeb.UserLive.Settings.GroupsTab do
 
   def handle_event("group_approve_request", %{"request_id" => rid}, socket) do
     user = Shared.current_user(socket)
-    rid = if is_binary(rid), do: String.to_integer(rid), else: rid
+    rid = to_string(rid)
 
     case Groups.approve_join_request(user.id, rid) do
       {:ok, _} ->
@@ -1011,7 +1011,7 @@ defmodule GameServerWeb.UserLive.Settings.GroupsTab do
 
   def handle_event("group_reject_request", %{"request_id" => rid}, socket) do
     user = Shared.current_user(socket)
-    rid = if is_binary(rid), do: String.to_integer(rid), else: rid
+    rid = to_string(rid)
 
     case Groups.reject_join_request(user.id, rid) do
       {:ok, _} ->
@@ -1064,7 +1064,7 @@ defmodule GameServerWeb.UserLive.Settings.GroupsTab do
   end
 
   def handle_event("group_view_detail", %{"group_id" => gid}, socket) do
-    gid = if is_binary(gid), do: String.to_integer(gid), else: gid
+    gid = to_string(gid)
     handle_group_view_detail(socket, gid)
   end
 
@@ -1130,8 +1130,8 @@ defmodule GameServerWeb.UserLive.Settings.GroupsTab do
 
   def handle_event("group_kick", %{"group_id" => gid, "user_id" => uid}, socket) do
     user = Shared.current_user(socket)
-    gid = if is_binary(gid), do: String.to_integer(gid), else: gid
-    uid = if is_binary(uid), do: String.to_integer(uid), else: uid
+    gid = to_string(gid)
+    uid = to_string(uid)
 
     case Groups.kick_member(user.id, gid, uid) do
       {:ok, _} ->
@@ -1148,8 +1148,8 @@ defmodule GameServerWeb.UserLive.Settings.GroupsTab do
 
   def handle_event("group_promote", %{"group_id" => gid, "user_id" => uid}, socket) do
     user = Shared.current_user(socket)
-    gid = if is_binary(gid), do: String.to_integer(gid), else: gid
-    uid = if is_binary(uid), do: String.to_integer(uid), else: uid
+    gid = to_string(gid)
+    uid = to_string(uid)
 
     case Groups.promote_member(user.id, gid, uid) do
       {:ok, _} ->
@@ -1165,8 +1165,8 @@ defmodule GameServerWeb.UserLive.Settings.GroupsTab do
 
   def handle_event("group_demote", %{"group_id" => gid, "user_id" => uid}, socket) do
     user = Shared.current_user(socket)
-    gid = if is_binary(gid), do: String.to_integer(gid), else: gid
-    uid = if is_binary(uid), do: String.to_integer(uid), else: uid
+    gid = to_string(gid)
+    uid = to_string(uid)
 
     case Groups.demote_member(user.id, gid, uid) do
       {:ok, _} ->
@@ -1216,8 +1216,8 @@ defmodule GameServerWeb.UserLive.Settings.GroupsTab do
 
   def handle_event("group_invite_user", %{"group_id" => gid, "user_id" => uid}, socket) do
     user = Shared.current_user(socket)
-    gid = if is_binary(gid), do: String.to_integer(gid), else: gid
-    uid = if is_binary(uid), do: String.to_integer(uid), else: uid
+    gid = to_string(gid)
+    uid = to_string(uid)
 
     case Groups.invite_to_group(user.id, gid, uid) do
       {:ok, _} ->

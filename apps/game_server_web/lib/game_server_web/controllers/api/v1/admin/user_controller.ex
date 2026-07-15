@@ -14,13 +14,13 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
   @user_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :integer},
+      id: %Schema{type: :string, format: :uuid},
       email: %Schema{type: :string},
       display_name: %Schema{type: :string},
       is_admin: %Schema{type: :boolean},
       is_activated: %Schema{type: :boolean},
       metadata: %Schema{type: :object},
-      lobby_id: %Schema{type: :integer, nullable: true},
+      lobby_id: %Schema{type: :string, format: :uuid, nullable: true},
       is_online: %Schema{type: :boolean},
       last_seen_at: %Schema{type: :string, format: "date-time"},
       inserted_at: %Schema{type: :string, format: "date-time"},
@@ -33,7 +33,7 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
     summary: "Update user (admin)",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, required: true]
+      id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true]
     ],
     request_body: {
       "User patch",
@@ -58,8 +58,6 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
   )
 
   def update(conn, %{"id" => id} = params) do
-    id = String.to_integer(to_string(id))
-
     case Accounts.get_user(id) do
       nil ->
         conn |> put_status(:not_found) |> json(%{error: "not_found"})
@@ -100,7 +98,7 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
     summary: "Delete user (admin)",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, required: true]
+      id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true]
     ],
     responses: [
       ok: {"Deleted", "application/json", %Schema{type: :object}},
@@ -111,8 +109,6 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
   )
 
   def delete(conn, %{"id" => id}) do
-    id = String.to_integer(to_string(id))
-
     case Accounts.get_user(id) do
       nil ->
         conn |> put_status(:not_found) |> json(%{error: "not_found"})
@@ -149,8 +145,8 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
       is_admin: user.is_admin,
       is_activated: user.is_activated,
       metadata: user.metadata,
-      lobby_id: user.lobby_id || -1,
-      party_id: user.party_id || -1,
+      lobby_id: user.lobby_id || "",
+      party_id: user.party_id || "",
       is_online: user.is_online,
       last_seen_at: User.last_seen_at_or_fallback(user),
       inserted_at: user.inserted_at,

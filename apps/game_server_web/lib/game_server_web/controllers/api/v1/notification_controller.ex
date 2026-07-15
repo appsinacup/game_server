@@ -13,10 +13,10 @@ defmodule GameServerWeb.Api.V1.NotificationController do
   @notification_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :integer, description: "Notification ID"},
-      sender_id: %Schema{type: :integer, description: "User ID of the sender"},
+      id: %Schema{type: :string, format: :uuid, description: "Notification ID"},
+      sender_id: %Schema{type: :string, format: :uuid, description: "User ID of the sender"},
       sender_name: %Schema{type: :string, description: "Display name of the sender"},
-      recipient_id: %Schema{type: :integer, description: "User ID of the recipient"},
+      recipient_id: %Schema{type: :string, format: :uuid, description: "User ID of the recipient"},
       title: %Schema{type: :string, description: "Notification title"},
       content: %Schema{type: :string, description: "Notification body text", nullable: true},
       metadata: %Schema{type: :object, description: "Arbitrary metadata"},
@@ -27,8 +27,8 @@ defmodule GameServerWeb.Api.V1.NotificationController do
       }
     },
     example: %{
-      id: 1,
-      sender_id: 42,
+      id: "0198c0de-0001-7000-8000-000000000001",
+      sender_id: "0198c0de-0002-7000-8000-000000000002",
       sender_name: "SomePlayer",
       recipient_id: 7,
       title: "Game invite",

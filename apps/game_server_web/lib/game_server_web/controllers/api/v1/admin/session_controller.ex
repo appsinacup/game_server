@@ -18,8 +18,8 @@ defmodule GameServerWeb.Api.V1.Admin.SessionController do
   @session_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :integer},
-      user_id: %Schema{type: :integer},
+      id: %Schema{type: :string, format: :uuid},
+      user_id: %Schema{type: :string, format: :uuid},
       user_email: %Schema{type: :string, nullable: true},
       context: %Schema{type: :string},
       inserted_at: %Schema{type: :string, format: "date-time"},
@@ -86,7 +86,7 @@ defmodule GameServerWeb.Api.V1.Admin.SessionController do
     summary: "Delete session token by id (admin)",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, required: true]
+      id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true]
     ],
     responses: [
       ok: {"Deleted", "application/json", %Schema{type: :object}},
@@ -97,8 +97,6 @@ defmodule GameServerWeb.Api.V1.Admin.SessionController do
   )
 
   def delete(conn, %{"id" => id}) do
-    id = String.to_integer(to_string(id))
-
     case Repo.get(UserToken, id) do
       nil ->
         conn |> put_status(:not_found) |> json(%{error: "not_found"})
@@ -124,7 +122,7 @@ defmodule GameServerWeb.Api.V1.Admin.SessionController do
     summary: "Delete all session tokens for a user (admin)",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, required: true]
+      id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true]
     ],
     responses: [
       ok: {"Deleted", "application/json", %Schema{type: :object}},
@@ -134,7 +132,7 @@ defmodule GameServerWeb.Api.V1.Admin.SessionController do
   )
 
   def delete_user_sessions(conn, %{"id" => id}) do
-    user_id = String.to_integer(to_string(id))
+    user_id = id
 
     _ =
       Repo.delete_all(

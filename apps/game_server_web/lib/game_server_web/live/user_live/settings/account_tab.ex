@@ -433,11 +433,7 @@ defmodule GameServerWeb.UserLive.Settings.AccountTab do
   def handle_event("delete_conflicting_account", %{"id" => id}, socket) do
     current = Shared.current_user(socket)
 
-    other_user =
-      case Integer.parse(id) do
-        {id, ""} -> Accounts.get_user(id)
-        _ -> nil
-      end
+    other_user = Accounts.get_user(id)
 
     case other_user do
       %GameServer.Accounts.User{} = other_user ->

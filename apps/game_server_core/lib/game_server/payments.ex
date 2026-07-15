@@ -49,8 +49,8 @@ defmodule GameServer.Payments do
     |> Repo.update()
   end
 
-  @spec get_product(integer()) :: Product.t() | nil
-  def get_product(id) when is_integer(id), do: Repo.get(Product, id)
+  @spec get_product(String.t()) :: Product.t() | nil
+  def get_product(id), do: Repo.get_uuid(Product, id)
 
   @spec get_product_by_sku(String.t()) :: Product.t() | nil
   def get_product_by_sku(sku) when is_binary(sku), do: Repo.get_by(Product, sku: sku)
@@ -82,10 +82,10 @@ defmodule GameServer.Payments do
     |> Repo.update()
   end
 
-  @spec get_provider_product(integer()) :: ProviderProduct.t() | nil
-  def get_provider_product(id) when is_integer(id) do
+  @spec get_provider_product(String.t()) :: ProviderProduct.t() | nil
+  def get_provider_product(id) do
     ProviderProduct
-    |> Repo.get(id)
+    |> Repo.get_uuid(id)
     |> preload_product()
   end
 
@@ -149,8 +149,8 @@ defmodule GameServer.Payments do
     |> Repo.insert()
   end
 
-  @spec get_purchase(integer()) :: Purchase.t() | nil
-  def get_purchase(id) when is_integer(id), do: Repo.get(Purchase, id) |> preload_purchase()
+  @spec get_purchase(String.t()) :: Purchase.t() | nil
+  def get_purchase(id), do: Repo.get_uuid(Purchase, id) |> preload_purchase()
 
   @spec get_purchase_by_order_id(String.t()) :: Purchase.t() | nil
   def get_purchase_by_order_id(order_id) when is_binary(order_id) do
@@ -176,8 +176,8 @@ defmodule GameServer.Payments do
     |> preload_purchase()
   end
 
-  @spec list_user_purchases(integer(), keyword()) :: [Purchase.t()]
-  def list_user_purchases(user_id, opts \\ []) when is_integer(user_id) do
+  @spec list_user_purchases(String.t(), keyword()) :: [Purchase.t()]
+  def list_user_purchases(user_id, opts \\ []) when is_binary(user_id) do
     limit = opts |> Keyword.get(:limit, 100) |> min(250)
 
     from(p in Purchase,
@@ -369,12 +369,12 @@ defmodule GameServer.Payments do
 
   def reconcile_stripe_purchase(%Purchase{}), do: {:error, :not_stripe_purchase}
 
-  @spec cancel_stripe_subscription_at_period_end(User.t(), integer()) ::
+  @spec cancel_stripe_subscription_at_period_end(User.t(), String.t()) ::
           {:ok,
            %{purchase: Purchase.t(), entitlement: Entitlement.t(), stripe_subscription: map()}}
           | {:error, term()}
   def cancel_stripe_subscription_at_period_end(%User{} = user, entitlement_id)
-      when is_integer(entitlement_id) do
+      when is_binary(entitlement_id) do
     with {:ok, %Entitlement{} = entitlement} <-
            get_user_subscription_entitlement(user, entitlement_id),
          %Purchase{} = purchase <- entitlement.source_purchase,
@@ -511,8 +511,8 @@ defmodule GameServer.Payments do
   # Entitlements
   # ---------------------------------------------------------------------------
 
-  @spec list_user_entitlements(integer(), keyword()) :: [Entitlement.t()]
-  def list_user_entitlements(user_id, opts \\ []) when is_integer(user_id) do
+  @spec list_user_entitlements(String.t(), keyword()) :: [Entitlement.t()]
+  def list_user_entitlements(user_id, opts \\ []) when is_binary(user_id) do
     include_inactive = Keyword.get(opts, :include_inactive, false)
     now = DateTime.utc_now(:second)
 
@@ -535,8 +535,8 @@ defmodule GameServer.Payments do
     Repo.all(query)
   end
 
-  @spec has_entitlement?(integer(), String.t()) :: boolean()
-  def has_entitlement?(user_id, key) when is_integer(user_id) and is_binary(key) do
+  @spec has_entitlement?(String.t(), String.t()) :: boolean()
+  def has_entitlement?(user_id, key) when is_binary(user_id) and is_binary(key) do
     now = DateTime.utc_now(:second)
 
     from(e in Entitlement,
@@ -790,7 +790,7 @@ defmodule GameServer.Payments do
   defp preload_purchase(purchase), do: Repo.preload(purchase, [:product, :provider_product])
 
   defp resolve_provider_product(provider, %{"provider_product_id" => id}) do
-    case parse_int(id) do
+    case GameServer.UUIDv7.cast_or_nil(id) do
       nil ->
         {:error, :invalid_provider_product_id}
 
@@ -1330,14 +1330,6 @@ defmodule GameServer.Payments do
 
     cond do
       is_binary(metadata["purchase_id"]) ->
-        metadata["purchase_id"]
-        |> parse_int()
-        |> case do
-          nil -> {:error, :purchase_not_found}
-          id -> purchase_by_id_result(id)
-        end
-
-      is_integer(metadata["purchase_id"]) ->
         purchase_by_id_result(metadata["purchase_id"])
 
       is_binary(metadata["order_id"]) ->
@@ -1418,10 +1410,9 @@ defmodule GameServer.Payments do
   defp stripe_metadata_purchase_mismatch?("", _purchase_id), do: false
   defp stripe_metadata_purchase_mismatch?(purchase_id, purchase_id), do: false
 
-  defp stripe_metadata_purchase_mismatch?(purchase_id, expected_id)
-       when is_binary(purchase_id) do
-    parse_int(purchase_id) != expected_id
-  end
+  defp stripe_metadata_purchase_mismatch?(purchase_id, _expected_id)
+       when is_binary(purchase_id),
+       do: true
 
   defp stripe_metadata_purchase_mismatch?(_purchase_id, _expected_id), do: true
 
@@ -1947,14 +1938,14 @@ defmodule GameServer.Payments do
     query
     |> maybe_where_string(:provider, Keyword.get(opts, :provider))
     |> maybe_where_string(:status, Keyword.get(opts, :status))
-    |> maybe_where_int(:user_id, Keyword.get(opts, :user_id))
+    |> maybe_where_id(:user_id, Keyword.get(opts, :user_id))
     |> maybe_where_like(:order_id, Keyword.get(opts, :order_id))
   end
 
   defp admin_entitlement_filters(query, opts) do
     query
     |> maybe_where_string(:status, Keyword.get(opts, :status))
-    |> maybe_where_int(:user_id, Keyword.get(opts, :user_id))
+    |> maybe_where_id(:user_id, Keyword.get(opts, :user_id))
     |> maybe_where_like(:key, Keyword.get(opts, :key))
   end
 
@@ -1970,12 +1961,12 @@ defmodule GameServer.Payments do
     where(query, [row], field(row, ^field) == ^value)
   end
 
-  defp maybe_where_int(query, _field, value) when value in [nil, ""], do: query
+  defp maybe_where_id(query, _field, value) when value in [nil, ""], do: query
 
-  defp maybe_where_int(query, field, value) do
-    case parse_int(value) do
+  defp maybe_where_id(query, field, value) do
+    case GameServer.UUIDv7.cast_or_nil(value) do
       nil -> query
-      int -> where(query, [row], field(row, ^field) == ^int)
+      uuid -> where(query, [row], field(row, ^field) == ^uuid)
     end
   end
 

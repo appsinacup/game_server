@@ -3,7 +3,7 @@ defmodule GameServer.Payments.Product do
   Internal product sold by one or more payment providers.
   """
 
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Changeset
 
   @type t :: %__MODULE__{}

@@ -30,14 +30,14 @@ defmodule GameServerWeb.Api.V1.Admin.ChatController do
   @message_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :integer},
-      sender_id: %Schema{type: :integer},
+      id: %Schema{type: :string, format: :uuid},
+      sender_id: %Schema{type: :string, format: :uuid},
       sender_name: %Schema{type: :string},
       sender_email: %Schema{type: :string, nullable: true},
       content: %Schema{type: :string},
       metadata: %Schema{type: :object},
       chat_type: %Schema{type: :string, enum: ["lobby", "group", "friend", "party"]},
-      chat_ref_id: %Schema{type: :integer},
+      chat_ref_id: %Schema{type: :string, format: :uuid},
       inserted_at: %Schema{type: :string, format: :"date-time"},
       updated_at: %Schema{type: :string, format: :"date-time"}
     }
@@ -50,12 +50,12 @@ defmodule GameServerWeb.Api.V1.Admin.ChatController do
       "List all chat messages with optional filters. Returns paginated results sorted by newest first.",
     security: [%{"authorization" => []}],
     parameters: [
-      sender_id: [in: :query, schema: %Schema{type: :integer}],
+      sender_id: [in: :query, schema: %Schema{type: :string, format: :uuid}],
       chat_type: [
         in: :query,
         schema: %Schema{type: :string, enum: ["lobby", "group", "friend", "party"]}
       ],
-      chat_ref_id: [in: :query, schema: %Schema{type: :integer}],
+      chat_ref_id: [in: :query, schema: %Schema{type: :string, format: :uuid}],
       content: [in: :query, schema: %Schema{type: :string}],
       sort_by: [
         in: :query,
@@ -86,7 +86,7 @@ defmodule GameServerWeb.Api.V1.Admin.ChatController do
     description: "Admin-level message deletion by ID.",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, required: true]
+      id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true]
     ],
     responses: [
       ok: {"Deleted", "application/json", %Schema{type: :object}},
@@ -105,7 +105,7 @@ defmodule GameServerWeb.Api.V1.Admin.ChatController do
         schema: %Schema{type: :string, enum: ["lobby", "group", "friend", "party"]},
         required: true
       ],
-      chat_ref_id: [in: :query, schema: %Schema{type: :integer}, required: true]
+      chat_ref_id: [in: :query, schema: %Schema{type: :string, format: :uuid}, required: true]
     ],
     responses: [
       ok:

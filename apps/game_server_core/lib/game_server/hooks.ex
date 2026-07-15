@@ -96,10 +96,14 @@ defmodule GameServer.Hooks do
   @callback before_group_update(Group.t(), map()) :: hook_result(map())
   @callback after_group_update(Group.t()) :: any()
 
-  @callback after_group_join(integer(), Group.t()) :: any()
-  @callback after_group_leave(integer(), integer()) :: any()
+  @callback after_group_join(String.t(), Group.t()) :: any()
+  @callback after_group_leave(String.t(), String.t()) :: any()
   @callback after_group_delete(Group.t()) :: any()
-  @callback after_group_kick(integer(), integer(), integer()) :: any()
+  @callback after_group_kick(String.t(), String.t(), String.t()) :: any()
+
+  @callback before_group_delete(Group.t()) :: hook_result(Group.t())
+  @callback before_group_kick(String.t(), String.t(), String.t()) ::
+              hook_result({String.t(), String.t(), String.t()})
 
   # Party lifecycle hooks
   @callback before_party_create(User.t(), map()) :: hook_result(map())
@@ -109,12 +113,19 @@ defmodule GameServer.Hooks do
   @callback after_party_update(Party.t()) :: any()
 
   @callback after_party_join(User.t(), Party.t()) :: any()
-  @callback after_party_leave(User.t(), integer()) :: any()
+  @callback after_party_leave(User.t(), String.t()) :: any()
   @callback after_party_kick(User.t(), User.t(), Party.t()) :: any()
   @callback after_party_disband(Party.t()) :: any()
 
+  @callback before_party_join(User.t(), Party.t()) :: hook_result({User.t(), Party.t()})
+  @callback before_party_kick(User.t(), User.t(), Party.t()) ::
+              hook_result({User.t(), User.t(), Party.t()})
+
   # Achievement lifecycle hooks
-  @callback after_achievement_unlocked(integer(), Achievement.t()) :: any()
+  @callback after_achievement_unlocked(String.t(), Achievement.t()) :: any()
+
+  # Leaderboard lifecycle hooks
+  @callback after_score_submitted(GameServer.Leaderboards.Record.t()) :: any()
 
   # Payment lifecycle hooks
   @callback after_purchase_fulfilled(Purchase.t()) :: any()
@@ -127,7 +138,6 @@ defmodule GameServer.Hooks do
   @callback before_chat_message(User.t(), map()) :: hook_result(map())
   @callback after_chat_message(Message.t()) :: any()
 
-  @callback before_lobby_leave(User.t(), Lobby.t()) :: hook_result({User.t(), Lobby.t()})
   @callback after_lobby_leave(User.t(), Lobby.t()) :: any()
 
   @callback before_lobby_update(Lobby.t(), map()) :: hook_result(map())
@@ -159,7 +169,7 @@ defmodule GameServer.Hooks do
   """
   @callback before_kv_get(String.t(), kv_opts()) :: kv_access_result()
 
-  @callback after_lobby_host_change(Lobby.t(), integer()) :: any()
+  @callback after_lobby_host_change(Lobby.t(), String.t()) :: any()
 
   @doc "Return the configured module that implements the hooks behaviour."
   def module do
@@ -346,6 +356,8 @@ defmodule GameServer.Hooks do
       :after_group_leave,
       :after_group_delete,
       :after_group_kick,
+      :before_group_delete,
+      :before_group_kick,
       :before_party_create,
       :after_party_create,
       :before_party_update,
@@ -354,9 +366,10 @@ defmodule GameServer.Hooks do
       :after_party_leave,
       :after_party_kick,
       :after_party_disband,
+      :before_party_join,
+      :before_party_kick,
       :before_chat_message,
       :after_chat_message,
-      :before_lobby_leave,
       :after_lobby_leave,
       :before_lobby_update,
       :after_lobby_update,
@@ -366,6 +379,7 @@ defmodule GameServer.Hooks do
       :after_user_kicked,
       :after_lobby_host_change,
       :after_achievement_unlocked,
+      :after_score_submitted,
       :after_purchase_fulfilled,
       :after_purchase_revoked,
       :after_entitlement_changed,
@@ -397,10 +411,13 @@ defmodule GameServer.Hooks do
       :before_party_create,
       :before_party_update,
       :before_chat_message,
-      :before_lobby_leave,
       :before_lobby_update,
       :before_lobby_delete,
-      :before_user_kicked
+      :before_user_kicked,
+      :before_group_delete,
+      :before_group_kick,
+      :before_party_join,
+      :before_party_kick
     ] and arity > 0
   end
 
@@ -585,7 +602,6 @@ defmodule GameServer.Hooks do
       when name in [
              :before_lobby_join,
              :before_group_join,
-             :before_lobby_leave,
              :before_user_kicked
            ] ->
         List.to_tuple(many)
@@ -962,11 +978,10 @@ defmodule GameServer.Hooks do
         # callers who pass a user-like map will receive it verbatim.
         opts
 
-      id when is_integer(id) ->
-        try do
-          Keyword.put(opts, :caller, GameServer.Accounts.get_user!(id))
-        rescue
-          Ecto.NoResultsError -> opts
+      id when is_binary(id) ->
+        case GameServer.Accounts.get_user(id) do
+          %User{} = user -> Keyword.put(opts, :caller, user)
+          nil -> opts
         end
 
       _ ->
@@ -988,19 +1003,19 @@ defmodule GameServer.Hooks do
     Process.get(:game_server_hook_caller)
   end
 
-  @spec caller_id() :: integer() | nil
+  @spec caller_id() :: String.t() | nil
   def caller_id do
     case caller() do
-      %User{id: id} when is_integer(id) -> id
+      %User{id: id} when is_binary(id) -> id
       %{} = m when is_map(m) -> Map.get(m, :id) || Map.get(m, "id")
-      id when is_integer(id) -> id
+      id when is_binary(id) -> id
       _ -> nil
     end
   end
 
   @doc "Return the user struct for the current caller when available. This will
   attempt to resolve the caller via GameServer.Accounts.get_user!/1 when the
-  caller is an integer id or a map containing an `:id` key. Returns nil when
+  caller is a user id or a map containing an `:id` key. Returns nil when
   no caller or user is found."
   @spec caller_user() :: GameServer.Accounts.User.t() | nil
   def caller_user do
@@ -1011,22 +1026,10 @@ defmodule GameServer.Hooks do
       %{} = m ->
         id = Map.get(m, :id) || Map.get(m, "id")
 
-        if is_integer(id) do
-          try do
-            GameServer.Accounts.get_user!(id)
-          rescue
-            Ecto.NoResultsError -> nil
-          end
-        else
-          nil
-        end
+        if is_binary(id), do: GameServer.Accounts.get_user(id), else: nil
 
-      id when is_integer(id) ->
-        try do
-          GameServer.Accounts.get_user!(id)
-        rescue
-          Ecto.NoResultsError -> nil
-        end
+      id when is_binary(id) ->
+        GameServer.Accounts.get_user(id)
 
       _ ->
         nil
@@ -1106,6 +1109,12 @@ defmodule GameServer.Hooks.Default do
   def after_group_kick(_admin_id, _target_id, _group_id), do: :ok
 
   @impl true
+  def before_group_delete(group), do: {:ok, group}
+
+  @impl true
+  def before_group_kick(admin_id, target_id, group_id), do: {:ok, {admin_id, target_id, group_id}}
+
+  @impl true
   def before_party_create(_user, attrs), do: {:ok, attrs}
 
   @impl true
@@ -1130,6 +1139,12 @@ defmodule GameServer.Hooks.Default do
   def after_party_disband(_party), do: :ok
 
   @impl true
+  def before_party_join(user, party), do: {:ok, {user, party}}
+
+  @impl true
+  def before_party_kick(target, leader, party), do: {:ok, {target, leader, party}}
+
+  @impl true
   def before_chat_message(_user, attrs), do: {:ok, attrs}
 
   @impl true
@@ -1137,9 +1152,6 @@ defmodule GameServer.Hooks.Default do
 
   @impl true
   def after_lobby_join(_user, _lobby), do: :ok
-
-  @impl true
-  def before_lobby_leave(user, lobby), do: {:ok, {user, lobby}}
 
   @impl true
   def after_lobby_leave(_user, _lobby), do: :ok
@@ -1173,6 +1185,9 @@ defmodule GameServer.Hooks.Default do
 
   @impl true
   def after_achievement_unlocked(_user_id, _achievement), do: :ok
+
+  @impl true
+  def after_score_submitted(_record), do: :ok
 
   @impl true
   def after_purchase_fulfilled(%Purchase{} = purchase) do
@@ -1223,7 +1238,7 @@ defmodule GameServer.Hooks.Default do
   def on_custom_hook(_hook, _args), do: {:error, :not_implemented}
 
   defp update_user_payment_metadata(user_id, fun)
-       when is_integer(user_id) and is_function(fun, 1) do
+       when is_binary(user_id) and is_function(fun, 1) do
     case GameServer.Lock.serialize("user_payment_metadata", user_id, fn ->
            apply_user_payment_metadata(user_id, fun)
          end) do

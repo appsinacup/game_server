@@ -41,7 +41,7 @@ defmodule GameServerWeb.LobbyChannel do
   def join("lobby:" <> lobby_id_str, _payload, socket) do
     current_scope = Map.get(socket.assigns, :current_scope)
 
-    with {lobby_id, ""} <- Integer.parse(lobby_id_str),
+    with {:ok, lobby_id} <- Ecto.UUID.cast(lobby_id_str),
          %Scope{user: %{id: user_id}} <- current_scope,
          %GameServer.Lobbies.Lobby{} = lobby <- Lobbies.get_lobby(lobby_id) do
       user = Accounts.get_user(user_id)
@@ -59,7 +59,7 @@ defmodule GameServerWeb.LobbyChannel do
           {:ok, socket |> assign(:lobby_id, lobby_id) |> assign(:spectator, false)}
 
         # Case 2: user is in a *different* lobby → reject (must listen to their own)
-        is_struct(user, User) and is_integer(user.lobby_id) ->
+        is_struct(user, User) and is_binary(user.lobby_id) ->
           {:error, %{reason: "must_spectate_own_lobby"}}
 
         # Case 3: user is not in any lobby and lobby is spectatable → join as spectator
@@ -240,12 +240,12 @@ defmodule GameServerWeb.LobbyChannel do
   def terminate(_reason, socket) do
     case socket.assigns do
       %{lobby_id: lobby_id, spectator: true, current_scope: %{user: %{id: user_id}}}
-      when is_integer(lobby_id) ->
+      when is_binary(lobby_id) ->
         SpectatorTracker.untrack(lobby_id, user_id)
         _ = Lobbies.unsubscribe_lobby(lobby_id)
         :ok
 
-      %{lobby_id: lobby_id} when is_integer(lobby_id) ->
+      %{lobby_id: lobby_id} when is_binary(lobby_id) ->
         _ = Lobbies.unsubscribe_lobby(lobby_id)
         _ = Chat.unsubscribe_lobby_chat(lobby_id)
         :ok

@@ -153,7 +153,6 @@ defmodule GameServerWeb.AdminLive.Sessions do
 
   @impl true
   def handle_event("toggle_select", %{"id" => id}, socket) do
-    id = String.to_integer(to_string(id))
     selected = socket.assigns[:selected_ids] || MapSet.new()
 
     selected =
@@ -223,7 +222,7 @@ defmodule GameServerWeb.AdminLive.Sessions do
 
   @impl true
   def handle_event("delete_session", %{"id" => id}, socket) do
-    session = Accounts.get_user_token!(String.to_integer(id))
+    session = Accounts.get_user_token!(id)
 
     case Accounts.delete_user_token(session) do
       {:ok, _session} ->

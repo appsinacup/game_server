@@ -3,7 +3,7 @@ defmodule GameServer.Payments.ReconciliationCursor do
   Provider reconciliation checkpoint.
   """
 
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Changeset
 
   @type t :: %__MODULE__{}

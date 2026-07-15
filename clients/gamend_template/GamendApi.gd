@@ -99,7 +99,7 @@ signal socket_connected()   ## WebSocket opened (or re-opened after reconnect)
 signal socket_disconnected()  ## WebSocket closed or errored
 signal user_channel_joined()  ## User channel joined (or rejoined after reconnect)
 signal user_channel_disconnected()  ## User channel closed or errored
-signal lobby_channel_join_failed(lobby_id: int, reason: String)
+signal lobby_channel_join_failed(lobby_id: String, reason: String)
 
 var _config := ApiApiConfigClient.new()
 var _realtime: GamendRealtime
@@ -133,9 +133,13 @@ const SENSITIVE_LOG_KEYS := {
 var _access_token := ""
 var _refresh_token := ""
 var _expires_at_ms := -1
-var _user_id = -1
-var _lobby_id = -1
-var _party_id = -1
+var _user_id = ""
+var _lobby_id = ""
+var _party_id = ""
+
+## Ids are UUID strings; absent ids arrive as "" (or null from older payloads).
+static func _id_str(value) -> String:
+	return "" if value == null else str(value)
 var _refreshing_token = false
 var _has_reloaded_for_auth := false
 var _http_clients: Array = []
@@ -465,7 +469,7 @@ func _verify_login_result(method_name: String, data):
 	if method_name == "logout":
 		_access_token = ""
 		_refresh_token = ""
-		_user_id = -1
+		_user_id = ""
 		authorize()
 
 func realtime_start():
@@ -560,32 +564,32 @@ func is_realtime_connected() -> bool:
 	return _realtime != null and _realtime.socket != null and _realtime.socket.is_connected
 
 func listen_to_user():
-	_realtime.add_channel("user:" + str(int(_user_id)))
+	_realtime.add_channel("user:" + str(_user_id))
 
 ## The current user's realtime channel (joined on first call). Used for
 ## WebRTC signaling (see GamendWebRTC).
 func get_user_channel() -> PhoenixChannel:
-	return _realtime.add_channel("user:" + str(int(_user_id)))
+	return _realtime.add_channel("user:" + str(_user_id))
 
 func listen_to_lobby():
-	_realtime.add_channel("lobby:" + str(int(_lobby_id)))
+	_realtime.add_channel("lobby:" + str(_lobby_id))
 
 func listen_to_party():
-	if _party_id != -1:
-		_realtime.add_channel("party:" + str(int(_party_id)))
+	if _party_id != "":
+		_realtime.add_channel("party:" + str(_party_id))
 
 ## Unsubscribe from the party channel so it stops trying to rejoin.
 func stop_listening_to_party():
-	if _party_id != -1:
-		_realtime.remove_channel("party:" + str(int(_party_id)))
+	if _party_id != "":
+		_realtime.remove_channel("party:" + str(_party_id))
 
 ## Unsubscribe from the lobby channel so it stops trying to rejoin.
 func stop_listening_to_lobby():
-	if _lobby_id != -1:
-		_realtime.remove_channel("lobby:" + str(int(_lobby_id)))
+	if _lobby_id != "":
+		_realtime.remove_channel("lobby:" + str(_lobby_id))
 
 ## Subscribe to a group channel to receive group realtime events.
-func listen_to_group(group_id: int):
+func listen_to_group(group_id: String):
 	_realtime.add_channel("group:" + str(group_id))
 
 ## Subscribe to the lobbies collection channel (lobby browser: lobby_created, lobby_updated, etc.)
@@ -604,41 +608,41 @@ func _on_channel_event(event: String, payload: Dictionary, status, topic: String
 	elif topic == "groups":
 		_handle_groups_event(event, payload)
 	elif topic.begins_with("lobby:"):
-		payload["lobby_id"] = int(topic.substr(6))
+		payload["lobby_id"] = topic.substr(6)
 		_handle_lobby_event(event, payload)
 	elif topic.begins_with("party:"):
-		payload["party_id"] = int(topic.substr(6))
+		payload["party_id"] = topic.substr(6)
 		_handle_party_event(event, payload)
 	elif topic.begins_with("group:"):
-		payload["group_id"] = int(topic.substr(6))
+		payload["group_id"] = topic.substr(6)
 		_handle_group_event(event, payload)
 
 func _on_channel_join_failed(topic: String, reason: String, _payload: Dictionary) -> void:
 	if not topic.begins_with("lobby:"):
 		return
-	var failed_lobby_id := int(topic.substr(6))
+	var failed_lobby_id := topic.substr(6)
 	if _realtime:
 		_realtime.remove_channel(topic)
-	if failed_lobby_id == int(_lobby_id):
-		_lobby_id = -1
+	if failed_lobby_id == str(_lobby_id):
+		_lobby_id = ""
 	lobby_channel_join_failed.emit(failed_lobby_id, reason)
 
 func _handle_user_event(event: String, payload: Dictionary):
 	match event:
 		"updated":
 			if payload.has("lobby_id"):
-				var lobby_id = int(payload["lobby_id"])
+				var lobby_id = _id_str(payload["lobby_id"])
 				if lobby_id != _lobby_id:
 					stop_listening_to_lobby()
 					_lobby_id = lobby_id
-					if lobby_id != -1:
+					if lobby_id != "":
 						listen_to_lobby()
 			if payload.has("party_id"):
-				var party_id = int(payload["party_id"])
+				var party_id = _id_str(payload["party_id"])
 				if party_id != _party_id:
 					stop_listening_to_party()
 					_party_id = party_id
-					if party_id != -1:
+					if party_id != "":
 						listen_to_party()
 			user_updated.emit(payload)
 		"notification":
@@ -916,23 +920,23 @@ func friends_create_friend_request(friend_request: CreateFriendRequestRequest) -
 	return await _call_api(FriendsApi.new(_config), "create_friend_request", [friend_request])
 
 ## Remove/cancel a friendship or request
-func friends_remove_friendship(id: int) -> GamendResult:
+func friends_remove_friendship(id: String) -> GamendResult:
 	return await _call_api(FriendsApi.new(_config), "remove_friendship", [id])
 
 ## Accept a friend request
-func friends_accept_friend_request(id: int) -> GamendResult:
+func friends_accept_friend_request(id: String) -> GamendResult:
 	return await _call_api(FriendsApi.new(_config), "accept_friend_request", [id])
 
 ## Block a friend request / user
-func friends_block_friend_request(id: int) -> GamendResult:
+func friends_block_friend_request(id: String) -> GamendResult:
 	return await _call_api(FriendsApi.new(_config), "block_friend_request", [id])
 
 ## Reject a friend request
-func friends_reject_friend_request(id: int) -> GamendResult:
+func friends_reject_friend_request(id: String) -> GamendResult:
 	return await _call_api(FriendsApi.new(_config), "reject_friend_request", [id])
 
 ## Unblock a previously-blocked friendship
-func friends_unblock_friend(id: int) -> GamendResult:
+func friends_unblock_friend(id: String) -> GamendResult:
 	return await _call_api(FriendsApi.new(_config), "unblock_friend", [id])
 
 ## List users you've blocked
@@ -988,7 +992,7 @@ func lobbies_join_lobby(id: int, join_request: JoinLobbyRequest = null) -> Gamen
 	return await _call_api(LobbiesApi.new(_config), "join_lobby", [id, join_request])
 
 ## Get a lobby by ID
-func lobbies_get_lobby(id: int) -> GamendResult:
+func lobbies_get_lobby(id: String) -> GamendResult:
 	return await _call_api(LobbiesApi.new(_config), "get_lobby", [id])
 
 ### LEADERBOARDS
@@ -1002,7 +1006,7 @@ func leaderboards_list_leaderboards(slug = "", active = null, orderBy = "ends_at
 	return await _call_api(LeaderboardsApi.new(_config), "list_leaderboards", [slug, active, orderBy, startsAfter, startsBefore, endsAfter, endsBefore, page, pageSize])
 
 ## Get current user's record
-func leaderboards_get_my_record(id: int) -> GamendResult:
+func leaderboards_get_my_record(id: String) -> GamendResult:
 	return await _call_api(LeaderboardsApi.new(_config), "get_my_record", [id])
 
 ## List records around a user
@@ -1010,7 +1014,7 @@ func leaderboards_list_records_around_user(id: int, user_id: int, limit = 11) ->
 	return await _call_api(LeaderboardsApi.new(_config), "list_records_around_user", [id, user_id, limit])
 
 ## Get a leaderboard by ID
-func leaderboards_get_leaderboard(id: int) -> GamendResult:
+func leaderboards_get_leaderboard(id: String) -> GamendResult:
 	return await _call_api(LeaderboardsApi.new(_config), "get_leaderboard", [id])
 
 ## Resolve multiple slugs to their active leaderboards
@@ -1085,17 +1089,17 @@ func achievements_my_achievements(page = 1, page_size = 25) -> GamendResult:
 	return await _call_api(AchievementsApi.new(_config), "my_achievements", [page, page_size])
 
 ## List achievements for a specific user
-func achievements_user_achievements(user_id: int, page = 1, page_size = 25) -> GamendResult:
+func achievements_user_achievements(user_id: String), page = 1, page_size = 25) -> GamendResult:
 	return await _call_api(AchievementsApi.new(_config), "user_achievements", [user_id, page, page_size])
 
 ## CHAT
 
 ## List messages in a lobby, group, party, or friend conversation
-func chat_list_chat_messages(chat_type: String, chat_ref_id: int, page = 1, page_size = 25) -> GamendResult:
+func chat_list_chat_messages(chat_type: String, chat_ref_id: String, page = 1, page_size = 25) -> GamendResult:
 	return await _call_api(ChatApi.new(_config), "list_chat_messages", [chat_type, chat_ref_id, page, page_size])
 
 ## Get a single chat message by ID
-func chat_get_chat_message(id: int) -> GamendResult:
+func chat_get_chat_message(id: String) -> GamendResult:
 	return await _call_api(ChatApi.new(_config), "get_chat_message", [id])
 
 ## Send a message to a lobby, group, party, or friend conversation
@@ -1111,7 +1115,7 @@ func chat_update_chat_message(id: int, content: String, metadata: Dictionary = {
 	return await _call_api(ChatApi.new(_config), "update_chat_message", [id, request])
 
 ## Delete a chat message by ID
-func chat_delete_chat_message(id: int) -> GamendResult:
+func chat_delete_chat_message(id: String) -> GamendResult:
 	return await _call_api(ChatApi.new(_config), "delete_chat_message", [id])
 
 ## Mark a chat conversation as read up to a given message ID
@@ -1119,7 +1123,7 @@ func chat_mark_chat_read(markChatReadRequest: MarkChatReadRequest) -> GamendResu
 	return await _call_api(ChatApi.new(_config), "mark_chat_read", [markChatReadRequest])
 
 ## Get unread message count for a chat conversation
-func chat_chat_unread_count(chat_type: String, chat_ref_id: int) -> GamendResult:
+func chat_chat_unread_count(chat_type: String, chat_ref_id: String) -> GamendResult:
 	return await _call_api(ChatApi.new(_config), "chat_unread_count", [chat_type, chat_ref_id])
 
 ## NOTIFICATIONS
@@ -1145,11 +1149,11 @@ func notifications_send_notification(sendNotificationRequest: SendNotificationRe
 ## GROUPS
 
 ## Accept a group invitation by invite_id
-func groups_accept_group_invite(inviteId: int):
+func groups_accept_group_invite(inviteId: String):
 	return await _call_api(GroupsApi.new(_config), "accept_group_invite", [inviteId])
 
 ## Decline a group invitation by invite_id
-func groups_decline_group_invite(inviteId: int):
+func groups_decline_group_invite(inviteId: String):
 	return await _call_api(GroupsApi.new(_config), "decline_group_invite", [inviteId])
 
 ## Approve a join request (admin only)
@@ -1163,7 +1167,7 @@ func groups_approve_join_request(
 	return await _call_api(GroupsApi.new(_config), "approve_join_request", [id, requestId])
 
 ## Cancel a sent group invitation
-func groups_cancel_group_invite(inviteId: int):
+func groups_cancel_group_invite(inviteId: String):
 	return await _call_api(GroupsApi.new(_config), "cancel_group_invite", [inviteId])
 
 ## Cancel your own pending join request
@@ -1406,7 +1410,7 @@ func parties_update_party(updatePartyRequest: UpdatePartyRequest) -> GamendResul
 ## ADMIN SESSIONS
 
 ## Delete session token by id (admin)
-func admin_sessions_admin_delete_session(id: int) -> GamendResult:
+func admin_sessions_admin_delete_session(id: String) -> GamendResult:
 	return await _call_api(AdminSessionsApi.new(_config), "admin_delete_session", [id])
 
 ## List sessions (admin)
@@ -1420,7 +1424,7 @@ func admin_sessions_admin_delete_user_sessions(user_id) -> GamendResult:
 ## ADMIN USERS
 
 # Delete user (admin)
-func admin_users_admin_delete_user(id: int) -> GamendResult:
+func admin_users_admin_delete_user(id: String) -> GamendResult:
 	return await _call_api(AdminUsersApi.new(_config), "admin_delete_user", [id])
 	
 # Update user (admin)
@@ -1434,7 +1438,7 @@ func admin_lobbies_admin_list_lobbies(title = "", isHidden = null, isLocked = nu
 	return await _call_api(AdminLobbiesApi.new(_config), "admin_list_lobbies", [title, isHidden, isLocked, hasPassword, minUsers, maxUsers, page, pageSize])
 
 # Delete lobby (admin)
-func admin_lobbies_admin_delete_lobby(id: int) -> GamendResult:
+func admin_lobbies_admin_delete_lobby(id: String) -> GamendResult:
 	return await _call_api(AdminLobbiesApi.new(_config), "admin_delete_lobby", [id])
 
 # Update lobby (admin)
@@ -1444,7 +1448,7 @@ func admin_lobbies_admin_update_lobby(id: int, adminUpdateLobbyRequest: AdminUpd
 ## ADMIN LEADERBOARDS
 
 ## End leaderboard (admin)
-func admin_leaderboards_admin_end_leaderboard(id: int) -> GamendResult:
+func admin_leaderboards_admin_end_leaderboard(id: String) -> GamendResult:
 	return await _call_api(AdminLeaderboardsApi.new(_config), "admin_end_leaderboard", [id])
 
 ## Submit score (admin)
@@ -1452,11 +1456,11 @@ func admin_leaderboards_admin_submit_leaderboard_score(id: int, adminSubmitLeade
 	return await _call_api(AdminLeaderboardsApi.new(_config), "admin_submit_leaderboard_score", [id, adminSubmitLeaderboardScoreRequest])
 
 ## Delete leaderboard record (admin)
-func admin_leaderboards_admin_delete_leaderboard_record(id: int, recordId: int) -> GamendResult:
+func admin_leaderboards_admin_delete_leaderboard_record(id: String, recordId: String) -> GamendResult:
 	return await _call_api(AdminLeaderboardsApi.new(_config), "admin_delete_leaderboard_record", [id, recordId])
 
 ## Update leaderboard record (admin)
-func admin_leaderboards_admin_update_leaderboard_record(id: int, recordId: int, adminUpdateLeaderboardRecordRequest: AdminUpdateLeaderboardRecordRequest) -> GamendResult:
+func admin_leaderboards_admin_update_leaderboard_record(id: int, recordId: String, adminUpdateLeaderboardRecordRequest: AdminUpdateLeaderboardRecordRequest) -> GamendResult:
 	return await _call_api(AdminLeaderboardsApi.new(_config), "admin_update_leaderboard_record", [id, recordId, adminUpdateLeaderboardRecordRequest])
 
 ## Create leaderboard (admin)
@@ -1464,11 +1468,11 @@ func admin_leaderboards_admin_create_leaderboard(adminCreateLeaderboardRequest: 
 	return await _call_api(AdminLeaderboardsApi.new(_config), "admin_create_leaderboard", [adminCreateLeaderboardRequest])
 
 ## Delete a user's record (admin)
-func admin_leaderboards_admin_delete_leaderboard_user_record(id: int, userId: int) -> GamendResult:
+func admin_leaderboards_admin_delete_leaderboard_user_record(id: String, userId: String) -> GamendResult:
 	return await _call_api(AdminLeaderboardsApi.new(_config), "admin_delete_leaderboard_user_record", [id, userId])
 	
 ## Delete leaderboard (admin)
-func admin_leaderboards_admin_delete_leaderboard(id: int) -> GamendResult:
+func admin_leaderboards_admin_delete_leaderboard(id: String) -> GamendResult:
 	return await _call_api(AdminLeaderboardsApi.new(_config), "admin_delete_leaderboard", [id])
 
 ## Update leaderboard (admin)
@@ -1486,7 +1490,7 @@ func admin_kv_admin_create_kv_entry(adminCreateKvEntryRequest: AdminCreateKvEntr
 	return await _call_api(AdminKVApi.new(_config), "admin_create_kv_entry", [adminCreateKvEntryRequest])
 
 ## Delete KV entry by id (admin)
-func admin_kv_admin_delete_kv_entry(id: int) -> GamendResult:
+func admin_kv_admin_delete_kv_entry(id: String) -> GamendResult:
 	return await _call_api(AdminKVApi.new(_config), "admin_delete_kv_entry", [id])
 
 ## Update KV entry by id (admin)
@@ -1508,12 +1512,12 @@ func admin_notifications_admin_create_notification(adminCreateNotificationReques
 	return await _call_api(AdminNotificationsApi.new(_config), "admin_create_notification", [adminCreateNotificationRequest])
 
 ## Delete a notification (admin)
-func admin_notifications_admin_delete_notification(id: int) -> GamendResult:
+func admin_notifications_admin_delete_notification(id: String) -> GamendResult:
 	return await _call_api(AdminNotificationsApi.new(_config), "admin_delete_notification", [id])
 
 ## List all notifications (admin)
 func admin_notifications_admin_list_notifications(
-	# userId: int   Eg: 56
+	# userId: String   Eg: 56
 	# Filter by recipient user ID
 	userId = null,
 	# senderId: int   Eg: 56
@@ -1533,7 +1537,7 @@ func admin_notifications_admin_list_notifications(
 ## ADMIN GROUPS
 
 ## Delete a group (admin)
-func admin_groups_admin_delete_group(id: int) -> GamendResult:
+func admin_groups_admin_delete_group(id: String) -> GamendResult:
 	return await _call_api(AdminGroupsApi.new(_config), "admin_delete_group", [id])
 
 ## Update a group (admin)
@@ -1565,11 +1569,11 @@ func admin_chat_admin_list_chat_messages(sender_id = null, chat_type = null, cha
 	return await _call_api(AdminChatApi.new(_config), "admin_list_chat_messages", [sender_id, chat_type, chat_ref_id, content, sort_by, page, page_size])
 
 ## Delete a chat message (admin)
-func admin_chat_admin_delete_chat_message(id: int) -> GamendResult:
+func admin_chat_admin_delete_chat_message(id: String) -> GamendResult:
 	return await _call_api(AdminChatApi.new(_config), "admin_delete_chat_message", [id])
 
 ## Delete all messages in a conversation (admin)
-func admin_chat_admin_delete_chat_conversation(chat_type: String, chat_ref_id: int) -> GamendResult:
+func admin_chat_admin_delete_chat_conversation(chat_type: String, chat_ref_id: String) -> GamendResult:
 	return await _call_api(AdminChatApi.new(_config), "admin_delete_chat_conversation", [chat_type, chat_ref_id])
 
 ## ADMIN ACHIEVEMENTS
@@ -1587,7 +1591,7 @@ func admin_achievements_admin_update_achievement(id: int, request: AdminUpdateAc
 	return await _call_api(AdminAchievementsApi.new(_config), "admin_update_achievement", [id, request])
 
 ## Delete an achievement (admin)
-func admin_achievements_admin_delete_achievement(id: int) -> GamendResult:
+func admin_achievements_admin_delete_achievement(id: String) -> GamendResult:
 	return await _call_api(AdminAchievementsApi.new(_config), "admin_delete_achievement", [id])
 
 ## Grant an achievement to a user (admin)

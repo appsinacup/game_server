@@ -12,7 +12,7 @@ defmodule GameServerWeb.Api.V1.Admin.KvController do
   @kv_entry_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :integer},
+      id: %Schema{type: :string, format: :uuid},
       key: %Schema{type: :string},
       user_id: %Schema{
         type: :integer,
@@ -46,8 +46,8 @@ defmodule GameServerWeb.Api.V1.Admin.KvController do
         type: :object,
         properties: %{
           key: %Schema{type: :string},
-          user_id: %Schema{type: :integer, nullable: true},
-          lobby_id: %Schema{type: :integer, nullable: true},
+          user_id: %Schema{type: :string, format: :uuid, nullable: true},
+          lobby_id: %Schema{type: :string, format: :uuid, nullable: true},
           data: %Schema{type: :object},
           metadata: %Schema{type: :object}
         },
@@ -82,13 +82,10 @@ defmodule GameServerWeb.Api.V1.Admin.KvController do
           "" ->
             nil
 
-          v when is_integer(v) ->
-            v
-
           v when is_binary(v) ->
-            case Integer.parse(v) do
-              {i, _} -> i
-              _ -> nil
+            case Ecto.UUID.cast(v) do
+              {:ok, uuid} -> uuid
+              :error -> nil
             end
 
           _ ->
@@ -103,13 +100,10 @@ defmodule GameServerWeb.Api.V1.Admin.KvController do
           "" ->
             nil
 
-          v when is_integer(v) ->
-            v
-
           v when is_binary(v) ->
-            case Integer.parse(v) do
-              {i, _} -> i
-              _ -> nil
+            case Ecto.UUID.cast(v) do
+              {:ok, uuid} -> uuid
+              :error -> nil
             end
 
           _ ->
@@ -134,8 +128,8 @@ defmodule GameServerWeb.Api.V1.Admin.KvController do
     security: [%{"authorization" => []}],
     parameters: [
       key: [in: :query, schema: %Schema{type: :string}, required: true],
-      user_id: [in: :query, schema: %Schema{type: :integer}, required: false],
-      lobby_id: [in: :query, schema: %Schema{type: :integer}, required: false]
+      user_id: [in: :query, schema: %Schema{type: :string, format: :uuid}, required: false],
+      lobby_id: [in: :query, schema: %Schema{type: :string, format: :uuid}, required: false]
     ],
     responses: [
       ok: {"Deleted", "application/json", %Schema{type: :object}},
@@ -153,13 +147,10 @@ defmodule GameServerWeb.Api.V1.Admin.KvController do
         "" ->
           nil
 
-        v when is_integer(v) ->
-          v
-
         v when is_binary(v) ->
-          case Integer.parse(v) do
-            {i, _} -> i
-            _ -> nil
+          case Ecto.UUID.cast(v) do
+            {:ok, uuid} -> uuid
+            :error -> nil
           end
 
         _ ->
@@ -174,13 +165,10 @@ defmodule GameServerWeb.Api.V1.Admin.KvController do
         "" ->
           nil
 
-        v when is_integer(v) ->
-          v
-
         v when is_binary(v) ->
-          case Integer.parse(v) do
-            {i, _} -> i
-            _ -> nil
+          case Ecto.UUID.cast(v) do
+            {:ok, uuid} -> uuid
+            :error -> nil
           end
 
         _ ->
@@ -195,8 +183,8 @@ defmodule GameServerWeb.Api.V1.Admin.KvController do
     %{
       id: entry.id,
       key: entry.key,
-      user_id: entry.user_id || -1,
-      lobby_id: entry.lobby_id || -1,
+      user_id: entry.user_id || "",
+      lobby_id: entry.lobby_id || "",
       data: entry.value,
       metadata: entry.metadata || %{},
       inserted_at: entry.inserted_at,

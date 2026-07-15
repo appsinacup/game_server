@@ -279,7 +279,7 @@ defmodule GameServerWeb.UserLive.Settings.FriendsTab do
   def handle_event("send_friend", params, socket) do
     user = Shared.current_user(socket)
     target = params["target_id"] || params["target"]
-    target_id = if is_binary(target), do: String.to_integer(target), else: target
+    target_id = to_string(target)
 
     case Friends.create_request(user.id, target_id) do
       {:ok, _} ->
@@ -298,7 +298,7 @@ defmodule GameServerWeb.UserLive.Settings.FriendsTab do
 
   def handle_event("block_friend", %{"id" => id}, socket) do
     user = Shared.current_user(socket)
-    id = if is_binary(id), do: String.to_integer(id), else: id
+    id = to_string(id)
 
     case Friends.block_friend_request(id, user) do
       {:ok, _} ->
@@ -311,7 +311,7 @@ defmodule GameServerWeb.UserLive.Settings.FriendsTab do
 
   def handle_event("accept_friend", %{"id" => id}, socket) do
     user = Shared.current_user(socket)
-    id = if is_binary(id), do: String.to_integer(id), else: id
+    id = to_string(id)
 
     case Friends.accept_friend_request(id, user) do
       {:ok, _} ->
@@ -324,7 +324,7 @@ defmodule GameServerWeb.UserLive.Settings.FriendsTab do
 
   def handle_event("reject_friend", %{"id" => id}, socket) do
     user = Shared.current_user(socket)
-    id = if is_binary(id), do: String.to_integer(id), else: id
+    id = to_string(id)
 
     case Friends.reject_friend_request(id, user) do
       {:ok, _} ->
@@ -337,7 +337,7 @@ defmodule GameServerWeb.UserLive.Settings.FriendsTab do
 
   def handle_event("cancel_friend", %{"id" => id}, socket) do
     user = Shared.current_user(socket)
-    id = if is_binary(id), do: String.to_integer(id), else: id
+    id = to_string(id)
 
     case Friends.cancel_request(id, user) do
       {:ok, _} ->
@@ -350,7 +350,7 @@ defmodule GameServerWeb.UserLive.Settings.FriendsTab do
 
   def handle_event("remove_friend", %{"friend_id" => fid}, socket) do
     user = Shared.current_user(socket)
-    fid = if is_binary(fid), do: String.to_integer(fid), else: fid
+    fid = to_string(fid)
 
     case Friends.remove_friend(user.id, fid) do
       {:ok, _} ->
@@ -363,7 +363,7 @@ defmodule GameServerWeb.UserLive.Settings.FriendsTab do
 
   def handle_event("unblock_friend", %{"id" => id}, socket) do
     user = Shared.current_user(socket)
-    id = if is_binary(id), do: String.to_integer(id), else: id
+    id = to_string(id)
 
     case Friends.unblock_friendship(id, user) do
       {:ok, :unblocked} ->

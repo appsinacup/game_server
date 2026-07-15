@@ -21,7 +21,7 @@ defmodule GameServer.Notifications do
         "user_id" => recipient_id,
         "title" => "Game invite",
         "content" => "Join my lobby!",
-        "metadata" => %{"lobby_id" => 42}
+        "metadata" => %{"lobby_id" => "0198c0de-7f2a-7e3b-9c4d-1a2b3c4d5e6f"}
       })
 
       # List all notifications for a user (ordered oldest-first)
@@ -43,7 +43,7 @@ defmodule GameServer.Notifications do
   alias GameServer.Repo
   alias GameServer.Repo.AdvisoryLock
 
-  @type user_id :: integer()
+  @type user_id :: String.t()
 
   @notifications_cache_ttl_ms 60_000
 
@@ -53,17 +53,17 @@ defmodule GameServer.Notifications do
 
   @doc "Subscribe to notification events for a specific user."
   @spec subscribe(user_id()) :: :ok | {:error, term()}
-  def subscribe(user_id) when is_integer(user_id) do
+  def subscribe(user_id) when is_binary(user_id) do
     Phoenix.PubSub.subscribe(GameServer.PubSub, "notifications:user:#{user_id}")
   end
 
   @doc "Unsubscribe from notification events for a specific user."
   @spec unsubscribe(user_id()) :: :ok
-  def unsubscribe(user_id) when is_integer(user_id) do
+  def unsubscribe(user_id) when is_binary(user_id) do
     Phoenix.PubSub.unsubscribe(GameServer.PubSub, "notifications:user:#{user_id}")
   end
 
-  defp broadcast_user(user_id, event) when is_integer(user_id) do
+  defp broadcast_user(user_id, event) when is_binary(user_id) do
     Phoenix.PubSub.broadcast(GameServer.PubSub, "notifications:user:#{user_id}", event)
   end
 
@@ -78,7 +78,7 @@ defmodule GameServer.Notifications do
 
   @doc false
   @spec invalidate_notifications_cache(user_id()) :: :ok
-  def invalidate_notifications_cache(user_id) when is_integer(user_id) do
+  def invalidate_notifications_cache(user_id) when is_binary(user_id) do
     GameServer.Async.run(fn ->
       _ = GameServer.Cache.incr({:notifications, :version, user_id}, 1, default: 1)
       :ok
@@ -104,7 +104,7 @@ defmodule GameServer.Notifications do
                  Keyword.get(opts, :page, 1), Keyword.get(opts, :page_size, 25)},
               opts: [ttl: @notifications_cache_ttl_ms]
             )
-  def list_notifications(user_id, opts \\ []) when is_integer(user_id) do
+  def list_notifications(user_id, opts \\ []) when is_binary(user_id) do
     page = Keyword.get(opts, :page, 1)
     page_size = Keyword.get(opts, :page_size, 25)
     offset = (page - 1) * page_size
@@ -125,7 +125,7 @@ defmodule GameServer.Notifications do
               key: {:notifications, :count, notifications_version(user_id), user_id},
               opts: [ttl: @notifications_cache_ttl_ms]
             )
-  def count_notifications(user_id) when is_integer(user_id) do
+  def count_notifications(user_id) when is_binary(user_id) do
     Repo.one(
       from(n in Notification,
         where: n.recipient_id == ^user_id,
@@ -140,7 +140,7 @@ defmodule GameServer.Notifications do
               key: {:notifications, :count_unread, notifications_version(user_id), user_id},
               opts: [ttl: @notifications_cache_ttl_ms]
             )
-  def count_unread_notifications(user_id) when is_integer(user_id) do
+  def count_unread_notifications(user_id) when is_binary(user_id) do
     Repo.one(
       from(n in Notification,
         where: n.recipient_id == ^user_id and n.read == false,
@@ -161,7 +161,7 @@ defmodule GameServer.Notifications do
               opts: [ttl: @notifications_cache_ttl_ms]
             )
   def list_notifications_by_title(user_id, title)
-      when is_integer(user_id) and is_binary(title) do
+      when is_binary(user_id) and is_binary(title) do
     from(n in Notification,
       where: n.recipient_id == ^user_id and n.title == ^title,
       order_by: [desc: n.inserted_at]
@@ -182,7 +182,7 @@ defmodule GameServer.Notifications do
               opts: [ttl: @notifications_cache_ttl_ms]
             )
   def list_sent_notifications_by_title(user_id, title)
-      when is_integer(user_id) and is_binary(title) do
+      when is_binary(user_id) and is_binary(title) do
     from(n in Notification,
       where: n.sender_id == ^user_id and n.title == ^title,
       order_by: [desc: n.inserted_at]
@@ -191,9 +191,10 @@ defmodule GameServer.Notifications do
   end
 
   @doc "Mark a single notification as read. Only the recipient can mark it."
-  @spec mark_notification_read(user_id(), integer()) :: {:ok, Notification.t()} | {:error, atom()}
+  @spec mark_notification_read(user_id(), String.t()) ::
+          {:ok, Notification.t()} | {:error, atom()}
   def mark_notification_read(user_id, notification_id)
-      when is_integer(user_id) and is_integer(notification_id) do
+      when is_binary(user_id) and is_binary(notification_id) do
     case Repo.one(
            from(n in Notification,
              where: n.id == ^notification_id and n.recipient_id == ^user_id
@@ -219,7 +220,7 @@ defmodule GameServer.Notifications do
 
   @doc "Mark all notifications as read for a user."
   @spec mark_all_notifications_read(user_id()) :: {non_neg_integer(), nil}
-  def mark_all_notifications_read(user_id) when is_integer(user_id) do
+  def mark_all_notifications_read(user_id) when is_binary(user_id) do
     result =
       from(n in Notification,
         where: n.recipient_id == ^user_id and n.read == false
@@ -231,15 +232,15 @@ defmodule GameServer.Notifications do
   end
 
   @doc "Get a single notification by ID."
-  @spec get_notification(integer()) :: Notification.t() | nil
-  def get_notification(id) when is_integer(id) do
-    Repo.get(Notification, id)
+  @spec get_notification(String.t()) :: Notification.t() | nil
+  def get_notification(id) do
+    Repo.get_uuid(Notification, id)
   end
 
   @doc "Get a single notification by ID (raises if not found)."
-  @spec get_notification!(integer()) :: Notification.t()
-  def get_notification!(id) when is_integer(id) do
-    Repo.get!(Notification, id)
+  @spec get_notification!(String.t()) :: Notification.t()
+  def get_notification!(id) do
+    Repo.get_uuid!(Notification, id)
   end
 
   # ---------------------------------------------------------------------------
@@ -294,14 +295,14 @@ defmodule GameServer.Notifications do
     recipient_id =
       Map.get(filters, "recipient_id") || Map.get(filters, "user_id")
 
-    case parse_int(recipient_id) do
+    case GameServer.UUIDv7.cast_or_nil(recipient_id) do
       nil -> query
       id -> where(query, [n], n.recipient_id == ^id)
     end
   end
 
   defp maybe_filter_sender(query, filters) do
-    case parse_int(Map.get(filters, "sender_id")) do
+    case GameServer.UUIDv7.cast_or_nil(Map.get(filters, "sender_id")) do
       nil -> query
       id -> where(query, [n], n.sender_id == ^id)
     end
@@ -321,30 +322,19 @@ defmodule GameServer.Notifications do
     end
   end
 
-  defp parse_int(nil), do: nil
-  defp parse_int(""), do: nil
-  defp parse_int(v) when is_integer(v), do: v
-
-  defp parse_int(v) when is_binary(v) do
-    case Integer.parse(v) do
-      {i, ""} -> i
-      _ -> nil
-    end
-  end
-
   @doc """
   Admin: create a notification from any sender to any recipient (no friendship check).
   """
   @spec admin_create_notification(user_id(), user_id(), map()) ::
           {:ok, Notification.t()} | {:error, Ecto.Changeset.t() | atom()}
   def admin_create_notification(sender_id, recipient_id, attrs)
-      when is_integer(sender_id) and is_integer(recipient_id) do
+      when is_binary(sender_id) and is_binary(recipient_id) do
     upsert_notification(sender_id, recipient_id, attrs)
   end
 
   @doc "Admin: delete a single notification by ID (no ownership check)."
-  @spec admin_delete_notification(integer()) :: {:ok, Notification.t()} | {:error, term()}
-  def admin_delete_notification(id) when is_integer(id) do
+  @spec admin_delete_notification(String.t()) :: {:ok, Notification.t()} | {:error, term()}
+  def admin_delete_notification(id) when is_binary(id) do
     case get_notification(id) do
       nil ->
         {:error, :not_found}
@@ -378,7 +368,7 @@ defmodule GameServer.Notifications do
   """
   @spec send_notification(user_id(), map()) ::
           {:ok, Notification.t()} | {:error, Ecto.Changeset.t() | atom()}
-  def send_notification(sender_id, attrs) when is_integer(sender_id) and is_map(attrs) do
+  def send_notification(sender_id, attrs) when is_binary(sender_id) and is_map(attrs) do
     recipient_id = get_recipient_id(attrs)
 
     cond do
@@ -408,9 +398,9 @@ defmodule GameServer.Notifications do
   Only notifications belonging to `user_id` will be deleted.
   Returns `{deleted_count, nil}`.
   """
-  @spec delete_notifications(user_id(), [integer()]) :: {non_neg_integer(), nil}
+  @spec delete_notifications(user_id(), [String.t()]) :: {non_neg_integer(), nil}
   def delete_notifications(user_id, ids)
-      when is_integer(user_id) and is_list(ids) do
+      when is_binary(user_id) and is_list(ids) do
     result =
       from(n in Notification,
         where: n.recipient_id == ^user_id and n.id in ^ids
@@ -427,7 +417,7 @@ defmodule GameServer.Notifications do
   """
   @spec delete_notification_by(user_id(), user_id(), String.t()) :: {non_neg_integer(), nil}
   def delete_notification_by(sender_id, recipient_id, title)
-      when is_integer(sender_id) and is_integer(recipient_id) and is_binary(title) do
+      when is_binary(sender_id) and is_binary(recipient_id) and is_binary(title) do
     result =
       from(n in Notification,
         where:
@@ -492,7 +482,7 @@ defmodule GameServer.Notifications do
   @spec create_chat_notification(user_id(), user_id(), map()) ::
           {:ok, Notification.t()} | {:error, term()}
   def create_chat_notification(sender_id, recipient_id, attrs)
-      when is_integer(sender_id) and is_integer(recipient_id) do
+      when is_binary(sender_id) and is_binary(recipient_id) do
     # Build the initial metadata with message_count = 1
     base_metadata = Map.get(attrs, "metadata", %{})
     metadata_with_count = Map.put(base_metadata, "message_count", 1)
@@ -574,12 +564,12 @@ defmodule GameServer.Notifications do
 
     case raw do
       nil -> nil
-      id when is_integer(id) -> id
-      id when is_binary(id) -> String.to_integer(id)
+      id when is_binary(id) -> id
+      _ -> nil
     end
   end
 
-  defp friends?(a, b) when is_integer(a) and is_integer(b) do
+  defp friends?(a, b) when is_binary(a) and is_binary(b) do
     Friends.friends?(a, b)
   end
 end

@@ -232,10 +232,7 @@ defmodule GameServerWeb.UserLive.Settings do
     conflict_user =
       case params do
         %{"conflict_user_id" => id} when is_binary(id) ->
-          case Integer.parse(id) do
-            {id, ""} -> Accounts.get_user(id)
-            _ -> nil
-          end
+          Accounts.get_user(id)
 
         _ ->
           nil

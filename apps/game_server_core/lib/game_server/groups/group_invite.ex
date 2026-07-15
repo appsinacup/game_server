@@ -14,7 +14,7 @@ defmodule GameServer.Groups.GroupInvite do
   - `"declined"`  – recipient declined the invite
   - `"cancelled"` – sender cancelled the invite
   """
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Changeset
 
   alias GameServer.Accounts.User

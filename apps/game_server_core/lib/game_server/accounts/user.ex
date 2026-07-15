@@ -19,7 +19,7 @@ defmodule GameServer.Accounts.User do
           is_online: boolean(),
           last_seen_at: DateTime.t() | nil
         }
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Changeset
 
   @last_seen_fallback ~U[1970-01-01 00:00:00Z]
@@ -411,8 +411,8 @@ defimpl Jason.Encoder, for: GameServer.Accounts.User do
       display_name: user.display_name || "",
       profile_url: user.profile_url || "",
       metadata: user.metadata || %{},
-      lobby_id: user.lobby_id || -1,
-      party_id: user.party_id || -1,
+      lobby_id: user.lobby_id || "",
+      party_id: user.party_id || "",
       is_online: user.is_online || false,
       is_activated: user.is_activated,
       last_seen_at: GameServer.Accounts.User.last_seen_at_or_fallback(user),

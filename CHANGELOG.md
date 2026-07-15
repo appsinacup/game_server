@@ -1,29 +1,24 @@
 # July 2026
 
-- [fixed] Application boot no longer depends on the database being reachable/migrated: the persisted IP-ban load runs after startup and retries with error logging instead of crash-looping the app (e.g. during rolling restarts); CI spec-generation jobs also migrate before booting.
+- [breaking] **All ids are UUIDv7 strings** — regenerate SDKs, start fresh database. Host repos: migrations now default to `binary_id` (set by `GameServer.Repo.init/2`), so your own schemas must `use GameServer.Schema` instead of `use Ecto.Schema`, and code comparing/parsing ids as integers (`is_integer(user_id)`, `Integer.parse`, `-1` sentinels) must switch to strings (`""` = absent).
+- [breaking] Pre-existing JWTs rejected; clients must log in again.
+- [breaking] Context APIs take one input shape (id or struct).
 
-- [added] **Data retention**: old chat messages, notifications, and payment provider events are pruned periodically, configurable via `RETENTION_CHAT_DAYS` / `RETENTION_NOTIFICATIONS_DAYS` / `RETENTION_PAYMENT_EVENTS_DAYS` (unset keeps forever); expired IP bans are always cleaned up.
-- [added] **Cache & limits observability**: hit/miss counters per cache prefix, rate-limit denials, and async overloads on the admin dashboard and as Prometheus metrics (`game_server_cache_reads_total`, `game_server_rate_limit_denies_total`, `game_server_async_overload_total`).
-- [changed] Presence writes only on real online/offline transitions — reconnects and extra tabs no longer write to the `users` table, and `after_user_online`/`after_user_offline` hooks fire once per session instead of once per socket.
-- [changed] `GameServer.TaskSupervisor` is bounded (`max_children: 200`); at capacity, async side effects run inline in the caller (back-pressure) instead of spawning unsupervised processes.
-- [changed] `GameServer.Groups` split into `Groups.Invites`, `Groups.JoinRequests`, and an internal `Groups.Shared` — the public `GameServer.Groups` API is unchanged (delegations).
-- [changed] `has_more` in pagination meta is now exact (`page < total_pages`) instead of the `count == page_size` heuristic.
-- [changed] CI now runs credo (strict), dependency audit, and dialyzer (advisory) in addition to formatting and tests.
+- [added] **JWT revocation** via `token_version` claim.
+- [added] **Persistent IP bans**, shared across instances.
+- [added] **Redis rate-limit backend** for multi-instance deployments.
+- [added] **Data retention**: periodic pruning via `RETENTION_*` env vars.
+- [added] **Public listing flags** disable browse endpoints and pages.
+- [added] **Anti-abuse limits**: daily chat quota, per-user socket cap.
+- [added] **New plugin hooks**: `after_score_submitted`; veto-able `before_*` for group delete/kick and party join/kick.
+- [breaking] `before_lobby_leave` hook removed — leaving is always allowed (`after_lobby_leave` remains).
+- [added] **Observability**: cache, rate-limit, and overload metrics (dashboard + Prometheus).
 
-- [breaking] **Context APIs take a single input shape**: `Friends` list/count functions and `Accounts.set_user_online/offline` accept user ids only; `Payments.create_purchase/3` accepts a `%User{}`; `Payments.reconcile_stripe_purchase/1` accepts a `%Purchase{}` (no more struct-or-id unions).
-- [changed] Friend notifications are created at the event source in `GameServer.Friends`; the `FriendNotifier` GenServer was removed (it duplicated writes per app instance and serialized all friend events).
-- [changed] `AdminLogBuffer` is now an ETS ring buffer — log writes no longer serialize through a GenServer.
-- [changed] The user settings LiveView was split into per-tab modules (`Settings.AccountTab`/`FriendsTab`/`GroupsTab`/`PaymentsTab`/`DataTab`); friends and KV lists use LiveView streams.
+- [changed] **Dev setup**: `.env` drives config (incl. DB adapter) at compile time; `mix setup` fixed; shared `db.*`/`host.*` tasks ship from `game_server_core` (delete local copies).
+- [changed] **Reliability**: cross-instance cache invalidation, bounded async side effects, presence events once per session, boot works without a reachable database.
 
-- [fixed] **Cache API misuse after Nebulex 3 upgrade**: manual `Cache.get` calls treated the v3 `{:ok, value}` result as a raw value — the KV read/list/count caches never hit (every read went to the DB), version-key defaults were dead code, and the plugin-facing `GameServer.Cache.cached/3` returned `{:ok, nil}` instead of computing on a miss. All call sites now use `get!`/`fetch`.
-- [added] **Cross-instance cache invalidation**: `GameServer.Cache.invalidate/1` broadcasts deletions via PubSub and `GameServer.Cache.Sync` evicts the key from every node's L1. Used for cached users, sessions, tokens, and KV entries.
-- [changed] Cached user structs now carry a 60s TTL and are evicted cluster-wide on change, so credential revocation and account deactivation apply immediately on all instances.
-
-- [added] **JWT revocation**: tokens carry a `token_version` claim; password/email changes and `Accounts.revoke_all_tokens/1` invalidate all previously issued access and refresh tokens.
-- [breaking] Tokens issued before this release (without the `token_version` claim) are rejected — all API clients must log in again after upgrading.
-- [added] **Redis rate-limit backend** (`RATE_LIMIT_BACKEND=redis`) so limits are shared across app instances; ETS remains the default.
-- [added] **Persistent IP bans**: bans are stored in the database, survive restarts, and propagate to all instances via PubSub.
-- [fixed] Search queries now escape `LIKE` wildcards (`%`, `_`) consistently across users, lobbies, groups, KV, chat, notifications, and payments filters.
+- [fixed] Duplicate KV entry creation falsely reported success; KV caches never hit after Nebulex 3.
+- [fixed] Search filters escape `LIKE` wildcards consistently.
 
 # April 2026
 

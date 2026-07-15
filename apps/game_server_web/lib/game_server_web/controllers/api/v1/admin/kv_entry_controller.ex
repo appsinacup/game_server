@@ -15,7 +15,7 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
   @kv_entry_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :integer},
+      id: %Schema{type: :string, format: :uuid},
       key: %Schema{type: :string},
       user_id: %Schema{
         type: :integer,
@@ -58,8 +58,8 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
       page: [in: :query, schema: %Schema{type: :integer}, required: false],
       page_size: [in: :query, schema: %Schema{type: :integer}, required: false],
       key: [in: :query, schema: %Schema{type: :string}, required: false],
-      user_id: [in: :query, schema: %Schema{type: :integer}, required: false],
-      lobby_id: [in: :query, schema: %Schema{type: :integer}, required: false],
+      user_id: [in: :query, schema: %Schema{type: :string, format: :uuid}, required: false],
+      lobby_id: [in: :query, schema: %Schema{type: :string, format: :uuid}, required: false],
       global_only: [
         in: :query,
         schema: %Schema{type: :boolean},
@@ -113,8 +113,8 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
         type: :object,
         properties: %{
           key: %Schema{type: :string},
-          user_id: %Schema{type: :integer, nullable: true},
-          lobby_id: %Schema{type: :integer, nullable: true},
+          user_id: %Schema{type: :string, format: :uuid, nullable: true},
+          lobby_id: %Schema{type: :string, format: :uuid, nullable: true},
           data: %Schema{type: :object},
           metadata: %Schema{type: :object}
         },
@@ -150,7 +150,7 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
     summary: "Update KV entry by id (admin)",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, required: true]
+      id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true]
     ],
     request_body: {
       "KV entry patch",
@@ -159,8 +159,8 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
         type: :object,
         properties: %{
           key: %Schema{type: :string},
-          user_id: %Schema{type: :integer, nullable: true},
-          lobby_id: %Schema{type: :integer, nullable: true},
+          user_id: %Schema{type: :string, format: :uuid, nullable: true},
+          lobby_id: %Schema{type: :string, format: :uuid, nullable: true},
           data: %Schema{type: :object},
           metadata: %Schema{type: :object}
         }
@@ -178,7 +178,6 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
   )
 
   def update(conn, %{"id" => id} = params) do
-    id = String.to_integer(to_string(id))
     attrs = normalize_entry_attrs(Map.delete(params, "id"))
 
     case KV.update_entry(id, attrs) do
@@ -200,7 +199,7 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
     summary: "Delete KV entry by id (admin)",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, required: true]
+      id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true]
     ],
     responses: [
       ok: {"Deleted", "application/json", %Schema{type: :object}},
@@ -210,7 +209,6 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
   )
 
   def delete(conn, %{"id" => id}) do
-    id = String.to_integer(to_string(id))
     :ok = KV.delete_entry(id)
     json(conn, %{})
   end
@@ -219,8 +217,8 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
     %{
       id: entry.id,
       key: entry.key,
-      user_id: entry.user_id || -1,
-      lobby_id: entry.lobby_id || -1,
+      user_id: entry.user_id || "",
+      lobby_id: entry.lobby_id || "",
       data: entry.value,
       metadata: entry.metadata || %{},
       inserted_at: entry.inserted_at,
@@ -280,13 +278,10 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
         "" ->
           nil
 
-        v when is_integer(v) ->
-          v
-
         v when is_binary(v) ->
-          case Integer.parse(v) do
-            {i, _} -> i
-            _ -> :no_change
+          case Ecto.UUID.cast(v) do
+            {:ok, uuid} -> uuid
+            :error -> :no_change
           end
 
         _ ->
@@ -312,13 +307,10 @@ defmodule GameServerWeb.Api.V1.Admin.KvEntryController do
         "" ->
           nil
 
-        v when is_integer(v) ->
-          v
-
         v when is_binary(v) ->
-          case Integer.parse(v) do
-            {i, _} -> i
-            _ -> :no_change
+          case Ecto.UUID.cast(v) do
+            {:ok, uuid} -> uuid
+            :error -> :no_change
           end
 
         _ ->

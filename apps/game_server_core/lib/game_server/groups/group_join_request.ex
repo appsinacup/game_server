@@ -12,7 +12,7 @@ defmodule GameServer.Groups.GroupJoinRequest do
   - `"accepted"` – approved (user is added to members)
   - `"rejected"` – declined by an admin
   """
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Changeset
 
   alias GameServer.Accounts.User

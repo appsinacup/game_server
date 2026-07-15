@@ -1,7 +1,7 @@
 defmodule GameServer.KV.Entry do
   @moduledoc false
 
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Changeset
 
   @type t :: %__MODULE__{}

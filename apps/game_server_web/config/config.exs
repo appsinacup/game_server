@@ -7,7 +7,7 @@ config :game_server_web, :scopes,
     assign_key: :current_scope,
     access_path: [:user, :id],
     schema_key: :user_id,
-    schema_type: :id,
+    schema_type: :binary_id,
     schema_table: :users,
     test_data_fixture: GameServer.AccountsFixtures,
     test_setup_helper: :register_and_log_in_user
@@ -33,7 +33,11 @@ default_adapter =
     do: Ecto.Adapters.Postgres,
     else: Ecto.Adapters.SQLite3
 
-config :game_server_core, GameServer.Repo, adapter: default_adapter
+config :game_server_core, GameServer.Repo,
+  adapter: default_adapter,
+  # All tables use UUID (v7) primary/foreign keys — see GameServer.UUIDv7.
+  migration_primary_key: [name: :id, type: :binary_id],
+  migration_foreign_key: [type: :binary_id]
 
 config :game_server_web, GameServerWeb.Endpoint,
   url: [host: "localhost"],

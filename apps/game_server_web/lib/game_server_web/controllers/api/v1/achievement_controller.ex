@@ -10,7 +10,7 @@ defmodule GameServerWeb.Api.V1.AchievementController do
   @achievement_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :integer, description: "Achievement ID"},
+      id: %Schema{type: :string, format: :uuid, description: "Achievement ID"},
       slug: %Schema{type: :string, description: "Unique identifier"},
       title: %Schema{type: :string, description: "Display title"},
       description: %Schema{type: :string, description: "Description"},
@@ -31,7 +31,7 @@ defmodule GameServerWeb.Api.V1.AchievementController do
       metadata: %Schema{type: :object, description: "Arbitrary metadata"}
     },
     example: %{
-      id: 1,
+      id: "0198c0de-0001-7000-8000-000000000001",
       slug: "first_lobby",
       title: "Welcome!",
       description: "Join your first lobby",
@@ -240,7 +240,7 @@ defmodule GameServerWeb.Api.V1.AchievementController do
     summary: "List a user's unlocked achievements",
     description: "List achievements unlocked by a specific user.",
     parameters: [
-      user_id: [in: :path, schema: %Schema{type: :integer}, required: true],
+      user_id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true],
       page: [in: :query, schema: %Schema{type: :integer}, required: false],
       page_size: [in: :query, schema: %Schema{type: :integer}, required: false]
     ],
@@ -258,8 +258,8 @@ defmodule GameServerWeb.Api.V1.AchievementController do
   )
 
   def user_achievements(conn, %{"user_id" => user_id_str} = params) do
-    case Integer.parse(user_id_str) do
-      {user_id, ""} ->
+    case Ecto.UUID.cast(user_id_str) do
+      {:ok, user_id} ->
         page = parse_int(params["page"], 1)
         page_size = parse_int(params["page_size"], 25)
 

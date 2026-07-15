@@ -21,7 +21,7 @@ defmodule GameServer.Notifications do
         "user_id" => recipient_id,
         "title" => "Game invite",
         "content" => "Join my lobby!",
-        "metadata" => %{"lobby_id" => 42}
+        "metadata" => %{"lobby_id" => "0198c0de-7f2a-7e3b-9c4d-1a2b3c4d5e6f"}
       })
   
       # List all notifications for a user (ordered oldest-first)
@@ -38,7 +38,7 @@ defmodule GameServer.Notifications do
   The actual implementation runs on the GameServer.
   """
 
-  @type user_id() :: integer()
+  @type user_id() :: String.t()
 
   @doc ~S"""
     Admin: create a notification from any sender to any recipient (no friendship check).
@@ -60,7 +60,7 @@ defmodule GameServer.Notifications do
   @doc ~S"""
     Admin: delete a single notification by ID (no ownership check).
   """
-  @spec admin_delete_notification(integer()) ::
+  @spec admin_delete_notification(String.t()) ::
   {:ok, GameServer.Notifications.Notification.t()} | {:error, term()}
   def admin_delete_notification(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -166,7 +166,7 @@ defmodule GameServer.Notifications do
     Returns `{deleted_count, nil}`.
     
   """
-  @spec delete_notifications(user_id(), [integer()]) :: {non_neg_integer(), nil}
+  @spec delete_notifications(user_id(), [String.t()]) :: {non_neg_integer(), nil}
   def delete_notifications(_user_id, _ids) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -181,7 +181,7 @@ defmodule GameServer.Notifications do
   @doc ~S"""
     Get a single notification by ID.
   """
-  @spec get_notification(integer()) :: GameServer.Notifications.Notification.t() | nil
+  @spec get_notification(String.t()) :: GameServer.Notifications.Notification.t() | nil
   def get_notification(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -196,7 +196,7 @@ defmodule GameServer.Notifications do
   @doc ~S"""
     Get a single notification by ID (raises if not found).
   """
-  @spec get_notification!(integer()) :: GameServer.Notifications.Notification.t()
+  @spec get_notification!(String.t()) :: GameServer.Notifications.Notification.t()
   def get_notification!(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -318,7 +318,7 @@ defmodule GameServer.Notifications do
   @doc ~S"""
     Mark a single notification as read. Only the recipient can mark it.
   """
-  @spec mark_notification_read(user_id(), integer()) ::
+  @spec mark_notification_read(user_id(), String.t()) ::
   {:ok, GameServer.Notifications.Notification.t()} | {:error, atom()}
   def mark_notification_read(_user_id, _notification_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do

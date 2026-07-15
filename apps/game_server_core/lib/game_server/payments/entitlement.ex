@@ -3,7 +3,7 @@ defmodule GameServer.Payments.Entitlement do
   User access grant derived from a purchase or admin/server action.
   """
 
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Changeset
 
   @type t :: %__MODULE__{}

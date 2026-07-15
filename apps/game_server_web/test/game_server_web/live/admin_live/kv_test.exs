@@ -60,7 +60,7 @@ defmodule GameServerWeb.AdminLive.KVTest do
 
     _ =
       render_change(lv, :filters_change, %{
-        "filters" => %{"key" => "", "user_id" => Integer.to_string(u2.id)}
+        "filters" => %{"key" => "", "user_id" => to_string(u2.id)}
       })
 
     assert has_element?(lv, "#admin-kv-#{e2.id}")
@@ -106,5 +106,49 @@ defmodule GameServerWeb.AdminLive.KVTest do
 
     assert KV.count_entries(key: "admin-kv:duplicate-key") == 1
     assert html =~ "Create failed"
+  end
+
+  test "admin creates a user-scoped entry via form and bad filter ids do not crash", %{conn: conn} do
+    admin = AccountsFixtures.user_fixture()
+
+    {:ok, admin} =
+      admin
+      |> User.admin_changeset(%{"is_admin" => true})
+      |> Repo.update()
+
+    owner = AccountsFixtures.user_fixture()
+
+    {:ok, lv, _html} = conn |> log_in_user(admin) |> live(~p"/admin/kv")
+
+    lv |> element("#admin-kv-new-entry") |> render_click()
+
+    lv
+    |> form("#admin-kv-form",
+      kv: %{
+        "id" => "",
+        "key" => "admin-kv:form-user-scoped",
+        "user_id" => owner.id,
+        "lobby_id" => "",
+        "value_json" => ~s({"n":1}),
+        "metadata_json" => "{}"
+      }
+    )
+    |> render_submit()
+
+    assert [entry] = KV.list_entries(key: "admin-kv:form-user-scoped", user_id: owner.id)
+    assert entry.user_id == owner.id
+
+    # a non-UUID filter value must not crash the LiveView or drop all filters
+    html =
+      render_change(lv, :filters_change, %{
+        "filters" => %{
+          "key" => "",
+          "user_id" => "12345",
+          "lobby_id" => "",
+          "global_only" => "false"
+        }
+      })
+
+    assert html =~ "KV Entries"
   end
 end

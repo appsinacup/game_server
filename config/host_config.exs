@@ -7,6 +7,14 @@
 # General application configuration
 import Config
 
+# In dev, load .env into the environment before anything reads System.get_env.
+# This file runs at compile time, so .env can drive compile-time settings —
+# most importantly the database adapter (see the Repo config in dev.exs).
+if config_env() == :dev do
+  Code.require_file("dotenv.exs", __DIR__)
+  GameServer.Dotenv.load(Path.expand("../.env", __DIR__))
+end
+
 config :game_server_web, :scopes,
   user: [
     default: true,
@@ -14,7 +22,7 @@ config :game_server_web, :scopes,
     assign_key: :current_scope,
     access_path: [:user, :id],
     schema_key: :user_id,
-    schema_type: :id,
+    schema_type: :binary_id,
     schema_table: :users,
     test_data_fixture: GameServer.AccountsFixtures,
     test_setup_helper: :register_and_log_in_user
@@ -39,13 +47,20 @@ config :game_server_web,
   host_static_paths: ~w(images game favicon.ico robots.txt .well-known theme.css)
 
 # Adapter selection (compile-time). Override with DATABASE_ADAPTER=postgres
-# at build time for production Postgres deployments.
+# at build time for production Postgres deployments. In dev, setting
+# POSTGRES_*/DATABASE_URL (shell or .env) makes dev.exs override this with
+# Postgres; after changing them, recompile:
+#   mix deps.clean game_server_core game_server_web --build && mix compile
 default_adapter =
   if System.get_env("DATABASE_ADAPTER") == "postgres",
     do: Ecto.Adapters.Postgres,
     else: Ecto.Adapters.SQLite3
 
-config :game_server_core, GameServer.Repo, adapter: default_adapter
+config :game_server_core, GameServer.Repo,
+  adapter: default_adapter,
+  # All tables use UUID (v7) primary/foreign keys — see GameServer.UUIDv7.
+  migration_primary_key: [name: :id, type: :binary_id],
+  migration_foreign_key: [type: :binary_id]
 
 host_root = Path.expand("..", __DIR__)
 host_theme_root = Path.join(host_root, "theme")

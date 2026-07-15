@@ -92,7 +92,7 @@ defmodule GameServerWeb.AuthController do
 
   defp maybe_restore_browser_link_scope(conn, %{data: %{} = data}) do
     case Map.get(data, "link_user_id") || Map.get(data, :link_user_id) do
-      user_id when is_integer(user_id) ->
+      user_id when is_binary(user_id) ->
         case Accounts.get_user(user_id) do
           %User{} = user -> Plug.Conn.assign(conn, :current_scope, Scope.for_user(user))
           _ -> conn
@@ -176,7 +176,7 @@ defmodule GameServerWeb.AuthController do
     session = OAuthSessions.get_session(session_id)
     link_user_id = session && get_in(session.data, ["link_user_id"])
 
-    if is_integer(link_user_id) do
+    if is_binary(link_user_id) do
       # This is a linking flow
       case Accounts.get_user!(link_user_id) do
         user ->

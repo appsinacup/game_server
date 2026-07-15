@@ -281,7 +281,7 @@ defmodule GameServerWeb.AdminLive.Achievements do
               phx-submit="grant_achievement"
               phx-change="grant_validate"
             >
-              <.input field={@grant_form[:user_id]} type="number" label="User ID" />
+              <.input field={@grant_form[:user_id]} type="text" label="User ID" />
 
               <.input
                 field={@grant_form[:mode]}
@@ -312,7 +312,7 @@ defmodule GameServerWeb.AdminLive.Achievements do
 
   @impl true
   def handle_event("toggle_select", %{"id" => id}, socket) do
-    id = String.to_integer(to_string(id))
+    id = to_string(id)
     selected = socket.assigns[:selected_ids] || MapSet.new()
 
     selected =
@@ -413,7 +413,7 @@ defmodule GameServerWeb.AdminLive.Achievements do
   end
 
   def handle_event("edit_achievement", %{"id" => id}, socket) do
-    ach = Achievements.get_achievement(String.to_integer(id))
+    ach = Achievements.get_achievement(id)
 
     changeset = Achievements.change_achievement(ach)
     form = to_form(changeset, as: "achievement")
@@ -468,7 +468,7 @@ defmodule GameServerWeb.AdminLive.Achievements do
   end
 
   def handle_event("delete_achievement", %{"id" => id}, socket) do
-    case Achievements.get_achievement(String.to_integer(id)) do
+    case Achievements.get_achievement(id) do
       nil ->
         {:noreply, put_flash(socket, :error, "Achievement not found")}
 
@@ -487,7 +487,7 @@ defmodule GameServerWeb.AdminLive.Achievements do
   end
 
   def handle_event("grant_form", %{"id" => id}, socket) do
-    ach = Achievements.get_achievement(String.to_integer(id))
+    ach = Achievements.get_achievement(id)
     form = to_form(%{"user_id" => "", "mode" => "unlock", "amount" => "1"}, as: "grant")
 
     {:noreply,
@@ -512,8 +512,8 @@ defmodule GameServerWeb.AdminLive.Achievements do
     user_id_str = params["user_id"]
     mode = params["mode"] || "unlock"
 
-    case Integer.parse(user_id_str) do
-      {user_id, _} ->
+    case Ecto.UUID.cast(user_id_str) do
+      {:ok, user_id} ->
         result =
           if mode == "progress" do
             amount = String.to_integer(params["amount"] || "1")

@@ -141,7 +141,7 @@ defmodule GameServerWeb.Api.V1.HookControllerTest do
       assert log =~ ~s("plugin" => "test_plugin")
       assert log =~ ~s("fn" => "greet")
       assert log =~ ~s("args" => %{"count" => 0, "types" => []})
-      assert log =~ "user_id=#{id}"
+      assert log =~ "user_id=#{inspect(id)}"
       assert log =~ "args_count=0"
       refute log =~ "secret-value"
     after

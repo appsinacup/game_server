@@ -138,7 +138,7 @@ defmodule GameServerWeb.AdminLive.PaymentsTest do
     |> form("#admin-payment-provider-product-form",
       provider_product: %{
         "id" => "",
-        "product_id" => Integer.to_string(product.id),
+        "product_id" => to_string(product.id),
         "provider" => "stripe",
         "external_id" => external_id,
         "currency" => "USD",
@@ -240,8 +240,7 @@ defmodule GameServerWeb.AdminLive.PaymentsTest do
       Payments.create_provider_product(%{
         "product_id" => product.id,
         "provider" => provider,
-        "external_id" =>
-          external_id <> "_" <> Integer.to_string(System.unique_integer([:positive])),
+        "external_id" => external_id <> "_" <> to_string(System.unique_integer([:positive])),
         "currency" => "USD",
         "unit_amount" => 199
       })
@@ -264,8 +263,7 @@ defmodule GameServerWeb.AdminLive.PaymentsTest do
       Payments.create_provider_product(%{
         "product_id" => product.id,
         "provider" => provider,
-        "external_id" =>
-          external_id <> "_" <> Integer.to_string(System.unique_integer([:positive])),
+        "external_id" => external_id <> "_" <> to_string(System.unique_integer([:positive])),
         "currency" => "USD",
         "unit_amount" => 999
       })
@@ -277,4 +275,15 @@ defmodule GameServerWeb.AdminLive.PaymentsTest do
   defp restore_env(key, value), do: System.put_env(key, value)
   defp restore_app_env(key, nil), do: Application.delete_env(:game_server_core, key)
   defp restore_app_env(key, value), do: Application.put_env(:game_server_core, key, value)
+
+  test "admin opens provider SKU edit form via its UUID id", %{conn: conn, admin: admin} do
+    {_product, provider_product} = create_provider_product("stripe", "price_edit_form_test")
+
+    {:ok, view, _html} = conn |> log_in_user(admin) |> live(~p"/admin/payments")
+
+    html = render_click(view, "edit_provider_product", %{"id" => provider_product.id})
+
+    refute html =~ "Provider SKU not found"
+    assert html =~ "price_edit_form_test"
+  end
 end

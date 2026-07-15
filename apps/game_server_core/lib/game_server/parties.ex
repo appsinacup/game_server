@@ -60,13 +60,13 @@ defmodule GameServer.Parties do
   # ---------------------------------------------------------------------------
 
   @doc "Subscribe to events for a specific party."
-  @spec subscribe_party(integer()) :: :ok | {:error, term()}
+  @spec subscribe_party(String.t()) :: :ok | {:error, term()}
   def subscribe_party(party_id) do
     Phoenix.PubSub.subscribe(GameServer.PubSub, "party:#{party_id}")
   end
 
   @doc "Unsubscribe from a party's events."
-  @spec unsubscribe_party(integer()) :: :ok
+  @spec unsubscribe_party(String.t()) :: :ok
   def unsubscribe_party(party_id) do
     Phoenix.PubSub.unsubscribe(GameServer.PubSub, "party:#{party_id}")
   end
@@ -76,7 +76,7 @@ defmodule GameServer.Parties do
   end
 
   @doc "Broadcast a member presence event (online/offline) to a party's PubSub topic."
-  @spec broadcast_member_presence(integer(), tuple()) :: :ok | {:error, term()}
+  @spec broadcast_member_presence(String.t(), tuple()) :: :ok | {:error, term()}
   def broadcast_member_presence(party_id, event) do
     broadcast_party(party_id, event)
   end
@@ -87,11 +87,11 @@ defmodule GameServer.Parties do
 
   @party_invite_cache_ttl_ms 60_000
 
-  defp party_invite_cache_version(user_id) when is_integer(user_id) do
+  defp party_invite_cache_version(user_id) when is_binary(user_id) do
     GameServer.Cache.get!({:party_invites, :version, user_id}) || 1
   end
 
-  defp invalidate_party_invite_cache(user_id) when is_integer(user_id) do
+  defp invalidate_party_invite_cache(user_id) when is_binary(user_id) do
     _ = GameServer.Cache.incr({:party_invites, :version, user_id}, 1, default: 1)
     :ok
   end
@@ -187,12 +187,12 @@ defmodule GameServer.Parties do
   # ---------------------------------------------------------------------------
 
   @doc "Get a party by ID. Returns nil if not found."
-  @spec get_party(integer()) :: Party.t() | nil
-  def get_party(id) when is_integer(id), do: Repo.get(Party, id)
+  @spec get_party(String.t()) :: Party.t() | nil
+  def get_party(id), do: Repo.get_uuid(Party, id)
 
   @doc "Get a party by ID. Raises if not found."
-  @spec get_party!(integer()) :: Party.t()
-  def get_party!(id) when is_integer(id), do: Repo.get!(Party, id)
+  @spec get_party!(String.t()) :: Party.t()
+  def get_party!(id), do: Repo.get_uuid!(Party, id)
 
   @doc "Returns true if the given user is the leader of their current party."
   @spec leader?(User.t()) :: boolean()
@@ -206,10 +206,10 @@ defmodule GameServer.Parties do
   end
 
   @doc "Get all members of a party."
-  @spec get_party_members(Party.t() | integer()) :: [User.t()]
+  @spec get_party_members(Party.t() | String.t()) :: [User.t()]
   def get_party_members(%Party{id: party_id}), do: get_party_members(party_id)
 
-  def get_party_members(party_id) when is_integer(party_id) do
+  def get_party_members(party_id) when is_binary(party_id) do
     Repo.all(
       from u in User,
         where: u.party_id == ^party_id,
@@ -218,8 +218,8 @@ defmodule GameServer.Parties do
   end
 
   @doc "Count members in a party."
-  @spec count_party_members(integer()) :: non_neg_integer()
-  def count_party_members(party_id) when is_integer(party_id) do
+  @spec count_party_members(String.t()) :: non_neg_integer()
+  def count_party_members(party_id) when is_binary(party_id) do
     Repo.one(from u in User, where: u.party_id == ^party_id, select: count(u.id)) || 0
   end
 
@@ -233,7 +233,7 @@ defmodule GameServer.Parties do
   @spec get_user_party(User.t()) :: Party.t() | nil
   def get_user_party(%User{party_id: nil}), do: nil
 
-  def get_user_party(%User{party_id: party_id}) when is_integer(party_id) do
+  def get_user_party(%User{party_id: party_id}) when is_binary(party_id) do
     get_party(party_id)
   end
 
@@ -322,8 +322,8 @@ defmodule GameServer.Parties do
   Returns `{:error, :not_connected}` if the target is not a friend or shared group member.
   If a pending invite already exists, returns `{:ok, existing_invite}` (no-op).
   """
-  @spec invite_to_party(User.t(), integer()) :: {:ok, PartyInvite.t()} | {:error, atom()}
-  def invite_to_party(%User{} = leader, target_user_id) when is_integer(target_user_id) do
+  @spec invite_to_party(User.t(), String.t()) :: {:ok, PartyInvite.t()} | {:error, atom()}
+  def invite_to_party(%User{} = leader, target_user_id) when is_binary(target_user_id) do
     leader = Accounts.get_user(leader.id)
 
     with :ok <- check_in_party(leader),
@@ -396,8 +396,8 @@ defmodule GameServer.Parties do
   @doc """
   Cancel a previously sent party invite. Only the original sender (leader) can cancel.
   """
-  @spec cancel_party_invite(User.t(), integer()) :: :ok | {:error, atom()}
-  def cancel_party_invite(%User{} = leader, target_user_id) when is_integer(target_user_id) do
+  @spec cancel_party_invite(User.t(), String.t()) :: :ok | {:error, atom()}
+  def cancel_party_invite(%User{} = leader, target_user_id) when is_binary(target_user_id) do
     leader = Accounts.get_user(leader.id)
 
     with :ok <- check_in_party(leader),
@@ -446,8 +446,8 @@ defmodule GameServer.Parties do
 
   Returns `{:error, :no_invite}` if no pending invite exists for that party.
   """
-  @spec accept_party_invite(User.t(), integer()) :: {:ok, Party.t()} | {:error, atom()}
-  def accept_party_invite(%User{} = user, party_id) when is_integer(party_id) do
+  @spec accept_party_invite(User.t(), String.t()) :: {:ok, Party.t()} | {:error, atom()}
+  def accept_party_invite(%User{} = user, party_id) when is_binary(party_id) do
     user = Accounts.get_user(user.id)
 
     invite =
@@ -464,6 +464,7 @@ defmodule GameServer.Parties do
     else
       with {:ok, user} <- ensure_left_current_party(user),
            {:ok, party} <- fetch_party(party_id),
+           {:ok, _} <- GameServer.Hooks.internal_call(:before_party_join, [user, party]),
            {:ok, updated_user} <- do_join_party(user, party_id) do
         result = finalize_accept_invite(user, invite, party_id, party)
 
@@ -610,8 +611,8 @@ defmodule GameServer.Parties do
   @doc """
   Decline a party invite. Marks the invite as declined.
   """
-  @spec decline_party_invite(User.t(), integer()) :: :ok | {:error, atom()}
-  def decline_party_invite(%User{} = user, party_id) when is_integer(party_id) do
+  @spec decline_party_invite(User.t(), String.t()) :: :ok | {:error, atom()}
+  def decline_party_invite(%User{} = user, party_id) when is_binary(party_id) do
     user = Accounts.get_user(user.id)
 
     # Fetch sender_ids before updating so we can invalidate their caches
@@ -886,15 +887,16 @@ defmodule GameServer.Parties do
   @doc """
   Kick a member from the party. Only the leader can kick.
   """
-  @spec kick_member(User.t(), integer()) :: {:ok, User.t()} | {:error, term()}
-  def kick_member(%User{} = leader, target_user_id) when is_integer(target_user_id) do
+  @spec kick_member(User.t(), String.t()) :: {:ok, User.t()} | {:error, term()}
+  def kick_member(%User{} = leader, target_user_id) when is_binary(target_user_id) do
     leader = Accounts.get_user(leader.id)
 
     with :ok <- check_in_party(leader),
          {:ok, party} <- fetch_party(leader.party_id),
          :ok <- check_is_leader(party, leader),
          :ok <- check_not_self_kick(leader, target_user_id),
-         {:ok, target} <- fetch_kick_target(target_user_id, party) do
+         {:ok, target} <- fetch_kick_target(target_user_id, party),
+         {:ok, _} <- GameServer.Hooks.internal_call(:before_party_kick, [target, leader, party]) do
       case do_kick_member(target, party) do
         {:ok, _updated} = result ->
           GameServer.Async.run(fn ->
@@ -1314,8 +1316,8 @@ defmodule GameServer.Parties do
 
   The lobby must have enough free slots for the entire party.
   """
-  @spec join_lobby_with_party(User.t(), integer(), map()) :: {:ok, map()} | {:error, term()}
-  def join_lobby_with_party(%User{} = user, lobby_id, opts \\ %{}) when is_integer(lobby_id) do
+  @spec join_lobby_with_party(User.t(), String.t(), map()) :: {:ok, map()} | {:error, term()}
+  def join_lobby_with_party(%User{} = user, lobby_id, opts \\ %{}) when is_binary(lobby_id) do
     user = Accounts.get_user(user.id)
 
     with :ok <- check_in_party(user),
@@ -1512,7 +1514,7 @@ defmodule GameServer.Parties do
     end
   end
 
-  defp invalidate_user_cache(user_id) when is_integer(user_id) do
+  defp invalidate_user_cache(user_id) when is_binary(user_id) do
     # Synchronous invalidation — the client may join the party channel
     # immediately after a party operation (possibly via another app
     # instance), so the cached user must already be cleared everywhere.
@@ -1593,8 +1595,8 @@ defmodule GameServer.Parties do
   end
 
   @doc "Admin delete of a party. Clears all members' party_id and deletes the party."
-  @spec admin_delete_party(integer()) :: {:ok, Party.t()} | {:error, term()}
-  def admin_delete_party(party_id) when is_integer(party_id) do
+  @spec admin_delete_party(String.t()) :: {:ok, Party.t()} | {:error, term()}
+  def admin_delete_party(party_id) when is_binary(party_id) do
     case get_party(party_id) do
       nil ->
         {:error, :not_found}
@@ -1633,9 +1635,9 @@ defmodule GameServer.Parties do
   end
 
   defp maybe_filter_leader_id(query, %{"leader_id" => id}) when id not in ["", nil] do
-    case Integer.parse(to_string(id)) do
-      {lid, ""} -> where(query, [p], p.leader_id == ^lid)
-      _ -> query
+    case Ecto.UUID.cast(to_string(id)) do
+      {:ok, lid} -> where(query, [p], p.leader_id == ^lid)
+      :error -> query
     end
   end
 

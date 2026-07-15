@@ -31,7 +31,7 @@ defmodule GameServerWeb.Api.V1.UserController do
                items: %Schema{
                  type: :object,
                  properties: %{
-                   id: %Schema{type: :integer},
+                   id: %Schema{type: :string, format: :uuid},
                    display_name: %Schema{type: :string},
                    profile_url: %Schema{type: :string},
                    metadata: %Schema{
@@ -74,14 +74,14 @@ defmodule GameServerWeb.Api.V1.UserController do
   operation(:show,
     operation_id: "get_user",
     summary: "Get a user by id",
-    parameters: [id: [in: :path, schema: %Schema{type: :integer}, required: true]],
+    parameters: [id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true]],
     responses: [
       ok:
         {"User", "application/json",
          %Schema{
            type: :object,
            properties: %{
-             id: %Schema{type: :integer},
+             id: %Schema{type: :string, format: :uuid},
              display_name: %Schema{type: :string},
              profile_url: %Schema{type: :string},
              metadata: %Schema{
@@ -149,8 +149,8 @@ defmodule GameServerWeb.Api.V1.UserController do
   defp serialize_user(user) do
     User.serialize_brief(user)
     |> Map.merge(%{
-      lobby_id: user.lobby_id || -1,
-      party_id: user.party_id || -1
+      lobby_id: user.lobby_id || "",
+      party_id: user.party_id || ""
     })
   end
 end

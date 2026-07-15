@@ -7,7 +7,7 @@ defmodule GameServer.Repo.Migrations.CreateChatMessages do
       add :metadata, :map, default: %{}, null: false
       add :sender_id, references(:users, on_delete: :delete_all), null: false
       add :chat_type, :string, null: false
-      add :chat_ref_id, :integer, null: false
+      add :chat_ref_id, :binary_id, null: false
 
       timestamps(type: :utc_datetime)
     end
@@ -19,7 +19,7 @@ defmodule GameServer.Repo.Migrations.CreateChatMessages do
     create table(:chat_read_cursors) do
       add :user_id, references(:users, on_delete: :delete_all), null: false
       add :chat_type, :string, null: false
-      add :chat_ref_id, :integer, null: false
+      add :chat_ref_id, :binary_id, null: false
       add :last_read_message_id, references(:chat_messages, on_delete: :nilify_all)
 
       timestamps(type: :utc_datetime)

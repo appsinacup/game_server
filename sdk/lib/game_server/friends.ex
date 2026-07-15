@@ -33,12 +33,12 @@ defmodule GameServer.Friends do
   The actual implementation runs on the GameServer.
   """
 
-  @type user_id() :: integer()
+  @type user_id() :: String.t()
 
   @doc ~S"""
     Accept a friend request (only the target may accept). Returns {:ok, friendship}.
   """
-  @spec accept_friend_request(integer(), GameServer.Accounts.User.t()) ::
+  @spec accept_friend_request(String.t(), GameServer.Accounts.User.t()) ::
   {:ok, GameServer.Friends.Friendship.t()} | {:error, term()}
   def accept_friend_request(_friendship_id, _user) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -54,7 +54,7 @@ defmodule GameServer.Friends do
   @doc ~S"""
     Block an incoming request (only the target may block). Returns {:ok, friendship} with status "blocked".
   """
-  @spec block_friend_request(integer(), GameServer.Accounts.User.t()) ::
+  @spec block_friend_request(String.t(), GameServer.Accounts.User.t()) ::
   {:ok, GameServer.Friends.Friendship.t()} | {:error, term()}
   def block_friend_request(_friendship_id, _user) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -89,7 +89,7 @@ defmodule GameServer.Friends do
   @doc ~S"""
     Cancel an outgoing friend request (only the requester may cancel).
   """
-  @spec cancel_request(integer(), GameServer.Accounts.User.t()) ::
+  @spec cancel_request(String.t(), GameServer.Accounts.User.t()) ::
   {:ok, :cancelled} | {:error, :not_found | :not_authorized | term()}
   def cancel_request(_friendship_id, _user) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -235,7 +235,7 @@ defmodule GameServer.Friends do
   @doc ~S"""
     Get friendship by id (returns nil when not found)
   """
-  @spec get_friendship(integer()) :: GameServer.Friends.Friendship.t() | nil
+  @spec get_friendship(String.t()) :: GameServer.Friends.Friendship.t() | nil
   def get_friendship(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -250,7 +250,7 @@ defmodule GameServer.Friends do
   @doc ~S"""
     Get friendship by id
   """
-  @spec get_friendship!(integer()) :: GameServer.Friends.Friendship.t()
+  @spec get_friendship!(String.t()) :: GameServer.Friends.Friendship.t()
   def get_friendship!(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -302,7 +302,7 @@ defmodule GameServer.Friends do
     See `t:GameServer.Types.pagination_opts/0` for available options.
     
   """
-  @spec list_friends_for_user(integer()) :: [GameServer.Accounts.User.t()]
+  @spec list_friends_for_user(String.t()) :: [GameServer.Accounts.User.t()]
   def list_friends_for_user(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -322,7 +322,7 @@ defmodule GameServer.Friends do
     See `t:GameServer.Types.pagination_opts/0` for available options.
     
   """
-  @spec list_friends_for_user(integer(), GameServer.Types.pagination_opts()) :: [
+  @spec list_friends_for_user(String.t(), GameServer.Types.pagination_opts()) :: [
   GameServer.Accounts.User.t()
 ]
   def list_friends_for_user(_user_id, _opts) do
@@ -342,7 +342,7 @@ defmodule GameServer.Friends do
     Returns a list of maps: %{friendship_id: integer(), user: %User{}}
     
   """
-  @spec list_friends_with_friendship(integer()) :: [
+  @spec list_friends_with_friendship(String.t()) :: [
   %{friendship_id: integer(), user: GameServer.Accounts.User.t()}
 ]
   def list_friends_with_friendship(_user_id) do
@@ -362,7 +362,7 @@ defmodule GameServer.Friends do
     Returns a list of maps: %{friendship_id: integer(), user: %User{}}
     
   """
-  @spec list_friends_with_friendship(integer(), GameServer.Types.pagination_opts()) :: [
+  @spec list_friends_with_friendship(String.t(), GameServer.Types.pagination_opts()) :: [
   %{friendship_id: integer(), user: GameServer.Accounts.User.t()}
 ]
   def list_friends_with_friendship(_user_id, _opts) do
@@ -384,7 +384,7 @@ defmodule GameServer.Friends do
     See `t:GameServer.Types.pagination_opts/0` for available options.
     
   """
-  @spec list_incoming_requests(integer()) :: [GameServer.Friends.Friendship.t()]
+  @spec list_incoming_requests(String.t()) :: [GameServer.Friends.Friendship.t()]
   def list_incoming_requests(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -404,7 +404,7 @@ defmodule GameServer.Friends do
     See `t:GameServer.Types.pagination_opts/0` for available options.
     
   """
-  @spec list_incoming_requests(integer(), GameServer.Types.pagination_opts()) :: [
+  @spec list_incoming_requests(String.t(), GameServer.Types.pagination_opts()) :: [
   GameServer.Friends.Friendship.t()
 ]
   def list_incoming_requests(_user_id, _opts) do
@@ -426,7 +426,7 @@ defmodule GameServer.Friends do
     See `t:GameServer.Types.pagination_opts/0` for available options.
     
   """
-  @spec list_outgoing_requests(integer()) :: [GameServer.Friends.Friendship.t()]
+  @spec list_outgoing_requests(String.t()) :: [GameServer.Friends.Friendship.t()]
   def list_outgoing_requests(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -446,7 +446,7 @@ defmodule GameServer.Friends do
     See `t:GameServer.Types.pagination_opts/0` for available options.
     
   """
-  @spec list_outgoing_requests(integer(), GameServer.Types.pagination_opts()) :: [
+  @spec list_outgoing_requests(String.t(), GameServer.Types.pagination_opts()) :: [
   GameServer.Friends.Friendship.t()
 ]
   def list_outgoing_requests(_user_id, _opts) do
@@ -463,7 +463,7 @@ defmodule GameServer.Friends do
   @doc ~S"""
     Reject a friend request (only the target may reject). Returns {:ok, friendship}.
   """
-  @spec reject_friend_request(integer(), GameServer.Accounts.User.t()) ::
+  @spec reject_friend_request(String.t(), GameServer.Accounts.User.t()) ::
   {:ok, GameServer.Friends.Friendship.t()} | {:error, term()}
   def reject_friend_request(_friendship_id, _user) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -479,7 +479,8 @@ defmodule GameServer.Friends do
   @doc ~S"""
     Remove a friendship (either direction) - only participating users may call this.
   """
-  @spec remove_friend(integer(), integer()) :: {:ok, GameServer.Friends.Friendship.t()} | {:error, term()}
+  @spec remove_friend(String.t(), String.t()) ::
+  {:ok, GameServer.Friends.Friendship.t()} | {:error, term()}
   def remove_friend(_user_id, _friend_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -507,7 +508,7 @@ defmodule GameServer.Friends do
   @doc ~S"""
     Unblock a previously-blocked friendship (only the user who blocked may unblock). Returns {:ok, :unblocked} on success.
   """
-  @spec unblock_friendship(integer(), GameServer.Accounts.User.t()) ::
+  @spec unblock_friendship(String.t(), GameServer.Accounts.User.t()) ::
   {:ok, :unblocked} | {:error, term()}
   def unblock_friendship(_friendship_id, _user) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do

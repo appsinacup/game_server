@@ -74,8 +74,8 @@ defmodule GameServerWeb.UserChannel do
     # ensure the socket has a current_scope assign created during socket connect
     current_scope = Map.get(socket.assigns, :current_scope)
 
-    case Integer.parse(user_id_str) do
-      {user_id, ""} ->
+    case Ecto.UUID.cast(user_id_str) do
+      {:ok, user_id} ->
         case current_scope do
           %Scope{user: %User{id: ^user_id} = scoped_user} ->
             user = Accounts.get_user(user_id) || scoped_user
@@ -132,8 +132,8 @@ defmodule GameServerWeb.UserChannel do
   @impl true
   def handle_in("kv:subscribe", %{"key" => key} = payload, socket) when is_binary(key) do
     with :ok <- check_ws_rate_limit(socket) do
-      user_id = parse_optional_int(Map.get(payload, "user_id"))
-      lobby_id = parse_optional_int(Map.get(payload, "lobby_id"))
+      user_id = parse_optional_id(Map.get(payload, "user_id"))
+      lobby_id = parse_optional_id(Map.get(payload, "lobby_id"))
 
       if kv_read_allowed?(socket, key, user_id, lobby_id) do
         :ok = KV.subscribe(key, user_id: user_id, lobby_id: lobby_id)
@@ -154,8 +154,8 @@ defmodule GameServerWeb.UserChannel do
   @impl true
   def handle_in("kv:unsubscribe", %{"key" => key} = payload, socket) when is_binary(key) do
     with :ok <- check_ws_rate_limit(socket) do
-      user_id = parse_optional_int(Map.get(payload, "user_id"))
-      lobby_id = parse_optional_int(Map.get(payload, "lobby_id"))
+      user_id = parse_optional_id(Map.get(payload, "user_id"))
+      lobby_id = parse_optional_id(Map.get(payload, "lobby_id"))
 
       :ok = KV.unsubscribe(key, user_id: user_id, lobby_id: lobby_id)
 
@@ -254,7 +254,7 @@ defmodule GameServerWeb.UserChannel do
     if is_nil(user_id) do
       {:noreply, socket}
     else
-      key = Integer.to_string(user_id)
+      key = to_string(user_id)
       last_friend_payloads = Map.get(socket.assigns, :last_friend_payloads, %{})
       last_payload = Map.get(last_friend_payloads, key)
       payload = preserve_friendship_id(last_payload, payload)
@@ -519,7 +519,7 @@ defmodule GameServerWeb.UserChannel do
       |> Friends.list_friends_with_friendship(page: 1, page_size: 1000)
       |> Map.new(fn friendship ->
         payload = serialize_friend_update(friendship)
-        {Integer.to_string(payload.user_id), payload}
+        {to_string(payload.user_id), payload}
       end)
 
     push(socket, "friend_updated", %{friends: friend_payloads})
@@ -630,29 +630,19 @@ defmodule GameServerWeb.UserChannel do
   defp kv_access_allowed?(_access, _caller, _user_id, _lobby_id), do: false
 
   defp caller_owns?(%Scope{user: %{id: caller_id}}, user_id),
-    do: is_integer(user_id) and caller_id == user_id
+    do: is_binary(user_id) and caller_id == user_id
 
   defp caller_owns?(_caller, _user_id), do: false
 
   defp caller_in_lobby?(%Scope{user: %{lobby_id: caller_lobby_id}}, lobby_id),
-    do: is_integer(lobby_id) and caller_lobby_id == lobby_id
+    do: is_binary(lobby_id) and caller_lobby_id == lobby_id
 
   defp caller_in_lobby?(_caller, _lobby_id), do: false
 
   defp caller_admin?(%Scope{user: %{is_admin: true}}), do: true
   defp caller_admin?(_caller), do: false
 
-  defp parse_optional_int(nil), do: nil
-  defp parse_optional_int(value) when is_integer(value), do: value
-
-  defp parse_optional_int(value) when is_binary(value) do
-    case Integer.parse(value) do
-      {int, _rest} -> int
-      _ -> nil
-    end
-  end
-
-  defp parse_optional_int(_value), do: nil
+  defp parse_optional_id(value), do: GameServer.UUIDv7.cast_or_nil(value)
 
   # Broadcast member_online/member_offline to the user's current lobby, party, and group channels.
   defp broadcast_member_presence(user_id, online?) do

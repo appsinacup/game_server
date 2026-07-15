@@ -139,6 +139,65 @@ defmodule GameServerWeb.AdminLive.LobbiesTest do
     assert updated_html =~ "Admin Updated"
   end
 
+  test "admin creates a lobby with a host id submitted as form text", %{conn: conn} do
+    user = AccountsFixtures.user_fixture()
+
+    {:ok, admin} =
+      user
+      |> User.admin_changeset(%{"is_admin" => true})
+      |> Repo.update()
+
+    host = AccountsFixtures.user_fixture()
+
+    {:ok, view, _html} = conn |> log_in_user(admin) |> live(~p"/admin/lobbies")
+
+    view |> element(~S(button[phx-click="show_create"])) |> render_click()
+
+    view
+    |> form("#lobby-create-form", %{
+      "lobby" => %{"title" => "form-created-lobby", "max_users" => "8", "host_id" => host.id}
+    })
+    |> render_submit()
+
+    lobby = Repo.get_by(GameServer.Lobbies.Lobby, title: "form-created-lobby")
+    assert lobby
+    assert lobby.host_id == host.id
+    assert lobby.max_users == 8
+  end
+
+  test "admin adds a lobby member by user id and rejects non-UUID input", %{conn: conn} do
+    user = AccountsFixtures.user_fixture()
+
+    {:ok, admin} =
+      user
+      |> User.admin_changeset(%{"is_admin" => true})
+      |> Repo.update()
+
+    member = AccountsFixtures.user_fixture()
+
+    {:ok, lobby} =
+      GameServer.Lobbies.create_lobby(%{
+        title: "members-lobby",
+        name: "members-lobby",
+        hostless: true
+      })
+
+    {:ok, view, _html} = conn |> log_in_user(admin) |> live(~p"/admin/lobbies")
+
+    render_click(view, "view_members", %{"id" => lobby.id})
+    render_click(view, "update_add_member_id", %{"value" => member.id})
+    render_click(view, "add_member", %{})
+
+    members = GameServer.Lobbies.list_memberships_for_lobby(lobby.id)
+    assert Enum.any?(members, &(&1.id == member.id))
+
+    # garbage input must not add anyone (and must not crash the LiveView)
+    render_click(view, "update_add_member_id", %{"value" => "12345"})
+    render_click(view, "add_member", %{})
+
+    assert length(GameServer.Lobbies.list_memberships_for_lobby(lobby.id)) == length(members)
+  end
+
   test "admin deletion removes the lobby from admin lobbies view", %{conn: conn} do
     user = AccountsFixtures.user_fixture()
 

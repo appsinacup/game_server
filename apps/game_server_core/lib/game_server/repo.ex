@@ -13,6 +13,17 @@ defmodule GameServer.Repo do
     otp_app: :game_server_core,
     adapter: @adapter
 
+  # All tables use UUID (v7) primary/foreign keys — see GameServer.UUIDv7.
+  # Set here (not only in config files) so host repos that configure the Repo
+  # themselves still get binary_id migrations.
+  @impl true
+  def init(_type, config) do
+    {:ok,
+     config
+     |> Keyword.put_new(:migration_primary_key, name: :id, type: :binary_id)
+     |> Keyword.put_new(:migration_foreign_key, type: :binary_id)}
+  end
+
   @doc ~S"""
   Escapes `LIKE` wildcards (`%`, `_`) and the escape character (`\`) in
   user-supplied search input so it matches literally.
@@ -28,5 +39,31 @@ defmodule GameServer.Repo do
     |> String.replace("\\", "\\\\")
     |> String.replace("%", "\\%")
     |> String.replace("_", "\\_")
+  end
+
+  @doc """
+  Like `get/3`, but returns `nil` (instead of raising `Ecto.Query.CastError`)
+  when `id` is not a valid UUID. Use for lookups whose id comes from external
+  input (URL params, channel payloads, hook args).
+  """
+  @spec get_uuid(Ecto.Queryable.t(), term(), Keyword.t()) :: Ecto.Schema.t() | nil
+  def get_uuid(queryable, id, opts \\ []) do
+    case Ecto.UUID.cast(id) do
+      {:ok, uuid} -> get(queryable, uuid, opts)
+      :error -> nil
+    end
+  end
+
+  @doc """
+  Like `get!/3`, but raises `Ecto.NoResultsError` (instead of
+  `Ecto.Query.CastError`) when `id` is not a valid UUID, so invalid ids from
+  external input surface as 404s rather than 400s.
+  """
+  @spec get_uuid!(Ecto.Queryable.t(), term(), Keyword.t()) :: Ecto.Schema.t()
+  def get_uuid!(queryable, id, opts \\ []) do
+    case Ecto.UUID.cast(id) do
+      {:ok, uuid} -> get!(queryable, uuid, opts)
+      :error -> raise Ecto.NoResultsError, queryable: queryable
+    end
   end
 end

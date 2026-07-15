@@ -12,7 +12,7 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
   @leaderboard_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :integer, description: "Leaderboard ID"},
+      id: %Schema{type: :string, format: :uuid, description: "Leaderboard ID"},
       slug: %Schema{
         type: :string,
         description: "Human-readable identifier (reusable across seasons)"
@@ -37,7 +37,7 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
       updated_at: %Schema{type: :string, format: "date-time"}
     },
     example: %{
-      id: 1,
+      id: "0198c0de-0001-7000-8000-000000000001",
       slug: "weekly_kills",
       title: "Weekly Kills",
       description: "Get the most kills this week!",
@@ -70,7 +70,7 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
     },
     example: %{
       rank: 1,
-      user_id: 123,
+      user_id: "0198c0de-0002-7000-8000-000000000002",
       display_name: "ProGamer123",
       score: 5000,
       metadata: %{weapon: "sword"},
@@ -225,7 +225,7 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
   )
 
   def show(conn, %{"id" => id}) do
-    case Leaderboards.get_leaderboard(parse_int(id, 0)) do
+    case Leaderboards.get_leaderboard(to_string(id)) do
       nil ->
         conn
         |> put_status(:not_found)
@@ -280,7 +280,7 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
            example: %{
              data: %{
                "weekly_kills" => %{
-                 id: 1,
+                 id: "0198c0de-0001-7000-8000-000000000001",
                  slug: "weekly_kills",
                  title: "Weekly Kills",
                  is_active: true
@@ -350,7 +350,7 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
   )
 
   def records(conn, %{"id" => id} = params) do
-    case Leaderboards.get_leaderboard(parse_int(id, 0)) do
+    case Leaderboards.get_leaderboard(to_string(id)) do
       nil ->
         conn
         |> put_status(:not_found)
@@ -420,10 +420,10 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
   )
 
   def around(conn, %{"id" => id, "user_id" => user_id_str} = params) do
-    user_id = parse_int(user_id_str, 0)
+    user_id = GameServer.UUIDv7.cast_or_nil(user_id_str)
     limit = parse_int(params["limit"], 11)
 
-    case Leaderboards.get_leaderboard(parse_int(id, 0)) do
+    case Leaderboards.get_leaderboard(to_string(id)) do
       nil ->
         conn
         |> put_status(:not_found)
@@ -471,7 +471,7 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
   def me(conn, %{"id" => id}) do
     user_id = conn.assigns.current_scope.user.id
 
-    case Leaderboards.get_leaderboard(parse_int(id, 0)) do
+    case Leaderboards.get_leaderboard(to_string(id)) do
       nil ->
         conn
         |> put_status(:not_found)
@@ -521,7 +521,7 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
 
     if record.label do
       Map.merge(base, %{
-        user_id: -1,
+        user_id: "",
         display_name: record.label
       })
     else

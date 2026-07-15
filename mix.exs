@@ -88,12 +88,8 @@ defmodule GameServerHost.MixProject do
       "prod.start": ["assets.deploy", "db.setup", "phx.server"],
       "db.migrate": ["host.migrate -r GameServer.Repo"],
       "db.rollback": ["host.rollback -r GameServer.Repo"],
-      "db.setup": [
-        "ecto.create -r GameServer.Repo",
-        "db.migrate",
-        "run --if-present priv/repo/seeds.exs"
-      ],
-      "db.reset": ["ecto.drop -r GameServer.Repo", "db.setup"],
+      "db.setup": ["host.db.setup"],
+      "db.reset": ["host.db.reset"],
       test:
         [
           "ecto.create --quiet -r GameServer.Repo",

@@ -10,7 +10,7 @@ defmodule GameServer.Groups.GroupMember do
     join requests, promote/demote members
   - `"member"` – regular participant
   """
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Changeset
 
   alias GameServer.Accounts.User
