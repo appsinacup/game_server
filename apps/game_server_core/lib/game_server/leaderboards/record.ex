@@ -9,7 +9,7 @@ defmodule GameServer.Leaderboards.Record do
   - User-based: `user_id` is set, `label` is nil. Uniqueness on `(leaderboard_id, user_id)`.
   - Label-based: `label` is set, `user_id` is nil. Uniqueness on `(leaderboard_id, label)`.
   """
-  use Ecto.Schema
+  use GameServer.Schema
 
   @type t :: %__MODULE__{}
   import Ecto.Changeset

@@ -20,7 +20,7 @@ defmodule GameServer.Leaderboards.Leaderboard do
   - `:incr` — Add to existing score
   - `:decr` — Subtract from existing score
   """
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Changeset
 
   @type t :: %__MODULE__{}

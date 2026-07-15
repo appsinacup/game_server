@@ -9,11 +9,16 @@ defmodule GameServerWeb.AchievementsLive do
 
   alias GameServer.Achievements
   alias GameServer.Achievements.Achievement
+  alias GameServerWeb.Plugs.FeatureGate
 
   @page_size 100
 
   @impl true
   def mount(_params, _session, socket) do
+    unless FeatureGate.enabled?("LIST_ACHIEVEMENTS_ENABLED", true) do
+      raise GameServerWeb.NotFoundError
+    end
+
     user = get_user(socket)
 
     if connected?(socket) do

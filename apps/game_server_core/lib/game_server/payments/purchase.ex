@@ -3,7 +3,7 @@ defmodule GameServer.Payments.Purchase do
   Provider transaction record.
   """
 
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Changeset
 
   @type t :: %__MODULE__{}

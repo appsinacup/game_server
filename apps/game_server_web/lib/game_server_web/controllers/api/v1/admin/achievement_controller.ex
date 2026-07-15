@@ -12,7 +12,7 @@ defmodule GameServerWeb.Api.V1.Admin.AchievementController do
   @achievement_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :integer},
+      id: %Schema{type: :string, format: :uuid},
       slug: %Schema{type: :string},
       title: %Schema{type: :string},
       description: %Schema{type: :string},
@@ -126,7 +126,7 @@ defmodule GameServerWeb.Api.V1.Admin.AchievementController do
     summary: "Update achievement (admin)",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, required: true]
+      id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true]
     ],
     request_body:
       {"Achievement", "application/json",
@@ -184,7 +184,7 @@ defmodule GameServerWeb.Api.V1.Admin.AchievementController do
     summary: "Delete achievement (admin)",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, required: true]
+      id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true]
     ],
     responses: %{
       200 => {"Deleted", "application/json", %Schema{type: :object}},
@@ -222,7 +222,7 @@ defmodule GameServerWeb.Api.V1.Admin.AchievementController do
        %Schema{
          type: :object,
          properties: %{
-           user_id: %Schema{type: :integer},
+           user_id: %Schema{type: :string, format: :uuid},
            slug: %Schema{type: :string}
          },
          required: [:user_id, :slug]
@@ -273,8 +273,8 @@ defmodule GameServerWeb.Api.V1.Admin.AchievementController do
        %Schema{
          type: :object,
          properties: %{
-           user_id: %Schema{type: :integer},
-           achievement_id: %Schema{type: :integer}
+           user_id: %Schema{type: :string, format: :uuid},
+           achievement_id: %Schema{type: :string, format: :uuid}
          },
          required: [:user_id, :achievement_id]
        }},
@@ -309,7 +309,7 @@ defmodule GameServerWeb.Api.V1.Admin.AchievementController do
        %Schema{
          type: :object,
          properties: %{
-           user_id: %Schema{type: :integer},
+           user_id: %Schema{type: :string, format: :uuid},
            slug: %Schema{type: :string}
          },
          required: [:user_id, :slug]
@@ -360,7 +360,7 @@ defmodule GameServerWeb.Api.V1.Admin.AchievementController do
        %Schema{
          type: :object,
          properties: %{
-           user_id: %Schema{type: :integer},
+           user_id: %Schema{type: :string, format: :uuid},
            slug: %Schema{type: :string},
            amount: %Schema{type: :integer, minimum: 1}
          },
@@ -421,16 +421,7 @@ defmodule GameServerWeb.Api.V1.Admin.AchievementController do
     Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
   end
 
-  defp parse_id(val) when is_integer(val), do: val
-
-  defp parse_id(val) when is_binary(val) do
-    case Integer.parse(val) do
-      {int, ""} -> int
-      _ -> nil
-    end
-  end
-
-  defp parse_id(_), do: nil
+  defp parse_id(val), do: GameServer.UUIDv7.cast_or_nil(val)
 
   defp parse_int(nil, default), do: default
   defp parse_int(val, _default) when is_integer(val), do: val

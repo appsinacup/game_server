@@ -22,7 +22,7 @@ defmodule GameServerWeb.UserChannelTest do
 
     assert_push "updated", initial_payload
     assert initial_payload.id == user.id
-    assert initial_payload.lobby_id == -1
+    assert initial_payload.lobby_id == ""
 
     {:ok, lobby} = GameServer.Lobbies.create_lobby(%{title: "user-updates-room", hostless: true})
 
@@ -33,7 +33,7 @@ defmodule GameServerWeb.UserChannelTest do
     assert payload.u.lobby_id == lobby.id
   end
 
-  test "user channel receives updated event when leaving sets lobby_id to -1" do
+  test "user channel receives updated event when leaving clears lobby_id" do
     user = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
     {:ok, token, _claims} = Guardian.encode_and_sign(user)
 
@@ -42,7 +42,7 @@ defmodule GameServerWeb.UserChannelTest do
 
     assert_push "updated", initial_payload
     assert initial_payload.id == user.id
-    assert initial_payload.lobby_id == -1
+    assert initial_payload.lobby_id == ""
 
     {:ok, lobby} =
       GameServer.Lobbies.create_lobby(%{title: "user-updates-leave-room", hostless: true})
@@ -57,7 +57,7 @@ defmodule GameServerWeb.UserChannelTest do
 
     assert_push "updated", left_payload
     assert left_payload.id == user.id
-    assert left_payload.u.lobby_id == -1
+    assert left_payload.u.lobby_id == ""
   end
 
   test "join allowed for owner and receives broadcasts" do
@@ -93,7 +93,7 @@ defmodule GameServerWeb.UserChannelTest do
       GameServer.Accounts.update_user(user, %{
         metadata: %{
           "word_match" => %{
-            Integer.to_string(user.id) => %{"points" => 10, "streak" => 2}
+            to_string(user.id) => %{"points" => 10, "streak" => 2}
           },
           "invalid_until" => 500
         }
@@ -111,7 +111,7 @@ defmodule GameServerWeb.UserChannelTest do
       GameServer.Accounts.update_user(user, %{
         metadata: %{
           "word_match" => %{
-            Integer.to_string(user.id) => %{"points" => 12, "streak" => 3}
+            to_string(user.id) => %{"points" => 12, "streak" => 3}
           }
         }
       })
@@ -121,7 +121,7 @@ defmodule GameServerWeb.UserChannelTest do
 
     assert payload.u.metadata == %{
              "word_match" => %{
-               Integer.to_string(user.id) => %{"points" => 12, "streak" => 3}
+               to_string(user.id) => %{"points" => 12, "streak" => 3}
              }
            }
 
@@ -349,7 +349,7 @@ defmodule GameServerWeb.UserChannelTest do
 
     assert_push "updated", _b_initial
     assert_push "friend_updated", b_initial_friends
-    assert b_initial_friends.friends[Integer.to_string(a.id)].is_online == false
+    assert b_initial_friends.friends[to_string(a.id)].is_online == false
 
     # User a joins — triggers set_user_online + friend_updated broadcast
     {:ok, token_a, _} = Guardian.encode_and_sign(a)
@@ -362,7 +362,7 @@ defmodule GameServerWeb.UserChannelTest do
     assert a_payload.is_online == true
 
     assert_push "friend_updated", friend_payload
-    assert friend_payload.friends[Integer.to_string(a.id)].u.is_online == true
+    assert friend_payload.friends[to_string(a.id)].u.is_online == true
     refute_push "friend_online", _, 100
 
     # Verify DB state
@@ -384,7 +384,7 @@ defmodule GameServerWeb.UserChannelTest do
 
     assert_push "updated", _b_initial
     assert_push "friend_updated", b_initial_friends
-    assert b_initial_friends.friends[Integer.to_string(a.id)].is_online == false
+    assert b_initial_friends.friends[to_string(a.id)].is_online == false
 
     {:ok, token_a, _} = Guardian.encode_and_sign(a)
     {:ok, socket_a} = connect(GameServerWeb.UserSocket, %{"token" => token_a})
@@ -393,7 +393,7 @@ defmodule GameServerWeb.UserChannelTest do
     assert_push "updated", %{id: a_id, is_online: true}
     assert a_id == a.id
 
-    friend_key = Integer.to_string(a.id)
+    friend_key = to_string(a.id)
 
     assert_receive %Phoenix.Socket.Message{
                      event: "friend_updated",
@@ -439,7 +439,7 @@ defmodule GameServerWeb.UserChannelTest do
     assert_push "friend_updated", payload
 
     assert [friend_key] = Map.keys(payload.friends)
-    assert friend_key == Integer.to_string(friend.id)
+    assert friend_key == to_string(friend.id)
     friend_payload = payload.friends[friend_key]
     assert friend_payload.user_id == friend.id
     assert friend_payload.friendship_id == accepted.id
@@ -449,7 +449,7 @@ defmodule GameServerWeb.UserChannelTest do
              "map_city_id" => "sighetu-marmatiei"
            }
 
-    refute Map.has_key?(payload.friends, Integer.to_string(pending.id))
+    refute Map.has_key?(payload.friends, to_string(pending.id))
   end
 
   test "user channel broadcasts friend_updated to accepted friends" do
@@ -472,7 +472,7 @@ defmodule GameServerWeb.UserChannelTest do
       })
 
     assert_push "friend_updated", payload, 1000
-    friend_payload = payload.friends[Integer.to_string(a.id)]
+    friend_payload = payload.friends[to_string(a.id)]
 
     refute Map.has_key?(friend_payload, :r)
 
@@ -593,13 +593,13 @@ defmodule GameServerWeb.UserChannelTest do
 
     assert_push "updated", _b_initial
     assert_push "friend_updated", b_initial_friends
-    assert b_initial_friends.friends[Integer.to_string(a.id)].is_online == true
+    assert b_initial_friends.friends[to_string(a.id)].is_online == true
 
     # Delete user a
     {:ok, _} = GameServer.Accounts.delete_user(a)
 
     assert_push "friend_updated", payload, 1000
-    assert payload.friends[Integer.to_string(a.id)].u.is_online == false
+    assert payload.friends[to_string(a.id)].u.is_online == false
     refute_push "friend_offline", _, 100
   end
 end

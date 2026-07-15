@@ -24,7 +24,7 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     resp = json_response(conn, 200)
     lobbies = resp["data"]
     assert Enum.any?(lobbies, fn l -> l["id"] == lobby1.id end)
-    assert Enum.any?(lobbies, fn l -> l["id"] == hostless_visible.id and l["host_id"] == -1 end)
+    assert Enum.any?(lobbies, fn l -> l["id"] == hostless_visible.id and l["host_id"] == "" end)
     # display name fields are present in serialized lobbies
     assert Enum.all?(lobbies, fn l -> Map.has_key?(l, "host_name") end)
     # ensure serializer includes is_passworded flag

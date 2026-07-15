@@ -14,10 +14,10 @@ defmodule GameServerWeb.Api.V1.Admin.NotificationController do
   @notification_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :integer, description: "Notification ID"},
-      sender_id: %Schema{type: :integer, description: "User ID of the sender"},
+      id: %Schema{type: :string, format: :uuid, description: "Notification ID"},
+      sender_id: %Schema{type: :string, format: :uuid, description: "User ID of the sender"},
       sender_name: %Schema{type: :string, description: "Display name of the sender"},
-      recipient_id: %Schema{type: :integer, description: "User ID of the recipient"},
+      recipient_id: %Schema{type: :string, format: :uuid, description: "User ID of the recipient"},
       title: %Schema{type: :string, description: "Notification title"},
       content: %Schema{type: :string, description: "Notification body text", nullable: true},
       metadata: %Schema{type: :object, description: "Arbitrary metadata"},
@@ -106,8 +106,8 @@ defmodule GameServerWeb.Api.V1.Admin.NotificationController do
       %Schema{
         type: :object,
         properties: %{
-          sender_id: %Schema{type: :integer, description: "Sender user ID"},
-          recipient_id: %Schema{type: :integer, description: "Recipient user ID"},
+          sender_id: %Schema{type: :string, format: :uuid, description: "Sender user ID"},
+          recipient_id: %Schema{type: :string, format: :uuid, description: "Recipient user ID"},
           title: %Schema{type: :string, description: "Notification title (required)"},
           content: %Schema{
             type: :string,
@@ -136,7 +136,11 @@ defmodule GameServerWeb.Api.V1.Admin.NotificationController do
     description: "Delete a notification by ID (no ownership check).",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Notification ID"]
+      id: [
+        in: :path,
+        schema: %Schema{type: :string, format: :uuid},
+        description: "Notification ID"
+      ]
     ],
     responses: [
       ok: {"Deleted", "application/json", %Schema{type: :object}},

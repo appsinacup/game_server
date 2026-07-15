@@ -650,7 +650,8 @@ defmodule GameServer.PartiesTest do
       add_member_to_party(member1, party)
       set_all_online([leader, member1])
 
-      assert {:error, :invalid_lobby} = Parties.join_lobby_with_party(leader, 999_999)
+      assert {:error, :invalid_lobby} =
+               Parties.join_lobby_with_party(leader, Ecto.UUID.generate())
     end
 
     test "fails with wrong password", %{leader: leader, member1: member1} do

@@ -34,7 +34,7 @@ defmodule GameServer.RetentionTest do
         sender_id: a.id,
         content: "old",
         chat_type: "lobby",
-        chat_ref_id: 1
+        chat_ref_id: Ecto.UUID.generate()
       })
 
     fresh =
@@ -42,7 +42,7 @@ defmodule GameServer.RetentionTest do
         sender_id: a.id,
         content: "fresh",
         chat_type: "lobby",
-        chat_ref_id: 1
+        chat_ref_id: Ecto.UUID.generate()
       })
 
     backdate(GameServer.Chat.Message, old.id, 31)
@@ -64,7 +64,7 @@ defmodule GameServer.RetentionTest do
         sender_id: a.id,
         content: "old",
         chat_type: "lobby",
-        chat_ref_id: 1
+        chat_ref_id: Ecto.UUID.generate()
       })
 
     backdate(GameServer.Chat.Message, old.id, 400)

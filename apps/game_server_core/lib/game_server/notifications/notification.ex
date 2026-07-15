@@ -11,7 +11,7 @@ defmodule GameServer.Notifications.Notification do
   - `content` – optional longer body text
   - `metadata` – optional arbitrary key/value map
   """
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Changeset
 
   alias GameServer.Accounts.User

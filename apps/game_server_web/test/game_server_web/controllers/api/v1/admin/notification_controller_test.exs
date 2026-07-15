@@ -267,7 +267,7 @@ defmodule GameServerWeb.Api.V1.Admin.NotificationControllerTest do
     resp =
       conn
       |> bearer_conn(admin)
-      |> delete("/api/v1/admin/notifications/999999")
+      |> delete("/api/v1/admin/notifications/00000000-0000-0000-0000-000000000000")
       |> json_response(404)
 
     assert resp["error"] == "not_found"

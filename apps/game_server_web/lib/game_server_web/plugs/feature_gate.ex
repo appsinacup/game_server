@@ -32,7 +32,8 @@ defmodule GameServerWeb.Plugs.FeatureGate do
     end
   end
 
-  defp enabled?(env_var, default) do
+  @doc "Returns whether the feature controlled by `env_var` is enabled."
+  def enabled?(env_var, default) do
     case System.get_env(env_var) do
       nil -> default
       val -> val not in ["false", "0", "no"]

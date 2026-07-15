@@ -128,7 +128,7 @@ defmodule GameServerWeb.LobbyLive.Index do
   end
 
   def handle_event("join_lobby", %{"id" => id}, socket) do
-    case Lobbies.get_lobby(String.to_integer(id)) do
+    case Lobbies.get_lobby(id) do
       lobby when lobby != nil ->
         if lobby.password_hash != nil do
           {:noreply, assign(socket, joining_lobby_id: lobby.id, join_password: "")}
@@ -145,7 +145,7 @@ defmodule GameServerWeb.LobbyLive.Index do
   def handle_event("confirm_join", %{"_id" => id, "password" => password}, socket) do
     case socket.assigns.current_scope do
       %{user: user} when user != nil ->
-        confirm_lobby_join(socket, user, String.to_integer(id), password)
+        confirm_lobby_join(socket, user, id, password)
 
       _ ->
         {:noreply, push_navigate(socket, to: ~p"/users/log-in")}
@@ -182,8 +182,7 @@ defmodule GameServerWeb.LobbyLive.Index do
   end
 
   def handle_event("start_manage", %{"id" => id}, socket) do
-    lobby_id = if is_binary(id), do: String.to_integer(id), else: id
-    lobby = Lobbies.get_lobby(lobby_id)
+    lobby = Lobbies.get_lobby(id)
 
     edit_attrs = %{
       "title" => lobby.title || "",
@@ -215,7 +214,6 @@ defmodule GameServerWeb.LobbyLive.Index do
     case socket.assigns.current_scope do
       %{user: user} when user != nil ->
         id = params["_id"] || params["id"]
-        id = if is_binary(id), do: String.to_integer(id), else: id
         lobby = Lobbies.get_lobby(id)
 
         attrs = %{}
@@ -291,7 +289,6 @@ defmodule GameServerWeb.LobbyLive.Index do
   def handle_event("kick", %{"lobby_id" => lobby_id, "target_id" => target_id}, socket) do
     case socket.assigns.current_scope do
       %{user: user} when user != nil ->
-        lobby_id = if is_binary(lobby_id), do: String.to_integer(lobby_id), else: lobby_id
         lobby = Lobbies.get_lobby(lobby_id)
         target = GameServer.Accounts.get_user!(target_id)
 
@@ -464,15 +461,7 @@ defmodule GameServerWeb.LobbyLive.Index do
     end
   end
 
-  defp parse_int(v) when is_integer(v), do: {:ok, v}
-
-  defp parse_int(v) when is_binary(v) do
-    case Integer.parse(v) do
-      {int, ""} -> {:ok, int}
-      _ -> :error
-    end
-  end
-
+  defp parse_int(v) when is_binary(v), do: Ecto.UUID.cast(v)
   defp parse_int(_), do: :error
 
   # PubSub handlers for real-time updates

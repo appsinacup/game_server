@@ -26,6 +26,6 @@ defmodule GameServerWeb.Api.V1.Admin.LeaderboardsAdminControllerTest do
       })
 
     assert %{"data" => %{"id" => id, "slug" => "admin_test_lb"}} = json_response(conn, 200)
-    assert is_integer(id)
+    assert is_binary(id)
   end
 end

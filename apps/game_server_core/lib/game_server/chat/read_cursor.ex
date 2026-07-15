@@ -7,7 +7,7 @@ defmodule GameServer.Chat.ReadCursor do
   one cursor per user per conversation.
   """
 
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Changeset
 
   alias GameServer.Accounts.User
@@ -29,7 +29,7 @@ defmodule GameServer.Chat.ReadCursor do
 
   schema "chat_read_cursors" do
     field :chat_type, :string
-    field :chat_ref_id, :integer
+    field :chat_ref_id, GameServer.UUIDv7
 
     belongs_to :user, User
     belongs_to :last_read_message, Message

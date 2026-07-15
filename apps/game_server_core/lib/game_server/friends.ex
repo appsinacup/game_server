@@ -40,28 +40,28 @@ defmodule GameServer.Friends do
   @friends_cache_ttl_ms 60_000
   @friendships_cache_ttl_ms 60_000
 
-  @type user_id :: integer()
+  @type user_id :: String.t()
 
-  defp friends_cache_version(user_id) when is_integer(user_id) do
+  defp friends_cache_version(user_id) when is_binary(user_id) do
     GameServer.Cache.get!({:friends, :version, user_id}) || 1
   end
 
-  defp invalidate_friends_cache(user_id) when is_integer(user_id) do
+  defp invalidate_friends_cache(user_id) when is_binary(user_id) do
     _ = GameServer.Cache.incr({:friends, :version, user_id}, 1, default: 1)
     :ok
   end
 
-  defp invalidate_friends_cache_pair(a, b) when is_integer(a) and is_integer(b) do
+  defp invalidate_friends_cache_pair(a, b) when is_binary(a) and is_binary(b) do
     _ = invalidate_friends_cache(a)
     _ = invalidate_friends_cache(b)
     :ok
   end
 
-  defp friendship_cache_version(friendship_id) when is_integer(friendship_id) do
+  defp friendship_cache_version(friendship_id) when is_binary(friendship_id) do
     GameServer.Cache.get!({:friends, :friendship_version, friendship_id}) || 1
   end
 
-  defp invalidate_friendship_cache(friendship_id) when is_integer(friendship_id) do
+  defp invalidate_friendship_cache(friendship_id) when is_binary(friendship_id) do
     # Synchronous — get_friendship may be called immediately after mutation.
     _ = GameServer.Cache.incr({:friends, :friendship_version, friendship_id}, 1, default: 1)
     :ok
@@ -77,21 +77,21 @@ defmodule GameServer.Friends do
               opts: [ttl: @friends_cache_ttl_ms]
             )
   defp get_by_pair_cached(requester_id, target_id)
-       when is_integer(requester_id) and is_integer(target_id) do
+       when is_binary(requester_id) and is_binary(target_id) do
     Repo.get_by(Friendship, requester_id: requester_id, target_id: target_id)
   end
 
   @spec subscribe_user(user_id()) :: :ok
-  def subscribe_user(user_id) when is_integer(user_id) do
+  def subscribe_user(user_id) when is_binary(user_id) do
     Phoenix.PubSub.subscribe(GameServer.PubSub, "friends:user:#{user_id}")
   end
 
   @spec unsubscribe_user(user_id()) :: :ok
-  def unsubscribe_user(user_id) when is_integer(user_id) do
+  def unsubscribe_user(user_id) when is_binary(user_id) do
     Phoenix.PubSub.unsubscribe(GameServer.PubSub, "friends:user:#{user_id}")
   end
 
-  defp broadcast_user(user_id, event) when is_integer(user_id) do
+  defp broadcast_user(user_id, event) when is_binary(user_id) do
     # keep existing PubSub behavior (server-side consumers)
     Phoenix.PubSub.broadcast(GameServer.PubSub, "friends:user:#{user_id}", event)
 
@@ -212,7 +212,7 @@ defmodule GameServer.Friends do
     do: create_request(requester_id, target_id)
 
   def create_request(requester_id, target_id)
-      when is_integer(requester_id) and is_integer(target_id) do
+      when is_binary(requester_id) and is_binary(target_id) do
     if requester_id == target_id do
       {:error, :cannot_friend_self}
     else
@@ -352,8 +352,8 @@ defmodule GameServer.Friends do
   end
 
   @doc "Accept a friend request (only the target may accept). Returns {:ok, friendship}."
-  @spec accept_friend_request(integer(), User.t()) :: {:ok, Friendship.t()} | {:error, term()}
-  def accept_friend_request(friendship_id, %User{id: user_id}) when is_integer(friendship_id) do
+  @spec accept_friend_request(String.t(), User.t()) :: {:ok, Friendship.t()} | {:error, term()}
+  def accept_friend_request(friendship_id, %User{id: user_id}) when is_binary(friendship_id) do
     Repo.transaction(fn ->
       with %Friendship{} = f <- get_friendship(friendship_id),
            true <- f.target_id == user_id,
@@ -388,8 +388,8 @@ defmodule GameServer.Friends do
   end
 
   @doc "Reject a friend request (only the target may reject). Returns {:ok, friendship}."
-  @spec reject_friend_request(integer(), User.t()) :: {:ok, Friendship.t()} | {:error, term()}
-  def reject_friend_request(friendship_id, %User{id: user_id}) when is_integer(friendship_id) do
+  @spec reject_friend_request(String.t(), User.t()) :: {:ok, Friendship.t()} | {:error, term()}
+  def reject_friend_request(friendship_id, %User{id: user_id}) when is_binary(friendship_id) do
     with %Friendship{} = f <- get_friendship(friendship_id),
          true <- f.target_id == user_id,
          true <- f.status == "pending",
@@ -412,9 +412,9 @@ defmodule GameServer.Friends do
   end
 
   @doc "Cancel an outgoing friend request (only the requester may cancel)."
-  @spec cancel_request(integer(), User.t()) ::
+  @spec cancel_request(String.t(), User.t()) ::
           {:ok, :cancelled} | {:error, :not_found | :not_authorized | term()}
-  def cancel_request(friendship_id, %User{id: user_id}) when is_integer(friendship_id) do
+  def cancel_request(friendship_id, %User{id: user_id}) when is_binary(friendship_id) do
     with %Friendship{} = f <- get_friendship(friendship_id),
          true <- f.requester_id == user_id,
          {:ok, _} <- Repo.delete(f) do
@@ -436,8 +436,8 @@ defmodule GameServer.Friends do
   end
 
   @doc "Remove a friendship (either direction) - only participating users may call this."
-  @spec remove_friend(integer(), integer()) :: {:ok, Friendship.t()} | {:error, term()}
-  def remove_friend(user_id, friend_id) when is_integer(user_id) and is_integer(friend_id) do
+  @spec remove_friend(String.t(), String.t()) :: {:ok, Friendship.t()} | {:error, term()}
+  def remove_friend(user_id, friend_id) when is_binary(user_id) and is_binary(friend_id) do
     case Repo.one(
            from f in Friendship,
              where:
@@ -472,8 +472,8 @@ defmodule GameServer.Friends do
   end
 
   @doc "Block an incoming request (only the target may block). Returns {:ok, friendship} with status \"blocked\"."
-  @spec block_friend_request(integer(), User.t()) :: {:ok, Friendship.t()} | {:error, term()}
-  def block_friend_request(friendship_id, %User{id: user_id}) when is_integer(friendship_id) do
+  @spec block_friend_request(String.t(), User.t()) :: {:ok, Friendship.t()} | {:error, term()}
+  def block_friend_request(friendship_id, %User{id: user_id}) when is_binary(friendship_id) do
     with %Friendship{} = f <- get_friendship(friendship_id),
          true <- f.target_id == user_id,
          true <- f.status in ["pending", "rejected"],
@@ -498,7 +498,7 @@ defmodule GameServer.Friends do
   @spec list_blocked_for_user(user_id(), Types.pagination_opts()) :: [Friendship.t()]
   def list_blocked_for_user(user_id, opts \\ [])
 
-  def list_blocked_for_user(user_id, opts) when is_integer(user_id) do
+  def list_blocked_for_user(user_id, opts) when is_binary(user_id) do
     page = Keyword.get(opts, :page, 1)
     page_size = Keyword.get(opts, :page_size, 25)
 
@@ -520,7 +520,7 @@ defmodule GameServer.Friends do
   @doc "Count blocked friendships for a user (number of blocked rows where user is target)."
   @spec count_blocked_for_user(user_id()) :: non_neg_integer()
 
-  def count_blocked_for_user(user_id) when is_integer(user_id) do
+  def count_blocked_for_user(user_id) when is_binary(user_id) do
     count_blocked_for_user_uncached(user_id)
   end
 
@@ -533,8 +533,8 @@ defmodule GameServer.Friends do
   end
 
   @doc "Unblock a previously-blocked friendship (only the user who blocked may unblock). Returns {:ok, :unblocked} on success."
-  @spec unblock_friendship(integer(), User.t()) :: {:ok, :unblocked} | {:error, term()}
-  def unblock_friendship(friendship_id, %User{id: user_id}) when is_integer(friendship_id) do
+  @spec unblock_friendship(String.t(), User.t()) :: {:ok, :unblocked} | {:error, term()}
+  def unblock_friendship(friendship_id, %User{id: user_id}) when is_binary(friendship_id) do
     with %Friendship{} = f <- get_friendship(friendship_id),
          true <- f.target_id == user_id,
          true <- f.status == "blocked",
@@ -562,11 +562,11 @@ defmodule GameServer.Friends do
 
   See `t:GameServer.Types.pagination_opts/0` for available options.
   """
-  @spec list_friends_for_user(integer()) :: [User.t()]
-  @spec list_friends_for_user(integer(), Types.pagination_opts()) :: [User.t()]
+  @spec list_friends_for_user(String.t()) :: [User.t()]
+  @spec list_friends_for_user(String.t(), Types.pagination_opts()) :: [User.t()]
   def list_friends_for_user(user_id, opts \\ [])
 
-  def list_friends_for_user(user_id, opts) when is_integer(user_id) do
+  def list_friends_for_user(user_id, opts) when is_binary(user_id) do
     page = Keyword.get(opts, :page, 1)
     page_size = Keyword.get(opts, :page_size, 25)
 
@@ -606,15 +606,15 @@ defmodule GameServer.Friends do
 
   Returns a list of maps: %{friendship_id: integer(), user: %User{}}
   """
-  @spec list_friends_with_friendship(integer()) :: [
+  @spec list_friends_with_friendship(String.t()) :: [
           %{friendship_id: integer(), user: User.t()}
         ]
-  @spec list_friends_with_friendship(integer(), Types.pagination_opts()) :: [
+  @spec list_friends_with_friendship(String.t(), Types.pagination_opts()) :: [
           %{friendship_id: integer(), user: User.t()}
         ]
   def list_friends_with_friendship(user_id, opts \\ [])
 
-  def list_friends_with_friendship(user_id, opts) when is_integer(user_id) do
+  def list_friends_with_friendship(user_id, opts) when is_binary(user_id) do
     page = Keyword.get(opts, :page, 1)
     page_size = Keyword.get(opts, :page_size, 25)
 
@@ -644,7 +644,7 @@ defmodule GameServer.Friends do
   @doc "Count accepted friends for a given user (distinct other user ids)."
   @spec count_friends_for_user(user_id()) :: non_neg_integer()
 
-  def count_friends_for_user(user_id) when is_integer(user_id) do
+  def count_friends_for_user(user_id) when is_binary(user_id) do
     count_friends_for_user_uncached(user_id)
   end
 
@@ -671,11 +671,11 @@ defmodule GameServer.Friends do
 
   See `t:GameServer.Types.pagination_opts/0` for available options.
   """
-  @spec list_incoming_requests(integer()) :: [Friendship.t()]
-  @spec list_incoming_requests(integer(), Types.pagination_opts()) :: [Friendship.t()]
+  @spec list_incoming_requests(String.t()) :: [Friendship.t()]
+  @spec list_incoming_requests(String.t(), Types.pagination_opts()) :: [Friendship.t()]
   def list_incoming_requests(user_id, opts \\ [])
 
-  def list_incoming_requests(user_id, opts) when is_integer(user_id) do
+  def list_incoming_requests(user_id, opts) when is_binary(user_id) do
     page = Keyword.get(opts, :page, 1)
     page_size = Keyword.get(opts, :page_size, 25)
 
@@ -697,7 +697,7 @@ defmodule GameServer.Friends do
   @doc "Count incoming pending friend requests for a user."
   @spec count_incoming_requests(user_id()) :: non_neg_integer()
 
-  def count_incoming_requests(user_id) when is_integer(user_id) do
+  def count_incoming_requests(user_id) when is_binary(user_id) do
     count_incoming_requests_uncached(user_id)
   end
 
@@ -716,11 +716,11 @@ defmodule GameServer.Friends do
 
   See `t:GameServer.Types.pagination_opts/0` for available options.
   """
-  @spec list_outgoing_requests(integer()) :: [Friendship.t()]
-  @spec list_outgoing_requests(integer(), Types.pagination_opts()) :: [Friendship.t()]
+  @spec list_outgoing_requests(String.t()) :: [Friendship.t()]
+  @spec list_outgoing_requests(String.t(), Types.pagination_opts()) :: [Friendship.t()]
   def list_outgoing_requests(user_id, opts \\ [])
 
-  def list_outgoing_requests(user_id, opts) when is_integer(user_id) do
+  def list_outgoing_requests(user_id, opts) when is_binary(user_id) do
     page = Keyword.get(opts, :page, 1)
     page_size = Keyword.get(opts, :page_size, 25)
 
@@ -742,7 +742,7 @@ defmodule GameServer.Friends do
   @doc "Count outgoing pending friend requests for a user."
   @spec count_outgoing_requests(user_id()) :: non_neg_integer()
 
-  def count_outgoing_requests(user_id) when is_integer(user_id) do
+  def count_outgoing_requests(user_id) when is_binary(user_id) do
     count_outgoing_requests_uncached(user_id)
   end
 
@@ -755,21 +755,21 @@ defmodule GameServer.Friends do
   end
 
   @doc "Get friendship by id"
-  @spec get_friendship!(integer()) :: Friendship.t()
+  @spec get_friendship!(String.t()) :: Friendship.t()
   @decorate cacheable(
               key: {:friends, :friendship, friendship_cache_version(id), id},
               opts: [ttl: @friendships_cache_ttl_ms]
             )
-  def get_friendship!(id) when is_integer(id), do: Repo.get!(Friendship, id)
+  def get_friendship!(id), do: Repo.get_uuid!(Friendship, id)
 
   @doc "Get friendship by id (returns nil when not found)"
-  @spec get_friendship(integer()) :: Friendship.t() | nil
+  @spec get_friendship(String.t()) :: Friendship.t() | nil
   @decorate cacheable(
               key: {:friends, :friendship, friendship_cache_version(id), id},
               match: &cache_match/1,
               opts: [ttl: @friendships_cache_ttl_ms]
             )
-  def get_friendship(id) when is_integer(id), do: Repo.get(Friendship, id)
+  def get_friendship(id), do: Repo.get_uuid(Friendship, id)
 
   @doc "Get friendship between two users (ordered requester->target) if exists"
   @spec get_by_pair(user_id(), user_id()) :: Friendship.t() | nil
@@ -784,7 +784,7 @@ defmodule GameServer.Friends do
   and does *not* paginate – it returns all friend IDs.
   """
   @spec friend_ids(user_id()) :: [user_id()]
-  def friend_ids(user_id) when is_integer(user_id) do
+  def friend_ids(user_id) when is_binary(user_id) do
     q1 =
       from f in Friendship,
         where: f.status == "accepted" and f.requester_id == ^user_id,

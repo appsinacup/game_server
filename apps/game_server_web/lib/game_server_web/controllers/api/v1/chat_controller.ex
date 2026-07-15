@@ -13,10 +13,10 @@ defmodule GameServerWeb.Api.V1.ChatController do
   @message_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :integer, description: "Message ID"},
+      id: %Schema{type: :string, format: :uuid, description: "Message ID"},
       content: %Schema{type: :string, description: "Message text"},
       metadata: %Schema{type: :object, description: "Arbitrary metadata"},
-      sender_id: %Schema{type: :integer, description: "User ID of the sender"},
+      sender_id: %Schema{type: :string, format: :uuid, description: "User ID of the sender"},
       sender_name: %Schema{type: :string, description: "Display name of the sender"},
       chat_type: %Schema{
         type: :string,
@@ -31,13 +31,13 @@ defmodule GameServerWeb.Api.V1.ChatController do
       updated_at: %Schema{type: :string, format: "date-time"}
     },
     example: %{
-      id: 1,
+      id: "0198c0de-0001-7000-8000-000000000001",
       content: "Hello everyone!",
       metadata: %{},
-      sender_id: 42,
+      sender_id: "0198c0de-0002-7000-8000-000000000002",
       sender_name: "Player1",
       chat_type: "lobby",
-      chat_ref_id: 1,
+      chat_ref_id: "0198c0de-0002-7000-8000-000000000002",
       inserted_at: "2026-01-01T00:00:00Z",
       updated_at: "2026-01-01T00:00:00Z"
     }
@@ -90,9 +90,12 @@ defmodule GameServerWeb.Api.V1.ChatController do
       "metadata" => params["metadata"] || %{}
     }
 
-    case Chat.send_message(scope, attrs) do
-      {:ok, message} ->
-        conn |> put_status(:created) |> json(serialize_message(message))
+    with :ok <- GameServerWeb.RateLimit.check_chat_daily(scope.user.id),
+         {:ok, message} <- Chat.send_message(scope, attrs) do
+      conn |> put_status(:created) |> json(serialize_message(message))
+    else
+      {:error, :chat_daily_limit} ->
+        conn |> put_status(:too_many_requests) |> json(%{error: "chat_daily_limit"})
 
       {:error, :not_in_lobby} ->
         conn |> put_status(:forbidden) |> json(%{error: "not_in_lobby"})
@@ -142,7 +145,12 @@ defmodule GameServerWeb.Api.V1.ChatController do
     description:
       "Retrieve a single chat message by ID. Useful for refreshing a message after an update notification.",
     parameters: [
-      id: [in: :path, required: true, schema: %Schema{type: :integer}, description: "Message ID"]
+      id: [
+        in: :path,
+        required: true,
+        schema: %Schema{type: :string, format: :uuid},
+        description: "Message ID"
+      ]
     ],
     responses: [
       ok: {"Chat message", "application/json", @message_schema},
@@ -282,8 +290,8 @@ defmodule GameServerWeb.Api.V1.ChatController do
          required: [:chat_type, :chat_ref_id, :message_id],
          properties: %{
            chat_type: %Schema{type: :string, enum: ["lobby", "group", "friend", "party"]},
-           chat_ref_id: %Schema{type: :integer},
-           message_id: %Schema{type: :integer, description: "Last read message ID"}
+           chat_ref_id: %Schema{type: :string, format: :uuid},
+           message_id: %Schema{type: :string, format: :uuid, description: "Last read message ID"}
          }
        }},
     responses: [
@@ -388,7 +396,12 @@ defmodule GameServerWeb.Api.V1.ChatController do
     description:
       "Edit the content or metadata of a message you sent. Only the sender can update their own message.",
     parameters: [
-      id: [in: :path, required: true, schema: %Schema{type: :integer}, description: "Message ID"]
+      id: [
+        in: :path,
+        required: true,
+        schema: %Schema{type: :string, format: :uuid},
+        description: "Message ID"
+      ]
     ],
     request_body:
       {"Message update", "application/json",
@@ -446,7 +459,12 @@ defmodule GameServerWeb.Api.V1.ChatController do
     description:
       "Permanently delete a message you sent. Only the sender can delete their own message.",
     parameters: [
-      id: [in: :path, required: true, schema: %Schema{type: :integer}, description: "Message ID"]
+      id: [
+        in: :path,
+        required: true,
+        schema: %Schema{type: :string, format: :uuid},
+        description: "Message ID"
+      ]
     ],
     responses: [
       ok: {"Deleted", "application/json", %Schema{type: :object}},

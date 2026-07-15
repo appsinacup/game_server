@@ -58,7 +58,7 @@ defmodule GameServer.Lobbies do
   alias GameServer.Repo.AdvisoryLock
   alias GameServer.Types
 
-  defp invalidate_accounts_user_cache(user_id) when is_integer(user_id) do
+  defp invalidate_accounts_user_cache(user_id) when is_binary(user_id) do
     # Synchronous invalidation including index keys — the client may join a
     # channel immediately after a lobby operation, so the cached user must
     # already be cleared.
@@ -70,11 +70,11 @@ defmodule GameServer.Lobbies do
 
   @lobby_cache_ttl_ms 60_000
 
-  defp lobby_cache_version(lobby_id) when is_integer(lobby_id) do
+  defp lobby_cache_version(lobby_id) when is_binary(lobby_id) do
     GameServer.Cache.get!({:lobbies, :lobby_version, lobby_id}) || 1
   end
 
-  defp invalidate_lobby_cache(lobby_id) when is_integer(lobby_id) do
+  defp invalidate_lobby_cache(lobby_id) when is_binary(lobby_id) do
     GameServer.Async.run(fn ->
       _ = GameServer.Cache.incr({:lobbies, :lobby_version, lobby_id}, 1, default: 1)
       :ok
@@ -97,7 +97,7 @@ defmodule GameServer.Lobbies do
   @doc """
   Subscribe to a specific lobby's events (membership changes, updates).
   """
-  @spec subscribe_lobby(integer()) :: :ok | {:error, term()}
+  @spec subscribe_lobby(String.t()) :: :ok | {:error, term()}
   def subscribe_lobby(lobby_id) do
     Phoenix.PubSub.subscribe(GameServer.PubSub, "lobby:#{lobby_id}")
   end
@@ -105,7 +105,7 @@ defmodule GameServer.Lobbies do
   @doc """
   Unsubscribe from a specific lobby's events.
   """
-  @spec unsubscribe_lobby(integer()) :: :ok
+  @spec unsubscribe_lobby(String.t()) :: :ok
   def unsubscribe_lobby(lobby_id) do
     Phoenix.PubSub.unsubscribe(GameServer.PubSub, "lobby:#{lobby_id}")
   end
@@ -119,7 +119,7 @@ defmodule GameServer.Lobbies do
   end
 
   @doc "Broadcast a member presence event (online/offline) to a lobby's PubSub topic."
-  @spec broadcast_member_presence(integer(), tuple()) :: :ok | {:error, term()}
+  @spec broadcast_member_presence(String.t(), tuple()) :: :ok | {:error, term()}
   def broadcast_member_presence(lobby_id, event) do
     broadcast_lobby(lobby_id, event)
   end
@@ -463,9 +463,9 @@ defmodule GameServer.Lobbies do
   def list_lobbies_for_user(nil, filters, opts), do: list_lobbies(filters, opts)
 
   # join behavior for a user -> lobby
-  @spec join_lobby(User.t(), Lobby.t() | integer() | String.t()) ::
+  @spec join_lobby(User.t(), Lobby.t() | String.t()) ::
           {:ok, User.t()} | {:error, term()}
-  @spec join_lobby(User.t(), Lobby.t() | integer() | String.t(), map() | keyword()) ::
+  @spec join_lobby(User.t(), Lobby.t() | String.t(), map() | keyword()) ::
           {:ok, User.t()} | {:error, term()}
   def join_lobby(user, lobby_arg, opts \\ %{})
 
@@ -481,20 +481,13 @@ defmodule GameServer.Lobbies do
     end
   end
 
-  def join_lobby(%User{} = user, lobby_id, opts) when is_integer(lobby_id) do
+  def join_lobby(%User{} = user, lobby_id, opts) when is_binary(lobby_id) do
     case get_lobby(lobby_id) do
       %Lobby{} = lobby ->
         join_lobby(user, lobby, opts)
 
       nil ->
         {:error, :invalid_lobby}
-    end
-  end
-
-  def join_lobby(%User{} = user, lobby_id, opts) when is_binary(lobby_id) do
-    case Integer.parse(lobby_id) do
-      {int, ""} -> join_lobby(user, int, opts)
-      _ -> {:error, :invalid}
     end
   end
 
@@ -585,20 +578,20 @@ defmodule GameServer.Lobbies do
     end
   end
 
-  @spec get_lobby!(integer()) :: Lobby.t()
+  @spec get_lobby!(String.t()) :: Lobby.t()
   @decorate cacheable(
               key: {:lobbies, :get, lobby_cache_version(id), id},
               opts: [ttl: @lobby_cache_ttl_ms]
             )
-  def get_lobby!(id) when is_integer(id), do: Repo.get!(Lobby, id)
+  def get_lobby!(id), do: Repo.get_uuid!(Lobby, id)
 
-  @spec get_lobby(integer()) :: Lobby.t() | nil
+  @spec get_lobby(String.t()) :: Lobby.t() | nil
   @decorate cacheable(
               key: {:lobbies, :get, lobby_cache_version(id), id},
               match: &cache_match/1,
               opts: [ttl: @lobby_cache_ttl_ms]
             )
-  def get_lobby(id) when is_integer(id), do: Repo.get(Lobby, id)
+  def get_lobby(id), do: Repo.get_uuid(Lobby, id)
 
   @doc """
   Gets all users currently in a lobby.
@@ -614,10 +607,10 @@ defmodule GameServer.Lobbies do
       [%User{}]
 
   """
-  @spec get_lobby_members(Lobby.t() | integer() | String.t()) :: [User.t()]
+  @spec get_lobby_members(Lobby.t() | String.t()) :: [User.t()]
   def get_lobby_members(%Lobby{id: lobby_id}), do: get_lobby_members(lobby_id)
 
-  def get_lobby_members(lobby_id) when is_binary(lobby_id) or is_integer(lobby_id) do
+  def get_lobby_members(lobby_id) when is_binary(lobby_id) do
     Repo.all(
       from u in GameServer.Accounts.User,
         where: u.lobby_id == ^lobby_id,
@@ -881,7 +874,7 @@ defmodule GameServer.Lobbies do
     end
   end
 
-  defp do_delete_lobby(%Lobby{id: lobby_id} = lobby) when is_integer(lobby_id) do
+  defp do_delete_lobby(%Lobby{id: lobby_id} = lobby) when is_binary(lobby_id) do
     Repo.transaction(fn ->
       AdvisoryLock.lock(:lobby, lobby_id)
 
@@ -906,7 +899,7 @@ defmodule GameServer.Lobbies do
     kind, reason -> {:error, {kind, reason}}
   end
 
-  defp delete_lobby_kv_entries(lobby_id) when is_integer(lobby_id) do
+  defp delete_lobby_kv_entries(lobby_id) when is_binary(lobby_id) do
     from(e in KVEntry,
       where: e.lobby_id == ^lobby_id,
       select: {e.key, e.user_id, e.lobby_id}
@@ -925,7 +918,7 @@ defmodule GameServer.Lobbies do
 
   ## Membership helpers (minimal for now)
 
-  @spec create_membership(%{lobby_id: integer(), user_id: integer()}) ::
+  @spec create_membership(%{lobby_id: String.t(), user_id: String.t()}) ::
           {:ok, User.t()} | {:error, :not_found | Ecto.Changeset.t() | term()}
   def create_membership(%{lobby_id: lobby_id, user_id: user_id} = _attrs) do
     # Use Repo.get directly — this function may be called inside a
@@ -1009,21 +1002,15 @@ defmodule GameServer.Lobbies do
   defp do_leave_lobby(membership, lobby, user_id) do
     lobby_id = lobby.id
 
-    case GameServer.Hooks.internal_call(:before_lobby_leave, [membership, lobby]) do
-      {:ok, _} ->
-        result =
-          Repo.transaction(fn ->
-            Repo.update!(Ecto.Changeset.change(membership, %{lobby_id: nil}))
-            handle_host_transfer(lobby, user_id, membership.id)
-          end)
+    result =
+      Repo.transaction(fn ->
+        Repo.update!(Ecto.Changeset.change(membership, %{lobby_id: nil}))
+        handle_host_transfer(lobby, user_id, membership.id)
+      end)
 
-        result
-        |> broadcast_leave_result(lobby_id, user_id)
-        |> maybe_run_after_lobby_leave(user_id, lobby)
-
-      {:error, reason} ->
-        {:error, {:hook_rejected, reason}}
-    end
+    result
+    |> broadcast_leave_result(lobby_id, user_id)
+    |> maybe_run_after_lobby_leave(user_id, lobby)
   rescue
     Ecto.StaleEntryError ->
       # Race condition: user was concurrently removed (double leave, kicked, etc.)
@@ -1100,14 +1087,14 @@ defmodule GameServer.Lobbies do
     end
   end
 
-  defp maybe_broadcast_member_updated(user_id) when is_integer(user_id) do
+  defp maybe_broadcast_member_updated(user_id) when is_binary(user_id) do
     case Accounts.get_user(user_id) do
       %User{} = user -> Accounts.broadcast_member_update(user)
       nil -> :ok
     end
   end
 
-  defp maybe_broadcast_user_updated(user_id) when is_integer(user_id) do
+  defp maybe_broadcast_user_updated(user_id) when is_binary(user_id) do
     # `invalidate_accounts_user_cache/1` above ensures this refetch isn't stale.
     case Accounts.get_user(user_id) do
       %User{} = user ->
@@ -1325,7 +1312,7 @@ defmodule GameServer.Lobbies do
     Enum.any?(Map.keys(attrs), &is_binary/1)
   end
 
-  @spec list_memberships_for_lobby(integer() | String.t()) :: [User.t()]
+  @spec list_memberships_for_lobby(String.t()) :: [User.t()]
   def list_memberships_for_lobby(lobby_id) do
     from(u in GameServer.Accounts.User, where: u.lobby_id == ^lobby_id)
     |> Repo.all()

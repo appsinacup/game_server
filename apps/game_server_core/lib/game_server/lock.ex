@@ -69,14 +69,14 @@ defmodule GameServer.Lock do
   ## Parameters
 
   - `namespace` — atom (`:lobby`, `:group`, `:party`) or any string
-  - `resource_id` — integer identifying the specific resource (e.g. lobby id)
+  - `resource_id` — id of the specific resource (e.g. lobby id)
   - `fun` — zero-arity function to execute while holding the lock
   """
-  @spec serialize(atom() | String.t(), integer(), (-> result)) ::
+  @spec serialize(atom() | String.t(), String.t(), (-> result)) ::
           {:ok, result} | {:error, term()}
         when result: term()
   def serialize(namespace, resource_id, fun)
-      when (is_atom(namespace) or is_binary(namespace)) and is_integer(resource_id) and
+      when (is_atom(namespace) or is_binary(namespace)) and is_binary(resource_id) and
              is_function(fun, 0) do
     Repo.transaction(fn ->
       AdvisoryLock.lock(namespace, resource_id)

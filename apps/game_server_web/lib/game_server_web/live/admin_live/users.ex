@@ -559,7 +559,7 @@ defmodule GameServerWeb.AdminLive.Users do
 
   @impl true
   def handle_event("edit_user", %{"id" => id}, socket) do
-    user = Accounts.get_user!(String.to_integer(id))
+    user = Accounts.get_user!(id)
     changeset = User.admin_changeset(user, %{})
     form = to_form(changeset, as: "user")
     tokens = Accounts.list_user_tokens(user.id)
@@ -670,7 +670,7 @@ defmodule GameServerWeb.AdminLive.Users do
   end
 
   def handle_event("revoke_token", %{"id" => id}, socket) do
-    token = Accounts.get_user_token!(String.to_integer(id))
+    token = Accounts.get_user_token!(id)
     Accounts.delete_user_token(token)
     user = socket.assigns.selected_user
     tokens = Accounts.list_user_tokens(user.id)
@@ -682,7 +682,7 @@ defmodule GameServerWeb.AdminLive.Users do
   end
 
   def handle_event("revoke_all_sessions", %{"user-id" => uid}, socket) do
-    user_id = String.to_integer(uid)
+    user_id = uid
     {count, _} = Accounts.revoke_all_user_sessions(user_id)
     tokens = Accounts.list_user_tokens(user_id)
 
@@ -747,7 +747,7 @@ defmodule GameServerWeb.AdminLive.Users do
   end
 
   def handle_event("delete_user", %{"id" => id}, socket) do
-    user = Accounts.get_user!(String.to_integer(id))
+    user = Accounts.get_user!(id)
 
     case Accounts.delete_user(user) do
       {:ok, _user} ->
@@ -857,7 +857,7 @@ defmodule GameServerWeb.AdminLive.Users do
 
   @impl true
   def handle_event("toggle_select", %{"id" => id}, socket) do
-    id = String.to_integer(to_string(id))
+    id = to_string(id)
     selected = socket.assigns[:selected_ids] || MapSet.new()
 
     selected =
@@ -996,17 +996,12 @@ defmodule GameServerWeb.AdminLive.Users do
       Regex.match?(~r/^\d+$/, search_term) ->
         q = "%#{search_term}%"
 
-        # Try to parse as integer for ID lookup, but handle potential overflow
-        # if the number is too large (e.g. a Google ID)
+        # Direct ID lookup when the term is a valid UUID
         id_query =
           try do
-            id = String.to_integer(search_term)
-
-            # Check if it fits in a 64-bit signed integer (Postgres/SQLite limit)
-            if id > 9_223_372_036_854_775_807 do
-              dynamic([u], false)
-            else
-              dynamic([u], u.id == ^id)
+            case Ecto.UUID.cast(search_term) do
+              {:ok, id} -> dynamic([u], u.id == ^id)
+              :error -> dynamic([u], false)
             end
           rescue
             ArgumentError -> dynamic([u], false)

@@ -107,7 +107,7 @@ defmodule GameServer.GroupsTest do
     end
 
     test "returns nil for missing id" do
-      assert is_nil(Groups.get_group(999_999))
+      assert is_nil(Groups.get_group(Ecto.UUID.generate()))
     end
   end
 
@@ -357,7 +357,7 @@ defmodule GameServer.GroupsTest do
     end
 
     test "returns not_found for non-existent group", %{other: other} do
-      assert {:error, :not_found} = Groups.request_join(other.id, 999_999)
+      assert {:error, :not_found} = Groups.request_join(other.id, Ecto.UUID.generate())
     end
   end
 
@@ -376,7 +376,7 @@ defmodule GameServer.GroupsTest do
     end
 
     test "returns not_found for non-existent request", %{owner: owner} do
-      assert {:error, :not_found} = Groups.approve_join_request(owner.id, 999_999)
+      assert {:error, :not_found} = Groups.approve_join_request(owner.id, Ecto.UUID.generate())
     end
   end
 
@@ -448,7 +448,8 @@ defmodule GameServer.GroupsTest do
     end
 
     test "cannot invite to non-existent group", %{owner: owner, other: other} do
-      assert {:error, :not_found} = Groups.invite_to_group(owner.id, 999_999, other.id)
+      assert {:error, :not_found} =
+               Groups.invite_to_group(owner.id, Ecto.UUID.generate(), other.id)
     end
 
     test "cannot invite a blocked user", %{owner: owner, other: other} do
@@ -562,7 +563,7 @@ defmodule GameServer.GroupsTest do
     end
 
     test "cannot accept invite for non-existent invite", %{owner: owner} do
-      assert {:error, :not_found} = Groups.accept_invite(owner.id, 999_999)
+      assert {:error, :not_found} = Groups.accept_invite(owner.id, Ecto.UUID.generate())
     end
 
     test "cannot join full group via invite", %{owner: owner, other: other} do
@@ -614,7 +615,7 @@ defmodule GameServer.GroupsTest do
     end
 
     test "decline returns not_found for unknown id", %{owner: owner} do
-      assert {:error, :not_found} = Groups.decline_invite(owner.id, 999_999)
+      assert {:error, :not_found} = Groups.decline_invite(owner.id, Ecto.UUID.generate())
     end
 
     test "sender cannot decline their own invite", %{owner: owner, other: other} do
@@ -964,7 +965,7 @@ defmodule GameServer.GroupsTest do
     end
 
     test "returns not_found for non-existent invitation", %{owner: owner} do
-      assert {:error, :not_found} = Groups.cancel_invite(owner.id, 999_999)
+      assert {:error, :not_found} = Groups.cancel_invite(owner.id, Ecto.UUID.generate())
     end
   end
 
@@ -1002,7 +1003,7 @@ defmodule GameServer.GroupsTest do
     end
 
     test "returns not_found for non-existent group", %{owner: owner} do
-      assert {:error, :not_found} = Groups.notify_group(owner.id, 999_999, "Hello!")
+      assert {:error, :not_found} = Groups.notify_group(owner.id, Ecto.UUID.generate(), "Hello!")
     end
 
     test "upserts notification when sender sends again", %{owner: owner, other: other} do

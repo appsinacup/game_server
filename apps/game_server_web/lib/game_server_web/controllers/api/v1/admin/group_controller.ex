@@ -30,7 +30,7 @@ defmodule GameServerWeb.Api.V1.Admin.GroupController do
   @group_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :integer},
+      id: %Schema{type: :string, format: :uuid},
       title: %Schema{type: :string},
       description: %Schema{type: :string, nullable: true},
       type: %Schema{type: :string},
@@ -96,7 +96,7 @@ defmodule GameServerWeb.Api.V1.Admin.GroupController do
     description: "Admin-level group update. No membership check.",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, required: true]
+      id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true]
     ],
     request_body: {
       "Update parameters",
@@ -129,7 +129,7 @@ defmodule GameServerWeb.Api.V1.Admin.GroupController do
     description: "Admin-level group deletion.",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, required: true]
+      id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true]
     ],
     responses: [
       ok: {"Deleted", "application/json", %Schema{type: :object}},

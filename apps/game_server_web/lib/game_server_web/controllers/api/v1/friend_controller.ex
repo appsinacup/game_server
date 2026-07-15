@@ -74,8 +74,8 @@ defmodule GameServerWeb.Api.V1.FriendController do
                items: %Schema{
                  type: :object,
                  properties: %{
-                   id: %Schema{type: :integer},
-                   friendship_id: %Schema{type: :integer},
+                   id: %Schema{type: :string, format: :uuid},
+                   friendship_id: %Schema{type: :string, format: :uuid},
                    display_name: %Schema{type: :string},
                    profile_url: %Schema{type: :string},
                    metadata: %Schema{
@@ -141,11 +141,11 @@ defmodule GameServerWeb.Api.V1.FriendController do
               items: %Schema{
                 type: :object,
                 properties: %{
-                  id: %Schema{type: :integer},
+                  id: %Schema{type: :string, format: :uuid},
                   requester: %Schema{
                     type: :object,
                     properties: %{
-                      id: %Schema{type: :integer},
+                      id: %Schema{type: :string, format: :uuid},
                       display_name: %Schema{type: :string},
                       metadata: %Schema{type: :object, description: "User metadata"},
                       is_online: %Schema{type: :boolean},
@@ -155,7 +155,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
                   target: %Schema{
                     type: :object,
                     properties: %{
-                      id: %Schema{type: :integer},
+                      id: %Schema{type: :string, format: :uuid},
                       display_name: %Schema{type: :string},
                       metadata: %Schema{type: :object, description: "User metadata"},
                       is_online: %Schema{type: :boolean},
@@ -172,11 +172,11 @@ defmodule GameServerWeb.Api.V1.FriendController do
               items: %Schema{
                 type: :object,
                 properties: %{
-                  id: %Schema{type: :integer},
+                  id: %Schema{type: :string, format: :uuid},
                   requester: %Schema{
                     type: :object,
                     properties: %{
-                      id: %Schema{type: :integer},
+                      id: %Schema{type: :string, format: :uuid},
                       display_name: %Schema{type: :string},
                       metadata: %Schema{type: :object, description: "User metadata"},
                       is_online: %Schema{type: :boolean},
@@ -186,7 +186,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
                   target: %Schema{
                     type: :object,
                     properties: %{
-                      id: %Schema{type: :integer},
+                      id: %Schema{type: :string, format: :uuid},
                       display_name: %Schema{type: :string},
                       metadata: %Schema{type: :object, description: "User metadata"},
                       is_online: %Schema{type: :boolean},
@@ -305,11 +305,11 @@ defmodule GameServerWeb.Api.V1.FriendController do
               items: %Schema{
                 type: :object,
                 properties: %{
-                  id: %Schema{type: :integer},
+                  id: %Schema{type: :string, format: :uuid},
                   requester: %Schema{
                     type: :object,
                     properties: %{
-                      id: %Schema{type: :integer},
+                      id: %Schema{type: :string, format: :uuid},
                       display_name: %Schema{type: :string}
                     }
                   }
@@ -358,7 +358,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
     operation_id: "remove_friendship",
     summary: "Remove/cancel a friendship or request",
     security: [%{"authorization" => []}],
-    parameters: [id: [in: :path, schema: %Schema{type: :integer}, required: true]],
+    parameters: [id: [in: :path, schema: %Schema{type: :string, format: :uuid}, required: true]],
     responses: [
       ok: {"Success", "application/json", %Schema{type: :object}},
       unauthorized: {"Not authenticated", "application/json", @error_schema},

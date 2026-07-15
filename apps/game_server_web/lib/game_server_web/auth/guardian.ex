@@ -39,8 +39,8 @@ defmodule GameServerWeb.Auth.Guardian do
   Tokens without a `"tv"` claim are always rejected.
   """
   def resource_from_claims(%{"sub" => id} = claims) do
-    case Integer.parse(id) do
-      {user_id, ""} ->
+    case Ecto.UUID.cast(id) do
+      {:ok, user_id} ->
         case Accounts.get_user(user_id) do
           %{} = user ->
             if Map.get(claims, "tv") == user.token_version do

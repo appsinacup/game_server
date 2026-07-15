@@ -13,8 +13,8 @@ defmodule GameServerWeb.Api.V1.PartyController do
   @party_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :integer, description: "Party ID"},
-      leader_id: %Schema{type: :integer, description: "User ID of the party leader"},
+      id: %Schema{type: :string, format: :uuid, description: "Party ID"},
+      leader_id: %Schema{type: :string, format: :uuid, description: "User ID of the party leader"},
       leader_name: %Schema{type: :string, description: "Display name of the party leader"},
       max_size: %Schema{type: :integer, description: "Maximum party members allowed"},
       metadata: %Schema{type: :object, description: "Arbitrary metadata"},
@@ -24,7 +24,7 @@ defmodule GameServerWeb.Api.V1.PartyController do
         items: %Schema{
           type: :object,
           properties: %{
-            id: %Schema{type: :integer},
+            id: %Schema{type: :string, format: :uuid},
             display_name: %Schema{type: :string},
             profile_url: %Schema{type: :string, nullable: true},
             metadata: %Schema{
@@ -38,14 +38,14 @@ defmodule GameServerWeb.Api.V1.PartyController do
       }
     },
     example: %{
-      id: 1,
-      leader_id: 42,
+      id: "0198c0de-0001-7000-8000-000000000001",
+      leader_id: "0198c0de-0002-7000-8000-000000000002",
       leader_name: "Player1",
       max_size: 4,
       metadata: %{},
       members: [
         %{
-          id: 42,
+          id: "0198c0de-0002-7000-8000-000000000002",
           display_name: "Player1",
           profile_url: "",
           metadata: %{hat: "red", color: "#FF0000"},
@@ -140,10 +140,14 @@ defmodule GameServerWeb.Api.V1.PartyController do
       %Schema{
         type: :object,
         properties: %{
-          target_user_id: %Schema{type: :integer, description: "ID of the user to invite"}
+          target_user_id: %Schema{
+            type: :string,
+            format: :uuid,
+            description: "ID of the user to invite"
+          }
         },
         required: [:target_user_id],
-        example: %{target_user_id: 123}
+        example: %{target_user_id: "0198c0de-0002-7000-8000-000000000002"}
       }
     },
     responses: [
@@ -171,10 +175,14 @@ defmodule GameServerWeb.Api.V1.PartyController do
       %Schema{
         type: :object,
         properties: %{
-          target_user_id: %Schema{type: :integer, description: "ID of the invited user"}
+          target_user_id: %Schema{
+            type: :string,
+            format: :uuid,
+            description: "ID of the invited user"
+          }
         },
         required: [:target_user_id],
-        example: %{target_user_id: 123}
+        example: %{target_user_id: "0198c0de-0002-7000-8000-000000000002"}
       }
     },
     responses: [
@@ -201,7 +209,7 @@ defmodule GameServerWeb.Api.V1.PartyController do
       %Schema{
         type: :object,
         properties: %{
-          party_id: %Schema{type: :integer, description: "ID of the party to join"}
+          party_id: %Schema{type: :string, format: :uuid, description: "ID of the party to join"}
         },
         required: [:party_id],
         example: %{party_id: 7}
@@ -235,7 +243,11 @@ defmodule GameServerWeb.Api.V1.PartyController do
       %Schema{
         type: :object,
         properties: %{
-          party_id: %Schema{type: :integer, description: "ID of the party to decline"}
+          party_id: %Schema{
+            type: :string,
+            format: :uuid,
+            description: "ID of the party to decline"
+          }
         },
         required: [:party_id],
         example: %{party_id: 7}
@@ -262,11 +274,11 @@ defmodule GameServerWeb.Api.V1.PartyController do
            items: %Schema{
              type: :object,
              properties: %{
-               id: %Schema{type: :integer, description: "Invite ID"},
-               party_id: %Schema{type: :integer},
-               sender_id: %Schema{type: :integer},
+               id: %Schema{type: :string, format: :uuid, description: "Invite ID"},
+               party_id: %Schema{type: :string, format: :uuid},
+               sender_id: %Schema{type: :string, format: :uuid},
                sender_name: %Schema{type: :string},
-               recipient_id: %Schema{type: :integer},
+               recipient_id: %Schema{type: :string, format: :uuid},
                recipient_name: %Schema{type: :string},
                status: %Schema{
                  type: :string,
@@ -296,11 +308,11 @@ defmodule GameServerWeb.Api.V1.PartyController do
            items: %Schema{
              type: :object,
              properties: %{
-               id: %Schema{type: :integer, description: "Invite ID"},
-               party_id: %Schema{type: :integer},
-               sender_id: %Schema{type: :integer},
+               id: %Schema{type: :string, format: :uuid, description: "Invite ID"},
+               party_id: %Schema{type: :string, format: :uuid},
+               sender_id: %Schema{type: :string, format: :uuid},
                sender_name: %Schema{type: :string},
-               recipient_id: %Schema{type: :integer},
+               recipient_id: %Schema{type: :string, format: :uuid},
                recipient_name: %Schema{type: :string},
                status: %Schema{
                  type: :string,
@@ -327,10 +339,14 @@ defmodule GameServerWeb.Api.V1.PartyController do
       %Schema{
         type: :object,
         properties: %{
-          target_user_id: %Schema{type: :integer, description: "ID of the user to kick"}
+          target_user_id: %Schema{
+            type: :string,
+            format: :uuid,
+            description: "ID of the user to kick"
+          }
         },
         required: [:target_user_id],
-        example: %{target_user_id: 123}
+        example: %{target_user_id: "0198c0de-0002-7000-8000-000000000002"}
       }
     },
     responses: [
@@ -414,7 +430,12 @@ defmodule GameServerWeb.Api.V1.PartyController do
       "The party leader joins an existing lobby and all party members join atomically. The party is kept intact. No party member may already be in a lobby. The lobby must have enough free space for all party members.",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Lobby ID", required: true]
+      id: [
+        in: :path,
+        schema: %Schema{type: :string, format: :uuid},
+        description: "Lobby ID",
+        required: true
+      ]
     ],
     request_body: {
       "Join parameters (optional)",
@@ -756,8 +777,8 @@ defmodule GameServerWeb.Api.V1.PartyController do
   def join_lobby(conn, %{"id" => id} = params) do
     case conn.assigns[:current_scope] do
       %{user: user} when is_map(user) ->
-        case Integer.parse(to_string(id)) do
-          {lobby_id, ""} ->
+        case Ecto.UUID.cast(to_string(id)) do
+          {:ok, lobby_id} ->
             opts = %{password: Map.get(params, "password") || Map.get(params, :password)}
 
             case Parties.join_lobby_with_party(user, lobby_id, opts) do

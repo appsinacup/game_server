@@ -17,9 +17,14 @@ defmodule GameServerWeb.Api.V1.LobbyController do
   @lobby_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :integer, description: "Lobby ID"},
+      id: %Schema{type: :string, format: :uuid, description: "Lobby ID"},
       title: %Schema{type: :string, description: "Display title"},
-      host_id: %Schema{type: :integer, description: "User ID of the host", nullable: true},
+      host_id: %Schema{
+        type: :string,
+        format: :uuid,
+        description: "User ID of the host",
+        nullable: true
+      },
       host_name: %Schema{type: :string, description: "Display name of the host"},
       hostless: %Schema{type: :boolean, description: "Whether this is a server-managed lobby"},
       max_users: %Schema{type: :integer, description: "Maximum number of users allowed"},
@@ -33,10 +38,10 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       slowdown: %Schema{type: :integer, description: "Chat slowdown in seconds (0 = disabled)"}
     },
     example: %{
-      id: 1,
+      id: "0198c0de-0001-7000-8000-000000000001",
       # 'name' (slug) intentionally omitted from API responses - use 'id' and 'title'
       title: "My Game Lobby",
-      host_id: 42,
+      host_id: "0198c0de-0002-7000-8000-000000000002",
       host_name: "PlayerOne",
       hostless: false,
       max_users: 8,
@@ -226,7 +231,12 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       "Join an existing lobby. If the lobby requires a password, include it in the request body.",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Lobby ID", required: true]
+      id: [
+        in: :path,
+        schema: %Schema{type: :string, format: :uuid},
+        description: "Lobby ID",
+        required: true
+      ]
     ],
     request_body: {
       "Join parameters (optional)",
@@ -278,10 +288,14 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       %Schema{
         type: :object,
         properties: %{
-          target_user_id: %Schema{type: :integer, description: "ID of the user to kick"}
+          target_user_id: %Schema{
+            type: :string,
+            format: :uuid,
+            description: "ID of the user to kick"
+          }
         },
         required: [:target_user_id],
-        example: %{target_user_id: 123}
+        example: %{target_user_id: "0198c0de-0002-7000-8000-000000000002"}
       }
     },
     responses: [
@@ -396,7 +410,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
                items: %Schema{
                  type: :object,
                  properties: %{
-                   id: %Schema{type: :integer},
+                   id: %Schema{type: :string, format: :uuid},
                    display_name: %Schema{type: :string},
                    profile_url: %Schema{type: :string, nullable: true},
                    metadata: %Schema{
@@ -417,7 +431,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
   )
 
   def show(conn, %{"id" => id_str}) do
-    with {lobby_id, ""} <- Integer.parse(id_str),
+    with {:ok, lobby_id} <- Ecto.UUID.cast(id_str),
          %GameServer.Lobbies.Lobby{} = lobby <- Lobbies.get_lobby(lobby_id),
          true <- !lobby.is_hidden do
       members =
@@ -527,8 +541,8 @@ defmodule GameServerWeb.Api.V1.LobbyController do
         user = GameServer.Accounts.get_user(user.id)
         password = Map.get(params, "password") || Map.get(params, :password)
 
-        case Integer.parse(to_string(id)) do
-          {lobby_id, ""} ->
+        case Ecto.UUID.cast(to_string(id)) do
+          {:ok, lobby_id} ->
             cond do
               # Non-leader party members cannot join a lobby individually
               user.party_id != nil and not Parties.leader?(user) ->

@@ -8,41 +8,28 @@ defmodule GameServerWeb.Helpers.ParamParser do
   """
 
   @doc """
-  Safely parse a value into an integer. Returns the integer or `nil`.
-
-  Handles integers, numeric strings, and rejects everything else.
+  Safely parse a value into a UUID id. Returns the UUID string or `nil`.
 
   ## Examples
 
-      iex> parse_id(42)
-      42
-      iex> parse_id("42")
-      42
+      iex> parse_id("0198c0de-1234-7abc-8def-0123456789ab")
+      "0198c0de-1234-7abc-8def-0123456789ab"
       iex> parse_id("abc")
       nil
       iex> parse_id(nil)
       nil
   """
-  @spec parse_id(term()) :: integer() | nil
-  def parse_id(val) when is_integer(val), do: val
-
-  def parse_id(val) when is_binary(val) do
-    case Integer.parse(val) do
-      {int, ""} -> int
-      _ -> nil
-    end
-  end
-
-  def parse_id(_), do: nil
+  @spec parse_id(term()) :: Ecto.UUID.t() | nil
+  def parse_id(val), do: GameServer.UUIDv7.cast_or_nil(val)
 
   @doc """
-  Like `parse_id/1` but returns `{:ok, int}` or `:error`.
+  Like `parse_id/1` but returns `{:ok, uuid}` or `:error`.
   """
-  @spec parse_id!(term()) :: {:ok, integer()} | :error
+  @spec parse_id!(term()) :: {:ok, Ecto.UUID.t()} | :error
   def parse_id!(val) do
     case parse_id(val) do
       nil -> :error
-      int -> {:ok, int}
+      uuid -> {:ok, uuid}
     end
   end
 

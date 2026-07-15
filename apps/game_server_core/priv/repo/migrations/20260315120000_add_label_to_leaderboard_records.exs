@@ -6,15 +6,15 @@ defmodule GameServer.Repo.Migrations.AddLabelToLeaderboardRecords do
       # Postgres supports ALTER COLUMN natively
       alter table(:leaderboard_records) do
         add :label, :string
-        modify :user_id, :bigint, null: true
+        modify :user_id, :binary_id, null: true
       end
     else
       # SQLite doesn't support ALTER COLUMN, so we rebuild the table.
       execute """
       CREATE TABLE leaderboard_records_new (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        leaderboard_id INTEGER NOT NULL REFERENCES leaderboards(id) ON DELETE CASCADE,
-        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        id TEXT PRIMARY KEY,
+        leaderboard_id TEXT NOT NULL REFERENCES leaderboards(id) ON DELETE CASCADE,
+        user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
         score INTEGER NOT NULL DEFAULT 0,
         metadata TEXT NOT NULL DEFAULT '{}',
         label TEXT,
@@ -51,14 +51,14 @@ defmodule GameServer.Repo.Migrations.AddLabelToLeaderboardRecords do
     if repo().__adapter__() == Ecto.Adapters.Postgres do
       alter table(:leaderboard_records) do
         remove :label
-        modify :user_id, :bigint, null: false
+        modify :user_id, :binary_id, null: false
       end
     else
       execute """
       CREATE TABLE leaderboard_records_old (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        leaderboard_id INTEGER NOT NULL REFERENCES leaderboards(id) ON DELETE CASCADE,
-        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        id TEXT PRIMARY KEY,
+        leaderboard_id TEXT NOT NULL REFERENCES leaderboards(id) ON DELETE CASCADE,
+        user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         score INTEGER NOT NULL DEFAULT 0,
         metadata TEXT NOT NULL DEFAULT '{}',
         inserted_at TEXT NOT NULL,

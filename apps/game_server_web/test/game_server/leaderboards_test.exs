@@ -18,7 +18,7 @@ defmodule GameServer.LeaderboardsTest do
       }
 
       assert {:ok, %Leaderboard{} = lb} = Leaderboards.create_leaderboard(attrs)
-      assert is_integer(lb.id)
+      assert is_binary(lb.id)
       assert lb.slug == "weekly_score"
       assert lb.title == "Weekly High Scores"
       assert lb.sort_order == :desc
@@ -54,7 +54,7 @@ defmodule GameServer.LeaderboardsTest do
     end
 
     test "get_leaderboard/1 returns nil for non-existent id" do
-      assert Leaderboards.get_leaderboard(999_999) == nil
+      assert Leaderboards.get_leaderboard(Ecto.UUID.generate()) == nil
     end
 
     test "update_leaderboard/2 updates the leaderboard" do
@@ -218,7 +218,7 @@ defmodule GameServer.LeaderboardsTest do
 
     test "fails for non-existent leaderboard", %{user: user} do
       assert {:error, :leaderboard_not_found} =
-               Leaderboards.submit_score(999_999, user.id, 100)
+               Leaderboards.submit_score(Ecto.UUID.generate(), user.id, 100)
     end
 
     test "fails for ended leaderboard", %{user: user} do

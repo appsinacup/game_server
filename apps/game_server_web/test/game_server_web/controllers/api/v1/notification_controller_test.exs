@@ -42,7 +42,7 @@ defmodule GameServerWeb.Api.V1.NotificationControllerTest do
     assert resp["sender_id"] == a.id
     assert Map.has_key?(resp, "sender_name")
     assert resp["recipient_id"] == b.id
-    assert is_integer(resp["id"])
+    assert is_binary(resp["id"])
   end
 
   test "POST /api/v1/notifications with content and metadata", %{conn: conn} do

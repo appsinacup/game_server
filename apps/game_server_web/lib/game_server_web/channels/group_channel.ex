@@ -38,7 +38,7 @@ defmodule GameServerWeb.GroupChannel do
   def join("group:" <> group_id_str, _payload, socket) do
     current_scope = Map.get(socket.assigns, :current_scope)
 
-    with {group_id, ""} <- Integer.parse(group_id_str),
+    with {:ok, group_id} <- Ecto.UUID.cast(group_id_str),
          %Scope{user: %{id: user_id}} <- current_scope,
          true <- Groups.member?(group_id, user_id) do
       # Unsubscribe first to avoid duplicate subscriptions on reconnect
@@ -228,7 +228,7 @@ defmodule GameServerWeb.GroupChannel do
   @impl true
   def terminate(_reason, socket) do
     case socket.assigns do
-      %{group_id: group_id} when is_integer(group_id) ->
+      %{group_id: group_id} when is_binary(group_id) ->
         Groups.unsubscribe_group(group_id)
         Chat.unsubscribe_group_chat(group_id)
         :ok

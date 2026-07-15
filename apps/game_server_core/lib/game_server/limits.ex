@@ -36,6 +36,8 @@ defmodule GameServer.Limits do
 
     # ── User ────────────────────────────────────────────────
     max_display_name: 80,
+    # 0 disables; counted per app instance.
+    max_sockets_per_user: 20,
     max_email: 160,
     max_profile_url: 512,
     max_device_id: 256,
@@ -59,6 +61,8 @@ defmodule GameServer.Limits do
 
     # ── Chat ────────────────────────────────────────────────
     max_chat_content: 4_096,
+    # Rolling 24h; 0 disables. Needs rate limiting on; ETS backend counts per instance.
+    max_chat_messages_per_day: 5_000,
 
     # ── Notifications ───────────────────────────────────────
     max_notification_title: 255,

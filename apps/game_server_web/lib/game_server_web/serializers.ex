@@ -79,7 +79,7 @@ defmodule GameServerWeb.Serializers do
     %{
       id: lobby.id,
       title: lobby.title,
-      host_id: lobby.host_id || -1,
+      host_id: lobby.host_id || "",
       host_name: assoc_or_lookup_display_name(host, lobby.host_id),
       hostless: lobby.hostless,
       max_users: lobby.max_users,

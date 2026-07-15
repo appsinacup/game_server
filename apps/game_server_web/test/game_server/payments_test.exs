@@ -374,8 +374,7 @@ defmodule GameServer.PaymentsTest do
       Payments.create_provider_product(%{
         "product_id" => product.id,
         "provider" => provider,
-        "external_id" =>
-          external_id <> "_" <> Integer.to_string(System.unique_integer([:positive])),
+        "external_id" => external_id <> "_" <> to_string(System.unique_integer([:positive])),
         "currency" => "USD",
         "unit_amount" => 199
       })
@@ -398,8 +397,7 @@ defmodule GameServer.PaymentsTest do
       Payments.create_provider_product(%{
         "product_id" => product.id,
         "provider" => provider,
-        "external_id" =>
-          external_id <> "_" <> Integer.to_string(System.unique_integer([:positive])),
+        "external_id" => external_id <> "_" <> to_string(System.unique_integer([:positive])),
         "currency" => "USD",
         "unit_amount" => 999
       })
@@ -425,8 +423,7 @@ defmodule GameServer.PaymentsTest do
       Payments.create_provider_product(%{
         "product_id" => product.id,
         "provider" => provider,
-        "external_id" =>
-          external_id <> "_" <> Integer.to_string(System.unique_integer([:positive])),
+        "external_id" => external_id <> "_" <> to_string(System.unique_integer([:positive])),
         "currency" => "USD",
         "unit_amount" => 499
       })

@@ -16,7 +16,7 @@ defmodule GameServer.Parties.Party do
   - A user can be in both a party and a lobby simultaneously.
   - A user can only be in one party at a time.
   """
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Changeset
 
   alias GameServer.Accounts.User

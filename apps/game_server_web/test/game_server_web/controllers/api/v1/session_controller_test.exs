@@ -76,7 +76,7 @@ defmodule GameServerWeb.Api.V1.SessionControllerTest do
                }
              } = resp
 
-      assert is_integer(device_user_id) and device_user_id > 0
+      assert is_binary(device_user_id) and device_user_id != ""
 
       assert is_binary(access_token)
       assert is_binary(refresh_token)

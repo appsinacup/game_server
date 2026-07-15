@@ -226,7 +226,7 @@ defmodule GameServer.Hooks.PluginManager do
   defp rpc_result_status({:ok, _result}), do: "ok"
   defp rpc_result_status({:error, reason}), do: "error:#{inspect(reason)}"
 
-  defp user_id(%{id: id}) when is_integer(id), do: id
+  defp user_id(%{id: id}) when is_binary(id), do: id
   defp user_id(_user), do: nil
 
   defp format_context_value(value) when is_binary(value), do: inspect(value)

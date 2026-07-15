@@ -97,8 +97,8 @@ defmodule GameServerWeb.AuthControllerApiTest do
 
       assert status_body["status"] == "completed"
 
-      assert is_map(status_body["data"]) and is_integer(status_body["data"]["user_id"]) and
-               status_body["data"]["user_id"] > 0
+      assert is_map(status_body["data"]) and is_binary(status_body["data"]["user_id"]) and
+               status_body["data"]["user_id"] != ""
 
       # ensure user exists in DB
       assert GameServer.Repo.get(GameServer.Accounts.User, status_body["data"]["user_id"]) != nil
@@ -129,7 +129,7 @@ defmodule GameServerWeb.AuthControllerApiTest do
       assert is_binary(body["data"]["access_token"]) and is_binary(body["data"]["refresh_token"]) and
                is_integer(body["data"]["expires_in"])
 
-      assert is_integer(body["data"]["user_id"])
+      assert is_binary(body["data"]["user_id"])
     end
 
     test "POST /api/v1/auth/:provider/callback returns 400 on code exchange failure", %{
@@ -188,7 +188,7 @@ defmodule GameServerWeb.AuthControllerApiTest do
       assert is_binary(body["data"]["access_token"]) and is_binary(body["data"]["refresh_token"]) and
                is_integer(body["data"]["expires_in"])
 
-      assert is_integer(body["data"]["user_id"])
+      assert is_binary(body["data"]["user_id"])
     end
 
     test "POST /api/v1/auth/google/callback skips profile lookup when user already has profile",
@@ -472,7 +472,7 @@ defmodule GameServerWeb.AuthControllerApiTest do
       assert is_binary(body["data"]["access_token"]) and is_binary(body["data"]["refresh_token"]) and
                is_integer(body["data"]["expires_in"])
 
-      assert is_integer(body["data"]["user_id"])
+      assert is_binary(body["data"]["user_id"])
     end
 
     test "POST /api/v1/auth/steam/callback fills missing profile fields for existing user", %{
@@ -557,7 +557,7 @@ defmodule GameServerWeb.AuthControllerApiTest do
       assert is_binary(body["data"]["access_token"])
       assert is_binary(body["data"]["refresh_token"])
       assert is_integer(body["data"]["expires_in"])
-      assert is_integer(body["data"]["user_id"])
+      assert is_binary(body["data"]["user_id"])
 
       user = GameServer.Repo.get(GameServer.Accounts.User, body["data"]["user_id"])
       assert user != nil

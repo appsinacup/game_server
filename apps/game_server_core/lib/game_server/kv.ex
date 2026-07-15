@@ -97,34 +97,34 @@ defmodule GameServer.KV do
   end
 
   defp topic(key, nil, nil), do: "kv:global:#{key}"
-  defp topic(key, user_id, nil) when is_integer(user_id), do: "kv:user:#{user_id}:#{key}"
-  defp topic(key, nil, lobby_id) when is_integer(lobby_id), do: "kv:lobby:#{lobby_id}:#{key}"
+  defp topic(key, user_id, nil) when is_binary(user_id), do: "kv:user:#{user_id}:#{key}"
+  defp topic(key, nil, lobby_id) when is_binary(lobby_id), do: "kv:lobby:#{lobby_id}:#{key}"
 
-  defp topic(key, user_id, lobby_id) when is_integer(user_id) and is_integer(lobby_id),
+  defp topic(key, user_id, lobby_id) when is_binary(user_id) and is_binary(lobby_id),
     do: "kv:user_lobby:#{user_id}:#{lobby_id}:#{key}"
 
   defp entries_cache_version(:all) do
     GameServer.Cache.get!({:kv, :entries_version, :all}) || 1
   end
 
-  defp entries_cache_version({:user, user_id}) when is_integer(user_id) do
+  defp entries_cache_version({:user, user_id}) when is_binary(user_id) do
     GameServer.Cache.get!({:kv, :entries_version, {:user, user_id}}) || 1
   end
 
-  defp entries_cache_version({:lobby, lobby_id}) when is_integer(lobby_id) do
+  defp entries_cache_version({:lobby, lobby_id}) when is_binary(lobby_id) do
     GameServer.Cache.get!({:kv, :entries_version, {:lobby, lobby_id}}) || 1
   end
 
   defp entries_cache_version({:user_lobby, user_id, lobby_id})
-       when is_integer(user_id) and is_integer(lobby_id) do
+       when is_binary(user_id) and is_binary(lobby_id) do
     GameServer.Cache.get!({:kv, :entries_version, {:user_lobby, user_id, lobby_id}}) || 1
   end
 
   defp scope_for_cache(nil, nil), do: :all
-  defp scope_for_cache(user_id, nil) when is_integer(user_id), do: {:user, user_id}
-  defp scope_for_cache(nil, lobby_id) when is_integer(lobby_id), do: {:lobby, lobby_id}
+  defp scope_for_cache(user_id, nil) when is_binary(user_id), do: {:user, user_id}
+  defp scope_for_cache(nil, lobby_id) when is_binary(lobby_id), do: {:lobby, lobby_id}
 
-  defp scope_for_cache(user_id, lobby_id) when is_integer(user_id) and is_integer(lobby_id) do
+  defp scope_for_cache(user_id, lobby_id) when is_binary(user_id) and is_binary(lobby_id) do
     {:user_lobby, user_id, lobby_id}
   end
 
@@ -133,7 +133,7 @@ defmodule GameServer.KV do
     :ok
   end
 
-  defp invalidate_entries_cache(user_id, nil) when is_integer(user_id) do
+  defp invalidate_entries_cache(user_id, nil) when is_binary(user_id) do
     GameServer.Async.run(fn ->
       _ = GameServer.Cache.incr({:kv, :entries_version, :all}, 1, default: 1)
       _ = GameServer.Cache.incr({:kv, :entries_version, {:user, user_id}}, 1, default: 1)
@@ -143,7 +143,7 @@ defmodule GameServer.KV do
     :ok
   end
 
-  defp invalidate_entries_cache(nil, lobby_id) when is_integer(lobby_id) do
+  defp invalidate_entries_cache(nil, lobby_id) when is_binary(lobby_id) do
     GameServer.Async.run(fn ->
       _ = GameServer.Cache.incr({:kv, :entries_version, :all}, 1, default: 1)
       _ = GameServer.Cache.incr({:kv, :entries_version, {:lobby, lobby_id}}, 1, default: 1)
@@ -154,7 +154,7 @@ defmodule GameServer.KV do
   end
 
   defp invalidate_entries_cache(user_id, lobby_id)
-       when is_integer(user_id) and is_integer(lobby_id) do
+       when is_binary(user_id) and is_binary(lobby_id) do
     GameServer.Async.run(fn ->
       _ = GameServer.Cache.incr({:kv, :entries_version, :all}, 1, default: 1)
       _ = GameServer.Cache.incr({:kv, :entries_version, {:user, user_id}}, 1, default: 1)
@@ -408,8 +408,8 @@ defmodule GameServer.KV do
   Returns the `Entry` struct or `nil` if not found.
   """
   @spec get_entry(pos_integer()) :: Entry.t() | nil
-  def get_entry(id) when is_integer(id) and id > 0 do
-    Repo.get(Entry, id)
+  def get_entry(id) do
+    Repo.get_uuid(Entry, id)
   end
 
   @doc """
@@ -440,19 +440,10 @@ defmodule GameServer.KV do
   end
 
   defp do_create_entry(attrs) do
-    user_id = attrs[:user_id] || attrs["user_id"]
-    lobby_id = attrs[:lobby_id] || attrs["lobby_id"]
     changeset = Entry.changeset(%Entry{}, attrs)
 
     try do
-      case Repo.insert(changeset,
-             on_conflict: :nothing,
-             conflict_target: kv_conflict_target(user_id, lobby_id)
-           ) do
-        {:ok, %{id: nil}} ->
-          # Conflict occurred (on_conflict: :nothing produces nil id)
-          {:error, Ecto.Changeset.add_error(changeset, :key, "has already been taken")}
-
+      case Repo.insert(changeset) do
         {:ok, entry} ->
           _ = cache_put(entry.key, entry.user_id, entry.lobby_id, entry)
           _ = invalidate_entries_cache(entry.user_id, entry.lobby_id)
@@ -464,15 +455,20 @@ defmodule GameServer.KV do
       end
     rescue
       e in Ecto.ConstraintError ->
-        if Map.get(e, :type) == :foreign_key do
-          changeset =
-            changeset
-            |> maybe_add_fk_error(:user_id)
-            |> maybe_add_fk_error(:lobby_id)
+        case Map.get(e, :type) do
+          :foreign_key ->
+            changeset =
+              changeset
+              |> maybe_add_fk_error(:user_id)
+              |> maybe_add_fk_error(:lobby_id)
 
-          {:error, changeset}
-        else
-          reraise(e, __STACKTRACE__)
+            {:error, changeset}
+
+          :unique ->
+            {:error, Ecto.Changeset.add_error(changeset, :key, "has already been taken")}
+
+          _ ->
+            reraise(e, __STACKTRACE__)
         end
     end
   end
@@ -483,8 +479,8 @@ defmodule GameServer.KV do
   """
   @spec update_entry(pos_integer(), attrs()) ::
           {:ok, Entry.t()} | {:error, :not_found} | {:error, Ecto.Changeset.t()}
-  def update_entry(id, attrs) when is_integer(id) and id > 0 and is_map(attrs) do
-    case Repo.get(Entry, id) do
+  def update_entry(id, attrs) when is_map(attrs) do
+    case Repo.get_uuid(Entry, id) do
       nil ->
         {:error, :not_found}
 
@@ -544,8 +540,8 @@ defmodule GameServer.KV do
   Returns `:ok` whether or not the entry existed.
   """
   @spec delete_entry(pos_integer()) :: :ok
-  def delete_entry(id) when is_integer(id) and id > 0 do
-    case Repo.get(Entry, id) do
+  def delete_entry(id) do
+    case Repo.get_uuid(Entry, id) do
       nil ->
         :ok
 

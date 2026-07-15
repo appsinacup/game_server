@@ -401,7 +401,7 @@ defmodule GameServer.Accounts do
     Counts tokens for a given user.
     
   """
-  @spec count_user_tokens(integer()) :: non_neg_integer()
+  @spec count_user_tokens(String.t()) :: non_neg_integer()
   def count_user_tokens(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -830,12 +830,12 @@ defmodule GameServer.Accounts do
         iex> get_user(123)
         %User{}
     
-        iex> get_user(456)
+        iex> get_user(Ecto.UUID.generate())
         nil
     
     
   """
-  @spec get_user(integer()) :: GameServer.Accounts.User.t() | nil
+  @spec get_user(String.t()) :: GameServer.Accounts.User.t() | nil
   def get_user(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -862,7 +862,7 @@ defmodule GameServer.Accounts do
     
     
   """
-  @spec get_user!(integer()) :: GameServer.Accounts.User.t()
+  @spec get_user!(String.t()) :: GameServer.Accounts.User.t()
   def get_user!(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -1069,7 +1069,7 @@ defmodule GameServer.Accounts do
     Accepts a user ID and clears both the primary and all index caches.
     
   """
-  @spec invalidate_user_cache_by_id(integer()) :: :ok
+  @spec invalidate_user_cache_by_id(String.t()) :: :ok
   def invalidate_user_cache_by_id(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -1130,7 +1130,7 @@ defmodule GameServer.Accounts do
     
   """
   @spec list_user_tokens(
-  integer(),
+  String.t(),
   keyword()
 ) :: [GameServer.Accounts.UserToken.t()]
   def list_user_tokens(_user_id, _opts) do
@@ -1302,7 +1302,7 @@ defmodule GameServer.Accounts do
     Revokes all session tokens for a user (mass logout).
     
   """
-  @spec revoke_all_user_sessions(integer()) :: {non_neg_integer(), nil}
+  @spec revoke_all_user_sessions(String.t()) :: {non_neg_integer(), nil}
   def revoke_all_user_sessions(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -1382,7 +1382,7 @@ defmodule GameServer.Accounts do
     Returns {:ok, user} on success.
     
   """
-  @spec set_user_offline(integer()) :: {:ok, GameServer.Accounts.User.t()} | {:error, term()}
+  @spec set_user_offline(String.t()) :: {:ok, GameServer.Accounts.User.t()} | {:error, term()}
   def set_user_offline(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -1405,7 +1405,7 @@ defmodule GameServer.Accounts do
     Returns {:ok, user} on success.
     
   """
-  @spec set_user_online(integer()) :: {:ok, GameServer.Accounts.User.t()} | {:error, term()}
+  @spec set_user_online(String.t()) :: {:ok, GameServer.Accounts.User.t()} | {:error, term()}
   def set_user_online(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -1479,7 +1479,7 @@ defmodule GameServer.Accounts do
     Fire-and-forget — errors are ignored.
     
   """
-  @spec touch_last_seen_by_id(integer()) :: :ok
+  @spec touch_last_seen_by_id(String.t()) :: :ok
   def touch_last_seen_by_id(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->

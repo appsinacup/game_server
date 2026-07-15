@@ -72,13 +72,13 @@ defmodule GameServer.Groups do
   end
 
   @doc "Subscribe to a specific group's events."
-  @spec subscribe_group(integer()) :: :ok | {:error, term()}
+  @spec subscribe_group(String.t()) :: :ok | {:error, term()}
   def subscribe_group(group_id) do
     Phoenix.PubSub.subscribe(GameServer.PubSub, "group:#{group_id}")
   end
 
   @doc "Unsubscribe from a specific group's events."
-  @spec unsubscribe_group(integer()) :: :ok
+  @spec unsubscribe_group(String.t()) :: :ok
   def unsubscribe_group(group_id) do
     Phoenix.PubSub.unsubscribe(GameServer.PubSub, "group:#{group_id}")
   end
@@ -92,14 +92,14 @@ defmodule GameServer.Groups do
   end
 
   @doc "Broadcast a presence event (e.g. member_online, member_updated) to a group topic."
-  @spec broadcast_member_presence(integer(), tuple()) :: :ok | {:error, term()}
+  @spec broadcast_member_presence(String.t(), tuple()) :: :ok | {:error, term()}
   def broadcast_member_presence(group_id, event) do
     broadcast_group(group_id, event)
   end
 
   @doc "Return the list of group IDs the user belongs to (lightweight, no preloads)."
-  @spec user_group_ids(integer()) :: [integer()]
-  def user_group_ids(user_id) when is_integer(user_id) do
+  @spec user_group_ids(String.t()) :: [String.t()]
+  def user_group_ids(user_id) when is_binary(user_id) do
     from(m in GroupMember, where: m.user_id == ^user_id, select: m.group_id)
     |> Repo.all()
   end
@@ -117,8 +117,8 @@ defmodule GameServer.Groups do
   defp cache_match(_), do: true
 
   @doc "Public wrapper for cache invalidation (used by admin controller)."
-  @spec invalidate_group_cache_public(integer()) :: :ok
-  def invalidate_group_cache_public(group_id) when is_integer(group_id) do
+  @spec invalidate_group_cache_public(String.t()) :: :ok
+  def invalidate_group_cache_public(group_id) when is_binary(group_id) do
     invalidate_group_cache(group_id)
   end
 
@@ -127,21 +127,21 @@ defmodule GameServer.Groups do
   # ---------------------------------------------------------------------------
 
   @doc "Get a group by ID (cached)."
-  @spec get_group(integer()) :: Group.t() | nil
+  @spec get_group(String.t()) :: Group.t() | nil
   @decorate cacheable(
               key: {:groups, :get, group_cache_version(id), id},
               match: &cache_match/1,
               opts: [ttl: @group_cache_ttl_ms]
             )
-  def get_group(id) when is_integer(id), do: Repo.get(Group, id)
+  def get_group(id), do: Repo.get_uuid(Group, id)
 
   @doc "Get a group by ID (raises if not found, cached)."
-  @spec get_group!(integer()) :: Group.t()
+  @spec get_group!(String.t()) :: Group.t()
   @decorate cacheable(
               key: {:groups, :get, group_cache_version(id), id},
               opts: [ttl: @group_cache_ttl_ms]
             )
-  def get_group!(id) when is_integer(id), do: Repo.get!(Group, id)
+  def get_group!(id), do: Repo.get_uuid!(Group, id)
 
   @doc "Get a group by its unique title."
   @spec get_group_by_title(String.t()) :: Group.t() | nil
@@ -248,8 +248,8 @@ defmodule GameServer.Groups do
   # ---------------------------------------------------------------------------
 
   @doc "Get all members of a group."
-  @spec get_group_members(integer()) :: [GroupMember.t()]
-  def get_group_members(group_id) when is_integer(group_id) do
+  @spec get_group_members(String.t()) :: [GroupMember.t()]
+  def get_group_members(group_id) when is_binary(group_id) do
     from(m in GroupMember,
       where: m.group_id == ^group_id,
       order_by: [asc: m.inserted_at],
@@ -259,8 +259,8 @@ defmodule GameServer.Groups do
   end
 
   @doc "Get paginated members of a group with user info."
-  @spec get_group_members_paginated(integer(), keyword()) :: [GroupMember.t()]
-  def get_group_members_paginated(group_id, opts \\ []) when is_integer(group_id) do
+  @spec get_group_members_paginated(String.t(), keyword()) :: [GroupMember.t()]
+  def get_group_members_paginated(group_id, opts \\ []) when is_binary(group_id) do
     from(m in GroupMember,
       where: m.group_id == ^group_id,
       order_by: [asc: m.inserted_at],
@@ -270,13 +270,13 @@ defmodule GameServer.Groups do
   end
 
   @doc "Count members in a group."
-  @spec count_group_members(integer()) :: non_neg_integer()
-  def count_group_members(group_id) when is_integer(group_id) do
+  @spec count_group_members(String.t()) :: non_neg_integer()
+  def count_group_members(group_id) when is_binary(group_id) do
     Repo.one(from(m in GroupMember, where: m.group_id == ^group_id, select: count(m.id))) || 0
   end
 
   @doc "Batch count members for a list of group IDs. Returns a map of group_id => count."
-  @spec batch_member_counts([integer()]) :: %{integer() => non_neg_integer()}
+  @spec batch_member_counts([String.t()]) :: %{String.t() => non_neg_integer()}
   def batch_member_counts([]), do: %{}
 
   def batch_member_counts(group_ids) when is_list(group_ids) do
@@ -290,8 +290,8 @@ defmodule GameServer.Groups do
   end
 
   @doc "Count how many groups a user has created (is admin of)."
-  @spec count_groups_created_by(integer()) :: non_neg_integer()
-  def count_groups_created_by(user_id) when is_integer(user_id) do
+  @spec count_groups_created_by(String.t()) :: non_neg_integer()
+  def count_groups_created_by(user_id) when is_binary(user_id) do
     Repo.one(
       from(m in GroupMember,
         where: m.user_id == ^user_id and m.role == "admin",
@@ -301,8 +301,8 @@ defmodule GameServer.Groups do
   end
 
   @doc "Count how many groups a user is a member of (any role)."
-  @spec count_user_group_memberships(integer()) :: non_neg_integer()
-  def count_user_group_memberships(user_id) when is_integer(user_id) do
+  @spec count_user_group_memberships(String.t()) :: non_neg_integer()
+  def count_user_group_memberships(user_id) when is_binary(user_id) do
     Repo.one(
       from(m in GroupMember,
         where: m.user_id == ^user_id,
@@ -312,13 +312,13 @@ defmodule GameServer.Groups do
   end
 
   @doc "Get a specific membership."
-  @spec get_membership(integer(), integer()) :: GroupMember.t() | nil
+  @spec get_membership(String.t(), String.t()) :: GroupMember.t() | nil
   def get_membership(group_id, user_id) do
     Repo.get_by(GroupMember, group_id: group_id, user_id: user_id)
   end
 
   @doc "Check if user is an admin of the group."
-  @spec admin?(integer(), integer()) :: boolean()
+  @spec admin?(String.t(), String.t()) :: boolean()
   def admin?(group_id, user_id) do
     case get_membership(group_id, user_id) do
       %GroupMember{role: "admin"} -> true
@@ -327,15 +327,15 @@ defmodule GameServer.Groups do
   end
 
   @doc "Check if user is a member (any role) of the group."
-  @spec member?(integer(), integer()) :: boolean()
+  @spec member?(String.t(), String.t()) :: boolean()
   def member?(group_id, user_id) do
     get_membership(group_id, user_id) != nil
   end
 
   @doc "Return true if both users share at least one common group membership."
-  @spec shared_group_member?(integer(), integer()) :: boolean()
+  @spec shared_group_member?(String.t(), String.t()) :: boolean()
   def shared_group_member?(user_a_id, user_b_id)
-      when is_integer(user_a_id) and is_integer(user_b_id) do
+      when is_binary(user_a_id) and is_binary(user_b_id) do
     Repo.exists?(
       from m1 in GroupMember,
         join: m2 in GroupMember,
@@ -345,8 +345,8 @@ defmodule GameServer.Groups do
   end
 
   @doc "List groups the user belongs to."
-  @spec list_user_groups(integer(), keyword()) :: [Group.t()]
-  def list_user_groups(user_id, opts \\ []) when is_integer(user_id) do
+  @spec list_user_groups(String.t(), keyword()) :: [Group.t()]
+  def list_user_groups(user_id, opts \\ []) when is_binary(user_id) do
     from(g in Group,
       join: m in GroupMember,
       on: m.group_id == g.id,
@@ -358,8 +358,8 @@ defmodule GameServer.Groups do
   end
 
   @doc "List groups the user belongs to, together with the membership role."
-  @spec list_user_groups_with_role(integer()) :: [{Group.t(), String.t()}]
-  def list_user_groups_with_role(user_id) when is_integer(user_id) do
+  @spec list_user_groups_with_role(String.t()) :: [{Group.t(), String.t()}]
+  def list_user_groups_with_role(user_id) when is_binary(user_id) do
     from(g in Group,
       join: m in GroupMember,
       on: m.group_id == g.id,
@@ -371,8 +371,8 @@ defmodule GameServer.Groups do
   end
 
   @doc "Count groups the user belongs to."
-  @spec count_user_groups(integer()) :: non_neg_integer()
-  def count_user_groups(user_id) when is_integer(user_id) do
+  @spec count_user_groups(String.t()) :: non_neg_integer()
+  def count_user_groups(user_id) when is_binary(user_id) do
     from(m in GroupMember, where: m.user_id == ^user_id, select: count(m.id))
     |> Repo.one()
     |> Kernel.||(0)
@@ -385,9 +385,9 @@ defmodule GameServer.Groups do
   @doc """
   Create a new group. The creating user becomes an admin member automatically.
   """
-  @spec create_group(integer(), map()) ::
+  @spec create_group(String.t(), map()) ::
           {:ok, Group.t()} | {:error, Ecto.Changeset.t() | term()}
-  def create_group(user_id, attrs) when is_integer(user_id) and is_map(attrs) do
+  def create_group(user_id, attrs) when is_binary(user_id) and is_map(attrs) do
     attrs = normalize_params(attrs)
 
     case GameServer.Accounts.get_user(user_id) do
@@ -450,10 +450,10 @@ defmodule GameServer.Groups do
   Update group settings. Only admins can update.
   Cannot lower max_members below current member count.
   """
-  @spec update_group(integer(), integer(), map()) ::
+  @spec update_group(String.t(), String.t(), map()) ::
           {:ok, Group.t()} | {:error, atom() | Ecto.Changeset.t()}
   def update_group(user_id, group_id, attrs)
-      when is_integer(user_id) and is_integer(group_id) and is_map(attrs) do
+      when is_binary(user_id) and is_binary(group_id) and is_map(attrs) do
     if admin?(group_id, user_id) do
       group = get_group!(group_id)
       attrs = normalize_params(attrs)
@@ -530,9 +530,9 @@ defmodule GameServer.Groups do
   Delete a group. Admin-only. Refuses if the group still has members — groups
   are auto-deleted when the last member leaves.
   """
-  @spec delete_group(integer(), integer()) :: {:ok, Group.t()} | {:error, atom()}
+  @spec delete_group(String.t(), String.t()) :: {:ok, Group.t()} | {:error, atom()}
   def delete_group(user_id, group_id)
-      when is_integer(user_id) and is_integer(group_id) do
+      when is_binary(user_id) and is_binary(group_id) do
     cond do
       not admin?(group_id, user_id) ->
         {:error, :not_admin}
@@ -542,35 +542,16 @@ defmodule GameServer.Groups do
 
       true ->
         group = get_group!(group_id)
-        # Gather pending invite user IDs before cascade-delete removes them
-        pending_invite_user_ids = Shared.gather_pending_invite_user_ids(group_id)
 
-        case Repo.delete(group) do
-          {:ok, deleted} ->
-            _ = invalidate_group_cache(deleted.id)
-            Shared.invalidate_invite_caches_for_users(pending_invite_user_ids)
-            Shared.notify_invite_users_group_deleted(pending_invite_user_ids, deleted)
-            GameServer.Chat.cleanup_chat("group", deleted.id)
-            broadcast_groups({:group_deleted, deleted.id})
-
-            GameServer.Async.run(fn ->
-              GameServer.Hooks.internal_call(:after_group_delete, [deleted])
-            end)
-
-            {:ok, deleted}
-
-          error ->
-            error
+        with {:ok, _} <- GameServer.Hooks.internal_call(:before_group_delete, [group]) do
+          do_delete_group(group)
         end
     end
   end
 
-  @doc "Admin-level delete (no membership check, for server admins)."
-  @spec admin_delete_group(integer()) :: {:ok, Group.t()} | {:error, term()}
-  def admin_delete_group(group_id) when is_integer(group_id) do
-    group = get_group!(group_id)
+  defp do_delete_group(%Group{} = group) do
     # Gather pending invite user IDs before cascade-delete removes them
-    pending_invite_user_ids = Shared.gather_pending_invite_user_ids(group_id)
+    pending_invite_user_ids = Shared.gather_pending_invite_user_ids(group.id)
 
     case Repo.delete(group) do
       {:ok, deleted} ->
@@ -591,6 +572,16 @@ defmodule GameServer.Groups do
     end
   end
 
+  @doc "Admin-level delete (no membership check, for server admins)."
+  @spec admin_delete_group(String.t()) :: {:ok, Group.t()} | {:error, term()}
+  def admin_delete_group(group_id) when is_binary(group_id) do
+    group = get_group!(group_id)
+
+    with {:ok, _} <- GameServer.Hooks.internal_call(:before_group_delete, [group]) do
+      do_delete_group(group)
+    end
+  end
+
   @doc """
   Clean up group memberships before a user is deleted.
 
@@ -604,8 +595,8 @@ defmodule GameServer.Groups do
   rows still exist (the DB cascade would silently delete them otherwise
   without running the admin-transfer / empty-group logic).
   """
-  @spec handle_user_deletion(integer()) :: :ok
-  def handle_user_deletion(user_id) when is_integer(user_id) do
+  @spec handle_user_deletion(String.t()) :: :ok
+  def handle_user_deletion(user_id) when is_binary(user_id) do
     memberships =
       from(m in GroupMember, where: m.user_id == ^user_id)
       |> Repo.all()
@@ -632,10 +623,10 @@ defmodule GameServer.Groups do
   @doc """
   Join a public group directly. Returns error for private/hidden groups.
   """
-  @spec join_group(integer(), integer()) ::
+  @spec join_group(String.t(), String.t()) ::
           {:ok, GroupMember.t()} | {:error, atom()}
   def join_group(user_id, group_id)
-      when is_integer(user_id) and is_integer(group_id) do
+      when is_binary(user_id) and is_binary(group_id) do
     group = get_group(group_id)
 
     cond do
@@ -668,9 +659,9 @@ defmodule GameServer.Groups do
   end
 
   @doc "Leave a group."
-  @spec leave_group(integer(), integer()) :: {:ok, GroupMember.t()} | {:error, atom()}
+  @spec leave_group(String.t(), String.t()) :: {:ok, GroupMember.t()} | {:error, atom()}
   def leave_group(user_id, group_id)
-      when is_integer(user_id) and is_integer(group_id) do
+      when is_binary(user_id) and is_binary(group_id) do
     Repo.transaction(fn ->
       AdvisoryLock.lock(:group, group_id)
 
@@ -800,10 +791,10 @@ defmodule GameServer.Groups do
   end
 
   @doc "Kick a member from the group. Only admins can kick."
-  @spec kick_member(integer(), integer(), integer()) ::
+  @spec kick_member(String.t(), String.t(), String.t()) ::
           {:ok, GroupMember.t()} | {:error, atom()}
   def kick_member(admin_id, group_id, target_id)
-      when is_integer(admin_id) and is_integer(group_id) and is_integer(target_id) do
+      when is_binary(admin_id) and is_binary(group_id) and is_binary(target_id) do
     cond do
       not admin?(group_id, admin_id) ->
         {:error, :not_admin}
@@ -813,8 +804,18 @@ defmodule GameServer.Groups do
 
       true ->
         case get_membership(group_id, target_id) do
-          nil -> {:error, :not_member}
-          member -> do_kick_member(member, admin_id, target_id, group_id)
+          nil ->
+            {:error, :not_member}
+
+          member ->
+            with {:ok, _} <-
+                   GameServer.Hooks.internal_call(:before_group_kick, [
+                     admin_id,
+                     target_id,
+                     group_id
+                   ]) do
+              do_kick_member(member, admin_id, target_id, group_id)
+            end
         end
     end
   end
@@ -859,10 +860,10 @@ defmodule GameServer.Groups do
   # ---------------------------------------------------------------------------
 
   @doc "Promote a member to admin. Only admins can promote."
-  @spec promote_member(integer(), integer(), integer()) ::
+  @spec promote_member(String.t(), String.t(), String.t()) ::
           {:ok, GroupMember.t()} | {:error, atom()}
   def promote_member(admin_id, group_id, target_id)
-      when is_integer(admin_id) and is_integer(group_id) and is_integer(target_id) do
+      when is_binary(admin_id) and is_binary(group_id) and is_binary(target_id) do
     cond do
       not admin?(group_id, admin_id) ->
         {:error, :not_admin}
@@ -915,10 +916,10 @@ defmodule GameServer.Groups do
   end
 
   @doc "Demote an admin to member. Only admins can demote other admins."
-  @spec demote_member(integer(), integer(), integer()) ::
+  @spec demote_member(String.t(), String.t(), String.t()) ::
           {:ok, GroupMember.t()} | {:error, atom()}
   def demote_member(admin_id, group_id, target_id)
-      when is_integer(admin_id) and is_integer(group_id) and is_integer(target_id) do
+      when is_binary(admin_id) and is_binary(group_id) and is_binary(target_id) do
     cond do
       not admin?(group_id, admin_id) ->
         {:error, :not_admin}
@@ -995,10 +996,10 @@ defmodule GameServer.Groups do
 
   Returns `{:ok, count}` with the number of notifications sent.
   """
-  @spec notify_group(integer(), integer(), String.t(), map()) ::
+  @spec notify_group(String.t(), String.t(), String.t(), map()) ::
           {:ok, non_neg_integer()} | {:error, atom()}
   def notify_group(sender_id, group_id, content, metadata \\ %{})
-      when is_integer(sender_id) and is_integer(group_id) and is_binary(content) do
+      when is_binary(sender_id) and is_binary(group_id) and is_binary(content) do
     group = get_group(group_id)
     title = Map.get(metadata, "title") || Map.get(metadata, :title) || "Group Notification"
     # Remove the title key from metadata so it doesn't duplicate in the payload
@@ -1204,34 +1205,34 @@ defmodule GameServer.Groups do
   # ---------------------------------------------------------------------------
 
   @doc "Request to join a private group. Creates a pending join request."
-  @spec request_join(integer(), integer()) :: {:ok, GroupJoinRequest.t()} | {:error, atom()}
+  @spec request_join(String.t(), String.t()) :: {:ok, GroupJoinRequest.t()} | {:error, atom()}
   defdelegate request_join(user_id, group_id), to: JoinRequests
 
   @doc "List pending join requests for a group (admin only)."
-  @spec list_join_requests(integer(), integer(), keyword()) ::
+  @spec list_join_requests(String.t(), String.t(), keyword()) ::
           {:ok, [GroupJoinRequest.t()]} | {:error, atom()}
   defdelegate list_join_requests(admin_id, group_id, opts \\ []), to: JoinRequests
 
   @doc "Count pending join requests for a group."
-  @spec count_join_requests(integer()) :: non_neg_integer()
+  @spec count_join_requests(String.t()) :: non_neg_integer()
   defdelegate count_join_requests(group_id), to: JoinRequests
 
   @doc "Approve a pending join request. Admin only."
-  @spec approve_join_request(integer(), integer()) :: {:ok, GroupMember.t()} | {:error, atom()}
+  @spec approve_join_request(String.t(), String.t()) :: {:ok, GroupMember.t()} | {:error, atom()}
   defdelegate approve_join_request(admin_id, request_id), to: JoinRequests
 
   @doc "Reject a pending join request. Admin only."
-  @spec reject_join_request(integer(), integer()) ::
+  @spec reject_join_request(String.t(), String.t()) ::
           {:ok, GroupJoinRequest.t()} | {:error, atom()}
   defdelegate reject_join_request(admin_id, request_id), to: JoinRequests
 
   @doc "Cancel (delete) a pending join request. Only the requesting user can cancel."
-  @spec cancel_join_request(integer(), integer()) ::
+  @spec cancel_join_request(String.t(), String.t()) ::
           {:ok, GroupJoinRequest.t()} | {:error, atom()}
   defdelegate cancel_join_request(user_id, request_id), to: JoinRequests
 
   @doc "List pending join requests sent by a user."
-  @spec list_user_pending_requests(integer()) :: [GroupJoinRequest.t()]
+  @spec list_user_pending_requests(String.t()) :: [GroupJoinRequest.t()]
   defdelegate list_user_pending_requests(user_id), to: JoinRequests
 
   # ---------------------------------------------------------------------------
@@ -1239,35 +1240,35 @@ defmodule GameServer.Groups do
   # ---------------------------------------------------------------------------
 
   @doc "Invite a user to a group (see `GameServer.Groups.Invites.invite_to_group/3`)."
-  @spec invite_to_group(integer(), integer(), integer()) ::
+  @spec invite_to_group(String.t(), String.t(), String.t()) ::
           {:ok, GameServer.Groups.GroupInvite.t()} | {:ok, :request_approved} | {:error, atom()}
   defdelegate invite_to_group(admin_id, group_id, target_user_id), to: Invites
 
   @doc "Accept a pending group invite by invite id (recipient only)."
-  @spec accept_invite(integer(), integer()) :: {:ok, GroupMember.t()} | {:error, atom()}
+  @spec accept_invite(String.t(), String.t()) :: {:ok, GroupMember.t()} | {:error, atom()}
   defdelegate accept_invite(user_id, invite_id), to: Invites
 
   @doc "Decline a pending group invite by invite id (recipient only)."
-  @spec decline_invite(integer(), integer()) :: :ok | {:error, atom()}
+  @spec decline_invite(String.t(), String.t()) :: :ok | {:error, atom()}
   defdelegate decline_invite(user_id, invite_id), to: Invites
 
   @doc "Cancel a group invitation the current user sent."
-  @spec cancel_invite(integer(), integer()) :: :ok | {:error, atom()}
+  @spec cancel_invite(String.t(), String.t()) :: :ok | {:error, atom()}
   defdelegate cancel_invite(user_id, invite_id), to: Invites
 
   @doc "List pending group invitations for a user."
-  @spec list_invitations(integer(), keyword()) :: [map()]
+  @spec list_invitations(String.t(), keyword()) :: [map()]
   defdelegate list_invitations(user_id, opts \\ []), to: Invites
 
   @doc "List group invitations sent by a user."
-  @spec list_sent_invitations(integer(), keyword()) :: [map()]
+  @spec list_sent_invitations(String.t(), keyword()) :: [map()]
   defdelegate list_sent_invitations(user_id, opts \\ []), to: Invites
 
   @doc "Count pending invitations for a user."
-  @spec count_invitations(integer()) :: non_neg_integer()
+  @spec count_invitations(String.t()) :: non_neg_integer()
   defdelegate count_invitations(user_id), to: Invites
 
   @doc "Count group invitations sent by a user."
-  @spec count_sent_invitations(integer()) :: non_neg_integer()
+  @spec count_sent_invitations(String.t()) :: non_neg_integer()
   defdelegate count_sent_invitations(user_id), to: Invites
 end

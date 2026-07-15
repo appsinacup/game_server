@@ -7,7 +7,7 @@ defmodule GameServer.Accounts.UserToken do
   stored raw for session tokens (which are signed). The module provides helper
   queries for verification and convenient builders used throughout the app.
   """
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Query
   alias GameServer.Accounts.UserToken
 

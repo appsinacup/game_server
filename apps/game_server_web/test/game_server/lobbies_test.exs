@@ -184,7 +184,7 @@ defmodule GameServer.LobbiesTest do
 
       # not_found (target id points to non-existing user)
       assert {:error, :not_found} =
-               Lobbies.kick_user(host, lobby, %GameServer.Accounts.User{id: 999_999})
+               Lobbies.kick_user(host, lobby, %GameServer.Accounts.User{id: Ecto.UUID.generate()})
 
       # not_in_lobby: target exists but not in this lobby
       outsider = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()

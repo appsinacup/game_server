@@ -6,7 +6,7 @@ defmodule GameServer.OAuthSession do
   polls for completion status (pending/completed/failed). The schema stores
   provider-specific data in the `data` field for debugging and eventing.
   """
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Changeset
 
   schema "oauth_sessions" do

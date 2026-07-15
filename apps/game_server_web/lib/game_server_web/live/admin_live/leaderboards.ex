@@ -429,7 +429,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
 
             <.form for={@record_form} id="record-form" phx-submit="save_record">
               <%= if is_nil(@editing_record) do %>
-                <.input field={@record_form[:user_id]} type="number" label="User ID" />
+                <.input field={@record_form[:user_id]} type="text" label="User ID" />
               <% end %>
               <.input field={@record_form[:score]} type="number" label="Score" />
 
@@ -469,7 +469,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
 
   @impl true
   def handle_event("toggle_select", %{"id" => id}, socket) do
-    id = String.to_integer(to_string(id))
+    id = to_string(id)
     selected = socket.assigns[:selected_ids] || MapSet.new()
 
     selected =
@@ -572,7 +572,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
 
   def handle_event("new_season_from", %{"id" => id}, socket) do
     # Load the existing leaderboard to copy settings from
-    source = Leaderboards.get_leaderboard!(String.to_integer(id))
+    source = Leaderboards.get_leaderboard!(id)
 
     # Create a new leaderboard struct with copied settings
     new_leaderboard = %Leaderboard{
@@ -595,7 +595,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
   end
 
   def handle_event("edit_leaderboard", %{"id" => id}, socket) do
-    leaderboard = Leaderboards.get_leaderboard!(String.to_integer(id))
+    leaderboard = Leaderboards.get_leaderboard!(id)
     changeset = Leaderboards.change_leaderboard(leaderboard)
     form = to_form(changeset, as: "leaderboard")
 
@@ -650,7 +650,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
   end
 
   def handle_event("end_leaderboard", %{"id" => id}, socket) do
-    case Leaderboards.end_leaderboard(String.to_integer(id)) do
+    case Leaderboards.end_leaderboard(id) do
       {:ok, _lb} ->
         {:noreply,
          socket
@@ -663,7 +663,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
   end
 
   def handle_event("delete_leaderboard", %{"id" => id}, socket) do
-    lb = Leaderboards.get_leaderboard!(String.to_integer(id))
+    lb = Leaderboards.get_leaderboard!(id)
 
     case Leaderboards.delete_leaderboard(lb) do
       {:ok, _} ->
@@ -679,7 +679,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
 
   # Records
   def handle_event("view_records", %{"id" => id}, socket) do
-    leaderboard = Leaderboards.get_leaderboard!(String.to_integer(id))
+    leaderboard = Leaderboards.get_leaderboard!(id)
 
     {:noreply,
      socket
@@ -722,7 +722,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
   end
 
   def handle_event("edit_record", %{"id" => id}, socket) do
-    record = Leaderboards.get_record!(String.to_integer(id))
+    record = Leaderboards.get_record!(id)
     changeset = Leaderboards.change_record(record)
     form = to_form(changeset, as: "record")
 
@@ -755,7 +755,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
       case socket.assigns.editing_record do
         nil ->
           # Create new record via submit_score
-          user_id = String.to_integer(params["user_id"])
+          user_id = params["user_id"]
           score = String.to_integer(params["score"])
           Leaderboards.submit_score(lb.id, user_id, score, params["metadata"] || %{})
 
@@ -779,7 +779,7 @@ defmodule GameServerWeb.AdminLive.Leaderboards do
   end
 
   def handle_event("delete_record", %{"id" => id}, socket) do
-    record = Leaderboards.get_record!(String.to_integer(id))
+    record = Leaderboards.get_record!(id)
 
     case Leaderboards.delete_record(record) do
       {:ok, _} ->

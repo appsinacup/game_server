@@ -3,7 +3,7 @@ defmodule GameServer.IpBans.IpBan do
   A persisted IP ban. `expires_at` is `nil` for permanent bans.
   """
 
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Changeset
 
   @type t :: %__MODULE__{

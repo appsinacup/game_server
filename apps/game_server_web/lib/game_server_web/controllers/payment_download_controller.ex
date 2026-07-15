@@ -6,7 +6,7 @@ defmodule GameServerWeb.PaymentDownloadController do
   def show(conn, %{"id" => id}) do
     user = conn.assigns.current_scope.user
 
-    with {entitlement_id, ""} <- Integer.parse(id),
+    with {:ok, entitlement_id} <- Ecto.UUID.cast(id),
          %{} = entitlement <- find_entitlement(user.id, entitlement_id),
          {:ok, path, filename} <- download_file(entitlement) do
       send_download(conn, {:file, path}, filename: filename)

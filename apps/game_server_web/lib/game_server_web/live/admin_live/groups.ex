@@ -392,7 +392,7 @@ defmodule GameServerWeb.AdminLive.Groups do
 
   @impl true
   def handle_event("toggle_select", %{"id" => id}, socket) do
-    {id, ""} = Integer.parse(to_string(id))
+    id = to_string(id)
     selected = socket.assigns[:selected_ids] || MapSet.new()
 
     selected =
@@ -455,7 +455,7 @@ defmodule GameServerWeb.AdminLive.Groups do
 
   @impl true
   def handle_event("edit_group", %{"id" => id}, socket) do
-    {group_id, ""} = Integer.parse(to_string(id))
+    group_id = to_string(id)
     group = Groups.get_group!(group_id)
     changeset = Groups.change_group(group)
     form = to_form(changeset, as: "group")
@@ -513,7 +513,7 @@ defmodule GameServerWeb.AdminLive.Groups do
 
   @impl true
   def handle_event("delete_group", %{"id" => id}, socket) do
-    {group_id, ""} = Integer.parse(to_string(id))
+    group_id = to_string(id)
 
     case Groups.admin_delete_group(group_id) do
       {:ok, _} ->
@@ -529,7 +529,7 @@ defmodule GameServerWeb.AdminLive.Groups do
 
   @impl true
   def handle_event("view_members", %{"id" => id}, socket) do
-    {group_id, ""} = Integer.parse(to_string(id))
+    group_id = to_string(id)
     group = Groups.get_group!(group_id)
     members = Groups.get_group_members(group_id)
 
@@ -550,8 +550,8 @@ defmodule GameServerWeb.AdminLive.Groups do
 
   @impl true
   def handle_event("promote_member", %{"group-id" => gid, "user-id" => uid}, socket) do
-    {group_id, ""} = Integer.parse(to_string(gid))
-    {user_id, ""} = Integer.parse(to_string(uid))
+    group_id = to_string(gid)
+    user_id = to_string(uid)
 
     # Admin promote (use creator_id as the acting admin)
     group = Groups.get_group!(group_id)
@@ -572,8 +572,8 @@ defmodule GameServerWeb.AdminLive.Groups do
 
   @impl true
   def handle_event("demote_member", %{"group-id" => gid, "user-id" => uid}, socket) do
-    {group_id, ""} = Integer.parse(to_string(gid))
-    {user_id, ""} = Integer.parse(to_string(uid))
+    group_id = to_string(gid)
+    user_id = to_string(uid)
 
     group = Groups.get_group!(group_id)
 
@@ -593,8 +593,8 @@ defmodule GameServerWeb.AdminLive.Groups do
 
   @impl true
   def handle_event("kick_member", %{"group-id" => gid, "user-id" => uid}, socket) do
-    {group_id, ""} = Integer.parse(to_string(gid))
-    {user_id, ""} = Integer.parse(to_string(uid))
+    group_id = to_string(gid)
+    user_id = to_string(uid)
 
     group = Groups.get_group!(group_id)
 

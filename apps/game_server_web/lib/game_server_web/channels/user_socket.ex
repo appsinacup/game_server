@@ -57,38 +57,32 @@ defmodule GameServerWeb.UserSocket do
   @impl true
   # Generic connect that attempts to extract a token from a variety of
   # param shapes (plain map, nested under "params" or :params, etc.).
-  # If a token is present we verify it and load the user resource. If no
-  # token is present we allow an anonymous socket (some channels may still
-  # reject joins that require authentication).
+  # Unauthenticated connections are rejected (connection-exhaustion DoS
+  # guard) — all channel functionality requires a valid JWT token — and
+  # each user may hold at most :max_sockets_per_user concurrent sockets.
   def connect(params, socket, _connect_info) do
-    case extract_token(params) do
-      token when is_binary(token) ->
-        case Guardian.decode_and_verify(token) do
-          {:ok, claims} ->
-            case Guardian.resource_from_claims(claims) do
-              {:ok, user} ->
-                GameServerWeb.ConnectionTracker.register(:ws_socket, %{
-                  user_id: user.id,
-                  authenticated: true
-                })
+    with token when is_binary(token) <- extract_token(params),
+         {:ok, claims} <- Guardian.decode_and_verify(token),
+         {:ok, user} <- Guardian.resource_from_claims(claims),
+         false <- socket_limit_reached?(user.id) do
+      GameServerWeb.ConnectionTracker.register(:ws_socket, %{
+        user_id: user.id,
+        authenticated: true
+      })
 
-                socket = assign(socket, :current_scope, Scope.for_user(user))
-                {:ok, socket}
-
-              _ ->
-                :error
-            end
-
-          _ ->
-            :error
-        end
-
-      _ ->
-        # Reject unauthenticated WebSocket connections to prevent
-        # connection-exhaustion DoS. All channel functionality requires
-        # a valid JWT token.
-        :error
+      {:ok, assign(socket, :current_scope, Scope.for_user(user))}
+    else
+      _ -> :error
     end
+  end
+
+  # 0 disables; counted per app instance.
+  defp socket_limit_reached?(user_id) do
+    limit = GameServer.Limits.get(:max_sockets_per_user)
+
+    is_integer(limit) and limit > 0 and
+      GameServerWeb.ConnectionTracker.list_registered(:ws_socket)
+      |> Enum.count(fn {_pid, meta} -> Map.get(meta, :user_id) == user_id end) >= limit
   end
 
   # Extract token from various parameter shapes:

@@ -3,11 +3,16 @@ defmodule GameServerWeb.GroupsLive do
 
   alias GameServer.Groups
   alias GameServerWeb.LiveHelpers
+  alias GameServerWeb.Plugs.FeatureGate
 
   @page_size 12
 
   @impl true
   def mount(_params, _session, socket) do
+    unless FeatureGate.enabled?("LIST_GROUPS_ENABLED", true) do
+      raise GameServerWeb.NotFoundError
+    end
+
     if connected?(socket), do: Groups.subscribe_groups()
 
     user =
@@ -62,7 +67,7 @@ defmodule GameServerWeb.GroupsLive do
   def handle_params(params, _uri, socket) do
     case socket.assigns.live_action do
       :show ->
-        group_id = String.to_integer(params["id"])
+        group_id = params["id"]
 
         case Groups.get_group(group_id) do
           nil ->
@@ -154,7 +159,7 @@ defmodule GameServerWeb.GroupsLive do
   end
 
   def handle_event("join_group", %{"id" => id}, socket) do
-    group_id = String.to_integer(id)
+    group_id = id
 
     case socket.assigns.current_scope do
       %{user: user} when user != nil ->
@@ -182,7 +187,7 @@ defmodule GameServerWeb.GroupsLive do
   end
 
   def handle_event("request_join", %{"id" => id}, socket) do
-    group_id = String.to_integer(id)
+    group_id = id
 
     case socket.assigns.current_scope do
       %{user: user} when user != nil ->
@@ -217,7 +222,7 @@ defmodule GameServerWeb.GroupsLive do
   end
 
   def handle_event("leave_group", %{"id" => id}, socket) do
-    group_id = String.to_integer(id)
+    group_id = id
 
     case socket.assigns.current_scope do
       %{user: user} when user != nil ->

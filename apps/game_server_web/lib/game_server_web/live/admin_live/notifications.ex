@@ -59,8 +59,8 @@ defmodule GameServerWeb.AdminLive.Notifications do
                 class="mt-4 space-y-3"
               >
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <.input field={@create_form[:sender_id]} type="number" label="Sender ID" />
-                  <.input field={@create_form[:recipient_id]} type="number" label="Recipient ID" />
+                  <.input field={@create_form[:sender_id]} type="text" label="Sender ID" />
+                  <.input field={@create_form[:recipient_id]} type="text" label="Recipient ID" />
                 </div>
                 <.input field={@create_form[:title]} type="text" label="Title" />
                 <.input field={@create_form[:content]} type="text" label="Content (optional)" />
@@ -233,8 +233,8 @@ defmodule GameServerWeb.AdminLive.Notifications do
 
   @impl true
   def handle_event("create_notification", %{"notification" => params}, socket) do
-    sender_id = parse_int(params["sender_id"])
-    recipient_id = parse_int(params["recipient_id"])
+    sender_id = parse_id(params["sender_id"])
+    recipient_id = parse_id(params["recipient_id"])
 
     if is_nil(sender_id) or is_nil(recipient_id) do
       {:noreply, put_flash(socket, :error, "Sender ID and Recipient ID are required")}
@@ -294,7 +294,7 @@ defmodule GameServerWeb.AdminLive.Notifications do
 
   @impl true
   def handle_event("toggle_select", %{"id" => id}, socket) do
-    {id, ""} = Integer.parse(to_string(id))
+    id = to_string(id)
     selected = socket.assigns.selected_ids
 
     selected =
@@ -361,7 +361,7 @@ defmodule GameServerWeb.AdminLive.Notifications do
 
   @impl true
   def handle_event("delete_notification", %{"id" => id}, socket) do
-    {notification_id, ""} = Integer.parse(to_string(id))
+    notification_id = to_string(id)
 
     case Notifications.admin_delete_notification(notification_id) do
       {:ok, _} ->
@@ -429,14 +429,5 @@ defmodule GameServerWeb.AdminLive.Notifications do
     assign(socket, :selected_ids, MapSet.intersection(selected, allowed))
   end
 
-  defp parse_int(nil), do: nil
-  defp parse_int(""), do: nil
-  defp parse_int(v) when is_integer(v), do: v
-
-  defp parse_int(v) when is_binary(v) do
-    case Integer.parse(v) do
-      {i, ""} -> i
-      _ -> nil
-    end
-  end
+  defp parse_id(v), do: GameServer.UUIDv7.cast_or_nil(v)
 end

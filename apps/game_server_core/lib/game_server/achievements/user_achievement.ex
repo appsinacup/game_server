@@ -11,7 +11,7 @@ defmodule GameServer.Achievements.UserAchievement do
   - `unlocked_at` — nil if not yet unlocked, timestamp when unlocked
   - `metadata` — arbitrary JSON data
   """
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Changeset
 
   @type t :: %__MODULE__{}

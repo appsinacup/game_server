@@ -13,7 +13,7 @@ defmodule GameServer.Chat.Message do
     * `chat_ref_id` — reference ID (lobby_id, group_id, or the other user's id for DMs)
   """
 
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Changeset
 
   alias GameServer.Accounts.User
@@ -38,7 +38,7 @@ defmodule GameServer.Chat.Message do
     field :content, :string
     field :metadata, :map, default: %{}
     field :chat_type, :string
-    field :chat_ref_id, :integer
+    field :chat_ref_id, GameServer.UUIDv7
 
     belongs_to :sender, User
 

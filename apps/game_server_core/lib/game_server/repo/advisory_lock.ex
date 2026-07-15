@@ -50,23 +50,27 @@ defmodule GameServer.Repo.AdvisoryLock do
   Acquire a transaction-scoped advisory lock for the given resource.
 
   `namespace` can be a predefined atom (`:lobby`, `:group`, `:party`) or any
-  arbitrary string. `resource_id` must be a non-negative integer.
+  arbitrary string. `resource_id` is a UUID string; it is hashed to a stable
+  32-bit integer for `pg_advisory_xact_lock` (a hash collision only causes
+  extra serialization, never lost mutual exclusion).
 
   Must be called inside a `Repo.transaction`. On PostgreSQL, blocks until
   the lock is available. On SQLite, returns immediately.
   """
-  @spec lock(atom() | String.t(), integer()) :: :ok
+  @spec lock(atom() | String.t(), String.t()) :: :ok
   def lock(namespace, resource_id)
-      when is_atom(namespace) and is_integer(resource_id) do
+      when is_atom(namespace) and is_binary(resource_id) do
     ns = Map.fetch!(@namespaces, namespace)
-    maybe_advisory_lock(ns, resource_id)
+    maybe_advisory_lock(ns, hash_resource_id(resource_id))
   end
 
   def lock(namespace, resource_id)
-      when is_binary(namespace) and is_integer(resource_id) do
+      when is_binary(namespace) and is_binary(resource_id) do
     ns = :erlang.phash2(namespace, 2_147_483_547) + @string_ns_offset
-    maybe_advisory_lock(ns, resource_id)
+    maybe_advisory_lock(ns, hash_resource_id(resource_id))
   end
+
+  defp hash_resource_id(resource_id), do: :erlang.phash2(resource_id, 2_147_483_647)
 
   defp maybe_advisory_lock(ns, resource_id) do
     if postgres?() do

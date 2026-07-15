@@ -3,7 +3,7 @@ defmodule GameServer.Payments.ProviderProduct do
   Maps an internal product to a provider-specific SKU or price id.
   """
 
-  use Ecto.Schema
+  use GameServer.Schema
   import Ecto.Changeset
 
   @type t :: %__MODULE__{}

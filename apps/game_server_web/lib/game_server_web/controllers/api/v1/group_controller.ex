@@ -18,7 +18,7 @@ defmodule GameServerWeb.Api.V1.GroupController do
   @group_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :integer, description: "Group ID"},
+      id: %Schema{type: :string, format: :uuid, description: "Group ID"},
       title: %Schema{type: :string, description: "Display title"},
       description: %Schema{type: :string, description: "Description", nullable: true},
       type: %Schema{
@@ -42,13 +42,13 @@ defmodule GameServerWeb.Api.V1.GroupController do
       updated_at: %Schema{type: :string, format: :"date-time"}
     },
     example: %{
-      id: 1,
+      id: "0198c0de-0001-7000-8000-000000000001",
       title: "Awesome Guild",
       description: "A group for awesome players",
       type: "public",
       max_members: 100,
       metadata: %{"lang_tag" => "en"},
-      creator_id: 42,
+      creator_id: "0198c0de-0002-7000-8000-000000000002",
       creator_name: "AwesomePlayer",
       member_count: 12,
       slowdown: 0
@@ -75,9 +75,9 @@ defmodule GameServerWeb.Api.V1.GroupController do
   @member_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :integer, description: "Membership ID"},
-      user_id: %Schema{type: :integer},
-      group_id: %Schema{type: :integer},
+      id: %Schema{type: :string, format: :uuid, description: "Membership ID"},
+      user_id: %Schema{type: :string, format: :uuid},
+      group_id: %Schema{type: :string, format: :uuid},
       role: %Schema{type: :string, enum: ["admin", "member"]},
       display_name: %Schema{type: :string},
       profile_url: %Schema{type: :string, nullable: true},
@@ -90,9 +90,9 @@ defmodule GameServerWeb.Api.V1.GroupController do
   @join_request_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :integer, description: "Join request ID"},
-      user_id: %Schema{type: :integer},
-      group_id: %Schema{type: :integer},
+      id: %Schema{type: :string, format: :uuid, description: "Join request ID"},
+      user_id: %Schema{type: :string, format: :uuid},
+      group_id: %Schema{type: :string, format: :uuid},
       status: %Schema{type: :string, enum: ["pending", "accepted", "rejected"]},
       display_name: %Schema{type: :string},
       inserted_at: %Schema{type: :string, format: :"date-time"}
@@ -102,12 +102,12 @@ defmodule GameServerWeb.Api.V1.GroupController do
   @invitation_schema %Schema{
     type: :object,
     properties: %{
-      id: %Schema{type: :integer, description: "Invite ID"},
-      group_id: %Schema{type: :integer},
+      id: %Schema{type: :string, format: :uuid, description: "Invite ID"},
+      group_id: %Schema{type: :string, format: :uuid},
       group_name: %Schema{type: :string},
-      sender_id: %Schema{type: :integer},
+      sender_id: %Schema{type: :string, format: :uuid},
       sender_name: %Schema{type: :string},
-      recipient_id: %Schema{type: :integer},
+      recipient_id: %Schema{type: :string, format: :uuid},
       recipient_name: %Schema{type: :string},
       status: %Schema{type: :string, description: "pending | accepted | declined | cancelled"},
       inserted_at: %Schema{type: :string, format: :"date-time"}
@@ -172,7 +172,12 @@ defmodule GameServerWeb.Api.V1.GroupController do
     summary: "Get group details",
     description: "Get a single group by ID including member count.",
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Group ID", required: true]
+      id: [
+        in: :path,
+        schema: %Schema{type: :string, format: :uuid},
+        description: "Group ID",
+        required: true
+      ]
     ],
     responses: [
       ok: {"Group details", "application/json", @group_schema},
@@ -224,7 +229,12 @@ defmodule GameServerWeb.Api.V1.GroupController do
       "Update group settings. Only group admins can update. Cannot reduce max_members below current member count.",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Group ID", required: true]
+      id: [
+        in: :path,
+        schema: %Schema{type: :string, format: :uuid},
+        description: "Group ID",
+        required: true
+      ]
     ],
     request_body: {
       "Group update parameters",
@@ -261,7 +271,12 @@ defmodule GameServerWeb.Api.V1.GroupController do
         "Hidden groups require an invite and cannot be joined directly.",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Group ID", required: true]
+      id: [
+        in: :path,
+        schema: %Schema{type: :string, format: :uuid},
+        description: "Group ID",
+        required: true
+      ]
     ],
     responses: [
       ok: {"Joined successfully (public group)", "application/json", @member_schema},
@@ -280,7 +295,12 @@ defmodule GameServerWeb.Api.V1.GroupController do
     description: "Leave a group you are a member of.",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Group ID", required: true]
+      id: [
+        in: :path,
+        schema: %Schema{type: :string, format: :uuid},
+        description: "Group ID",
+        required: true
+      ]
     ],
     responses: [
       ok: {"Left successfully", "application/json", %Schema{type: :object}},
@@ -295,7 +315,12 @@ defmodule GameServerWeb.Api.V1.GroupController do
     description: "Remove a member from the group. Only group admins can kick.",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Group ID", required: true]
+      id: [
+        in: :path,
+        schema: %Schema{type: :string, format: :uuid},
+        description: "Group ID",
+        required: true
+      ]
     ],
     request_body: {
       "Kick parameters",
@@ -304,9 +329,9 @@ defmodule GameServerWeb.Api.V1.GroupController do
         type: :object,
         required: [:target_user_id],
         properties: %{
-          target_user_id: %Schema{type: :integer, description: "User ID to kick"}
+          target_user_id: %Schema{type: :string, format: :uuid, description: "User ID to kick"}
         },
-        example: %{target_user_id: 123}
+        example: %{target_user_id: "0198c0de-0002-7000-8000-000000000002"}
       }
     },
     responses: [
@@ -321,7 +346,12 @@ defmodule GameServerWeb.Api.V1.GroupController do
     summary: "List group members",
     description: "Get paginated members of a group with their roles.",
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Group ID", required: true],
+      id: [
+        in: :path,
+        schema: %Schema{type: :string, format: :uuid},
+        description: "Group ID",
+        required: true
+      ],
       page: [in: :query, schema: %Schema{type: :integer}, description: "Page number (default: 1)"],
       page_size: [
         in: :query,
@@ -349,7 +379,12 @@ defmodule GameServerWeb.Api.V1.GroupController do
     description: "Promote a member to admin role. Only admins can promote.",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Group ID", required: true]
+      id: [
+        in: :path,
+        schema: %Schema{type: :string, format: :uuid},
+        description: "Group ID",
+        required: true
+      ]
     ],
     request_body: {
       "Promote parameters",
@@ -358,7 +393,7 @@ defmodule GameServerWeb.Api.V1.GroupController do
         type: :object,
         required: [:target_user_id],
         properties: %{
-          target_user_id: %Schema{type: :integer, description: "User ID to promote"}
+          target_user_id: %Schema{type: :string, format: :uuid, description: "User ID to promote"}
         }
       }
     },
@@ -375,7 +410,12 @@ defmodule GameServerWeb.Api.V1.GroupController do
     description: "Demote an admin to regular member. Only admins can demote.",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Group ID", required: true]
+      id: [
+        in: :path,
+        schema: %Schema{type: :string, format: :uuid},
+        description: "Group ID",
+        required: true
+      ]
     ],
     request_body: {
       "Demote parameters",
@@ -384,7 +424,7 @@ defmodule GameServerWeb.Api.V1.GroupController do
         type: :object,
         required: [:target_user_id],
         properties: %{
-          target_user_id: %Schema{type: :integer, description: "User ID to demote"}
+          target_user_id: %Schema{type: :string, format: :uuid, description: "User ID to demote"}
         }
       }
     },
@@ -401,7 +441,12 @@ defmodule GameServerWeb.Api.V1.GroupController do
     description: "List pending join requests for a group. Only group admins can view.",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Group ID", required: true],
+      id: [
+        in: :path,
+        schema: %Schema{type: :string, format: :uuid},
+        description: "Group ID",
+        required: true
+      ],
       page: [in: :query, schema: %Schema{type: :integer}, description: "Page number"],
       page_size: [in: :query, schema: %Schema{type: :integer}, description: "Page size"]
     ],
@@ -426,7 +471,12 @@ defmodule GameServerWeb.Api.V1.GroupController do
     description: "Approve a pending join request. The user becomes a member.",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Group ID", required: true],
+      id: [
+        in: :path,
+        schema: %Schema{type: :string, format: :uuid},
+        description: "Group ID",
+        required: true
+      ],
       request_id: [
         in: :path,
         schema: %Schema{type: :integer},
@@ -448,7 +498,12 @@ defmodule GameServerWeb.Api.V1.GroupController do
     description: "Reject a pending join request.",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Group ID", required: true],
+      id: [
+        in: :path,
+        schema: %Schema{type: :string, format: :uuid},
+        description: "Group ID",
+        required: true
+      ],
       request_id: [
         in: :path,
         schema: %Schema{type: :integer},
@@ -470,7 +525,12 @@ defmodule GameServerWeb.Api.V1.GroupController do
     description: "Cancel a join request that the current user previously sent.",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Group ID", required: true],
+      id: [
+        in: :path,
+        schema: %Schema{type: :string, format: :uuid},
+        description: "Group ID",
+        required: true
+      ],
       request_id: [
         in: :path,
         schema: %Schema{type: :integer},
@@ -497,7 +557,12 @@ defmodule GameServerWeb.Api.V1.GroupController do
         "(status: \"request_approved\").",
     security: [%{"authorization" => []}],
     parameters: [
-      id: [in: :path, schema: %Schema{type: :integer}, description: "Group ID", required: true]
+      id: [
+        in: :path,
+        schema: %Schema{type: :string, format: :uuid},
+        description: "Group ID",
+        required: true
+      ]
     ],
     request_body: {
       "Invite parameters",
@@ -506,7 +571,7 @@ defmodule GameServerWeb.Api.V1.GroupController do
         type: :object,
         required: [:target_user_id],
         properties: %{
-          target_user_id: %Schema{type: :integer, description: "User ID to invite"}
+          target_user_id: %Schema{type: :string, format: :uuid, description: "User ID to invite"}
         }
       }
     },
@@ -658,12 +723,12 @@ defmodule GameServerWeb.Api.V1.GroupController do
                items: %Schema{
                  type: :object,
                  properties: %{
-                   id: %Schema{type: :integer},
-                   group_id: %Schema{type: :integer},
+                   id: %Schema{type: :string, format: :uuid},
+                   group_id: %Schema{type: :string, format: :uuid},
                    group_name: %Schema{type: :string},
-                   sender_id: %Schema{type: :integer},
+                   sender_id: %Schema{type: :string, format: :uuid},
                    sender_name: %Schema{type: :string},
-                   recipient_id: %Schema{type: :integer},
+                   recipient_id: %Schema{type: :string, format: :uuid},
                    recipient_name: %Schema{type: :string},
                    status: %Schema{type: :string},
                    inserted_at: %Schema{type: :string, format: :"date-time"}

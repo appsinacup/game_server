@@ -20,12 +20,12 @@ defmodule GameServer.Groups.Shared do
   # -- Group cache (version-based, keyed by group_id) --
 
   @doc false
-  def group_cache_version(group_id) when is_integer(group_id) do
+  def group_cache_version(group_id) when is_binary(group_id) do
     GameServer.Cache.get!({:groups, :group_version, group_id}) || 1
   end
 
   @doc false
-  def invalidate_group_cache(group_id) when is_integer(group_id) do
+  def invalidate_group_cache(group_id) when is_binary(group_id) do
     GameServer.Async.run(fn ->
       _ = GameServer.Cache.incr({:groups, :group_version, group_id}, 1, default: 1)
       :ok
@@ -36,11 +36,11 @@ defmodule GameServer.Groups.Shared do
 
   # -- Invite cache (version-based, keyed by user_id) --
 
-  def invite_cache_version(user_id) when is_integer(user_id) do
+  def invite_cache_version(user_id) when is_binary(user_id) do
     GameServer.Cache.get!({:group_invites, :version, user_id}) || 1
   end
 
-  def invalidate_invite_cache(user_id) when is_integer(user_id) do
+  def invalidate_invite_cache(user_id) when is_binary(user_id) do
     GameServer.Async.run(fn ->
       _ = GameServer.Cache.incr({:group_invites, :version, user_id}, 1, default: 1)
       :ok
@@ -52,7 +52,7 @@ defmodule GameServer.Groups.Shared do
   # Synchronous version — used when the caller needs the cache to be
   # invalidated immediately before returning (e.g. accept_invite where the
   # client polls right away).
-  def invalidate_invite_cache_sync(user_id) when is_integer(user_id) do
+  def invalidate_invite_cache_sync(user_id) when is_binary(user_id) do
     _ = GameServer.Cache.incr({:group_invites, :version, user_id}, 1, default: 1)
     :ok
   end
@@ -148,7 +148,7 @@ defmodule GameServer.Groups.Shared do
   end
 
   def run_before_group_join_hook(user_id, %Group{} = group, opts)
-      when is_integer(user_id) and is_map(opts) do
+      when is_binary(user_id) and is_map(opts) do
     case Repo.get(GameServer.Accounts.User, user_id) do
       nil ->
         {:error, :not_found}

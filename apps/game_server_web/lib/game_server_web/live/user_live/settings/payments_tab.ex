@@ -188,12 +188,10 @@ defmodule GameServerWeb.UserLive.Settings.PaymentsTab do
     end
   end
 
-  defp parse_payment_id(id) when is_integer(id), do: id
-
   defp parse_payment_id(id) when is_binary(id) do
-    case Integer.parse(id) do
-      {int, ""} -> int
-      _ -> nil
+    case Ecto.UUID.cast(id) do
+      {:ok, uuid} -> uuid
+      :error -> nil
     end
   end
 

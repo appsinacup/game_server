@@ -61,7 +61,7 @@ defmodule GameServerWeb.Api.V1.PaymentController do
        %Schema{
          type: :object,
          properties: %{
-           provider_product_id: %Schema{type: :integer},
+           provider_product_id: %Schema{type: :string, format: :uuid},
            product_sku: %Schema{type: :string},
            quantity: %Schema{type: :integer},
            success_url: %Schema{type: :string},
@@ -103,7 +103,7 @@ defmodule GameServerWeb.Api.V1.PaymentController do
        %Schema{
          type: :object,
          properties: %{
-           provider_product_id: %Schema{type: :integer},
+           provider_product_id: %Schema{type: :string, format: :uuid},
            product_sku: %Schema{type: :string},
            quantity: %Schema{type: :integer},
            steam_id: %Schema{type: :string},
