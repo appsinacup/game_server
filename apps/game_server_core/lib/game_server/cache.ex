@@ -61,6 +61,29 @@ defmodule GameServer.Cache do
     :ok
   end
 
+  @doc """
+  Increments the version counter at `key` and broadcasts the bump so every
+  other app instance increments its local copy too (see `GameServer.Cache.Sync`).
+
+  Version-keyed caches embed the counter in their data keys, so any change to
+  the counter forces a fresh recompute on the next read. Remote nodes apply a
+  bump rather than a delete: a delete would re-seed their counter at 1, which
+  can collide with version values whose data entries are still inside a TTL,
+  while a bump is monotonic per node.
+  """
+  @spec bump_version(term()) :: integer()
+  def bump_version(key) do
+    new = incr(key, 1, default: 1)
+
+    Phoenix.PubSub.broadcast(
+      GameServer.PubSub,
+      @invalidation_topic,
+      {:cache_bump_version, key, Node.self()}
+    )
+
+    new
+  end
+
   @doc "PubSub topic that `invalidate/1` broadcasts on."
   @spec invalidation_topic() :: String.t()
   def invalidation_topic, do: @invalidation_topic

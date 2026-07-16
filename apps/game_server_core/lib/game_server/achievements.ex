@@ -44,7 +44,7 @@ defmodule GameServer.Achievements do
 
   defp invalidate_achievements_cache do
     GameServer.Async.run(fn ->
-      _ = GameServer.Cache.incr({:achievements, :version}, 1, default: 1)
+      _ = GameServer.Cache.bump_version({:achievements, :version})
       :ok
     end)
 

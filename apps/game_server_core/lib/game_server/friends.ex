@@ -47,7 +47,7 @@ defmodule GameServer.Friends do
   end
 
   defp invalidate_friends_cache(user_id) when is_binary(user_id) do
-    _ = GameServer.Cache.incr({:friends, :version, user_id}, 1, default: 1)
+    _ = GameServer.Cache.bump_version({:friends, :version, user_id})
     :ok
   end
 
@@ -63,7 +63,7 @@ defmodule GameServer.Friends do
 
   defp invalidate_friendship_cache(friendship_id) when is_binary(friendship_id) do
     # Synchronous — get_friendship may be called immediately after mutation.
-    _ = GameServer.Cache.incr({:friends, :friendship_version, friendship_id}, 1, default: 1)
+    _ = GameServer.Cache.bump_version({:friends, :friendship_version, friendship_id})
     :ok
   end
 

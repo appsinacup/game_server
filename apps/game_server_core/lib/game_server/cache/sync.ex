@@ -33,5 +33,16 @@ defmodule GameServer.Cache.Sync do
     {:noreply, state}
   end
 
+  # Bump (don't delete) so the local counter stays monotonic — see
+  # `GameServer.Cache.bump_version/1`. Only L1 is touched: a shared L2 was
+  # already incremented by the originating node's write-through.
+  def handle_info({:cache_bump_version, key, from_node}, state) do
+    if from_node != Node.self() do
+      _ = L1.incr(key, 1, default: 1)
+    end
+
+    {:noreply, state}
+  end
+
   def handle_info(_message, state), do: {:noreply, state}
 end

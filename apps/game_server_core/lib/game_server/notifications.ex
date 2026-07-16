@@ -80,7 +80,7 @@ defmodule GameServer.Notifications do
   @spec invalidate_notifications_cache(user_id()) :: :ok
   def invalidate_notifications_cache(user_id) when is_binary(user_id) do
     GameServer.Async.run(fn ->
-      _ = GameServer.Cache.incr({:notifications, :version, user_id}, 1, default: 1)
+      _ = GameServer.Cache.bump_version({:notifications, :version, user_id})
       :ok
     end)
 

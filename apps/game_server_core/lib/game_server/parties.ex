@@ -92,7 +92,7 @@ defmodule GameServer.Parties do
   end
 
   defp invalidate_party_invite_cache(user_id) when is_binary(user_id) do
-    _ = GameServer.Cache.incr({:party_invites, :version, user_id}, 1, default: 1)
+    _ = GameServer.Cache.bump_version({:party_invites, :version, user_id})
     :ok
   end
 

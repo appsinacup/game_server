@@ -27,7 +27,7 @@ defmodule GameServer.Groups.Shared do
   @doc false
   def invalidate_group_cache(group_id) when is_binary(group_id) do
     GameServer.Async.run(fn ->
-      _ = GameServer.Cache.incr({:groups, :group_version, group_id}, 1, default: 1)
+      _ = GameServer.Cache.bump_version({:groups, :group_version, group_id})
       :ok
     end)
 
@@ -42,7 +42,7 @@ defmodule GameServer.Groups.Shared do
 
   def invalidate_invite_cache(user_id) when is_binary(user_id) do
     GameServer.Async.run(fn ->
-      _ = GameServer.Cache.incr({:group_invites, :version, user_id}, 1, default: 1)
+      _ = GameServer.Cache.bump_version({:group_invites, :version, user_id})
       :ok
     end)
 
@@ -53,7 +53,7 @@ defmodule GameServer.Groups.Shared do
   # invalidated immediately before returning (e.g. accept_invite where the
   # client polls right away).
   def invalidate_invite_cache_sync(user_id) when is_binary(user_id) do
-    _ = GameServer.Cache.incr({:group_invites, :version, user_id}, 1, default: 1)
+    _ = GameServer.Cache.bump_version({:group_invites, :version, user_id})
     :ok
   end
 

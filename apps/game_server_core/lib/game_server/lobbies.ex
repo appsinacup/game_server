@@ -76,7 +76,7 @@ defmodule GameServer.Lobbies do
 
   defp invalidate_lobby_cache(lobby_id) when is_binary(lobby_id) do
     GameServer.Async.run(fn ->
-      _ = GameServer.Cache.incr({:lobbies, :lobby_version, lobby_id}, 1, default: 1)
+      _ = GameServer.Cache.bump_version({:lobbies, :lobby_version, lobby_id})
       :ok
     end)
 

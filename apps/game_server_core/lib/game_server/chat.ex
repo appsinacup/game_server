@@ -46,7 +46,7 @@ defmodule GameServer.Chat do
 
   defp invalidate_chat_cache(chat_type, chat_ref_id) do
     GameServer.Async.run(fn ->
-      _ = GameServer.Cache.incr({:chat, :version, chat_type, chat_ref_id}, 1, default: 1)
+      _ = GameServer.Cache.bump_version({:chat, :version, chat_type, chat_ref_id})
       :ok
     end)
 

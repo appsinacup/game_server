@@ -99,6 +99,13 @@ if require_activation = System.get_env("REQUIRE_ACCOUNT_ACTIVATION") do
     require_account_activation: require_activation in ["1", "true", "TRUE", "True"]
 end
 
+# Outside prod the cache topology comes from the compiled config; honor the
+# CACHE_ENABLED toggle here so disabling it in dev/test isn't a silent no-op.
+unless config_env() == :prod do
+  config :game_server_core, GameServer.Cache,
+    bypass_mode: not GameServer.Env.bool("CACHE_ENABLED", true)
+end
+
 if config_env() == :prod do
   cache_enabled = GameServer.Env.bool("CACHE_ENABLED", true)
 

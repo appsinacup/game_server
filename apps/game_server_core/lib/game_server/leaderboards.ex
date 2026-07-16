@@ -50,17 +50,17 @@ defmodule GameServer.Leaderboards do
   end
 
   defp invalidate_leaderboards_cache do
-    _ = GameServer.Cache.incr({:leaderboards, :version}, 1, default: 1)
+    _ = GameServer.Cache.bump_version({:leaderboards, :version})
     :ok
   end
 
   defp invalidate_records_cache(leaderboard_id) when is_binary(leaderboard_id) do
-    _ = GameServer.Cache.incr({:leaderboards, :records_version, leaderboard_id}, 1, default: 1)
+    _ = GameServer.Cache.bump_version({:leaderboards, :records_version, leaderboard_id})
     :ok
   end
 
   defp invalidate_record_cache(record_id) when is_binary(record_id) do
-    _ = GameServer.Cache.incr({:leaderboards, :record_version, record_id}, 1, default: 1)
+    _ = GameServer.Cache.bump_version({:leaderboards, :record_version, record_id})
     :ok
   end
 
@@ -1046,9 +1046,9 @@ defmodule GameServer.Leaderboards do
 
   @doc """
   Deletes a user's record from a leaderboard.
-  Accepts either leaderboard ID (integer) or slug (string).
+  Accepts either leaderboard ID or slug (both strings).
   """
-  @spec delete_user_record(String.t(), integer()) ::
+  @spec delete_user_record(String.t(), String.t()) ::
           {:ok, Record.t()} | {:error, :not_found}
   def delete_user_record(id_or_slug, user_id) do
     leaderboard = get_leaderboard(id_or_slug)

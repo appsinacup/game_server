@@ -39,6 +39,7 @@ defmodule GameServer.OAuthSessions do
 
   @decorate cacheable(
               key: {:oauth_sessions, :session, session_id},
+              match: &(&1 != nil),
               opts: [ttl: @oauth_sessions_cache_ttl_ms]
             )
   defp get_session_cached(session_id) when is_binary(session_id) do

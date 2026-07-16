@@ -142,8 +142,8 @@ defmodule GameServerWeb.Api.V1.UserController do
       nil ->
         conn |> put_status(:bad_request) |> json(%{error: "invalid_id"})
 
-      int_id ->
-        case Accounts.get_user(int_id) do
+      user_id ->
+        case Accounts.get_user(user_id) do
           %{} = user -> json(conn, serialize_user(user))
           nil -> conn |> put_status(:not_found) |> json(%{error: "not_found"})
         end

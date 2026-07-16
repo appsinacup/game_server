@@ -38,7 +38,7 @@ defmodule GameServer.Accounts do
 
   defp invalidate_users_stats_cache do
     GameServer.Async.run(fn ->
-      _ = GameServer.Cache.incr({:accounts, :users_stats_version}, 1, default: 1)
+      _ = GameServer.Cache.bump_version({:accounts, :users_stats_version})
       :ok
     end)
 
@@ -345,7 +345,7 @@ defmodule GameServer.Accounts do
     from(u in User, where: u.id == ^user_id)
     |> Repo.update_all(set: [last_seen_at: now, is_online: true])
 
-    GameServer.Cache.delete({:accounts, :user, user_id})
+    GameServer.Cache.invalidate({:accounts, :user, user_id})
     :ok
   end
 
@@ -1568,7 +1568,13 @@ defmodule GameServer.Accounts do
   """
   @spec delete_user_session_token(binary()) :: :ok
   def delete_user_session_token(token) do
-    Repo.delete_all(from(UserToken, where: [token: ^token, context: "session"]))
+    ids =
+      Repo.all(
+        from(t in UserToken, where: t.token == ^token and t.context == "session", select: t.id)
+      )
+
+    Repo.delete_all(from(t in UserToken, where: t.id in ^ids))
+    Enum.each(ids, &GameServer.Cache.invalidate({:accounts, :user_token, &1}))
     :ok
   end
 
@@ -1737,7 +1743,11 @@ defmodule GameServer.Accounts do
       changeset = bump_token_version(changeset)
 
       with {:ok, user} <- Repo.update(changeset) do
+        # Re-warm with the post-revocation struct rather than only deleting it:
+        # a concurrent auth read that loaded the pre-revocation row could otherwise
+        # land its put after the delete and keep a revoked JWT valid until the TTL.
         invalidate_user_cache(user)
+        cache_user(user)
         tokens_to_expire = Repo.all_by(UserToken, user_id: user.id)
 
         Repo.delete_all(from(t in UserToken, where: t.id in ^Enum.map(tokens_to_expire, & &1.id)))

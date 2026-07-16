@@ -198,6 +198,26 @@ const GAMEND_VERSION = "${APP_VERSION}"
 EOF
 fi
 
+# Generic fix: the generator references models by snake_case names while the
+# model files declare PascalCase class_names. Derive the mapping from the
+# model filenames so new models never need to be added to the list above.
+python3 - "$OUT_DIR" <<'PYEOF'
+import os, re, glob, sys
+out_dir = sys.argv[1]
+models = [os.path.splitext(os.path.basename(f))[0] for f in glob.glob(os.path.join(out_dir, "models/*.gd"))]
+def snake(name):
+    s = re.sub(r'(?<=[a-zA-Z])(?=[A-Z][a-z])|(?<=[a-z])(?=[A-Z])|(?<=[a-zA-Z])(?=[0-9])|(?<=[0-9])(?=[a-zA-Z])', '_', name)
+    return s.lower()
+mapping = {snake(m): m for m in models}
+for f in glob.glob(os.path.join(out_dir, "**/*.gd"), recursive=True):
+    src = open(f).read()
+    out = src
+    for sn, pc in mapping.items():
+        out = re.sub(r'\b' + re.escape(sn) + r'\b', pc, out)
+    if out != src:
+        open(f, "w").write(out)
+PYEOF
+
 # Copy the main client pieces (apis, core, model) to a separate godot_api folder
 # This keeps the API surface separated for distribution or packaging.
 DEST_API_DIR="$ROOT_DIR/clients/gamend"
