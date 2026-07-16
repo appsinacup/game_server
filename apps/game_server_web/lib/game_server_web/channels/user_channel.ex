@@ -38,6 +38,8 @@ defmodule GameServerWeb.UserChannel do
   """
 
   use Phoenix.Channel
+
+  import GameServerWeb.ChannelPush
   require Logger
 
   intercept ["updated", "friend_updated"]
@@ -48,7 +50,7 @@ defmodule GameServerWeb.UserChannel do
   alias GameServer.Friends
   alias GameServer.Groups
   alias GameServer.Hooks
-  alias GameServer.Hooks.PluginManager
+  alias GameServer.Hooks.HookSchemas
   alias GameServer.KV
   alias GameServer.Lobbies
   alias GameServer.Notifications
@@ -116,12 +118,17 @@ defmodule GameServerWeb.UserChannel do
         # Re-fetch user from DB to get current lobby_id / state
         user = Accounts.get_user(socket.assigns.user_id) || socket.assigns.current_scope.user
 
-        case PluginManager.call_rpc(plugin, fn_name, args, caller: user) do
+        # Typed hooks (registered <FnName>Request/<FnName>Reply schemas)
+        # accept a single JSON object argument and reply with a JSON map.
+        case HookSchemas.call(plugin, fn_name, {:list, args}, :map, caller: user) do
           {:ok, res} ->
             {:reply, {:ok, %{data: res}}, socket}
 
-          {:error, reason} ->
+          {:error, reason} when is_atom(reason) or is_binary(reason) ->
             {:reply, {:error, %{error: to_string(reason)}}, socket}
+
+          {:error, reason} ->
+            {:reply, {:error, %{error: inspect(reason)}}, socket}
         end
       end
     end
@@ -242,7 +249,7 @@ defmodule GameServerWeb.UserChannel do
         {:noreply, socket}
 
       delta_payload ->
-        push(socket, "updated", delta_payload)
+        push_event(socket, "updated", delta_payload)
         {:noreply, assign(socket, :last_user_payload, payload)}
     end
   end
@@ -264,7 +271,7 @@ defmodule GameServerWeb.UserChannel do
           {:noreply, socket}
 
         delta_payload ->
-          push(socket, "friend_updated", %{friends: %{key => delta_payload}})
+          push_event(socket, "friend_updated", %{friends: %{key => delta_payload}})
 
           {:noreply,
            assign(socket, :last_friend_payloads, Map.put(last_friend_payloads, key, payload))}
@@ -274,7 +281,7 @@ defmodule GameServerWeb.UserChannel do
 
   @impl true
   def handle_out(event, payload, socket) do
-    push(socket, event, payload)
+    push_event(socket, event, payload)
     {:noreply, socket}
   end
 
@@ -285,13 +292,13 @@ defmodule GameServerWeb.UserChannel do
       case Accounts.set_user_online(user.id) do
         {:ok, updated_user} ->
           payload = Accounts.serialize_user_payload(updated_user)
-          push(socket, "updated", payload)
+          push_event(socket, "updated", payload)
           broadcast_member_presence(updated_user.id, true)
           assign(socket, :last_user_payload, payload)
 
         _ ->
           payload = Accounts.serialize_user_payload(user)
-          push(socket, "updated", payload)
+          push_event(socket, "updated", payload)
           assign(socket, :last_user_payload, payload)
       end
 
@@ -333,7 +340,7 @@ defmodule GameServerWeb.UserChannel do
     lobby_id = Map.get(payload, :lobby_id)
 
     if is_binary(key) and kv_read_allowed?(socket, key, user_id, lobby_id) do
-      push(socket, "kv_updated", payload)
+      push_event(socket, "kv_updated", payload)
     end
 
     {:noreply, socket}
@@ -346,7 +353,7 @@ defmodule GameServerWeb.UserChannel do
     lobby_id = Map.get(payload, :lobby_id)
 
     if is_binary(key) and kv_read_allowed?(socket, key, user_id, lobby_id) do
-      push(socket, "kv_deleted", payload)
+      push_event(socket, "kv_deleted", payload)
     end
 
     {:noreply, socket}
@@ -356,73 +363,78 @@ defmodule GameServerWeb.UserChannel do
 
   @impl true
   def handle_info({:new_notification, notification}, socket) do
-    push(socket, "notification", Serializers.serialize_notification(notification))
+    push_event(socket, "notification", Serializers.serialize_notification(notification))
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:new_chat_message, message}, socket) do
-    push(socket, "new_chat_message", Serializers.serialize_chat_message(message))
+    push_event(socket, "new_chat_message", Serializers.serialize_chat_message(message))
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:chat_message_updated, message}, socket) do
-    push(socket, "chat_message_updated", Serializers.serialize_chat_message(message))
+    push_event(socket, "chat_message_updated", Serializers.serialize_chat_message(message))
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:chat_message_deleted, message}, socket) do
-    push(socket, "chat_message_deleted", %{id: message.id})
+    push_event(socket, "chat_message_deleted", %{id: message.id})
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:group_invite_accepted, payload}, socket) do
-    push(socket, "group_invite_accepted", payload)
+    push_event(socket, "group_invite_accepted", payload)
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:group_invite_cancelled, payload}, socket) do
-    push(socket, "group_invite_cancelled", payload)
+    push_event(socket, "group_invite_cancelled", payload)
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:group_join_approved, payload}, socket) do
-    push(socket, "group_join_approved", payload)
+    push_event(socket, "group_join_approved", payload)
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:group_join_rejected, payload}, socket) do
-    push(socket, "group_join_rejected", payload)
+    push_event(socket, "group_join_rejected", payload)
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:party_invite_accepted, payload}, socket) do
-    push(socket, "party_invite_accepted", payload)
+    push_event(socket, "party_invite_accepted", payload)
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:party_invite_declined, payload}, socket) do
-    push(socket, "party_invite_declined", payload)
+    push_event(socket, "party_invite_declined", payload)
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:party_invite_cancelled, payload}, socket) do
-    push(socket, "party_invite_cancelled", payload)
+    push_event(socket, "party_invite_cancelled", payload)
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:achievement_unlocked, user_achievement}, socket) do
-    push(socket, "achievement_unlocked", Serializers.serialize_user_achievement(user_achievement))
+    push_event(
+      socket,
+      "achievement_unlocked",
+      Serializers.serialize_user_achievement(user_achievement)
+    )
+
     {:noreply, socket}
   end
 
@@ -430,31 +442,31 @@ defmodule GameServerWeb.UserChannel do
 
   @impl true
   def handle_info({:webrtc_answer, answer_json}, socket) do
-    push(socket, "webrtc:answer", %{sdp: answer_json["sdp"], type: answer_json["type"]})
+    push_event(socket, "webrtc:answer", %{sdp: answer_json["sdp"], type: answer_json["type"]})
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:webrtc_ice, candidate_json}, socket) do
-    push(socket, "webrtc:ice", candidate_json)
+    push_event(socket, "webrtc:ice", candidate_json)
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:webrtc_channel_open, _ref, label}, socket) do
-    push(socket, "webrtc:channel_open", %{channel: label})
+    push_event(socket, "webrtc:channel_open", %{channel: label})
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:webrtc_channel_closed, _ref}, socket) do
-    push(socket, "webrtc:channel_closed", %{})
+    push_event(socket, "webrtc:channel_closed", %{})
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:webrtc_connection_state, conn_state}, socket) do
-    push(socket, "webrtc:state", %{state: to_string(conn_state)})
+    push_event(socket, "webrtc:state", %{state: to_string(conn_state)})
     {:noreply, socket}
   end
 
@@ -508,7 +520,7 @@ defmodule GameServerWeb.UserChannel do
     notifications = Notifications.list_recent_notifications(user_id, @initial_notification_window)
 
     Enum.each(notifications, fn notification ->
-      push(socket, "notification", Serializers.serialize_notification(notification))
+      push_event(socket, "notification", Serializers.serialize_notification(notification))
     end)
   end
 
@@ -521,7 +533,7 @@ defmodule GameServerWeb.UserChannel do
         {to_string(payload.user_id), payload}
       end)
 
-    push(socket, "friend_updated", %{friends: friend_payloads})
+    push_event(socket, "friend_updated", %{friends: friend_payloads})
     assign(socket, :last_friend_payloads, friend_payloads)
   end
 

@@ -24,6 +24,9 @@ defmodule GameServer.Hooks.PluginManager do
   require Logger
 
   alias GameServer.Hooks.DynamicRpcs
+  alias GameServer.Hooks.HookSchemas
+  alias GameServer.Hooks.KvSchemas
+  alias GameServer.Hooks.MetadataSchemas
 
   @type plugin_name :: String.t()
   @type plugin_app :: atom()
@@ -139,9 +142,17 @@ defmodule GameServer.Hooks.PluginManager do
   end
 
   defp rpc_args_too_large?(args) do
-    case Jason.encode(args) do
-      {:ok, encoded} -> byte_size(encoded) > GameServer.Limits.get(:max_hook_args_size)
-      _ -> true
+    Enum.sum_by(args, &rpc_arg_size/1) > GameServer.Limits.get(:max_hook_args_size)
+  end
+
+  # Typed hooks pass raw binaries and decoded protobuf structs, which are not
+  # JSON-encodable — measure those by their own size instead of rejecting.
+  defp rpc_arg_size(arg) when is_binary(arg), do: byte_size(arg)
+
+  defp rpc_arg_size(arg) do
+    case Jason.encode(arg) do
+      {:ok, encoded} -> byte_size(encoded)
+      _ -> :erlang.external_size(arg)
     end
   end
 
@@ -229,6 +240,9 @@ defmodule GameServer.Hooks.PluginManager do
       end)
 
     :persistent_term.put(@snapshot_key, %{list: list, by_name: state, hook_modules: hook_modules})
+    MetadataSchemas.refresh(list)
+    HookSchemas.refresh(list)
+    KvSchemas.refresh(list)
     state
   end
 

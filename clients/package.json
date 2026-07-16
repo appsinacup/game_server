@@ -2,11 +2,13 @@
   "dependencies": {
     "node-datachannel": "^0.32.1",
     "open": "^11.0.0",
-    "phoenix": "^1.8.5"
+    "phoenix": "^1.8.5",
+    "protobufjs": "^8.7.1"
   },
   "scripts": {
     "openapi": "cd .. && mix openapi.spec.json --spec GameServerWeb.ApiSpec --filename clients/javascript/openapi.json --pretty=true && cd clients",
-    "generate": "mkdir -p javascript/src && cp openapi-generator-ignore javascript/.openapi-generator-ignore && cd javascript && npx @openapitools/openapi-generator-cli generate -i openapi.json -g javascript -o . --additional-properties usePromises=true,projectName=@ughuuu/game_server,projectVersion=1.0.0 && cp ../realtime.js src/realtime.js && cp ../webrtc.js src/webrtc.js && node ../postgenerate.js && npm i && npm run build && cd ..",
+    "proto": "npx -p protobufjs-cli pbjs -t static-module -w es6 --keep-case --no-create --no-verify --no-delimited -o gamend_realtime.pb.js ../proto/gamend_realtime.proto",
+    "generate": "mkdir -p javascript/src && cp openapi-generator-ignore javascript/.openapi-generator-ignore && cd javascript && npx @openapitools/openapi-generator-cli generate -i openapi.json -g javascript -o . --additional-properties usePromises=true,projectName=@ughuuu/game_server,projectVersion=1.0.0 && cp ../realtime.js src/realtime.js && cp ../webrtc.js src/webrtc.js && cp ../gamend_proto.js src/gamend_proto.js && cp ../gamend_realtime.pb.js src/gamend_realtime.pb.js && node ../postgenerate.js && npm i && npm run build && cd ..",
     "start": "node test_js"
   }
 }

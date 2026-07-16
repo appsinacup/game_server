@@ -54,6 +54,15 @@ var _channel_defs: Array = [
 var _is_connected: bool = false
 ## Enable debug logging.
 var enable_logs: bool = false
+## RPC payload format: "json" or "protobuf" (negotiated via the DataChannel
+## protocol field; protobuf replies are correlated by request id).
+var _format: String = "json"
+## Pending call_hook requests: key (int id or "plugin fn") -> awaitable state.
+var _pending_calls: Dictionary = {}
+var _next_call_id: int = 0
+
+## Emitted when a call_hook reply arrives; used internally for await.
+signal _rpc_settled(key: Variant, result: Dictionary)
 
 
 func _init(channel: PhoenixChannel, opts: Dictionary = {}) -> void:
@@ -64,6 +73,8 @@ func _init(channel: PhoenixChannel, opts: Dictionary = {}) -> void:
 		_channel_defs = opts["data_channels"]
 	if opts.has("enable_logs"):
 		enable_logs = opts["enable_logs"]
+	if opts.get("format", "json") == "protobuf":
+		_format = "protobuf"
 
 
 func _ready() -> void:
@@ -97,6 +108,8 @@ func connect_webrtc() -> void:
 			opts["maxRetransmits"] = def["maxRetransmits"]
 		if def.has("maxPacketLifeTime"):
 			opts["maxPacketLifeTime"] = def["maxPacketLifeTime"]
+		if _format == "protobuf":
+			opts["protocol"] = "protobuf"
 
 		var dc := _peer.create_data_channel(label, opts)
 		if dc == null:
@@ -109,6 +122,107 @@ func connect_webrtc() -> void:
 
 	# Create offer
 	_peer.create_offer()
+
+
+## Calls a server-side plugin hook over the "events" DataChannel and awaits
+## the result. Returns {ok: bool, data / error}.
+##
+## In protobuf mode replies are correlated by request id, so concurrent
+## calls (including to the same function) are safe. In JSON mode replies
+## are matched by plugin+fn (legacy protocol), first pending call wins.
+func call_hook(plugin: String, fn: String, args: Array = [], timeout_sec: float = 10.0) -> Dictionary:
+	if not is_channel_open("events"):
+		return {"ok": false, "error": "events DataChannel is not open"}
+
+	var key: Variant
+	if _format == "protobuf":
+		_next_call_id += 1
+		key = _next_call_id
+		var err := send_data("events", GamendProto.encode_rpc_call(_next_call_id, plugin, fn, args))
+		if err != OK:
+			return {"ok": false, "error": "send failed: %s" % err}
+	else:
+		key = "%s %s" % [plugin, fn]
+		var err := send_text("events", JSON.stringify({"type": "call_hook", "plugin": plugin, "fn": fn, "args": args}))
+		if err != OK:
+			return {"ok": false, "error": "send failed: %s" % err}
+
+	_pending_calls[key] = true
+	var timer := get_tree().create_timer(timeout_sec)
+	timer.timeout.connect(func():
+		if _pending_calls.has(key):
+			_pending_calls.erase(key)
+			_rpc_settled.emit(key, {"ok": false, "error": "timeout"}))
+
+	while true:
+		var settled = await _rpc_settled
+		if settled[0] == key:
+			return settled[1]
+	return {"ok": false, "error": "unreachable"}
+
+
+## Calls a typed (protobuf) plugin hook over the "events" DataChannel and
+## awaits the result: {ok: true, data: PackedByteArray} / {ok: false, error}.
+## Encode the bytes with the game's schema (registered by the plugin as
+## <FnName>Request / <FnName>Reply); hooks without a registered schema error
+## with hook_schema_missing. Requires format "protobuf".
+func call_hook_raw(plugin: String, fn: String, bytes: PackedByteArray, timeout_sec: float = 10.0) -> Dictionary:
+	if _format != "protobuf":
+		return {"ok": false, "error": "call_hook_raw requires format \"protobuf\""}
+	if not is_channel_open("events"):
+		return {"ok": false, "error": "events DataChannel is not open"}
+
+	_next_call_id += 1
+	var key: Variant = _next_call_id
+	var err := send_data("events", GamendProto.encode_rpc_call_raw(_next_call_id, plugin, fn, bytes))
+	if err != OK:
+		return {"ok": false, "error": "send failed: %s" % err}
+
+	_pending_calls[key] = true
+	var timer := get_tree().create_timer(timeout_sec)
+	timer.timeout.connect(func():
+		if _pending_calls.has(key):
+			_pending_calls.erase(key)
+			_rpc_settled.emit(key, {"ok": false, "error": "timeout"}))
+
+	while true:
+		var settled = await _rpc_settled
+		if settled[0] == key:
+			return settled[1]
+	return {"ok": false, "error": "unreachable"}
+
+
+# Routes an incoming "events" frame to a pending call_hook. Returns true if
+# the frame was an RPC reply and has been consumed.
+func _handle_rpc_reply(data: PackedByteArray) -> bool:
+	if _format == "protobuf":
+		var reply = GamendProto.decode_rpc_reply(data)
+		if reply == null:
+			return false
+		var key = reply["id"]
+		if not _pending_calls.has(key):
+			return true
+		_pending_calls.erase(key)
+		_rpc_settled.emit(key, {"ok": reply["ok"], "data": reply.get("data"), "error": reply.get("error", "")})
+		return true
+
+	var text := data.get_string_from_utf8()
+	if text.is_empty():
+		return false
+	var msg = JSON.parse_string(text)
+	if msg == null or not (msg is Dictionary) or not msg.has("type"):
+		return false
+	if msg["type"] != "hook_reply" and msg["type"] != "hook_error":
+		return false
+	var key := "%s %s" % [msg.get("plugin", ""), msg.get("fn", "")]
+	if not _pending_calls.has(key):
+		return false
+	_pending_calls.erase(key)
+	if msg["type"] == "hook_reply":
+		_rpc_settled.emit(key, {"ok": true, "data": msg.get("data")})
+	else:
+		_rpc_settled.emit(key, {"ok": false, "error": str(msg.get("error", "unknown"))})
+	return true
 
 
 ## Send data over a named DataChannel.
@@ -191,6 +305,8 @@ func _process(_delta: float) -> void:
 		if dc.get_ready_state() == WebRTCDataChannel.STATE_OPEN:
 			while dc.get_available_packet_count() > 0:
 				var packet := dc.get_packet()
+				if label == "events" and _handle_rpc_reply(packet):
+					continue
 				data_received.emit(label, packet)
 
 

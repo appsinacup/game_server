@@ -26,6 +26,8 @@ defmodule GameServerWeb.GroupChannel do
 
   use Phoenix.Channel
 
+  import GameServerWeb.ChannelPush
+
   alias GameServer.Accounts
   alias GameServer.Accounts.Scope
   alias GameServer.Accounts.User
@@ -70,7 +72,7 @@ defmodule GameServerWeb.GroupChannel do
   @impl true
   def handle_info({:after_join, group}, socket) do
     payload = Serializers.serialize_group(group)
-    push(socket, "updated", payload)
+    push_event(socket, "updated", payload)
     {:noreply, assign(socket, :last_group_payload, payload)}
   end
 
@@ -84,14 +86,14 @@ defmodule GameServerWeb.GroupChannel do
         {:noreply, socket}
 
       delta_payload ->
-        push(socket, "updated", delta_payload)
+        push_event(socket, "updated", delta_payload)
         {:noreply, assign(socket, :last_group_payload, payload)}
     end
   end
 
   @impl true
   def handle_info({:member_joined, group_id, user_id}, socket) do
-    push(socket, "member_joined", %{
+    push_event(socket, "member_joined", %{
       group_id: group_id,
       user_id: user_id,
       display_name: Serializers.display_name(user_id)
@@ -102,7 +104,7 @@ defmodule GameServerWeb.GroupChannel do
 
   @impl true
   def handle_info({:member_left, group_id, user_id}, socket) do
-    push(socket, "member_left", %{
+    push_event(socket, "member_left", %{
       group_id: group_id,
       user_id: user_id,
       display_name: Serializers.display_name(user_id)
@@ -113,7 +115,7 @@ defmodule GameServerWeb.GroupChannel do
 
   @impl true
   def handle_info({:member_kicked, group_id, user_id}, socket) do
-    push(socket, "member_kicked", %{
+    push_event(socket, "member_kicked", %{
       group_id: group_id,
       user_id: user_id,
       display_name: Serializers.display_name(user_id)
@@ -124,7 +126,7 @@ defmodule GameServerWeb.GroupChannel do
 
   @impl true
   def handle_info({:member_promoted, group_id, user_id}, socket) do
-    push(socket, "member_promoted", %{
+    push_event(socket, "member_promoted", %{
       group_id: group_id,
       user_id: user_id,
       display_name: Serializers.display_name(user_id)
@@ -135,7 +137,7 @@ defmodule GameServerWeb.GroupChannel do
 
   @impl true
   def handle_info({:member_demoted, group_id, user_id}, socket) do
-    push(socket, "member_demoted", %{
+    push_event(socket, "member_demoted", %{
       group_id: group_id,
       user_id: user_id,
       display_name: Serializers.display_name(user_id)
@@ -146,7 +148,7 @@ defmodule GameServerWeb.GroupChannel do
 
   @impl true
   def handle_info({:join_request_approved, group_id, user_id}, socket) do
-    push(socket, "join_request_approved", %{
+    push_event(socket, "join_request_approved", %{
       group_id: group_id,
       user_id: user_id,
       display_name: Serializers.display_name(user_id)
@@ -157,7 +159,7 @@ defmodule GameServerWeb.GroupChannel do
 
   @impl true
   def handle_info({:join_request_rejected, group_id, user_id}, socket) do
-    push(socket, "join_request_rejected", %{
+    push_event(socket, "join_request_rejected", %{
       group_id: group_id,
       user_id: user_id,
       display_name: Serializers.display_name(user_id)
@@ -168,19 +170,19 @@ defmodule GameServerWeb.GroupChannel do
 
   @impl true
   def handle_info({:new_chat_message, message}, socket) do
-    push(socket, "new_chat_message", Serializers.serialize_chat_message(message))
+    push_event(socket, "new_chat_message", Serializers.serialize_chat_message(message))
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:chat_message_updated, message}, socket) do
-    push(socket, "chat_message_updated", Serializers.serialize_chat_message(message))
+    push_event(socket, "chat_message_updated", Serializers.serialize_chat_message(message))
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:chat_message_deleted, message}, socket) do
-    push(socket, "chat_message_deleted", %{id: message.id})
+    push_event(socket, "chat_message_deleted", %{id: message.id})
     {:noreply, socket}
   end
 
@@ -198,7 +200,7 @@ defmodule GameServerWeb.GroupChannel do
           {:noreply, socket}
 
         delta_payload ->
-          push(socket, "member_updated", delta_payload)
+          push_event(socket, "member_updated", delta_payload)
 
           socket =
             assign(socket, :last_member_payloads, Map.put(last_payloads, user_id, payload))
@@ -212,13 +214,13 @@ defmodule GameServerWeb.GroupChannel do
 
   @impl true
   def handle_info({:member_online, user_id}, socket) do
-    push(socket, "member_online", %{user_id: user_id, is_online: true})
+    push_event(socket, "member_online", %{user_id: user_id, is_online: true})
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:member_offline, user_id}, socket) do
-    push(socket, "member_offline", %{user_id: user_id, is_online: false})
+    push_event(socket, "member_offline", %{user_id: user_id, is_online: false})
     {:noreply, socket}
   end
 

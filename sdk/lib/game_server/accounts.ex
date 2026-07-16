@@ -1654,4 +1654,20 @@ defmodule GameServer.Accounts do
     end
   end
 
+
+  @doc ~S"""
+    Returns true when `password` matches the user's current password.
+    
+  """
+  @spec valid_password?(GameServer.Accounts.User.t(), term()) :: boolean()
+  def valid_password?(_user, _password) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        false
+
+      _ ->
+        raise "GameServer.Accounts.valid_password?/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
 end

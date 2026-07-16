@@ -41,6 +41,7 @@ var _should_rejoin_until_connected := false
 var _rejoin_pos := -1
 
 var _presence : PhoenixPresence
+var _params_provider: Callable  ## If set, called to get fresh params dict before each join/rejoin
 
 func _init(socket,topic : String,params : Dictionary = {},presence = null):
 	assert(topic != TOPIC_PHOENIX)
@@ -99,6 +100,7 @@ func join() -> bool:
 func close(params := {}, should_rejoin := false):
 	_joined_once = false
 	_state = ChannelStates.CLOSED
+	_pending_refs.clear()
 	if _presence: _presence.clear()
 	emit_signal("on_close", params)
 	
@@ -136,7 +138,7 @@ func raw_trigger(event : String, payload := {}):
 			
 func trigger(message : PhoenixMessage):
 	var status : String = STATUS.ok
-	if message.get_payload().has("status"):
+	if message.get_payload() is Dictionary and message.get_payload().has("status"):
 		status = message.get_payload().status
 	
 	# Event related to the channel connection/status
@@ -190,6 +192,7 @@ func trigger(message : PhoenixMessage):
 
 func _error(error):
 	_state = ChannelStates.ERRORED
+	_pending_refs.clear()
 	if _presence: _presence.clear()
 	emit_signal("on_error", error)
 	
@@ -219,6 +222,10 @@ func _rejoin() -> bool:
 				_should_rejoin_until_connected = false
 				
 			_state = ChannelStates.JOINING
+			
+			# Refresh params from provider before rejoining (ensures fresh tokens)
+			if _params_provider.is_valid():
+				_params = _params_provider.call()
 			
 			var ref = _socket.make_ref()
 			_join_ref = ref

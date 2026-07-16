@@ -28,6 +28,8 @@ defmodule GameServerWeb.LobbyChannel do
 
   use Phoenix.Channel
 
+  import GameServerWeb.ChannelPush
+
   alias GameServer.Accounts
   alias GameServer.Accounts.Scope
   alias GameServer.Accounts.User
@@ -113,20 +115,23 @@ defmodule GameServerWeb.LobbyChannel do
         %{user_id: user_id, display_name: ""}
       end
 
-    push(socket, "user_joined", payload)
+    push_event(socket, "user_joined", payload)
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:user_left, _lobby_id, user_id}, socket) do
-    push(socket, "user_left", %{user_id: user_id, display_name: Serializers.display_name(user_id)})
+    push_event(socket, "user_left", %{
+      user_id: user_id,
+      display_name: Serializers.display_name(user_id)
+    })
 
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:user_kicked, _lobby_id, user_id}, socket) do
-    push(socket, "user_kicked", %{
+    push_event(socket, "user_kicked", %{
       user_id: user_id,
       display_name: Serializers.display_name(user_id)
     })
@@ -144,14 +149,14 @@ defmodule GameServerWeb.LobbyChannel do
         {:noreply, socket}
 
       delta_payload ->
-        push(socket, "updated", delta_payload)
+        push_event(socket, "updated", delta_payload)
         {:noreply, assign(socket, :last_lobby_payload, payload)}
     end
   end
 
   @impl true
   def handle_info({:host_changed, _lobby_id, new_host_id}, socket) do
-    push(socket, "host_changed", %{
+    push_event(socket, "host_changed", %{
       new_host_id: new_host_id,
       display_name: Serializers.display_name(new_host_id)
     })
@@ -166,25 +171,25 @@ defmodule GameServerWeb.LobbyChannel do
       |> Serializers.serialize_lobby(include_members: true)
       |> Map.put(:spectator, socket.assigns[:spectator] || false)
 
-    push(socket, "updated", payload)
+    push_event(socket, "updated", payload)
     {:noreply, assign(socket, :last_lobby_payload, payload)}
   end
 
   @impl true
   def handle_info({:new_chat_message, message}, socket) do
-    push(socket, "new_chat_message", Serializers.serialize_chat_message(message))
+    push_event(socket, "new_chat_message", Serializers.serialize_chat_message(message))
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:chat_message_updated, message}, socket) do
-    push(socket, "chat_message_updated", Serializers.serialize_chat_message(message))
+    push_event(socket, "chat_message_updated", Serializers.serialize_chat_message(message))
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:chat_message_deleted, message}, socket) do
-    push(socket, "chat_message_deleted", %{id: message.id})
+    push_event(socket, "chat_message_deleted", %{id: message.id})
     {:noreply, socket}
   end
 
@@ -200,7 +205,7 @@ defmodule GameServerWeb.LobbyChannel do
         %{user_id: user_id, display_name: "", is_online: event == :member_online}
       end
 
-    push(socket, ws_event, payload)
+    push_event(socket, ws_event, payload)
     {:noreply, socket}
   end
 
@@ -218,7 +223,7 @@ defmodule GameServerWeb.LobbyChannel do
           {:noreply, socket}
 
         delta_payload ->
-          push(socket, "member_updated", delta_payload)
+          push_event(socket, "member_updated", delta_payload)
 
           socket =
             assign(socket, :last_member_payloads, Map.put(last_payloads, user_id, payload))

@@ -15,6 +15,7 @@ signal channel_join_failed(topic: String, reason: String, payload: Dictionary)
 var socket : PhoenixSocket
 var enable_logs := false
 var _token_provider: Callable
+var _format := "json"
 var _channels := {}
 var _payload_cache := {}
 var _request_seq := 0
@@ -33,8 +34,12 @@ const SENSITIVE_LOG_KEYS := {
 }
 
 # Called when the node enters the scene tree for the first time.
-func _init(token_provider: Callable, endpoint: String = PhoenixSocket.DEFAULT_BASE_ENDPOINT) -> void:
+# format: "json" (default) or "protobuf" — with "protobuf" the server sends
+# mapped events as binary protobuf frames (decoded transparently before
+# channel_event is emitted; timestamps arrive as unix-ms ints).
+func _init(token_provider: Callable, endpoint: String = PhoenixSocket.DEFAULT_BASE_ENDPOINT, format: String = "json") -> void:
 	_token_provider = token_provider
+	_format = "protobuf" if format == "protobuf" else "json"
 	socket = PhoenixSocket.new(endpoint, {
 		"params": _socket_params(),
 		"params_provider": _socket_params
@@ -187,7 +192,14 @@ func _channel_on_join_result(event, payload, topic):
 	debug_message.emit("info", "network", "Channel joined: %s event=%s" % [topic, event])
 	if topic.begins_with("user:"):
 		user_channel_joined.emit()
-func _channel_on_event(event, payload: Dictionary, status, topic: String):
+func _channel_on_event(event, payload, status, topic: String):
+	if payload is PackedByteArray:
+		var decoded = GamendProto.decode_event(topic, event, payload)
+		if decoded == null:
+			# No protobuf mapping: deliver the raw frame as-is.
+			channel_event.emit(event, payload, status, topic)
+			return
+		payload = decoded
 	var expanded_payload := _expand_payload_delta(topic, event, payload)
 	if enable_logs:
 		print("Channel on event ", topic, " ", event, " ", _format_log_value(expanded_payload), " ", _format_log_value(status))
@@ -214,7 +226,10 @@ func _get_user_channel() -> PhoenixChannel:
 	return null
 
 func _socket_params() -> Dictionary:
-	return {"token": _token_provider.call()}
+	var params := {"token": _token_provider.call()}
+	if _format == "protobuf":
+		params["format"] = "protobuf"
+	return params
 
 func _next_request_id() -> String:
 	_request_seq += 1

@@ -27,6 +27,7 @@ defmodule GameServerCore.MixProject do
   defp deps do
     [
       {:bcrypt_elixir, "~> 3.0"},
+      {:protobuf, "~> 0.17"},
       {:nebulex, "~> 3.0.0-rc.2"},
       {:nebulex_local, "~> 3.0.0-rc.2"},
       {:nebulex_distributed, "~> 3.0.0-rc.2"},

@@ -16,6 +16,8 @@ defmodule GameServerWeb.GroupsChannel do
 
   use Phoenix.Channel
 
+  import GameServerWeb.ChannelPush
+
   alias GameServer.Groups
   alias GameServerWeb.PayloadDelta
   alias GameServerWeb.Plugs.FeatureGate
@@ -42,7 +44,7 @@ defmodule GameServerWeb.GroupsChannel do
     # Don't broadcast hidden groups to the public list channel
     if group.type != "hidden" do
       payload = Serializers.serialize_group(group)
-      push(socket, "group_created", payload)
+      push_event(socket, "group_created", payload)
       {:noreply, put_group_payload(socket, payload)}
     else
       {:noreply, socket}
@@ -60,7 +62,7 @@ defmodule GameServerWeb.GroupsChannel do
           {:noreply, socket}
 
         delta_payload ->
-          push(socket, "group_updated", delta_payload)
+          push_event(socket, "group_updated", delta_payload)
           {:noreply, put_group_payload(socket, payload)}
       end
     else
@@ -70,7 +72,7 @@ defmodule GameServerWeb.GroupsChannel do
 
   @impl true
   def handle_info({:group_deleted, group_id}, socket) do
-    push(socket, "group_deleted", %{id: group_id})
+    push_event(socket, "group_deleted", %{id: group_id})
     {:noreply, socket}
   end
 

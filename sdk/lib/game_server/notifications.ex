@@ -280,6 +280,26 @@ defmodule GameServer.Notifications do
 
 
   @doc ~S"""
+    Returns the `limit` most recent notifications, ordered oldest-first (so they
+    can be replayed in chronological order on connect without loading the user's
+    entire history).
+    
+  """
+  @spec list_recent_notifications(String.t(), pos_integer()) :: [
+  GameServer.Notifications.Notification.t()
+]
+  def list_recent_notifications(_user_id, _limit) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Notifications.list_recent_notifications/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     List notifications sent by a user filtered by title.
     
     Useful for a leader to see which invites they have sent that are still pending.

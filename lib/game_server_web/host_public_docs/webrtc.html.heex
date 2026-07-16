@@ -163,6 +163,83 @@ config :game_server_web, :webrtc,
         </table>
       </div>
 
+      <h3 class="font-semibold mt-3">{doc_text("RPC format: JSON (default) or Protobuf")}</h3>
+      <p class="text-sm text-base-content/80">
+        {doc_text(
+          "Hook RPC on the \"events\" DataChannel speaks JSON by default. A channel opts into protobuf by setting the standard DataChannel protocol field when it is created — the server reads the negotiated protocol per channel, so JSON and protobuf channels can coexist on the same peer. The envelope is defined in proto/gamend_realtime.proto (RtcEnvelope)."
+        )}
+      </p>
+      <div
+        class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto"
+        phx-no-curly-interpolation
+      >
+        <pre>
+<span class="code-comment">// JavaScript SDK — negotiates protocol: "protobuf" on the DataChannels</span>
+const webrtc = new GameWebRTC(userChannel, { format: 'protobuf' })
+await webrtc.connect()
+const result = await webrtc.callHook('my_plugin', 'my_func', [1, 2])
+
+<span class="code-comment"># Godot SDK</span>
+var webrtc = GamendWebRTC.new(user_channel, {"format": "protobuf"})
+webrtc.connect_webrtc()
+var result = await webrtc.call_hook("my_plugin", "my_func", [1, 2])</pre>
+      </div>
+      <ul class="list-disc pl-6 text-sm space-y-1 text-base-content/80">
+        <li>
+          <strong>{doc_text("Request ids")}</strong>
+          — {doc_text(
+            "protobuf RPC calls carry an id echoed in the reply, so concurrent calls — including to the same function — are correlated safely. The legacy JSON protocol matches replies by plugin+fn, so concurrent calls to the same function must be serialized by the caller."
+          )}
+        </li>
+        <li>
+          <strong>{doc_text("Wire size")}</strong>
+          — {doc_text(
+            "DataChannels have no compression, so protobuf's smaller payloads (35–84% below JSON in the encoding benchmark) are realized in full on this transport."
+          )}
+        </li>
+        <li>
+          <strong>{doc_text("Custom game data")}</strong>
+          — {doc_text(
+            "the \"state\" channel remains an opaque byte pipe in both modes; send whatever encoding your game defines."
+          )}
+        </li>
+      </ul>
+      <p class="text-sm text-base-content/80">
+        <strong>{doc_text("Which to choose:")}</strong>
+        {doc_text(
+          " prefer protobuf for WebRTC — unlike the WebSocket there is no compression here, and the request-id correlation makes concurrent hook calls safe. Use JSON only when wire debuggability matters more than bandwidth or when a client platform lacks protobuf support."
+        )}
+      </p>
+
+      <h4 class="font-semibold text-sm mt-3">{doc_text("Typed hooks (game-defined schemas)")}</h4>
+      <p class="text-sm text-base-content/80">
+        {doc_text(
+          "Define request/reply messages in your plugin's proto file following the naming convention <FnName>Request / <FnName>Reply (hello_proto -> HelloProtoRequest / HelloProtoReply) — when the plugin loads, the pair registers the hook's schema automatically. The plugin function receives the decoded request struct and returns a reply struct, and the server converts at the boundary, so the same hook is callable from every transport and format: binary protobuf on protobuf DataChannels (callHookRaw / call_hook_raw), plain JSON objects on JSON DataChannels and the WebSocket call_hook, and the admin hook tester. Clients can switch formats at runtime without changing call sites. Binary calls require the schema — a callHookRaw to a hook without a registered Request/Reply pair errors with hook_schema_missing (there is no opaque relay). See hello_proto in the example_hook plugin for the working end-to-end example, and test it from the admin Config page with the json/protobuf selector."
+        )}
+      </p>
+      <div
+        class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto"
+        phx-no-curly-interpolation
+      >
+        <pre>
+<span class="code-comment"># Plugin (Elixir) — bundles its own generated modules;</span>
+<span class="code-comment"># receives the decoded request, returns the reply struct.</span>
+def hello_proto(%MyGame.V1.HelloProtoRequest{} = req) do
+  %MyGame.V1.HelloProtoReply{greeting: "Hello, #{req.name}!"}
+end
+
+<span class="code-comment">// JavaScript client</span>
+const req = HelloProtoRequest.encode({ name: 'gamend' }).finish()
+const reply = HelloProtoReply.decode(await webrtc.callHookRaw('my_game', 'hello_proto', req))
+
+<span class="code-comment"># Godot client</span>
+var req = MyGamePb.HelloProtoRequest.new()
+req.set_name("gamend")
+var result = await webrtc.call_hook_raw("my_game", "hello_proto", req.to_bytes())
+var reply = MyGamePb.HelloProtoReply.new()
+reply.from_bytes(result.data)</pre>
+      </div>
+
       <h3 class="font-semibold mt-3">{doc_text("Signaling events")}</h3>
       <div class="overflow-x-auto">
         <table class="table table-sm">

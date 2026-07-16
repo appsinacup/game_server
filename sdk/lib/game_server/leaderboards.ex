@@ -245,10 +245,10 @@ defmodule GameServer.Leaderboards do
 
   @doc ~S"""
     Deletes a user's record from a leaderboard.
-    Accepts either leaderboard ID (integer) or slug (string).
+    Accepts either leaderboard ID or slug (both strings).
     
   """
-  @spec delete_user_record(String.t(), integer()) ::
+  @spec delete_user_record(String.t(), String.t()) ::
   {:ok, GameServer.Leaderboards.Record.t()} | {:error, :not_found}
   def delete_user_record(_id_or_slug, _user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do

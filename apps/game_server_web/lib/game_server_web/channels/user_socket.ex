@@ -70,11 +70,33 @@ defmodule GameServerWeb.UserSocket do
         authenticated: true
       })
 
-      {:ok, assign(socket, :current_scope, Scope.for_user(user))}
+      socket =
+        socket
+        |> assign(:current_scope, Scope.for_user(user))
+        |> assign(:ws_format, extract_format(params, socket))
+
+      {:ok, socket}
     else
       _ -> :error
     end
   end
+
+  # Server->client event payload format: "json" (default) or "protobuf".
+  # Protobuf events are delivered as binary frames encoded per
+  # proto/gamend_realtime.proto; client->server pushes remain JSON.
+  defp extract_format(%{params: %{"format" => f}}, socket), do: normalize_format(f, socket)
+  defp extract_format(%{"params" => %{"format" => f}}, socket), do: normalize_format(f, socket)
+  defp extract_format(%{"format" => f}, socket), do: normalize_format(f, socket)
+  defp extract_format(_, _socket), do: "json"
+
+  # Binary frames require the V2 channel protocol; the V1 serializer (vsn
+  # 1.x, the Phoenix default) cannot emit them, so "protobuf" is only
+  # honored on sockets that negotiated a binary-capable serializer.
+  defp normalize_format("protobuf", %{serializer: serializer})
+       when serializer != Phoenix.Socket.V1.JSONSerializer,
+       do: "protobuf"
+
+  defp normalize_format(_, _), do: "json"
 
   # 0 disables; counted per app instance.
   defp socket_limit_reached?(user_id) do

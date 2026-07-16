@@ -47,7 +47,7 @@ defmodule GameServerWeb.WebRTCPeer do
   }
 
   alias GameServer.Accounts
-  alias GameServer.Hooks.PluginManager
+  alias GameServer.Hooks.HookSchemas
 
   # DataChannel message rate limits (per user) — defaults, overridden by config
   @default_dc_rate_limit 600
@@ -135,7 +135,10 @@ defmodule GameServerWeb.WebRTCPeer do
       # %{ref => label} for open DataChannels
       channels: %{},
       # %{label => ref} reverse lookup for sending by label
-      channels_by_label: %{}
+      channels_by_label: %{},
+      # %{ref => "json" | "protobuf"} negotiated via the DataChannel
+      # protocol field (DCEP); empty/unknown protocol means JSON.
+      formats: %{}
     }
 
     GameServerWeb.ConnectionTracker.register(:webrtc_peer, %{user_id: user_id})
@@ -205,7 +208,8 @@ defmodule GameServerWeb.WebRTCPeer do
 
   @impl true
   def handle_info(
-        {:ex_webrtc, _pc, {:data_channel, %ExWebRTC.DataChannel{ref: ref, label: label}}},
+        {:ex_webrtc, _pc,
+         {:data_channel, %ExWebRTC.DataChannel{ref: ref, label: label, protocol: protocol}}},
         state
       ) do
     # Enforce max open DataChannels to prevent resource exhaustion
@@ -216,13 +220,15 @@ defmodule GameServerWeb.WebRTCPeer do
 
       {:noreply, state}
     else
-      Logger.info("WebRTCPeer user=#{state.user_id} DataChannel opened: #{label}")
+      format = if protocol == "protobuf", do: "protobuf", else: "json"
+      Logger.info("WebRTCPeer user=#{state.user_id} DataChannel opened: #{label} (#{format})")
       send(state.channel_pid, {:webrtc_channel_open, ref, label})
 
       state = %{
         state
         | channels: Map.put(state.channels, ref, label),
-          channels_by_label: Map.put(state.channels_by_label, label, ref)
+          channels_by_label: Map.put(state.channels_by_label, label, ref),
+          formats: Map.put(state.formats, ref, format)
       }
 
       {:noreply, state}
@@ -251,7 +257,8 @@ defmodule GameServerWeb.WebRTCPeer do
       state
       | channels: Map.delete(state.channels, ref),
         channels_by_label:
-          if(label, do: Map.delete(state.channels_by_label, label), else: state.channels_by_label)
+          if(label, do: Map.delete(state.channels_by_label, label), else: state.channels_by_label),
+        formats: Map.delete(state.formats, ref)
     }
 
     {:noreply, state}
@@ -274,7 +281,8 @@ defmodule GameServerWeb.WebRTCPeer do
 
       true ->
         label = Map.get(state.channels, ref, "unknown")
-        maybe_handle_rpc(label, data, state)
+        format = Map.get(state.formats, ref, "json")
+        maybe_handle_rpc(label, format, data, state)
         {:noreply, state}
     end
   end
@@ -318,31 +326,116 @@ defmodule GameServerWeb.WebRTCPeer do
 
   # ── RPC handling over DataChannels ──────────────────────────────────────────
 
-  defp maybe_handle_rpc("events", data, state) do
+  defp maybe_handle_rpc("events", "json", data, state) do
     case Jason.decode(data) do
       {:ok, %{"type" => "call_hook", "plugin" => plugin, "fn" => func} = payload} ->
         args = Map.get(payload, "args", [])
         args = if is_list(args), do: args, else: [args]
 
-        # Use the stored full user or refetch if missing
-        user = state.user || Accounts.get_user(state.user_id)
+        resp =
+          case call_hook(plugin, func, {:list, args}, :map, state) do
+            {:ok, res} ->
+              case Jason.encode(%{type: "hook_reply", plugin: plugin, fn: func, data: res}) do
+                {:ok, json} ->
+                  json
 
-        case PluginManager.call_rpc(plugin, func, args, caller: user) do
-          {:ok, res} ->
-            resp = %{type: "hook_reply", plugin: plugin, fn: func, data: res}
-            send_data(self(), "events", Jason.encode!(resp))
+                {:error, _} ->
+                  Jason.encode!(%{
+                    type: "hook_error",
+                    plugin: plugin,
+                    fn: func,
+                    error: "result_not_json_encodable"
+                  })
+              end
 
-          {:error, reason} ->
-            resp = %{type: "hook_error", plugin: plugin, fn: func, error: to_string(reason)}
-            send_data(self(), "events", Jason.encode!(resp))
-        end
+            {:error, reason} ->
+              Jason.encode!(%{
+                type: "hook_error",
+                plugin: plugin,
+                fn: func,
+                error: format_error(reason)
+              })
+          end
+
+        _ = send_on_channel(state, "events", resp)
 
       _ ->
         :ok
     end
   end
 
-  defp maybe_handle_rpc(_label, _data, _state), do: :ok
+  # Protobuf RPC envelope (proto/gamend_realtime.proto). Unlike the JSON
+  # protocol, requests carry an id echoed in the reply so concurrent calls
+  # can be correlated.
+  defp maybe_handle_rpc("events", "protobuf", data, state) do
+    alias Gamend.Realtime.V1, as: PB
+
+    case PB.RtcEnvelope.decode(data) do
+      %PB.RtcEnvelope{msg: {:call_hook, %PB.RpcCall{id: id, plugin: plugin, fn: func} = call}} ->
+        # HookSchemas converts through the hook's registered schema when one
+        # exists: args_raw decodes into the request struct, args_json objects
+        # do too, and the reply is encoded back to the caller's wire form.
+        {args_input, wire} =
+          case call.args do
+            {:args_raw, raw} -> {{:raw, raw}, :binary}
+            {:args_json, ""} -> {{:list, []}, :map}
+            {:args_json, json} -> {{:list, decode_json_args(json)}, :map}
+            nil -> {{:list, []}, :map}
+          end
+
+        reply =
+          case call_hook(plugin, func, args_input, wire, state) do
+            {:ok, {:raw, raw}} when is_binary(raw) ->
+              %PB.RtcEnvelope{msg: {:hook_reply, %PB.RpcReply{id: id, data: {:data_raw, raw}}}}
+
+            {:ok, res} ->
+              %PB.RtcEnvelope{
+                msg: {:hook_reply, %PB.RpcReply{id: id, data: {:data_json, Jason.encode!(res)}}}
+              }
+
+            {:error, reason} ->
+              %PB.RtcEnvelope{
+                msg: {:hook_error, %PB.RpcError{id: id, error: format_error(reason)}}
+              }
+          end
+
+        _ = send_on_channel(state, "events", PB.RtcEnvelope.encode(reply), :binary)
+
+      _ ->
+        :ok
+    end
+  rescue
+    # Malformed protobuf frame; drop it.
+    _ -> :ok
+  end
+
+  defp maybe_handle_rpc(_label, _format, _data, _state), do: :ok
+
+  # Direct send for use from within this GenServer (send_data/3 is a
+  # GenServer.call and would deadlock when invoked on self()).
+  defp send_on_channel(state, label, data, data_type \\ :string) do
+    case Map.get(state.channels_by_label, label) do
+      nil -> {:error, :channel_not_found}
+      ref -> PeerConnection.send_data(state.peer_connection, ref, data, data_type)
+    end
+  end
+
+  defp call_hook(plugin, func, args_input, wire, state) do
+    # Use the stored full user or refetch if missing
+    user = state.user || Accounts.get_user(state.user_id)
+    HookSchemas.call(plugin, func, args_input, wire, caller: user)
+  end
+
+  defp decode_json_args(json) do
+    case Jason.decode(json) do
+      {:ok, list} when is_list(list) -> list
+      _ -> []
+    end
+  end
+
+  defp format_error(reason) when is_binary(reason), do: reason
+  defp format_error(reason) when is_atom(reason), do: to_string(reason)
+  defp format_error(reason), do: inspect(reason)
 
   # ── DataChannel rate limiting ──────────────────────────────────────────────
 

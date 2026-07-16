@@ -25,13 +25,19 @@
  */
 
 import { Socket } from 'phoenix'
+import { decodeEvent, registerMetaSchema, registerKvSchema } from './gamend_proto.js'
 
 export class GameRealtime {
   /**
    * @param {string} serverUrl  - Base HTTP(S) or WS(S) server URL,
    *                              e.g. "https://game.example.com" or "wss://game.example.com"
    * @param {string} token      - JWT access token from the REST login endpoints
-   * @param {Object} socketOpts - Optional Phoenix.Socket constructor options
+   * @param {Object} socketOpts - Optional Phoenix.Socket constructor options.
+   *                              Pass `format: 'protobuf'` to receive server
+   *                              events as protobuf binary frames; channels
+   *                              obtained through the join helpers decode them
+   *                              transparently (timestamps become unix-ms
+   *                              numbers, see proto/gamend_realtime.proto).
    */
   constructor(serverUrl, token, socketOpts = {}) {
     // Normalise URL: strip trailing slash, ensure ws(s):// scheme, append /socket
@@ -40,11 +46,35 @@ export class GameRealtime {
         .replace(/\/$/, '')
         .replace(/^http(s?):\/\//, (_m, s) => `ws${s}://`) + '/socket'
 
+    const { format, ...opts } = socketOpts
     this._token = token
-    this._socket = new Socket(wsUrl, { params: { token }, ...socketOpts })
+    this._format = format === 'protobuf' ? 'protobuf' : 'json'
+    const params = this._format === 'protobuf' ? { token, format: 'protobuf' } : { token }
+    this._socket = new Socket(wsUrl, { params, ...opts })
     this._socket.connect()
     /** @type {Map<string, Object>} topic → Phoenix Channel */
     this._channels = new Map()
+  }
+
+  /**
+   * Registers the game's protobuf metadata schema for an entity (mirrors the
+   * server plugin's UserMeta/LobbyMeta/GroupMeta/PartyMeta registration), so
+   * decoded events expose `metadata` as a plain object in protobuf mode.
+   * @param {string} entity - 'user' | 'lobby' | 'group' | 'party'
+   * @param {Object|Function} schema - protobufjs class, or (Uint8Array) => value
+   */
+  registerMetaSchema(entity, schema) {
+    registerMetaSchema(entity, schema)
+  }
+
+  /**
+   * Registers the game's protobuf KV data schema for a key or '*'-suffixed
+   * key prefix (mirrors the server plugin's kv_schemas/0 registration).
+   * @param {string} pattern - e.g. 'loadout' or 'match:*'
+   * @param {Object|Function} schema - protobufjs class, or (Uint8Array) => value
+   */
+  registerKvSchema(pattern, schema) {
+    registerKvSchema(pattern, schema)
   }
 
   // ── Channel helpers ──────────────────────────────────────────────────────
@@ -202,12 +232,31 @@ export class GameRealtime {
       return this._channels.get(topic)
     }
     const ch = this._socket.channel(topic, { token: this._token, ...extraParams })
+    if (this._format === 'protobuf') this._wrapBinaryDecode(ch)
     ch.join()
       .receive('error', (err) =>
         console.error(`GameRealtime: failed to join channel "${topic}"`, err)
       )
     this._channels.set(topic, ch)
     return ch
+  }
+
+  // On protobuf sockets the server delivers mapped events as binary frames;
+  // decode them before they reach `channel.on(...)` handlers so application
+  // code sees plain objects in both formats.
+  _wrapBinaryDecode(ch) {
+    const originalTrigger = ch.trigger.bind(ch)
+    ch.trigger = (event, payload, ref, joinRef) => {
+      let decoded = payload
+      if (payload instanceof ArrayBuffer || payload instanceof Uint8Array) {
+        try {
+          decoded = decodeEvent(ch.topic, event, payload) ?? payload
+        } catch (err) {
+          console.error(`GameRealtime: failed to decode "${event}" on ${ch.topic}`, err)
+        }
+      }
+      return originalTrigger(event, decoded, ref, joinRef)
+    }
   }
 
   _findUserChannel() {

@@ -103,6 +103,11 @@ signal lobby_channel_join_failed(lobby_id: String, reason: String)
 
 var _config := ApiApiConfigClient.new()
 var _realtime: GamendRealtime
+## Realtime payload format: "json" (default) or "protobuf" — with
+## "protobuf" the server pushes events as binary frames decoded via
+## GamendProto (see register_meta_schema / register_kv_schema for your
+## game's own schemas). Set before realtime_start().
+var realtime_format := "json"
 var _realtime_start_result: GamendResult
 var _realtime_start_finished := false
 var _realtime_start_revision := 0
@@ -480,7 +485,7 @@ func realtime_start():
 	var protocol = "ws://"
 	if _config.tls_enabled:
 		protocol = "wss://"
-	_realtime = GamendRealtime.new(_get_realtime_access_token, protocol + _config.host + ":" + str(_config.port) + "/socket")
+	_realtime = GamendRealtime.new(_get_realtime_access_token, protocol + _config.host + ":" + str(_config.port) + "/socket", realtime_format)
 	_realtime.enable_logs = enable_logs
 	_realtime.socket_opened.connect(_on_realtime_socket_opened)
 	_realtime.socket_closed.connect(_on_realtime_socket_closed)

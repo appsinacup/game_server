@@ -10,6 +10,8 @@ defmodule GameServerWeb.LobbiesChannel do
 
   use Phoenix.Channel
 
+  import GameServerWeb.ChannelPush
+
   alias GameServer.Lobbies
   alias GameServerWeb.PayloadDelta
   alias GameServerWeb.Plugs.FeatureGate
@@ -34,7 +36,7 @@ defmodule GameServerWeb.LobbiesChannel do
   @impl true
   def handle_info({:lobby_created, lobby}, socket) do
     payload = Serializers.serialize_lobby(lobby, include_passworded: true)
-    push(socket, "lobby_created", payload)
+    push_event(socket, "lobby_created", payload)
     {:noreply, put_lobby_payload(socket, payload)}
   end
 
@@ -48,20 +50,20 @@ defmodule GameServerWeb.LobbiesChannel do
         {:noreply, socket}
 
       delta_payload ->
-        push(socket, "lobby_updated", delta_payload)
+        push_event(socket, "lobby_updated", delta_payload)
         {:noreply, put_lobby_payload(socket, payload)}
     end
   end
 
   @impl true
   def handle_info({:lobby_deleted, lobby_id}, socket) do
-    push(socket, "lobby_deleted", %{id: lobby_id})
+    push_event(socket, "lobby_deleted", %{id: lobby_id})
     {:noreply, drop_lobby_payload(socket, lobby_id)}
   end
 
   @impl true
   def handle_info({:lobby_membership_changed, lobby_id}, socket) do
-    push(socket, "lobby_membership_changed", %{id: lobby_id})
+    push_event(socket, "lobby_membership_changed", %{id: lobby_id})
     {:noreply, socket}
   end
 

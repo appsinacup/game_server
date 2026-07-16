@@ -40,6 +40,7 @@ defmodule GameServerWeb.MixProject do
   defp deps do
     [
       {:game_server_core, path: "../game_server_core"},
+      {:protobuf, "~> 0.17"},
       {:phoenix, "~> 1.8.3"},
       {:phoenix_ecto, "~> 4.5"},
       {:phoenix_html, "~> 4.1"},
