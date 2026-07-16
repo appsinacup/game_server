@@ -1725,6 +1725,11 @@ defmodule GameServer.Accounts do
       {:ok, _user} = ok ->
         invalidate_users_count_cache()
 
+        # Friend DMs sent *to* this user (chat_type "friend", chat_ref_id = user)
+        # have no FK to cascade — the sender's own messages go via sender_id, so
+        # remove the inbound half here to avoid orphaned half-conversations.
+        _ = GameServer.Chat.cleanup_chat("friend", user.id)
+
         # Deleting cache entries asynchronously can cause a short-lived race where
         # a delete followed immediately by a device login sees a stale cached user
         # for the same device_id/email and skips the "create" code path.

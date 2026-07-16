@@ -35,6 +35,10 @@
 - [perf] **Disconnect offline-check is O(sockets-for-this-user)** via a per-user registry key (was O(all connected user channels)); the presence heartbeat updates the cached user in place instead of busting it every few minutes.
 - [perf] **List queries never run an unbounded `Repo.all`** — `list_lobbies`/`list_groups` cap at a hard max page size; the lobby-list channel prunes its per-socket delta cache on lobby deletion.
 
+- [db] **New migration adds missing indexes**: partial `users(last_seen_at) WHERE is_online` (Postgres) / `users(is_online, last_seen_at)` (SQLite) + `users(last_seen_at)` for the presence sweeper and online counts; re-adds the `leaderboard_records(leaderboard_id, score, updated_at)` index dropped by the SQLite table rebuild; `groups(lower(title))` for group search; `notifications(recipient_id, read, inserted_at)`.
+- [db] **Friend-request creation now takes an advisory lock on the canonical (direction-independent) pair** — fixes a Postgres TOCTOU race where concurrent A→B and B→A requests could both insert reciprocal pending rows.
+- [db] **User deletion cleans up friend DMs sent to the deleted user** (the polymorphic `chat_ref_id` has no FK), preventing orphaned half-conversations; OAuth sessions older than a day are now pruned by the retention job; the chat-notification upsert `COALESCE`s NULL metadata so the message-count increment isn't lost.
+
 # April 2026
 
 - [changed] Root host app restructure.

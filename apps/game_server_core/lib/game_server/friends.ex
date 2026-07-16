@@ -34,6 +34,7 @@ defmodule GameServer.Friends do
   alias GameServer.Accounts.User
   alias GameServer.Friends.Friendship
   alias GameServer.Repo
+  alias GameServer.Repo.AdvisoryLock
   alias GameServer.Types
   @friends_topic "friends"
 
@@ -217,6 +218,11 @@ defmodule GameServer.Friends do
       {:error, :cannot_friend_self}
     else
       Repo.transaction(fn ->
+        # Lock on the canonical (direction-independent) pair so concurrent
+        # A→B and B→A requests serialize — the unique index only covers one
+        # direction, so without this both could insert reciprocal pending rows.
+        AdvisoryLock.lock(:friendship, canonical_pair_id(requester_id, target_id))
+
         # clean up any rejected same-direction rows to allow fresh request creation
         remove_rejected_same_direction(requester_id, target_id)
 
@@ -270,6 +276,9 @@ defmodule GameServer.Friends do
       end
     end
   end
+
+  # Direction-independent key so both A→B and B→A hash to the same lock.
+  defp canonical_pair_id(a, b), do: [a, b] |> Enum.sort() |> Enum.join(":")
 
   defp remove_rejected_same_direction(requester_id, target_id) do
     case get_by_pair(requester_id, target_id) do

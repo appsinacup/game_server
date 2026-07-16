@@ -545,7 +545,7 @@ defmodule GameServer.Notifications do
             content: ^content,
             metadata:
               fragment(
-                "jsonb_set(?, '{message_count}', to_jsonb(COALESCE((?->>'message_count')::integer, 0) + 1))",
+                "jsonb_set(COALESCE(?, '{}'::jsonb), '{message_count}', to_jsonb(COALESCE((?->>'message_count')::integer, 0) + 1))",
                 n.metadata,
                 n.metadata
               ),
