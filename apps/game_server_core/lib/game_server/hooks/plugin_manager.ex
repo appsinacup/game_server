@@ -108,17 +108,46 @@ defmodule GameServer.Hooks.PluginManager do
   @spec call_rpc(plugin_name(), String.t(), list(), keyword()) :: {:ok, any()} | {:error, term()}
   def call_rpc(plugin, fn_name, args, opts \\ [])
       when is_binary(plugin) and is_binary(fn_name) and is_list(args) and is_list(opts) do
-    start_time = System.monotonic_time()
-    result = do_call_rpc(plugin, fn_name, args, opts)
-    duration_ms = duration_ms_since(start_time)
+    case validate_rpc_request(fn_name, args) do
+      :ok ->
+        start_time = System.monotonic_time()
+        result = do_call_rpc(plugin, fn_name, args, opts)
+        duration_ms = duration_ms_since(start_time)
 
-    if duration_ms > slow_hook_threshold_ms() do
-      Logger.warning(
-        "Slow Hook: #{format_rpc_context(plugin, fn_name, args, opts)} result=#{rpc_result_status(result)} took #{format_duration_ms(duration_ms)}ms"
-      )
+        if duration_ms > slow_hook_threshold_ms() do
+          Logger.warning(
+            "Slow Hook: #{format_rpc_context(plugin, fn_name, args, opts)} result=#{rpc_result_status(result)} took #{format_duration_ms(duration_ms)}ms"
+          )
+        end
+
+        result
+
+      {:error, _} = err ->
+        err
     end
+  end
 
-    result
+  # Enforced here (not just at each transport) so every RPC entry point — HTTP,
+  # user channel, and WebRTC DataChannel — rejects reserved lifecycle-hook names
+  # and oversized argument payloads identically.
+  defp validate_rpc_request(fn_name, args) do
+    cond do
+      reserved_hook_name?(fn_name) -> {:error, :reserved_hook_name}
+      length(args) > GameServer.Limits.get(:max_hook_args_count) -> {:error, :too_many_args}
+      rpc_args_too_large?(args) -> {:error, :args_too_large}
+      true -> :ok
+    end
+  end
+
+  defp reserved_hook_name?(fn_name) when is_binary(fn_name) do
+    Enum.any?(GameServer.Hooks.internal_hooks(), &(Atom.to_string(&1) == fn_name))
+  end
+
+  defp rpc_args_too_large?(args) do
+    case Jason.encode(args) do
+      {:ok, encoded} -> byte_size(encoded) > GameServer.Limits.get(:max_hook_args_size)
+      _ -> true
+    end
   end
 
   defp do_call_rpc(plugin, fn_name, args, opts) do

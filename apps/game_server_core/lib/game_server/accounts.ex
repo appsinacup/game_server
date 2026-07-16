@@ -369,6 +369,16 @@ defmodule GameServer.Accounts do
   end
 
   @doc """
+  Returns true when `password` matches the user's current password.
+  """
+  @spec valid_password?(User.t(), term()) :: boolean()
+  def valid_password?(%User{} = user, password) when is_binary(password) do
+    User.valid_password?(user, password)
+  end
+
+  def valid_password?(_user, _password), do: false
+
+  @doc """
   Gets a single user.
 
   Raises `Ecto.NoResultsError` if the User does not exist.
@@ -1027,65 +1037,62 @@ defmodule GameServer.Accounts do
   end
 
   defp handle_provider_id_missing(attrs, provider_id_field, changeset_fn) do
-    email = Map.get(attrs, :email)
-
-    if email do
-      case get_user_by_email(email) do
-        nil ->
-          create_user_from_provider(attrs, changeset_fn)
-
-        %User{} = user ->
-          attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
-
-          case user
-               |> changeset_fn.(attrs)
-               |> Repo.update() do
-            {:ok, %User{} = updated} = ok ->
-              invalidate_user_cache(user)
-              invalidate_user_cache(updated)
-              ok
-
-            other ->
-              other
-          end
-      end
-    else
-      create_user_from_provider(attrs, changeset_fn)
+    case Map.get(attrs, :email) && get_user_by_email(Map.get(attrs, :email)) do
+      %User{} = user -> link_provider_to_user(user, attrs, provider_id_field, changeset_fn)
+      _ -> create_user_from_provider(attrs, changeset_fn)
     end
   end
 
   defp handle_by_email(email, attrs, provider_id_field, changeset_fn) do
     case get_user_by_email(email) do
-      nil ->
-        create_user_from_provider(attrs, changeset_fn)
+      nil -> create_user_from_provider(attrs, changeset_fn)
+      %User{} = user -> link_provider_to_user(user, attrs, provider_id_field, changeset_fn)
+    end
+  end
 
-      %User{} = user ->
-        attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
+  # Only attach a provider to a pre-existing account when the provider asserts
+  # the email is verified — otherwise an attacker with a provider account
+  # bearing the victim's email could take over the account. Callers set
+  # `:email_verified` from the provider's claim (see oauth_user_params).
+  defp link_provider_to_user(user, attrs, provider_id_field, changeset_fn) do
+    if Map.get(attrs, :email_verified) == true do
+      attrs = scrub_attrs_for_update(user, attrs, provider_id_field)
 
-        case user |> changeset_fn.(attrs) |> Repo.update() do
-          {:ok, %User{} = updated} = ok ->
-            invalidate_user_cache(user)
-            invalidate_user_cache(updated)
-            ok
+      case user |> changeset_fn.(attrs) |> Repo.update() do
+        {:ok, %User{} = updated} = ok ->
+          invalidate_user_cache(user)
+          invalidate_user_cache(updated)
+          ok
 
-          other ->
-            other
-        end
+        other ->
+          other
+      end
+    else
+      changeset =
+        user
+        |> Ecto.Changeset.change()
+        |> Ecto.Changeset.add_error(
+          :email,
+          "is already registered — sign in with your existing method, then link this provider from account settings"
+        )
+
+      {:error, %{changeset | action: :update}}
     end
   end
 
   defp create_user_from_provider(attrs, changeset_fn) do
-    # Check if this is the first user and make them admin
     is_first_user = first_user?()
-    attrs = if is_first_user, do: Map.put(attrs, :is_admin, true), else: attrs
 
     # For new user creation when provider didn't return an email, avoid
     # passing a nil email into the changeset (update_change will crash).
     attrs = if Map.get(attrs, :email) in [nil, ""], do: Map.delete(attrs, :email), else: attrs
 
+    # Admin is granted via put_change (server-side), never cast from provider
+    # attrs — the OAuth changesets must not accept :is_admin.
     changeset =
       %User{}
       |> changeset_fn.(attrs)
+      |> maybe_make_first_user_admin(is_first_user)
       |> maybe_deactivate_new_user(is_first_user)
 
     case Repo.insert(changeset) do

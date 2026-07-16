@@ -190,7 +190,7 @@ defmodule GameServer.Accounts.User do
   """
   def discord_oauth_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :discord_id, :profile_url, :is_admin, :display_name])
+    |> cast(attrs, [:email, :discord_id, :profile_url, :display_name])
     |> update_change(:email, fn
       nil -> nil
       email -> String.downcase(email)
@@ -216,7 +216,7 @@ defmodule GameServer.Accounts.User do
   """
   def steam_oauth_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :steam_id, :profile_url, :is_admin, :display_name])
+    |> cast(attrs, [:email, :steam_id, :profile_url, :display_name])
     |> update_change(:email, fn
       nil -> nil
       email -> String.downcase(email)
@@ -242,7 +242,7 @@ defmodule GameServer.Accounts.User do
   """
   def apple_oauth_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :apple_id, :is_admin, :display_name])
+    |> cast(attrs, [:email, :apple_id, :display_name])
     |> update_change(:email, fn
       nil -> nil
       email -> String.downcase(email)
@@ -267,7 +267,7 @@ defmodule GameServer.Accounts.User do
   """
   def google_oauth_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :google_id, :profile_url, :is_admin, :display_name])
+    |> cast(attrs, [:email, :google_id, :profile_url, :display_name])
     |> update_change(:email, fn
       nil -> nil
       email -> String.downcase(email)
@@ -293,7 +293,7 @@ defmodule GameServer.Accounts.User do
   """
   def facebook_oauth_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :facebook_id, :profile_url, :is_admin, :display_name])
+    |> cast(attrs, [:email, :facebook_id, :profile_url, :display_name])
     |> update_change(:email, fn
       nil -> nil
       email -> String.downcase(email)

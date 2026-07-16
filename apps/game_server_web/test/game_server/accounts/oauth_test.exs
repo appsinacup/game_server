@@ -22,17 +22,33 @@ defmodule GameServer.Accounts.OAuthTest do
       assert returned.profile_url == "https://cdn.test/avatar.png"
     end
 
-    test "links to existing user by email when provider id missing" do
+    test "links to existing user by verified email when provider id missing" do
       user = AccountsFixtures.unconfirmed_user_fixture(%{email: "link_me@example.com"})
 
       {:ok, returned} =
         Accounts.find_or_create_from_discord(%{
           discord_id: "d_link",
-          email: "link_me@example.com"
+          email: "link_me@example.com",
+          email_verified: true
         })
 
       assert returned.id == user.id
       assert returned.discord_id == "d_link"
+    end
+
+    test "refuses to link to an existing account when email is unverified" do
+      user = AccountsFixtures.unconfirmed_user_fixture(%{email: "victim@example.com"})
+
+      assert {:error, changeset} =
+               Accounts.find_or_create_from_discord(%{
+                 discord_id: "d_attacker",
+                 email: "victim@example.com",
+                 email_verified: false
+               })
+
+      assert %{email: [_ | _]} = errors_on(changeset)
+      # The provider id must not have been attached to the victim's account.
+      assert Accounts.get_user!(user.id).discord_id == nil
     end
 
     test "creates a new user when neither provider nor email matched" do

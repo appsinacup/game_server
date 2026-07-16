@@ -296,25 +296,39 @@ defmodule GameServer.Payments.Providers.Google do
   end
 
   defp verify_rtdn_token(nil) do
-    case config_value("GOOGLE_PLAY_RTDN_TOKEN", :google_play_rtdn_token) do
+    case configured_rtdn_token() do
       value when is_binary(value) and value != "" -> {:error, :invalid_google_rtdn_token}
-      _ -> :ok
+      _ -> unconfigured_rtdn_result()
     end
   end
 
   defp verify_rtdn_token("Bearer " <> token) do
-    case config_value("GOOGLE_PLAY_RTDN_TOKEN", :google_play_rtdn_token) do
+    case configured_rtdn_token() do
       value when is_binary(value) and value != "" ->
         if Plug.Crypto.secure_compare(token, value),
           do: :ok,
           else: {:error, :invalid_google_rtdn_token}
 
       _ ->
-        :ok
+        unconfigured_rtdn_result()
     end
   end
 
   defp verify_rtdn_token(_header), do: {:error, :invalid_google_rtdn_token}
+
+  defp configured_rtdn_token do
+    config_value("GOOGLE_PLAY_RTDN_TOKEN", :google_play_rtdn_token)
+  end
+
+  # Fail closed in production when no shared token is configured — an unset token
+  # would otherwise leave the RTDN webhook unauthenticated. Dev/test stay lenient.
+  defp unconfigured_rtdn_result do
+    if Application.get_env(:game_server_web, :environment) == :prod do
+      {:error, :google_rtdn_not_configured}
+    else
+      :ok
+    end
+  end
 
   defp get_json(url, access_token) do
     case http_client().get(url, auth: {:bearer, access_token}) do

@@ -83,9 +83,9 @@ defmodule GameServerWeb.Plugs.RateLimiter do
     """
   end
 
-  # API login/registration — stricter auth bucket
+  # API login/registration/refresh — stricter auth bucket
   defp bucket_for(%{path_info: ["api", "v1", path | _]} = _conn, ip)
-       when path in ~w(login register) do
+       when path in ~w(login register refresh) do
     auth_bucket(ip)
   end
 

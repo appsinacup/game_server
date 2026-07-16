@@ -59,7 +59,12 @@ defmodule GameServer.Accounts.OAuthProfileTest do
         |> GameServer.Repo.update!()
 
       # Attempt to link google with new profile_url; existing profile_url should remain
-      attrs = %{google_id: "g_999", email: user.email, profile_url: "https://example.com/new.png"}
+      attrs = %{
+        google_id: "g_999",
+        email: user.email,
+        email_verified: true,
+        profile_url: "https://example.com/new.png"
+      }
 
       assert {:ok, updated} = Accounts.find_or_create_from_google(attrs)
       assert updated.id == user.id
@@ -71,7 +76,13 @@ defmodule GameServer.Accounts.OAuthProfileTest do
       user2 =
         Ecto.Changeset.change(user2, display_name: "Local Name") |> GameServer.Repo.update!()
 
-      attrs = %{google_id: "g_link", email: user2.email, display_name: "Provider Name"}
+      attrs = %{
+        google_id: "g_link",
+        email: user2.email,
+        email_verified: true,
+        display_name: "Provider Name"
+      }
+
       assert {:ok, updated2} = Accounts.find_or_create_from_google(attrs)
       assert updated2.display_name == "Local Name"
     end

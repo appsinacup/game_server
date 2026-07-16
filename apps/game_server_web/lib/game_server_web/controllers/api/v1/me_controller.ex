@@ -105,7 +105,11 @@ defmodule GameServerWeb.Api.V1.MeController do
       %Schema{
         type: :object,
         properties: %{
-          password: %Schema{type: :string}
+          password: %Schema{type: :string},
+          current_password: %Schema{
+            type: :string,
+            description: "Required when the account already has a password."
+          }
         },
         required: [:password]
       }
@@ -121,17 +125,37 @@ defmodule GameServerWeb.Api.V1.MeController do
   def update_password(conn, %{"password" => _} = params) do
     user = conn.assigns.current_scope.user
 
-    case GameServer.Accounts.update_user_password(user, params) do
-      {:ok, {user, _tokens}} ->
-        json(conn, %{ok: true, id: user.id})
+    if password_change_authorized?(user, params) do
+      case GameServer.Accounts.update_user_password(user, params) do
+        {:ok, {user, _tokens}} ->
+          json(conn, %{ok: true, id: user.id})
 
-      {:error, changeset} ->
-        conn
-        |> put_status(:bad_request)
-        |> json(%{
-          error: "invalid_data",
-          errors: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
-        })
+        {:error, changeset} ->
+          conn
+          |> put_status(:bad_request)
+          |> json(%{
+            error: "invalid_data",
+            errors: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
+          })
+      end
+    else
+      conn
+      |> put_status(:unauthorized)
+      |> json(%{
+        error: "invalid_current_password",
+        message: "current_password is required and must match your existing password"
+      })
+    end
+  end
+
+  # Accounts with an existing password must prove it to change it (a stolen
+  # access token must not be escalatable into a permanent password reset).
+  # OAuth/device accounts with no password yet may set one without re-auth.
+  defp password_change_authorized?(user, params) do
+    if is_nil(user.hashed_password) do
+      true
+    else
+      GameServer.Accounts.valid_password?(user, params["current_password"])
     end
   end
 

@@ -17,8 +17,17 @@
 - [changed] **Dev setup**: `.env` drives config (incl. DB adapter) at compile time; `mix setup` fixed; shared `db.*`/`host.*` tasks ship from `game_server_core` (delete local copies).
 - [changed] **Reliability**: cross-instance cache invalidation, bounded async side effects, presence events once per session, boot works without a reachable database.
 
+- [security] **Apple IAP receipts now verify the full x5c chain** to a pinned Apple Root CA - G3 (`priv/certs/apple_root_ca_g3.pem`) — forged/self-signed receipts are rejected. Verification fails closed if the pinned root is absent.
+- [breaking][security] **OAuth auto-linking requires a verified provider email.** A provider login whose id is new but whose email matches an existing account only links when the provider asserts `email_verified` (Facebook, which exposes no such claim, never auto-links). Otherwise the login is rejected with guidance to link from account settings while authenticated. Prevents account takeover.
+- [security] **Hook RPC hardened uniformly**: reserved lifecycle-hook names and oversized argument payloads are now rejected inside `PluginManager.call_rpc`, so the HTTP, user-channel, and WebRTC DataChannel entry points all enforce them (the DataChannel path previously bypassed both).
+- [security] **Google Play RTDN webhook fails closed in production** when `GOOGLE_PLAY_RTDN_TOKEN` is unset (was unauthenticated). Dev/test unchanged.
+- [security] **Password change over the API requires the current password** for accounts that have one (OAuth/device accounts may still set an initial password).
+- [security] **`/metrics` requires the bearer token for all non-loopback scrapes when `METRICS_AUTH_TOKEN` is set** (private/Docker IPs no longer bypass it); token comparison is constant-time.
+- [security] OAuth registration changesets no longer cast `:is_admin` (mass-assignment hardening); the `refresh` endpoint now uses the strict auth rate-limit bucket.
+
 - [fixed] Duplicate KV entry creation falsely reported success; KV caches never hit after Nebulex 3.
 - [fixed] Search filters escape `LIKE` wildcards consistently.
+- [fixed] Cross-instance cache invalidation now also covers version-counter caches (leaderboards, groups, lobbies, parties, friends, chat, notifications, achievements, KV lists); revocation re-warms the user cache to close a race that could keep a revoked JWT valid until TTL.
 
 # April 2026
 
