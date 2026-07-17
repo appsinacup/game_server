@@ -363,7 +363,10 @@ defmodule GameServer.Accounts.User do
   def username_changeset(user_or_changeset, attrs) do
     user_or_changeset
     |> cast(attrs, [:username])
-    |> update_change(:username, &String.downcase/1)
+    |> update_change(:username, fn
+      nil -> nil
+      username -> String.downcase(username)
+    end)
     |> validate_required([:username])
     |> validate_length(:username,
       min: GameServer.Limits.get(:min_username),

@@ -133,19 +133,19 @@
 <span class="code-comment"># Request body</span>
 {
   "chat_type": "lobby",       # "lobby" | "group" | "friend"
-  "chat_ref_id": "42",        # lobby id, group id, or friend's user id
+  "chat_ref_id": "01977f5a-0042-7000-8000-3f6a2d8c0a42",  # lobby id, group id, or friend's user id
   "content": "Hello everyone!",
   "metadata": {"color": "red"} # optional JSON metadata
 }
 
 <span class="code-comment"># Response (201 Created)</span>
 {
-  "id": 1,
+  "id": "01977f5a-0001-7000-8000-3f6a2d8c0a01",
   "content": "Hello everyone!",
   "metadata": {"color": "red"},
   "chat_type": "lobby",
-  "chat_ref_id": "42",
-  "sender_id": 7,
+  "chat_ref_id": "01977f5a-0042-7000-8000-3f6a2d8c0a42",
+  "sender_id": "01977f5a-0007-7000-8000-3f6a2d8c0a07",
   "inserted_at": "2026-01-15T10:30:00Z",
   "updated_at": "2026-01-15T10:30:00Z"
 }</pre>
@@ -161,7 +161,7 @@
       <div class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto">
         <pre phx-no-curly-interpolation>
 <span class="code-comment"># Query parameters</span>
-?chat_type=lobby&chat_ref_id=42&page=1&page_size=25
+?chat_type=lobby&chat_ref_id=01977f5a-0042-7000-8000-3f6a2d8c0a42&page=1&page_size=25
 
 <span class="code-comment"># Response</span>
 {
@@ -223,12 +223,12 @@
 <span class="code-comment"># Mark as read: POST /api/v1/chat/read</span>
 {
   "chat_type": "lobby",
-  "chat_ref_id": "42",
-  "message_id": 150
+  "chat_ref_id": "01977f5a-0042-7000-8000-3f6a2d8c0a42",
+  "message_id": "01977f5a-0150-7000-8000-3f6a2d8c0150"
 }
 
 <span class="code-comment"># Get unread count: GET /api/v1/chat/unread</span>
-?chat_type=lobby&chat_ref_id=42
+?chat_type=lobby&chat_ref_id=01977f5a-0042-7000-8000-3f6a2d8c0a42
 
 <span class="code-comment"># Response</span>
 { "unread_count": 12 }</pre>

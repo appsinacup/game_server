@@ -116,15 +116,19 @@ RATE_LIMIT_HTTP_GENERAL_LIMIT=240
 RATE_LIMIT_HTTP_GENERAL_WINDOW=60000
 RATE_LIMIT_HTTP_AUTH_LIMIT=10
 RATE_LIMIT_HTTP_AUTH_WINDOW=60000
-RATE_LIMIT_WEBSOCKET_LIMIT=60
-RATE_LIMIT_WEBSOCKET_WINDOW=10000
+RATE_LIMIT_WS_LIMIT=60
+RATE_LIMIT_WS_WINDOW=10000
 RATE_LIMIT_WEBRTC_LIMIT=300
-RATE_LIMIT_WEBRTC_WINDOW=10000</pre>
+RATE_LIMIT_WEBRTC_WINDOW=10000
+
+<span class="code-comment"># <%= doc_text("Multi-instance: share counters via Redis instead of per-node ETS") %></span>
+RATE_LIMIT_BACKEND=redis
+RATE_LIMIT_REDIS_URL=redis://localhost:6379</pre>
           </div>
 
           <p class="text-sm text-base-content/70">
             {doc_text(
-              "When a client exceeds the limit, the server returns HTTP 429 Too Many Requests with a Retry-After header."
+              "When a client exceeds the limit, the server returns HTTP 429 Too Many Requests with a Retry-After header. With the default ETS backend each node counts separately; set RATE_LIMIT_BACKEND=redis so limits hold across all instances."
             )}
           </p>
 
