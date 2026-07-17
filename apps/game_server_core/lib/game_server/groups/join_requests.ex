@@ -16,7 +16,7 @@ defmodule GameServer.Groups.JoinRequests do
   alias GameServer.Repo.AdvisoryLock
 
   @doc "List pending join requests sent by a user."
-  @spec list_user_pending_requests(String.t()) :: [GroupJoinRequest.t()]
+  @spec list_user_pending_requests(Ecto.UUID.t()) :: [GroupJoinRequest.t()]
   def list_user_pending_requests(user_id) when is_binary(user_id) do
     from(r in GroupJoinRequest,
       where: r.user_id == ^user_id and r.status == "pending",
@@ -30,7 +30,7 @@ defmodule GameServer.Groups.JoinRequests do
   @doc """
   Request to join a private group. Creates a pending join request.
   """
-  @spec request_join(String.t(), String.t()) ::
+  @spec request_join(Ecto.UUID.t(), Ecto.UUID.t()) ::
           {:ok, GroupJoinRequest.t()} | {:error, atom()}
   def request_join(user_id, group_id)
       when is_binary(user_id) and is_binary(group_id) do
@@ -109,7 +109,7 @@ defmodule GameServer.Groups.JoinRequests do
   end
 
   @doc "List pending join requests for a group (admin only)."
-  @spec list_join_requests(String.t(), String.t(), keyword()) ::
+  @spec list_join_requests(Ecto.UUID.t(), Ecto.UUID.t(), keyword()) ::
           {:ok, [GroupJoinRequest.t()]} | {:error, atom()}
   def list_join_requests(admin_id, group_id, opts \\ [])
       when is_binary(admin_id) and is_binary(group_id) do
@@ -134,7 +134,7 @@ defmodule GameServer.Groups.JoinRequests do
     end
   end
 
-  @spec count_join_requests(String.t()) :: non_neg_integer()
+  @spec count_join_requests(Ecto.UUID.t()) :: non_neg_integer()
   def count_join_requests(group_id) when is_binary(group_id) do
     Repo.one(
       from(r in GroupJoinRequest,
@@ -145,7 +145,7 @@ defmodule GameServer.Groups.JoinRequests do
   end
 
   @doc "Approve a pending join request. Admin only."
-  @spec approve_join_request(String.t(), String.t()) ::
+  @spec approve_join_request(Ecto.UUID.t(), Ecto.UUID.t()) ::
           {:ok, GroupMember.t()} | {:error, atom()}
   def approve_join_request(admin_id, request_id)
       when is_binary(admin_id) and is_binary(request_id) do
@@ -246,7 +246,7 @@ defmodule GameServer.Groups.JoinRequests do
   end
 
   @doc "Reject a pending join request. Admin only."
-  @spec reject_join_request(String.t(), String.t()) ::
+  @spec reject_join_request(Ecto.UUID.t(), Ecto.UUID.t()) ::
           {:ok, GroupJoinRequest.t()} | {:error, atom()}
   def reject_join_request(admin_id, request_id)
       when is_binary(admin_id) and is_binary(request_id) do
@@ -305,7 +305,7 @@ defmodule GameServer.Groups.JoinRequests do
   end
 
   @doc "Cancel (delete) a pending join request. Only the requesting user can cancel."
-  @spec cancel_join_request(String.t(), String.t()) ::
+  @spec cancel_join_request(Ecto.UUID.t(), Ecto.UUID.t()) ::
           {:ok, GroupJoinRequest.t()} | {:error, atom()}
   def cancel_join_request(user_id, request_id)
       when is_binary(user_id) and is_binary(request_id) do

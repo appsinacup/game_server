@@ -567,8 +567,8 @@ defmodule GameServer.Leaderboards do
       iex> submit_score(123, user_id, 5, %{weapon: "sword"})
       {:ok, %Record{score: 15, metadata: %{weapon: "sword"}}}
   """
-  @spec submit_score(String.t(), String.t(), integer()) :: {:ok, Record.t()} | {:error, term()}
-  @spec submit_score(String.t(), String.t(), integer(), map()) ::
+  @spec submit_score(String.t(), Ecto.UUID.t(), integer()) :: {:ok, Record.t()} | {:error, term()}
+  @spec submit_score(String.t(), Ecto.UUID.t(), integer(), map()) ::
           {:ok, Record.t()} | {:error, term()}
   def submit_score(leaderboard_id, user_id, score, metadata \\ %{})
       when is_binary(leaderboard_id) and is_binary(user_id) and is_integer(score) do
@@ -661,7 +661,7 @@ defmodule GameServer.Leaderboards do
   @doc """
   Gets a single record by leaderboard ID and label.
   """
-  @spec get_label_record(String.t(), String.t()) :: Record.t() | nil
+  @spec get_label_record(Ecto.UUID.t(), String.t()) :: Record.t() | nil
   def get_label_record(leaderboard_id, label)
       when is_binary(leaderboard_id) and is_binary(label) do
     from(r in Record,
@@ -770,7 +770,7 @@ defmodule GameServer.Leaderboards do
 
   Intended for internal/admin usage.
   """
-  @spec get_record!(String.t()) :: Record.t()
+  @spec get_record!(Ecto.UUID.t()) :: Record.t()
   @decorate cacheable(
               key: {:leaderboards, :record, record_cache_version(id), id},
               opts: [ttl: @records_cache_ttl_ms]
@@ -803,7 +803,7 @@ defmodule GameServer.Leaderboards do
   @doc """
   Gets a single record by leaderboard ID and user ID.
   """
-  @spec get_record(String.t(), String.t()) :: Record.t() | nil
+  @spec get_record(Ecto.UUID.t(), Ecto.UUID.t()) :: Record.t() | nil
   def get_record(leaderboard_id, user_id) when is_binary(leaderboard_id) do
     from(r in Record,
       where: r.leaderboard_id == ^leaderboard_id and r.user_id == ^user_id,
@@ -816,7 +816,7 @@ defmodule GameServer.Leaderboards do
   Gets a user's record with their rank.
   Returns `{:ok, record_with_rank}` or `{:error, :not_found}`.
   """
-  @spec get_user_record(String.t(), String.t()) ::
+  @spec get_user_record(Ecto.UUID.t(), Ecto.UUID.t()) ::
           {:ok, Record.t()} | {:error, :not_found}
   def get_user_record(leaderboard_id, user_id) when is_binary(leaderboard_id) do
     get_user_record_cached(leaderboard_id, user_id)
@@ -934,7 +934,7 @@ defmodule GameServer.Leaderboards do
   @doc """
   Counts records for a leaderboard.
   """
-  @spec count_records(String.t()) :: non_neg_integer()
+  @spec count_records(Ecto.UUID.t()) :: non_neg_integer()
   def count_records(leaderboard_id) when is_binary(leaderboard_id) do
     count_records_cached(leaderboard_id)
   end
@@ -968,8 +968,8 @@ defmodule GameServer.Leaderboards do
 
     * `:limit` - Total number of records to return (default 11, centered on user)
   """
-  @spec list_records_around_user(String.t(), String.t()) :: [Record.t()]
-  @spec list_records_around_user(String.t(), String.t(), keyword()) :: [Record.t()]
+  @spec list_records_around_user(String.t(), Ecto.UUID.t()) :: [Record.t()]
+  @spec list_records_around_user(String.t(), Ecto.UUID.t(), keyword()) :: [Record.t()]
   def list_records_around_user(leaderboard_id, user_id, opts \\ [])
       when is_binary(leaderboard_id) do
     case get_leaderboard(leaderboard_id) do
@@ -1048,7 +1048,7 @@ defmodule GameServer.Leaderboards do
   Deletes a user's record from a leaderboard.
   Accepts either leaderboard ID or slug (both strings).
   """
-  @spec delete_user_record(String.t(), String.t()) ::
+  @spec delete_user_record(String.t(), Ecto.UUID.t()) ::
           {:ok, Record.t()} | {:error, :not_found}
   def delete_user_record(id_or_slug, user_id) do
     leaderboard = get_leaderboard(id_or_slug)

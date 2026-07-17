@@ -38,7 +38,7 @@ defmodule GameServer.Notifications do
   The actual implementation runs on the GameServer.
   """
 
-  @type user_id() :: String.t()
+  @type user_id() :: Ecto.UUID.t()
 
   @doc ~S"""
     Admin: create a notification from any sender to any recipient (no friendship check).
@@ -60,7 +60,7 @@ defmodule GameServer.Notifications do
   @doc ~S"""
     Admin: delete a single notification by ID (no ownership check).
   """
-  @spec admin_delete_notification(String.t()) ::
+  @spec admin_delete_notification(Ecto.UUID.t()) ::
   {:ok, GameServer.Notifications.Notification.t()} | {:error, term()}
   def admin_delete_notification(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -166,7 +166,7 @@ defmodule GameServer.Notifications do
     Returns `{deleted_count, nil}`.
     
   """
-  @spec delete_notifications(user_id(), [String.t()]) :: {non_neg_integer(), nil}
+  @spec delete_notifications(user_id(), [Ecto.UUID.t()]) :: {non_neg_integer(), nil}
   def delete_notifications(_user_id, _ids) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -181,7 +181,7 @@ defmodule GameServer.Notifications do
   @doc ~S"""
     Get a single notification by ID.
   """
-  @spec get_notification(String.t()) :: GameServer.Notifications.Notification.t() | nil
+  @spec get_notification(Ecto.UUID.t()) :: GameServer.Notifications.Notification.t() | nil
   def get_notification(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -196,7 +196,7 @@ defmodule GameServer.Notifications do
   @doc ~S"""
     Get a single notification by ID (raises if not found).
   """
-  @spec get_notification!(String.t()) :: GameServer.Notifications.Notification.t()
+  @spec get_notification!(Ecto.UUID.t()) :: GameServer.Notifications.Notification.t()
   def get_notification!(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -285,7 +285,7 @@ defmodule GameServer.Notifications do
     entire history).
     
   """
-  @spec list_recent_notifications(String.t(), pos_integer()) :: [
+  @spec list_recent_notifications(Ecto.UUID.t(), pos_integer()) :: [
   GameServer.Notifications.Notification.t()
 ]
   def list_recent_notifications(_user_id, _limit) do
@@ -338,7 +338,7 @@ defmodule GameServer.Notifications do
   @doc ~S"""
     Mark a single notification as read. Only the recipient can mark it.
   """
-  @spec mark_notification_read(user_id(), String.t()) ::
+  @spec mark_notification_read(user_id(), Ecto.UUID.t()) ::
   {:ok, GameServer.Notifications.Notification.t()} | {:error, atom()}
   def mark_notification_read(_user_id, _notification_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do

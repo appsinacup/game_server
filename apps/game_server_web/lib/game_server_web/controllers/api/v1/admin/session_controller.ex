@@ -146,6 +146,7 @@ defmodule GameServerWeb.Api.V1.Admin.SessionController do
     %{
       id: token.id,
       user_id: token.user_id,
+      username: (token.user && token.user.username) || "",
       display_name: (token.user && token.user.display_name) || "",
       user_email: (token.user && token.user.email) || "",
       context: token.context,

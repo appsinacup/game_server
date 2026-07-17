@@ -50,7 +50,7 @@ defmodule GameServer.Lobbies do
   @doc ~S"""
     Broadcast a member presence event (online/offline) to a lobby's PubSub topic.
   """
-  @spec broadcast_member_presence(String.t(), tuple()) :: :ok | {:error, term()}
+  @spec broadcast_member_presence(Ecto.UUID.t(), tuple()) :: :ok | {:error, term()}
   def broadcast_member_presence(_lobby_id, _event) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -291,7 +291,7 @@ defmodule GameServer.Lobbies do
 
 
   @doc false
-  @spec create_membership(%{lobby_id: String.t(), user_id: String.t()}) ::
+  @spec create_membership(%{lobby_id: Ecto.UUID.t(), user_id: Ecto.UUID.t()}) ::
   {:ok, GameServer.Accounts.User.t()} | {:error, :not_found | Ecto.Changeset.t() | term()}
   def create_membership(_attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -333,7 +333,7 @@ defmodule GameServer.Lobbies do
 
 
   @doc false
-  @spec get_lobby(String.t()) :: GameServer.Lobbies.Lobby.t() | nil
+  @spec get_lobby(Ecto.UUID.t()) :: GameServer.Lobbies.Lobby.t() | nil
   def get_lobby(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -346,7 +346,7 @@ defmodule GameServer.Lobbies do
 
 
   @doc false
-  @spec get_lobby!(String.t()) :: GameServer.Lobbies.Lobby.t()
+  @spec get_lobby!(Ecto.UUID.t()) :: GameServer.Lobbies.Lobby.t()
   def get_lobby!(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -373,7 +373,7 @@ defmodule GameServer.Lobbies do
     
     
   """
-  @spec get_lobby_members(GameServer.Lobbies.Lobby.t() | String.t()) :: [GameServer.Accounts.User.t()]
+  @spec get_lobby_members(GameServer.Lobbies.Lobby.t() | Ecto.UUID.t()) :: [GameServer.Accounts.User.t()]
   def get_lobby_members(_lobby_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -386,7 +386,7 @@ defmodule GameServer.Lobbies do
 
 
   @doc false
-  @spec join_lobby(GameServer.Accounts.User.t(), GameServer.Lobbies.Lobby.t() | String.t()) ::
+  @spec join_lobby(GameServer.Accounts.User.t(), GameServer.Lobbies.Lobby.t() | Ecto.UUID.t()) ::
   {:ok, GameServer.Accounts.User.t()} | {:error, term()}
   def join_lobby(_user, _lobby) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -402,7 +402,7 @@ defmodule GameServer.Lobbies do
   @doc false
   @spec join_lobby(
   GameServer.Accounts.User.t(),
-  GameServer.Lobbies.Lobby.t() | String.t(),
+  GameServer.Lobbies.Lobby.t() | Ecto.UUID.t(),
   map() | keyword()
 ) :: {:ok, GameServer.Accounts.User.t()} | {:error, term()}
   def join_lobby(_user, _lobby_arg, _opts) do
@@ -668,7 +668,7 @@ defmodule GameServer.Lobbies do
 
 
   @doc false
-  @spec list_memberships_for_lobby(String.t()) :: [GameServer.Accounts.User.t()]
+  @spec list_memberships_for_lobby(Ecto.UUID.t()) :: [GameServer.Accounts.User.t()]
   def list_memberships_for_lobby(_lobby_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -814,7 +814,7 @@ defmodule GameServer.Lobbies do
     Subscribe to a specific lobby's events (membership changes, updates).
     
   """
-  @spec subscribe_lobby(String.t()) :: :ok | {:error, term()}
+  @spec subscribe_lobby(Ecto.UUID.t()) :: :ok | {:error, term()}
   def subscribe_lobby(_lobby_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -830,7 +830,7 @@ defmodule GameServer.Lobbies do
     Unsubscribe from a specific lobby's events.
     
   """
-  @spec unsubscribe_lobby(String.t()) :: :ok
+  @spec unsubscribe_lobby(Ecto.UUID.t()) :: :ok
   def unsubscribe_lobby(_lobby_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->

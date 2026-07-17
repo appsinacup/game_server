@@ -16,6 +16,7 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
     properties: %{
       id: %Schema{type: :string, format: :uuid},
       email: %Schema{type: :string},
+      username: %Schema{type: :string},
       display_name: %Schema{type: :string},
       is_admin: %Schema{type: :boolean},
       is_activated: %Schema{type: :boolean},
@@ -141,6 +142,7 @@ defmodule GameServerWeb.Api.V1.Admin.UserController do
     %{
       id: user.id,
       email: user.email || "",
+      username: user.username || "",
       display_name: user.display_name || "",
       is_admin: user.is_admin,
       is_activated: user.is_activated,

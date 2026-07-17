@@ -61,6 +61,10 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
         format: :uuid,
         description: "User ID (empty for label-based records)"
       },
+      username: %Schema{
+        type: :string,
+        description: "Unique username handle (empty for label-based records)"
+      },
       display_name: %Schema{
         type: :string,
         description: "Human-readable name (user display name or label text)"
@@ -72,6 +76,7 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
     example: %{
       rank: 1,
       user_id: "0198c0de-0002-7000-8000-000000000002",
+      username: "progamer123-4821",
       display_name: "ProGamer123",
       score: 5000,
       metadata: %{weapon: "sword"},
@@ -523,11 +528,13 @@ defmodule GameServerWeb.Api.V1.LeaderboardController do
     if record.label do
       Map.merge(base, %{
         user_id: "",
+        username: "",
         display_name: record.label
       })
     else
       Map.merge(base, %{
         user_id: record.user_id,
+        username: (record.user && record.user.username) || "",
         display_name: (record.user && record.user.display_name) || ""
       })
     end

@@ -60,13 +60,13 @@ defmodule GameServer.Parties do
   # ---------------------------------------------------------------------------
 
   @doc "Subscribe to events for a specific party."
-  @spec subscribe_party(String.t()) :: :ok | {:error, term()}
+  @spec subscribe_party(Ecto.UUID.t()) :: :ok | {:error, term()}
   def subscribe_party(party_id) do
     Phoenix.PubSub.subscribe(GameServer.PubSub, "party:#{party_id}")
   end
 
   @doc "Unsubscribe from a party's events."
-  @spec unsubscribe_party(String.t()) :: :ok
+  @spec unsubscribe_party(Ecto.UUID.t()) :: :ok
   def unsubscribe_party(party_id) do
     Phoenix.PubSub.unsubscribe(GameServer.PubSub, "party:#{party_id}")
   end
@@ -82,7 +82,7 @@ defmodule GameServer.Parties do
   end
 
   @doc "Broadcast a member presence event (online/offline) to a party's PubSub topic."
-  @spec broadcast_member_presence(String.t(), tuple()) :: :ok | {:error, term()}
+  @spec broadcast_member_presence(Ecto.UUID.t(), tuple()) :: :ok | {:error, term()}
   def broadcast_member_presence(party_id, event) do
     broadcast_party(party_id, event)
   end
@@ -193,11 +193,11 @@ defmodule GameServer.Parties do
   # ---------------------------------------------------------------------------
 
   @doc "Get a party by ID. Returns nil if not found."
-  @spec get_party(String.t()) :: Party.t() | nil
+  @spec get_party(Ecto.UUID.t()) :: Party.t() | nil
   def get_party(id), do: Repo.get_uuid(Party, id)
 
   @doc "Get a party by ID. Raises if not found."
-  @spec get_party!(String.t()) :: Party.t()
+  @spec get_party!(Ecto.UUID.t()) :: Party.t()
   def get_party!(id), do: Repo.get_uuid!(Party, id)
 
   @doc "Returns true if the given user is the leader of their current party."
@@ -212,7 +212,7 @@ defmodule GameServer.Parties do
   end
 
   @doc "Get all members of a party."
-  @spec get_party_members(Party.t() | String.t()) :: [User.t()]
+  @spec get_party_members(Party.t() | Ecto.UUID.t()) :: [User.t()]
   def get_party_members(%Party{id: party_id}), do: get_party_members(party_id)
 
   def get_party_members(party_id) when is_binary(party_id) do
@@ -224,7 +224,7 @@ defmodule GameServer.Parties do
   end
 
   @doc "Count members in a party."
-  @spec count_party_members(String.t()) :: non_neg_integer()
+  @spec count_party_members(Ecto.UUID.t()) :: non_neg_integer()
   def count_party_members(party_id) when is_binary(party_id) do
     Repo.one(from u in User, where: u.party_id == ^party_id, select: count(u.id)) || 0
   end
@@ -328,7 +328,7 @@ defmodule GameServer.Parties do
   Returns `{:error, :not_connected}` if the target is not a friend or shared group member.
   If a pending invite already exists, returns `{:ok, existing_invite}` (no-op).
   """
-  @spec invite_to_party(User.t(), String.t()) :: {:ok, PartyInvite.t()} | {:error, atom()}
+  @spec invite_to_party(User.t(), Ecto.UUID.t()) :: {:ok, PartyInvite.t()} | {:error, atom()}
   def invite_to_party(%User{} = leader, target_user_id) when is_binary(target_user_id) do
     leader = Accounts.get_user(leader.id)
 
@@ -402,7 +402,7 @@ defmodule GameServer.Parties do
   @doc """
   Cancel a previously sent party invite. Only the original sender (leader) can cancel.
   """
-  @spec cancel_party_invite(User.t(), String.t()) :: :ok | {:error, atom()}
+  @spec cancel_party_invite(User.t(), Ecto.UUID.t()) :: :ok | {:error, atom()}
   def cancel_party_invite(%User{} = leader, target_user_id) when is_binary(target_user_id) do
     leader = Accounts.get_user(leader.id)
 
@@ -452,7 +452,7 @@ defmodule GameServer.Parties do
 
   Returns `{:error, :no_invite}` if no pending invite exists for that party.
   """
-  @spec accept_party_invite(User.t(), String.t()) :: {:ok, Party.t()} | {:error, atom()}
+  @spec accept_party_invite(User.t(), Ecto.UUID.t()) :: {:ok, Party.t()} | {:error, atom()}
   def accept_party_invite(%User{} = user, party_id) when is_binary(party_id) do
     user = Accounts.get_user(user.id)
 
@@ -617,7 +617,7 @@ defmodule GameServer.Parties do
   @doc """
   Decline a party invite. Marks the invite as declined.
   """
-  @spec decline_party_invite(User.t(), String.t()) :: :ok | {:error, atom()}
+  @spec decline_party_invite(User.t(), Ecto.UUID.t()) :: :ok | {:error, atom()}
   def decline_party_invite(%User{} = user, party_id) when is_binary(party_id) do
     user = Accounts.get_user(user.id)
 
@@ -893,7 +893,7 @@ defmodule GameServer.Parties do
   @doc """
   Kick a member from the party. Only the leader can kick.
   """
-  @spec kick_member(User.t(), String.t()) :: {:ok, User.t()} | {:error, term()}
+  @spec kick_member(User.t(), Ecto.UUID.t()) :: {:ok, User.t()} | {:error, term()}
   def kick_member(%User{} = leader, target_user_id) when is_binary(target_user_id) do
     leader = Accounts.get_user(leader.id)
 
@@ -1322,7 +1322,7 @@ defmodule GameServer.Parties do
 
   The lobby must have enough free slots for the entire party.
   """
-  @spec join_lobby_with_party(User.t(), String.t(), map()) :: {:ok, map()} | {:error, term()}
+  @spec join_lobby_with_party(User.t(), Ecto.UUID.t(), map()) :: {:ok, map()} | {:error, term()}
   def join_lobby_with_party(%User{} = user, lobby_id, opts \\ %{}) when is_binary(lobby_id) do
     user = Accounts.get_user(user.id)
 
@@ -1601,7 +1601,7 @@ defmodule GameServer.Parties do
   end
 
   @doc "Admin delete of a party. Clears all members' party_id and deletes the party."
-  @spec admin_delete_party(String.t()) :: {:ok, Party.t()} | {:error, term()}
+  @spec admin_delete_party(Ecto.UUID.t()) :: {:ok, Party.t()} | {:error, term()}
   def admin_delete_party(party_id) when is_binary(party_id) do
     case get_party(party_id) do
       nil ->

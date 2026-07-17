@@ -9,6 +9,7 @@ defmodule GameServer.Accounts.User do
 
   - `id` - User ID (integer)
   - `email` - User email (string)
+  - `username` - Unique username handle (string)
   - `display_name` - Display name (string, optional)
   - `profile_url` - Profile URL/avatar (string, optional)
   - `metadata` - Arbitrary user metadata (map)
@@ -24,6 +25,7 @@ defmodule GameServer.Accounts.User do
   @type t :: %__MODULE__{
           id: integer() | nil,
           email: String.t() | nil,
+          username: String.t() | nil,
           display_name: String.t() | nil,
           profile_url: String.t() | nil,
           metadata: map(),
@@ -39,6 +41,7 @@ defmodule GameServer.Accounts.User do
   defstruct [
     :id,
     :email,
+    :username,
     :display_name,
     :profile_url,
     :metadata,

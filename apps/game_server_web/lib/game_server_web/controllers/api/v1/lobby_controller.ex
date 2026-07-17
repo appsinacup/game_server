@@ -411,6 +411,7 @@ defmodule GameServerWeb.Api.V1.LobbyController do
                  type: :object,
                  properties: %{
                    id: %Schema{type: :string, format: :uuid},
+                   username: %Schema{type: :string},
                    display_name: %Schema{type: :string},
                    profile_url: %Schema{type: :string, nullable: true},
                    metadata: %Schema{

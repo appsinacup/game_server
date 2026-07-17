@@ -14,7 +14,7 @@ defmodule GameServerWeb.Api.V1.UserController do
 
   operation(:index,
     operation_id: "search_users",
-    summary: "Search users by id/display_name",
+    summary: "Search users by id, username, or display_name",
     parameters: [
       q: [in: :query, schema: %Schema{type: :string}],
       page: [in: :query, schema: %Schema{type: :integer}],
@@ -32,6 +32,7 @@ defmodule GameServerWeb.Api.V1.UserController do
                  type: :object,
                  properties: %{
                    id: %Schema{type: :string, format: :uuid},
+                   username: %Schema{type: :string},
                    display_name: %Schema{type: :string},
                    profile_url: %Schema{type: :string},
                    metadata: %Schema{
@@ -84,6 +85,7 @@ defmodule GameServerWeb.Api.V1.UserController do
            type: :object,
            properties: %{
              id: %Schema{type: :string, format: :uuid},
+             username: %Schema{type: :string},
              display_name: %Schema{type: :string},
              profile_url: %Schema{type: :string},
              metadata: %Schema{

@@ -20,8 +20,8 @@ defmodule GameServer.KV do
   @type list_opts() :: [
   page: pos_integer(),
   page_size: pos_integer(),
-  user_id: String.t(),
-  lobby_id: String.t(),
+  user_id: Ecto.UUID.t(),
+  lobby_id: Ecto.UUID.t(),
   global_only: boolean(),
   key: String.t()
 ]
@@ -193,7 +193,7 @@ defmodule GameServer.KV do
     Returns the `Entry` struct or `nil` if not found.
     
   """
-  @spec get_entry(String.t()) :: GameServer.KV.Entry.t() | nil
+  @spec get_entry(Ecto.UUID.t()) :: GameServer.KV.Entry.t() | nil
   def get_entry(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->

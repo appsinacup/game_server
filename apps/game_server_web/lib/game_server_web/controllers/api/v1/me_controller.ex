@@ -29,6 +29,7 @@ defmodule GameServerWeb.Api.V1.MeController do
             id: %Schema{type: :string, format: :uuid},
             email: %Schema{type: :string},
             profile_url: %Schema{type: :string},
+            username: %Schema{type: :string},
             display_name: %Schema{type: :string},
             metadata: %Schema{type: :object},
             lobby_id: %Schema{
@@ -80,6 +81,7 @@ defmodule GameServerWeb.Api.V1.MeController do
           email: user.email || "",
           profile_url: user.profile_url || "",
           metadata: user.metadata || %{},
+          username: user.username || "",
           display_name: user.display_name || "",
           lobby_id: user.lobby_id || "",
           party_id: user.party_id || "",
@@ -195,6 +197,54 @@ defmodule GameServerWeb.Api.V1.MeController do
           error: "invalid_data",
           errors: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
         })
+    end
+  end
+
+  operation(:update_username,
+    operation_id: "update_current_user_username",
+    summary: "Update current user's username",
+    description:
+      "Sets the unique username handle. Lowercased on save; 3-32 chars of a-z, 0-9 and " <>
+        "non-consecutive . _ - separators, starting and ending alphanumeric. " <>
+        "Returns invalid_data when the username is malformed or already taken.",
+    request_body: {
+      "Username payload",
+      "application/json",
+      %Schema{
+        type: :object,
+        properties: %{
+          username: %Schema{type: :string}
+        },
+        required: [:username]
+      }
+    },
+    security: [%{"authorization" => []}],
+    responses: [
+      ok: {"Username updated", "application/json", %Schema{type: :object}},
+      bad_request: {"Invalid data", "application/json", @validation_error_schema},
+      unauthorized: {"Not authenticated", "application/json", @error_schema}
+    ]
+  )
+
+  def update_username(conn, %{"username" => _} = params) do
+    user = conn.assigns.current_scope.user
+
+    case GameServer.Accounts.update_username(user, params) do
+      {:ok, user} ->
+        json(conn, %{ok: true, id: user.id, username: user.username || ""})
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{
+          error: "invalid_data",
+          errors: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
+        })
+
+      {:error, reason} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "invalid_data", errors: %{username: [inspect(reason)]}})
     end
   end
 

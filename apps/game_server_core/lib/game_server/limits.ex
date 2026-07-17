@@ -36,6 +36,8 @@ defmodule GameServer.Limits do
 
     # ── User ────────────────────────────────────────────────
     max_display_name: 80,
+    min_username: 3,
+    max_username: 32,
     # 0 disables; counted per app instance.
     max_sockets_per_user: 20,
     max_email: 160,

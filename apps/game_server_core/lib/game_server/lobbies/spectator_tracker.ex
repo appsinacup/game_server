@@ -19,37 +19,37 @@ defmodule GameServer.Lobbies.SpectatorTracker do
   end
 
   @doc "Track a spectator joining a lobby."
-  @spec track(String.t(), String.t()) :: true
+  @spec track(Ecto.UUID.t(), Ecto.UUID.t()) :: true
   def track(lobby_id, user_id) do
     :ets.insert(@table, {lobby_id, user_id})
   end
 
   @doc "Remove a spectator from a lobby."
-  @spec untrack(String.t(), String.t()) :: true
+  @spec untrack(Ecto.UUID.t(), Ecto.UUID.t()) :: true
   def untrack(lobby_id, user_id) do
     :ets.delete_object(@table, {lobby_id, user_id})
   end
 
   @doc "Count spectators in a lobby."
-  @spec count(String.t()) :: non_neg_integer()
+  @spec count(Ecto.UUID.t()) :: non_neg_integer()
   def count(lobby_id) do
     :ets.select_count(@table, [{{lobby_id, :_}, [], [true]}])
   end
 
   @doc "Count spectators for multiple lobbies at once. Returns `%{lobby_id => count}`."
-  @spec counts(list(String.t())) :: %{String.t() => non_neg_integer()}
+  @spec counts(list(Ecto.UUID.t())) :: %{Ecto.UUID.t() => non_neg_integer()}
   def counts(lobby_ids) when is_list(lobby_ids) do
     Map.new(lobby_ids, fn id -> {id, count(id)} end)
   end
 
   @doc "List spectator user IDs for a lobby."
-  @spec list(String.t()) :: list(String.t())
+  @spec list(Ecto.UUID.t()) :: list(Ecto.UUID.t())
   def list(lobby_id) do
     :ets.match(@table, {lobby_id, :"$1"}) |> List.flatten()
   end
 
   @doc "Remove all spectators for a given lobby (e.g. when lobby is deleted)."
-  @spec untrack_all(String.t()) :: true
+  @spec untrack_all(Ecto.UUID.t()) :: true
   def untrack_all(lobby_id) do
     :ets.match_delete(@table, {lobby_id, :_})
   end

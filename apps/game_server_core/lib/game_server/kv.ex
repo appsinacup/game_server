@@ -57,16 +57,16 @@ defmodule GameServer.KV do
   Keys (all optional):
   - `:page` — page number (`pos_integer()`, defaults to `1`)
   - `:page_size` — page size (`pos_integer()`, defaults to `50`)
-  - `:user_id` — filter by user id (`String.t()`)
-  - `:lobby_id` — filter by lobby id (`String.t()`)
+  - `:user_id` — filter by user id (`Ecto.UUID.t()`)
+  - `:lobby_id` — filter by lobby id (`Ecto.UUID.t()`)
   - `:global_only` — when true, only return global entries (where `user_id` and `lobby_id` are `nil`) (`boolean()`)
   - `:key` — substring filter (`String.t()`)
   """
   @type list_opts :: [
           page: pos_integer(),
           page_size: pos_integer(),
-          user_id: String.t(),
-          lobby_id: String.t(),
+          user_id: Ecto.UUID.t(),
+          lobby_id: Ecto.UUID.t(),
           global_only: boolean(),
           key: String.t()
         ]
@@ -391,7 +391,7 @@ defmodule GameServer.KV do
   Fetch an `Entry` by its `id`.
   Returns the `Entry` struct or `nil` if not found.
   """
-  @spec get_entry(String.t()) :: Entry.t() | nil
+  @spec get_entry(Ecto.UUID.t()) :: Entry.t() | nil
   def get_entry(id) do
     Repo.get_uuid(Entry, id)
   end

@@ -77,6 +77,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
                  properties: %{
                    id: %Schema{type: :string, format: :uuid},
                    friendship_id: %Schema{type: :string, format: :uuid},
+                   username: %Schema{type: :string},
                    display_name: %Schema{type: :string},
                    profile_url: %Schema{type: :string},
                    metadata: %Schema{
@@ -147,6 +148,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
                     type: :object,
                     properties: %{
                       id: %Schema{type: :string, format: :uuid},
+                      username: %Schema{type: :string},
                       display_name: %Schema{type: :string},
                       metadata: %Schema{type: :object, description: "User metadata"},
                       is_online: %Schema{type: :boolean},
@@ -157,6 +159,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
                     type: :object,
                     properties: %{
                       id: %Schema{type: :string, format: :uuid},
+                      username: %Schema{type: :string},
                       display_name: %Schema{type: :string},
                       metadata: %Schema{type: :object, description: "User metadata"},
                       is_online: %Schema{type: :boolean},
@@ -178,6 +181,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
                     type: :object,
                     properties: %{
                       id: %Schema{type: :string, format: :uuid},
+                      username: %Schema{type: :string},
                       display_name: %Schema{type: :string},
                       metadata: %Schema{type: :object, description: "User metadata"},
                       is_online: %Schema{type: :boolean},
@@ -188,6 +192,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
                     type: :object,
                     properties: %{
                       id: %Schema{type: :string, format: :uuid},
+                      username: %Schema{type: :string},
                       display_name: %Schema{type: :string},
                       metadata: %Schema{type: :object, description: "User metadata"},
                       is_online: %Schema{type: :boolean},
@@ -311,6 +316,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
                     type: :object,
                     properties: %{
                       id: %Schema{type: :string, format: :uuid},
+                      username: %Schema{type: :string},
                       display_name: %Schema{type: :string}
                     }
                   }
@@ -648,6 +654,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
         %Ecto.Association.NotLoaded{} ->
           %{
             id: f.requester_id,
+            username: "",
             display_name: "",
             metadata: %{},
             is_online: false,
@@ -663,6 +670,7 @@ defmodule GameServerWeb.Api.V1.FriendController do
         %Ecto.Association.NotLoaded{} ->
           %{
             id: f.target_id,
+            username: "",
             display_name: "",
             metadata: %{},
             is_online: false,

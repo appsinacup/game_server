@@ -54,7 +54,7 @@ defmodule GameServer.Parties do
     Returns `{:error, :no_invite}` if no pending invite exists for that party.
     
   """
-  @spec accept_party_invite(GameServer.Accounts.User.t(), String.t()) ::
+  @spec accept_party_invite(GameServer.Accounts.User.t(), Ecto.UUID.t()) ::
   {:ok, GameServer.Parties.Party.t()} | {:error, atom()}
   def accept_party_invite(_user, _party_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -70,7 +70,7 @@ defmodule GameServer.Parties do
   @doc ~S"""
     Admin delete of a party. Clears all members' party_id and deletes the party.
   """
-  @spec admin_delete_party(String.t()) :: {:ok, GameServer.Parties.Party.t()} | {:error, term()}
+  @spec admin_delete_party(Ecto.UUID.t()) :: {:ok, GameServer.Parties.Party.t()} | {:error, term()}
   def admin_delete_party(_party_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -101,7 +101,7 @@ defmodule GameServer.Parties do
   @doc ~S"""
     Broadcast a member presence event (online/offline) to a party's PubSub topic.
   """
-  @spec broadcast_member_presence(String.t(), tuple()) :: :ok | {:error, term()}
+  @spec broadcast_member_presence(Ecto.UUID.t(), tuple()) :: :ok | {:error, term()}
   def broadcast_member_presence(_party_id, _event) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -117,7 +117,7 @@ defmodule GameServer.Parties do
     Cancel a previously sent party invite. Only the original sender (leader) can cancel.
     
   """
-  @spec cancel_party_invite(GameServer.Accounts.User.t(), String.t()) :: :ok | {:error, atom()}
+  @spec cancel_party_invite(GameServer.Accounts.User.t(), Ecto.UUID.t()) :: :ok | {:error, atom()}
   def cancel_party_invite(_leader, _target_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -177,7 +177,7 @@ defmodule GameServer.Parties do
   @doc ~S"""
     Count members in a party.
   """
-  @spec count_party_members(String.t()) :: non_neg_integer()
+  @spec count_party_members(Ecto.UUID.t()) :: non_neg_integer()
   def count_party_members(_party_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -231,7 +231,7 @@ defmodule GameServer.Parties do
     Decline a party invite. Marks the invite as declined.
     
   """
-  @spec decline_party_invite(GameServer.Accounts.User.t(), String.t()) :: :ok | {:error, atom()}
+  @spec decline_party_invite(GameServer.Accounts.User.t(), Ecto.UUID.t()) :: :ok | {:error, atom()}
   def decline_party_invite(_user, _party_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -246,7 +246,7 @@ defmodule GameServer.Parties do
   @doc ~S"""
     Get a party by ID. Returns nil if not found.
   """
-  @spec get_party(String.t()) :: GameServer.Parties.Party.t() | nil
+  @spec get_party(Ecto.UUID.t()) :: GameServer.Parties.Party.t() | nil
   def get_party(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -261,7 +261,7 @@ defmodule GameServer.Parties do
   @doc ~S"""
     Get a party by ID. Raises if not found.
   """
-  @spec get_party!(String.t()) :: GameServer.Parties.Party.t()
+  @spec get_party!(Ecto.UUID.t()) :: GameServer.Parties.Party.t()
   def get_party!(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -276,7 +276,7 @@ defmodule GameServer.Parties do
   @doc ~S"""
     Get all members of a party.
   """
-  @spec get_party_members(GameServer.Parties.Party.t() | String.t()) :: [GameServer.Accounts.User.t()]
+  @spec get_party_members(GameServer.Parties.Party.t() | Ecto.UUID.t()) :: [GameServer.Accounts.User.t()]
   def get_party_members(_party_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -317,7 +317,7 @@ defmodule GameServer.Parties do
     If a pending invite already exists, returns `{:ok, existing_invite}` (no-op).
     
   """
-  @spec invite_to_party(GameServer.Accounts.User.t(), String.t()) ::
+  @spec invite_to_party(GameServer.Accounts.User.t(), Ecto.UUID.t()) ::
   {:ok, GameServer.Parties.PartyInvite.t()} | {:error, atom()}
   def invite_to_party(_leader, _target_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -337,7 +337,7 @@ defmodule GameServer.Parties do
     The lobby must have enough free slots for the entire party.
     
   """
-  @spec join_lobby_with_party(GameServer.Accounts.User.t(), String.t(), map()) ::
+  @spec join_lobby_with_party(GameServer.Accounts.User.t(), Ecto.UUID.t(), map()) ::
   {:ok, map()} | {:error, term()}
   def join_lobby_with_party(_user, _lobby_id, _opts) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -354,7 +354,7 @@ defmodule GameServer.Parties do
     Kick a member from the party. Only the leader can kick.
     
   """
-  @spec kick_member(GameServer.Accounts.User.t(), String.t()) ::
+  @spec kick_member(GameServer.Accounts.User.t(), Ecto.UUID.t()) ::
   {:ok, GameServer.Accounts.User.t()} | {:error, term()}
   def kick_member(_leader, _target_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -495,7 +495,7 @@ defmodule GameServer.Parties do
   @doc ~S"""
     Subscribe to events for a specific party.
   """
-  @spec subscribe_party(String.t()) :: :ok | {:error, term()}
+  @spec subscribe_party(Ecto.UUID.t()) :: :ok | {:error, term()}
   def subscribe_party(_party_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -510,7 +510,7 @@ defmodule GameServer.Parties do
   @doc ~S"""
     Unsubscribe from a party's events.
   """
-  @spec unsubscribe_party(String.t()) :: :ok
+  @spec unsubscribe_party(Ecto.UUID.t()) :: :ok
   def unsubscribe_party(_party_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->

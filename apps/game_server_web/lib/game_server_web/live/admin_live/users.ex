@@ -210,6 +210,7 @@ defmodule GameServerWeb.AdminLive.Users do
                     <th>Online</th>
                     <th>Lobby ID</th>
                     <th>Email</th>
+                    <th>Username</th>
                     <th>Display Name</th>
                     <th>Discord ID</th>
                     <th>Steam ID</th>
@@ -255,6 +256,13 @@ defmodule GameServerWeb.AdminLive.Users do
                       <% end %>
                     </td>
                     <td class="font-mono text-sm">{user.email}</td>
+                    <td class="font-mono text-sm">
+                      <%= if user.username && user.username != "" do %>
+                        {user.username}
+                      <% else %>
+                        <span class="text-gray-500">-</span>
+                      <% end %>
+                    </td>
                     <td class="text-sm">
                       <%= if user.display_name && user.display_name != "" do %>
                         {user.display_name}
@@ -1011,6 +1019,7 @@ defmodule GameServerWeb.AdminLive.Users do
           dynamic(
             [u],
             fragment("LOWER(?) LIKE LOWER(?)", u.email, ^q) or
+              fragment("LOWER(?) LIKE LOWER(?)", u.username, ^q) or
               fragment("LOWER(?) LIKE LOWER(?)", u.display_name, ^q) or
               fragment("LOWER(?) LIKE LOWER(?)", u.device_id, ^q) or
               fragment("LOWER(?) LIKE LOWER(?)", u.google_id, ^q) or
@@ -1030,6 +1039,7 @@ defmodule GameServerWeb.AdminLive.Users do
         from u in base,
           where:
             fragment("LOWER(?) LIKE LOWER(?) ESCAPE '\\'", u.email, ^q) or
+              fragment("LOWER(?) LIKE LOWER(?) ESCAPE '\\'", u.username, ^q) or
               fragment("LOWER(?) LIKE LOWER(?) ESCAPE '\\'", u.display_name, ^q) or
               fragment("LOWER(?) LIKE LOWER(?) ESCAPE '\\'", u.device_id, ^q) or
               fragment("LOWER(?) LIKE LOWER(?) ESCAPE '\\'", u.google_id, ^q) or

@@ -279,6 +279,7 @@ defmodule GameServerWeb.Router.Shared do
         post "/lobbies/kick", LobbyController, :kick
         patch "/me/password", MeController, :update_password
         patch "/me/display_name", MeController, :update_display_name
+        patch "/me/username", MeController, :update_username
         get "/payments/entitlements", PaymentController, :entitlements
         post "/payments/checkout/stripe", PaymentController, :stripe_checkout
         post "/payments/checkout/steam", PaymentController, :steam_checkout

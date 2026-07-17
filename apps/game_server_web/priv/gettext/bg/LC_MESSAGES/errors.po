@@ -1,116 +1,116 @@
-## "msgid"s in this file come from POT (.pot) files.
-###
-### Do not add, change, or remove "msgid"s manually here as
-### they're tied to the ones in the corresponding POT file
-### (with the same domain).
-###
-### Use "mix gettext.extract --merge" or "mix gettext.merge"
-### to merge POT files into PO files.
+#  "msgid"s in this file come from POT (.pot) files.
+# #
+# # Do not add, change, or remove "msgid"s manually here as
+# # they're tied to the ones in the corresponding POT file
+# # (with the same domain).
+# #
+# # Use "mix gettext.extract --merge" or "mix gettext.merge"
+# # to merge POT files into PO files.
 msgid ""
 msgstr ""
 "Language: bg\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid "can't be blank"
-msgstr ""
+msgstr "не може да бъде празно"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:21
 #, elixir-autogen
 msgid "has already been taken"
-msgstr ""
+msgstr "вече е заето"
 
 msgid "is invalid"
-msgstr ""
+msgstr "е невалидно"
 
 msgid "must be accepted"
-msgstr ""
+msgstr "трябва да бъде прието"
 
 msgid "has invalid format"
-msgstr ""
+msgstr "има невалиден формат"
 
 msgid "has an invalid entry"
-msgstr ""
+msgstr "съдържа невалиден запис"
 
 msgid "is reserved"
-msgstr ""
+msgstr "е запазено"
 
 msgid "does not match confirmation"
-msgstr ""
+msgstr "не съвпада с потвърждението"
 
 msgid "is still associated with this entry"
-msgstr ""
+msgstr "все още е свързано с този запис"
 
 msgid "are still associated with this entry"
-msgstr ""
+msgstr "все още са свързани с този запис"
 
 msgid "should have %{count} item(s)"
-msgstr ""
+msgstr "трябва да има %{count} елемент(а)"
 
 msgid "should be %{count} character(s)"
-msgstr ""
+msgstr "трябва да е дълго %{count} знак(а)"
 
 msgid "should be %{count} byte(s)"
-msgstr ""
+msgstr "трябва да е дълго %{count} байт(а)"
 
 msgid "should have at least %{count} item(s)"
-msgstr ""
+msgstr "трябва да има поне %{count} елемент(а)"
 
 msgid "should be at least %{count} character(s)"
-msgstr ""
+msgstr "трябва да е поне %{count} знак(а)"
 
 msgid "should be at least %{count} byte(s)"
-msgstr ""
+msgstr "трябва да е поне %{count} байт(а)"
 
 msgid "should have at most %{count} item(s)"
-msgstr ""
+msgstr "трябва да има най-много %{count} елемент(а)"
 
 msgid "should be at most %{count} character(s)"
-msgstr ""
+msgstr "трябва да е най-много %{count} знак(а)"
 
 msgid "should be at most %{count} byte(s)"
-msgstr ""
+msgstr "трябва да е най-много %{count} байт(а)"
 
 msgid "must be less than %{number}"
-msgstr ""
+msgstr "трябва да е по-малко от %{number}"
 
 msgid "must be greater than %{number}"
-msgstr ""
+msgstr "трябва да е по-голямо от %{number}"
 
 msgid "must be less than or equal to %{number}"
-msgstr ""
+msgstr "трябва да е по-малко или равно на %{number}"
 
 msgid "must be greater than or equal to %{number}"
-msgstr ""
+msgstr "трябва да е по-голямо или равно на %{number}"
 
 msgid "must be equal to %{number}"
-msgstr ""
+msgstr "трябва да е равно на %{number}"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:18
 #, elixir-autogen, elixir-format
 msgid "cannot friend yourself"
-msgstr ""
+msgstr "не можеш да добавиш себе си като приятел"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:19
 #, elixir-autogen, elixir-format
 msgid "did not change"
-msgstr ""
+msgstr "не беше променено"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:20
 #, elixir-autogen, elixir-format
 msgid "does not exist"
-msgstr ""
+msgstr "не съществува"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:24
 #, elixir-autogen, elixir-format
 msgid "does not match password"
-msgstr ""
+msgstr "не съвпада с паролата"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:22
 #, elixir-autogen, elixir-format
 msgid "must be lowercase alphanumeric with underscores"
-msgstr ""
+msgstr "може да съдържа само малки букви, цифри и долни черти"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:23
 #, elixir-autogen, elixir-format
 msgid "must have the @ sign and no spaces"
-msgstr ""
+msgstr "трябва да съдържа знак @ и без интервали"

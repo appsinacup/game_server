@@ -853,11 +853,18 @@ func user_update_current_user_display_name(display_name: String) -> GamendResult
 	request.display_name = display_name
 	return await _call_api(UsersApi.new(_config), "update_current_user_display_name", [request])
 
+## Update current user's unique username handle (lowercased on save; 3-32 chars
+## of a-z, 0-9 and non-consecutive . _ - separators). Fails when taken/invalid.
+func user_update_current_user_username(username: String) -> GamendResult:
+	var request := UpdateCurrentUserUsernameRequest.new()
+	request.username = username
+	return await _call_api(UsersApi.new(_config), "update_current_user_username", [request])
+
 ## Update current user's password
 func user_update_current_user_password(password: String) -> GamendResult:
 	return await _call_api(UsersApi.new(_config), "update_current_user_password", [password])
 
-## Search users by id/email/display_name
+## Search users by id, username, or display_name
 func users_search_users(query = "", page = 1, pageSize = 25) -> GamendResult:
 	return await _call_api(UsersApi.new(_config), "search_users", [query, page, pageSize])
 

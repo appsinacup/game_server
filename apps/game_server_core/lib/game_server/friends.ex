@@ -41,7 +41,7 @@ defmodule GameServer.Friends do
   @friends_cache_ttl_ms 60_000
   @friendships_cache_ttl_ms 60_000
 
-  @type user_id :: String.t()
+  @type user_id :: Ecto.UUID.t()
 
   defp friends_cache_version(user_id) when is_binary(user_id) do
     GameServer.Cache.get!({:friends, :version, user_id}) || 1
@@ -361,7 +361,7 @@ defmodule GameServer.Friends do
   end
 
   @doc "Accept a friend request (only the target may accept). Returns {:ok, friendship}."
-  @spec accept_friend_request(String.t(), User.t()) :: {:ok, Friendship.t()} | {:error, term()}
+  @spec accept_friend_request(Ecto.UUID.t(), User.t()) :: {:ok, Friendship.t()} | {:error, term()}
   def accept_friend_request(friendship_id, %User{id: user_id}) when is_binary(friendship_id) do
     Repo.transaction(fn ->
       with %Friendship{} = f <- get_friendship(friendship_id),
@@ -397,7 +397,7 @@ defmodule GameServer.Friends do
   end
 
   @doc "Reject a friend request (only the target may reject). Returns {:ok, friendship}."
-  @spec reject_friend_request(String.t(), User.t()) :: {:ok, Friendship.t()} | {:error, term()}
+  @spec reject_friend_request(Ecto.UUID.t(), User.t()) :: {:ok, Friendship.t()} | {:error, term()}
   def reject_friend_request(friendship_id, %User{id: user_id}) when is_binary(friendship_id) do
     with %Friendship{} = f <- get_friendship(friendship_id),
          true <- f.target_id == user_id,
@@ -421,7 +421,7 @@ defmodule GameServer.Friends do
   end
 
   @doc "Cancel an outgoing friend request (only the requester may cancel)."
-  @spec cancel_request(String.t(), User.t()) ::
+  @spec cancel_request(Ecto.UUID.t(), User.t()) ::
           {:ok, :cancelled} | {:error, :not_found | :not_authorized | term()}
   def cancel_request(friendship_id, %User{id: user_id}) when is_binary(friendship_id) do
     with %Friendship{} = f <- get_friendship(friendship_id),
@@ -445,7 +445,7 @@ defmodule GameServer.Friends do
   end
 
   @doc "Remove a friendship (either direction) - only participating users may call this."
-  @spec remove_friend(String.t(), String.t()) :: {:ok, Friendship.t()} | {:error, term()}
+  @spec remove_friend(Ecto.UUID.t(), Ecto.UUID.t()) :: {:ok, Friendship.t()} | {:error, term()}
   def remove_friend(user_id, friend_id) when is_binary(user_id) and is_binary(friend_id) do
     case Repo.one(
            from f in Friendship,
@@ -481,7 +481,7 @@ defmodule GameServer.Friends do
   end
 
   @doc "Block an incoming request (only the target may block). Returns {:ok, friendship} with status \"blocked\"."
-  @spec block_friend_request(String.t(), User.t()) :: {:ok, Friendship.t()} | {:error, term()}
+  @spec block_friend_request(Ecto.UUID.t(), User.t()) :: {:ok, Friendship.t()} | {:error, term()}
   def block_friend_request(friendship_id, %User{id: user_id}) when is_binary(friendship_id) do
     with %Friendship{} = f <- get_friendship(friendship_id),
          true <- f.target_id == user_id,
@@ -542,7 +542,7 @@ defmodule GameServer.Friends do
   end
 
   @doc "Unblock a previously-blocked friendship (only the user who blocked may unblock). Returns {:ok, :unblocked} on success."
-  @spec unblock_friendship(String.t(), User.t()) :: {:ok, :unblocked} | {:error, term()}
+  @spec unblock_friendship(Ecto.UUID.t(), User.t()) :: {:ok, :unblocked} | {:error, term()}
   def unblock_friendship(friendship_id, %User{id: user_id}) when is_binary(friendship_id) do
     with %Friendship{} = f <- get_friendship(friendship_id),
          true <- f.target_id == user_id,
@@ -571,8 +571,8 @@ defmodule GameServer.Friends do
 
   See `t:GameServer.Types.pagination_opts/0` for available options.
   """
-  @spec list_friends_for_user(String.t()) :: [User.t()]
-  @spec list_friends_for_user(String.t(), Types.pagination_opts()) :: [User.t()]
+  @spec list_friends_for_user(Ecto.UUID.t()) :: [User.t()]
+  @spec list_friends_for_user(Ecto.UUID.t(), Types.pagination_opts()) :: [User.t()]
   def list_friends_for_user(user_id, opts \\ [])
 
   def list_friends_for_user(user_id, opts) when is_binary(user_id) do
@@ -615,11 +615,11 @@ defmodule GameServer.Friends do
 
   Returns a list of maps: %{friendship_id: integer(), user: %User{}}
   """
-  @spec list_friends_with_friendship(String.t()) :: [
-          %{friendship_id: integer(), user: User.t()}
+  @spec list_friends_with_friendship(Ecto.UUID.t()) :: [
+          %{friendship_id: Ecto.UUID.t(), user: User.t()}
         ]
-  @spec list_friends_with_friendship(String.t(), Types.pagination_opts()) :: [
-          %{friendship_id: integer(), user: User.t()}
+  @spec list_friends_with_friendship(Ecto.UUID.t(), Types.pagination_opts()) :: [
+          %{friendship_id: Ecto.UUID.t(), user: User.t()}
         ]
   def list_friends_with_friendship(user_id, opts \\ [])
 
@@ -680,8 +680,8 @@ defmodule GameServer.Friends do
 
   See `t:GameServer.Types.pagination_opts/0` for available options.
   """
-  @spec list_incoming_requests(String.t()) :: [Friendship.t()]
-  @spec list_incoming_requests(String.t(), Types.pagination_opts()) :: [Friendship.t()]
+  @spec list_incoming_requests(Ecto.UUID.t()) :: [Friendship.t()]
+  @spec list_incoming_requests(Ecto.UUID.t(), Types.pagination_opts()) :: [Friendship.t()]
   def list_incoming_requests(user_id, opts \\ [])
 
   def list_incoming_requests(user_id, opts) when is_binary(user_id) do
@@ -725,8 +725,8 @@ defmodule GameServer.Friends do
 
   See `t:GameServer.Types.pagination_opts/0` for available options.
   """
-  @spec list_outgoing_requests(String.t()) :: [Friendship.t()]
-  @spec list_outgoing_requests(String.t(), Types.pagination_opts()) :: [Friendship.t()]
+  @spec list_outgoing_requests(Ecto.UUID.t()) :: [Friendship.t()]
+  @spec list_outgoing_requests(Ecto.UUID.t(), Types.pagination_opts()) :: [Friendship.t()]
   def list_outgoing_requests(user_id, opts \\ [])
 
   def list_outgoing_requests(user_id, opts) when is_binary(user_id) do
@@ -764,7 +764,7 @@ defmodule GameServer.Friends do
   end
 
   @doc "Get friendship by id"
-  @spec get_friendship!(String.t()) :: Friendship.t()
+  @spec get_friendship!(Ecto.UUID.t()) :: Friendship.t()
   @decorate cacheable(
               key: {:friends, :friendship, friendship_cache_version(id), id},
               opts: [ttl: @friendships_cache_ttl_ms]
@@ -772,7 +772,7 @@ defmodule GameServer.Friends do
   def get_friendship!(id), do: Repo.get_uuid!(Friendship, id)
 
   @doc "Get friendship by id (returns nil when not found)"
-  @spec get_friendship(String.t()) :: Friendship.t() | nil
+  @spec get_friendship(Ecto.UUID.t()) :: Friendship.t() | nil
   @decorate cacheable(
               key: {:friends, :friendship, friendship_cache_version(id), id},
               match: &cache_match/1,

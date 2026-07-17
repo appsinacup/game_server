@@ -58,46 +58,46 @@ defmodule GameServer.Chat do
   # ---------------------------------------------------------------------------
 
   @doc "Subscribe to chat events for a lobby."
-  @spec subscribe_lobby_chat(String.t()) :: :ok | {:error, term()}
+  @spec subscribe_lobby_chat(Ecto.UUID.t()) :: :ok | {:error, term()}
   def subscribe_lobby_chat(lobby_id),
     do: Phoenix.PubSub.subscribe(GameServer.PubSub, "chat:lobby:#{lobby_id}")
 
   @doc "Unsubscribe from lobby chat events."
-  @spec unsubscribe_lobby_chat(String.t()) :: :ok
+  @spec unsubscribe_lobby_chat(Ecto.UUID.t()) :: :ok
   def unsubscribe_lobby_chat(lobby_id),
     do: Phoenix.PubSub.unsubscribe(GameServer.PubSub, "chat:lobby:#{lobby_id}")
 
   @doc "Subscribe to chat events for a group."
-  @spec subscribe_group_chat(String.t()) :: :ok | {:error, term()}
+  @spec subscribe_group_chat(Ecto.UUID.t()) :: :ok | {:error, term()}
   def subscribe_group_chat(group_id),
     do: Phoenix.PubSub.subscribe(GameServer.PubSub, "chat:group:#{group_id}")
 
   @doc "Unsubscribe from group chat events."
-  @spec unsubscribe_group_chat(String.t()) :: :ok
+  @spec unsubscribe_group_chat(Ecto.UUID.t()) :: :ok
   def unsubscribe_group_chat(group_id),
     do: Phoenix.PubSub.unsubscribe(GameServer.PubSub, "chat:group:#{group_id}")
 
   @doc "Subscribe to chat events for a friend DM conversation."
-  @spec subscribe_friend_chat(String.t(), String.t()) :: :ok | {:error, term()}
+  @spec subscribe_friend_chat(Ecto.UUID.t(), Ecto.UUID.t()) :: :ok | {:error, term()}
   def subscribe_friend_chat(user_a_id, user_b_id) do
     {low, high} = friend_pair(user_a_id, user_b_id)
     Phoenix.PubSub.subscribe(GameServer.PubSub, "chat:friend:#{low}:#{high}")
   end
 
   @doc "Unsubscribe from friend DM chat events."
-  @spec unsubscribe_friend_chat(String.t(), String.t()) :: :ok
+  @spec unsubscribe_friend_chat(Ecto.UUID.t(), Ecto.UUID.t()) :: :ok
   def unsubscribe_friend_chat(user_a_id, user_b_id) do
     {low, high} = friend_pair(user_a_id, user_b_id)
     Phoenix.PubSub.unsubscribe(GameServer.PubSub, "chat:friend:#{low}:#{high}")
   end
 
   @doc "Subscribe to chat events for a party."
-  @spec subscribe_party_chat(String.t()) :: :ok | {:error, term()}
+  @spec subscribe_party_chat(Ecto.UUID.t()) :: :ok | {:error, term()}
   def subscribe_party_chat(party_id),
     do: Phoenix.PubSub.subscribe(GameServer.PubSub, "chat:party:#{party_id}")
 
   @doc "Unsubscribe from party chat events."
-  @spec unsubscribe_party_chat(String.t()) :: :ok
+  @spec unsubscribe_party_chat(Ecto.UUID.t()) :: :ok
   def unsubscribe_party_chat(party_id),
     do: Phoenix.PubSub.unsubscribe(GameServer.PubSub, "chat:party:#{party_id}")
 
@@ -287,7 +287,7 @@ defmodule GameServer.Chat do
   # ---------------------------------------------------------------------------
 
   @doc "Returns `:ok` when user can access the chat conversation."
-  @spec authorize_access(String.t(), String.t(), String.t()) :: :ok | {:error, atom()}
+  @spec authorize_access(Ecto.UUID.t(), String.t(), Ecto.UUID.t()) :: :ok | {:error, atom()}
   def authorize_access(user_id, chat_type, chat_ref_id)
       when is_binary(user_id) and is_binary(chat_type) and is_binary(chat_ref_id) do
     validate_chat_access(user_id, %{chat_type: chat_type, chat_ref_id: chat_ref_id})
@@ -415,7 +415,7 @@ defmodule GameServer.Chat do
   Returns a list of `%Message{}` structs ordered by `inserted_at` descending
   (newest first).
   """
-  @spec list_messages(String.t(), String.t(), keyword()) :: [Message.t()]
+  @spec list_messages(String.t(), Ecto.UUID.t(), keyword()) :: [Message.t()]
   def list_messages(chat_type, chat_ref_id, opts \\ []) do
     page = Keyword.get(opts, :page, 1)
     page_size = Keyword.get(opts, :page_size, 25)
@@ -474,7 +474,7 @@ defmodule GameServer.Chat do
   # ---------------------------------------------------------------------------
 
   @doc "Count total messages in a chat conversation."
-  @spec count_messages(String.t(), String.t()) :: non_neg_integer()
+  @spec count_messages(String.t(), Ecto.UUID.t()) :: non_neg_integer()
   def count_messages(chat_type, chat_ref_id) do
     base_query(chat_type, chat_ref_id)
     |> Repo.aggregate(:count, :id)
@@ -511,7 +511,7 @@ defmodule GameServer.Chat do
 
   Uses an upsert to create or update the read cursor.
   """
-  @spec mark_read(String.t(), String.t(), String.t(), String.t()) ::
+  @spec mark_read(Ecto.UUID.t(), String.t(), Ecto.UUID.t(), Ecto.UUID.t()) ::
           {:ok, ReadCursor.t()} | {:error, term()}
   def mark_read(user_id, chat_type, chat_ref_id, message_id) do
     with :ok <- authorize_access(user_id, chat_type, chat_ref_id),
@@ -566,7 +566,7 @@ defmodule GameServer.Chat do
 
   Returns `nil` if the user has never opened this conversation.
   """
-  @spec get_read_cursor(String.t(), String.t(), String.t()) :: ReadCursor.t() | nil
+  @spec get_read_cursor(Ecto.UUID.t(), String.t(), Ecto.UUID.t()) :: ReadCursor.t() | nil
   def get_read_cursor(user_id, chat_type, chat_ref_id) do
     from(c in ReadCursor,
       where: c.user_id == ^user_id and c.chat_type == ^chat_type and c.chat_ref_id == ^chat_ref_id
@@ -580,7 +580,7 @@ defmodule GameServer.Chat do
   Returns 0 if the user has read all messages or has no cursor (all are unread
   in which case `count_messages/2` should be used instead).
   """
-  @spec count_unread(String.t(), String.t(), String.t()) :: non_neg_integer()
+  @spec count_unread(Ecto.UUID.t(), String.t(), Ecto.UUID.t()) :: non_neg_integer()
   def count_unread(user_id, chat_type, chat_ref_id) do
     case get_read_cursor(user_id, chat_type, chat_ref_id) do
       nil ->
@@ -603,7 +603,7 @@ defmodule GameServer.Chat do
   @doc """
   Count unread friend DMs between two users for a specific user.
   """
-  @spec count_unread_friend(String.t(), String.t()) :: non_neg_integer()
+  @spec count_unread_friend(Ecto.UUID.t(), Ecto.UUID.t()) :: non_neg_integer()
   def count_unread_friend(user_id, friend_id) do
     cursor = get_read_cursor(user_id, "friend", friend_id)
 
@@ -631,7 +631,9 @@ defmodule GameServer.Chat do
   Returns a map of `%{friend_id => unread_count}` for friends that have
   at least one unread message.
   """
-  @spec count_unread_friends_batch(String.t(), [String.t()]) :: %{String.t() => non_neg_integer()}
+  @spec count_unread_friends_batch(Ecto.UUID.t(), [Ecto.UUID.t()]) :: %{
+          Ecto.UUID.t() => non_neg_integer()
+        }
   def count_unread_friends_batch(_user_id, []), do: %{}
 
   def count_unread_friends_batch(user_id, friend_ids) do
@@ -656,7 +658,9 @@ defmodule GameServer.Chat do
 
   Returns a map of `%{group_id => unread_count}`.
   """
-  @spec count_unread_groups_batch(String.t(), [String.t()]) :: %{String.t() => non_neg_integer()}
+  @spec count_unread_groups_batch(Ecto.UUID.t(), [Ecto.UUID.t()]) :: %{
+          Ecto.UUID.t() => non_neg_integer()
+        }
   def count_unread_groups_batch(_user_id, []), do: %{}
 
   def count_unread_groups_batch(user_id, group_ids) do
@@ -679,7 +683,7 @@ defmodule GameServer.Chat do
   # ---------------------------------------------------------------------------
 
   @doc "Delete all messages for a given chat conversation."
-  @spec delete_messages(String.t(), String.t()) :: {non_neg_integer(), nil}
+  @spec delete_messages(String.t(), Ecto.UUID.t()) :: {non_neg_integer(), nil}
   def delete_messages(chat_type, chat_ref_id) do
     result =
       from(m in Message,
@@ -692,7 +696,7 @@ defmodule GameServer.Chat do
   end
 
   @doc "Delete all read cursors for a given chat conversation."
-  @spec delete_read_cursors(String.t(), String.t()) :: {non_neg_integer(), nil}
+  @spec delete_read_cursors(String.t(), Ecto.UUID.t()) :: {non_neg_integer(), nil}
   def delete_read_cursors(chat_type, chat_ref_id) do
     from(c in ReadCursor,
       where: c.chat_type == ^chat_type and c.chat_ref_id == ^chat_ref_id
@@ -701,7 +705,7 @@ defmodule GameServer.Chat do
   end
 
   @doc "Delete all chat data (messages + read cursors) for a given conversation."
-  @spec cleanup_chat(String.t(), String.t()) :: :ok
+  @spec cleanup_chat(String.t(), Ecto.UUID.t()) :: :ok
   def cleanup_chat(chat_type, chat_ref_id) do
     delete_messages(chat_type, chat_ref_id)
     delete_read_cursors(chat_type, chat_ref_id)
@@ -714,7 +718,7 @@ defmodule GameServer.Chat do
   Friend messages are stored bidirectionally (each user's messages use
   the other's id as chat_ref_id), so both directions must be cleaned up.
   """
-  @spec cleanup_friend_chat(String.t(), String.t()) :: :ok
+  @spec cleanup_friend_chat(Ecto.UUID.t(), Ecto.UUID.t()) :: :ok
   def cleanup_friend_chat(user_a_id, user_b_id) do
     # Delete messages in both directions
     from(m in Message,
@@ -738,7 +742,7 @@ defmodule GameServer.Chat do
   end
 
   @doc "Get a single message by id."
-  @spec get_message(String.t()) :: Message.t() | nil
+  @spec get_message(Ecto.UUID.t()) :: Message.t() | nil
   def get_message(id) do
     Repo.get(Message, id)
   end
@@ -754,7 +758,7 @@ defmodule GameServer.Chat do
   `{:error, :not_found}` if the message does not exist or
   `{:error, :forbidden}` if the caller is not the sender.
   """
-  @spec update_message(String.t(), String.t(), map()) ::
+  @spec update_message(Ecto.UUID.t(), Ecto.UUID.t(), map()) ::
           {:ok, Message.t()} | {:error, term()}
   def update_message(user_id, message_id, attrs) do
     case Repo.get(Message, message_id) do
@@ -794,7 +798,7 @@ defmodule GameServer.Chat do
   Returns `{:error, :not_found}` if the message does not exist or
   `{:error, :forbidden}` if the caller is not the sender.
   """
-  @spec delete_own_message(String.t(), String.t()) ::
+  @spec delete_own_message(Ecto.UUID.t(), Ecto.UUID.t()) ::
           {:ok, Message.t()} | {:error, term()}
   def delete_own_message(user_id, message_id) do
     case Repo.get(Message, message_id) do
@@ -870,7 +874,7 @@ defmodule GameServer.Chat do
   end
 
   @doc "Admin: delete a single message by id."
-  @spec admin_delete_message(String.t()) :: {:ok, Message.t()} | {:error, term()}
+  @spec admin_delete_message(Ecto.UUID.t()) :: {:ok, Message.t()} | {:error, term()}
   def admin_delete_message(id) do
     case Repo.get(Message, id) do
       nil ->

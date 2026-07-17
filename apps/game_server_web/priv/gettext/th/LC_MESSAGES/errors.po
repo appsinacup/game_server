@@ -1,116 +1,116 @@
-## "msgid"s in this file come from POT (.pot) files.
-###
-### Do not add, change, or remove "msgid"s manually here as
-### they're tied to the ones in the corresponding POT file
-### (with the same domain).
-###
-### Use "mix gettext.extract --merge" or "mix gettext.merge"
-### to merge POT files into PO files.
+#  "msgid"s in this file come from POT (.pot) files.
+# #
+# # Do not add, change, or remove "msgid"s manually here as
+# # they're tied to the ones in the corresponding POT file
+# # (with the same domain).
+# #
+# # Use "mix gettext.extract --merge" or "mix gettext.merge"
+# # to merge POT files into PO files.
 msgid ""
 msgstr ""
 "Language: th\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 msgid "can't be blank"
-msgstr ""
+msgstr "ห้ามเว้นว่าง"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:21
 #, elixir-autogen
 msgid "has already been taken"
-msgstr ""
+msgstr "ถูกใช้ไปแล้ว"
 
 msgid "is invalid"
-msgstr ""
+msgstr "ไม่ถูกต้อง"
 
 msgid "must be accepted"
-msgstr ""
+msgstr "ต้องได้รับการยอมรับ"
 
 msgid "has invalid format"
-msgstr ""
+msgstr "รูปแบบไม่ถูกต้อง"
 
 msgid "has an invalid entry"
-msgstr ""
+msgstr "มีรายการที่ไม่ถูกต้อง"
 
 msgid "is reserved"
-msgstr ""
+msgstr "ถูกสงวนไว้"
 
 msgid "does not match confirmation"
-msgstr ""
+msgstr "ไม่ตรงกับการยืนยัน"
 
 msgid "is still associated with this entry"
-msgstr ""
+msgstr "ยังเชื่อมโยงกับรายการนี้อยู่"
 
 msgid "are still associated with this entry"
-msgstr ""
+msgstr "ยังเชื่อมโยงกับรายการนี้อยู่"
 
 msgid "should have %{count} item(s)"
-msgstr ""
+msgstr "ต้องมี %{count} รายการ"
 
 msgid "should be %{count} character(s)"
-msgstr ""
+msgstr "ต้องมีความยาว %{count} ตัวอักษร"
 
 msgid "should be %{count} byte(s)"
-msgstr ""
+msgstr "ต้องมีขนาด %{count} ไบต์"
 
 msgid "should have at least %{count} item(s)"
-msgstr ""
+msgstr "ต้องมีอย่างน้อย %{count} รายการ"
 
 msgid "should be at least %{count} character(s)"
-msgstr ""
+msgstr "ต้องมีความยาวอย่างน้อย %{count} ตัวอักษร"
 
 msgid "should be at least %{count} byte(s)"
-msgstr ""
+msgstr "ต้องมีขนาดอย่างน้อย %{count} ไบต์"
 
 msgid "should have at most %{count} item(s)"
-msgstr ""
+msgstr "ต้องมีไม่เกิน %{count} รายการ"
 
 msgid "should be at most %{count} character(s)"
-msgstr ""
+msgstr "ต้องมีความยาวไม่เกิน %{count} ตัวอักษร"
 
 msgid "should be at most %{count} byte(s)"
-msgstr ""
+msgstr "ต้องมีขนาดไม่เกิน %{count} ไบต์"
 
 msgid "must be less than %{number}"
-msgstr ""
+msgstr "ต้องน้อยกว่า %{number}"
 
 msgid "must be greater than %{number}"
-msgstr ""
+msgstr "ต้องมากกว่า %{number}"
 
 msgid "must be less than or equal to %{number}"
-msgstr ""
+msgstr "ต้องน้อยกว่าหรือเท่ากับ %{number}"
 
 msgid "must be greater than or equal to %{number}"
-msgstr ""
+msgstr "ต้องมากกว่าหรือเท่ากับ %{number}"
 
 msgid "must be equal to %{number}"
-msgstr ""
+msgstr "ต้องเท่ากับ %{number}"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:18
 #, elixir-autogen, elixir-format
 msgid "cannot friend yourself"
-msgstr ""
+msgstr "ไม่สามารถเพิ่มตัวเองเป็นเพื่อนได้"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:19
 #, elixir-autogen, elixir-format
 msgid "did not change"
-msgstr ""
+msgstr "ไม่มีการเปลี่ยนแปลง"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:20
 #, elixir-autogen, elixir-format
 msgid "does not exist"
-msgstr ""
+msgstr "ไม่มีอยู่"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:24
 #, elixir-autogen, elixir-format
 msgid "does not match password"
-msgstr ""
+msgstr "ไม่ตรงกับรหัสผ่าน"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:22
 #, elixir-autogen, elixir-format
 msgid "must be lowercase alphanumeric with underscores"
-msgstr ""
+msgstr "ต้องเป็นตัวพิมพ์เล็ก ตัวเลข และขีดล่างเท่านั้น"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:23
 #, elixir-autogen, elixir-format
 msgid "must have the @ sign and no spaces"
-msgstr ""
+msgstr "ต้องมีเครื่องหมาย @ และไม่มีช่องว่าง"

@@ -97,7 +97,7 @@ defmodule GameServer.Lobbies do
   @doc """
   Subscribe to a specific lobby's events (membership changes, updates).
   """
-  @spec subscribe_lobby(String.t()) :: :ok | {:error, term()}
+  @spec subscribe_lobby(Ecto.UUID.t()) :: :ok | {:error, term()}
   def subscribe_lobby(lobby_id) do
     Phoenix.PubSub.subscribe(GameServer.PubSub, "lobby:#{lobby_id}")
   end
@@ -105,7 +105,7 @@ defmodule GameServer.Lobbies do
   @doc """
   Unsubscribe from a specific lobby's events.
   """
-  @spec unsubscribe_lobby(String.t()) :: :ok
+  @spec unsubscribe_lobby(Ecto.UUID.t()) :: :ok
   def unsubscribe_lobby(lobby_id) do
     Phoenix.PubSub.unsubscribe(GameServer.PubSub, "lobby:#{lobby_id}")
   end
@@ -119,7 +119,7 @@ defmodule GameServer.Lobbies do
   end
 
   @doc "Broadcast a member presence event (online/offline) to a lobby's PubSub topic."
-  @spec broadcast_member_presence(String.t(), tuple()) :: :ok | {:error, term()}
+  @spec broadcast_member_presence(Ecto.UUID.t(), tuple()) :: :ok | {:error, term()}
   def broadcast_member_presence(lobby_id, event) do
     broadcast_lobby(lobby_id, event)
   end
@@ -463,9 +463,9 @@ defmodule GameServer.Lobbies do
   def list_lobbies_for_user(nil, filters, opts), do: list_lobbies(filters, opts)
 
   # join behavior for a user -> lobby
-  @spec join_lobby(User.t(), Lobby.t() | String.t()) ::
+  @spec join_lobby(User.t(), Lobby.t() | Ecto.UUID.t()) ::
           {:ok, User.t()} | {:error, term()}
-  @spec join_lobby(User.t(), Lobby.t() | String.t(), map() | keyword()) ::
+  @spec join_lobby(User.t(), Lobby.t() | Ecto.UUID.t(), map() | keyword()) ::
           {:ok, User.t()} | {:error, term()}
   def join_lobby(user, lobby_arg, opts \\ %{})
 
@@ -578,14 +578,14 @@ defmodule GameServer.Lobbies do
     end
   end
 
-  @spec get_lobby!(String.t()) :: Lobby.t()
+  @spec get_lobby!(Ecto.UUID.t()) :: Lobby.t()
   @decorate cacheable(
               key: {:lobbies, :get, lobby_cache_version(id), id},
               opts: [ttl: @lobby_cache_ttl_ms]
             )
   def get_lobby!(id), do: Repo.get_uuid!(Lobby, id)
 
-  @spec get_lobby(String.t()) :: Lobby.t() | nil
+  @spec get_lobby(Ecto.UUID.t()) :: Lobby.t() | nil
   @decorate cacheable(
               key: {:lobbies, :get, lobby_cache_version(id), id},
               match: &cache_match/1,
@@ -607,7 +607,7 @@ defmodule GameServer.Lobbies do
       [%User{}]
 
   """
-  @spec get_lobby_members(Lobby.t() | String.t()) :: [User.t()]
+  @spec get_lobby_members(Lobby.t() | Ecto.UUID.t()) :: [User.t()]
   def get_lobby_members(%Lobby{id: lobby_id}), do: get_lobby_members(lobby_id)
 
   def get_lobby_members(lobby_id) when is_binary(lobby_id) do
@@ -923,7 +923,7 @@ defmodule GameServer.Lobbies do
 
   ## Membership helpers (minimal for now)
 
-  @spec create_membership(%{lobby_id: String.t(), user_id: String.t()}) ::
+  @spec create_membership(%{lobby_id: Ecto.UUID.t(), user_id: Ecto.UUID.t()}) ::
           {:ok, User.t()} | {:error, :not_found | Ecto.Changeset.t() | term()}
   def create_membership(%{lobby_id: lobby_id, user_id: user_id} = _attrs) do
     # Use Repo.get directly — this function may be called inside a
@@ -1317,7 +1317,7 @@ defmodule GameServer.Lobbies do
     Enum.any?(Map.keys(attrs), &is_binary/1)
   end
 
-  @spec list_memberships_for_lobby(String.t()) :: [User.t()]
+  @spec list_memberships_for_lobby(Ecto.UUID.t()) :: [User.t()]
   def list_memberships_for_lobby(lobby_id) do
     from(u in GameServer.Accounts.User, where: u.lobby_id == ^lobby_id)
     |> Repo.all()

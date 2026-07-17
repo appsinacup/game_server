@@ -25,6 +25,7 @@ defmodule GameServerWeb.Api.V1.PartyController do
           type: :object,
           properties: %{
             id: %Schema{type: :string, format: :uuid},
+            username: %Schema{type: :string},
             display_name: %Schema{type: :string},
             profile_url: %Schema{type: :string, nullable: true},
             metadata: %Schema{
@@ -46,6 +47,7 @@ defmodule GameServerWeb.Api.V1.PartyController do
       members: [
         %{
           id: "0198c0de-0002-7000-8000-000000000002",
+          username: "player1-0001",
           display_name: "Player1",
           profile_url: "",
           metadata: %{hat: "red", color: "#FF0000"},

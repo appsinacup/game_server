@@ -57,6 +57,33 @@ defmodule GameServer.Hooks do
 
   @callback before_stop() :: any()
 
+  @doc """
+  Called before a new user row is inserted, on every registration path:
+  email, device, and all OAuth providers (which register mid-login).
+
+  Receives the tentative user (not yet inserted, `id` is `nil`) and the
+  registration attrs (string keys), which already contain the generated
+  `"username"`. Return `{:ok, attrs}` — possibly with a different username
+  or other changes — or `{:error, reason}` to abort the registration.
+
+  Core re-validates after all hooks ran: format and uniqueness are not
+  overridable. A hook-supplied username that is invalid or already taken is
+  replaced with a generated one (a plugin bug must never lock a player out
+  of login). For strict policy on player-initiated changes — profanity or
+  reserved names — use `c:before_user_update/2`, where errors are returned
+  to the player:
+
+      def before_user_update(_user, %{"username" => name} = attrs) do
+        if MyGame.Profanity.allowed?(name),
+          do: {:ok, attrs},
+          else: {:error, :invalid_username}
+      end
+
+      def before_user_update(_user, attrs), do: {:ok, attrs}
+  """
+  @callback before_user_register(User.t(), GameServer.Types.user_registration_hook_attrs()) ::
+              hook_result(GameServer.Types.user_registration_hook_attrs())
+
   @callback after_user_register(User.t()) :: any()
 
   @callback after_user_login(User.t()) :: any()
@@ -336,6 +363,7 @@ defmodule GameServer.Hooks do
     MapSet.new([
       :after_startup,
       :before_stop,
+      :before_user_register,
       :after_user_register,
       :after_user_login,
       :after_user_updated,
@@ -402,6 +430,7 @@ defmodule GameServer.Hooks do
     # Pipeline-style hooks transform their inputs. These are the "before_*" hooks
     # used by domain flows.
     name in [
+      :before_user_register,
       :before_user_update,
       :before_lobby_create,
       :before_group_create,
@@ -535,6 +564,14 @@ defmodule GameServer.Hooks do
     end
   end
 
+  defp normalize_pipeline_args(:before_user_register, value, current_args)
+       when is_list(current_args) and length(current_args) == 2 do
+    case value do
+      tuple when is_tuple(tuple) and tuple_size(tuple) == 2 -> {:ok, Tuple.to_list(tuple)}
+      attrs -> {:ok, [Enum.at(current_args, 0), attrs]}
+    end
+  end
+
   defp normalize_pipeline_args(:before_group_update, value, current_args)
        when is_list(current_args) and length(current_args) == 2 do
     case value do
@@ -574,6 +611,11 @@ defmodule GameServer.Hooks do
   end
 
   defp finalize_pipeline_value(:before_user_update, args)
+       when is_list(args) and length(args) == 2 do
+    Enum.at(args, 1)
+  end
+
+  defp finalize_pipeline_value(:before_user_register, args)
        when is_list(args) and length(args) == 2 do
     Enum.at(args, 1)
   end
@@ -1050,6 +1092,9 @@ defmodule GameServer.Hooks.Default do
 
   @impl true
   def before_stop, do: :ok
+
+  @impl true
+  def before_user_register(_user, attrs), do: {:ok, attrs}
 
   @impl true
   def after_user_register(_user), do: :ok
