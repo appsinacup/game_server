@@ -33,6 +33,8 @@ defmodule GameServer.Hooks.GroupPartyHooksTest do
     @impl true
     def before_stop, do: :ok
     @impl true
+    def before_user_register(_user, attrs), do: {:ok, attrs}
+    @impl true
     def after_user_register(_user), do: :ok
     @impl true
     def after_user_login(_user), do: :ok

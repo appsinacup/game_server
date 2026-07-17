@@ -178,7 +178,9 @@ defmodule GameServerWeb.ProtobufFormatTest do
   end
 
   test "malformed payload falls back to JSON instead of raising" do
-    assert EventCodec.encode("user:x", "notification", %{inserted_at: :not_a_time}) == :json
+    ExUnit.CaptureLog.capture_log(fn ->
+      assert EventCodec.encode("user:x", "notification", %{inserted_at: :not_a_time}) == :json
+    end)
   end
 
   # ── WebRTC RPC envelope ──────────────────────────────────────────────────

@@ -14,6 +14,7 @@ defmodule GameServerWeb.Api.V1.SessionControllerTest do
 
     user = %User{
       email: @valid_email,
+      username: "testuser",
       hashed_password: hashed_password,
       confirmed_at: DateTime.utc_now(:second)
     }

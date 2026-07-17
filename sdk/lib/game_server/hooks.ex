@@ -444,6 +444,9 @@ defmodule GameServer.Hooks do
       def after_user_deleted(_user), do: :ok
 
       @impl true
+      def before_user_register(_user, attrs), do: {:ok, attrs}
+
+      @impl true
       def before_user_update(_user, attrs), do: {:ok, attrs}
 
       @impl true
@@ -545,7 +548,8 @@ defmodule GameServer.Hooks do
       @impl true
       def before_kv_get(_key, _opts), do: :public
 
-      defoverridable after_user_register: 1,
+      defoverridable before_user_register: 2,
+                     after_user_register: 1,
                      after_user_login: 1,
                      after_user_updated: 1,
                      after_user_online: 1,

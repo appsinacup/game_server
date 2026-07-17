@@ -23,7 +23,7 @@ defmodule GameServer.Accounts do
   alias GameServer.Repo
   alias GameServer.Types
 
-  alias GameServer.Accounts.{User, UserNotifier, UsernameGenerator, UserToken}
+  alias GameServer.Accounts.{User, UsernameGenerator, UserNotifier, UserToken}
 
   @stats_cache_ttl_ms 60_000
   @users_count_cache_ttl_ms 60_000
