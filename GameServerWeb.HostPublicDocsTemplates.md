@@ -26,6 +26,8 @@ Embedded HEEx templates used by the host-owned public docs LiveView.
 
 # `facebook_oauth`
 
+# `friends`
+
 # `godot_sdk`
 
 # `google_oauth`
@@ -33,6 +35,8 @@ Embedded HEEx templates used by the host-owned public docs LiveView.
 # `js_sdk`
 
 # `leaderboards`
+
+# `matchmaking`
 
 # `notifications`
 

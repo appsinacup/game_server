@@ -33,6 +33,8 @@ for serving web requests.
 
 # `list_lobbies_gate`
 
+# `list_matchmaking_gate`
+
 # `list_users_gate`
 
 # `mailbox_preview_enabled`
