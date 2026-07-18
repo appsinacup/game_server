@@ -40,6 +40,7 @@ defmodule GameServerWeb.HostPublicDocs do
         {GameServerWeb.HostPublicDocsTemplates.godot_sdk(assigns)}
         {GameServerWeb.HostPublicDocsTemplates.js_sdk(assigns)}
         {GameServerWeb.HostPublicDocsTemplates.realtime(assigns)}
+        {GameServerWeb.HostPublicDocsTemplates.realtime_efficiency(assigns)}
         {GameServerWeb.HostPublicDocsTemplates.webrtc(assigns)}
 
         <.guide_category_heading title="Gameplay & Social Systems" />

@@ -135,10 +135,10 @@ defmodule GameServerWeb.LobbyChannelTest do
     # allow a slightly longer window for the broadcast -> push to arrive in tests
     assert_push "updated", payload, 500
     assert payload.id == lobby.id
-    assert payload.u.title == "New Title"
+    assert payload.title == "New Title"
   end
 
-  test "channel sends nested metadata field delta after initial lobby snapshot" do
+  test "channel sends the full lobby state on update" do
     host = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
 
     {:ok, lobby} =
@@ -166,11 +166,10 @@ defmodule GameServerWeb.LobbyChannelTest do
         }
       })
 
+    # Full payload: the new metadata is present whole, and the removed
+    # stopped_until key is simply absent rather than flagged.
     assert_push "updated", payload, 500
-    refute Map.has_key?(payload, :metadata)
-
-    assert payload.u.metadata == %{"boat_adventure" => %{"hp" => 8}}
-    assert payload.r.metadata == %{"boat_adventure" => %{"stopped_until" => true}}
+    assert payload.metadata == %{"game_state" => "playing", "boat_adventure" => %{"hp" => 8}}
   end
 
   test "channel emits a single updated event per lobby update" do
@@ -187,7 +186,8 @@ defmodule GameServerWeb.LobbyChannelTest do
 
     {:ok, _} = Lobbies.update_lobby_by_host(host, lobby, %{"title" => "Single Update"})
 
-    assert_push "updated", %{u: %{title: "Single Update"}}, 500
+    # One push carrying the new state, and no duplicate for the unchanged rest.
+    assert_push "updated", %{title: "Single Update"}, 500
     refute_push "updated", _payload, 200
   end
 

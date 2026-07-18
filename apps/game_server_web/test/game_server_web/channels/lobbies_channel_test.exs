@@ -37,7 +37,7 @@ defmodule GameServerWeb.LobbiesChannelTest do
 
     # update lobby by host
     {:ok, _updated} = Lobbies.update_lobby_by_host(host, lobby, %{"title" => "Brand New"})
-    assert_push "lobby_updated", %{u: %{title: "Brand New"}}
+    assert_push "lobby_updated", %{title: "Brand New"}
 
     # delete lobby (broadcasts a lobby_deleted event)
     {:ok, deleted} = Lobbies.delete_lobby(lobby)

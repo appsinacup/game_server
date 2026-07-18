@@ -37,6 +37,7 @@ Adding one callback touches six places — miss one and plugins break in confusi
 - Hand-write struct stubs in `sdk/lib/game_server/<feature>/` (the generator does not create them) — plugins can't compile against a struct that doesn't exist.
 - Add placeholder rules in `gen.sdk` for the new structs (`T | nil` and `{:ok, T}` return types). Without them a stub returns only `nil`/`{:ok, _}`, and every plugin that pattern-matches the other branch gets a bogus "clause cannot match" warning.
 - Verify with `cd modules/plugins_examples/example_hook && mix compile --force` — it must be warning-free.
+- The server loads plugins from their bundled `ebin/`, not from `_build` — after changing a plugin, run `mix plugin.bundle` in its directory (or the admin Config build button) or the running server keeps the old code.
 
 ## Web
 

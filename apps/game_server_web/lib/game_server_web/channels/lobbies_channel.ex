@@ -10,8 +10,10 @@ defmodule GameServerWeb.LobbiesChannel do
 
   use Phoenix.Channel
 
+  import GameServerWeb.ChannelPush
+
   alias GameServer.Lobbies
-  alias GameServerWeb.PayloadDelta
+  alias GameServerWeb.ChannelUpdates
   alias GameServerWeb.Plugs.FeatureGate
   alias GameServerWeb.Serializers
 
@@ -34,55 +36,36 @@ defmodule GameServerWeb.LobbiesChannel do
   @impl true
   def handle_info({:lobby_created, lobby}, socket) do
     payload = Serializers.serialize_lobby(lobby, include_passworded: true)
-    push(socket, "lobby_created", payload)
-    {:noreply, put_lobby_payload(socket, payload)}
+    push_event(socket, "lobby_created", payload)
+    # The create doubles as the first update; remembering it suppresses an
+    # identical lobby_updated immediately afterwards.
+    {:noreply, ChannelUpdates.remember(socket, "lobby_updated", payload.id, payload)}
   end
 
   @impl true
   def handle_info({:lobby_updated, lobby}, socket) do
     payload = Serializers.serialize_lobby(lobby, include_passworded: true)
-    last_payload = get_lobby_payload(socket, payload.id)
-
-    case PayloadDelta.payload_delta(last_payload, payload) do
-      nil ->
-        {:noreply, socket}
-
-      delta_payload ->
-        push(socket, "lobby_updated", delta_payload)
-        {:noreply, put_lobby_payload(socket, payload)}
-    end
+    {:noreply, ChannelUpdates.push(socket, "lobby_updated", payload.id, payload)}
   end
 
   @impl true
   def handle_info({:lobby_deleted, lobby_id}, socket) do
-    push(socket, "lobby_deleted", %{id: lobby_id})
-    {:noreply, drop_lobby_payload(socket, lobby_id)}
+    push_event(socket, "lobby_deleted", %{id: lobby_id})
+    # Prune, so a long-lived list socket doesn't accumulate an entry for every
+    # lobby it has ever seen.
+    {:noreply, ChannelUpdates.forget(socket, "lobby_updated", lobby_id)}
   end
 
   @impl true
   def handle_info({:lobby_membership_changed, lobby_id}, socket) do
-    push(socket, "lobby_membership_changed", %{id: lobby_id})
+    push_event(socket, "lobby_membership_changed", %{id: lobby_id})
     {:noreply, socket}
   end
 
   @impl true
+  def handle_info({:channel_updates_flush, _}, socket),
+    do: {:noreply, ChannelUpdates.flush(socket)}
+
+  @impl true
   def handle_info(_msg, socket), do: {:noreply, socket}
-
-  defp get_lobby_payload(socket, lobby_id) do
-    socket.assigns
-    |> Map.get(:last_lobby_payloads, %{})
-    |> Map.get(lobby_id)
-  end
-
-  defp put_lobby_payload(socket, payload) do
-    payloads = Map.get(socket.assigns, :last_lobby_payloads, %{})
-    assign(socket, :last_lobby_payloads, Map.put(payloads, payload.id, payload))
-  end
-
-  # Prune the delta cache when a lobby goes away so a long-lived list socket
-  # doesn't accumulate an entry for every lobby ever seen.
-  defp drop_lobby_payload(socket, lobby_id) do
-    payloads = Map.get(socket.assigns, :last_lobby_payloads, %{})
-    assign(socket, :last_lobby_payloads, Map.delete(payloads, lobby_id))
-  end
 end

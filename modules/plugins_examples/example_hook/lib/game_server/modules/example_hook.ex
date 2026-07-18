@@ -251,6 +251,34 @@ defmodule GameServer.Modules.ExampleHook do
   @impl true
   def on_custom_hook(_hook, _args), do: {:error, :not_implemented}
 
+  @doc """
+  KV data schema example: entries under the "pb_loadout" key are pushed as
+  compact binary (KvEntry data_pb) on protobuf sockets. Exact keys or
+  "prefix*" patterns are supported.
+  """
+  def kv_schemas do
+    %{"pb_loadout" => ExampleHook.V1.ExampleLoadout}
+  end
+
+  @doc """
+  Typed protobuf hook example (see proto/example_hook.proto).
+
+  The HelloProtoRequest/HelloProtoReply message pair registers this hook's
+  schema by name, so the server converts at the boundary: protobuf clients
+  call it with encoded bytes (`args_raw`), JSON clients with a plain object
+  (`{"name": "x", "repeat": 2}`) — this function always receives the
+  decoded request struct and returns a reply struct.
+  """
+  def hello_proto(%ExampleHook.V1.HelloProtoRequest{} = req) do
+    repeat = max(req.repeat, 1)
+    greeting = String.duplicate("Hello, #{req.name}! ", repeat) |> String.trim_trailing()
+
+    %ExampleHook.V1.HelloProtoReply{
+      greeting: greeting,
+      name_length: byte_size(req.name)
+    }
+  end
+
   @doc "Say hi to a user"
   def hello(name) when is_binary(name) do
     # Exercise an external dependency so the bundle task can prove it ships deps.

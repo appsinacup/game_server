@@ -31,6 +31,8 @@
  *   webrtc.close()
  */
 
+import { PB } from './gamend_proto.js'
+
 /**
  * Default DataChannel definitions.
  * - "events": reliable, ordered — important game events
@@ -62,6 +64,12 @@ export class GameWebRTC {
     this.opts = opts
     this.iceServers = opts.iceServers || DEFAULT_ICE_SERVERS
     this.dataChannelDefs = opts.dataChannels || DEFAULT_DATA_CHANNELS
+    // 'protobuf' negotiates the RtcEnvelope RPC protocol (with request ids)
+    // on the "events" DataChannel via the DataChannel protocol field.
+    this.format = opts.format === 'protobuf' ? 'protobuf' : 'json'
+    /** @type {Map<number|string, {resolve: Function, reject: Function, timer: any}>} */
+    this._pendingCalls = new Map()
+    this._nextCallId = 1
 
     /** @type {RTCPeerConnection|null} */
     this.pc = null
@@ -96,6 +104,7 @@ export class GameWebRTC {
       const dcOpts = { ordered: def.ordered !== false }
       if (def.maxRetransmits !== undefined) dcOpts.maxRetransmits = def.maxRetransmits
       if (def.maxPacketLifeTime !== undefined) dcOpts.maxPacketLifeTime = def.maxPacketLifeTime
+      if (this.format === 'protobuf') dcOpts.protocol = 'protobuf'
 
       const dc = this.pc.createDataChannel(def.label, dcOpts)
       this._wireDataChannel(dc)
@@ -139,6 +148,87 @@ export class GameWebRTC {
     if (!dc || dc.readyState !== 'open') return false
     dc.send(data)
     return true
+  }
+
+  /**
+   * Call a server-side plugin hook over the "events" DataChannel.
+   *
+   * In protobuf mode replies are correlated by request id, so concurrent
+   * calls (including to the same function) are safe. In JSON mode replies
+   * are matched by plugin+fn (legacy protocol), first pending call wins.
+   *
+   * @param {string} plugin
+   * @param {string} fn
+   * @param {Array}  args
+   * @param {number} timeoutMs
+   * @returns {Promise<any>} the hook result
+   */
+  callHook(plugin, fn, args = [], timeoutMs = 10000) {
+    const dc = this.channels.get('events')
+    if (!dc || dc.readyState !== 'open') {
+      return Promise.reject(new Error('events DataChannel is not open'))
+    }
+
+    return new Promise((resolve, reject) => {
+      let key
+      if (this.format === 'protobuf') {
+        const id = this._nextCallId++
+        key = id
+        const envelope = PB.RtcEnvelope.encode({
+          call_hook: { id, plugin, fn, args_json: new TextEncoder().encode(JSON.stringify(args)) },
+        }).finish()
+        dc.send(envelope)
+      } else {
+        key = `${plugin} ${fn}`
+        dc.send(JSON.stringify({ type: 'call_hook', plugin, fn, args }))
+      }
+
+      const timer = setTimeout(() => {
+        this._pendingCalls.delete(key)
+        reject(new Error(`callHook ${plugin}.${fn} timed out`))
+      }, timeoutMs)
+
+      this._pendingCalls.set(key, { resolve, reject, timer })
+    })
+  }
+
+  /**
+   * Call a typed (protobuf) plugin hook over the "events" DataChannel.
+   *
+   * Encode the bytes with your game's schema (convention: <FnName>Request /
+   * <FnName>Reply, registered by the plugin) — the server decodes them into
+   * the request struct, so a hook without a registered schema errors with
+   * hook_schema_missing. Requires format: 'protobuf'.
+   *
+   * @param {string} plugin
+   * @param {string} fn
+   * @param {Uint8Array} bytes - encoded request message
+   * @param {number} timeoutMs
+   * @returns {Promise<Uint8Array>} the raw reply bytes
+   */
+  callHookRaw(plugin, fn, bytes, timeoutMs = 10000) {
+    if (this.format !== 'protobuf') {
+      return Promise.reject(new Error('callHookRaw requires format: "protobuf"'))
+    }
+    const dc = this.channels.get('events')
+    if (!dc || dc.readyState !== 'open') {
+      return Promise.reject(new Error('events DataChannel is not open'))
+    }
+
+    return new Promise((resolve, reject) => {
+      const id = this._nextCallId++
+      const envelope = PB.RtcEnvelope.encode({
+        call_hook: { id, plugin, fn, args_raw: bytes },
+      }).finish()
+      dc.send(envelope)
+
+      const timer = setTimeout(() => {
+        this._pendingCalls.delete(id)
+        reject(new Error(`callHookRaw ${plugin}.${fn} timed out`))
+      }, timeoutMs)
+
+      this._pendingCalls.set(id, { resolve, reject, timer })
+    })
   }
 
   /**
@@ -278,6 +368,7 @@ export class GameWebRTC {
     }
 
     dc.onmessage = (event) => {
+      if (dc.label === 'events' && this._handleRpcReply(event.data)) return
       const cb = this.opts.onData
       if (cb) cb(dc.label, event.data)
     }
@@ -285,6 +376,56 @@ export class GameWebRTC {
     dc.onerror = (event) => {
       this._emitError(event.error || event)
     }
+  }
+
+  // Routes hook replies to pending callHook promises. Returns true when the
+  // message was an RPC reply and has been consumed.
+  _handleRpcReply(data) {
+    try {
+      if (this.format === 'protobuf') {
+        if (typeof data === 'string') return false
+        const bin = data instanceof Uint8Array ? data : new Uint8Array(data)
+        const env = PB.RtcEnvelope.decode(bin)
+        if (env.hook_reply) {
+          const pending = this._takePending(env.hook_reply.id)
+          if (pending) {
+            if (env.hook_reply.data === 'data_raw') {
+              pending.resolve(env.hook_reply.data_raw)
+            } else {
+              const json = new TextDecoder().decode(env.hook_reply.data_json ?? new Uint8Array())
+              pending.resolve(json.length ? JSON.parse(json) : null)
+            }
+          }
+          return true
+        }
+        if (env.hook_error) {
+          const pending = this._takePending(env.hook_error.id)
+          if (pending) pending.reject(new Error(env.hook_error.error))
+          return true
+        }
+        return false
+      }
+
+      if (typeof data !== 'string') return false
+      const msg = JSON.parse(data)
+      if (msg.type !== 'hook_reply' && msg.type !== 'hook_error') return false
+      const pending = this._takePending(`${msg.plugin} ${msg.fn}`)
+      if (!pending) return false
+      if (msg.type === 'hook_reply') pending.resolve(msg.data)
+      else pending.reject(new Error(msg.error))
+      return true
+    } catch (_) {
+      return false
+    }
+  }
+
+  _takePending(key) {
+    const pending = this._pendingCalls.get(key)
+    if (pending) {
+      clearTimeout(pending.timer)
+      this._pendingCalls.delete(key)
+    }
+    return pending
   }
 
   _emitError(error) {
