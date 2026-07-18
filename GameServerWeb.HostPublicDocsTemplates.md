@@ -42,6 +42,8 @@ Embedded HEEx templates used by the host-owned public docs LiveView.
 
 # `realtime`
 
+# `realtime_efficiency`
+
 # `scaling`
 
 # `server_scripting`
@@ -49,6 +51,8 @@ Embedded HEEx templates used by the host-owned public docs LiveView.
 # `steam_openid`
 
 # `theme`
+
+# `tournaments`
 
 # `webrtc`
 
