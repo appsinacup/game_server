@@ -3,6 +3,7 @@ defmodule GameServerWeb.Api.V1.HookController do
   use OpenApiSpex.ControllerSpecs
 
   alias GameServer.Hooks.DynamicRpcs
+  alias GameServer.Hooks.HookSchemas
   alias GameServer.Hooks.PluginManager
   require Logger
 
@@ -154,7 +155,10 @@ defmodule GameServerWeb.Api.V1.HookController do
         |> json(%{error: :reserved_hook_name})
 
       true ->
-        case PluginManager.call_rpc(plugin, fn_name, args, caller: user) do
+        # Typed hooks (registered <FnName>Request/<FnName>Reply schemas) accept
+        # a single JSON object argument and reply with a JSON map; untyped
+        # hooks pass through unchanged.
+        case HookSchemas.call(plugin, fn_name, {:list, args}, :map, caller: user) do
           {:ok, res} ->
             json(conn, %{data: res})
 

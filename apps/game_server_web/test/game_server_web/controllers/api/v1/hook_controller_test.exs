@@ -1,6 +1,7 @@
 defmodule GameServerWeb.Api.V1.HookControllerTest do
   use GameServerWeb.ConnCase, async: false
 
+  alias GameServer.Hooks.HookSchemas
   alias GameServer.Hooks.PluginManager
   alias GameServerWeb.Auth.Guardian
 
@@ -154,6 +155,92 @@ defmodule GameServerWeb.Api.V1.HookControllerTest do
 
     assert %{"error" => "exception", "details" => details} = json_response(conn3, 400)
     assert details =~ "boom"
+  end
+
+  test "POST /api/v1/hooks/call converts typed protobuf hooks to and from JSON", %{conn: conn} do
+    tmp = Path.join(System.tmp_dir!(), "gs-typed-#{System.unique_integer([:positive])}")
+    plugin_root = Path.join(tmp, "modules/plugins")
+    plugin_name = "typed_plugin"
+    ebin_dir = Path.join([plugin_root, plugin_name, "ebin"])
+    File.mkdir_p!(ebin_dir)
+
+    # The <FnName>Request/<FnName>Reply pair is what registers the schema.
+    req_mod = Module.concat([TypedPlugin, V1, GreetRequest])
+    reply_mod = Module.concat([TypedPlugin, V1, GreetReply])
+
+    {:module, ^req_mod, req_beam, _} =
+      Module.create(
+        req_mod,
+        quote do
+          use Protobuf, syntax: :proto3
+          field(:name, 1, type: :string)
+        end,
+        __ENV__
+      )
+
+    {:module, ^reply_mod, reply_beam, _} =
+      Module.create(
+        reply_mod,
+        quote do
+          use Protobuf, syntax: :proto3
+          field(:greeting, 1, type: :string)
+        end,
+        __ENV__
+      )
+
+    hook_mod = Module.concat([GameServer, TypedPluginHook])
+
+    {:module, ^hook_mod, hook_beam, _} =
+      Module.create(
+        hook_mod,
+        quote do
+          # Hooks dispatch by exported function, so an RPC-only plugin needs no
+          # lifecycle callbacks. Takes and returns protobuf structs, never JSON.
+          def greet(%TypedPlugin.V1.GreetRequest{} = req) do
+            %TypedPlugin.V1.GreetReply{greeting: "Hello, " <> req.name}
+          end
+        end,
+        __ENV__
+      )
+
+    for {mod, beam} <- [{req_mod, req_beam}, {reply_mod, reply_beam}, {hook_mod, hook_beam}] do
+      File.write!(Path.join(ebin_dir, Atom.to_string(mod) <> ".beam"), beam)
+    end
+
+    app_term =
+      {:application, String.to_atom(plugin_name),
+       [
+         {:description, ~c"typed plugin"},
+         {:vsn, ~c"0.1.0"},
+         {:modules, [req_mod, reply_mod, hook_mod]},
+         {:registered, []},
+         {:applications, [:kernel, :stdlib]},
+         {:env, [hooks_module: to_charlist(Atom.to_string(hook_mod))]}
+       ]}
+
+    File.write!(
+      Path.join(ebin_dir, "#{plugin_name}.app"),
+      :io_lib.format(~c"~p.~n", [app_term]) |> IO.iodata_to_binary()
+    )
+
+    System.put_env("GAME_SERVER_PLUGINS_DIR", plugin_root)
+
+    on_exit(fn ->
+      System.delete_env("GAME_SERVER_PLUGINS_DIR")
+      _ = PluginManager.reload()
+    end)
+
+    _ = PluginManager.reload()
+
+    assert %{request: ^req_mod, reply: ^reply_mod} =
+             HookSchemas.lookup(plugin_name, "greet")
+
+    # A plain JSON object in, a plain JSON map out — the hook itself only ever
+    # sees the structs. Without the schema conversion this 500s on a
+    # function_clause, since the hook cannot match a bare map.
+    body = %{"plugin" => plugin_name, "fn" => "greet", "args" => [%{"name" => "http"}]}
+    conn = post(conn, "/api/v1/hooks/call", body)
+    assert %{"data" => %{"greeting" => "Hello, http"}} = json_response(conn, 200)
   end
 
   defp restore_env(key, :unset), do: Application.delete_env(:game_server_web, key)
