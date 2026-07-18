@@ -17,7 +17,7 @@ defmodule GameServerWeb.ApiSpec do
         title: "Game Server API",
         version: api_version(),
         description: """
-        API for the Gamend Game Server. Provides HTTP REST API, real-time WebSocket channels, and WebRTC DataChannels for low-latency game data. Features authentication, users, lobbies, groups, parties, friends, chat, notifications, achievements, leaderboards, payments, server scripting, and admin portal.
+        API for the Gamend Game Server. Provides HTTP REST API, real-time WebSocket channels, and WebRTC DataChannels for low-latency game data. Features authentication, users, lobbies, groups, parties, friends, chat, notifications, achievements, leaderboards, tournaments, payments, server scripting, and admin portal.
 
         ## **1. Authentication**
 
@@ -136,25 +136,34 @@ defmodule GameServerWeb.ApiSpec do
         - **Public listings**: paginated, optionally filtered; authenticated users see their own progress
         - **Admin management**: create, update, delete, grant, revoke, unlock, and increment achievements
 
-        ## **12. Real-time: WebSocket Channels**
+        ## **12. Tournaments**
+        Single-elimination bracket tournaments, server-structured and game-judged:
+
+        - **Registration window → seeded draw → timed rounds → champions**; recurring tournaments (cron) create one occurrence per cycle sharing a slug; a nil starts_at keeps registration open until an admin draws manually
+        - **Join/leave** as an entry leader (`POST`/`DELETE /tournaments/:id/join`); team composition is game policy
+        - **Browse**: list/filter tournaments, standings, full bracket view, and the caller's current match (`GET /tournaments/:id/my-match`)
+        - **Match verdicts are server-side** (game hooks) — no public resolve endpoint; clients get `tournament_match_ready` / `tournament_match_resolved` / `tournament_updated` / `tournament_finished` on the user channel
+        - **Admin management** over HTTP: create/update/delete, cancel, draw now, finish, and force match verdicts under `/api/v1/admin/tournaments`
+
+        ## **13. Real-time: WebSocket Channels**
         The server provides real-time communication via Phoenix WebSocket channels. Connect to the WebSocket endpoint and join topic-based channels for live updates.
 
-        ### **12.1 Connection**
+        ### **13.1 Connection**
         Connect to `wss://your-server.com/socket` with your JWT token as a parameter:
         ```
         const socket = new Socket("wss://your-server.com/socket", { params: { token: "<access_token>" } })
         socket.connect()
         ```
 
-        ### **12.2 Available Channels**
-        - **User channel** (`user:<user_id>`): notifications, friend events, achievement unlocks, party/group invites
+        ### **13.2 Available Channels**
+        - **User channel** (`user:<user_id>`): notifications, friend events, achievement unlocks, party/group invites, tournament events, KV subscriptions
         - **Lobby channel** (`lobby:<lobby_id>`): lobby member joins/leaves, lobby updates, lobby chat
         - **Lobbies channel** (`lobbies`): global lobby list changes (created, updated, deleted)
         - **Group channel** (`group:<group_id>`): group member changes, group updates, group chat
         - **Groups channel** (`groups`): global group list changes
         - **Party channel** (`party:<party_id>`): party member changes, party updates, party chat
 
-        ### **12.3 JS SDK Helper**
+        ### **13.3 JS SDK Helper**
         The `GameRealtime` class (included in this SDK) wraps Phoenix.Socket with convenient channel helpers:
         ```javascript
         import { GameRealtime } from '@ughuuu/game_server'
@@ -164,21 +173,21 @@ defmodule GameServerWeb.ApiSpec do
         ```
         Requires the `phoenix` npm package as a peer dependency: `npm install phoenix`
 
-        ## **13. Real-time: WebRTC DataChannels**
+        ## **14. Real-time: WebRTC DataChannels**
         For low-latency game data, the server supports WebRTC DataChannels alongside WebSocket. The server acts as a WebRTC peer (not P2P between clients).
 
-        ### **13.1 How It Works**
+        ### **14.1 How It Works**
         1. Client connects via WebSocket and joins the **User channel**
         2. Client sends an SDP offer over the channel (`webrtc:offer` event)
         3. Server responds with an SDP answer (`webrtc:answer` event)
         4. ICE candidates are exchanged (`webrtc:ice` events)
         5. Once connected, named DataChannels carry game data at low latency
 
-        ### **13.2 Default DataChannels**
+        ### **14.2 Default DataChannels**
         - **`events`** (reliable, ordered): important game events (player actions, state changes)
         - **`state`** (unreliable, unordered): high-frequency position/state sync
 
-        ### **13.3 JS SDK Helper**
+        ### **14.3 JS SDK Helper**
         The `GameWebRTC` class (included in this SDK, browser-only) handles signaling automatically:
         ```javascript
         import { GameRealtime, GameWebRTC } from '@ughuuu/game_server'

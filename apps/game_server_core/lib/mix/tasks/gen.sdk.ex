@@ -27,7 +27,8 @@ defmodule Mix.Tasks.Gen.Sdk do
     {GameServer.Chat, "chat.ex"},
     {GameServer.Schedule, "schedule.ex"},
     {GameServer.KV, "kv.ex"},
-    {GameServer.Lock, "lock.ex"}
+    {GameServer.Lock, "lock.ex"},
+    {GameServer.Tournaments, "tournaments.ex"}
   ]
 
   @impl Mix.Task
@@ -277,6 +278,12 @@ defmodule Mix.Tasks.Gen.Sdk do
        "{:ok, #{record_placeholder_expr()}}"},
       {fn rt -> String.contains?(rt, "{:ok, GameServer.Friends.Friendship.t()}") end,
        "{:ok, #{friendship_placeholder_expr()}}"},
+      {fn rt -> String.contains?(rt, "{:ok, GameServer.Tournaments.Tournament.t()}") end,
+       "{:ok, #{tournament_placeholder_expr()}}"},
+      {fn rt -> String.contains?(rt, "{:ok, GameServer.Tournaments.Entry.t()}") end,
+       "{:ok, #{tournament_entry_placeholder_expr()}}"},
+      {fn rt -> String.contains?(rt, "{:ok, GameServer.Tournaments.Match.t()}") end,
+       "{:ok, #{tournament_match_placeholder_expr()}}"},
 
       # For unions like `T | nil`, prefer a non-nil placeholder when we recognize T.
       # This keeps stub bodies type-friendly for external type checkers that infer from code.
@@ -300,6 +307,26 @@ defmodule Mix.Tasks.Gen.Sdk do
            String.contains?(rt, "| nil")
        end,
        "if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: #{friendship_placeholder_expr()}"},
+      {fn rt ->
+         String.contains?(rt, "GameServer.Tournaments.Tournament.t()") and
+           String.contains?(rt, "| nil")
+       end,
+       "if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: #{tournament_placeholder_expr()}"},
+      {fn rt ->
+         String.contains?(rt, "GameServer.Tournaments.Entry.t()") and
+           String.contains?(rt, "| nil")
+       end,
+       "if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: #{tournament_entry_placeholder_expr()}"},
+      {fn rt ->
+         String.contains?(rt, "GameServer.Tournaments.Match.t()") and
+           String.contains?(rt, "| nil")
+       end,
+       "if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: #{tournament_match_placeholder_expr()}"},
+      {fn rt ->
+         String.contains?(rt, "GameServer.Tournaments.Bracket.t()") and
+           String.contains?(rt, "| nil")
+       end,
+       "if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: #{tournament_bracket_placeholder_expr()}"},
       {fn rt -> friendship_struct_return?(rt) end, friendship_placeholder_expr()},
 
       # Fallback: if the return type allows nil and we can't infer a better placeholder, use nil.
@@ -409,6 +436,30 @@ defmodule Mix.Tasks.Gen.Sdk do
     dt = dt_placeholder_expr()
 
     "%GameServer.Leaderboards.Leaderboard{id: 0, slug: \"\", title: \"\", description: nil, sort_order: :desc, operator: :set, starts_at: nil, ends_at: nil, metadata: %{}, inserted_at: #{dt}, updated_at: #{dt}}"
+  end
+
+  defp tournament_placeholder_expr do
+    dt = dt_placeholder_expr()
+
+    "%GameServer.Tournaments.Tournament{id: \"\", slug: \"\", title: \"\", description: \"\", state: \"scheduled\", registration_opens_at: nil, starts_at: nil, ends_at: nil, recur: nil, max_entries: nil, team_size: 1, bracket_size: 8, round_window_sec: 3600, deadline_policy: \"forfeit_both\", metadata: %{}, inserted_at: #{dt}, updated_at: #{dt}}"
+  end
+
+  defp tournament_entry_placeholder_expr do
+    dt = dt_placeholder_expr()
+
+    "%GameServer.Tournaments.Entry{id: \"\", tournament_id: \"\", leader_id: \"\", seed: nil, bracket_index: nil, wins: 0, state: \"registered\", metadata: %{}, inserted_at: #{dt}, updated_at: #{dt}}"
+  end
+
+  defp tournament_match_placeholder_expr do
+    dt = dt_placeholder_expr()
+
+    "%GameServer.Tournaments.Match{id: \"\", tournament_id: \"\", bracket_index: 0, round: 1, slot: 0, a_entry_id: nil, b_entry_id: nil, winner_entry_id: nil, ready_at: nil, expired_at: nil, resolved_at: nil, deadline: #{dt}, metadata: %{}, inserted_at: #{dt}, updated_at: #{dt}}"
+  end
+
+  defp tournament_bracket_placeholder_expr do
+    dt = dt_placeholder_expr()
+
+    "%GameServer.Tournaments.Bracket{id: \"\", tournament_id: \"\", index: 0, size: 8, inserted_at: #{dt}}"
   end
 
   defp record_placeholder_expr do

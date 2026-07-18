@@ -33,6 +33,7 @@ defmodule GameServerCore.MixProject do
       {:nebulex_redis_adapter, "~> 3.0.0-rc.2"},
       {:decorator, "~> 1.4"},
       {:phoenix, "~> 1.8.3"},
+      {:protobuf, "~> 0.17"},
       {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.13.3"},
       {:ecto_sqlite3, "~> 0.12"},

@@ -30,7 +30,7 @@ defmodule GameServerWeb.UserChannelTest do
 
     assert_push "updated", payload
     assert payload.id == user.id
-    assert payload.u.lobby_id == lobby.id
+    assert payload.lobby_id == lobby.id
   end
 
   test "user channel receives updated event when leaving clears lobby_id" do
@@ -51,13 +51,13 @@ defmodule GameServerWeb.UserChannelTest do
 
     assert_push "updated", joined_payload
     assert joined_payload.id == user.id
-    assert joined_payload.u.lobby_id == lobby.id
+    assert joined_payload.lobby_id == lobby.id
 
     assert {:ok, _} = GameServer.Lobbies.leave_lobby(joined_user)
 
     assert_push "updated", left_payload
     assert left_payload.id == user.id
-    assert left_payload.u.lobby_id == ""
+    assert left_payload.lobby_id == ""
   end
 
   test "join allowed for owner and receives broadcasts" do
@@ -80,13 +80,12 @@ defmodule GameServerWeb.UserChannelTest do
     GameServerWeb.endpoint().broadcast("user:#{user.id}", "updated", payload)
 
     # The test process receives the push
-    assert_push "updated", delta_payload
-    assert delta_payload.id == user.id
-    assert delta_payload.u.metadata == %{"display_name" => "Updated"}
-    refute Map.has_key?(delta_payload, :metadata)
+    assert_push "updated", pushed_payload
+    assert pushed_payload.id == user.id
+    assert pushed_payload.metadata == %{"display_name" => "Updated"}
   end
 
-  test "user channel sends nested metadata field delta after initial snapshot" do
+  test "user channel sends the full metadata on update" do
     user = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
 
     {:ok, user} =
@@ -116,16 +115,14 @@ defmodule GameServerWeb.UserChannelTest do
         }
       })
 
+    # Full payload: the new metadata whole, with the dropped invalid_until absent.
     assert_push "updated", payload
-    refute Map.has_key?(payload, :metadata)
 
-    assert payload.u.metadata == %{
+    assert payload.metadata == %{
              "word_match" => %{
                to_string(user.id) => %{"points" => 12, "streak" => 3}
              }
            }
-
-    assert payload.r.metadata == %{"invalid_until" => true}
   end
 
   test "user channel receives friend events for create & accept flows" do
@@ -362,7 +359,7 @@ defmodule GameServerWeb.UserChannelTest do
     assert a_payload.is_online == true
 
     assert_push "friend_updated", friend_payload
-    assert friend_payload.friends[to_string(a.id)].u.is_online == true
+    assert friend_payload.friends[to_string(a.id)].is_online == true
     refute_push "friend_online", _, 100
 
     # Verify DB state
@@ -401,7 +398,12 @@ defmodule GameServerWeb.UserChannelTest do
                    },
                    1000
 
-    assert online_payload.u.is_online == true
+    assert online_payload.is_online == true
+    # A presence-only broadcast still carries the whole friend object — the
+    # client can store it directly without losing name/metadata.
+    assert online_payload.user_id == a.id
+    assert Map.has_key?(online_payload, :display_name)
+    assert Map.has_key?(online_payload, :metadata)
 
     Process.unlink(socket_a.channel_pid)
     :ok = close(socket_a)
@@ -412,7 +414,7 @@ defmodule GameServerWeb.UserChannelTest do
                    },
                    1000
 
-    assert offline_payload.u.is_online == false
+    assert offline_payload.is_online == false
     refute_push "friend_offline", _, 100
   end
 
@@ -474,9 +476,7 @@ defmodule GameServerWeb.UserChannelTest do
     assert_push "friend_updated", payload, 1000
     friend_payload = payload.friends[to_string(a.id)]
 
-    refute Map.has_key?(friend_payload, :r)
-
-    assert friend_payload.u.metadata == %{
+    assert friend_payload.metadata == %{
              "map_country_id" => "ro",
              "map_city_id" => "sighetu-marmatiei"
            }
@@ -599,7 +599,7 @@ defmodule GameServerWeb.UserChannelTest do
     {:ok, _} = GameServer.Accounts.delete_user(a)
 
     assert_push "friend_updated", payload, 1000
-    assert payload.friends[to_string(a.id)].u.is_online == false
+    assert payload.friends[to_string(a.id)].is_online == false
     refute_push "friend_offline", _, 100
   end
 end

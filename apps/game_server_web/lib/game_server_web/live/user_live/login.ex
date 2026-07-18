@@ -52,7 +52,7 @@ defmodule GameServerWeb.UserLive.Login do
               phx-mounted={JS.focus()}
             />
             <.button class="btn btn-primary w-full">
-              {gettext("Email")} <span aria-hidden="true">→</span>
+              {gettext("Send magic link")} <span aria-hidden="true">→</span>
             </.button>
           </.form>
 

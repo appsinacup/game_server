@@ -139,6 +139,9 @@ end</code></pre>
             {doc_text(
               "At registration time, before_user_register/2 receives the tentative user and the registration attrs (including the generated username) on every signup path — email, device, and OAuth — and may adjust the attrs or abort."
             )}
+            {doc_text(
+              "Tournaments have their own hook family (before/after_tournament_register, before_tournament_leave, tournament_match_ready, tournament_match_expired, before_tournament_result, after_tournament_match, after_tournament_finished) — see the Tournaments guide for the match resolution contract."
+            )}
           </p>
         </div>
       </div>

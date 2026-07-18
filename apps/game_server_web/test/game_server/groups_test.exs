@@ -835,6 +835,28 @@ defmodule GameServer.GroupsTest do
       page2 = Groups.get_group_members_paginated(group.id, page: 2, page_size: 2)
       assert length(page2) == 1
     end
+
+    test "search filters members by name", %{owner: owner, other: other} do
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "SearchMem", "type" => "public"})
+      {:ok, _} = Groups.join_group(other.id, group.id)
+
+      GameServer.Repo.update!(Ecto.Changeset.change(other, display_name: "Grace Hopper"))
+
+      # the user stays preloaded through the search join
+      assert [member] = Groups.get_group_members_paginated(group.id, search: "hopper")
+      assert member.user.id == other.id
+
+      assert Groups.count_group_members(group.id, search: "hopper") == 1
+      assert Groups.count_group_members(group.id, search: "") == 2
+      assert Groups.count_group_members(group.id) == 2
+    end
+
+    test "search treats LIKE wildcards literally", %{owner: owner} do
+      {:ok, group} = Groups.create_group(owner.id, %{"title" => "WildMem", "type" => "public"})
+
+      assert Groups.get_group_members_paginated(group.id, search: "%") == []
+      assert Groups.count_group_members(group.id, search: "%") == 0
+    end
   end
 
   # ---------------------------------------------------------------------------

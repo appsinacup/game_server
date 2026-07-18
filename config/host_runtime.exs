@@ -399,6 +399,18 @@ if config_env() == :prod do
     notifications_days: GameServer.Env.integer("RETENTION_NOTIFICATIONS_DAYS", 0),
     payment_events_days: GameServer.Env.integer("RETENTION_PAYMENT_EVENTS_DAYS", 0)
 
+  # Realtime update debouncing. Holds outbound state updates ("updated",
+  # "member_updated", "lobby_updated", "group_updated") for this many
+  # milliseconds and then pushes only the latest state per object, turning a
+  # burst of writes into one message. 0 (default) pushes immediately.
+  #
+  # Each message costs ~76 bytes of WebSocket/TLS/TCP/IP headers before any
+  # payload, so coalescing saves more than shrinking payloads does; the cost is
+  # up to this much extra latency on state updates.
+  config :game_server_web,
+         :realtime_debounce_ms,
+         GameServer.Env.integer("REALTIME_DEBOUNCE_MS", 0)
+
   # Rate Limiting — configurable per-IP request throttling via RATE_LIMIT_* env vars.
   rate_limit_opts = [
     general_limit: String.to_integer(System.get_env("RATE_LIMIT_HTTP_GENERAL_LIMIT", "240")),

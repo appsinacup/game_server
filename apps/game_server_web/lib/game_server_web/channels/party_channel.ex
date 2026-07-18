@@ -22,6 +22,8 @@ defmodule GameServerWeb.PartyChannel do
   """
 
   use Phoenix.Channel
+
+  import GameServerWeb.ChannelPush
   require Logger
 
   alias GameServer.Accounts
@@ -29,7 +31,7 @@ defmodule GameServerWeb.PartyChannel do
   alias GameServer.Accounts.User
   alias GameServer.Chat
   alias GameServer.Parties
-  alias GameServerWeb.PayloadDelta
+  alias GameServerWeb.ChannelUpdates
   alias GameServerWeb.Serializers
 
   @impl true
@@ -90,14 +92,14 @@ defmodule GameServerWeb.PartyChannel do
         %{user_id: user_id, display_name: ""}
       end
 
-    push(socket, "member_joined", payload)
+    push_event(socket, "member_joined", payload)
 
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:party_member_left, _party_id, user_id}, socket) do
-    push(socket, "member_left", %{
+    push_event(socket, "member_left", %{
       user_id: user_id,
       display_name: Serializers.display_name(user_id)
     })
@@ -108,16 +110,7 @@ defmodule GameServerWeb.PartyChannel do
   @impl true
   def handle_info({:party_updated, %GameServer.Parties.Party{} = party}, socket) do
     payload = Serializers.serialize_party(party)
-    last_payload = Map.get(socket.assigns, :last_party_payload)
-
-    case PayloadDelta.payload_delta(last_payload, payload) do
-      nil ->
-        {:noreply, socket}
-
-      delta_payload ->
-        push(socket, "updated", delta_payload)
-        {:noreply, assign(socket, :last_party_payload, payload)}
-    end
+    {:noreply, ChannelUpdates.push(socket, "updated", :party, payload)}
   end
 
   @impl true
@@ -128,22 +121,13 @@ defmodule GameServerWeb.PartyChannel do
 
       party ->
         payload = Serializers.serialize_party(party)
-        last_payload = Map.get(socket.assigns, :last_party_payload)
-
-        case PayloadDelta.payload_delta(last_payload, payload) do
-          nil ->
-            {:noreply, socket}
-
-          delta_payload ->
-            push(socket, "updated", delta_payload)
-            {:noreply, assign(socket, :last_party_payload, payload)}
-        end
+        {:noreply, ChannelUpdates.push(socket, "updated", :party, payload)}
     end
   end
 
   @impl true
   def handle_info({:party_disbanded, party_id}, socket) do
-    push(socket, "disbanded", %{party_id: party_id})
+    push_event(socket, "disbanded", %{party_id: party_id})
     {:noreply, socket}
   end
 
@@ -151,19 +135,19 @@ defmodule GameServerWeb.PartyChannel do
 
   @impl true
   def handle_info({:new_chat_message, message}, socket) do
-    push(socket, "new_chat_message", Serializers.serialize_chat_message(message))
+    push_event(socket, "new_chat_message", Serializers.serialize_chat_message(message))
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:chat_message_updated, message}, socket) do
-    push(socket, "chat_message_updated", Serializers.serialize_chat_message(message))
+    push_event(socket, "chat_message_updated", Serializers.serialize_chat_message(message))
     {:noreply, socket}
   end
 
   @impl true
   def handle_info({:chat_message_deleted, message}, socket) do
-    push(socket, "chat_message_deleted", %{id: message.id})
+    push_event(socket, "chat_message_deleted", %{id: message.id})
     {:noreply, socket}
   end
 
@@ -179,7 +163,7 @@ defmodule GameServerWeb.PartyChannel do
         %{user_id: user_id, display_name: "", is_online: event == :member_online}
       end
 
-    push(socket, ws_event, payload)
+    push_event(socket, ws_event, payload)
     {:noreply, socket}
   end
 
@@ -189,21 +173,7 @@ defmodule GameServerWeb.PartyChannel do
 
     if user do
       payload = User.serialize_brief(user) |> Map.put(:user_id, user_id)
-      last_payloads = Map.get(socket.assigns, :last_member_payloads, %{})
-      last_payload = Map.get(last_payloads, user_id)
-
-      case PayloadDelta.payload_delta(last_payload, payload) do
-        nil ->
-          {:noreply, socket}
-
-        delta_payload ->
-          push(socket, "member_updated", delta_payload)
-
-          socket =
-            assign(socket, :last_member_payloads, Map.put(last_payloads, user_id, payload))
-
-          {:noreply, socket}
-      end
+      {:noreply, ChannelUpdates.push(socket, "member_updated", user_id, payload)}
     else
       {:noreply, socket}
     end
@@ -217,9 +187,13 @@ defmodule GameServerWeb.PartyChannel do
   @impl true
   def handle_info({:after_join, party}, socket) do
     payload = Serializers.serialize_party(party)
-    push(socket, "updated", payload)
-    {:noreply, assign(socket, :last_party_payload, payload)}
+    push_event(socket, "updated", payload)
+    {:noreply, ChannelUpdates.remember(socket, "updated", :party, payload)}
   end
+
+  @impl true
+  def handle_info({:channel_updates_flush, _}, socket),
+    do: {:noreply, ChannelUpdates.flush(socket)}
 
   # Ignore other messages
   @impl true

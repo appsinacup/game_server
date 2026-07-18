@@ -1,0 +1,279 @@
+// Realtime event payloads for the gamend WebSocket and WebRTC transports.
+//
+// This file is the single wire contract for protobuf-format connections
+// (WebSocket `?format=protobuf`, WebRTC DataChannels with
+// `protocol: "protobuf"`). The JSON format remains the default; every
+// message here mirrors the corresponding JSON payload produced by
+// `GameServerWeb.Serializers` with two deliberate transforms:
+//
+//   * timestamps are `int64` unix milliseconds (JSON sends ISO 8601 strings)
+//   * arbitrary JSON values (metadata, KV data, hook args) are `bytes`
+//     containing UTF-8 JSON (empty bytes means "{}" / absent)
+//   * entity metadata may instead arrive in `metadata_pb`: binary protobuf
+//     encoded with the game-defined schema the host plugin registers
+//     (messages named UserMeta/LobbyMeta/GroupMeta/PartyMeta). Exactly one
+//     of metadata_json / metadata_pb is set; when the stored metadata does
+//     not match the registered schema the server falls back to JSON.
+//
+// State events ("updated", "friend_updated", "member_updated", ...) always
+// carry the full current payload — there is no delta encoding. Fields stay
+// proto3 `optional` so absent-vs-zero remains distinguishable and the wire
+// format would survive a future partial encoding without renumbering.
+
+syntax = "proto3";
+
+package gamend.realtime.v1;
+
+// ── Users ────────────────────────────────────────────────────────────────
+
+message LinkedProviders {
+  bool google = 1;
+  bool facebook = 2;
+  bool discord = 3;
+  bool apple = 4;
+  bool steam = 5;
+  bool device = 6;
+}
+
+// Full user payload ("updated" event).
+message User {
+  optional string id = 1;
+  optional string email = 2;
+  optional string profile_url = 3;
+  optional bytes metadata_json = 4;
+  optional string display_name = 5;
+  optional string lobby_id = 6;
+  optional string party_id = 7;
+  optional bool is_online = 8;
+  optional int64 last_seen_at_ms = 9;
+  optional LinkedProviders linked_providers = 10;
+  optional bool has_password = 11;
+  optional bytes metadata_pb = 12;
+  optional string username = 13;
+}
+
+// "friend_updated" event: friend user id -> full user payload.
+message FriendUpdate {
+  map<string, User> friends = 1;
+}
+
+// Brief user shape used for lobby/party member lists and member_* events.
+message UserBrief {
+  optional string id = 1;
+  optional string display_name = 2;
+  optional string profile_url = 3;
+  optional bytes metadata_json = 4;
+  optional bool is_online = 5;
+  optional bool is_activated = 6;
+  optional int64 last_seen_at_ms = 7;
+  optional bytes metadata_pb = 8;
+  optional string username = 9;
+}
+
+// ── Notifications / chat / achievements ─────────────────────────────────
+
+message Notification {
+  string id = 1;
+  string sender_id = 2;
+  string sender_name = 3;
+  string recipient_id = 4;
+  string title = 5;
+  string content = 6;
+  bytes metadata_json = 7;
+  int64 inserted_at_ms = 8;
+}
+
+message ChatMessage {
+  string id = 1;
+  string content = 2;
+  bytes metadata_json = 3;
+  string sender_id = 4;
+  string sender_name = 5;
+  string chat_type = 6;
+  string chat_ref_id = 7;
+  int64 inserted_at_ms = 8;
+  optional int64 updated_at_ms = 9;
+  optional string sender_email = 10;
+}
+
+message UserAchievement {
+  string id = 1;
+  string user_id = 2;
+  string achievement_id = 3;
+  int32 progress = 4;
+  optional int64 unlocked_at_ms = 5;
+  bytes metadata_json = 6;
+  int64 inserted_at_ms = 7;
+  int64 updated_at_ms = 8;
+}
+
+// ── Lobbies / groups / parties ───────────────────────────────────────────
+
+// Full lobby payload ("updated" event).
+message Lobby {
+  optional string id = 1;
+  optional string title = 2;
+  optional string host_id = 3;
+  optional string host_name = 4;
+  optional bool hostless = 5;
+  optional int32 max_users = 6;
+  optional bool is_hidden = 7;
+  optional bool is_locked = 8;
+  optional bytes metadata_json = 9;
+  optional bool is_passworded = 10;
+  optional int32 slowdown = 11;
+  optional int32 spectator_count = 12;
+  repeated UserBrief members = 13;
+  // Distinguishes "members changed to empty" from "members unchanged".
+  optional bool has_members = 14;
+  optional bytes metadata_pb = 15;
+}
+
+message Group {
+  optional string id = 1;
+  optional string title = 2;
+  optional string description = 3;
+  optional string type = 4;
+  optional int32 max_members = 5;
+  optional string creator_id = 6;
+  optional string creator_name = 7;
+  optional bytes metadata_json = 8;
+  optional int32 member_count = 9;
+  optional int32 slowdown = 10;
+  optional int64 inserted_at_ms = 11;
+  optional int64 updated_at_ms = 12;
+  optional bytes metadata_pb = 13;
+}
+
+message Party {
+  optional string id = 1;
+  optional string leader_id = 2;
+  optional string leader_name = 3;
+  optional int32 max_size = 4;
+  optional bytes metadata_json = 5;
+  repeated UserBrief members = 6;
+  optional bool has_members = 7;
+  optional int64 inserted_at_ms = 8;
+  optional int64 updated_at_ms = 9;
+  optional bytes metadata_pb = 10;
+}
+
+// ── Membership / presence events ─────────────────────────────────────────
+
+// Membership/presence events on lobby, group and party channels:
+// lobby "user_joined"/"user_left"/"user_kicked"/"member_online"/"member_offline",
+// party "member_joined"/"member_left", and the group member events
+// ("member_joined"/"member_left"/"member_kicked"/"member_promoted"/
+// "member_demoted"/"join_request_approved"/"join_request_rejected"/
+// "member_online"/"member_offline", which carry group_id).
+// Join events additionally carry the user's brief fields when known.
+message MemberEvent {
+  string user_id = 1;
+  optional string display_name = 2;
+  optional string id = 3;
+  optional string profile_url = 4;
+  optional bytes metadata_json = 5;
+  optional bool is_online = 6;
+  optional bool is_activated = 7;
+  optional int64 last_seen_at_ms = 8;
+  optional string group_id = 9;
+  optional bytes metadata_pb = 10;
+  optional string username = 11;
+}
+
+// List-feed and deletion events that reference an entity by id:
+// "lobby_deleted", "lobby_membership_changed", "group_deleted",
+// "chat_message_deleted".
+message EntityId {
+  string id = 1;
+}
+
+// "disbanded" (party channel).
+message PartyRef {
+  string party_id = 1;
+}
+
+// "host_changed".
+message HostChanged {
+  string new_host_id = 1;
+  string display_name = 2;
+}
+
+// "group_invite_accepted", "group_invite_cancelled", "group_join_approved",
+// "group_join_rejected".
+message GroupInviteEvent {
+  string group_id = 1;
+}
+
+// "party_invite_accepted", "party_invite_declined", "party_invite_cancelled".
+message PartyInviteEvent {
+  string party_id = 1;
+  string user_id = 2;
+}
+
+// ── Tournaments ──────────────────────────────────────────────────────────
+
+// "tournament_updated" and "tournament_finished" on user:<id> channels,
+// pushed to every registered participant.
+message TournamentEvent {
+  string tournament_id = 1;
+  string slug = 2;
+  string state = 3;
+}
+
+// ── Key/value store events ───────────────────────────────────────────────
+
+// "kv_updated" (with data) and "kv_deleted" (without). When the host
+// plugin registers a KV schema for the key (kv_schemas/0: exact key or
+// "prefix*" pattern), matching data arrives in data_pb instead of
+// data_json; entry metadata always stays JSON.
+message KvEntry {
+  string key = 1;
+  optional string user_id = 2;
+  optional string lobby_id = 3;
+  optional bytes data_json = 4;
+  optional bytes metadata_json = 5;
+  optional bytes data_pb = 6;
+}
+
+// ── WebRTC DataChannel RPC envelope ──────────────────────────────────────
+//
+// Used on DataChannels negotiated with `protocol: "protobuf"`. Unlike the
+// JSON RPC protocol, requests carry an id so concurrent calls to the same
+// function can be correlated.
+
+message RpcCall {
+  uint32 id = 1;
+  string plugin = 2;
+  string fn = 3;
+  oneof args {
+    // JSON array of arguments (dynamically typed hooks).
+    bytes args_json = 4;
+    // Opaque bytes the server relays to the plugin as a single binary
+    // argument without decoding — typed hooks encode these with the game's
+    // own protobuf schema (convention: <FnName>Request / <FnName>Reply).
+    bytes args_raw = 5;
+  }
+}
+
+message RpcReply {
+  uint32 id = 1;
+  oneof data {
+    bytes data_json = 2;
+    // Set when the hook returned {:raw, binary}; relayed without encoding.
+    bytes data_raw = 3;
+  }
+}
+
+message RpcError {
+  uint32 id = 1;
+  string error = 2;
+}
+
+message RtcEnvelope {
+  oneof msg {
+    RpcCall call_hook = 1;
+    RpcReply hook_reply = 2;
+    RpcError hook_error = 3;
+  }
+}

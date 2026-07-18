@@ -6,6 +6,9 @@ defmodule GameServerWeb.AdminLive.Config do
   alias GameServer.Content
   alias GameServer.Hooks
   alias GameServer.Hooks.DynamicRpcs
+  alias GameServer.Hooks.HookSchemas
+  alias GameServer.Hooks.KvSchemas
+  alias GameServer.Hooks.MetadataSchemas
   alias GameServer.Hooks.PluginBuilder
   alias GameServer.Hooks.PluginManager
   alias GameServer.Payments
@@ -1222,6 +1225,68 @@ defmodule GameServerWeb.AdminLive.Config do
                     <td colspan="2">
                       <div class="space-y-2">
                         <div class="text-sm">
+                          <p class="text-xs font-semibold">Protobuf schema coverage</p>
+                          <p class="text-xs text-muted">
+                            What the loaded plugins registered. Anything marked JSON still works on protobuf sockets — it just travels as JSON bytes.
+                          </p>
+                          <div class="mt-2 overflow-x-auto">
+                            <table class="table table-xs w-auto">
+                              <tbody>
+                                <%= for entity <- @config.metadata_schema_entities do %>
+                                  <tr>
+                                    <td class="font-mono text-xs">{entity} metadata</td>
+                                    <td>
+                                      <%= if mod = @config.metadata_schemas[entity] do %>
+                                        <span class="badge badge-primary badge-xs">protobuf</span>
+                                        <span class="font-mono text-xs ml-1">{inspect(mod)}</span>
+                                      <% else %>
+                                        <span class="badge badge-ghost badge-xs">JSON</span>
+                                        <span class="text-xs text-muted ml-1">
+                                          define a {entity |> to_string() |> Macro.camelize()}Meta message to register
+                                        </span>
+                                      <% end %>
+                                    </td>
+                                  </tr>
+                                <% end %>
+                                <tr>
+                                  <td class="font-mono text-xs">kv data</td>
+                                  <td>
+                                    <% kv = @config.kv_schemas %>
+                                    <%= if kv.exact == %{} and kv.prefixes == [] do %>
+                                      <span class="badge badge-ghost badge-xs">JSON</span>
+                                      <span class="text-xs text-muted ml-1">
+                                        export kv_schemas/0 (exact key or "prefix*") to register
+                                      </span>
+                                    <% else %>
+                                      <span class="badge badge-primary badge-xs">protobuf</span>
+                                      <span class="font-mono text-xs ml-1">
+                                        {Enum.join(
+                                          Map.keys(kv.exact) ++
+                                            Enum.map(kv.prefixes, &(elem(&1, 0) <> "*")),
+                                          ", "
+                                        )}
+                                      </span>
+                                    <% end %>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td class="font-mono text-xs">typed hooks</td>
+                                  <td>
+                                    <% typed_count =
+                                      Enum.count(@config.hooks_exported_functions, & &1.typed_schema) %>
+                                    <span class={"badge badge-xs " <> if(typed_count > 0, do: "badge-primary", else: "badge-ghost")}>
+                                      {typed_count} / {length(@config.hooks_exported_functions)}
+                                    </span>
+                                    <span class="text-xs text-muted ml-1">
+                                      functions with a &lt;FnName&gt;Request/Reply pair (badged below)
+                                    </span>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                        <div class="text-sm">
                           <p class="text-xs font-semibold">Available functions</p>
                           <div class="mt-2 grid grid-cols-1 lg:grid-cols-2 gap-2">
                             <% funcs = @config.hooks_exported_functions %>
@@ -1242,6 +1307,14 @@ defmodule GameServerWeb.AdminLive.Config do
                                           >
                                             {f.plugin}:{f.name}/{s.arity}
                                           </span>
+                                          <%= if f.typed_schema do %>
+                                            <span
+                                              class="badge badge-primary badge-xs align-middle"
+                                              title={"protobuf schema: #{inspect(f.typed_schema.request)} / #{inspect(f.typed_schema.reply)}"}
+                                            >
+                                              protobuf
+                                            </span>
+                                          <% end %>
                                           <%= if s.signature do %>
                                             <span class="text-muted">
                                               - {s.signature}
@@ -1289,6 +1362,15 @@ defmodule GameServerWeb.AdminLive.Config do
                               placeholder="JSON array args (eg [1,2] or [])"
                               class="input input-sm w-full md:flex-1 min-w-0"
                             />
+                            <select
+                              id="hooks-format-select"
+                              name="format"
+                              class="select select-sm w-full md:w-28"
+                              title="Payload format: protobuf exercises the typed-hook schema round trip (encode args, decode reply)"
+                            >
+                              <option value="json">json</option>
+                              <option value="protobuf">protobuf</option>
+                            </select>
                             <button class="btn btn-primary btn-sm w-full md:w-auto" type="submit">
                               Call
                             </button>
@@ -1653,6 +1735,9 @@ defmodule GameServerWeb.AdminLive.Config do
       fly_region_env: clustering.fly_region_env,
       # Hooks plugin diagnostics
       hooks_exported_functions: exported_plugin_functions(),
+      metadata_schema_entities: MetadataSchemas.entities(),
+      metadata_schemas: MetadataSchemas.all(),
+      kv_schemas: KvSchemas.all(),
       hooks_test_result: nil,
       hooks_test_duration_us: nil,
       # Theme configuration diagnostics: reuse the existing Theme provider
@@ -1975,24 +2060,17 @@ defmodule GameServerWeb.AdminLive.Config do
   @impl true
   def handle_event(
         "call_hook",
-        %{"plugin" => plugin, "fn" => fn_name, "args" => args_text},
+        %{"plugin" => plugin, "fn" => fn_name, "args" => args_text} = params,
         socket
       )
       when is_binary(plugin) and is_binary(fn_name) do
     args = parse_hook_args(args_text)
+    format = if params["format"] == "protobuf", do: :protobuf, else: :json
 
     caller = socket.assigns.current_scope && socket.assigns.current_scope.user
 
     {duration_us, result} =
-      :timer.tc(fn ->
-        case PluginManager.call_rpc(plugin, fn_name, args, caller: caller) do
-          {:ok, res} ->
-            inspect(res)
-
-          {:error, reason} ->
-            "error: #{inspect(reason)}"
-        end
-      end)
+      :timer.tc(fn -> run_hook_test(plugin, fn_name, args, format, caller) end)
 
     config =
       socket.assigns.config
@@ -2148,6 +2226,51 @@ defmodule GameServerWeb.AdminLive.Config do
     |> String.trim()
   end
 
+  # Runs the hook through the same conversion pipeline the realtime
+  # transports use. In protobuf mode a typed hook additionally exercises the
+  # full binary round trip (args encoded to request bytes, reply decoded
+  # from reply bytes) and reports the wire sizes.
+  defp run_hook_test(plugin, fn_name, args, :json, caller) do
+    case HookSchemas.call(plugin, fn_name, {:list, args}, :map, caller: caller) do
+      {:ok, res} -> inspect(res)
+      {:error, reason} -> "error: #{inspect(reason)}"
+    end
+  end
+
+  defp run_hook_test(plugin, fn_name, args, :protobuf, caller) do
+    case HookSchemas.lookup(plugin, fn_name) do
+      nil ->
+        case HookSchemas.call(plugin, fn_name, {:list, args}, :map, caller: caller) do
+          {:ok, res} ->
+            inspect(res) <> " (no typed schema — dynamic args, protobuf envelope only)"
+
+          {:error, reason} ->
+            "error: #{inspect(reason)}"
+        end
+
+      %{request: req_mod, reply: reply_mod} ->
+        with {:ok, req_struct} <- typed_request_from_args(req_mod, args),
+             req_bytes = Protobuf.encode(req_struct),
+             {:ok, {:raw, reply_bytes}} <-
+               HookSchemas.call(plugin, fn_name, {:raw, req_bytes}, :binary, caller: caller) do
+          decoded = reply_mod.decode(reply_bytes)
+
+          "#{inspect(decoded)} (wire: #{byte_size(req_bytes)}B request, #{byte_size(reply_bytes)}B reply)"
+        else
+          {:error, reason} -> "error: #{inspect(reason)}"
+        end
+    end
+  end
+
+  defp typed_request_from_args(req_mod, []), do: {:ok, struct(req_mod)}
+
+  defp typed_request_from_args(req_mod, [map]) when is_map(map) do
+    Protobuf.JSON.from_decoded(map, req_mod)
+  end
+
+  defp typed_request_from_args(_req_mod, _args),
+    do: {:error, :typed_hook_expects_single_object_arg}
+
   defp parse_hook_args(v) when is_binary(v) and v != "" do
     case Jason.decode(v) do
       {:ok, parsed} when is_list(parsed) -> parsed
@@ -2259,6 +2382,9 @@ defmodule GameServerWeb.AdminLive.Config do
     (static ++ dynamic)
     |> Enum.uniq_by(fn f -> {f.plugin, f.name} end)
     |> Enum.sort_by(fn f -> {f.plugin, f.name} end)
+    |> Enum.map(fn f ->
+      Map.put(f, :typed_schema, HookSchemas.lookup(f.plugin, to_string(f.name)))
+    end)
   end
 
   defp dynamic_signature(%{meta: meta} = export) when is_map(meta) do
@@ -2651,10 +2777,12 @@ defmodule GameServerWeb.AdminLive.Config do
     "Friends" => ~w(max_friends_per_user max_pending_friend_requests)a,
     "Hooks" => ~w(max_hook_args_size max_hook_args_count)a,
     "KV" => ~w(max_kv_key max_kv_value_size max_kv_entries_per_user)a,
-    "Leaderboards" => ~w(max_leaderboard_title max_leaderboard_description max_leaderboard_slug)a
+    "Leaderboards" => ~w(max_leaderboard_title max_leaderboard_description max_leaderboard_slug)a,
+    "Tournaments" =>
+      ~w(max_tournament_title max_tournament_description max_tournament_slug max_tournament_entries max_tournament_bracket_size)a
   }
 
-  @category_order ~w(Global User Groups Lobbies Parties Chat Notifications Friends Hooks KV Leaderboards)
+  @category_order ~w(Global User Groups Lobbies Parties Chat Notifications Friends Hooks KV Leaderboards Tournaments)
 
   defp limits_grouped do
     defaults = GameServer.Limits.defaults()

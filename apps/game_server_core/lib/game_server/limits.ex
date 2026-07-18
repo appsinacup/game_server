@@ -87,7 +87,15 @@ defmodule GameServer.Limits do
     # ── Leaderboards ────────────────────────────────────────
     max_leaderboard_title: 255,
     max_leaderboard_description: 1_000,
-    max_leaderboard_slug: 100
+    max_leaderboard_slug: 100,
+
+    # ── Tournaments ─────────────────────────────────────────
+    max_tournament_title: 255,
+    max_tournament_description: 1_000,
+    max_tournament_slug: 100,
+    # Hard cap on a tournament's own max_entries setting.
+    max_tournament_entries: 10_000,
+    max_tournament_bracket_size: 256
   }
 
   @doc """

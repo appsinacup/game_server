@@ -41,6 +41,7 @@ defmodule GameServerWeb.MixProject do
     [
       {:game_server_core, path: "../game_server_core"},
       {:phoenix, "~> 1.8.3"},
+      {:protobuf, "~> 0.17"},
       {:phoenix_ecto, "~> 4.5"},
       {:phoenix_html, "~> 4.1"},
       {:phoenix_live_reload, "~> 1.6.2", only: :dev},

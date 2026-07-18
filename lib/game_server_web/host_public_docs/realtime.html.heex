@@ -75,6 +75,149 @@
         </li>
       </ul>
 
+      <h3 class="font-semibold mt-3">{doc_text("Payload format: JSON (default) or Protobuf")}</h3>
+      <p class="text-sm text-base-content/80">
+        {doc_text(
+          "Server-to-client event payloads are JSON by default. Sockets can opt into protobuf: mapped events then arrive as binary frames encoded per the shared wire contract in proto/gamend_realtime.proto, and the official clients decode them transparently. Client-to-server pushes remain JSON in both modes."
+        )}
+      </p>
+      <div
+        class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto"
+        phx-no-curly-interpolation
+      >
+        <pre>
+<span class="code-comment"># Raw connection URL (requires the V2 channel protocol)</span>
+wss://your-server/socket/websocket?vsn=2.0.0&format=protobuf&token=...
+
+<span class="code-comment">// JavaScript SDK</span>
+const realtime = new GameRealtime(serverUrl, token, { format: 'protobuf' })
+
+<span class="code-comment"># Godot SDK</span>
+var realtime = GamendRealtime.new(token_provider, endpoint, "protobuf")</pre>
+      </div>
+      <ul class="list-disc pl-6 text-sm space-y-1 text-base-content/80">
+        <li>
+          {doc_text(
+            "Decoded protobuf payloads keep the JSON field names, with two documented differences: timestamps are unix-millisecond integers (last_seen_at_ms, inserted_at_ms, ...) instead of ISO 8601 strings, and metadata/data values arrive already parsed."
+          )}
+        </li>
+        <li>
+          {doc_text(
+            "Every event pushed by the server is protobuf-mapped, except the webrtc:* signaling events and phx_reply payloads (join/push replies), which remain JSON. Any future unmapped event is delivered as JSON on the same socket, so coverage can grow without breaking clients."
+          )}
+        </li>
+        <li>
+          {doc_text(
+            "The format is negotiated per connection, so JSON and protobuf clients coexist freely on the same server."
+          )}
+        </li>
+      </ul>
+      <p class="text-sm text-base-content/80">
+        <strong>{doc_text("Which to choose:")}</strong>
+        {doc_text(
+          " keep JSON unless you have a reason not to — it is human-readable on the wire, and because WebSocket traffic is permessage-deflate compressed the real bandwidth difference on this transport is small. Choose protobuf when you want schema-enforced payload shapes, cheaper client-side decoding, or numeric timestamps; raw payloads measure 35–84% smaller (see the encoding benchmark in protobuf_bench_test.exs), which matters mainly for clients without compression support."
+        )}
+      </p>
+
+      <h4 class="font-semibold text-sm mt-3">
+        {doc_text("Game-defined schemas: what to implement")}
+      </h4>
+      <p class="text-sm text-base-content/80">
+        {doc_text(
+          "Free-form values (metadata, KV data, hook payloads) are JSON in the database and REST API, so on protobuf sockets they normally travel as JSON bytes. To make them compact binary, your plugin's proto file implements the following messages — everything below is optional and independent, and anything you skip simply stays JSON. The admin Config page shows this coverage at a glance (Hooks section, \"Protobuf schema coverage\")."
+        )}
+      </p>
+      <div class="overflow-x-auto">
+        <table class="table table-xs w-full">
+          <thead>
+            <tr>
+              <th>{doc_text("You want binary…")}</th>
+              <th>{doc_text("Implement / register")}</th>
+              <th>{doc_text("Registration")}</th>
+            </tr>
+          </thead>
+          <tbody class="text-xs">
+            <tr>
+              <td>{doc_text("user metadata")}</td>
+              <td class="font-mono">message UserMeta</td>
+              <td>{doc_text("by name, at plugin load")}</td>
+            </tr>
+            <tr>
+              <td>{doc_text("lobby metadata")}</td>
+              <td class="font-mono">message LobbyMeta</td>
+              <td>{doc_text("by name, at plugin load")}</td>
+            </tr>
+            <tr>
+              <td>{doc_text("group metadata")}</td>
+              <td class="font-mono">message GroupMeta</td>
+              <td>{doc_text("by name, at plugin load")}</td>
+            </tr>
+            <tr>
+              <td>{doc_text("party metadata")}</td>
+              <td class="font-mono">message PartyMeta</td>
+              <td>{doc_text("by name, at plugin load")}</td>
+            </tr>
+            <tr>
+              <td>{doc_text("a hook's request/reply")}</td>
+              <td class="font-mono">message &lt;FnName&gt;Request + &lt;FnName&gt;Reply</td>
+              <td>{doc_text("by name, at plugin load")}</td>
+            </tr>
+            <tr>
+              <td>{doc_text("KV data for a key")}</td>
+              <td class="font-mono">
+                {doc_text("any message + kv_schemas/0 mapping")}
+              </td>
+              <td>{doc_text("explicit: exact key or \"prefix*\" pattern")}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-sm text-base-content/80">
+        {doc_text(
+          "KV keys are open-ended, so unlike the fixed names above there is no naming convention — the hooks module exports the mapping itself (exact keys win over prefixes, longest prefix wins). KV entry metadata always stays JSON. Overrides: metadata_schemas/0 remaps or disables the Meta conventions. Scoping: hook schemas are namespaced per plugin; metadata entities and the KV keyspace are global — explicit registrations beat conventions, and on a conflict the first plugin in name order wins (losers are logged, and an explicit nil disables an entity for the whole deployment)."
+        )}
+      </p>
+      <div
+        class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto"
+        phx-no-curly-interpolation
+      >
+        <pre>
+<span class="code-comment"># In the plugin's hooks module — KV data schemas are explicit</span>
+def kv_schemas do
+  %{"loadout" => MyGame.V1.Loadout, "match:*" => MyGame.V1.MatchState}
+end
+
+<span class="code-comment"># Generate all bindings from the plugin's proto/ (one schema source):</span>
+mix plugin.gen.proto --godot-out ../../godot/addons/my_game/my_game_pb.gd \
+                     --js-out ../../assets/js/my_game_pb.js</pre>
+      </div>
+      <div
+        class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto"
+        phx-no-curly-interpolation
+      >
+        <pre>
+<span class="code-comment">// my_game.proto (compiled into your plugin AND your client)</span>
+message UserMeta { uint32 rank = 1; string clan = 2; }
+
+<span class="code-comment">// JavaScript SDK — mirror the registration client-side</span>
+realtime.registerMetaSchema('user', UserMeta)
+
+<span class="code-comment"># Godot SDK</span>
+GamendProto.register_meta_schema("user", MyGamePb.UserMeta)</pre>
+      </div>
+      <ul class="list-disc pl-6 text-sm space-y-1 text-base-content/80">
+        <li>
+          {doc_text(
+            "Safety: if a stored metadata map does not match the registered schema (extra keys, wrong types), that push falls back to JSON — mismatches cost bytes, never data."
+          )}
+        </li>
+        <li>
+          {doc_text(
+            "Clients without a registered schema receive the raw bytes as metadata_pb and can decode them however they like."
+          )}
+        </li>
+      </ul>
+
       <h3 class="font-semibold mt-3">{doc_text("PubSub topic map")}</h3>
       <div
         class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto"
@@ -96,7 +239,11 @@
                                         group_join_rejected,
                                         party_invite_accepted,
                                         party_invite_declined,
-                                        party_invite_cancelled
+                                        party_invite_cancelled,
+                                        tournament_updated,
+                                        tournament_match_ready,
+                                        tournament_match_resolved,
+                                        tournament_finished
   LobbyChannel      "lobby:{id}"        updated, user_joined, user_left,
                                         user_kicked, host_changed,
                                         member_online, member_offline,
@@ -176,6 +323,20 @@
               <td>{doc_text("Subscribed KV entry changed (see kv:subscribe)")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
                 {key, user_id, lobby_id, data, metadata} / {key, user_id, lobby_id}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">tournament_updated / tournament_finished</td>
+              <td>{doc_text("A tournament the user entered changed state")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {tournament_id, slug, state}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">tournament_match_ready / tournament_match_resolved</td>
+              <td>{doc_text("The user's tournament match became playable / got a verdict")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {tournament_id, slug, match_id, round, deadline, winner_entry_id}
               </td>
             </tr>
             <tr>

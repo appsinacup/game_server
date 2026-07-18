@@ -20,6 +20,7 @@ defmodule GameServerWeb.AdminPagesRenderTest do
     {"/admin/kv", "KV"},
     {"/admin/lobbies", "Lobbies"},
     {"/admin/leaderboards", "Leaderboards"},
+    {"/admin/tournaments", "Tournaments"},
     {"/admin/users", "Users"},
     {"/admin/sessions", "Sessions"},
     {"/admin/notifications", "Notifications"},

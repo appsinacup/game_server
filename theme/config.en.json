@@ -93,14 +93,19 @@
           ]
         },
         {
-          "title": "Achievements, Leaderboards & Notifications",
-          "text": "Server-authoritative achievements and leaderboards. Real-time notifications across features and payment events.",
+          "title": "Achievements, Tournaments, Leaderboards & Notifications",
+          "text": "Server-authoritative achievements, bracket tournaments and leaderboards. Real-time notifications across features and payment events.",
           "icon": "hero-trophy-solid",
           "media_width": "third",
           "image_position_desktop": "right",
           "image_position_mobile": "top",
           "text_align": "left",
           "buttons": [
+            {
+              "label": "Tournaments",
+              "href": "/tournaments",
+              "icon": "hero-trophy-solid"
+            },
             {
               "label": "Leaderboards",
               "href": "/leaderboards",
@@ -252,6 +257,11 @@
             "label": "Achievements",
             "href": "/achievements",
             "icon": "hero-trophy-solid"
+          },
+          {
+            "label": "Tournaments",
+            "href": "/tournaments",
+            "icon": "hero-bolt-solid"
           },
           {
             "label": "Groups",

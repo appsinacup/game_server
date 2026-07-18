@@ -15,12 +15,10 @@ signal channel_join_failed(topic: String, reason: String, payload: Dictionary)
 var socket : PhoenixSocket
 var enable_logs := false
 var _token_provider: Callable
+var _format := "json"
 var _channels := {}
-var _payload_cache := {}
 var _request_seq := 0
 const LOG_REDACTED := "[redacted]"
-const DELTA_UPDATE_KEY := "u"
-const DELTA_REMOVE_KEY := "r"
 const EVENT_LOG_MAX_CHARS := 768
 const SENSITIVE_LOG_KEYS := {
 	"access_token": true,
@@ -33,8 +31,12 @@ const SENSITIVE_LOG_KEYS := {
 }
 
 # Called when the node enters the scene tree for the first time.
-func _init(token_provider: Callable, endpoint: String = PhoenixSocket.DEFAULT_BASE_ENDPOINT) -> void:
+# format: "json" (default) or "protobuf" — with "protobuf" the server sends
+# mapped events as binary protobuf frames (decoded transparently before
+# channel_event is emitted; timestamps arrive as unix-ms ints).
+func _init(token_provider: Callable, endpoint: String = PhoenixSocket.DEFAULT_BASE_ENDPOINT, format: String = "json") -> void:
 	_token_provider = token_provider
+	_format = "protobuf" if format == "protobuf" else "json"
 	socket = PhoenixSocket.new(endpoint, {
 		"params": _socket_params(),
 		"params_provider": _socket_params
@@ -48,7 +50,6 @@ func _init(token_provider: Callable, endpoint: String = PhoenixSocket.DEFAULT_BA
 	socket.connect_socket()
 
 func shutdown() -> void:
-	_payload_cache.clear()
 	for topic in _channels.keys():
 		var channel: PhoenixChannel = _channels[topic]
 		channel.close({message = "shutdown"}, false)
@@ -76,7 +77,6 @@ func remove_channel(topic: String) -> void:
 		return
 	var channel: PhoenixChannel = _channels[topic]
 	_channels.erase(topic)
-	_clear_payload_cache_for_topic(topic)
 	channel.leave()
 	debug_message.emit("info", "network", "Channel left: %s" % topic)
 	channel.queue_free()
@@ -187,11 +187,17 @@ func _channel_on_join_result(event, payload, topic):
 	debug_message.emit("info", "network", "Channel joined: %s event=%s" % [topic, event])
 	if topic.begins_with("user:"):
 		user_channel_joined.emit()
-func _channel_on_event(event, payload: Dictionary, status, topic: String):
-	var expanded_payload := _expand_payload_delta(topic, event, payload)
+func _channel_on_event(event, payload, status, topic: String):
+	if payload is PackedByteArray:
+		var decoded = GamendProto.decode_event(topic, event, payload)
+		if decoded == null:
+			# No protobuf mapping: deliver the raw frame as-is.
+			channel_event.emit(event, payload, status, topic)
+			return
+		payload = decoded
 	if enable_logs:
-		print("Channel on event ", topic, " ", event, " ", _format_log_value(expanded_payload), " ", _format_log_value(status))
-	channel_event.emit(event, expanded_payload, status, topic)
+		print("Channel on event ", topic, " ", event, " ", _format_log_value(payload), " ", _format_log_value(status))
+	channel_event.emit(event, payload, status, topic)
 func _channel_on_error(error, topic):
 	if enable_logs:
 		print("Channel on error ", topic, " ", _redact_for_log(error))
@@ -203,7 +209,6 @@ func _channel_on_close(params, topic):
 		print("Channel on close ", topic, " ", _redact_for_log(params))
 	if _channels.has(topic):
 		_channels.erase(topic)
-	_clear_payload_cache_for_topic(topic)
 	if topic.begins_with("user:"):
 		user_channel_closed.emit()
 
@@ -214,7 +219,10 @@ func _get_user_channel() -> PhoenixChannel:
 	return null
 
 func _socket_params() -> Dictionary:
-	return {"token": _token_provider.call()}
+	var params := {"token": _token_provider.call()}
+	if _format == "protobuf":
+		params["format"] = "protobuf"
+	return params
 
 func _next_request_id() -> String:
 	_request_seq += 1
@@ -228,116 +236,6 @@ func _request_error(error_name: String, message: String) -> Dictionary:
 			"message": message,
 		},
 	}
-
-func _expand_payload_delta(topic: String, event: String, payload: Dictionary) -> Dictionary:
-	_update_payload_cache_for_related_events(topic, event, payload)
-
-	if not _supports_payload_delta(topic, event):
-		return payload
-
-	var cache_key := _payload_cache_key(topic, event, payload)
-	if cache_key == "":
-		return payload
-
-	if not _is_payload_delta(payload):
-		var full_payload := payload.duplicate(true)
-		_payload_cache[cache_key] = full_payload.duplicate(true)
-		return full_payload
-
-	var merged_payload := _cached_payload(cache_key, payload)
-	if payload.get(DELTA_UPDATE_KEY, null) is Dictionary:
-		_apply_delta_updates(merged_payload, payload[DELTA_UPDATE_KEY] as Dictionary)
-	if payload.get(DELTA_REMOVE_KEY, null) is Dictionary:
-		_apply_delta_removes(merged_payload, payload[DELTA_REMOVE_KEY] as Dictionary)
-
-	_payload_cache[cache_key] = merged_payload.duplicate(true)
-	return merged_payload
-
-func _update_payload_cache_for_related_events(topic: String, event: String, payload: Dictionary) -> void:
-	if topic == "lobbies" and event == "lobby_created":
-		_cache_payload(topic, "lobby_updated", payload)
-	elif topic == "groups" and event == "group_created":
-		_cache_payload(topic, "group_updated", payload)
-	elif topic == "lobbies" and event == "lobby_deleted":
-		_erase_payload_cache(topic, "lobby_updated", payload)
-	elif topic == "groups" and event == "group_deleted":
-		_erase_payload_cache(topic, "group_updated", payload)
-
-func _supports_payload_delta(topic: String, event: String) -> bool:
-	if event == "updated" or event == "member_updated":
-		return topic.begins_with("user:") or topic.begins_with("lobby:") or topic.begins_with("party:") or topic.begins_with("group:")
-	return (topic == "lobbies" and event == "lobby_updated") or (topic == "groups" and event == "group_updated")
-
-func _is_payload_delta(payload: Dictionary) -> bool:
-	return payload.get(DELTA_UPDATE_KEY, null) is Dictionary or payload.get(DELTA_REMOVE_KEY, null) is Dictionary
-
-func _cache_payload(topic: String, event: String, payload: Dictionary) -> void:
-	var cache_key := _payload_cache_key(topic, event, payload)
-	if cache_key != "":
-		_payload_cache[cache_key] = payload.duplicate(true)
-
-func _erase_payload_cache(topic: String, event: String, payload: Dictionary) -> void:
-	var cache_key := _payload_cache_key(topic, event, payload)
-	if cache_key != "":
-		_payload_cache.erase(cache_key)
-
-func _cached_payload(cache_key: String, payload: Dictionary) -> Dictionary:
-	if _payload_cache.has(cache_key) and _payload_cache[cache_key] is Dictionary:
-		return (_payload_cache[cache_key] as Dictionary).duplicate(true)
-	return _identity_payload(payload)
-
-func _payload_cache_key(topic: String, event: String, payload: Dictionary) -> String:
-	var identity := _payload_identity(payload)
-	if identity == "":
-		return ""
-	return "%s|%s|%s" % [topic, event, identity]
-
-func _payload_identity(payload: Dictionary) -> String:
-	if payload.has("id"):
-		return "id:" + _identity_value(payload["id"])
-	if payload.has("user_id"):
-		return "user_id:" + _identity_value(payload["user_id"])
-	return ""
-
-func _identity_value(value: Variant) -> String:
-	if typeof(value) == TYPE_FLOAT or typeof(value) == TYPE_INT:
-		return str(int(value))
-	return str(value)
-
-func _identity_payload(payload: Dictionary) -> Dictionary:
-	var identity := {}
-	if payload.has("id"):
-		identity["id"] = payload["id"]
-	if payload.has("user_id"):
-		identity["user_id"] = payload["user_id"]
-	return identity
-
-func _apply_delta_updates(target: Dictionary, updates: Dictionary) -> void:
-	for key in updates:
-		var update_value = updates[key]
-		if target.get(key, null) is Dictionary and update_value is Dictionary:
-			_apply_delta_updates(target[key] as Dictionary, update_value as Dictionary)
-		else:
-			target[key] = _duplicate_payload_value(update_value)
-
-func _apply_delta_removes(target: Dictionary, removes: Dictionary) -> void:
-	for key in removes:
-		var remove_value = removes[key]
-		if target.get(key, null) is Dictionary and remove_value is Dictionary:
-			_apply_delta_removes(target[key] as Dictionary, remove_value as Dictionary)
-		else:
-			target.erase(key)
-
-func _duplicate_payload_value(value: Variant) -> Variant:
-	if value is Dictionary or value is Array:
-		return value.duplicate(true)
-	return value
-
-func _clear_payload_cache_for_topic(topic: String) -> void:
-	var prefix := topic + "|"
-	for cache_key in _payload_cache.keys():
-		if str(cache_key).begins_with(prefix):
-			_payload_cache.erase(cache_key)
 
 func _redact_for_log(value: Variant, depth: int = 0) -> Variant:
 	if depth > 8:

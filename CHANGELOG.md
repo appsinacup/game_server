@@ -1,5 +1,12 @@
 # July 2026
 
+- [added] **Tournaments** (bracket system).
+- [added] Player search on public pages.
+- [added] Realtime update debounce (REALTIME_DEBOUNCE_MS).
+- [added] Protobuf realtime format (opt-in).
+- [changed] Realtime state events send full payloads.
+- [removed] JSON delta encoding.
+- [removed] Dead modules and client delta code.
 - [added] **Unique usernames**.
 - [breaking] **UUIDv7 string ids**.
 - [added] JWT revocation.

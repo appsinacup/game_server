@@ -28,6 +28,7 @@ defmodule GameServerWeb.LeaderboardsLive do
       |> assign(:slug_leaderboards, [])
       |> assign(:current_season_index, 0)
       |> assign(:records_page, 1)
+      |> assign(:records_search, "")
       |> assign(:user_record, nil)
       |> reload_groups()
 
@@ -113,6 +114,7 @@ defmodule GameServerWeb.LeaderboardsLive do
             records_total_pages={@records_total_pages}
             records_count={@records_count}
             user_record={@user_record}
+            records_search={@records_search}
             current_user_id={@current_scope && @current_scope.user && @current_scope.user.id}
             locale={@locale}
           />
@@ -280,7 +282,22 @@ defmodule GameServerWeb.LeaderboardsLive do
 
     <div class="card bg-base-200">
       <div class="card-body">
-        <h2 class="card-title">{gettext("Leaderboards")}</h2>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h2 class="card-title">
+            {gettext("Leaderboards")}
+            <span class="text-base-content/50 font-normal text-base">({@records_count})</span>
+          </h2>
+
+          <form phx-change="search" phx-submit="search" id="records-search-form" class="sm:w-64">
+            <.input
+              name="search"
+              value={@records_search}
+              placeholder={gettext("Search players...")}
+              phx-debounce="300"
+              type="text"
+            />
+          </form>
+        </div>
 
         <div class="overflow-x-auto">
           <table class="table">
@@ -410,6 +427,14 @@ defmodule GameServerWeb.LeaderboardsLive do
      |> reload_records()}
   end
 
+  def handle_event("search", %{"search" => term}, socket) do
+    {:noreply,
+     socket
+     |> assign(:records_search, term)
+     |> assign(:records_page, 1)
+     |> reload_records()}
+  end
+
   # ---------------------------------------------------------------------------
   # Helpers
   # ---------------------------------------------------------------------------
@@ -432,9 +457,10 @@ defmodule GameServerWeb.LeaderboardsLive do
     lb = socket.assigns.selected_leaderboard
     page = socket.assigns[:records_page] || 1
     page_size = 25
+    search = socket.assigns[:records_search] || ""
 
-    records = Leaderboards.list_records(lb.id, page: page, page_size: page_size)
-    count = Leaderboards.count_records(lb.id)
+    records = Leaderboards.list_records(lb.id, page: page, page_size: page_size, search: search)
+    count = Leaderboards.count_records(lb.id, search: search)
     total_pages = max(1, div(count + page_size - 1, page_size))
 
     socket
@@ -469,6 +495,7 @@ defmodule GameServerWeb.LeaderboardsLive do
      |> assign(:current_season_index, current_index)
      |> assign(:user_record, user_record)
      |> assign(:records_page, 1)
+     |> assign(:records_search, "")
      |> reload_records()}
   end
 

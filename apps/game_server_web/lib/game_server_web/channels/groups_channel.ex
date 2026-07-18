@@ -16,8 +16,10 @@ defmodule GameServerWeb.GroupsChannel do
 
   use Phoenix.Channel
 
+  import GameServerWeb.ChannelPush
+
   alias GameServer.Groups
-  alias GameServerWeb.PayloadDelta
+  alias GameServerWeb.ChannelUpdates
   alias GameServerWeb.Plugs.FeatureGate
   alias GameServerWeb.Serializers
 
@@ -42,8 +44,8 @@ defmodule GameServerWeb.GroupsChannel do
     # Don't broadcast hidden groups to the public list channel
     if group.type != "hidden" do
       payload = Serializers.serialize_group(group)
-      push(socket, "group_created", payload)
-      {:noreply, put_group_payload(socket, payload)}
+      push_event(socket, "group_created", payload)
+      {:noreply, ChannelUpdates.remember(socket, "group_updated", payload.id, payload)}
     else
       {:noreply, socket}
     end
@@ -53,16 +55,7 @@ defmodule GameServerWeb.GroupsChannel do
   def handle_info({:group_updated, group}, socket) do
     if group.type != "hidden" do
       payload = Serializers.serialize_group(group)
-      last_payload = get_group_payload(socket, payload.id)
-
-      case PayloadDelta.payload_delta(last_payload, payload) do
-        nil ->
-          {:noreply, socket}
-
-        delta_payload ->
-          push(socket, "group_updated", delta_payload)
-          {:noreply, put_group_payload(socket, payload)}
-      end
+      {:noreply, ChannelUpdates.push(socket, "group_updated", payload.id, payload)}
     else
       {:noreply, socket}
     end
@@ -70,21 +63,14 @@ defmodule GameServerWeb.GroupsChannel do
 
   @impl true
   def handle_info({:group_deleted, group_id}, socket) do
-    push(socket, "group_deleted", %{id: group_id})
-    {:noreply, socket}
+    push_event(socket, "group_deleted", %{id: group_id})
+    {:noreply, ChannelUpdates.forget(socket, "group_updated", group_id)}
   end
 
   @impl true
+  def handle_info({:channel_updates_flush, _}, socket),
+    do: {:noreply, ChannelUpdates.flush(socket)}
+
+  @impl true
   def handle_info(_msg, socket), do: {:noreply, socket}
-
-  defp get_group_payload(socket, group_id) do
-    socket.assigns
-    |> Map.get(:last_group_payloads, %{})
-    |> Map.get(group_id)
-  end
-
-  defp put_group_payload(socket, payload) do
-    payloads = Map.get(socket.assigns, :last_group_payloads, %{})
-    assign(socket, :last_group_payloads, Map.put(payloads, payload.id, payload))
-  end
 end
