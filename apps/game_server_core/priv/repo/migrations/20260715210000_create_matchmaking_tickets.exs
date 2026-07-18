@@ -12,7 +12,7 @@ defmodule GameServer.Repo.Migrations.CreateMatchmakingTickets do
       add :timeout_ms, :integer, null: false
       add :queued_at, :utc_datetime_usec, null: false
       add :matched_at, :utc_datetime_usec
-      add :match_id, :binary_id
+      add :match_id, references(:lobbies, type: :binary_id, on_delete: :nilify_all)
 
       timestamps(type: :utc_datetime_usec)
     end

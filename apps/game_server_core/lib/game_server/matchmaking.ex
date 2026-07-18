@@ -15,6 +15,8 @@ defmodule GameServer.Matchmaking do
 
   alias GameServer.Accounts.User
   alias GameServer.Cache
+  alias GameServer.Matchmaking.Constants
+  alias GameServer.Matchmaking.Matcher
   alias GameServer.Matchmaking.Ticket
   alias GameServer.Repo
 
@@ -39,7 +41,7 @@ defmodule GameServer.Matchmaking do
 
     attrs = %{
       user_id: user.id,
-      status: "queued",
+      status: Constants.status_queued(),
       match_params: normalize_params(match_params),
       min_players: min_players || @default_min_players,
       max_players: max_players || @default_max_players,
@@ -56,11 +58,11 @@ defmodule GameServer.Matchmaking do
   @doc """
   Cancels all queued tickets for a user.
   """
-  @spec cancel(String.t()) :: :ok
+  @spec cancel(Ecto.UUID.t()) :: :ok
   def cancel(user_id) do
     Ticket
-    |> where([t], t.user_id == ^user_id and t.status == "queued")
-    |> Repo.update_all(set: [status: "cancelled", updated_at: DateTime.utc_now()])
+    |> where([t], t.user_id == ^user_id and t.status == ^Constants.status_queued())
+    |> Repo.update_all(set: [status: Constants.status_cancelled(), updated_at: DateTime.utc_now()])
 
     Cache.delete(@cache_key)
     :ok
@@ -81,7 +83,7 @@ defmodule GameServer.Matchmaking do
       _ ->
         grouped =
           Ticket
-          |> where(status: "queued")
+          |> where(status: ^Constants.status_queued())
           |> order_by([t], asc: t.queued_at)
           |> preload(:user)
           |> Repo.all()
@@ -102,9 +104,12 @@ defmodule GameServer.Matchmaking do
 
     Ticket
     |> where([t], t.id in ^ids)
-    |> Repo.update_all(
-      set: [status: "matched", match_id: lobby_id, matched_at: now, updated_at: now]
-    )
+    |> Repo.update_all(set: [
+      status: Constants.status_matched(),
+      match_id: lobby_id,
+      matched_at: now,
+      updated_at: now
+    ])
 
     Cache.delete(@cache_key)
     :ok
@@ -114,11 +119,11 @@ defmodule GameServer.Matchmaking do
   Cancels queued tickets for users that are no longer connected.
   Called by the worker as a safety sweep.
   """
-  @spec prune_offline([String.t()]) :: :ok
+  @spec prune_offline([Ecto.UUID.t()]) :: :ok
   def prune_offline(online_user_ids) do
     Ticket
-    |> where([t], t.status == "queued" and t.user_id not in ^online_user_ids)
-    |> Repo.update_all(set: [status: "cancelled", updated_at: DateTime.utc_now()])
+    |> where([t], t.status == ^Constants.status_queued() and t.user_id not in ^online_user_ids)
+    |> Repo.update_all(set: [status: Constants.status_cancelled(), updated_at: DateTime.utc_now()])
 
     Cache.delete(@cache_key)
     :ok

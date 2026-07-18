@@ -11,12 +11,16 @@ defmodule GameServer.Matchmaking.Ticket do
   import Ecto.Changeset
 
   alias GameServer.Accounts.User
+  alias GameServer.Matchmaking.Constants
 
-  @statuses ~w(queued matched cancelled)
+  @statuses [
+    Constants.status_queued(),
+    Constants.status_matched(),
+    Constants.status_cancelled()
+  ]
 
-  @primary_key {:id, :binary_id, autogenerate: true}
   schema "matchmaking_tickets" do
-    field :status, :string, default: "queued"
+    field :status, :string, default: Constants.status_queued()
     field :match_params, :map, default: %{}
     field :min_players, :integer
     field :max_players, :integer

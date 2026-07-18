@@ -12,13 +12,16 @@ defmodule GameServer.Matchmaking.Matcher do
   matches in one sweep.
   """
 
+  alias GameServer.Types
+
   @doc """
   Forms all possible matches from a sorted list of tickets.
 
   Returns `{matches, remaining}` where `matches` is a list of ticket lists
   and `remaining` are the tickets that could not be matched yet.
   """
-  @spec form_matches([map()]) :: {[[map()]], [map()]}
+  @spec form_matches([Types.matchmaking_ticket()]) ::
+          {[[Types.matchmaking_ticket()]], [Types.matchmaking_ticket()]}
   def form_matches(tickets) do
     tickets
     |> Enum.sort_by(& &1.queued_at)

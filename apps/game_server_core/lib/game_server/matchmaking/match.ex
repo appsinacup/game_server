@@ -5,19 +5,19 @@ defmodule GameServer.Matchmaking.Match do
 
   alias GameServer.Lobbies
   alias GameServer.Matchmaking
-  alias GameServerWeb.Endpoint
+  alias GameServer.Matchmaking.Broadcast
+  alias GameServer.Types
 
   @doc """
   Creates a hidden lobby for the given tickets, joins the users, locks
-  the lobby and broadcasts `matchmaking:found` on each user's channel.
+  the lobby and broadcasts the match found event.
   """
-  @spec create([map()]) :: :ok
+  @spec create([Types.matchmaking_ticket()]) :: :ok
   def create(tickets) do
     first = hd(tickets)
 
     {:ok, lobby} =
       Lobbies.create_lobby(%{
-        title: "Match Lobby",
         max_users: first.max_players,
         is_hidden: true,
         is_locked: false,
@@ -35,13 +35,7 @@ defmodule GameServer.Matchmaking.Match do
 
     :ok = Matchmaking.mark_matched(tickets, lobby.id)
 
-    Enum.each(tickets, fn ticket ->
-      Endpoint.broadcast(
-        "user:#{ticket.user_id}",
-        "matchmaking:found",
-        %{lobby_id: lobby.id}
-      )
-    end)
+    Broadcast.match_found(tickets, lobby.id)
 
     :ok
   end

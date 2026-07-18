@@ -309,4 +309,37 @@ defmodule GameServer.Types do
           optional(:max_members) => pos_integer(),
           optional(:metadata) => map()
         }
+
+  # ---------------------------------------------------------------------------
+  # Matchmaking Attributes
+  # ---------------------------------------------------------------------------
+
+  @typedoc """
+  A matchmaking ticket as returned by the database.
+
+  ## Fields
+
+    * `:id` - Ticket ID
+    * `:user_id` - ID of the queued user
+    * `:status` - Current status (`"queued"`, `"matched"` or `"cancelled"`)
+    * `:match_params` - Arbitrary parameters used for grouping tickets
+    * `:min_players` - Minimum players required for a match
+    * `:max_players` - Maximum players allowed for a match
+    * `:timeout_ms` - Maximum wait time before forcing a match
+    * `:queued_at` - When the ticket was created
+    * `:matched_at` - When the ticket was matched
+    * `:match_id` - ID of the lobby the ticket was matched to
+  """
+  @type matchmaking_ticket :: %{
+          required(:id) => Ecto.UUID.t(),
+          required(:user_id) => Ecto.UUID.t(),
+          required(:status) => String.t(),
+          required(:match_params) => %{String.t() => String.t()},
+          required(:min_players) => pos_integer(),
+          required(:max_players) => pos_integer(),
+          required(:timeout_ms) => pos_integer(),
+          required(:queued_at) => DateTime.t(),
+          optional(:matched_at) => DateTime.t() | nil,
+          optional(:match_id) => Ecto.UUID.t() | nil
+        }
 end

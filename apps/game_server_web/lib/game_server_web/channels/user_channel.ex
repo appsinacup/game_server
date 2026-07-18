@@ -511,7 +511,6 @@ defmodule GameServerWeb.UserChannel do
       # Unsubscribe from notifications
       Notifications.unsubscribe(user_id)
 
-
       # Cancel matchmaking tickets
       GameServer.Matchmaking.cancel(user_id)
 
@@ -771,6 +770,8 @@ defmodule GameServerWeb.UserChannel do
   defp parse_match_params(payload) when is_map(payload) do
     Map.get(payload, "match_params", %{})
   end
+
+  defp parse_match_params(_payload), do: %{}
 
   defp parse_optional_int(nil), do: nil
   defp parse_optional_int(value) when is_integer(value), do: value
