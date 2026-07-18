@@ -96,7 +96,11 @@
                                         group_join_rejected,
                                         party_invite_accepted,
                                         party_invite_declined,
-                                        party_invite_cancelled
+                                        party_invite_cancelled,
+                                        tournament_updated,
+                                        tournament_match_ready,
+                                        tournament_match_resolved,
+                                        tournament_finished
   LobbyChannel      "lobby:{id}"        updated, user_joined, user_left,
                                         user_kicked, host_changed,
                                         member_online, member_offline,
@@ -176,6 +180,20 @@
               <td>{doc_text("Subscribed KV entry changed (see kv:subscribe)")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
                 {key, user_id, lobby_id, data, metadata} / {key, user_id, lobby_id}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">tournament_updated / tournament_finished</td>
+              <td>{doc_text("A tournament the user entered changed state")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {tournament_id, slug, state}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">tournament_match_ready / tournament_match_resolved</td>
+              <td>{doc_text("The user's tournament match became playable / got a verdict")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {tournament_id, slug, match_id, round, deadline, winner_entry_id}
               </td>
             </tr>
             <tr>

@@ -154,6 +154,33 @@ defmodule GameServer.Hooks do
   # Leaderboard lifecycle hooks
   @callback after_score_submitted(GameServer.Leaderboards.Record.t()) :: any()
 
+  # Tournament lifecycle hooks (see TOURNAMENT_DESIGN.md). Match payloads are
+  # `GameServer.Tournaments.Match` structs with `tournament`, `a_entry` and
+  # `b_entry` preloaded. before_* hooks veto with `{:error, reason}`; any
+  # other return allows. `tournament_match_ready` is where the game starts
+  # the match (create a lobby, set up a challenge, ...) and
+  # `tournament_match_expired` is where it adjudicates an unresolved match at
+  # its deadline via `GameServer.Tournaments.resolve_match/2`.
+  @callback before_tournament_register(User.t(), GameServer.Tournaments.Tournament.t()) ::
+              hook_result(term())
+  @callback after_tournament_register(User.t(), GameServer.Tournaments.Tournament.t()) :: any()
+  @callback before_tournament_leave(User.t(), GameServer.Tournaments.Tournament.t()) ::
+              hook_result(term())
+  @callback tournament_match_ready(GameServer.Tournaments.Match.t()) :: any()
+  @callback tournament_match_expired(GameServer.Tournaments.Match.t()) :: any()
+  @callback before_tournament_result(GameServer.Tournaments.Match.t(), term()) ::
+              hook_result(term())
+  @callback after_tournament_match(GameServer.Tournaments.Match.t()) :: any()
+  @callback after_tournament_finished(GameServer.Tournaments.Tournament.t(), map()) :: any()
+  @optional_callbacks before_tournament_register: 2,
+                      after_tournament_register: 2,
+                      before_tournament_leave: 2,
+                      tournament_match_ready: 1,
+                      tournament_match_expired: 1,
+                      before_tournament_result: 2,
+                      after_tournament_match: 1,
+                      after_tournament_finished: 2
+
   # Payment lifecycle hooks
   @callback after_purchase_fulfilled(Purchase.t()) :: any()
   @callback after_purchase_revoked(Purchase.t()) :: any()
@@ -408,6 +435,14 @@ defmodule GameServer.Hooks do
       :after_lobby_host_change,
       :after_achievement_unlocked,
       :after_score_submitted,
+      :before_tournament_register,
+      :after_tournament_register,
+      :before_tournament_leave,
+      :tournament_match_ready,
+      :tournament_match_expired,
+      :before_tournament_result,
+      :after_tournament_match,
+      :after_tournament_finished,
       :after_purchase_fulfilled,
       :after_purchase_revoked,
       :after_entitlement_changed,
@@ -446,7 +481,10 @@ defmodule GameServer.Hooks do
       :before_group_delete,
       :before_group_kick,
       :before_party_join,
-      :before_party_kick
+      :before_party_kick,
+      :before_tournament_register,
+      :before_tournament_leave,
+      :before_tournament_result
     ] and arity > 0
   end
 
@@ -578,6 +616,17 @@ defmodule GameServer.Hooks do
       tuple when is_tuple(tuple) and tuple_size(tuple) == 2 -> {:ok, Tuple.to_list(tuple)}
       attrs -> {:ok, [Enum.at(current_args, 0), attrs]}
     end
+  end
+
+  # Veto-only tournament pipelines: the hook allows or rejects; whatever it
+  # returns never rewrites the pipeline args.
+  defp normalize_pipeline_args(name, _value, current_args)
+       when name in [
+              :before_tournament_register,
+              :before_tournament_leave,
+              :before_tournament_result
+            ] and is_list(current_args) do
+    {:ok, current_args}
   end
 
   defp normalize_pipeline_args(_name, value, current_args) when is_list(current_args) do
@@ -1233,6 +1282,30 @@ defmodule GameServer.Hooks.Default do
 
   @impl true
   def after_score_submitted(_record), do: :ok
+
+  @impl true
+  def before_tournament_register(_user, tournament), do: {:ok, tournament}
+
+  @impl true
+  def after_tournament_register(_user, _tournament), do: :ok
+
+  @impl true
+  def before_tournament_leave(_user, tournament), do: {:ok, tournament}
+
+  @impl true
+  def tournament_match_ready(_match), do: :ok
+
+  @impl true
+  def tournament_match_expired(_match), do: :ok
+
+  @impl true
+  def before_tournament_result(_match, winner), do: {:ok, winner}
+
+  @impl true
+  def after_tournament_match(_match), do: :ok
+
+  @impl true
+  def after_tournament_finished(_tournament, _standings), do: :ok
 
   @impl true
   def after_purchase_fulfilled(%Purchase{} = purchase) do

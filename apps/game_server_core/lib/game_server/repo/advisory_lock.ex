@@ -42,7 +42,15 @@ defmodule GameServer.Repo.AdvisoryLock do
       AdvisoryLock.lock("word_guessed", lobby_id)
   """
 
-  @namespaces %{lobby: 1, group: 2, party: 3, friendship: 4}
+  @namespaces %{
+    lobby: 1,
+    group: 2,
+    party: 3,
+    friendship: 4,
+    tournament_draw: 5,
+    tournament_match: 6,
+    tournaments_tick: 7
+  }
 
   # Reserve 0..99 for atom namespaces; string hashes start at 100.
   @string_ns_offset 100

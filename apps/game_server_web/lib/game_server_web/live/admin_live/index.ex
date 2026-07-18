@@ -45,6 +45,9 @@ defmodule GameServerWeb.AdminLive.Index do
           <.link navigate={~p"/admin/leaderboards"} class="btn btn-outline">
             Leaderboards ({@leaderboards_count})
           </.link>
+          <.link navigate={~p"/admin/tournaments"} class="btn btn-outline">
+            Tournaments ({@tournaments_count})
+          </.link>
           <.link navigate={~p"/admin/sessions"} class="btn btn-outline">
             Tokens ({@sessions_count})
           </.link>
@@ -175,6 +178,17 @@ defmodule GameServerWeb.AdminLive.Index do
                 <div class="text-xs text-base-content/60 mt-2 space-y-1">
                   <div>Scores total: {@leaderboard_records}</div>
                 </div>
+              </div>
+
+              <%!-- Tournaments --%>
+              <div class="card bg-base-100 p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-sm font-semibold">Tournaments</div>
+                  <.link navigate={~p"/admin/tournaments"} class="link link-primary text-xs">
+                    View →
+                  </.link>
+                </div>
+                <div class="text-2xl font-bold">{@tournaments_count}</div>
               </div>
 
               <%!-- 6. Groups --%>
@@ -516,6 +530,8 @@ defmodule GameServerWeb.AdminLive.Index do
       lobbies_count: Task.async(fn -> Repo.aggregate(Lobby, :count) end),
       notifications_count: Task.async(fn -> Notifications.count_all_notifications() end),
       leaderboards_count: Task.async(fn -> Repo.aggregate(Leaderboard, :count) end),
+      tournaments_count:
+        Task.async(fn -> Repo.aggregate(GameServer.Tournaments.Tournament, :count) end),
       kv_count: Task.async(fn -> KV.count_entries() end),
       kv_global: Task.async(fn -> KV.count_entries(global_only: true) end),
       users_google: Task.async(fn -> Accounts.count_users_with_provider(:google_id) end),
@@ -575,6 +591,7 @@ defmodule GameServerWeb.AdminLive.Index do
        sessions_count: r.sessions_count,
        lobbies_count: r.lobbies_count,
        leaderboards_count: r.leaderboards_count,
+       tournaments_count: r.tournaments_count,
        kv_count: r.kv_count,
        kv_global: r.kv_global,
        kv_user: r.kv_count - r.kv_global,

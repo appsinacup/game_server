@@ -120,23 +120,28 @@
         phx-no-curly-interpolation
       >
         <pre>
-  Publishers                  Topics               Subscribers
-  ──────────                  ──────               ───────────
-  Lobbies module  ──────►  "lobby:{id}"  ──────►  LobbyChannel
-  Lobbies module  ──────►  "lobbies"     ──────►  LobbiesChannel, LiveViews
-  Parties module  ──────►  "party:{id}"  ──────►  UserChannel
-  Parties module  ──────►  "parties"     ──────►  LiveViews
-  Friends module  ──────►  "user:{id}"   ──────►  UserChannel
-  Accounts module ──────►  "user:{id}"   ──────►  UserChannel
-  Groups module   ──────►  "group:{id}"  ──────►  LiveViews
-  Groups module   ──────►  "groups"      ──────►  LiveViews
-  Notifications   ──────►  "user:{id}"   ──────►  UserChannel
-  Chat module     ──────►  "chat:lobby:{id}"  ─►  LobbyChannel
-  Chat module     ──────►  "chat:group:{id}"  ─►  GroupChannel
-  Chat module     ──────►  "chat:friend:{lo}:{hi}"  UserChannel
-                            + "user:{id}"
-  Achievements    ──────►  "user:{id}"   ──────►  UserChannel, LiveViews
-  Achievements    ──────►  "achievements" ─────►  Admin LiveViews</pre>
+  Publishers                  Topics                          Subscribers
+  ──────────                  ──────                          ───────────
+  Lobbies module   ──────►  "lobby:{id}"                 ──►  LobbyChannel
+  Lobbies module   ──────►  "lobbies"                    ──►  LobbiesChannel, LiveViews
+  Parties module   ──────►  "party:{id}"                 ──►  PartyChannel
+  Parties module   ──────►  "parties"                    ──►  LiveViews
+  Parties/Groups   ──────►  "user:{id}"                  ──►  UserChannel (invite events)
+  Accounts module  ──────►  "user:{id}"                  ──►  UserChannel (updated, friend_updated)
+  Friends module   ──────►  "friends:user:{id}"          ──►  LiveViews
+  Groups module    ──────►  "group:{id}"                 ──►  GroupChannel, LiveViews
+  Groups module    ──────►  "groups"                     ──►  GroupsChannel, LiveViews
+  Notifications    ──────►  "notifications:user:{id}"    ──►  UserChannel
+  Chat module      ──────►  "chat:lobby:{id}"            ──►  LobbyChannel
+  Chat module      ──────►  "chat:group:{id}"            ──►  GroupChannel
+  Chat module      ──────►  "chat:party:{id}"            ──►  PartyChannel
+  Chat module      ──────►  "chat:friend:{lo}:{hi}"      ──►  UserChannel
+                            + "user:{id}" (friend DMs)
+  Achievements     ──────►  "user:{id}"                  ──►  UserChannel, LiveViews
+  Achievements     ──────►  "achievements"               ──►  Admin LiveViews
+  KV module        ──────►  "kv:{scope}:{key}"           ──►  UserChannel (kv:subscribe)
+  Tournaments      ──────►  "tournaments:user:{id}"      ──►  UserChannel
+  Payments module  ──────►  "user:{id}"                  ──►  LiveViews (purchases/entitlements)</pre>
       </div>
 
       <h3 class="font-semibold mt-3">{doc_text("Entity relationships (simplified)")}</h3>
@@ -176,6 +181,18 @@
              ├──── user_achievements ──► achievements
              │       (progress, unlocked_at)
              │
+             ├──── tournament_entries ──► tournaments
+             │       (leader_id, seed,        ├── tournament_brackets
+             │        wins, state)            └── tournament_matches
+             │                                    (a/b/winner entry ids,
+             │                                     round, slot, deadline)
+             │
+             ├──── kv_entries (scoped: global, per-user,
+             │       per-lobby, per-user-per-lobby)
+             │
+             ├──── purchases / entitlements ──► products
+             │       (payment_provider_events as audit trail)
+             │
              └──── users_tokens, oauth_sessions</pre>
       </div>
 
@@ -203,9 +220,10 @@
       <h3 class="font-semibold mt-2">{doc_text("Key technologies")}</h3>
       <ul class="list-disc pl-6 text-sm space-y-1 text-base-content/80">
         <li><strong>Framework:</strong> Phoenix 1.8 + LiveView</li>
-        <li><strong>Language:</strong> Elixir 1.19 / Erlang OTP</li>
+        <li><strong>Language:</strong> Elixir 1.20 / Erlang OTP</li>
+        <li><strong>HTTP server:</strong> Bandit (native HTTPS, no reverse proxy needed)</li>
         <li><strong>Database:</strong> SQLite3 (default) / PostgreSQL (optional)</li>
-        <li><strong>Real-time:</strong> Phoenix Channels + PubSub</li>
+        <li><strong>Real-time:</strong> Phoenix Channels + PubSub; WebRTC DataChannels (ex_webrtc)</li>
         <li><strong>Auth:</strong> Guardian (JWT), Ueberauth (OAuth), Sessions</li>
         <li><strong>Cache:</strong> Nebulex (L1 local, optional L2 Redis/partitioned)</li>
         <li><strong>Scheduling:</strong> Quantum (cron-like)</li>

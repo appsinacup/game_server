@@ -225,12 +225,19 @@
       updated_at   : utc_datetime
     )
 
-    Well-known notification titles:
-      "New Friend Request"    — metadata: {}
-      "New Group Invite"      — informational (invite stored in group_invites table)
-      "New Party Invite"      — informational (invite stored in party_invites table)
-      "Group Notification"    — metadata: { group_id, group_name }
-      "New messages from ..." — metadata: { chat_type, group_id|lobby_id }</pre>
+    Titles are human-readable (often personalized, e.g. "Ada sent you a
+    friend request"); identify notifications programmatically by
+    metadata.type instead:
+      "friend_request" / "friend_accepted" / "friend_declined"
+          — metadata also carries friendship_id
+      "group_invite" / "group_invite_accepted" / "group_invite_declined"
+          — informational; the invite itself lives in group_invites
+      "party_invite" / "party_invite_accepted" / "party_invite_declined"
+          — informational; the invite itself lives in party_invites
+      "party_kicked"
+      "chat_lobby" / "chat_group" / "chat_party" / "chat_friend"
+          — unread-messages notifications, metadata carries the chat ref
+      "achievement_unlocked" — metadata: { achievement_id, achievement_slug }</pre>
       </div>
 
       <h4 class="font-semibold mt-3">{doc_text("Groups")}</h4>
@@ -439,6 +446,72 @@
             Metadata is optional and stored as a JSON map
           </li>
         </ul>
+
+        <h4 class="font-semibold">{doc_text("Tournaments")}</h4>
+        <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+          <pre>
+    tournaments (
+      id                    : uuid (UUIDv7 string primary key)
+      slug                  : string (recurring occurrences share it)
+      title                 : string
+      description           : string
+      category              : string (client-side filtering, nullable)
+      state                 : string ("scheduled" | "registration" | "running" | "finished" | "cancelled")
+      registration_opens_at : utc_datetime (nullable; null = open from creation)
+      starts_at             : utc_datetime (draw happens here)
+      ends_at               : utc_datetime (nullable hard stop)
+      recur                 : string (cron expression; null = one-shot)
+      max_entries           : integer (nullable)
+      team_size             : integer (advisory; game-enforced)
+      bracket_size          : integer (power of two; parallel brackets beyond)
+      round_window_sec      : integer (play window per round)
+      deadline_policy       : string ("forfeit_both" | "advance_first_slot" | "random")
+      metadata              : jsonb/map
+      inserted_at/updated_at: utc_datetime
+    )
+
+    tournament_entries (
+      id            : uuid (UUIDv7 string primary key)
+      tournament_id : uuid (FK to tournaments)
+      leader_id     : uuid (FK to users; the only user the server tracks per side)
+      seed          : integer (bracket slot after the draw)
+      bracket_index : integer
+      wins          : integer
+      state         : string ("registered" | "active" | "eliminated" | "winner")
+      metadata      : jsonb/map (game data: entry fee receipt, team name, ...)
+      -- unique (tournament_id, leader_id)
+    )
+
+    tournament_brackets (
+      id            : uuid (UUIDv7 string primary key)
+      tournament_id : uuid (FK to tournaments)
+      index         : integer
+      size          : integer
+      -- unique (tournament_id, index)
+    )
+
+    tournament_matches (
+      id             : uuid (UUIDv7 string primary key)
+      tournament_id  : uuid (FK to tournaments)
+      bracket_index  : integer
+      round          : integer
+      slot           : integer
+      a_entry_id     : uuid (nullable until feeders resolve)
+      b_entry_id     : uuid (nullable)
+      winner_entry_id: uuid (nullable until resolved; null + resolved = double forfeit)
+      ready_at       : utc_datetime (when the match became playable)
+      expired_at     : utc_datetime (deadline passed while unresolved)
+      resolved_at    : utc_datetime
+      deadline       : utc_datetime (round window end)
+      metadata       : jsonb/map (game scratch space: runs, lobby id, ...)
+      -- unique (tournament_id, bracket_index, round, slot)
+    )</pre>
+        </div>
+        <p class="pl-4 mt-1">
+          {doc_text(
+            "Bracket tournaments (see the Tournaments guide): registration, seeded draw, timed rounds and advancement are server-owned; match gameplay and verdicts belong to game hooks. Recurring tournaments create one row per occurrence sharing the slug, like leaderboard seasons."
+          )}
+        </p>
 
         <h4 class="font-semibold">{doc_text("Key-Value store (kv_entries)")}</h4>
         <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">

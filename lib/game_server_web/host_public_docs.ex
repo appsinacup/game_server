@@ -44,6 +44,7 @@ defmodule GameServerWeb.HostPublicDocs do
 
         <.guide_category_heading title="Gameplay & Social Systems" />
         {GameServerWeb.HostPublicDocsTemplates.leaderboards(assigns)}
+        {GameServerWeb.HostPublicDocsTemplates.tournaments(assigns)}
         {GameServerWeb.HostPublicDocsTemplates.achievements(assigns)}
         {GameServerWeb.HostPublicDocsTemplates.chat(assigns)}
         {GameServerWeb.HostPublicDocsTemplates.notifications(assigns)}

@@ -445,6 +445,11 @@ end</pre>
         <li>
           {doc_text("Metadata is optional and stored as a JSON map")}
         </li>
+        <li>
+          {doc_text(
+            "Slow mode: lobbies and groups have a slowdown field (seconds, 0 = off); sending again within the window returns {:error, :slowdown}"
+          )}
+        </li>
       </ul>
     </div>
   </div>

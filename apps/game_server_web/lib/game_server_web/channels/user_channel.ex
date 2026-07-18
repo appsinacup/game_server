@@ -332,6 +332,9 @@ defmodule GameServerWeb.UserChannel do
     # Subscribe to notifications PubSub
     Notifications.subscribe(user.id)
 
+    # Tournament events for this user's entries (match ready/resolved etc.)
+    Phoenix.PubSub.subscribe(GameServer.PubSub, "tournaments:user:#{user.id}")
+
     socket = push_initial_friend_update(socket, user.id)
 
     # Push all existing (undeleted) notifications in chronological order
@@ -341,6 +344,14 @@ defmodule GameServerWeb.UserChannel do
     # mark this user offline while the WebSocket is still open.
     Process.send_after(self(), :refresh_presence, @presence_refresh_interval)
 
+    {:noreply, socket}
+  end
+
+  # ── Tournament events ───────────────────────────────────────────────────────
+
+  @impl true
+  def handle_info({:tournament_event, event, payload}, socket) do
+    push(socket, event, payload)
     {:noreply, socket}
   end
 
@@ -510,6 +521,7 @@ defmodule GameServerWeb.UserChannel do
     if user_id do
       # Unsubscribe from notifications
       Notifications.unsubscribe(user_id)
+      Phoenix.PubSub.unsubscribe(GameServer.PubSub, "tournaments:user:#{user_id}")
 
       # Cancel matchmaking tickets
       GameServer.Matchmaking.cancel(user_id)

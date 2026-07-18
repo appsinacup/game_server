@@ -336,6 +336,30 @@ defmodule GameServer.Hooks do
   # Achievement lifecycle callbacks
   @callback after_achievement_unlocked(integer(), map()) :: any()
 
+  # Tournament lifecycle hooks (all optional; see the Tournaments guide).
+  # Match payloads are `GameServer.Tournaments.Match` structs with
+  # `tournament`, `a_entry` and `b_entry` preloaded. before_* hooks veto with
+  # `{:error, reason}`; any other return allows. `tournament_match_ready` is
+  # where the game starts the match (create a lobby, set up a challenge, ...)
+  # and `tournament_match_expired` is where it adjudicates an unresolved
+  # match at its deadline via `GameServer.Tournaments.resolve_match/2`.
+  @callback before_tournament_register(user(), tournament :: struct()) :: hook_result(term())
+  @callback after_tournament_register(user(), tournament :: struct()) :: any()
+  @callback before_tournament_leave(user(), tournament :: struct()) :: hook_result(term())
+  @callback tournament_match_ready(match :: struct()) :: any()
+  @callback tournament_match_expired(match :: struct()) :: any()
+  @callback before_tournament_result(match :: struct(), winner :: term()) :: hook_result(term())
+  @callback after_tournament_match(match :: struct()) :: any()
+  @callback after_tournament_finished(tournament :: struct(), standings :: map()) :: any()
+  @optional_callbacks before_tournament_register: 2,
+                      after_tournament_register: 2,
+                      before_tournament_leave: 2,
+                      tournament_match_ready: 1,
+                      tournament_match_expired: 1,
+                      before_tournament_result: 2,
+                      after_tournament_match: 1,
+                      after_tournament_finished: 2
+
   @callback before_chat_message(user(), attrs :: map()) :: hook_result(map())
   @callback after_chat_message(message()) :: any()
 
@@ -548,6 +572,30 @@ defmodule GameServer.Hooks do
       @impl true
       def before_kv_get(_key, _opts), do: :public
 
+      @impl true
+      def before_tournament_register(_user, tournament), do: {:ok, tournament}
+
+      @impl true
+      def after_tournament_register(_user, _tournament), do: :ok
+
+      @impl true
+      def before_tournament_leave(_user, tournament), do: {:ok, tournament}
+
+      @impl true
+      def tournament_match_ready(_match), do: :ok
+
+      @impl true
+      def tournament_match_expired(_match), do: :ok
+
+      @impl true
+      def before_tournament_result(_match, winner), do: {:ok, winner}
+
+      @impl true
+      def after_tournament_match(_match), do: :ok
+
+      @impl true
+      def after_tournament_finished(_tournament, _standings), do: :ok
+
       defoverridable before_user_register: 2,
                      after_user_register: 1,
                      after_user_login: 1,
@@ -589,7 +637,15 @@ defmodule GameServer.Hooks do
                      before_user_kicked: 3,
                      after_user_kicked: 3,
                      after_lobby_host_change: 2,
-                     before_kv_get: 2
+                     before_kv_get: 2,
+                     before_tournament_register: 2,
+                     after_tournament_register: 2,
+                     before_tournament_leave: 2,
+                     tournament_match_ready: 1,
+                     tournament_match_expired: 1,
+                     before_tournament_result: 2,
+                     after_tournament_match: 1,
+                     after_tournament_finished: 2
     end
   end
 

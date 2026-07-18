@@ -50,6 +50,8 @@ defmodule GameServerHost.Application do
       GameServer.Accounts.StalePresenceSweeper,
       # Prune old chat messages / notifications / payment events (RETENTION_* env vars)
       GameServer.Retention,
+      # Tournament lifecycle: transitions, draws, match deadlines, recurrence
+      GameServer.Tournaments.Ticker,
       # Quantum scheduler for cron-like jobs
       GameServer.Schedule.Scheduler,
       # Worker that drives the matchmaking sweep

@@ -144,6 +144,7 @@ defmodule GameServerWeb.Router.Shared do
       game_server_friend_notification_api_routes()
       game_server_group_mutation_api_routes()
       game_server_hook_leaderboard_party_api_routes()
+      game_server_tournament_api_routes()
       game_server_chat_api_routes()
       game_server_admin_api_routes()
       game_server_api_auth_routes()
@@ -209,6 +210,32 @@ defmodule GameServerWeb.Router.Shared do
         get "/leaderboards/:id", LeaderboardController, :show
         get "/leaderboards/:id/records", LeaderboardController, :records
         get "/leaderboards/:id/records/around/:user_id", LeaderboardController, :around
+      end
+    end
+  end
+
+  defmacro game_server_tournament_api_routes do
+    quote do
+      scope "/api/v1", GameServerWeb.Api.V1, as: :api_v1 do
+        pipe_through [:api]
+
+        get "/tournaments", TournamentController, :index
+        get "/tournaments/:id/standings", TournamentController, :standings
+        get "/tournaments/:id/bracket", TournamentController, :bracket
+      end
+
+      scope "/api/v1", GameServerWeb.Api.V1, as: :api_v1 do
+        pipe_through [:api, :api_optional_auth]
+
+        get "/tournaments/:id", TournamentController, :show
+      end
+
+      scope "/api/v1", GameServerWeb.Api.V1, as: :api_v1 do
+        pipe_through [:api, :api_auth]
+
+        post "/tournaments/:id/join", TournamentController, :join
+        delete "/tournaments/:id/join", TournamentController, :leave
+        get "/tournaments/:id/my-match", TournamentController, :my_match
       end
     end
   end
@@ -406,6 +433,14 @@ defmodule GameServerWeb.Router.Shared do
         delete "/leaderboards/:id/records/user/:user_id",
                LeaderboardRecordController,
                :delete_user
+
+        post "/tournaments", TournamentController, :create
+        patch "/tournaments/:id", TournamentController, :update
+        delete "/tournaments/:id", TournamentController, :delete
+        post "/tournaments/:id/cancel", TournamentController, :cancel
+        post "/tournaments/:id/draw", TournamentController, :draw
+        post "/tournaments/:id/finish", TournamentController, :finish
+        post "/tournaments/:id/matches/:match_id/resolve", TournamentController, :resolve_match
       end
     end
   end
@@ -502,6 +537,7 @@ defmodule GameServerWeb.Router.Shared do
           live "/admin/lobbies", AdminLive.Lobbies, :index
           live "/admin/lobbies/live", LobbyLive.Index, :index
           live "/admin/leaderboards", AdminLive.Leaderboards, :index
+          live "/admin/tournaments", AdminLive.Tournaments, :index
           live "/admin/users", AdminLive.Users, :index
           live "/admin/sessions", AdminLive.Sessions, :index
           live "/admin/notifications", AdminLive.Notifications, :index
