@@ -29,6 +29,7 @@ defmodule GameServerWeb.Api.V1.MeController do
             id: %Schema{type: :string, format: :uuid},
             email: %Schema{type: :string},
             profile_url: %Schema{type: :string},
+            username: %Schema{type: :string},
             display_name: %Schema{type: :string},
             metadata: %Schema{type: :object},
             lobby_id: %Schema{
@@ -80,6 +81,7 @@ defmodule GameServerWeb.Api.V1.MeController do
           email: user.email || "",
           profile_url: user.profile_url || "",
           metadata: user.metadata || %{},
+          username: user.username || "",
           display_name: user.display_name || "",
           lobby_id: user.lobby_id || "",
           party_id: user.party_id || "",
@@ -105,7 +107,11 @@ defmodule GameServerWeb.Api.V1.MeController do
       %Schema{
         type: :object,
         properties: %{
-          password: %Schema{type: :string}
+          password: %Schema{type: :string},
+          current_password: %Schema{
+            type: :string,
+            description: "Required when the account already has a password."
+          }
         },
         required: [:password]
       }
@@ -121,17 +127,37 @@ defmodule GameServerWeb.Api.V1.MeController do
   def update_password(conn, %{"password" => _} = params) do
     user = conn.assigns.current_scope.user
 
-    case GameServer.Accounts.update_user_password(user, params) do
-      {:ok, {user, _tokens}} ->
-        json(conn, %{ok: true, id: user.id})
+    if password_change_authorized?(user, params) do
+      case GameServer.Accounts.update_user_password(user, params) do
+        {:ok, {user, _tokens}} ->
+          json(conn, %{ok: true, id: user.id})
 
-      {:error, changeset} ->
-        conn
-        |> put_status(:bad_request)
-        |> json(%{
-          error: "invalid_data",
-          errors: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
-        })
+        {:error, changeset} ->
+          conn
+          |> put_status(:bad_request)
+          |> json(%{
+            error: "invalid_data",
+            errors: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
+          })
+      end
+    else
+      conn
+      |> put_status(:unauthorized)
+      |> json(%{
+        error: "invalid_current_password",
+        message: "current_password is required and must match your existing password"
+      })
+    end
+  end
+
+  # Accounts with an existing password must prove it to change it (a stolen
+  # access token must not be escalatable into a permanent password reset).
+  # OAuth/device accounts with no password yet may set one without re-auth.
+  defp password_change_authorized?(user, params) do
+    if is_nil(user.hashed_password) do
+      true
+    else
+      GameServer.Accounts.valid_password?(user, params["current_password"])
     end
   end
 
@@ -171,6 +197,59 @@ defmodule GameServerWeb.Api.V1.MeController do
           error: "invalid_data",
           errors: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
         })
+    end
+  end
+
+  operation(:update_username,
+    operation_id: "update_current_user_username",
+    summary: "Update current user's username",
+    description:
+      "Sets the unique username handle. Lowercased on save; 3-32 chars of a-z, 0-9 and " <>
+        "non-consecutive . _ - separators, starting and ending alphanumeric. " <>
+        "Returns invalid_data when the username is malformed or already taken.",
+    request_body: {
+      "Username payload",
+      "application/json",
+      %Schema{
+        type: :object,
+        properties: %{
+          username: %Schema{type: :string}
+        },
+        required: [:username]
+      }
+    },
+    security: [%{"authorization" => []}],
+    responses: [
+      ok: {"Username updated", "application/json", %Schema{type: :object}},
+      bad_request: {"Invalid data", "application/json", @validation_error_schema},
+      unauthorized: {"Not authenticated", "application/json", @error_schema}
+    ]
+  )
+
+  def update_username(conn, %{"username" => _} = params) do
+    user = conn.assigns.current_scope.user
+
+    case GameServer.Accounts.update_username(user, params) do
+      {:ok, user} ->
+        json(conn, %{ok: true, id: user.id, username: user.username || ""})
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{
+          error: "invalid_data",
+          errors: Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
+        })
+
+      {:error, reason} when is_atom(reason) or is_binary(reason) ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "invalid_data", errors: %{username: [to_string(reason)]}})
+
+      {:error, _reason} ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{error: "invalid_data"})
     end
   end
 

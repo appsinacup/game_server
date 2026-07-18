@@ -56,7 +56,7 @@ defmodule GameServerWeb.LobbiesChannel do
   @impl true
   def handle_info({:lobby_deleted, lobby_id}, socket) do
     push(socket, "lobby_deleted", %{id: lobby_id})
-    {:noreply, socket}
+    {:noreply, drop_lobby_payload(socket, lobby_id)}
   end
 
   @impl true
@@ -77,5 +77,12 @@ defmodule GameServerWeb.LobbiesChannel do
   defp put_lobby_payload(socket, payload) do
     payloads = Map.get(socket.assigns, :last_lobby_payloads, %{})
     assign(socket, :last_lobby_payloads, Map.put(payloads, payload.id, payload))
+  end
+
+  # Prune the delta cache when a lobby goes away so a long-lived list socket
+  # doesn't accumulate an entry for every lobby ever seen.
+  defp drop_lobby_payload(socket, lobby_id) do
+    payloads = Map.get(socket.assigns, :last_lobby_payloads, %{})
+    assign(socket, :last_lobby_payloads, Map.delete(payloads, lobby_id))
   end
 end

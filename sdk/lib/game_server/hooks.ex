@@ -36,6 +36,12 @@ defmodule GameServer.Hooks do
         end
 
         @impl true
+        def before_user_register(_user, attrs) do
+          # Override the generated username or veto the registration
+          {:ok, attrs}
+        end
+
+        @impl true
         def before_user_update(_user, attrs) do
           # Validate or modify user update attributes before they are applied
           # Return {:ok, attrs} to allow, {:error, reason} to block
@@ -269,6 +275,21 @@ defmodule GameServer.Hooks do
   @callback on_custom_hook(String.t(), list()) :: any()
 
   # User lifecycle callbacks
+
+  @doc """
+  Called before a new user row is inserted, on every registration path
+  (email, device, and all OAuth providers).
+
+  Receives the tentative user (not yet inserted, `id` is `nil`) and the
+  string-keyed registration attrs, which already contain the generated
+  `"username"`. Return `{:ok, attrs}` — possibly with a different username —
+  or `{:error, reason}` to abort. Core re-validates after all hooks ran: an
+  invalid or taken username is replaced with a generated one so login never
+  breaks; use `c:before_user_update/2` for strict checks on player-initiated
+  username changes (profanity, reserved names).
+  """
+  @callback before_user_register(user(), attrs :: map()) :: hook_result(map())
+
   @callback before_user_update(user(), attrs :: map()) :: hook_result(map())
   @callback after_user_register(user()) :: any()
   @callback after_user_login(user()) :: any()
@@ -423,6 +444,9 @@ defmodule GameServer.Hooks do
       def after_user_deleted(_user), do: :ok
 
       @impl true
+      def before_user_register(_user, attrs), do: {:ok, attrs}
+
+      @impl true
       def before_user_update(_user, attrs), do: {:ok, attrs}
 
       @impl true
@@ -524,7 +548,8 @@ defmodule GameServer.Hooks do
       @impl true
       def before_kv_get(_key, _opts), do: :public
 
-      defoverridable after_user_register: 1,
+      defoverridable before_user_register: 2,
+                     after_user_register: 1,
                      after_user_login: 1,
                      after_user_updated: 1,
                      after_user_online: 1,

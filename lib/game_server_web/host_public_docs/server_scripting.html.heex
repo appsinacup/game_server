@@ -133,8 +133,11 @@ end</code></pre>
           </div>
           <p class="text-sm text-base-content/80">
             {doc_text("Other \"before\" hooks follow the same pattern:")}
-            <code class="font-mono">before_lobby_create/1</code>, <code class="font-mono">before_lobby_join/3</code>, <code class="font-mono">before_group_join/3</code>. {doc_text(
+            <code class="font-mono">before_lobby_create/1</code>, <code class="font-mono">before_lobby_join/3</code>, <code class="font-mono">before_group_join/3</code>, <code class="font-mono">before_user_update/2</code>. {doc_text(
               "Return {:ok, attrs} (or the appropriate tuple) to allow, {:error, reason} to reject."
+            )}
+            {doc_text(
+              "At registration time, before_user_register/2 receives the tentative user and the registration attrs (including the generated username) on every signup path — email, device, and OAuth — and may adjust the attrs or abort."
             )}
           </p>
         </div>

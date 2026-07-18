@@ -51,7 +51,7 @@
       <ul class="list-disc pl-6 text-sm space-y-1 text-base-content/80">
         <li>
           <strong>UserChannel</strong>
-          (<code class="font-mono" phx-no-curly-interpolation>user:{user_id}</code>) — personal channel: friend online/offline, notifications, user profile updates
+          (<code class="font-mono" phx-no-curly-interpolation>user:{user_id}</code>) — personal channel: friend updates/presence, notifications, KV subscriptions, user profile updates
         </li>
         <li>
           <strong>LobbyChannel</strong>
@@ -84,7 +84,8 @@
   Channel              Topic              Client events (push)
   ───────              ─────              ────────────────────
   UserChannel       "user:{id}"         updated, notification,
-                                        friend_online, friend_offline,
+                                        friend_updated,
+                                        kv_updated, kv_deleted,
                                         new_chat_message,
                                         chat_message_updated,
                                         chat_message_deleted,
@@ -95,11 +96,7 @@
                                         group_join_rejected,
                                         party_invite_accepted,
                                         party_invite_declined,
-                                        party_invite_cancelled,
-                                        incoming_request, outgoing_request,
-                                        friend_accepted, friend_rejected,
-                                        request_cancelled, friend_removed,
-                                        friend_blocked, friend_unblocked
+                                        party_invite_cancelled
   LobbyChannel      "lobby:{id}"        updated, user_joined, user_left,
                                         user_kicked, host_changed,
                                         member_online, member_offline,
@@ -157,38 +154,42 @@
               <td class="font-mono">updated</td>
               <td>{doc_text("Profile changes, on join")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {id, email, display_name, metadata, lobby_id, party_id, is_online, last_seen_at, linked_providers, has_password}
+                {id, email, profile_url, metadata, username, display_name, lobby_id, party_id, is_online, last_seen_at, linked_providers, has_password}
               </td>
             </tr>
             <tr>
               <td class="font-mono">notification</td>
               <td>{doc_text("New notification / all on join")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {id, sender_id, recipient_id, title, content, metadata, inserted_at}
+                {id, sender_id, sender_name, recipient_id, title, content, metadata, inserted_at}
               </td>
             </tr>
             <tr>
-              <td class="font-mono">friend_online</td>
-              <td>{doc_text("A friend came online")}</td>
-              <td class="font-mono" phx-no-curly-interpolation>{user_id, is_online: true}</td>
+              <td class="font-mono">friend_updated</td>
+              <td>{doc_text("Friend presence/profile changes; full list on join")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {friends: {"&lt;user_id&gt;": {user_id, friendship_id, id, username, display_name, profile_url, metadata, is_online, is_activated, last_seen_at}}}
+              </td>
             </tr>
             <tr>
-              <td class="font-mono">friend_offline</td>
-              <td>{doc_text("A friend went offline")}</td>
-              <td class="font-mono" phx-no-curly-interpolation>{user_id, is_online: false}</td>
+              <td class="font-mono">kv_updated / kv_deleted</td>
+              <td>{doc_text("Subscribed KV entry changed (see kv:subscribe)")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {key, user_id, lobby_id, data, metadata} / {key, user_id, lobby_id}
+              </td>
             </tr>
             <tr>
               <td class="font-mono">new_chat_message</td>
               <td>{doc_text("Friend DM received")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {id, content, metadata, sender_id, chat_type, chat_ref_id, inserted_at}
+                {id, content, metadata, sender_id, sender_name, chat_type, chat_ref_id, inserted_at}
               </td>
             </tr>
             <tr>
               <td class="font-mono">chat_message_updated</td>
               <td>{doc_text("Friend DM edited")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {id, content, metadata, sender_id, chat_type, chat_ref_id, inserted_at}
+                {id, content, metadata, sender_id, sender_name, chat_type, chat_ref_id, inserted_at}
               </td>
             </tr>
             <tr>
@@ -323,62 +324,64 @@
               <td class="font-mono">updated</td>
               <td>{doc_text("Lobby settings changed, on join")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {id, title, host_id, hostless, max_users, is_hidden, is_locked, metadata}
+                {id, title, host_id, host_name, hostless, max_users, is_hidden, is_locked, metadata, members (+ spectator on join)}
               </td>
             </tr>
             <tr>
               <td class="font-mono">user_joined</td>
               <td>{doc_text("A user joined the lobby")}</td>
-              <td class="font-mono" phx-no-curly-interpolation>{user_id}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {user_id, id, username, display_name, profile_url, metadata, is_online, is_activated, last_seen_at}
+              </td>
             </tr>
             <tr>
               <td class="font-mono">user_left</td>
               <td>{doc_text("A user left the lobby")}</td>
-              <td class="font-mono" phx-no-curly-interpolation>{user_id}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{user_id, display_name}</td>
             </tr>
             <tr>
               <td class="font-mono">user_kicked</td>
               <td>{doc_text("A user was kicked")}</td>
-              <td class="font-mono" phx-no-curly-interpolation>{user_id}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{user_id, display_name}</td>
             </tr>
             <tr>
               <td class="font-mono">host_changed</td>
               <td>{doc_text("Lobby host changed")}</td>
-              <td class="font-mono" phx-no-curly-interpolation>{new_host_id}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{new_host_id, display_name}</td>
             </tr>
             <tr>
               <td class="font-mono">member_online</td>
               <td>{doc_text("A lobby member came online")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {user_id, display_name, profile_url, metadata, is_online}
+                {user_id, id, username, display_name, profile_url, metadata, is_online, is_activated, last_seen_at}
               </td>
             </tr>
             <tr>
               <td class="font-mono">member_offline</td>
               <td>{doc_text("A lobby member went offline")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {user_id, display_name, profile_url, metadata, is_online}
+                {user_id, id, username, display_name, profile_url, metadata, is_online, is_activated, last_seen_at}
               </td>
             </tr>
             <tr>
               <td class="font-mono">member_updated</td>
               <td>{doc_text("A lobby member was updated")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {user_id, display_name, profile_url, metadata, is_online}
+                {user_id, id, username, display_name, profile_url, metadata, is_online, is_activated, last_seen_at}
               </td>
             </tr>
             <tr>
               <td class="font-mono">new_chat_message</td>
               <td>{doc_text("New lobby chat message")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {id, content, metadata, sender_id, chat_type, chat_ref_id, inserted_at}
+                {id, content, metadata, sender_id, sender_name, chat_type, chat_ref_id, inserted_at}
               </td>
             </tr>
             <tr>
               <td class="font-mono">chat_message_updated</td>
               <td>{doc_text("Lobby chat message edited")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {id, content, metadata, sender_id, chat_type, chat_ref_id, inserted_at}
+                {id, content, metadata, sender_id, sender_name, chat_type, chat_ref_id, inserted_at}
               </td>
             </tr>
             <tr>
@@ -409,14 +412,14 @@
               <td class="font-mono">lobby_created</td>
               <td>{doc_text("New lobby created")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {id, title, host_id, hostless, max_users, is_hidden, is_locked, metadata, is_passworded}
+                {id, title, host_id, host_name, hostless, max_users, is_hidden, is_locked, metadata, is_passworded}
               </td>
             </tr>
             <tr>
               <td class="font-mono">lobby_updated</td>
               <td>{doc_text("Lobby settings changed")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {id, title, host_id, hostless, max_users, is_hidden, is_locked, metadata, is_passworded}
+                {id, title, host_id, host_name, hostless, max_users, is_hidden, is_locked, metadata, is_passworded}
               </td>
             </tr>
             <tr>
@@ -452,33 +455,43 @@
               <td class="font-mono">updated</td>
               <td>{doc_text("Group settings changed, on join")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {id, title, description, type, max_members, creator_id, metadata}
+                {id, title, description, type, max_members, creator_id, creator_name, metadata}
               </td>
             </tr>
             <tr>
               <td class="font-mono">member_joined</td>
               <td>{doc_text("New member joined")}</td>
-              <td class="font-mono" phx-no-curly-interpolation>{group_id, user_id}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {group_id, user_id, display_name}
+              </td>
             </tr>
             <tr>
               <td class="font-mono">member_left</td>
               <td>{doc_text("Member left")}</td>
-              <td class="font-mono" phx-no-curly-interpolation>{group_id, user_id}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {group_id, user_id, display_name}
+              </td>
             </tr>
             <tr>
               <td class="font-mono">member_kicked</td>
               <td>{doc_text("Member kicked")}</td>
-              <td class="font-mono" phx-no-curly-interpolation>{group_id, user_id}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {group_id, user_id, display_name}
+              </td>
             </tr>
             <tr>
               <td class="font-mono">member_promoted</td>
               <td>{doc_text("Member promoted to admin")}</td>
-              <td class="font-mono" phx-no-curly-interpolation>{group_id, user_id}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {group_id, user_id, display_name}
+              </td>
             </tr>
             <tr>
               <td class="font-mono">member_demoted</td>
               <td>{doc_text("Admin demoted to member")}</td>
-              <td class="font-mono" phx-no-curly-interpolation>{group_id, user_id}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {group_id, user_id, display_name}
+              </td>
             </tr>
             <tr>
               <td class="font-mono">member_online</td>
@@ -493,32 +506,36 @@
             <tr>
               <td class="font-mono">join_request_approved</td>
               <td>{doc_text("Join request approved by admin")}</td>
-              <td class="font-mono" phx-no-curly-interpolation>{group_id, user_id}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {group_id, user_id, display_name}
+              </td>
             </tr>
             <tr>
               <td class="font-mono">join_request_rejected</td>
               <td>{doc_text("Join request rejected by admin")}</td>
-              <td class="font-mono" phx-no-curly-interpolation>{group_id, user_id}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {group_id, user_id, display_name}
+              </td>
             </tr>
             <tr>
               <td class="font-mono">member_updated</td>
               <td>{doc_text("A group member was updated")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {user_id, display_name, profile_url, metadata, is_online}
+                {user_id, id, username, display_name, profile_url, metadata, is_online, is_activated, last_seen_at}
               </td>
             </tr>
             <tr>
               <td class="font-mono">new_chat_message</td>
               <td>{doc_text("New group chat message")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {id, content, metadata, sender_id, chat_type, chat_ref_id, inserted_at}
+                {id, content, metadata, sender_id, sender_name, chat_type, chat_ref_id, inserted_at}
               </td>
             </tr>
             <tr>
               <td class="font-mono">chat_message_updated</td>
               <td>{doc_text("Group chat message edited")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {id, content, metadata, sender_id, chat_type, chat_ref_id, inserted_at}
+                {id, content, metadata, sender_id, sender_name, chat_type, chat_ref_id, inserted_at}
               </td>
             </tr>
             <tr>
@@ -549,14 +566,14 @@
               <td class="font-mono">group_created</td>
               <td>{doc_text("New group created (excludes hidden)")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {id, title, description, type, max_members, creator_id, metadata}
+                {id, title, description, type, max_members, creator_id, creator_name, metadata}
               </td>
             </tr>
             <tr>
               <td class="font-mono">group_updated</td>
               <td>{doc_text("Group settings changed (excludes hidden)")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {id, title, description, type, max_members, creator_id, metadata}
+                {id, title, description, type, max_members, creator_id, creator_name, metadata}
               </td>
             </tr>
             <tr>
@@ -587,18 +604,20 @@
               <td class="font-mono">updated</td>
               <td>{doc_text("Party settings changed, on join")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {id, leader_id, max_size, code, metadata}
+                {id, leader_id, leader_name, max_size, metadata, members}
               </td>
             </tr>
             <tr>
               <td class="font-mono">member_joined</td>
               <td>{doc_text("User joined the party")}</td>
-              <td class="font-mono" phx-no-curly-interpolation>{user_id}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {user_id, id, username, display_name, profile_url, metadata, is_online, is_activated, last_seen_at}
+              </td>
             </tr>
             <tr>
               <td class="font-mono">member_left</td>
               <td>{doc_text("User left the party")}</td>
-              <td class="font-mono" phx-no-curly-interpolation>{user_id}</td>
+              <td class="font-mono" phx-no-curly-interpolation>{user_id, display_name}</td>
             </tr>
             <tr>
               <td class="font-mono">disbanded</td>
@@ -609,35 +628,35 @@
               <td class="font-mono">member_online</td>
               <td>{doc_text("A party member came online")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {user_id, display_name, profile_url, metadata, is_online}
+                {user_id, id, username, display_name, profile_url, metadata, is_online, is_activated, last_seen_at}
               </td>
             </tr>
             <tr>
               <td class="font-mono">member_offline</td>
               <td>{doc_text("A party member went offline")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {user_id, display_name, profile_url, metadata, is_online}
+                {user_id, id, username, display_name, profile_url, metadata, is_online, is_activated, last_seen_at}
               </td>
             </tr>
             <tr>
               <td class="font-mono">member_updated</td>
               <td>{doc_text("A party member was updated")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {user_id, display_name, profile_url, metadata, is_online}
+                {user_id, id, username, display_name, profile_url, metadata, is_online, is_activated, last_seen_at}
               </td>
             </tr>
             <tr>
               <td class="font-mono">new_chat_message</td>
               <td>{doc_text("New party chat message")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {id, content, metadata, sender_id, chat_type, chat_ref_id, inserted_at}
+                {id, content, metadata, sender_id, sender_name, chat_type, chat_ref_id, inserted_at}
               </td>
             </tr>
             <tr>
               <td class="font-mono">chat_message_updated</td>
               <td>{doc_text("Party chat message edited")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
-                {id, content, metadata, sender_id, chat_type, chat_ref_id, inserted_at}
+                {id, content, metadata, sender_id, sender_name, chat_type, chat_ref_id, inserted_at}
               </td>
             </tr>
             <tr>

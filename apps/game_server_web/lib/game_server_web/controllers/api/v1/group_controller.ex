@@ -80,6 +80,7 @@ defmodule GameServerWeb.Api.V1.GroupController do
       user_id: %Schema{type: :string, format: :uuid},
       group_id: %Schema{type: :string, format: :uuid},
       role: %Schema{type: :string, enum: ["admin", "member"]},
+      username: %Schema{type: :string},
       display_name: %Schema{type: :string},
       profile_url: %Schema{type: :string, nullable: true},
       is_online: %Schema{type: :boolean},
@@ -95,6 +96,7 @@ defmodule GameServerWeb.Api.V1.GroupController do
       user_id: %Schema{type: :string, format: :uuid},
       group_id: %Schema{type: :string, format: :uuid},
       status: %Schema{type: :string, enum: ["pending", "accepted", "rejected"]},
+      username: %Schema{type: :string},
       display_name: %Schema{type: :string},
       inserted_at: %Schema{type: :string, format: :"date-time"}
     }
@@ -1441,6 +1443,7 @@ defmodule GameServerWeb.Api.V1.GroupController do
   defp serialize_member(member) do
     user_loaded? = Ecto.assoc_loaded?(member.user) and member.user != nil
 
+    username = if user_loaded?, do: member.user.username, else: nil
     display_name = if user_loaded?, do: member.user.display_name, else: nil
     profile_url = if user_loaded?, do: member.user.profile_url, else: nil
     is_online = if user_loaded?, do: member.user.is_online || false, else: false
@@ -1455,6 +1458,7 @@ defmodule GameServerWeb.Api.V1.GroupController do
       user_id: member.user_id,
       group_id: member.group_id,
       role: member.role,
+      username: username || "",
       display_name: display_name || "",
       profile_url: profile_url || "",
       is_online: is_online,
@@ -1464,18 +1468,16 @@ defmodule GameServerWeb.Api.V1.GroupController do
   end
 
   defp serialize_join_request(request) do
-    display_name =
-      if Ecto.assoc_loaded?(request.user) and request.user do
-        request.user.display_name
-      else
-        nil
-      end
+    user_loaded? = Ecto.assoc_loaded?(request.user) and request.user != nil
+    username = if user_loaded?, do: request.user.username, else: nil
+    display_name = if user_loaded?, do: request.user.display_name, else: nil
 
     %{
       id: request.id,
       user_id: request.user_id,
       group_id: request.group_id,
       status: request.status,
+      username: username || "",
       display_name: display_name || "",
       inserted_at: request.inserted_at
     }

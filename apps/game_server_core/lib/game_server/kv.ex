@@ -38,15 +38,15 @@ defmodule GameServer.KV do
 
   Expected keys (atom keys recommended):
   - `:key` — the entry key (`String.t()`)
-    - `:user_id` — optional user id (`pos_integer()`)
-    - `:lobby_id` — optional lobby id (`pos_integer()`)
+    - `:user_id` — optional user id (`String.t()`)
+    - `:lobby_id` — optional lobby id (`String.t()`)
   - `:value` — the stored value (`value()`)
   - `:metadata` — optional metadata (`metadata()`)
   """
   @type attrs :: %{
           required(:key) => String.t(),
-          optional(:user_id) => pos_integer(),
-          optional(:lobby_id) => pos_integer(),
+          optional(:user_id) => String.t(),
+          optional(:lobby_id) => String.t(),
           required(:value) => value(),
           optional(:metadata) => metadata()
         }
@@ -57,16 +57,16 @@ defmodule GameServer.KV do
   Keys (all optional):
   - `:page` — page number (`pos_integer()`, defaults to `1`)
   - `:page_size` — page size (`pos_integer()`, defaults to `50`)
-  - `:user_id` — filter by user id (`pos_integer()`)
-  - `:lobby_id` — filter by lobby id (`pos_integer()`)
+  - `:user_id` — filter by user id (`Ecto.UUID.t()`)
+  - `:lobby_id` — filter by lobby id (`Ecto.UUID.t()`)
   - `:global_only` — when true, only return global entries (where `user_id` and `lobby_id` are `nil`) (`boolean()`)
   - `:key` — substring filter (`String.t()`)
   """
   @type list_opts :: [
           page: pos_integer(),
           page_size: pos_integer(),
-          user_id: pos_integer(),
-          lobby_id: pos_integer(),
+          user_id: Ecto.UUID.t(),
+          lobby_id: Ecto.UUID.t(),
           global_only: boolean(),
           key: String.t()
         ]
@@ -129,46 +129,30 @@ defmodule GameServer.KV do
   end
 
   defp invalidate_entries_cache(nil, nil) do
-    _ = GameServer.Cache.incr({:kv, :entries_version, :all}, 1, default: 1)
+    _ = GameServer.Cache.bump_version({:kv, :entries_version, :all})
     :ok
   end
 
   defp invalidate_entries_cache(user_id, nil) when is_binary(user_id) do
-    GameServer.Async.run(fn ->
-      _ = GameServer.Cache.incr({:kv, :entries_version, :all}, 1, default: 1)
-      _ = GameServer.Cache.incr({:kv, :entries_version, {:user, user_id}}, 1, default: 1)
-      :ok
-    end)
-
+    _ = GameServer.Cache.bump_version({:kv, :entries_version, :all})
+    _ = GameServer.Cache.bump_version({:kv, :entries_version, {:user, user_id}})
     :ok
   end
 
   defp invalidate_entries_cache(nil, lobby_id) when is_binary(lobby_id) do
-    GameServer.Async.run(fn ->
-      _ = GameServer.Cache.incr({:kv, :entries_version, :all}, 1, default: 1)
-      _ = GameServer.Cache.incr({:kv, :entries_version, {:lobby, lobby_id}}, 1, default: 1)
-      :ok
-    end)
-
+    _ = GameServer.Cache.bump_version({:kv, :entries_version, :all})
+    _ = GameServer.Cache.bump_version({:kv, :entries_version, {:lobby, lobby_id}})
     :ok
   end
 
   defp invalidate_entries_cache(user_id, lobby_id)
        when is_binary(user_id) and is_binary(lobby_id) do
-    GameServer.Async.run(fn ->
-      _ = GameServer.Cache.incr({:kv, :entries_version, :all}, 1, default: 1)
-      _ = GameServer.Cache.incr({:kv, :entries_version, {:user, user_id}}, 1, default: 1)
-      _ = GameServer.Cache.incr({:kv, :entries_version, {:lobby, lobby_id}}, 1, default: 1)
+    _ = GameServer.Cache.bump_version({:kv, :entries_version, :all})
+    _ = GameServer.Cache.bump_version({:kv, :entries_version, {:user, user_id}})
+    _ = GameServer.Cache.bump_version({:kv, :entries_version, {:lobby, lobby_id}})
 
-      _ =
-        GameServer.Cache.incr(
-          {:kv, :entries_version, {:user_lobby, user_id, lobby_id}},
-          1,
-          default: 1
-        )
-
-      :ok
-    end)
+    _ =
+      GameServer.Cache.bump_version({:kv, :entries_version, {:user_lobby, user_id, lobby_id}})
 
     :ok
   end
@@ -404,10 +388,10 @@ defmodule GameServer.KV do
   end
 
   @doc """
-  Fetch an `Entry` by its numeric `id`.
+  Fetch an `Entry` by its `id`.
   Returns the `Entry` struct or `nil` if not found.
   """
-  @spec get_entry(pos_integer()) :: Entry.t() | nil
+  @spec get_entry(Ecto.UUID.t()) :: Entry.t() | nil
   def get_entry(id) do
     Repo.get_uuid(Entry, id)
   end

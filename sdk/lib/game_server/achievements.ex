@@ -139,7 +139,7 @@ defmodule GameServer.Achievements do
   @doc ~S"""
     Count unlocked achievements for a user.
   """
-  @spec count_user_achievements(String.t()) :: non_neg_integer()
+  @spec count_user_achievements(Ecto.UUID.t()) :: non_neg_integer()
   def count_user_achievements(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -224,7 +224,7 @@ defmodule GameServer.Achievements do
   @doc ~S"""
     Get an achievement by ID.
   """
-  @spec get_achievement(String.t()) :: GameServer.Achievements.Achievement.t() | nil
+  @spec get_achievement(Ecto.UUID.t()) :: GameServer.Achievements.Achievement.t() | nil
   def get_achievement(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -254,7 +254,8 @@ defmodule GameServer.Achievements do
   @doc ~S"""
     Get a user's progress on a specific achievement.
   """
-  @spec get_user_achievement(String.t(), String.t()) :: GameServer.Achievements.UserAchievement.t() | nil
+  @spec get_user_achievement(Ecto.UUID.t(), Ecto.UUID.t()) ::
+  GameServer.Achievements.UserAchievement.t() | nil
   def get_user_achievement(_user_id, _achievement_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -269,7 +270,7 @@ defmodule GameServer.Achievements do
   @doc ~S"""
     Grant achievement to user by slug (admin convenience, calls unlock_achievement).
   """
-  @spec grant_achievement(String.t(), String.t()) ::
+  @spec grant_achievement(Ecto.UUID.t(), String.t()) ::
   {:ok, GameServer.Achievements.UserAchievement.t()} | {:error, atom()}
   def grant_achievement(_user_id, _slug) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -289,7 +290,7 @@ defmodule GameServer.Achievements do
     Returns `{:ok, user_achievement}`.
     
   """
-  @spec increment_progress(String.t(), String.t()) ::
+  @spec increment_progress(Ecto.UUID.t(), String.t()) ::
   {:ok, GameServer.Achievements.UserAchievement.t()} | {:error, atom()}
   def increment_progress(_user_id, _slug) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -309,7 +310,7 @@ defmodule GameServer.Achievements do
     Returns `{:ok, user_achievement}`.
     
   """
-  @spec increment_progress(String.t(), String.t(), pos_integer()) ::
+  @spec increment_progress(Ecto.UUID.t(), String.t(), pos_integer()) ::
   {:ok, GameServer.Achievements.UserAchievement.t()} | {:error, atom()}
   def increment_progress(_user_id, _slug, _amount) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -369,7 +370,7 @@ defmodule GameServer.Achievements do
   @doc ~S"""
     Lists all achievements unlocked by a user.
   """
-  @spec list_user_achievements(String.t()) :: [GameServer.Achievements.UserAchievement.t()]
+  @spec list_user_achievements(Ecto.UUID.t()) :: [GameServer.Achievements.UserAchievement.t()]
   def list_user_achievements(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -385,7 +386,7 @@ defmodule GameServer.Achievements do
     Lists all achievements unlocked by a user.
   """
   @spec list_user_achievements(
-  String.t(),
+  Ecto.UUID.t(),
   keyword()
 ) :: [GameServer.Achievements.UserAchievement.t()]
   def list_user_achievements(_user_id, _opts) do
@@ -402,7 +403,7 @@ defmodule GameServer.Achievements do
   @doc ~S"""
     Reset a user's progress on a specific achievement (admin use).
   """
-  @spec reset_user_achievement(String.t(), String.t()) ::
+  @spec reset_user_achievement(Ecto.UUID.t(), Ecto.UUID.t()) ::
   {:ok, GameServer.Achievements.UserAchievement.t() | :not_found} | {:error, Ecto.Changeset.t()}
   def reset_user_achievement(_user_id, _achievement_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -419,7 +420,7 @@ defmodule GameServer.Achievements do
     Revoke an achievement from a user. Deletes the user_achievement record entirely.
     
   """
-  @spec revoke_achievement(String.t(), String.t()) ::
+  @spec revoke_achievement(Ecto.UUID.t(), Ecto.UUID.t()) ::
   {:ok, GameServer.Achievements.UserAchievement.t()} | {:error, atom()}
   def revoke_achievement(_user_id, _achievement_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -454,7 +455,7 @@ defmodule GameServer.Achievements do
     Returns `{:ok, user_achievement}` or `{:error, reason}`.
     
   """
-  @spec unlock_achievement(String.t(), String.t()) ::
+  @spec unlock_achievement(Ecto.UUID.t(), String.t()) ::
   {:ok, GameServer.Achievements.UserAchievement.t()} | {:error, atom()}
   def unlock_achievement(_user_id, _slug_or_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -470,7 +471,7 @@ defmodule GameServer.Achievements do
   @doc ~S"""
     Get unlock percentage for an achievement (0.0 to 100.0).
   """
-  @spec unlock_percentage(String.t()) :: float()
+  @spec unlock_percentage(Ecto.UUID.t()) :: float()
   def unlock_percentage(_achievement_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->

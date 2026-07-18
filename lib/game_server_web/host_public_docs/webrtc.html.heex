@@ -235,6 +235,26 @@ config :game_server_web, :webrtc,
         </table>
       </div>
 
+      <h3 class="font-semibold mt-3">{doc_text("Hook RPC over the events channel")}</h3>
+      <p class="text-sm text-base-content/80">
+        {doc_text(
+          "Messages sent on the \"events\" DataChannel with a call_hook type invoke server-side plugin hooks, avoiding an HTTP round-trip. The reply arrives on the same channel:"
+        )}
+      </p>
+      <div
+        class="bg-base-200 font-mono text-xs sm:text-sm p-4 rounded-lg overflow-auto"
+        phx-no-curly-interpolation
+      >
+        <pre>
+<span class="code-comment"># Client → Server (on the "events" DataChannel)</span>
+{"type": "call_hook", "plugin": "my_plugin", "fn": "my_func", "args": [1, 2]}
+
+<span class="code-comment"># Server → Client</span>
+{"type": "hook_reply", "plugin": "my_plugin", "fn": "my_func", "data": ...}
+<span class="code-comment"># or, on failure (including results that are not JSON-encodable)</span>
+{"type": "hook_error", "plugin": "my_plugin", "fn": "my_func", "error": "reason"}</pre>
+      </div>
+
       <h3 class="font-semibold mt-3">{doc_text("JavaScript client")}</h3>
       <p class="text-sm text-base-content/80">
         {doc_text("Import GameWebRTC from assets/js/webrtc.js:")}

@@ -322,6 +322,32 @@ defmodule GameServer.Accounts do
   end
 
 
+  @doc false
+  @spec change_username(GameServer.Accounts.User.t()) :: Ecto.Changeset.t()
+  def change_username(_user) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.change_username/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc false
+  @spec change_username(GameServer.Accounts.User.t(), map()) :: Ecto.Changeset.t()
+  def change_username(_user, _attrs) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Accounts.change_username/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
   @doc ~S"""
     Confirms a user's email by setting confirmed_at timestamp.
     
@@ -366,7 +392,7 @@ defmodule GameServer.Accounts do
 
 
   @doc ~S"""
-    Count users matching a display name query or exact numeric id. Returns integer.
+    Count users matching a username/display name query or exact id. Returns integer.
     
   """
   @spec count_search_users(String.t()) :: non_neg_integer()
@@ -401,7 +427,7 @@ defmodule GameServer.Accounts do
     Counts tokens for a given user.
     
   """
-  @spec count_user_tokens(String.t()) :: non_neg_integer()
+  @spec count_user_tokens(Ecto.UUID.t()) :: non_neg_integer()
   def count_user_tokens(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -835,7 +861,7 @@ defmodule GameServer.Accounts do
     
     
   """
-  @spec get_user(String.t()) :: GameServer.Accounts.User.t() | nil
+  @spec get_user(Ecto.UUID.t()) :: GameServer.Accounts.User.t() | nil
   def get_user(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -862,7 +888,7 @@ defmodule GameServer.Accounts do
     
     
   """
-  @spec get_user!(String.t()) :: GameServer.Accounts.User.t()
+  @spec get_user!(Ecto.UUID.t()) :: GameServer.Accounts.User.t()
   def get_user!(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -1049,6 +1075,23 @@ defmodule GameServer.Accounts do
 
 
   @doc ~S"""
+    Gets a user by their unique username handle (case-insensitive; usernames
+    are stored lowercase).
+    
+  """
+  @spec get_user_by_username(String.t()) :: GameServer.Accounts.User.t() | nil
+  def get_user_by_username(_username) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}
+
+      _ ->
+        raise "GameServer.Accounts.get_user_by_username/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Returns whether the user has a password set.
     
   """
@@ -1069,7 +1112,7 @@ defmodule GameServer.Accounts do
     Accepts a user ID and clears both the primary and all index caches.
     
   """
-  @spec invalidate_user_cache_by_id(String.t()) :: :ok
+  @spec invalidate_user_cache_by_id(Ecto.UUID.t()) :: :ok
   def invalidate_user_cache_by_id(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -1130,7 +1173,7 @@ defmodule GameServer.Accounts do
     
   """
   @spec list_user_tokens(
-  String.t(),
+  Ecto.UUID.t(),
   keyword()
 ) :: [GameServer.Accounts.UserToken.t()]
   def list_user_tokens(_user_id, _opts) do
@@ -1302,7 +1345,7 @@ defmodule GameServer.Accounts do
     Revokes all session tokens for a user (mass logout).
     
   """
-  @spec revoke_all_user_sessions(String.t()) :: {non_neg_integer(), nil}
+  @spec revoke_all_user_sessions(Ecto.UUID.t()) :: {non_neg_integer(), nil}
   def revoke_all_user_sessions(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -1382,7 +1425,7 @@ defmodule GameServer.Accounts do
     Returns {:ok, user} on success.
     
   """
-  @spec set_user_offline(String.t()) :: {:ok, GameServer.Accounts.User.t()} | {:error, term()}
+  @spec set_user_offline(Ecto.UUID.t()) :: {:ok, GameServer.Accounts.User.t()} | {:error, term()}
   def set_user_offline(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -1405,7 +1448,7 @@ defmodule GameServer.Accounts do
     Returns {:ok, user} on success.
     
   """
-  @spec set_user_online(String.t()) :: {:ok, GameServer.Accounts.User.t()} | {:error, term()}
+  @spec set_user_online(Ecto.UUID.t()) :: {:ok, GameServer.Accounts.User.t()} | {:error, term()}
   def set_user_online(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -1479,7 +1522,7 @@ defmodule GameServer.Accounts do
     Fire-and-forget — errors are ignored.
     
   """
-  @spec touch_last_seen_by_id(String.t()) :: :ok
+  @spec touch_last_seen_by_id(Ecto.UUID.t()) :: :ok
   def touch_last_seen_by_id(_user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -1638,6 +1681,28 @@ defmodule GameServer.Accounts do
 
 
   @doc ~S"""
+    Updates the user's unique username handle and broadcasts the change.
+    
+    Strict, unlike registration: an invalid or taken username returns
+    `{:error, changeset}` with no generated fallback, so the player can pick
+    again. Routed through the `before_user_update` hook pipeline, where games
+    can forbid changes entirely or reject names (profanity, reserved words).
+    
+  """
+  @spec update_username(GameServer.Accounts.User.t(), map()) ::
+  {:ok, GameServer.Accounts.User.t()} | {:error, Ecto.Changeset.t() | term()}
+  def update_username(_user, _attrs) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Accounts.update_username/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Returns true when the given user is activated or when account activation
     is not required. Returns false only when activation is required **and**
     the user's `is_activated` flag is `false`.
@@ -1651,6 +1716,22 @@ defmodule GameServer.Accounts do
 
       _ ->
         raise "GameServer.Accounts.user_activated?/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Returns true when `password` matches the user's current password.
+    
+  """
+  @spec valid_password?(GameServer.Accounts.User.t(), term()) :: boolean()
+  def valid_password?(_user, _password) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        false
+
+      _ ->
+        raise "GameServer.Accounts.valid_password?/2 is a stub - only available at runtime on GameServer"
     end
   end
 

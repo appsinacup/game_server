@@ -20,15 +20,15 @@ defmodule GameServer.KV do
   @type list_opts() :: [
   page: pos_integer(),
   page_size: pos_integer(),
-  user_id: pos_integer(),
-  lobby_id: pos_integer(),
+  user_id: Ecto.UUID.t(),
+  lobby_id: Ecto.UUID.t(),
   global_only: boolean(),
   key: String.t()
 ]
   @type attrs() :: %{
   :key => String.t(),
-  optional(:user_id) => pos_integer(),
-  optional(:lobby_id) => pos_integer(),
+  optional(:user_id) => String.t(),
+  optional(:lobby_id) => String.t(),
   :value => value(),
   optional(:metadata) => metadata()
 }
@@ -189,11 +189,11 @@ defmodule GameServer.KV do
 
 
   @doc ~S"""
-    Fetch an `Entry` by its numeric `id`.
+    Fetch an `Entry` by its `id`.
     Returns the `Entry` struct or `nil` if not found.
     
   """
-  @spec get_entry(pos_integer()) :: GameServer.KV.Entry.t() | nil
+  @spec get_entry(Ecto.UUID.t()) :: GameServer.KV.Entry.t() | nil
   def get_entry(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->

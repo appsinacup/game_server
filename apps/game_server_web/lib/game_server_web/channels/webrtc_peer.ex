@@ -327,15 +327,32 @@ defmodule GameServerWeb.WebRTCPeer do
         # Use the stored full user or refetch if missing
         user = state.user || Accounts.get_user(state.user_id)
 
-        case PluginManager.call_rpc(plugin, func, args, caller: user) do
-          {:ok, res} ->
-            resp = %{type: "hook_reply", plugin: plugin, fn: func, data: res}
-            send_data(self(), "events", Jason.encode!(resp))
+        resp =
+          case PluginManager.call_rpc(plugin, func, args, caller: user) do
+            {:ok, res} ->
+              case Jason.encode(%{type: "hook_reply", plugin: plugin, fn: func, data: res}) do
+                {:ok, json} ->
+                  json
 
-          {:error, reason} ->
-            resp = %{type: "hook_error", plugin: plugin, fn: func, error: to_string(reason)}
-            send_data(self(), "events", Jason.encode!(resp))
-        end
+                {:error, _} ->
+                  Jason.encode!(%{
+                    type: "hook_error",
+                    plugin: plugin,
+                    fn: func,
+                    error: "result_not_json_encodable"
+                  })
+              end
+
+            {:error, reason} ->
+              Jason.encode!(%{
+                type: "hook_error",
+                plugin: plugin,
+                fn: func,
+                error: format_error(reason)
+              })
+          end
+
+        _ = send_on_channel(state, "events", resp)
 
       _ ->
         :ok
@@ -343,6 +360,19 @@ defmodule GameServerWeb.WebRTCPeer do
   end
 
   defp maybe_handle_rpc(_label, _data, _state), do: :ok
+
+  # Direct send for use from within this GenServer (send_data/3 is a
+  # GenServer.call and would deadlock when invoked on self()).
+  defp send_on_channel(state, label, data) do
+    case Map.get(state.channels_by_label, label) do
+      nil -> {:error, :channel_not_found}
+      ref -> PeerConnection.send_data(state.peer_connection, ref, data)
+    end
+  end
+
+  defp format_error(reason) when is_binary(reason), do: reason
+  defp format_error(reason) when is_atom(reason), do: to_string(reason)
+  defp format_error(reason), do: inspect(reason)
 
   # ── DataChannel rate limiting ──────────────────────────────────────────────
 

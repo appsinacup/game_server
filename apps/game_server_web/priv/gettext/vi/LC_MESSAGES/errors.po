@@ -1,116 +1,116 @@
-## "msgid"s in this file come from POT (.pot) files.
-###
-### Do not add, change, or remove "msgid"s manually here as
-### they're tied to the ones in the corresponding POT file
-### (with the same domain).
-###
-### Use "mix gettext.extract --merge" or "mix gettext.merge"
-### to merge POT files into PO files.
+#  "msgid"s in this file come from POT (.pot) files.
+# #
+# # Do not add, change, or remove "msgid"s manually here as
+# # they're tied to the ones in the corresponding POT file
+# # (with the same domain).
+# #
+# # Use "mix gettext.extract --merge" or "mix gettext.merge"
+# # to merge POT files into PO files.
 msgid ""
 msgstr ""
 "Language: vi\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 msgid "can't be blank"
-msgstr ""
+msgstr "không được để trống"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:21
 #, elixir-autogen
 msgid "has already been taken"
-msgstr ""
+msgstr "đã được sử dụng"
 
 msgid "is invalid"
-msgstr ""
+msgstr "không hợp lệ"
 
 msgid "must be accepted"
-msgstr ""
+msgstr "phải được chấp nhận"
 
 msgid "has invalid format"
-msgstr ""
+msgstr "có định dạng không hợp lệ"
 
 msgid "has an invalid entry"
-msgstr ""
+msgstr "chứa mục không hợp lệ"
 
 msgid "is reserved"
-msgstr ""
+msgstr "đã được dành riêng"
 
 msgid "does not match confirmation"
-msgstr ""
+msgstr "không khớp với xác nhận"
 
 msgid "is still associated with this entry"
-msgstr ""
+msgstr "vẫn được liên kết với mục này"
 
 msgid "are still associated with this entry"
-msgstr ""
+msgstr "vẫn được liên kết với mục này"
 
 msgid "should have %{count} item(s)"
-msgstr ""
+msgstr "phải có %{count} mục"
 
 msgid "should be %{count} character(s)"
-msgstr ""
+msgstr "phải dài %{count} ký tự"
 
 msgid "should be %{count} byte(s)"
-msgstr ""
+msgstr "phải có %{count} byte"
 
 msgid "should have at least %{count} item(s)"
-msgstr ""
+msgstr "phải có ít nhất %{count} mục"
 
 msgid "should be at least %{count} character(s)"
-msgstr ""
+msgstr "phải dài ít nhất %{count} ký tự"
 
 msgid "should be at least %{count} byte(s)"
-msgstr ""
+msgstr "phải có ít nhất %{count} byte"
 
 msgid "should have at most %{count} item(s)"
-msgstr ""
+msgstr "chỉ được có tối đa %{count} mục"
 
 msgid "should be at most %{count} character(s)"
-msgstr ""
+msgstr "chỉ được dài tối đa %{count} ký tự"
 
 msgid "should be at most %{count} byte(s)"
-msgstr ""
+msgstr "chỉ được có tối đa %{count} byte"
 
 msgid "must be less than %{number}"
-msgstr ""
+msgstr "phải nhỏ hơn %{number}"
 
 msgid "must be greater than %{number}"
-msgstr ""
+msgstr "phải lớn hơn %{number}"
 
 msgid "must be less than or equal to %{number}"
-msgstr ""
+msgstr "phải nhỏ hơn hoặc bằng %{number}"
 
 msgid "must be greater than or equal to %{number}"
-msgstr ""
+msgstr "phải lớn hơn hoặc bằng %{number}"
 
 msgid "must be equal to %{number}"
-msgstr ""
+msgstr "phải bằng %{number}"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:18
 #, elixir-autogen, elixir-format
 msgid "cannot friend yourself"
-msgstr ""
+msgstr "không thể kết bạn với chính mình"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:19
 #, elixir-autogen, elixir-format
 msgid "did not change"
-msgstr ""
+msgstr "không thay đổi"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:20
 #, elixir-autogen, elixir-format
 msgid "does not exist"
-msgstr ""
+msgstr "không tồn tại"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:24
 #, elixir-autogen, elixir-format
 msgid "does not match password"
-msgstr ""
+msgstr "không khớp với mật khẩu"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:22
 #, elixir-autogen, elixir-format
 msgid "must be lowercase alphanumeric with underscores"
-msgstr ""
+msgstr "chỉ được dùng chữ thường, số và dấu gạch dưới"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:23
 #, elixir-autogen, elixir-format
 msgid "must have the @ sign and no spaces"
-msgstr ""
+msgstr "phải có ký tự @ và không có khoảng trắng"

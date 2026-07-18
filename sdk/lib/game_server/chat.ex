@@ -31,7 +31,7 @@ defmodule GameServer.Chat do
   @doc ~S"""
     Admin: delete a single message by id.
   """
-  @spec admin_delete_message(String.t()) :: {:ok, GameServer.Chat.Message.t()} | {:error, term()}
+  @spec admin_delete_message(Ecto.UUID.t()) :: {:ok, GameServer.Chat.Message.t()} | {:error, term()}
   def admin_delete_message(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -46,7 +46,7 @@ defmodule GameServer.Chat do
   @doc ~S"""
     Returns `:ok` when user can access the chat conversation.
   """
-  @spec authorize_access(String.t(), String.t(), String.t()) :: :ok | {:error, atom()}
+  @spec authorize_access(Ecto.UUID.t(), String.t(), Ecto.UUID.t()) :: :ok | {:error, atom()}
   def authorize_access(_user_id, _chat_type, _chat_ref_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -61,7 +61,7 @@ defmodule GameServer.Chat do
   @doc ~S"""
     Delete all chat data (messages + read cursors) for a given conversation.
   """
-  @spec cleanup_chat(String.t(), String.t()) :: :ok
+  @spec cleanup_chat(String.t(), Ecto.UUID.t()) :: :ok
   def cleanup_chat(_chat_type, _chat_ref_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -80,7 +80,7 @@ defmodule GameServer.Chat do
     the other's id as chat_ref_id), so both directions must be cleaned up.
     
   """
-  @spec cleanup_friend_chat(String.t(), String.t()) :: :ok
+  @spec cleanup_friend_chat(Ecto.UUID.t(), Ecto.UUID.t()) :: :ok
   def cleanup_friend_chat(_user_a_id, _user_b_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -125,7 +125,7 @@ defmodule GameServer.Chat do
   @doc ~S"""
     Count total messages in a chat conversation.
   """
-  @spec count_messages(String.t(), String.t()) :: non_neg_integer()
+  @spec count_messages(String.t(), Ecto.UUID.t()) :: non_neg_integer()
   def count_messages(_chat_type, _chat_ref_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -177,7 +177,7 @@ defmodule GameServer.Chat do
     in which case `count_messages/2` should be used instead).
     
   """
-  @spec count_unread(String.t(), String.t(), String.t()) :: non_neg_integer()
+  @spec count_unread(Ecto.UUID.t(), String.t(), Ecto.UUID.t()) :: non_neg_integer()
   def count_unread(_user_id, _chat_type, _chat_ref_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -193,7 +193,7 @@ defmodule GameServer.Chat do
     Count unread friend DMs between two users for a specific user.
     
   """
-  @spec count_unread_friend(String.t(), String.t()) :: non_neg_integer()
+  @spec count_unread_friend(Ecto.UUID.t(), Ecto.UUID.t()) :: non_neg_integer()
   def count_unread_friend(_user_id, _friend_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -212,8 +212,8 @@ defmodule GameServer.Chat do
     at least one unread message.
     
   """
-  @spec count_unread_friends_batch(String.t(), [String.t()]) :: %{
-  required(String.t()) => non_neg_integer()
+  @spec count_unread_friends_batch(Ecto.UUID.t(), [Ecto.UUID.t()]) :: %{
+  required(Ecto.UUID.t()) => non_neg_integer()
 }
   def count_unread_friends_batch(_user_id, _friend_ids) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -232,8 +232,8 @@ defmodule GameServer.Chat do
     Returns a map of `%{group_id => unread_count}`.
     
   """
-  @spec count_unread_groups_batch(String.t(), [String.t()]) :: %{
-  required(String.t()) => non_neg_integer()
+  @spec count_unread_groups_batch(Ecto.UUID.t(), [Ecto.UUID.t()]) :: %{
+  required(Ecto.UUID.t()) => non_neg_integer()
 }
   def count_unread_groups_batch(_user_id, _group_ids) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -249,7 +249,7 @@ defmodule GameServer.Chat do
   @doc ~S"""
     Delete all messages for a given chat conversation.
   """
-  @spec delete_messages(String.t(), String.t()) :: {non_neg_integer(), nil}
+  @spec delete_messages(String.t(), Ecto.UUID.t()) :: {non_neg_integer(), nil}
   def delete_messages(_chat_type, _chat_ref_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -268,7 +268,7 @@ defmodule GameServer.Chat do
     `{:error, :forbidden}` if the caller is not the sender.
     
   """
-  @spec delete_own_message(String.t(), String.t()) ::
+  @spec delete_own_message(Ecto.UUID.t(), Ecto.UUID.t()) ::
   {:ok, GameServer.Chat.Message.t()} | {:error, term()}
   def delete_own_message(_user_id, _message_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -284,7 +284,7 @@ defmodule GameServer.Chat do
   @doc ~S"""
     Delete all read cursors for a given chat conversation.
   """
-  @spec delete_read_cursors(String.t(), String.t()) :: {non_neg_integer(), nil}
+  @spec delete_read_cursors(String.t(), Ecto.UUID.t()) :: {non_neg_integer(), nil}
   def delete_read_cursors(_chat_type, _chat_ref_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -299,7 +299,7 @@ defmodule GameServer.Chat do
   @doc ~S"""
     Get a single message by id.
   """
-  @spec get_message(String.t()) :: GameServer.Chat.Message.t() | nil
+  @spec get_message(Ecto.UUID.t()) :: GameServer.Chat.Message.t() | nil
   def get_message(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -317,7 +317,7 @@ defmodule GameServer.Chat do
     Returns `nil` if the user has never opened this conversation.
     
   """
-  @spec get_read_cursor(String.t(), String.t(), String.t()) :: GameServer.Chat.ReadCursor.t() | nil
+  @spec get_read_cursor(Ecto.UUID.t(), String.t(), Ecto.UUID.t()) :: GameServer.Chat.ReadCursor.t() | nil
   def get_read_cursor(_user_id, _chat_type, _chat_ref_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -382,7 +382,7 @@ defmodule GameServer.Chat do
     (newest first).
     
   """
-  @spec list_messages(String.t(), String.t(), keyword()) :: [GameServer.Chat.Message.t()]
+  @spec list_messages(String.t(), Ecto.UUID.t(), keyword()) :: [GameServer.Chat.Message.t()]
   def list_messages(_chat_type, _chat_ref_id, _opts) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -400,7 +400,7 @@ defmodule GameServer.Chat do
     Uses an upsert to create or update the read cursor.
     
   """
-  @spec mark_read(String.t(), String.t(), String.t(), String.t()) ::
+  @spec mark_read(Ecto.UUID.t(), String.t(), Ecto.UUID.t(), Ecto.UUID.t()) ::
   {:ok, GameServer.Chat.ReadCursor.t()} | {:error, term()}
   def mark_read(_user_id, _chat_type, _chat_ref_id, _message_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -446,7 +446,7 @@ defmodule GameServer.Chat do
   @doc ~S"""
     Subscribe to chat events for a friend DM conversation.
   """
-  @spec subscribe_friend_chat(String.t(), String.t()) :: :ok | {:error, term()}
+  @spec subscribe_friend_chat(Ecto.UUID.t(), Ecto.UUID.t()) :: :ok | {:error, term()}
   def subscribe_friend_chat(_user_a_id, _user_b_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -461,7 +461,7 @@ defmodule GameServer.Chat do
   @doc ~S"""
     Subscribe to chat events for a group.
   """
-  @spec subscribe_group_chat(String.t()) :: :ok | {:error, term()}
+  @spec subscribe_group_chat(Ecto.UUID.t()) :: :ok | {:error, term()}
   def subscribe_group_chat(_group_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -476,7 +476,7 @@ defmodule GameServer.Chat do
   @doc ~S"""
     Subscribe to chat events for a lobby.
   """
-  @spec subscribe_lobby_chat(String.t()) :: :ok | {:error, term()}
+  @spec subscribe_lobby_chat(Ecto.UUID.t()) :: :ok | {:error, term()}
   def subscribe_lobby_chat(_lobby_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -491,7 +491,7 @@ defmodule GameServer.Chat do
   @doc ~S"""
     Subscribe to chat events for a party.
   """
-  @spec subscribe_party_chat(String.t()) :: :ok | {:error, term()}
+  @spec subscribe_party_chat(Ecto.UUID.t()) :: :ok | {:error, term()}
   def subscribe_party_chat(_party_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -506,7 +506,7 @@ defmodule GameServer.Chat do
   @doc ~S"""
     Unsubscribe from friend DM chat events.
   """
-  @spec unsubscribe_friend_chat(String.t(), String.t()) :: :ok
+  @spec unsubscribe_friend_chat(Ecto.UUID.t(), Ecto.UUID.t()) :: :ok
   def unsubscribe_friend_chat(_user_a_id, _user_b_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -521,7 +521,7 @@ defmodule GameServer.Chat do
   @doc ~S"""
     Unsubscribe from group chat events.
   """
-  @spec unsubscribe_group_chat(String.t()) :: :ok
+  @spec unsubscribe_group_chat(Ecto.UUID.t()) :: :ok
   def unsubscribe_group_chat(_group_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -536,7 +536,7 @@ defmodule GameServer.Chat do
   @doc ~S"""
     Unsubscribe from lobby chat events.
   """
-  @spec unsubscribe_lobby_chat(String.t()) :: :ok
+  @spec unsubscribe_lobby_chat(Ecto.UUID.t()) :: :ok
   def unsubscribe_lobby_chat(_lobby_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -551,7 +551,7 @@ defmodule GameServer.Chat do
   @doc ~S"""
     Unsubscribe from party chat events.
   """
-  @spec unsubscribe_party_chat(String.t()) :: :ok
+  @spec unsubscribe_party_chat(Ecto.UUID.t()) :: :ok
   def unsubscribe_party_chat(_party_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -571,7 +571,7 @@ defmodule GameServer.Chat do
     `{:error, :forbidden}` if the caller is not the sender.
     
   """
-  @spec update_message(String.t(), String.t(), map()) ::
+  @spec update_message(Ecto.UUID.t(), Ecto.UUID.t(), map()) ::
   {:ok, GameServer.Chat.Message.t()} | {:error, term()}
   def update_message(_user_id, _message_id, _attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do

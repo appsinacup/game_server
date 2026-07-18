@@ -53,4 +53,53 @@ defmodule GameServer.CacheSyncTest do
     assert Cache.L1.get!({:test, :local_key}) == "value"
     Cache.L1.delete({:test, :local_key})
   end
+
+  test "bump_version/1 broadcasts the key with the originating node" do
+    Phoenix.PubSub.subscribe(GameServer.PubSub, Cache.invalidation_topic())
+
+    _ = Cache.bump_version({:test, :version_key})
+
+    this_node = Node.self()
+    assert_receive {:cache_bump_version, {:test, :version_key}, ^this_node}
+  end
+
+  test "a bump event from another node increments the L1 counter" do
+    Cache.L1.put({:test, :remote_version}, 5)
+
+    send(
+      Process.whereis(GameServer.Cache.Sync),
+      {:cache_bump_version, {:test, :remote_version}, :"other@remote-host"}
+    )
+
+    _ = :sys.get_state(GameServer.Cache.Sync)
+
+    assert Cache.L1.get!({:test, :remote_version}) == 6
+    Cache.L1.delete({:test, :remote_version})
+  end
+
+  test "a bump event seeds a missing counter instead of deleting it" do
+    send(
+      Process.whereis(GameServer.Cache.Sync),
+      {:cache_bump_version, {:test, :fresh_version}, :"other@remote-host"}
+    )
+
+    _ = :sys.get_state(GameServer.Cache.Sync)
+
+    assert Cache.L1.get!({:test, :fresh_version}) == 2
+    Cache.L1.delete({:test, :fresh_version})
+  end
+
+  test "a bump event from this node is skipped (already bumped locally)" do
+    Cache.L1.put({:test, :local_version}, 5)
+
+    send(
+      Process.whereis(GameServer.Cache.Sync),
+      {:cache_bump_version, {:test, :local_version}, Node.self()}
+    )
+
+    _ = :sys.get_state(GameServer.Cache.Sync)
+
+    assert Cache.L1.get!({:test, :local_version}) == 5
+    Cache.L1.delete({:test, :local_version})
+  end
 end

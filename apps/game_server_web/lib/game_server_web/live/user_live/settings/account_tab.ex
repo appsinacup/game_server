@@ -19,6 +19,7 @@ defmodule GameServerWeb.UserLive.Settings.AccountTab do
     |> assign(:current_email, user.email)
     |> assign(:email_form, to_form(email_changeset))
     |> assign(:display_form, to_form(Accounts.change_user_display_name(user)))
+    |> assign(:username_form, to_form(Accounts.change_username(user)))
     |> assign(:password_form, to_form(password_changeset))
     |> assign(:trigger_submit, false)
   end
@@ -33,6 +34,23 @@ defmodule GameServerWeb.UserLive.Settings.AccountTab do
           <div class="text-sm mt-2 space-y-1 text-base-content/80">
             <div><strong>{gettext("ID")}:</strong> {@user.id}</div>
             <div><strong>{gettext("Email")}:</strong> {@current_email}</div>
+
+            <.form
+              for={@username_form}
+              id="username_form"
+              phx-change="validate_username"
+              phx-submit="update_username"
+            >
+              <.input
+                field={@username_form[:username]}
+                type="text"
+                label={gettext("Username")}
+                required
+              />
+              <.button variant="primary" phx-disable-with={gettext("Saving...")}>
+                {gettext("Save")}
+              </.button>
+            </.form>
 
             <.form
               for={@display_form}
@@ -369,6 +387,41 @@ defmodule GameServerWeb.UserLive.Settings.AccountTab do
 
       {:error, changeset} ->
         {:noreply, assign(socket, display_form: to_form(changeset, action: :insert))}
+    end
+  end
+
+  def handle_event("validate_username", %{"user" => user_params}, socket) do
+    user = Shared.current_user(socket)
+
+    username_form =
+      user
+      |> Accounts.change_username(user_params)
+      |> Map.put(:action, :validate)
+      |> to_form()
+
+    {:noreply, assign(socket, username_form: username_form)}
+  end
+
+  def handle_event("update_username", %{"user" => user_params}, socket) do
+    user = Shared.current_user(socket)
+
+    case Accounts.update_username(user, user_params) do
+      {:ok, updated_user} ->
+        updated_scope = %{socket.assigns.current_scope | user: updated_user}
+
+        {:noreply,
+         socket
+         |> put_flash(:info, gettext("Success."))
+         |> assign(:user, updated_user)
+         |> assign(:current_scope, updated_scope)
+         |> assign(:username_form, to_form(Accounts.change_username(updated_user)))}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, assign(socket, username_form: to_form(changeset, action: :insert))}
+
+      {:error, reason} ->
+        {:noreply,
+         put_flash(socket, :error, gettext("Not allowed: %{reason}", reason: inspect(reason)))}
     end
   end
 

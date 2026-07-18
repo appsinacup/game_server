@@ -466,6 +466,7 @@ defmodule GameServerWeb.AuthController do
     {:ok,
      %{
        email: email,
+       email_verified: verified_email?(response["verified"]),
        discord_id: discord_id,
        display_name: display_name,
        profile_url:
@@ -480,7 +481,12 @@ defmodule GameServerWeb.AuthController do
     picture = Map.get(user_info, "picture")
     name = Map.get(user_info, "name") || Map.get(user_info, "given_name")
 
-    user_params = %{email: email, google_id: google_id, display_name: name}
+    user_params = %{
+      email: email,
+      email_verified: verified_email?(user_info["email_verified"] || user_info["verified_email"]),
+      google_id: google_id,
+      display_name: name
+    }
 
     {:ok, if(picture, do: Map.put(user_params, :profile_url, picture), else: user_params)}
   end
@@ -494,6 +500,9 @@ defmodule GameServerWeb.AuthController do
 
     user_params = %{
       email: user_info["email"],
+      # Facebook does not expose a per-login email-verification claim, so its
+      # emails are never trusted for auto-linking to an existing account.
+      email_verified: false,
       facebook_id: facebook_id,
       display_name: Map.get(user_info, "name")
     }
@@ -505,6 +514,7 @@ defmodule GameServerWeb.AuthController do
     {:ok,
      %{
        email: user_info["email"],
+       email_verified: verified_email?(user_info["email_verified"]),
        apple_id: apple_id,
        display_name: Map.get(user_info, "name")
      }}
@@ -520,6 +530,11 @@ defmodule GameServerWeb.AuthController do
   end
 
   defp oauth_user_params(_provider, _user_info), do: {:error, :missing_user_info}
+
+  # Providers report email verification as either a boolean or a "true" string.
+  defp verified_email?(true), do: true
+  defp verified_email?("true"), do: true
+  defp verified_email?(_), do: false
 
   defp handle_api_oauth_result(conn, provider, user_params) do
     config = oauth_provider!(provider)
@@ -1097,6 +1112,7 @@ defmodule GameServerWeb.AuthController do
         user_params = %{
           google_id: Map.get(claims, "sub"),
           email: Map.get(claims, "email"),
+          email_verified: verified_email?(Map.get(claims, "email_verified")),
           display_name: Map.get(claims, "name"),
           profile_url: Map.get(claims, "picture")
         }

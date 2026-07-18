@@ -21,7 +21,7 @@ defmodule GameServer.Groups.Invites do
   @invite_cache_ttl_ms 60_000
 
   @doc "Count pending invitations for a user."
-  @spec count_invitations(String.t()) :: non_neg_integer()
+  @spec count_invitations(Ecto.UUID.t()) :: non_neg_integer()
   @decorate cacheable(
               key: {:group_invites, :count, Shared.invite_cache_version(user_id), user_id},
               opts: [ttl: @invite_cache_ttl_ms]
@@ -38,7 +38,7 @@ defmodule GameServer.Groups.Invites do
   end
 
   @doc "Count group invitations sent by a user."
-  @spec count_sent_invitations(String.t()) :: non_neg_integer()
+  @spec count_sent_invitations(Ecto.UUID.t()) :: non_neg_integer()
   @decorate cacheable(
               key: {:group_invites, :count_sent, Shared.invite_cache_version(user_id), user_id},
               opts: [ttl: @invite_cache_ttl_ms]
@@ -63,7 +63,7 @@ defmodule GameServer.Groups.Invites do
   the request is automatically approved instead of creating an invite.
   In that case, returns `{:ok, :request_approved}`.
   """
-  @spec invite_to_group(String.t(), String.t(), String.t()) ::
+  @spec invite_to_group(Ecto.UUID.t(), Ecto.UUID.t(), Ecto.UUID.t()) ::
           {:ok, GroupInvite.t()} | {:ok, :request_approved} | {:error, atom()}
   def invite_to_group(admin_id, group_id, target_user_id)
       when is_binary(admin_id) and is_binary(group_id) and is_binary(target_user_id) do
@@ -168,7 +168,7 @@ defmodule GameServer.Groups.Invites do
   The user must be the recipient of the invite.
   Works for all group types (public, private, hidden).
   """
-  @spec accept_invite(String.t(), String.t()) ::
+  @spec accept_invite(Ecto.UUID.t(), Ecto.UUID.t()) ::
           {:ok, GroupMember.t()} | {:error, atom()}
   def accept_invite(user_id, invite_id)
       when is_binary(user_id) and is_binary(invite_id) do
@@ -315,7 +315,7 @@ defmodule GameServer.Groups.Invites do
   @doc """
   List pending group invitations for a user.
   """
-  @spec list_invitations(String.t(), keyword()) :: [map()]
+  @spec list_invitations(Ecto.UUID.t(), keyword()) :: [map()]
   def list_invitations(user_id, opts \\ []) when is_binary(user_id) do
     page = Keyword.get(opts, :page, 1)
     page_size = Keyword.get(opts, :page_size, 25)
@@ -349,7 +349,7 @@ defmodule GameServer.Groups.Invites do
   @doc """
   List group invitations sent by a user.
   """
-  @spec list_sent_invitations(String.t(), keyword()) :: [map()]
+  @spec list_sent_invitations(Ecto.UUID.t(), keyword()) :: [map()]
   def list_sent_invitations(user_id, opts \\ []) when is_binary(user_id) do
     page = Keyword.get(opts, :page, 1)
     page_size = Keyword.get(opts, :page_size, 25)
@@ -384,7 +384,7 @@ defmodule GameServer.Groups.Invites do
   Cancel (delete) a group invitation that the current user sent.
   Only the sender can cancel their own invitation.
   """
-  @spec cancel_invite(String.t(), String.t()) :: :ok | {:error, atom()}
+  @spec cancel_invite(Ecto.UUID.t(), Ecto.UUID.t()) :: :ok | {:error, atom()}
   def cancel_invite(user_id, invite_id)
       when is_binary(user_id) and is_binary(invite_id) do
     case Repo.get(GroupInvite, invite_id) do
@@ -421,7 +421,7 @@ defmodule GameServer.Groups.Invites do
   Only the recipient can decline. The invite is marked as `"declined"`
   (not deleted) so the sender can see the outcome.
   """
-  @spec decline_invite(String.t(), String.t()) :: :ok | {:error, atom()}
+  @spec decline_invite(Ecto.UUID.t(), Ecto.UUID.t()) :: :ok | {:error, atom()}
   def decline_invite(user_id, invite_id)
       when is_binary(user_id) and is_binary(invite_id) do
     case Repo.get(GroupInvite, invite_id) do

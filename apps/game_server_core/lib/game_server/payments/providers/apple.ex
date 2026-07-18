@@ -299,15 +299,24 @@ end
 
 defmodule GameServer.Payments.Providers.Apple.JWS do
   @moduledoc """
-  Verifies App Store JWS payloads using leaf certificate from the `x5c` header.
+  Verifies App Store JWS payloads (StoreKit signed transactions and App Store
+  Server Notifications V2).
 
-  This verifies the JWS signature. Production Apple integrations should keep
-  App Store Server Notifications configured only on trusted HTTPS endpoints.
+  The signing key comes from the leaf certificate in the JWS `x5c` header, but
+  only after the full certificate chain is validated against the pinned Apple
+  Root CA - G3 trust anchor. A self-signed or otherwise unchained certificate is
+  rejected, so a payload cannot be forged by placing an attacker-controlled key
+  in the header. If the pinned root is not installed, verification fails closed.
+
+  The pinned root lives at `priv/certs/apple_root_ca_g3.pem` — obtain it from
+  https://www.apple.com/certificateauthority/AppleRootCA-G3.cer.
   """
+
+  @root_ca_filename "apple_root_ca_g3.pem"
 
   def verify_and_decode(compact_jws) when is_binary(compact_jws) do
     with {:ok, header} <- decode_header(compact_jws),
-         {:ok, jwk} <- jwk_from_x5c(header),
+         {:ok, jwk} <- verified_leaf_jwk(header),
          {true, payload, _jws} <- JOSE.JWS.verify_strict(jwk, ["ES256"], compact_jws),
          {:ok, decoded} <- Jason.decode(payload) do
       {:ok, normalize_params(decoded)}
@@ -328,21 +337,75 @@ defmodule GameServer.Payments.Providers.Apple.JWS do
     end
   end
 
-  defp jwk_from_x5c(%{"x5c" => [leaf | _]}) when is_binary(leaf) do
-    pem =
-      [
-        "-----BEGIN CERTIFICATE-----\n",
-        leaf |> String.graphemes() |> Enum.chunk_every(64) |> Enum.map_join("\n", &Enum.join/1),
-        "\n-----END CERTIFICATE-----\n"
-      ]
-      |> IO.iodata_to_binary()
-
-    {:ok, JOSE.JWK.from_pem(pem)}
+  # Trust the leaf public key only after its certificate chain validates back to
+  # the pinned Apple root — never trust a key taken from an unverified header.
+  defp verified_leaf_jwk(%{"x5c" => [leaf | _] = x5c}) when is_binary(leaf) do
+    with {:ok, der_chain} <- decode_x5c(x5c),
+         :ok <- validate_chain(der_chain) do
+      {:ok, JOSE.JWK.from_pem(leaf_pem(leaf))}
+    end
   rescue
     _ -> {:error, :invalid_apple_jws_certificate}
   end
 
-  defp jwk_from_x5c(_header), do: {:error, :missing_apple_jws_certificate}
+  defp verified_leaf_jwk(_header), do: {:error, :missing_apple_jws_certificate}
+
+  defp decode_x5c(x5c) do
+    {:ok, Enum.map(x5c, &Base.decode64!/1)}
+  rescue
+    _ -> {:error, :invalid_apple_jws_certificate}
+  end
+
+  defp validate_chain(der_chain) do
+    case apple_root_der() do
+      {:ok, root_der} ->
+        # pkix_path_validation wants the chain ordered anchor-child-first down to
+        # the leaf; x5c is leaf-first and may include the root (which is the anchor).
+        chain = der_chain |> Enum.reverse() |> Enum.reject(&(&1 == root_der))
+
+        case :public_key.pkix_path_validation(root_der, chain, []) do
+          {:ok, _} -> :ok
+          {:error, {:bad_cert, reason}} -> {:error, {:apple_cert_chain_invalid, reason}}
+          {:error, reason} -> {:error, {:apple_cert_chain_invalid, reason}}
+        end
+
+      {:error, _} = err ->
+        err
+    end
+  end
+
+  defp apple_root_der do
+    case :persistent_term.get({__MODULE__, :root_der}, :undefined) do
+      :undefined ->
+        with {:ok, der} <- load_root_der() do
+          :persistent_term.put({__MODULE__, :root_der}, der)
+          {:ok, der}
+        end
+
+      der ->
+        {:ok, der}
+    end
+  end
+
+  defp load_root_der do
+    path = Path.join([:code.priv_dir(:game_server_core), "certs", @root_ca_filename])
+
+    with {:ok, pem} <- File.read(path),
+         [{:Certificate, der, :not_encrypted} | _] <- :public_key.pem_decode(pem) do
+      {:ok, der}
+    else
+      _ -> {:error, :apple_root_ca_unavailable}
+    end
+  end
+
+  defp leaf_pem(leaf) do
+    [
+      "-----BEGIN CERTIFICATE-----\n",
+      leaf |> String.graphemes() |> Enum.chunk_every(64) |> Enum.map_join("\n", &Enum.join/1),
+      "\n-----END CERTIFICATE-----\n"
+    ]
+    |> IO.iodata_to_binary()
+  end
 
   defp normalize_params(attrs) when is_map(attrs) do
     Map.new(attrs, fn

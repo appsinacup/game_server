@@ -43,7 +43,7 @@ defmodule GameServer.Notifications do
   alias GameServer.Repo
   alias GameServer.Repo.AdvisoryLock
 
-  @type user_id :: String.t()
+  @type user_id :: Ecto.UUID.t()
 
   @notifications_cache_ttl_ms 60_000
 
@@ -80,7 +80,7 @@ defmodule GameServer.Notifications do
   @spec invalidate_notifications_cache(user_id()) :: :ok
   def invalidate_notifications_cache(user_id) when is_binary(user_id) do
     GameServer.Async.run(fn ->
-      _ = GameServer.Cache.incr({:notifications, :version, user_id}, 1, default: 1)
+      _ = GameServer.Cache.bump_version({:notifications, :version, user_id})
       :ok
     end)
 
@@ -117,6 +117,24 @@ defmodule GameServer.Notifications do
       preload: [:sender]
     )
     |> Repo.all()
+  end
+
+  @doc """
+  Returns the `limit` most recent notifications, ordered oldest-first (so they
+  can be replayed in chronological order on connect without loading the user's
+  entire history).
+  """
+  @spec list_recent_notifications(Ecto.UUID.t(), pos_integer()) :: [Notification.t()]
+  def list_recent_notifications(user_id, limit)
+      when is_binary(user_id) and is_integer(limit) and limit > 0 do
+    from(n in Notification,
+      where: n.recipient_id == ^user_id,
+      order_by: [desc: n.inserted_at, desc: n.id],
+      limit: ^limit,
+      preload: [:sender]
+    )
+    |> Repo.all()
+    |> Enum.reverse()
   end
 
   @doc "Count total notifications for a user."
@@ -191,7 +209,7 @@ defmodule GameServer.Notifications do
   end
 
   @doc "Mark a single notification as read. Only the recipient can mark it."
-  @spec mark_notification_read(user_id(), String.t()) ::
+  @spec mark_notification_read(user_id(), Ecto.UUID.t()) ::
           {:ok, Notification.t()} | {:error, atom()}
   def mark_notification_read(user_id, notification_id)
       when is_binary(user_id) and is_binary(notification_id) do
@@ -232,13 +250,13 @@ defmodule GameServer.Notifications do
   end
 
   @doc "Get a single notification by ID."
-  @spec get_notification(String.t()) :: Notification.t() | nil
+  @spec get_notification(Ecto.UUID.t()) :: Notification.t() | nil
   def get_notification(id) do
     Repo.get_uuid(Notification, id)
   end
 
   @doc "Get a single notification by ID (raises if not found)."
-  @spec get_notification!(String.t()) :: Notification.t()
+  @spec get_notification!(Ecto.UUID.t()) :: Notification.t()
   def get_notification!(id) do
     Repo.get_uuid!(Notification, id)
   end
@@ -333,7 +351,7 @@ defmodule GameServer.Notifications do
   end
 
   @doc "Admin: delete a single notification by ID (no ownership check)."
-  @spec admin_delete_notification(String.t()) :: {:ok, Notification.t()} | {:error, term()}
+  @spec admin_delete_notification(Ecto.UUID.t()) :: {:ok, Notification.t()} | {:error, term()}
   def admin_delete_notification(id) when is_binary(id) do
     case get_notification(id) do
       nil ->
@@ -398,7 +416,7 @@ defmodule GameServer.Notifications do
   Only notifications belonging to `user_id` will be deleted.
   Returns `{deleted_count, nil}`.
   """
-  @spec delete_notifications(user_id(), [String.t()]) :: {non_neg_integer(), nil}
+  @spec delete_notifications(user_id(), [Ecto.UUID.t()]) :: {non_neg_integer(), nil}
   def delete_notifications(user_id, ids)
       when is_binary(user_id) and is_list(ids) do
     result =
@@ -527,7 +545,7 @@ defmodule GameServer.Notifications do
             content: ^content,
             metadata:
               fragment(
-                "jsonb_set(?, '{message_count}', to_jsonb(COALESCE((?->>'message_count')::integer, 0) + 1))",
+                "jsonb_set(COALESCE(?, '{}'::jsonb), '{message_count}', to_jsonb(COALESCE((?->>'message_count')::integer, 0) + 1))",
                 n.metadata,
                 n.metadata
               ),

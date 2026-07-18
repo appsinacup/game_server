@@ -80,7 +80,7 @@ defmodule GameServerWeb.UserChannel do
         case current_scope do
           %Scope{user: %User{id: ^user_id} = scoped_user} ->
             user = Accounts.get_user(user_id) || scoped_user
-            GameServerWeb.ConnectionTracker.register(:user_channel, %{user_id: user_id})
+            GameServerWeb.ConnectionTracker.register_user_channel(user_id)
             send(self(), {:after_join, user})
             {:ok, assign(socket, :user_id, user_id)}
 
@@ -511,17 +511,13 @@ defmodule GameServerWeb.UserChannel do
       # Unsubscribe from notifications
       Notifications.unsubscribe(user_id)
 
+
       # Cancel matchmaking tickets
       GameServer.Matchmaking.cancel(user_id)
 
-      # Only mark offline if no other user_channel processes remain for this user.
-      # ConnectionTracker automatically unregisters the *current* process on exit,
-      # but terminate runs before the process fully exits, so we subtract 1 (self).
-      other_channels =
-        GameServerWeb.ConnectionTracker.list_registered(:user_channel)
-        |> Enum.count(fn {pid, meta} ->
-          pid != self() and Map.get(meta, :user_id) == user_id
-        end)
+      # Only mark offline if no other user_channel processes remain for this user
+      # (excludes self, which is still registered until this process fully exits).
+      other_channels = GameServerWeb.ConnectionTracker.count_other_user_channels(user_id)
 
       if other_channels == 0 do
         case Accounts.set_user_offline(user_id) do
@@ -541,9 +537,13 @@ defmodule GameServerWeb.UserChannel do
   # Private helpers
   # ---------------------------------------------------------------------------
 
-  # Push all existing undeleted notifications for the user, ordered oldest-first.
+  # Replay only the most recent notifications on connect (oldest-first) so a
+  # user with a large history doesn't generate hundreds of frames per connect;
+  # older ones are fetched via the REST notifications API.
+  @initial_notification_window 50
+
   defp push_existing_notifications(socket, user_id) do
-    notifications = Notifications.list_notifications(user_id, page: 1, page_size: 1000)
+    notifications = Notifications.list_recent_notifications(user_id, @initial_notification_window)
 
     Enum.each(notifications, fn notification ->
       push(socket, "notification", Serializers.serialize_notification(notification))

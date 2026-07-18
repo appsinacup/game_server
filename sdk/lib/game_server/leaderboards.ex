@@ -168,7 +168,7 @@ defmodule GameServer.Leaderboards do
     Counts records for a leaderboard.
     
   """
-  @spec count_records(String.t()) :: non_neg_integer()
+  @spec count_records(Ecto.UUID.t()) :: non_neg_integer()
   def count_records(_leaderboard_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -245,10 +245,10 @@ defmodule GameServer.Leaderboards do
 
   @doc ~S"""
     Deletes a user's record from a leaderboard.
-    Accepts either leaderboard ID (integer) or slug (string).
+    Accepts either leaderboard ID or slug (both strings).
     
   """
-  @spec delete_user_record(String.t(), integer()) ::
+  @spec delete_user_record(String.t(), Ecto.UUID.t()) ::
   {:ok, GameServer.Leaderboards.Record.t()} | {:error, :not_found}
   def delete_user_record(_id_or_slug, _user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -306,7 +306,7 @@ defmodule GameServer.Leaderboards do
     Gets a single record by leaderboard ID and label.
     
   """
-  @spec get_label_record(String.t(), String.t()) :: GameServer.Leaderboards.Record.t() | nil
+  @spec get_label_record(Ecto.UUID.t(), String.t()) :: GameServer.Leaderboards.Record.t() | nil
   def get_label_record(_leaderboard_id, _label) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -362,7 +362,7 @@ defmodule GameServer.Leaderboards do
     Gets a single record by leaderboard ID and user ID.
     
   """
-  @spec get_record(String.t(), String.t()) :: GameServer.Leaderboards.Record.t() | nil
+  @spec get_record(Ecto.UUID.t(), Ecto.UUID.t()) :: GameServer.Leaderboards.Record.t() | nil
   def get_record(_leaderboard_id, _user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -380,7 +380,7 @@ defmodule GameServer.Leaderboards do
     Intended for internal/admin usage.
     
   """
-  @spec get_record!(String.t()) :: GameServer.Leaderboards.Record.t()
+  @spec get_record!(Ecto.UUID.t()) :: GameServer.Leaderboards.Record.t()
   def get_record!(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -397,7 +397,7 @@ defmodule GameServer.Leaderboards do
     Returns `{:ok, record_with_rank}` or `{:error, :not_found}`.
     
   """
-  @spec get_user_record(String.t(), String.t()) ::
+  @spec get_user_record(Ecto.UUID.t(), Ecto.UUID.t()) ::
   {:ok, GameServer.Leaderboards.Record.t()} | {:error, :not_found}
   def get_user_record(_leaderboard_id, _user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -627,7 +627,7 @@ defmodule GameServer.Leaderboards do
       * `:limit` - Total number of records to return (default 11, centered on user)
     
   """
-  @spec list_records_around_user(String.t(), String.t()) :: [GameServer.Leaderboards.Record.t()]
+  @spec list_records_around_user(String.t(), Ecto.UUID.t()) :: [GameServer.Leaderboards.Record.t()]
   def list_records_around_user(_leaderboard_id, _user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
@@ -649,7 +649,7 @@ defmodule GameServer.Leaderboards do
       * `:limit` - Total number of records to return (default 11, centered on user)
     
   """
-  @spec list_records_around_user(String.t(), String.t(), keyword()) :: [
+  @spec list_records_around_user(String.t(), Ecto.UUID.t(), keyword()) :: [
   GameServer.Leaderboards.Record.t()
 ]
   def list_records_around_user(_leaderboard_id, _user_id, _opts) do
@@ -740,7 +740,7 @@ defmodule GameServer.Leaderboards do
         {:ok, %Record{score: 15, metadata: %{weapon: "sword"}}}
     
   """
-  @spec submit_score(String.t(), String.t(), integer()) ::
+  @spec submit_score(String.t(), Ecto.UUID.t(), integer()) ::
   {:ok, GameServer.Leaderboards.Record.t()} | {:error, term()}
   def submit_score(_leaderboard_id, _user_id, _score) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
@@ -778,7 +778,7 @@ defmodule GameServer.Leaderboards do
         {:ok, %Record{score: 15, metadata: %{weapon: "sword"}}}
     
   """
-  @spec submit_score(String.t(), String.t(), integer(), map()) ::
+  @spec submit_score(String.t(), Ecto.UUID.t(), integer(), map()) ::
   {:ok, GameServer.Leaderboards.Record.t()} | {:error, term()}
   def submit_score(_leaderboard_id, _user_id, _score, _metadata) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do

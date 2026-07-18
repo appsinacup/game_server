@@ -21,6 +21,29 @@ defmodule GameServer.ChatTest do
     {:ok, _} = Friends.accept_friend_request(req.id, user_b)
   end
 
+  describe "friend DM cleanup on user deletion" do
+    test "removes friend messages referencing the deleted user (no orphans)" do
+      alice = create_user()
+      bob = create_user()
+      make_friends(alice, bob)
+
+      # chat_ref_id is the *recipient* of a friend DM.
+      _to_bob = insert_message(alice, "friend", bob.id, "hi bob")
+      from_bob = insert_message(bob, "friend", alice.id, "hi alice")
+
+      {:ok, _} = GameServer.Accounts.delete_user(bob)
+
+      # Messages addressed to bob are cleaned up explicitly (no FK cascade)...
+      assert Repo.aggregate(
+               from(m in Message, where: m.chat_type == "friend" and m.chat_ref_id == ^bob.id),
+               :count
+             ) == 0
+
+      # ...and bob's own sent message is gone via the sender_id cascade.
+      refute Repo.get(Message, from_bob.id)
+    end
+  end
+
   describe "mark_read/4" do
     test "rejects a message from another group conversation" do
       owner = create_user()

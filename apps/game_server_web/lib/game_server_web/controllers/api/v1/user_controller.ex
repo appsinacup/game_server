@@ -14,7 +14,7 @@ defmodule GameServerWeb.Api.V1.UserController do
 
   operation(:index,
     operation_id: "search_users",
-    summary: "Search users by id/display_name",
+    summary: "Search users by id, username, or display_name",
     parameters: [
       q: [in: :query, schema: %Schema{type: :string}],
       page: [in: :query, schema: %Schema{type: :integer}],
@@ -32,6 +32,7 @@ defmodule GameServerWeb.Api.V1.UserController do
                  type: :object,
                  properties: %{
                    id: %Schema{type: :string, format: :uuid},
+                   username: %Schema{type: :string},
                    display_name: %Schema{type: :string},
                    profile_url: %Schema{type: :string},
                    metadata: %Schema{
@@ -84,6 +85,7 @@ defmodule GameServerWeb.Api.V1.UserController do
            type: :object,
            properties: %{
              id: %Schema{type: :string, format: :uuid},
+             username: %Schema{type: :string},
              display_name: %Schema{type: :string},
              profile_url: %Schema{type: :string},
              metadata: %Schema{
@@ -142,8 +144,8 @@ defmodule GameServerWeb.Api.V1.UserController do
       nil ->
         conn |> put_status(:bad_request) |> json(%{error: "invalid_id"})
 
-      int_id ->
-        case Accounts.get_user(int_id) do
+      user_id ->
+        case Accounts.get_user(user_id) do
           %{} = user -> json(conn, serialize_user(user))
           nil -> conn |> put_status(:not_found) |> json(%{error: "not_found"})
         end

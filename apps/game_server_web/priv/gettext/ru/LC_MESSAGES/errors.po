@@ -1,116 +1,116 @@
-## "msgid"s in this file come from POT (.pot) files.
-###
-### Do not add, change, or remove "msgid"s manually here as
-### they're tied to the ones in the corresponding POT file
-### (with the same domain).
-###
-### Use "mix gettext.extract --merge" or "mix gettext.merge"
-### to merge POT files into PO files.
+#  "msgid"s in this file come from POT (.pot) files.
+# #
+# # Do not add, change, or remove "msgid"s manually here as
+# # they're tied to the ones in the corresponding POT file
+# # (with the same domain).
+# #
+# # Use "mix gettext.extract --merge" or "mix gettext.merge"
+# # to merge POT files into PO files.
 msgid ""
 msgstr ""
 "Language: ru\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100 != 11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10||n%100>=20) ? 1 : 2);\n"
 
 msgid "can't be blank"
-msgstr ""
+msgstr "не может быть пустым"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:21
 #, elixir-autogen
 msgid "has already been taken"
-msgstr ""
+msgstr "уже занято"
 
 msgid "is invalid"
-msgstr ""
+msgstr "недопустимо"
 
 msgid "must be accepted"
-msgstr ""
+msgstr "должно быть принято"
 
 msgid "has invalid format"
-msgstr ""
+msgstr "имеет неверный формат"
 
 msgid "has an invalid entry"
-msgstr ""
+msgstr "содержит недопустимую запись"
 
 msgid "is reserved"
-msgstr ""
+msgstr "зарезервировано"
 
 msgid "does not match confirmation"
-msgstr ""
+msgstr "не совпадает с подтверждением"
 
 msgid "is still associated with this entry"
-msgstr ""
+msgstr "всё ещё связано с этой записью"
 
 msgid "are still associated with this entry"
-msgstr ""
+msgstr "всё ещё связаны с этой записью"
 
 msgid "should have %{count} item(s)"
-msgstr ""
+msgstr "должно содержать %{count} элемент(ов)"
 
 msgid "should be %{count} character(s)"
-msgstr ""
+msgstr "должно быть длиной %{count} символ(ов)"
 
 msgid "should be %{count} byte(s)"
-msgstr ""
+msgstr "должно быть длиной %{count} байт"
 
 msgid "should have at least %{count} item(s)"
-msgstr ""
+msgstr "должно содержать не менее %{count} элемент(ов)"
 
 msgid "should be at least %{count} character(s)"
-msgstr ""
+msgstr "должно быть не короче %{count} символ(ов)"
 
 msgid "should be at least %{count} byte(s)"
-msgstr ""
+msgstr "должно быть не менее %{count} байт"
 
 msgid "should have at most %{count} item(s)"
-msgstr ""
+msgstr "должно содержать не более %{count} элемент(ов)"
 
 msgid "should be at most %{count} character(s)"
-msgstr ""
+msgstr "должно быть не длиннее %{count} символ(ов)"
 
 msgid "should be at most %{count} byte(s)"
-msgstr ""
+msgstr "должно быть не более %{count} байт"
 
 msgid "must be less than %{number}"
-msgstr ""
+msgstr "должно быть меньше %{number}"
 
 msgid "must be greater than %{number}"
-msgstr ""
+msgstr "должно быть больше %{number}"
 
 msgid "must be less than or equal to %{number}"
-msgstr ""
+msgstr "должно быть меньше или равно %{number}"
 
 msgid "must be greater than or equal to %{number}"
-msgstr ""
+msgstr "должно быть больше или равно %{number}"
 
 msgid "must be equal to %{number}"
-msgstr ""
+msgstr "должно быть равно %{number}"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:18
 #, elixir-autogen, elixir-format
 msgid "cannot friend yourself"
-msgstr ""
+msgstr "нельзя добавить в друзья самого себя"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:19
 #, elixir-autogen, elixir-format
 msgid "did not change"
-msgstr ""
+msgstr "не было изменено"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:20
 #, elixir-autogen, elixir-format
 msgid "does not exist"
-msgstr ""
+msgstr "не существует"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:24
 #, elixir-autogen, elixir-format
 msgid "does not match password"
-msgstr ""
+msgstr "не совпадает с паролем"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:22
 #, elixir-autogen, elixir-format
 msgid "must be lowercase alphanumeric with underscores"
-msgstr ""
+msgstr "может содержать только строчные буквы, цифры и подчёркивания"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:23
 #, elixir-autogen, elixir-format
 msgid "must have the @ sign and no spaces"
-msgstr ""
+msgstr "должно содержать знак @ и не содержать пробелов"

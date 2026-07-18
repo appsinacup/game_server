@@ -1,116 +1,116 @@
-## "msgid"s in this file come from POT (.pot) files.
-###
-### Do not add, change, or remove "msgid"s manually here as
-### they're tied to the ones in the corresponding POT file
-### (with the same domain).
-###
-### Use "mix gettext.extract --merge" or "mix gettext.merge"
-### to merge POT files into PO files.
+#  "msgid"s in this file come from POT (.pot) files.
+# #
+# # Do not add, change, or remove "msgid"s manually here as
+# # they're tied to the ones in the corresponding POT file
+# # (with the same domain).
+# #
+# # Use "mix gettext.extract --merge" or "mix gettext.merge"
+# # to merge POT files into PO files.
 msgid ""
 msgstr ""
 "Language: zh_CN\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 msgid "can't be blank"
-msgstr ""
+msgstr "不能为空"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:21
 #, elixir-autogen
 msgid "has already been taken"
-msgstr ""
+msgstr "已被占用"
 
 msgid "is invalid"
-msgstr ""
+msgstr "无效"
 
 msgid "must be accepted"
-msgstr ""
+msgstr "必须接受"
 
 msgid "has invalid format"
-msgstr ""
+msgstr "格式无效"
 
 msgid "has an invalid entry"
-msgstr ""
+msgstr "包含无效条目"
 
 msgid "is reserved"
-msgstr ""
+msgstr "已被保留"
 
 msgid "does not match confirmation"
-msgstr ""
+msgstr "与确认不匹配"
 
 msgid "is still associated with this entry"
-msgstr ""
+msgstr "仍与此条目关联"
 
 msgid "are still associated with this entry"
-msgstr ""
+msgstr "仍与此条目关联"
 
 msgid "should have %{count} item(s)"
-msgstr ""
+msgstr "应包含 %{count} 个项目"
 
 msgid "should be %{count} character(s)"
-msgstr ""
+msgstr "长度应为 %{count} 个字符"
 
 msgid "should be %{count} byte(s)"
-msgstr ""
+msgstr "大小应为 %{count} 字节"
 
 msgid "should have at least %{count} item(s)"
-msgstr ""
+msgstr "应至少包含 %{count} 个项目"
 
 msgid "should be at least %{count} character(s)"
-msgstr ""
+msgstr "长度至少为 %{count} 个字符"
 
 msgid "should be at least %{count} byte(s)"
-msgstr ""
+msgstr "大小至少为 %{count} 字节"
 
 msgid "should have at most %{count} item(s)"
-msgstr ""
+msgstr "最多包含 %{count} 个项目"
 
 msgid "should be at most %{count} character(s)"
-msgstr ""
+msgstr "长度最多为 %{count} 个字符"
 
 msgid "should be at most %{count} byte(s)"
-msgstr ""
+msgstr "大小最多为 %{count} 字节"
 
 msgid "must be less than %{number}"
-msgstr ""
+msgstr "必须小于 %{number}"
 
 msgid "must be greater than %{number}"
-msgstr ""
+msgstr "必须大于 %{number}"
 
 msgid "must be less than or equal to %{number}"
-msgstr ""
+msgstr "必须小于或等于 %{number}"
 
 msgid "must be greater than or equal to %{number}"
-msgstr ""
+msgstr "必须大于或等于 %{number}"
 
 msgid "must be equal to %{number}"
-msgstr ""
+msgstr "必须等于 %{number}"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:18
 #, elixir-autogen, elixir-format
 msgid "cannot friend yourself"
-msgstr ""
+msgstr "不能将自己添加为好友"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:19
 #, elixir-autogen, elixir-format
 msgid "did not change"
-msgstr ""
+msgstr "未更改"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:20
 #, elixir-autogen, elixir-format
 msgid "does not exist"
-msgstr ""
+msgstr "不存在"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:24
 #, elixir-autogen, elixir-format
 msgid "does not match password"
-msgstr ""
+msgstr "与密码不匹配"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:22
 #, elixir-autogen, elixir-format
 msgid "must be lowercase alphanumeric with underscores"
-msgstr ""
+msgstr "只能使用小写字母、数字和下划线"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:23
 #, elixir-autogen, elixir-format
 msgid "must have the @ sign and no spaces"
-msgstr ""
+msgstr "必须包含 @ 符号且不能有空格"

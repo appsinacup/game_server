@@ -1,116 +1,116 @@
-## "msgid"s in this file come from POT (.pot) files.
-###
-### Do not add, change, or remove "msgid"s manually here as
-### they're tied to the ones in the corresponding POT file
-### (with the same domain).
-###
-### Use "mix gettext.extract --merge" or "mix gettext.merge"
-### to merge POT files into PO files.
+#  "msgid"s in this file come from POT (.pot) files.
+# #
+# # Do not add, change, or remove "msgid"s manually here as
+# # they're tied to the ones in the corresponding POT file
+# # (with the same domain).
+# #
+# # Use "mix gettext.extract --merge" or "mix gettext.merge"
+# # to merge POT files into PO files.
 msgid ""
 msgstr ""
 "Language: cs\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
 msgid "can't be blank"
-msgstr ""
+msgstr "nesmí být prázdné"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:21
 #, elixir-autogen
 msgid "has already been taken"
-msgstr ""
+msgstr "je již obsazené"
 
 msgid "is invalid"
-msgstr ""
+msgstr "je neplatné"
 
 msgid "must be accepted"
-msgstr ""
+msgstr "musí být přijato"
 
 msgid "has invalid format"
-msgstr ""
+msgstr "má neplatný formát"
 
 msgid "has an invalid entry"
-msgstr ""
+msgstr "obsahuje neplatnou položku"
 
 msgid "is reserved"
-msgstr ""
+msgstr "je rezervované"
 
 msgid "does not match confirmation"
-msgstr ""
+msgstr "neodpovídá potvrzení"
 
 msgid "is still associated with this entry"
-msgstr ""
+msgstr "je stále spojeno s tímto záznamem"
 
 msgid "are still associated with this entry"
-msgstr ""
+msgstr "jsou stále spojeny s tímto záznamem"
 
 msgid "should have %{count} item(s)"
-msgstr ""
+msgstr "mělo by mít %{count} položek"
 
 msgid "should be %{count} character(s)"
-msgstr ""
+msgstr "mělo by mít %{count} znaků"
 
 msgid "should be %{count} byte(s)"
-msgstr ""
+msgstr "mělo by mít %{count} bajtů"
 
 msgid "should have at least %{count} item(s)"
-msgstr ""
+msgstr "mělo by mít alespoň %{count} položek"
 
 msgid "should be at least %{count} character(s)"
-msgstr ""
+msgstr "mělo by mít alespoň %{count} znaků"
 
 msgid "should be at least %{count} byte(s)"
-msgstr ""
+msgstr "mělo by mít alespoň %{count} bajtů"
 
 msgid "should have at most %{count} item(s)"
-msgstr ""
+msgstr "mělo by mít nejvýše %{count} položek"
 
 msgid "should be at most %{count} character(s)"
-msgstr ""
+msgstr "mělo by mít nejvýše %{count} znaků"
 
 msgid "should be at most %{count} byte(s)"
-msgstr ""
+msgstr "mělo by mít nejvýše %{count} bajtů"
 
 msgid "must be less than %{number}"
-msgstr ""
+msgstr "musí být menší než %{number}"
 
 msgid "must be greater than %{number}"
-msgstr ""
+msgstr "musí být větší než %{number}"
 
 msgid "must be less than or equal to %{number}"
-msgstr ""
+msgstr "musí být menší nebo rovno %{number}"
 
 msgid "must be greater than or equal to %{number}"
-msgstr ""
+msgstr "musí být větší nebo rovno %{number}"
 
 msgid "must be equal to %{number}"
-msgstr ""
+msgstr "musí být rovno %{number}"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:18
 #, elixir-autogen, elixir-format
 msgid "cannot friend yourself"
-msgstr ""
+msgstr "nemůžete si přidat sami sebe jako přítele"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:19
 #, elixir-autogen, elixir-format
 msgid "did not change"
-msgstr ""
+msgstr "nebylo změněno"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:20
 #, elixir-autogen, elixir-format
 msgid "does not exist"
-msgstr ""
+msgstr "neexistuje"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:24
 #, elixir-autogen, elixir-format
 msgid "does not match password"
-msgstr ""
+msgstr "neodpovídá heslu"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:22
 #, elixir-autogen, elixir-format
 msgid "must be lowercase alphanumeric with underscores"
-msgstr ""
+msgstr "smí obsahovat jen malá písmena, číslice a podtržítka"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:23
 #, elixir-autogen, elixir-format
 msgid "must have the @ sign and no spaces"
-msgstr ""
+msgstr "musí obsahovat znak @ a žádné mezery"

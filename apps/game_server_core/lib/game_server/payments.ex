@@ -49,7 +49,7 @@ defmodule GameServer.Payments do
     |> Repo.update()
   end
 
-  @spec get_product(String.t()) :: Product.t() | nil
+  @spec get_product(Ecto.UUID.t()) :: Product.t() | nil
   def get_product(id), do: Repo.get_uuid(Product, id)
 
   @spec get_product_by_sku(String.t()) :: Product.t() | nil
@@ -82,7 +82,7 @@ defmodule GameServer.Payments do
     |> Repo.update()
   end
 
-  @spec get_provider_product(String.t()) :: ProviderProduct.t() | nil
+  @spec get_provider_product(Ecto.UUID.t()) :: ProviderProduct.t() | nil
   def get_provider_product(id) do
     ProviderProduct
     |> Repo.get_uuid(id)
@@ -149,7 +149,7 @@ defmodule GameServer.Payments do
     |> Repo.insert()
   end
 
-  @spec get_purchase(String.t()) :: Purchase.t() | nil
+  @spec get_purchase(Ecto.UUID.t()) :: Purchase.t() | nil
   def get_purchase(id), do: Repo.get_uuid(Purchase, id) |> preload_purchase()
 
   @spec get_purchase_by_order_id(String.t()) :: Purchase.t() | nil
@@ -176,7 +176,7 @@ defmodule GameServer.Payments do
     |> preload_purchase()
   end
 
-  @spec list_user_purchases(String.t(), keyword()) :: [Purchase.t()]
+  @spec list_user_purchases(Ecto.UUID.t(), keyword()) :: [Purchase.t()]
   def list_user_purchases(user_id, opts \\ []) when is_binary(user_id) do
     limit = opts |> Keyword.get(:limit, 100) |> min(250)
 
@@ -369,7 +369,7 @@ defmodule GameServer.Payments do
 
   def reconcile_stripe_purchase(%Purchase{}), do: {:error, :not_stripe_purchase}
 
-  @spec cancel_stripe_subscription_at_period_end(User.t(), String.t()) ::
+  @spec cancel_stripe_subscription_at_period_end(User.t(), Ecto.UUID.t()) ::
           {:ok,
            %{purchase: Purchase.t(), entitlement: Entitlement.t(), stripe_subscription: map()}}
           | {:error, term()}
@@ -511,7 +511,7 @@ defmodule GameServer.Payments do
   # Entitlements
   # ---------------------------------------------------------------------------
 
-  @spec list_user_entitlements(String.t(), keyword()) :: [Entitlement.t()]
+  @spec list_user_entitlements(Ecto.UUID.t(), keyword()) :: [Entitlement.t()]
   def list_user_entitlements(user_id, opts \\ []) when is_binary(user_id) do
     include_inactive = Keyword.get(opts, :include_inactive, false)
     now = DateTime.utc_now(:second)
@@ -535,7 +535,7 @@ defmodule GameServer.Payments do
     Repo.all(query)
   end
 
-  @spec has_entitlement?(String.t(), String.t()) :: boolean()
+  @spec has_entitlement?(Ecto.UUID.t(), String.t()) :: boolean()
   def has_entitlement?(user_id, key) when is_binary(user_id) and is_binary(key) do
     now = DateTime.utc_now(:second)
 

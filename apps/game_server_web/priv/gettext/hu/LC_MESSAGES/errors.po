@@ -1,116 +1,116 @@
-## "msgid"s in this file come from POT (.pot) files.
-###
-### Do not add, change, or remove "msgid"s manually here as
-### they're tied to the ones in the corresponding POT file
-### (with the same domain).
-###
-### Use "mix gettext.extract --merge" or "mix gettext.merge"
-### to merge POT files into PO files.
+#  "msgid"s in this file come from POT (.pot) files.
+# #
+# # Do not add, change, or remove "msgid"s manually here as
+# # they're tied to the ones in the corresponding POT file
+# # (with the same domain).
+# #
+# # Use "mix gettext.extract --merge" or "mix gettext.merge"
+# # to merge POT files into PO files.
 msgid ""
 msgstr ""
 "Language: hu\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid "can't be blank"
-msgstr ""
+msgstr "nem lehet üres"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:21
 #, elixir-autogen
 msgid "has already been taken"
-msgstr ""
+msgstr "már foglalt"
 
 msgid "is invalid"
-msgstr ""
+msgstr "érvénytelen"
 
 msgid "must be accepted"
-msgstr ""
+msgstr "el kell fogadni"
 
 msgid "has invalid format"
-msgstr ""
+msgstr "érvénytelen formátumú"
 
 msgid "has an invalid entry"
-msgstr ""
+msgstr "érvénytelen bejegyzést tartalmaz"
 
 msgid "is reserved"
-msgstr ""
+msgstr "fenntartott"
 
 msgid "does not match confirmation"
-msgstr ""
+msgstr "nem egyezik a megerősítéssel"
 
 msgid "is still associated with this entry"
-msgstr ""
+msgstr "még ehhez a bejegyzéshez kapcsolódik"
 
 msgid "are still associated with this entry"
-msgstr ""
+msgstr "még ehhez a bejegyzéshez kapcsolódnak"
 
 msgid "should have %{count} item(s)"
-msgstr ""
+msgstr "%{count} elemet kell tartalmaznia"
 
 msgid "should be %{count} character(s)"
-msgstr ""
+msgstr "%{count} karakter hosszúnak kell lennie"
 
 msgid "should be %{count} byte(s)"
-msgstr ""
+msgstr "%{count} bájt hosszúnak kell lennie"
 
 msgid "should have at least %{count} item(s)"
-msgstr ""
+msgstr "legalább %{count} elemet kell tartalmaznia"
 
 msgid "should be at least %{count} character(s)"
-msgstr ""
+msgstr "legalább %{count} karakter hosszúnak kell lennie"
 
 msgid "should be at least %{count} byte(s)"
-msgstr ""
+msgstr "legalább %{count} bájt hosszúnak kell lennie"
 
 msgid "should have at most %{count} item(s)"
-msgstr ""
+msgstr "legfeljebb %{count} elemet tartalmazhat"
 
 msgid "should be at most %{count} character(s)"
-msgstr ""
+msgstr "legfeljebb %{count} karakter hosszú lehet"
 
 msgid "should be at most %{count} byte(s)"
-msgstr ""
+msgstr "legfeljebb %{count} bájt hosszú lehet"
 
 msgid "must be less than %{number}"
-msgstr ""
+msgstr "kisebbnek kell lennie, mint %{number}"
 
 msgid "must be greater than %{number}"
-msgstr ""
+msgstr "nagyobbnak kell lennie, mint %{number}"
 
 msgid "must be less than or equal to %{number}"
-msgstr ""
+msgstr "kisebbnek vagy egyenlőnek kell lennie, mint %{number}"
 
 msgid "must be greater than or equal to %{number}"
-msgstr ""
+msgstr "nagyobbnak vagy egyenlőnek kell lennie, mint %{number}"
 
 msgid "must be equal to %{number}"
-msgstr ""
+msgstr "egyenlőnek kell lennie ezzel: %{number}"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:18
 #, elixir-autogen, elixir-format
 msgid "cannot friend yourself"
-msgstr ""
+msgstr "nem jelölheted magad barátnak"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:19
 #, elixir-autogen, elixir-format
 msgid "did not change"
-msgstr ""
+msgstr "nem változott"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:20
 #, elixir-autogen, elixir-format
 msgid "does not exist"
-msgstr ""
+msgstr "nem létezik"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:24
 #, elixir-autogen, elixir-format
 msgid "does not match password"
-msgstr ""
+msgstr "nem egyezik a jelszóval"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:22
 #, elixir-autogen, elixir-format
 msgid "must be lowercase alphanumeric with underscores"
-msgstr ""
+msgstr "csak kisbetűket, számokat és aláhúzásokat tartalmazhat"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:23
 #, elixir-autogen, elixir-format
 msgid "must have the @ sign and no spaces"
-msgstr ""
+msgstr "tartalmaznia kell a @ jelet, szóköz nélkül"

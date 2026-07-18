@@ -21,6 +21,7 @@ defmodule GameServerWeb.UserLive.Settings do
   @valid_tabs ~w(account friends groups payments data)
 
   @account_events ~w(validate_email update_email validate_display_name update_display_name
+                     validate_username update_username
                      validate_password update_password unlink_provider delete_user
                      delete_conflicting_account)
   @friends_events ~w(search_users send_friend block_friend accept_friend reject_friend

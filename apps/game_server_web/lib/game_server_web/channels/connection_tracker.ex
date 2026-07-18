@@ -44,6 +44,29 @@ defmodule GameServerWeb.ConnectionTracker do
   end
 
   @doc """
+  Registers a user channel under both the `:user_channel` type (for counts) and
+  a per-user key, so the "does this user have any other socket?" check on
+  disconnect is O(sockets-for-this-user) instead of O(all user channels).
+  """
+  def register_user_channel(user_id) do
+    _ = register(:user_channel, %{user_id: user_id})
+    _ = register({:user_channel, user_id}, %{})
+    :ok
+  end
+
+  @doc """
+  Counts this user's live user channels excluding the calling process — used on
+  disconnect to decide whether the user just went fully offline.
+  """
+  def count_other_user_channels(user_id) do
+    @registry
+    |> Registry.lookup({:user_channel, user_id})
+    |> Enum.count(fn {pid, _meta} -> pid != self() end)
+  rescue
+    ArgumentError -> 0
+  end
+
+  @doc """
   Returns the count of processes registered under `type`.
   Returns 0 if the registry hasn't been started yet.
   """

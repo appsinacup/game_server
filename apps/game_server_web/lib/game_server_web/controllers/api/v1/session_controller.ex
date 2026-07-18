@@ -47,6 +47,7 @@ defmodule GameServerWeb.Api.V1.SessionController do
                   description: "Seconds until access token expires"
                 },
                 user_id: %Schema{type: :string, format: :uuid},
+                username: %Schema{type: :string, description: "Unique username handle"},
                 display_name: %Schema{type: :string, description: "User display name"}
               }
             }
@@ -57,6 +58,7 @@ defmodule GameServerWeb.Api.V1.SessionController do
               refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
               expires_in: 900,
               user_id: "0198c0de-0002-7000-8000-000000000002",
+              username: "coolplayer-1234",
               display_name: "CoolPlayer"
             }
           }
@@ -195,6 +197,7 @@ defmodule GameServerWeb.Api.V1.SessionController do
                 },
                 user_id: %Schema{type: :string, format: :uuid, description: "User ID"},
                 expires_in: %Schema{type: :integer, description: "Seconds until expiry"},
+                username: %Schema{type: :string, description: "Unique username handle"},
                 display_name: %Schema{type: :string, description: "User display name"}
               }
             }
@@ -205,6 +208,7 @@ defmodule GameServerWeb.Api.V1.SessionController do
               refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
               user_id: "0198c0de-0002-7000-8000-000000000002",
               expires_in: 900,
+              username: "coolplayer-1234",
               display_name: "CoolPlayer"
             }
           }
@@ -230,6 +234,7 @@ defmodule GameServerWeb.Api.V1.SessionController do
                 access_token: new_access_token,
                 refresh_token: refresh_token,
                 user_id: user.id,
+                username: user.username || "",
                 display_name: user.display_name || "",
                 expires_in: 900
               }
@@ -280,6 +285,7 @@ defmodule GameServerWeb.Api.V1.SessionController do
         refresh_token: refresh_token,
         expires_in: 900,
         user_id: user.id,
+        username: user.username || "",
         display_name: user.display_name || ""
       }
     })

@@ -53,10 +53,9 @@
       <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
         <pre>
     users (
-      id             : integer (primary key)
+      id             : uuid (UUIDv7 string primary key)
       email          : string (unique, nullable for provider-only accounts)
       hashed_password: string (bcrypt hash, nullable for OAuth-only accounts)
-      authenticated_at: utc_datetime (last sudo login)
       discord_id     : string (nullable)
       google_id      : string (nullable)
       facebook_id    : string (nullable)
@@ -64,11 +63,16 @@
       apple_id       : string (nullable)
       device_id      : string (nullable)
       profile_url    : string (avatar/profile image URL)
-      display_name   : string (human-friendly display name)
+      username       : string (unique lowercase handle, generated at registration)
+      display_name   : string (human-friendly display name, not unique)
       is_admin       : boolean
+      is_activated   : boolean (deactivated accounts cannot log in)
+      is_online      : boolean (realtime presence flag)
+      last_seen_at   : utc_datetime (presence timestamp)
+      token_version  : integer (bumped to revoke all of a user's JWTs)
       metadata       : map (JSON/Map for arbitrary user metadata)
-      lobby_id       : integer (foreign key to lobbies, nullable)
-      party_id       : integer (foreign key to parties, nullable)
+      lobby_id       : uuid (FK to lobbies, nullable)
+      party_id       : uuid (FK to parties, nullable)
       confirmed_at   : utc_datetime
       inserted_at    : utc_datetime
       updated_at     : utc_datetime
@@ -80,9 +84,9 @@
       <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
         <pre>
     friendships (
-      id          : integer (primary key)
-      requester_id: integer (user id of who made the request)
-      target_id   : integer (user id of the target)
+      id          : uuid (UUIDv7 string primary key)
+      requester_id: uuid (user id of who made the request)
+      target_id   : uuid (user id of the target)
       status      : string ("pending" | "accepted" | "rejected" | "blocked")
       inserted_at : utc_datetime
       updated_at  : utc_datetime
@@ -94,15 +98,16 @@
       <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
         <pre>
     lobbies (
-      id           : integer (primary key)
+      id           : uuid (UUIDv7 string primary key)
       title        : string (display title)
-      host_id      : integer (user id of host, nullable for hostless)
+      host_id      : uuid (user id of host, nullable for hostless)
       hostless     : boolean (server-managed hostless lobbies)
       max_users    : integer (maximum number of members)
       is_hidden    : boolean (not returned by public lists)
       is_locked    : boolean (fully locked - prevents joins)
       password_hash: string (bcrypt hash, optional: requires password to join)
       metadata     : jsonb/map (searchable metadata)
+      slowdown     : integer (chat slow-mode seconds, 0 = off)
       inserted_at  : utc_datetime
       updated_at   : utc_datetime
     )</pre>
@@ -112,8 +117,8 @@
       <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
         <pre>
     parties (
-      id          : integer (primary key)
-      leader_id   : integer (user id of the party leader/creator)
+      id          : uuid (UUIDv7 string primary key)
+      leader_id   : uuid (user id of the party leader/creator)
       max_size    : integer (maximum number of members, default: 4)
       metadata    : jsonb/map (arbitrary party metadata)
       inserted_at : utc_datetime
@@ -134,10 +139,10 @@
       <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
         <pre>
     party_invites (
-      id           : integer (primary key)
-      party_id     : integer (FK to parties)
-      sender_id    : integer (FK to users, the inviting leader)
-      recipient_id : integer (FK to users, the invited user)
+      id           : uuid (UUIDv7 string primary key)
+      party_id     : uuid (FK to parties)
+      sender_id    : uuid (FK to users, the inviting leader)
+      recipient_id : uuid (FK to users, the invited user)
       status       : string ("pending" | "accepted" | "declined" | "cancelled")
       inserted_at  : utc_datetime
       updated_at   : utc_datetime
@@ -148,7 +153,7 @@
       <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
         <pre>
     leaderboards (
-      id          : integer (primary key)
+      id          : uuid (UUIDv7 string primary key)
       slug        : string (unique identifier, e.g. "weekly_score_2024_w48")
       title       : string (display name)
       description : text (optional)
@@ -162,9 +167,9 @@
     )
 
     leaderboard_records (
-      id             : bigint (primary key)
-      leaderboard_id : integer (FK to leaderboards)
-      user_id        : bigint (FK to users)
+      id             : uuid (UUIDv7 string primary key)
+      leaderboard_id : uuid (FK to leaderboards)
+      user_id        : uuid (FK to users)
       score          : bigint
       metadata       : jsonb (optional)
       inserted_at    : utc_datetime
@@ -176,7 +181,7 @@
       <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
         <pre>
     achievements (
-      id              : integer (primary key)
+      id              : uuid (UUIDv7 string primary key)
       slug            : string (unique identifier, e.g. "first_lobby")
       title           : string (display name)
       description     : string (condition to unlock)
@@ -190,9 +195,9 @@
     )
 
     user_achievements (
-      id             : integer (primary key)
-      user_id        : integer (FK to users)
-      achievement_id : integer (FK to achievements)
+      id             : uuid (UUIDv7 string primary key)
+      user_id        : uuid (FK to users)
+      achievement_id : uuid (FK to achievements)
       progress       : integer (current progress, default: 0)
       unlocked_at    : utc_datetime (nil until unlocked)
       metadata       : jsonb (optional)
@@ -209,12 +214,13 @@
       >
         <pre>
     notifications (
-      id           : integer (primary key)
-      sender_id    : integer (FK to users)
-      recipient_id : integer (FK to users)
+      id           : uuid (UUIDv7 string primary key)
+      sender_id    : uuid (FK to users)
+      recipient_id : uuid (FK to users)
       title        : string (notification type/category)
       content      : string (message body)
       metadata     : jsonb/map (optional, e.g. context data)
+      read         : boolean (marked read by the recipient)
       inserted_at  : utc_datetime
       updated_at   : utc_datetime
     )
@@ -231,40 +237,41 @@
       <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
         <pre>
     groups (
-      id          : integer (primary key)
+      id          : uuid (UUIDv7 string primary key)
       title       : string (display name, unique)
       description : string (optional)
       type        : string ("public" | "private" | "hidden")
       max_members : integer (default: 100)
       metadata    : jsonb/map (optional)
-      creator_id  : integer (FK to users)
+      slowdown    : integer (chat slow-mode seconds, 0 = off)
+      creator_id  : uuid (FK to users)
       inserted_at : utc_datetime
       updated_at  : utc_datetime
     )
 
     group_members (
-      id          : integer (primary key)
-      group_id    : integer (FK to groups)
-      user_id     : integer (FK to users)
+      id          : uuid (UUIDv7 string primary key)
+      group_id    : uuid (FK to groups)
+      user_id     : uuid (FK to users)
       role        : string ("admin" | "member")
       inserted_at : utc_datetime
       updated_at  : utc_datetime
     )
 
     group_join_requests (
-      id          : integer (primary key)
-      group_id    : integer (FK to groups)
-      user_id     : integer (FK to users)
+      id          : uuid (UUIDv7 string primary key)
+      group_id    : uuid (FK to groups)
+      user_id     : uuid (FK to users)
       status      : string ("pending" | "accepted" | "rejected")
       inserted_at : utc_datetime
       updated_at  : utc_datetime
     )
 
     group_invites (
-      id           : integer (primary key)
-      group_id     : integer (FK to groups)
-      sender_id    : integer (FK to users, the inviting admin)
-      recipient_id : integer (FK to users, the invited user)
+      id           : uuid (UUIDv7 string primary key)
+      group_id     : uuid (FK to groups)
+      sender_id    : uuid (FK to users, the inviting admin)
+      recipient_id : uuid (FK to users, the invited user)
       status       : string ("pending" | "accepted" | "declined" | "cancelled")
       inserted_at  : utc_datetime
       updated_at   : utc_datetime
@@ -279,6 +286,14 @@
           <code class="font-mono">hashed_password</code>. {doc_text(
             "In that case password-based login does not work (we treat oauth-only accounts as passwordless unless a password is explicitly set by the user)."
           )}
+        </li>
+        <li>
+          <strong>{doc_text("Username:")}</strong>
+          The <code class="font-mono">username</code>
+          {doc_text(
+            "is a unique lowercase handle (3-32 chars of a-z, 0-9 and non-consecutive . _ - separators). The server generates one at registration; players change it via"
+          )}
+          <code class="font-mono">PATCH /api/v1/me/username</code>.
         </li>
         <li>
           <strong>{doc_text("Display name:")}</strong>
@@ -317,7 +332,7 @@
           The <code class="font-mono">users</code>
           table is the primary identity store and contains
           fields like <code class="font-mono">email</code>, <code class="font-mono">hashed_password</code>,
-          provider ids (<code class="font-mono">discord_id</code>, <code class="font-mono">google_id</code>, etc.), <code class="font-mono">profile_url</code>, <code class="font-mono">display_name</code>,
+          provider ids (<code class="font-mono">discord_id</code>, <code class="font-mono">google_id</code>, etc.), <code class="font-mono">profile_url</code>, <code class="font-mono">username</code>, <code class="font-mono">display_name</code>,
           <code class="font-mono">metadata</code>
           and admin flags and timestamps.
         </p>
@@ -326,12 +341,12 @@
         <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
           <pre>
     users_tokens (
-      id              : integer (primary key)
+      id              : uuid (UUIDv7 string primary key)
       token           : binary (hashed for email tokens; raw for session tokens)
       context         : string ("session", "login", "change:..." etc.)
       sent_to         : string (email address for email/magic link tokens)
       authenticated_at: utc_datetime (when this session was created/used)
-      user_id         : integer (foreign key to users)
+      user_id         : uuid (foreign key to users)
       inserted_at     : utc_datetime
     )</pre>
         </div>
@@ -343,7 +358,7 @@
         <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
           <pre>
     oauth_sessions (
-      id        : integer (primary key)
+      id        : uuid (UUIDv7 string primary key)
       session_id: string (unique id used by SDKs to poll/signal status)
       provider  : string ("discord" | "google" | "facebook" | "apple" | "steam")
       status    : string ("pending" | "completed" | "failed")
@@ -358,19 +373,21 @@
 
         <h4 class="font-semibold">{doc_text("JWT tokens (access + refresh)")}</h4>
         <p class="pl-4">
-          The API issues JSON Web Tokens (JWTs) for API authentication. Access tokens are short-lived and refresh tokens are longer-lived (configurable). The server uses Guardian for signing and verification. Refresh tokens are stateless JWTs (no DB lookup) while session tokens and email tokens are persisted where needed.
+          The API issues JSON Web Tokens (JWTs) for API authentication. Access tokens are short-lived and refresh tokens are longer-lived (configurable). The server uses Guardian for signing and verification. Refresh tokens are stateless JWTs (no DB-stored token), but every JWT embeds the user's
+          <code class="font-mono">token_version</code>
+          claim — bumping it (password change, revoke-all) invalidates all outstanding tokens. Session tokens and email tokens are persisted where needed.
         </p>
 
         <h4 class="font-semibold">{doc_text("Chat messages (chat_messages)")}</h4>
         <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
           <pre>
     chat_messages (
-      id           : integer  (primary key)
+      id           : uuid     (UUIDv7 string primary key)
       content      : string   (message text, 1-4096 chars)
       metadata     : map/json (arbitrary JSON: attachments, type, etc.)
-      sender_id    : integer  (FK → users.id)
+      sender_id    : uuid     (FK → users.id)
       chat_type    : string   ("lobby" | "group" | "friend")
-      chat_ref_id  : integer  (lobby_id, group_id, or friend's user_id)
+      chat_ref_id  : uuid     (lobby_id, group_id, or friend's user_id)
       inserted_at  : datetime (created timestamp)
       updated_at   : datetime (updated timestamp, differs when edited)
     )</pre>
@@ -386,11 +403,11 @@
         <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
           <pre>
     chat_read_cursors (
-      id                  : integer  (primary key)
-      user_id             : integer  (FK → users.id)
+      id                  : uuid     (UUIDv7 string primary key)
+      user_id             : uuid     (FK → users.id)
       chat_type           : string   ("lobby" | "group" | "friend")
-      chat_ref_id         : integer  (reference ID)
-      last_read_message_id: integer  (last message the user has read)
+      chat_ref_id         : uuid     (reference ID)
+      last_read_message_id: uuid     (last message the user has read)
       inserted_at         : datetime (created timestamp)
       updated_at          : datetime (updated timestamp)
     )</pre>
@@ -422,6 +439,26 @@
             Metadata is optional and stored as a JSON map
           </li>
         </ul>
+
+        <h4 class="font-semibold">{doc_text("Key-Value store (kv_entries)")}</h4>
+        <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+          <pre>
+    kv_entries (
+      id          : uuid     (UUIDv7 string primary key)
+      key         : string   (entry key)
+      user_id     : uuid     (FK → users.id, nullable)
+      lobby_id    : uuid     (FK → lobbies.id, nullable)
+      value       : map/json (arbitrary JSON value)
+      metadata    : map/json (optional)
+      inserted_at : datetime
+      updated_at  : datetime
+    )</pre>
+        </div>
+        <p class="pl-4 mt-1">
+          {doc_text(
+            "Key-value entries are scoped by the user_id/lobby_id pair: global (both null), per-user, per-lobby, or per-user-per-lobby — each scope has its own unique index on the key. Updates broadcast kv_updated events to subscribed sockets."
+          )}
+        </p>
       </div>
     </div>
   </div>

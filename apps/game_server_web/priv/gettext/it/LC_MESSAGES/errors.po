@@ -1,116 +1,116 @@
-## "msgid"s in this file come from POT (.pot) files.
-###
-### Do not add, change, or remove "msgid"s manually here as
-### they're tied to the ones in the corresponding POT file
-### (with the same domain).
-###
-### Use "mix gettext.extract --merge" or "mix gettext.merge"
-### to merge POT files into PO files.
+#  "msgid"s in this file come from POT (.pot) files.
+# #
+# # Do not add, change, or remove "msgid"s manually here as
+# # they're tied to the ones in the corresponding POT file
+# # (with the same domain).
+# #
+# # Use "mix gettext.extract --merge" or "mix gettext.merge"
+# # to merge POT files into PO files.
 msgid ""
 msgstr ""
 "Language: it\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgid "can't be blank"
-msgstr ""
+msgstr "non può essere vuoto"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:21
 #, elixir-autogen
 msgid "has already been taken"
-msgstr ""
+msgstr "è già in uso"
 
 msgid "is invalid"
-msgstr ""
+msgstr "non è valido"
 
 msgid "must be accepted"
-msgstr ""
+msgstr "deve essere accettato"
 
 msgid "has invalid format"
-msgstr ""
+msgstr "ha un formato non valido"
 
 msgid "has an invalid entry"
-msgstr ""
+msgstr "contiene una voce non valida"
 
 msgid "is reserved"
-msgstr ""
+msgstr "è riservato"
 
 msgid "does not match confirmation"
-msgstr ""
+msgstr "non corrisponde alla conferma"
 
 msgid "is still associated with this entry"
-msgstr ""
+msgstr "è ancora associato a questa voce"
 
 msgid "are still associated with this entry"
-msgstr ""
+msgstr "sono ancora associati a questa voce"
 
 msgid "should have %{count} item(s)"
-msgstr ""
+msgstr "deve avere %{count} elemento/i"
 
 msgid "should be %{count} character(s)"
-msgstr ""
+msgstr "deve essere di %{count} carattere/i"
 
 msgid "should be %{count} byte(s)"
-msgstr ""
+msgstr "deve essere di %{count} byte"
 
 msgid "should have at least %{count} item(s)"
-msgstr ""
+msgstr "deve avere almeno %{count} elemento/i"
 
 msgid "should be at least %{count} character(s)"
-msgstr ""
+msgstr "deve essere di almeno %{count} carattere/i"
 
 msgid "should be at least %{count} byte(s)"
-msgstr ""
+msgstr "deve essere di almeno %{count} byte"
 
 msgid "should have at most %{count} item(s)"
-msgstr ""
+msgstr "deve avere al massimo %{count} elemento/i"
 
 msgid "should be at most %{count} character(s)"
-msgstr ""
+msgstr "deve essere di al massimo %{count} carattere/i"
 
 msgid "should be at most %{count} byte(s)"
-msgstr ""
+msgstr "deve essere di al massimo %{count} byte"
 
 msgid "must be less than %{number}"
-msgstr ""
+msgstr "deve essere minore di %{number}"
 
 msgid "must be greater than %{number}"
-msgstr ""
+msgstr "deve essere maggiore di %{number}"
 
 msgid "must be less than or equal to %{number}"
-msgstr ""
+msgstr "deve essere minore o uguale a %{number}"
 
 msgid "must be greater than or equal to %{number}"
-msgstr ""
+msgstr "deve essere maggiore o uguale a %{number}"
 
 msgid "must be equal to %{number}"
-msgstr ""
+msgstr "deve essere uguale a %{number}"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:18
 #, elixir-autogen, elixir-format
 msgid "cannot friend yourself"
-msgstr ""
+msgstr "non puoi aggiungere te stesso come amico"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:19
 #, elixir-autogen, elixir-format
 msgid "did not change"
-msgstr ""
+msgstr "non è cambiato"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:20
 #, elixir-autogen, elixir-format
 msgid "does not exist"
-msgstr ""
+msgstr "non esiste"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:24
 #, elixir-autogen, elixir-format
 msgid "does not match password"
-msgstr ""
+msgstr "non corrisponde alla password"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:22
 #, elixir-autogen, elixir-format
 msgid "must be lowercase alphanumeric with underscores"
-msgstr ""
+msgstr "deve essere alfanumerico minuscolo con trattini bassi"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:23
 #, elixir-autogen, elixir-format
 msgid "must have the @ sign and no spaces"
-msgstr ""
+msgstr "deve contenere il segno @ e nessuno spazio"

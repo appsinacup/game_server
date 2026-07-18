@@ -10,7 +10,8 @@ defmodule GameServer.Retention do
   - `RETENTION_PAYMENT_EVENTS_DAYS` — payment provider webhook events older
     than N days (purchases/entitlements are never pruned)
 
-  Expired IP bans are always removed. Deletes are idempotent, so running on
+  Expired IP bans and OAuth sessions older than a day are always removed
+  (independent of the env vars above). Deletes are idempotent, so running on
   several instances at once is harmless.
   """
 
@@ -25,6 +26,10 @@ defmodule GameServer.Retention do
   # First run shortly after boot, then every 6 hours.
   @initial_delay_ms :timer.minutes(5)
   @interval_ms :timer.hours(6)
+
+  # OAuth sessions are ephemeral handshake state (seconds-to-minutes of use);
+  # always prune stale rows so the table can't grow unbounded.
+  @oauth_session_ttl_days 1
 
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
@@ -57,6 +62,7 @@ defmodule GameServer.Retention do
         prune_older_than(GameServer.Notifications.Notification, config(:notifications_days)),
       payment_events:
         prune_older_than(GameServer.Payments.ProviderEvent, config(:payment_events_days)),
+      oauth_sessions: prune_older_than(GameServer.OAuthSession, @oauth_session_ttl_days),
       expired_ip_bans: prune_expired_ip_bans()
     }
 

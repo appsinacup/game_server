@@ -1,50 +1,51 @@
+#
 msgid ""
 msgstr ""
 "Language: es\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-## From Ecto.Changeset.cast/4
+# From Ecto.Changeset.cast/4
 msgid "can't be blank"
 msgstr "no puede estar en blanco"
 
-## From Ecto.Changeset.unique_constraint/3
+# From Ecto.Changeset.unique_constraint/3
 #: lib/game_server_web/i18n/errors_catalog.ex:21
 #, elixir-autogen
 msgid "has already been taken"
 msgstr "ya ha sido tomado"
 
-## From Ecto.Changeset.put_change/3
+# From Ecto.Changeset.put_change/3
 msgid "is invalid"
 msgstr "es inválido"
 
-## From Ecto.Changeset.validate_acceptance/3
+# From Ecto.Changeset.validate_acceptance/3
 msgid "must be accepted"
 msgstr "debe ser aceptado"
 
-## From Ecto.Changeset.validate_format/3
+# From Ecto.Changeset.validate_format/3
 msgid "has invalid format"
 msgstr "tiene un formato inválido"
 
-## From Ecto.Changeset.validate_subset/3
+# From Ecto.Changeset.validate_subset/3
 msgid "has an invalid entry"
 msgstr "tiene una entrada inválida"
 
-## From Ecto.Changeset.validate_exclusion/3
+# From Ecto.Changeset.validate_exclusion/3
 msgid "is reserved"
 msgstr "está reservado"
 
-## From Ecto.Changeset.validate_confirmation/3
+# From Ecto.Changeset.validate_confirmation/3
 msgid "does not match confirmation"
 msgstr "no coincide con la confirmación"
 
-## From Ecto.Changeset.no_assoc_constraint/3
+# From Ecto.Changeset.no_assoc_constraint/3
 msgid "is still associated with this entry"
 msgstr "aún está asociado con esta entrada"
 
 msgid "are still associated with this entry"
 msgstr "aún están asociados con esta entrada"
 
-## From Ecto.Changeset.validate_length/3
+# From Ecto.Changeset.validate_length/3
 msgid "should have %{count} item(s)"
 msgstr "debe tener %{count} elemento"
 
@@ -72,7 +73,7 @@ msgstr "debe tener como máximo %{count} carácter"
 msgid "should be at most %{count} byte(s)"
 msgstr "debe tener como máximo %{count} byte"
 
-## From Ecto.Changeset.validate_number/3
+# From Ecto.Changeset.validate_number/3
 msgid "must be less than %{number}"
 msgstr "debe ser menor que %{number}"
 

@@ -100,9 +100,20 @@ defmodule GameServerWeb.Serializers do
     )
     |> maybe_put(
       :members,
-      lobby |> Lobbies.get_lobby_members() |> Enum.map(&User.serialize_brief/1),
+      serialize_lobby_members(lobby),
       Keyword.get(opts, :include_members, false)
     )
+  end
+
+  # Uses members already loaded onto the struct (e.g. by the broadcast source)
+  # so the per-socket channel fan-out never re-queries; falls back to a single
+  # query for callers that pass a bare lobby (HTTP controllers).
+  defp serialize_lobby_members(lobby) do
+    case loaded_assoc(lobby, :memberships) do
+      nil -> Lobbies.get_lobby_members(lobby)
+      members -> members
+    end
+    |> Enum.map(&User.serialize_brief/1)
   end
 
   @spec serialize_group(term(), keyword()) :: map()
@@ -135,10 +146,20 @@ defmodule GameServerWeb.Serializers do
       leader_name: assoc_or_lookup_display_name(leader, party.leader_id),
       max_size: party.max_size,
       metadata: party.metadata || %{},
-      members: party.id |> Parties.get_party_members() |> Enum.map(&User.serialize_brief/1)
+      members: serialize_party_members(party)
     }
     |> maybe_put(:inserted_at, party.inserted_at, Keyword.get(opts, :include_timestamps, false))
     |> maybe_put(:updated_at, party.updated_at, Keyword.get(opts, :include_timestamps, false))
+  end
+
+  # Uses members already loaded onto the struct (e.g. by the broadcast source)
+  # so the per-socket channel fan-out never re-queries.
+  defp serialize_party_members(party) do
+    case loaded_assoc(party, :members) do
+      nil -> Parties.get_party_members(party.id)
+      members -> members
+    end
+    |> Enum.map(&User.serialize_brief/1)
   end
 
   defp loaded_assoc(struct, field) do

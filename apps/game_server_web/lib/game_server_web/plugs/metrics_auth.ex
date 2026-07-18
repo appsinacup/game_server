@@ -4,15 +4,15 @@ defmodule GameServerWeb.Plugs.MetricsAuth do
 
   Access rules (checked in order):
 
-  1. **Private/local IPs** — always allowed without auth.
-     Covers Docker internal networks (172.x, 10.x, 192.168.x), localhost (127.x),
-     and IPv6 loopback (::1). This means Prometheus running in the same
-     docker-compose can always scrape `/metrics`.
+  1. **Loopback** (127.x, ::1) — always allowed without auth.
 
-  2. **Bearer token** — if `METRICS_AUTH_TOKEN` is set, external requests
-     must include `Authorization: Bearer <token>`.
+  2. **Bearer token** — if `METRICS_AUTH_TOKEN` is set, every non-loopback
+     request must include `Authorization: Bearer <token>`, including
+     private/Docker-internal IPs. (Trusting a private source IP is unsafe behind
+     a proxy that can be made to leave `remote_ip` as its own private address.)
 
-  3. **No token configured** — all requests are allowed (dev default).
+  3. **No token configured** — private/Docker-internal IPs are allowed without
+     auth (dev/compose convenience); all requests are allowed.
 
   ## Configuration
 
@@ -37,11 +37,10 @@ defmodule GameServerWeb.Plugs.MetricsAuth do
 
   @impl true
   def call(conn, _opts) do
-    if private_ip?(conn.remote_ip) do
-      # Always allow local/Docker-internal access
-      conn
-    else
-      check_token(conn)
+    cond do
+      loopback?(conn.remote_ip) -> conn
+      required_token() == nil and private_ip?(conn.remote_ip) -> conn
+      true -> check_token(conn)
     end
   end
 
@@ -53,25 +52,35 @@ defmodule GameServerWeb.Plugs.MetricsAuth do
 
       expected ->
         case get_req_header(conn, "authorization") do
-          ["Bearer " <> token] when token == expected ->
-            conn
+          ["Bearer " <> token] ->
+            if Plug.Crypto.secure_compare(token, expected) do
+              conn
+            else
+              deny(conn)
+            end
 
           _ ->
-            conn
-            |> put_resp_content_type("text/plain")
-            |> send_resp(401, "Unauthorized")
-            |> halt()
+            deny(conn)
         end
     end
   end
 
+  defp deny(conn) do
+    conn
+    |> put_resp_content_type("text/plain")
+    |> send_resp(401, "Unauthorized")
+    |> halt()
+  end
+
+  defp loopback?({127, _, _, _}), do: true
+  defp loopback?({0, 0, 0, 0, 0, 0, 0, 1}), do: true
+  defp loopback?(_), do: false
+
   # Check if the IP is in a private/local range
-  defp private_ip?({127, _, _, _}), do: true
   defp private_ip?({10, _, _, _}), do: true
   defp private_ip?({172, b, _, _}) when b >= 16 and b <= 31, do: true
   defp private_ip?({192, 168, _, _}), do: true
-  defp private_ip?({0, 0, 0, 0, 0, 0, 0, 1}), do: true
-  defp private_ip?(_), do: false
+  defp private_ip?(ip), do: loopback?(ip)
 
   defp required_token do
     case Application.get_env(:game_server_web, :metrics_auth_token) do

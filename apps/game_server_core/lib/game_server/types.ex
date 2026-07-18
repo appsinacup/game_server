@@ -79,9 +79,20 @@ defmodule GameServer.Types do
   @type user_registration_attrs :: %{
           optional(:email) => String.t(),
           optional(:password) => String.t(),
+          optional(:username) => String.t(),
           optional(:display_name) => String.t(),
           optional(:device_id) => String.t()
         }
+
+  @typedoc """
+  String-keyed registration attrs flowing through the `before_user_register`
+  hook pipeline.
+
+  Always contains the generated `"username"`; the remaining keys depend on the
+  signup source — `"email"`, `"display_name"`, `"metadata"`, and provider id
+  fields such as `"google_id"` or `"device_id"`.
+  """
+  @type user_registration_hook_attrs :: %{optional(String.t()) => term()}
 
   @typedoc """
   Attributes for updating an existing user.

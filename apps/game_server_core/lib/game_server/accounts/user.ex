@@ -12,6 +12,7 @@ defmodule GameServer.Accounts.User do
           email: String.t() | nil,
           hashed_password: String.t() | nil,
           confirmed_at: DateTime.t() | nil,
+          username: String.t() | nil,
           display_name: String.t() | nil,
           metadata: map(),
           lobby_id: integer() | nil,
@@ -32,6 +33,7 @@ defmodule GameServer.Accounts.User do
     field :authenticated_at, :utc_datetime, virtual: true
     field :discord_id, :string
     field :profile_url, :string
+    field :username, :string
     field :display_name, :string
     field :device_id, :string
     field :apple_id, :string
@@ -190,7 +192,7 @@ defmodule GameServer.Accounts.User do
   """
   def discord_oauth_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :discord_id, :profile_url, :is_admin, :display_name])
+    |> cast(attrs, [:email, :discord_id, :profile_url, :display_name])
     |> update_change(:email, fn
       nil -> nil
       email -> String.downcase(email)
@@ -216,7 +218,7 @@ defmodule GameServer.Accounts.User do
   """
   def steam_oauth_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :steam_id, :profile_url, :is_admin, :display_name])
+    |> cast(attrs, [:email, :steam_id, :profile_url, :display_name])
     |> update_change(:email, fn
       nil -> nil
       email -> String.downcase(email)
@@ -242,7 +244,7 @@ defmodule GameServer.Accounts.User do
   """
   def apple_oauth_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :apple_id, :is_admin, :display_name])
+    |> cast(attrs, [:email, :apple_id, :display_name])
     |> update_change(:email, fn
       nil -> nil
       email -> String.downcase(email)
@@ -267,7 +269,7 @@ defmodule GameServer.Accounts.User do
   """
   def google_oauth_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :google_id, :profile_url, :is_admin, :display_name])
+    |> cast(attrs, [:email, :google_id, :profile_url, :display_name])
     |> update_change(:email, fn
       nil -> nil
       email -> String.downcase(email)
@@ -293,7 +295,7 @@ defmodule GameServer.Accounts.User do
   """
   def facebook_oauth_changeset(user, attrs) do
     user
-    |> cast(attrs, [:email, :facebook_id, :profile_url, :is_admin, :display_name])
+    |> cast(attrs, [:email, :facebook_id, :profile_url, :display_name])
     |> update_change(:email, fn
       nil -> nil
       email -> String.downcase(email)
@@ -351,6 +353,33 @@ defmodule GameServer.Accounts.User do
   end
 
   @doc """
+  A changeset for the unique username handle.
+
+  Input is lowercased on cast. Valid usernames are 3–32 chars
+  (`GameServer.Limits` `:min_username`/`:max_username`) of `a-z`, `0-9` and
+  non-consecutive `.` `_` `-` separators, starting and ending alphanumeric.
+  Uniqueness is enforced by the DB unique index.
+  """
+  def username_changeset(user_or_changeset, attrs) do
+    user_or_changeset
+    |> cast(attrs, [:username])
+    |> update_change(:username, fn
+      nil -> nil
+      username -> String.downcase(username)
+    end)
+    |> validate_required([:username])
+    |> validate_length(:username,
+      min: GameServer.Limits.get(:min_username),
+      max: GameServer.Limits.get(:max_username)
+    )
+    |> validate_format(:username, ~r/^[a-z0-9](?:[._-]?[a-z0-9])*$/,
+      message:
+        "only a-z, 0-9 and non-consecutive . _ - separators; must start and end alphanumeric"
+    )
+    |> unique_constraint(:username)
+  end
+
+  @doc """
   A simple changeset for updating a user's display name.
 
   Allows empty string so users can set an empty display name if desired.
@@ -394,6 +423,7 @@ defmodule GameServer.Accounts.User do
   def serialize_brief(%__MODULE__{} = user) do
     %{
       id: user.id,
+      username: user.username || "",
       display_name: user.display_name || "",
       profile_url: user.profile_url || "",
       metadata: user.metadata || %{},
@@ -408,6 +438,7 @@ defimpl Jason.Encoder, for: GameServer.Accounts.User do
   def encode(user, opts) do
     %{
       id: user.id,
+      username: user.username || "",
       display_name: user.display_name || "",
       profile_url: user.profile_url || "",
       metadata: user.metadata || %{},

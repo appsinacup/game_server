@@ -1,116 +1,116 @@
-## "msgid"s in this file come from POT (.pot) files.
-###
-### Do not add, change, or remove "msgid"s manually here as
-### they're tied to the ones in the corresponding POT file
-### (with the same domain).
-###
-### Use "mix gettext.extract --merge" or "mix gettext.merge"
-### to merge POT files into PO files.
+#  "msgid"s in this file come from POT (.pot) files.
+# #
+# # Do not add, change, or remove "msgid"s manually here as
+# # they're tied to the ones in the corresponding POT file
+# # (with the same domain).
+# #
+# # Use "mix gettext.extract --merge" or "mix gettext.merge"
+# # to merge POT files into PO files.
 msgid ""
 msgstr ""
 "Language: ja\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 msgid "can't be blank"
-msgstr ""
+msgstr "空にはできません"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:21
 #, elixir-autogen
 msgid "has already been taken"
-msgstr ""
+msgstr "すでに使用されています"
 
 msgid "is invalid"
-msgstr ""
+msgstr "無効です"
 
 msgid "must be accepted"
-msgstr ""
+msgstr "承認が必要です"
 
 msgid "has invalid format"
-msgstr ""
+msgstr "形式が無効です"
 
 msgid "has an invalid entry"
-msgstr ""
+msgstr "無効な項目が含まれています"
 
 msgid "is reserved"
-msgstr ""
+msgstr "予約されています"
 
 msgid "does not match confirmation"
-msgstr ""
+msgstr "確認と一致しません"
 
 msgid "is still associated with this entry"
-msgstr ""
+msgstr "まだこの項目に関連付けられています"
 
 msgid "are still associated with this entry"
-msgstr ""
+msgstr "まだこの項目に関連付けられています"
 
 msgid "should have %{count} item(s)"
-msgstr ""
+msgstr "%{count}個の項目が必要です"
 
 msgid "should be %{count} character(s)"
-msgstr ""
+msgstr "%{count}文字である必要があります"
 
 msgid "should be %{count} byte(s)"
-msgstr ""
+msgstr "%{count}バイトである必要があります"
 
 msgid "should have at least %{count} item(s)"
-msgstr ""
+msgstr "少なくとも%{count}個の項目が必要です"
 
 msgid "should be at least %{count} character(s)"
-msgstr ""
+msgstr "%{count}文字以上である必要があります"
 
 msgid "should be at least %{count} byte(s)"
-msgstr ""
+msgstr "%{count}バイト以上である必要があります"
 
 msgid "should have at most %{count} item(s)"
-msgstr ""
+msgstr "項目は%{count}個までです"
 
 msgid "should be at most %{count} character(s)"
-msgstr ""
+msgstr "%{count}文字以下である必要があります"
 
 msgid "should be at most %{count} byte(s)"
-msgstr ""
+msgstr "%{count}バイト以下である必要があります"
 
 msgid "must be less than %{number}"
-msgstr ""
+msgstr "%{number}未満である必要があります"
 
 msgid "must be greater than %{number}"
-msgstr ""
+msgstr "%{number}より大きい必要があります"
 
 msgid "must be less than or equal to %{number}"
-msgstr ""
+msgstr "%{number}以下である必要があります"
 
 msgid "must be greater than or equal to %{number}"
-msgstr ""
+msgstr "%{number}以上である必要があります"
 
 msgid "must be equal to %{number}"
-msgstr ""
+msgstr "%{number}と等しい必要があります"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:18
 #, elixir-autogen, elixir-format
 msgid "cannot friend yourself"
-msgstr ""
+msgstr "自分自身をフレンドに追加することはできません"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:19
 #, elixir-autogen, elixir-format
 msgid "did not change"
-msgstr ""
+msgstr "変更されていません"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:20
 #, elixir-autogen, elixir-format
 msgid "does not exist"
-msgstr ""
+msgstr "存在しません"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:24
 #, elixir-autogen, elixir-format
 msgid "does not match password"
-msgstr ""
+msgstr "パスワードと一致しません"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:22
 #, elixir-autogen, elixir-format
 msgid "must be lowercase alphanumeric with underscores"
-msgstr ""
+msgstr "小文字の英数字とアンダースコアのみ使用できます"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:23
 #, elixir-autogen, elixir-format
 msgid "must have the @ sign and no spaces"
-msgstr ""
+msgstr "@記号を含み、スペースは使用できません"

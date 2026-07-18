@@ -27,6 +27,7 @@ defmodule GameServer.Repo.AdvisoryLock do
   - `:lobby` → 1
   - `:group` → 2
   - `:party` → 3
+  - `:friendship` → 4
 
   You can also pass an arbitrary string as the namespace. The string is
   hashed to a stable 32-bit integer via `:erlang.phash2/2`, so any
@@ -41,7 +42,7 @@ defmodule GameServer.Repo.AdvisoryLock do
       AdvisoryLock.lock("word_guessed", lobby_id)
   """
 
-  @namespaces %{lobby: 1, group: 2, party: 3}
+  @namespaces %{lobby: 1, group: 2, party: 3, friendship: 4}
 
   # Reserve 0..99 for atom namespaces; string hashes start at 100.
   @string_ns_offset 100

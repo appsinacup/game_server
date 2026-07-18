@@ -1,116 +1,116 @@
-## "msgid"s in this file come from POT (.pot) files.
-###
-### Do not add, change, or remove "msgid"s manually here as
-### they're tied to the ones in the corresponding POT file
-### (with the same domain).
-###
-### Use "mix gettext.extract --merge" or "mix gettext.merge"
-### to merge POT files into PO files.
+#  "msgid"s in this file come from POT (.pot) files.
+# #
+# # Do not add, change, or remove "msgid"s manually here as
+# # they're tied to the ones in the corresponding POT file
+# # (with the same domain).
+# #
+# # Use "mix gettext.extract --merge" or "mix gettext.merge"
+# # to merge POT files into PO files.
 msgid ""
 msgstr ""
 "Language: uk\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100 != 11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10||n%100>=20) ? 1 : 2);\n"
 
 msgid "can't be blank"
-msgstr ""
+msgstr "не може бути порожнім"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:21
 #, elixir-autogen
 msgid "has already been taken"
-msgstr ""
+msgstr "вже зайнято"
 
 msgid "is invalid"
-msgstr ""
+msgstr "недійсне"
 
 msgid "must be accepted"
-msgstr ""
+msgstr "має бути прийнято"
 
 msgid "has invalid format"
-msgstr ""
+msgstr "має неправильний формат"
 
 msgid "has an invalid entry"
-msgstr ""
+msgstr "містить недійсний запис"
 
 msgid "is reserved"
-msgstr ""
+msgstr "зарезервовано"
 
 msgid "does not match confirmation"
-msgstr ""
+msgstr "не збігається з підтвердженням"
 
 msgid "is still associated with this entry"
-msgstr ""
+msgstr "досі пов'язане з цим записом"
 
 msgid "are still associated with this entry"
-msgstr ""
+msgstr "досі пов'язані з цим записом"
 
 msgid "should have %{count} item(s)"
-msgstr ""
+msgstr "має містити %{count} елемент(ів)"
 
 msgid "should be %{count} character(s)"
-msgstr ""
+msgstr "має бути довжиною %{count} символ(ів)"
 
 msgid "should be %{count} byte(s)"
-msgstr ""
+msgstr "має бути довжиною %{count} байт"
 
 msgid "should have at least %{count} item(s)"
-msgstr ""
+msgstr "має містити щонайменше %{count} елемент(ів)"
 
 msgid "should be at least %{count} character(s)"
-msgstr ""
+msgstr "має бути не коротше %{count} символ(ів)"
 
 msgid "should be at least %{count} byte(s)"
-msgstr ""
+msgstr "має бути щонайменше %{count} байт"
 
 msgid "should have at most %{count} item(s)"
-msgstr ""
+msgstr "має містити щонайбільше %{count} елемент(ів)"
 
 msgid "should be at most %{count} character(s)"
-msgstr ""
+msgstr "має бути не довше %{count} символ(ів)"
 
 msgid "should be at most %{count} byte(s)"
-msgstr ""
+msgstr "має бути щонайбільше %{count} байт"
 
 msgid "must be less than %{number}"
-msgstr ""
+msgstr "має бути менше ніж %{number}"
 
 msgid "must be greater than %{number}"
-msgstr ""
+msgstr "має бути більше ніж %{number}"
 
 msgid "must be less than or equal to %{number}"
-msgstr ""
+msgstr "має бути менше або дорівнювати %{number}"
 
 msgid "must be greater than or equal to %{number}"
-msgstr ""
+msgstr "має бути більше або дорівнювати %{number}"
 
 msgid "must be equal to %{number}"
-msgstr ""
+msgstr "має дорівнювати %{number}"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:18
 #, elixir-autogen, elixir-format
 msgid "cannot friend yourself"
-msgstr ""
+msgstr "не можна додати в друзі самого себе"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:19
 #, elixir-autogen, elixir-format
 msgid "did not change"
-msgstr ""
+msgstr "не було змінено"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:20
 #, elixir-autogen, elixir-format
 msgid "does not exist"
-msgstr ""
+msgstr "не існує"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:24
 #, elixir-autogen, elixir-format
 msgid "does not match password"
-msgstr ""
+msgstr "не збігається з паролем"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:22
 #, elixir-autogen, elixir-format
 msgid "must be lowercase alphanumeric with underscores"
-msgstr ""
+msgstr "може містити лише малі літери, цифри та підкреслення"
 
 #: lib/game_server_web/i18n/errors_catalog.ex:23
 #, elixir-autogen, elixir-format
 msgid "must have the @ sign and no spaces"
-msgstr ""
+msgstr "має містити знак @ і не містити пробілів"
