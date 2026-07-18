@@ -258,21 +258,50 @@ defmodule GameServer.Groups do
     |> Repo.all()
   end
 
-  @doc "Get paginated members of a group with user info."
+  @doc """
+  Get paginated members of a group with user info.
+
+  Pass `:search` to filter by member name (display name or username).
+  """
   @spec get_group_members_paginated(Ecto.UUID.t(), keyword()) :: [GroupMember.t()]
   def get_group_members_paginated(group_id, opts \\ []) when is_binary(group_id) do
-    from(m in GroupMember,
-      where: m.group_id == ^group_id,
-      order_by: [asc: m.inserted_at],
-      preload: [:user]
-    )
+    group_id
+    |> members_query(opts)
+    |> order_by([m], asc: m.inserted_at)
     |> paginate(opts)
   end
 
-  @doc "Count members in a group."
+  @doc "Count members in a group. Accepts the same `:search` option as the listing."
   @spec count_group_members(Ecto.UUID.t()) :: non_neg_integer()
-  def count_group_members(group_id) when is_binary(group_id) do
-    Repo.one(from(m in GroupMember, where: m.group_id == ^group_id, select: count(m.id))) || 0
+  @spec count_group_members(Ecto.UUID.t(), keyword()) :: non_neg_integer()
+  def count_group_members(group_id, opts \\ []) when is_binary(group_id) do
+    group_id
+    |> members_query(opts)
+    |> exclude(:preload)
+    |> Repo.aggregate(:count, :id)
+  end
+
+  defp members_query(group_id, opts) do
+    query =
+      from(m in GroupMember,
+        join: u in assoc(m, :user),
+        as: :user,
+        where: m.group_id == ^group_id,
+        preload: [user: u]
+      )
+
+    case Repo.search_pattern(Keyword.get(opts, :search)) do
+      nil ->
+        query
+
+      pattern ->
+        where(
+          query,
+          [user: u],
+          fragment("lower(coalesce(?, '')) LIKE ? ESCAPE '\\'", u.display_name, ^pattern) or
+            fragment("lower(coalesce(?, '')) LIKE ? ESCAPE '\\'", u.username, ^pattern)
+        )
+    end
   end
 
   @doc "Batch count members for a list of group IDs. Returns a map of group_id => count."

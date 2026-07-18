@@ -304,15 +304,62 @@ defmodule GameServer.Tournaments do
   @doc """
   Entries for a tournament, oldest first (registration order = seed rank).
 
-  Options: `:page`, `:page_size` (capped at 100), `:state`.
+  Options: `:page`, `:page_size` (capped at 100), `:state`, plus
+
+    * `:search` — filter by leader name (display name or username)
+    * `:preload_leader` — preload the leader, for callers that render names
+    * `:order` — `:bracket` groups drawn entries by bracket and seed instead
+
   """
   @spec list_entries(Ecto.UUID.t(), keyword()) :: [Entry.t()]
   def list_entries(tournament_id, opts \\ []) do
-    from(e in Entry, where: e.tournament_id == ^tournament_id, order_by: [asc: e.inserted_at])
-    |> maybe_where_state(Keyword.get(opts, :state))
+    tournament_id
+    |> entries_query(opts)
+    |> entries_order(Keyword.get(opts, :order))
     |> maybe_paginate(opts)
     |> Repo.all()
   end
+
+  defp entries_query(tournament_id, opts) do
+    from(e in Entry, as: :entry, where: e.tournament_id == ^tournament_id)
+    |> maybe_where_state(Keyword.get(opts, :state))
+    |> maybe_join_leader(opts)
+  end
+
+  # The leader join is only paid for when a caller needs names or search.
+  defp maybe_join_leader(query, opts) do
+    pattern = Repo.search_pattern(Keyword.get(opts, :search))
+    preload? = Keyword.get(opts, :preload_leader, false)
+
+    if is_nil(pattern) and not preload? do
+      query
+    else
+      query
+      |> join(:inner, [entry: e], u in assoc(e, :leader), as: :leader)
+      |> then(&if pattern, do: where_leader_name(&1, pattern), else: &1)
+      |> then(&if preload?, do: preload(&1, [leader: u], leader: u), else: &1)
+    end
+  end
+
+  defp where_leader_name(query, pattern) do
+    where(
+      query,
+      [leader: u],
+      fragment("lower(coalesce(?, '')) LIKE ? ESCAPE '\\'", u.display_name, ^pattern) or
+        fragment("lower(coalesce(?, '')) LIKE ? ESCAPE '\\'", u.username, ^pattern)
+    )
+  end
+
+  # Entries drawn into brackets sort ahead of any that are not, on both adapters.
+  defp entries_order(query, :bracket) do
+    order_by(query, [entry: e],
+      asc: fragment("coalesce(?, 2147483647)", e.bracket_index),
+      asc: e.seed,
+      asc: e.inserted_at
+    )
+  end
+
+  defp entries_order(query, _order), do: order_by(query, [entry: e], asc: e.inserted_at)
 
   defp maybe_where_state(query, nil), do: query
   defp maybe_where_state(query, state), do: where(query, [row], row.state == ^state)
@@ -332,9 +379,12 @@ defmodule GameServer.Tournaments do
     end
   end
 
-  @spec count_entries(Ecto.UUID.t()) :: non_neg_integer()
-  def count_entries(tournament_id) do
-    from(e in Entry, where: e.tournament_id == ^tournament_id) |> Repo.aggregate(:count)
+  @doc "Counts entries. Accepts the same `:state` and `:search` options as the listing."
+  @spec count_entries(Ecto.UUID.t(), keyword()) :: non_neg_integer()
+  def count_entries(tournament_id, opts \\ []) do
+    tournament_id
+    |> entries_query(Keyword.delete(opts, :preload_leader))
+    |> Repo.aggregate(:count)
   end
 
   # ── Lifecycle ─────────────────────────────────────────────────────────────
@@ -1106,7 +1156,10 @@ defmodule GameServer.Tournaments do
   def entries_by_id(_tournament_id, []), do: %{}
 
   def entries_by_id(tournament_id, entry_ids) do
-    from(e in Entry, where: e.tournament_id == ^tournament_id and e.id in ^entry_ids)
+    from(e in Entry,
+      where: e.tournament_id == ^tournament_id and e.id in ^entry_ids,
+      preload: [:leader]
+    )
     |> Repo.all()
     |> Map.new(&{&1.id, &1})
   end

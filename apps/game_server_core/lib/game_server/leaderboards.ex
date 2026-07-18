@@ -895,9 +895,59 @@ defmodule GameServer.Leaderboards do
         page = Keyword.get(opts, :page, 1)
         page_size = Keyword.get(opts, :page_size, 25)
 
-        list_records_cached(leaderboard.id, leaderboard.sort_order, page, page_size)
+        case search_pattern(opts) do
+          nil ->
+            list_records_cached(leaderboard.id, leaderboard.sort_order, page, page_size)
+
+          pattern ->
+            search_records(leaderboard.id, leaderboard.sort_order, pattern, page, page_size)
+        end
     end
   end
+
+  # Searches are unbounded strings, so they bypass the cache rather than filling
+  # it with one entry per term anyone ever typed.
+  defp search_records(leaderboard_id, sort_order, pattern, page, page_size) do
+    offset = max((page - 1) * page_size, 0)
+
+    ranked =
+      from(r in Record,
+        where: r.leaderboard_id == ^leaderboard_id,
+        select: %{id: r.id, rank: over(row_number(), :ranking)},
+        windows: [ranking: [order_by: ^record_order(sort_order)]]
+      )
+
+    from(r in Record,
+      as: :record,
+      join: ranked in subquery(ranked),
+      on: ranked.id == r.id,
+      left_join: u in assoc(r, :user),
+      as: :user,
+      where: ^name_match(pattern),
+      order_by: [asc: ranked.rank],
+      offset: ^offset,
+      limit: ^page_size,
+      select: {r, ranked.rank}
+    )
+    |> Repo.all()
+    |> Enum.map(fn {record, rank} -> %{record | rank: rank} end)
+    |> Repo.preload(:user)
+  end
+
+  # Matches the label a record shows publicly: its own label, or the user behind it.
+  defp name_match(pattern) do
+    dynamic(
+      [record: r, user: u],
+      fragment("lower(coalesce(?, '')) LIKE ? ESCAPE '\\'", r.label, ^pattern) or
+        fragment("lower(coalesce(?, '')) LIKE ? ESCAPE '\\'", u.display_name, ^pattern) or
+        fragment("lower(coalesce(?, '')) LIKE ? ESCAPE '\\'", u.username, ^pattern)
+    )
+  end
+
+  defp search_pattern(opts), do: Repo.search_pattern(Keyword.get(opts, :search))
+
+  defp record_order(:desc), do: [desc: :score, asc: :inserted_at]
+  defp record_order(:asc), do: [asc: :score, asc: :inserted_at]
 
   @decorate cacheable(
               key:
@@ -909,16 +959,10 @@ defmodule GameServer.Leaderboards do
        when is_binary(leaderboard_id) and is_integer(page) and is_integer(page_size) do
     offset = max((page - 1) * page_size, 0)
 
-    order_by =
-      case sort_order do
-        :desc -> [desc: :score, asc: :inserted_at]
-        :asc -> [asc: :score, asc: :inserted_at]
-      end
-
     records =
       from(r in Record,
         where: r.leaderboard_id == ^leaderboard_id,
-        order_by: ^order_by,
+        order_by: ^record_order(sort_order),
         offset: ^offset,
         limit: ^page_size,
         preload: [:user]
@@ -935,8 +979,22 @@ defmodule GameServer.Leaderboards do
   Counts records for a leaderboard.
   """
   @spec count_records(Ecto.UUID.t()) :: non_neg_integer()
-  def count_records(leaderboard_id) when is_binary(leaderboard_id) do
-    count_records_cached(leaderboard_id)
+  @spec count_records(Ecto.UUID.t(), keyword()) :: non_neg_integer()
+  def count_records(leaderboard_id, opts \\ []) when is_binary(leaderboard_id) do
+    case search_pattern(opts) do
+      nil ->
+        count_records_cached(leaderboard_id)
+
+      pattern ->
+        from(r in Record,
+          as: :record,
+          left_join: u in assoc(r, :user),
+          as: :user,
+          where: r.leaderboard_id == ^leaderboard_id,
+          where: ^name_match(pattern)
+        )
+        |> Repo.aggregate(:count, :id)
+    end
   end
 
   @decorate cacheable(

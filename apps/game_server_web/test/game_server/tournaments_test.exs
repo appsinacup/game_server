@@ -572,6 +572,78 @@ defmodule GameServer.TournamentsTest do
     end
   end
 
+  describe "list_entries/2 search and ordering" do
+    defp named_user(display_name) do
+      AccountsFixtures.user_fixture()
+      |> Ecto.Changeset.change(display_name: display_name)
+      |> GameServer.Repo.update!()
+    end
+
+    test "filters by leader name, case-insensitively and on partial matches" do
+      tournament = create_tournament()
+      join_all(tournament, [named_user("Ada Lovelace"), named_user("Grace Hopper")])
+
+      assert [entry] =
+               Tournaments.list_entries(tournament.id, search: "HOPP", preload_leader: true)
+
+      assert entry.leader.display_name == "Grace Hopper"
+      assert Tournaments.count_entries(tournament.id, search: "HOPP") == 1
+      assert Tournaments.count_entries(tournament.id) == 2
+    end
+
+    test "falls back to the username when a player has no display name" do
+      user =
+        AccountsFixtures.user_fixture()
+        |> Ecto.Changeset.change(username: "solo_flyer")
+        |> GameServer.Repo.update!()
+
+      tournament = create_tournament()
+      join_all(tournament, [user])
+
+      assert [_entry] = Tournaments.list_entries(tournament.id, search: "solo_fly")
+    end
+
+    test "treats LIKE wildcards in the search term literally" do
+      tournament = create_tournament()
+      join_all(tournament, [named_user("100% Effort"), named_user("Grace Hopper")])
+
+      # "%" must match the character, not act as "everything"
+      assert [entry] = Tournaments.list_entries(tournament.id, search: "0%", preload_leader: true)
+      assert entry.leader.display_name == "100% Effort"
+    end
+
+    test "a blank search returns everyone" do
+      tournament = create_tournament()
+      join_all(tournament, users(3))
+
+      assert length(Tournaments.list_entries(tournament.id, search: "")) == 3
+      assert length(Tournaments.list_entries(tournament.id, search: "   ")) == 3
+      assert Tournaments.count_entries(tournament.id, search: "") == 3
+    end
+
+    test "order: :bracket groups drawn entries by bracket and seed" do
+      tournament = create_tournament(%{bracket_size: 4})
+      join_all(tournament, users(8))
+      draw!(tournament)
+
+      entries = Tournaments.list_entries(tournament.id, order: :bracket)
+
+      # two full brackets, each seeded 0..3, in that order
+      assert Enum.map(entries, &{&1.bracket_index, &1.seed}) ==
+               [{0, 0}, {0, 1}, {0, 2}, {0, 3}, {1, 0}, {1, 1}, {1, 2}, {1, 3}]
+    end
+
+    test "search and pagination agree on the total" do
+      tournament = create_tournament()
+      join_all(tournament, [named_user("Ada One"), named_user("Ada Two"), named_user("Bob")])
+
+      assert Tournaments.count_entries(tournament.id, search: "ada") == 2
+
+      assert length(Tournaments.list_entries(tournament.id, search: "ada", page: 1, page_size: 1)) ==
+               1
+    end
+  end
+
   describe "tick" do
     test "draws due tournaments" do
       tournament = create_tournament()

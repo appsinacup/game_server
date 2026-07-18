@@ -224,7 +224,9 @@ defmodule GameServerWeb.AdminLive.Tournaments do
                   </thead>
                   <tbody>
                     <tr :for={entry <- @detail.entries}>
-                      <td class="text-xs">{Map.get(@detail.names, entry.leader_id, entry.leader_id)}</td>
+                      <td class="text-xs">
+                        {Map.get(@detail.names, entry.leader_id, entry.leader_id)}
+                      </td>
                       <td>{entry.state}</td>
                       <td>{entry.bracket_index}</td>
                       <td>{entry.seed}</td>

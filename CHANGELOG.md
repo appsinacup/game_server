@@ -1,6 +1,7 @@
 # July 2026
 
 - [added] **Tournaments** (bracket system).
+- [added] Player search on public pages.
 - [added] **Unique usernames**.
 - [breaking] **UUIDv7 string ids**.
 - [added] JWT revocation.

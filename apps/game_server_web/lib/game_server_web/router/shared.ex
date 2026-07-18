@@ -605,8 +605,12 @@ defmodule GameServerWeb.Router.Shared do
           live "/groups/:id", GroupsLive, :show
           live "/achievements", AchievementsLive, :index
           live "/tournaments", TournamentsLive, :index
-          live "/tournaments/:id", TournamentsLive, :show
-          live "/tournaments/:id/brackets/:index", TournamentsLive, :bracket
+          # Slug-first for SEO; older editions get a stable 1-based number.
+          # A UUID still resolves in the :slug position, so old links keep working.
+          live "/tournaments/:slug", TournamentsLive, :show
+          live "/tournaments/:slug/brackets/:index", TournamentsLive, :bracket
+          live "/tournaments/:slug/:edition", TournamentsLive, :show
+          live "/tournaments/:slug/:edition/brackets/:index", TournamentsLive, :bracket
           live "/leaderboards", LeaderboardsLive, :index
           live "/leaderboards/:slug/:id", LeaderboardsLive, :show
           live "/leaderboards/:slug", LeaderboardsLive, :show_active

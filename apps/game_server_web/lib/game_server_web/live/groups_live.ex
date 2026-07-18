@@ -57,7 +57,9 @@ defmodule GameServerWeb.GroupsLive do
        selected_group: nil,
        selected_members: [],
        members_page: 1,
+       members_search: "",
        members_total: 0,
+       members_matched: 0,
        members_total_pages: 0
      )
      |> load_groups()}
@@ -77,23 +79,17 @@ defmodule GameServerWeb.GroupsLive do
              |> push_navigate(to: ~p"/groups")}
 
           group ->
-            members = Groups.get_group_members_paginated(group.id, page: 1, page_size: @page_size)
-            members_total = Groups.count_group_members(group.id)
-
-            members_total_pages =
-              if @page_size > 0, do: div(members_total + @page_size - 1, @page_size), else: 0
-
             Groups.subscribe_group(group.id)
 
             {:noreply,
-             assign(socket,
+             socket
+             |> assign(
                page_title: group.title,
                selected_group: group,
-               selected_members: members,
                members_page: 1,
-               members_total: members_total,
-               members_total_pages: members_total_pages
-             )}
+               members_search: ""
+             )
+             |> load_members()}
         end
 
       _ ->
@@ -253,6 +249,10 @@ defmodule GameServerWeb.GroupsLive do
     {:noreply, load_members(assign(socket, members_page: page))}
   end
 
+  def handle_event("search_members", %{"search" => term}, socket) do
+    {:noreply, load_members(assign(socket, members_search: term, members_page: 1))}
+  end
+
   # ── PubSub handlers ────────────────────────────────────────────────────────
 
   @impl true
@@ -350,24 +350,30 @@ defmodule GameServerWeb.GroupsLive do
         socket
 
       group ->
+        search = socket.assigns[:members_search] || ""
+
         members =
           Groups.get_group_members_paginated(group.id,
             page: socket.assigns.members_page,
-            page_size: @page_size
+            page_size: @page_size,
+            search: search
           )
 
-        members_total = Groups.count_group_members(group.id)
-
-        members_total_pages =
-          if @page_size > 0, do: div(members_total + @page_size - 1, @page_size), else: 0
+        # The stat card reports the real roster size; the table and its pager
+        # report whatever the search matched.
+        matched = Groups.count_group_members(group.id, search: search)
 
         assign(socket,
           selected_members: members,
-          members_total: members_total,
-          members_total_pages: members_total_pages
+          members_total: Groups.count_group_members(group.id),
+          members_matched: matched,
+          members_total_pages: ceil_div(matched, @page_size)
         )
     end
   end
+
+  defp ceil_div(_num, 0), do: 0
+  defp ceil_div(num, den), do: div(num + den - 1, den)
 
   defp maybe_refresh_selected(socket, group_id) do
     case socket.assigns.selected_group do
@@ -589,7 +595,24 @@ defmodule GameServerWeb.GroupsLive do
     <%!-- Members table --%>
     <div class="card bg-base-200">
       <div class="card-body">
-        <h2 class="card-title">{gettext("Members")}</h2>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h2 class="card-title">{gettext("Members")}</h2>
+
+          <form
+            phx-change="search_members"
+            phx-submit="search_members"
+            id="members-search-form"
+            class="sm:w-64"
+          >
+            <.input
+              name="search"
+              value={@members_search}
+              placeholder={gettext("Search players...")}
+              phx-debounce="300"
+              type="text"
+            />
+          </form>
+        </div>
 
         <div class="overflow-x-auto">
           <table class="table">
@@ -636,7 +659,7 @@ defmodule GameServerWeb.GroupsLive do
           <.pagination
             page={@members_page}
             total_pages={@members_total_pages}
-            total_count={@members_total}
+            total_count={@members_matched}
             on_prev="members_prev"
             on_next="members_next"
           />

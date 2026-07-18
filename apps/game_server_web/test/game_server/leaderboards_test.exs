@@ -266,6 +266,57 @@ defmodule GameServer.LeaderboardsTest do
     end
   end
 
+  describe "list_records/2 search" do
+    setup do
+      {:ok, lb} = Leaderboards.create_leaderboard(%{slug: "records_search", title: "Test"})
+
+      # Ada is mid-table on purpose: her rank must survive being searched for.
+      for {name, score} <- [{"Zoe Top", 900}, {"Ada Lovelace", 500}, {"Bob Last", 100}] do
+        user =
+          AccountsFixtures.user_fixture()
+          |> Ecto.Changeset.change(display_name: name)
+          |> GameServer.Repo.update!()
+
+        Leaderboards.submit_score(lb.id, user.id, score)
+      end
+
+      %{leaderboard: lb}
+    end
+
+    test "returns the board-wide rank, not the position within the results", %{leaderboard: lb} do
+      assert [record] = Leaderboards.list_records(lb.id, search: "ada")
+      assert record.user.display_name == "Ada Lovelace"
+      assert record.rank == 2
+      assert Leaderboards.count_records(lb.id, search: "ada") == 1
+      assert Leaderboards.count_records(lb.id) == 3
+    end
+
+    test "matches partial names case-insensitively", %{leaderboard: lb} do
+      assert [record] = Leaderboards.list_records(lb.id, search: "LOVE")
+      assert record.user.display_name == "Ada Lovelace"
+    end
+
+    test "matches a record's own label", %{leaderboard: lb} do
+      user = AccountsFixtures.user_fixture()
+      {:ok, _} = Leaderboards.submit_score(lb.id, user.id, 700, %{})
+      {:ok, record} = Leaderboards.get_user_record(lb.id, user.id)
+      GameServer.Repo.update!(Ecto.Changeset.change(record, label: "Guest Runner"))
+
+      assert [found] = Leaderboards.list_records(lb.id, search: "guest")
+      assert found.label == "Guest Runner"
+    end
+
+    test "a blank search returns the whole board", %{leaderboard: lb} do
+      assert length(Leaderboards.list_records(lb.id, search: "")) == 3
+      assert Leaderboards.count_records(lb.id, search: "  ") == 3
+    end
+
+    test "treats LIKE wildcards literally", %{leaderboard: lb} do
+      assert Leaderboards.list_records(lb.id, search: "%") == []
+      assert Leaderboards.count_records(lb.id, search: "%") == 0
+    end
+  end
+
   describe "get_user_record/2" do
     test "returns user's record with rank" do
       {:ok, lb} = Leaderboards.create_leaderboard(%{slug: "user_record_test", title: "Test"})

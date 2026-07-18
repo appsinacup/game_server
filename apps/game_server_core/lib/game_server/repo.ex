@@ -41,6 +41,24 @@ defmodule GameServer.Repo do
     |> String.replace("_", "\\_")
   end
 
+  @doc ~S"""
+  Builds a case-insensitive "contains" `LIKE` pattern from user search input,
+  or `nil` when the input is blank and the caller should not filter at all.
+
+  Pair it with a lowercased column so both adapters agree on case:
+
+      fragment("lower(coalesce(?, '')) LIKE ? ESCAPE '\\'", u.username, ^pattern)
+  """
+  @spec search_pattern(term()) :: String.t() | nil
+  def search_pattern(term) when is_binary(term) do
+    case term |> String.trim() |> String.downcase() do
+      "" -> nil
+      normalized -> "%" <> escape_like(normalized) <> "%"
+    end
+  end
+
+  def search_pattern(_term), do: nil
+
   @doc """
   Like `get/3`, but returns `nil` (instead of raising `Ecto.Query.CastError`)
   when `id` is not a valid UUID. Use for lookups whose id comes from external

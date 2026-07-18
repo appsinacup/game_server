@@ -36,7 +36,8 @@ defmodule GameServerWeb.AdminLive.TournamentsDetailTest do
     t = tournament_with(3)
     {:ok, view, _html} = live(conn, ~p"/admin/tournaments")
 
-    html = view |> element("button[phx-click='open_detail'][phx-value-id='#{t.id}']") |> render_click()
+    html =
+      view |> element("button[phx-click='open_detail'][phx-value-id='#{t.id}']") |> render_click()
 
     assert html =~ "Player 1"
     assert html =~ "Entries (3)"
@@ -45,7 +46,9 @@ defmodule GameServerWeb.AdminLive.TournamentsDetailTest do
   test "entries paginate beyond one page", %{conn: conn} do
     t = tournament_with(27)
     {:ok, view, _html} = live(conn, ~p"/admin/tournaments")
-    html = view |> element("button[phx-click='open_detail'][phx-value-id='#{t.id}']") |> render_click()
+
+    html =
+      view |> element("button[phx-click='open_detail'][phx-value-id='#{t.id}']") |> render_click()
 
     assert html =~ "Entries (27)"
     assert html =~ "Page 1 of 2"
@@ -61,7 +64,9 @@ defmodule GameServerWeb.AdminLive.TournamentsDetailTest do
     assert t.state == "running"
 
     {:ok, view, _html} = live(conn, ~p"/admin/tournaments")
-    html = view |> element("button[phx-click='open_detail'][phx-value-id='#{t.id}']") |> render_click()
+
+    html =
+      view |> element("button[phx-click='open_detail'][phx-value-id='#{t.id}']") |> render_click()
 
     assert html =~ "Matches — bracket 1"
     assert html =~ "View bracket tree"

@@ -85,8 +85,13 @@ defmodule Mix.Tasks.Demo.Seed do
     sets = only |> String.split(",", trim: true) |> Enum.map(&String.trim/1)
 
     case sets -- @all_sets do
-      [] -> sets
-      unknown -> Mix.raise("unknown set(s): #{Enum.join(unknown, ", ")} (known: #{Enum.join(@all_sets, ", ")})")
+      [] ->
+        sets
+
+      unknown ->
+        Mix.raise(
+          "unknown set(s): #{Enum.join(unknown, ", ")} (known: #{Enum.join(@all_sets, ", ")})"
+        )
     end
   end
 
@@ -112,6 +117,7 @@ defmodule Mix.Tasks.Demo.Seed do
         id: UUIDv7.generate(),
         device_id: device_id,
         username: username(i),
+        display_name: display_name(i),
         is_admin: false,
         is_activated: true,
         metadata: %{},
@@ -135,6 +141,7 @@ defmodule Mix.Tasks.Demo.Seed do
 
   defp device_id(i), do: "#{@prefix}-#{pad(i)}"
   defp username(i), do: "#{@prefix}-#{pad(i)}"
+  defp display_name(i), do: "Demo Player #{pad(i)}"
   defp pad(i), do: String.pad_leading(Integer.to_string(i), 5, "0")
 
   # ── Sets ──────────────────────────────────────────────────────────────────
