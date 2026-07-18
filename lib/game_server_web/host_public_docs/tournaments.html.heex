@@ -42,6 +42,8 @@
       >
         <pre>
   scheduled ──(registration_opens_at)──► registration ──(starts_at: draw)──► running ──► finished
+                                          (nil starts_at = stays open until
+                                           an admin/game triggers the draw)
                                                                                │
                                               rounds of round_window_sec each; │
                                               champion decided or ends_at ─────┘
@@ -69,7 +71,7 @@
           <tbody class="text-xs">
             <tr>
               <td class="font-mono">GET /api/v1/tournaments</td>
-              <td>{doc_text("List (filter by state, category, slug for occurrence history)")}</td>
+              <td>{doc_text("List (filter by state, or slug for occurrence history)")}</td>
             </tr>
             <tr>
               <td class="font-mono">GET /api/v1/tournaments/:id</td>

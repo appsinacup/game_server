@@ -15,13 +15,17 @@ defmodule GameServerWeb.Api.V1.TournamentController do
       slug: %Schema{type: :string, description: "Shared across recurring occurrences"},
       title: %Schema{type: :string},
       description: %Schema{type: :string},
-      category: %Schema{type: :string, nullable: true},
       state: %Schema{
         type: :string,
         enum: ["scheduled", "registration", "running", "finished", "cancelled"]
       },
       registration_opens_at: %Schema{type: :string, format: "date-time", nullable: true},
-      starts_at: %Schema{type: :string, format: "date-time"},
+      starts_at: %Schema{
+        type: :string,
+        format: "date-time",
+        nullable: true,
+        description: "nil = manual start"
+      },
       ends_at: %Schema{type: :string, format: "date-time", nullable: true},
       recur: %Schema{type: :string, nullable: true, description: "Cron; nil = one-shot"},
       max_entries: %Schema{type: :integer, nullable: true},
@@ -56,7 +60,6 @@ defmodule GameServerWeb.Api.V1.TournamentController do
     summary: "List tournaments",
     parameters: [
       state: [in: :query, schema: %Schema{type: :string}, description: "Filter by state"],
-      category: [in: :query, schema: %Schema{type: :string}, description: "Filter by category"],
       slug: [in: :query, schema: %Schema{type: :string}, description: "Occurrence history"],
       page: [in: :query, schema: %Schema{type: :integer, default: 1}],
       page_size: [in: :query, schema: %Schema{type: :integer, default: 25}]
@@ -78,7 +81,6 @@ defmodule GameServerWeb.Api.V1.TournamentController do
     opts =
       [page: page, page_size: page_size]
       |> maybe_put(:state, params["state"])
-      |> maybe_put(:category, params["category"])
       |> maybe_put(:slug, params["slug"])
 
     tournaments = Tournaments.list_tournaments(opts)
@@ -185,33 +187,125 @@ defmodule GameServerWeb.Api.V1.TournamentController do
     end
   end
 
-  operation(:bracket,
-    summary: "Brackets and matches",
-    parameters: [id: [in: :path, schema: %Schema{type: :string}, required: true]],
-    responses: [ok: {"Bracket", "application/json", %Schema{type: :object}}]
+  operation(:entries,
+    summary: "Registered entries (paginated)",
+    parameters: [
+      id: [in: :path, schema: %Schema{type: :string}, required: true],
+      state: [
+        in: :query,
+        schema: %Schema{type: :string, enum: ["registered", "active", "eliminated", "winner"]}
+      ],
+      page: [in: :query, schema: %Schema{type: :integer, default: 1}],
+      page_size: [in: :query, schema: %Schema{type: :integer, default: 25}]
+    ],
+    responses: [ok: {"Entries", "application/json", %Schema{type: :object}}]
   )
 
-  def bracket(conn, %{"id" => id}) do
+  def entries(conn, %{"id" => id} = params) do
     case fetch_tournament(id) do
       nil ->
         not_found(conn)
 
       tournament ->
-        entries = Tournaments.list_entries(tournament.id)
-        leaders = Map.new(entries, &{&1.id, &1.leader_id})
+        {page, page_size} = pagination(params)
+        state = params["state"]
+
+        entries =
+          Tournaments.list_entries(tournament.id,
+            page: page,
+            page_size: page_size,
+            state: state
+          )
+
+        total = Tournaments.count_entries(tournament.id)
 
         json(conn, %{
-          data: %{
-            brackets:
-              Enum.map(Tournaments.list_brackets(tournament.id), fn b ->
-                %{index: b.index, size: b.size}
-              end),
-            entries: Enum.map(entries, &serialize_entry/1),
-            matches:
-              Enum.map(Tournaments.list_matches(tournament.id), &serialize_match(&1, leaders))
-          }
+          data: Enum.map(entries, &serialize_entry/1),
+          meta: meta(page, page_size, total)
         })
     end
+  end
+
+  operation(:bracket,
+    summary: "Brackets and their matches (paginated by bracket)",
+    parameters: [
+      id: [in: :path, schema: %Schema{type: :string}, required: true],
+      index: [
+        in: :query,
+        schema: %Schema{type: :integer},
+        description: "Return only this bracket"
+      ],
+      page: [in: :query, schema: %Schema{type: :integer, default: 1}],
+      page_size: [in: :query, schema: %Schema{type: :integer, default: 10}]
+    ],
+    responses: [ok: {"Bracket", "application/json", %Schema{type: :object}}]
+  )
+
+  def bracket(conn, %{"id" => id} = params) do
+    case fetch_tournament(id) do
+      nil -> not_found(conn)
+      tournament -> render_bracket(conn, tournament, params)
+    end
+  end
+
+  defp render_bracket(conn, tournament, %{"index" => index} = _params) do
+    case Integer.parse(to_string(index)) do
+      {index, _} ->
+        case Tournaments.get_bracket(tournament.id, index) do
+          nil ->
+            not_found(conn)
+
+          bracket ->
+            matches = Tournaments.list_matches(tournament.id, bracket_index: index)
+
+            json(conn, %{
+              data: %{
+                brackets: [%{index: bracket.index, size: bracket.size}],
+                entries: Enum.map(bracket_entries(tournament, matches), &serialize_entry/1),
+                matches: Enum.map(matches, &serialize_match(&1, leaders_for(tournament, matches)))
+              },
+              meta: %{page: 1, page_size: 1, total_count: 1, total_pages: 1}
+            })
+        end
+
+      :error ->
+        conn |> put_status(:bad_request) |> json(%{error: "invalid_index"})
+    end
+  end
+
+  defp render_bracket(conn, tournament, params) do
+    {page, page_size} = pagination(params, 10)
+    brackets = Tournaments.list_brackets(tournament.id, page: page, page_size: page_size)
+    total = Tournaments.count_brackets(tournament.id)
+    indexes = Enum.map(brackets, & &1.index)
+    matches = Tournaments.list_matches(tournament.id, bracket_indexes: indexes)
+
+    json(conn, %{
+      data: %{
+        brackets: Enum.map(brackets, &%{index: &1.index, size: &1.size}),
+        entries: Enum.map(bracket_entries(tournament, matches), &serialize_entry/1),
+        matches: Enum.map(matches, &serialize_match(&1, leaders_for(tournament, matches)))
+      },
+      meta: meta(page, page_size, total)
+    })
+  end
+
+  # Only the entries appearing in these matches, so a huge field isn't loaded
+  # to render one page of brackets.
+  defp bracket_entries(tournament, matches) do
+    ids =
+      matches
+      |> Enum.flat_map(&[&1.a_entry_id, &1.b_entry_id])
+      |> Enum.reject(&is_nil/1)
+      |> Enum.uniq()
+
+    tournament.id |> Tournaments.entries_by_id(ids) |> Map.values()
+  end
+
+  defp leaders_for(tournament, matches) do
+    tournament
+    |> bracket_entries(matches)
+    |> Map.new(&{&1.id, &1.leader_id})
   end
 
   operation(:my_match,
@@ -264,7 +358,6 @@ defmodule GameServerWeb.Api.V1.TournamentController do
       slug: t.slug,
       title: t.title,
       description: t.description,
-      category: t.category,
       state: t.state,
       registration_opens_at: t.registration_opens_at,
       starts_at: t.starts_at,
@@ -328,6 +421,24 @@ defmodule GameServerWeb.Api.V1.TournamentController do
   defp error(conn, _reason) do
     conn |> put_status(:bad_request) |> json(%{error: "invalid_data"})
   end
+
+  defp pagination(params, default_size \\ 25) do
+    page = max(parse_int(params["page"], 1), 1)
+    page_size = min(max(parse_int(params["page_size"], default_size), 1), 100)
+    {page, page_size}
+  end
+
+  defp meta(page, page_size, total) do
+    %{
+      page: page,
+      page_size: page_size,
+      total_count: total,
+      total_pages: ceil_div(total, page_size)
+    }
+  end
+
+  defp ceil_div(_num, 0), do: 0
+  defp ceil_div(num, den), do: div(num + den - 1, den)
 
   defp maybe_put(opts, _key, nil), do: opts
   defp maybe_put(opts, _key, ""), do: opts

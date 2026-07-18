@@ -189,6 +189,39 @@ defmodule GameServerWeb.AdminLive.Index do
                   </.link>
                 </div>
                 <div class="text-2xl font-bold">{@tournaments_count}</div>
+                <div class="text-xs text-base-content/60 mt-2 space-y-1">
+                  <div>
+                    Running: {state_count(@tournament_stats.tournaments, "running")} · Registration: {state_count(
+                      @tournament_stats.tournaments,
+                      "registration"
+                    )}
+                  </div>
+                  <div>
+                    Scheduled: {state_count(@tournament_stats.tournaments, "scheduled")} · Finished: {state_count(
+                      @tournament_stats.tournaments,
+                      "finished"
+                    )}
+                  </div>
+                  <div>Participants: {entries_total(@tournament_stats.entries)}</div>
+                  <div>
+                    Still in: {state_count(@tournament_stats.entries, "active")} · Eliminated: {state_count(
+                      @tournament_stats.entries,
+                      "eliminated"
+                    )}
+                  </div>
+                  <div>
+                    Champions: {state_count(@tournament_stats.entries, "winner")} · Awaiting draw: {state_count(
+                      @tournament_stats.entries,
+                      "registered"
+                    )}
+                  </div>
+                  <div>
+                    Matches: {@tournament_stats.matches.open} open / {@tournament_stats.matches.total}
+                  </div>
+                  <div :if={@tournament_stats.matches.overdue > 0} class="text-warning">
+                    Past deadline: {@tournament_stats.matches.overdue}
+                  </div>
+                </div>
               </div>
 
               <%!-- 6. Groups --%>
@@ -532,6 +565,7 @@ defmodule GameServerWeb.AdminLive.Index do
       leaderboards_count: Task.async(fn -> Repo.aggregate(Leaderboard, :count) end),
       tournaments_count:
         Task.async(fn -> Repo.aggregate(GameServer.Tournaments.Tournament, :count) end),
+      tournament_stats: Task.async(fn -> GameServer.Tournaments.stats() end),
       kv_count: Task.async(fn -> KV.count_entries() end),
       kv_global: Task.async(fn -> KV.count_entries(global_only: true) end),
       users_google: Task.async(fn -> Accounts.count_users_with_provider(:google_id) end),
@@ -592,6 +626,7 @@ defmodule GameServerWeb.AdminLive.Index do
        lobbies_count: r.lobbies_count,
        leaderboards_count: r.leaderboards_count,
        tournaments_count: r.tournaments_count,
+       tournament_stats: r.tournament_stats,
        kv_count: r.kv_count,
        kv_global: r.kv_global,
        kv_user: r.kv_count - r.kv_global,
@@ -805,6 +840,10 @@ defmodule GameServerWeb.AdminLive.Index do
   rescue
     _ -> %{}
   end
+
+  defp state_count(counts, state), do: Map.get(counts, state, 0)
+
+  defp entries_total(counts), do: counts |> Map.values() |> Enum.sum()
 
   defp safe_log_recent_errors do
     GameServerWeb.AdminLogBuffer.count_recent_errors(3600)

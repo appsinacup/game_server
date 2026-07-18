@@ -139,7 +139,7 @@ defmodule GameServerWeb.ApiSpec do
         ## **12. Tournaments**
         Single-elimination bracket tournaments, server-structured and game-judged:
 
-        - **Registration window → seeded draw → timed rounds → champions**; recurring tournaments (cron) create one occurrence per cycle sharing a slug
+        - **Registration window → seeded draw → timed rounds → champions**; recurring tournaments (cron) create one occurrence per cycle sharing a slug; a nil starts_at keeps registration open until an admin draws manually
         - **Join/leave** as an entry leader (`POST`/`DELETE /tournaments/:id/join`); team composition is game policy
         - **Browse**: list/filter tournaments, standings, full bracket view, and the caller's current match (`GET /tournaments/:id/my-match`)
         - **Match verdicts are server-side** (game hooks) — no public resolve endpoint; clients get `tournament_match_ready` / `tournament_match_resolved` / `tournament_updated` / `tournament_finished` on the user channel

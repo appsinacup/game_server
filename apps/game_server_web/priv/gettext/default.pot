@@ -20,7 +20,6 @@ msgid "Actions"
 msgstr ""
 
 #: lib/game_server_web/live/user_live/login.ex:49
-#: lib/game_server_web/live/user_live/login.ex:55
 #: lib/game_server_web/live/user_live/login.ex:73
 #: lib/game_server_web/live/user_live/registration.ex:26
 #: lib/game_server_web/live/user_live/settings/account_tab.ex:36
@@ -119,6 +118,8 @@ msgstr ""
 
 #: lib/game_server_web/live/groups_live.ex:552
 #: lib/game_server_web/live/leaderboards_live.ex:196
+#: lib/game_server_web/live/tournaments_live.ex:312
+#: lib/game_server_web/live/tournaments_live.ex:440
 #: lib/game_server_web/live/user_live/settings/groups_tab.ex:64
 #, elixir-autogen, elixir-format
 msgid "Back"
@@ -580,12 +581,14 @@ msgid "Select a conversation"
 msgstr ""
 
 #: lib/game_server_web/live/leaderboards_live.ex:249
+#: lib/game_server_web/live/tournaments_live.ex:349
 #, elixir-autogen, elixir-format
 msgid "Newer"
 msgstr ""
 
 #: lib/game_server_web/live/chat_live.ex:204
 #: lib/game_server_web/live/leaderboards_live.ex:234
+#: lib/game_server_web/live/tournaments_live.ex:338
 #, elixir-autogen, elixir-format
 msgid "Older"
 msgstr ""
@@ -616,6 +619,7 @@ msgstr ""
 #: lib/game_server_web/live/lobby_live/index.ex:141
 #: lib/game_server_web/live/lobby_live/index.ex:161
 #: lib/game_server_web/live/lobby_live/index.ex:176
+#: lib/game_server_web/live/tournaments_live.ex:188
 #: lib/game_server_web/live/user_live/settings/account_tab.ex:496
 #: lib/game_server_web/live/user_live/settings/groups_tab.ex:1318
 #, elixir-autogen, elixir-format
@@ -1209,4 +1213,127 @@ msgstr ""
 #: lib/game_server_web/live/store_live/index.ex:219
 #, elixir-autogen, elixir-format
 msgid "You already own this item."
+msgstr ""
+
+#: lib/game_server_web/live/user_live/login.ex:55
+#, elixir-autogen, elixir-format
+msgid "Send magic link"
+msgstr ""
+
+#: lib/game_server_web/live/tournaments_live.ex:165
+#: lib/game_server_web/live/tournaments_live.ex:376
+#: lib/game_server_web/live/tournaments_live.ex:444
+#, elixir-autogen, elixir-format
+msgid "Bracket"
+msgstr ""
+
+#: lib/game_server_web/live/tournaments_live.ex:360
+#, elixir-autogen, elixir-format
+msgid "Bracket size"
+msgstr ""
+
+#: lib/game_server_web/live/tournaments_live.ex:361
+#: lib/game_server_web/live/tournaments_live.ex:367
+#, elixir-autogen, elixir-format
+msgid "Brackets"
+msgstr ""
+
+#: lib/game_server_web/live/tournaments_live.ex:562
+#, elixir-autogen, elixir-format
+msgid "Cancelled"
+msgstr ""
+
+#: lib/game_server_web/live/tournaments_live.ex:535
+#, elixir-autogen, elixir-format
+msgid "Final"
+msgstr ""
+
+#: lib/game_server_web/live/tournaments_live.ex:561
+#, elixir-autogen, elixir-format
+msgid "Finished"
+msgstr ""
+
+#: lib/game_server_web/live/tournaments_live.ex:390
+#, elixir-autogen, elixir-format
+msgid "No players registered yet."
+msgstr ""
+
+#: lib/game_server_web/live/tournaments_live.ex:289
+#, elixir-autogen, elixir-format
+msgid "No tournaments yet."
+msgstr ""
+
+#: lib/game_server_web/live/tournaments_live.ex:182
+#: lib/game_server_web/live/tournaments_live.ex:514
+#, elixir-autogen, elixir-format
+msgid "Player"
+msgstr ""
+
+#: lib/game_server_web/live/tournaments_live.ex:537
+#, elixir-autogen, elixir-format
+msgid "Quarterfinal"
+msgstr ""
+
+#: lib/game_server_web/live/tournaments_live.ex:387
+#, elixir-autogen, elixir-format
+msgid "Registered players"
+msgstr ""
+
+#: lib/game_server_web/live/tournaments_live.ex:559
+#, elixir-autogen, elixir-format
+msgid "Registration open"
+msgstr ""
+
+#: lib/game_server_web/live/tournaments_live.ex:538
+#, elixir-autogen, elixir-format
+msgid "Round %{n}"
+msgstr ""
+
+#: lib/game_server_web/live/tournaments_live.ex:560
+#, elixir-autogen, elixir-format
+msgid "Running"
+msgstr ""
+
+#: lib/game_server_web/live/tournaments_live.ex:558
+#, elixir-autogen, elixir-format
+msgid "Scheduled"
+msgstr ""
+
+#: lib/game_server_web/live/tournaments_live.ex:536
+#, elixir-autogen, elixir-format
+msgid "Semifinal"
+msgstr ""
+
+#: lib/game_server_web/live/tournaments_live.ex:322
+#, elixir-autogen, elixir-format
+msgid "Starts manually"
+msgstr ""
+
+#: lib/game_server_web/live/tournaments_live.ex:26
+#: lib/game_server_web/live/tournaments_live.ex:89
+#: lib/game_server_web/live/tournaments_live.ex:215
+#, elixir-autogen, elixir-format
+msgid "Tournaments"
+msgstr ""
+
+#: lib/game_server_web/live/tournaments_live.ex:516
+#, elixir-autogen, elixir-format
+msgid "bye"
+msgstr ""
+
+#: lib/game_server_web/live/tournaments_live.ex:381
+#, elixir-autogen, elixir-format
+msgid "matches decided"
+msgstr ""
+
+#: lib/game_server_web/live/tournaments_live.ex:282
+#: lib/game_server_web/live/tournaments_live.ex:359
+#, elixir-autogen, elixir-format
+msgid "Players"
+msgstr ""
+
+#: lib/game_server_web/live/tournaments_live.ex:378
+#: lib/game_server_web/live/tournaments_live.ex:447
+#, elixir-autogen, elixir-format
+msgid "Slots"
 msgstr ""

@@ -455,10 +455,9 @@
       slug                  : string (recurring occurrences share it)
       title                 : string
       description           : string
-      category              : string (client-side filtering, nullable)
       state                 : string ("scheduled" | "registration" | "running" | "finished" | "cancelled")
       registration_opens_at : utc_datetime (nullable; null = open from creation)
-      starts_at             : utc_datetime (draw happens here)
+      starts_at             : utc_datetime (draw happens here; null = manual start)
       ends_at               : utc_datetime (nullable hard stop)
       recur                 : string (cron expression; null = one-shot)
       max_entries           : integer (nullable)

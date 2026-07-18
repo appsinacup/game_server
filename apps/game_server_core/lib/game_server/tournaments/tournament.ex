@@ -5,6 +5,8 @@ defmodule GameServer.Tournaments.Tournament do
   Recurring tournaments share a `slug` (one row per occurrence, like
   leaderboard seasons); `recur` holds the cron expression that spawns the next
   occurrence. `team_size` is advisory — core only ever tracks entry leaders.
+  A nil `starts_at` means manual start: registration stays open until an
+  admin/game sets `starts_at` (the "draw now" force action does exactly that).
   """
 
   use GameServer.Schema
@@ -17,7 +19,6 @@ defmodule GameServer.Tournaments.Tournament do
     field :slug, :string
     field :title, :string
     field :description, :string, default: ""
-    field :category, :string
     field :state, :string, default: "scheduled"
     field :registration_opens_at, :utc_datetime
     field :starts_at, :utc_datetime
@@ -38,8 +39,8 @@ defmodule GameServer.Tournaments.Tournament do
   def states, do: @states
   def deadline_policies, do: @deadline_policies
 
-  @required ~w(slug title starts_at round_window_sec)a
-  @optional ~w(description category state registration_opens_at ends_at recur max_entries
+  @required ~w(slug title round_window_sec)a
+  @optional ~w(description state registration_opens_at starts_at ends_at recur max_entries
                team_size bracket_size deadline_policy metadata)a
 
   def changeset(tournament, attrs) do
@@ -49,22 +50,46 @@ defmodule GameServer.Tournaments.Tournament do
     |> validate_format(:slug, ~r/^[a-z0-9][a-z0-9_-]*$/,
       message: "only lowercase letters, digits, _ and -"
     )
+    |> validate_length(:slug, min: 1, max: GameServer.Limits.get(:max_tournament_slug))
+    |> validate_length(:title, min: 1, max: GameServer.Limits.get(:max_tournament_title))
+    |> validate_length(:description, max: GameServer.Limits.get(:max_tournament_description))
     |> validate_inclusion(:state, @states)
     |> validate_inclusion(:deadline_policy, @deadline_policies)
     |> validate_number(:team_size, greater_than: 0)
     |> validate_number(:round_window_sec, greater_than: 0)
-    |> validate_number(:max_entries, greater_than: 1)
+    |> validate_number(:max_entries,
+      greater_than: 1,
+      less_than_or_equal_to: GameServer.Limits.get(:max_tournament_entries)
+    )
     |> validate_bracket_size()
+    |> validate_recur_needs_starts_at()
     |> validate_windows()
     |> GameServer.Limits.validate_metadata_size(:metadata)
   end
 
   defp validate_bracket_size(changeset) do
+    max = GameServer.Limits.get(:max_tournament_bracket_size)
+
     validate_change(changeset, :bracket_size, fn :bracket_size, size ->
-      if is_integer(size) and size >= 2 and Bitwise.band(size, size - 1) == 0,
-        do: [],
-        else: [bracket_size: "must be a power of two >= 2"]
+      cond do
+        not (is_integer(size) and size >= 2 and Bitwise.band(size, size - 1) == 0) ->
+          [bracket_size: "must be a power of two >= 2"]
+
+        size > max ->
+          [bracket_size: "must be at most #{max}"]
+
+        true ->
+          []
+      end
     end)
+  end
+
+  defp validate_recur_needs_starts_at(changeset) do
+    if get_field(changeset, :recur) && get_field(changeset, :starts_at) == nil do
+      add_error(changeset, :starts_at, "required for recurring tournaments")
+    else
+      changeset
+    end
   end
 
   defp validate_windows(changeset) do

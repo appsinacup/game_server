@@ -32,9 +32,9 @@
       "title": "Φίλοι, Ομάδες & Συνομιλίες"
     },
     {
-      "description": "Server-authoritative achievements and leaderboards. Real-time notifications across features and payment events.",
+      "description": "Server-authoritative achievements, bracket tournaments and leaderboards. Real-time notifications across features and payment events.",
       "icon": "hero-trophy-solid",
-      "title": "Επιτεύγματα, Πίνακες Κατάταξης & Ειδοποιήσεις"
+      "title": "Επιτεύγματα, Τουρνουά, Πίνακες Κατάταξης & Ειδοποιήσεις"
     },
     {
       "description": "Extend server logic with Elixir scripts. Schedule automated tasks and cron jobs.",

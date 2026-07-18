@@ -117,6 +117,21 @@ defmodule GameServerWeb.Api.V1.Admin.TournamentsAdminControllerTest do
     assert Tournaments.get_tournament(id) == nil
   end
 
+  test "cancel then reopen over HTTP", %{admin_conn: admin_conn} do
+    resp = admin_conn |> post("/api/v1/admin/tournaments", create_attrs()) |> json_response(200)
+    id = resp["data"]["id"]
+
+    resp = admin_conn |> post("/api/v1/admin/tournaments/#{id}/cancel") |> json_response(200)
+    assert resp["data"]["state"] == "cancelled"
+
+    resp = admin_conn |> post("/api/v1/admin/tournaments/#{id}/reopen") |> json_response(200)
+    assert resp["data"]["state"] == "registration"
+
+    # reopening something that is not cancelled is rejected
+    resp = admin_conn |> post("/api/v1/admin/tournaments/#{id}/reopen") |> json_response(400)
+    assert resp["error"] == "not_cancelled"
+  end
+
   test "validation errors surface as 422", %{admin_conn: admin_conn} do
     resp =
       admin_conn

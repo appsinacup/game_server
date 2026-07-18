@@ -20,7 +20,6 @@ msgid "Actions"
 msgstr "İşlemler"
 
 #: lib/game_server_web/live/user_live/login.ex:49
-#: lib/game_server_web/live/user_live/login.ex:55
 #: lib/game_server_web/live/user_live/login.ex:73
 #: lib/game_server_web/live/user_live/registration.ex:26
 #: lib/game_server_web/live/user_live/settings/account_tab.ex:36
@@ -119,6 +118,8 @@ msgstr "Onayla"
 
 #: lib/game_server_web/live/groups_live.ex:552
 #: lib/game_server_web/live/leaderboards_live.ex:196
+#: lib/game_server_web/live/tournaments_live.ex:312
+#: lib/game_server_web/live/tournaments_live.ex:440
 #: lib/game_server_web/live/user_live/settings/groups_tab.ex:64
 #, elixir-autogen, elixir-format
 msgid "Back"
@@ -347,7 +348,7 @@ msgstr "En yeni"
 #: lib/game_server_web/live/lobby_live/index.ex:661
 #, elixir-autogen, elixir-format
 msgid "Next"
-msgstr "İleri"
+msgstr "Sonraki"
 
 #: lib/game_server_web/components/core_components.ex:513
 #: lib/game_server_web/live/lobby_live/index.ex:651
@@ -580,12 +581,14 @@ msgid "Select a conversation"
 msgstr "Bir konuşma seç"
 
 #: lib/game_server_web/live/leaderboards_live.ex:249
+#: lib/game_server_web/live/tournaments_live.ex:349
 #, elixir-autogen, elixir-format
 msgid "Newer"
 msgstr "Daha yeni"
 
 #: lib/game_server_web/live/chat_live.ex:204
 #: lib/game_server_web/live/leaderboards_live.ex:234
+#: lib/game_server_web/live/tournaments_live.ex:338
 #, elixir-autogen, elixir-format
 msgid "Older"
 msgstr "Daha eski"
@@ -616,6 +619,7 @@ msgstr "Yükleniyor..."
 #: lib/game_server_web/live/lobby_live/index.ex:141
 #: lib/game_server_web/live/lobby_live/index.ex:161
 #: lib/game_server_web/live/lobby_live/index.ex:176
+#: lib/game_server_web/live/tournaments_live.ex:188
 #: lib/game_server_web/live/user_live/settings/account_tab.ex:496
 #: lib/game_server_web/live/user_live/settings/groups_tab.ex:1318
 #, elixir-autogen, elixir-format
@@ -769,8 +773,10 @@ msgstr "Açık"
 #: lib/game_server_web/live/user_live/settings/groups_tab.ex:1261
 #: lib/game_server_web/live/user_live/settings/groups_tab.ex:1271
 #: lib/game_server_web/live/user_live/settings/payments_tab.ex:187
-#: lib/game_server_web/user_auth.ex:250 lib/game_server_web/user_auth.ex:273
-#: lib/game_server_web/user_auth.ex:291 lib/game_server_web/user_auth.ex:340
+#: lib/game_server_web/user_auth.ex:250
+#: lib/game_server_web/user_auth.ex:273
+#: lib/game_server_web/user_auth.ex:291
+#: lib/game_server_web/user_auth.ex:340
 #: lib/game_server_web/user_auth.ex:356
 #, elixir-autogen, elixir-format
 msgid "Failed"
@@ -944,9 +950,7 @@ msgstr "Satın alma başarısız: %{reason}"
 
 #: lib/game_server_web/live/store_live/index.ex:222
 #, elixir-autogen, elixir-format
-msgid ""
-"Checkout is already open for this item. Finish or cancel that checkout "
-"first."
+msgid "Checkout is already open for this item. Finish or cancel that checkout first."
 msgstr ""
 "Bu ürün için zaten bir satın alma işlemi sürüyor. Önce onu tamamla veya "
 "iptal et."
@@ -1212,3 +1216,126 @@ msgstr "Kullanıcı adı"
 #, elixir-autogen, elixir-format
 msgid "You already own this item."
 msgstr "Bu ürüne zaten sahipsin."
+
+#: lib/game_server_web/live/user_live/login.ex:55
+#, elixir-autogen, elixir-format
+msgid "Send magic link"
+msgstr "Sihirli bağlantı gönder"
+
+#: lib/game_server_web/live/tournaments_live.ex:165
+#: lib/game_server_web/live/tournaments_live.ex:376
+#: lib/game_server_web/live/tournaments_live.ex:444
+#, elixir-autogen, elixir-format
+msgid "Bracket"
+msgstr "Fikstür"
+
+#: lib/game_server_web/live/tournaments_live.ex:360
+#, elixir-autogen, elixir-format
+msgid "Bracket size"
+msgstr "Fikstür boyutu"
+
+#: lib/game_server_web/live/tournaments_live.ex:361
+#: lib/game_server_web/live/tournaments_live.ex:367
+#, elixir-autogen, elixir-format
+msgid "Brackets"
+msgstr "Fikstürler"
+
+#: lib/game_server_web/live/tournaments_live.ex:562
+#, elixir-autogen, elixir-format
+msgid "Cancelled"
+msgstr "İptal edildi"
+
+#: lib/game_server_web/live/tournaments_live.ex:535
+#, elixir-autogen, elixir-format
+msgid "Final"
+msgstr "Final"
+
+#: lib/game_server_web/live/tournaments_live.ex:561
+#, elixir-autogen, elixir-format
+msgid "Finished"
+msgstr "Tamamlandı"
+
+#: lib/game_server_web/live/tournaments_live.ex:390
+#, elixir-autogen, elixir-format
+msgid "No players registered yet."
+msgstr "Henüz kayıtlı oyuncu yok."
+
+#: lib/game_server_web/live/tournaments_live.ex:289
+#, elixir-autogen, elixir-format
+msgid "No tournaments yet."
+msgstr "Henüz turnuva yok."
+
+#: lib/game_server_web/live/tournaments_live.ex:182
+#: lib/game_server_web/live/tournaments_live.ex:514
+#, elixir-autogen, elixir-format
+msgid "Player"
+msgstr "Oyuncu"
+
+#: lib/game_server_web/live/tournaments_live.ex:537
+#, elixir-autogen, elixir-format
+msgid "Quarterfinal"
+msgstr "Çeyrek final"
+
+#: lib/game_server_web/live/tournaments_live.ex:387
+#, elixir-autogen, elixir-format
+msgid "Registered players"
+msgstr "Kayıtlı oyuncular"
+
+#: lib/game_server_web/live/tournaments_live.ex:559
+#, elixir-autogen, elixir-format
+msgid "Registration open"
+msgstr "Kayıtlar açık"
+
+#: lib/game_server_web/live/tournaments_live.ex:538
+#, elixir-autogen, elixir-format
+msgid "Round %{n}"
+msgstr "Tur %{n}"
+
+#: lib/game_server_web/live/tournaments_live.ex:560
+#, elixir-autogen, elixir-format
+msgid "Running"
+msgstr "Devam ediyor"
+
+#: lib/game_server_web/live/tournaments_live.ex:558
+#, elixir-autogen, elixir-format
+msgid "Scheduled"
+msgstr "Planlandı"
+
+#: lib/game_server_web/live/tournaments_live.ex:536
+#, elixir-autogen, elixir-format
+msgid "Semifinal"
+msgstr "Yarı final"
+
+#: lib/game_server_web/live/tournaments_live.ex:322
+#, elixir-autogen, elixir-format
+msgid "Starts manually"
+msgstr "Manuel başlatma"
+
+#: lib/game_server_web/live/tournaments_live.ex:26
+#: lib/game_server_web/live/tournaments_live.ex:89
+#: lib/game_server_web/live/tournaments_live.ex:215
+#, elixir-autogen, elixir-format
+msgid "Tournaments"
+msgstr "Turnuvalar"
+
+#: lib/game_server_web/live/tournaments_live.ex:516
+#, elixir-autogen, elixir-format
+msgid "bye"
+msgstr "bay"
+
+#: lib/game_server_web/live/tournaments_live.ex:381
+#, elixir-autogen, elixir-format
+msgid "matches decided"
+msgstr "maç sonuçlandı"
+
+#: lib/game_server_web/live/tournaments_live.ex:282
+#: lib/game_server_web/live/tournaments_live.ex:359
+#, elixir-autogen, elixir-format
+msgid "Players"
+msgstr "Oyuncular"
+
+#: lib/game_server_web/live/tournaments_live.ex:378
+#: lib/game_server_web/live/tournaments_live.ex:447
+#, elixir-autogen, elixir-format
+msgid "Slots"
+msgstr "Yerler"

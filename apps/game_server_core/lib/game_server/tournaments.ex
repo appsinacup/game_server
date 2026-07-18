@@ -32,6 +32,35 @@ defmodule GameServer.Tournaments do
 
   @pubsub GameServer.PubSub
 
+  # Hook dispatches and broadcasts must never run while a lock/transaction is
+  # open: the hook runs in another process, and anything it writes contends
+  # with the very transaction that spawned it (a game resolving a match from
+  # `tournament_match_ready` would block on the draw's advisory lock). Effects
+  # are therefore queued while in a transaction and flushed after it commits —
+  # which also means observers never see uncommitted state.
+  @deferred_key {__MODULE__, :deferred_effects}
+
+  defp defer(fun) when is_function(fun, 0) do
+    if Repo.in_transaction?() do
+      Process.put(@deferred_key, [fun | Process.get(@deferred_key, [])])
+      :ok
+    else
+      fun.()
+      :ok
+    end
+  end
+
+  defp flush_deferred do
+    if Repo.in_transaction?() do
+      :ok
+    else
+      effects = @deferred_key |> Process.get([]) |> Enum.reverse()
+      Process.delete(@deferred_key)
+      Enum.each(effects, & &1.())
+      :ok
+    end
+  end
+
   # ── CRUD (admin / hooks) ──────────────────────────────────────────────────
 
   @spec create_tournament(map()) :: {:ok, Tournament.t()} | {:error, Ecto.Changeset.t()}
@@ -60,6 +89,25 @@ defmodule GameServer.Tournaments do
       {:ok, cancelled}
     end
   end
+
+  @doc """
+  Reopens a cancelled tournament.
+
+  A tournament that was never drawn goes back to `registration`; one that
+  already has a bracket resumes at `running`, so an accidental cancel does not
+  throw away the draw. Any due transition is applied immediately afterwards.
+  """
+  @spec reopen_tournament(Tournament.t()) :: {:ok, Tournament.t()} | {:error, term()}
+  def reopen_tournament(%Tournament{state: "cancelled"} = tournament) do
+    state = if count_brackets(tournament.id) > 0, do: "running", else: "registration"
+
+    with {:ok, reopened} <- update_state(tournament, state) do
+      broadcast_tournament(reopened, "tournament_updated")
+      {:ok, advance_lifecycle(reopened)}
+    end
+  end
+
+  def reopen_tournament(%Tournament{}), do: {:error, :not_cancelled}
 
   @spec change_tournament(Tournament.t(), map()) :: Ecto.Changeset.t()
   def change_tournament(%Tournament{} = tournament, attrs \\ %{}),
@@ -101,6 +149,65 @@ defmodule GameServer.Tournaments do
     |> Repo.all()
   end
 
+  @doc """
+  Tournaments grouped by slug — one entry per tournament *type*, the way
+  leaderboard seasons are grouped.
+
+  Each group carries the newest occurrence's title/description, the id of the
+  occurrence to open by default (the live one, else the newest), and how many
+  editions exist.
+  """
+  @spec list_tournament_groups(keyword()) :: [map()]
+  def list_tournament_groups(opts \\ []) do
+    page = Keyword.get(opts, :page, 1)
+    page_size = min(Keyword.get(opts, :page_size, 25), 100)
+
+    slugs =
+      from(t in Tournament,
+        select: t.slug,
+        group_by: t.slug,
+        order_by: [desc: max(t.starts_at)],
+        limit: ^page_size,
+        offset: ^(max(page - 1, 0) * page_size)
+      )
+      |> Repo.all()
+
+    Enum.map(slugs, &build_group_info/1)
+  end
+
+  defp build_group_info(slug) do
+    occurrences = list_occurrences(slug)
+    latest = List.first(occurrences)
+    current = Enum.find(occurrences, &(&1.state not in ["finished", "cancelled"]))
+
+    %{
+      slug: slug,
+      title: latest.title,
+      description: latest.description,
+      state: (current || latest).state,
+      current_id: (current || latest).id,
+      latest_id: latest.id,
+      edition_count: length(occurrences),
+      entry_count: count_entries((current || latest).id)
+    }
+  end
+
+  @doc "Every occurrence of a slug, newest first."
+  @spec list_occurrences(String.t()) :: [Tournament.t()]
+  def list_occurrences(slug) when is_binary(slug) do
+    from(t in Tournament,
+      where: t.slug == ^slug,
+      order_by: [desc: t.starts_at, desc: t.id]
+    )
+    |> Repo.all()
+  end
+
+  @doc "Counts distinct tournament slugs."
+  @spec count_tournament_groups() :: non_neg_integer()
+  def count_tournament_groups do
+    from(t in Tournament, select: t.slug, group_by: t.slug) |> Repo.all() |> length()
+  end
+
   @spec count_tournaments(keyword()) :: non_neg_integer()
   def count_tournaments(opts \\ []) do
     base_tournaments_query(opts) |> Repo.aggregate(:count) || 0
@@ -109,7 +216,6 @@ defmodule GameServer.Tournaments do
   defp base_tournaments_query(opts) do
     Tournament
     |> maybe_filter(:state, Keyword.get(opts, :state))
-    |> maybe_filter(:category, Keyword.get(opts, :category))
     |> maybe_filter(:slug, Keyword.get(opts, :slug))
   end
 
@@ -195,10 +301,35 @@ defmodule GameServer.Tournaments do
     Repo.get_by(Entry, tournament_id: tournament_id, leader_id: leader_id)
   end
 
-  @spec list_entries(Ecto.UUID.t()) :: [Entry.t()]
-  def list_entries(tournament_id) do
+  @doc """
+  Entries for a tournament, oldest first (registration order = seed rank).
+
+  Options: `:page`, `:page_size` (capped at 100), `:state`.
+  """
+  @spec list_entries(Ecto.UUID.t(), keyword()) :: [Entry.t()]
+  def list_entries(tournament_id, opts \\ []) do
     from(e in Entry, where: e.tournament_id == ^tournament_id, order_by: [asc: e.inserted_at])
+    |> maybe_where_state(Keyword.get(opts, :state))
+    |> maybe_paginate(opts)
     |> Repo.all()
+  end
+
+  defp maybe_where_state(query, nil), do: query
+  defp maybe_where_state(query, state), do: where(query, [row], row.state == ^state)
+
+  # Pagination is opt-in: callers that pass no :page get the full list.
+  defp maybe_paginate(query, opts) do
+    case Keyword.get(opts, :page) do
+      nil ->
+        query
+
+      page ->
+        page_size = min(Keyword.get(opts, :page_size, 25), 100)
+
+        query
+        |> limit(^page_size)
+        |> offset(^(max(page - 1, 0) * page_size))
+    end
   end
 
   @spec count_entries(Ecto.UUID.t()) :: non_neg_integer()
@@ -214,23 +345,23 @@ defmodule GameServer.Tournaments do
   """
   @spec advance_lifecycle(Tournament.t(), DateTime.t()) :: Tournament.t()
   def advance_lifecycle(%Tournament{} = tournament, now \\ DateTime.utc_now()) do
+    result = do_advance_lifecycle(tournament, now)
+    flush_deferred()
+    result
+  end
+
+  defp do_advance_lifecycle(%Tournament{} = tournament, now) do
     case tournament.state do
       "scheduled" ->
-        if past?(tournament.registration_opens_at, now) do
-          case update_state(tournament, "registration") do
-            {:ok, t} ->
-              broadcast_tournament(t, "tournament_updated")
-              advance_lifecycle(t, now)
-
-            _ ->
-              tournament
-          end
-        else
-          tournament
-        end
+        if past?(tournament.registration_opens_at, now),
+          do: open_registration(tournament, now),
+          else: tournament
 
       "registration" ->
-        if past?(tournament.starts_at, now), do: draw(tournament, now), else: tournament
+        # nil starts_at = manual start: wait for an admin/game to set it.
+        if tournament.starts_at != nil and past?(tournament.starts_at, now),
+          do: draw(tournament, now),
+          else: tournament
 
       "running" ->
         cond do
@@ -245,6 +376,17 @@ defmodule GameServer.Tournaments do
         end
 
       _terminal ->
+        tournament
+    end
+  end
+
+  defp open_registration(tournament, now) do
+    case update_state(tournament, "registration") do
+      {:ok, opened} ->
+        defer(fn -> broadcast_tournament(opened, "tournament_updated") end)
+        do_advance_lifecycle(opened, now)
+
+      _error ->
         tournament
     end
   end
@@ -279,6 +421,7 @@ defmodule GameServer.Tournaments do
       spawn_missed_recurrences(now)
     end)
 
+    flush_deferred()
     :ok
   end
 
@@ -428,21 +571,24 @@ defmodule GameServer.Tournaments do
     if window_open? and match.ready_at == nil and match.resolved_at == nil and
          match.a_entry_id != nil and match.b_entry_id != nil do
       case match |> Match.changeset(%{ready_at: now}) |> Repo.update() do
-        {:ok, match} ->
-          payload = match_payload(tournament, match)
-
-          GameServer.Async.run(fn ->
-            GameServer.Hooks.internal_call(:tournament_match_ready, [payload])
-          end)
-
-          broadcast_match(tournament, match, "tournament_match_ready")
-
-        _ ->
-          :ok
+        {:ok, match} -> dispatch_ready(tournament, match)
+        _error -> :ok
       end
     end
 
     :ok
+  end
+
+  defp dispatch_ready(tournament, match) do
+    payload = match_payload(tournament, match)
+
+    defer(fn ->
+      GameServer.Async.run(fn ->
+        GameServer.Hooks.internal_call(:tournament_match_ready, [payload])
+      end)
+
+      broadcast_match(tournament, match, "tournament_match_ready")
+    end)
   end
 
   # ── Resolution ────────────────────────────────────────────────────────────
@@ -465,7 +611,9 @@ defmodule GameServer.Tournaments do
              match_payload(tournament, match),
              winner
            ]) do
-      internal_resolve(tournament, match, winner, %{})
+      result = internal_resolve(tournament, match, winner, %{})
+      flush_deferred()
+      result
     else
       {:error, _} = err -> err
       nil -> {:error, :not_found}
@@ -521,18 +669,20 @@ defmodule GameServer.Tournaments do
         match
       end)
 
-    unless extra_metadata["bye"] do
-      payload = match_payload(tournament, match)
+    defer(fn ->
+      unless extra_metadata["bye"] do
+        payload = match_payload(tournament, match)
 
-      GameServer.Async.run(fn ->
-        GameServer.Hooks.internal_call(:after_tournament_match, [payload])
-      end)
-    end
+        GameServer.Async.run(fn ->
+          GameServer.Hooks.internal_call(:after_tournament_match, [payload])
+        end)
+      end
 
-    broadcast_match(tournament, match, "tournament_match_resolved")
+      broadcast_match(tournament, match, "tournament_match_resolved")
 
-    # Champion decided / brackets emptied out? Close the tournament.
-    _ = advance_lifecycle(tournament)
+      # Champion decided / brackets emptied out? Close the tournament.
+      _ = advance_lifecycle(tournament)
+    end)
 
     {:ok, match}
   end
@@ -686,8 +836,10 @@ defmodule GameServer.Tournaments do
       {:ok, match} ->
         payload = match_payload(tournament, match)
 
-        GameServer.Async.run(fn ->
-          GameServer.Hooks.internal_call(:tournament_match_expired, [payload])
+        defer(fn ->
+          GameServer.Async.run(fn ->
+            GameServer.Hooks.internal_call(:tournament_match_expired, [payload])
+          end)
         end)
 
       _ ->
@@ -736,14 +888,16 @@ defmodule GameServer.Tournaments do
   defp finish_tournament(tournament), do: tournament
 
   defp do_finish_side_effects(tournament) do
-    standings = standings(tournament)
+    defer(fn ->
+      standings = standings(tournament)
 
-    GameServer.Async.run(fn ->
-      GameServer.Hooks.internal_call(:after_tournament_finished, [tournament, standings])
+      GameServer.Async.run(fn ->
+        GameServer.Hooks.internal_call(:after_tournament_finished, [tournament, standings])
+      end)
+
+      broadcast_tournament(tournament, "tournament_finished")
+      spawn_next_occurrence(tournament)
     end)
-
-    broadcast_tournament(tournament, "tournament_finished")
-    spawn_next_occurrence(tournament)
   end
 
   @doc "Final (or current) placements: champions first, then by wins."
@@ -799,7 +953,6 @@ defmodule GameServer.Tournaments do
         slug: tournament.slug,
         title: tournament.title,
         description: tournament.description,
-        category: tournament.category,
         state: "scheduled",
         registration_opens_at: reg_lead && DateTime.add(next_starts, -reg_lead, :second),
         starts_at: next_starts,
@@ -859,24 +1012,103 @@ defmodule GameServer.Tournaments do
     end)
   end
 
+  @doc """
+  Aggregate counts for the admin dashboard.
+
+  Four grouped/filtered queries, all index-backed (`tournaments.state`,
+  `tournament_entries.state`, and the partial `tournament_matches` index on
+  open matches).
+  """
+  @spec stats() :: %{
+          tournaments: map(),
+          entries: map(),
+          matches: %{
+            total: non_neg_integer(),
+            open: non_neg_integer(),
+            overdue: non_neg_integer()
+          }
+        }
+  def stats do
+    %{
+      tournaments: count_by_state(Tournament),
+      entries: count_by_state(Entry),
+      matches: match_stats()
+    }
+  end
+
+  defp count_by_state(schema) do
+    from(row in schema, group_by: row.state, select: {row.state, count(row.id)})
+    |> Repo.all()
+    |> Map.new()
+  end
+
+  defp match_stats do
+    open_query = from(m in Match, where: is_nil(m.resolved_at))
+
+    %{
+      total: Repo.aggregate(Match, :count),
+      open: Repo.aggregate(open_query, :count),
+      overdue:
+        open_query
+        |> where([m], m.deadline < ^DateTime.utc_now())
+        |> Repo.aggregate(:count)
+    }
+  end
+
   # ── Queries for API/admin ─────────────────────────────────────────────────
 
   @spec get_match(Ecto.UUID.t()) :: Match.t() | nil
   def get_match(match_id) when is_binary(match_id), do: Repo.get(Match, match_id)
 
-  @spec list_brackets(Ecto.UUID.t()) :: [Bracket.t()]
-  def list_brackets(tournament_id) do
+  @doc "Brackets for a tournament. Options: `:page`, `:page_size`."
+  @spec list_brackets(Ecto.UUID.t(), keyword()) :: [Bracket.t()]
+  def list_brackets(tournament_id, opts \\ []) do
     from(b in Bracket, where: b.tournament_id == ^tournament_id, order_by: [asc: b.index])
+    |> maybe_paginate(opts)
     |> Repo.all()
   end
 
-  @spec list_matches(Ecto.UUID.t()) :: [Match.t()]
-  def list_matches(tournament_id) do
+  @spec count_brackets(Ecto.UUID.t()) :: non_neg_integer()
+  def count_brackets(tournament_id) do
+    from(b in Bracket, where: b.tournament_id == ^tournament_id) |> Repo.aggregate(:count)
+  end
+
+  @spec get_bracket(Ecto.UUID.t(), integer()) :: Bracket.t() | nil
+  def get_bracket(tournament_id, index) when is_integer(index) do
+    Repo.get_by(Bracket, tournament_id: tournament_id, index: index)
+  end
+
+  @doc """
+  Matches for a tournament, bracket-major order.
+
+  Options: `:bracket_index` (single bracket), `:bracket_indexes` (several).
+  """
+  @spec list_matches(Ecto.UUID.t(), keyword()) :: [Match.t()]
+  def list_matches(tournament_id, opts \\ []) do
     from(m in Match,
       where: m.tournament_id == ^tournament_id,
       order_by: [asc: m.bracket_index, asc: m.round, asc: m.slot]
     )
+    |> maybe_where_bracket(Keyword.get(opts, :bracket_index))
+    |> maybe_where_brackets(Keyword.get(opts, :bracket_indexes))
     |> Repo.all()
+  end
+
+  defp maybe_where_bracket(query, nil), do: query
+  defp maybe_where_bracket(query, index), do: where(query, [m], m.bracket_index == ^index)
+
+  defp maybe_where_brackets(query, nil), do: query
+  defp maybe_where_brackets(query, []), do: where(query, [m], false)
+  defp maybe_where_brackets(query, idx), do: where(query, [m], m.bracket_index in ^idx)
+
+  @doc "Entries by id, for rendering a bracket without loading the whole field."
+  @spec entries_by_id(Ecto.UUID.t(), [Ecto.UUID.t()]) :: %{Ecto.UUID.t() => Entry.t()}
+  def entries_by_id(_tournament_id, []), do: %{}
+
+  def entries_by_id(tournament_id, entry_ids) do
+    from(e in Entry, where: e.tournament_id == ^tournament_id and e.id in ^entry_ids)
+    |> Repo.all()
+    |> Map.new(&{&1.id, &1})
   end
 
   @doc "The caller's current unresolved match (their entry filled in a slot), if any."

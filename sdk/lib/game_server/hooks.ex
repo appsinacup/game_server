@@ -596,7 +596,9 @@ defmodule GameServer.Hooks do
       @impl true
       def after_tournament_finished(_tournament, _standings), do: :ok
 
-      defoverridable before_user_register: 2,
+      defoverridable after_startup: 0,
+                     before_stop: 0,
+                     before_user_register: 2,
                      after_user_register: 1,
                      after_user_login: 1,
                      after_user_updated: 1,

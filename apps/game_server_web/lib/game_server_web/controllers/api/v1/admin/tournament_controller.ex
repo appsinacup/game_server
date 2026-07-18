@@ -17,13 +17,12 @@ defmodule GameServerWeb.Api.V1.Admin.TournamentController do
       slug: %Schema{type: :string},
       title: %Schema{type: :string},
       description: %Schema{type: :string},
-      category: %Schema{type: :string, nullable: true},
       state: %Schema{
         type: :string,
         enum: ["scheduled", "registration", "running", "finished", "cancelled"]
       },
       registration_opens_at: %Schema{type: :string, format: "date-time", nullable: true},
-      starts_at: %Schema{type: :string, format: "date-time"},
+      starts_at: %Schema{type: :string, format: "date-time", nullable: true},
       ends_at: %Schema{type: :string, format: "date-time", nullable: true},
       recur: %Schema{type: :string, nullable: true},
       max_entries: %Schema{type: :integer, nullable: true},
@@ -46,9 +45,8 @@ defmodule GameServerWeb.Api.V1.Admin.TournamentController do
       slug: %Schema{type: :string},
       title: %Schema{type: :string},
       description: %Schema{type: :string},
-      category: %Schema{type: :string},
       registration_opens_at: %Schema{type: :string, format: "date-time"},
-      starts_at: %Schema{type: :string, format: "date-time"},
+      starts_at: %Schema{type: :string, format: "date-time", nullable: true},
       ends_at: %Schema{type: :string, format: "date-time"},
       recur: %Schema{type: :string, description: "Cron expression; omit for one-shot"},
       max_entries: %Schema{type: :integer},
@@ -61,7 +59,7 @@ defmodule GameServerWeb.Api.V1.Admin.TournamentController do
       },
       metadata: %Schema{type: :object}
     },
-    required: [:slug, :title, :starts_at, :round_window_sec]
+    required: [:slug, :title, :round_window_sec]
   }
 
   operation(:create,
@@ -145,6 +143,32 @@ defmodule GameServerWeb.Api.V1.Admin.TournamentController do
     with_tournament(conn, id, fn tournament ->
       {:ok, tournament} = Tournaments.cancel_tournament(tournament)
       json(conn, %{data: serialize(tournament)})
+    end)
+  end
+
+  operation(:reopen,
+    operation_id: "admin_reopen_tournament",
+    summary: "Reopen a cancelled tournament (admin)",
+    security: [%{"authorization" => []}],
+    parameters: [id: [in: :path, schema: %Schema{type: :string}, required: true]],
+    responses: [
+      ok:
+        {"Tournament", "application/json",
+         %Schema{type: :object, properties: %{data: @tournament_schema}}},
+      bad_request: {"Not cancelled", "application/json", @error_schema},
+      not_found: {"Not found", "application/json", @error_schema}
+    ]
+  )
+
+  def reopen(conn, %{"id" => id}) do
+    with_tournament(conn, id, fn tournament ->
+      case Tournaments.reopen_tournament(tournament) do
+        {:ok, reopened} ->
+          json(conn, %{data: serialize(reopened)})
+
+        {:error, reason} ->
+          conn |> put_status(:bad_request) |> json(%{error: to_string_reason(reason)})
+      end
     end)
   end
 
@@ -272,7 +296,6 @@ defmodule GameServerWeb.Api.V1.Admin.TournamentController do
       slug: t.slug,
       title: t.title,
       description: t.description,
-      category: t.category,
       state: t.state,
       registration_opens_at: t.registration_opens_at,
       starts_at: t.starts_at,

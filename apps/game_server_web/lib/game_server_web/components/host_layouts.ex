@@ -57,7 +57,13 @@ defmodule GameServerWeb.HostLayouts do
     %{top: 66, left: 7, size: "size-8 sm:size-10", dur: 7, delay: 3},
     %{top: 72, right: 5, size: "size-10 sm:size-15", dur: 12, delay: 1.5},
     %{top: 81, left: 18, size: "size-8 sm:size-11", dur: 8, delay: 1.2},
-    %{top: 88, right: 15, size: "size-7 sm:size-10", dur: 9, delay: 2.8}
+    %{top: 88, right: 15, size: "size-7 sm:size-10", dur: 9, delay: 2.8},
+    %{top: 8, left: 24, size: "size-7 sm:size-9", dur: 10, delay: 2.6},
+    %{top: 33, right: 24, size: "size-8 sm:size-10", dur: 9, delay: 1.1},
+    %{top: 47, left: 27, size: "size-7 sm:size-9", dur: 12, delay: 3.2},
+    %{top: 62, right: 27, size: "size-7 sm:size-10", dur: 8, delay: 0.4},
+    %{top: 76, left: 30, size: "size-7 sm:size-9", dur: 11, delay: 2.4},
+    %{top: 94, right: 30, size: "size-8 sm:size-11", dur: 10, delay: 1.7}
   ]
 
   @host_base_theme_settings %{
@@ -90,11 +96,13 @@ defmodule GameServerWeb.HostLayouts do
     if unique_icons == [] do
       []
     else
+      # One icon per slot: wrapping around would stack a second icon on an
+      # already-occupied position, so extra icons are dropped instead.
       unique_icons
+      |> Enum.take(length(@icon_slots))
       |> Enum.with_index()
       |> Enum.map(fn {icon, index} ->
-        slot = Enum.at(@icon_slots, rem(index, length(@icon_slots)))
-        Map.put(slot, :name, icon)
+        @icon_slots |> Enum.at(index) |> Map.put(:name, icon)
       end)
     end
   end
@@ -488,6 +496,11 @@ defmodule GameServerWeb.HostLayouts do
             "label" => translate("Achievements"),
             "href" => "/achievements",
             "icon" => "hero-trophy-solid"
+          },
+          %{
+            "label" => translate("Tournaments"),
+            "href" => "/tournaments",
+            "icon" => "hero-bolt-solid"
           },
           %{
             "label" => translate("Groups"),

@@ -12,17 +12,41 @@ defmodule GameServer.Modules.ExampleHook do
   Then restart the server and use the Admin Config page to reload plugins.
   """
 
-  @behaviour GameServer.Hooks
+  # `use` (not `@behaviour`) so the SDK supplies overridable defaults for every
+  # callback — this example only defines the ones it demonstrates. Any callback
+  # left out simply keeps its default behaviour.
+  use GameServer.Hooks
   require Logger
 
   alias GameServer.Accounts
+  alias GameServer.Achievements
+  alias GameServer.Groups
   alias GameServer.Hooks
   alias GameServer.KV
+  alias GameServer.Leaderboards
   alias GameServer.Lock
+  alias GameServer.Notifications
+  alias GameServer.Tournaments
+
+  # Sample content this plugin owns. Both are namespaced so the hooks below can
+  # ignore leaderboards/tournaments belonging to the rest of the game.
+  @login_leaderboard "example_login_count"
+  @tournament_slug "example-weekly-cup"
+  @achievement_slug "example_first_login"
+  @group_title "Example Guild"
+  @welcome_kv_key "example_welcome"
 
   @impl true
   def after_startup do
     Logger.info("[ExampleHook] after_startup called")
+
+    # Every sample is created only when missing, so restarts and plugin
+    # reloads are safe. The group is seeded on first registration instead —
+    # groups need a creator and there may be no users yet at boot.
+    ensure_login_leaderboard()
+    ensure_weekly_cup()
+    ensure_achievement()
+    ensure_welcome_kv()
 
     [
       %{
@@ -36,118 +60,188 @@ defmodule GameServer.Modules.ExampleHook do
     ]
   end
 
-  @impl true
-  def before_stop, do: :ok
+  # ── Sample leaderboard: how many times each player has logged in ──────────
+  #
+  # The `incr` operator makes every submission add to the stored score, so the
+  # login hook can just submit 1 without reading the previous value.
 
-  @impl true
-  def after_user_register(_user), do: :ok
+  defp ensure_login_leaderboard do
+    case Leaderboards.get_active_leaderboard_by_slug(@login_leaderboard) do
+      nil ->
+        Leaderboards.create_leaderboard(%{
+          slug: @login_leaderboard,
+          title: "Logins",
+          description: "How many times each player has logged in.",
+          sort_order: :desc,
+          operator: :incr
+        })
 
-  @impl true
-  def after_user_login(_user), do: :ok
-
-  @impl true
-  def after_user_online(_user), do: :ok
-
-  @impl true
-  def after_user_offline(_user), do: :ok
-
-  @impl true
-  def before_lobby_create(attrs) do
-    {:ok, attrs}
+      _existing ->
+        :ok
+    end
   end
 
   @impl true
-  def after_lobby_create(_lobby), do: :ok
+  def after_user_login(user) do
+    # Also seeded here, not just on registration: on a database that already
+    # has players, nobody registers again and the group would never appear.
+    ensure_group(user)
+
+    case Leaderboards.get_active_leaderboard_by_slug(@login_leaderboard) do
+      nil -> :ok
+      board -> Leaderboards.submit_score(board.id, user.id, 1)
+    end
+
+    # Unlocking is idempotent, so re-logins keep the original unlock time.
+    Achievements.unlock_achievement(user.id, @achievement_slug)
+
+    :ok
+  end
+
+  # ── Sample achievement: unlocked the first time a player logs in ──────────
+
+  defp ensure_achievement do
+    if is_nil(Achievements.get_achievement_by_slug(@achievement_slug)) do
+      Achievements.create_achievement(%{
+        slug: @achievement_slug,
+        title: "Welcome aboard",
+        description: "Log in for the first time.",
+        progress_target: 1
+      })
+    end
+
+    :ok
+  end
+
+  # ── Sample KV entry: a global value any client can read ───────────────────
+
+  defp ensure_welcome_kv do
+    case KV.get(@welcome_kv_key) do
+      {:ok, _entry} -> :ok
+      _missing -> KV.put(@welcome_kv_key, %{"message" => "Hello from ExampleHook!"})
+    end
+
+    :ok
+  end
+
+  # ── Sample group: seeded by the first player to register ──────────────────
+
+  defp ensure_group(user) do
+    if is_nil(Groups.get_group_by_title(@group_title)) do
+      Groups.create_group(user.id, %{
+        title: @group_title,
+        description: "A public group created by the example plugin.",
+        type: "public"
+      })
+    end
+
+    :ok
+  end
 
   @impl true
-  def before_lobby_join(user, lobby, opts), do: {:ok, {user, lobby, opts}}
+  def after_user_register(user) do
+    ensure_group(user)
+    welcome_notification(user)
+    :ok
+  end
+
+  # Sent once per player rather than on every login. `admin_create_notification/3`
+  # is the plugin-side entry point: unlike `send_notification/2` it doesn't
+  # require the sender and recipient to be friends, so a plugin can post
+  # system messages (here the player is both sender and recipient).
+  defp welcome_notification(user) do
+    Notifications.admin_create_notification(user.id, user.id, %{
+      "title" => "Welcome!",
+      "content" => "Thanks for joining. Register for the Weekly Cup to get started.",
+      "metadata" => %{"type" => "example_welcome"}
+    })
+
+    :ok
+  end
+
+  # ── Sample tournament: a weekly cup that plays itself ─────────────────────
+  #
+  # Registration is the only thing players do. `recur` makes the server create
+  # next week's occurrence automatically when this one finishes.
+
+  defp ensure_weekly_cup do
+    case Tournaments.get_tournament_by_slug(@tournament_slug) do
+      nil ->
+        Tournaments.create_tournament(%{
+          slug: @tournament_slug,
+          title: "Weekly Cup",
+          description: "Register any time; the bracket is drawn every Monday.",
+          starts_at: next_monday(),
+          recur: "0 0 * * 1",
+          bracket_size: 8,
+          round_window_sec: 24 * 3600
+        })
+
+      _existing ->
+        :ok
+    end
+  end
+
+  defp next_monday do
+    today = Date.utc_today()
+    days = rem(8 - Date.day_of_week(today), 7)
+    days = if days == 0, do: 7, else: days
+
+    DateTime.new!(Date.add(today, days), ~T[00:00:00], "Etc/UTC")
+  end
+
+  # A real game would start a lobby here and report the outcome later. This
+  # sample decides immediately, so resolving one match readies the next and the
+  # whole bracket plays itself out.
+  @impl true
+  def tournament_match_ready(match) do
+    if match.tournament.slug == @tournament_slug do
+      winner = Enum.random(Enum.reject([match.a_entry_id, match.b_entry_id], &is_nil/1))
+      resolve_with_retry(match.id, winner, 3)
+    end
+
+    :ok
+  end
+
+  # Every match in a round becomes ready at once, so these hooks run
+  # concurrently. SQLite (the default dev adapter) rejects a second concurrent
+  # write transaction with "Database busy" immediately — WAL mode cannot queue
+  # writers — so the write is retried. Postgres writes distinct rows and does
+  # not hit this.
+  defp resolve_with_retry(match_id, winner, attempts) do
+    Tournaments.resolve_match(match_id, winner)
+    :ok
+  rescue
+    error ->
+      if attempts > 1 do
+        Process.sleep(150)
+        resolve_with_retry(match_id, winner, attempts - 1)
+      else
+        Logger.warning(
+          "[ExampleHook] could not resolve match #{match_id}: #{Exception.message(error)}"
+        )
+
+        :ok
+      end
+  end
 
   @impl true
-  def after_lobby_join(_user, _lobby), do: :ok
+  def after_tournament_finished(tournament, standings) do
+    if tournament.slug == @tournament_slug do
+      champions = Enum.map_join(standings.champions, ", ", & &1.leader_id)
+      Logger.info("[ExampleHook] #{tournament.title} finished, champions: #{champions}")
 
-  @impl true
-  def before_lobby_leave(user, lobby), do: {:ok, {user, lobby}}
+      Enum.each(standings.champions, fn entry ->
+        Notifications.admin_create_notification(entry.leader_id, entry.leader_id, %{
+          "title" => "You won the #{tournament.title}!",
+          "content" => "Congratulations — you took the whole bracket.",
+          "metadata" => %{"type" => "example_tournament_won", "tournament_id" => tournament.id}
+        })
+      end)
+    end
 
-  @impl true
-  def after_lobby_leave(_user, _lobby), do: :ok
-
-  @impl true
-  def before_lobby_update(_lobby, attrs), do: {:ok, attrs}
-
-  @impl true
-  def after_lobby_update(_lobby), do: :ok
-
-  @impl true
-  def before_lobby_delete(lobby), do: {:ok, lobby}
-
-  @impl true
-  def after_lobby_delete(_lobby), do: :ok
-
-  @impl true
-  def before_user_kicked(host, target, lobby), do: {:ok, {host, target, lobby}}
-
-  @impl true
-  def after_user_kicked(_host, _target, _lobby), do: :ok
-
-  @impl true
-  def before_kv_get(_key, _opts), do: :public
-
-  @impl true
-  def after_lobby_host_change(_lobby, _new_host_id), do: :ok
-
-  @impl true
-  def after_user_updated(_user), do: :ok
-
-  @impl true
-  def before_group_create(_user, attrs), do: {:ok, attrs}
-
-  @impl true
-  def after_group_create(_group), do: :ok
-
-  @impl true
-  def before_group_join(user, group, opts), do: {:ok, {user, group, opts}}
-
-  @impl true
-  def before_group_update(_group, attrs), do: {:ok, attrs}
-
-  @impl true
-  def after_group_update(_group), do: :ok
-
-  @impl true
-  def after_group_join(_user_id, _group), do: :ok
-
-  @impl true
-  def after_group_leave(_user_id, _group_id), do: :ok
-
-  @impl true
-  def after_group_delete(_group), do: :ok
-
-  @impl true
-  def after_group_kick(_admin_id, _target_id, _group_id), do: :ok
-
-  @impl true
-  def before_party_create(_user, attrs), do: {:ok, attrs}
-
-  @impl true
-  def after_party_create(_party), do: :ok
-
-  @impl true
-  def before_party_update(_party, attrs), do: {:ok, attrs}
-
-  @impl true
-  def after_party_update(_party), do: :ok
-
-  @impl true
-  def after_party_join(_user, _party), do: :ok
-
-  @impl true
-  def after_party_leave(_user, _party_id), do: :ok
-
-  @impl true
-  def after_party_kick(_target, _leader, _party), do: :ok
-
-  @impl true
-  def after_party_disband(_party), do: :ok
+    :ok
+  end
 
   @impl true
   def on_custom_hook("custom_hello", [name]) when is_binary(name), do: "hello #{name}"

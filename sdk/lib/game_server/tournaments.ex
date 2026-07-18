@@ -78,7 +78,7 @@ defmodule GameServer.Tournaments do
   def cancel_tournament(_tournament) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, nil}
+        {:ok, %GameServer.Tournaments.Tournament{id: "", slug: "", title: "", description: "", state: "scheduled", registration_opens_at: nil, starts_at: nil, ends_at: nil, recur: nil, max_entries: nil, team_size: 1, bracket_size: 8, round_window_sec: 3600, deadline_policy: "forfeit_both", metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Tournaments.cancel_tournament/1 is a stub - only available at runtime on GameServer"
@@ -95,6 +95,19 @@ defmodule GameServer.Tournaments do
 
       _ ->
         raise "GameServer.Tournaments.change_tournament/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc false
+  @spec count_brackets(Ecto.UUID.t()) :: non_neg_integer()
+  def count_brackets(_tournament_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Tournaments.count_brackets/1 is a stub - only available at runtime on GameServer"
     end
   end
 
@@ -131,7 +144,7 @@ defmodule GameServer.Tournaments do
   def create_tournament(_attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, nil}
+        {:ok, %GameServer.Tournaments.Tournament{id: "", slug: "", title: "", description: "", state: "scheduled", registration_opens_at: nil, starts_at: nil, ends_at: nil, recur: nil, max_entries: nil, team_size: 1, bracket_size: 8, round_window_sec: 3600, deadline_policy: "forfeit_both", metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Tournaments.create_tournament/1 is a stub - only available at runtime on GameServer"
@@ -145,10 +158,40 @@ defmodule GameServer.Tournaments do
   def delete_tournament(_tournament) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, nil}
+        {:ok, %GameServer.Tournaments.Tournament{id: "", slug: "", title: "", description: "", state: "scheduled", registration_opens_at: nil, starts_at: nil, ends_at: nil, recur: nil, max_entries: nil, team_size: 1, bracket_size: 8, round_window_sec: 3600, deadline_policy: "forfeit_both", metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Tournaments.delete_tournament/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Entries by id, for rendering a bracket without loading the whole field.
+  """
+  @spec entries_by_id(Ecto.UUID.t(), [Ecto.UUID.t()]) :: %{
+  required(Ecto.UUID.t()) => GameServer.Tournaments.Entry.t()
+}
+  def entries_by_id(_tournament_id, _entry_ids) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Tournaments.entries_by_id/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc false
+  @spec get_bracket(Ecto.UUID.t(), integer()) :: GameServer.Tournaments.Bracket.t() | nil
+  def get_bracket(_tournament_id, _index) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: %GameServer.Tournaments.Bracket{id: "", tournament_id: "", index: 0, size: 8, inserted_at: ~U[1970-01-01 00:00:00Z]}
+
+      _ ->
+        raise "GameServer.Tournaments.get_bracket/2 is a stub - only available at runtime on GameServer"
     end
   end
 
@@ -158,7 +201,7 @@ defmodule GameServer.Tournaments do
   def get_entry(_tournament_id, _leader_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: %GameServer.Tournaments.Entry{id: "", tournament_id: "", leader_id: "", seed: nil, bracket_index: nil, wins: 0, state: "registered", metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}
 
       _ ->
         raise "GameServer.Tournaments.get_entry/2 is a stub - only available at runtime on GameServer"
@@ -171,7 +214,7 @@ defmodule GameServer.Tournaments do
   def get_match(_match_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: %GameServer.Tournaments.Match{id: "", tournament_id: "", bracket_index: 0, round: 1, slot: 0, a_entry_id: nil, b_entry_id: nil, winner_entry_id: nil, ready_at: nil, expired_at: nil, resolved_at: nil, deadline: ~U[1970-01-01 00:00:00Z], metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}
 
       _ ->
         raise "GameServer.Tournaments.get_match/1 is a stub - only available at runtime on GameServer"
@@ -184,7 +227,7 @@ defmodule GameServer.Tournaments do
   def get_tournament(_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: %GameServer.Tournaments.Tournament{id: "", slug: "", title: "", description: "", state: "scheduled", registration_opens_at: nil, starts_at: nil, ends_at: nil, recur: nil, max_entries: nil, team_size: 1, bracket_size: 8, round_window_sec: 3600, deadline_policy: "forfeit_both", metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}
 
       _ ->
         raise "GameServer.Tournaments.get_tournament/1 is a stub - only available at runtime on GameServer"
@@ -214,7 +257,7 @@ defmodule GameServer.Tournaments do
   def get_tournament_by_slug(_slug) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: %GameServer.Tournaments.Tournament{id: "", slug: "", title: "", description: "", state: "scheduled", registration_opens_at: nil, starts_at: nil, ends_at: nil, recur: nil, max_entries: nil, team_size: 1, bracket_size: 8, round_window_sec: 3600, deadline_policy: "forfeit_both", metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}
 
       _ ->
         raise "GameServer.Tournaments.get_tournament_by_slug/1 is a stub - only available at runtime on GameServer"
@@ -233,7 +276,7 @@ defmodule GameServer.Tournaments do
   def join_tournament(_user, _tournament) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, nil}
+        {:ok, %GameServer.Tournaments.Entry{id: "", tournament_id: "", leader_id: "", seed: nil, bracket_index: nil, wins: 0, state: "registered", metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Tournaments.join_tournament/2 is a stub - only available at runtime on GameServer"
@@ -249,7 +292,7 @@ defmodule GameServer.Tournaments do
   def leave_tournament(_user, _tournament) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, nil}
+        {:ok, %GameServer.Tournaments.Tournament{id: "", slug: "", title: "", description: "", state: "scheduled", registration_opens_at: nil, starts_at: nil, ends_at: nil, recur: nil, max_entries: nil, team_size: 1, bracket_size: 8, round_window_sec: 3600, deadline_policy: "forfeit_both", metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Tournaments.leave_tournament/2 is a stub - only available at runtime on GameServer"
@@ -257,41 +300,62 @@ defmodule GameServer.Tournaments do
   end
 
 
-  @doc false
-  @spec list_brackets(Ecto.UUID.t()) :: [GameServer.Tournaments.Bracket.t()]
-  def list_brackets(_tournament_id) do
+  @doc ~S"""
+    Brackets for a tournament. Options: `:page`, `:page_size`.
+  """
+  @spec list_brackets(
+  Ecto.UUID.t(),
+  keyword()
+) :: [GameServer.Tournaments.Bracket.t()]
+  def list_brackets(_tournament_id, _opts) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
         []
 
       _ ->
-        raise "GameServer.Tournaments.list_brackets/1 is a stub - only available at runtime on GameServer"
+        raise "GameServer.Tournaments.list_brackets/2 is a stub - only available at runtime on GameServer"
     end
   end
 
 
-  @doc false
-  @spec list_entries(Ecto.UUID.t()) :: [GameServer.Tournaments.Entry.t()]
-  def list_entries(_tournament_id) do
+  @doc ~S"""
+    Entries for a tournament, oldest first (registration order = seed rank).
+    
+    Options: `:page`, `:page_size` (capped at 100), `:state`.
+    
+  """
+  @spec list_entries(
+  Ecto.UUID.t(),
+  keyword()
+) :: [GameServer.Tournaments.Entry.t()]
+  def list_entries(_tournament_id, _opts) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
         []
 
       _ ->
-        raise "GameServer.Tournaments.list_entries/1 is a stub - only available at runtime on GameServer"
+        raise "GameServer.Tournaments.list_entries/2 is a stub - only available at runtime on GameServer"
     end
   end
 
 
-  @doc false
-  @spec list_matches(Ecto.UUID.t()) :: [GameServer.Tournaments.Match.t()]
-  def list_matches(_tournament_id) do
+  @doc ~S"""
+    Matches for a tournament, bracket-major order.
+    
+    Options: `:bracket_index` (single bracket), `:bracket_indexes` (several).
+    
+  """
+  @spec list_matches(
+  Ecto.UUID.t(),
+  keyword()
+) :: [GameServer.Tournaments.Match.t()]
+  def list_matches(_tournament_id, _opts) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
         []
 
       _ ->
-        raise "GameServer.Tournaments.list_matches/1 is a stub - only available at runtime on GameServer"
+        raise "GameServer.Tournaments.list_matches/2 is a stub - only available at runtime on GameServer"
     end
   end
 
@@ -348,7 +412,7 @@ defmodule GameServer.Tournaments do
   def my_match(_tournament, _user_id) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        nil
+        if :erlang.phash2(make_ref(), 2) == 0, do: nil, else: %GameServer.Tournaments.Match{id: "", tournament_id: "", bracket_index: 0, round: 1, slot: 0, a_entry_id: nil, b_entry_id: nil, winner_entry_id: nil, ready_at: nil, expired_at: nil, resolved_at: nil, deadline: ~U[1970-01-01 00:00:00Z], metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}
 
       _ ->
         raise "GameServer.Tournaments.my_match/2 is a stub - only available at runtime on GameServer"
@@ -369,7 +433,7 @@ defmodule GameServer.Tournaments do
   def resolve_match(_match_id, _winner) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, nil}
+        {:ok, %GameServer.Tournaments.Match{id: "", tournament_id: "", bracket_index: 0, round: 1, slot: 0, a_entry_id: nil, b_entry_id: nil, winner_entry_id: nil, ready_at: nil, expired_at: nil, resolved_at: nil, deadline: ~U[1970-01-01 00:00:00Z], metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Tournaments.resolve_match/2 is a stub - only available at runtime on GameServer"
@@ -455,6 +519,30 @@ defmodule GameServer.Tournaments do
 
 
   @doc ~S"""
+    Aggregate counts for the admin dashboard.
+    
+    Four grouped/filtered queries, all index-backed (`tournaments.state`,
+    `tournament_entries.state`, and the partial `tournament_matches` index on
+    open matches).
+    
+  """
+  @spec stats() :: %{
+  tournaments: map(),
+  entries: map(),
+  matches: %{total: non_neg_integer(), open: non_neg_integer(), overdue: non_neg_integer()}
+}
+  def stats() do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Tournaments.stats/0 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Periodic driver, called by `GameServer.Tournaments.Ticker`. Runs every
     transition, match-ready firing, deadline sweep, and recurrence spawn that is
     due. Serialized cluster-wide so hooks fire once.
@@ -485,7 +573,7 @@ defmodule GameServer.Tournaments do
   def update_match_metadata(_match_id, _map) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, nil}
+        {:ok, %GameServer.Tournaments.Match{id: "", tournament_id: "", bracket_index: 0, round: 1, slot: 0, a_entry_id: nil, b_entry_id: nil, winner_entry_id: nil, ready_at: nil, expired_at: nil, resolved_at: nil, deadline: ~U[1970-01-01 00:00:00Z], metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Tournaments.update_match_metadata/2 is a stub - only available at runtime on GameServer"
@@ -499,7 +587,7 @@ defmodule GameServer.Tournaments do
   def update_tournament(_tournament, _attrs) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
-        {:ok, nil}
+        {:ok, %GameServer.Tournaments.Tournament{id: "", slug: "", title: "", description: "", state: "scheduled", registration_opens_at: nil, starts_at: nil, ends_at: nil, recur: nil, max_entries: nil, team_size: 1, bracket_size: 8, round_window_sec: 3600, deadline_policy: "forfeit_both", metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
 
       _ ->
         raise "GameServer.Tournaments.update_tournament/2 is a stub - only available at runtime on GameServer"

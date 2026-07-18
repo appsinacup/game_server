@@ -112,7 +112,18 @@ defmodule GameServer.TournamentsTest do
   describe "create_tournament/1" do
     test "validates bracket size and windows" do
       assert {:error, changeset} = Tournaments.create_tournament(%{})
-      assert %{slug: _, title: _, starts_at: _, round_window_sec: _} = errors_on(changeset)
+      assert %{slug: _, title: _, round_window_sec: _} = errors_on(changeset)
+
+      # nil starts_at = manual start; recurring tournaments need the anchor
+      assert {:error, changeset} =
+               Tournaments.create_tournament(%{
+                 slug: "recurring",
+                 title: "R",
+                 round_window_sec: 60,
+                 recur: "0 0 * * 6"
+               })
+
+      assert %{starts_at: _} = errors_on(changeset)
 
       now = DateTime.utc_now(:second)
 
@@ -399,6 +410,20 @@ defmodule GameServer.TournamentsTest do
   end
 
   describe "lifecycle & recurrence" do
+    test "nil starts_at stays in registration until an admin sets it (manual start)" do
+      tournament = create_tournament(%{starts_at: nil})
+      join_all(tournament, users(2))
+
+      assert Tournaments.advance_lifecycle(tournament).state == "registration"
+      Tournaments.tick()
+      assert Tournaments.get_tournament(tournament.id).state == "registration"
+
+      {:ok, tournament} =
+        Tournaments.update_tournament(tournament, %{starts_at: DateTime.utc_now(:second)})
+
+      assert Tournaments.advance_lifecycle(tournament).state == "running"
+    end
+
     test "scheduled -> registration transition happens lazily" do
       now = DateTime.utc_now(:second)
 
@@ -461,6 +486,89 @@ defmodule GameServer.TournamentsTest do
       assert Tournaments.bracket_rounds(8) == 3
       assert Tournaments.round_matches(8, 1) == 4
       assert Tournaments.round_matches(8, 3) == 1
+    end
+  end
+
+  describe "reopen_tournament/1" do
+    test "a cancelled tournament that was never drawn returns to registration" do
+      tournament = create_tournament()
+      join_all(tournament, users(2))
+      {:ok, cancelled} = Tournaments.cancel_tournament(tournament)
+      assert cancelled.state == "cancelled"
+
+      assert {:ok, reopened} = Tournaments.reopen_tournament(cancelled)
+      assert reopened.state == "registration"
+
+      # registration works again
+      assert {:ok, _} = Tournaments.join_tournament(AccountsFixtures.user_fixture(), reopened)
+    end
+
+    test "a cancelled tournament that was already drawn resumes running" do
+      tournament = create_tournament()
+      join_all(tournament, users(4))
+      tournament = draw!(tournament)
+      {:ok, cancelled} = Tournaments.cancel_tournament(tournament)
+
+      assert {:ok, reopened} = Tournaments.reopen_tournament(cancelled)
+      assert reopened.state == "running"
+      # the draw is preserved
+      assert length(Tournaments.list_matches(reopened.id)) == 3
+    end
+
+    test "only cancelled tournaments can be reopened" do
+      tournament = create_tournament()
+      assert {:error, :not_cancelled} = Tournaments.reopen_tournament(tournament)
+    end
+  end
+
+  describe "stats/0" do
+    test "counts tournaments, entries and matches by state" do
+      tournament = create_tournament()
+      join_all(tournament, users(3))
+      tournament = draw!(tournament)
+
+      # 3 entries in a bracket of 4: one round-1 bye resolves at the draw.
+      stats = Tournaments.stats()
+
+      assert stats.tournaments["running"] == 1
+      assert stats.entries["active"] == 3
+      assert stats.matches.total == 3
+      assert stats.matches.open == 2
+      assert stats.matches.overdue == 0
+
+      open =
+        Tournaments.list_matches(tournament.id)
+        |> Enum.find(&(&1.round == 1 and is_nil(&1.resolved_at)))
+
+      {:ok, _} = Tournaments.resolve_match(open.id, open.a_entry_id)
+
+      stats = Tournaments.stats()
+      assert stats.entries["eliminated"] == 1
+      assert stats.matches.open == 1
+    end
+
+    test "overdue counts unresolved matches past their deadline" do
+      tournament = create_tournament(%{round_window_sec: 600})
+      join_all(tournament, users(2))
+
+      # Deadlines anchor to starts_at, so a past start makes round 1 overdue.
+      {:ok, tournament} =
+        Tournaments.update_tournament(tournament, %{
+          starts_at: DateTime.add(DateTime.utc_now(:second), -3600, :second)
+        })
+
+      _ = Tournaments.advance_lifecycle(tournament)
+
+      stats = Tournaments.stats()
+      assert stats.matches.open == 1
+      assert stats.matches.overdue == 1
+    end
+
+    test "empty database reports zeroes" do
+      stats = Tournaments.stats()
+      assert stats.tournaments == %{}
+      assert stats.entries == %{}
+      assert stats.matches == %{total: 0, open: 0, overdue: 0}
     end
   end
 

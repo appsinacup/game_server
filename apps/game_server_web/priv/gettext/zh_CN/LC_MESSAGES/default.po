@@ -20,7 +20,6 @@ msgid "Actions"
 msgstr "操作"
 
 #: lib/game_server_web/live/user_live/login.ex:49
-#: lib/game_server_web/live/user_live/login.ex:55
 #: lib/game_server_web/live/user_live/login.ex:73
 #: lib/game_server_web/live/user_live/registration.ex:26
 #: lib/game_server_web/live/user_live/settings/account_tab.ex:36
@@ -119,6 +118,8 @@ msgstr "批准"
 
 #: lib/game_server_web/live/groups_live.ex:552
 #: lib/game_server_web/live/leaderboards_live.ex:196
+#: lib/game_server_web/live/tournaments_live.ex:312
+#: lib/game_server_web/live/tournaments_live.ex:440
 #: lib/game_server_web/live/user_live/settings/groups_tab.ex:64
 #, elixir-autogen, elixir-format
 msgid "Back"
@@ -580,12 +581,14 @@ msgid "Select a conversation"
 msgstr "选择一个会话"
 
 #: lib/game_server_web/live/leaderboards_live.ex:249
+#: lib/game_server_web/live/tournaments_live.ex:349
 #, elixir-autogen, elixir-format
 msgid "Newer"
 msgstr "较新"
 
 #: lib/game_server_web/live/chat_live.ex:204
 #: lib/game_server_web/live/leaderboards_live.ex:234
+#: lib/game_server_web/live/tournaments_live.ex:338
 #, elixir-autogen, elixir-format
 msgid "Older"
 msgstr "较早"
@@ -616,6 +619,7 @@ msgstr "加载中..."
 #: lib/game_server_web/live/lobby_live/index.ex:141
 #: lib/game_server_web/live/lobby_live/index.ex:161
 #: lib/game_server_web/live/lobby_live/index.ex:176
+#: lib/game_server_web/live/tournaments_live.ex:188
 #: lib/game_server_web/live/user_live/settings/account_tab.ex:496
 #: lib/game_server_web/live/user_live/settings/groups_tab.ex:1318
 #, elixir-autogen, elixir-format
@@ -769,8 +773,10 @@ msgstr "开放"
 #: lib/game_server_web/live/user_live/settings/groups_tab.ex:1261
 #: lib/game_server_web/live/user_live/settings/groups_tab.ex:1271
 #: lib/game_server_web/live/user_live/settings/payments_tab.ex:187
-#: lib/game_server_web/user_auth.ex:250 lib/game_server_web/user_auth.ex:273
-#: lib/game_server_web/user_auth.ex:291 lib/game_server_web/user_auth.ex:340
+#: lib/game_server_web/user_auth.ex:250
+#: lib/game_server_web/user_auth.ex:273
+#: lib/game_server_web/user_auth.ex:291
+#: lib/game_server_web/user_auth.ex:340
 #: lib/game_server_web/user_auth.ex:356
 #, elixir-autogen, elixir-format
 msgid "Failed"
@@ -944,9 +950,7 @@ msgstr "结账失败：%{reason}"
 
 #: lib/game_server_web/live/store_live/index.ex:222
 #, elixir-autogen, elixir-format
-msgid ""
-"Checkout is already open for this item. Finish or cancel that checkout "
-"first."
+msgid "Checkout is already open for this item. Finish or cancel that checkout first."
 msgstr "该商品已有正在进行的结账，请先完成或取消。"
 
 #: lib/game_server_web/live/store_live/index.ex:67
@@ -1210,3 +1214,126 @@ msgstr "用户名"
 #, elixir-autogen, elixir-format
 msgid "You already own this item."
 msgstr "你已拥有该物品。"
+
+#: lib/game_server_web/live/user_live/login.ex:55
+#, elixir-autogen, elixir-format
+msgid "Send magic link"
+msgstr "发送魔法链接"
+
+#: lib/game_server_web/live/tournaments_live.ex:165
+#: lib/game_server_web/live/tournaments_live.ex:376
+#: lib/game_server_web/live/tournaments_live.ex:444
+#, elixir-autogen, elixir-format
+msgid "Bracket"
+msgstr "对阵表"
+
+#: lib/game_server_web/live/tournaments_live.ex:360
+#, elixir-autogen, elixir-format
+msgid "Bracket size"
+msgstr "对阵表规模"
+
+#: lib/game_server_web/live/tournaments_live.ex:361
+#: lib/game_server_web/live/tournaments_live.ex:367
+#, elixir-autogen, elixir-format
+msgid "Brackets"
+msgstr "对阵表"
+
+#: lib/game_server_web/live/tournaments_live.ex:562
+#, elixir-autogen, elixir-format
+msgid "Cancelled"
+msgstr "已取消"
+
+#: lib/game_server_web/live/tournaments_live.ex:535
+#, elixir-autogen, elixir-format
+msgid "Final"
+msgstr "决赛"
+
+#: lib/game_server_web/live/tournaments_live.ex:561
+#, elixir-autogen, elixir-format
+msgid "Finished"
+msgstr "已结束"
+
+#: lib/game_server_web/live/tournaments_live.ex:390
+#, elixir-autogen, elixir-format
+msgid "No players registered yet."
+msgstr "暂无已报名玩家。"
+
+#: lib/game_server_web/live/tournaments_live.ex:289
+#, elixir-autogen, elixir-format
+msgid "No tournaments yet."
+msgstr "暂无锦标赛。"
+
+#: lib/game_server_web/live/tournaments_live.ex:182
+#: lib/game_server_web/live/tournaments_live.ex:514
+#, elixir-autogen, elixir-format
+msgid "Player"
+msgstr "玩家"
+
+#: lib/game_server_web/live/tournaments_live.ex:537
+#, elixir-autogen, elixir-format
+msgid "Quarterfinal"
+msgstr "四分之一决赛"
+
+#: lib/game_server_web/live/tournaments_live.ex:387
+#, elixir-autogen, elixir-format
+msgid "Registered players"
+msgstr "已报名玩家"
+
+#: lib/game_server_web/live/tournaments_live.ex:559
+#, elixir-autogen, elixir-format
+msgid "Registration open"
+msgstr "报名开放"
+
+#: lib/game_server_web/live/tournaments_live.ex:538
+#, elixir-autogen, elixir-format
+msgid "Round %{n}"
+msgstr "第 %{n} 轮"
+
+#: lib/game_server_web/live/tournaments_live.ex:560
+#, elixir-autogen, elixir-format
+msgid "Running"
+msgstr "进行中"
+
+#: lib/game_server_web/live/tournaments_live.ex:558
+#, elixir-autogen, elixir-format
+msgid "Scheduled"
+msgstr "已排期"
+
+#: lib/game_server_web/live/tournaments_live.ex:536
+#, elixir-autogen, elixir-format
+msgid "Semifinal"
+msgstr "半决赛"
+
+#: lib/game_server_web/live/tournaments_live.ex:322
+#, elixir-autogen, elixir-format
+msgid "Starts manually"
+msgstr "手动开始"
+
+#: lib/game_server_web/live/tournaments_live.ex:26
+#: lib/game_server_web/live/tournaments_live.ex:89
+#: lib/game_server_web/live/tournaments_live.ex:215
+#, elixir-autogen, elixir-format
+msgid "Tournaments"
+msgstr "锦标赛"
+
+#: lib/game_server_web/live/tournaments_live.ex:516
+#, elixir-autogen, elixir-format
+msgid "bye"
+msgstr "轮空"
+
+#: lib/game_server_web/live/tournaments_live.ex:381
+#, elixir-autogen, elixir-format
+msgid "matches decided"
+msgstr "场比赛已决出"
+
+#: lib/game_server_web/live/tournaments_live.ex:282
+#: lib/game_server_web/live/tournaments_live.ex:359
+#, elixir-autogen, elixir-format
+msgid "Players"
+msgstr "玩家"
+
+#: lib/game_server_web/live/tournaments_live.ex:378
+#: lib/game_server_web/live/tournaments_live.ex:447
+#, elixir-autogen, elixir-format
+msgid "Slots"
+msgstr "席位"

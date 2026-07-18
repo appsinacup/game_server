@@ -6,10 +6,9 @@ defmodule GameServer.Repo.Migrations.CreateTournamentTables do
       add :slug, :string, null: false
       add :title, :string, null: false
       add :description, :string, default: "", null: false
-      add :category, :string
       add :state, :string, default: "scheduled", null: false
       add :registration_opens_at, :utc_datetime
-      add :starts_at, :utc_datetime, null: false
+      add :starts_at, :utc_datetime
       add :ends_at, :utc_datetime
       add :recur, :string
       add :max_entries, :integer
@@ -24,7 +23,6 @@ defmodule GameServer.Repo.Migrations.CreateTournamentTables do
 
     create index(:tournaments, [:slug])
     create index(:tournaments, [:state])
-    create index(:tournaments, [:category])
 
     create table(:tournament_entries) do
       add :tournament_id, references(:tournaments, on_delete: :delete_all), null: false
@@ -40,6 +38,7 @@ defmodule GameServer.Repo.Migrations.CreateTournamentTables do
 
     create unique_index(:tournament_entries, [:tournament_id, :leader_id])
     create index(:tournament_entries, [:leader_id])
+    create index(:tournament_entries, [:state])
 
     create table(:tournament_brackets) do
       add :tournament_id, references(:tournaments, on_delete: :delete_all), null: false
@@ -70,6 +69,8 @@ defmodule GameServer.Repo.Migrations.CreateTournamentTables do
 
     create unique_index(:tournament_matches, [:tournament_id, :bracket_index, :round, :slot])
     create index(:tournament_matches, [:tournament_id])
-    create index(:tournament_matches, [:deadline])
+
+    # Sweeps and dashboards only ever look at open matches.
+    create index(:tournament_matches, [:deadline], where: "resolved_at IS NULL")
   end
 end

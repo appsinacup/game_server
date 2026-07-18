@@ -221,6 +221,7 @@ defmodule GameServerWeb.Router.Shared do
 
         get "/tournaments", TournamentController, :index
         get "/tournaments/:id/standings", TournamentController, :standings
+        get "/tournaments/:id/entries", TournamentController, :entries
         get "/tournaments/:id/bracket", TournamentController, :bracket
       end
 
@@ -438,6 +439,7 @@ defmodule GameServerWeb.Router.Shared do
         patch "/tournaments/:id", TournamentController, :update
         delete "/tournaments/:id", TournamentController, :delete
         post "/tournaments/:id/cancel", TournamentController, :cancel
+        post "/tournaments/:id/reopen", TournamentController, :reopen
         post "/tournaments/:id/draw", TournamentController, :draw
         post "/tournaments/:id/finish", TournamentController, :finish
         post "/tournaments/:id/matches/:match_id/resolve", TournamentController, :resolve_match
@@ -602,6 +604,9 @@ defmodule GameServerWeb.Router.Shared do
           live "/groups", GroupsLive, :index
           live "/groups/:id", GroupsLive, :show
           live "/achievements", AchievementsLive, :index
+          live "/tournaments", TournamentsLive, :index
+          live "/tournaments/:id", TournamentsLive, :show
+          live "/tournaments/:id/brackets/:index", TournamentsLive, :bracket
           live "/leaderboards", LeaderboardsLive, :index
           live "/leaderboards/:slug/:id", LeaderboardsLive, :show
           live "/leaderboards/:slug", LeaderboardsLive, :show_active

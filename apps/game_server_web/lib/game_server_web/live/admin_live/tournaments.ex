@@ -114,13 +114,16 @@ defmodule GameServerWeb.AdminLive.Tournaments do
               <.input field={@form[:slug]} label="Slug" />
               <.input field={@form[:title]} label="Title" />
               <.input field={@form[:description]} label="Description" />
-              <.input field={@form[:category]} label="Category (optional)" />
               <.input
                 field={@form[:registration_opens_at]}
                 type="datetime-local"
                 label="Registration opens (optional; empty = immediately)"
               />
-              <.input field={@form[:starts_at]} type="datetime-local" label="Starts at (draw)" />
+              <.input
+                field={@form[:starts_at]}
+                type="datetime-local"
+                label="Starts at (draw; empty = start manually via Draw now)"
+              />
               <.input
                 field={@form[:ends_at]}
                 type="datetime-local"
@@ -193,13 +196,20 @@ defmodule GameServerWeb.AdminLive.Tournaments do
                 >
                   Cancel
                 </button>
+                <button
+                  :if={@detail.tournament.state == "cancelled"}
+                  phx-click="force_reopen"
+                  class="btn btn-sm btn-outline"
+                >
+                  Reopen
+                </button>
                 <button phx-click="close_detail" class="btn btn-sm">Close</button>
               </div>
             </div>
 
             <div>
               <h4 class="font-semibold text-sm mb-1">
-                Entries ({length(@detail.entries)})
+                Entries ({@detail.entry_count})
               </h4>
               <div class="overflow-x-auto">
                 <table class="table table-xs">
@@ -214,7 +224,7 @@ defmodule GameServerWeb.AdminLive.Tournaments do
                   </thead>
                   <tbody>
                     <tr :for={entry <- @detail.entries}>
-                      <td class="font-mono text-xs">{entry.leader_id}</td>
+                      <td class="text-xs">{Map.get(@detail.names, entry.leader_id, entry.leader_id)}</td>
                       <td>{entry.state}</td>
                       <td>{entry.bracket_index}</td>
                       <td>{entry.seed}</td>
@@ -225,13 +235,56 @@ defmodule GameServerWeb.AdminLive.Tournaments do
               </div>
             </div>
 
+            <div :if={@detail.entry_pages > 1} class="flex items-center gap-2">
+              <button
+                phx-click="detail_prev"
+                class="btn btn-xs"
+                disabled={@detail.entry_page <= 1}
+              >
+                Prev
+              </button>
+              <span class="text-xs">Page {@detail.entry_page} of {@detail.entry_pages}</span>
+              <button
+                phx-click="detail_next"
+                class="btn btn-xs"
+                disabled={@detail.entry_page >= @detail.entry_pages}
+              >
+                Next
+              </button>
+            </div>
+
+            <div :if={@detail.brackets != []} class="flex items-center gap-2 flex-wrap">
+              <span class="text-sm font-semibold">Brackets:</span>
+              <button
+                :for={b <- @detail.brackets}
+                phx-click="select_bracket"
+                phx-value-index={b.index}
+                class={[
+                  "btn btn-xs",
+                  if(@detail.selected_bracket == b.index, do: "btn-primary", else: "btn-outline")
+                ]}
+              >
+                {b.index + 1} ({b.size})
+              </button>
+              <.link
+                :if={@detail.selected_bracket != nil}
+                navigate={
+                  ~p"/tournaments/#{@detail.tournament.id}/brackets/#{@detail.selected_bracket}"
+                }
+                class="btn btn-xs btn-outline"
+              >
+                View bracket tree →
+              </.link>
+            </div>
+
             <div :if={@detail.matches != []}>
-              <h4 class="font-semibold text-sm mb-1">Matches</h4>
+              <h4 class="font-semibold text-sm mb-1">
+                Matches — bracket {(@detail.selected_bracket || 0) + 1}
+              </h4>
               <div class="overflow-x-auto">
                 <table class="table table-xs">
                   <thead>
                     <tr>
-                      <th>Bracket</th>
                       <th>Round</th>
                       <th>Slot</th>
                       <th>A</th>
@@ -243,12 +296,11 @@ defmodule GameServerWeb.AdminLive.Tournaments do
                   </thead>
                   <tbody>
                     <tr :for={match <- @detail.matches}>
-                      <td>{match.bracket_index}</td>
                       <td>{match.round}</td>
                       <td>{match.slot}</td>
-                      <td class="font-mono text-xs">{leader_of(@detail, match.a_entry_id)}</td>
-                      <td class="font-mono text-xs">{leader_of(@detail, match.b_entry_id)}</td>
-                      <td class="font-mono text-xs">
+                      <td class="text-xs">{leader_of(@detail, match.a_entry_id)}</td>
+                      <td class="text-xs">{leader_of(@detail, match.b_entry_id)}</td>
+                      <td class="text-xs">
                         {if match.winner_entry_id,
                           do: leader_of(@detail, match.winner_entry_id),
                           else: if(match.resolved_at, do: "no winner", else: "—")}
@@ -407,6 +459,27 @@ defmodule GameServerWeb.AdminLive.Tournaments do
     with_detail(socket, &Tournaments.cancel_tournament/1)
   end
 
+  def handle_event("detail_prev", _params, socket) do
+    d = socket.assigns.detail
+    {:noreply, load_detail(socket, d.tournament.id, max(d.entry_page - 1, 1))}
+  end
+
+  def handle_event("detail_next", _params, socket) do
+    d = socket.assigns.detail
+    {:noreply, load_detail(socket, d.tournament.id, min(d.entry_page + 1, d.entry_pages))}
+  end
+
+  def handle_event("select_bracket", %{"index" => index}, socket) do
+    d = socket.assigns.detail
+    index = String.to_integer(index)
+    socket = assign(socket, :detail, Map.put(d, :selected_bracket, index))
+    {:noreply, load_detail(socket, d.tournament.id, d.entry_page)}
+  end
+
+  def handle_event("force_reopen", _params, socket) do
+    with_detail(socket, &Tournaments.reopen_tournament/1)
+  end
+
   def handle_event("force_resolve", %{"match" => match_id, "winner" => winner}, socket) do
     verdict = if winner == "no_winner", do: :no_winner, else: winner
 
@@ -436,23 +509,87 @@ defmodule GameServerWeb.AdminLive.Tournaments do
     |> assign(:count, Tournaments.count_tournaments(Keyword.drop(opts, [:page, :page_size])))
   end
 
-  defp load_detail(socket, id) do
+  @detail_page_size 25
+
+  defp load_detail(socket, id, page \\ 1) do
     case Tournaments.get_tournament(id) do
       nil ->
         put_flash(socket, :error, "Not found")
 
       tournament ->
+        entry_count = Tournaments.count_entries(tournament.id)
+
+        entries =
+          Tournaments.list_entries(tournament.id, page: page, page_size: @detail_page_size)
+
+        brackets = Tournaments.list_brackets(tournament.id)
+
+        # Matches are shown per bracket so a large field stays readable; the
+        # bracket tree itself lives on the public page.
+        selected_bracket =
+          socket.assigns[:detail][:selected_bracket] ||
+            (List.first(brackets) && List.first(brackets).index)
+
+        matches =
+          if selected_bracket,
+            do: Tournaments.list_matches(tournament.id, bracket_index: selected_bracket),
+            else: []
+
+        names =
+          (Enum.map(entries, & &1.leader_id) ++
+             Enum.flat_map(matches, &[&1.a_entry_id, &1.b_entry_id, &1.winner_entry_id]))
+          |> Enum.reject(&is_nil/1)
+          |> Enum.uniq()
+          |> entry_names(tournament.id)
+
         assign(socket, :detail, %{
           tournament: tournament,
-          entries: Tournaments.list_entries(tournament.id),
-          matches: Tournaments.list_matches(tournament.id)
+          entries: entries,
+          entry_count: entry_count,
+          entry_page: page,
+          entry_pages: ceil_div(entry_count, @detail_page_size),
+          brackets: brackets,
+          selected_bracket: selected_bracket,
+          matches: matches,
+          names: names
         })
     end
   end
 
+  # Maps both entry ids and user ids to a display label, so match rows and
+  # entry rows can share one lookup.
+  defp entry_names(ids, tournament_id) do
+    entries = Tournaments.entries_by_id(tournament_id, ids)
+
+    leader_labels =
+      entries
+      |> Map.values()
+      |> Enum.map(& &1.leader_id)
+      |> Enum.concat(ids)
+      |> Enum.uniq()
+      |> Map.new(fn user_id -> {user_id, user_label(user_id)} end)
+
+    Map.new(entries, fn {entry_id, entry} ->
+      {entry_id, Map.get(leader_labels, entry.leader_id, entry.leader_id)}
+    end)
+    |> Map.merge(leader_labels)
+  end
+
+  defp user_label(user_id) do
+    case GameServer.Accounts.get_user(user_id) do
+      %{display_name: name} when is_binary(name) and name != "" -> name
+      %{username: username} when is_binary(username) and username != "" -> username
+      %{email: email} when is_binary(email) and email != "" -> email
+      _ -> user_id
+    end
+  end
+
+  defp ceil_div(_num, 0), do: 0
+  defp ceil_div(num, den), do: div(num + den - 1, den)
+
   defp refresh_detail(socket) do
     case socket.assigns.detail do
-      %{tournament: %{id: id}} -> load_detail(socket, id)
+      %{tournament: %{id: id}} = d -> load_detail(socket, id, d[:entry_page] || 1)
       _ -> socket
     end
   end
@@ -471,11 +608,10 @@ defmodule GameServerWeb.AdminLive.Tournaments do
     end
   end
 
+  defp leader_of(_detail, nil), do: "—"
+
   defp leader_of(detail, entry_id) do
-    case Enum.find(detail.entries, &(&1.id == entry_id)) do
-      nil -> "—"
-      entry -> entry.leader_id
-    end
+    Map.get(detail.names, entry_id, "—")
   end
 
   defp state_badge(state) do
