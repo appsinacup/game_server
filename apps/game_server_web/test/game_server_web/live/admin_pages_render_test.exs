@@ -21,11 +21,13 @@ defmodule GameServerWeb.AdminPagesRenderTest do
     {"/admin/lobbies", "Lobbies"},
     {"/admin/leaderboards", "Leaderboards"},
     {"/admin/tournaments", "Tournaments"},
+    {"/admin/matchmaking", "Matchmaking"},
     {"/admin/users", "Users"},
     {"/admin/sessions", "Sessions"},
     {"/admin/notifications", "Notifications"},
     {"/admin/groups", "Groups"},
     {"/admin/parties", "Parties"},
+    {"/admin/blacklist", "Blacklist"},
     {"/admin/chat", "Chat"},
     {"/admin/achievements", "Achievements"},
     {"/admin/payments", "Payments"},
@@ -86,13 +88,15 @@ defmodule GameServerWeb.AdminPagesRenderTest do
   @seeded_routes [
     {"/admin/lobbies", "Lobbies"},
     {"/admin/parties", "Parties"},
+    {"/admin/blacklist", "Blacklist"},
     {"/admin/groups", "Groups"},
     {"/admin/leaderboards", "Leaderboards"},
     {"/admin/achievements", "Achievements"},
     {"/admin/payments", "Payments"},
     {"/admin/kv", "KV"},
     {"/admin/notifications", "Notifications"},
-    {"/admin/users", "Users"}
+    {"/admin/users", "Users"},
+    {"/admin/matchmaking", "Matchmaking"}
   ]
 
   defp seed_data(admin) do
@@ -113,6 +117,12 @@ defmodule GameServerWeb.AdminPagesRenderTest do
 
     # Party (requires friendship for invite, so just create with leader)
     {:ok, _party} = GameServer.Parties.create_party(admin, %{max_size: 4})
+
+    # Matchmaking ticket
+    {:ok, _ticket} = GameServer.Matchmaking.join(other, %{"mode" => "seeded"})
+
+    # Blacklist entry
+    {:ok, _block} = GameServer.Friends.block_user(admin, other.id)
 
     # Leaderboard with a score
     {:ok, lb} =

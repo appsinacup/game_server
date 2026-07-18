@@ -354,4 +354,73 @@ defmodule GameServerWeb.Api.V1.FriendControllerTest do
     resp = post(conn_c, "/api/v1/friends/#{f.id}/block")
     assert resp.status == 403
   end
+
+  describe "blacklisting a user by user id" do
+    setup %{conn: conn} do
+      a = AccountsFixtures.user_fixture()
+      b = AccountsFixtures.user_fixture()
+      {:ok, token, _} = Guardian.encode_and_sign(a)
+
+      %{conn: put_req_header(conn, "authorization", "Bearer " <> token), a: a, b: b}
+    end
+
+    test "block then unblock a user with no prior friendship", %{conn: conn, a: a, b: b} do
+      assert post(conn, "/api/v1/users/#{b.id}/block").status == 200
+      assert Friends.blocked?(a.id, b.id)
+
+      assert post(conn, "/api/v1/users/#{b.id}/unblock").status == 200
+      refute Friends.blocked?(a.id, b.id)
+    end
+
+    test "blocking yourself is rejected", %{conn: conn, a: a} do
+      resp = post(conn, "/api/v1/users/#{a.id}/block")
+
+      assert resp.status == 400
+      assert json_response(resp, 400)["error"] == "cannot_block_self"
+    end
+
+    test "unblocking a user who was never blocked is 404", %{conn: conn, b: b} do
+      assert post(conn, "/api/v1/users/#{b.id}/unblock").status == 404
+    end
+
+    test "requires auth" do
+      b = AccountsFixtures.user_fixture()
+
+      assert build_conn() |> post("/api/v1/users/#{b.id}/block") |> Map.get(:status) == 401
+    end
+
+    test "GET /me/blacklist returns the blocked users themselves", %{conn: conn, b: b} do
+      c = AccountsFixtures.user_fixture()
+
+      assert post(conn, "/api/v1/users/#{b.id}/block").status == 200
+      assert post(conn, "/api/v1/users/#{c.id}/block").status == 200
+
+      resp = json_response(get(conn, "/api/v1/me/blacklist"), 200)
+
+      assert Enum.sort(Enum.map(resp["data"], & &1["id"])) == Enum.sort([b.id, c.id])
+      assert resp["meta"]["total_count"] == 2
+
+      # unblocking drops it from the list
+      post(conn, "/api/v1/users/#{b.id}/unblock")
+      resp = json_response(get(conn, "/api/v1/me/blacklist"), 200)
+      assert Enum.map(resp["data"], & &1["id"]) == [c.id]
+    end
+
+    test "GET /me/blacklist paginates", %{conn: conn} do
+      for _ <- 1..3 do
+        target = AccountsFixtures.user_fixture()
+        post(conn, "/api/v1/users/#{target.id}/block")
+      end
+
+      resp = json_response(get(conn, "/api/v1/me/blacklist?page=1&page_size=2"), 200)
+
+      assert length(resp["data"]) == 2
+      assert resp["meta"]["total_count"] == 3
+      assert resp["meta"]["has_more"] == true
+    end
+
+    test "GET /me/blacklist requires auth" do
+      assert build_conn() |> get("/api/v1/me/blacklist") |> Map.get(:status) == 401
+    end
+  end
 end

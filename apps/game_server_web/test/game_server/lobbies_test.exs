@@ -69,6 +69,53 @@ defmodule GameServer.LobbiesTest do
       assert {:error, :full} = Lobbies.join_lobby(user3, lobby)
     end
 
+    test "locked lobby rejects joins unless bypass_lock is set", %{host: host, other: other} do
+      {:ok, lobby} =
+        Lobbies.create_lobby(%{title: "locked-room", host_id: host.id, is_locked: true})
+
+      assert {:error, :locked} = Lobbies.join_lobby(other, lobby)
+
+      assert {:ok, joined} = Lobbies.join_lobby(other, lobby, %{bypass_lock: true})
+      assert joined.lobby_id == lobby.id
+    end
+
+    test "bypass_lock still respects capacity", %{host: host, other: other} do
+      {:ok, lobby} =
+        Lobbies.create_lobby(%{
+          title: "locked-full",
+          host_id: host.id,
+          max_users: 1,
+          is_locked: true
+        })
+
+      assert {:error, :full} = Lobbies.join_lobby(other, lobby, %{bypass_lock: true})
+    end
+
+    test "bypass_lock works as a keyword list too", %{host: host, other: other} do
+      {:ok, lobby} =
+        Lobbies.create_lobby(%{title: "kw-locked", host_id: host.id, is_locked: true})
+
+      assert {:ok, _} = Lobbies.join_lobby(other, lobby, bypass_lock: true)
+    end
+
+    test "blocked users cannot join the same lobby", %{host: host, other: other} do
+      {:ok, _} = GameServer.Friends.block_user(host, other.id)
+
+      {:ok, lobby} = Lobbies.create_lobby(%{title: "blocked-room", host_id: host.id})
+
+      assert {:error, :blocked} = Lobbies.join_lobby(other, lobby)
+    end
+
+    test "bypass_lock is not a way around a block", %{host: host, other: other} do
+      # `other` is the blocker here, so this also covers the reverse direction
+      {:ok, _} = GameServer.Friends.block_user(other, host.id)
+
+      {:ok, locked} =
+        Lobbies.create_lobby(%{title: "blocked-locked", host_id: host.id, is_locked: true})
+
+      assert {:error, :blocked} = Lobbies.join_lobby(other, locked, %{bypass_lock: true})
+    end
+
     test "password-protected join", %{host: host, other: other} do
       pw = "secret"
       phash = Bcrypt.hash_pwd_salt(pw)

@@ -95,7 +95,20 @@ defmodule GameServer.Limits do
     max_tournament_slug: 100,
     # Hard cap on a tournament's own max_entries setting.
     max_tournament_entries: 10_000,
-    max_tournament_bracket_size: 256
+    max_tournament_bracket_size: 256,
+
+    # ── Matchmaking ─────────────────────────────────────────
+    # Hard cap on a ticket's own max_players setting.
+    max_matchmaking_players: 64,
+    # Serialized byte size of a ticket's match_params map.
+    max_matchmaking_params_size: 2_048,
+    # How long the oldest ticket waits before a below-max group still forms.
+    matchmaking_timeout_ms: 30_000,
+    # Sweep interval of the matchmaking worker.
+    matchmaking_tick_ms: 3_000,
+    # Grace period before an offline player's ticket is pruned. Long enough
+    # that a brief disconnect does not cost a queue position.
+    matchmaking_offline_grace_ms: 300_000
   }
 
   @doc """

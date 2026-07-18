@@ -188,7 +188,7 @@ var result = await webrtc.call_hook("my_plugin", "my_func", [1, 2])</pre>
         <li>
           <strong>{doc_text("Request ids")}</strong>
           — {doc_text(
-            "protobuf RPC calls carry an id echoed in the reply, so concurrent calls — including to the same function — are correlated safely. The legacy JSON protocol matches replies by plugin+fn, so concurrent calls to the same function must be serialized by the caller."
+            "protobuf RPC calls carry an id echoed in the reply, so concurrent calls — including to the same function — are correlated safely. The JSON protocol, which is the default, matches replies by plugin+fn instead, so concurrent calls to the same function must be serialized by the caller."
           )}
         </li>
         <li>

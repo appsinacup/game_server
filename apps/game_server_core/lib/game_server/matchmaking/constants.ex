@@ -7,7 +7,7 @@ defmodule GameServer.Matchmaking.Constants do
   @status_matched "matched"
   @status_cancelled "cancelled"
 
-  @event_found "matchmaking:found"
+  @event_found "matchmaking_found"
 
   @doc "Status for a ticket that is waiting for a match."
   def status_queued, do: @status_queued

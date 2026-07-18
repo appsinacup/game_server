@@ -194,7 +194,7 @@ static func decode_rpc_reply(data: PackedByteArray) -> Variant:
 
 
 #
-# Message -> Dictionary converters (delta-aware: absent fields stay absent)
+# Message -> Dictionary converters (unset proto fields are omitted from the dict)
 #
 
 static func _decode(msg, data: PackedByteArray, to_dict: Callable) -> Variant:

@@ -142,6 +142,9 @@ end</code></pre>
             {doc_text(
               "Tournaments have their own hook family (before/after_tournament_register, before_tournament_leave, tournament_match_ready, tournament_match_expired, before_tournament_result, after_tournament_match, after_tournament_finished) — see the Tournaments guide for the match resolution contract."
             )}
+            {doc_text(
+              "Matchmaking has its own family too (before_matchmaking_join, after_matchmaking_join, after_matchmaking_cancel, matchmaking_form_matches, after_matchmaking_matched) — see the Matchmaking guide. matchmaking_form_matches/2 is the one hook that replaces built-in logic rather than gating it: it hands you a whole queue bucket and lets you group it yourself."
+            )}
           </p>
         </div>
       </div>
@@ -195,6 +198,27 @@ end</code></pre>
             <pre><code class="language-elixir" phx-no-curly-interpolation>curl -X POST https://your-game-server.com/api/v1/hooks/call \
 -d '{"plugin":"polyglot_hook","fn":"hello_world","args":["Alice"]}'</code></pre>
           </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <h4 class="font-semibold">{doc_text("Server-only privileges")}</h4>
+        <div class="ml-6 mt-2 space-y-2">
+          <p>
+            {doc_text(
+              "A few domain functions accept options that the HTTP and channel surfaces never pass, so they are reachable only from server-side code. The main one is seating a player in a locked lobby:"
+            )}
+          </p>
+
+          <div class="bg-base-300 p-4 rounded-lg font-mono text-sm">
+            <pre><code class="language-elixir" phx-no-curly-interpolation># Join succeeds even though the lobby is locked
+GameServer.Lobbies.join_lobby(user, lobby_id, %{bypass_lock: true})</code></pre>
+          </div>
+          <p class="text-sm text-base-content/80">
+            {doc_text(
+              "Useful for reconnects, admin tooling, or seating a late player into a match already in progress. Capacity and blacklist checks still apply — bypass_lock only skips the lock, so it cannot be used to overfill a lobby or to put two players who blocked each other together."
+            )}
+          </p>
         </div>
       </div>
 

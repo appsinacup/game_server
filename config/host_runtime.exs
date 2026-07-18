@@ -70,7 +70,17 @@ _limit_overrides =
     :max_kv_entries_per_user,
     :max_leaderboard_title,
     :max_leaderboard_description,
-    :max_leaderboard_slug
+    :max_leaderboard_slug,
+    :max_tournament_title,
+    :max_tournament_description,
+    :max_tournament_slug,
+    :max_tournament_entries,
+    :max_tournament_bracket_size,
+    :max_matchmaking_players,
+    :max_matchmaking_params_size,
+    :matchmaking_timeout_ms,
+    :matchmaking_tick_ms,
+    :matchmaking_offline_grace_ms
   ]
   |> Enum.reduce([], fn key, acc ->
     env_name = "LIMIT_#{key |> Atom.to_string() |> String.upcase()}"

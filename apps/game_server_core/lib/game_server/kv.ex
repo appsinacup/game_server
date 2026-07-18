@@ -295,6 +295,45 @@ defmodule GameServer.KV do
   end
 
   @doc """
+  Delete every entry a user holds inside one lobby.
+
+  Called when a user stops being a member of a lobby, so per-member lobby state
+  (ready flags, loadouts, character picks) does not survive a leave and rejoin.
+  Entries scoped to the lobby alone, or to the user alone, are left untouched.
+
+  Returns the number of entries deleted.
+  """
+  @spec delete_user_lobby_entries(Ecto.UUID.t(), Ecto.UUID.t()) :: non_neg_integer()
+  def delete_user_lobby_entries(user_id, lobby_id)
+      when is_binary(user_id) and is_binary(lobby_id) do
+    # The per-entry cache is keyed by key name, so the keys must be read before
+    # the rows are deleted.
+    keys =
+      Entry
+      |> where([e], e.user_id == ^user_id and e.lobby_id == ^lobby_id)
+      |> select([e], e.key)
+      |> Repo.all()
+
+    if keys == [] do
+      0
+    else
+      {count, _} =
+        Entry
+        |> where([e], e.user_id == ^user_id and e.lobby_id == ^lobby_id)
+        |> Repo.delete_all()
+
+      Enum.each(keys, fn key ->
+        _ = GameServer.Cache.invalidate(cache_key(key, user_id, lobby_id))
+        _ = broadcast_kv_deleted(key, user_id, lobby_id)
+      end)
+
+      _ = invalidate_entries_cache(user_id, lobby_id)
+
+      count
+    end
+  end
+
+  @doc """
   List key/value entries with optional pagination and filtering.
 
   Supported options: `:page`, `:page_size`, `:user_id`, `:lobby_id`, `:global_only`,

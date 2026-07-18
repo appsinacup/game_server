@@ -385,10 +385,24 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc false
+  @doc ~S"""
+    Join a user to a lobby.
+    
+    ## Options
+    
+      * `:password` - password for a password-protected lobby
+      * `:bypass_lock` - when `true`, join succeeds even if the lobby is locked.
+        Only set this from trusted server-side code; the HTTP and channel
+        surfaces never pass it, so players cannot unlock a lobby themselves.
+    
+    Returns `{:ok, user}` with the updated user, or `{:error, reason}` where
+    reason is one of `:already_in_lobby`, `:locked`, `:full`, `:blocked`,
+    `:password_required`, `:invalid_password`, `:invalid_lobby`.
+    
+  """
   @spec join_lobby(GameServer.Accounts.User.t(), GameServer.Lobbies.Lobby.t() | Ecto.UUID.t()) ::
   {:ok, GameServer.Accounts.User.t()} | {:error, term()}
-  def join_lobby(_user, _lobby) do
+  def join_lobby(_user, _lobby_arg) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
         {:ok, %GameServer.Accounts.User{id: 0, email: "", display_name: nil, metadata: %{}, is_admin: false, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
@@ -399,7 +413,21 @@ defmodule GameServer.Lobbies do
   end
 
 
-  @doc false
+  @doc ~S"""
+    Join a user to a lobby.
+    
+    ## Options
+    
+      * `:password` - password for a password-protected lobby
+      * `:bypass_lock` - when `true`, join succeeds even if the lobby is locked.
+        Only set this from trusted server-side code; the HTTP and channel
+        surfaces never pass it, so players cannot unlock a lobby themselves.
+    
+    Returns `{:ok, user}` with the updated user, or `{:error, reason}` where
+    reason is one of `:already_in_lobby`, `:locked`, `:full`, `:blocked`,
+    `:password_required`, `:invalid_password`, `:invalid_lobby`.
+    
+  """
   @spec join_lobby(
   GameServer.Accounts.User.t(),
   GameServer.Lobbies.Lobby.t() | Ecto.UUID.t(),

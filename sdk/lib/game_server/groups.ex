@@ -238,7 +238,7 @@ defmodule GameServer.Groups do
 
 
   @doc ~S"""
-    Count members in a group.
+    Count members in a group. Accepts the same `:search` option as the listing.
   """
   @spec count_group_members(Ecto.UUID.t()) :: non_neg_integer()
   def count_group_members(_group_id) do
@@ -248,6 +248,24 @@ defmodule GameServer.Groups do
 
       _ ->
         raise "GameServer.Groups.count_group_members/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Count members in a group. Accepts the same `:search` option as the listing.
+  """
+  @spec count_group_members(
+  Ecto.UUID.t(),
+  keyword()
+) :: non_neg_integer()
+  def count_group_members(_group_id, _opts) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Groups.count_group_members/2 is a stub - only available at runtime on GameServer"
     end
   end
 
@@ -500,6 +518,9 @@ defmodule GameServer.Groups do
 
   @doc ~S"""
     Get paginated members of a group with user info.
+    
+    Pass `:search` to filter by member name (display name or username).
+    
   """
   @spec get_group_members_paginated(
   Ecto.UUID.t(),

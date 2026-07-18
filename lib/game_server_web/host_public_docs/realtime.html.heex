@@ -243,7 +243,8 @@ GamendProto.register_meta_schema("user", MyGamePb.UserMeta)</pre>
                                         tournament_updated,
                                         tournament_match_ready,
                                         tournament_match_resolved,
-                                        tournament_finished
+                                        tournament_finished,
+                                        matchmaking_found
   LobbyChannel      "lobby:{id}"        updated, user_joined, user_left,
                                         user_kicked, host_changed,
                                         member_online, member_offline,
@@ -323,6 +324,13 @@ GamendProto.register_meta_schema("user", MyGamePb.UserMeta)</pre>
               <td>{doc_text("Subscribed KV entry changed (see kv:subscribe)")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
                 {key, user_id, lobby_id, data, metadata} / {key, user_id, lobby_id}
+              </td>
+            </tr>
+            <tr>
+              <td class="font-mono">matchmaking_found</td>
+              <td>{doc_text("The user's matchmaking ticket matched into a lobby")}</td>
+              <td class="font-mono" phx-no-curly-interpolation>
+                {lobby_id, match_params}
               </td>
             </tr>
             <tr>
@@ -444,14 +452,18 @@ GamendProto.register_meta_schema("user", MyGamePb.UserMeta)</pre>
             </tr>
             <tr>
               <td class="font-mono">friend_blocked</td>
-              <td>{doc_text("User blocked")}</td>
+              <td>
+                {doc_text(
+                  "User blacklisted (any user, friendship or not); target_id is the blocker"
+                )}
+              </td>
               <td class="font-mono" phx-no-curly-interpolation>
                 {id, requester_id, target_id, status}
               </td>
             </tr>
             <tr>
               <td class="font-mono">friend_unblocked</td>
-              <td>{doc_text("User unblocked")}</td>
+              <td>{doc_text("Block lifted; the friendship row is deleted")}</td>
               <td class="font-mono" phx-no-curly-interpolation>
                 {id, requester_id, target_id, status}
               </td>

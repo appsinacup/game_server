@@ -262,7 +262,7 @@ is_locked: true
 await lobbiesApi.kickUser(123);
 console.log('User kicked from lobby');</code></pre>
           </div>
-          <h4 class="font-semibold mt-4">{doc_text("Friends")}</h4>
+          <h4 class="font-semibold mt-4">{doc_text("Friends & Blacklist")}</h4>
           <div class="bg-base-200 p-4 rounded-lg">
             <pre class="text-sm text-wrap"><code class="language-javascript" phx-no-curly-interpolation>    // Send a friend request
 const { FriendsApi } = require('@ughuuu/game_server');
@@ -273,6 +273,15 @@ await friendsApi.create({ target_user_id: someOtherUserId });
 // List my friends
 const friends = await friendsApi.listFriends();
 console.log('Friends:', friends);
+
+// Blacklist a player — no prior friendship needed. Blocked players are kept
+// out of each other's matches and lobbies, and cannot invite or DM each other.
+await friendsApi.blockUser(someOtherUserId);
+
+// List and lift blocks
+const blocked = await friendsApi.listBlacklistedUsers();
+console.log('Blocked:', blocked);
+await friendsApi.unblockUser(someOtherUserId);
 
 // Subscribe to real-time friend events via phoenix channels on socket
 const socket = new Socket('/socket', { params: { token: accessToken } });

@@ -18,7 +18,8 @@ defmodule GameServerWeb.Api.V1.PublicListingGatesTest do
     "LIST_LOBBIES_ENABLED",
     "LIST_GROUPS_ENABLED",
     "LIST_LEADERBOARDS_ENABLED",
-    "LIST_ACHIEVEMENTS_ENABLED"
+    "LIST_ACHIEVEMENTS_ENABLED",
+    "LIST_MATCHMAKING_ENABLED"
   ]
 
   setup do
@@ -59,6 +60,20 @@ defmodule GameServerWeb.Api.V1.PublicListingGatesTest do
       assert {:error, %{reason: "listing_disabled"}} =
                connect_user_socket()
                |> subscribe_and_join(GameServerWeb.LobbiesChannel, "lobbies")
+    end
+  end
+
+  describe "LIST_MATCHMAKING_ENABLED=false" do
+    test "GET /matchmaking/stats returns 404; own-ticket endpoints stay", %{conn: conn} do
+      user = AccountsFixtures.user_fixture()
+      {:ok, token, _} = Guardian.encode_and_sign(user)
+      authed = Plug.Conn.put_req_header(conn, "authorization", "Bearer " <> token)
+
+      disable("LIST_MATCHMAKING_ENABLED")
+
+      assert authed |> get("/api/v1/matchmaking/stats") |> response(404)
+      # The caller's own ticket endpoints are authenticated, not gated.
+      assert authed |> get("/api/v1/matchmaking/tickets/me") |> json_response(200)
     end
   end
 

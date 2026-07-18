@@ -158,6 +158,9 @@
              │                                   party_id, status)
              │
              ├──── friendships ◄─────► friendships
+             │         status: pending | accepted | rejected | blocked
+             │         "blocked" is the blacklist: enforced in
+             │         matchmaking, lobby joins, invites and chat
              │
              ├──── group_members ─────► groups
              │                              ├── group_join_requests

@@ -1,6 +1,17 @@
 # July 2026
 
+- [added] **Matchmaking** (ticket queue), admin page and hooks.
+- [added] **Party matchmaking**, matched as one unit.
+- [breaking] Matchmaking join/cancel via HTTP.
+- [changed] Tickets pruned after offline grace.
+- [fixed] Duplicate tickets self-matching.
 - [added] **Tournaments** (bracket system).
+- [added] **User blacklist**, enforced in matchmaking and lobbies.
+- [added] Admin blacklist page, `GET /me/blacklist`.
+- [added] `bypass_lock` join option.
+- [fixed] Party invites check every member's blocks.
+- [fixed] Lobby-scoped KV cleared on leave.
+- [fixed] Default hooks shadowing plugin hooks.
 - [added] Player search on public pages.
 - [added] Realtime update debounce (REALTIME_DEBOUNCE_MS).
 - [added] Protobuf realtime format (opt-in).

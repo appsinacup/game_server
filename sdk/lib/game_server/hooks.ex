@@ -343,6 +343,35 @@ defmodule GameServer.Hooks do
   # where the game starts the match (create a lobby, set up a challenge, ...)
   # and `tournament_match_expired` is where it adjudicates an unresolved
   # match at its deadline via `GameServer.Tournaments.resolve_match/2`.
+  @doc """
+  Called before a matchmaking ticket is created.
+
+  Receives the caller and the string-keyed attrs (`"match_params"`,
+  `"min_players"`, `"max_players"`). Return the attrs — possibly rewritten, e.g.
+  stamping a skill band computed from stored data — or `{:error, reason}` to
+  refuse the join. This is the server's authority over the queue: without it a
+  client picks its own `match_params` and can self-assign any bracket.
+  """
+  @callback before_matchmaking_join(user(), attrs :: map()) :: hook_result(map())
+  @callback after_matchmaking_join(user(), ticket :: struct()) :: any()
+  @callback after_matchmaking_cancel(user_id :: String.t(), count :: non_neg_integer()) :: any()
+
+  @doc """
+  Replaces the built-in matcher for one bucket of tickets sharing identical
+  `match_params`.
+
+  Receives the params and that bucket's queued tickets, oldest first, and
+  returns the groups to seat. Return `:default` to keep the built-in FIFO
+  matcher. Called once per bucket per sweep, so an O(n^2) scan here is cheap —
+  it runs in-process, unlike a per-pair callback.
+
+  Core re-checks the block list on whatever you return, so a custom matcher
+  can never seat players who blocked each other.
+  """
+  @callback matchmaking_form_matches(params :: map(), tickets :: [struct()]) ::
+              [[struct()]] | :default
+  @callback after_matchmaking_matched(tickets :: [struct()], lobby_id :: String.t()) :: any()
+
   @callback before_tournament_register(user(), tournament :: struct()) :: hook_result(term())
   @callback after_tournament_register(user(), tournament :: struct()) :: any()
   @callback before_tournament_leave(user(), tournament :: struct()) :: hook_result(term())
@@ -351,7 +380,12 @@ defmodule GameServer.Hooks do
   @callback before_tournament_result(match :: struct(), winner :: term()) :: hook_result(term())
   @callback after_tournament_match(match :: struct()) :: any()
   @callback after_tournament_finished(tournament :: struct(), standings :: map()) :: any()
-  @optional_callbacks before_tournament_register: 2,
+  @optional_callbacks before_matchmaking_join: 2,
+                      after_matchmaking_join: 2,
+                      after_matchmaking_cancel: 2,
+                      matchmaking_form_matches: 2,
+                      after_matchmaking_matched: 2,
+                      before_tournament_register: 2,
                       after_tournament_register: 2,
                       before_tournament_leave: 2,
                       tournament_match_ready: 1,
@@ -573,6 +607,21 @@ defmodule GameServer.Hooks do
       def before_kv_get(_key, _opts), do: :public
 
       @impl true
+      def before_matchmaking_join(_user, attrs), do: {:ok, attrs}
+
+      @impl true
+      def after_matchmaking_join(_user, _ticket), do: :ok
+
+      @impl true
+      def after_matchmaking_cancel(_user_id, _count), do: :ok
+
+      @impl true
+      def matchmaking_form_matches(_params, _tickets), do: :default
+
+      @impl true
+      def after_matchmaking_matched(_tickets, _lobby_id), do: :ok
+
+      @impl true
       def before_tournament_register(_user, tournament), do: {:ok, tournament}
 
       @impl true
@@ -640,6 +689,11 @@ defmodule GameServer.Hooks do
                      after_user_kicked: 3,
                      after_lobby_host_change: 2,
                      before_kv_get: 2,
+                     before_matchmaking_join: 2,
+                     after_matchmaking_join: 2,
+                     after_matchmaking_cancel: 2,
+                     matchmaking_form_matches: 2,
+                     after_matchmaking_matched: 2,
                      before_tournament_register: 2,
                      after_tournament_register: 2,
                      before_tournament_leave: 2,

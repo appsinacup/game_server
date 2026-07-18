@@ -52,6 +52,23 @@ defmodule GameServer.Friends do
 
 
   @doc ~S"""
+    Returns true if `user_id` is on a block with any of `other_ids`, in either
+    direction. One query, regardless of how many others are checked.
+    
+  """
+  @spec any_blocked?(user_id(), [user_id()]) :: boolean()
+  def any_blocked?(_user_id, _other_ids) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        false
+
+      _ ->
+        raise "GameServer.Friends.any_blocked?/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Block an incoming request (only the target may block). Returns {:ok, friendship} with status "blocked".
   """
   @spec block_friend_request(Ecto.UUID.t(), GameServer.Accounts.User.t()) ::
@@ -63,6 +80,30 @@ defmodule GameServer.Friends do
 
       _ ->
         raise "GameServer.Friends.block_friend_request/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Block an arbitrary user, with or without any prior friendship between them.
+    
+    Blocked rows are stored in a canonical direction — `target_id` is the
+    blocker, `requester_id` is the blocked user — so `list_blocked_for_user/2`
+    stays correct. Any existing row between the pair (in either direction) is
+    replaced, so blocking supersedes a pending request or an active friendship.
+    
+    Returns `{:ok, friendship}`, or `{:error, :cannot_block_self}`.
+    
+  """
+  @spec block_user(GameServer.Accounts.User.t(), user_id()) ::
+  {:ok, GameServer.Friends.Friendship.t()} | {:error, term()}
+  def block_user(_user, _blocked_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Friends.Friendship{id: 0, requester_id: 0, target_id: 0, requester: nil, target: nil, status: "pending", inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Friends.block_user/2 is a stub - only available at runtime on GameServer"
     end
   end
 
@@ -87,6 +128,27 @@ defmodule GameServer.Friends do
 
 
   @doc ~S"""
+    Returns the set of blocked pairs among `user_ids`, as a `MapSet` of
+    `{lower_id, higher_id}` tuples.
+    
+    Order-independent by construction, so callers can test a pair without
+    knowing who blocked whom. Resolves an entire candidate group in one query,
+    which is what makes per-pair filtering cheap in matchmaking.
+    
+  """
+  @spec blocked_pairs([user_id()]) :: MapSet.t({user_id(), user_id()})
+  def blocked_pairs(_user_ids) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Friends.blocked_pairs/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Cancel an outgoing friend request (only the requester may cancel).
   """
   @spec cancel_request(Ecto.UUID.t(), GameServer.Accounts.User.t()) ::
@@ -103,6 +165,21 @@ defmodule GameServer.Friends do
 
 
   @doc ~S"""
+    Count every block across all users, honouring the same filters as `list_all_blocks/1`.
+  """
+  @spec count_all_blocks(keyword()) :: non_neg_integer()
+  def count_all_blocks(_opts) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Friends.count_all_blocks/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Count blocked friendships for a user (number of blocked rows where user is target).
   """
   @spec count_blocked_for_user(user_id()) :: non_neg_integer()
@@ -113,6 +190,21 @@ defmodule GameServer.Friends do
 
       _ ->
         raise "GameServer.Friends.count_blocked_for_user/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Count the users `user_id` has blocked.
+  """
+  @spec count_blocked_users(user_id()) :: non_neg_integer()
+  def count_blocked_users(_user_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Friends.count_blocked_users/1 is a stub - only available at runtime on GameServer"
     end
   end
 
@@ -178,6 +270,25 @@ defmodule GameServer.Friends do
 
       _ ->
         raise "GameServer.Friends.create_request/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Remove a block by its friendship id, regardless of who created it.
+    
+    For admin use — `unblock_user/2` is the player-facing path and only lets the
+    blocker lift their own block.
+    
+  """
+  @spec delete_block(Ecto.UUID.t()) :: {:ok, :unblocked} | {:error, :not_found}
+  def delete_block(_friendship_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, nil}
+
+      _ ->
+        raise "GameServer.Friends.delete_block/1 is a stub - only available at runtime on GameServer"
     end
   end
 
@@ -263,6 +374,27 @@ defmodule GameServer.Friends do
 
 
   @doc ~S"""
+    List every block across all users, newest first, for admin views.
+    
+    ## Options
+    
+      * `:user_id` - only blocks where this user is the blocker or the blocked
+      * `:page`, `:page_size` - see `t:GameServer.Types.pagination_opts/0`
+    
+  """
+  @spec list_all_blocks(keyword()) :: [GameServer.Friends.Friendship.t()]
+  def list_all_blocks(_opts) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Friends.list_all_blocks/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     List blocked friendships for a user (Friendship structs where the user is the blocker / target).
   """
   @spec list_blocked_for_user(user_id()) :: [GameServer.Friends.Friendship.t()]
@@ -290,6 +422,50 @@ defmodule GameServer.Friends do
 
       _ ->
         raise "GameServer.Friends.list_blocked_for_user/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    List the users `user_id` has blocked, as `User` structs.
+    
+    The blacklist proper — unlike `list_blocked_for_user/2`, which returns the
+    underlying friendship rows.
+    
+    See `t:GameServer.Types.pagination_opts/0` for available options.
+    
+  """
+  @spec list_blocked_users(user_id()) :: [GameServer.Accounts.User.t()]
+  def list_blocked_users(_user_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Friends.list_blocked_users/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    List the users `user_id` has blocked, as `User` structs.
+    
+    The blacklist proper — unlike `list_blocked_for_user/2`, which returns the
+    underlying friendship rows.
+    
+    See `t:GameServer.Types.pagination_opts/0` for available options.
+    
+  """
+  @spec list_blocked_users(user_id(), GameServer.Types.pagination_opts()) :: [
+  GameServer.Accounts.User.t()
+]
+  def list_blocked_users(_user_id, _opts) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Friends.list_blocked_users/2 is a stub - only available at runtime on GameServer"
     end
   end
 
@@ -461,6 +637,21 @@ defmodule GameServer.Friends do
 
 
   @doc ~S"""
+    Normalizes a user pair into the order-independent key used by `blocked_pairs/1`.
+  """
+  @spec pair_key(user_id(), user_id()) :: {user_id(), user_id()}
+  def pair_key(_a, _b) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        nil
+
+      _ ->
+        raise "GameServer.Friends.pair_key/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Reject a friend request (only the target may reject). Returns {:ok, friendship}.
   """
   @spec reject_friend_request(Ecto.UUID.t(), GameServer.Accounts.User.t()) ::
@@ -517,6 +708,24 @@ defmodule GameServer.Friends do
 
       _ ->
         raise "GameServer.Friends.unblock_friendship/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Unblock a user previously blocked via `block_user/2`.
+    
+    Returns `{:ok, :unblocked}`, or `{:error, :not_found}` when no block exists.
+    
+  """
+  @spec unblock_user(GameServer.Accounts.User.t(), user_id()) :: {:ok, :unblocked} | {:error, term()}
+  def unblock_user(_user, _blocked_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, nil}
+
+      _ ->
+        raise "GameServer.Friends.unblock_user/2 is a stub - only available at runtime on GameServer"
     end
   end
 

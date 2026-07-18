@@ -114,6 +114,10 @@ defmodule GameServerWeb.Router.Shared do
         plug GameServerWeb.Plugs.FeatureGate, env: "LIST_ACHIEVEMENTS_ENABLED", default: true
       end
 
+      pipeline :list_matchmaking_gate do
+        plug GameServerWeb.Plugs.FeatureGate, env: "LIST_MATCHMAKING_ENABLED", default: true
+      end
+
       pipeline :metrics_auth do
         plug GameServerWeb.Plugs.MetricsAuth
       end
@@ -145,6 +149,7 @@ defmodule GameServerWeb.Router.Shared do
       game_server_group_mutation_api_routes()
       game_server_hook_leaderboard_party_api_routes()
       game_server_tournament_api_routes()
+      game_server_matchmaking_api_routes()
       game_server_chat_api_routes()
       game_server_admin_api_routes()
       game_server_api_auth_routes()
@@ -241,6 +246,26 @@ defmodule GameServerWeb.Router.Shared do
     end
   end
 
+  defmacro game_server_matchmaking_api_routes do
+    quote do
+      # Mutations and the caller's own ticket are authenticated, not gated;
+      # only the aggregate queue stats sit behind the listing gate.
+      scope "/api/v1", GameServerWeb.Api.V1, as: :api_v1 do
+        pipe_through [:api, :api_auth]
+
+        post "/matchmaking/tickets", MatchmakingController, :create
+        delete "/matchmaking/tickets", MatchmakingController, :delete
+        get "/matchmaking/tickets/me", MatchmakingController, :me
+      end
+
+      scope "/api/v1", GameServerWeb.Api.V1, as: :api_v1 do
+        pipe_through [:api, :api_auth, :list_matchmaking_gate]
+
+        get "/matchmaking/stats", MatchmakingController, :stats
+      end
+    end
+  end
+
   defmacro game_server_achievement_api_routes do
     quote do
       scope "/api/v1", GameServerWeb.Api.V1, as: :api_v1 do
@@ -333,6 +358,9 @@ defmodule GameServerWeb.Router.Shared do
         post "/friends/:id/reject", FriendController, :reject
         post "/friends/:id/block", FriendController, :block
         post "/friends/:id/unblock", FriendController, :unblock
+        get "/me/blacklist", FriendController, :blacklist
+        post "/users/:user_id/block", FriendController, :block_user
+        post "/users/:user_id/unblock", FriendController, :unblock_user
         delete "/friends/:id", FriendController, :delete
         get "/notifications", NotificationController, :index
         post "/notifications", NotificationController, :create
@@ -443,6 +471,10 @@ defmodule GameServerWeb.Router.Shared do
         post "/tournaments/:id/draw", TournamentController, :draw
         post "/tournaments/:id/finish", TournamentController, :finish
         post "/tournaments/:id/matches/:match_id/resolve", TournamentController, :resolve_match
+
+        get "/matchmaking/tickets", MatchmakingController, :index
+        delete "/matchmaking/tickets/:id", MatchmakingController, :delete
+        get "/matchmaking/stats", MatchmakingController, :stats
       end
     end
   end
@@ -540,11 +572,13 @@ defmodule GameServerWeb.Router.Shared do
           live "/admin/lobbies/live", LobbyLive.Index, :index
           live "/admin/leaderboards", AdminLive.Leaderboards, :index
           live "/admin/tournaments", AdminLive.Tournaments, :index
+          live "/admin/matchmaking", AdminLive.Matchmaking, :index
           live "/admin/users", AdminLive.Users, :index
           live "/admin/sessions", AdminLive.Sessions, :index
           live "/admin/notifications", AdminLive.Notifications, :index
           live "/admin/groups", AdminLive.Groups, :index
           live "/admin/parties", AdminLive.Parties, :index
+          live "/admin/blacklist", AdminLive.Blacklist, :index
           live "/admin/chat", AdminLive.Chat, :index
           live "/admin/achievements", AdminLive.Achievements, :index
           live "/admin/payments", AdminLive.Payments, :index

@@ -143,7 +143,7 @@ defmodule GameServerWeb.LobbyChannelTest do
 
     {:ok, lobby} =
       Lobbies.create_lobby(%{
-        title: "delta-channel-room",
+        title: "update-channel-room",
         host_id: host.id,
         metadata: %{
           "game_state" => "playing",

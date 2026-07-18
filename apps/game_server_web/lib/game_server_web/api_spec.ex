@@ -17,7 +17,7 @@ defmodule GameServerWeb.ApiSpec do
         title: "Game Server API",
         version: api_version(),
         description: """
-        API for the Gamend Game Server. Provides HTTP REST API, real-time WebSocket channels, and WebRTC DataChannels for low-latency game data. Features authentication, users, lobbies, groups, parties, friends, chat, notifications, achievements, leaderboards, tournaments, payments, server scripting, and admin portal.
+        API for the Gamend Game Server. Provides HTTP REST API, real-time WebSocket channels, and WebRTC DataChannels for low-latency game data. Features authentication, users, lobbies, groups, parties, friends, chat, notifications, achievements, leaderboards, tournaments, matchmaking, payments, server scripting, and admin portal.
 
         ## **1. Authentication**
 
@@ -145,17 +145,26 @@ defmodule GameServerWeb.ApiSpec do
         - **Match verdicts are server-side** (game hooks) — no public resolve endpoint; clients get `tournament_match_ready` / `tournament_match_resolved` / `tournament_updated` / `tournament_finished` on the user channel
         - **Admin management** over HTTP: create/update/delete, cancel, draw now, finish, and force match verdicts under `/api/v1/admin/tournaments`
 
-        ## **13. Real-time: WebSocket Channels**
+        ## **13. Matchmaking**
+        Ticket-based queueing that turns waiting players into hidden, locked lobbies:
+
+        - **Join over HTTP** (`POST /matchmaking/tickets` with a `match_params` string map); only tickets with identical params match together — encode mode/map/skill band as parameter values
+        - **A match forms** when a group reaches `max_players`, or has at least `min_players` and the oldest ticket outwaited the timeout; the server creates a hidden lobby, seats everyone and locks it
+        - **The result is a push, not a poll**: matched players receive `matchmaking_found` (`lobby_id`, `match_params`) on their user channel; disconnecting cancels your tickets
+        - **Inspect**: `GET /matchmaking/tickets/me` for your ticket, `GET /matchmaking/stats` for queue depths
+        - **Admin management** over HTTP: list/filter tickets, force-cancel, and stats under `/api/v1/admin/matchmaking`
+
+        ## **14. Real-time: WebSocket Channels**
         The server provides real-time communication via Phoenix WebSocket channels. Connect to the WebSocket endpoint and join topic-based channels for live updates.
 
-        ### **13.1 Connection**
+        ### **14.1 Connection**
         Connect to `wss://your-server.com/socket` with your JWT token as a parameter:
         ```
         const socket = new Socket("wss://your-server.com/socket", { params: { token: "<access_token>" } })
         socket.connect()
         ```
 
-        ### **13.2 Available Channels**
+        ### **14.2 Available Channels**
         - **User channel** (`user:<user_id>`): notifications, friend events, achievement unlocks, party/group invites, tournament events, KV subscriptions
         - **Lobby channel** (`lobby:<lobby_id>`): lobby member joins/leaves, lobby updates, lobby chat
         - **Lobbies channel** (`lobbies`): global lobby list changes (created, updated, deleted)
@@ -163,7 +172,7 @@ defmodule GameServerWeb.ApiSpec do
         - **Groups channel** (`groups`): global group list changes
         - **Party channel** (`party:<party_id>`): party member changes, party updates, party chat
 
-        ### **13.3 JS SDK Helper**
+        ### **14.3 JS SDK Helper**
         The `GameRealtime` class (included in this SDK) wraps Phoenix.Socket with convenient channel helpers:
         ```javascript
         import { GameRealtime } from '@ughuuu/game_server'
@@ -173,21 +182,21 @@ defmodule GameServerWeb.ApiSpec do
         ```
         Requires the `phoenix` npm package as a peer dependency: `npm install phoenix`
 
-        ## **14. Real-time: WebRTC DataChannels**
+        ## **15. Real-time: WebRTC DataChannels**
         For low-latency game data, the server supports WebRTC DataChannels alongside WebSocket. The server acts as a WebRTC peer (not P2P between clients).
 
-        ### **14.1 How It Works**
+        ### **15.1 How It Works**
         1. Client connects via WebSocket and joins the **User channel**
         2. Client sends an SDP offer over the channel (`webrtc:offer` event)
         3. Server responds with an SDP answer (`webrtc:answer` event)
         4. ICE candidates are exchanged (`webrtc:ice` events)
         5. Once connected, named DataChannels carry game data at low latency
 
-        ### **14.2 Default DataChannels**
+        ### **15.2 Default DataChannels**
         - **`events`** (reliable, ordered): important game events (player actions, state changes)
         - **`state`** (unreliable, unordered): high-frequency position/state sync
 
-        ### **14.3 JS SDK Helper**
+        ### **15.3 JS SDK Helper**
         The `GameWebRTC` class (included in this SDK, browser-only) handles signaling automatically:
         ```javascript
         import { GameRealtime, GameWebRTC } from '@ughuuu/game_server'
@@ -225,6 +234,11 @@ defmodule GameServerWeb.ApiSpec do
         },
         %Tag{name: "Notifications", description: "Persistent user notifications"},
         %Tag{name: "Leaderboards", description: "Ranked scoreboards and score submission"},
+        %Tag{name: "Tournaments", description: "Bracket tournaments — browse, join, standings"},
+        %Tag{
+          name: "Matchmaking",
+          description: "Ticket queue — join, cancel, your ticket, queue stats"
+        },
         %Tag{
           name: "Achievements",
           description: "Player achievements, progress tracking, and unlocks"
@@ -245,6 +259,8 @@ defmodule GameServerWeb.ApiSpec do
         %Tag{name: "Admin – Achievements", description: "Admin achievement management"},
         %Tag{name: "Admin – Notifications", description: "Admin notification management"},
         %Tag{name: "Admin – Leaderboards", description: "Admin leaderboard management"},
+        %Tag{name: "Admin – Tournaments", description: "Admin tournament management"},
+        %Tag{name: "Admin – Matchmaking", description: "Admin matchmaking queue management"},
         %Tag{name: "Admin – KV", description: "Admin key-value storage management"}
       ],
       components: %Components{

@@ -1622,6 +1622,48 @@ func admin_achievements_admin_unlock_achievement(request: AdminGrantAchievementR
 func admin_achievements_admin_increment_achievement(request: AdminIncrementAchievementRequest) -> GamendResult:
 	return await _call_api(AdminAchievementsApi.new(_config), "admin_increment_achievement", [request])
 
+# --- Matchmaking ---------------------------------------------------------------
+
+## Join the matchmaking queue.
+## match_params is the bucket key — tickets only group when it matches exactly,
+## so keep it coarse (mode, region, skill band). A before_matchmaking_join hook
+## may rewrite or reject it server-side, so the stored ticket can differ from
+## what was sent. Keep the realtime socket connected while queued: tickets of
+## users that go offline are cancelled by the sweep.
+## The match itself arrives as a `matchmaking_found` event on the user channel.
+func matchmaking_join(match_params: Dictionary = {}, min_players = null, max_players = null) -> GamendResult:
+	var request = MatchmakingJoinRequest.new()
+	request.match_params = match_params
+	if min_players != null:
+		request.min_players = min_players
+	if max_players != null:
+		request.max_players = max_players
+	return await _call_api(MatchmakingApi.new(_config), "matchmaking_join", [request])
+
+## Cancel all of the current user's queued tickets
+func matchmaking_cancel() -> GamendResult:
+	return await _call_api(MatchmakingApi.new(_config), "matchmaking_cancel", [])
+
+## The current user's queued ticket, or null data when not queued
+func matchmaking_my_ticket() -> GamendResult:
+	return await _call_api(MatchmakingApi.new(_config), "matchmaking_my_ticket", [])
+
+## Queue depth per match_params (gated by LIST_MATCHMAKING_ENABLED)
+func matchmaking_stats() -> GamendResult:
+	return await _call_api(MatchmakingApi.new(_config), "matchmaking_stats", [])
+
+## List matchmaking tickets (admin)
+func admin_matchmaking_admin_list_matchmaking_tickets(status = null, user_id = null, page = 1, page_size = 25) -> GamendResult:
+	return await _call_api(AdminMatchmakingApi.new(_config), "admin_list_matchmaking_tickets", [status, user_id, page, page_size])
+
+## Force-cancel a matchmaking ticket (admin)
+func admin_matchmaking_admin_cancel_matchmaking_ticket(id: String) -> GamendResult:
+	return await _call_api(AdminMatchmakingApi.new(_config), "admin_cancel_matchmaking_ticket", [id])
+
+## Matchmaking queue statistics (admin)
+func admin_matchmaking_admin_matchmaking_stats() -> GamendResult:
+	return await _call_api(AdminMatchmakingApi.new(_config), "admin_matchmaking_stats", [])
+
 # --- Metadata / time utilities -------------------------------------------------
 
 ## Deep-merge a metadata patch onto existing metadata. Dictionary sections are

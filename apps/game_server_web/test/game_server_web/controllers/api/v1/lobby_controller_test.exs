@@ -592,4 +592,22 @@ defmodule GameServerWeb.Api.V1.LobbyControllerTest do
     assert updated_leader.lobby_id == resp["id"]
     assert updated_member.lobby_id == resp["id"]
   end
+
+  test "POST join returns 403 blocked when a blacklisted player is seated", %{conn: conn} do
+    host = AccountsFixtures.user_fixture()
+    joiner = AccountsFixtures.user_fixture()
+    {:ok, _} = GameServer.Friends.block_user(host, joiner.id)
+
+    {:ok, lobby} = Lobbies.create_lobby(%{title: "blocked-room", host_id: host.id})
+
+    {:ok, token, _} = Guardian.encode_and_sign(joiner)
+
+    resp =
+      conn
+      |> put_req_header("authorization", "Bearer " <> token)
+      |> post("/api/v1/lobbies/#{lobby.id}/join")
+
+    assert json_response(resp, 403)["error"] == "blocked"
+    assert GameServer.Accounts.get_user(joiner.id).lobby_id == nil
+  end
 end

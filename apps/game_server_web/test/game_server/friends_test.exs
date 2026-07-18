@@ -137,4 +137,95 @@ defmodule GameServer.FriendsTest do
       assert_receive {:friend_unblocked, %Friends.Friendship{id: ^bid}}
     end
   end
+
+  describe "blacklisting arbitrary users" do
+    setup do
+      a = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+      b = AccountsFixtures.user_fixture() |> AccountsFixtures.set_password()
+
+      %{a: a, b: b}
+    end
+
+    test "block with no prior friendship", %{a: a, b: b} do
+      assert {:ok, f} = Friends.block_user(a, b.id)
+      assert f.status == "blocked"
+
+      assert Friends.blocked?(a.id, b.id)
+      assert Friends.blocked?(b.id, a.id)
+
+      # the blocker is the target, so the block shows on a's list
+      assert [%{requester_id: requester_id}] = Friends.list_blocked_for_user(a.id)
+      assert requester_id == b.id
+      assert Friends.list_blocked_for_user(b.id) == []
+    end
+
+    test "cannot block yourself", %{a: a} do
+      assert {:error, :cannot_block_self} = Friends.block_user(a, a.id)
+    end
+
+    test "blocking supersedes an existing friendship in either direction", %{a: a, b: b} do
+      {:ok, f} = Friends.create_request(a.id, b.id)
+      {:ok, _} = Friends.accept_friend_request(f.id, b)
+      assert Friends.friends?(a.id, b.id)
+
+      # a blocks b, though the existing row runs a -> b
+      assert {:ok, _} = Friends.block_user(a, b.id)
+
+      refute Friends.friends?(a.id, b.id)
+      assert Friends.blocked?(a.id, b.id)
+
+      # exactly one row survives for the pair
+      assert Repo.aggregate(Friends.Friendship, :count) == 1
+    end
+
+    test "blocking twice is idempotent", %{a: a, b: b} do
+      assert {:ok, f1} = Friends.block_user(a, b.id)
+      assert {:ok, f2} = Friends.block_user(a, b.id)
+
+      assert f1.id == f2.id
+      assert Repo.aggregate(Friends.Friendship, :count) == 1
+    end
+
+    test "unblock removes the block", %{a: a, b: b} do
+      {:ok, _} = Friends.block_user(a, b.id)
+
+      # only the blocker can lift it
+      assert {:error, :not_found} = Friends.unblock_user(b, a.id)
+
+      assert {:ok, :unblocked} = Friends.unblock_user(a, b.id)
+      refute Friends.blocked?(a.id, b.id)
+    end
+
+    test "unblock without a block is not_found", %{a: a, b: b} do
+      assert {:error, :not_found} = Friends.unblock_user(a, b.id)
+    end
+
+    test "any_blocked?/2 checks both directions", %{a: a, b: b} do
+      c = AccountsFixtures.user_fixture()
+
+      {:ok, _} = Friends.block_user(a, b.id)
+
+      # a blocked b, so it holds looking from either side
+      assert Friends.any_blocked?(b.id, [c.id, a.id])
+      assert Friends.any_blocked?(a.id, [c.id, b.id])
+
+      refute Friends.any_blocked?(c.id, [a.id, b.id])
+      refute Friends.any_blocked?(a.id, [])
+      refute Friends.any_blocked?(a.id, [a.id])
+    end
+
+    test "blocked_pairs/1 returns order-independent keys", %{a: a, b: b} do
+      c = AccountsFixtures.user_fixture()
+      {:ok, _} = Friends.block_user(a, b.id)
+
+      pairs = Friends.blocked_pairs([a.id, b.id, c.id])
+
+      assert MapSet.member?(pairs, Friends.pair_key(a.id, b.id))
+      assert MapSet.member?(pairs, Friends.pair_key(b.id, a.id))
+      refute MapSet.member?(pairs, Friends.pair_key(a.id, c.id))
+
+      # a pair is only reported when both users are in the queried set
+      assert Friends.blocked_pairs([a.id, c.id]) |> MapSet.size() == 0
+    end
+  end
 end

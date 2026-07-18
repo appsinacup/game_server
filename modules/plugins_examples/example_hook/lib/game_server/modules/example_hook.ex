@@ -260,6 +260,103 @@ defmodule GameServer.Modules.ExampleHook do
     %{"pb_loadout" => ExampleHook.V1.ExampleLoadout}
   end
 
+  # --- Matchmaking ----------------------------------------------------------
+  #
+  # `match_params` are always strings on the wire (they are the bucket key, and
+  # buckets have to compare byte-for-byte). Anything numeric is therefore
+  # stringified on the way in and parsed back in the matcher — the two hooks
+  # below show both halves of that.
+
+  @doc """
+  Server authority over the queue.
+
+  The client asks for a mode; the server decides everything that must not be
+  client-controlled. Here the skill rating is read server-side and written into
+  the ticket as a *coarse bucket* (a string, so equal buckets queue together),
+  while the exact rating rides along as a string for the matcher to parse.
+
+  Returning `{:error, reason}` refuses the join outright.
+  """
+  @impl true
+  def before_matchmaking_join(user, attrs) do
+    params = Map.get(attrs, "match_params", %{})
+    mode = Map.get(params, "mode", "casual")
+
+    if mode in ~w(casual ranked) do
+      rating = server_rating(user)
+
+      # match_params IS the bucket key: tickets only meet when it matches
+      # byte-for-byte. So it may hold coarse, string dimensions only — putting
+      # the exact rating here would give every player their own bucket. The
+      # precise number stays on the user record for the matcher to read.
+      {:ok,
+       Map.put(attrs, "match_params", %{
+         "mode" => mode,
+         "band" => Integer.to_string(div(rating, 500))
+       })}
+    else
+      {:error, :unknown_mode}
+    end
+  end
+
+  @doc """
+  Custom matcher for one bucket (all tickets here share identical params).
+
+  Called once per bucket per sweep, in-process — so an O(n^2) scan is fine;
+  this one is O(n log n). Ranked play reads each player's exact integer rating
+  (from the user record — `match_params` only carries the coarse band), pairs
+  the closest two, and refuses pairs further apart than a window that widens
+  the longer someone has waited. Casual falls through to `:default`, the
+  built-in FIFO matcher.
+
+  Core re-checks the block list on whatever is returned, so a bug here can
+  never seat players who blocked each other.
+  """
+  @impl true
+  def matchmaking_form_matches(%{"mode" => "ranked"}, tickets) do
+    tickets
+    |> Enum.map(&{server_rating(&1.user), &1})
+    |> Enum.sort_by(&elem(&1, 0))
+    |> Enum.chunk_every(2, 2, :discard)
+    |> Enum.filter(fn [{rating_a, a}, {rating_b, b}] ->
+      abs(rating_a - rating_b) <= max(window(a), window(b))
+    end)
+    |> Enum.map(fn [{_, a}, {_, b}] -> [a, b] end)
+  end
+
+  def matchmaking_form_matches(_params, _tickets), do: :default
+
+  @doc "Log the pairing so the example server shows matchmaking working."
+  @impl true
+  def after_matchmaking_matched(tickets, lobby_id) do
+    names = Enum.map_join(tickets, " vs ", & &1.user_id)
+    Logger.info("[ExampleHook] match ready in lobby #{lobby_id}: #{names}")
+  end
+
+  # Rating tolerance grows by 100 for every 5s spent queueing, so nobody waits
+  # forever just because their rating is unusual.
+  defp window(ticket) do
+    waited_ms = DateTime.diff(DateTime.utc_now(), ticket.queued_at, :millisecond)
+    100 + div(waited_ms, 5_000) * 100
+  end
+
+  defp server_rating(user) do
+    # A real game would read this from its own store; the point is that it is
+    # server-side, not whatever the client claimed.
+    case user.metadata do
+      %{"rating" => rating} when is_integer(rating) -> rating
+      %{"rating" => rating} when is_binary(rating) -> parse_int(rating, 1000)
+      _ -> 1000
+    end
+  end
+
+  defp parse_int(value, default) when is_binary(value) do
+    case Integer.parse(value) do
+      {int, _} -> int
+      :error -> default
+    end
+  end
+
   @doc """
   Typed protobuf hook example (see proto/example_hook.proto).
 

@@ -361,6 +361,95 @@ defmodule GameServerWeb.Api.V1.FriendController do
     ]
   )
 
+  operation(:blacklist,
+    operation_id: "list_blacklisted_users",
+    summary: "List the users you've blocked",
+    description:
+      "Returns the blocked users themselves. Use /me/blocked instead when you " <>
+        "need the underlying friendship rows.",
+    security: [%{"authorization" => []}],
+    parameters: [
+      page: [
+        in: :query,
+        schema: %Schema{type: :integer},
+        description: "Page number (1-based)",
+        required: false
+      ],
+      page_size: [
+        in: :query,
+        schema: %Schema{type: :integer},
+        description: "Page size (max results per page)",
+        required: false
+      ]
+    ],
+    responses: [
+      ok: {
+        "Blacklisted users",
+        "application/json",
+        %Schema{
+          type: :object,
+          properties: %{
+            data: %Schema{
+              type: :array,
+              items: %Schema{
+                type: :object,
+                properties: %{
+                  id: %Schema{type: :string, format: :uuid},
+                  username: %Schema{type: :string},
+                  display_name: %Schema{type: :string}
+                }
+              }
+            },
+            meta: %Schema{type: :object}
+          }
+        }
+      },
+      unauthorized: {"Not authenticated", "application/json", @error_schema}
+    ]
+  )
+
+  operation(:block_user,
+    operation_id: "block_user",
+    summary: "Blacklist a user, with or without an existing friendship",
+    description:
+      "Blocked players are kept apart in matchmaking and cannot join a lobby " <>
+        "the other is in, in addition to the existing party, invite and chat blocks.",
+    security: [%{"authorization" => []}],
+    parameters: [
+      user_id: [
+        in: :path,
+        schema: %Schema{type: :string, format: :uuid},
+        description: "User id to block (a user id, not a friendship id)",
+        required: true
+      ]
+    ],
+    responses: [
+      ok: {"Blocked", "application/json", %Schema{type: :object}},
+      bad_request: {"Invalid id or cannot block self", "application/json", @error_schema},
+      unauthorized: {"Not authenticated", "application/json", @error_schema}
+    ]
+  )
+
+  operation(:unblock_user,
+    operation_id: "unblock_user",
+    summary: "Remove a user from your blacklist",
+    security: [%{"authorization" => []}],
+    parameters: [
+      user_id: [
+        in: :path,
+        schema: %Schema{type: :string, format: :uuid},
+        description: "User id to unblock (a user id, not a friendship id)",
+        required: true
+      ]
+    ],
+    responses: [
+      ok: {"Unblocked", "application/json", %Schema{type: :object}},
+      bad_request: {"Invalid id", "application/json", @error_schema},
+      unauthorized: {"Not authenticated", "application/json", @error_schema},
+      not_found: {"Not found", "application/json", @error_schema}
+    ]
+  )
+
   operation(:delete,
     operation_id: "remove_friendship",
     summary: "Remove/cancel a friendship or request",
@@ -422,6 +511,75 @@ defmodule GameServerWeb.Api.V1.FriendController do
 
               {:error, :not_authorized} ->
                 conn |> put_status(:forbidden) |> json(%{error: "forbidden"})
+            end
+        end
+
+      _ ->
+        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
+    end
+  end
+
+  def blacklist(conn, params) do
+    case conn.assigns.current_scope do
+      %{user: user} when user != nil ->
+        {page, page_size} = parse_page_params(params)
+
+        users = Friends.list_blocked_users(user.id, page: page, page_size: page_size)
+        serialized = Enum.map(users, &serialize_user/1)
+        total_count = Friends.count_blocked_users(user.id)
+
+        json(conn, %{
+          data: serialized,
+          meta: GameServerWeb.Pagination.meta(page, page_size, length(serialized), total_count)
+        })
+
+      _ ->
+        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
+    end
+  end
+
+  def block_user(conn, %{"user_id" => user_id}) do
+    case conn.assigns.current_scope do
+      %{user: user} when user != nil ->
+        case parse_id(user_id) do
+          nil ->
+            conn |> put_status(:bad_request) |> json(%{error: "invalid_id"})
+
+          target_id ->
+            case Friends.block_user(user, target_id) do
+              {:ok, _f} ->
+                json(conn, %{})
+
+              {:error, :cannot_block_self} ->
+                conn |> put_status(:bad_request) |> json(%{error: "cannot_block_self"})
+
+              {:error, _reason} ->
+                conn |> put_status(:bad_request) |> json(%{error: "invalid"})
+            end
+        end
+
+      _ ->
+        conn |> put_status(:unauthorized) |> json(%{error: "Not authenticated"})
+    end
+  end
+
+  def unblock_user(conn, %{"user_id" => user_id}) do
+    case conn.assigns.current_scope do
+      %{user: user} when user != nil ->
+        case parse_id(user_id) do
+          nil ->
+            conn |> put_status(:bad_request) |> json(%{error: "invalid_id"})
+
+          target_id ->
+            case Friends.unblock_user(user, target_id) do
+              {:ok, :unblocked} ->
+                json(conn, %{})
+
+              {:error, :not_found} ->
+                conn |> put_status(:not_found) |> json(%{error: "not_found"})
+
+              {:error, reason} ->
+                conn |> put_status(:bad_request) |> json(%{error: to_string(reason)})
             end
         end
 

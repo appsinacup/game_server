@@ -48,6 +48,9 @@ defmodule GameServerWeb.AdminLive.Index do
           <.link navigate={~p"/admin/tournaments"} class="btn btn-outline">
             Tournaments ({@tournaments_count})
           </.link>
+          <.link navigate={~p"/admin/matchmaking"} class="btn btn-outline">
+            Matchmaking ({@matchmaking_stats.queued})
+          </.link>
           <.link navigate={~p"/admin/sessions"} class="btn btn-outline">
             Tokens ({@sessions_count})
           </.link>
@@ -56,6 +59,9 @@ defmodule GameServerWeb.AdminLive.Index do
           </.link>
           <.link navigate={~p"/admin/groups"} class="btn btn-outline">
             Groups ({@groups_count})
+          </.link>
+          <.link navigate={~p"/admin/blacklist"} class="btn btn-outline">
+            Blacklist ({@blacklist_count})
           </.link>
           <.link navigate={~p"/admin/parties"} class="btn btn-outline">
             Parties ({@parties_count})
@@ -221,6 +227,24 @@ defmodule GameServerWeb.AdminLive.Index do
                   <div :if={@tournament_stats.matches.overdue > 0} class="text-warning">
                     Past deadline: {@tournament_stats.matches.overdue}
                   </div>
+                </div>
+              </div>
+
+              <%!-- Matchmaking --%>
+              <div class="card bg-base-100 p-4">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-sm font-semibold">Matchmaking</div>
+                  <.link navigate={~p"/admin/matchmaking"} class="link link-primary text-xs">
+                    View →
+                  </.link>
+                </div>
+                <div class="text-2xl font-bold">{@matchmaking_stats.queued}</div>
+                <div class="text-xs text-base-content/60 mt-2 space-y-1">
+                  <div>In queue now: {@matchmaking_stats.queued}</div>
+                  <div>
+                    Matched: {@matchmaking_stats.matched} · Cancelled: {@matchmaking_stats.cancelled}
+                  </div>
+                  <div>Active queues: {length(@matchmaking_stats.queues)}</div>
                 </div>
               </div>
 
@@ -566,6 +590,7 @@ defmodule GameServerWeb.AdminLive.Index do
       tournaments_count:
         Task.async(fn -> Repo.aggregate(GameServer.Tournaments.Tournament, :count) end),
       tournament_stats: Task.async(fn -> GameServer.Tournaments.stats() end),
+      matchmaking_stats: Task.async(fn -> GameServer.Matchmaking.stats() end),
       kv_count: Task.async(fn -> KV.count_entries() end),
       kv_global: Task.async(fn -> KV.count_entries(global_only: true) end),
       users_google: Task.async(fn -> Accounts.count_users_with_provider(:google_id) end),
@@ -586,6 +611,7 @@ defmodule GameServerWeb.AdminLive.Index do
       groups_hidden: Task.async(fn -> Groups.count_groups_by_type("hidden") end),
       groups_members: Task.async(fn -> Groups.count_all_members() end),
       parties_count: Task.async(fn -> Parties.count_all_parties() end),
+      blacklist_count: Task.async(fn -> GameServer.Friends.count_all_blocks() end),
       parties_members: Task.async(fn -> Parties.count_all_party_members() end),
       chat_count: Task.async(fn -> GameServer.Chat.count_all_messages() end),
       chat_senders: Task.async(fn -> GameServer.Chat.count_unique_senders() end),
@@ -626,6 +652,7 @@ defmodule GameServerWeb.AdminLive.Index do
        lobbies_count: r.lobbies_count,
        leaderboards_count: r.leaderboards_count,
        tournaments_count: r.tournaments_count,
+       matchmaking_stats: r.matchmaking_stats,
        tournament_stats: r.tournament_stats,
        kv_count: r.kv_count,
        kv_global: r.kv_global,
@@ -649,6 +676,7 @@ defmodule GameServerWeb.AdminLive.Index do
        groups_hidden: r.groups_hidden,
        groups_members: r.groups_members,
        parties_count: r.parties_count,
+       blacklist_count: r.blacklist_count,
        parties_members: r.parties_members,
        chat_count: r.chat_count,
        chat_senders: r.chat_senders,

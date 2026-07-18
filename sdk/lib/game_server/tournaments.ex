@@ -112,15 +112,35 @@ defmodule GameServer.Tournaments do
   end
 
 
-  @doc false
-  @spec count_entries(Ecto.UUID.t()) :: non_neg_integer()
-  def count_entries(_tournament_id) do
+  @doc ~S"""
+    Counts entries. Accepts the same `:state` and `:search` options as the listing.
+  """
+  @spec count_entries(
+  Ecto.UUID.t(),
+  keyword()
+) :: non_neg_integer()
+  def count_entries(_tournament_id, _opts) do
     case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
       :placeholder ->
         0
 
       _ ->
-        raise "GameServer.Tournaments.count_entries/1 is a stub - only available at runtime on GameServer"
+        raise "GameServer.Tournaments.count_entries/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Counts distinct tournament slugs.
+  """
+  @spec count_tournament_groups() :: non_neg_integer()
+  def count_tournament_groups() do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Tournaments.count_tournament_groups/0 is a stub - only available at runtime on GameServer"
     end
   end
 
@@ -321,7 +341,12 @@ defmodule GameServer.Tournaments do
   @doc ~S"""
     Entries for a tournament, oldest first (registration order = seed rank).
     
-    Options: `:page`, `:page_size` (capped at 100), `:state`.
+    Options: `:page`, `:page_size` (capped at 100), `:state`, plus
+    
+      * `:search` — filter by leader name (display name or username)
+      * `:preload_leader` — preload the leader, for callers that render names
+      * `:order` — `:bracket` groups drawn entries by bracket and seed instead
+    
     
   """
   @spec list_entries(
@@ -356,6 +381,42 @@ defmodule GameServer.Tournaments do
 
       _ ->
         raise "GameServer.Tournaments.list_matches/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Every occurrence of a slug, newest first.
+  """
+  @spec list_occurrences(String.t()) :: [GameServer.Tournaments.Tournament.t()]
+  def list_occurrences(_slug) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        []
+
+      _ ->
+        raise "GameServer.Tournaments.list_occurrences/1 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Tournaments grouped by slug — one entry per tournament *type*, the way
+    leaderboard seasons are grouped.
+    
+    Each group carries the newest occurrence's title/description, the id of the
+    occurrence to open by default (the live one, else the newest), and how many
+    editions exist.
+    
+  """
+  @spec list_tournament_groups(keyword()) :: [map()]
+  def list_tournament_groups(_opts) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        %{}
+
+      _ ->
+        raise "GameServer.Tournaments.list_tournament_groups/1 is a stub - only available at runtime on GameServer"
     end
   end
 
@@ -416,6 +477,27 @@ defmodule GameServer.Tournaments do
 
       _ ->
         raise "GameServer.Tournaments.my_match/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
+    Reopens a cancelled tournament.
+    
+    A tournament that was never drawn goes back to `registration`; one that
+    already has a bracket resumes at `running`, so an accidental cancel does not
+    throw away the draw. Any due transition is applied immediately afterwards.
+    
+  """
+  @spec reopen_tournament(GameServer.Tournaments.Tournament.t()) ::
+  {:ok, GameServer.Tournaments.Tournament.t()} | {:error, term()}
+  def reopen_tournament(_tournament) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        {:ok, %GameServer.Tournaments.Tournament{id: "", slug: "", title: "", description: "", state: "scheduled", registration_opens_at: nil, starts_at: nil, ends_at: nil, recur: nil, max_entries: nil, team_size: 1, bracket_size: 8, round_window_sec: 3600, deadline_policy: "forfeit_both", metadata: %{}, inserted_at: ~U[1970-01-01 00:00:00Z], updated_at: ~U[1970-01-01 00:00:00Z]}}
+
+      _ ->
+        raise "GameServer.Tournaments.reopen_tournament/1 is a stub - only available at runtime on GameServer"
     end
   end
 

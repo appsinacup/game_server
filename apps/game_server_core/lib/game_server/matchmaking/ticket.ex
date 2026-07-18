@@ -4,6 +4,10 @@ defmodule GameServer.Matchmaking.Ticket do
 
   A ticket represents one matchmaking request from a user. Tickets with
   the same `match_params` are grouped and matched together.
+
+  A ticket queued on behalf of a party carries that party's `party_id`. Tickets
+  sharing a `party_id` form an indivisible unit: the matcher seats them in the
+  same lobby or leaves them all queued.
   """
 
   use GameServer.Schema
@@ -30,6 +34,7 @@ defmodule GameServer.Matchmaking.Ticket do
     field :match_id, :binary_id
 
     belongs_to :user, User
+    belongs_to :party, GameServer.Parties.Party
 
     timestamps(type: :utc_datetime_usec)
   end
@@ -49,6 +54,7 @@ defmodule GameServer.Matchmaking.Ticket do
     ticket
     |> cast(attrs, [
       :user_id,
+      :party_id,
       :status,
       :match_params,
       :min_players,
@@ -61,10 +67,15 @@ defmodule GameServer.Matchmaking.Ticket do
     |> validate_required(@required)
     |> validate_inclusion(:status, @statuses)
     |> validate_number(:min_players, greater_than: 0)
-    |> validate_number(:max_players, greater_than: 0)
+    |> validate_number(:max_players,
+      greater_than: 0,
+      less_than_or_equal_to: GameServer.Limits.get(:max_matchmaking_players)
+    )
     |> validate_number(:timeout_ms, greater_than: 0)
     |> validate_max_gte_min()
+    |> GameServer.Limits.validate_metadata_size(:match_params, :max_matchmaking_params_size)
     |> foreign_key_constraint(:user_id)
+    |> foreign_key_constraint(:party_id)
   end
 
   defp validate_max_gte_min(changeset) do

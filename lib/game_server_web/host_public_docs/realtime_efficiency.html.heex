@@ -42,17 +42,6 @@
         )}
       </p>
 
-      <div class="alert alert-info text-sm">
-        <div>
-          <p class="font-semibold">{doc_text("History")}</p>
-          <p>
-            {doc_text(
-              "These events previously carried JSON deltas (only the changed fields). Measurement showed the delta saved almost nothing once permessage-deflate and per-message transport headers were counted, so it was removed in favour of the simpler mechanisms below. The analysis that led to that is kept at the end of this page."
-            )}
-          </p>
-        </div>
-      </div>
-
       <%!-- Dedupe --%>
       <h3 class="font-semibold text-lg mt-6">{doc_text("Deduplication (always on)")}</h3>
       <p class="text-sm text-base-content/80">
@@ -260,7 +249,7 @@
           <p class="font-semibold">{doc_text("Ranking the levers (compressed connection)")}</p>
           <p>
             {doc_text(
-              "Coalescing bursts (REALTIME_DEBOUNCE_MS) — the largest win, roughly 30% on a 4-message burst. Protobuf (?format=protobuf) — 9-17%. Payload diffing — negligible, which is why it is gone. They compose: a debounced protobuf socket gets both."
+              "Coalescing bursts (REALTIME_DEBOUNCE_MS) — the largest win, roughly 30% on a 4-message burst. Protobuf (?format=protobuf) — 9-17%. They compose: a debounced protobuf socket gets both."
             )}
           </p>
         </div>

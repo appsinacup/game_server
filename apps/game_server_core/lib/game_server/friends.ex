@@ -502,6 +502,239 @@ defmodule GameServer.Friends do
     end
   end
 
+  @doc """
+  Block an arbitrary user, with or without any prior friendship between them.
+
+  Blocked rows are stored in a canonical direction — `target_id` is the
+  blocker, `requester_id` is the blocked user — so `list_blocked_for_user/2`
+  stays correct. Any existing row between the pair (in either direction) is
+  replaced, so blocking supersedes a pending request or an active friendship.
+
+  Returns `{:ok, friendship}`, or `{:error, :cannot_block_self}`.
+  """
+  @spec block_user(User.t(), user_id()) :: {:ok, Friendship.t()} | {:error, term()}
+  def block_user(%User{id: blocker_id}, blocked_id) when is_binary(blocked_id) do
+    if blocker_id == blocked_id do
+      {:error, :cannot_block_self}
+    else
+      do_block_user(blocker_id, blocked_id)
+    end
+  end
+
+  defp do_block_user(blocker_id, blocked_id) do
+    Repo.transaction(fn ->
+      # Drop the reverse row first: the pair is unique per direction, so a
+      # reverse row would otherwise survive alongside the canonical block.
+      Repo.delete_all(
+        from f in Friendship,
+          where: f.requester_id == ^blocker_id and f.target_id == ^blocked_id
+      )
+
+      result =
+        case get_by_pair(blocked_id, blocker_id) do
+          %Friendship{} = f ->
+            f |> Ecto.Changeset.change(status: "blocked") |> Repo.update()
+
+          nil ->
+            %Friendship{}
+            |> Friendship.changeset(%{
+              requester_id: blocked_id,
+              target_id: blocker_id,
+              status: "blocked"
+            })
+            |> Repo.insert()
+        end
+
+      case result do
+        {:ok, blocked} ->
+          _ = invalidate_friendship_cache(blocked.id)
+          _ = invalidate_friends_cache_pair(blocker_id, blocked_id)
+
+          broadcast_user(blocker_id, {:friend_blocked, blocked})
+          broadcast_user(blocked_id, {:friend_blocked, blocked})
+          broadcast_all({:friend_blocked, blocked})
+
+          blocked
+
+        {:error, changeset} ->
+          Repo.rollback(changeset)
+      end
+    end)
+  end
+
+  @doc """
+  Unblock a user previously blocked via `block_user/2`.
+
+  Returns `{:ok, :unblocked}`, or `{:error, :not_found}` when no block exists.
+  """
+  @spec unblock_user(User.t(), user_id()) :: {:ok, :unblocked} | {:error, term()}
+  def unblock_user(%User{id: blocker_id}, blocked_id) when is_binary(blocked_id) do
+    case get_by_pair(blocked_id, blocker_id) do
+      %Friendship{status: "blocked"} = f ->
+        with {:ok, _} <- Repo.delete(f) do
+          _ = invalidate_friendship_cache(f.id)
+          _ = invalidate_friends_cache_pair(blocker_id, blocked_id)
+
+          broadcast_user(blocker_id, {:friend_unblocked, f})
+          broadcast_user(blocked_id, {:friend_unblocked, f})
+          broadcast_all({:friend_unblocked, f})
+
+          {:ok, :unblocked}
+        end
+
+      _ ->
+        {:error, :not_found}
+    end
+  end
+
+  @doc """
+  Returns the set of blocked pairs among `user_ids`, as a `MapSet` of
+  `{lower_id, higher_id}` tuples.
+
+  Order-independent by construction, so callers can test a pair without
+  knowing who blocked whom. Resolves an entire candidate group in one query,
+  which is what makes per-pair filtering cheap in matchmaking.
+  """
+  @spec blocked_pairs([user_id()]) :: MapSet.t({user_id(), user_id()})
+  def blocked_pairs(user_ids) when is_list(user_ids) do
+    ids = Enum.uniq(user_ids)
+
+    from(f in Friendship,
+      where:
+        f.status == "blocked" and f.requester_id in ^ids and
+          f.target_id in ^ids,
+      select: {f.requester_id, f.target_id}
+    )
+    |> Repo.all()
+    |> MapSet.new(fn {a, b} -> pair_key(a, b) end)
+  end
+
+  @doc """
+  List the users `user_id` has blocked, as `User` structs.
+
+  The blacklist proper — unlike `list_blocked_for_user/2`, which returns the
+  underlying friendship rows.
+
+  See `t:GameServer.Types.pagination_opts/0` for available options.
+  """
+  @spec list_blocked_users(user_id()) :: [User.t()]
+  @spec list_blocked_users(user_id(), Types.pagination_opts()) :: [User.t()]
+  def list_blocked_users(user_id, opts \\ []) when is_binary(user_id) do
+    page = Keyword.get(opts, :page, 1)
+    page_size = Keyword.get(opts, :page_size, 25)
+    offset = (page - 1) * page_size
+
+    Repo.all(
+      from u in User,
+        join: f in Friendship,
+        on: f.requester_id == u.id,
+        where: f.target_id == ^user_id and f.status == "blocked",
+        order_by: [desc: f.inserted_at],
+        limit: ^page_size,
+        offset: ^offset
+    )
+  end
+
+  @doc "Count the users `user_id` has blocked."
+  @spec count_blocked_users(user_id()) :: non_neg_integer()
+  def count_blocked_users(user_id) when is_binary(user_id) do
+    count_blocked_for_user(user_id)
+  end
+
+  @doc """
+  List every block across all users, newest first, for admin views.
+
+  ## Options
+
+    * `:user_id` - only blocks where this user is the blocker or the blocked
+    * `:page`, `:page_size` - see `t:GameServer.Types.pagination_opts/0`
+  """
+  @spec list_all_blocks(keyword()) :: [Friendship.t()]
+  def list_all_blocks(opts \\ []) do
+    page = Keyword.get(opts, :page, 1)
+    page_size = Keyword.get(opts, :page_size, 25)
+    offset = (page - 1) * page_size
+
+    opts
+    |> all_blocks_query()
+    |> order_by([f], desc: f.inserted_at)
+    |> limit(^page_size)
+    |> offset(^offset)
+    |> preload([:requester, :target])
+    |> Repo.all()
+  end
+
+  @doc "Count every block across all users, honouring the same filters as `list_all_blocks/1`."
+  @spec count_all_blocks(keyword()) :: non_neg_integer()
+  def count_all_blocks(opts \\ []) do
+    Repo.one(from f in all_blocks_query(opts), select: count(f.id)) || 0
+  end
+
+  defp all_blocks_query(opts) do
+    query = from f in Friendship, where: f.status == "blocked"
+
+    case Keyword.get(opts, :user_id) do
+      nil ->
+        query
+
+      "" ->
+        query
+
+      user_id ->
+        from f in query,
+          where: f.requester_id == ^user_id or f.target_id == ^user_id
+    end
+  end
+
+  @doc """
+  Remove a block by its friendship id, regardless of who created it.
+
+  For admin use — `unblock_user/2` is the player-facing path and only lets the
+  blocker lift their own block.
+  """
+  @spec delete_block(Ecto.UUID.t()) :: {:ok, :unblocked} | {:error, :not_found}
+  def delete_block(friendship_id) when is_binary(friendship_id) do
+    case get_friendship(friendship_id) do
+      %Friendship{status: "blocked"} = f ->
+        {:ok, _} = Repo.delete(f)
+
+        _ = invalidate_friendship_cache(f.id)
+        _ = invalidate_friends_cache_pair(f.requester_id, f.target_id)
+
+        broadcast_user(f.requester_id, {:friend_unblocked, f})
+        broadcast_user(f.target_id, {:friend_unblocked, f})
+        broadcast_all({:friend_unblocked, f})
+
+        {:ok, :unblocked}
+
+      _ ->
+        {:error, :not_found}
+    end
+  end
+
+  @doc """
+  Returns true if `user_id` is on a block with any of `other_ids`, in either
+  direction. One query, regardless of how many others are checked.
+  """
+  @spec any_blocked?(user_id(), [user_id()]) :: boolean()
+  def any_blocked?(user_id, other_ids) when is_binary(user_id) and is_list(other_ids) do
+    others = other_ids |> Enum.uniq() |> Enum.reject(&(&1 == user_id))
+
+    others != [] and
+      Repo.exists?(
+        from f in Friendship,
+          where:
+            f.status == "blocked" and
+              ((f.requester_id == ^user_id and f.target_id in ^others) or
+                 (f.target_id == ^user_id and f.requester_id in ^others))
+      )
+  end
+
+  @doc "Normalizes a user pair into the order-independent key used by `blocked_pairs/1`."
+  @spec pair_key(user_id(), user_id()) :: {user_id(), user_id()}
+  def pair_key(a, b) when a <= b, do: {a, b}
+  def pair_key(a, b), do: {b, a}
+
   @doc "List blocked friendships for a user (Friendship structs where the user is the blocker / target)."
   @spec list_blocked_for_user(user_id()) :: [Friendship.t()]
   @spec list_blocked_for_user(user_id(), Types.pagination_opts()) :: [Friendship.t()]

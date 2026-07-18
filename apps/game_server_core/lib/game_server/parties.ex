@@ -336,7 +336,7 @@ defmodule GameServer.Parties do
          {:ok, party} <- fetch_party(leader.party_id),
          :ok <- check_is_leader(party, leader),
          {:ok, target} <- fetch_invite_target(target_user_id),
-         :ok <- check_not_blocked(leader.id, target_user_id),
+         :ok <- check_not_blocked_by_party(party.id, target_user_id),
          :ok <- check_leader_connected_to_target(leader.id, target_user_id),
          :ok <- check_no_pending_invite(leader.id, target_user_id),
          :ok <- check_max_pending_invites(target_user_id),
@@ -470,6 +470,7 @@ defmodule GameServer.Parties do
     else
       with {:ok, user} <- ensure_left_current_party(user),
            {:ok, party} <- fetch_party(party_id),
+           :ok <- check_not_blocked_by_party(party_id, user.id),
            {:ok, _} <- GameServer.Hooks.internal_call(:before_party_join, [user, party]),
            {:ok, updated_user} <- do_join_party(user, party_id) do
         result = finalize_accept_invite(user, invite, party_id, party)
@@ -751,8 +752,13 @@ defmodule GameServer.Parties do
     end
   end
 
-  defp check_not_blocked(user_a_id, user_b_id) do
-    if Friends.blocked?(user_a_id, user_b_id), do: {:error, :blocked}, else: :ok
+  # A block in either direction keeps the pair apart, so every current member is
+  # checked, not just the leader — mirroring `Lobbies.join_lobby/2`. Checked on
+  # both invite and accept because membership can change in between.
+  defp check_not_blocked_by_party(party_id, user_id) do
+    member_ids = party_id |> get_party_members() |> Enum.map(& &1.id)
+
+    if Friends.any_blocked?(user_id, member_ids), do: {:error, :blocked}, else: :ok
   end
 
   defp check_leader_connected_to_target(leader_id, target_user_id) do

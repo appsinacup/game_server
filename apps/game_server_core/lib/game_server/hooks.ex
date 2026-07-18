@@ -172,7 +172,32 @@ defmodule GameServer.Hooks do
               hook_result(term())
   @callback after_tournament_match(GameServer.Tournaments.Match.t()) :: any()
   @callback after_tournament_finished(GameServer.Tournaments.Tournament.t(), map()) :: any()
-  @optional_callbacks before_tournament_register: 2,
+  # ── Matchmaking ──────────────────────────────────────────────────────────
+  #
+  # `before_matchmaking_join` is the server's authority over the queue: the
+  # client proposes `match_params`, and this hook may rewrite them (stamping a
+  # skill band from stored MMR, forcing a region) or veto the join entirely.
+  # Returning the attrs map replaces it; `{:error, reason}` rejects the join.
+  #
+  # `matchmaking_form_matches` replaces the built-in matcher for one bucket of
+  # tickets that share identical params. It receives the params and that
+  # bucket's queued tickets (oldest first) and returns a list of ticket groups
+  # to seat. Returning `:default` (or not exporting it) keeps the built-in
+  # FIFO matcher. Core still enforces the block-list on whatever it returns,
+  # so a custom matcher cannot pair players who blocked each other.
+  @callback before_matchmaking_join(User.t(), map()) :: hook_result(map())
+  @callback after_matchmaking_join(User.t(), GameServer.Matchmaking.Ticket.t()) :: any()
+  @callback after_matchmaking_cancel(Ecto.UUID.t(), non_neg_integer()) :: any()
+  @callback matchmaking_form_matches(map(), [GameServer.Matchmaking.Ticket.t()]) ::
+              [[GameServer.Matchmaking.Ticket.t()]] | :default
+  @callback after_matchmaking_matched([GameServer.Matchmaking.Ticket.t()], Ecto.UUID.t()) :: any()
+
+  @optional_callbacks before_matchmaking_join: 2,
+                      after_matchmaking_join: 2,
+                      after_matchmaking_cancel: 2,
+                      matchmaking_form_matches: 2,
+                      after_matchmaking_matched: 2,
+                      before_tournament_register: 2,
                       after_tournament_register: 2,
                       before_tournament_leave: 2,
                       tournament_match_ready: 1,
@@ -435,6 +460,11 @@ defmodule GameServer.Hooks do
       :after_lobby_host_change,
       :after_achievement_unlocked,
       :after_score_submitted,
+      :before_matchmaking_join,
+      :after_matchmaking_join,
+      :after_matchmaking_cancel,
+      :matchmaking_form_matches,
+      :after_matchmaking_matched,
       :before_tournament_register,
       :after_tournament_register,
       :before_tournament_leave,
@@ -482,6 +512,7 @@ defmodule GameServer.Hooks do
       :before_group_kick,
       :before_party_join,
       :before_party_kick,
+      :before_matchmaking_join,
       :before_tournament_register,
       :before_tournament_leave,
       :before_tournament_result
@@ -552,6 +583,14 @@ defmodule GameServer.Hooks do
     # For convenience, allow before_* hooks to return a raw value and treat it
     # like {:ok, value}.
     handle_pipeline_apply_result({:ok, {:ok, new}}, name, current_args)
+  end
+
+  defp normalize_pipeline_args(:before_matchmaking_join, value, current_args)
+       when is_list(current_args) and length(current_args) == 2 do
+    case value do
+      tuple when is_tuple(tuple) and tuple_size(tuple) == 2 -> {:ok, Tuple.to_list(tuple)}
+      attrs -> {:ok, [Enum.at(current_args, 0), attrs]}
+    end
   end
 
   defp normalize_pipeline_args(:before_group_create, value, current_args)
@@ -644,6 +683,11 @@ defmodule GameServer.Hooks do
     end
   end
 
+  defp finalize_pipeline_value(:before_matchmaking_join, args)
+       when is_list(args) and length(args) == 2 do
+    Enum.at(args, 1)
+  end
+
   defp finalize_pipeline_value(:before_group_create, args)
        when is_list(args) and length(args) == 2 do
     Enum.at(args, 1)
@@ -714,6 +758,9 @@ defmodule GameServer.Hooks do
       _ when name == :before_kv_get and arity == 2 ->
         run_before_kv_get(exporting_mods, args, opts, timeout)
 
+      _ when name == :matchmaking_form_matches and arity == 2 ->
+        run_matchmaking_form_matches(exporting_mods, args, opts, timeout)
+
       [first_mod | rest] ->
         first_res = safe_apply_raw(first_mod, name, args, opts, timeout)
 
@@ -731,6 +778,30 @@ defmodule GameServer.Hooks do
           {:error, reason} -> {:error, reason}
         end
     end
+  end
+
+  # Unlike the `after_*` fanouts, this hook's return value is used, so the
+  # plain "first module wins" rule would let `Hooks.Default` — always first in
+  # the module list — shadow the plugin that actually implements it. `:default`
+  # means "I abstain": modules are tried in order and the first real answer
+  # wins.
+  defp run_matchmaking_form_matches(mods, args, opts, timeout) do
+    Enum.reduce_while(mods, {:ok, :default}, fn mod, acc ->
+      case safe_apply_raw(mod, :matchmaking_form_matches, args, opts, timeout) do
+        {:ok, groups} when is_list(groups) ->
+          {:halt, {:ok, groups}}
+
+        {:ok, :default} ->
+          {:cont, acc}
+
+        other ->
+          Logger.warning(
+            "Hooks.matchmaking_form_matches ignored mod=#{inspect(mod)}: #{inspect(other)}"
+          )
+
+          {:cont, acc}
+      end
+    end)
   end
 
   defp run_before_kv_get(mods, args, opts, timeout) when is_list(mods) do
@@ -1282,6 +1353,21 @@ defmodule GameServer.Hooks.Default do
 
   @impl true
   def after_score_submitted(_record), do: :ok
+
+  @impl true
+  def before_matchmaking_join(_user, attrs), do: {:ok, attrs}
+
+  @impl true
+  def after_matchmaking_join(_user, _ticket), do: :ok
+
+  @impl true
+  def after_matchmaking_cancel(_user_id, _count), do: :ok
+
+  @impl true
+  def matchmaking_form_matches(_params, _tickets), do: :default
+
+  @impl true
+  def after_matchmaking_matched(_tickets, _lobby_id), do: :ok
 
   @impl true
   def before_tournament_register(_user, tournament), do: {:ok, tournament}

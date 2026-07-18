@@ -148,6 +148,28 @@ defmodule GameServer.KV do
 
 
   @doc ~S"""
+    Delete every entry a user holds inside one lobby.
+    
+    Called when a user stops being a member of a lobby, so per-member lobby state
+    (ready flags, loadouts, character picks) does not survive a leave and rejoin.
+    Entries scoped to the lobby alone, or to the user alone, are left untouched.
+    
+    Returns the number of entries deleted.
+    
+  """
+  @spec delete_user_lobby_entries(Ecto.UUID.t(), Ecto.UUID.t()) :: non_neg_integer()
+  def delete_user_lobby_entries(_user_id, _lobby_id) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.KV.delete_user_lobby_entries/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Retrieve the value and metadata stored for `key`.
     
     Pass `user_id: id` or `lobby_id: id` in `opts` to scope the lookup.

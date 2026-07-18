@@ -1,46 +1,142 @@
 defmodule GameServer.Matchmaking.Worker do
   @moduledoc """
-  Periodic worker that drives the matchmaking sweep.
+  Periodic driver for the matchmaking sweep.
 
-  One instance runs per cluster via `:global` registration. On each tick
-  it reads the queued tickets, forms matches, creates a hidden lobby for
-  each match and notifies the matched users through their user channel.
+  Runs on every node as a plain local GenServer; the sweep body is serialized
+  cluster-wide via `GameServer.Lock`, so only one node forms matches per tick
+  and a node joining or leaving never breaks supervision (a `:global` name
+  would fail the second node's supervisor start with `:already_started`).
+
+  Each tick, inside the lock: prune tickets of users that went offline, then
+  group the queued tickets by `match_params` and create a hidden lobby per
+  formed match. Broadcasts go out after the lock's transaction commits.
   """
 
   use GenServer
+  require Logger
 
+  alias GameServer.Friends
   alias GameServer.Matchmaking
+  alias GameServer.Matchmaking.Match
   alias GameServer.Matchmaking.Matcher
 
-  @tick_interval_ms 3_000
+  @initial_delay_ms :timer.seconds(3)
 
   def start_link(_opts) do
-    GenServer.start_link(__MODULE__, [], name: {:global, __MODULE__})
+    GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 
   @impl true
   def init(_) do
-    schedule_tick()
+    Process.send_after(self(), :tick, @initial_delay_ms)
     {:ok, %{}}
   end
 
   @impl true
   def handle_info(:tick, state) do
-    Matchmaking.list_queued_by_params()
-    |> Enum.each(fn {_params, tickets} ->
-      {matches, _remaining} = Matcher.form_matches(tickets)
+    _ =
+      try do
+        sweep()
+      rescue
+        e -> Logger.error("matchmaking sweep failed: #{Exception.message(e)}")
+      end
 
-      Enum.each(matches, &GameServer.Matchmaking.Match.create/1)
-    end)
-
-    # TBD: cancel tickets for offline users.
-    # Matchmaking.prune_offline(?.list_online_user_ids())
-
-    schedule_tick()
+    Process.send_after(self(), :tick, GameServer.Limits.get(:matchmaking_tick_ms))
     {:noreply, state}
   end
 
-  defp schedule_tick do
-    Process.send_after(self(), :tick, @tick_interval_ms)
+  @doc """
+  One matchmaking sweep. Public so tests and consoles can run a tick on
+  demand without waiting for the timer.
+
+  Two phases: inside the cluster lock, prune offline players and *claim* the
+  formed matches (an atomic queued→matched flip). Outside the lock, create a
+  lobby per claimed match — lobby creation fires hooks and broadcasts, which
+  must never run inside a transaction. Claimed tickets are invisible to other
+  sweepers, and a failed lobby simply requeues them for the next tick.
+
+  Returns the number of lobbies created.
+  """
+  @spec sweep() :: non_neg_integer()
+  def sweep do
+    claimed =
+      case GameServer.Lock.serialize(:matchmaking_sweep, "global", &claim_phase/0) do
+        {:ok, matches} -> matches
+        {:error, _} -> []
+      end
+
+    claimed
+    |> Enum.map(&Match.create/1)
+    |> Enum.count(&match?({:ok, _}, &1))
   end
+
+  defp claim_phase do
+    _ = Matchmaking.prune_offline()
+
+    Matchmaking.list_queued_by_params()
+    |> Enum.flat_map(&form_bucket/1)
+    |> Enum.filter(&(Matchmaking.claim(&1) == :ok))
+  end
+
+  # One bucket = the tickets sharing identical match_params. A game may
+  # replace the matcher for the bucket; core still enforces the block list on
+  # whatever comes back, so a custom matcher cannot seat blocked players.
+  defp form_bucket({params, tickets}) do
+    blocked = Friends.blocked_pairs(Enum.map(tickets, & &1.user_id))
+
+    case custom_matches(params, tickets) do
+      :default ->
+        {matches, _remaining} = Matcher.form_matches(tickets, blocked)
+        matches
+
+      groups ->
+        groups
+        |> Enum.filter(&valid_group?(&1, tickets, blocked))
+    end
+  end
+
+  defp custom_matches(params, tickets) do
+    case GameServer.Hooks.internal_call(:matchmaking_form_matches, [params, tickets]) do
+      {:ok, groups} when is_list(groups) -> groups
+      _ -> :default
+    end
+  end
+
+  # A custom matcher must return groups of real, distinct, unblocked tickets
+  # from this bucket. Anything else is dropped with a warning rather than
+  # trusted — a plugin bug must not seat the wrong players.
+  defp valid_group?(group, tickets, blocked) when is_list(group) and group != [] do
+    ids = MapSet.new(tickets, & &1.id)
+    group_ids = Enum.map(group, & &1.id)
+
+    cond do
+      not Enum.all?(group_ids, &MapSet.member?(ids, &1)) ->
+        Logger.warning("matchmaking: custom matcher returned tickets outside the bucket; dropped")
+        false
+
+      length(Enum.uniq(group_ids)) != length(group_ids) ->
+        Logger.warning("matchmaking: custom matcher returned a duplicate ticket; dropped")
+        false
+
+      blocked_within?(group, blocked) ->
+        Logger.warning("matchmaking: custom matcher paired blocked players; dropped")
+        false
+
+      true ->
+        true
+    end
+  end
+
+  defp valid_group?(_group, _tickets, _blocked), do: false
+
+  defp blocked_within?(group, blocked) do
+    group
+    |> Enum.map(& &1.user_id)
+    |> pairs()
+    |> Enum.any?(fn {a, b} -> MapSet.member?(blocked, Friends.pair_key(a, b)) end)
+  end
+
+  defp pairs([]), do: []
+  defp pairs([_only]), do: []
+  defp pairs([h | t]), do: Enum.map(t, &{h, &1}) ++ pairs(t)
 end

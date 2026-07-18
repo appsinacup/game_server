@@ -80,19 +80,31 @@
                 </pre>
       </div>
 
-      <h3 class="font-semibold mt-3">{doc_text("Friends")}</h3>
+      <h3 class="font-semibold mt-3">{doc_text("Friends & Blacklist")}</h3>
       <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
         <pre>
     friendships (
       id          : uuid (UUIDv7 string primary key)
-      requester_id: uuid (user id of who made the request)
-      target_id   : uuid (user id of the target)
+      requester_id: uuid (user id of who made the request; the blocked user when status is "blocked")
+      target_id   : uuid (user id of the target; the blocker when status is "blocked")
       status      : string ("pending" | "accepted" | "rejected" | "blocked")
       inserted_at : utc_datetime
       updated_at  : utc_datetime
     )
+
+    unique (requester_id, target_id)
                 </pre>
       </div>
+      <p class="text-sm text-base-content/80 mt-2">
+        {doc_text(
+          "The same table carries friendships and the blacklist. A \"blocked\" row is always stored in the canonical direction — target_id is the blocker, requester_id is the blocked user — no matter who originally sent a request, so at most one row ever exists per pair. Blocking someone you are already friends with rewrites that row rather than adding a second one, which is why a block reliably supersedes an existing friendship."
+        )}
+      </p>
+      <p class="text-sm text-base-content/80">
+        {doc_text(
+          "Blocks are read in both directions: any code asking \"are these two blocked?\" gets true regardless of which side created the block. Enforcement lives in matchmaking, lobby joins, party and group invites, chat, and friend requests — see the Friends & Blacklist guide."
+        )}
+      </p>
 
       <h4 class="font-semibold mt-3">{doc_text("Lobbies")}</h4>
       <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
@@ -104,7 +116,7 @@
       hostless     : boolean (server-managed hostless lobbies)
       max_users    : integer (maximum number of members)
       is_hidden    : boolean (not returned by public lists)
-      is_locked    : boolean (fully locked - prevents joins)
+      is_locked    : boolean (prevents joins; server-side code may override with bypass_lock)
       password_hash: string (bcrypt hash, optional: requires password to join)
       metadata     : jsonb/map (searchable metadata)
       slowdown     : integer (chat slow-mode seconds, 0 = off)
@@ -509,6 +521,32 @@
         <p class="pl-4 mt-1">
           {doc_text(
             "Bracket tournaments (see the Tournaments guide): registration, seeded draw, timed rounds and advancement are server-owned; match gameplay and verdicts belong to game hooks. Recurring tournaments create one row per occurrence sharing the slug, like leaderboard seasons."
+          )}
+        </p>
+
+        <h4 class="font-semibold">{doc_text("Matchmaking")}</h4>
+        <div class="bg-base-200 font-mono text-sm p-4 rounded-lg overflow-auto">
+          <pre>
+    matchmaking_tickets (
+      id           : uuid (UUIDv7 string primary key)
+      user_id      : uuid (FK to users; cascade delete)
+      party_id     : uuid (FK to parties, nullable; tickets sharing it match as one unit)
+      status       : string ("queued" | "matched" | "cancelled")
+      match_params : jsonb/map (string key/value; identical params match together)
+      min_players  : integer
+      max_players  : integer
+      timeout_ms   : integer (wait before a below-max group still forms)
+      queued_at    : utc_datetime
+      matched_at   : utc_datetime (nullable)
+      match_id     : uuid (FK to lobbies, nullable; the created match lobby)
+      -- index (status, queued_at)
+      -- index (user_id, status)
+      -- index (party_id, status)
+    )</pre>
+        </div>
+        <p class="pl-4 mt-1">
+          {doc_text(
+            "One row per queue join (see the Matchmaking guide). The periodic sweep groups queued tickets by identical match_params and creates a hidden locked lobby per formed match; matched tickets keep pointing at that lobby through match_id."
           )}
         </p>
 

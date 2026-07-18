@@ -50,6 +50,7 @@ defmodule GameServer.Lobbies do
   alias Ecto.Multi
   alias GameServer.Accounts
   alias GameServer.Accounts.User
+  alias GameServer.Friends
   alias GameServer.KV
   alias GameServer.KV.Entry, as: KVEntry
   alias GameServer.Lobbies.Lobby
@@ -462,7 +463,20 @@ defmodule GameServer.Lobbies do
 
   def list_lobbies_for_user(nil, filters, opts), do: list_lobbies(filters, opts)
 
-  # join behavior for a user -> lobby
+  @doc """
+  Join a user to a lobby.
+
+  ## Options
+
+    * `:password` - password for a password-protected lobby
+    * `:bypass_lock` - when `true`, join succeeds even if the lobby is locked.
+      Only set this from trusted server-side code; the HTTP and channel
+      surfaces never pass it, so players cannot unlock a lobby themselves.
+
+  Returns `{:ok, user}` with the updated user, or `{:error, reason}` where
+  reason is one of `:already_in_lobby`, `:locked`, `:full`, `:blocked`,
+  `:password_required`, `:invalid_password`, `:invalid_lobby`.
+  """
   @spec join_lobby(User.t(), Lobby.t() | Ecto.UUID.t()) ::
           {:ok, User.t()} | {:error, term()}
   @spec join_lobby(User.t(), Lobby.t() | Ecto.UUID.t(), map() | keyword()) ::
@@ -506,7 +520,7 @@ defmodule GameServer.Lobbies do
       user && user.lobby_id ->
         {:error, :already_in_lobby}
 
-      lobby.is_locked ->
+      lobby.is_locked and not opt(opts, :bypass_lock, false) ->
         {:error, :locked}
 
       true ->
@@ -529,16 +543,22 @@ defmodule GameServer.Lobbies do
     Repo.transaction(fn ->
       AdvisoryLock.lock(:lobby, lobby.id)
 
-      count =
-        Repo.one(
+      member_ids =
+        Repo.all(
           from(u in User,
             where: u.lobby_id == ^lobby.id,
-            select: count(u.id)
+            select: u.id
           )
-        ) || 0
+        )
 
-      if count >= lobby.max_users do
+      if length(member_ids) >= lobby.max_users do
         Repo.rollback(:full)
+      end
+
+      # A block in either direction keeps the pair apart, so the blocker does
+      # not have to be the one already seated.
+      if Friends.any_blocked?(user_id, member_ids) do
+        Repo.rollback(:blocked)
       end
 
       case run_before_join_and_validate(user, lobby, opts, user_id) do
@@ -551,15 +571,17 @@ defmodule GameServer.Lobbies do
   defp run_before_join_and_validate(user, lobby, opts, user_id) do
     case GameServer.Hooks.internal_call(:before_lobby_join, [user, lobby, opts]) do
       {:ok, _} ->
-        password =
-          if is_list(opts), do: Keyword.get(opts, :password), else: Map.get(opts, :password)
-
-        validate_and_join(lobby, user_id, password)
+        validate_and_join(lobby, user_id, opt(opts, :password))
 
       {:error, reason} ->
         {:error, {:hook_rejected, reason}}
     end
   end
+
+  # join opts accept either a map or a keyword list
+  defp opt(opts, key, default \\ nil)
+  defp opt(opts, key, default) when is_list(opts), do: Keyword.get(opts, key, default)
+  defp opt(opts, key, default) when is_map(opts), do: Map.get(opts, key, default)
 
   defp validate_and_join(lobby, user_id, password) do
     case {lobby.password_hash, password} do
@@ -969,12 +991,15 @@ defmodule GameServer.Lobbies do
 
   @spec delete_membership(User.t()) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   def delete_membership(%GameServer.Accounts.User{} = user) do
+    previous_lobby_id = user.lobby_id
+
     user
     |> Ecto.Changeset.change(%{lobby_id: nil})
     |> Repo.update()
     |> case do
       {:ok, updated} = ok ->
         _ = invalidate_accounts_user_cache(updated.id)
+        _ = clear_lobby_scoped_kv(updated.id, previous_lobby_id)
         _ = Accounts.broadcast_user_update(updated)
         _ = Accounts.broadcast_member_update(updated)
         ok
@@ -1013,6 +1038,8 @@ defmodule GameServer.Lobbies do
         handle_host_transfer(lobby, user_id, membership.id)
       end)
 
+    _ = clear_lobby_scoped_kv(user_id, lobby_id)
+
     result
     |> broadcast_leave_result(lobby_id, user_id)
     |> maybe_run_after_lobby_leave(user_id, lobby)
@@ -1021,6 +1048,18 @@ defmodule GameServer.Lobbies do
       # Race condition: user was concurrently removed (double leave, kicked, etc.)
       {:error, :not_in_lobby}
   end
+
+  # Per-member lobby state (ready flags, loadouts, character picks) is stored as
+  # KV scoped to (user_id, lobby_id). It belongs to the membership, not the user,
+  # so it dies with the membership — otherwise a leave and rejoin would silently
+  # restore stale state. Lobby deletion is already covered by the cascade on
+  # kv_entries.lobby_id.
+  defp clear_lobby_scoped_kv(user_id, lobby_id)
+       when is_binary(user_id) and is_binary(lobby_id) do
+    GameServer.KV.delete_user_lobby_entries(user_id, lobby_id)
+  end
+
+  defp clear_lobby_scoped_kv(_user_id, _lobby_id), do: 0
 
   defp handle_host_transfer(lobby, user_id, membership_id) do
     # if user was host, transfer host or delete lobby if empty
@@ -1172,6 +1211,7 @@ defmodule GameServer.Lobbies do
         case result do
           {:ok, updated} ->
             _ = invalidate_accounts_user_cache(membership.id)
+            _ = clear_lobby_scoped_kv(membership.id, lobby.id)
             _ = Accounts.broadcast_user_update(updated)
             _ = Accounts.broadcast_member_update(updated)
 

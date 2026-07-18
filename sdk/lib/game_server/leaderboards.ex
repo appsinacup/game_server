@@ -181,6 +181,25 @@ defmodule GameServer.Leaderboards do
 
 
   @doc ~S"""
+    Counts records for a leaderboard.
+    
+  """
+  @spec count_records(
+  Ecto.UUID.t(),
+  keyword()
+) :: non_neg_integer()
+  def count_records(_leaderboard_id, _opts) do
+    case Application.get_env(:game_server_sdk, :stub_mode, :raise) do
+      :placeholder ->
+        0
+
+      _ ->
+        raise "GameServer.Leaderboards.count_records/2 is a stub - only available at runtime on GameServer"
+    end
+  end
+
+
+  @doc ~S"""
     Creates a new leaderboard.
     
     ## Attributes

@@ -501,6 +501,9 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       {:error, :member_offline} ->
         conn |> put_status(:forbidden) |> json(%{error: "member_offline"})
 
+      {:error, :blocked} ->
+        conn |> put_status(:forbidden) |> json(%{error: "blocked"})
+
       {:error, %Ecto.Changeset{} = changeset} ->
         conn
         |> put_status(:conflict)
@@ -596,6 +599,9 @@ defmodule GameServerWeb.Api.V1.LobbyController do
       {:error, :member_offline} ->
         conn |> put_status(:forbidden) |> json(%{error: "member_offline"})
 
+      {:error, :blocked} ->
+        conn |> put_status(:forbidden) |> json(%{error: "blocked"})
+
       {:error, :full} ->
         conn |> put_status(:forbidden) |> json(%{error: "full"})
 
@@ -630,6 +636,9 @@ defmodule GameServerWeb.Api.V1.LobbyController do
 
       {:error, :full} ->
         conn |> put_status(:forbidden) |> json(%{error: "full"})
+
+      {:error, :blocked} ->
+        conn |> put_status(:forbidden) |> json(%{error: "blocked"})
 
       {:error, {:hook_rejected, _}} ->
         conn |> put_status(:forbidden) |> json(%{error: "rejected"})

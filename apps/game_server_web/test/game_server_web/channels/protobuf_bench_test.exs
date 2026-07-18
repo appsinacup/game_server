@@ -18,6 +18,10 @@ defmodule GameServerWeb.ProtobufBenchTest do
   Note: WebSocket JSON traffic is usually permessage-deflate compressed on
   the wire, so the size column overstates the real WS difference; it is the
   honest number for WebRTC DataChannels, which have no compression.
+
+  Every fixture is a *full* payload. Realtime state events stopped sending
+  partial maps when JSON delta encoding was removed, so a fixture with a
+  handful of fields would measure a payload the server cannot produce.
   """
 
   use ExUnit.Case, async: true
@@ -37,6 +41,7 @@ defmodule GameServerWeb.ProtobufBenchTest do
          email: "alice@example.com",
          profile_url: "",
          metadata: %{"rank" => 12},
+         username: "alice",
          display_name: "Alice",
          lobby_id: "",
          party_id: "",
@@ -52,7 +57,6 @@ defmodule GameServerWeb.ProtobufBenchTest do
          },
          has_password: true
        }},
-      {"user:x", "updated", %{is_online: false, last_seen_at: ts}},
       {"user:x", "notification",
        %{
          id: uuid.(2),
@@ -77,7 +81,21 @@ defmodule GameServerWeb.ProtobufBenchTest do
        }},
       {"user:x", "kv_updated",
        %{key: "loadout", user_id: uuid.(8), lobby_id: nil, data: %{"weapon" => 12}, metadata: %{}}},
-      {"lobby:x", "updated", %{is_locked: true, max_users: 8, title: "Ranked #4"}}
+      {"lobby:x", "updated",
+       %{
+         id: uuid.(9),
+         title: "Ranked #4",
+         host_id: uuid.(10),
+         host_name: "Alice",
+         hostless: false,
+         max_users: 8,
+         is_hidden: false,
+         is_locked: true,
+         metadata: %{"map" => "dust2"},
+         is_passworded: false,
+         slowdown: 0,
+         spectator_count: 2
+       }}
     ]
 
     rows =
