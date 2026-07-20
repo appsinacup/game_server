@@ -106,8 +106,11 @@ find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/li
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_leaderboard_records_200_response_data_inner/ListLeaderboardRecords200ResponseDataInner/g" -i
 # Replace list_leaderboards_200_response_data_inner with ListLeaderboards200ResponseDataInner
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/list_leaderboards_200_response_data_inner/ListLeaderboards200ResponseDataInner/g" -i
-# Replace 333 with 16
-find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/333/16/g" -i
+# Fix the placeholder polling default: BEE_DEFAULT_POLLING_INTERVAL_MS is emitted
+# as 333 but should be 16ms. Scoped to that const so unrelated "333" values
+# anywhere else in the generated code are never corrupted (the old blanket
+# s/333/16/g rewrote every 333 in every file).
+find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/(BEE_DEFAULT_POLLING_INTERVAL_MS\s*:=\s*)333/\${1}16/g" -i
 # Replace get_current_user_200_response_linked_providers with GetCurrentUser200ResponseLinkedProviders
 find "$OUT_DIR" -type f -iname "*.gd" -print0 | xargs -0 -r perl -0777 -pe "s/get_current_user_200_response_linked_providers/GetCurrentUser200ResponseLinkedProviders/g" -i
 # Replace search_users_200_response_data_inner with SearchUsers200ResponseDataInner
